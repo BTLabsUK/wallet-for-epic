@@ -1933,6 +1933,18 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get homeBackupCardDismiss;
 
+  /// Home: title of the one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Tor address changed'**
+  String get torAddressChangedTitle;
+
+  /// Home: body of the one-time notice about the changed Tor address. Two short sentences; the notice's button copies the link to a page that says what changed.
+  ///
+  /// In en, this message translates to:
+  /// **'The old address stops working. Anyone who saved it needs the new one.'**
+  String get torAddressChangedText;
+
   /// Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.
   ///
   /// In en, this message translates to:
@@ -32159,6 +32171,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide until the next version'**
   String get deskUpdStripHide;
+
+  /// Desktop Overview: title of the one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Tor address changed'**
+  String get deskTorAddressChangedTitle;
+
+  /// Desktop Overview: body of the one-time notice about the changed Tor address. Two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The old address stops working. Anyone who saved it needs the new one.'**
+  String get deskTorAddressChangedText;
+
+  /// Desktop Overview: button on the Tor address notice; opens a web page that says what changed and dismisses the notice.
+  ///
+  /// In en, this message translates to:
+  /// **'What changed'**
+  String get deskTorAddressChangedLink;
 }
 
 class _AppLocalizationsDelegate

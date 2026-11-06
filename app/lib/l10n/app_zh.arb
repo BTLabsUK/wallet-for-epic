@@ -302,6 +302,8 @@
   "homeBackupCardText": "助记词未备份",
   "homeBackupCardButton": "备份",
   "homeBackupCardDismiss": "不再显示",
+  "torAddressChangedTitle": "你的 Tor 地址已更改",
+  "torAddressChangedText": "旧地址不再可用。保存过它的人需要新地址。",
   "homeHistoryNotBackedUp": "{count, plural, other{{count} 笔付款不在你导出的钱包数据中。}}",
   "homeHistoryChangedSinceBackup": "{count, plural, other{自上次导出钱包数据以来，有 {count} 笔付款是新的或有改动。}}",
   "homeHistoryReminderNotNow": "以后再说",
@@ -5355,5 +5357,8 @@
   "contactDomainNotVerified": "尚未验证",
   "contactDomainRefused": "已拒绝",
   "deskUpdStripAct": "更新",
-  "deskUpdStripHide": "隐藏至下一版本"
+  "deskUpdStripHide": "隐藏至下一版本",
+  "deskTorAddressChangedTitle": "你的 Tor 地址已更改",
+  "deskTorAddressChangedText": "旧地址不再可用。保存过它的人需要新地址。",
+  "deskTorAddressChangedLink": "更改了什么"
 }

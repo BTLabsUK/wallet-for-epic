@@ -302,6 +302,8 @@
   "homeBackupCardText": "Phrase nicht gesichert",
   "homeBackupCardButton": "Sichern",
   "homeBackupCardDismiss": "Ausblenden",
+  "torAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
+  "torAddressChangedText": "Die alte Adresse funktioniert nicht mehr. Wer sie gespeichert hat, braucht die neue.",
   "homeHistoryNotBackedUp": "{count, plural, one{1 Zahlung ist in Ihren exportierten Wallet-Daten nicht enthalten.} other{{count} Zahlungen sind in Ihren exportierten Wallet-Daten nicht enthalten.}}",
   "homeHistoryChangedSinceBackup": "{count, plural, one{1 Zahlung ist seit dem letzten Export der Wallet-Daten neu oder geändert.} other{{count} Zahlungen sind seit dem letzten Export der Wallet-Daten neu oder geändert.}}",
   "homeHistoryReminderNotNow": "Nicht jetzt",
@@ -5355,5 +5357,8 @@
   "contactDomainNotVerified": "noch nicht verifiziert",
   "contactDomainRefused": "abgelehnt",
   "deskUpdStripAct": "Aktualisieren",
-  "deskUpdStripHide": "Bis zur nächsten Version ausblenden"
+  "deskUpdStripHide": "Bis zur nächsten Version ausblenden",
+  "deskTorAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
+  "deskTorAddressChangedText": "Die alte Adresse funktioniert nicht mehr. Wer sie gespeichert hat, braucht die neue.",
+  "deskTorAddressChangedLink": "Was sich geändert hat"
 }

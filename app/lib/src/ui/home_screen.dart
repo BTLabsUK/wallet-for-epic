@@ -56,6 +56,8 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
 import 'levels/quiet_invoices.dart';
 import '../settings_file/host_settings.dart' show appConfig;
+import '../log.dart' show logWarn;
+import '../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;
 import '../pairing_providers.dart' show pairingCall;
 import '../stale_open.dart';
 import 'invite_link_gate.dart';
@@ -283,7 +285,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
       unawaited(offerLastSessionReport(context, ref));
-      unawaited(_offerBackup());
+      // The one notice about the changed Tor address goes before the phrase reminder: the
+      // reminder yields to a notice already up, and comes back on a later opening.
+      unawaited(_offerOnionNotice().then((_) => _offerBackup()));
       _noteStaleOpen();
     });
     // The welcome tour goes first: the reminder waits until it closes.
@@ -304,6 +308,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// This opening's recovery phrase reminder was handled (shown, or not due).
   bool _backupAsked = false;
+
+  /// The one notice a wallet from before the onion's own key sees (onion_notice.dart): once,
+  /// also when closed without its link. The link is copied: the phone opens no browser itself.
+  Future<void> _offerOnionNotice() async {
+    if (!mounted || ref.read(phoneTourProvider).open) return;
+    final config = ref.read(walletConfigProvider);
+    if (config == null) return;
+    final store = ref.read(secretStoreProvider);
+    if (!await onionNoticeDue(store, chain: config.chain.name, walletId: config.walletId)) return;
+    // Never over another notice (a payment, the records' copy): the next opening shows it.
+    if (!mounted || ref.read(noticeProvider) != null) return;
+    try {
+      await markOnionNoticeSeen(store, chain: config.chain.name, walletId: config.walletId);
+    } on Object catch (e) {
+      logWarn('home', 'onion notice marker not saved: ${e.runtimeType}');
+      return;
+    }
+    if (!mounted || ref.read(noticeProvider) != null) return;
+    final l = context.l10n;
+    final url = appConfig.linkTorAddressChanged;
+    ref
+        .read(noticeProvider.notifier)
+        .show(
+          l.torAddressChangedText,
+          level: NoticeLevel.info,
+          title: l.torAddressChangedTitle,
+          persistent: true,
+          tag: onionNoticeTag,
+          action: url == null
+              ? null
+              : NoticeAction(l.settingsCopyLink, () {
+                  if (mounted) unawaited(copyText(context, url, l.settingsLinkCopied));
+                }),
+        );
+  }
 
   /// Item 16: the recovery phrase reminder is a notice, not a card. It comes on an opening of
   /// home while the phrase is not written down, at most once per [backupNoticeEvery]; Settings ›
@@ -1210,6 +1249,9 @@ const Duration backupNoticeEvery = Duration(days: 1);
 
 /// The tag of the recovery phrase reminder's notice.
 const String backupNoticeTag = 'backup-phrase';
+
+/// The one notice about the changed Tor address (onion_notice.dart).
+const String onionNoticeTag = 'onion-notice';
 
 /// When the recovery phrase reminder last showed on [chain]'s wallet (milliseconds since the
 /// epoch). Stored beside the vault's entries for the chain (`wallet.<chain>.*`), so deleting the

@@ -1392,6 +1392,14 @@
   "@homeBackupCardDismiss": {
     "description": "Tooltip of the close button that hides the recovery phrase card for good."
   },
+  "torAddressChangedTitle": "Your Tor address changed",
+  "@torAddressChangedTitle": {
+    "description": "Home: title of the one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
+  },
+  "torAddressChangedText": "The old address stops working. Anyone who saved it needs the new one.",
+  "@torAddressChangedText": {
+    "description": "Home: body of the one-time notice about the changed Tor address. Two short sentences; the notice's button copies the link to a page that says what changed."
+  },
   "homeHistoryNotBackedUp": "{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}",
   "@homeHistoryNotBackedUp": {
     "description": "Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.",
@@ -27922,5 +27930,17 @@
   "deskUpdStripHide": "Hide until the next version",
   "@deskUpdStripHide": {
     "description": "The update strip's close button (×): its tooltip and screen-reader name. The strip stays away for this version and comes back for a newer one; the sidebar's slot stays."
+  },
+  "deskTorAddressChangedTitle": "Your Tor address changed",
+  "@deskTorAddressChangedTitle": {
+    "description": "Desktop Overview: title of the one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
+  },
+  "deskTorAddressChangedText": "The old address stops working. Anyone who saved it needs the new one.",
+  "@deskTorAddressChangedText": {
+    "description": "Desktop Overview: body of the one-time notice about the changed Tor address. Two short sentences."
+  },
+  "deskTorAddressChangedLink": "What changed",
+  "@deskTorAddressChangedLink": {
+    "description": "Desktop Overview: button on the Tor address notice; opens a web page that says what changed and dismisses the notice."
   }
 }

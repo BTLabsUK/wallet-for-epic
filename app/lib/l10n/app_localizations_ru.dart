@@ -1193,6 +1193,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeBackupCardDismiss => 'Скрыть';
 
   @override
+  String get torAddressChangedTitle => 'Ваш адрес Tor изменился';
+
+  @override
+  String get torAddressChangedText =>
+      'Старый адрес перестаёт работать. Тем, кто его сохранил, нужен новый.';
+
+  @override
   String homeHistoryNotBackedUp(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -21250,4 +21257,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskUpdStripHide => 'Скрыть до следующей версии';
+
+  @override
+  String get deskTorAddressChangedTitle => 'Ваш адрес Tor изменился';
+
+  @override
+  String get deskTorAddressChangedText =>
+      'Старый адрес перестаёт работать. Тем, кто его сохранил, нужен новый.';
+
+  @override
+  String get deskTorAddressChangedLink => 'Что изменилось';
 }
