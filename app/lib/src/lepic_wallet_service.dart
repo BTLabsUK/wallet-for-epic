@@ -2346,7 +2346,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
           'HTTP listener',
           () => _wallet
               // No coinbase building for a mining node from the phone's listener.
-              .startHttpListener(exposure: _lepicExposure(exposure), port: port, coinbase: false)
+              .startHttpListener(exposure: _lepicExposure(exposure), port: port, coinbase: lepic.HttpCoinbase.off)
               .map(lepicHttpEvent),
         );
 
