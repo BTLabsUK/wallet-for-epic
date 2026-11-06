@@ -75,6 +75,7 @@
   "deskTorNodeOver": "经由 Tor",
   "deskTorNodeNotEncrypted": "Tor 出口之后未加密",
   "deskTorNodeWaits": "等 Tor 连接后再连接。",
+  "deskNodeFailoverBehind": "节点已落后。已切换到 {host}。",
   "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
   "deskNodeFailoverInsteadOf": "代替 {host}",
   "deskNodeDurationDh": "{days} 天 {hours} 小时",

@@ -6,6 +6,10 @@
 /// wallet is on the chosen node; the shell says it in a toast and the rail and Settings › Node
 /// name the chosen node under the one in use.
 ///
+/// A node that answers but reads behind: [DeskFailoverWatch.askBehind] reads the network's tip
+/// for it every [behindAskEvery] and, when the node stays behind for [nodeFailoverAfter], moves
+/// the same way to a node that answers ahead of it. Not off a node the user added or runs.
+///
 /// The user's own node: while a public node stands in for it, it is asked
 /// again every [ownAskBackEvery] and the wallet moves back after [ownBackAfter] good answers in
 /// a row, a home node coming back being the normal case. An own node that is syncing moves the
@@ -19,7 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../log.dart';
 import '../../net/local_address.dart' show nodeClassOf;
-import '../data/desk_node.dart' show deskNodeProvider, deskNodeInfoProvider, deskOwnStatusProvider, NodeHead;
+import '../data/desk_node.dart' show deskNodeProvider, deskNodeInfoProvider, deskOwnStatusProvider, NodeHead, NodeInfo;
 import '../../net/tor_net.dart' show torBuiltInOnion;
 import '../../node_failover.dart';
 import '../data/models.dart';
@@ -38,6 +42,10 @@ Duration get deskFailoverRetry => appConfig.nodeFailoverAfter;
 /// How often the chosen own node is asked while a public node stands in for it, or while it
 /// may be syncing.
 Duration get ownAskBackEvery => appConfig.ownNodeAsk;
+
+/// How often the node in use is read against the network's tip: the monitor's answer is kept
+/// this long (`status.fresh_s`), so asking sooner shows nothing new.
+Duration get behindAskEvery => appConfig.statusFresh;
 
 /// Good answers in a row before the wallet moves back to the own node.
 const int ownBackAfter = 2;
@@ -67,6 +75,7 @@ final deskFailoverWatchProvider = NotifierProvider<DeskFailoverWatch, void>(Desk
 
 class DeskFailoverWatch extends Notifier<void> {
   Timer? _timer;
+  Timer? _behindTimer;
   bool _moving = false;
   int _good = 0;
 
@@ -78,9 +87,12 @@ class DeskFailoverWatch extends Notifier<void> {
     ref.watch(deskProvider.select((s) => s.account?.id));
     _failed = 0;
     _answered = false;
+    _lag = null;
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
+      _behindTimer?.cancel();
+      _behindTimer = null;
     });
     ref.listen(deskProvider.select((s) => s.status?.nodeHealth), (_, h) => _follow(h));
     _follow(ref.read(deskProvider).status?.nodeHealth);
@@ -106,6 +118,11 @@ class DeskFailoverWatch extends Notifier<void> {
   void _fire() {
     _timer = null;
     if (!ref.mounted) return;
+    if (_moving) {
+      // Another move is under way: a node still down after it is tried again.
+      _timer = Timer(deskFailoverRetry, _fire);
+      return;
+    }
     unawaited(_tryMove().then((again) {
       if (again && ref.mounted && _down) _timer ??= Timer(failoverRetryAfter(_failed, deskFailoverRetry), _fire);
     }));
@@ -119,6 +136,77 @@ class DeskFailoverWatch extends Notifier<void> {
     if (!ref.mounted || _moving) return;
     _timer?.cancel();
     _timer = _down ? Timer(deskFailoverRetry, _fire) : null;
+    // A wait for a node ahead comes at the first wait again: the next read arms it.
+    _behindTimer?.cancel();
+    _behindTimer = null;
+  }
+
+  /// The last read of the node in use against the network's tip.
+  NodeInfo? _lag;
+  bool _askingBehind = false;
+
+  /// May the wallet leave the node in use for being behind? Never one the user added or runs,
+  /// and never while the rules hold it. Being in the middle of a payment only delays the move.
+  bool get _mayLeaveBehind {
+    final st = ref.read(deskProvider);
+    final status = st.status;
+    final prefs = ref.read(settingsPrefsProvider);
+    if (st.account == null || status == null || prefs.builtin) return false;
+    final url = status.node.url;
+    if (status.node.own || nodeClassOf(url, mine: prefs.mineNodes.contains(url)).own) return false;
+    final adv = st.settings.advanced;
+    return failoverHold(on: adv.nodeFailover, mode: adv.networkMode, tor: torStateOf(st.settings, status), nodeUrl: url) == null;
+  }
+
+  /// The last read still says the node in use is behind, its height since counted in.
+  bool get _behind {
+    final status = ref.read(deskProvider).status;
+    final info = _lag;
+    if (status == null || info == null || !sameServer(ServerKind.node, info.url, status.node.url) || info.nodeClass.own) return false;
+    return _mayLeaveBehind && failoverBehind(info.withNodeHeight(status.nodeHeight).blocksBehind);
+  }
+
+  /// The shell's ask ([behindAskEvery]): reads the node in use against the network's tip and
+  /// starts or stops the wait to leave it.
+  Future<void> askBehind() async {
+    if (!ref.mounted || _moving || _askingBehind) return;
+    if (!_mayLeaveBehind) {
+      _settleBehind(null);
+      return;
+    }
+    final url = ref.read(deskProvider).status!.node.url;
+    _askingBehind = true;
+    try {
+      final info = await ref.read(deskNodeProvider).nodeInfo(url);
+      if (!ref.mounted) return;
+      final was = _behind;
+      _settleBehind(info);
+      // The rail's word follows now, not at its own next read.
+      if (_behind != was) ref.invalidate(deskNodeInfoProvider(url));
+    } on Object {
+      // No reading: the last one stands until the next.
+    } finally {
+      _askingBehind = false;
+    }
+  }
+
+  void _settleBehind(NodeInfo? info) {
+    _lag = info;
+    if (_behind) {
+      _behindTimer ??= Timer(nodeFailoverAfter, _fireBehind);
+    } else if (_behindTimer != null) {
+      _behindTimer!.cancel();
+      _behindTimer = null;
+      if (!_down) _failed = 0;
+    }
+  }
+
+  void _fireBehind() {
+    _behindTimer = null;
+    if (!ref.mounted || !_behind) return;
+    unawaited(_tryMove(behind: true).then((again) {
+      if (again && ref.mounted && _behind) _behindTimer ??= Timer(failoverRetryAfter(_failed, deskFailoverRetry), _fireBehind);
+    }));
   }
 
   /// The chosen node when it is the user's own (not the built-in node), else null.
@@ -183,8 +271,9 @@ class DeskFailoverWatch extends Notifier<void> {
   }
 
   /// One try: true when it should be tried again while the node stays down. [syncing]: the
-  /// chosen own node is syncing and the user wants a public node meanwhile.
-  Future<bool> _tryMove({bool syncing = false}) async {
+  /// chosen own node is syncing and the user wants a public node meanwhile. [behind]: the node
+  /// answers but is behind, so only a node ahead of it will do and a payment goes first.
+  Future<bool> _tryMove({bool syncing = false, bool behind = false}) async {
     final st = ref.read(deskProvider);
     final status = st.status;
     if (st.account == null || status == null || _moving) return false;
@@ -198,12 +287,13 @@ class DeskFailoverWatch extends Notifier<void> {
             mode: adv.networkMode,
             tor: torStateOf(st.settings, status),
             nodeUrl: current,
+            busy: behind && ref.read(deskApiProvider).busy,
           );
     if (hold != null) {
       // Nothing is asked while held: the next try comes at the first wait.
       if (!syncing) _failed = 0;
       if (hold != FailoverHold.off) logInfo('desk', 'node failover held: ${hold.name}');
-      return hold == FailoverHold.waitingForTor;
+      return hold == FailoverHold.waitingForTor || hold == FailoverHold.busy;
     }
     _moving = true;
     try {
@@ -232,14 +322,15 @@ class DeskFailoverWatch extends Notifier<void> {
       );
       final api = ref.read(deskApiProvider);
       for (final url in candidates) {
-        if (!ref.mounted || !(_down || syncing) || ref.read(deskProvider).account?.id != st.account?.id) return false;
+        if (!ref.mounted || !(_down || syncing || (behind && _behind)) || ref.read(deskProvider).account?.id != st.account?.id) return false;
         try {
           final checked = await api.checkNode(url).timeout(nodeFailoverProbe);
           if (checked.health != ServiceHealth.ok) continue;
+          if (behind && !failoverAhead(checked.height, ref.read(deskProvider).status?.nodeHeight ?? status.nodeHeight)) continue;
         } on Object {
           continue;
         }
-        if (!ref.mounted || !(_down || syncing)) return false;
+        if (!ref.mounted || !(_down || syncing || (behind && _behind))) return false;
         try {
           await ref.read(deskProvider.notifier).useNodeForSession(url);
         } on Object catch (e) {
@@ -249,10 +340,12 @@ class DeskFailoverWatch extends Notifier<void> {
         if (!ref.mounted) return false;
         final now = ref.read(deskProvider).status?.node.url;
         if (now == null || !sameServer(ServerKind.node, now, url)) return false;
-        ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url, at: DateTime.now(), syncing: syncing));
+        final wasSyncing = syncing || (behind && ref.read(deskFailoverProvider)?.syncing == true);
+        ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url, at: DateTime.now(), syncing: wasSyncing, behind: behind));
+        if (behind) logInfo('desk', 'node failover: left a node that was behind');
         return false;
       }
-      logInfo('desk', 'node failover: no other node answers; staying');
+      logInfo('desk', behind ? 'node failover: no other node is ahead; staying' : 'node failover: no other node answers; staying');
       if (!syncing) _failed++;
       return true;
     } finally {

@@ -461,6 +461,16 @@
       }
     }
   },
+  "deskNodeFailoverBehind": "Node behind. Switched to {host}.",
+  "@deskNodeFailoverBehind": {
+    "description": "Toast when the node in use fell behind the network and the wallet moved to a node of the list that is ahead, for this session. host: the new node's address.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
+  },
   "deskNodeFailoverInsteadOf": "Instead of {host}",
   "@deskNodeFailoverInsteadOf": {
     "description": "Second line of the sidebar Node status and the Settings › Node head while node failover uses another node: host is the chosen node.",

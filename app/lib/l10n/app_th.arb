@@ -3405,7 +3405,7 @@
   "nodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
   "nodeFailoverInsteadOf": "แทน {host}",
   "deskSetAdvNodeFailover": "สลับโหนดอัตโนมัติ",
-  "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้",
+  "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนองหรือตามหลังเครือข่าย กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้",
   "deskNodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
   "deskNodeFailoverInsteadOf": "แทน {host}",
   "netOfflineNoPeers": "โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่",
@@ -5371,5 +5371,6 @@
   "contactDomainRefused": "ถูกปฏิเสธ",
   "deskUpdStripAct": "อัปเดต",
   "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป",
-  "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว"
+  "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
+  "deskNodeFailoverBehind": "โหนดตามหลังอยู่ สลับไปที่ {host} แล้ว"
 }

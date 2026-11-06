@@ -26,7 +26,7 @@
   "deskNetSendFileHint": "文件传输仍然可用。",
   "deskNetRecvWaitTorText": "Tor 连接后才开始接收。文件传输仍然可用。",
   "deskSetAdvNodeFailover": "节点故障切换",
-  "deskSetAdvNodeFailoverHint": "当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。",
+  "deskSetAdvNodeFailoverHint": "当你的节点不再响应或落后时，钱包在本次会话中改用列表里下一个可用的节点。",
   "deskSetAdvConfirmations": "确认数",
   "deskSetAdvConfirmationsHint": "收到的付款要等待多少个区块，其输出才能花费。默认 {byDefault}，可设为 {min} 到 {max}。",
   "deskSetAdvConfirmationsDefault": "默认",

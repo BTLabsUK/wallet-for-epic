@@ -13582,7 +13582,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvNodeFailoverHint =>
-      'Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.';
+      'Gdy twój węzeł przestaje odpowiadać lub zostaje w tyle, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.';
 
   @override
   String deskNodeFailoverSwitched(String host) {
@@ -21330,4 +21330,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTorAddressChangedTitle => 'Twój adres Tor się zmienił';
+
+  @override
+  String deskNodeFailoverBehind(String host) {
+    return 'Węzeł jest w tyle. Przełączono na $host.';
+  }
 }

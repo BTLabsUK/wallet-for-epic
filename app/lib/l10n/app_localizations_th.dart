@@ -12728,7 +12728,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvNodeFailoverHint =>
-      'เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้';
+      'เมื่อโหนดของคุณไม่ตอบสนองหรือตามหลังเครือข่าย กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้';
 
   @override
   String deskNodeFailoverSwitched(String host) {
@@ -20226,4 +20226,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTorAddressChangedTitle => 'ที่อยู่ Tor ของคุณเปลี่ยนแล้ว';
+
+  @override
+  String deskNodeFailoverBehind(String host) {
+    return 'โหนดตามหลังอยู่ สลับไปที่ $host แล้ว';
+  }
 }

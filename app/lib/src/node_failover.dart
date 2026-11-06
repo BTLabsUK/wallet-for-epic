@@ -4,6 +4,11 @@
 /// to the next working node in the user's list for this session only. The chosen node stays
 /// saved; the next start opens on it, and a node the user picks becomes the chosen one.
 ///
+/// A node that answers but has fallen behind delays confirmations: on the desktop the wallet
+/// leaves it the same way, under the same rules, when the app's own Behind verdict
+/// ([failoverBehind]) has held for [nodeFailoverAfter] and another node of the list is ahead of
+/// it ([failoverAhead]). A node the user added or runs is never left for being behind.
+///
 /// Never in Node only or Kill switch (only the node in use), never away from a node on this computer, never while Tor is still
 /// starting (the node waits for Tor, it is not gone), and in Tor only only to a node reachable
 /// over Tor. Epicbox has no failover: another relay is another address.
@@ -16,6 +21,7 @@ import 'dart:math' show min;
 
 import 'advanced.dart';
 import 'network_gate.dart';
+import 'node/local_node_state.dart' show syncedWithinBlocks;
 import 'server_list.dart';
 import 'tor_routes.dart';
 import 'settings_file/host_settings.dart' show appConfig;
@@ -41,6 +47,13 @@ const List<Duration> nodeFailoverBackoff = [
 Duration failoverRetryAfter(int failed, Duration first) => failed <= 1
     ? first
     : nodeFailoverBackoff[min(failed - 1, nodeFailoverBackoff.length) - 1];
+
+/// Whether a node [blocksBehind] the network's tip counts as behind: the rail's word.
+bool failoverBehind(int? blocksBehind) => blocksBehind != null && blocksBehind > syncedWithinBlocks;
+
+/// Whether a node at [height] is ahead of the node in use at [current] by what makes that one
+/// behind: the other node's own answer, so a late monitor reading moves nobody.
+bool failoverAhead(int? height, int current) => height != null && current > 0 && height - current > syncedWithinBlocks;
 
 /// What is known of a node in the list before it is asked.
 enum FailoverHealth {
@@ -137,7 +150,7 @@ List<String> failoverCandidates({
 
 /// A node the wallet moved to for this session, instead of the [chosen] one.
 class NodeFailover {
-  const NodeFailover({required this.chosen, required this.inUse, this.at, this.syncing = false});
+  const NodeFailover({required this.chosen, required this.inUse, this.at, this.syncing = false, this.behind = false});
 
   /// The node the user chose: saved, used at the next start.
   final String chosen;
@@ -150,6 +163,9 @@ class NodeFailover {
 
   /// The chosen node is the user's own and syncing (the fallback answer), not down.
   final bool syncing;
+
+  /// The node left answered but was behind ("Node behind", not "Node not answering").
+  final bool behind;
 
   @override
   bool operator ==(Object other) => other is NodeFailover && other.chosen == chosen && other.inUse == inUse;

@@ -13066,7 +13066,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvNodeFailoverHint =>
-      'When your node stops answering, the wallet uses the next working node in your list for this session.';
+      'When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.';
 
   @override
   String deskNodeFailoverSwitched(String host) {
@@ -20645,4 +20645,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTorAddressChangedTitle => 'Your Tor address changed';
+
+  @override
+  String deskNodeFailoverBehind(String host) {
+    return 'Node behind. Switched to $host.';
+  }
 }

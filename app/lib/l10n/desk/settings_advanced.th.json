@@ -26,7 +26,7 @@
   "deskNetSendFileHint": "โอนไฟล์ยังใช้ได้",
   "deskNetRecvWaitTorText": "การรับจะเริ่มเมื่อ Tor เชื่อมต่อ โอนไฟล์ยังใช้ได้",
   "deskSetAdvNodeFailover": "สลับโหนดอัตโนมัติ",
-  "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนอง กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้",
+  "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนองหรือตามหลังเครือข่าย กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้",
   "deskSetAdvConfirmations": "การยืนยัน",
   "deskSetAdvConfirmationsHint": "จำนวนบล็อกที่การชำระเงินที่ได้รับต้องรอก่อนที่เอาต์พุตจะใช้ได้ ค่าเริ่มต้นคือ {byDefault} ตั้งได้ตั้งแต่ {min} ถึง {max}",
   "deskSetAdvConfirmationsDefault": "ค่าเริ่มต้น",

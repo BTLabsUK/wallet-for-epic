@@ -12306,7 +12306,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAdvNodeFailover => '节点故障切换';
 
   @override
-  String get deskSetAdvNodeFailoverHint => '当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。';
+  String get deskSetAdvNodeFailoverHint =>
+      '当你的节点不再响应或落后时，钱包在本次会话中改用列表里下一个可用的节点。';
 
   @override
   String deskNodeFailoverSwitched(String host) {
@@ -19484,4 +19485,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTorAddressChangedTitle => '你的 Tor 地址已更改';
+
+  @override
+  String deskNodeFailoverBehind(String host) {
+    return '节点已落后。已切换到 $host。';
+  }
 }

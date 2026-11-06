@@ -17349,7 +17349,7 @@
   "@deskSetAdvNodeFailover": {
     "description": "Switch on Settings › Advanced, under the network modes: on by default."
   },
-  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "deskSetAdvNodeFailoverHint": "When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.",
   "@deskSetAdvNodeFailoverHint": {
     "description": "Hover card of the Node failover switch on Settings › Advanced."
   },
@@ -28068,5 +28068,15 @@
   "deskTorAddressChangedTitle": "Your Tor address changed",
   "@deskTorAddressChangedTitle": {
     "description": "Desktop Overview: the one-line, one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
+  },
+  "deskNodeFailoverBehind": "Node behind. Switched to {host}.",
+  "@deskNodeFailoverBehind": {
+    "description": "Toast when the node in use fell behind the network and the wallet moved to a node of the list that is ahead, for this session. host: the new node's address.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epic.node.example"
+      }
+    }
   }
 }

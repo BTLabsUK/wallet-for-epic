@@ -26,7 +26,7 @@
   "deskNetSendFileHint": "Die Dateiübertragung funktioniert weiterhin.",
   "deskNetRecvWaitTorText": "Der Empfang startet, sobald Tor verbunden ist. Die Dateiübertragung funktioniert weiterhin.",
   "deskSetAdvNodeFailover": "Automatischer Node-Wechsel",
-  "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
+  "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr oder fällt er zurück, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
   "deskSetAdvConfirmations": "Bestätigungen",
   "deskSetAdvConfirmationsHint": "Wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind. Standardmäßig {byDefault}; jeder Wert von {min} bis {max}.",
   "deskSetAdvConfirmationsDefault": "Voreinstellung",
