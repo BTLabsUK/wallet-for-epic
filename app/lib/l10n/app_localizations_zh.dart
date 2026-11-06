@@ -13105,6 +13105,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noticeEventsMissed => '部分更新已错过。列表已重新读取。';
 
   @override
+  String get msgChecking => '正在检查消息';
+
+  @override
+  String get msgCheckFailed => '上次消息检查失败';
+
+  @override
+  String msgCheckHeld(int count) {
+    return '暂缓的消息：$count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return '被拒绝的消息：$count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return '无法读取的消息：$count';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name 已移除配对。';
   }

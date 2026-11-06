@@ -14459,6 +14459,28 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pominięto część aktualizacji. Listy zostały odczytane ponownie.';
 
   @override
+  String get msgChecking => 'Sprawdzanie wiadomości';
+
+  @override
+  String get msgCheckFailed =>
+      'Ostatnie sprawdzenie wiadomości nie powiodło się';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'Wiadomości wstrzymane: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'Wiadomości odrzucone: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'Wiadomości, których nie można odczytać: $count';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: parowanie usunięte.';
   }

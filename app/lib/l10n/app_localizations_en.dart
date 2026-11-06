@@ -13928,6 +13928,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some updates were missed. The lists were read again.';
 
   @override
+  String get msgChecking => 'Checking messages';
+
+  @override
+  String get msgCheckFailed => 'The last message check failed';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'Messages held: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'Messages refused: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'Messages that could not be read: $count';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name removed the pairing.';
   }

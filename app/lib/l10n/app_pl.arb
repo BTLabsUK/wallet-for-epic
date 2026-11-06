@@ -5373,5 +5373,10 @@
   "deskUpdStripHide": "Ukryj do następnej wersji",
   "deskTorAddressChangedTitle": "Twój adres Tor się zmienił",
   "deskNodeFailoverBehind": "Węzeł jest w tyle. Przełączono na {host}.",
-  "noticeEventsMissed": "Pominięto część aktualizacji. Listy zostały odczytane ponownie."
+  "noticeEventsMissed": "Pominięto część aktualizacji. Listy zostały odczytane ponownie.",
+  "msgChecking": "Sprawdzanie wiadomości",
+  "msgCheckFailed": "Ostatnie sprawdzenie wiadomości nie powiodło się",
+  "msgCheckHeld": "Wiadomości wstrzymane: {count}",
+  "msgCheckRefused": "Wiadomości odrzucone: {count}",
+  "msgCheckUnreadable": "Wiadomości, których nie można odczytać: {count}"
 }

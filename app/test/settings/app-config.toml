@@ -145,6 +145,9 @@ vpn_suffixes = [".vpn.invalid"]
 # After the app starts or comes back to the front, warnings about the node, Epicbox and Tor wait
 # this long: meanwhile only the title-bar icons show the state ("Connecting").
 server_grace_s = 0   # tests: warnings at once; the grace tests set their own
+# A check of the messages that is done sooner than this shows no "Checking messages" state, so a
+# quick empty check does not flash it.
+check_show_after_ms = 600
 
 [payments]
 # After a payment is posted: how often the tip is read, then how long, then how often after.

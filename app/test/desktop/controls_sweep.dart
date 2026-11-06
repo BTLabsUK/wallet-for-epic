@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/message_checks.dart' show MessageChecks;
 import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
@@ -137,6 +138,9 @@ class _Recorder implements DeskWalletApi, MockBacked {
   bool get busy => _m.busy;
   @override
   bool get openedRemembered => _m.openedRemembered;
+
+  @override
+  MessageChecks? get messageChecks => _m.messageChecks;
   @override
   Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds}) =>
       _r('openPaymentLink', () => _m.openPaymentLink(link, membership: membership, nowSeconds: nowSeconds));

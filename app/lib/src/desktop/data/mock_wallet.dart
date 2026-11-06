@@ -22,6 +22,7 @@ import '../../name_service/name_service_service.dart' show NameServiceHost;
 import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
+import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
@@ -390,6 +391,10 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   bool openedRemembered = false;
+
+  /// What the status popover shows of the message checks; a tour or test sets it.
+  @override
+  MessageChecks? messageChecks;
 
   /// Copy-step events each unlock emits on [storeMigration] before it opens, as the first
   /// unlock after the update does; empty: nothing to copy.

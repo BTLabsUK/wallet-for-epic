@@ -13571,6 +13571,27 @@ class AppLocalizationsTh extends AppLocalizations {
   String get noticeEventsMissed => 'พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว';
 
   @override
+  String get msgChecking => 'กำลังตรวจสอบข้อความ';
+
+  @override
+  String get msgCheckFailed => 'การตรวจสอบข้อความครั้งล่าสุดล้มเหลว';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'ข้อความที่พักไว้: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'ข้อความที่ถูกปฏิเสธ: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'ข้อความที่อ่านไม่ได้: $count';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name ลบการจับคู่แล้ว';
   }

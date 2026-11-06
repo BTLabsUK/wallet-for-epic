@@ -15,10 +15,11 @@ import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'node_switch.dart' show NodeSwitchStep, deskNodeSwitchProvider;
 import 'models.dart';
-import '../../providers.dart' show defaultMinimumConfirmations;
+import '../../providers.dart' show defaultMinimumConfirmations, messageCheckStream;
 import '../../relay_directory.dart' show statusSite;
 import '../../settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMode;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../message_checks.dart' show MessageCheck;
 import '../../phrase_clipboard.dart';
 import '../../tor_build.dart' show torBuilt;
 import '../../tor_pay.dart';
@@ -26,6 +27,11 @@ import 'net_mode_view.dart' show torProcessState;
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.
 final deskApiProvider = Provider<DeskWalletApi>((ref) => MockDeskWallet());
+
+/// The open wallet's message checks, for the status popover.
+final deskMessageCheckProvider = StreamProvider<MessageCheck>(
+  (ref) => messageCheckStream(ref.watch(deskApiProvider).messageChecks),
+);
 
 /// Everything the screens show about the open wallet. Null fields are still loading.
 class DeskState {

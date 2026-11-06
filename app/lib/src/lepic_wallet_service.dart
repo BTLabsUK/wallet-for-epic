@@ -32,6 +32,7 @@ import 'key_picture.dart' show inviteKeyOf;
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'listener_receives.dart';
 import 'log.dart';
+import 'message_checks.dart';
 import 'net/lan_node_relay.dart';
 import 'net/tor_net.dart' show TorNet;
 import 'net/tor_switch.dart';
@@ -1623,6 +1624,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     _lastActivityAtOpen = at == null ? null : DateTime.fromMillisecondsSinceEpoch(at * 1000, isUtc: true);
   }
 
+  @override
+  final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter);
+
   /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
   String? nodeUrl;
@@ -1767,6 +1771,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     _pairing.close();
     _invoiceEvents.close();
     _issuerEvents.close();
+    checks.dispose();
     _unmatched.close();
     _history.close();
     final detach = _detachBook;
@@ -3528,17 +3533,24 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       });
 
   @override
-  Future<PaymentsDrainReport> drainPayments() => _epicboxGuard('payments drain', () async {
-    _watchEvents();
-    // Each bounce raises `invoiceBounced` on the events, which withdraws that request.
-    final report = await _wallet.drainEpicbox();
-    await _sweep();
-    return PaymentsDrainReport(
-      received: report.received,
-      finalized: report.finalized,
-      bounced: report.bounced,
-    );
-  });
+  Future<PaymentsDrainReport> drainPayments() => checks.run(
+    CheckSource.drain,
+    () => _epicboxGuard('payments drain', () async {
+      _watchEvents();
+      // Each bounce raises `invoiceBounced` on the events, which withdraws that request.
+      final report = await _wallet.drainEpicbox();
+      await _sweep();
+      return report;
+    }),
+    outcomeOf: (r) => CheckOutcome(
+      received: r.received,
+      finalized: r.finalized,
+      bounced: r.bounced,
+      held: r.held,
+      rejected: r.rejected,
+      dropped: r.dropped,
+    ),
+  ).then((r) => PaymentsDrainReport(received: r.received, finalized: r.finalized, bounced: r.bounced));
 
   @override
   Stream<IssuerEvent> issuerEvents() {
@@ -4312,9 +4324,18 @@ class _LepicPairing implements PairingApi {
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
-  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) async {
-    // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
-    if (!NetGate.pairing) return 0;
+  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) => !NetGate.pairing
+      // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
+      ? Future.value(0)
+      : _s.checks.run(
+    CheckSource.collect,
+    () => _collectCounted(trigger, only: only),
+    // The 45-second tick stays quiet; a look the user asked for, or a resume, shows.
+    quiet: trigger == PairingCollectTrigger.foreground && only == null,
+    outcomeOf: (r) => CheckOutcome(messages: r.messages, failed: r.failed),
+  ).then((r) => r.paired);
+
+  Future<({int paired, int messages, int failed})> _collectCounted(PairingCollectTrigger trigger, {List<String>? only}) async {
     _s._watchEvents();
     final before = {for (final c in await _w.contacts()) c.contactId};
     final report = await _w.contactsCollect(
@@ -4354,7 +4375,7 @@ class _LepicPairing implements PairingApi {
     if ((before.difference(now).isNotEmpty || report.ended.isNotEmpty) && !_events.isClosed) {
       _events.add(const PairingEvent(PairingEventKind.contactUpdated));
     }
-    return report.paired + report.ended.length;
+    return (paired: report.paired + report.ended.length, messages: report.messages, failed: report.failed.length);
   }
 
   @override

@@ -5373,5 +5373,10 @@
   "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป",
   "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
   "deskNodeFailoverBehind": "โหนดตามหลังอยู่ สลับไปที่ {host} แล้ว",
-  "noticeEventsMissed": "พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว"
+  "noticeEventsMissed": "พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว",
+  "msgChecking": "กำลังตรวจสอบข้อความ",
+  "msgCheckFailed": "การตรวจสอบข้อความครั้งล่าสุดล้มเหลว",
+  "msgCheckHeld": "ข้อความที่พักไว้: {count}",
+  "msgCheckRefused": "ข้อความที่ถูกปฏิเสธ: {count}",
+  "msgCheckUnreadable": "ข้อความที่อ่านไม่ได้: {count}"
 }

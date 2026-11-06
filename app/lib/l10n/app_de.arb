@@ -5373,5 +5373,10 @@
   "deskUpdStripHide": "Bis zur nächsten Version ausblenden",
   "deskTorAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
   "deskNodeFailoverBehind": "Node liegt zurück. Gewechselt zu {host}.",
-  "noticeEventsMissed": "Einige Updates wurden verpasst. Die Listen wurden neu geladen."
+  "noticeEventsMissed": "Einige Updates wurden verpasst. Die Listen wurden neu geladen.",
+  "msgChecking": "Nachrichten werden geprüft",
+  "msgCheckFailed": "Die letzte Nachrichtenprüfung ist fehlgeschlagen",
+  "msgCheckHeld": "Zurückgehaltene Nachrichten: {count}",
+  "msgCheckRefused": "Abgewiesene Nachrichten: {count}",
+  "msgCheckUnreadable": "Nicht lesbare Nachrichten: {count}"
 }

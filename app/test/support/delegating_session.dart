@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/name_service/pins.dart' show LinkMemory;
 import 'package:epic_wallet/src/name_service/receipts.dart' show LinkPaymentRecords;
 import 'package:epic_wallet/src/name_service/wire.dart' show Payreq;
+import 'package:epic_wallet/src/message_checks.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 
 /// Passes every call to the session it wraps.
@@ -509,6 +510,9 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
 
   @override
   Future<PaymentsDrainReport> drainPayments() => _inner.drainPayments();
+
+  @override
+  MessageChecks get checks => _inner.checks;
 
   @override
   Stream<IssuerEvent> issuerEvents() => _inner.issuerEvents();

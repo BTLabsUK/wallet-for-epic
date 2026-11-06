@@ -21912,6 +21912,36 @@ abstract class AppLocalizations {
   /// **'Some updates were missed. The lists were read again.'**
   String get noticeEventsMissed;
 
+  /// Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking messages'**
+  String get msgChecking;
+
+  /// Status line when the last check of the wallet's messages ended with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'The last message check failed'**
+  String get msgCheckFailed;
+
+  /// Status line: messages the last check left on the relay for a later check.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages held: {count}'**
+  String msgCheckHeld(int count);
+
+  /// Status line: messages the last check turned away (refused or dropped).
+  ///
+  /// In en, this message translates to:
+  /// **'Messages refused: {count}'**
+  String msgCheckRefused(int count);
+
+  /// Status line: messages the last check could not open.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages that could not be read: {count}'**
+  String msgCheckUnreadable(int count);
+
   /// Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.
   ///
   /// In en, this message translates to:

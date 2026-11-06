@@ -18508,6 +18508,41 @@
   "@noticeEventsMissed": {
     "description": "Notice when the wallet's event stream dropped some events: payments and requests were read again from the wallet."
   },
+  "msgChecking": "Checking messages",
+  "@msgChecking": {
+    "description": "Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment."
+  },
+  "msgCheckFailed": "The last message check failed",
+  "@msgCheckFailed": {
+    "description": "Status line when the last check of the wallet's messages ended with an error."
+  },
+  "msgCheckHeld": "Messages held: {count}",
+  "@msgCheckHeld": {
+    "description": "Status line: messages the last check left on the relay for a later check.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckRefused": "Messages refused: {count}",
+  "@msgCheckRefused": {
+    "description": "Status line: messages the last check turned away (refused or dropped).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckUnreadable": "Messages that could not be read: {count}",
+  "@msgCheckUnreadable": {
+    "description": "Status line: messages the last check could not open.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noticeUnpaired": "{name} removed the pairing.",
   "@noticeUnpaired": {
     "description": "Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.",

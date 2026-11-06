@@ -14093,6 +14093,28 @@ class AppLocalizationsDe extends AppLocalizations {
       'Einige Updates wurden verpasst. Die Listen wurden neu geladen.';
 
   @override
+  String get msgChecking => 'Nachrichten werden geprüft';
+
+  @override
+  String get msgCheckFailed =>
+      'Die letzte Nachrichtenprüfung ist fehlgeschlagen';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'Zurückgehaltene Nachrichten: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'Abgewiesene Nachrichten: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'Nicht lesbare Nachrichten: $count';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name hat die Kopplung entfernt.';
   }

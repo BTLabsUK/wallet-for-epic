@@ -54,6 +54,7 @@ import '../../node/node_settings.dart' show NodeSettings;
 import '../../name_service/name_service.dart' show NameServiceMembership, LinkOutcome, Payreq, openLink;
 import '../../name_service/base58.dart' show netFloonet, netMainnet;
 import '../../scan/scan_router.dart' show PaymentLink;
+import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show Chain;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
@@ -965,6 +966,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   bool get openedRemembered => _session != null && _openedRemembered;
+
+  @override
+  MessageChecks? get messageChecks => _session?.checks;
 
   @override
   Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds}) {

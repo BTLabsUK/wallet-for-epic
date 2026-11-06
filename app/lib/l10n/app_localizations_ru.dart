@@ -14436,6 +14436,27 @@ class AppLocalizationsRu extends AppLocalizations {
       'Часть обновлений пропущена. Списки прочитаны заново.';
 
   @override
+  String get msgChecking => 'Проверка сообщений';
+
+  @override
+  String get msgCheckFailed => 'Последняя проверка сообщений не удалась';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'Сообщений отложено: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'Сообщений отклонено: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'Сообщений, которые не удалось прочитать: $count';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: сопряжение удалено.';
   }

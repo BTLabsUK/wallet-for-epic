@@ -5373,5 +5373,10 @@
   "deskUpdStripHide": "Скрыть до следующей версии",
   "deskTorAddressChangedTitle": "Ваш адрес Tor изменился",
   "deskNodeFailoverBehind": "Узел отстаёт. Переключено на {host}.",
-  "noticeEventsMissed": "Часть обновлений пропущена. Списки прочитаны заново."
+  "noticeEventsMissed": "Часть обновлений пропущена. Списки прочитаны заново.",
+  "msgChecking": "Проверка сообщений",
+  "msgCheckFailed": "Последняя проверка сообщений не удалась",
+  "msgCheckHeld": "Сообщений отложено: {count}",
+  "msgCheckRefused": "Сообщений отклонено: {count}",
+  "msgCheckUnreadable": "Сообщений, которые не удалось прочитать: {count}"
 }

@@ -25,7 +25,8 @@ import 'finished_payment.dart' show readFinishedPayment;
 import 'network_gate.dart' show NetGate;
 import 'pairing_api.dart';
 import 'pairing_fake.dart';
-import 'settings_file/host_settings.dart' show hostSettings, hostSettingsLoaded;
+import 'settings_file/host_settings.dart' show appConfig, hostSettings, hostSettingsLoaded;
+import 'message_checks.dart';
 
 export 'models.dart';
 export 'pairing_api.dart';
@@ -741,6 +742,10 @@ abstract interface class WalletSession {
   /// withdrawn and raises one [IssuerEventKind.bounced] event, however often it comes back.
   Future<PaymentsDrainReport> drainPayments();
 
+  /// What the checks of the payments address and the contacts' mailboxes are doing and found,
+  /// for the status places.
+  MessageChecks get checks;
+
   /// What happened to issued invoices, as collects, drains, the listener and sweeps find it.
   Stream<IssuerEvent> issuerEvents();
 }
@@ -1352,6 +1357,9 @@ class FakeWalletSession implements WalletSession, ListingKeys {
   }) : summaryValue = summary ?? emptySummary,
        transactionsValue = transactions ?? <TxEntry>[],
        invoiceHistory = invoiceHistory ?? WalletHistory.memory();
+
+  @override
+  final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter);
 
   static final WalletSummary emptySummary = WalletSummary(
     lastConfirmedHeight: BigInt.zero,
