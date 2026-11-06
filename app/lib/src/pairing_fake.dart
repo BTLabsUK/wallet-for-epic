@@ -99,11 +99,12 @@ class FakePairing implements PairingApi {
   /// As the real check without the wait: a paired shop or exchange that is not ended is asked;
   /// one that is silent or on a relay that is down is "Not answering", the rest are reachable.
   @override
-  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async {
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only}) async {
     final outcomes = <String, ContactCheckOutcome>{};
     if (!enabled) return outcomes;
     for (final r in [...records]) {
-      if (r.kind == PairingParty.person || r.ended || !(r.state == PairingState.paired || r.state == PairingState.verified)) continue;
+      if (only != null ? !only.contains(r.id) : r.kind == PairingParty.person) continue;
+      if (r.ended || !(r.state == PairingState.paired || r.state == PairingState.verified)) continue;
       checked.add(r.id);
       final silentNow = silent.contains(r.id) || r.relayDown;
       outcomes[r.id] = silentNow ? ContactCheckOutcome.notAnswering : ContactCheckOutcome.reachable;
@@ -1319,6 +1320,7 @@ class FakePairing implements PairingApi {
             'verified_at': r.verifiedAt?.millisecondsSinceEpoch,
             'contact_id': r.contactId,
             'peer_features': r.peerFeatures,
+            'peer_profile': r.peerProfile,
             'peer_heard_at': r.peerHeardAt?.millisecondsSinceEpoch,
             'peer_verified_at': r.peerVerifiedAt?.millisecondsSinceEpoch,
           },
@@ -1332,6 +1334,7 @@ class FakePairing implements PairingApi {
   int importBackup(Map<String, Object?>? backup, {bool otherDevice = true}) {
     if (!enabled || backup == null) return 0;
     var n = 0;
+    final restored = <String>{};
     for (final raw in (backup['records'] as List?) ?? const []) {
       final m = raw as Map<String, Object?>;
       final id = m['id'] as String;
@@ -1353,14 +1356,18 @@ class FakePairing implements PairingApi {
           paymentsAddress: m['payments'] as String?,
           contactId: m['contact_id'] as String?,
           peerFeatures: m['peer_features'] as int? ?? 0,
+          peerProfile: m['peer_profile'] as int? ?? 0,
           peerHeardAt: at('peer_heard_at') ?? created,
           peerVerifiedAt: at('peer_verified_at'),
           otherDevice: otherDevice,
         ),
       );
       n++;
+      restored.add(id);
     }
     if (otherDevice) importedOtherDevice += n;
+    // As the real one: each restored pairing is asked once, whatever its kind.
+    if (restored.isNotEmpty) unawaited(checkContacts(only: restored));
     return n;
   }
 

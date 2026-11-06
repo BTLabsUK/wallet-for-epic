@@ -3635,8 +3635,8 @@ class _LepicPairing implements PairingApi {
 
   /// A paired shop or exchange whose pairing has not ended: the contacts a check asks. People are
   /// offline often and are not checked.
-  bool _checkable(lepic.ContactView c) =>
-      (c.kind == lepic.ContactKind.shop || c.kind == lepic.ContactKind.exchange) &&
+  bool _checkable(lepic.ContactView c, {bool anyKind = false}) =>
+      (anyKind || c.kind == lepic.ContactKind.shop || c.kind == lepic.ContactKind.exchange) &&
       (c.state == lepic.PairingState.paired || c.state == lepic.PairingState.verified) &&
       c.endedReason == null &&
       !c.removedByPeer;
@@ -3646,7 +3646,7 @@ class _LepicPairing implements PairingApi {
   }
 
   @override
-  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async {
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only}) async {
     final outcomes = <String, ContactCheckOutcome>{};
     if (!supported || !NetGate.pairing || NetGate.epicboxOff) return outcomes;
     if (_checkRunning) return outcomes;
@@ -3657,7 +3657,7 @@ class _LepicPairing implements PairingApi {
     final sentAt = <String, int>{};
     try {
       for (final c in await _w.contacts()) {
-        if (!_checkable(c)) continue;
+        if (only != null ? !only.contains(c.contactId) || !_checkable(c, anyKind: true) : !_checkable(c)) continue;
         final at = DateTime.now().millisecondsSinceEpoch;
         try {
           await _w.contactCheck(contactId: c.contactId);
@@ -3826,6 +3826,7 @@ class _LepicPairing implements PairingApi {
     peerHeardAt: c.peerHeardAtMs == null ? null : _ms(c.peerHeardAtMs!.toInt()),
     peerVerifiedAt: c.peerVerifiedAtMs == null ? null : _ms(c.peerVerifiedAtMs!.toInt()),
     peerFeatures: c.peerFeatures,
+    peerProfile: c.peerProfile,
     endedReason: c.endedReason == null ? null : lepicPairingEndReason(c.endedReason!),
     endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),
   );
@@ -4600,7 +4601,13 @@ class _LepicPairing implements PairingApi {
   Future<int> importBackup(Map<String, Object?>? backup) async {
     final document = backup?['lepic'];
     if (document is! String) return 0;
+    final before = {for (final c in await _w.contacts()) c.contactId};
     final summary = await _w.contactsImport(document: document);
+    if (summary.imported > 0) {
+      // A restored pairing may be stale or gone: ask each one once, whatever its kind.
+      final restored = {for (final c in await _w.contacts()) c.contactId}.difference(before);
+      if (restored.isNotEmpty) unawaited(checkContacts(only: restored).then<void>((_) {}, onError: (Object _) {}));
+    }
     return summary.imported;
   }
 }
