@@ -22,9 +22,6 @@ const int maxScanLength = 4096;
 /// Longest address in a payment URI.
 const int maxUriAddressLength = 255;
 
-/// Most parameters a payment URI may have.
-const int maxUriParams = 8;
-
 /// Longest raw (still encoded) parameter value: a [maxNoteLength] note of four-byte
 /// characters, each `%XX%XX%XX%XX`.
 const int maxUriValueLength = maxNoteLength * 12;
@@ -38,7 +35,9 @@ const int maxLabelLength = 64;
 /// The highest amount a code may ask for, in EPIC.
 const int maxUriAmountEpic = 21000000000;
 
-/// The scheme this wallet writes. `epiccash:` is read too.
+/// The scheme this wallet writes for a plain payment code: address, amount and note, read by
+/// any Epic wallet. `epiccash:` is read the same way and is also this wallet's own: pairing and
+/// `pay/1/` links live there, never under `epic:`.
 const String epicUriScheme = 'epic';
 
 /// What an address check says about an address.
@@ -295,6 +294,7 @@ ScannedCode _classify(String raw, AddressCheck check) {
   if (rest.startsWith('//')) {
     // A Linux second start hands the running window `scheme:///…` (GIO adds the empty host).
     rest = rest.substring(rest.startsWith('///') ? 3 : 2);
+    if (scheme.group(1)!.toLowerCase() == epicUriScheme) return _payment(text, rest, check);
     final segment = rest.split('/').first.toLowerCase();
     final pairing = switch (segment) {
       'pair' => PairingKind.invite,
@@ -303,7 +303,8 @@ ScannedCode _classify(String raw, AddressCheck check) {
       'contact' => PairingKind.contact,
       _ => null,
     };
-    // Pairing links are hierarchical: `epiccash://pair/…`. `epic://<address>` is tolerated.
+    // Pairing links are hierarchical: `epiccash://pair/…`. `epic://<address>` is tolerated
+    // above, as a payment.
     if (pairing != null && rest.length > segment.length) {
       return PairingLink(pairing, text);
     }
@@ -407,8 +408,12 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
   final hash = body.indexOf('#');
   if (hash >= 0) body = body.substring(0, hash);
   final q = body.indexOf('?');
-  final address = q < 0 ? body : body.substring(0, q);
+  var address = q < 0 ? body : body.substring(0, q);
   final query = q < 0 ? '' : body.substring(q + 1);
+  // `epic://<address>` handed on by the system comes back with a `/` after the host.
+  if (address.contains('@') && address.endsWith('/')) {
+    address = address.substring(0, address.length - 1);
+  }
   if (address.isEmpty) return UnknownCode(text);
   final params = _params(query);
   if (params == null) return UnknownCode(text);
@@ -434,8 +439,8 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
   Recipient? direct;
   var noteRequired = false;
   BigInt? minimum;
+  final noteName = _noteNames.where((n) => params[n]?.isNotEmpty ?? false).firstOrNull;
   for (final MapEntry(key: name, value: raw) in params.entries) {
-    if (!_known.contains(name)) continue;
     if (raw.length > maxUriValueLength) {
       problems.add(RequestProblem.tooLong);
       continue;
@@ -447,7 +452,8 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
         final (atomic, problem) = parseUriAmount(value);
         if (problem != null) problems.add(problem);
         amount = atomic;
-      case 'message':
+      case 'message' || 'note' || 'memo':
+        if (name != noteName) break;
         final clean = cleanUntrustedText(value);
         if (clean == null) break;
         if (clean.runes.length > maxNoteLength) {
@@ -477,7 +483,7 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
           direct = second;
         }
       case 'require':
-        noteRequired = value.toLowerCase() == 'message';
+        noteRequired = _noteNames.contains(value.toLowerCase());
       case 'min':
         final (atomic, problem) = parseUriAmount(value);
         if (problem != null) problems.add(RequestProblem.minimumInvalid);
@@ -497,9 +503,13 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
   );
 }
 
+/// The spellings of a code's note, the one this wallet writes first: with more than one in a
+/// code, the first that holds something is read.
+const List<String> _noteNames = ['message', 'note', 'memo'];
+
 const Set<String> _known = {
   'amount',
-  'message',
+  ..._noteNames,
   'label',
   'method',
   'direct',
@@ -507,21 +517,18 @@ const Set<String> _known = {
   'min',
 };
 
-/// The query's parameters by lowercase name, raw values; null when the URI must be refused:
-/// more than [maxUriParams], or a name twice.
+/// The query's parameters this wallet knows, by lowercase name, raw values; null when the URI
+/// must be refused: a known name twice. A parameter it does not know is left out, however many.
 Map<String, String>? _params(String query) {
   final out = <String, String>{};
   if (query.isEmpty) return out;
-  final pieces = query.split('&').where((p) => p.isNotEmpty).toList();
-  if (pieces.length > maxUriParams) return null;
-  final seen = <String>{};
-  for (final piece in pieces) {
+  for (final piece in query.split('&').where((p) => p.isNotEmpty)) {
     final eq = piece.indexOf('=');
     final name = (eq < 0 ? piece : piece.substring(0, eq)).toLowerCase();
     final value = eq < 0 ? '' : piece.substring(eq + 1);
-    // Two amounts must never be a guess: any name twice refuses the whole code.
-    if (!seen.add(name)) return null;
-    if (name.length > 16 || !RegExp(r'^[a-z]+$').hasMatch(name)) continue;
+    if (!_known.contains(name)) continue;
+    // Two amounts must never be a guess: a known name twice refuses the whole code.
+    if (out.containsKey(name)) return null;
     out[name] = value;
   }
   return out;

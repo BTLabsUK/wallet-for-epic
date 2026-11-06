@@ -272,12 +272,11 @@ void main() {
       _unknown('UR:CRYPTO-PSBT/abc');
     });
 
-    test('3 pairing links, epic or epiccash, any case', () {
+    test('3 pairing links, epiccash only, any case', () {
       for (final (text, kind) in [
         ('epiccash://pair/1/AbC', PairingKind.invite),
         ('epiccash://pair-reply/1/AbC', PairingKind.reply),
         ('epiccash://pair-confirm/1/AbC', PairingKind.confirm),
-        ('epic://pair/1/AbC', PairingKind.invite),
         ('EPICCASH://PAIR/1/AbC', PairingKind.invite),
       ]) {
         final code = _scan(text);
@@ -285,6 +284,41 @@ void main() {
         expect((code as PairingLink).kind, kind, reason: text);
         expect(code.text, text);
       }
+    });
+
+    test('epic: is the plain form: no pairing and no payment link under it', () {
+      for (final text in [
+        'epic://pair/1/AbC',
+        'EPIC://PAIR-REPLY/1/AbC',
+        'epic:///pair-confirm/1/AbC',
+        'epic://contact/1/AbC',
+        'epic://pay/1/AbC',
+      ]) {
+        expect(_scan(text), isA<UnknownCode>(), reason: text);
+      }
+    });
+
+    test('epic:// and epiccash:// with an address still read as a payment', () {
+      for (final scheme in ['epic', 'epiccash']) {
+        expect(_pay('$scheme://$_e?amount=1').recipient.address, _e);
+        expect(_pay('$scheme:///$_e?amount=1').recipient.address, _e);
+        // As GIO hands on a second start's link.
+        expect(_pay('$scheme://$_e/?amount=1').recipient.address, _e);
+      }
+    });
+
+    test('the codes the generator writes read in full', () {
+      final deposit = _pay('epic:$_key@epicbox.exchange.example'
+          '?message=4827193065148&require=message&min=0.1&label=Deposit');
+      expect(deposit.recipient.address, '$_key@epicbox.exchange.example');
+      expect(deposit.note, '4827193065148');
+      expect(deposit.noteRequired, isTrue);
+      expect(deposit.minimum, isNotNull);
+      expect(deposit.label, 'Deposit');
+      expect(deposit.problems, isEmpty);
+      final encoded = _pay('epic:$_key@epicbox.exchange.example'
+          '?message=Ref%204827%20%26%20caf%C3%A9%20%28%C3%A9%29%21&require=message');
+      expect(encoded.note, 'Ref 4827 & café (é)!');
     });
 
     test('4 contact cards', () {
@@ -552,6 +586,24 @@ void main() {
 
     test('another word in require asks nothing', () {
       expect(_pay('epic:$_e?message=Hi&require=name').noteRequired, isFalse);
+    });
+
+    test('the note reads under each spelling, and require takes them too', () {
+      for (final name in ['message', 'note', 'memo', 'NOTE']) {
+        final p = _pay('epic:$_e?$name=Hi&require=$name');
+        expect(p.note, 'Hi', reason: name);
+        expect(p.noteRequired, isTrue, reason: name);
+      }
+    });
+
+    test('with several spellings the written one wins, an empty one does not count', () {
+      expect(_pay('epic:$_e?memo=c&note=b&message=a').note, 'a');
+      expect(_pay('epic:$_e?memo=c&note=b').note, 'b');
+      expect(_pay('epic:$_e?message=&memo=c').note, 'c');
+    });
+
+    test('this wallet writes one spelling', () {
+      expect(EpicUri.build(_e, note: 'Hi'), 'epic:$_e?message=Hi');
     });
 
     test('the same payload opens under either scheme', () {
