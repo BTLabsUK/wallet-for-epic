@@ -327,21 +327,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
     if (!mounted || ref.read(noticeProvider) != null) return;
     final l = context.l10n;
-    final url = appConfig.linkTorAddressChanged;
-    ref
-        .read(noticeProvider.notifier)
-        .show(
-          l.torAddressChangedText,
-          level: NoticeLevel.info,
-          title: l.torAddressChangedTitle,
-          persistent: true,
-          tag: onionNoticeTag,
-          action: url == null
-              ? null
-              : NoticeAction(l.settingsCopyLink, () {
-                  if (mounted) unawaited(copyText(context, url, l.settingsLinkCopied));
-                }),
-        );
+    ref.read(noticeProvider.notifier).show(l.torAddressChangedTitle, level: NoticeLevel.info, persistent: true, tag: onionNoticeTag);
   }
 
   /// Item 16: the recovery phrase reminder is a notice, not a card. It comes on an opening of

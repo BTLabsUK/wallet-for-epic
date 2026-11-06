@@ -303,7 +303,6 @@
   "homeBackupCardButton": "สำรอง",
   "homeBackupCardDismiss": "ปิด",
   "torAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
-  "torAddressChangedText": "ที่อยู่เดิมใช้ไม่ได้อีกต่อไป ใครที่บันทึกไว้ต้องใช้ที่อยู่ใหม่",
   "homeHistoryNotBackedUp": "{count, plural, other{{count} รายการยังไม่อยู่ในข้อมูลกระเป๋าเงินที่ส่งออก}}",
   "homeHistoryChangedSinceBackup": "{count, plural, other{{count} รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังส่งออกข้อมูลกระเป๋าเงินครั้งล่าสุด}}",
   "homeHistoryReminderNotNow": "ไว้ทีหลัง",
@@ -5364,7 +5363,5 @@
   "contactDomainRefused": "ถูกปฏิเสธ",
   "deskUpdStripAct": "อัปเดต",
   "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป",
-  "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
-  "deskTorAddressChangedText": "ที่อยู่เดิมใช้ไม่ได้อีกต่อไป ใครที่บันทึกไว้ต้องใช้ที่อยู่ใหม่",
-  "deskTorAddressChangedLink": "มีอะไรเปลี่ยน"
+  "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว"
 }

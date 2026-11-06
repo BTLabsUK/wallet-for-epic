@@ -303,7 +303,6 @@
   "homeBackupCardButton": "Сохранить",
   "homeBackupCardDismiss": "Скрыть",
   "torAddressChangedTitle": "Ваш адрес Tor изменился",
-  "torAddressChangedText": "Старый адрес перестаёт работать. Тем, кто его сохранил, нужен новый.",
   "homeHistoryNotBackedUp": "{count, plural, one{{count} платёж не входит в экспортированные данные кошелька.} few{{count} платежа не входят в экспортированные данные кошелька.} many{{count} платежей не входят в экспортированные данные кошелька.} other{{count} платежа не входят в экспортированные данные кошелька.}}",
   "homeHistoryChangedSinceBackup": "{count, plural, one{{count} платёж добавлен или изменён после последнего экспорта данных кошелька.} few{{count} платежа добавлены или изменены после последнего экспорта данных кошелька.} many{{count} платежей добавлены или изменены после последнего экспорта данных кошелька.} other{{count} платежа добавлены или изменены после последнего экспорта данных кошелька.}}",
   "homeHistoryReminderNotNow": "Не сейчас",
@@ -5364,7 +5363,5 @@
   "contactDomainRefused": "отклонён",
   "deskUpdStripAct": "Обновить",
   "deskUpdStripHide": "Скрыть до следующей версии",
-  "deskTorAddressChangedTitle": "Ваш адрес Tor изменился",
-  "deskTorAddressChangedText": "Старый адрес перестаёт работать. Тем, кто его сохранил, нужен новый.",
-  "deskTorAddressChangedLink": "Что изменилось"
+  "deskTorAddressChangedTitle": "Ваш адрес Tor изменился"
 }

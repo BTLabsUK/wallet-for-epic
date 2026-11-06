@@ -303,7 +303,6 @@
   "homeBackupCardButton": "Zabezpiecz",
   "homeBackupCardDismiss": "Ukryj",
   "torAddressChangedTitle": "Twój adres Tor się zmienił",
-  "torAddressChangedText": "Stary adres przestaje działać. Kto go zapisał, potrzebuje nowego.",
   "homeHistoryNotBackedUp": "{count, plural, one{{count} płatności nie ma w wyeksportowanych danych portfela.} few{{count} płatności nie ma w wyeksportowanych danych portfela.} many{{count} płatności nie ma w wyeksportowanych danych portfela.} other{{count} płatności nie ma w wyeksportowanych danych portfela.}}",
   "homeHistoryChangedSinceBackup": "{count, plural, one{{count} płatność jest nowa lub zmieniona od ostatniego eksportu danych portfela.} few{{count} płatności są nowe lub zmienione od ostatniego eksportu danych portfela.} many{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.} other{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.}}",
   "homeHistoryReminderNotNow": "Nie teraz",
@@ -5364,7 +5363,5 @@
   "contactDomainRefused": "odrzucona",
   "deskUpdStripAct": "Aktualizuj",
   "deskUpdStripHide": "Ukryj do następnej wersji",
-  "deskTorAddressChangedTitle": "Twój adres Tor się zmienił",
-  "deskTorAddressChangedText": "Stary adres przestaje działać. Kto go zapisał, potrzebuje nowego.",
-  "deskTorAddressChangedLink": "Co się zmieniło"
+  "deskTorAddressChangedTitle": "Twój adres Tor się zmienił"
 }

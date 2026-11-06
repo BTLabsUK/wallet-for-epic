@@ -1,5 +1,3 @@
 {
-  "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
-  "deskTorAddressChangedText": "ที่อยู่เดิมใช้ไม่ได้อีกต่อไป ใครที่บันทึกไว้ต้องใช้ที่อยู่ใหม่",
-  "deskTorAddressChangedLink": "มีอะไรเปลี่ยน"
+  "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว"
 }

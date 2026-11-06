@@ -1172,10 +1172,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get torAddressChangedTitle => 'Ihre Tor-Adresse hat sich geändert';
 
   @override
-  String get torAddressChangedText =>
-      'Die alte Adresse funktioniert nicht mehr. Wer sie gespeichert hat, braucht die neue.';
-
-  @override
   String homeHistoryNotBackedUp(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -20870,11 +20866,4 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTorAddressChangedTitle => 'Ihre Tor-Adresse hat sich geändert';
-
-  @override
-  String get deskTorAddressChangedText =>
-      'Die alte Adresse funktioniert nicht mehr. Wer sie gespeichert hat, braucht die neue.';
-
-  @override
-  String get deskTorAddressChangedLink => 'Was sich geändert hat';
 }

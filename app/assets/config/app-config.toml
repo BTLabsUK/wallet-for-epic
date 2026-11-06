@@ -132,8 +132,6 @@ signed_file = "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/
 website = "https://btlabs.uk"
 source = "https://github.com/BTLabsUK/wallet-for-epic"   # a signed btlabs.json may replace it (links id wallet-source, same host)
 privacy = "https://btlabs.uk/privacy/"   # the privacy policy; comment out to hide its link
-# What changed in the one-time notice about the Tor address (the onion got its own key)
-tor_address_changed = "https://epiccash.btlabs.uk/changelog/tor-address.html"
 
 [explorer]
 block = "https://explorer.epiccash.com/blockdetail/{height}"   # a block by its height

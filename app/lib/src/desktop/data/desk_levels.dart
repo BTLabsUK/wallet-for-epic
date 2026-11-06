@@ -255,7 +255,7 @@ class DeskOnionNotice extends AsyncNotifier<bool> {
     return onionNoticeDue(ref.read(secretStoreProvider), chain: account.network, walletId: _walletIdOf(account.id));
   }
 
-  /// What changed or OK: never again for this wallet.
+  /// OK: never again for this wallet.
   Future<void> dismiss() async {
     final account = ref.read(deskProvider).account;
     state = const AsyncData(false);
