@@ -97,7 +97,7 @@ List<HelpTopic> _en(bool phone) {
       [
         const HelpBlock.p('A link payment waits for the payee’s wallet like any Epicbox payment. The payee does not have to be online right now.'),
         const HelpBlock.ul([
-          'After 24 hours it shows **Not answered yet**, with **Cancel and send by Epicbox**.',
+          'After 24 hours it shows **Not answered yet**, with **Cancel and send to their public address**.',
           'At 7 days the Epicbox server has dropped the payment. Cancel it to free the coins.',
         ]),
       ],
@@ -184,7 +184,7 @@ List<HelpTopic> _de(bool phone) {
       [
         const HelpBlock.p('Eine Link-Zahlung wartet auf die Wallet des Empfängers wie jede Epicbox-Zahlung. Der Empfänger muss nicht gerade online sein.'),
         const HelpBlock.ul([
-          'Nach 24 Stunden zeigt sie **Noch nicht beantwortet**, mit **Stornieren und per Epicbox senden**.',
+          'Nach 24 Stunden zeigt sie **Noch nicht beantwortet**, mit **Stornieren und an die öffentliche Adresse senden**.',
           'Nach 7 Tagen hat der Epicbox-Server die Zahlung verworfen. Brechen Sie sie ab, um die Coins freizugeben.',
         ]),
       ],
@@ -271,7 +271,7 @@ List<HelpTopic> _pl(bool phone) {
       [
         const HelpBlock.p('Płatność linkiem czeka na portfel odbiorcy jak każda płatność przez Epicbox. Odbiorca nie musi być teraz online.'),
         const HelpBlock.ul([
-          'Po 24 godzinach pokazuje **Jeszcze bez odpowiedzi** z przyciskiem **Anuluj i wyślij przez Epicbox**.',
+          'Po 24 godzinach pokazuje **Jeszcze bez odpowiedzi** z przyciskiem **Anuluj i wyślij na publiczny adres**.',
           'Po 7 dniach serwer Epicbox porzucił płatność. Anuluj ją, aby zwolnić monety.',
         ]),
       ],
@@ -358,7 +358,7 @@ List<HelpTopic> _ru(bool phone) {
       [
         const HelpBlock.p('Платёж по ссылке ждёт кошелёк получателя, как любой платёж через Epicbox. Получателю не нужно быть онлайн прямо сейчас.'),
         const HelpBlock.ul([
-          'Через 24 часа он показывает **Пока без ответа** с кнопкой **Отменить и отправить через Epicbox**.',
+          'Через 24 часа он показывает **Пока без ответа** с кнопкой **Отменить и отправить на публичный адрес**.',
           'Через 7 дней сервер Epicbox отбросил платёж. Отмените его, чтобы освободить монеты.',
         ]),
       ],
@@ -445,7 +445,7 @@ List<HelpTopic> _zh(bool phone) {
       [
         const HelpBlock.p('链接付款和任何 Epicbox 付款一样，会等待收款方的钱包。对方不必此刻在线。'),
         const HelpBlock.ul([
-          '24 小时后会显示 **尚未应答**，并带有 **取消并经 Epicbox 发送**。',
+          '24 小时后会显示 **尚未应答**，并带有 **取消并发送到对方的公开地址**。',
           '7 天后 Epicbox 服务器已丢弃该付款。取消它即可释放币。',
         ]),
       ],
@@ -532,7 +532,7 @@ List<HelpTopic> _th(bool phone) {
       [
         const HelpBlock.p('การจ่ายด้วยลิงก์จะรอกระเป๋าเงินของผู้รับเหมือนการจ่ายผ่าน Epicbox ทั่วไป ผู้รับไม่จำเป็นต้องออนไลน์ในตอนนี้'),
         const HelpBlock.ul([
-          'หลัง 24 ชั่วโมง จะแสดง **ยังไม่มีการตอบ** พร้อม **ยกเลิกและส่งผ่าน Epicbox**',
+          'หลัง 24 ชั่วโมง จะแสดง **ยังไม่มีการตอบ** พร้อม **ยกเลิกและส่งไปยังที่อยู่สาธารณะ**',
           'เมื่อครบ 7 วัน เซิร์ฟเวอร์ Epicbox ทิ้งการจ่ายนี้แล้ว ให้ยกเลิกเพื่อปล่อยเหรียญ',
         ]),
       ],
