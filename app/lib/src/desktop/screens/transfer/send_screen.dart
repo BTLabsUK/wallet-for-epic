@@ -3245,6 +3245,17 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // The message the code or the address expects is empty: a warning, the user may send.
+          // First in the dialog: the body scrolls under the password field.
+          if (d.to == null ? null : noteWarning(l, d.to!, d.message, codeAsks: code?.noteRequired ?? false) case final warning? when !_busy) ...[
+            ENotice(key: const ValueKey('send-review-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: warning),
+            SizedBox(height: Sp.x3),
+          ],
+          // Under a code's minimum, as All may land: a warning, the payee decides what it credits.
+          if (code?.minimum case final minimum? when d.amount < minimum && !_busy) ...[
+            ENotice(key: const ValueKey('send-review-below-minimum'), tone: ETone.warn, title: l.sendBelowMinimumTitle, text: l.sendBelowMinimum(epicTextL(l, minimum))),
+            SizedBox(height: Sp.x3),
+          ],
           if (code != null) ...[
             Row(children: [EBadge(originText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
             SizedBox(height: Sp.x3),
@@ -3349,16 +3360,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               title: l.deskSendRelayUnknownTitle,
               text: l.deskSendRelayUnknownText(unknown.label),
             ),
-          ],
-          // The message the code or the address expects is empty: a warning, the user may send.
-          if (d.to == null ? null : noteWarning(l, d.to!, d.message, codeAsks: code?.noteRequired ?? false) case final warning? when !_busy) ...[
-            SizedBox(height: Sp.x4),
-            ENotice(key: const ValueKey('send-review-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: warning),
-          ],
-          // Under a code's minimum, as All may land: a warning, the payee decides what it credits.
-          if (code?.minimum case final minimum? when d.amount < minimum && !_busy) ...[
-            SizedBox(height: Sp.x4),
-            ENotice(key: const ValueKey('send-review-below-minimum'), tone: ETone.warn, title: l.sendBelowMinimumTitle, text: l.sendBelowMinimum(epicTextL(l, minimum))),
           ],
           if (_feeWas != null && !_busy) ...[
             SizedBox(height: Sp.x4),
