@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "等待 {name} 的钱包",
   "pairAnsweredNotHeard": "已回复你的邀请 · 尚无消息",
   "pairNotChecked": "{name} 尚未核对",
+  "contactTakesPaymentsAgain": "{name} 现在接受付款。",
+  "pairIsService": "自动化服务。",
   "pairConfirmedToo": "{name} 也已确认。",
   "pairEndedShort": "配对已结束",
   "pairEndedMismatch": "你报告了词语不一致。",

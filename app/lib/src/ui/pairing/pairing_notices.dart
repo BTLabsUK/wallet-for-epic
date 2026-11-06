@@ -19,6 +19,7 @@ import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../providers.dart' show homeProvider, pendingInvoicesProvider, sessionProvider;
 import '../../scan/scan_checks.dart' show CodeOrigin;
+import '../../trust/profile_watch.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
@@ -116,6 +117,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   static const _tick = Duration(seconds: 45);
   Timer? _timer;
+  late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(pairingClockProvider));
 
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(pairingApiProvider);
@@ -175,6 +177,16 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     });
     // A contact whose keys came back docks the notice on its page, whenever that opens.
     ref.listenManual(keysBackProvider, (_, _) {});
+    // A paired contact that starts or stops taking payments, said once a day per direction.
+    ref.listenManual(pairingsProvider, (_, next) {
+      final records = next.value;
+      if (records == null || !mounted) return;
+      for (final c in _profiles.update(records)) {
+        final l = context.l10n;
+        final name = pairingName(c.record, ref.read(contactsProvider).value ?? const <Contact>[], l: l);
+        ref.read(noticeProvider.notifier).show(c.takesPayments ? l.contactTakesPaymentsAgain(name) : l.contactNoPaymentsNamed(name), level: NoticeLevel.info);
+      }
+    }, fireImmediately: true);
   }
 
   Future<void> _show(PairingEvent e) async {

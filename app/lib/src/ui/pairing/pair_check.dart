@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service.dart';
 import '../../name_service/phone_name_service.dart';
-import '../../trust/policy.dart' show featureNameService;
+import '../../trust/policy.dart' show featureNameService, statedAutomated;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -287,7 +287,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       }
     }
     // A name service confirms by itself once this side matched: nothing to confirm on its page.
-    final service = record.kind != PairingParty.person && record.peerFeatures & featureNameService == 0;
+    final service = (record.kind != PairingParty.person || statedAutomated(record.peerProfile)) && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
     return SlotScaffold(
@@ -521,7 +521,11 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           if (verified) ...[
             const SizedBox(height: 8),
             Text(
-              record.peerVerifiedAt != null ? l.pairConfirmedToo(who) : l.pairNotChecked(who),
+              statedAutomated(record.peerProfile)
+                  ? l.pairIsService
+                  : record.peerVerifiedAt != null
+                      ? l.pairConfirmedToo(who)
+                      : l.pairNotChecked(who),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),

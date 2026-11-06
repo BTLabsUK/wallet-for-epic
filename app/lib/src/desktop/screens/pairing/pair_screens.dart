@@ -35,7 +35,7 @@ import '../../../pairing_text.dart';
 import '../../../ui/key_picture.dart';
 import '../../../ui/pairing/invite_links.dart';
 import '../../../name_service/name_service.dart';
-import '../../../trust/policy.dart' show featureNameService, mayOfferPair;
+import '../../../trust/policy.dart' show featureNameService, mayOfferPair, statedAutomated;
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
 import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, WordTileSize, WordTiles;
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -1370,7 +1370,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
         return DeskNameServiceWaiting(label: name, onCancel: () => _nameService?.cancelHello(widget.pairingId));
       }
     }
-    final lead = r.kind != PairingParty.person ? l.sasLeadExchange(name) : l.sasLead(name);
+    final lead = r.kind != PairingParty.person || statedAutomated(r.peerProfile) ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (r.asksInvoices || r.caps.issuesInvoices) && r.state == PairingState.paired;
     return EDialog(
       title: l.sasDialogTitle(name),
@@ -1448,6 +1448,10 @@ class DeskPairedSaveDialog extends ConsumerWidget {
           if (ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairingId)) ...[
             SizedBox(height: Sp.x3),
             Align(alignment: AlignmentDirectional.centerStart, child: const NoPaymentsBadge()),
+          ],
+          if (r != null && statedAutomated(r.peerProfile)) ...[
+            SizedBox(height: Sp.x3),
+            Text(l.pairIsService, style: ts.bodyDim),
           ],
           SizedBox(height: Sp.x4),
           Text(l.pairSaveContactTitle(name), style: ts.label),

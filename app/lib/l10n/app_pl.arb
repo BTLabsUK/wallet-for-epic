@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "Czekanie na portfel {name}",
   "pairAnsweredNotHeard": "Odpowiedź na twoje zaproszenie · jeszcze bez wieści",
   "pairNotChecked": "{name} jeszcze nie sprawdził(a)",
+  "contactTakesPaymentsAgain": "{name} znów przyjmuje płatności.",
+  "pairIsService": "Usługa automatyczna.",
   "pairConfirmedToo": "{name} też potwierdził(a).",
   "pairEndedShort": "Parowanie zakończone",
   "pairEndedMismatch": "Zgłoszono, że słowa się nie zgadzają.",

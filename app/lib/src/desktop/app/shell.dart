@@ -21,7 +21,8 @@ import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../data/name_service_state.dart' show deskNameServiceProvider;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
-import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
+import '../../trust/profile_watch.dart';
+import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
@@ -200,6 +201,16 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();
+    // A paired contact that starts or stops taking payments, said once a day per direction.
+    ref.listenManual(deskPairingsProvider, (_, next) {
+      final records = next.value;
+      if (records == null || !mounted) return;
+      for (final c in _profiles.update(records)) {
+        final l = context.l10n;
+        final name = deskPairingName(c.record, ref.read(deskProvider).contacts, l: l);
+        showEToast(context, c.takesPayments ? l.contactTakesPaymentsAgain(name) : l.contactNoPaymentsNamed(name), tone: ETone.info);
+      }
+    }, fireImmediately: true);
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
     // The clipboard is never read here: a pairing link is pasted on the Pair page by a press.
@@ -215,6 +226,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   }
 
   AppLifecycleListener? _focus;
+  late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(clockProvider));
 
   /// The hidden Settings place last answered with a fallback toast (once per place).
   DeskLocation? _fellBack;

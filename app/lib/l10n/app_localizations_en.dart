@@ -18753,6 +18753,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name takes payments again.';
+  }
+
+  @override
+  String get pairIsService => 'Automated service.';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name confirmed too.';
   }

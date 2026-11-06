@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "Ожидание кошелька {name}",
   "pairAnsweredNotHeard": "Ответ на ваше приглашение · пока нет вестей",
   "pairNotChecked": "{name} ещё не проверил(а)",
+  "contactTakesPaymentsAgain": "{name} снова принимает платежи.",
+  "pairIsService": "Автоматический сервис.",
   "pairConfirmedToo": "{name} тоже подтвердил(а).",
   "pairEndedShort": "Сопряжение завершено",
   "pairEndedMismatch": "Вы сообщили, что слова не совпадают.",

@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "กำลังรอกระเป๋าของ {name}",
   "pairAnsweredNotHeard": "ตอบคำเชิญของคุณแล้ว · ยังไม่ได้ยินข่าว",
   "pairNotChecked": "{name} ยังไม่ได้ตรวจ",
+  "contactTakesPaymentsAgain": "{name} รับการจ่ายเงินอีกครั้ง",
+  "pairIsService": "บริการอัตโนมัติ",
   "pairConfirmedToo": "{name} ยืนยันแล้วเช่นกัน",
   "pairEndedShort": "การจับคู่สิ้นสุดแล้ว",
   "pairEndedMismatch": "คุณรายงานว่าคำไม่ตรงกัน",

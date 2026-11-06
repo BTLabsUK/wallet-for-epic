@@ -17692,6 +17692,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name 现在接受付款。';
+  }
+
+  @override
+  String get pairIsService => '自动化服务。';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name 也已确认。';
   }

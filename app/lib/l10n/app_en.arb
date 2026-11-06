@@ -25437,6 +25437,19 @@
       }
     }
   },
+  "contactTakesPaymentsAgain": "{name} takes payments again.",
+  "@contactTakesPaymentsAgain": {
+    "description": "Notice (phone) and toast (desktop) when a paired contact that took no payments takes them again. name is the contact's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairIsService": "Automated service.",
+  "@pairIsService": {
+    "description": "Status line of a paired contact that says it is automated (a service), in place of the line about whether it confirmed the words. A short phrase with a full stop."
+  },
   "pairConfirmedToo": "{name} confirmed too.",
   "@pairConfirmedToo": {
     "description": "Pairing block, Verified: the other side pressed They match.",

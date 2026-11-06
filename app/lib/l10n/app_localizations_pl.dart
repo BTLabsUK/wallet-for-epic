@@ -19408,6 +19408,14 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name znów przyjmuje płatności.';
+  }
+
+  @override
+  String get pairIsService => 'Usługa automatyczna.';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name też potwierdził(a).';
   }

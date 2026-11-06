@@ -235,6 +235,11 @@ void main() {
         expect(line.kind, want);
       });
     }
+    test('an automated peer shows no line, not even Not heard from', () {
+      const service = Relationship(RelationshipKind.paired, peerProfile: profileAutomated);
+      expect(contactLine(compat(marked: day * 200), service, now).kind, ContactLineKind.none);
+      expect(contactLine(compat(marked: day * 200, unmarked: day), service, now).kind, ContactLineKind.none);
+    });
     test('not heard carries the latest date', () {
       final line = contactLine(
         compat(marked: day * 200),

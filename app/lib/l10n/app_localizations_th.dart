@@ -18341,6 +18341,14 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name รับการจ่ายเงินอีกครั้ง';
+  }
+
+  @override
+  String get pairIsService => 'บริการอัตโนมัติ';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name ยืนยันแล้วเช่นกัน';
   }

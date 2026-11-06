@@ -218,7 +218,7 @@ ContactLine contactLine(
   DateTime? lastSealedIn,
 }) {
   final inRange = r.kind == RelationshipKind.contact || r.isPaired;
-  if (!inRange) return const ContactLine.none();
+  if (!inRange || statedAutomated(r.peerProfile)) return const ContactLine.none();
   if (answeredByOtherApp(c)) {
     return const ContactLine(ContactLineKind.answeredByOtherApp);
   }

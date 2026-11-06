@@ -18971,6 +18971,14 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name nimmt wieder Zahlungen an.';
+  }
+
+  @override
+  String get pairIsService => 'Automatisierter Dienst.';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name hat auch bestätigt.';
   }

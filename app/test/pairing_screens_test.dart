@@ -360,6 +360,18 @@ void main() {
       expect(find.byKey(resultSaveNewKey), findsOneWidget);
     });
 
+    testWidgets('an automated peer: the service lead, and the result says so instead of the confirmed line', (tester) async {
+      final h = _Harness();
+      final r = h.api.seedPaired(name: 'Tipbot', state: PairingState.paired, peerProfile: 3);
+      await h.pump(tester, CheckWordsScreen(pairingId: r.id));
+      expect(find.text(_l.sasLeadExchange('Tipbot')), findsOneWidget);
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(PairingResultScreen), findsOneWidget);
+      expect(find.text(_l.pairIsService), findsOneWidget);
+      expect(find.text(_l.pairNotChecked('Tipbot')), findsNothing);
+    });
+
     testWidgets('They do not match asks, then ends the pairing (kept) with the notice', (tester) async {
       final h = _Harness();
       final r = h.api.seedPaired(name: 'Anna', state: PairingState.paired);

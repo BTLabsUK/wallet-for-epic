@@ -19396,6 +19396,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name снова принимает платежи.';
+  }
+
+  @override
+  String get pairIsService => 'Автоматический сервис.';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name тоже подтвердил(а).';
   }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
+import '../../../trust/policy.dart' show statedAutomated;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
@@ -1430,9 +1431,11 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
         ? l.contactKeysChangedStatus
         : waiting
             ? l.pairAnsweredNotHeard
-            : (verified && p.peerVerifiedAt != null)
-                ? l.pairConfirmedToo(name)
-                : l.pairNotChecked(name);
+            : statedAutomated(p.peerProfile)
+                ? l.pairIsService
+                : (verified && p.peerVerifiedAt != null)
+                    ? l.pairConfirmedToo(name)
+                    : l.pairNotChecked(name);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "Warten auf die Wallet von {name}",
   "pairAnsweredNotHeard": "Hat deine Einladung beantwortet · noch nichts gehört",
   "pairNotChecked": "{name} hat noch nicht geprüft",
+  "contactTakesPaymentsAgain": "{name} nimmt wieder Zahlungen an.",
+  "pairIsService": "Automatisierter Dienst.",
   "pairConfirmedToo": "{name} hat auch bestätigt.",
   "pairEndedShort": "Kopplung beendet",
   "pairEndedMismatch": "Du hast gemeldet, dass die Wörter nicht übereinstimmen.",

@@ -29184,6 +29184,18 @@ abstract class AppLocalizations {
   /// **'{name} has not checked yet'**
   String pairNotChecked(String name);
 
+  /// Notice (phone) and toast (desktop) when a paired contact that took no payments takes them again. name is the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} takes payments again.'**
+  String contactTakesPaymentsAgain(String name);
+
+  /// Status line of a paired contact that says it is automated (a service), in place of the line about whether it confirmed the words. A short phrase with a full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated service.'**
+  String get pairIsService;
+
   /// Pairing block, Verified: the other side pressed They match.
   ///
   /// In en, this message translates to:
