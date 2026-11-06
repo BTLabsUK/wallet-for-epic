@@ -7,27 +7,32 @@ library;
 class Coalesced {
   bool _running = false;
   bool _again = false;
+  Future<int> Function()? _latest;
 
   bool get running => _running;
 
-  /// Runs [body] now, or, when a run is going, marks one rerun and returns 0 at once. The caller
-  /// that started the runs gets the sum of all of them.
+  /// Runs [body] now, or, when a run is going, marks one rerun with the latest [body] given and
+  /// returns 0 at once. The caller that started the runs gets the sum of all of them.
   Future<int> run(Future<int> Function() body) async {
     if (_running) {
       _again = true;
+      _latest = body;
       return 0;
     }
     _running = true;
     try {
       var total = 0;
+      var next = body;
       do {
         _again = false;
-        total += await body();
+        total += await next();
+        next = _latest ?? body;
       } while (_again);
       return total;
     } finally {
       _running = false;
       _again = false;
+      _latest = null;
     }
   }
 }

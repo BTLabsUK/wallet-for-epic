@@ -27,6 +27,28 @@ void main() {
     expect(runs, 3);
   });
 
+  test('the rerun is the latest body given', () async {
+    final c = Coalesced();
+    final gate = Completer<void>();
+    final ran = <String>[];
+    final first = c.run(() async {
+      ran.add('first');
+      await gate.future;
+      return 1;
+    });
+    await c.run(() async {
+      ran.add('second');
+      return 0;
+    });
+    await c.run(() async {
+      ran.add('third');
+      return 0;
+    });
+    gate.complete();
+    await first;
+    expect(ran, ['first', 'third']);
+  });
+
   test('a failure frees the next run and drops the mark', () async {
     final c = Coalesced();
     await expectLater(c.run(() async => throw StateError('x')), throwsStateError);

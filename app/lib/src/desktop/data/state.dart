@@ -29,7 +29,7 @@ import 'net_mode_view.dart' show torProcessState;
 final deskApiProvider = Provider<DeskWalletApi>((ref) => MockDeskWallet());
 
 /// The open wallet's message checks, for the status popover.
-final deskMessageCheckProvider = StreamProvider<MessageCheck>(
+final deskMessageCheckProvider = StreamProvider.autoDispose<MessageCheck>(
   (ref) => messageCheckStream(ref.watch(deskApiProvider).messageChecks),
 );
 

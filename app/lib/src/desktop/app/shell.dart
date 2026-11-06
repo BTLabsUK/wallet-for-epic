@@ -231,9 +231,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         unawaited(ref.read(deskNameServiceProvider)?.sync(NameServiceSyncTrigger.resume));
         // A node failover that waits longer each time tries again soon.
         ref.read(deskFailoverWatchProvider.notifier).resumed();
-        // The contacts' mailboxes too, as the tick would (the shell exists only unlocked; the
-        // collect itself stays off in Node only, Kill switch and with Epicbox off).
-        if (mounted) _collect(PairingCollectTrigger.foreground);
+        // The contacts' mailboxes too, as the phone does on resume (the shell exists only
+        // unlocked; the collect itself stays off in Node only, Kill switch and with Epicbox off).
+        if (mounted) _collect(PairingCollectTrigger.open);
       },
     );
   }

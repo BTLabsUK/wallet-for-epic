@@ -1664,7 +1664,7 @@ Stream<MessageCheck> messageCheckStream(MessageChecks? checks) async* {
   yield* checks.stream;
 }
 
-final messageCheckProvider = StreamProvider<MessageCheck>(
+final messageCheckProvider = StreamProvider.autoDispose<MessageCheck>(
   (ref) => messageCheckStream(ref.watch(sessionProvider)?.checks),
 );
 

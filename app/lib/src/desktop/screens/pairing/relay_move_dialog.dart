@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models.dart' show PairingRecord;
 import '../../../relay_moves.dart';
 import '../../../server_list.dart';
+import '../../../ui/pairing/relay_move_sheet.dart' show RelayMoveGuard;
 import '../../data/pairing_state.dart';
 import '../../data/server_lists.dart' show deskServerListProvider;
 import '../../desk_l10n.dart';
@@ -48,7 +49,12 @@ Future<void> deskAskRelayMove(BuildContext context, WidgetRef ref, PairingRecord
   if (!context.mounted) return;
   final accept = await showEDialog<bool>(
     context,
-    builder: (_) => DeskRelayMoveDialog(name: name, relay: relay),
+    builder: (_) => RelayMoveGuard(
+      pairingId: p.id,
+      relay: relay,
+      records: deskPairingsProvider,
+      child: DeskRelayMoveDialog(name: name, relay: relay),
+    ),
   );
   switch (accept) {
     case true:
