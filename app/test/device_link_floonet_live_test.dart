@@ -96,7 +96,7 @@ class _EchoSink extends MemoryLogSink {
   }
 }
 
-lepic.WalletConfig _config(String name, {String relay = _relay, bool mainnet = false}) => lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, profile: 0,
+lepic.WalletConfig _config(String name, {String relay = _relay, bool mainnet = false}) => lepic.WalletConfig(policy: LepicWalletService.hostPolicyOf(appConfig), torWanted: false, hostFeatures: 0, profile: 0,
   dataDir: (Directory('$_dir/$name')..createSync(recursive: true)).path,
   chain: mainnet ? lepic.Chain.mainnet : lepic.Chain.floonet,
   nodeUrl: mainnet ? _mainnetNode : _node,

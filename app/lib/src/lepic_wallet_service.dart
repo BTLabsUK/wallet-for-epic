@@ -1060,7 +1060,7 @@ class LepicWalletService implements WalletService {
   /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
-        policy: const lepic.HostPolicy(),
+        policy: hostPolicyOf(appConfig),
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
         nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),
@@ -1080,6 +1080,13 @@ class LepicWalletService implements WalletService {
         // The app claims no domain; a service's wallet (the CLI) does.
         domain: null,
       );
+
+  /// The host's policy for the wallet core: how long a contact's message that fails to apply is
+  /// held, from `[contacts]` of `app-config.toml`. Fields not set here keep the core's default.
+  static lepic.HostPolicy hostPolicyOf(AppConfig c) => lepic.HostPolicy(
+    contactHoldAttempts: c.number('contacts.hold_attempts'),
+    contactHoldPatienceS: BigInt.from(c.number('contacts.hold_patience_s')),
+  );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
   /// of `app-config.toml`, under the same names (LEPIC's ADR 0030).

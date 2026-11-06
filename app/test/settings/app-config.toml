@@ -161,3 +161,7 @@ stale_after_days = 7
 # After that check, the contacts are collected every 15 s for this many seconds; one that has not
 # answered by then shows "Not answering".
 check_wait_s = 120
+# A message from a contact that fails to apply is held and tried again on later checks, up to
+# this many attempts and for this many seconds, then dropped. The core's bounds.
+hold_attempts = 10
+hold_patience_s = 86400
