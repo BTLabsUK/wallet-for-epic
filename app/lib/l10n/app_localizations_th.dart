@@ -8103,7 +8103,8 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ยืนยันแล้ว แต่รางวัลการขุดใช้ได้หลังยืนยันครบ $countString ครั้ง',
+      other:
+          'รอครบกำหนด ใช้ได้หลังยืนยันครบ $countString ครั้ง รางวัลอาจสูญหายได้หากบล็อกของรางวัลถูกแทนที่ก่อนถึงตอนนั้น',
     );
     return '$_temp0';
   }

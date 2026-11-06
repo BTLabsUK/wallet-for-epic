@@ -41,7 +41,7 @@
   "deskTxSemKind": "{kind} {amount}, {who}, {status}",
   "deskTxHiddenAmount": "ukryta kwota",
   "deskTxNowBackup": "Zaimportowano z pliku danych portfela. Status nie został sprawdzony w łańcuchu.",
-  "deskTxNowImmature": "{count, plural, one{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniu.} few{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniach.} many{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniach.} other{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzenia.}}",
+  "deskTxNowImmature": "{count, plural, one{Dojrzewa. Można wydać po {count} potwierdzeniu. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.} few{Dojrzewa. Można wydać po {count} potwierdzeniach. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.} many{Dojrzewa. Można wydać po {count} potwierdzeniach. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.} other{Dojrzewa. Można wydać po {count} potwierdzenia. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.}}",
   "deskTxNowWaitingSender": "Czeka, aż nadawca opublikuje ją w sieci.",
   "deskTxNowSenderPosted": "Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy sieć ją potwierdzi.",
   "deskTxNowWaitingResponseFile": "Czeka na plik odpowiedzi. Sfinalizuj, gdy dotrze.",

@@ -8759,13 +8759,13 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Potwierdzona, ale nagrodę za kopanie można wydać dopiero po $countString potwierdzenia.',
+          'Dojrzewa. Można wydać po $countString potwierdzenia. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.',
       many:
-          'Potwierdzona, ale nagrodę za kopanie można wydać dopiero po $countString potwierdzeniach.',
+          'Dojrzewa. Można wydać po $countString potwierdzeniach. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.',
       few:
-          'Potwierdzona, ale nagrodę za kopanie można wydać dopiero po $countString potwierdzeniach.',
+          'Dojrzewa. Można wydać po $countString potwierdzeniach. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.',
       one:
-          'Potwierdzona, ale nagrodę za kopanie można wydać dopiero po $countString potwierdzeniu.',
+          'Dojrzewa. Można wydać po $countString potwierdzeniu. Nagroda może przepaść, jeśli jej blok zostanie wcześniej zastąpiony.',
     );
     return '$_temp0';
   }

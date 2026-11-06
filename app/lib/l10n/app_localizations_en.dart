@@ -8365,9 +8365,9 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Confirmed, but a mining reward is spendable only after $countString confirmations.',
+          'Maturing. Spendable after $countString confirmations. A reward can be lost if its block is replaced before that.',
       one:
-          'Confirmed, but a mining reward is spendable only after $countString confirmation.',
+          'Maturing. Spendable after $countString confirmation. A reward can be lost if its block is replaced before that.',
     );
     return '$_temp0';
   }

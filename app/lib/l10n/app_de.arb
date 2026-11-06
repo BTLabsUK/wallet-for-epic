@@ -2158,7 +2158,7 @@
   "deskTxSemKind": "{kind} {amount}, {who}, {status}",
   "deskTxHiddenAmount": "Betrag verborgen",
   "deskTxNowBackup": "Aus einer Wallet-Datendatei importiert. Status nicht auf der Chain geprüft.",
-  "deskTxNowImmature": "{count, plural, one{Bestätigt, aber eine Mining-Belohnung ist erst nach {count} Bestätigung verfügbar.} other{Bestätigt, aber eine Mining-Belohnung ist erst nach {count} Bestätigungen verfügbar.}}",
+  "deskTxNowImmature": "{count, plural, one{Reift. Verfügbar nach {count} Bestätigung. Eine Belohnung kann verloren gehen, wenn ihr Block vorher ersetzt wird.} other{Reift. Verfügbar nach {count} Bestätigungen. Eine Belohnung kann verloren gehen, wenn ihr Block vorher ersetzt wird.}}",
   "deskTxNowWaitingSender": "Wartet darauf, dass der Absender sie an das Netzwerk sendet.",
   "deskTxNowWaitingResponseFile": "Wartet auf die Antwortdatei. Schließen Sie ab, sobald sie da ist.",
   "deskTxNowWaitingRecipient": "Wartet auf die Signatur des Empfängers. Bis zum Abschluss verlässt nichts die Wallet.",

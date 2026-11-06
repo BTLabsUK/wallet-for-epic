@@ -2988,7 +2988,7 @@
   "deskTxSemKind": "{kind} {amount}，{who}，{status}",
   "deskTxHiddenAmount": "金额已隐藏",
   "deskTxNowBackup": "从钱包数据文件导入。未在链上核对状态。",
-  "deskTxNowImmature": "{count, plural, other{已确认，但挖矿奖励需要 {count} 个确认后才能使用。}}",
+  "deskTxNowImmature": "{count, plural, other{成熟中。需要 {count} 个确认后才能使用。如果其区块在此之前被替换，奖励可能丢失。}}",
   "deskTxNowWaitingSender": "等待发送方将其广播到网络。",
   "deskTxNowWaitingResponseFile": "等待回复文件。文件到达后完成交易。",
   "deskTxNowWaitingRecipient": "等待接收方签名。交易完成前，资金不会离开钱包。",

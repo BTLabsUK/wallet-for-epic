@@ -7834,7 +7834,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '已确认，但挖矿奖励需要 $countString 个确认后才能使用。',
+      other: '成熟中。需要 $countString 个确认后才能使用。如果其区块在此之前被替换，奖励可能丢失。',
     );
     return '$_temp0';
   }
