@@ -736,9 +736,9 @@
   "@txStatusReceiverDeclined": {
     "description": "Transaction status (phone list, badge, desktop Activity) of an outgoing payment whose receiver refused it unanswered. The wallet cancelled it."
   },
-  "txDetailsReceiverDeclined": "The receiver declined this payment. It was cancelled, and its coins are free to spend again.",
+  "txDetailsReceiverDeclined": "The receiver declined this payment. It was cancelled and your balance has not changed.",
   "@txDetailsReceiverDeclined": {
-    "description": "Payment details, explanation of an outgoing payment the receiver declined. The wallet cancelled it, so its coins are free again."
+    "description": "Payment details, explanation of an outgoing payment the receiver declined. The wallet cancelled it; the balance is unchanged."
   },
   "txStatusSenderCancelled": "Cancelled by the sender",
   "@txStatusSenderCancelled": {

@@ -687,7 +687,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsReceiverDeclined =>
-      'Odbiorca odrzucił tę płatność. Została anulowana, a środki są znów dostępne.';
+      'Odbiorca odrzucił tę płatność. Została anulowana, a twoje saldo się nie zmieniło.';
 
   @override
   String get txStatusSenderCancelled => 'Anulowana przez nadawcę';

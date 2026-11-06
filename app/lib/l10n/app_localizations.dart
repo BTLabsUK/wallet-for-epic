@@ -1075,10 +1075,10 @@ abstract class AppLocalizations {
   /// **'Declined by the receiver'**
   String get txStatusReceiverDeclined;
 
-  /// Payment details, explanation of an outgoing payment the receiver declined. The wallet cancelled it, so its coins are free again.
+  /// Payment details, explanation of an outgoing payment the receiver declined. The wallet cancelled it; the balance is unchanged.
   ///
   /// In en, this message translates to:
-  /// **'The receiver declined this payment. It was cancelled, and its coins are free to spend again.'**
+  /// **'The receiver declined this payment. It was cancelled and your balance has not changed.'**
   String get txDetailsReceiverDeclined;
 
   /// Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status.

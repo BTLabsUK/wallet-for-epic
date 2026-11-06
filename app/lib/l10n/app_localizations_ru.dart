@@ -683,7 +683,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsReceiverDeclined =>
-      'Получатель отклонил этот платёж. Он отменён, средства снова доступны.';
+      'Получатель отклонил этот платёж. Он отменён, ваш баланс не изменился.';
 
   @override
   String get txStatusSenderCancelled => 'Отменён отправителем';

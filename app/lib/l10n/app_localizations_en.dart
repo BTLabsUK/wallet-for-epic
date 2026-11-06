@@ -657,7 +657,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsReceiverDeclined =>
-      'The receiver declined this payment. It was cancelled, and its coins are free to spend again.';
+      'The receiver declined this payment. It was cancelled and your balance has not changed.';
 
   @override
   String get txStatusSenderCancelled => 'Cancelled by the sender';

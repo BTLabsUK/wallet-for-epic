@@ -664,7 +664,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsReceiverDeclined =>
-      'Der Empfänger hat diese Zahlung abgelehnt. Sie wurde storniert, und der Betrag ist wieder verfügbar.';
+      'Der Empfänger hat diese Zahlung abgelehnt. Sie wurde storniert, und Ihr Guthaben hat sich nicht geändert.';
 
   @override
   String get txStatusSenderCancelled => 'Vom Absender storniert';

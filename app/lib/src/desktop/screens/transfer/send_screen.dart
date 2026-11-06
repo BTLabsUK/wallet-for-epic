@@ -1734,7 +1734,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final name = _sentTo ?? live.contactName;
     final amount = formatEpicL(l, r.tx.amount);
     // Over before it finished: its receiver declined it, or it was cancelled under Activity.
-    // The row's words for the title; a declined send says what happened to its coins.
+    // The row's words for the title; a declined send says the balance is unchanged.
     if (live.state == TxState.cancelled) {
       final (word, _) = statusOf(l, live);
       return ConstrainedBox(
