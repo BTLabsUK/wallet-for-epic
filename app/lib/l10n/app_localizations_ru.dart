@@ -2943,7 +2943,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice =>
-      'Цены берутся из CoinGecko; этот сервис видит ваш IP-адрес.';
+      'Цены берутся из копии цены CoinGecko, которую ведёт BT Labs на status.btlabs.uk; этот сервер видит ваш IP-адрес. Если Tor выключен и в копии нет цены, запрос уходит в CoinGecko, и тогда CoinGecko видит ваш IP-адрес.';
 
   @override
   String get settingsSectionSecurity => 'Безопасность';
@@ -7165,7 +7165,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendDandelionText =>
-      'Пропускает транзакцию через несколько случайных узлов, прежде чем она разойдётся по сети, и сеть не может узнать, откуда она пришла.';
+      'Пропускает транзакцию через несколько случайных узлов, прежде чем она разойдётся по сети, из-за чего её происхождение сложнее отследить. Узел, который использует кошелёк, всё равно её получает.';
 
   @override
   String get deskSendHintSent => 'Отправлено.';
@@ -18275,7 +18275,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'PIN-код больше не открывает этот кошелёк. Ваши монеты в безопасности: нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления.';
+      'PIN-код больше не открывает этот кошелёк. Нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления. Монеты остаются в блокчейне и восстанавливаются только по этой фразе и по паролю, если он был задан.';
 
   @override
   String get errorKeystoreRefused =>
@@ -18399,7 +18399,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Адреса и суммы отправляются целиком, а не сокращёнными. Фразы восстановления, ключи и пароли не отправляются никогда.';
+      'Адреса и суммы отправляются целиком, а не сокращёнными. Фразы восстановления, ключи и пароли предварительно удаляются; проверьте предпросмотр перед отправкой.';
 
   @override
   String get deskOutNoteWaitingRecipient => 'ждёт получателя';
@@ -20239,7 +20239,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRowLinkDeviceInfo =>
-      'Можно связать одно устройство. Каждое держит монеты, которые тратит другое, поэтому они никогда не потратят одну и ту же монету.';
+      'Можно связать одно устройство. Связанные устройства сообщают друг другу, какие монеты они тратят, поэтому обычно выбирают разные монеты. Если оба потратят одну и ту же монету, цепочка примет один платёж, а другой не пройдёт.';
 
   @override
   String get deskSetSynLinkDevice =>
@@ -21194,7 +21194,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String nsJoinInfo(String label) {
-    return '$label получает один платёжный адрес и один код, оба созданы только для него. Он не видит ваш баланс, не двигает монеты и не читает платежи. Платежи приходят, пока Epic Cash открыт. Выйти можно в любой момент: Контакты › $label.';
+    return '$label получает один платёжный адрес и один код, оба созданы только для него. Он не видит ваш баланс и не двигает монеты. Он хранит 30 дней платёжные ссылки, созданные для вас или вами, вместе с суммами. Платежи приходят, пока Epic Cash открыт. Выйти можно в любой момент: Контакты › $label.';
   }
 
   @override

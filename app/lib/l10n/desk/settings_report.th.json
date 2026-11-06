@@ -16,7 +16,7 @@
   "deskSetReportAttach": "แนบบันทึก",
   "deskSetReportAttachHint": "ส่วนล่าสุดของบันทึกแอป ไม่รวมวลีกู้คืน รหัสผ่าน และข้อมูลลับอื่นๆ",
   "deskSetReportFullDetails": "แนบรายละเอียดทั้งหมด",
-  "deskSetReportFullDetailsInfo": "ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ วลีกู้คืน คีย์ และรหัสผ่านจะไม่ถูกส่งเลย",
+  "deskSetReportFullDetailsInfo": "ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ วลีกู้คืน คีย์ และรหัสผ่านจะถูกลบออกก่อน ตรวจสอบตัวอย่างก่อนส่ง",
   "deskSetReportPartFullDetails": "รายละเอียดเต็ม",
   "deskSetReportSentWhat": "สิ่งที่ส่ง",
   "deskSetReportNotSentTitle": "ไม่ได้ส่ง",

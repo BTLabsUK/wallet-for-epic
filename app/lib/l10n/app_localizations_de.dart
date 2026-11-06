@@ -2903,7 +2903,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice =>
-      'Die Kurse stammen von CoinGecko; der Dienst sieht Ihre IP-Adresse.';
+      'Die Kurse stammen aus der Kopie des CoinGecko-Kurses von BT Labs auf status.btlabs.uk; diese sieht Ihre IP-Adresse. Bei ausgeschaltetem Tor wird CoinGecko gefragt, wenn die Kopie keinen Kurs hat; dann sieht CoinGecko Ihre IP-Adresse.';
 
   @override
   String get settingsSectionSecurity => 'Sicherheit';
@@ -6964,7 +6964,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendDandelionText =>
-      'Leitet die Transaktion über einige zufällige Nodes, bevor sie sich verbreitet, sodass das Netzwerk nicht erkennt, woher sie kam.';
+      'Leitet die Transaktion über einige zufällige Nodes, bevor sie sich verbreitet, was ihre Herkunft schwerer nachvollziehbar macht. Der Node, den die Wallet verwendet, erhält sie trotzdem.';
 
   @override
   String get deskSendHintSent => 'Gesendet.';
@@ -17855,7 +17855,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
+      'Die PIN öffnet diese Wallet nicht mehr. Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her. Die Coins bleiben auf der Chain und lassen sich nur mit dieser Phrase wiederherstellen, und mit der Passphrase, falls eine festgelegt wurde.';
 
   @override
   String get errorKeystoreRefused =>
@@ -17975,7 +17975,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Sendet Adressen und Beträge unverkürzt. Wiederherstellungsphrasen, Schlüssel und Passwörter werden nie gesendet.';
+      'Sendet Adressen und Beträge unverkürzt. Wiederherstellungsphrasen, Schlüssel und Passwörter werden zuvor entfernt; prüfen Sie die Vorschau vor dem Senden.';
 
   @override
   String get deskOutNoteWaitingRecipient => 'wartet auf den Empfänger';
@@ -19817,7 +19817,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetRowLinkDeviceInfo =>
-      'Ein Gerät kann verknüpft werden. Jedes hält die Coins, die das andere ausgibt, sodass nie beide dieselbe Coin ausgeben.';
+      'Ein Gerät kann verknüpft werden. Verknüpfte Geräte melden sich gegenseitig, welche Coins sie ausgeben, und wählen daher normalerweise unterschiedliche Coins. Geben beide dieselbe Coin aus, nimmt die Chain eine Zahlung an und die andere schlägt fehl.';
 
   @override
   String get deskSetSynLinkDevice =>
@@ -20774,7 +20774,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String nsJoinInfo(String label) {
-    return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen oder Zahlungen lesen. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit verlassen unter Kontakte › $label.';
+    return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen. Er speichert die für Sie oder von Ihnen erstellten Zahlungslinks samt Beträgen 30 Tage lang. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit verlassen unter Kontakte › $label.';
   }
 
   @override

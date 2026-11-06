@@ -6,8 +6,7 @@ Do not open a public issue. Email **support@btlabs.uk**, or open a private secur
 (Security tab of the repository, "Report a vulnerability"); only the maintainers can see it.
 
 Include the app and version (Settings › About shows it), the platform, what an attacker controls,
-what happens, and the smallest reproduction you have. We answer within a few days and agree a
-disclosure date with you once a fix is ready.
+what happens, and the smallest reproduction you have. Reports are read and answered on a best-effort basis. No response time is promised. A disclosure date can be agreed once a fix is ready.
 
 ## Scope
 
@@ -25,8 +24,8 @@ projects: report them to them privately and tell us only what we need to protect
 
 [THREAT_MODEL.md](THREAT_MODEL.md) says what the relay, a node, the network, another app, a phone thief and
 desktop malware can and cannot do, and states the known limits. Among them: the 6-digit PIN against code
-running inside the app on a rooted phone, recovery-phrase screenshots being allowed, plain-`http://` sends, and the unencrypted
-wallet database.
+running inside the app on a rooted phone, recovery-phrase screenshots being allowed, plain-`http://` sends, and which platforms
+encrypt the wallet database.
 
 ## Update signing keys
 

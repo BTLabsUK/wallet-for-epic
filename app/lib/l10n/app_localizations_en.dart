@@ -2860,7 +2860,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice =>
-      'Prices come from CoinGecko, which sees your IP address.';
+      'Prices come from BT Labs\' copy of CoinGecko\'s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.';
 
   @override
   String get settingsSectionSecurity => 'Security';
@@ -6869,7 +6869,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendDandelionText =>
-      'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.';
+      'Passes the transaction through a few random nodes before it spreads, which makes its origin harder to trace. The node the wallet uses still receives it.';
 
   @override
   String get deskSendHintSent => 'Sent.';
@@ -17648,7 +17648,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.';
+      'The PIN can no longer open this wallet. Tap Forgot PIN and restore the wallet from its recovery phrase. The coins stay on the chain and can be restored only with that phrase, and the passphrase if one was set.';
 
   @override
   String get errorKeystoreRefused =>
@@ -17767,7 +17767,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are never sent.';
+      'Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are removed first; check the preview before sending.';
 
   @override
   String get deskOutNoteWaitingRecipient => 'waiting for the recipient';
@@ -19580,7 +19580,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRowLinkDeviceInfo =>
-      'One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.';
+      'One device can be linked. Linked devices tell each other which coins they are spending, so they normally pick different coins. If both spend the same coin, the chain takes one payment and the other fails.';
 
   @override
   String get deskSetSynLinkDevice =>
@@ -20520,7 +20520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String nsJoinInfo(String label) {
-    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › $label.';
+    return '$label gets one payment address and one code, both made only for it. It cannot see your balance or move coins. It keeps the payment links made for you or by you, with amounts, for 30 days. Payments arrive while Epic Cash is open. Leave any time in Contacts › $label.';
   }
 
   @override

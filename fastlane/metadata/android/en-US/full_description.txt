@@ -1,4 +1,4 @@
-<p>BT Wallet is a self-custody wallet for Epic Cash (EPIC). The keys and the coins stay on the phone, locked with a PIN or the phone's fingerprint or face unlock. The recovery phrase is the backup.</p>
+<p>BT Wallet is a self-custody wallet for Epic Cash (EPIC). The keys stay on the phone, locked with a PIN or the phone's fingerprint or face unlock. The recovery phrase is the backup.</p>
 <p>The wallet core is LEPIC, a Rust library; the app is built with Flutter. Both are open source under the Apache License 2.0.</p>
 
 <p><b>Payment methods</b></p>
@@ -26,7 +26,7 @@
 </ul>
 
 <p><b>Network</b></p>
-<p>The wallet talks to an Epic Cash node (default node.epiccash.com; the list also has nodes run by BT Labs, EpicNet and Cypher Stack) and, for Epicbox payments, to an Epicbox server (default epicbox.epiccash.com). Both can be changed in Settings or in the settings file. The fiat value of the balance comes from CoinGecko, with a copy kept by BT Labs as a fallback; it can be turned off.</p>
+<p>The wallet talks to an Epic Cash node (default node.epiccash.com; the list also has nodes run by BT Labs, EpicNet and Cypher Stack) and, for Epicbox payments, to an Epicbox server (default epicbox.epiccash.com). Both can be changed in Settings or in the settings file. The fiat value of the balance comes from BT Labs' copy of CoinGecko's price on status.btlabs.uk. With Tor off, CoinGecko is asked when that copy has no price. It can be turned off.</p>
 
 <p><b>This build</b></p>
 <p>The F-Droid build has no Google services and no push notifications. Updates come from F-Droid; the app has no updater of its own. Tor is built from source, and QR codes are read with a free-software scanner.</p>

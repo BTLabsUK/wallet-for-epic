@@ -2964,7 +2964,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice =>
-      'Ceny pochodzą z serwisu CoinGecko, który widzi twój adres IP.';
+      'Ceny pochodzą z kopii ceny CoinGecko prowadzonej przez BT Labs na status.btlabs.uk, która widzi twój adres IP. Gdy Tor jest wyłączony, a kopia nie ma ceny, pytany jest CoinGecko, który widzi wtedy twój adres IP.';
 
   @override
   String get settingsSectionSecurity => 'Bezpieczeństwo';
@@ -7195,7 +7195,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendDandelionText =>
-      'Przepuszcza transakcję przez kilka losowych węzłów, zanim się rozejdzie, więc sieć nie wie, skąd pochodzi.';
+      'Przepuszcza transakcję przez kilka losowych węzłów, zanim się rozejdzie, co utrudnia ustalenie jej pochodzenia. Węzeł używany przez portfel nadal ją otrzymuje.';
 
   @override
   String get deskSendHintSent => 'Wysłano.';
@@ -18286,7 +18286,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'PIN nie otwiera już tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
+      'PIN nie otwiera już tego portfela. Dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania. Monety pozostają w łańcuchu i można je odzyskać tylko za pomocą tej frazy oraz hasła, jeśli je ustawiono.';
 
   @override
   String get errorKeystoreRefused =>
@@ -18411,7 +18411,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Wysyła adresy i kwoty w całości zamiast skróconych. Frazy odzyskiwania, klucze i hasła nigdy nie są wysyłane.';
+      'Wysyła adresy i kwoty w całości zamiast skróconych. Frazy odzyskiwania, klucze i hasła są wcześniej usuwane; sprawdź podgląd przed wysłaniem.';
 
   @override
   String get deskOutNoteWaitingRecipient => 'czeka na odbiorcę';
@@ -20250,7 +20250,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRowLinkDeviceInfo =>
-      'Można połączyć jedno urządzenie. Każde trzyma monety, które wydaje drugie, więc nigdy nie wydadzą tej samej monety.';
+      'Można połączyć jedno urządzenie. Połączone urządzenia informują się nawzajem, które monety wydają, więc zwykle wybierają różne monety. Jeśli oba wydadzą tę samą monetę, łańcuch przyjmie jedną płatność, a druga się nie powiedzie.';
 
   @override
   String get deskSetSynLinkDevice =>
@@ -21205,7 +21205,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String nsJoinInfo(String label) {
-    return '$label dostaje jeden adres płatności i jeden kod, oba utworzone tylko dla niego. Nie widzi twojego salda, nie przenosi monet i nie czyta płatności. Płatności docierają, gdy Epic Cash jest otwarty. Możesz opuścić w każdej chwili w Kontakty › $label.';
+    return '$label dostaje jeden adres płatności i jeden kod, oba utworzone tylko dla niego. Nie widzi twojego salda i nie przenosi monet. Przechowuje przez 30 dni linki do płatności utworzone dla ciebie lub przez ciebie, wraz z kwotami. Płatności docierają, gdy Epic Cash jest otwarty. Możesz opuścić w każdej chwili w Kontakty › $label.';
   }
 
   @override

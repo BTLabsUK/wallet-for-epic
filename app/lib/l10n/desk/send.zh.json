@@ -107,7 +107,7 @@
   "deskSendMessageHelp": "收款人能看到。",
   "deskSendPrivacyOn": "隐私 · Dandelion++ 已开启",
   "deskSendPrivacyOff": "隐私 · Dandelion++ 已关闭",
-  "deskSendDandelionText": "交易在扩散前会先经过几个随机节点，因此网络无法判断它来自哪里。",
+  "deskSendDandelionText": "交易在扩散前会先经过几个随机节点，这让它的来源更难追踪。钱包所用的节点仍会收到它。",
   "deskSendHintSent": "已发送。",
   "deskSendHintQueued": "已排队。如需再次发送，请输入新的金额和接收方。",
   "deskSendHintNode": "等待节点同步。",

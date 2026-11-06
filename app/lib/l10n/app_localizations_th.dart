@@ -2809,7 +2809,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice =>
-      'ราคามาจาก CoinGecko ซึ่งจะเห็นที่อยู่ IP ของคุณ';
+      'ราคามาจากสำเนาราคา CoinGecko ของ BT Labs ที่ status.btlabs.uk ซึ่งจะเห็นที่อยู่ IP ของคุณ เมื่อปิด Tor หากสำเนานั้นไม่มีราคา จะมีการถาม CoinGecko และ CoinGecko จะเห็นที่อยู่ IP ของคุณ';
 
   @override
   String get settingsSectionSecurity => 'ความปลอดภัย';
@@ -6673,7 +6673,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendDandelionText =>
-      'ส่งธุรกรรมผ่านโหนดสุ่มไม่กี่โหนดก่อนกระจายออกไป เครือข่ายจึงบอกไม่ได้ว่ามาจากไหน';
+      'ส่งธุรกรรมผ่านโหนดสุ่มไม่กี่โหนดก่อนกระจายออกไป ทำให้ติดตามต้นทางได้ยากขึ้น โหนดที่กระเป๋าเงินใช้ยังคงได้รับธุรกรรมนั้น';
 
   @override
   String get deskSendHintSent => 'ส่งแล้ว';
@@ -17245,7 +17245,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'PIN เปิดกระเป๋าเงินนี้ไม่ได้แล้ว เหรียญของคุณยังปลอดภัย: แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน';
+      'PIN เปิดกระเป๋าเงินนี้ไม่ได้แล้ว แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน เหรียญยังอยู่บนเชน และกู้คืนได้ด้วยวลีนั้นเท่านั้น รวมถึงวลีรหัสผ่านหากมีการตั้งไว้';
 
   @override
   String get errorKeystoreRefused =>
@@ -17361,7 +17361,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ วลีกู้คืน คีย์ และรหัสผ่านจะไม่ถูกส่งเลย';
+      'ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ วลีกู้คืน คีย์ และรหัสผ่านจะถูกลบออกก่อน ตรวจสอบตัวอย่างก่อนส่ง';
 
   @override
   String get deskOutNoteWaitingRecipient => 'รอผู้รับ';
@@ -19167,7 +19167,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRowLinkDeviceInfo =>
-      'เชื่อมโยงได้หนึ่งอุปกรณ์ แต่ละเครื่องถือเหรียญที่อีกเครื่องกำลังใช้ จึงไม่มีทางใช้เหรียญเดียวกัน';
+      'เชื่อมโยงได้หนึ่งอุปกรณ์ อุปกรณ์ที่เชื่อมโยงจะแจ้งกันว่ากำลังใช้เหรียญใด จึงมักเลือกเหรียญคนละเหรียญ หากทั้งสองใช้เหรียญเดียวกัน เชนจะรับหนึ่งการชำระเงิน และอีกรายการจะล้มเหลว';
 
   @override
   String get deskSetSynLinkDevice =>
@@ -20101,7 +20101,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String nsJoinInfo(String label) {
-    return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือ ย้ายเหรียญไม่ได้ และอ่านการจ่ายเงินไม่ได้ เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ ออกได้ทุกเมื่อที่ ผู้ติดต่อ › $label';
+    return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือและย้ายเหรียญไม่ได้ บริการเก็บลิงก์การจ่ายเงินที่สร้างให้คุณหรือโดยคุณ พร้อมจำนวนเงิน ไว้ 30 วัน เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ ออกได้ทุกเมื่อที่ ผู้ติดต่อ › $label';
   }
 
   @override

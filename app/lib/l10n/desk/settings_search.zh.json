@@ -118,7 +118,7 @@
   "deskSetSynTimeToPay": "发票, 过期, 到期, 期限",
   "deskSetSynDeviceName": "设备名称, 重命名",
   "deskSetRowLinkDeviceHint": "此钱包在两台设备上：每台显示另一台的付款。",
-  "deskSetRowLinkDeviceInfo": "可以关联一台设备。每台持有对方正在花费的币，所以两台不会花同一个币。",
+  "deskSetRowLinkDeviceInfo": "可以关联一台设备。已关联的设备会互相告知正在花费哪些币，所以通常会选不同的币。如果两台花了同一个币，区块链只接受一笔付款，另一笔会失败。",
   "deskSetSynLinkDevice": "关联设备, 配对手机, 第二台设备, 手机, 同步, 移动端, 多设备",
   "deskSetRowPauseSyncHint": "暂停期间，通知在服务器上等待。",
   "deskSetSynPauseSync": "同步, 暂停, 关联",

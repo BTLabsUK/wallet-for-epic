@@ -628,7 +628,7 @@
   "@deskSendPrivacyOff": {
     "description": "Title of the collapsed privacy disclosure on Send when Dandelion++ is off."
   },
-  "deskSendDandelionText": "Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.",
+  "deskSendDandelionText": "Passes the transaction through a few random nodes before it spreads, which makes its origin harder to trace. The node the wallet uses still receives it.",
   "@deskSendDandelionText": {
     "description": "Description of the Dandelion++ switch on Send."
   },

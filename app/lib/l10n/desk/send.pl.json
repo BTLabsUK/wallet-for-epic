@@ -107,7 +107,7 @@
   "deskSendMessageHelp": "Odbiorca ją zobaczy.",
   "deskSendPrivacyOn": "Prywatność · Dandelion++ włączony",
   "deskSendPrivacyOff": "Prywatność · Dandelion++ wyłączony",
-  "deskSendDandelionText": "Przepuszcza transakcję przez kilka losowych węzłów, zanim się rozejdzie, więc sieć nie wie, skąd pochodzi.",
+  "deskSendDandelionText": "Przepuszcza transakcję przez kilka losowych węzłów, zanim się rozejdzie, co utrudnia ustalenie jej pochodzenia. Węzeł używany przez portfel nadal ją otrzymuje.",
   "deskSendHintSent": "Wysłano.",
   "deskSendHintQueued": "W kolejce. Wpisz nową kwotę i odbiorcę, aby wysłać ponownie.",
   "deskSendHintNode": "Oczekiwanie na synchronizację węzła.",

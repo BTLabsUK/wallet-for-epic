@@ -16,7 +16,7 @@
   "deskSetReportAttach": "附上日志",
   "deskSetReportAttachHint": "应用日志的最新部分，不含助记词、密码和其他机密信息。",
   "deskSetReportFullDetails": "包含完整详情",
-  "deskSetReportFullDetailsInfo": "地址和金额将完整发送而不是缩短。助记词、密钥和密码绝不会发送。",
+  "deskSetReportFullDetailsInfo": "地址和金额将完整发送而不是缩短。助记词、密钥和密码会先被移除；发送前请检查预览。",
   "deskSetReportPartFullDetails": "完整详情",
   "deskSetReportSentWhat": "发送的内容",
   "deskSetReportNotSentTitle": "未发送",

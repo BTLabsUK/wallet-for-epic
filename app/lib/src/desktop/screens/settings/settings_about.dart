@@ -28,7 +28,7 @@ import 'licence_texts_dialog.dart';
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 
-/// The Epic Cash website, from `app-config.toml` (`links.website`); null when left out (the
+/// The website, from `app-config.toml` (`links.website`); null when left out (the
 /// row is not shown).
 String? get websiteUrl => epicCashUrl;
 
