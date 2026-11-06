@@ -75,3 +75,9 @@ app/lib/src/trust_ids.dart	(?<![A-Za-z0-9_.])g4(\.[a-z][A-Za-z0-9]*)+
 
 # The SVG namespace of the contact label marks: the XML namespace's name, never dialled.
 app/lib/src/ui/contact_label_mark.dart	xmlns="http://www\.w3\.org/2000/svg"
+
+# LEPIC domain-proof unit tests: the domains a claim is signed for and parsed as (test data in
+# #[cfg(test)] modules, never dialled).
+lepic/crates/lepic-cli/src/settings.rs	btlabs\.uk
+lepic/crates/lepic-contact/src/domain.rs	btlabs\.uk|[ab]\.com
+lepic/crates/lepic-wallet-contacts/src/domain.rs	integration\.btlabs\.uk

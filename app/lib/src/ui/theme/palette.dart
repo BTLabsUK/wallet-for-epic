@@ -71,7 +71,7 @@ abstract final class PaletteDark {
 /// The light set. Gold becomes an AA brown, amber a burnt orange well apart from it in hue
 /// (19° against the brown's 34°, so a warning never reads as the brand), the ticks the same
 /// brand's gold-deep (a frame, never charcoal). The neutrals are the BT Wallet landing page's
-/// Day look (epiccash.btlabs.uk, look c): a warm paper window, white panels a clear step
+/// Day look (look c): a warm paper window, white panels a clear step
 /// above it, warm lines and ink, so nothing cool-grey sits beside the brown; hover, selection and
 /// the cancelled grey stay neutral (theme_test). Fields are white
 /// wells with a [lineField] edge, as on the desktop.

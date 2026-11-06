@@ -483,9 +483,9 @@ PreviewSession _previewSession() {
   // `?relaymove`: Tom moved to another relay (followed without a word, "Moved here on"), and
   // the BT Labs Faucet asks to move (the Accept/Refuse sheet).
   if (previewRelayMove) {
-    session.pairing.seedPaired(name: 'BT Labs Faucet', contactId: 'c7', peerEncKey: FakePairing.serviceKey, requestedRelay: 'epicbox.stackwallet.com');
+    session.pairing.seedPaired(name: 'BT Labs Faucet', contactId: 'c7', peerEncKey: FakePairing.serviceKey, requestedRelay: 'relay.faucet.example');
     final tom = session.pairing.records.firstWhere((r) => r.contactId == 'c6');
-    unawaited(session.pairing.askRelayMove(tom.id, 'epicbox.epicnet.us'));
+    unawaited(session.pairing.askRelayMove(tom.id, 'relay.tom.example'));
   }
   Future<void>.value()
       .then((_) {
