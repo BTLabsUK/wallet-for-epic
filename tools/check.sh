@@ -3,8 +3,8 @@
 # Repository gate. Two modes:
 #   tools/check.sh           fast, the default (a branch before review, main after a merge):
 #                            version, install contract, LEPIC at the pin, no hosts, workflows,
-#                            the plain-Dart core, flutter analyze, and only the Flutter tests the
-#                            change reaches (tools/t affected); the bot's tests only when bot/
+#                            the plain-Dart core, flutter analyze, and only the Flutter tests of
+#                            what really changed (tools/t affected); the bot's tests only when bot/
 #                            changed; the smaller release-tool tests (the nightly, sbom, test order,
 #                            check-workflow, tools/t, the incremental publisher, the screens
 #                            feedback service) only when tools/ changed; tools/rel's own suite
@@ -24,8 +24,9 @@
 #                            nothing.
 # Which Flutter tests the fast mode runs is tools/t's selection (tools/tlib/select.py,
 # docs/TESTING.md): the change is every file that differs from the merge base with main
-# (committed, staged, unstaged and untracked); the tests whose import closure holds a changed file
-# run, plus a fixed set of sentinels. CHECK_BASE=<ref> compares with another ref.
+# (committed, staged, unstaged and untracked); the tests that directly import a changed file or
+# name a changed string key run, plus a fixed set of sentinels, at most 40 for any change. The
+# import closure is not walked (tools/t affected --closure; the full run covers the rest). CHECK_BASE=<ref> compares with another ref.
 # Usage: tools/check.sh [--full | --list]   (from anywhere inside the main checkout or a worktree)
 set -euo pipefail
 started_epoch="$(date +%s)"
@@ -92,7 +93,7 @@ if [[ $mode == full ]]; then
   echo "check mode: FULL (whole flutter test suite, integration tests, bot, release tools, web build)"
 else
   echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
-  echo "rule: tools/t affected (the tests whose imports reach the change, plus the sentinels)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: small tool tests run (nightly, sbom, tlib ...)')$([[ $rel_changed == 1 ]] && echo '; tools/rel inputs changed: tools/rellib/tests run (rule: tools/rel, env.sh, rellib/, signer/, releases/, release-files.py, publish-update-json.sh, push-github.sh, release/, app-config.toml)')"
+  echo "rule: tools/t affected (the tests that directly import the change or name a changed key, plus the sentinels, at most 40)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: small tool tests run (nightly, sbom, tlib ...)')$([[ $rel_changed == 1 ]] && echo '; tools/rel inputs changed: tools/rellib/tests run (rule: tools/rel, env.sh, rellib/, signer/, releases/, release-files.py, publish-update-json.sh, push-github.sh, release/, app-config.toml)')"
   "$root/tools/t" affected --list --base "$base_ref"
 fi
 [[ $mode == list ]] && exit 0
