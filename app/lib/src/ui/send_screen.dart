@@ -3558,6 +3558,12 @@ class _SendViewState extends ConsumerState<SendView> {
         _strategyPicker(context),
       const SizedBox(height: 12),
       Divider(color: t.line, height: 1),
+      if (!file)
+        if (_noteWarning(l) case final warning?)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: warning),
+          ),
       if (!noteOpen && _note.text.isNotEmpty)
         ListTile(
           contentPadding: EdgeInsets.zero,
@@ -3630,12 +3636,6 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ),
         ),
-      if (!file)
-        if (_noteWarning(l) case final warning?)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: warning),
-          ),
     ];
   }
 
@@ -3789,6 +3789,16 @@ class _SendViewState extends ConsumerState<SendView> {
               : null,
         ),
       ..._payeeClaims(gapBefore: 12),
+      // The message the code or the address expects is empty: a warning, the user may send.
+      if (_noteWarning(l) case final warning? when !_sendFailed) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: warning),
+      ],
+      // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
+      if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendReviewBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
+      ],
       const SizedBox(height: 20),
       // The review commits the money: every amount on it exact ([AmountSurface.exact]), as on
       // the desktop's and in the payment's details; mono, as every amount but the headline.
@@ -3876,16 +3886,6 @@ class _SendViewState extends ConsumerState<SendView> {
       if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
         const SizedBox(height: 8),
         InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
-      ],
-      // The message the code or the address expects is empty: a warning, the user may send.
-      if (_noteWarning(l) case final warning? when !_sendFailed) ...[
-        const SizedBox(height: 8),
-        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: warning),
-      ],
-      // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
-      if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[
-        const SizedBox(height: 8),
-        InlineNotice(key: sendReviewBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
       ],
       // The cancel rule for this method, with the way to the Help topic (CancelNote). After a
       // failed delivery the actions below carry their own line, so this one steps aside.
