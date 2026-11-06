@@ -4143,7 +4143,20 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         const SizedBox(height: 12),
       ],
-      if (track == SendTrack.cancelled)
+      if (track == SendTrack.cancelled && receiverDeclined(live))
+        // The row's word and its explanation, as the details screen says it.
+        Semantics(
+          liveRegion: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l.txStatusReceiverDeclined, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: 4),
+              Text(l.txDetailsReceiverDeclined, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+            ],
+          ),
+        )
+      else if (track == SendTrack.cancelled)
         Semantics(
           liveRegion: true,
           child: Text(l.sendTrackCancelled, style: theme.textTheme.bodyLarge),
