@@ -121,11 +121,12 @@ Future<void> _unsavedPairings(ProviderContainer c) async {
   c.invalidate(deskPairingsProvider);
 }
 
-/// The faucet's pairing says automated and takes no payments (profile 3).
+/// Anna's card says automated and takes no payments (profile 3): her details show the service
+/// wording and no Send.
 Future<void> _servicePairing(ProviderContainer c) async {
   final api = c.read(deskApiProvider);
   if (api is! MockDeskWallet) return;
-  api.pairing.seedPaired(id: 'p-faucet', name: 'BT Labs Faucet', paymentsAddress: 'esFaucetKey9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox', verifiedAt: DateTime(2026, 10, 28), peerProfile: 3);
+  api.pairing.updateProfile(mockAnnaPairing, 3);
   c.invalidate(deskPairingsProvider);
 }
 
@@ -338,7 +339,7 @@ final List<DeskShot> walletShots = [
     route: DeskRoute.contacts,
     arg: ContactsArgs(selectedId: 'c1'),
   ),
-  DeskShot(id: '21f-contacts-pairing-service', title: 'Contacts, a paired service: no payments', route: DeskRoute.contacts, before: _servicePairing),
+  DeskShot(id: '21f-contacts-pairing-service', title: 'Contacts, a paired service selected: no payments', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), before: _servicePairing),
   const DeskShot(id: '21d-contacts-loading', title: 'Contacts, loading', route: DeskRoute.contacts, arg: ContactsArgs(loading: true)),
   DeskShot(id: '21f-contacts-pairing-unsaved', title: 'Contacts, pairings not in contacts: Add to contacts, Cancel', route: DeskRoute.contacts, before: _unsavedPairings),
   DeskShot(
