@@ -101,6 +101,7 @@ const Map<int, (List<_Field>, bool)> _payloadSchemas = {
       _Field(4, 'handle', _Kind.b, size: 16),
       _Field(5, 'bind', _Kind.b, size: 4),
       _Field(6, 'issued', _Kind.u, size: 8),
+      _Field(7, 'flags', _Kind.u, size: 1, optional: true),
       _Field(8, 'label', _Kind.label, optional: true),
     ],
     true,
@@ -470,6 +471,7 @@ sealed class NameServicePayload extends WireRecord {
     final f = d.fields;
     final net = f['net'];
     if (net != null && net != 0 && net != 1) _malformed();
+    if (t == 1 && ((f['flags'] as int?) ?? 0) & ~nsHelloNoPayments != 0) _malformed();
     if (t == 5 && f['stage'] != 1 && f['stage'] != 2) _malformed();
     for (final name in const ['dkey']) {
       final k = f[name];
@@ -488,6 +490,9 @@ sealed class NameServicePayload extends WireRecord {
   }
 }
 
+/// Flags bit 0 of a hello: the contact takes no payments. Any other bit is `malformed`.
+const int nsHelloNoPayments = 0x01;
+
 /// Type 1, name service to wallet, signed by `serviceKey` under `epic-dir-hello/1`.
 final class DirHello extends NameServicePayload {
   DirHello._(super.d) : super._();
@@ -504,6 +509,12 @@ final class DirHello extends NameServicePayload {
   /// The four SAS-table indexes the name service computed for this pairing.
   Uint8List get bind => _bytes('bind');
   BigInt get issued => _big('issued');
+
+  /// The flags byte; 0 when absent.
+  int get flags => (_d.fields['flags'] as int?) ?? 0;
+
+  /// This contact takes no payments (flags bit 0).
+  bool get takesNoPayments => flags & nsHelloNoPayments != 0;
 
   /// The user's own name at this contact, `@` and up to 32 of `[A-Za-z0-9_]`: what people pay
   /// the user as. Null when absent or not of that form (the hello still verifies).
@@ -655,6 +666,7 @@ Uint8List nsHelloUnsigned({
   required Uint8List handle,
   required Uint8List bind,
   required int issued,
+  int flags = 0,
   String? label,
 }) => _encodeStruct(
   {
@@ -663,6 +675,7 @@ Uint8List nsHelloUnsigned({
     'handle': handle,
     'bind': bind,
     'issued': issued,
+    if (flags != 0) 'flags': flags,
     'label': ?label,
   },
   const [],
