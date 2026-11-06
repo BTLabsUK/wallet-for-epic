@@ -14891,7 +14891,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments go through the pairing by default; see “Payments after pairing”.';
+      'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.';
 
   @override
   String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
@@ -15208,14 +15208,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expOpenAdvanced => 'Open Advanced';
 
   @override
-  String get contactNoAddressPaired => 'Payments go through the pairing';
+  String get contactNoAddressPaired => 'No public address';
 
   @override
   String get contactSendKeysChanged => 'Verify the contact before sending.';
 
   @override
   String contactSendNoSealed(String name) {
-    return '$name’s wallet does not take payments through the pairing. Ask for an address.';
+    return '$name’s wallet cannot open sealed messages. Ask for an address.';
   }
 
   @override
@@ -19006,28 +19006,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpPairRouteTitle => 'Payments after pairing';
 
   @override
-  String get helpPairRouteShort =>
-      'Payments to a paired contact go through the pairing; the public Epicbox address is the fallback.';
+  String helpPairRouteShort(String paired) {
+    return 'A paired contact can be paid with the option $paired or at the public Epicbox address.';
+  }
 
   @override
-  String get helpPairRouteP1 =>
-      'Once paired, a payment to that contact goes through the pairing, the private route, by default. On [[Send]] the switch **Send through the pairing** starts on.';
+  String helpPairRouteP1(String paired) {
+    return 'Once paired, a contact gets two options on [[Send]]: **$paired** and **Public address**. It starts on **$paired**, and the payment is sealed: only that contact can read it.';
+  }
 
   @override
   String get helpPairRouteP2 =>
-      'A payment goes to the contact’s public Epicbox address instead when: the contact is not paired; you turned the switch off; the contact last answered from another wallet app; the contact was not heard from in 90 days; a send through the pairing was left unanswered for a day; or their server is down.';
+      'Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. A server cannot tell a paired payment from a normal one.';
 
   @override
-  String get helpPairRouteP3 =>
-      'A send through the pairing that stays unanswered for a day shows **Cancel and send to their public Epicbox address**. The wallet asks first; later sends to that contact then start on the public address.';
+  String helpPairRouteP3(String paired) {
+    return 'The option **$paired** uses separate keys, and its address is never shown. Only a paired contact can send you an invoice.';
+  }
 
   @override
-  String get helpPairRouteP4 =>
-      '**Seal transaction files** on the contact page encrypts files sent to that contact. They are sealed and readable only by that contact. The switch covers files only; it does not turn the pairing route on or off.';
+  String helpPairRouteP4(String paired) {
+    return '**Public address** is chosen instead when: the contact last answered from another wallet app; nothing has been heard from the contact in a long while; a payment with **$paired** went unanswered; or their server is down. A payment that stays unanswered shows **Cancel and send to their public Epicbox address**. The wallet asks first.';
+  }
 
   @override
   String get helpPairRouteP5 =>
-      'An invite or QR pairing has no public Epicbox address to fall back to, unless the contact has an Epicbox address in [[Contacts]].';
+      '**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].';
+
+  @override
+  String get sendRoutePaired => 'Paired address';
 
   @override
   String get helpPairTwoWaysTitle => 'Two ways to pair';

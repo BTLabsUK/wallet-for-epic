@@ -249,7 +249,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Open Send, paste their Epicbox address, enter the amount, check the fee and send.',
       [
         HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', phone ? 'Tap **Continue**, check, then **Send … EPIC**.' : 'Press **Review**, check, then **Send … EPIC**.']),
-        const HelpBlock.p('To a paired contact, the switch **Send through the pairing** starts on and the payment is sealed. Turned off, or for a contact who is not paired, it goes to their public Epicbox address.'),
+        const HelpBlock.p('A paired contact has two options on Send, explained in “Payments after pairing”; a payment to the paired option is sealed. Any other contact gets the payment at their public Epicbox address.'),
         const HelpBlock.p('Now the recipient’s wallet has to answer (see "Why does a transaction need both sides?"). Over Epicbox they do not have to be online right now: the payment waits until their wallet opens. Meanwhile the coins it uses are locked, so they cannot be spent twice.'),
         HelpBlock.p('When their answer comes back, the wallet finishes the payment and posts it to the network by itself. It is final after $confirmations confirmations.'),
         HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for recipient". Ask them to open their wallet. If the answer never comes, cancel the payment in $cancelPlace to unlock the coins. A payment nobody answers cancels by itself after about a day.'),
@@ -658,6 +658,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('Once the answer is in, this wallet finishes the payment and posts it to the network in one step. A payment that reached the network cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network does not take it, the payment is complete all the same and could still go through later. ${phone ? 'After about a day the wallet offers Release coins, with the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee; Unlock coins is free.' : 'The wallet offers to post it again, or to cancel. That Cancel checks the network first and refuses when the network already has the payment. Otherwise it offers the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee; Unlock coins is free.'}'),
         const HelpBlock.p('A payment nobody answers cancels by itself after about a day (1,440 blocks), and the coins are unlocked. This holds for Epicbox, Link and Direct payments alike: Cancel is certain until the other side’s answer is in this wallet.'),
         HelpBlock.p('**A send looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again. A cancelled payment cannot go through later.'),
+        const HelpBlock.p('**Declined by the receiver**: the receiver’s wallet refused the payment. The send is cancelled and its coins are free to spend again.'),
         const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
         const HelpBlock.p('When a payment arrives, this wallet answers at once, and none of its coins are locked. From then on the sender’s wallet finishes and posts the payment, usually within minutes. Cancel is unavailable for 15 minutes, and longer while the sender reports it posted.'),
         const HelpBlock.p('After that, Cancel clears a payment the sender never posted. It is not certain: the wallet checks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
@@ -733,11 +734,11 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
       HelpBlock.ol([t(l.helpPairWhatStep1), t(l.helpPairWhatStep2), t(l.helpPairWhatStep3)]),
       HelpBlock.p(t(l.helpPairWhatP3)),
     ], id: HelpId.pairing),
-    HelpTopic(s, l.helpPairRouteTitle, l.helpPairRouteShort, [
-      HelpBlock.p(t(l.helpPairRouteP1)),
+    HelpTopic(s, l.helpPairRouteTitle, l.helpPairRouteShort(l.sendRoutePaired), [
+      HelpBlock.p(t(l.helpPairRouteP1(l.sendRoutePaired))),
       HelpBlock.p(t(l.helpPairRouteP2)),
-      HelpBlock.p(t(l.helpPairRouteP3)),
-      HelpBlock.p(t(l.helpPairRouteP4)),
+      HelpBlock.p(t(l.helpPairRouteP3(l.sendRoutePaired))),
+      HelpBlock.p(t(l.helpPairRouteP4(l.sendRoutePaired))),
       HelpBlock.p(t(l.helpPairRouteP5)),
     ], id: HelpId.pairingRoute),
     HelpTopic(s, l.helpPairTwoWaysTitle, l.helpPairTwoWaysShort, [

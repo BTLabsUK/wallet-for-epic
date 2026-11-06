@@ -1,7 +1,7 @@
 {
   "deskKeyringMissingTitle": "Kein Schlüsselbund gefunden",
-  "deskKeyringMissingText": "BT Wallet speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet) oder nutze eine Desktop-Sitzung, die einen ausführt, und wähle dann Wiederholen.",
+  "deskKeyringMissingText": "BT Wallet speichert seine Einstellungen und das versiegelte Passwort Ihrer Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installieren oder starten Sie einen Schlüsselbund (GNOME Keyring oder KWallet) oder nutzen Sie eine Desktop-Sitzung, die einen ausführt, und wählen Sie dann Wiederholen.",
   "deskKeyringLockedTitle": "Der Schlüsselbund ist gesperrt",
-  "deskKeyringLockedText": "BT Wallet speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (meist mit dem Passwort, mit dem du diesen Computer entsperrst) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.",
+  "deskKeyringLockedText": "BT Wallet speichert seine Einstellungen und das versiegelte Passwort Ihrer Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperren Sie ihn (meist mit dem Passwort, mit dem Sie diesen Computer entsperren) und wählen Sie dann Wiederholen, oder wählen Sie Jetzt entsperren, damit das System danach fragt.",
   "deskKeyringUnlockNow": "Jetzt entsperren"
 }

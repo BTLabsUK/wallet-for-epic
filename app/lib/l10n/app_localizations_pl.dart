@@ -15442,7 +15442,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'Po sparowaniu płatności, pliki transakcji i faktury między dwoma portfelami są **zapieczętowane**: odczytać je może tylko drugi portfel, a tożsamość kontaktu jest sprawdzana. Płatności domyślnie idą przez parowanie; zobacz „Płatności po sparowaniu”.';
+      'Po sparowaniu płatności, pliki transakcji i faktury między dwoma portfelami są **zapieczętowane**: odczytać je może tylko drugi portfel, a tożsamość kontaktu jest sprawdzana. Płatności do sparowanego kontaktu są domyślnie zapieczętowane; zobacz „Płatności po sparowaniu”.';
 
   @override
   String get helpPairWhatStep1 =>
@@ -15785,14 +15785,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get expOpenAdvanced => 'Otwórz Zaawansowane';
 
   @override
-  String get contactNoAddressPaired => 'Płatności idą przez parowanie';
+  String get contactNoAddressPaired => 'Brak adresu publicznego';
 
   @override
   String get contactSendKeysChanged => 'Przed wysłaniem zweryfikuj kontakt.';
 
   @override
   String contactSendNoSealed(String name) {
-    return 'Portfel $name nie przyjmuje płatności przez parowanie. Poproś o adres.';
+    return 'Portfel $name nie potrafi otworzyć zapieczętowanych wiadomości. Poproś o adres.';
   }
 
   @override
@@ -19660,28 +19660,35 @@ class AppLocalizationsPl extends AppLocalizations {
   String get helpPairRouteTitle => 'Płatności po sparowaniu';
 
   @override
-  String get helpPairRouteShort =>
-      'Płatności do sparowanego kontaktu idą przez parowanie; publiczny adres Epicbox jest drogą zapasową.';
+  String helpPairRouteShort(String paired) {
+    return 'Sparowany kontakt można opłacić opcją $paired albo na publiczny adres Epicbox.';
+  }
 
   @override
-  String get helpPairRouteP1 =>
-      'Po sparowaniu płatność do tego kontaktu domyślnie idzie przez parowanie, czyli prywatną trasą. W [[Wyślij|Send]] przełącznik **Wyślij przez parowanie** jest na początku włączony.';
+  String helpPairRouteP1(String paired) {
+    return 'Po sparowaniu kontakt ma w [[Wyślij|Send]] dwie opcje: **$paired** i **Adres publiczny**. Domyślnie wybrana jest **$paired**, a płatność jest zapieczętowana: tylko ten kontakt może ją odczytać.';
+  }
 
   @override
   String get helpPairRouteP2 =>
-      'Płatność idzie zamiast tego na publiczny adres Epicbox kontaktu, gdy: kontakt nie jest sparowany; przełącznik jest wyłączony; kontakt ostatnio odpowiedział z innej aplikacji portfela; od kontaktu nie było wieści od 90 dni; wysyłka przez parowanie została bez odpowiedzi przez dobę; albo jego serwer nie działa.';
+      'Płatności sparowane nadal idą przez Epicbox. Serwer Epicbox jest proponowany przy parowaniu. Portfel przyjmuje go tylko wtedy, gdy jest już na jego liście serwerów; w przeciwnym razie pyta ciebie. Serwer nie odróżni płatności sparowanej od zwykłej.';
 
   @override
-  String get helpPairRouteP3 =>
-      'Wysyłka przez parowanie, na którą nikt nie odpowiada przez dobę, pokazuje **Anuluj i wyślij na publiczny adres Epicbox**. Portfel najpierw pyta; kolejne wysyłki do tego kontaktu zaczynają się wtedy od adresu publicznego.';
+  String helpPairRouteP3(String paired) {
+    return 'Opcja **$paired** używa osobnych kluczy, a jej adres nigdy nie jest pokazywany. Faktura od kontaktu może do ciebie dotrzeć tylko wtedy, gdy kontakt jest sparowany.';
+  }
 
   @override
-  String get helpPairRouteP4 =>
-      '**Pieczętuj pliki transakcji** na stronie kontaktu szyfruje pliki wysyłane do tego kontaktu. Są zapieczętowane i tylko ten kontakt może je odczytać. Przełącznik dotyczy samych plików; nie włącza ani nie wyłącza trasy przez parowanie.';
+  String helpPairRouteP4(String paired) {
+    return 'Zamiast niej wybrany jest **Adres publiczny**, gdy: kontakt ostatnio odpowiedział z innej aplikacji portfela; od kontaktu od dawna nie było wieści; płatność z opcją **$paired** została bez odpowiedzi; albo jego serwer nie działa. Płatność bez odpowiedzi pokazuje **Anuluj i wyślij na publiczny adres Epicbox**. Portfel najpierw pyta.';
+  }
 
   @override
   String get helpPairRouteP5 =>
-      'Parowanie przez zaproszenie lub kod QR nie ma publicznego adresu Epicbox jako drogi zapasowej, chyba że kontakt ma adres Epicbox w [[Kontakty|Contacts]].';
+      '**Pieczętuj pliki transakcji** na stronie kontaktu szyfruje pliki wysyłane do tego kontaktu. Przełącznik dotyczy samych plików; nie zmienia adresu. Kontakt sparowany przez zaproszenie lub kod QR nie ma publicznego adresu Epicbox, chyba że dodasz go w [[Kontakty|Contacts]].';
+
+  @override
+  String get sendRoutePaired => 'Sparowany adres';
 
   @override
   String get helpPairTwoWaysTitle => 'Dwa sposoby parowania';

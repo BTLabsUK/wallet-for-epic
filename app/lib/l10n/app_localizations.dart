@@ -21864,7 +21864,7 @@ abstract class AppLocalizations {
   /// **'Checking for a late answer…'**
   String get pairLateCheck;
 
-  /// Notice when a paired contact removed the pairing on its side and said so: payments through the pairing no longer arrive.
+  /// Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.
   ///
   /// In en, this message translates to:
   /// **'{name} removed the pairing.'**
@@ -23379,7 +23379,7 @@ abstract class AppLocalizations {
   /// Topic 1.
   ///
   /// In en, this message translates to:
-  /// **'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments go through the pairing by default; see “Payments after pairing”.'**
+  /// **'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.'**
   String get helpPairWhatP2;
 
   /// Topic 1 step.
@@ -23784,10 +23784,10 @@ abstract class AppLocalizations {
   /// **'Open Advanced'**
   String get expOpenAdvanced;
 
-  /// Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no address).
+  /// Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no public address).
   ///
   /// In en, this message translates to:
-  /// **'Payments go through the pairing'**
+  /// **'No public address'**
   String get contactNoAddressPaired;
 
   /// Line under a disabled Send on the page of a pairing-only contact whose keys changed.
@@ -23799,7 +23799,7 @@ abstract class AppLocalizations {
   /// Line under a disabled Send on the page of a pairing-only contact whose wallet cannot open sealed messages.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s wallet does not take payments through the pairing. Ask for an address.'**
+  /// **'{name}’s wallet cannot open sealed messages. Ask for an address.'**
   String contactSendNoSealed(String name);
 
   /// Send recipient card, review and transaction facts: the recipient is a paired contact with no address, reached through the pairing. Never an address.
@@ -28944,7 +28944,7 @@ abstract class AppLocalizations {
   /// **'Cancel and send'**
   String get mailboxResendAction;
 
-  /// The closing button of the Cancel and send by Epicbox dialog and of the unanswered mailbox send's details: nothing changes.
+  /// The closing button of the Cancel and send to their public Epicbox address dialog and of the unanswered mailbox send's details: nothing changes.
   ///
   /// In en, this message translates to:
   /// **'Keep waiting'**
@@ -28962,7 +28962,7 @@ abstract class AppLocalizations {
   /// **'the payee'**
   String get linkPayeeMid;
 
-  /// Body of the confirm before Cancel and send by Epicbox on a payment made from a payment link.
+  /// Body of the confirm before Cancel and send to their public Epicbox address on a payment made from a payment link.
   ///
   /// In en, this message translates to:
   /// **'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.'**
@@ -29010,7 +29010,7 @@ abstract class AppLocalizations {
   /// **'Receipt'**
   String get receiptHintTitle;
 
-  /// Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way.
+  /// Notice after Cancel and send to their public Epicbox address finished: the old send is cancelled and the new one is on its way.
   ///
   /// In en, this message translates to:
   /// **'Cancelled and sent to their public Epicbox address.'**
@@ -29580,41 +29580,47 @@ abstract class AppLocalizations {
   /// **'Payments after pairing'**
   String get helpPairRouteTitle;
 
-  /// Topic 2 summary.
+  /// Topic 2 summary. {paired} is sendRoutePaired.
   ///
   /// In en, this message translates to:
-  /// **'Payments to a paired contact go through the pairing; the public Epicbox address is the fallback.'**
-  String get helpPairRouteShort;
+  /// **'A paired contact can be paid with the option {paired} or at the public Epicbox address.'**
+  String helpPairRouteShort(String paired);
 
-  /// Topic 2. [[Send]] is the Send tab or page.
+  /// Topic 2. [[Send]] is the Send tab or page. {paired} is sendRoutePaired.
   ///
   /// In en, this message translates to:
-  /// **'Once paired, a payment to that contact goes through the pairing, the private route, by default. On [[Send]] the switch **Send through the pairing** starts on.'**
-  String get helpPairRouteP1;
+  /// **'Once paired, a contact gets two options on [[Send]]: **{paired}** and **Public address**. It starts on **{paired}**, and the payment is sealed: only that contact can read it.'**
+  String helpPairRouteP1(String paired);
 
-  /// Topic 2. The cases that use the public Epicbox address.
+  /// Topic 2. Paired payments still run over Epicbox: server suggestion and acceptance.
   ///
   /// In en, this message translates to:
-  /// **'A payment goes to the contact’s public Epicbox address instead when: the contact is not paired; you turned the switch off; the contact last answered from another wallet app; the contact was not heard from in 90 days; a send through the pairing was left unanswered for a day; or their server is down.'**
+  /// **'Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. A server cannot tell a paired payment from a normal one.'**
   String get helpPairRouteP2;
 
-  /// Topic 2.
+  /// Topic 2. Separate keys, address never shown, who can send an invoice. {paired} is sendRoutePaired.
   ///
   /// In en, this message translates to:
-  /// **'A send through the pairing that stays unanswered for a day shows **Cancel and send to their public Epicbox address**. The wallet asks first; later sends to that contact then start on the public address.'**
-  String get helpPairRouteP3;
+  /// **'The option **{paired}** uses separate keys, and its address is never shown. Only a paired contact can send you an invoice.'**
+  String helpPairRouteP3(String paired);
 
-  /// Topic 2. Names the contact page switch contactSealPayments.
+  /// Topic 2. The cases where Send starts on Public address, and the Cancel and send to their public Epicbox address button.
   ///
   /// In en, this message translates to:
-  /// **'**Seal transaction files** on the contact page encrypts files sent to that contact. They are sealed and readable only by that contact. The switch covers files only; it does not turn the pairing route on or off.'**
-  String get helpPairRouteP4;
+  /// **'**Public address** is chosen instead when: the contact last answered from another wallet app; nothing has been heard from the contact in a long while; a payment with **{paired}** went unanswered; or their server is down. A payment that stays unanswered shows **Cancel and send to their public Epicbox address**. The wallet asks first.'**
+  String helpPairRouteP4(String paired);
 
-  /// Topic 2. [[Contacts]] is the Contacts tab or page.
+  /// Topic 2. Names the contact page switch contactSealPayments; [[Contacts]] is the Contacts tab or page.
   ///
   /// In en, this message translates to:
-  /// **'An invite or QR pairing has no public Epicbox address to fall back to, unless the contact has an Epicbox address in [[Contacts]].'**
+  /// **'**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].'**
   String get helpPairRouteP5;
+
+  /// Name of the Send option that pays a paired contact at the address made for the pairing. Working name: the help topic Payments after pairing and the contact page fill it in, so renaming it is one edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired address'**
+  String get sendRoutePaired;
 
   /// Help topic title.
   ///
