@@ -106,7 +106,7 @@ class _Harness {
     Duration expiresIn = const Duration(hours: 24),
   }) async {
     if (session.pairing.records.isEmpty) {
-      session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, allowInvoices: true, paymentsAddress: _shop);
+      session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, peerProfile: 2, allowInvoices: true, paymentsAddress: _shop);
     }
     session.relayInvoice(
       from: _shop,
@@ -300,7 +300,7 @@ void main() {
     testWidgets('an invoice arriving while Invoices is open: listed at once, View opens it', (tester) async {
       final h = _Harness();
       // Paired before: only the invoice is new.
-      h.session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, allowInvoices: true, paymentsAddress: _shop);
+      h.session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, peerProfile: 2, allowInvoices: true, paymentsAddress: _shop);
       await h.pump(tester, const HomeScreen());
       await tester.tap(_invoicesTile);
       await tester.pumpAndSettle();

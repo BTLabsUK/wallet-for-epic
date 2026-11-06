@@ -502,7 +502,7 @@ void main() {
 
     testWidgets('a shop that did not answer the check: Not answering, the line, Pair again; heard again: gone', (tester) async {
       final h = await page(tester, (h) {
-        h.api.seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: _anna);
+        h.api.seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, peerProfile: 2, state: PairingState.paired, paymentsAddress: _anna);
         h.api.silent.add('s');
       });
       await h.api.checkContacts();
@@ -629,7 +629,7 @@ void main() {
       final h = _Harness();
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
       h.api
-        ..seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: _anna)
+        ..seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, peerProfile: 2, state: PairingState.paired, paymentsAddress: _anna)
         ..silent.add('s');
       await h.api.checkContacts();
       await h.pump(tester, const ContactsScreen());

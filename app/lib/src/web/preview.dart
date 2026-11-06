@@ -474,7 +474,7 @@ PreviewSession _previewSession() {
     ..seedPaired(name: 'Tom', contactId: 'c6', paymentsAddress: tom, state: PairingState.paired)
     ..seedPaired(
       name: 'Northwind Exchange',
-      kind: PairingParty.exchange,
+      peerProfile: 2,
       caps: const PairingCaps(issuesInvoices: true, sharedInbox: true, sendsWithdrawals: true),
       allowInvoices: true,
       paymentsAddress: biller,

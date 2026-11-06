@@ -95,6 +95,10 @@ void main() {
       'expires': 2,
     };
     expect(noticeBodyValid(NoticeType.fwd, pair), isTrue);
+    // An older device still writes the party; it parses, whatever the value.
+    for (final party in ['person', 'shop', 'exchange']) {
+      expect(noticeBodyValid(NoticeType.fwd, {...pair, 'party': party}), isTrue, reason: party);
+    }
     expect(noticeBodyValid(NoticeType.fwd, {...pair, 'requestId': 'not-an-id'}), isFalse);
     expect(noticeBodyValid(NoticeType.fwd, {...pair}..remove('link')), isFalse);
     expect(noticeBodyValid(NoticeType.fwd, {'kind': 'paired', 'requestId': '0123456789abcdef'}), isTrue);
