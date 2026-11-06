@@ -19235,11 +19235,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairRouteP2 =>
-      'Gekoppelte Zahlungen laufen weiterhin über Epicbox. Der Epicbox-Server wird beim Koppeln vorgeschlagen. Die Wallet übernimmt ihn nur, wenn er schon in ihrer Serverliste steht; sonst fragt sie Sie. Ein Server kann eine gekoppelte Zahlung nicht von einer normalen unterscheiden.';
+      'Gekoppelte Zahlungen laufen weiterhin über Epicbox. Der Epicbox-Server wird beim Koppeln vorgeschlagen. Die Wallet übernimmt ihn nur, wenn er schon in ihrer Serverliste steht; sonst fragt sie Sie. Für einen Epicbox-Server ist eine gekoppelte Zahlung eine verschlüsselte Nachricht wie jede andere.';
 
   @override
   String helpPairRouteP3(String paired) {
-    return 'Die Option **$paired** nutzt eigene Schlüssel, und ihre Adresse wird nie angezeigt. Nur ein gekoppelter Kontakt kann Ihnen eine Rechnung senden.';
+    return 'Die Option **$paired** nutzt eigene Schlüssel, und ihre Adresse wird nicht angezeigt. Nur ein gekoppelter Kontakt kann Ihnen eine Rechnung senden.';
   }
 
   @override

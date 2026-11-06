@@ -25840,11 +25840,11 @@
       }
     }
   },
-  "helpPairRouteP2": "Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. A server cannot tell a paired payment from a normal one.",
+  "helpPairRouteP2": "Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. To an Epicbox server, a paired payment is an encrypted message like any other.",
   "@helpPairRouteP2": {
     "description": "Topic 2. Paired payments still run over Epicbox: server suggestion and acceptance."
   },
-  "helpPairRouteP3": "The option **{paired}** uses separate keys, and its address is never shown. Only a paired contact can send you an invoice.",
+  "helpPairRouteP3": "The option **{paired}** uses separate keys, and its address is not shown. Only a paired contact can send you an invoice.",
   "@helpPairRouteP3": {
     "description": "Topic 2. Separate keys, address never shown, who can send an invoice. {paired} is sendRoutePaired.",
     "placeholders": {

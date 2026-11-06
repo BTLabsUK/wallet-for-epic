@@ -19010,11 +19010,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairRouteP2 =>
-      'Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. A server cannot tell a paired payment from a normal one.';
+      'Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. To an Epicbox server, a paired payment is an encrypted message like any other.';
 
   @override
   String helpPairRouteP3(String paired) {
-    return 'The option **$paired** uses separate keys, and its address is never shown. Only a paired contact can send you an invoice.';
+    return 'The option **$paired** uses separate keys, and its address is not shown. Only a paired contact can send you an invoice.';
   }
 
   @override
