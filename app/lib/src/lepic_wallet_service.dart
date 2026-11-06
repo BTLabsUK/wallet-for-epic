@@ -26,6 +26,7 @@ import 'history/wallet_history.dart';
 import 'seed_contacts.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
+import 'domain_check.dart';
 import 'finished_payment.dart';
 import 'key_picture.dart' show inviteKeyOf;
 import 'legacy/gui_contacts.dart' show AddressChecks;
@@ -1067,6 +1068,8 @@ class LepicWalletService implements WalletService {
         torWanted: torBuilt && !config.offline && await (torWantedFor?.call(config) ?? Future.value(false)),
         hostFeatures: appHostFeatures,
         profile: 0,
+        // The app claims no domain; a service's wallet (the CLI) does.
+        domain: null,
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
@@ -3593,6 +3596,35 @@ class _LepicPairing implements PairingApi {
   /// The contacts' relay moves this wallet made, showed or refused, in the wallet's meta file.
   late final MoveLog _moves = _s._history.relayMoveLog();
 
+  /// The contacts' domain claims: the file each domain serves is fetched here, judged by the
+  /// core, and the last check kept in the wallet's meta file.
+  late final DomainCheck _domain = DomainCheck(
+    log: _s._history.domainCheckLog(),
+    verify: (id, file) async {
+      final verdict = await _w.contactDomainVerify(contactId: id, file: file);
+      return (proven: verdict.proven, refused: verdict.refused);
+    },
+  );
+
+  /// Checks the claimed domains that are due ([DomainCheck.due]), one at a time, and tells the
+  /// lists when a status changed. Never throws; runs after a collect, not in it.
+  Future<void> _checkDomains({String? only}) async {
+    try {
+      for (final c in await _w.contacts()) {
+        if (c.peerDomain == null || (only != null && c.contactId != only)) continue;
+        final before = _record(c);
+        if (!_domain.due(before)) continue;
+        final status = await _domain.run(before);
+        if (status != before.domainStatus) _contactsChanged(c.contactId);
+      }
+    } on Object catch (error) {
+      logWarn('pairing', 'domain check failed: ${error.runtimeType}');
+    }
+  }
+
+  @override
+  Future<void> checkDomain(String id) => _checkDomains(only: id);
+
   /// Applies the move [relay] that contact [id] asked for. False when the core would not (none
   /// is pending any more, the pairing ended): nothing moved.
   Future<bool> _applyMove(String id, String relay) async {
@@ -3863,6 +3895,9 @@ class _LepicPairing implements PairingApi {
     endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),
     requestedRelay: c.requestedRelay,
     peerEncKey: c.peerEncKey,
+    peerDomain: c.peerDomain,
+    peerDomainAttestation: c.peerDomainAttestation,
+    domainStatus: _domain.statusOf(c.contactId, c.peerDomain, c.peerDomainAttestation),
   ), _moves.book, DateTime.now());
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
@@ -4231,6 +4266,8 @@ class _LepicPairing implements PairingApi {
     // The engine drops a folded pairing without an event: the lists read again.
     final now = {for (final c in await _w.contacts()) c.contactId};
     _folded.retainAll(now);
+    // A claimed domain is checked after the collect, not in it; what is not due is skipped.
+    if (only == null) unawaited(_checkDomains());
     // Pairings that ended this cycle are kept, ended: their own events name them; the lists
     // read again.
     if ((before.difference(now).isNotEmpty || report.ended.isNotEmpty) && !_events.isClosed) {

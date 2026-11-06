@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'name_service/wire.dart' show nsHelloUnsigned, withSignature;
+import 'history/domain_check_book.dart' show DomainStatus;
 import 'key_picture.dart' show btLabsKeys, inviteKeyOf;
 import 'models.dart';
 import 'pairing_api.dart';
@@ -114,6 +115,10 @@ class FakePairing implements PairingApi {
   Future<void> settleRelayMoves() async {
     if (enabled && await _settleMoves()) emit(const PairingEvent(PairingEventKind.contactUpdated));
   }
+
+  /// Nothing is fetched here: a test or the preview seeds the status ([seedPaired]).
+  @override
+  Future<void> checkDomain(String id) async {}
 
   @override
   Future<void> acceptRelayMove(String id, String relay) async {
@@ -325,7 +330,8 @@ class FakePairing implements PairingApi {
 
   /// A paired contact in one call, for tests and the preview. [state] waiting leaves the peer
   /// unheard; ended needs [endedReason]. [unproven]: made before 26.10.25, no proven address.
-  /// [peerEncKey] one of [btLabsKeys] makes a BT Labs service ([isDomainBacked]);
+  /// [peerEncKey] one of [btLabsKeys] makes a BT Labs service ([isDomainBacked]); [peerDomain] is
+  /// a claimed domain, at [domainStatus] (claimed unless given), and a proven one makes it so too;
   /// [requestedRelay] is a move it asked for before the wallet opened, settled at the next list.
   PairingRecord seedPaired({
     bool unproven = false,
@@ -351,6 +357,8 @@ class FakePairing implements PairingApi {
     bool inviter = false,
     Uint8List? peerEncKey,
     String? requestedRelay,
+    String? peerDomain,
+    DomainStatus? domainStatus,
   }) {
     final rid = id ?? _id('pairing');
     final now = clock();
@@ -381,6 +389,8 @@ class FakePairing implements PairingApi {
       relayDown: relayDown,
       peerEncKey: peerEncKey,
       requestedRelay: requestedRelay,
+      peerDomain: peerDomain,
+      domainStatus: peerDomain == null ? null : domainStatus ?? DomainStatus.claimed,
     );
     _put(record);
     return record;

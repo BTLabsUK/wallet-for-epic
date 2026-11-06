@@ -10,6 +10,7 @@ import 'dart:typed_data';
 import 'package:characters/characters.dart';
 
 import 'contact_label.dart';
+import 'history/domain_check_book.dart' show DomainStatus;
 import 'recipient.dart';
 
 /// Why a payment was cancelled.
@@ -3086,6 +3087,9 @@ class PairingRecord {
     this.checksKeys = false,
     this.requestedRelay,
     this.peerEncKey,
+    this.peerDomain,
+    this.peerDomainAttestation,
+    this.domainStatus,
     this.relayMove = RelayMoveState.none,
     this.movedAt,
   });
@@ -3189,6 +3193,18 @@ class PairingRecord {
   /// The contact's encryption key (32 bytes), null until known. What `isDomainBacked` reads.
   final Uint8List? peerEncKey;
 
+  /// The domain the contact claims in this pairing, normalised (lower case, no trailing dot),
+  /// null when it claims none. Unverified until [domainStatus] says proven.
+  final String? peerDomain;
+
+  /// The claim's attestation as the core stored it (the signed extension value): what a new
+  /// check of a changed claim is told apart by.
+  final Uint8List? peerDomainAttestation;
+
+  /// Where the claim of [peerDomain] stands (`domain_check.dart`); null when there is no claim.
+  /// What `isDomainBacked` reads.
+  final DomainStatus? domainStatus;
+
   /// Where [requestedRelay] stands under the move rules (`relay_moves.dart`).
   final RelayMoveState relayMove;
 
@@ -3261,6 +3277,9 @@ class PairingRecord {
     String? requestedRelay,
     bool clearRequestedRelay = false,
     Uint8List? peerEncKey,
+    String? peerDomain,
+    Uint8List? peerDomainAttestation,
+    DomainStatus? domainStatus,
     RelayMoveState? relayMove,
     DateTime? movedAt,
   }) => PairingRecord(
@@ -3297,6 +3316,9 @@ class PairingRecord {
     checksKeys: checksKeys,
     requestedRelay: clearRequestedRelay ? null : requestedRelay ?? this.requestedRelay,
     peerEncKey: peerEncKey ?? this.peerEncKey,
+    peerDomain: peerDomain ?? this.peerDomain,
+    peerDomainAttestation: peerDomainAttestation ?? this.peerDomainAttestation,
+    domainStatus: domainStatus ?? this.domainStatus,
     relayMove: relayMove ?? this.relayMove,
     movedAt: movedAt ?? this.movedAt,
   );

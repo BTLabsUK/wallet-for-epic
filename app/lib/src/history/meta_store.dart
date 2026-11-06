@@ -21,6 +21,7 @@ import '../log.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
 import '../wallet_service.dart';
+import 'domain_check_book.dart';
 import 'relay_move_book.dart';
 
 const String metaFileName = 'wfe_meta.json';
@@ -695,7 +696,9 @@ class Meta {
     Map<String, int>? paidRequests,
     Map<String, LinkPaymentRec>? linkPayments,
     RelayMoveBook? relayMoves,
+    DomainCheckBook? domainChecks,
   }) : relayMoves = relayMoves ?? RelayMoveBook(),
+       domainChecks = domainChecks ?? DomainCheckBook(),
        manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
@@ -789,12 +792,21 @@ class Meta {
         );
       }),
       relayMoves: _relayMoves(m['relay_moves']),
+      domainChecks: _domainChecks(m['domain_checks']),
     );
   }
 
   static RelayMoveBook _relayMoves(Object? json) {
     try {
       return RelayMoveBook.fromJson(json);
+    } on FormatException catch (e) {
+      _bad(e.message);
+    }
+  }
+
+  static DomainCheckBook _domainChecks(Object? json) {
+    try {
+      return DomainCheckBook.fromJson(json);
     } on FormatException catch (e) {
       _bad(e.message);
     }
@@ -871,6 +883,10 @@ class Meta {
   /// versioned key. Written only when not empty, and not part of a history file.
   final RelayMoveBook relayMoves;
 
+  /// The last domain check of each paired contact (`domain_check.dart`), under one versioned
+  /// key. Written only when not empty, and not part of a history file.
+  final DomainCheckBook domainChecks;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -922,6 +938,7 @@ class Meta {
       out['link_payments'] = {for (final e in linkPayments.entries) e.key: e.value.toJson()};
     }
     if (!relayMoves.isEmpty) out['relay_moves'] = relayMoves.toJson();
+    if (!domainChecks.isEmpty) out['domain_checks'] = domainChecks.toJson();
     return out;
   }
 
@@ -953,6 +970,7 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.paidRequests, plain.paidRequests);
   maps(into.linkPayments, plain.linkPayments);
   into.relayMoves.addAll(plain.relayMoves);
+  into.domainChecks.addAll(plain.domainChecks);
   into.lastActivity ??= plain.lastActivity;
   into.favourites.addAll(plain.favourites);
   into.seededContacts.addAll(plain.seededContacts);

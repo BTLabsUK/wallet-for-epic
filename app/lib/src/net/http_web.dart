@@ -14,14 +14,16 @@ import '../network_gate.dart';
 import 'http_types.dart';
 
 /// With [maxBytes], a longer body throws [NetTooLarge] (checked once read: `fetch` gives no
-/// cheap byte stream here).
+/// cheap byte stream here). With [followRedirects] false a redirect is not followed and reads as
+/// status 0, the browser's opaque redirect.
 Future<HttpReply> httpGet(
   Uri url, {
   Map<String, String> headers = const {},
   Duration timeout = defaultHttpTimeout,
   int? maxBytes,
+  bool followRedirects = true,
 }) async {
-  final reply = await _send('GET', url, headers, null, timeout);
+  final reply = await _send('GET', url, headers, null, timeout, followRedirects: followRedirects);
   if (maxBytes != null && utf8.encode(reply.body).length > maxBytes) {
     throw NetTooLarge(maxBytes);
   }
@@ -33,6 +35,7 @@ Future<HttpBytes> httpGetBytes(
   Uri url, {
   Duration timeout = defaultHttpTimeout,
   required int maxBytes,
+  bool followRedirects = true,
 }) async {
   final abort = _AbortController();
   var timedOut = false;
@@ -45,6 +48,7 @@ Future<HttpBytes> httpGetBytes(
       method: 'GET',
       headers: const <String, String>{}.jsify()! as JSObject,
       signal: abort.signal,
+      redirect: followRedirects ? 'follow' : 'manual',
     );
     final response = await _fetch(url.toString(), init).toDart;
     final bytes = (await response.arrayBuffer().toDart).toDart.asUint8List();
@@ -81,8 +85,9 @@ Future<HttpReply> _send(
   Uri url,
   Map<String, String> headers,
   List<int>? body,
-  Duration timeout,
-) async {
+  Duration timeout, {
+  bool followRedirects = true,
+}) async {
   // The network mode's gate (network_gate.dart): Kill switch lets nothing leave the page,
   // Node only the node in use.
   try {
@@ -102,11 +107,13 @@ Future<HttpReply> _send(
             method: method,
             headers: headers.jsify()! as JSObject,
             signal: abort.signal,
+            redirect: followRedirects ? 'follow' : 'manual',
           )
         : _RequestInit(
             method: method,
             headers: headers.jsify()! as JSObject,
             signal: abort.signal,
+            redirect: followRedirects ? 'follow' : 'manual',
             body: Uint8List.fromList(body).toJS,
           );
     final response = await _fetch(url.toString(), init).toDart;
@@ -129,6 +136,7 @@ extension type _RequestInit._(JSObject _) implements JSObject {
     String method,
     JSObject headers,
     JSObject signal,
+    String redirect,
     JSAny body,
   });
 }

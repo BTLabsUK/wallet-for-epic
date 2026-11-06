@@ -73,6 +73,12 @@ abstract interface class PairingApi {
   /// when it loads, a contact check and the move's event too.
   Future<void> settleRelayMoves();
 
+  /// Checks the domain contact [id] claims when a check is due ([PairingRecord.domainStatus]):
+  /// never checked, the claim changed, or the last check a day old. The contact page asks it
+  /// when it opens; a contact event tells the lists a status changed. Never throws; does
+  /// nothing for a contact that claims no domain.
+  Future<void> checkDomain(String id);
+
   /// Accepts the move of [id] to [relay] (its [PairingRecord.requestedRelay]): the contact is
   /// moved and the move recorded. The caller adds [relay] to the Epicbox servers first when it
   /// is not listed.
@@ -347,6 +353,9 @@ class NoPairing implements PairingApi {
 
   @override
   Future<void> settleRelayMoves() async {}
+
+  @override
+  Future<void> checkDomain(String id) async {}
 
   @override
   Future<void> acceptRelayMove(String id, String relay) async {}

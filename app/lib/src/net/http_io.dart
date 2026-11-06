@@ -11,21 +11,24 @@ import 'http_types.dart';
 import 'tor_net.dart';
 
 /// With [maxBytes], a body longer than that is not read to its end: the call throws
-/// [NetTooLarge] as soon as it passes the limit.
+/// [NetTooLarge] as soon as it passes the limit. With [followRedirects] false a 3xx answer is
+/// returned as its status and never followed.
 Future<HttpReply> httpGet(
   Uri url, {
   Map<String, String> headers = const {},
   Duration timeout = defaultHttpTimeout,
   int? maxBytes,
-}) => _send('GET', url, headers, null, timeout, maxBytes);
+  bool followRedirects = true,
+}) => _send('GET', url, headers, null, timeout, maxBytes, followRedirects: followRedirects);
 
 /// [httpGet] for a binary body (an icon): the bytes as they came, never decoded as text.
 Future<HttpBytes> httpGetBytes(
   Uri url, {
   Duration timeout = defaultHttpTimeout,
   required int maxBytes,
+  bool followRedirects = true,
 }) async {
-  final reply = await _sendRaw('GET', url, const {}, null, timeout, maxBytes);
+  final reply = await _sendRaw('GET', url, const {}, null, timeout, maxBytes, followRedirects: followRedirects);
   return HttpBytes(reply.status, reply.bytes);
 }
 
@@ -57,8 +60,9 @@ Future<HttpReply> _send(
   Duration timeout,
   int? maxBytes, {
   bool direct = false,
+  bool followRedirects = true,
 }) async {
-  final reply = await _sendRaw(method, url, headers, body, timeout, maxBytes, direct: direct);
+  final reply = await _sendRaw(method, url, headers, body, timeout, maxBytes, direct: direct, followRedirects: followRedirects);
   return HttpReply(
     reply.status,
     const Utf8Decoder(allowMalformed: true).convert(reply.bytes),
@@ -73,6 +77,7 @@ Future<({int status, Uint8List bytes})> _sendRaw(
   Duration timeout,
   int? maxBytes, {
   bool direct = false,
+  bool followRedirects = true,
 }) async {
   // The network mode first (Node only: the node in use alone; Kill switch: nothing).
   dialOrFail(NetDial.http, url);
@@ -96,6 +101,7 @@ Future<({int status, Uint8List bytes})> _sendRaw(
   try {
     return await () async {
       final request = await client.openUrl(method, url);
+      if (!followRedirects) request.followRedirects = false;
       headers.forEach(request.headers.set);
       if (body != null) {
         request.contentLength = body.length;

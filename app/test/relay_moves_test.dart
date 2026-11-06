@@ -13,9 +13,9 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('isDomainBacked', () {
     test('a BT Labs key is; another key, or none, is not', () {
-      expect(isDomainBacked((peerEncKey: FakePairing.serviceKey)), isTrue);
-      expect(isDomainBacked((peerEncKey: Uint8List(32))), isFalse);
-      expect(isDomainBacked((peerEncKey: null)), isFalse);
+      expect(isDomainBacked((peerEncKey: FakePairing.serviceKey, domainProven: false)), isTrue);
+      expect(isDomainBacked((peerEncKey: Uint8List(32), domainProven: false)), isFalse);
+      expect(isDomainBacked((peerEncKey: null, domainProven: false)), isFalse);
     });
   });
 

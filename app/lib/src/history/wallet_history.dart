@@ -19,6 +19,7 @@ import '../recipient.dart';
 import '../sealed_file.dart';
 import '../seed_contacts.dart';
 import '../wallet_service.dart';
+import 'domain_check_book.dart';
 import 'export.dart';
 import 'name_service_pins.dart';
 import 'merge.dart';
@@ -437,6 +438,9 @@ class WalletHistory {
 
   /// The contacts' relay moves, over this wallet's meta file ([Meta.relayMoves]).
   MoveLog relayMoveLog() => MetaMoveLog(_store);
+
+  /// The contacts' domain checks, over this wallet's meta file ([Meta.domainChecks]).
+  DomainCheckLog domainCheckLog() => MetaDomainCheckLog(_store);
 
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
   Set<String> favourites() => {...meta.favourites};
@@ -940,6 +944,19 @@ class WalletHistory {
   /// the confirmations its balance counts with.
   String csv(List<TxEntry> live, BigInt? tip, {int target = confirmationsTarget}) =>
       historyCsv(transactions(live), tip, target: target);
+}
+
+/// [DomainCheckLog] over the meta file of the open wallet.
+class MetaDomainCheckLog implements DomainCheckLog {
+  MetaDomainCheckLog(this.store);
+
+  final MetaStore store;
+
+  @override
+  DomainCheckBook get book => store.snapshot.domainChecks;
+
+  @override
+  Future<void> record(String id, DomainCheckRec rec) => store.update((m) => m.domainChecks.checks[id] = rec);
 }
 
 /// [MoveLog] over the meta file of the open wallet.
