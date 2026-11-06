@@ -7117,10 +7117,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendTo => 'Do';
 
   @override
-  String get deskSendToHelp => 'Wklej adres albo wpisz nazwę kontaktu.';
+  String get deskSendToHelp =>
+      'Wklej adres lub link płatności albo wpisz nazwę kontaktu.';
 
   @override
-  String get deskSendToHint => 'Adres lub kontakt';
+  String get deskSendToHint => 'Adres, link płatności lub kontakt';
 
   @override
   String get deskSendToSem => 'Odbiorca';

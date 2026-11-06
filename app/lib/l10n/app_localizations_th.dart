@@ -6596,10 +6596,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendTo => 'ถึง';
 
   @override
-  String get deskSendToHelp => 'วางที่อยู่ หรือพิมพ์ชื่อผู้ติดต่อ';
+  String get deskSendToHelp =>
+      'วางที่อยู่หรือลิงก์ชำระเงิน หรือพิมพ์ชื่อผู้ติดต่อ';
 
   @override
-  String get deskSendToHint => 'ที่อยู่หรือผู้ติดต่อ';
+  String get deskSendToHint => 'ที่อยู่ ลิงก์ชำระเงิน หรือผู้ติดต่อ';
 
   @override
   String get deskSendToSem => 'ผู้รับ';

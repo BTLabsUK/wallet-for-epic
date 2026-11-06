@@ -10660,13 +10660,13 @@ abstract class AppLocalizations {
   /// Help text under the recipient field on Send.
   ///
   /// In en, this message translates to:
-  /// **'Paste an address, or type a contact’s name.'**
+  /// **'Paste an address or payment link, or type a contact’s name.'**
   String get deskSendToHelp;
 
   /// Placeholder of the recipient field on Send.
   ///
   /// In en, this message translates to:
-  /// **'Address or contact'**
+  /// **'Address, payment link or contact'**
   String get deskSendToHint;
 
   /// Screen reader label of the recipient field on Send.

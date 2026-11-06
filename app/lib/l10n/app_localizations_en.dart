@@ -6792,10 +6792,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendTo => 'To';
 
   @override
-  String get deskSendToHelp => 'Paste an address, or type a contact’s name.';
+  String get deskSendToHelp =>
+      'Paste an address or payment link, or type a contact’s name.';
 
   @override
-  String get deskSendToHint => 'Address or contact';
+  String get deskSendToHint => 'Address, payment link or contact';
 
   @override
   String get deskSendToSem => 'Recipient';

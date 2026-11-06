@@ -6887,10 +6887,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendToHelp =>
-      'Fügen Sie eine Adresse ein oder tippen Sie den Namen eines Kontakts.';
+      'Fügen Sie eine Adresse oder einen Zahlungslink ein oder tippen Sie den Namen eines Kontakts.';
 
   @override
-  String get deskSendToHint => 'Adresse oder Kontakt';
+  String get deskSendToHint => 'Adresse, Zahlungslink oder Kontakt';
 
   @override
   String get deskSendToSem => 'Empfänger';

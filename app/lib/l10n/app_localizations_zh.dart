@@ -6370,10 +6370,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendTo => '接收方';
 
   @override
-  String get deskSendToHelp => '粘贴地址，或输入联系人的名称。';
+  String get deskSendToHelp => '粘贴地址或付款链接，或输入联系人的名称。';
 
   @override
-  String get deskSendToHint => '地址或联系人';
+  String get deskSendToHint => '地址、付款链接或联系人';
 
   @override
   String get deskSendToSem => '接收方';
