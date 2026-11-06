@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/app/app_dialogs.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
+import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOtherWallet;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
@@ -82,7 +84,7 @@ void main() {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final container = ProviderContainer();
+        final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
         addTearDown(container.dispose);
         await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
         await tester.pumpWidget(UncontrolledProviderScope(
@@ -103,7 +105,7 @@ void main() {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final container = ProviderContainer();
+        final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
         addTearDown(container.dispose);
         await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
         late BuildContext ctx;
@@ -129,7 +131,7 @@ void main() {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final container = ProviderContainer();
+        final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
         addTearDown(container.dispose);
         await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
         container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
@@ -154,7 +156,7 @@ void main() {
       tester.view.physicalSize = const Size(1280, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
       addTearDown(container.dispose);
       await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
       container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
@@ -190,7 +192,7 @@ void main() {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final container = ProviderContainer();
+    final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
     addTearDown(container.dispose);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);

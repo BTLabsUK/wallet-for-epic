@@ -33,9 +33,9 @@ class BudgetTest(unittest.TestCase):
         self.assertEqual(b.gate(self.d, [BAD], {"app/test/other_test.dart"}, {}), [])
 
     def test_peak_memory_fails_even_with_a_wall_ceiling(self):
-        s = {**BAD, "peak_mb": 2000}
+        s = {**BAD, "peak_mb": 2100}
         got = b.gate(self.d, [s], {"app/test/bad_test.dart"}, {"test/bad_test.dart": (60, "keep", "r")})
-        self.assertEqual(got, ["app/test/bad_test.dart: peak memory 2000 MB, limit 1500 MB"])
+        self.assertEqual(got, ["app/test/bad_test.dart: peak memory 2100 MB, limit 2000 MB"])
 
     def test_an_allow_line_needs_its_reason(self):
         os.makedirs(os.path.join(self.d, "tools"))

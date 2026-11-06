@@ -428,8 +428,12 @@ class _Control {
 /// The enabled controls under [scope], in tree order. Text fields and copy buttons are left out
 /// (typing is not a press; copying is checked in surfaces' own tests).
 List<_Control> _controls(Finder scope) {
-  Iterable<Widget> under(Type t) => find.descendant(of: scope, matching: find.byType(t)).evaluate().map((e) => e.widget);
-  Iterable<Widget> underG(bool Function(Widget) test) => find.descendant(of: scope, matching: find.byWidgetPredicate(test)).evaluate().map((e) => e.widget);
+  // One walk of the tree: a finder per kind walks it again for each.
+  final elements = <Element>{
+    for (final root in scope.evaluate()) ...collectAllElementsFrom(root, skipOffstage: true).skip(1),
+  };
+  Iterable<Widget> under(Type t) => elements.map((e) => e.widget).where((w) => w.runtimeType == t);
+  Iterable<Widget> underG(bool Function(Widget) test) => elements.map((e) => e.widget).where(test);
   final out = <_Control>[];
   for (final w in under(EButton).cast<EButton>()) {
     if (w.onPressed != null) out.add(_Control('button', w.label, w.onPressed!));
@@ -465,12 +469,11 @@ List<_Control> _controls(Finder scope) {
   for (final w in under(EChoiceCard).cast<EChoiceCard>()) {
     if (!w.selected) out.add(_Control('choice', w.title, w.onTap));
   }
-  for (final e in find.descendant(of: scope, matching: find.byType(InkWell)).evaluate()) {
+  for (final e in elements.where((e) => e.widget.runtimeType == InkWell)) {
     final w = e.widget as InkWell;
     if (w.onTap == null) continue;
-    final texts = find.descendant(of: find.byWidget(w), matching: find.byType(RichText)).evaluate();
-    final label = texts.isEmpty ? '?' : (texts.first.widget as RichText).text.toPlainText();
-    out.add(_Control('row', label, w.onTap!));
+    final text = collectAllElementsFrom(e, skipOffstage: true).map((e) => e.widget).whereType<RichText>().firstOrNull;
+    out.add(_Control('row', text?.text.toPlainText() ?? '?', w.onTap!));
   }
   return out;
 }
@@ -505,9 +508,11 @@ final Set<String> _pressed = {};
 /// length of a whole test run. Onboarding (Welcome, Create, Restore, Import, Setup, Unlock) is
 /// left to its own tests: its presses run whole wallet flows that end in another app start.
 /// [after] are the shots an earlier file sweeps: their controls count as pressed already (the
-/// first test lists them, pressing none), as when one file swept them all.
+/// first test lists them, pressing none), as when one file swept them all. Only the shots that
+/// can share a control with [shots] are listed: one for the shell, the rest of the same routes.
 void sweepControls(List<DeskShot> shots, {List<DeskShot> after = const []}) {
-  final earlier = [...after];
+  final routes = {for (final s in shots) s.route};
+  final earlier = [...after.take(1), ...after.skip(1).where((s) => s.dialog == null && routes.contains(s.route))];
   final failures = <String>[];
   // The OS folder picker answers with a folder, as a user would pick one.
   setUpAll(() => deskPickFolder = () async => '/media/data/epic');
@@ -532,15 +537,22 @@ void sweepControls(List<DeskShot> shots, {List<DeskShot> after = const []}) {
       addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
 
       Future<void> settle() async {
-        for (var i = 0; i < 10; i++) {
-          await tester.pump(const Duration(milliseconds: 60));
+        for (var i = 0; i < 5; i++) {
+          await tester.pump(const Duration(milliseconds: 120));
           await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 2)));
         }
       }
 
+      // Only the last app lives: a press's app holds its wallet state until the next one opens.
+      ProviderContainer? last;
+      addTearDown(() => last?.dispose());
+
       // A fresh app on the shot: its recorder, opened folders and the scope its controls are in.
       Future<(_Recorder, List<String>, ProviderContainer, Finder, String)> open([DeskShot? other]) async {
         final shot = other ?? outer;
+        // Nothing of the previous app carries over (the navigator's key is global).
+        await tester.pumpWidget(const SizedBox());
+        last?.dispose();
         final api = _Recorder();
         final folders = <String>[];
         final container = ProviderContainer(
@@ -557,14 +569,12 @@ void sweepControls(List<DeskShot> shots, {List<DeskShot> after = const []}) {
           ],
           retry: (_, _) => null,
         );
-        addTearDown(container.dispose);
+        last = container;
         await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
         // Arrived from Overview, as a user would: Back has somewhere to go.
         container.read(deskNavProvider.notifier)
           ..reset(DeskRoute.overview)
           ..go(shot.route, shot.arg);
-        // Nothing of the previous app carries over (the navigator's key is global).
-        await tester.pumpWidget(const SizedBox());
         await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
         await settle();
         final ctx = tester.element(find.byType(DeskRoot));

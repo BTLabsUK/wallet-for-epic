@@ -50,8 +50,8 @@ void main() {
       if (shot.before != null) await tester.runAsync(() => shot.before!(container));
       container.read(deskNavProvider.notifier).reset(shot.route, shot.arg);
       await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 60));
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 120));
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 5)));
       }
       final primaries = primariesOf(tester);

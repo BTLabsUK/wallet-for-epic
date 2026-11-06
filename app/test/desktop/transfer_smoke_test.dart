@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
+import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/import_tx_screen.dart';
@@ -25,7 +26,7 @@ void main() {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final container = ProviderContainer();
+        final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
         addTearDown(container.dispose);
         await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
         await tester.pumpWidget(
