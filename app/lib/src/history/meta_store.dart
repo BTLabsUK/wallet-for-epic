@@ -21,6 +21,7 @@ import '../log.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
 import '../wallet_service.dart';
+import 'relay_move_book.dart';
 
 const String metaFileName = 'wfe_meta.json';
 
@@ -693,7 +694,9 @@ class Meta {
     Map<String, ListingPin>? nameServicePins,
     Map<String, int>? paidRequests,
     Map<String, LinkPaymentRec>? linkPayments,
-  }) : manual = SplayTreeMap.of(manual ?? const {}),
+    RelayMoveBook? relayMoves,
+  }) : relayMoves = relayMoves ?? RelayMoveBook(),
+       manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
        seededAddresses = SplayTreeMap.of(seededAddresses ?? const {}),
@@ -785,7 +788,16 @@ class Meta {
           ),
         );
       }),
+      relayMoves: _relayMoves(m['relay_moves']),
     );
+  }
+
+  static RelayMoveBook _relayMoves(Object? json) {
+    try {
+      return RelayMoveBook.fromJson(json);
+    } on FormatException catch (e) {
+      _bad(e.message);
+    }
   }
 
   /// Heights as map keys, in numeric order as the old core's `BTreeMap<u64, _>` writes them.
@@ -855,6 +867,10 @@ class Meta {
   /// history file.
   final SplayTreeMap<String, LinkPaymentRec> linkPayments;
 
+  /// Contacts' relay moves this wallet made, showed or refused (`relay_moves.dart`), under one
+  /// versioned key. Written only when not empty, and not part of a history file.
+  final RelayMoveBook relayMoves;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -905,6 +921,7 @@ class Meta {
     if (linkPayments.isNotEmpty) {
       out['link_payments'] = {for (final e in linkPayments.entries) e.key: e.value.toJson()};
     }
+    if (!relayMoves.isEmpty) out['relay_moves'] = relayMoves.toJson();
     return out;
   }
 
@@ -935,6 +952,7 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.nameServicePins, plain.nameServicePins);
   maps(into.paidRequests, plain.paidRequests);
   maps(into.linkPayments, plain.linkPayments);
+  into.relayMoves.addAll(plain.relayMoves);
   into.lastActivity ??= plain.lastActivity;
   into.favourites.addAll(plain.favourites);
   into.seededContacts.addAll(plain.seededContacts);

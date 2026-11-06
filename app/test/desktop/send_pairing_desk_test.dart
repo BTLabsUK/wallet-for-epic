@@ -2,13 +2,14 @@
 // Send to a contact that has only a pairing, on the desktop (DESIGN 1.3): the picker lists it
 // with "Through Zoe's pairing", Send shows the pairing card and the mailbox readout, the review
 // names the contact through the pairing and no address, and the send goes through the mailbox.
+// A contact that moved relay in the last 30 days gives the date in the readout.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/contact_picker.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings, localDayMonth;
 import 'package:epic_wallet/src/models.dart' show PairingState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,5 +116,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.sent.single.pairingId, 'pz');
     expect(find.byKey(const ValueKey('send-queued')), findsOneWidget);
+  });
+
+  testWidgets('a contact that moved: the readout gives the relay and the date', (tester) async {
+    await pump(tester, const SendScreen(arg: SendArgs(pairingTo: 'pz', amount: '1', epicboxHealth: ServiceHealth.ok)));
+    final p = (await tester.runAsync(() async {
+      await wallet.pairing.askRelayMove('pz', 'box.example.org');
+      return (await wallet.pairing.pairings()).firstWhere((p) => p.id == 'pz');
+    }))!;
+    container.invalidate(deskPairingsProvider);
+    await tester.pumpAndSettle();
+    expect(find.text(_l.sendViaMailboxMovedHint('box.example.org', localDayMonth(_l, p.movedAt!))), findsOneWidget);
+    expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsNothing);
   });
 }

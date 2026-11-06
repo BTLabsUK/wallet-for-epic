@@ -3084,6 +3084,10 @@ class PairingRecord {
     this.notAnswering = false,
     this.otherDevice = false,
     this.checksKeys = false,
+    this.requestedRelay,
+    this.peerEncKey,
+    this.relayMove = RelayMoveState.none,
+    this.movedAt,
   });
 
   /// The record's local id: never sent, never a key.
@@ -3178,6 +3182,19 @@ class PairingRecord {
   /// pairing's keys are back (RFC 7.8): the contact keeps using the old one meanwhile.
   final bool checksKeys;
 
+  /// The relay the contact asked to move to and this wallet has not followed yet, `host[:port]`.
+  /// Kept by the core from the stored card, so it outlasts a restart.
+  final String? requestedRelay;
+
+  /// The contact's encryption key (32 bytes), null until known. What `isDomainBacked` reads.
+  final Uint8List? peerEncKey;
+
+  /// Where [requestedRelay] stands under the move rules (`relay_moves.dart`).
+  final RelayMoveState relayMove;
+
+  /// When this wallet moved the contact to [homeRelay], within the last 30 days; null otherwise.
+  final DateTime? movedAt;
+
   /// The other side removed this pairing and said so (RFC 7.6): nothing sent through it
   /// arrives any more. Kept, with its history, until the user removes it here too.
   bool get removedByPeer => endedReason == PairingEndReason.unpaired;
@@ -3241,6 +3258,11 @@ class PairingRecord {
     int? peerProfile,
     PairingEndReason? endedReason,
     DateTime? endedAt,
+    String? requestedRelay,
+    bool clearRequestedRelay = false,
+    Uint8List? peerEncKey,
+    RelayMoveState? relayMove,
+    DateTime? movedAt,
   }) => PairingRecord(
     id: id,
     state: state ?? this.state,
@@ -3273,7 +3295,29 @@ class PairingRecord {
     notAnswering: notAnswering ?? this.notAnswering,
     otherDevice: otherDevice ?? this.otherDevice,
     checksKeys: checksKeys,
+    requestedRelay: clearRequestedRelay ? null : requestedRelay ?? this.requestedRelay,
+    peerEncKey: peerEncKey ?? this.peerEncKey,
+    relayMove: relayMove ?? this.relayMove,
+    movedAt: movedAt ?? this.movedAt,
   );
+}
+
+/// Where a contact's asked-for relay move stands (`relay_moves.dart`).
+enum RelayMoveState {
+  /// No move waiting.
+  none,
+
+  /// A domain-backed contact asked and the request was never shown: the dialog or sheet shows it once.
+  ask,
+
+  /// Shown and closed without a choice: Accept and Refuse wait on the contact page.
+  open,
+
+  /// The user refused it: a quiet line with Accept on the contact page.
+  refused,
+
+  /// The relay is not a public DNS name: not followed, a quiet line on the contact page.
+  notPublic,
 }
 
 /// A request to pair that came to this wallet's Epicbox address (Way 1), as the core keeps it
@@ -3594,10 +3638,6 @@ enum PairingEventKind {
   /// This device answered the request [PairingEvent.requestId] (the first Pair wins): the
   /// linked device hides its copy. Shown nowhere.
   requestAnswered,
-
-  /// A contact asked to move to the relay [PairingEvent.relay], which is not in the Epicbox
-  /// server list: the move was not made.
-  relayMoveRefused,
 }
 
 class PairingEvent {
@@ -3612,7 +3652,6 @@ class PairingEvent {
     this.requestId,
     this.sender,
     this.endedReason,
-    this.relay,
   });
 
   final PairingEventKind kind;
@@ -3627,9 +3666,6 @@ class PairingEvent {
   /// For [PairingEventKind.ended].
   final PairingEndReason? endedReason;
 
-  /// For [PairingEventKind.relayMoveRefused]: the relay asked for, `host` or `host:port`.
-  final String? relay;
-
   /// The contact's name as the app shows it (its label, else its claimed name).
   final String name;
   final PairingFailure? failure;
@@ -3638,7 +3674,7 @@ class PairingEvent {
   final int count;
 
   @override
-  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason, relay);
+  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason);
 
   @override
   bool operator ==(Object other) =>
@@ -3652,8 +3688,7 @@ class PairingEvent {
       count == other.count &&
       requestId == other.requestId &&
       sender == other.sender &&
-      endedReason == other.endedReason &&
-      relay == other.relay;
+      endedReason == other.endedReason;
 }
 
 /// A notice that came over Epicbox for a slate this wallet holds nothing of

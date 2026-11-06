@@ -34,13 +34,13 @@ import 'log.dart';
 import 'net/lan_node_relay.dart';
 import 'net/tor_net.dart' show TorNet;
 import 'net/tor_switch.dart';
-import 'network.dart' show EpicboxRelay;
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
 import 'trust/policy.dart' show PeerCompat, appHostFeatures, statedAutomated;
 import 'send_route.dart' show HostScope, plainHttpGoesDirect, plainHttpHeldNow, urlHostScope;
 import 'redact.dart';
+import 'relay_moves.dart';
 import 'sealed_file.dart';
 import 'secret_store_api.dart';
 import 'settings_file/host_settings.dart';
@@ -3590,11 +3590,8 @@ class _LepicPairing implements PairingApi {
   @override
   void setConnectionServers(List<String>? hosts) {}
 
-  /// Whether [relay] (`host[:port]`) is in the Epicbox server list, compared by host and port.
-  bool _inServerList(String relay) {
-    final r = EpicboxRelay.parse(relay);
-    return r != null && hostSettings.epicboxServers.any((s) => s.host.toLowerCase() == r.host && s.port == r.port);
-  }
+  /// The contacts' relay moves this wallet made, showed or refused, in the wallet's meta file.
+  late final MoveLog _moves = _s._history.relayMoveLog();
 
   /// Applies the move [relay] that contact [id] asked for. False when the core would not (none
   /// is pending any more, the pairing ended): nothing moved.
@@ -3607,27 +3604,71 @@ class _LepicPairing implements PairingApi {
     }
   }
 
-  /// Applies each pending move to a relay in the server list; true when one was made.
-  Future<bool> _followMoves(List<lepic.ContactView> contacts) async {
+  /// Records that [id] moved from [from] to [to], for the "Moved here on" line. A meta file
+  /// this app may not write loses the line, never the move.
+  Future<void> _recordMove(String id, String from, String to) async {
+    try {
+      await _moves.recordMove(id, relayLabelOf(from), relayLabelOf(to), DateTime.now());
+    } on Object catch (error) {
+      logWarn('pairing', 'relay move not recorded: ${error.runtimeType}');
+    }
+  }
+
+  /// Makes each waiting move that goes without asking ([movesSilently]) and records it; true
+  /// when one was made. A domain-backed contact's waits for the user.
+  Future<bool> _settleMoves(List<lepic.ContactView> contacts) async {
     var moved = false;
     for (final c in contacts) {
       final relay = c.requestedRelay;
-      if (relay != null && _inServerList(relay) && await _applyMove(c.contactId, relay)) moved = true;
+      if (relay == null || !movesSilently(_record(c))) continue;
+      if (await _applyMove(c.contactId, relay)) {
+        await _recordMove(c.contactId, c.homeRelay ?? '', relay);
+        moved = true;
+      }
     }
     return moved;
   }
 
+  /// Settles contact [id]'s move (its event, a check's answer) and tells the list, which shows
+  /// a request that waits for the user.
+  Future<void> _settleContact(String id) async {
+    try {
+      await _settleMoves([await _w.contact(contactId: id)]);
+    } on lepic.WalletError {
+      return;
+    }
+    _contactsChanged(id);
+  }
+
   @override
-  Future<void> followRelayMoves() => _call(() async {
-    if (await _followMoves(await _w.contacts()) && !_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+  Future<void> settleRelayMoves() => _call(() async {
+    if (await _settleMoves(await _w.contacts())) _contactsChanged();
   });
+
+  @override
+  Future<void> acceptRelayMove(String id, String relay) => _call(() async {
+    if (!isPublicRelayHost(relay)) return;
+    final from = (await _w.contact(contactId: id)).homeRelay ?? '';
+    await _w.contactApplyRelayMove(contactId: id, relay: relay);
+    await _recordMove(id, from, relay);
+    _contactsChanged(id);
+  });
+
+  @override
+  Future<void> refuseRelayMove(String id, String relay) async {
+    await _moves.refuse(id, relayLabelOf(relay));
+    _contactsChanged(id);
+  }
+
+  @override
+  Future<void> markRelayMoveShown(String id, String relay) async {
+    await _moves.markShown(id, relayLabelOf(relay));
+    _contactsChanged(id);
+  }
 
   /// Contacts a check got no answer from, with when it was sent (Unix ms): "Not answering" until
   /// the contact is heard after that, or checked again. Not kept across a restart.
   final Map<String, int> _notAnswering = {};
-
-  /// The moves already told as refused (`id relay`), so a check and the event say it once.
-  final Set<String> _refusedMoves = {};
 
   bool _isNotAnswering(lepic.ContactView c) {
     final sent = _notAnswering[c.contactId];
@@ -3642,8 +3683,8 @@ class _LepicPairing implements PairingApi {
       c.endedReason == null &&
       !c.removedByPeer;
 
-  void _contactsChanged() {
-    if (!_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+  void _contactsChanged([String? id]) {
+    if (!_events.isClosed) _events.add(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
   }
 
   @override
@@ -3700,7 +3741,7 @@ class _LepicPairing implements PairingApi {
             asked.remove(id);
             outcomes.remove(id);
           } else if (relay != null) {
-            await _followCheckedMove(id, relay);
+            await _settleContact(id);
             settle(id, ContactCheckOutcome.moved);
           } else if ((c.lastSealedInMs ?? 0).toInt() > sent) {
             settle(id, ContactCheckOutcome.reachable);
@@ -3723,16 +3764,6 @@ class _LepicPairing implements PairingApi {
   }
 
   bool _checkRunning = false;
-
-  /// A checked contact's answer named another relay: follow it when the user lists that relay,
-  /// else say so once, as the event path does.
-  Future<void> _followCheckedMove(String id, String relay) async {
-    if (_inServerList(relay)) {
-      if (await _applyMove(id, relay)) _contactsChanged();
-    } else if (_refusedMoves.add('$id $relay') && !_events.isClosed) {
-      _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
-    }
-  }
 
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
@@ -3789,7 +3820,7 @@ class _LepicPairing implements PairingApi {
   List<SasWord> _sas(List<lepic.SasEntry> e) => [for (final w in e) SasWord(w.emoji, w.name)];
 
   /// [inviter], [inviteLink] and [way] are given for a private pairing (a device link).
-  PairingRecord _record(lepic.ContactView c, {bool? inviter, String? inviteLink, PairingWay? way}) => PairingRecord(
+  PairingRecord _record(lepic.ContactView c, {bool? inviter, String? inviteLink, PairingWay? way}) => withRelayMoves(PairingRecord(
     id: c.contactId,
     // A private pairing in progress is listed with its pending state; a stored one by LEPIC's
     // derived status.
@@ -3830,7 +3861,9 @@ class _LepicPairing implements PairingApi {
     peerProfile: c.peerProfile,
     endedReason: c.endedReason == null ? null : lepicPairingEndReason(c.endedReason!),
     endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),
-  );
+    requestedRelay: c.requestedRelay,
+    peerEncKey: c.peerEncKey,
+  ), _moves.book, DateTime.now());
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
     id: p.contactId,
@@ -3883,7 +3916,7 @@ class _LepicPairing implements PairingApi {
   Future<List<PairingRecord>> pairings() => _call(() async {
     final pending = [for (final p in await _w.pairingsPending()) _pending(p)];
     var contacts = await _w.contacts();
-    if (await _followMoves(contacts)) contacts = await _w.contacts();
+    if (await _settleMoves(contacts)) contacts = await _w.contacts();
     final paired = [
       for (final c in contacts)
         if (!_folded.contains(c.contactId)) _record(c),
@@ -4501,15 +4534,7 @@ class _LepicPairing implements PairingApi {
     final id = e.contactId;
     final slateId = e.slateId;
     if (e.kind == lepic.WalletEventKind.contactRelayMoveRequested) {
-      final relay = e.relay;
-      if (id == null || relay == null || _events.isClosed) return;
-      // Only to a relay the user lists; otherwise the contact keeps its mailbox and the user is told.
-      if (_inServerList(relay)) {
-        if (await _applyMove(id, relay) && !_events.isClosed) _events.add(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
-      } else {
-        _refusedMoves.add('$id $relay');
-        _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
-      }
+      if (id != null && !_events.isClosed) await _settleContact(id);
       return;
     }
     if (e.kind == lepic.WalletEventKind.homeRelayUnreachable && e.relay != null) _relaysDown.add(e.relay!);

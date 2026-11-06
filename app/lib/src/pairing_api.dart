@@ -67,16 +67,29 @@ abstract interface class PairingApi {
   /// servers. Kept for the core's sake; the code carries the wallet's own relay.
   void setConnectionServers(List<String>? hosts);
 
-  /// Applies the relay moves contacts asked for whose relay is in the Epicbox server list.
-  /// Called when the server list changes; the contact list does it when it loads.
-  Future<void> followRelayMoves();
+  /// Settles every contact's waiting relay move by the rules of `relay_moves.dart`: moves a
+  /// contact that is not domain-backed to a public relay without a word, and leaves a
+  /// domain-backed contact's to the user ([PairingRecord.relayMove]). The contact list does it
+  /// when it loads, a contact check and the move's event too.
+  Future<void> settleRelayMoves();
+
+  /// Accepts the move of [id] to [relay] (its [PairingRecord.requestedRelay]): the contact is
+  /// moved and the move recorded. The caller adds [relay] to the Epicbox servers first when it
+  /// is not listed.
+  Future<void> acceptRelayMove(String id, String relay);
+
+  /// Refuses the move of [id] to [relay]: nothing moves, the contact is not told, and this
+  /// move is not asked again.
+  Future<void> refuseRelayMove(String id, String relay);
+
+  /// Records that the request to move [id] to [relay] was shown: it is not shown again.
+  Future<void> markRelayMoveShown(String id, String relay);
 
   /// The stale contact check (after a long gap): asks each paired shop and exchange whose
   /// pairing has not ended to answer (people are not checked), then collects just those
   /// contacts every [every] for [wait] (default `[contacts] check_wait_s`). Per contact: heard
   /// after the check was sent is [ContactCheckOutcome.reachable]; a card on another relay is
-  /// [ContactCheckOutcome.moved] (applied when the relay is in the server list, else
-  /// [PairingEventKind.relayMoveRefused]); an unreachable home relay, or no word by the end of
+  /// [ContactCheckOutcome.moved] (settled as [settleRelayMoves] does); an unreachable home relay, or no word by the end of
   /// the wait, is [ContactCheckOutcome.notAnswering] ([PairingRecord.notAnswering], until the
   /// contact is heard again). A check that cannot be sent for one contact leaves the others
   /// alone. With [only], exactly those pairings are asked, whatever their kind or profile, if
@@ -333,7 +346,16 @@ class NoPairing implements PairingApi {
   void setConnectionServers(List<String>? hosts) {}
 
   @override
-  Future<void> followRelayMoves() async {}
+  Future<void> settleRelayMoves() async {}
+
+  @override
+  Future<void> acceptRelayMove(String id, String relay) async {}
+
+  @override
+  Future<void> refuseRelayMove(String id, String relay) async {}
+
+  @override
+  Future<void> markRelayMoveShown(String id, String relay) async {}
 
   @override
   Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only}) async => const {};

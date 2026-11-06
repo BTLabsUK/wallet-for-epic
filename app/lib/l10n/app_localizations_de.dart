@@ -14247,6 +14247,52 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String relayMoveTitle(String name) {
+    return '$name ist zu einem neuen Relay gewechselt';
+  }
+
+  @override
+  String relayMoveBody(String name, String relay) {
+    return '$name bittet dich, ab jetzt über $relay zu senden. Wenn du ablehnst, ändert sich nichts und $name erfährt es nicht.';
+  }
+
+  @override
+  String relayMoveAddsServer(String relay) {
+    return 'Annehmen fügt $relay auch zu deinen Epicbox-Servern hinzu.';
+  }
+
+  @override
+  String get relayMoveAccept => 'Annehmen';
+
+  @override
+  String get relayMoveRefuse => 'Ablehnen';
+
+  @override
+  String contactMoveAsked(String relay) {
+    return 'Bittet um Wechsel zu $relay';
+  }
+
+  @override
+  String contactMoveRefused(String relay) {
+    return 'Du hast den Wechsel zu $relay abgelehnt.';
+  }
+
+  @override
+  String contactMoveNotPublic(String relay) {
+    return 'Bat um Wechsel zu $relay. Nicht übernommen: kein öffentliches Relay.';
+  }
+
+  @override
+  String contactMovedOn(String date) {
+    return 'Hierher gewechselt am $date';
+  }
+
+  @override
+  String sendViaMailboxMovedHint(String relay, String date) {
+    return 'Versiegelt. Zugestellt über $relay, hierher gewechselt am $date';
+  }
+
+  @override
   String contactRelayDownTitle(String name) {
     return 'Der Server von $name antwortet nicht';
   }
@@ -14890,11 +14936,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String noticeOutboxStuck(String name) {
     return '$name ist noch nicht erreichbar. Wird erneut versucht.';
-  }
-
-  @override
-  String noticeRelayMoveRefused(String name, String host) {
-    return '$name möchte zum Relay $host wechseln. Es steht nicht in deiner Epicbox-Serverliste, daher wurde der Wechsel nicht vorgenommen.';
   }
 
   @override

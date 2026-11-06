@@ -164,3 +164,10 @@ AppLocalizations pairingStrings(Locale? locale) {
     return englishStrings;
   }
 }
+
+/// The line under Send's mailbox switch: sealed, the relay it goes through, and the day the
+/// contact moved there when that was in the last 30 days (`relay_moves.dart`).
+String sendViaMailboxHintOf(AppLocalizations l, PairingRecord p) {
+  final moved = p.movedAt;
+  return moved == null ? l.sendViaMailboxHint(p.homeRelay) : l.sendViaMailboxMovedHint(p.homeRelay, localDayMonth(l, moved));
+}

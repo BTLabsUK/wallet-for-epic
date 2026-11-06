@@ -24,6 +24,9 @@ import 'preview_live.dart';
 /// `?relaydown` on the page's URL: the relay is gone as soon as Home opens.
 bool get previewRelayDownAtOnce => Uri.base.queryParameters.containsKey('relaydown');
 
+/// `?relaymove` on the page's URL: a contact has moved relay and a BT Labs service asks to.
+bool get previewRelayMove => Uri.base.queryParameters.containsKey('relaymove');
+
 /// How long after Home opens the fake relay goes quiet (level 1), and how long it must have
 /// been quiet before the move is offered.
 const Duration previewRelayDownAfter = Duration(seconds: 45);

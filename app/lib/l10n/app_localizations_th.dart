@@ -13723,6 +13723,52 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String relayMoveTitle(String name) {
+    return '$name ย้ายไปรีเลย์ใหม่แล้ว';
+  }
+
+  @override
+  String relayMoveBody(String name, String relay) {
+    return '$name ขอให้คุณส่งผ่าน $relay ตั้งแต่นี้ไป หากปฏิเสธ จะไม่มีอะไรเปลี่ยน และ $name จะไม่ได้รับแจ้ง';
+  }
+
+  @override
+  String relayMoveAddsServer(String relay) {
+    return 'การยอมรับจะเพิ่ม $relay ลงในเซิร์ฟเวอร์ Epicbox ของคุณด้วย';
+  }
+
+  @override
+  String get relayMoveAccept => 'ยอมรับ';
+
+  @override
+  String get relayMoveRefuse => 'ปฏิเสธ';
+
+  @override
+  String contactMoveAsked(String relay) {
+    return 'ขอย้ายไปยัง $relay';
+  }
+
+  @override
+  String contactMoveRefused(String relay) {
+    return 'คุณปฏิเสธการย้ายไปยัง $relay';
+  }
+
+  @override
+  String contactMoveNotPublic(String relay) {
+    return 'ขอย้ายไปยัง $relay ไม่ได้ย้าย เพราะไม่ใช่รีเลย์สาธารณะ';
+  }
+
+  @override
+  String contactMovedOn(String date) {
+    return 'ย้ายมาที่นี่เมื่อ $date';
+  }
+
+  @override
+  String sendViaMailboxMovedHint(String relay, String date) {
+    return 'ปิดผนึก ส่งผ่าน $relay ย้ายมาที่นี่เมื่อ $date';
+  }
+
+  @override
   String contactRelayDownTitle(String name) {
     return 'เซิร์ฟเวอร์ของ $name ไม่ตอบสนอง';
   }
@@ -14354,11 +14400,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String noticeOutboxStuck(String name) {
     return 'ยังติดต่อ $name ไม่ได้ กำลังลองใหม่';
-  }
-
-  @override
-  String noticeRelayMoveRefused(String name, String host) {
-    return '$name ขอย้ายไปยังรีเลย์ $host รีเลย์นี้ไม่อยู่ในรายการเซิร์ฟเวอร์ Epicbox ของคุณ จึงไม่ได้ย้าย';
   }
 
   @override

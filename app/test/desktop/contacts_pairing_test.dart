@@ -2,21 +2,24 @@
 // A contact's Pairing block on the desktop (pairing v3): Verified with its switches and
 // "confirmed too", Paired not verified with Check the words, Waiting, keys changed, Ended with
 // its reason and the held send, Not paired with Pair, and deleting a paired contact removes
-// this wallet's pairing too. Also the Contacts rows' badges and the Experimental switch gone.
+// this wallet's pairing too. Also the Contacts rows' badges, the Experimental switch gone, and
+// a relay move: the dialog, the open request, the refused line and the moved date.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelProvider;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart';
-import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings, localDayMonth;
 import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/models.dart' show PairingParty;
-import 'package:epic_wallet/src/wallet_service.dart' show PairingApi, PairingEndReason, PairingState;
+import 'package:epic_wallet/src/wallet_service.dart' show PairingApi, PairingEndReason, PairingRecord, PairingState, RelayMoveState;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/add_to_contacts_button.dart';
+import 'package:epic_wallet/src/desktop/screens/pairing/relay_move_dialog.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show deskConfirmRemovePairingKey, deskSaveContactNameKey, deskWay1SendKey;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
@@ -372,4 +375,103 @@ void main() {
     expect(find.byKey(const ValueKey('adv-pairing')), findsNothing);
     expect(find.byKey(const ValueKey('adv-invoices')), findsOneWidget);
   });
+
+  group('a contact moves to another relay', () {
+    const moved = 'box.example.org';
+
+    /// Anna as a domain-backed contact, asking to move to [moved].
+    Future<void> asking(WidgetTester tester) async {
+      await tester.runAsync(() async {
+        final r = (await _pairing.pairing(mockAnnaPairing))!;
+        _fake.seed(r.copyWith(peerEncKey: FakePairing.serviceKey));
+        await _fake.askRelayMove(mockAnnaPairing, moved);
+      });
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+    }
+
+    Future<PairingRecord> anna(WidgetTester tester) async =>
+        (await tester.runAsync(() async => (await _pairing.pairings()).firstWhere((p) => p.id == mockAnnaPairing)))!;
+
+    testWidgets('the dialog: Accept adds the relay last and moves Anna', (tester) async {
+      await _open(tester, const _AskDesk());
+      await asking(tester);
+      expect((await anna(tester)).relayMove, RelayMoveState.ask);
+      await tester.tap(find.byKey(_askDeskKey));
+      await _real(tester);
+      expect(find.byKey(deskRelayMoveDialogKey), findsOneWidget);
+      expect(find.text(_l.relayMoveTitle('Anna Kowalska')), findsOneWidget);
+      expect(find.text(_l.relayMoveBody('Anna Kowalska', moved)), findsOneWidget);
+      expect(find.text(_l.relayMoveAddsServer(moved)), findsOneWidget);
+      await tester.tap(find.byKey(deskRelayMoveAcceptKey));
+      await _real(tester);
+      expect(_fake.calls, contains('acceptMove:$mockAnnaPairing'));
+      expect((await anna(tester)).homeRelay, moved);
+      final hosts = _c.read(hostSettingsProvider);
+      expect(hosts.epicboxLabels.last, moved);
+      expect(hosts.epicboxUse, isNot(moved), reason: 'never made the one in use');
+    });
+
+    testWidgets('the dialog: Refuse moves nothing and adds no server', (tester) async {
+      await _open(tester, const _AskDesk());
+      await asking(tester);
+      await tester.tap(find.byKey(_askDeskKey));
+      await _real(tester);
+      await tester.tap(find.byKey(deskRelayMoveRefuseKey));
+      await _real(tester);
+      expect(_fake.calls, contains('refuseMove:$mockAnnaPairing'));
+      expect((await anna(tester)).relayMove, RelayMoveState.refused);
+      expect(_c.read(hostSettingsProvider).epicboxLabels, isNot(contains(moved)));
+    });
+
+    testWidgets('closed without a choice: the request on the details with Accept and Refuse; Refuse leaves a line with Accept', (tester) async {
+      await _contact(tester, 'c1');
+      await asking(tester);
+      await tester.runAsync(() => _fake.markRelayMoveShown(mockAnnaPairing, moved));
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      expect(find.byKey(deskContactMoveAskedKey), findsOneWidget);
+      expect(find.text(_l.contactMoveAsked(moved)), findsOneWidget);
+      await tester.tap(find.byKey(deskContactMoveRefuseKey));
+      await _real(tester);
+      expect(find.byKey(deskContactMoveAskedKey), findsNothing);
+      expect(find.text(_l.contactMoveRefused(moved)), findsOneWidget);
+      await tester.tap(find.byKey(deskContactMoveAcceptKey));
+      await _real(tester);
+      expect(_fake.calls, contains('acceptMove:$mockAnnaPairing'));
+      expect(find.text(_l.contactMoveRefused(moved)), findsNothing);
+    });
+
+    testWidgets('any other contact is moved without a word and dated; a relay that is not public is not followed', (tester) async {
+      await _contact(tester, 'c1');
+      await tester.runAsync(() => _fake.askRelayMove(mockAnnaPairing, moved));
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      final p = await anna(tester);
+      expect(p.homeRelay, moved);
+      expect(find.byKey(deskContactMoveAskedKey), findsNothing);
+      expect(find.text(_l.contactMovedOn(localDayMonth(_l, p.movedAt!))), findsOneWidget);
+
+      await tester.runAsync(() => _fake.askRelayMove(mockAnnaPairing, '10.0.0.7'));
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      expect(find.text(_l.contactMoveNotPublic('10.0.0.7')), findsOneWidget);
+      expect(find.byKey(deskContactMoveAcceptKey), findsNothing);
+    });
+  });
+}
+
+const Key _askDeskKey = ValueKey('test-ask-move');
+
+/// A button that shows Anna's relay move the way the shell does.
+class _AskDesk extends ConsumerWidget {
+  const _AskDesk();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = ref.watch(deskPairingsProvider).value?.where((p) => p.id == mockAnnaPairing).firstOrNull;
+    return Center(
+      child: TextButton(key: _askDeskKey, onPressed: p == null ? null : () => deskAskRelayMove(context, ref, p), child: const Text('Ask')),
+    );
+  }
 }

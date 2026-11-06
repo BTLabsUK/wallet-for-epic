@@ -17,6 +17,7 @@ import '../../name_service/phone_name_service.dart' show nameServiceProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
+import '../../relay_moves.dart' show relayMoveToAsk;
 import '../../providers.dart' show homeProvider, pendingInvoicesProvider, sessionProvider;
 import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
@@ -31,6 +32,7 @@ import 'invite_links.dart';
 import 'pair_check.dart';
 import 'pair_incoming.dart' show openPairingLink;
 import 'pair_way1.dart' show PairRequestsScreen;
+import 'relay_move_sheet.dart' show askPhoneRelayMove;
 
 /// Screens and dialogs that show a pairing's words, or open them on its next answer, add a
 /// test here while they are up: the "answered" and "paired" notices for an event one of them
@@ -86,7 +88,6 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.withdrawalFromContact => (text: l.noticeWithdrawal(epic(e.amount), name), level: NoticeLevel.success),
     PairingEventKind.homeRelayUnreachable => (text: l.noticeRelayDown(name), level: NoticeLevel.warning),
     PairingEventKind.outboxStuck => (text: l.noticeOutboxStuck(name), level: NoticeLevel.warning),
-    PairingEventKind.relayMoveRefused => (text: l.noticeRelayMoveRefused(name, e.relay ?? ''), level: NoticeLevel.warning),
     PairingEventKind.sealedUnopenable => (text: l.openSealedOtherTitle, level: NoticeLevel.warning),
     PairingEventKind.secondReply => (text: l.pairSecondReplyTitle(name), level: NoticeLevel.warning),
     PairingEventKind.duplicateRequests => (text: l.reqTwoSame(name, e.count, epic(e.amount)), level: NoticeLevel.warning),
@@ -118,6 +119,9 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   static const _tick = Duration(seconds: 45);
   Timer? _timer;
   late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(pairingClockProvider));
+
+  /// A service's relay move sheet is up: the next waits until it closes.
+  bool _askingMove = false;
 
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(pairingApiProvider);
@@ -186,7 +190,22 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
         final name = pairingName(c.record, ref.read(contactsProvider).value ?? const <Contact>[], l: l);
         ref.read(noticeProvider.notifier).show(c.takesPayments ? l.contactTakesPaymentsAgain(name) : l.contactNoPaymentsNamed(name), level: NoticeLevel.info);
       }
+      // A service asks to move to another relay: the sheet, once.
+      final move = relayMoveToAsk(records);
+      if (move != null) unawaited(_askMove(move));
     }, fireImmediately: true);
+  }
+
+  Future<void> _askMove(PairingRecord p) async {
+    if (_askingMove) return;
+    _askingMove = true;
+    try {
+      // Out of initState (the listener fires at once): the sheet needs a built context.
+      await WidgetsBinding.instance.endOfFrame;
+      if (mounted) await askPhoneRelayMove(context, ref, p);
+    } finally {
+      _askingMove = false;
+    }
   }
 
   Future<void> _show(PairingEvent e) async {
@@ -250,7 +269,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.keysChanged ||
       PairingEventKind.keysRestored ||
       PairingEventKind.homeRelayUnreachable ||
-      PairingEventKind.relayMoveRefused ||
       PairingEventKind.heard ||
       PairingEventKind.peerVerified ||
       PairingEventKind.ended ||

@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import '../../pairing_text.dart' show sendViaMailboxHintOf;
 import '../../payment_prefs.dart';
 import '../../settings.dart';
 import '../../trust/trust_providers.dart' show mailboxRouteOffered;
@@ -130,7 +131,7 @@ class SendPairingLine extends ConsumerWidget {
                   switchKey: sendViaMailboxKey,
                   label: l.sendViaMailbox(contact.name),
                   info: '',
-                  hint: l.sendViaMailboxHint(pairing.homeRelay),
+                  hint: sendViaMailboxHintOf(l, pairing),
                   value: viaMailbox,
                   onChanged: onViaMailbox,
                 ),
@@ -285,7 +286,7 @@ class SendPairingMailbox extends ConsumerWidget {
           children: [
             PairReadoutRow(
               label: l.sendViaMailbox(name),
-              hint: paused ? l.contactPausedEpicboxOff : l.sendViaMailboxHint(pairing.homeRelay),
+              hint: paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing),
               paused: paused,
             ),
           ],

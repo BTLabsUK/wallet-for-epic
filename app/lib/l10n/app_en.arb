@@ -18772,6 +18772,102 @@
       }
     }
   },
+  "relayMoveTitle": "{name} moved to a new relay",
+  "@relayMoveTitle": {
+    "description": "Title of the dialog (desktop) or sheet (phone) when a BT Labs service contact asks to move to another Epicbox relay.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "BT Labs Faucet"
+      }
+    }
+  },
+  "relayMoveBody": "{name} asks you to send to it through {relay} from now on. If you refuse, nothing changes and {name} is not told.",
+  "@relayMoveBody": {
+    "description": "Body of that dialog or sheet.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "BT Labs Faucet"
+      },
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "relayMoveAddsServer": "Accept also adds {relay} to your Epicbox servers.",
+  "@relayMoveAddsServer": {
+    "description": "Extra line of that dialog or sheet, shown when the relay is not in the user's Epicbox server list. Accept appends it; the server in use does not change.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "relayMoveAccept": "Accept",
+  "@relayMoveAccept": {
+    "description": "Button: follow the contact to its new relay."
+  },
+  "relayMoveRefuse": "Refuse",
+  "@relayMoveRefuse": {
+    "description": "Button: stay on the current relay; the contact is not told."
+  },
+  "contactMoveAsked": "Asks to move to {relay}",
+  "@contactMoveAsked": {
+    "description": "Contact page line while a service's move request is open (the dialog or sheet was closed without a choice). Accept and Refuse follow.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "contactMoveRefused": "You refused the move to {relay}.",
+  "@contactMoveRefused": {
+    "description": "Contact page line after the user refused a service's move. An Accept button follows.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "contactMoveNotPublic": "Asked to move to {relay}. Not followed: not a public relay.",
+  "@contactMoveNotPublic": {
+    "description": "Contact page line when a contact asked to move to a relay that is not a public DNS name (an IP address, localhost, a local or .onion name). The move is not made.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "contactMovedOn": "Moved here on {date}",
+  "@contactMovedOn": {
+    "description": "Under the contact's relay for 30 days after the contact moved to it. {date} is a day and month.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "6 Nov"
+      }
+    }
+  },
+  "sendViaMailboxMovedHint": "Sealed. Delivered via {relay}, moved here on {date}",
+  "@sendViaMailboxMovedHint": {
+    "description": "Under the sealed switch before sending, when the contact moved to this relay in the last 30 days. {date} is a day and month.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "relay.example.org"
+      },
+      "date": {
+        "type": "String",
+        "example": "6 Nov"
+      }
+    }
+  },
   "contactRelayDownTitle": "{name}’s Epicbox server is not answering",
   "@contactRelayDownTitle": {
     "description": "Notice on the contact page (cases file C-05).",
@@ -19755,20 +19851,6 @@
       "name": {
         "type": "String",
         "example": "Anna"
-      }
-    }
-  },
-  "noticeRelayMoveRefused": "{name} asks to move to relay {host}. It is not in your Epicbox server list, so the move was not made.",
-  "@noticeRelayMoveRefused": {
-    "description": "Docked warning when a contact asked to move to an Epicbox relay that is not in the user's server list; the contact stays on its current relay.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      },
-      "host": {
-        "type": "String",
-        "example": "relay.example.com"
       }
     }
   },
