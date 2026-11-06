@@ -680,6 +680,8 @@ String txTitle(
   bool relay = true,
 }) {
   if (_labelOf(tx) case final label?) return label;
+  // A reward the linked device mined names it; its details say what it is.
+  if (tx.kind == TxKind.coinbase && tx.deviceName != null) return tx.deviceName!;
   final counterparty = tx.counterparty;
   final special = _specialTitle(l, tx, hasCounterparty: counterparty != null);
   if (special != null) return special;
@@ -1785,7 +1787,7 @@ String txSpokenLabel(
   final out = _outgoingKind(tx);
   final String what;
   if (tx.kind == TxKind.coinbase) {
-    what = l.txSpokenMiningReward(amount);
+    what = tx.deviceName != null ? '${tx.deviceName!}, ${l.txSpokenMiningReward(amount)}' : l.txSpokenMiningReward(amount);
   } else if (tx.origin == TxOrigin.otherWallet) {
     what = out
         ? l.txSpokenSentFromOtherWallet(amount)

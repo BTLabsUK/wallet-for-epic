@@ -23,6 +23,10 @@
 /// install on the same phrase may have received it. A payment both devices answered (one
 /// address, one relay) shows once: this device's own answer is left out once the chain shows
 /// the linked device's ([answersTakenThere]).
+///
+/// A block reward carries the device's name only when the device said it built it: an output
+/// its `reward` notice named. Nothing is worked out from the row, so no reward is named wrongly;
+/// one not told about reads "Mining reward".
 library;
 
 import '../models.dart';
@@ -38,6 +42,7 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
   final taken = answersTakenThere(rows, book).toSet();
   final linked = book.linked;
   final theirOutputs = {for (final o in book.theirReceives.values) ...o};
+  final theirRewards = book.theirRewards.toSet();
   // Held, ended without spending (by the device, by the fallbacks or by hand) and confirmed all
   // keep their row.
   final shown = [for (final h in book.holds) if (h.state.holds || h.state.freed || h.state == HoldState.spent) h];
@@ -79,6 +84,10 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
         out.add(r.withDeviceName(linked.name));
         continue;
       }
+    }
+    if (linked != null && linked.name.isNotEmpty && r.kind == TxKind.coinbase && r.outputCommits.any(theirRewards.contains)) {
+      out.add(r.withDeviceName(linked.name));
+      continue;
     }
     out.add(r);
   }

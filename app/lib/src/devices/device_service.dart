@@ -7,8 +7,8 @@
 /// linked device and name that device → at most [deviceNoticeMaxBytes] (before parsing) → not
 /// seen before (by id) → in order (by seq, waiting up to [noticeWindow] ahead and [gapWait] for
 /// a missing one) → a body valid for its type → its handler in [_handlers]. A `send`, a
-/// `status` of a known hold, `unlink`, `recv` and `fwd` are keyed by slate or device and apply
-/// the same however often they come, so they apply as they arrive, ahead of a missing one
+/// `status` of a known hold, `unlink`, `recv`, `reward` and `fwd` are keyed by slate, output or
+/// device and apply the same however often they come, so they apply as they arrive, ahead of a missing one
 /// ([_applyEarly]); `servers` and the `pair2*` notices keep the order. Anything else is dropped
 /// and logged without amounts or addresses. A notice of another wire version keeps its place
 /// in the order and marks its device: the user is told to update it ([LinkedDevice.otherVersion]).
@@ -20,6 +20,12 @@
 /// Links are pairwise, so with a third device one of them would not hear the other's payments.
 /// Both devices answer payments to the wallet's one address; the sender takes the first answer,
 /// and the other device drops its own once the chain shows which was used.
+///
+/// Block rewards are told apart from everything else ([_announceRewards]): a relay sees when a
+/// notice goes and how large it is, so a win must not show as a notice. Rewards go in one batch
+/// of a fixed size, [rewardNoticeDelay] and a random part of [rewardNoticeJitter] after the first
+/// of them waited, once per such window. A new link gets the newest [rewardNoticeMaxOutputs]
+/// and nothing older. The name comes late and a reward not told about stays "Mining reward".
 ///
 /// What a notice can do here: hold or release coins, add history details, rename its device,
 /// propose servers (the user accepts here), make a further pairing with this device over the
@@ -316,6 +322,16 @@ String? linkServerOf(String? relay) {
 /// The receives remembered from the linked device.
 const int _theirReceivesKept = 200;
 
+/// The rewards remembered from the linked device; older ones go back to "Mining reward".
+const int _theirRewardsKept = 500;
+
+/// The shortest wait before a `reward` notice, and the most that a random part adds to it.
+const Duration rewardNoticeDelay = Duration(hours: 6);
+const Duration rewardNoticeJitter = Duration(hours: 6);
+
+/// What a commitment takes in a `reward` notice's list: 66 hex digits, quotes and a comma.
+const int _rewardOutputChars = 69;
+
 /// Why the service reads the channel now.
 enum DeviceSyncTrigger { start, resume, unlock, refresh, tick, beforeSend, link }
 
@@ -361,6 +377,7 @@ class DeviceService {
   /// What this device is, told in its hello for the other device's icon.
   final DeviceKind kind;
   final DateTime Function() _clock;
+  final Random _random = Random.secure();
 
   DeviceBook? _book;
   LinkFlow? _link;
@@ -674,7 +691,7 @@ class DeviceService {
   bool _standsAlone(LinkedDevice d, Notice n) {
     if (!n.readable || !noticeBodyValid(n.type!, n.body)) return false;
     return switch (n.type!) {
-      NoticeType.send || NoticeType.unlink || NoticeType.recv || NoticeType.fwd => true,
+      NoticeType.send || NoticeType.unlink || NoticeType.recv || NoticeType.reward || NoticeType.fwd => true,
       NoticeType.status => book.holds.any((h) => h.deviceId == d.deviceId && h.slateId == n.body['slateId']),
       _ => false,
     };
@@ -714,6 +731,7 @@ class DeviceService {
     NoticeType.pair2done: _onPair2Done,
     NoticeType.unlink: _onUnlink,
     NoticeType.recv: _onRecv,
+    NoticeType.reward: _onReward,
     NoticeType.fwd: _onForward,
     // A `full` belongs to a link in the making ([_receiveLink]); from a linked device it says
     // nothing new.
@@ -738,6 +756,12 @@ class DeviceService {
       next.remove(next.keys.first);
     }
     _book = book.copyWith(theirReceives: next);
+  }
+
+  /// Keeps the rewards [from] built, oldest first. A repeat keeps its place.
+  Future<void> _onReward(LinkedDevice from, Notice n) async {
+    final next = {...book.theirRewards, for (final c in n.body['outputs'] as List) c as String}.toList();
+    _book = book.copyWith(theirRewards: next.length > _theirRewardsKept ? next.sublist(next.length - _theirRewardsKept) : next);
   }
 
   /// A report or a request that reached the other device only. A payer's `posted` or
@@ -1292,7 +1316,53 @@ class DeviceService {
       }
     }
     if (!_sameMap(announced, book.announced)) await _put(book.copyWith(announced: announced));
+    await _announceRewards(rows);
   }
+
+  /// Tells the linked device, in one notice and well after the blocks, which rewards this device
+  /// built, so its history can name them. The rows are read when the notice goes: a reward a
+  /// reorg took back meanwhile is not told.
+  ///
+  /// Only rewards built here: a scan's find or an imported record may be another install's. Each
+  /// notice is padded to one size, as the relay sees its length.
+  Future<void> _announceRewards(List<TxEntry> rows) async {
+    final won = [for (final r in rows) if (_builtHere(r)) r]..sort((a, b) => a.blockHeight!.compareTo(b.blockHeight!));
+    for (final d in [...book.devices]) {
+      final mark = d.rewardsMark;
+      final fresh = [for (final r in won) if (mark == null || r.blockHeight! > BigInt.from(mark)) r];
+      if (fresh.isEmpty) {
+        if (d.rewardsDueAt != null) await _put(book.withDevice(d.copyWith(clearRewardsDue: true)));
+        continue;
+      }
+      final due = d.rewardsDueAt;
+      if (due == null) {
+        final wait = rewardNoticeDelay + rewardNoticeJitter * _random.nextDouble();
+        await _put(book.withDevice(d.copyWith(rewardsDueAt: _clock().add(wait))));
+        continue;
+      }
+      if (_clock().isBefore(due)) continue;
+      // The first notice after a link holds the newest: no backlog. After it, the oldest not
+      // told go first and the rest wait for the next window.
+      final batch = mark == null ? fresh.skip(max(0, fresh.length - rewardNoticeMaxOutputs)) : fresh.take(rewardNoticeMaxOutputs);
+      final outputs = [for (final r in batch) ...r.outputCommits].take(rewardNoticeMaxOutputs).toList();
+      _book = book.withDevice(d.copyWith(rewardsMark: batch.last.blockHeight!.toInt(), clearRewardsDue: true));
+      await _send(d.deviceId, NoticeType.reward, {
+        'outputs': outputs,
+        'pad': '0' * ((rewardNoticeMaxOutputs - outputs.length) * _rewardOutputChars),
+      });
+    }
+  }
+
+  /// Whether [r] is a block reward this device built: on chain, no scan's find and no imported
+  /// record ([TxEntry.statusDetail]).
+  static bool _builtHere(TxEntry r) =>
+      r.kind == TxKind.coinbase &&
+      r.origin == TxOrigin.thisWallet &&
+      r.foundDuring == null &&
+      r.statusDetail == null &&
+      r.confirmed &&
+      r.blockHeight != null &&
+      r.outputCommits.isNotEmpty;
 
   static bool _sameMap(Map<String, AnnouncedState> a, Map<String, AnnouncedState> b) =>
       a.length == b.length && a.entries.every((e) => b[e.key] == e.value);
@@ -1487,7 +1557,7 @@ class DeviceService {
     final holds = keepHolds ? book.holds : unlinkHolds(book.holds, deviceId, spent: await _spent(), now: _clock());
     _book = book
         .withoutDevice(deviceId)
-        .copyWith(holds: holds, outbox: [for (final o in book.outbox) if (o.deviceId != deviceId) o], clearProposal: true);
+        .copyWith(holds: holds, outbox: [for (final o in book.outbox) if (o.deviceId != deviceId) o], clearProposal: true, theirRewards: const []);
   }
 
   // The user's actions.
@@ -1511,7 +1581,7 @@ class DeviceService {
     final d = book.device(deviceId);
     if (d != null && book.outbox.any((o) => o.deviceId == deviceId)) {
       final holds = unlinkHolds(book.holds, deviceId, spent: await _spent(), now: _clock());
-      _book = book.withoutDevice(deviceId).copyWith(removing: [...book.removing, d], holds: holds, clearProposal: true);
+      _book = book.withoutDevice(deviceId).copyWith(removing: [...book.removing, d], holds: holds, clearProposal: true, theirRewards: const []);
     } else {
       await _forget(deviceId);
     }
@@ -1841,6 +1911,7 @@ class DeviceService {
       serversVersion: max(1, book.serversVersion + 1),
       clearProposal: true,
       theirReceives: const {},
+      theirRewards: const [],
     );
     await _put(book);
     _setLink(flow.to(LinkPhase.done, device: device));

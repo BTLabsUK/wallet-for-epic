@@ -71,6 +71,10 @@ void main() {
     expect(noticeBodyValid(NoticeType.send, {'slateId': 's', 'inputs': <String>[], 'amount': '1'}), isFalse);
     expect(noticeBodyValid(NoticeType.status, {'slateId': 's', 'state': 'cancelled'}), isTrue);
     expect(noticeBodyValid(NoticeType.status, {'slateId': 's', 'state': 'spend-it'}), isFalse);
+    expect(noticeBodyValid(NoticeType.reward, {'outputs': [commit], 'pad': '000'}), isTrue);
+    expect(noticeBodyValid(NoticeType.reward, {'outputs': <String>[]}), isFalse);
+    expect(noticeBodyValid(NoticeType.reward, {'outputs': ['xyz']}), isFalse);
+    expect(noticeBodyValid(NoticeType.reward, {'outputs': List.filled(rewardNoticeMaxOutputs + 1, commit)}), isFalse);
     expect(noticeBodyValid(NoticeType.rename, {'name': 'x' * 49}), isFalse);
     expect(noticeBodyValid(NoticeType.servers, {'set': ['a', 'b', 'c'], 'version': 2}), isFalse);
     expect(
