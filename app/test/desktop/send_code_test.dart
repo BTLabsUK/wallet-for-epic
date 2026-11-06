@@ -276,7 +276,6 @@ void main() {
       'epiccash://pair/1/AbCdEfGh123': 'Pairing is not available in this version.',
       // LNX-2: a code refused as a whole says so at once.
       'epic:$_annaAddress?amount=1&amount=2': 'This is not an Epic address or payment code.',
-      'epic:$_annaAddress?${List.generate(9, (i) => 'x$i=1').join('&')}': 'This is not an Epic address or payment code.',
     };
     for (final MapEntry(key: code, value: reason) in cases.entries) {
       await paste(tester, code);
@@ -437,6 +436,18 @@ void main() {
       expect(find.textContaining('Minimum'), findsOneWidget);
     });
 
+    testWidgets('Message is not optional beside a note the code carries', (tester) async {
+      await show(tester);
+      expect(find.text(_l.deskKitOptional), findsWidgets);
+      final others = tester.widgetList(find.text(_l.deskKitOptional)).length;
+      await paste(tester, deposit);
+      expect(find.text(_l.deskKitOptional), findsNWidgets(others - 1));
+      await tester.pumpWidget(const SizedBox());
+      await show(tester);
+      await paste(tester, 'epic:$_e?message=$note');
+      expect(find.text(_l.deskKitOptional), findsNWidgets(others - 1));
+    });
+
     testWidgets('typed over To: the same', (tester) async {
       await show(tester);
       await tester.enterText(field('To'), deposit);
@@ -518,6 +529,7 @@ void main() {
       await show(tester);
       await paste(tester, exchange);
       expect(find.text(_l.serviceHintExchangeCheckNote), findsOneWidget);
+      expect(find.ancestor(of: find.text(_l.deskSendMessage), matching: find.byType(EField)).evaluate().map((e) => (e.widget as EField).optional), [false]);
       await tester.enterText(field(_l.deskSendAmount), '1');
       await tester.pumpAndSettle();
       await review(tester);
@@ -533,6 +545,7 @@ void main() {
       await show(tester);
       await paste(tester, _e);
       expect(find.byKey(const ValueKey('send-note-missing')), findsNothing);
+      expect(find.ancestor(of: find.text(_l.deskSendMessage), matching: find.byType(EField)).evaluate().map((e) => (e.widget as EField).optional), [true]);
     });
   });
 

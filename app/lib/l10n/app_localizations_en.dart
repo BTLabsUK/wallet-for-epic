@@ -4578,7 +4578,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendToLabel => 'To';
 
   @override
-  String get sendToHint => 'Address or contact';
+  String get sendToHint => 'Address, payment link or contact';
 
   @override
   String get sendSwitchedEpicbox => 'Via Epicbox';

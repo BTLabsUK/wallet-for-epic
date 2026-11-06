@@ -4724,7 +4724,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendToLabel => 'Do';
 
   @override
-  String get sendToHint => 'Adres lub kontakt';
+  String get sendToHint => 'Adres, link płatności lub kontakt';
 
   @override
   String get sendSwitchedEpicbox => 'Przez Epicbox';

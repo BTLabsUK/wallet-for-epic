@@ -7329,7 +7329,7 @@ abstract class AppLocalizations {
   /// Placeholder of Send's recipient field.
   ///
   /// In en, this message translates to:
-  /// **'Address or contact'**
+  /// **'Address, payment link or contact'**
   String get sendToHint;
 
   /// Tag beside the To label for 3 s after the method moved to Epicbox because of the address.

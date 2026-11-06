@@ -1193,7 +1193,7 @@
   "methodAddressKindsTooltip": "地址类型",
   "sendMethodLabel": "方式",
   "sendToLabel": "收款方",
-  "sendToHint": "地址或联系人",
+  "sendToHint": "地址、付款链接或联系人",
   "sendSwitchedEpicbox": "经由 Epicbox",
   "sendSwitchedEpicboxAnnounce": "Epicbox 地址。方式已设为 Epicbox。",
   "sendCancelRuleEpicbox": "在等待对方期间可以取消。",

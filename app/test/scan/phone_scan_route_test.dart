@@ -733,6 +733,15 @@ void main() {
       expect(h.session.epicboxSends, isEmpty);
     });
 
+    testWidgets('a code that asks for a note and carries none opens Message', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, 'epic:$_e?require=message');
+      expect(find.text(_l.sendAddNote), findsNothing);
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+      expect(find.byKey(sendNoteMissingKey), findsOneWidget);
+    });
+
     testWidgets('a cleared note warns on both steps and the send still goes, without it', (tester) async {
       final h = _Harness();
       await h.pump(tester);
@@ -852,12 +861,25 @@ void main() {
       expect(h.session.epicboxSends.single.to, exchange);
     });
 
+    testWidgets('Message is open, not folded behind Add a message, and stays open while typed in', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, exchange);
+      await _continue(tester);
+      expect(find.text(_l.sendAddNote), findsNothing);
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+      await tester.enterText(find.byKey(sendNoteFieldKey), '1');
+      await tester.pumpAndSettle();
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+    });
+
     testWidgets('another relay says nothing', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, _e);
       await _continue(tester);
       expect(find.byKey(sendNoteMissingKey), findsNothing);
+      expect(find.text(_l.sendAddNote), findsOneWidget);
     });
   });
 

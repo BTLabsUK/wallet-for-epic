@@ -4643,7 +4643,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendToLabel => 'An';
 
   @override
-  String get sendToHint => 'Adresse oder Kontakt';
+  String get sendToHint => 'Adresse, Zahlungslink oder Kontakt';
 
   @override
   String get sendSwitchedEpicbox => 'Über Epicbox';

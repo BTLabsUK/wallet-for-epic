@@ -39,6 +39,11 @@ String? noteWarning(AppLocalizations l, String address, String message, {require
   return hint == null ? null : serviceHintText(l, hint);
 }
 
+/// Whether Send reads Message as a field to fill, not an optional one: [codeNote], the code that
+/// filled the address carries or asks for a note, or a service rule has a hint for [address].
+bool noteExpected(String address, {required bool codeNote}) =>
+    codeNote || (matchService(address, serviceRules)?.hints.isNotEmpty ?? false);
+
 /// The translated string of a service file's hint id.
 String serviceHintText(AppLocalizations l, ServiceHint hint) => switch (hint) {
   ServiceHint.exchangeCheckNote => l.serviceHintExchangeCheckNote,

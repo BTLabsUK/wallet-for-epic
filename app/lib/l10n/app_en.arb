@@ -5902,7 +5902,7 @@
   "@sendToLabel": {
     "description": "Label of Send's recipient field."
   },
-  "sendToHint": "Address or contact",
+  "sendToHint": "Address, payment link or contact",
   "@sendToHint": {
     "description": "Placeholder of Send's recipient field."
   },

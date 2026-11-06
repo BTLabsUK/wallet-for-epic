@@ -36,7 +36,7 @@ import '../invite_links.dart' show parseInvite;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
-import '../scan/scan_text.dart' show directHostBesideOf, noteWarning;
+import '../scan/scan_text.dart' show directHostBesideOf, noteExpected, noteWarning;
 import '../send_amount_gate.dart';
 import '../send_reach.dart';
 import '../send_route.dart';
@@ -3388,6 +3388,14 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
   List<Widget> _amountFields(BuildContext context, {required bool file}) {
+    // A note the code or a service rule expects is not folded behind "Add a message".
+    final noteOpen = _noteOpen ||
+        (!file &&
+            _note.text.isEmpty &&
+            noteExpected(
+              _read.isAddress ? _read.address : _recipient.text.trim(),
+              codeNote: _activeRequest?.noteRequired ?? false,
+            ));
     final l = context.l10n;
     final theme = Theme.of(context);
     final t = context.tokens;
@@ -3437,7 +3445,7 @@ class _SendViewState extends ConsumerState<SendView> {
         textInputAction: TextInputAction.next,
         textAlign: TextAlign.center,
         onEditingComplete: () {
-          if (_noteOpen) {
+          if (noteOpen) {
             _noteFocus.requestFocus();
           } else {
             _submitAmount(file: file);
@@ -3550,7 +3558,7 @@ class _SendViewState extends ConsumerState<SendView> {
         _strategyPicker(context),
       const SizedBox(height: 12),
       Divider(color: t.line, height: 1),
-      if (!_noteOpen && _note.text.isNotEmpty)
+      if (!noteOpen && _note.text.isNotEmpty)
         ListTile(
           contentPadding: EdgeInsets.zero,
           minTileHeight: 56,
@@ -3574,7 +3582,7 @@ class _SendViewState extends ConsumerState<SendView> {
             _noteFocus.requestFocus();
           },
         )
-      else if (!_noteOpen)
+      else if (!noteOpen)
         ListTile(
           contentPadding: EdgeInsets.zero,
           minTileHeight: 56,
@@ -3594,7 +3602,8 @@ class _SendViewState extends ConsumerState<SendView> {
             focusNode: _noteFocus,
             // LEPIC signs at most this many bytes; the field stops there instead of cutting.
             inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
-            onChanged: (_) => setState(() {}),
+            // The field stays open under the fingers, however it came open.
+            onChanged: (_) => setState(() => _noteOpen = true),
             buildCounter:
                 (
                   context, {

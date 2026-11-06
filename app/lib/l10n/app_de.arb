@@ -1193,7 +1193,7 @@
   "methodAddressKindsTooltip": "Adressarten",
   "sendMethodLabel": "Methode",
   "sendToLabel": "An",
-  "sendToHint": "Adresse oder Kontakt",
+  "sendToHint": "Adresse, Zahlungslink oder Kontakt",
   "sendSwitchedEpicbox": "Über Epicbox",
   "sendSwitchedEpicboxAnnounce": "Epicbox-Adresse. Methode auf Epicbox gestellt.",
   "sendCancelRuleEpicbox": "Kann storniert werden, solange sie auf die Gegenseite wartet.",

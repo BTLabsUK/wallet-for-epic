@@ -2228,7 +2228,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         SizedBox(height: Sp.x5),
         EField(
           label: l.deskSendMessage,
-          optional: true,
+          optional: !noteExpected(_read.isAddress ? _read.address : _to.text.trim(), codeNote: code != null && (code.noteFilled || code.noteRequired)),
           // Bytes, as LEPIC counts them (an emoji takes 4), shown with no unit; amber from 90 %
           // of the limit, red over it.
           aside: Text(

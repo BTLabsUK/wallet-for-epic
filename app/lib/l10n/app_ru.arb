@@ -1193,7 +1193,7 @@
   "methodAddressKindsTooltip": "Виды адресов",
   "sendMethodLabel": "Способ",
   "sendToLabel": "Кому",
-  "sendToHint": "Адрес или контакт",
+  "sendToHint": "Адрес, ссылка на оплату или контакт",
   "sendSwitchedEpicbox": "Через Epicbox",
   "sendSwitchedEpicboxAnnounce": "Адрес Epicbox. Выбран способ Epicbox.",
   "sendCancelRuleEpicbox": "Можно отменить, пока платёж ждёт получателя.",

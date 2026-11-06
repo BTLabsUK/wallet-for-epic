@@ -4500,7 +4500,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendToLabel => 'ถึง';
 
   @override
-  String get sendToHint => 'ที่อยู่หรือผู้ติดต่อ';
+  String get sendToHint => 'ที่อยู่ ลิงก์ชำระเงิน หรือผู้ติดต่อ';
 
   @override
   String get sendSwitchedEpicbox => 'ผ่าน Epicbox';

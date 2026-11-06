@@ -4343,7 +4343,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendToLabel => '收款方';
 
   @override
-  String get sendToHint => '地址或联系人';
+  String get sendToHint => '地址、付款链接或联系人';
 
   @override
   String get sendSwitchedEpicbox => '经由 Epicbox';

@@ -4705,7 +4705,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendToLabel => 'Кому';
 
   @override
-  String get sendToHint => 'Адрес или контакт';
+  String get sendToHint => 'Адрес, ссылка на оплату или контакт';
 
   @override
   String get sendSwitchedEpicbox => 'Через Epicbox';
