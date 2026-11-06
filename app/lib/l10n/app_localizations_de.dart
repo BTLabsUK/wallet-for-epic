@@ -20770,4 +20770,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskConLabelCurrent(String name) {
     return 'Label: $name';
   }
+
+  @override
+  String get deskUpdStripAct => 'Aktualisieren';
+
+  @override
+  String get deskUpdStripHide => 'Bis zur nächsten Version ausblenden';
 }

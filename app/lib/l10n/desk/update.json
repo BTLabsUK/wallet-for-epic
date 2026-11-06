@@ -108,5 +108,13 @@
   "deskUpdDmgHint": "The app closes and the disk image opens: drag BT Wallet into Applications and replace the old one. Move Epic Cash Desktop, if it is there, to the Bin.",
   "@deskUpdDmgHint": {
     "description": "macOS: what happens and what to do, one line under the downloaded update and in its dialog. BT Wallet is the app's name and Epic Cash Desktop its name before (installs of 26.10.24 have that app); Applications and the Bin are the macOS folder and Trash (use their names in this language's macOS)."
+  },
+  "deskUpdStripAct": "Update",
+  "@deskUpdStripAct": {
+    "description": "The update strip's button at the top of the content area (one word): starts the download of the version the strip names, the same step as the sidebar's slot."
+  },
+  "deskUpdStripHide": "Hide until the next version",
+  "@deskUpdStripHide": {
+    "description": "The update strip's close button (×): its tooltip and screen-reader name. The strip stays away for this version and comes back for a newer one; the sidebar's slot stays."
   }
 }

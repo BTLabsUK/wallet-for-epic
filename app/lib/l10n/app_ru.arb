@@ -5340,5 +5340,7 @@
   "contactDomain": "Домен",
   "contactDomainVerified": "подтверждён",
   "contactDomainNotVerified": "ещё не подтверждён",
-  "contactDomainRefused": "отклонён"
+  "contactDomainRefused": "отклонён",
+  "deskUpdStripAct": "Обновить",
+  "deskUpdStripHide": "Скрыть до следующей версии"
 }

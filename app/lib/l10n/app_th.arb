@@ -5340,5 +5340,7 @@
   "contactDomain": "โดเมน",
   "contactDomainVerified": "ยืนยันแล้ว",
   "contactDomainNotVerified": "ยังไม่ได้ยืนยัน",
-  "contactDomainRefused": "ถูกปฏิเสธ"
+  "contactDomainRefused": "ถูกปฏิเสธ",
+  "deskUpdStripAct": "อัปเดต",
+  "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป"
 }

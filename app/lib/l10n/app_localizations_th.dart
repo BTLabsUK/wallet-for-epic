@@ -20102,4 +20102,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskConLabelCurrent(String name) {
     return 'ป้ายกำกับ: $name';
   }
+
+  @override
+  String get deskUpdStripAct => 'อัปเดต';
+
+  @override
+  String get deskUpdStripHide => 'ซ่อนจนกว่าจะมีเวอร์ชันถัดไป';
 }

@@ -21192,4 +21192,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskConLabelCurrent(String name) {
     return 'Метка: $name';
   }
+
+  @override
+  String get deskUpdStripAct => 'Обновить';
+
+  @override
+  String get deskUpdStripHide => 'Скрыть до следующей версии';
 }

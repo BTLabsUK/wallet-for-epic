@@ -21,5 +21,7 @@
   "deskUpdRestartNow": "Uruchom ponownie",
   "deskUpdLater": "Później",
   "deskUpdOpenDmg": "Otwórz obraz dysku",
-  "deskUpdDmgHint": "Aplikacja zamknie się i otworzy się obraz dysku: przeciągnij BT Wallet do folderu Aplikacje i zastąp starą wersję. Epic Cash Desktop, jeśli tam jest, przenieś do Kosza."
+  "deskUpdDmgHint": "Aplikacja zamknie się i otworzy się obraz dysku: przeciągnij BT Wallet do folderu Aplikacje i zastąp starą wersję. Epic Cash Desktop, jeśli tam jest, przenieś do Kosza.",
+  "deskUpdStripAct": "Aktualizuj",
+  "deskUpdStripHide": "Ukryj do następnej wersji"
 }

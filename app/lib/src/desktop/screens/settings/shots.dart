@@ -29,6 +29,7 @@ import 'dialogs.dart';
 import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog;
 import 'local_node_dialogs.dart';
 import 'prefs.dart';
+import '../wallet/overview_screen.dart' show OverviewShot;
 import 'report_problem.dart';
 import 'settings_node.dart';
 import 'settings_phrase.dart';
@@ -337,7 +338,25 @@ final List<DeskShot> settingsShots = [
     route: DeskRoute.settingsAbout,
     prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showShot(DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(503), checkedAt: DateTime.now())),
   ),
-  DeskShot(id: '29d-slot-update', title: 'Sidebar: Update available', route: DeskRoute.overview, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
+  // The update strip above the page and the sidebar's slot: alone, over a problem notice, and
+  // after the strip was closed for this version (the slot stays).
+  DeskShot(id: '29d-slot-update', title: 'Update available: the strip and the sidebar slot', route: DeskRoute.overview, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
+  DeskShot(
+    id: '29h-strip-update-stacked',
+    title: 'Update available over a node problem',
+    route: DeskRoute.overview,
+    arg: OverviewShot.nodeDown,
+    prepare: (c, _) async => _update(c, DeskUpdatePhase.available),
+  ),
+  DeskShot(
+    id: '29i-strip-update-hidden',
+    title: 'Update strip closed: only the sidebar slot',
+    route: DeskRoute.overview,
+    prepare: (c, _) async {
+      _update(c, DeskUpdatePhase.available);
+      c.read(settingsPrefsProvider.notifier).hideUpdateStrip(mockUpdateVersion);
+    },
+  ),
   DeskShot(
     id: '29e-dlg-update-ready',
     title: 'The update is ready: Restart now or Later',

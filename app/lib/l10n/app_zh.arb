@@ -5340,5 +5340,7 @@
   "contactDomain": "域名",
   "contactDomainVerified": "已验证",
   "contactDomainNotVerified": "尚未验证",
-  "contactDomainRefused": "已拒绝"
+  "contactDomainRefused": "已拒绝",
+  "deskUpdStripAct": "更新",
+  "deskUpdStripHide": "隐藏至下一版本"
 }

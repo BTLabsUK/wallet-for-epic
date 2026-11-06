@@ -21,5 +21,7 @@
   "deskUpdRestartNow": "立即重启",
   "deskUpdLater": "稍后",
   "deskUpdOpenDmg": "打开磁盘映像",
-  "deskUpdDmgHint": "应用会关闭并打开磁盘映像：将 BT Wallet 拖到“应用程序”中替换旧版本。如果那里有 Epic Cash Desktop，请将其移到废纸篓。"
+  "deskUpdDmgHint": "应用会关闭并打开磁盘映像：将 BT Wallet 拖到“应用程序”中替换旧版本。如果那里有 Epic Cash Desktop，请将其移到废纸篓。",
+  "deskUpdStripAct": "更新",
+  "deskUpdStripHide": "隐藏至下一版本"
 }

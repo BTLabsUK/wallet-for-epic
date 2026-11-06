@@ -27856,5 +27856,13 @@
         "example": "Exchange"
       }
     }
+  },
+  "deskUpdStripAct": "Update",
+  "@deskUpdStripAct": {
+    "description": "The update strip's button at the top of the content area (one word): starts the download of the version the strip names, the same step as the sidebar's slot."
+  },
+  "deskUpdStripHide": "Hide until the next version",
+  "@deskUpdStripHide": {
+    "description": "The update strip's close button (×): its tooltip and screen-reader name. The strip stays away for this version and comes back for a newer one; the sidebar's slot stays."
   }
 }
