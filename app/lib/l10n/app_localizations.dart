@@ -20826,11 +20826,11 @@ abstract class AppLocalizations {
   /// **'This code asks for a message. Without it the recipient may not credit the payment.'**
   String get sendNoteMissingCode;
 
-  /// Send: the warning when the address's Epicbox server is one the settings list as an exchange's and the message is empty. 'Looks like': the server does not prove who owns the address. The user may send anyway.
+  /// Send: a service file's hint for an address that looks like an exchange's, while the message is empty. 'Looks like': the address does not prove who owns it. The user may send anyway.
   ///
   /// In en, this message translates to:
-  /// **'This looks like an exchange address. Make sure the message is filled in. Exchanges may call it the on-chain note.'**
-  String get sendNoteMissingExchange;
+  /// **'Looks like an exchange address. Check the message. Exchanges may call it the on-chain note.'**
+  String get serviceHintExchangeCheckNote;
 
   /// Helper under the Note field when the note was filled from a payment code; the receiver sees the note.
   ///

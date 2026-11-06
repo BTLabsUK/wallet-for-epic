@@ -3448,7 +3448,7 @@
   "sendCodeMinimumInvalid": "Minimum w tym kodzie jest nieprawidłowe i zostało pominięte.",
   "sendNoteMissingTitle": "Brak wiadomości",
   "sendNoteMissingCode": "Ten kod wymaga wiadomości. Bez niej odbiorca może nie zaksięgować płatności.",
-  "sendNoteMissingExchange": "To wygląda na adres giełdy. Upewnij się, że wiadomość jest wypełniona. Giełdy mogą nazywać ją notatką on-chain.",
+  "serviceHintExchangeCheckNote": "To wygląda na adres giełdy. Sprawdź wiadomość. Giełdy mogą nazywać ją notatką on-chain.",
   "sendNoteFromCodeHelper": "Z kodu. Odbiorca też ją zobaczy.",
   "sendOriginQr": "Z kodu QR",
   "sendOriginLink": "Z linku",

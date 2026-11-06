@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "id": "nonkyc",
+  "rules": [
+    { "kind": "relay_needs_note", "relay": "epicbox.nonkyc.io", "hint": "exchange_check_note" }
+  ]
+}

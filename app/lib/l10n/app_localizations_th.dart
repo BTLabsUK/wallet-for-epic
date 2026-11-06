@@ -12898,8 +12898,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'โค้ดนี้ต้องมีข้อความ หากไม่มี ผู้รับอาจไม่เข้าบัญชีให้';
 
   @override
-  String get sendNoteMissingExchange =>
-      'ดูเหมือนเป็นที่อยู่ของตลาดแลกเปลี่ยน โปรดตรวจสอบว่ากรอกข้อความแล้ว ตลาดแลกเปลี่ยนอาจเรียกว่าโน้ตบนเชน';
+  String get serviceHintExchangeCheckNote =>
+      'ดูเหมือนเป็นที่อยู่ของตลาดแลกเปลี่ยน โปรดตรวจสอบข้อความ ตลาดแลกเปลี่ยนอาจเรียกว่าโน้ตบนเชน';
 
   @override
   String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นข้อความนี้ด้วย';

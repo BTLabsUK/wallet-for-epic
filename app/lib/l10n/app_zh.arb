@@ -3448,7 +3448,7 @@
   "sendCodeMinimumInvalid": "此码中的最低金额无效，已忽略。",
   "sendNoteMissingTitle": "缺少留言",
   "sendNoteMissingCode": "此码要求填写留言。没有留言，对方可能不会入账。",
-  "sendNoteMissingExchange": "这看起来是交易所地址。请确认已填写留言。交易所可能称其为链上备注。",
+  "serviceHintExchangeCheckNote": "这看起来是交易所地址。请检查留言。交易所可能称其为链上备注。",
   "sendNoteFromCodeHelper": "来自付款码。对方也能看到。",
   "sendOriginQr": "来自二维码",
   "sendOriginLink": "来自链接",

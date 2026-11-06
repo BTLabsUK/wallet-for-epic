@@ -3,16 +3,12 @@
 // the vectors of §2.5, the routing table of §3.1, build → parse round trips, the Send
 // address rule, and the strings Stack Wallet and Epic Pay write.
 
-import 'package:epic_wallet/src/known_relays.dart';
 import 'package:epic_wallet/src/payment_method.dart';
 import 'package:epic_wallet/src/recipient.dart';
 import 'package:epic_wallet/src/scan/scan_checks.dart';
 import 'package:epic_wallet/src/scan/scan_router.dart';
-import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import '../support/test_settings.dart';
 
 const _key = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK';
 
@@ -571,36 +567,6 @@ void main() {
       expect(p.recipient.address, '$_key@epicbox.exchange.example');
       expect(p.note, '4827193065148');
       expect(p.noteRequired, isTrue);
-    });
-  });
-
-  group('a message Send expects', () {
-    const relay = 'epicbox.exchange.invalid';
-
-    test('a listed relay warns while the message is empty', () {
-      expect(missingNote('$_key@$relay', '', codeAsks: false), MissingNote.exchange);
-      expect(missingNote('$_key@$relay', '   ', codeAsks: false), MissingNote.exchange);
-      expect(missingNote('$_key@EPICBOX.Exchange.Invalid:443', '', codeAsks: false), MissingNote.exchange);
-      expect(missingNote('$_key@$relay', '1', codeAsks: false), isNull);
-    });
-
-    test('the relay is matched whole', () {
-      expect(missingNote('$_key@$relay.evil.invalid', '', codeAsks: false), isNull);
-      expect(missingNote('$_key@x.$relay', '', codeAsks: false), isNull);
-      expect(missingNote('$_key@box.epic.invalid', '', codeAsks: false), isNull);
-      expect(missingNote('', '', codeAsks: false), isNull);
-    });
-
-    test('a code asks on any relay', () {
-      expect(missingNote('$_key@box.epic.invalid', '', codeAsks: true), MissingNote.code);
-      expect(missingNote('$_key@$relay', '', codeAsks: true), MissingNote.code);
-      expect(missingNote('$_key@box.epic.invalid', '1', codeAsks: true), isNull);
-    });
-
-    test('an empty list warns about no relay', () {
-      hostSettings = testSettings().withValues({'epicbox.note_relays': <String>[]});
-      addTearDown(() => hostSettings = testSettings());
-      expect(missingNote('$_key@$relay', '', codeAsks: false), isNull);
     });
   });
 

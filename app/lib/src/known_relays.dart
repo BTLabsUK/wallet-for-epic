@@ -24,22 +24,3 @@ EpicboxRelay? recipientRelay(String address) {
   final at = address.lastIndexOf('@');
   return at < 0 ? null : EpicboxRelay.parse(address.substring(at + 1));
 }
-
-/// Why Send warns that the message is empty.
-enum MissingNote {
-  /// The code that filled the address asks for a message.
-  code,
-
-  /// The address's relay is in `epicbox.note_relays`: it looks like an exchange's.
-  exchange,
-}
-
-/// Why a payment to [address] with [message] should say the message is missing, or null. Only
-/// a warning: the user may send anyway. [codeAsks]: the code that filled the address requires
-/// one. The relay is matched whole, without case or port.
-MissingNote? missingNote(String address, String message, {required bool codeAsks}) {
-  if (message.trim().isNotEmpty) return null;
-  if (codeAsks) return MissingNote.code;
-  final host = recipientRelay(address)?.host;
-  return host != null && hostSettings.noteRelays.any((r) => r.toLowerCase() == host) ? MissingNote.exchange : null;
-}

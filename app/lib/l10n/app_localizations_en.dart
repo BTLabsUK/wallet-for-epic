@@ -13241,8 +13241,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'This code asks for a message. Without it the recipient may not credit the payment.';
 
   @override
-  String get sendNoteMissingExchange =>
-      'This looks like an exchange address. Make sure the message is filled in. Exchanges may call it the on-chain note.';
+  String get serviceHintExchangeCheckNote =>
+      'Looks like an exchange address. Check the message. Exchanges may call it the on-chain note.';
 
   @override
   String get sendNoteFromCodeHelper => 'From the code. They see it too.';

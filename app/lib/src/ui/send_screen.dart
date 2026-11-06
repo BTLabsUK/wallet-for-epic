@@ -36,8 +36,7 @@ import '../invite_links.dart' show parseInvite;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
-import '../known_relays.dart' show MissingNote, missingNote;
-import '../scan/scan_text.dart' show directHostBesideOf, missingNoteText;
+import '../scan/scan_text.dart' show directHostBesideOf, noteWarning;
 import '../send_amount_gate.dart';
 import '../send_reach.dart';
 import '../send_route.dart';
@@ -482,8 +481,8 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// Why the amount step and the review warn that the message is empty, or null. The user may
   /// send anyway.
-  MissingNote? get _missingNote =>
-      missingNote(_read.isAddress ? _read.address : _recipient.text.trim(), _note.text, codeAsks: _activeRequest?.noteRequired ?? false);
+  String? _noteWarning(AppLocalizations l) =>
+      noteWarning(l, _read.isAddress ? _read.address : _recipient.text.trim(), _note.text, codeAsks: _activeRequest?.noteRequired ?? false);
 
   /// The address the code filled in (the code's own, or its Direct one), or a scanned, pasted
   /// or linked address alone; [_origin] says where from while the To field still holds it.
@@ -3623,10 +3622,10 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       if (!file)
-        if (_missingNote case final why?)
+        if (_noteWarning(l) case final warning?)
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: missingNoteText(l, why)),
+            child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: warning),
           ),
     ];
   }
@@ -3870,9 +3869,9 @@ class _SendViewState extends ConsumerState<SendView> {
         InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
       ],
       // The message the code or the address expects is empty: a warning, the user may send.
-      if (_missingNote case final why? when !_sendFailed) ...[
+      if (_noteWarning(l) case final warning? when !_sendFailed) ...[
         const SizedBox(height: 8),
-        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: missingNoteText(l, why)),
+        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: warning),
       ],
       // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
       if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[

@@ -3448,7 +3448,7 @@
   "sendCodeMinimumInvalid": "Der Mindestbetrag in diesem Code ist ungültig und wurde ignoriert.",
   "sendNoteMissingTitle": "Nachricht fehlt",
   "sendNoteMissingCode": "Dieser Code verlangt eine Nachricht. Ohne sie wird die Zahlung dem Empfänger möglicherweise nicht gutgeschrieben.",
-  "sendNoteMissingExchange": "Das sieht nach einer Börsenadresse aus. Achten Sie darauf, dass die Nachricht ausgefüllt ist. Börsen nennen sie möglicherweise On-Chain-Notiz.",
+  "serviceHintExchangeCheckNote": "Das sieht nach einer Börsenadresse aus. Prüfen Sie die Nachricht. Börsen nennen sie möglicherweise On-Chain-Notiz.",
   "sendNoteFromCodeHelper": "Aus dem Code. Der Empfänger sieht sie auch.",
   "sendOriginQr": "Aus einem QR-Code",
   "sendOriginLink": "Aus einem Link",

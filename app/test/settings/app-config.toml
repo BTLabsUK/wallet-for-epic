@@ -40,7 +40,6 @@ p2p_port = 3414
 address_default = "box.epic.invalid"   # the server of an address written without one
 pairing_servers = 3            # connecting two wallets: the first N of the user's Epicbox list
 link_servers = 2               # linked devices: the first N
-note_relays = ["epicbox.exchange.invalid"]   # addresses here look like an exchange's: Send warns while the message is empty
 connect_timeout_s = 15
 response_timeout_s = 15
 ping_interval_s = 25

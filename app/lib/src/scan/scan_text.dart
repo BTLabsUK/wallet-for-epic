@@ -4,7 +4,7 @@
 library;
 
 import '../address_format.dart' show hostPort;
-import '../known_relays.dart' show MissingNote;
+import '../services/service_rules.dart';
 import '../l10n.dart';
 import 'scan_checks.dart' show CodeOrigin;
 import 'scan_router.dart' show RequestProblem, untrustedTextForbidden;
@@ -28,10 +28,20 @@ List<String> requestProblemLines(
   if (problems.contains(RequestProblem.minimumInvalid)) l.sendCodeMinimumInvalid,
 ];
 
-/// The warning for a message Send expects and does not have.
-String missingNoteText(AppLocalizations l, MissingNote why) => switch (why) {
-  MissingNote.code => l.sendNoteMissingCode,
-  MissingNote.exchange => l.sendNoteMissingExchange,
+/// What Send says while [message] is empty, or null. [codeAsks]: the code that filled the
+/// address requires a message; that warning is the code's own and needs no service file.
+/// Otherwise whatever a service rule says about [address]. Only a warning: the user may send
+/// anyway.
+String? noteWarning(AppLocalizations l, String address, String message, {required bool codeAsks}) {
+  if (message.trim().isNotEmpty) return null;
+  if (codeAsks) return l.sendNoteMissingCode;
+  final hint = matchService(address, serviceRules)?.hints.firstOrNull;
+  return hint == null ? null : serviceHintText(l, hint);
+}
+
+/// The translated string of a service file's hint id.
+String serviceHintText(AppLocalizations l, ServiceHint hint) => switch (hint) {
+  ServiceHint.exchangeCheckNote => l.serviceHintExchangeCheckNote,
 };
 
 /// The host of a Direct address, with its port: `203.0.113.4:<port>`, `<56 characters>.onion`

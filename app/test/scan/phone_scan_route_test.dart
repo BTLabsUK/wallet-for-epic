@@ -39,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/sample_services.dart';
 import '../support/send_pin.dart';
 
 final _l = englishStrings;
@@ -832,12 +833,14 @@ void main() {
   group('an address on an exchange relay', () {
     const exchange = '$_key@epicbox.exchange.invalid';
 
+    setUp(useSampleServices);
+
     testWidgets('a bare scan warns on both steps; a message clears it; the send still goes', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, exchange);
       await _continue(tester);
-      expect(find.text(_l.sendNoteMissingExchange), findsOneWidget);
+      expect(find.text(_l.serviceHintExchangeCheckNote), findsOneWidget);
 
       await tester.enterText(find.byKey(sendAmountFieldKey), '1');
       await tester.pump(const Duration(milliseconds: 500));

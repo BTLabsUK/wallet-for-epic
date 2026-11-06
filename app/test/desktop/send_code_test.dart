@@ -19,6 +19,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/sample_services.dart';
+
 final _l = englishStrings;
 
 // No saved contact has these.
@@ -510,10 +512,12 @@ void main() {
   group('an address on an exchange relay', () {
     final exchange = _e.replaceFirst('box.epic.invalid', 'epicbox.exchange.invalid');
 
+    setUp(useSampleServices);
+
     testWidgets('a plain paste warns; a message clears it; Send stays open', (tester) async {
       await show(tester);
       await paste(tester, exchange);
-      expect(find.text(_l.sendNoteMissingExchange), findsOneWidget);
+      expect(find.text(_l.serviceHintExchangeCheckNote), findsOneWidget);
       await tester.enterText(field(_l.deskSendAmount), '1');
       await tester.pumpAndSettle();
       await review(tester);
@@ -522,7 +526,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.enterText(find.descendant(of: find.byKey(const ValueKey('send-message')), matching: find.byType(EditableText)), '1');
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendNoteMissingExchange), findsNothing);
+      expect(find.text(_l.serviceHintExchangeCheckNote), findsNothing);
     });
 
     testWidgets('another relay says nothing', (tester) async {

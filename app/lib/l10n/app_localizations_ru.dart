@@ -13739,8 +13739,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Этот код требует сообщение. Без него получатель может не зачислить платёж.';
 
   @override
-  String get sendNoteMissingExchange =>
-      'Похоже, это адрес биржи. Убедитесь, что сообщение заполнено. Биржи могут называть его ончейн-заметкой.';
+  String get serviceHintExchangeCheckNote =>
+      'Похоже, это адрес биржи. Проверьте сообщение. Биржи могут называть его ончейн-заметкой.';
 
   @override
   String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже его увидит.';

@@ -12468,7 +12468,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNoteMissingCode => '此码要求填写留言。没有留言，对方可能不会入账。';
 
   @override
-  String get sendNoteMissingExchange => '这看起来是交易所地址。请确认已填写留言。交易所可能称其为链上备注。';
+  String get serviceHintExchangeCheckNote => '这看起来是交易所地址。请检查留言。交易所可能称其为链上备注。';
 
   @override
   String get sendNoteFromCodeHelper => '来自付款码。对方也能看到。';

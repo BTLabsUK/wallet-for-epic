@@ -17586,9 +17586,9 @@
   "@sendNoteMissingCode": {
     "description": "Send: the warning when a payment code asks for a message and the field is empty. The user may send anyway."
   },
-  "sendNoteMissingExchange": "This looks like an exchange address. Make sure the message is filled in. Exchanges may call it the on-chain note.",
-  "@sendNoteMissingExchange": {
-    "description": "Send: the warning when the address's Epicbox server is one the settings list as an exchange's and the message is empty. 'Looks like': the server does not prove who owns the address. The user may send anyway."
+  "serviceHintExchangeCheckNote": "Looks like an exchange address. Check the message. Exchanges may call it the on-chain note.",
+  "@serviceHintExchangeCheckNote": {
+    "description": "Send: a service file's hint for an address that looks like an exchange's, while the message is empty. 'Looks like': the address does not prove who owns it. The user may send anyway."
   },
   "sendNoteFromCodeHelper": "From the code. They see it too.",
   "@sendNoteFromCodeHelper": {

@@ -13762,8 +13762,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ten kod wymaga wiadomości. Bez niej odbiorca może nie zaksięgować płatności.';
 
   @override
-  String get sendNoteMissingExchange =>
-      'To wygląda na adres giełdy. Upewnij się, że wiadomość jest wypełniona. Giełdy mogą nazywać ją notatką on-chain.';
+  String get serviceHintExchangeCheckNote =>
+      'To wygląda na adres giełdy. Sprawdź wiadomość. Giełdy mogą nazywać ją notatką on-chain.';
 
   @override
   String get sendNoteFromCodeHelper => 'Z kodu. Odbiorca też ją zobaczy.';

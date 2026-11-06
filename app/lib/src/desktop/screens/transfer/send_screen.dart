@@ -1409,8 +1409,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   /// Why the form and the review warn that Message is empty, or null. The user may send anyway.
-  MissingNote? _missingNote(SendCode? code) =>
-      missingNote(_read.isAddress ? _read.address : _to.text.trim(), _message.text, codeAsks: code?.noteRequired ?? false);
+  String? _noteWarning(AppLocalizations l, SendCode? code) =>
+      noteWarning(l, _read.isAddress ? _read.address : _to.text.trim(), _message.text, codeAsks: code?.noteRequired ?? false);
 
   /// LEPIC signs at most [slateMessageMaxBytes] UTF-8 bytes of a message and cuts the rest
   /// (linux-09): longer text is refused here instead of being cut without a word.
@@ -2091,7 +2091,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
     final shallow = ref.read(deskLevelUiProvider).shallow;
     final empty = _to.text.trim().isEmpty;
-    final missing = file ? null : _missingNote(code);
+    final missing = file ? null : _noteWarning(l, code);
     final minimum = code?.minimum;
     final amountHelp = switch (code?.amount) {
       // A link's request: only an edited amount says so.
@@ -2250,7 +2250,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
         if (missing != null) ...[
           SizedBox(height: Sp.x3),
-          ENotice(key: const ValueKey('send-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: missingNoteText(l, missing)),
+          ENotice(key: const ValueKey('send-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: missing),
         ],
         // Advanced › Send options; open when a link brought the user here for it.
         if (!shallow && advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
@@ -3351,9 +3351,9 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             ),
           ],
           // The message the code or the address expects is empty: a warning, the user may send.
-          if (d.to == null ? null : missingNote(d.to!, d.message, codeAsks: code?.noteRequired ?? false) case final why? when !_busy) ...[
+          if (d.to == null ? null : noteWarning(l, d.to!, d.message, codeAsks: code?.noteRequired ?? false) case final warning? when !_busy) ...[
             SizedBox(height: Sp.x4),
-            ENotice(key: const ValueKey('send-review-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: missingNoteText(l, why)),
+            ENotice(key: const ValueKey('send-review-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: warning),
           ],
           // Under a code's minimum, as All may land: a warning, the payee decides what it credits.
           if (code?.minimum case final minimum? when d.amount < minimum && !_busy) ...[

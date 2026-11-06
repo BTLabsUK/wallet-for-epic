@@ -13397,8 +13397,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dieser Code verlangt eine Nachricht. Ohne sie wird die Zahlung dem Empfänger möglicherweise nicht gutgeschrieben.';
 
   @override
-  String get sendNoteMissingExchange =>
-      'Das sieht nach einer Börsenadresse aus. Achten Sie darauf, dass die Nachricht ausgefüllt ist. Börsen nennen sie möglicherweise On-Chain-Notiz.';
+  String get serviceHintExchangeCheckNote =>
+      'Das sieht nach einer Börsenadresse aus. Prüfen Sie die Nachricht. Börsen nennen sie möglicherweise On-Chain-Notiz.';
 
   @override
   String get sendNoteFromCodeHelper =>
