@@ -129,7 +129,7 @@ void main() {
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
   }, skip: !inAppUpdates);
 
-  testWidgets('the links open epiccash.com and the source code in the browser; no Telegram row', (tester) async {
+  testWidgets('the links open the website and the source code in the browser; no Telegram row', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
     // The phone's rows (GP2-020): each link row has its own Open.
     Finder openOf(String title) => find.descendant(of: find.widgetWithText(ESetRow, title), matching: find.widgetWithText(EButton, _l.deskSetAboutOpen));

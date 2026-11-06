@@ -129,7 +129,7 @@ donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.btlabs.
 signed_file = "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/btlabs.json"
 
 [links]
-website = "https://epiccash.com"
+website = "https://btlabs.uk"
 source = "https://github.com/BTLabsUK/wallet-for-epic"   # a signed btlabs.json may replace it (links id wallet-source, same host)
 privacy = "https://btlabs.uk/privacy/"   # the privacy policy; comment out to hide its link
 

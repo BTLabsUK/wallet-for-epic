@@ -107,7 +107,7 @@
   "deskSendMessageHelp": "Der Empfänger sieht sie.",
   "deskSendPrivacyOn": "Privatsphäre · Dandelion++ an",
   "deskSendPrivacyOff": "Privatsphäre · Dandelion++ aus",
-  "deskSendDandelionText": "Leitet die Transaktion über einige zufällige Nodes, bevor sie sich verbreitet, sodass das Netzwerk nicht erkennt, woher sie kam.",
+  "deskSendDandelionText": "Leitet die Transaktion über einige zufällige Nodes, bevor sie sich verbreitet, was ihre Herkunft schwerer nachvollziehbar macht. Der Node, den die Wallet verwendet, erhält sie trotzdem.",
   "deskSendHintSent": "Gesendet.",
   "deskSendHintQueued": "Eingereiht. Geben Sie einen neuen Betrag und Empfänger ein, um erneut zu senden.",
   "deskSendHintNode": "Warten, bis der Node synchronisiert ist.",

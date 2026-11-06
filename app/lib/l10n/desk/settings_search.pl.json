@@ -118,7 +118,7 @@
   "deskSetSynTimeToPay": "faktura, termin, wygasa, ważność",
   "deskSetSynDeviceName": "nazwa urządzenia, zmień nazwę",
   "deskSetRowLinkDeviceHint": "Ten portfel na dwóch urządzeniach: każde pokazuje płatności drugiego.",
-  "deskSetRowLinkDeviceInfo": "Można połączyć jedno urządzenie. Każde trzyma monety, które wydaje drugie, więc nigdy nie wydadzą tej samej monety.",
+  "deskSetRowLinkDeviceInfo": "Można połączyć jedno urządzenie. Połączone urządzenia informują się nawzajem, które monety wydają, więc zwykle wybierają różne monety. Jeśli oba wydadzą tę samą monetę, łańcuch przyjmie jedną płatność, a druga się nie powiedzie.",
   "deskSetSynLinkDevice": "połącz urządzenie, paruj telefon, drugie urządzenie, telefon, synchronizacja, komórka, wiele urządzeń",
   "deskSetRowPauseSyncHint": "Powiadomienia czekają na serwerach podczas pauzy.",
   "deskSetSynPauseSync": "synchronizacja, sync, pauza, połączone",

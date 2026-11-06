@@ -4,6 +4,8 @@ What BT Wallet protects, against whom, and where the limits are. The wallet
 engine is [LEPIC](https://github.com/BTLabsUK/lepic). Statements about it refer to the version this app
 pins (`tools/lepic.rev`). Report anything that breaks a promise below as SECURITY.md describes.
 
+This document describes design limits as of the date of the pinned version. It is not a guarantee.
+
 ## What we protect
 
 1. **Funds.** Nobody but the wallet's owner can spend them, and a payment goes to the party the user meant.
@@ -22,8 +24,7 @@ The relay passes slates between wallets. Its protocol is inherited from the refe
 kept unchanged for compatibility:
 
 - Messages are encrypted end to end: static-static ECDH between the two wallet addresses, then
-  PBKDF2-SHA512, then ChaCha20-Poly1305. The PBKDF2 step uses 100 iterations. That is not a weakness here:
-  its input is an ECDH shared secret, not a password, so there is nothing to brute-force.
+  PBKDF2-SHA512, then ChaCha20-Poly1305. The PBKDF2 step takes an ECDH shared secret as input, not a password.
 - There is no forward secrecy. Whoever later learns a wallet's address key can read its past messages.
 - The relay cannot read or change a slate. It **can** drop, delay, reorder or redeliver messages: the
   protocol has no sequence numbers. The wallet ignores repeats of the same slate and stage.
@@ -43,7 +44,7 @@ The wallet asks a node (the first one in its server list, `node.epiccash.com` by
 
 ### The network: Wi-Fi, a router, the ISP
 
-- Epicbox, the node, updates and https sends use TLS (rustls with the web PKI, no exceptions) or Tor.
+- Epicbox, the node, updates and https sends use TLS (rustls with the web PKI) or Tor. TLS is required for remote nodes and relays. Plain `http://` is allowed only to a node on the local network.
 - **Plain `http://` sends.** The app can send to a plain `http://` wallet address, which the reference
   Epic Cash wallet needs. In Mimblewimble the sender's first slate goes to whoever answers, so **anyone on
   the network path can receive that payment instead of the recipient**. Use https://, an onion or Epicbox
@@ -70,7 +71,7 @@ The wallet asks a node (the first one in its server list, `node.epiccash.com` by
 - On Android the PIN key and the failure count are sealed by a non-exportable Keystore key (StrongBox
   where the phone has one), so a copy of the app's store taken off the phone cannot be searched for the PIN.
 - **Limit.** Code running inside the app on a rooted phone can still ask the Keystore to unseal the key and
-  then try all 10^6 PINs offline at the cost of Argon2id each. A passphrase instead of the PIN (Settings)
+  then try every PIN offline. A passphrase instead of the PIN (Settings)
   closes this. Other platforms keep the sealed text in the system's secure storage without that extra layer.
 - **Screenshots of the recovery phrase are allowed, on purpose**: many people keep their phrase that way.
   Screenshots may sync to cloud photo libraries. Keep the phrase offline if that matters to you. The app hides
@@ -82,9 +83,10 @@ The wallet asks a node (the first one in its server list, `node.epiccash.com` by
   and XChaCha20-Poly1305.
 - Malware that runs as the user can capture that password as it is typed, or read the wallet while it is open.
   No software wallet defends against that.
-- The wallet database (amounts, outputs, history and counterparty addresses) is **not encrypted**, the same
-  as in the reference wallet. On Linux and macOS it is readable only by its owner. On Windows the data folder
-  is restricted to its owner. A copied profile still shows the history without the password.
+- The wallet database holds amounts, outputs, history and counterparty addresses. On Windows, Android and
+  Linux it is encrypted at rest with a key derived from the wallet seed. On macOS and iOS this document makes
+  no statement about database encryption. On Linux and macOS the data folder is readable only by its owner.
+  On Windows it is restricted to its owner.
 
 ### Contacts and pairing
 
@@ -92,8 +94,8 @@ The wallet asks a node (the first one in its server list, `node.epiccash.com` by
   signed by the sender (Ed25519, bound to the recipient key). Only that contact can open them, and a party
   that is not the contact is refused (LEPIC RFC 0002).
 - **Pairing** compares a short code (SAS with a commitment from the inviter). Skipping the comparison ("Skip") leaves the contact trusted on
-  first use. Pairing over relayed screenshots needs only about 2^16 work per side for a man in the middle
-  (LEPIC RFC 0002, §7.4–7.5). Compare the code over a channel you trust.
+  first use. The short code gives limited protection against a man in the middle when pairing runs over relayed
+  screenshots (LEPIC RFC 0002, §7.4–7.5). Compare the code over a channel you trust.
 
 ### The update channel and BT Labs itself
 

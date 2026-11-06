@@ -4540,7 +4540,7 @@ abstract class AppLocalizations {
   /// Short notice after prices are turned on. CoinGecko is a price service (a proper name).
   ///
   /// In en, this message translates to:
-  /// **'Prices come from CoinGecko, which sees your IP address.'**
+  /// **'Prices come from BT Labs\' copy of CoinGecko\'s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.'**
   String get settingsPricesOnNotice;
 
   /// Section heading in settings.
@@ -10774,7 +10774,7 @@ abstract class AppLocalizations {
   /// Description of the Dandelion++ switch on Send.
   ///
   /// In en, this message translates to:
-  /// **'Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.'**
+  /// **'Passes the transaction through a few random nodes before it spreads, which makes its origin harder to trace. The node the wallet uses still receives it.'**
   String get deskSendDandelionText;
 
   /// Line under the Review send button after a send went out.
@@ -22101,7 +22101,7 @@ abstract class AppLocalizations {
   /// Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.
   ///
   /// In en, this message translates to:
-  /// **'Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.'**
+  /// **'Transaction files are encrypted (sealed) and readable only by {name}.'**
   String contactSealInfo(String name);
 
   /// Second paragraph of the Seal payments info sheet.
@@ -27351,7 +27351,7 @@ abstract class AppLocalizations {
   /// Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text.
   ///
   /// In en, this message translates to:
-  /// **'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.'**
+  /// **'The PIN can no longer open this wallet. Tap Forgot PIN and restore the wallet from its recovery phrase. The coins stay on the chain and can be restored only with that phrase, and the passphrase if one was set.'**
   String get errorPinKeyLost;
 
   /// Unlock error when the Android Keystore refused to release the key that seals the PIN key (for example the phone counts as locked). The wallet is intact; Forgot PIN is hidden while this shows.
@@ -27531,7 +27531,7 @@ abstract class AppLocalizations {
   /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and that seeds, keys and passwords are never in the report.
   ///
   /// In en, this message translates to:
-  /// **'Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are never sent.'**
+  /// **'Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are removed first; check the preview before sending.'**
   String get deskSetReportFullDetailsInfo;
 
   /// Small grey note after the status 'Waiting for the response' on an output of a send. Lower case.
@@ -30375,7 +30375,7 @@ abstract class AppLocalizations {
   /// Settings row “Link a device”: the longer explanation behind its ⓘ (searched too).
   ///
   /// In en, this message translates to:
-  /// **'One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.'**
+  /// **'One device can be linked. Linked devices tell each other which coins they are spending, so they normally pick different coins. If both spend the same coin, the chain takes one payment and the other fails.'**
   String get deskSetRowLinkDeviceInfo;
 
   /// Settings search: other words that find the “Link a device” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
@@ -31953,7 +31953,7 @@ abstract class AppLocalizations {
   /// Explanation behind the info button on the Join sheet.
   ///
   /// In en, this message translates to:
-  /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.'**
+  /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance or move coins. It keeps the payment links made for you or by you, with amounts, for 30 days. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.'**
   String nsJoinInfo(String label);
 
   /// Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.

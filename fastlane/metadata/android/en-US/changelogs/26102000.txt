@@ -1,4 +1,4 @@
-- Linked devices: one wallet on two devices; each shows the other's payments and they never spend the same coins.
+- Linked devices: one wallet on two devices; each shows the other's payments and they normally pick different coins.
 - Minimum confirmations: 1 to 30 in Settings > Advanced. The default is now 6.
 - Status icons for every service: green when on, a dot for the connection; tap an off icon to turn it on.
 - Connection servers for pairing, in Settings > Advanced.

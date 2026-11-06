@@ -3603,7 +3603,7 @@
   "@settingsThemeDark": {
     "description": "Theme choice."
   },
-  "settingsPricesOnNotice": "Prices come from CoinGecko, which sees your IP address.",
+  "settingsPricesOnNotice": "Prices come from BT Labs' copy of CoinGecko's price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.",
   "@settingsPricesOnNotice": {
     "description": "Short notice after prices are turned on. CoinGecko is a price service (a proper name)."
   },
@@ -8942,7 +8942,7 @@
   "@deskSendPrivacyOff": {
     "description": "Title of the collapsed privacy disclosure on Send when Dandelion++ is off."
   },
-  "deskSendDandelionText": "Passes the transaction through a few random nodes before it spreads, so the network cannot tell where it came from.",
+  "deskSendDandelionText": "Passes the transaction through a few random nodes before it spreads, which makes its origin harder to trace. The node the wallet uses still receives it.",
   "@deskSendDandelionText": {
     "description": "Description of the Dandelion++ switch on Send."
   },
@@ -18706,7 +18706,7 @@
   "@contactSealPayments": {
     "description": "Switch label. Label only; the info icon explains."
   },
-  "contactSealInfo": "Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.",
+  "contactSealInfo": "Transaction files are encrypted (sealed) and readable only by {name}.",
   "@contactSealInfo": {
     "description": "Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.",
     "placeholders": {
@@ -23734,7 +23734,7 @@
   "@errorPaymentAlreadyWentThrough": {
     "description": "Plain reason when the network refuses the move back of a cancelled payment's coins because the payment itself already went through (the other side finished it first). Replaces the node's internal error."
   },
-  "errorPinKeyLost": "The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.",
+  "errorPinKeyLost": "The PIN can no longer open this wallet. Tap Forgot PIN and restore the wallet from its recovery phrase. The coins stay on the chain and can be restored only with that phrase, and the passphrase if one was set.",
   "@errorPinKeyLost": {
     "description": "Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text."
   },
@@ -23882,7 +23882,7 @@
   "@deskSetReportPartFullDetails": {
     "description": "Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log."
   },
-  "deskSetReportFullDetailsInfo": "Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are never sent.",
+  "deskSetReportFullDetailsInfo": "Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are removed first; check the preview before sending.",
   "@deskSetReportFullDetailsInfo": {
     "description": "Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and that seeds, keys and passwords are never in the report."
   },
@@ -26448,7 +26448,7 @@
   "@deskSetRowLinkDeviceHint": {
     "description": "Settings row “Link a device”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
   },
-  "deskSetRowLinkDeviceInfo": "One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.",
+  "deskSetRowLinkDeviceInfo": "One device can be linked. Linked devices tell each other which coins they are spending, so they normally pick different coins. If both spend the same coin, the chain takes one payment and the other fails.",
   "@deskSetRowLinkDeviceInfo": {
     "description": "Settings row “Link a device”: the longer explanation behind its ⓘ (searched too)."
   },
@@ -27718,7 +27718,7 @@
       }
     }
   },
-  "nsJoinInfo": "{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.",
+  "nsJoinInfo": "{label} gets one payment address and one code, both made only for it. It cannot see your balance or move coins. It keeps the payment links made for you or by you, with amounts, for 30 days. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.",
   "@nsJoinInfo": {
     "description": "Explanation behind the info button on the Join sheet.",
     "placeholders": {

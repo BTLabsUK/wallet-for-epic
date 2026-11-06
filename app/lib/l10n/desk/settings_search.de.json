@@ -118,7 +118,7 @@
   "deskSetSynTimeToPay": "rechnung, ablauf, verfällt, frist",
   "deskSetSynDeviceName": "gerätename, umbenennen",
   "deskSetRowLinkDeviceHint": "Diese Wallet auf zwei Geräten: jedes zeigt die Zahlungen des anderen.",
-  "deskSetRowLinkDeviceInfo": "Ein Gerät kann verknüpft werden. Jedes hält die Coins, die das andere ausgibt, sodass nie beide dieselbe Coin ausgeben.",
+  "deskSetRowLinkDeviceInfo": "Ein Gerät kann verknüpft werden. Verknüpfte Geräte melden sich gegenseitig, welche Coins sie ausgeben, und wählen daher normalerweise unterschiedliche Coins. Geben beide dieselbe Coin aus, nimmt die Chain eine Zahlung an und die andere schlägt fehl.",
   "deskSetSynLinkDevice": "gerät verknüpfen, handy koppeln, zweites gerät, telefon, abgleich, mobil, mehrere geräte",
   "deskSetRowPauseSyncHint": "Mitteilungen warten auf den Servern, solange pausiert ist.",
   "deskSetSynPauseSync": "abgleich, sync, pause, verknüpft",

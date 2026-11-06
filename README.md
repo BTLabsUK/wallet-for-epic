@@ -17,6 +17,8 @@
 
 </div>
 
+BT Wallet is made by BT LABS LTD. Not made by the Epic Cash project. Epic Cash is a community project.
+
 BT Wallet (Android, Linux, Windows and macOS) is one Flutter app with
 two front ends. The wallet itself is [LEPIC](https://github.com/BTLabsUK/lepic), a Rust wallet
 engine that runs inside the app's process; the app calls it through its Flutter binding,
@@ -24,7 +26,7 @@ engine that runs inside the app's process; the app calls it through its Flutter 
 wallets, scans the chain through an Epic node, and sends and receives with the standard
 `epic-wallet`.
 
-> **Status: in production.** Released as calendar versions (26.10.x) for Android, Linux and
+> **Status: released.** See the release notes for known issues. Released as calendar versions (26.10.x) for Android, Linux and
 > Windows. The macOS build (Apple silicon) and the iOS build are a preview.
 
 ## Download

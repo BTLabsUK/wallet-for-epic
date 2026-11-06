@@ -2687,7 +2687,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsThemeDark => '深色';
 
   @override
-  String get settingsPricesOnNotice => '价格来自 CoinGecko，它能看到你的 IP 地址。';
+  String get settingsPricesOnNotice =>
+      '价格来自 BT Labs 在 status.btlabs.uk 上保存的 CoinGecko 价格副本，该站点能看到你的 IP 地址。Tor 关闭时，若该副本没有价格，则会询问 CoinGecko，此时 CoinGecko 能看到你的 IP 地址。';
 
   @override
   String get settingsSectionSecurity => '安全';
@@ -6430,7 +6431,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendPrivacyOff => '隐私 · Dandelion++ 已关闭';
 
   @override
-  String get deskSendDandelionText => '交易在扩散前会先经过几个随机节点，因此网络无法判断它来自哪里。';
+  String get deskSendDandelionText =>
+      '交易在扩散前会先经过几个随机节点，这让它的来源更难追踪。钱包所用的节点仍会收到它。';
 
   @override
   String get deskSendHintSent => '已发送。';
@@ -13220,7 +13222,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String contactSealInfo(String name) {
-    return '与 $name 的付款和账单采用端到端加密。只有对方的钱包能读取。';
+    return '交易文件已加密（封存），只有 $name 能读取。';
   }
 
   @override
@@ -16581,7 +16583,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
+      'PIN 码已无法打开此钱包。点按“忘记 PIN 码？”，用恢复短语恢复钱包。币仍留在区块链上，只能用该恢复短语恢复；如果设置过密码短语，还需要密码短语。';
 
   @override
   String get errorKeystoreRefused => '手机未提供钱包密钥。请先用手机自身的 PIN 码或指纹解锁手机，然后重试。';
@@ -16691,7 +16693,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportPartFullDetails => '完整详情';
 
   @override
-  String get deskSetReportFullDetailsInfo => '地址和金额将完整发送而不是缩短。助记词、密钥和密码绝不会发送。';
+  String get deskSetReportFullDetailsInfo =>
+      '地址和金额将完整发送而不是缩短。助记词、密钥和密码会先被移除；发送前请检查预览。';
 
   @override
   String get deskOutNoteWaitingRecipient => '等待接收方';
@@ -18388,7 +18391,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRowLinkDeviceHint => '此钱包在两台设备上：每台显示另一台的付款。';
 
   @override
-  String get deskSetRowLinkDeviceInfo => '可以关联一台设备。每台持有对方正在花费的币，所以两台不会花同一个币。';
+  String get deskSetRowLinkDeviceInfo =>
+      '可以关联一台设备。已关联的设备会互相告知正在花费哪些币，所以通常会选不同的币。如果两台花了同一个币，区块链只接受一笔付款，另一笔会失败。';
 
   @override
   String get deskSetSynLinkDevice => '关联设备, 配对手机, 第二台设备, 手机, 同步, 移动端, 多设备';
@@ -19276,7 +19280,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String nsJoinInfo(String label) {
-    return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label 中退出。';
+    return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，也不能动用币。它会把为你或由你创建的付款链接连同金额保存 30 天。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label 中退出。';
   }
 
   @override

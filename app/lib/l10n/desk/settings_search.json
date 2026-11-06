@@ -563,7 +563,7 @@
   "@deskSetRowLinkDeviceHint": {
     "description": "Settings row “Link a device”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
   },
-  "deskSetRowLinkDeviceInfo": "One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.",
+  "deskSetRowLinkDeviceInfo": "One device can be linked. Linked devices tell each other which coins they are spending, so they normally pick different coins. If both spend the same coin, the chain takes one payment and the other fails.",
   "@deskSetRowLinkDeviceInfo": {
     "description": "Settings row “Link a device”: the longer explanation behind its ⓘ (searched too)."
   },
