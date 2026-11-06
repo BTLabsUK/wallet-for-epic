@@ -1002,10 +1002,18 @@ class FakeWalletService implements WalletService {
       complete: complete,
       received: byIndex.length,
       count: count,
-      json: complete
-          ? utf8.decode([for (var i = 0; i < count; i++) ...byIndex[i]!])
-          : null,
+      json: complete ? _qrSlateJson([for (var i = 0; i < count; i++) ...byIndex[i]!]) : null,
     );
+  }
+
+  /// The payment text of a complete code; parts that do not reassemble to text are invalid,
+  /// as LEPIC reports them.
+  static String _qrSlateJson(List<int> bytes) {
+    try {
+      return utf8.decode(bytes);
+    } on FormatException {
+      throw const WalletError(kind: WalletErrorKind.invalidQrCode, message: 'not a payment');
+    }
   }
 
   @override
