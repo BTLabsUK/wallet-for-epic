@@ -4343,7 +4343,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendToLabel => '收款方';
 
   @override
-  String get sendToHint => '地址或联系人';
+  String get sendToHint => '地址、付款链接或联系人';
 
   @override
   String get sendSwitchedEpicbox => '经由 Epicbox';
@@ -6370,10 +6370,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendTo => '接收方';
 
   @override
-  String get deskSendToHelp => '粘贴地址，或输入联系人的名称。';
+  String get deskSendToHelp => '粘贴地址或付款链接，或输入联系人的名称。';
 
   @override
-  String get deskSendToHint => '地址或联系人';
+  String get deskSendToHint => '地址、付款链接或联系人';
 
   @override
   String get deskSendToSem => '接收方';
@@ -12441,6 +12441,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get payeeNoteLabel => '收款方的留言';
+
+  @override
+  String get sendNoteRequiredHelper => '对方需要这条留言。请保持原样。';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return '最低 $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => '低于最低金额';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return '最低金额为 $amount。低于此金额，对方可能不会入账。';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid => '此码中的最低金额无效，已忽略。';
+
+  @override
+  String get sendNoteMissingTitle => '缺少留言';
+
+  @override
+  String get sendNoteMissingCode => '此码要求填写留言。没有留言，对方可能不会入账。';
+
+  @override
+  String get serviceHintExchangeCheckNote => '这看起来是交易所地址。请检查留言。交易所可能称其为链上备注。';
 
   @override
   String get sendNoteFromCodeHelper => '来自付款码。对方也能看到。';

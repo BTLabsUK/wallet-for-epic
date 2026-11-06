@@ -4643,7 +4643,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendToLabel => 'An';
 
   @override
-  String get sendToHint => 'Adresse oder Kontakt';
+  String get sendToHint => 'Adresse, Zahlungslink oder Kontakt';
 
   @override
   String get sendSwitchedEpicbox => 'Über Epicbox';
@@ -6887,10 +6887,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendToHelp =>
-      'Fügen Sie eine Adresse ein oder tippen Sie den Namen eines Kontakts.';
+      'Fügen Sie eine Adresse oder einen Zahlungslink ein oder tippen Sie den Namen eines Kontakts.';
 
   @override
-  String get deskSendToHint => 'Adresse oder Kontakt';
+  String get deskSendToHint => 'Adresse, Zahlungslink oder Kontakt';
 
   @override
   String get deskSendToSem => 'Empfänger';
@@ -13367,6 +13367,38 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get payeeNoteLabel => 'Nachricht vom Empfänger';
+
+  @override
+  String get sendNoteRequiredHelper =>
+      'Der Empfänger benötigt diese Nachricht. Lassen Sie sie unverändert.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Mindestens $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Unter dem Mindestbetrag';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'Der Mindestbetrag ist $amount. Weniger wird dem Empfänger möglicherweise nicht gutgeschrieben.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'Der Mindestbetrag in diesem Code ist ungültig und wurde ignoriert.';
+
+  @override
+  String get sendNoteMissingTitle => 'Nachricht fehlt';
+
+  @override
+  String get sendNoteMissingCode =>
+      'Dieser Code verlangt eine Nachricht. Ohne sie wird die Zahlung dem Empfänger möglicherweise nicht gutgeschrieben.';
+
+  @override
+  String get serviceHintExchangeCheckNote =>
+      'Das sieht nach einer Börsenadresse aus. Prüfen Sie die Nachricht. Börsen nennen sie möglicherweise On-Chain-Notiz.';
 
   @override
   String get sendNoteFromCodeHelper =>

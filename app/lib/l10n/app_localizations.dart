@@ -7329,7 +7329,7 @@ abstract class AppLocalizations {
   /// Placeholder of Send's recipient field.
   ///
   /// In en, this message translates to:
-  /// **'Address or contact'**
+  /// **'Address, payment link or contact'**
   String get sendToHint;
 
   /// Tag beside the To label for 3 s after the method moved to Epicbox because of the address.
@@ -10660,13 +10660,13 @@ abstract class AppLocalizations {
   /// Help text under the recipient field on Send.
   ///
   /// In en, this message translates to:
-  /// **'Paste an address, or type a contact’s name.'**
+  /// **'Paste an address or payment link, or type a contact’s name.'**
   String get deskSendToHelp;
 
   /// Placeholder of the recipient field on Send.
   ///
   /// In en, this message translates to:
-  /// **'Address or contact'**
+  /// **'Address, payment link or contact'**
   String get deskSendToHint;
 
   /// Screen reader label of the recipient field on Send.
@@ -20783,6 +20783,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Message from the recipient'**
   String get payeeNoteLabel;
+
+  /// Send, under the message a payment code requires: the code says the payment needs this message. It can still be changed.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient needs this message. Keep it as it is.'**
+  String get sendNoteRequiredHelper;
+
+  /// Send, under the amount: the least the payment code's recipient takes. {amount} is an amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum {amount}'**
+  String sendMinimumAmount(String amount);
+
+  /// Send: heading of the warning that the amount is under the minimum a payment code gave.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the minimum'**
+  String get sendBelowMinimumTitle;
+
+  /// Send, amount and review: warning that the amount is under the minimum a payment code gave. Sending is still allowed. {amount} is the minimum with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'The minimum is {amount}. The recipient may not credit less.'**
+  String sendBelowMinimum(String amount);
+
+  /// Request banner: the minimum in the payment code was not a valid amount and was dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'The minimum in this code is not valid and was ignored.'**
+  String get sendCodeMinimumInvalid;
+
+  /// Send: heading of the warning that the message is empty while the code or the address expects one. The user may send anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Message missing'**
+  String get sendNoteMissingTitle;
+
+  /// Send: the warning when a payment code asks for a message and the field is empty. The user may send anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'This code asks for a message. Without it the recipient may not credit the payment.'**
+  String get sendNoteMissingCode;
+
+  /// Send: a service file's hint for an address that looks like an exchange's, while the message is empty. 'Looks like': the address does not prove who owns it. The user may send anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks like an exchange address. Check the message. Exchanges may call it the on-chain note.'**
+  String get serviceHintExchangeCheckNote;
 
   /// Helper under the Note field when the note was filled from a payment code; the receiver sees the note.
   ///

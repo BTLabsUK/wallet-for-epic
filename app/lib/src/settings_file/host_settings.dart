@@ -216,6 +216,7 @@ class AppConfig {
   String get epicboxAddressDefault => _text('epicbox.address_default');
   int get pairingServerCount => _int('epicbox.pairing_servers');
   int get linkServerCount => _int('epicbox.link_servers');
+
   Duration get listenerHealAfter => _s('epicbox.listener_heal_after_s');
   Duration get listenerHealMax => _s('epicbox.listener_heal_max_s');
 

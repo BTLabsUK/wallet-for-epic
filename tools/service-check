@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Checks service files against docs/services.md. With no file: every bundled one.
+#   tools/service-check [--try <address>] [file.json...]
+set -euo pipefail
+root=$(cd "$(dirname "$0")/.." && pwd)
+source "$root/tools/env.sh"
+start=$PWD
+cd "$root/app"
+# File arguments are read from where the command was run.
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    /*) args+=("$arg") ;;
+    *.json) args+=("$start/$arg") ;;
+    *) args+=("$arg") ;;
+  esac
+done
+if ! printf '%s\n' "$@" | grep -q '\.json$'; then
+  shopt -s nullglob
+  args+=(assets/services/*.json)
+fi
+[ ${#args[@]} -gt 0 ] || { echo "no service files"; exit 0; }
+exec dart --packages=.dart_tool/package_config.json tool/service_check.dart "${args[@]}"

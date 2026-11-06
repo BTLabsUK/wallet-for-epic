@@ -36,7 +36,7 @@ import '../invite_links.dart' show parseInvite;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
-import '../scan/scan_text.dart' show directHostBesideOf;
+import '../scan/scan_text.dart' show directHostBesideOf, noteExpected, noteWarning;
 import '../send_amount_gate.dart';
 import '../send_reach.dart';
 import '../send_route.dart';
@@ -122,6 +122,10 @@ const Key sendNotEnoughKey = ValueKey('send-not-enough');
 /// The × in the filled To field, for tests.
 const Key sendRecipientClearKey = ValueKey('send-recipient-clear');
 const Key sendNoteFieldKey = ValueKey('send-note-field');
+const Key sendNoteMissingKey = ValueKey('send-note-missing');
+const Key sendReviewNoteMissingKey = ValueKey('send-review-note-missing');
+const Key sendBelowMinimumKey = ValueKey('send-below-minimum');
+const Key sendReviewBelowMinimumKey = ValueKey('send-review-below-minimum');
 
 /// The review's "Uses all N outputs · change 1 output" line (strategy All).
 const Key sendUsesAllOutputsKey = ValueKey('send-uses-all-outputs');
@@ -474,6 +478,11 @@ class _SendViewState extends ConsumerState<SendView> {
         ? request
         : null;
   }
+
+  /// Why the amount step and the review warn that the message is empty, or null. The user may
+  /// send anyway.
+  String? _noteWarning(AppLocalizations l) =>
+      noteWarning(l, _read.isAddress ? _read.address : _recipient.text.trim(), _note.text, codeAsks: _activeRequest?.noteRequired ?? false);
 
   /// The address the code filled in (the code's own, or its Direct one), or a scanned, pasted
   /// or linked address alone; [_origin] says where from while the To field still holds it.
@@ -3379,6 +3388,14 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
   List<Widget> _amountFields(BuildContext context, {required bool file}) {
+    // A note the code or a service rule expects is not folded behind "Add a message".
+    final noteOpen = _noteOpen ||
+        (!file &&
+            _note.text.isEmpty &&
+            noteExpected(
+              _read.isAddress ? _read.address : _recipient.text.trim(),
+              codeNote: _activeRequest?.noteRequired ?? false,
+            ));
     final l = context.l10n;
     final theme = Theme.of(context);
     final t = context.tokens;
@@ -3405,6 +3422,11 @@ class _SendViewState extends ConsumerState<SendView> {
           : l.sendAmountCodeAsked(epicText(l, asked));
       amountHelper = amountHelper == null ? marker : metaLine([marker, amountHelper]);
     }
+    final minimum = file ? null : _activeRequest?.minimum;
+    if (minimum != null) {
+      final line = l.sendMinimumAmount(epicText(l, minimum));
+      amountHelper = amountHelper == null ? line : metaLine([line, amountHelper]);
+    }
     // Why nothing is available yet, in the header's words.
     final held = [
       if (summary != null && summary.spendable == BigInt.zero) ...[
@@ -3423,7 +3445,7 @@ class _SendViewState extends ConsumerState<SendView> {
         textInputAction: TextInputAction.next,
         textAlign: TextAlign.center,
         onEditingComplete: () {
-          if (_noteOpen) {
+          if (noteOpen) {
             _noteFocus.requestFocus();
           } else {
             _submitAmount(file: file);
@@ -3487,6 +3509,10 @@ class _SendViewState extends ConsumerState<SendView> {
       if (!file)
         if (_activeLink case final link? when amountEdited(link, _parsedAmount))
           const Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote()),
+      if (minimum != null && amount != null && amount < minimum) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
+      ],
       const SizedBox(height: 12),
       if (summary != null)
         Text(
@@ -3532,16 +3558,29 @@ class _SendViewState extends ConsumerState<SendView> {
         _strategyPicker(context),
       const SizedBox(height: 12),
       Divider(color: t.line, height: 1),
-      if (!_noteOpen && _note.text.isNotEmpty)
+      if (!file)
+        if (_noteWarning(l) case final warning?)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: warning),
+          ),
+      if (!noteOpen && _note.text.isNotEmpty)
         ListTile(
           contentPadding: EdgeInsets.zero,
           minTileHeight: 56,
           title: Text(l.sendNoteLabel, style: theme.textTheme.bodyMedium),
-          subtitle: Text(
-            _note.text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _note.text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              ),
+              if (_activeRequest case final request? when request.noteRequired && _note.text == request.note)
+                Text(l.sendNoteRequiredHelper, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+            ],
           ),
           trailing: Icon(Icons.edit_outlined, color: t.dim),
           onTap: () {
@@ -3549,7 +3588,7 @@ class _SendViewState extends ConsumerState<SendView> {
             _noteFocus.requestFocus();
           },
         )
-      else if (!_noteOpen)
+      else if (!noteOpen)
         ListTile(
           contentPadding: EdgeInsets.zero,
           minTileHeight: 56,
@@ -3569,7 +3608,8 @@ class _SendViewState extends ConsumerState<SendView> {
             focusNode: _noteFocus,
             // LEPIC signs at most this many bytes; the field stops there instead of cutting.
             inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
-            onChanged: (_) => setState(() {}),
+            // The field stays open under the fingers, however it came open.
+            onChanged: (_) => setState(() => _noteOpen = true),
             buildCounter:
                 (
                   context, {
@@ -3590,8 +3630,9 @@ class _SendViewState extends ConsumerState<SendView> {
               helperText:
                   _activeRequest?.note != null &&
                       _note.text == _activeRequest?.note
-                  ? l.sendNoteFromCodeHelper
+                  ? _activeRequest!.noteRequired ? l.sendNoteRequiredHelper : l.sendNoteFromCodeHelper
                   : l.sendNoteHelper,
+              helperMaxLines: 2,
             ),
           ),
         ),
@@ -3748,6 +3789,16 @@ class _SendViewState extends ConsumerState<SendView> {
               : null,
         ),
       ..._payeeClaims(gapBefore: 12),
+      // The message the code or the address expects is empty: a warning, the user may send.
+      if (_noteWarning(l) case final warning? when !_sendFailed) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: warning),
+      ],
+      // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
+      if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendReviewBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
+      ],
       const SizedBox(height: 20),
       // The review commits the money: every amount on it exact ([AmountSurface.exact]), as on
       // the desktop's and in the payment's details; mono, as every amount but the headline.

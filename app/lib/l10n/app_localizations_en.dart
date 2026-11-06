@@ -4578,7 +4578,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendToLabel => 'To';
 
   @override
-  String get sendToHint => 'Address or contact';
+  String get sendToHint => 'Address, payment link or contact';
 
   @override
   String get sendSwitchedEpicbox => 'Via Epicbox';
@@ -6792,10 +6792,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendTo => 'To';
 
   @override
-  String get deskSendToHelp => 'Paste an address, or type a contact’s name.';
+  String get deskSendToHelp =>
+      'Paste an address or payment link, or type a contact’s name.';
 
   @override
-  String get deskSendToHint => 'Address or contact';
+  String get deskSendToHint => 'Address, payment link or contact';
 
   @override
   String get deskSendToSem => 'Recipient';
@@ -13211,6 +13212,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payeeNoteLabel => 'Message from the recipient';
+
+  @override
+  String get sendNoteRequiredHelper =>
+      'The recipient needs this message. Keep it as it is.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Minimum $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Below the minimum';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'The minimum is $amount. The recipient may not credit less.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'The minimum in this code is not valid and was ignored.';
+
+  @override
+  String get sendNoteMissingTitle => 'Message missing';
+
+  @override
+  String get sendNoteMissingCode =>
+      'This code asks for a message. Without it the recipient may not credit the payment.';
+
+  @override
+  String get serviceHintExchangeCheckNote =>
+      'Looks like an exchange address. Check the message. Exchanges may call it the on-chain note.';
 
   @override
   String get sendNoteFromCodeHelper => 'From the code. They see it too.';

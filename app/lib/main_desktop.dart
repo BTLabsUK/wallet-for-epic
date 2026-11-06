@@ -54,6 +54,7 @@ import 'src/tor_licence.dart';
 import 'src/ui/theme/fonts.dart' show registerFontLicences;
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
+import 'src/services/service_loader.dart' show startServices;
 import 'src/settings_file/host_settings.dart' show hostSettings;
 import 'src/settings_file/network_mode_file.dart' show networkModeIn;
 import 'src/settings_file/settings_providers.dart';
@@ -77,6 +78,7 @@ Future<void> main(List<String> args) async {
     WidgetsFlutterBinding.ensureInitialized();
     // The mock wallet shows the shipped servers; it reads and writes no file.
     await loadShippedSettings();
+    await startServices();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
     runApp(ProviderScope(overrides: [launch, nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
@@ -165,6 +167,8 @@ Future<List<Override>> deskOverrides() async {
     stderr.writeln('$e');
     exit(2);
   }
+  // Hints Send shows for a known kind of address (docs/services.md); none without files.
+  await startServices();
   // A store that cannot be read (damaged, held by another program) must not stop the app
   // before its first frame: start with default settings and let Unlock show the error. The
   // store itself never writes over what it could not read.

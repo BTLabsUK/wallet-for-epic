@@ -143,14 +143,7 @@ void main() {
       _refused(address(256));
     });
 
-    test('parameters: 8 read, 9 refused', () {
-      final eight = List.generate(
-        7,
-        (i) => 'x${String.fromCharCode(97 + i)}=1',
-      ).join('&');
-      expect(_pay('epic:$_e?$eight&amount=1').amount, _epic);
-      _refused('epic:$_e?$eight&y=1&amount=1');
-      // Empty pieces are no parameters.
+    test('empty pieces are no parameters', () {
       expect(
         _pay('epic:$_e?&&amount=1&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
             .amount,
@@ -228,12 +221,23 @@ void main() {
       'label=a&LABEL=b',
       'method=direct&method=epicbox',
       'direct=$_d&direct=$_o',
-      'foo=1&foo=2&amount=1',
-      '=1&=2&amount=1',
+      'note=a&note=b',
+      'memo=a&MEMO=b',
       'amount&amount=1',
     ]) {
       test(query, () => _refused('epic:$_e?$query'));
     }
+
+    test('an unknown name is never a reason to refuse', () {
+      for (final query in [
+        'foo=1&foo=2&amount=1',
+        '=1&=2&amount=1',
+        'a=1&b=2&c=3&d=4&e=5&f=6&g=7&h=8&i=9&amount=1',
+        '${'x' * 40}=1&amount=1',
+      ]) {
+        expect(_pay('epic:$_e?$query').amount, _epic, reason: query);
+      }
+    });
 
     test('after the fragment there is nothing to repeat', () {
       expect(_pay('epic:$_e?amount=1#&amount=2').amount, _epic);
@@ -1016,7 +1020,7 @@ void main() {
           (odd, SlateFrames),
           (pair, PairingLink),
           ('epiccash://contact/1/${'z' * 3000}', PairingLink),
-          ('epic://pair-confirm/1/x?amount=1', PairingLink),
+          ('epiccash://pair-confirm/1/x?amount=1', PairingLink),
         ]) {
           final code = classifyScan(text, check: counting);
           expect(

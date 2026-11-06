@@ -158,7 +158,7 @@ void main() {
     test('a_huge_or_binary_text_is_refused_without_throwing', () {
       expect(_scan('epic:$_e?message=${'%F0%9F%98%80' * 20000}'), isA<UnknownCode>());
       expect(_scan(String.fromCharCodes(List.generate(5000, (i) => i % 0xD800))), isA<UnknownCode>());
-      expect(_scan('epic:$_e?${List.filled(9, 'a=1').join('&')}'), isA<UnknownCode>());
+      expect(_scan('epic:$_e?${List.filled(2000, 'a=1').join('&')}'), isA<UnknownCode>(), reason: 'past the longest text read');
     });
   });
 

@@ -272,12 +272,11 @@ void main() {
       _unknown('UR:CRYPTO-PSBT/abc');
     });
 
-    test('3 pairing links, epic or epiccash, any case', () {
+    test('3 pairing links, epiccash only, any case', () {
       for (final (text, kind) in [
         ('epiccash://pair/1/AbC', PairingKind.invite),
         ('epiccash://pair-reply/1/AbC', PairingKind.reply),
         ('epiccash://pair-confirm/1/AbC', PairingKind.confirm),
-        ('epic://pair/1/AbC', PairingKind.invite),
         ('EPICCASH://PAIR/1/AbC', PairingKind.invite),
       ]) {
         final code = _scan(text);
@@ -285,6 +284,41 @@ void main() {
         expect((code as PairingLink).kind, kind, reason: text);
         expect(code.text, text);
       }
+    });
+
+    test('epic: is the plain form: no pairing and no payment link under it', () {
+      for (final text in [
+        'epic://pair/1/AbC',
+        'EPIC://PAIR-REPLY/1/AbC',
+        'epic:///pair-confirm/1/AbC',
+        'epic://contact/1/AbC',
+        'epic://pay/1/AbC',
+      ]) {
+        expect(_scan(text), isA<UnknownCode>(), reason: text);
+      }
+    });
+
+    test('epic:// and epiccash:// with an address still read as a payment', () {
+      for (final scheme in ['epic', 'epiccash']) {
+        expect(_pay('$scheme://$_e?amount=1').recipient.address, _e);
+        expect(_pay('$scheme:///$_e?amount=1').recipient.address, _e);
+        // As GIO hands on a second start's link.
+        expect(_pay('$scheme://$_e/?amount=1').recipient.address, _e);
+      }
+    });
+
+    test('the codes the generator writes read in full', () {
+      final deposit = _pay('epic:$_key@epicbox.exchange.example'
+          '?message=4827193065148&require=message&min=0.1&label=Deposit');
+      expect(deposit.recipient.address, '$_key@epicbox.exchange.example');
+      expect(deposit.note, '4827193065148');
+      expect(deposit.noteRequired, isTrue);
+      expect(deposit.minimum, isNotNull);
+      expect(deposit.label, 'Deposit');
+      expect(deposit.problems, isEmpty);
+      final encoded = _pay('epic:$_key@epicbox.exchange.example'
+          '?message=Ref%204827%20%26%20caf%C3%A9%20%28%C3%A9%29%21&require=message');
+      expect(encoded.note, 'Ref 4827 & café (é)!');
     });
 
     test('4 contact cards', () {
@@ -492,6 +526,99 @@ void main() {
       final p = _pay(uri);
       expect(p.note, note);
       expect(p.problems, isEmpty);
+    });
+  });
+
+  group('a code that requires its note', () {
+    const deposit =
+        'epic:$_key@epicbox.exchange.example?message=4827193065148&require=message&min=0.1&label=Example%20Exchange%20deposit';
+
+    test('reads the address as written, the note, the requirement and the minimum', () {
+      final p = _pay(deposit);
+      expect(p.recipient.address, '$_key@epicbox.exchange.example');
+      expect(p.note, '4827193065148');
+      expect(p.noteRequired, isTrue);
+      expect(p.minimum, BigInt.from(10000000));
+      expect(p.label, 'Example Exchange deposit');
+      expect(p.amount, isNull);
+      expect(p.problems, isEmpty);
+    });
+
+    test('a code without them requires nothing', () {
+      final p = _pay('epic:$_e?message=Hi');
+      expect(p.noteRequired, isFalse);
+      expect(p.minimum, isNull);
+    });
+
+    test('require comes before or after message', () {
+      expect(_pay('epic:$_e?require=message&message=Hi').noteRequired, isTrue);
+      expect(_pay('epic:$_e?require=MESSAGE&message=Hi').noteRequired, isTrue);
+    });
+
+    test('a code without its note still opens: Send warns', () {
+      for (final code in ['epic:$_e?require=message', 'epic:$_e?require=message&message=']) {
+        final p = _pay(code);
+        expect(p.noteRequired, isTrue, reason: code);
+        expect(p.note, isNull, reason: code);
+      }
+    });
+
+    test('a note too long for a slate still opens', () {
+      final p = _pay('epic:$_e?require=message&message=${'a' * 257}');
+      expect(p.note?.length, 257);
+      expect(p.noteRequired, isTrue);
+    });
+
+    test('the longest note that fits a slate is taken', () {
+      final p = _pay('epic:$_e?require=message&message=${'a' * 256}');
+      expect(p.note?.length, 256);
+      expect(p.noteRequired, isTrue);
+    });
+
+    test('a bad minimum is dropped and said; the note still counts', () {
+      for (final bad in ['0', '-1', 'x', '']) {
+        final p = _pay('epic:$_e?message=Hi&require=message&min=$bad');
+        expect(p.minimum, isNull, reason: bad);
+        expect(p.problems, {RequestProblem.minimumInvalid}, reason: bad);
+        expect(p.noteRequired, isTrue);
+      }
+    });
+
+    test('another word in require asks nothing', () {
+      expect(_pay('epic:$_e?message=Hi&require=name').noteRequired, isFalse);
+    });
+
+    test('the note reads under each spelling, and require takes them too', () {
+      for (final name in ['message', 'note', 'memo', 'NOTE']) {
+        final p = _pay('epic:$_e?$name=Hi&require=$name');
+        expect(p.note, 'Hi', reason: name);
+        expect(p.noteRequired, isTrue, reason: name);
+      }
+    });
+
+    test('with several spellings the written one wins, an empty one does not count', () {
+      expect(_pay('epic:$_e?memo=c&note=b&message=a').note, 'a');
+      expect(_pay('epic:$_e?memo=c&note=b').note, 'b');
+      expect(_pay('epic:$_e?message=&memo=c').note, 'c');
+    });
+
+    test('this wallet writes one spelling', () {
+      expect(EpicUri.build(_e, note: 'Hi'), 'epic:$_e?message=Hi');
+    });
+
+    test('the same payload opens under either scheme', () {
+      final link = _pay(deposit.replaceFirst('epic:', 'epiccash:'));
+      expect(link.recipient.address, '$_key@epicbox.exchange.example');
+      expect(link.note, '4827193065148');
+      expect(link.noteRequired, isTrue);
+      expect(link.minimum, BigInt.from(10000000));
+    });
+
+    test('the host GIO adds on a Linux second start changes nothing', () {
+      final p = _pay(deposit.replaceFirst('epic:', 'epiccash:///'));
+      expect(p.recipient.address, '$_key@epicbox.exchange.example');
+      expect(p.note, '4827193065148');
+      expect(p.noteRequired, isTrue);
     });
   });
 

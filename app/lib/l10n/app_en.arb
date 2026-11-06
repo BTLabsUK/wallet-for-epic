@@ -5902,7 +5902,7 @@
   "@sendToLabel": {
     "description": "Label of Send's recipient field."
   },
-  "sendToHint": "Address or contact",
+  "sendToHint": "Address, payment link or contact",
   "@sendToHint": {
     "description": "Placeholder of Send's recipient field."
   },
@@ -8854,11 +8854,11 @@
   "@deskSendTo": {
     "description": "Label of the recipient field on Send."
   },
-  "deskSendToHelp": "Paste an address, or type a contact’s name.",
+  "deskSendToHelp": "Paste an address or payment link, or type a contact’s name.",
   "@deskSendToHelp": {
     "description": "Help text under the recipient field on Send."
   },
-  "deskSendToHint": "Address or contact",
+  "deskSendToHint": "Address, payment link or contact",
   "@deskSendToHint": {
     "description": "Placeholder of the recipient field on Send."
   },
@@ -17547,6 +17547,48 @@
   "payeeNoteLabel": "Message from the recipient",
   "@payeeNoteLabel": {
     "description": "Caption over the payee's note as written in a payment code (message)."
+  },
+  "sendNoteRequiredHelper": "The recipient needs this message. Keep it as it is.",
+  "@sendNoteRequiredHelper": {
+    "description": "Send, under the message a payment code requires: the code says the payment needs this message. It can still be changed."
+  },
+  "sendMinimumAmount": "Minimum {amount}",
+  "@sendMinimumAmount": {
+    "description": "Send, under the amount: the least the payment code's recipient takes. {amount} is an amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendBelowMinimumTitle": "Below the minimum",
+  "@sendBelowMinimumTitle": {
+    "description": "Send: heading of the warning that the amount is under the minimum a payment code gave."
+  },
+  "sendBelowMinimum": "The minimum is {amount}. The recipient may not credit less.",
+  "@sendBelowMinimum": {
+    "description": "Send, amount and review: warning that the amount is under the minimum a payment code gave. Sending is still allowed. {amount} is the minimum with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCodeMinimumInvalid": "The minimum in this code is not valid and was ignored.",
+  "@sendCodeMinimumInvalid": {
+    "description": "Request banner: the minimum in the payment code was not a valid amount and was dropped."
+  },
+  "sendNoteMissingTitle": "Message missing",
+  "@sendNoteMissingTitle": {
+    "description": "Send: heading of the warning that the message is empty while the code or the address expects one. The user may send anyway."
+  },
+  "sendNoteMissingCode": "This code asks for a message. Without it the recipient may not credit the payment.",
+  "@sendNoteMissingCode": {
+    "description": "Send: the warning when a payment code asks for a message and the field is empty. The user may send anyway."
+  },
+  "serviceHintExchangeCheckNote": "Looks like an exchange address. Check the message. Exchanges may call it the on-chain note.",
+  "@serviceHintExchangeCheckNote": {
+    "description": "Send: a service file's hint for an address that looks like an exchange's, while the message is empty. 'Looks like': the address does not prove who owns it. The user may send anyway."
   },
   "sendNoteFromCodeHelper": "From the code. They see it too.",
   "@sendNoteFromCodeHelper": {

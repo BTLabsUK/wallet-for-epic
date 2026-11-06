@@ -12,11 +12,14 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/sample_services.dart';
 
 final _l = englishStrings;
 
@@ -273,7 +276,6 @@ void main() {
       'epiccash://pair/1/AbCdEfGh123': 'Pairing is not available in this version.',
       // LNX-2: a code refused as a whole says so at once.
       'epic:$_annaAddress?amount=1&amount=2': 'This is not an Epic address or payment code.',
-      'epic:$_annaAddress?${List.generate(9, (i) => 'x$i=1').join('&')}': 'This is not an Epic address or payment code.',
     };
     for (final MapEntry(key: code, value: reason) in cases.entries) {
       await paste(tester, code);
@@ -412,6 +414,139 @@ void main() {
     expect(text(tester, _l.deskSendAmount), '');
     expect(find.descendant(of: banner(), matching: find.text(_l.sendCodeAmountInvalid)), findsOneWidget);
     expect(find.text(_l.sendRequestCheck), findsNothing);
+  });
+
+  group('a deposit code', () {
+    const note = '4827193065148';
+    const deposit = 'epic:$_e?message=$note&require=message&min=0.1&label=Example%20Exchange%20deposit';
+    const link = 'epiccash:$_e?message=$note&require=message&min=0.1&label=Example%20Exchange%20deposit';
+
+    Finder box() => find.descendant(of: find.byKey(const ValueKey('send-message')), matching: find.byType(EditableText));
+    EditableText message(WidgetTester tester) => tester.widget<EditableText>(box());
+
+    testWidgets('pasted: address, note and minimum fill; the note can change; the amount stays empty', (tester) async {
+      await show(tester);
+      await paste(tester, deposit);
+      expect(text(tester, 'To'), _e);
+      expect(message(tester).controller.text, note);
+      expect(message(tester).readOnly, isFalse);
+      expect(find.text(_l.sendNoteRequiredHelper), findsOneWidget);
+      expect(find.byKey(const ValueKey('send-note-missing')), findsNothing);
+      expect(text(tester, _l.deskSendAmount), '');
+      expect(find.textContaining('Minimum'), findsOneWidget);
+    });
+
+    testWidgets('Message is not optional beside a note the code carries', (tester) async {
+      await show(tester);
+      expect(find.text(_l.deskKitOptional), findsWidgets);
+      final others = tester.widgetList(find.text(_l.deskKitOptional)).length;
+      await paste(tester, deposit);
+      expect(find.text(_l.deskKitOptional), findsNWidgets(others - 1));
+      await tester.pumpWidget(const SizedBox());
+      await show(tester);
+      await paste(tester, 'epic:$_e?message=$note');
+      expect(find.text(_l.deskKitOptional), findsNWidgets(others - 1));
+    });
+
+    testWidgets('typed over To: the same', (tester) async {
+      await show(tester);
+      await tester.enterText(field('To'), deposit);
+      await tester.pumpAndSettle();
+      expect(text(tester, 'To'), _e);
+      expect(message(tester).controller.text, note);
+    });
+
+    testWidgets('opened as a link: the same, "From a link" on the review', (tester) async {
+      await show(tester, link: link);
+      expect(text(tester, 'To'), _e);
+      expect(message(tester).controller.text, note);
+      await tester.enterText(field(_l.deskSendAmount), '1');
+      await tester.pumpAndSettle();
+      await review(tester);
+      expect(inDialog(find.text(_l.sendOriginLink)), findsOneWidget);
+    });
+
+    testWidgets('a cleared note warns on the form and the review; Send stays open', (tester) async {
+      await show(tester);
+      await paste(tester, deposit);
+      await tester.enterText(box(), '');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.sendNoteMissingCode), findsOneWidget);
+      await tester.enterText(field(_l.deskSendAmount), '1');
+      await tester.pumpAndSettle();
+      await review(tester);
+      expect(inDialog(find.byKey(const ValueKey('send-review-note-missing'))), findsOneWidget);
+      await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
+      await tester.pump();
+      final before = wallet.sends;
+      await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.semanticsId == TrustIds.sendConfirm));
+      await tester.pumpAndSettle();
+      expect(wallet.sends, before + 1);
+    });
+
+    testWidgets('a code without its note fills To and warns', (tester) async {
+      await show(tester);
+      await paste(tester, 'epic:$_e?require=message');
+      expect(text(tester, 'To'), _e);
+      expect(find.text(_l.sendNoteMissingCode), findsOneWidget);
+    });
+
+    testWidgets('under the minimum it warns under the amount and on the review', (tester) async {
+      await show(tester);
+      await paste(tester, deposit);
+      await tester.enterText(field(_l.deskSendAmount), '0.05');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('send-below-minimum')), findsOneWidget);
+      await review(tester);
+      expect(inDialog(find.byKey(const ValueKey('send-review-below-minimum'))), findsOneWidget);
+    });
+
+    testWidgets('at the minimum nothing warns', (tester) async {
+      await show(tester);
+      await paste(tester, deposit);
+      await tester.enterText(field(_l.deskSendAmount), '0.1');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('send-below-minimum')), findsNothing);
+    });
+
+    testWidgets('another address takes the warnings and the minimum away with the code', (tester) async {
+      await show(tester);
+      await paste(tester, deposit);
+      await tester.enterText(box(), '');
+      await tester.pumpAndSettle();
+      await clearTo(tester);
+      expect(find.byKey(const ValueKey('send-note-missing')), findsNothing);
+      expect(find.textContaining('Minimum'), findsNothing);
+    });
+  });
+
+  group('an address on an exchange relay', () {
+    final exchange = _e.replaceFirst('box.epic.invalid', 'epicbox.exchange.invalid');
+
+    setUp(useSampleServices);
+
+    testWidgets('a plain paste warns; a message clears it; Send stays open', (tester) async {
+      await show(tester);
+      await paste(tester, exchange);
+      expect(find.text(_l.serviceHintExchangeCheckNote), findsOneWidget);
+      expect(find.ancestor(of: find.text(_l.deskSendMessage), matching: find.byType(EField)).evaluate().map((e) => (e.widget as EField).optional), [false]);
+      await tester.enterText(field(_l.deskSendAmount), '1');
+      await tester.pumpAndSettle();
+      await review(tester);
+      expect(inDialog(find.byKey(const ValueKey('send-review-note-missing'))), findsOneWidget);
+      await tester.tap(find.text(_l.deskSendBack));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.descendant(of: find.byKey(const ValueKey('send-message')), matching: find.byType(EditableText)), '1');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.serviceHintExchangeCheckNote), findsNothing);
+    });
+
+    testWidgets('another relay says nothing', (tester) async {
+      await show(tester);
+      await paste(tester, _e);
+      expect(find.byKey(const ValueKey('send-note-missing')), findsNothing);
+      expect(find.ancestor(of: find.text(_l.deskSendMessage), matching: find.byType(EField)).evaluate().map((e) => (e.widget as EField).optional), [true]);
+    });
   });
 
   testWidgets('a plain epic: address is an address: no banner, no block', (tester) async {

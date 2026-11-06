@@ -39,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/sample_services.dart';
 import '../support/send_pin.dart';
 
 final _l = englishStrings;
@@ -702,6 +703,183 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), isEmpty);
       expect(_noteTile('Table 4'), findsNothing);
       expect(_inPayee('Bob'), findsOneWidget);
+    });
+  });
+
+  group('a deposit code', () {
+    const note = '4827193065148';
+    const deposit = 'epic:$_e?message=$note&require=message&min=0.1&label=Example%20Exchange%20deposit';
+    const link = 'epiccash:$_e?message=$note&require=message&min=0.1&label=Example%20Exchange%20deposit';
+
+    Future<void> clearNote(WidgetTester tester) async {
+      await _tap(tester, _noteTile(note));
+      await tester.enterText(find.byKey(sendNoteFieldKey), '');
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the note is filled and can change; the amount stays for the user', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, deposit);
+
+      expect(_onAmount(), isTrue);
+      expect(_field(tester, sendAmountFieldKey), isEmpty);
+      expect(_noteTile(note), findsOneWidget);
+      expect(find.text(_l.sendNoteRequiredHelper), findsOneWidget);
+      expect(find.byKey(sendNoteMissingKey), findsNothing);
+      expect(find.textContaining('Minimum'), findsOneWidget);
+      await _tap(tester, _noteTile(note));
+      expect(_field(tester, sendNoteFieldKey), note);
+      expect(h.session.epicboxSends, isEmpty);
+    });
+
+    testWidgets('a code that asks for a note and carries none opens Message', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, 'epic:$_e?require=message');
+      expect(find.text(_l.sendAddNote), findsNothing);
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+      expect(find.byKey(sendNoteMissingKey), findsOneWidget);
+    });
+
+    testWidgets('a cleared note warns on both steps and the send still goes, without it', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, deposit);
+      await clearNote(tester);
+      expect(find.byKey(sendNoteMissingKey), findsOneWidget);
+      expect(find.text(_l.sendNoteMissingCode), findsOneWidget);
+
+      await tester.enterText(find.byKey(sendAmountFieldKey), '1');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      await _continue(tester);
+      expect(find.byKey(sendReviewNoteMissingKey), findsOneWidget);
+      await _tap(tester, find.textContaining('Send 1'));
+      await answerPin(tester);
+      expect(h.session.epicboxSends.single.to, _e);
+      expect(h.session.sentMessages.last, anyOf(isNull, isEmpty));
+    });
+
+    testWidgets('a code without its note opens Send and warns', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, 'epic:$_e?require=message');
+      expect(_tab(tester), ShellTab.send);
+      expect(find.text(_l.sendNoteMissingCode), findsOneWidget);
+    });
+
+    testWidgets('under the minimum it warns on both steps, and the note goes with the send', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, deposit);
+
+      await tester.enterText(find.byKey(sendAmountFieldKey), '0.05');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(find.byKey(sendBelowMinimumKey), findsOneWidget);
+      await _continue(tester);
+      expect(find.byKey(sendReviewBelowMinimumKey), findsOneWidget);
+      await _tap(tester, find.textContaining('Send 0.05'));
+      await answerPin(tester);
+      expect(h.session.epicboxSends.single.to, _e);
+      expect(h.session.sentMessages.last, note);
+    });
+
+    testWidgets('at the minimum nothing warns', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, deposit);
+      await tester.enterText(find.byKey(sendAmountFieldKey), '0.1');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(find.byKey(sendBelowMinimumKey), findsNothing);
+      await _continue(tester);
+      expect(find.byKey(sendReviewBelowMinimumKey), findsNothing);
+      expect(find.byKey(sendReviewNoteMissingKey), findsNothing);
+    });
+
+    testWidgets('another address takes the note and the minimum away with the code', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, deposit);
+      await _back(tester);
+      await tester.enterText(find.byKey(sendRecipientFieldKey), _other);
+      await tester.pumpAndSettle();
+      await _continue(tester);
+      expect(_noteTile(note), findsNothing);
+      expect(find.byKey(sendNoteMissingKey), findsNothing);
+      expect(find.textContaining('Minimum'), findsNothing);
+      expect(find.text(_l.sendAddNote), findsOneWidget);
+    });
+
+    testWidgets('a link fills the same', (tester) async {
+      final linked = _Harness();
+      await linked.pump(tester);
+      linked.container.read(incomingLinkProvider.notifier).deliver(link);
+      await tester.pumpAndSettle();
+      expect(_tab(tester), ShellTab.send);
+      expect(_noteTile(note), findsOneWidget);
+      expect(find.textContaining('Minimum'), findsOneWidget);
+      await tester.enterText(find.byKey(sendAmountFieldKey), '1');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      await _continue(tester);
+      expect(_origin(_l.sendOriginLink), findsOneWidget);
+    });
+
+    testWidgets('pasted over the address field', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, find.descendant(of: find.byType(NavigationBar), matching: find.text(_l.homeSendButton)));
+      await tester.enterText(find.byKey(sendRecipientFieldKey), deposit);
+      await tester.pumpAndSettle();
+      expect(_noteTile(note), findsOneWidget);
+      expect(find.textContaining('Minimum'), findsOneWidget);
+    });
+  });
+
+  group('an address on an exchange relay', () {
+    const exchange = '$_key@epicbox.exchange.invalid';
+
+    setUp(useSampleServices);
+
+    testWidgets('a bare scan warns on both steps; a message clears it; the send still goes', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, exchange);
+      await _continue(tester);
+      expect(find.text(_l.serviceHintExchangeCheckNote), findsOneWidget);
+
+      await tester.enterText(find.byKey(sendAmountFieldKey), '1');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      await _continue(tester);
+      expect(find.byKey(sendReviewNoteMissingKey), findsOneWidget);
+      await _tap(tester, find.textContaining('Send 1'));
+      await answerPin(tester);
+      expect(h.session.epicboxSends.single.to, exchange);
+    });
+
+    testWidgets('Message is open, not folded behind Add a message, and stays open while typed in', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, exchange);
+      await _continue(tester);
+      expect(find.text(_l.sendAddNote), findsNothing);
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+      await tester.enterText(find.byKey(sendNoteFieldKey), '1');
+      await tester.pumpAndSettle();
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+    });
+
+    testWidgets('another relay says nothing', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.scan(tester, _e);
+      await _continue(tester);
+      expect(find.byKey(sendNoteMissingKey), findsNothing);
+      expect(find.text(_l.sendAddNote), findsOneWidget);
     });
   });
 

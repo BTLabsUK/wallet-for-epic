@@ -30,6 +30,8 @@ class SendCode {
     this.label,
     this.problems = const {},
     this.noteFilled = false,
+    this.noteRequired = false,
+    this.minimum,
   });
 
   /// A payment request; [address] is the one To got (the code's own or its Direct one).
@@ -41,6 +43,8 @@ class SendCode {
     label: r.label,
     problems: r.problems,
     noteFilled: noteFilled,
+    noteRequired: r.noteRequired,
+    minimum: r.minimum?.toInt(),
   );
 
   final CodeOrigin origin;
@@ -57,8 +61,14 @@ class SendCode {
   /// Message got [note] (it fits a slate's message).
   final bool noteFilled;
 
+  /// The code asks for a message: Send warns while Message is empty and lets the user send.
+  final bool noteRequired;
+
+  /// The least the payee says it takes, in nanoepic; null when the code has none.
+  final int? minimum;
+
   /// A plain `epic:<address>` (or an address from a link) is an address for the UI: no banner.
-  bool get banner => amount != null || note != null || label != null || problems.isNotEmpty;
+  bool get banner => amount != null || note != null || label != null || minimum != null || noteRequired || problems.isNotEmpty;
 }
 
 /// The review's origin tag.

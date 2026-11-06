@@ -21,6 +21,7 @@ import 'src/network.dart' show devChainOf;
 import 'src/providers.dart' show NetworkChoiceNotifier;
 import 'src/btlabs_public_phone.dart' show refreshBtlabsPublicAtStart;
 import 'src/secret_store_api.dart' show SecretStore;
+import 'src/services/service_loader.dart' show startServices;
 import 'src/settings_file/settings_providers.dart';
 import 'src/wallet_service.dart' show Chain;
 import 'src/levels/first_start.dart';
@@ -65,6 +66,8 @@ Future<void> main() async {
     // Before anything reads an address: the settings file (docs/settings-file.md). A dev build
     // on a test network reads that network's own file.
     await _openSettings(store);
+    // Hints Send shows for a known kind of address (docs/services.md); none without files.
+    await startServices();
     // Before any request: with the Tor switch saved on, the app's own requests (update check,
     // price, status) wait for tor from launch, also before the PIN, and never go direct.
     bool torSavedOn;

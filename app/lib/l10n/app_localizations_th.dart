@@ -4500,7 +4500,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendToLabel => 'ถึง';
 
   @override
-  String get sendToHint => 'ที่อยู่หรือผู้ติดต่อ';
+  String get sendToHint => 'ที่อยู่ ลิงก์ชำระเงิน หรือผู้ติดต่อ';
 
   @override
   String get sendSwitchedEpicbox => 'ผ่าน Epicbox';
@@ -6596,10 +6596,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendTo => 'ถึง';
 
   @override
-  String get deskSendToHelp => 'วางที่อยู่ หรือพิมพ์ชื่อผู้ติดต่อ';
+  String get deskSendToHelp =>
+      'วางที่อยู่หรือลิงก์ชำระเงิน หรือพิมพ์ชื่อผู้ติดต่อ';
 
   @override
-  String get deskSendToHint => 'ที่อยู่หรือผู้ติดต่อ';
+  String get deskSendToHint => 'ที่อยู่ ลิงก์ชำระเงิน หรือผู้ติดต่อ';
 
   @override
   String get deskSendToSem => 'ผู้รับ';
@@ -12869,6 +12870,37 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get payeeNoteLabel => 'ข้อความจากผู้รับเงิน';
+
+  @override
+  String get sendNoteRequiredHelper =>
+      'ผู้รับต้องใช้ข้อความนี้ โปรดคงไว้ตามเดิม';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'ขั้นต่ำ $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'ต่ำกว่าขั้นต่ำ';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'ขั้นต่ำคือ $amount ผู้รับอาจไม่เข้าบัญชีให้หากน้อยกว่านี้';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid => 'ขั้นต่ำในโค้ดนี้ไม่ถูกต้องและถูกข้ามไป';
+
+  @override
+  String get sendNoteMissingTitle => 'ไม่มีข้อความ';
+
+  @override
+  String get sendNoteMissingCode =>
+      'โค้ดนี้ต้องมีข้อความ หากไม่มี ผู้รับอาจไม่เข้าบัญชีให้';
+
+  @override
+  String get serviceHintExchangeCheckNote =>
+      'ดูเหมือนเป็นที่อยู่ของตลาดแลกเปลี่ยน โปรดตรวจสอบข้อความ ตลาดแลกเปลี่ยนอาจเรียกว่าโน้ตบนเชน';
 
   @override
   String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นข้อความนี้ด้วย';

@@ -157,6 +157,8 @@ flutter:
     # settings.toml, and the read-only app configuration.
     - assets/config/settings.default.toml
     - assets/config/app-config.toml
+    # Service files, one per service (docs/services.md). The folder stays when it holds none.
+    - assets/services/
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat

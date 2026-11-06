@@ -4705,7 +4705,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendToLabel => 'Кому';
 
   @override
-  String get sendToHint => 'Адрес или контакт';
+  String get sendToHint => 'Адрес, ссылка на оплату или контакт';
 
   @override
   String get sendSwitchedEpicbox => 'Через Epicbox';
@@ -7089,10 +7089,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendTo => 'Кому';
 
   @override
-  String get deskSendToHelp => 'Вставьте адрес или введите имя контакта.';
+  String get deskSendToHelp =>
+      'Вставьте адрес или ссылку на оплату либо введите имя контакта.';
 
   @override
-  String get deskSendToHint => 'Адрес или контакт';
+  String get deskSendToHint => 'Адрес, ссылка на оплату или контакт';
 
   @override
   String get deskSendToSem => 'Получатель';
@@ -13709,6 +13710,38 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get payeeNoteLabel => 'Сообщение от получателя';
+
+  @override
+  String get sendNoteRequiredHelper =>
+      'Получателю нужно это сообщение. Оставьте его без изменений.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Минимум $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Меньше минимума';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'Минимум: $amount. Меньшую сумму получатель может не зачислить.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'Минимум в этом коде недействителен и был пропущен.';
+
+  @override
+  String get sendNoteMissingTitle => 'Нет сообщения';
+
+  @override
+  String get sendNoteMissingCode =>
+      'Этот код требует сообщение. Без него получатель может не зачислить платёж.';
+
+  @override
+  String get serviceHintExchangeCheckNote =>
+      'Похоже, это адрес биржи. Проверьте сообщение. Биржи могут называть его ончейн-заметкой.';
 
   @override
   String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже его увидит.';

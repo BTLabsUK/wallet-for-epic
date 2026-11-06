@@ -4,6 +4,7 @@
 library;
 
 import '../address_format.dart' show hostPort;
+import '../services/service_rules.dart';
 import '../l10n.dart';
 import 'scan_checks.dart' show CodeOrigin;
 import 'scan_router.dart' show RequestProblem, untrustedTextForbidden;
@@ -24,7 +25,29 @@ List<String> requestProblemLines(
   if (problems.contains(RequestProblem.amountTooLarge))
     l.sendCodeAmountTooLarge,
   if (problems.contains(RequestProblem.tooLong)) l.sendCodeTooLong,
+  if (problems.contains(RequestProblem.minimumInvalid)) l.sendCodeMinimumInvalid,
 ];
+
+/// What Send says while [message] is empty, or null. [codeAsks]: the code that filled the
+/// address requires a message; that warning is the code's own and needs no service file.
+/// Otherwise whatever a service rule says about [address]. Only a warning: the user may send
+/// anyway.
+String? noteWarning(AppLocalizations l, String address, String message, {required bool codeAsks}) {
+  if (message.trim().isNotEmpty) return null;
+  if (codeAsks) return l.sendNoteMissingCode;
+  final hint = matchService(address, serviceRules)?.hints.firstOrNull;
+  return hint == null ? null : serviceHintText(l, hint);
+}
+
+/// Whether Send reads Message as a field to fill, not an optional one: [codeNote], the code that
+/// filled the address carries or asks for a note, or a service rule has a hint for [address].
+bool noteExpected(String address, {required bool codeNote}) =>
+    codeNote || (matchService(address, serviceRules)?.hints.isNotEmpty ?? false);
+
+/// The translated string of a service file's hint id.
+String serviceHintText(AppLocalizations l, ServiceHint hint) => switch (hint) {
+  ServiceHint.exchangeCheckNote => l.serviceHintExchangeCheckNote,
+};
 
 /// The host of a Direct address, with its port: `203.0.113.4:<port>`, `<56 characters>.onion`
 /// ([hostPort]).
