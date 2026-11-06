@@ -642,6 +642,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยกเลิกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
+  String get txStatusReceiverDeclined => 'ผู้รับปฏิเสธแล้ว';
+
+  @override
+  String get txDetailsReceiverDeclined =>
+      'ผู้รับปฏิเสธรายการนี้ รายการถูกยกเลิกแล้ว และยอดเงินกลับมาใช้ได้อีกครั้ง';
+
+  @override
   String get txStatusSenderCancelled => 'ผู้ส่งยกเลิกแล้ว';
 
   @override

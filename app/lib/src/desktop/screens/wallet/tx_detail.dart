@@ -162,6 +162,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           // The wallet keeps looking for a cancelled receive, so a late post still arrives.
           TxState.cancelled when t.deviceEnding != null =>
             deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),
+          TxState.cancelled when !t.incoming && t.receiverDeclined => l.txDetailsReceiverDeclined,
           TxState.cancelled when t.incoming && !t.isInvoice && t.senderCancelled => l.txDetailsSenderCancelled,
           TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
           TxState.cancelled => l.deskTxNowCancelled,

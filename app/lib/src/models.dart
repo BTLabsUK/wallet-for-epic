@@ -1553,6 +1553,10 @@ class TxEntry {
   /// and drops it once the payment confirms. [senderCancelled] says when to show it.
   final int? senderReportedCancelledAtUnix;
 
+  /// When the receiver of this send refused it unanswered (unix seconds); null otherwise. The
+  /// core cancelled the send then. [receiverDeclined] says when to show it.
+  final int? receiverDeclinedAtUnix;
+
   /// The pairing this payment was exchanged with (sealed to or from it, through its mailbox
   /// or as a sealed file), as LEPIC links it; null for any other row. The row and its details
   /// name the contact by it, as a mailbox payment has no address.
@@ -1612,6 +1616,7 @@ class TxEntry {
     this.datedByBlock = true,
     this.senderReportedPostedAtUnix,
     this.senderReportedCancelledAtUnix,
+    this.receiverDeclinedAtUnix,
     this.pairingId,
     this.origin = TxOrigin.thisWallet,
     this.spentCommits = const [],
@@ -1662,6 +1667,7 @@ class TxEntry {
     datedByBlock: datedByBlock,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
     senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
+    receiverDeclinedAtUnix: receiverDeclinedAtUnix,
     pairingId: pairingId,
     origin: origin,
     spentCommits: spentCommits,
@@ -1712,6 +1718,7 @@ class TxEntry {
     datedByBlock: datedByBlock,
     senderReportedPostedAtUnix: senderReportedPostedAtUnix,
     senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
+    receiverDeclinedAtUnix: receiverDeclinedAtUnix,
     pairingId: pairing,
     origin: origin,
     spentCommits: spentCommits,
@@ -1776,6 +1783,7 @@ class TxEntry {
       datedByBlock.hashCode ^
       senderReportedPostedAtUnix.hashCode ^
       senderReportedCancelledAtUnix.hashCode ^
+      receiverDeclinedAtUnix.hashCode ^
       pairingId.hashCode ^
       origin.hashCode ^
       Object.hashAll(spentCommits) ^
@@ -1829,6 +1837,7 @@ class TxEntry {
           datedByBlock == other.datedByBlock &&
           senderReportedPostedAtUnix == other.senderReportedPostedAtUnix &&
           senderReportedCancelledAtUnix == other.senderReportedCancelledAtUnix &&
+          receiverDeclinedAtUnix == other.receiverDeclinedAtUnix &&
           pairingId == other.pairingId &&
           origin == other.origin &&
           _listEquals(spentCommits, other.spentCommits) &&
@@ -1885,6 +1894,13 @@ bool senderCancelled(TxEntry tx) =>
     tx.status != TxStatus.confirmed &&
     !tx.confirmed &&
     tx.blockHeight == null;
+
+/// Whether [tx] is a send this wallet made whose receiver refused it unanswered. The core
+/// cancelled it then. Reads "Declined by the receiver".
+bool receiverDeclined(TxEntry tx) =>
+    tx.receiverDeclinedAtUnix != null &&
+    !tx.isRequest &&
+    (tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled);
 
 /// [senderCancelled] and still waiting for its sender here: the app releases it by itself
 /// (sender_cancel.dart), and Cancel is offered at once, without [receiveCancelHold].
@@ -2483,6 +2499,10 @@ enum InvoiceEventKind {
   /// Only from its sender. The app releases the payment if it is still waiting
   /// (sender_cancel.dart); the node is asked first, so one already on the network stays.
   paymentCancelled,
+
+  /// Not an invoice: the receiver of a send this wallet made refused it unanswered. The core
+  /// cancelled the send itself; the list is refreshed. Nothing is forwarded.
+  paymentDeclined,
 }
 
 class InvoiceEvent {

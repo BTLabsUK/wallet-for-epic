@@ -622,6 +622,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelledIncoming => '已取消。如果发送方之后广播这笔付款，它仍会到账。';
 
   @override
+  String get txStatusReceiverDeclined => '已被接收方拒绝';
+
+  @override
+  String get txDetailsReceiverDeclined => '接收方已拒绝这笔付款。它已被取消，这些资金已恢复可用。';
+
+  @override
   String get txStatusSenderCancelled => '已被发送方取消';
 
   @override

@@ -312,6 +312,7 @@ class Tx {
     this.manualEditedAt,
     this.senderPosted = false,
     this.senderCancelled = false,
+    this.receiverDeclined = false,
     this.pairingId,
     this.blockWait = BlockWait.none,
     this.credited = 0,
@@ -453,6 +454,10 @@ class Tx {
   /// or already cleared. Reads "Cancelled by the sender".
   final bool senderCancelled;
 
+  /// An outgoing payment whose receiver refused it unanswered (the core's `receiverDeclined`):
+  /// the core cancelled it. Reads "Declined by the receiver".
+  final bool receiverDeclined;
+
   /// Why a payment past its watch window is still not in a block (watch_mode.dart), for the
   /// note in its details.
   final BlockWait blockWait;
@@ -546,6 +551,7 @@ class Tx {
       manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
       senderPosted: senderPosted,
       senderCancelled: senderCancelled,
+      receiverDeclined: receiverDeclined,
       pairingId: pairingId,
       blockWait: blockWait,
       credited: credited,
@@ -607,6 +613,7 @@ class Tx {
     manualEditedAt: manualEditedAt,
     senderPosted: senderPosted,
       senderCancelled: senderCancelled,
+      receiverDeclined: receiverDeclined,
     pairingId: pairingId,
     blockWait: blockWait,
     credited: credited,

@@ -219,7 +219,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       case InvoiceEventKind.receiveSuperseded:
         view(l.deskInvNoticeReceiveSuperseded, NoticeLevel.info, null);
       // Not an invoice: home words it (paymentPostedProvider, paymentCancelledProvider).
-      case InvoiceEventKind.paymentPosted || InvoiceEventKind.paymentCancelled:
+      case InvoiceEventKind.paymentPosted ||
+          InvoiceEventKind.paymentCancelled ||
+          InvoiceEventKind.paymentDeclined:
         break;
     }
   }

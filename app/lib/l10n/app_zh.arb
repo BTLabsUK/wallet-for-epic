@@ -158,6 +158,8 @@
   "txDetailsCancelledLateAnswer": "接收方在 24 小时期限过后才回复，因此钱包取消了这笔付款，而没有完成它。没有支付任何资金，这些资金已恢复可用。",
   "txDetailsCancelledUndelivered": "这笔付款无法送达接收方，因此钱包已立即将其取消。没有发送任何资金，这些资金已恢复可用。",
   "txDetailsCancelledIncoming": "已取消。如果发送方之后广播这笔付款，它仍会到账。",
+  "txStatusReceiverDeclined": "已被接收方拒绝",
+  "txDetailsReceiverDeclined": "接收方已拒绝这笔付款。它已被取消，这些资金已恢复可用。",
   "txStatusSenderCancelled": "已被发送方取消",
   "txDetailsSenderCancelledWaiting": "发送方已取消这笔付款。钱包检查网络后会在此清除它。",
   "txDetailsSenderCancelled": "发送方已取消这笔付款。如果此前已广播，它仍会到账。",

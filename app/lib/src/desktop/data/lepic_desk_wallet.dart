@@ -5023,6 +5023,11 @@ class LepicDeskWallet implements DeskWalletApi {
         await _reload();
         if (_session == session) await _releaseSenderCancelled();
         return;
+      // Not an invoice: the receiver of a send refused it. The core cancelled the send.
+      case core.InvoiceEventKind.paymentDeclined:
+        logInfo('desk', 'receiver declined a send');
+        await _reload();
+        return;
       case _:
         break;
     }
@@ -5750,6 +5755,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     detail: e.statusDetail,
     senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
     senderCancelled: core.senderCancelled(e),
+    receiverDeclined: core.receiverDeclined(e),
     pairingId: e.pairingId,
     blockWait: wait,
     credited: e.amountCredited.toInt(),

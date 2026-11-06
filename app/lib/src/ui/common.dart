@@ -858,6 +858,7 @@ String txStatusLabel(
   TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice =>
     deviceEndingLabel(l, tx.deviceEnding ?? DeviceEnding.releasedHere, tx.deviceName ?? ''),
   TxPhase.cancelled when senderCancelled(tx) => l.txStatusSenderCancelled,
+  TxPhase.cancelled when receiverDeclined(tx) => l.txStatusReceiverDeclined,
   TxPhase.cancelled => l.txStatusCancelled,
   TxPhase.fromBackup => l.txStatusFromBackup,
 };
