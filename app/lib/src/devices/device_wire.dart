@@ -176,10 +176,10 @@ bool _sas(Object? v) => v is List && v.length == 4 && v.every((s) => _str(s, max
 bool _proof(Object? v) => v is String && RegExp(r'^[0-9a-f]{128}$').hasMatch(v);
 
 /// What a `fwd` notice carries: the payer of a payment the sender answered reports it posted
-/// (`kernel` set) or cancelled; a contact's request to pay arrived (`invoice`); a request to
+/// (`kernel` set), cancelled or declined; a contact's request to pay arrived (`invoice`); a request to
 /// pair arrived (`pair`) or was answered on the sender (`paired`); a notice for a slate the
 /// sender holds nothing of (`notice`).
-const forwardKinds = {'posted', 'cancelled', 'invoice', 'pair', 'paired', 'notice'};
+const forwardKinds = {'posted', 'cancelled', 'declined', 'invoice', 'pair', 'paired', 'notice'};
 
 /// The longest notice LEPIC reads, as a `notice` forward carries it.
 const int forwardNoticeMaxLength = 8192;
@@ -187,7 +187,7 @@ const int forwardNoticeMaxLength = 8192;
 bool _requestId(Object? v) => v is String && RegExp(r'^[0-9a-f]{16}$').hasMatch(v);
 
 bool _fwd(Map<String, Object?> b) => switch (b['kind']) {
-  'posted' || 'cancelled' || 'invoice' => _str(b['slateId'], max: 64) && _optStr(b['kernel'], max: 66),
+  'posted' || 'cancelled' || 'declined' || 'invoice' => _str(b['slateId'], max: 64) && _optStr(b['kernel'], max: 66),
   'pair' =>
     _requestId(b['requestId']) &&
         _str(b['link'], max: 4096) &&

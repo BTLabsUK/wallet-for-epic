@@ -321,7 +321,7 @@ enum DeviceSyncTrigger { start, resume, unlock, refresh, tick, beforeSend, link 
 
 /// What a `fwd` notice passes on: a report from the payer of a payment this wallet answered,
 /// or a contact's request to pay, that reached the other device only.
-enum ForwardKind { posted, cancelled, invoice }
+enum ForwardKind { posted, cancelled, declined, invoice }
 
 /// A notice the linked device passed on ([DeviceService.forwarded]).
 class ForwardedNotice {
@@ -768,7 +768,8 @@ class DeviceService {
     }
     final kind = ForwardKind.values.asNameMap()[n.body['kind']]!;
     final slateId = n.body['slateId'] as String;
-    if (kind != ForwardKind.invoice) await _releaseOwnAnswer(slateId);
+    // A declined send was made here or on the linked device, never answered: nothing to drop.
+    if (kind == ForwardKind.posted || kind == ForwardKind.cancelled) await _releaseOwnAnswer(slateId);
     if (!_disposed) _forwarded.add(ForwardedNotice(kind: kind, slateId: slateId, device: from.name, kernel: n.body['kernel'] as String?));
   }
 
@@ -1046,7 +1047,7 @@ class DeviceService {
 
   /// Passes on to the linked device a notice that reached this one only: the payer of the
   /// payment [slateId] this wallet answered reports it [ForwardKind.posted] (with its
-  /// [kernel]) or [ForwardKind.cancelled], or a contact's request to pay arrived
+  /// [kernel]), [ForwardKind.cancelled] or [ForwardKind.declined] (the receiver of a send refused it), or a contact's request to pay arrived
   /// ([ForwardKind.invoice]). The apps call it from their notice handlers. Nothing without a
   /// linked device.
   Future<void> forward(ForwardKind kind, String slateId, {String? kernel}) async {

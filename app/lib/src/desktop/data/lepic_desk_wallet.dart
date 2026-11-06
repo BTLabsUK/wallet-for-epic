@@ -5017,7 +5017,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// A payer: an invoice parked, posted, withdrawn or expired. Never pays anything.
   Future<void> _onInvoiceEvent(core.WalletSession session, core.InvoiceEvent e) async {
     // What reached this device only, for the linked device.
-    if (e.kind == core.InvoiceEventKind.paymentPosted || e.kind == core.InvoiceEventKind.paymentCancelled || e.kind == core.InvoiceEventKind.received) {
+    if (e.kind == core.InvoiceEventKind.paymentPosted || e.kind == core.InvoiceEventKind.paymentCancelled || e.kind == core.InvoiceEventKind.paymentDeclined || e.kind == core.InvoiceEventKind.received) {
       _forward?.call(e);
     }
     if (_session != session) return;
@@ -5513,6 +5513,9 @@ class LepicDeskWallet implements DeskWalletApi {
         if (_session == session) unawaited(sync());
       case ForwardKind.cancelled:
         logInfo('desk', 'the linked device heard a payment cancelled');
+        await _reload();
+      case ForwardKind.declined:
+        logInfo('desk', 'the linked device heard a send declined');
         await _reload();
       case ForwardKind.invoice:
         _notify(InvoiceNotice(InvoiceNoticeKind.requestOnDevice, slateId: notice.slateId, who: notice.device));

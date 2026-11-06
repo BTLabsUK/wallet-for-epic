@@ -66,6 +66,17 @@ void main() {
     expect(b.session.cancelledTxIds, isEmpty);
   });
 
+  test('a send the receiver declined reached A only: passed on, B drops nothing', () async {
+    bAnswered();
+    final heard = <ForwardedNotice>[];
+    b.service.forwarded.listen(heard.add);
+    await a.service.forward(ForwardKind.declined, 'in-1');
+    await settle(a, b);
+    expect(heard.single.kind, ForwardKind.declined);
+    expect(heard.single.slateId, 'in-1');
+    expect(b.session.cancelledTxIds, isEmpty);
+  });
+
   test("a contact's request to pay reached A only: B is told where to pay it", () async {
     final heard = <ForwardedNotice>[];
     b.service.forwarded.listen(heard.add);
