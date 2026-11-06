@@ -161,6 +161,15 @@ TxEntry _payment(TxPhase phase) => switch (phase) {
     cancellable: true,
   ),
   TxPhase.confirming => _confirming(1),
+  // A mining reward on the chain, locked for a day of blocks past the tip.
+  TxPhase.maturing => fakeTx(
+    slateId: 'pay',
+    kind: TxKind.coinbase,
+    status: TxStatus.confirmed,
+    amountCredited: BigInt.from(250000000),
+    blockHeight: _tip - BigInt.from(defaultMinimumConfirmations),
+    rewardLockHeight: _tip + BigInt.from(1000),
+  ),
   TxPhase.completed => _confirming(defaultMinimumConfirmations),
   TxPhase.cancelled => fakeTx(
     slateId: 'pay',

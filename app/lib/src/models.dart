@@ -1468,6 +1468,10 @@ class TxEntry {
   /// The linked device that made this send, for a row of [TxOrigin.linkedDevice]; null else.
   final String? deviceName;
 
+  /// A mining reward's output lock height, read from the output once known; null for other
+  /// kinds, and until the output is read. Spendable from the block at this height on.
+  final BigInt? rewardLockHeight;
+
   /// For a row of [TxOrigin.linkedDevice] that did not go through (status cancelled): how it
   /// ended. Null for a payment under way or confirmed.
   final DeviceEnding? deviceEnding;
@@ -1594,6 +1598,7 @@ class TxEntry {
     required this.outputCommits,
     this.counterparty,
     this.deviceName,
+    this.rewardLockHeight,
     this.deviceEnding,
     this.deviceWhy,
     this.transport,
@@ -1645,6 +1650,7 @@ class TxEntry {
     outputCommits: outputCommits,
     counterparty: counterparty,
     deviceName: name,
+    rewardLockHeight: rewardLockHeight,
     deviceEnding: deviceEnding,
     deviceWhy: deviceWhy,
     transport: transport,
@@ -1696,6 +1702,7 @@ class TxEntry {
     outputCommits: outputCommits,
     counterparty: counterparty,
     deviceName: deviceName,
+    rewardLockHeight: rewardLockHeight,
     deviceEnding: deviceEnding,
     deviceWhy: deviceWhy,
     transport: transport,
@@ -1720,6 +1727,58 @@ class TxEntry {
     senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
     receiverDeclinedAtUnix: receiverDeclinedAtUnix,
     pairingId: pairing,
+    origin: origin,
+    spentCommits: spentCommits,
+    unverified: unverified,
+  );
+
+  /// This mining reward with its output's lock [height] known.
+  TxEntry withRewardLockHeight(BigInt? height) => TxEntry(
+    key: key,
+    id: id,
+    slateId: slateId,
+    kind: kind,
+    status: status,
+    source: source,
+    createdAtUnix: createdAtUnix,
+    timeUnix: timeUnix,
+    confirmed: confirmed,
+    blockHeight: blockHeight,
+    blockTimeUnix: blockTimeUnix,
+    amountCredited: amountCredited,
+    amountDebited: amountDebited,
+    fee: fee,
+    numInputs: numInputs,
+    numOutputs: numOutputs,
+    kernelExcess: kernelExcess,
+    outputCommits: outputCommits,
+    counterparty: counterparty,
+    deviceName: deviceName,
+    rewardLockHeight: height,
+    deviceEnding: deviceEnding,
+    deviceWhy: deviceWhy,
+    transport: transport,
+    note: note,
+    label: label,
+    manualFields: manualFields,
+    manualEditedAtUnix: manualEditedAtUnix,
+    messages: messages,
+    ttlCutoffHeight: ttlCutoffHeight,
+    cancellable: cancellable,
+    repostable: repostable,
+    undelivered: undelivered,
+    posting: posting,
+    statusDetail: statusDetail,
+    releasable: releasable,
+    finalizedAtUnix: finalizedAtUnix,
+    cancelReason: cancelReason,
+    flow: flow,
+    foundDuring: foundDuring,
+    datedByBlock: datedByBlock,
+    senderReportedPostedAtUnix: senderReportedPostedAtUnix,
+    senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
+    receiverDeclinedAtUnix: receiverDeclinedAtUnix,
+    pairingId: pairingId,
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
@@ -1761,6 +1820,7 @@ class TxEntry {
       outputCommits.hashCode ^
       counterparty.hashCode ^
       deviceName.hashCode ^
+      rewardLockHeight.hashCode ^
       deviceEnding.hashCode ^
       deviceWhy.hashCode ^
       transport.hashCode ^
@@ -1814,6 +1874,7 @@ class TxEntry {
           outputCommits == other.outputCommits &&
           counterparty == other.counterparty &&
           deviceName == other.deviceName &&
+          rewardLockHeight == other.rewardLockHeight &&
           deviceEnding == other.deviceEnding &&
           deviceWhy == other.deviceWhy &&
           transport == other.transport &&

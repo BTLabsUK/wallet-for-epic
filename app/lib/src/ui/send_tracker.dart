@@ -43,6 +43,7 @@ SendTrack sendTrackerAt(TxEntry tx, BigInt? tip, {required int target}) {
     TxPhase.waitingRecipient ||
     TxPhase.waitingPayer => SendTrack.waitingRecipient,
     TxPhase.confirming ||
+    TxPhase.maturing ||
     TxPhase.waitingSender ||
     TxPhase.fromBackup => SendTrack.confirming,
   };

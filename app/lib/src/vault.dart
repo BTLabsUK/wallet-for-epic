@@ -13,6 +13,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'app_log.dart';
+import 'onion_notice.dart' show markOnionNoticeSeen;
 import 'pin_wrap.dart' show PinKeyLost;
 import 'secret_store.dart';
 import 'wallet_service.dart';
@@ -155,6 +156,12 @@ class WalletVault {
       created.session.dispose();
       await service.deleteWallet(config: config);
       rethrow;
+    }
+    // Made on this version: the notice about the changed Tor address is not for it.
+    try {
+      await markOnionNoticeSeen(store, chain: config.chain.name, walletId: config.walletId);
+    } on Object catch (e) {
+      logWarn('vault', 'onion notice marker not saved: ${e.runtimeType}');
     }
     final bio = useBiometrics && await _storeBiometricPin(config.chain, pin);
     return (session: created.session, biometrics: bio);

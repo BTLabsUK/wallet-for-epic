@@ -1,0 +1,14 @@
+{
+  "deskTorAddressChangedTitle": "Your Tor address changed",
+  "@deskTorAddressChangedTitle": {
+    "description": "Desktop Overview: title of the one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
+  },
+  "deskTorAddressChangedText": "The old address stops working. Anyone who saved it needs the new one.",
+  "@deskTorAddressChangedText": {
+    "description": "Desktop Overview: body of the one-time notice about the changed Tor address. Two short sentences."
+  },
+  "deskTorAddressChangedLink": "What changed",
+  "@deskTorAddressChangedLink": {
+    "description": "Desktop Overview: button on the Tor address notice; opens a web page that says what changed and dismisses the notice."
+  }
+}

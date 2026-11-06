@@ -49,6 +49,7 @@ import '../../legacy_wallets.dart' as legacy;
 import '../../l10n.dart' show AppLocalizations;
 import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
+import '../../onion_notice.dart' show markOnionNoticeSeen;
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../name_service/name_service.dart' show NameServiceMembership, LinkOutcome, Payreq, openLink;
 import '../../name_service/base58.dart' show netFloonet, netMainnet;
@@ -1421,6 +1422,12 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _selectedId = listed?.id;
+    // Made on this version: the notice about the changed Tor address is not for it.
+    try {
+      await markOnionNoticeSeen(_secrets, chain: _chain, walletId: listed?.walletId ?? entry?.walletId);
+    } on Object catch (e) {
+      logWarn('desk', 'onion notice marker not saved: ${e.runtimeType}');
+    }
     await writeWalletTxt(config.dataDir, label: listed?.label ?? label ?? 'Main wallet', network: _chain, created: DateTime.now()); // l10n-ok: default wallet name, stored
     if (listed != null) {
       try {

@@ -27,7 +27,6 @@ import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingByIdPro
 import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
 import '../settings_file/host_settings.dart' show hostSettings;
-import '../smart_outputs.dart' show rewardBlocksToGo, rewardMaturity;
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
@@ -199,6 +198,11 @@ String txExplanation(
       n!,
       target ?? confirmationsTarget,
     ),
+    // A reward on the chain, locked until its maturity (the desktop's words).
+    TxPhase.maturing => switch (rewardMaturityOf(tx)) {
+      final maturity? => l.deskTxNowImmature(maturity),
+      null => l.outputsWordImmature,
+    },
     TxPhase.completed =>
       height == null
           ? l.txDetailsCompleted
@@ -747,11 +751,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final hidden = display.hidden;
     final tip = tipHeight(ref);
     final target = confirmationsTargetOf(ref);
-    // A mining reward's output, for the blocks to go until it can be spent.
-    final rewardOutput = tx.kind == TxKind.coinbase
-        ? ref.watch(walletOutputsProvider).value?.where((o) => tx.outputCommits.contains(o.commitment) || (tx.id != null && o.txId == tx.id)).firstOrNull
-        : null;
-    final rewardBlocks = rewardOutput == null ? null : rewardBlocksToGo(rewardOutput, tip);
+    // A mining reward: the blocks to go until it can be spent, from its output's lock height.
+    final rewardBlocks = rewardBlocksLeft(tx, tip);
+    final rewardMaturity = rewardMaturityOf(tx);
     final chain = ref.watch(walletConfigProvider)?.chain;
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
@@ -945,8 +947,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     Text(
                       device
                           ? (hold != null ? l.txDeviceStatusHeld(deviceName) : l.txDeviceStatusMadeOn(deviceName))
-                          : rewardBlocks != null
-                          ? l.deskTxNowImmature(rewardMaturity(rewardOutput!))
+                          : rewardBlocks != null && rewardMaturity != null
+                          ? l.deskTxNowImmature(rewardMaturity)
                           : txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow),
                     ),
                     if (rewardBlocks != null) ...[

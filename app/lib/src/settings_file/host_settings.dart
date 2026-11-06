@@ -289,6 +289,9 @@ class AppConfig {
   String? get linkSource => _orNull(_text('links.source'));
   String? get linkPrivacy => _orNull(_text('links.privacy'));
 
+  /// The page behind the one-time notice about the changed Tor address (onion_notice.dart).
+  String? get linkTorAddressChanged => _orNull(_text('links.tor_address_changed'));
+
   // [explorer]
 
   /// The explorer's page of the block at [height]; null when no explorer is configured.
@@ -466,6 +469,7 @@ class HostSettings {
   String? get linkCommunity => config.linkCommunity;
   String? get linkSource => config.linkSource;
   String? get linkPrivacy => config.linkPrivacy;
+  String? get linkTorAddressChanged => config.linkTorAddressChanged;
   String? explorerBlock(int height) => config.explorerBlock(height);
   String? explorerIndexed(int height) => config.explorerIndexed(height);
   String get importGuiNode => config.importGuiNode;

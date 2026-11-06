@@ -134,7 +134,8 @@ String? deskLinkPayee(WidgetRef ref, Tx t) {
   if (wording == LevelWording.technical || own) return today;
   final plain = wording == LevelWording.plain;
   final name = mailbox == null || mailbox == linkPayeeUnnamed ? t.contactName : mailbox;
-  if (t.immature) return (plain ? l.lvPayArriving : l.deskLvPayImmatureCasual, ETone.info);
+  // A maturing reward is on the chain already: Maturing, as the Outputs screen says, not Arriving.
+  if (t.immature) return (plain ? l.deskTxStatusImmature : l.deskLvPayImmatureCasual, ETone.info);
   switch (t.state) {
     case TxState.waitingRecipient:
       if (t.incoming) return plain ? (l.lvPayArriving, ETone.info) : today;

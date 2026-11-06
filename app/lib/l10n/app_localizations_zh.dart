@@ -1103,6 +1103,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeBackupCardDismiss => '不再显示';
 
   @override
+  String get torAddressChangedTitle => '你的 Tor 地址已更改';
+
+  @override
+  String get torAddressChangedText => '旧地址不再可用。保存过它的人需要新地址。';
+
+  @override
   String homeHistoryNotBackedUp(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -19415,4 +19421,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskUpdStripHide => '隐藏至下一版本';
+
+  @override
+  String get deskTorAddressChangedTitle => '你的 Tor 地址已更改';
+
+  @override
+  String get deskTorAddressChangedText => '旧地址不再可用。保存过它的人需要新地址。';
+
+  @override
+  String get deskTorAddressChangedLink => '更改了什么';
 }
