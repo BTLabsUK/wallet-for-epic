@@ -5,9 +5,13 @@
 #                            version, install contract, LEPIC at the pin, no hosts, workflows,
 #                            the plain-Dart core, flutter analyze, and only the Flutter tests the
 #                            change reaches (tools/t affected); the bot's tests only when bot/
-#                            changed; the release tools' own tests (tools/rel, the nightly, sbom,
-#                            test order, check-workflow, tools/t, the incremental publisher, the
-#                            screens feedback service) only when tools/ changed.
+#                            changed; the smaller release-tool tests (the nightly, sbom, test order,
+#                            check-workflow, tools/t, the incremental publisher, the screens
+#                            feedback service) only when tools/ changed; tools/rel's own suite
+#                            (tools/rellib/tests, 743 tests) only when a file it runs or reads
+#                            changed: tools/rel, tools/env.sh, tools/rellib/, tools/signer/,
+#                            tools/releases/, tools/release-files.py, tools/publish-update-json.sh,
+#                            tools/push-github.sh, release/, app/assets/config/app-config.toml.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
 #                            the web build and LEPIC's golden-vector replay too. Once per release candidate: tools/rel's source
 #                            gate runs it, or the nightly, or the release lead on the candidate.
@@ -79,12 +83,16 @@ bot_changed=0
 grep -q '^bot/' <<<"$changed" && bot_changed=1
 tools_changed=0
 grep -q '^tools/' <<<"$changed" && tools_changed=1
+# What tools/rellib/tests runs or reads (checked against the tests): not lepic.rev, the vector
+# scripts or the other tools.
+rel_changed=0
+grep -qE '^(tools/(rel|env\.sh|release-files\.py|publish-update-json\.sh|push-github\.sh)$|tools/(rellib|signer|releases)/|release/|app/assets/config/app-config\.toml$)' <<<"$changed" && rel_changed=1
 
 if [[ $mode == full ]]; then
   echo "check mode: FULL (whole flutter test suite, integration tests, bot, release tools, web build)"
 else
   echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
-  echo "rule: tools/t affected (the tests whose imports reach the change, plus the sentinels)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: release tool tests run')"
+  echo "rule: tools/t affected (the tests whose imports reach the change, plus the sentinels)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: small tool tests run (nightly, sbom, tlib ...)')$([[ $rel_changed == 1 ]] && echo '; tools/rel inputs changed: tools/rellib/tests run (rule: tools/rel, env.sh, rellib/, signer/, releases/, release-files.py, publish-update-json.sh, push-github.sh, release/, app-config.toml)')"
   "$root/tools/t" affected --list --base "$base_ref"
 fi
 [[ $mode == list ]] && exit 0
@@ -123,7 +131,9 @@ fi
 if [[ $mode == full || $tools_changed == 1 ]]; then
   step "release tools (tools/)"
   # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
-  (cd "$root" && python3 -m unittest discover -s tools/rellib/tests) || step_failed $?
+  if [[ $mode == full || $rel_changed == 1 ]]; then
+    (cd "$root" && python3 -m unittest discover -s tools/rellib/tests) || step_failed $?
+  fi
   (cd "$root" && python3 -m unittest discover -s tools/tlib/tests) || step_failed $?
   (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py \
     tools/test_check_workflow.py tools/publish/test_buildcheck.py) || step_failed $?

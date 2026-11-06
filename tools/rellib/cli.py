@@ -60,6 +60,13 @@ class Lenient(dict):
 RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+# A follow-up run (--follow-up) skips these: the same commit's screens were checked and published
+# by the run it follows.
+FOLLOW_UP_SKIP = ("screens", "screens-check", "screens-publish")
+# The base run's files a follow-up does not carry: it writes its own.
+CARRY_NOT = ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", "sbom.cdx.json")
+
+
 def context(version, commit, run_path, run_id, src, scope, hosts, previous, build_id=None):
     return {
         "rel": RUNNER,
@@ -156,7 +163,18 @@ class App:
         vac = version_at(self.repo, commit)
         prev = {}
         pubs = retention.published(self.state_root)
-        if scope["proof"]["previous_dir"]:
+        base = self.follow_up_base(scope, commit) if getattr(a, "follow_up", False) else None
+        if base:
+            if a.previous:
+                raise ConfigError("--follow-up takes the previous release of the run it follows: no --previous")
+            # The release it adds to keeps its previous release: G4, the version check and the rollback
+            # backup are as they were for that run.
+            prev = base["previous"]
+            for name in FOLLOW_UP_SKIP:
+                if name in self.pipeline.steps and name not in scope["skip"]:
+                    scope["skip"][name] = (f"follow-up of {base['run_id']}: the same commit, its screens were "
+                                           "checked and published there")
+        elif scope["proof"]["previous_dir"]:
             d = os.path.expanduser(scope["proof"]["previous_dir"])
             name = os.path.basename(d.rstrip("/"))
             m = re.match(r"\d{2}\.\d{1,2}\.\d+", name)
@@ -174,8 +192,71 @@ class App:
                 p = by_hand[-1]
                 d = os.path.expanduser(p["dir"])
                 prev = {"dir": d, "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
-        warns = validate_scope(scope, self.pipeline, vac, prev.get("version"))
+        warns = validate_scope(scope, self.pipeline, vac, prev.get("version"),
+                               carried=base["platforms"] if base else None)
+        if base:
+            warns.append(f"follow-up of {base['run_id']} ({base['tag'] or 'v' + scope['version']}): carries its "
+                         f"{', '.join(base['platforms'])} files unchanged; the update manifests, SHA256SUMS, the "
+                         "releases page, the server and the GitHub release then list them with this run's")
+            a._follow_up = base
         return commit, scope, prev, warns
+
+    def follow_up_base(self, scope, commit):
+        """--follow-up: the published run of this version that a run adds platforms to (e.g. macOS
+        once its dmgs are in). Same version and commit, none of its platforms again. The new run
+        carries that run's files, so its manifests, SHA256SUMS, page and GitHub release are whole."""
+        v = scope["version"]
+        if scope["test"] or scope["publish"]["target"] != "live":
+            raise ConfigError("--follow-up adds platforms to a published release: not in a TEST or scratch run")
+        pubs = [p for p in retention.published(self.state_root)
+                if p["version"] == v and p.get("kind", "release") == "release" and os.path.isdir(p["run"])]
+        if not pubs:
+            raise ConfigError(f"--follow-up: {v} has no published run in {self.state_root}/published.json")
+        p = pubs[-1]
+        info = read_json(os.path.join(p["run"], "run.json"), {})
+        errs = []
+        if not info.get("published"):
+            errs.append(f"{p['run_id']} is not marked published in its run.json")
+        if info.get("commit") != commit:
+            errs.append(f"{p['run_id']} released {str(info.get('commit'))[:12]}, not {commit[:12]}: "
+                        "a follow-up ships the same commit (another commit is a new version)")
+        plats = [x for x in PLATFORMS if info.get("scope", {}).get("platforms", {}).get(x)
+                 or x in (info.get("follow_up") or {}).get("platforms", [])]
+        again = [x for x in PLATFORMS if scope["platforms"].get(x) and x in plats]
+        if again:
+            errs.append(f"{', '.join(again)} already shipped in {p['run_id']}: a follow-up adds only the other "
+                        "platforms (--only)")
+        if info.get("scope", {}).get("variants") != scope["variants"]:
+            errs.append(f"the variants differ from {p['run_id']}'s")
+        sums = os.path.join(p["run"], "files", "SHA256SUMS")
+        if not os.path.isfile(sums):
+            errs.append(f"{sums} is missing")
+        if errs:
+            raise ConfigError("--follow-up:\n  - " + "\n  - ".join(errs))
+        return {"run": p["run"], "run_id": p["run_id"], "tag": p.get("tag", ""), "platforms": plats,
+                "previous": info.get("previous") or {}}
+
+    def carry(self, base):
+        """The base run's release files (SHA256SUMS order) and extras, checked against its
+        SHA256SUMS: -> ({name: {sha256, bytes}}, {extra path: {sha256, bytes}}). Raises on a mismatch."""
+        from .engine import sha256_file
+        files = os.path.join(base["run"], "files")
+        out, extra = {}, {}
+        for line in open(os.path.join(files, "SHA256SUMS"), encoding="utf-8"):
+            sha, name = line.rstrip("\n").split("  ", 1)
+            if name in CARRY_NOT:
+                continue  # this run writes its own
+            path = os.path.join(files, name)
+            if os.path.islink(path) or not os.path.isfile(path) or sha256_file(path) != sha:
+                raise ConfigError(f"--follow-up: {path} does not match {base['run_id']}'s SHA256SUMS")
+            out[name] = {"sha256": sha, "bytes": os.path.getsize(path)}
+        edir = os.path.join(base["run"], "extra")
+        for d, _, names in os.walk(edir):
+            for n in names:
+                path = os.path.join(d, n)
+                if not os.path.islink(path):
+                    extra[os.path.relpath(path, edir)] = {"sha256": sha256_file(path), "bytes": os.path.getsize(path)}
+        return out, extra
 
     def build_id(self, commit):
         """WFE_BUILD_ID: the published short commit when the commit is published, else the local one."""
@@ -247,8 +328,36 @@ class App:
             info["concurrency"] = conc
         if a.sign_inline:
             info["sign_requested"] = "at start (--sign-inline)"
+        if a.apple_results:
+            d = os.path.abspath(os.path.expanduser(a.apple_results))
+            if not os.path.isdir(d):
+                return self.out(EXIT_USAGE, f"--apple-results {d}: no such folder")
+            if not any(s.kind == "handoff" for s in steps):
+                return self.out(EXIT_USAGE, "--apple-results: no Apple hand-off step in this scope")
+            info["handoff_from"] = d
+        base = getattr(a, "_follow_up", None)
+        if base:
+            try:
+                carried, carried_extra = self.carry(base)
+            except ConfigError as e:
+                return self.out(EXIT_USAGE, str(e))
+            info["follow_up"] = {"run": base["run"], "run_id": base["run_id"], "tag": base["tag"],
+                                 "platforms": base["platforms"]}
+            info["carried"] = {n: {**m, "from": base["run_id"]} for n, m in carried.items()}
+            info["carried_extra"] = {n: {**m, "from": base["run_id"]} for n, m in carried_extra.items()}
         os.makedirs(self.state_root, exist_ok=True)
         run = Run.create(self.state_root, version, info, scope_toml(scope), steps)
+        if base:
+            from .engine import sha256_file
+            for sub, items, dest in (("files", info["carried"], run.files), ("extra", info["carried_extra"], run.extra)):
+                for name, m in items.items():
+                    to = os.path.join(dest, name)
+                    os.makedirs(os.path.dirname(to), exist_ok=True)
+                    shutil.copy2(os.path.join(base["run"], sub, name), to)
+                    if sha256_file(to) != m["sha256"]:
+                        return self.out(EXIT_FAILED, f"{to}: the copy differs from {base['run_id']}'s", run)
+            self.echo(f"follow-up of {base['run_id']}: carried {len(info['carried'])} files and "
+                      f"{len(info['carried_extra'])} extras (sha256 checked)")
         with open(os.path.join(run.path, "notes.txt"), "w", encoding="utf-8") as f:
             f.write(scope["publish"].get("notes", ""))
         for s in run.steps:
@@ -930,6 +1039,9 @@ def parser():
                              "(release/pipeline.toml [hosted]); default local")
         sp.add_argument("--local-build", type=_local_builds,
                         help="with --builds hosted: these platforms build on this machine instead, e.g. linux")
+        sp.add_argument("--follow-up", action="store_true",
+                        help="add platforms to the published run of this version (same commit): the run carries "
+                             "that run's files, so manifests, SHA256SUMS, page and GitHub release list them all")
         sp.add_argument("--local-fallback", action="store_true",
                         help="with --builds hosted: a hosted build that fails runs its local build instead "
                              "(no second dispatch)")
@@ -940,6 +1052,9 @@ def parser():
     sp = sub.add_parser("start", help="create a run and run it up to the publish gate")
     scope_args(sp)
     sp.add_argument("--dry-run", action="store_true", help="print and record every command; run nothing")
+    sp.add_argument("--apple-results", metavar="DIR",
+                    help="the Apple hand-off results are already in DIR (the builder's dmgs, .sha256, REPORT): "
+                         "no job is sent, the hand-off steps take their results from there")
     sp.add_argument("--no-relmsg", action="store_true", help="no Telegram (the publish gate then stays closed)")
     sp.add_argument("--until", help="stop after this step")
     sp.add_argument("--run-source-check", action="store_true",

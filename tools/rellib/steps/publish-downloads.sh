@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # Step `publish-downloads` of tools/rel: uploads the run's release files to the download
 # server's downloads/ folder (root-owned 0644, like every release before), rewrites the server's
-# SHA256SUMS over every file there, and reads each new file back over HTTPS from both download
+# SHA256SUMS over every file there, and reads each file back over HTTPS from both download
 # addresses (the old one in app/tool/config/old-update.toml and [updates] downloads of
 # app/assets/config/app-config.toml). Touches neither the page nor the manifests. Idempotent.
+# Only the files the server lacks or holds with other bytes are sent (sha256sum there): a run that
+# adds files to a published release, or a retry, sends only those.
 # SHA256SUMS is signed (SHA256SUMS.sig beside it, minisign, the update key) when the run has a
 # signer (<run>/signer.json): the listing the manifests step had signed (manifests/SHA256SUMS,
 # the folder as it stands once pruned) is installed when every line of it matches the folder;
@@ -33,11 +35,19 @@ if [[ -f "$sj" && -f "$m/SHA256SUMS.sig" ]]; then
   python3 "$here/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$keyring" "$src/tools/release-files.py"
   signed=("$m/SHA256SUMS" "$m/SHA256SUMS.sig")
 fi
+# shellcheck disable=SC2029
+have="$(ssh "$host" "cd $dest && sha256sum -- ${files[*]} 2>/dev/null || true")"
+mapfile -t send < <(grep -Fxvf <(printf '%s\n' "$have") "$dir/SHA256SUMS" | cut -d' ' -f3- || true)
+echo "${#send[@]} of ${#files[@]} files to send${send:+: ${send[*]}}"
 ssh "$host" "mkdir -p ~/$stage"
-rsync -t "${files[@]/#/$dir/}" "${signed[@]}" "$host:$stage/"
+if (( ${#send[@]} + ${#signed[@]} > 0 )); then
+  rsync -t "${send[@]/#/$dir/}" "${signed[@]}" "$host:$stage/"
+fi
+install=""
+(( ${#send[@]} > 0 )) && install="sudo install -o root -g root -m 0644 ${send[*]} $dest/"
 # shellcheck disable=SC2029
 ssh "$host" "set -e; cd ~/$stage
-  sudo install -o root -g root -m 0644 ${files[*]} $dest/
+  $install
   cd $dest
   ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig -e SHA256SUMS.new | LC_ALL=C sort | xargs sha256sum | sudo tee SHA256SUMS.new >/dev/null
   sudo chmod 0644 SHA256SUMS.new"
@@ -74,7 +84,7 @@ else
   echo "SHA256SUMS: the folder's listing, signed now"
 fi
 # shellcheck disable=SC2029
-ssh "$host" "cd ~/$stage && rm -f ${files[*]} && cd && rmdir ~/$stage"
+ssh "$host" "cd ~/$stage && rm -f ${send[*]} && cd && rmdir ~/$stage"
 old="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["old_update"]["downloads"])' \
   "$src/app/tool/config/old-update.toml")"
 new="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["downloads"])' \

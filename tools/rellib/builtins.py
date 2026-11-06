@@ -114,11 +114,15 @@ def scope(engine, step, say):
     say("scope:", scope_summary(s))
     for w in engine.info.get("warnings", []):
         say("warning:", w)
+    fu = engine.info.get("follow_up") or {}
+    if fu:
+        say(f"follow-up of {fu['run_id']}: carries its {', '.join(fu['platforms'])} files")
     if engine.relmsg:
         for p in PLATFORMS:
             if not s["platforms"].get(p):
-                engine.relmsg.platform(p, "skipped", note="out of scope")
-    return {"status": "done", "note": scope_summary(s)[:200]}
+                engine.relmsg.platform(p, "skipped", note=f"carried from {fu['run_id']}" if p in fu.get("platforms", [])
+                                       else "out of scope")
+    return {"status": "done", "note": scope_summary(s)[:200] + (f"; follow-up of {fu['run_id']}" if fu else "")}
 
 
 # ---- G1 preflight -------------------------------------------------------------------------------
@@ -601,8 +605,15 @@ def artefacts(engine, step, say):
             problems.append(f"{name}: its step {s.id} is {stt}")
         elif name not in present:
             problems.append(f"{name}: missing from files/")
+    # A follow-up run (tools/rel start --follow-up) carries the published run's files unchanged.
+    carried = info.get("carried") or {}
+    for name, c in carried.items():
+        if name in expected:
+            problems.append(f"{name}: carried from {c['from']} and made by {expected[name][0].id}")
+        elif name not in present:
+            problems.append(f"{name}: carried from {c['from']}, missing from files/")
     for name in present:
-        if name not in expected:
+        if name not in expected and name not in carried:
             problems.append(f"{name}: not made by any step of this run")
     version = info["version"]
     want_code = None
@@ -656,6 +667,8 @@ def artefacts(engine, step, say):
         meta[name] = {"bytes": size, "sha256": run.status(s.id)["outputs"].get(name, {}).get("sha256") if s else None,
                       "step": s.id if s else None, "host": s.host if s else None,
                       "built_by": built_by(engine, s) if s else None}
+        if name in carried:
+            meta[name].update(sha256=carried[name]["sha256"], carried_from=carried[name]["from"])
     if "android" in [p for p in PLATFORMS if info["scope"]["platforms"].get(p)]:
         for s in run.steps:
             if s.base == "build-android" and not (never_published(run) and run.status(s.id)["status"] != "done"):
@@ -668,7 +681,9 @@ def artefacts(engine, step, say):
     for name in present:
         actual = sha256_file(os.path.join(run.files, name))
         if meta[name]["sha256"] and meta[name]["sha256"] != actual:
-            if accepted_change(run, name, meta[name]["sha256"], actual):
+            if name in carried:
+                problems.append(f"{name}: not the bytes {carried[name]['from']} published")
+            elif accepted_change(run, name, meta[name]["sha256"], actual):
                 meta[name]["unsigned_sha256"] = meta[name]["sha256"]
                 meta[name]["signed_by"] = "signer"
             else:
@@ -972,6 +987,11 @@ def gate_summary(engine):
     lines = [f"{'TEST ' if info.get('test') else ''}Epic Wallet {info['version']} — publish?",
              f"commit {info['commit'][:12]} · run {info['run_id']} · target {s['publish']['target']}",
              f"scope: {scope_summary(s)}", ""]
+    fu = info.get("follow_up") or {}
+    if fu:
+        lines[-1:-1] = [f"Follow-up of {fu['run_id']} ({fu.get('tag') or 'v' + info['version']}): its "
+                        f"{', '.join(fu['platforms'])} files are carried unchanged (sha256 checked); "
+                        "the new files are added beside them."]
     sums = os.path.join(run.files, "SHA256SUMS")
     if os.path.isfile(sums):
         lines.append("Files:")
