@@ -5337,8 +5337,8 @@
   "deskConLabelService": "บริการ",
   "deskConLabelDefault": "ค่าเริ่มต้น",
   "deskConLabelCurrent": "ป้ายกำกับ: {name}",
-  "contactDomain": "Domain",
-  "contactDomainVerified": "verified",
-  "contactDomainNotVerified": "not verified yet",
-  "contactDomainRefused": "refused"
+  "contactDomain": "โดเมน",
+  "contactDomainVerified": "ยืนยันแล้ว",
+  "contactDomainNotVerified": "ยังไม่ได้ยืนยัน",
+  "contactDomainRefused": "ถูกปฏิเสธ"
 }

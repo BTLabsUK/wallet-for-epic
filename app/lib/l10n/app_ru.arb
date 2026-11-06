@@ -5337,8 +5337,8 @@
   "deskConLabelService": "Сервис",
   "deskConLabelDefault": "По умолчанию",
   "deskConLabelCurrent": "Метка: {name}",
-  "contactDomain": "Domain",
-  "contactDomainVerified": "verified",
-  "contactDomainNotVerified": "not verified yet",
-  "contactDomainRefused": "refused"
+  "contactDomain": "Домен",
+  "contactDomainVerified": "подтверждён",
+  "contactDomainNotVerified": "ещё не подтверждён",
+  "contactDomainRefused": "отклонён"
 }

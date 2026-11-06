@@ -14588,16 +14588,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get contactDomain => 'Domain';
+  String get contactDomain => 'Домен';
 
   @override
-  String get contactDomainVerified => 'verified';
+  String get contactDomainVerified => 'подтверждён';
 
   @override
-  String get contactDomainNotVerified => 'not verified yet';
+  String get contactDomainNotVerified => 'ещё не подтверждён';
 
   @override
-  String get contactDomainRefused => 'refused';
+  String get contactDomainRefused => 'отклонён';
 
   @override
   String relayMoveTitle(String name) {

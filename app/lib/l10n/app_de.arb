@@ -5338,7 +5338,7 @@
   "deskConLabelDefault": "Standard",
   "deskConLabelCurrent": "Label: {name}",
   "contactDomain": "Domain",
-  "contactDomainVerified": "verified",
-  "contactDomainNotVerified": "not verified yet",
-  "contactDomainRefused": "refused"
+  "contactDomainVerified": "verifiziert",
+  "contactDomainNotVerified": "noch nicht verifiziert",
+  "contactDomainRefused": "abgelehnt"
 }

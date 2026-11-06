@@ -14610,16 +14610,16 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get contactDomain => 'Domain';
+  String get contactDomain => 'Domena';
 
   @override
-  String get contactDomainVerified => 'verified';
+  String get contactDomainVerified => 'zweryfikowana';
 
   @override
-  String get contactDomainNotVerified => 'not verified yet';
+  String get contactDomainNotVerified => 'jeszcze niezweryfikowana';
 
   @override
-  String get contactDomainRefused => 'refused';
+  String get contactDomainRefused => 'odrzucona';
 
   @override
   String relayMoveTitle(String name) {

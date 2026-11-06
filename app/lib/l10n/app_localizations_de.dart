@@ -14250,13 +14250,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactDomain => 'Domain';
 
   @override
-  String get contactDomainVerified => 'verified';
+  String get contactDomainVerified => 'verifiziert';
 
   @override
-  String get contactDomainNotVerified => 'not verified yet';
+  String get contactDomainNotVerified => 'noch nicht verifiziert';
 
   @override
-  String get contactDomainRefused => 'refused';
+  String get contactDomainRefused => 'abgelehnt';
 
   @override
   String relayMoveTitle(String name) {

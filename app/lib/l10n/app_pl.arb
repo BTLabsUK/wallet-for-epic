@@ -5337,8 +5337,8 @@
   "deskConLabelService": "Usługa",
   "deskConLabelDefault": "Domyślna",
   "deskConLabelCurrent": "Etykieta: {name}",
-  "contactDomain": "Domain",
-  "contactDomainVerified": "verified",
-  "contactDomainNotVerified": "not verified yet",
-  "contactDomainRefused": "refused"
+  "contactDomain": "Domena",
+  "contactDomainVerified": "zweryfikowana",
+  "contactDomainNotVerified": "jeszcze niezweryfikowana",
+  "contactDomainRefused": "odrzucona"
 }

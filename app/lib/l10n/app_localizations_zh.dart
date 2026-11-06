@@ -13256,16 +13256,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get contactDomain => 'Domain';
+  String get contactDomain => '域名';
 
   @override
-  String get contactDomainVerified => 'verified';
+  String get contactDomainVerified => '已验证';
 
   @override
-  String get contactDomainNotVerified => 'not verified yet';
+  String get contactDomainNotVerified => '尚未验证';
 
   @override
-  String get contactDomainRefused => 'refused';
+  String get contactDomainRefused => '已拒绝';
 
   @override
   String relayMoveTitle(String name) {
