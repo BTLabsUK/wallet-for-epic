@@ -70,6 +70,9 @@ UNLOCK = T("g4.unlock.submit", keys=("deskOnbUnlockButton",), names=("Unlock",))
 UNLOCK_WRONG = T("g4.unlock.wrong", role="text", keys=("deskOnbUnlockWrong",), match="starts")
 TOUR_SKIP = T("g4.tour.skip", keys=("deskTourSkip",), names=("Skip tour",))
 LAST_SESSION = T("g4.lastsession.notnow", keys=("deskLastSessionNotNow",), names=("Not now",))
+# The update strip above the page while a newer release is out (update_strip.dart, 26.11.x): its Update
+# would start a download mid-lane, and a Tab walk may land on it; × hides it for that version.
+UPDATE_STRIP_HIDE = T("g4.updatestrip.hide", keys=("deskUpdStripHide",), names=("Hide until the next version",))
 LEVEL_PICK = T("g4.level.title", role="text", keys=("lvPickTitle",), names=("Pick your view",))
 MAIN_NAV = T("g4.nav", role="other", keys=("deskShellMainNav",), names=("Main navigation",), match="exact")
 
@@ -206,7 +209,7 @@ class Desktop:
         self.password = self.phrase = None
         d = self.d
         d.obstacles += [(TOUR_SKIP, "the first-run tour"), (SETUP_SKIP, "the setup assistant"),
-                        (LAST_SESSION, "the last-session notice (left unsent)")]
+                        (LAST_SESSION, "the last-session notice (left unsent)"), (UPDATE_STRIP_HIDE, "the update strip")]
         d.not_folds |= self.section_names()   # Settings › Advanced is a page, not a folded section
         d.reopen = self._reopen
         self._picking = None   # (picker, typed) while a server is chosen: the stale-picker rule's context
