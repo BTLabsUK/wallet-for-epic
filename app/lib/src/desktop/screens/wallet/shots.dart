@@ -23,6 +23,8 @@ import 'activity_screen.dart';
 import '../../../contact_label.dart';
 import '../../../ui/contact_label_mark.dart' show contactLabelMarkKey;
 import '../pairing/add_to_contacts_button.dart' show deskAddToContactsKey, deskAddToContactsNewKey;
+import '../pairing/relay_move_dialog.dart' show DeskRelayMoveDialog;
+import '../../../pairing_fake.dart' show FakePairing;
 import 'contacts_screen.dart';
 import 'contacts_transfer.dart' show deskExportContacts, deskImportContacts;
 import 'outputs_dialogs.dart';
@@ -164,6 +166,34 @@ Future<void> _forgetPool(ProviderContainer c, BuildContext _) => c.read(deskProv
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
+
+/// The relay Anna moves to in the relay-move shots.
+const _movedRelay = 'box.northwind.example';
+
+/// Anna as a domain-backed contact asking to move to [_movedRelay]; [shown] closes the dialog
+/// without a choice, [refused] refuses it.
+Future<void> Function(ProviderContainer) _annaAsks({bool shown = false, bool refused = false}) => (c) async {
+  final api = c.read(deskApiProvider);
+  if (api is! MockDeskWallet) return;
+  final r = (await api.pairing.pairing(mockAnnaPairing))!;
+  api.pairing.seed(r.copyWith(peerEncKey: FakePairing.serviceKey));
+  await api.pairing.askRelayMove(mockAnnaPairing, _movedRelay);
+  if (shown) await api.pairing.markRelayMoveShown(mockAnnaPairing, _movedRelay);
+  if (refused) await api.pairing.refuseRelayMove(mockAnnaPairing, _movedRelay);
+  c.invalidate(deskPairingsProvider);
+};
+
+/// Anna, not domain-backed, moved to [_movedRelay] on her own: dated for 30 days.
+Future<void> _annaMoved(ProviderContainer c) async {
+  final api = c.read(deskApiProvider);
+  if (api is! MockDeskWallet) return;
+  await api.pairing.askRelayMove(mockAnnaPairing, _movedRelay);
+  c.invalidate(deskPairingsProvider);
+}
+
+/// [_annaMoved] for the Send shot of a contact that moved.
+const Future<void> Function(ProviderContainer) annaMovedForShots = _annaMoved;
+
 final List<DeskShot> walletShots = [
   // Wallet levels: Overview, Activity and the payment detail at Shallow and Deeper.
   DeskShot(id: '10-overview-l1', title: 'Overview, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive)),
@@ -367,6 +397,18 @@ final List<DeskShot> walletShots = [
     route: DeskRoute.contacts,
     arg: ContactsArgs(selectedId: 'c1'),
   ),
+  DeskShot(
+    id: '21m-dlg-relay-move',
+    title: 'A domain-backed contact moved relay: the request, Accept or Refuse',
+    route: DeskRoute.contacts,
+    arg: const ContactsArgs(selectedId: 'c1'),
+    before: _annaAsks(),
+    opensDialog: true,
+    dialog: (c) => showEDialog<bool>(c, builder: (_) => const DeskRelayMoveDialog(name: 'Anna Kowalska', relay: _movedRelay)),
+  ),
+  DeskShot(id: '21m-contact-relay-move-open', title: 'Contacts, a relay move closed without a choice: the request with Accept and Refuse', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), before: _annaAsks(shown: true)),
+  DeskShot(id: '21m-contact-relay-move-refused', title: 'Contacts, a refused relay move: the quiet line with Accept', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), before: _annaAsks(shown: true, refused: true)),
+  DeskShot(id: '21m-contact-relay-moved', title: 'Contacts, a contact that moved relay on its own: Moved here on', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), before: _annaMoved),
   DeskShot(id: '21f-contacts-pairing-service', title: 'Contacts, a paired service selected: no payments', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), before: _servicePairing),
   DeskShot(id: '21g-contact-labels-list', title: 'Contacts, labelled contacts marked on the avatar', route: DeskRoute.contacts, before: _labelled),
   DeskShot(id: '21g-contact-label-details', title: 'Contacts, an exchange selected: its label mark on the avatar', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c3'), before: _labelled),

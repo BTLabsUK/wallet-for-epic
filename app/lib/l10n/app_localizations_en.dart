@@ -14077,6 +14077,52 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String relayMoveTitle(String name) {
+    return '$name moved to a new relay';
+  }
+
+  @override
+  String relayMoveBody(String name, String relay) {
+    return '$name asks you to send to it through $relay from now on. If you refuse, nothing changes and $name is not told.';
+  }
+
+  @override
+  String relayMoveAddsServer(String relay) {
+    return 'Accept also adds $relay to your Epicbox servers.';
+  }
+
+  @override
+  String get relayMoveAccept => 'Accept';
+
+  @override
+  String get relayMoveRefuse => 'Refuse';
+
+  @override
+  String contactMoveAsked(String relay) {
+    return 'Asks to move to $relay';
+  }
+
+  @override
+  String contactMoveRefused(String relay) {
+    return 'You refused the move to $relay.';
+  }
+
+  @override
+  String contactMoveNotPublic(String relay) {
+    return 'Asked to move to $relay. Not followed: not a public relay.';
+  }
+
+  @override
+  String contactMovedOn(String date) {
+    return 'Moved here on $date';
+  }
+
+  @override
+  String sendViaMailboxMovedHint(String relay, String date) {
+    return 'Sealed. Delivered via $relay, moved here on $date';
+  }
+
+  @override
   String contactRelayDownTitle(String name) {
     return '$name’s Epicbox server is not answering';
   }
@@ -14713,11 +14759,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String noticeOutboxStuck(String name) {
     return 'Cannot reach $name yet. Retrying.';
-  }
-
-  @override
-  String noticeRelayMoveRefused(String name, String host) {
-    return '$name asks to move to relay $host. It is not in your Epicbox server list, so the move was not made.';
   }
 
   @override

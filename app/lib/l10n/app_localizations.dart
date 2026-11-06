@@ -22152,6 +22152,66 @@ abstract class AppLocalizations {
   /// **'Delivered via {relay}'**
   String contactDeliveredVia(String relay);
 
+  /// Title of the dialog (desktop) or sheet (phone) when a BT Labs service contact asks to move to another Epicbox relay.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} moved to a new relay'**
+  String relayMoveTitle(String name);
+
+  /// Body of that dialog or sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asks you to send to it through {relay} from now on. If you refuse, nothing changes and {name} is not told.'**
+  String relayMoveBody(String name, String relay);
+
+  /// Extra line of that dialog or sheet, shown when the relay is not in the user's Epicbox server list. Accept appends it; the server in use does not change.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept also adds {relay} to your Epicbox servers.'**
+  String relayMoveAddsServer(String relay);
+
+  /// Button: follow the contact to its new relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get relayMoveAccept;
+
+  /// Button: stay on the current relay; the contact is not told.
+  ///
+  /// In en, this message translates to:
+  /// **'Refuse'**
+  String get relayMoveRefuse;
+
+  /// Contact page line while a service's move request is open (the dialog or sheet was closed without a choice). Accept and Refuse follow.
+  ///
+  /// In en, this message translates to:
+  /// **'Asks to move to {relay}'**
+  String contactMoveAsked(String relay);
+
+  /// Contact page line after the user refused a service's move. An Accept button follows.
+  ///
+  /// In en, this message translates to:
+  /// **'You refused the move to {relay}.'**
+  String contactMoveRefused(String relay);
+
+  /// Contact page line when a contact asked to move to a relay that is not a public DNS name (an IP address, localhost, a local or .onion name). The move is not made.
+  ///
+  /// In en, this message translates to:
+  /// **'Asked to move to {relay}. Not followed: not a public relay.'**
+  String contactMoveNotPublic(String relay);
+
+  /// Under the contact's relay for 30 days after the contact moved to it. {date} is a day and month.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved here on {date}'**
+  String contactMovedOn(String date);
+
+  /// Under the sealed switch before sending, when the contact moved to this relay in the last 30 days. {date} is a day and month.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed. Delivered via {relay}, moved here on {date}'**
+  String sendViaMailboxMovedHint(String relay, String date);
+
   /// Notice on the contact page (cases file C-05).
   ///
   /// In en, this message translates to:
@@ -23111,12 +23171,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cannot reach {name} yet. Retrying.'**
   String noticeOutboxStuck(String name);
-
-  /// Docked warning when a contact asked to move to an Epicbox relay that is not in the user's server list; the contact stays on its current relay.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} asks to move to relay {host}. It is not in your Epicbox server list, so the move was not made.'**
-  String noticeRelayMoveRefused(String name, String host);
 
   /// Docked warning when a contact went over the request cap.
   ///

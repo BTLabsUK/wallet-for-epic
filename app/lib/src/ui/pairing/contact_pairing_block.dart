@@ -18,6 +18,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../providers.dart';
+import '../../relay_moves.dart' show relayLabelOf;
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../status_icons.dart' show EpicGlyphs;
@@ -26,6 +27,7 @@ import 'pair_check.dart';
 import 'pair_incoming.dart' show confirmCancelPairing;
 import 'pair_screen.dart';
 import 'pairing_parts.dart';
+import 'relay_move_sheet.dart' show acceptPhoneRelayMove, refusePhoneRelayMove;
 
 /// Keys for tests.
 const Key contactPagePairKey = ValueKey('contact-page-pair');
@@ -43,6 +45,10 @@ const Key contactPageUpdateAddressKey = ValueKey('contact-page-update-address');
 const Key contactPageDetachKey = ValueKey('contact-page-detach');
 const Key contactPageUnprovenKey = ValueKey('contact-page-unproven');
 const Key contactPagePairAgainUnprovenKey = ValueKey('contact-page-pair-again-unproven');
+const Key contactPageMoveAskedKey = ValueKey('contact-page-move-asked');
+const Key contactPageMoveAcceptKey = ValueKey('contact-page-move-accept');
+const Key contactPageMoveRefuseKey = ValueKey('contact-page-move-refuse');
+const Key contactPageMoveLineKey = ValueKey('contact-page-move-line');
 
 /// The Pairing section of [contact]: [pairing] is the record the contact uses (null for
 /// none), [pending] a request sent or an answer waiting for its confirm.
@@ -357,18 +363,41 @@ class ContactPairingBlock extends ConsumerWidget {
         ],
       ),
     );
+    // A relay move (`relay_moves.dart`): asked and open as a notice above; refused, not
+    // followed or made in the last 30 days as a quiet line under the relay.
+    final asked = p.requestedRelay;
+    final moveShown = asked == null ? null : relayLabelOf(asked);
+    final moveOpen = asked != null && (p.relayMove == RelayMoveState.ask || p.relayMove == RelayMoveState.open);
+    Future<void> acceptMove() => run(() => acceptPhoneRelayMove(ref, p, asked!));
+    Future<void> refuseMove() => run(() => refusePhoneRelayMove(ref, p, asked!));
+    final moveLine = paused || moveShown == null
+        ? (paused || p.movedAt == null ? null : l.contactMovedOn(localDayMonth(l, p.movedAt!)))
+        : switch (p.relayMove) {
+            RelayMoveState.refused => l.contactMoveRefused(moveShown),
+            RelayMoveState.notPublic => l.contactMoveNotPublic(moveShown),
+            _ => p.movedAt == null ? null : l.contactMovedOn(localDayMonth(l, p.movedAt!)),
+          };
     final relayRow = Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 6, 12),
       child: Row(
         children: [
           Icon(paused ? Icons.pause_circle_outline : Icons.alt_route, size: 20, color: t.dim),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay),
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                ),
+                if (moveLine != null)
+                  Text(moveLine, key: contactPageMoveLineKey, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+              ],
             ),
           ),
+          if (!paused && asked != null && p.relayMove == RelayMoveState.refused)
+            TextButton(key: contactPageMoveAcceptKey, onPressed: busy ? null : acceptMove, child: Text(l.relayMoveAccept)),
         ],
       ),
     );
@@ -422,6 +451,19 @@ class ContactPairingBlock extends ConsumerWidget {
             actions: [
               FilledButton.tonal(key: contactPageUpdateAddressKey, onPressed: busy ? null : updateAddress, child: Text(l.pairUpdateAddress)),
               OutlinedButton(key: contactPageDetachKey, onPressed: busy ? null : detach, child: Text(l.pairDetach)),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (moveOpen && !paused) ...[
+          PairEdgeNotice(
+            key: contactPageMoveAskedKey,
+            tone: BadgeTone.info,
+            title: l.contactMoveAsked(moveShown!),
+            body: l.relayMoveBody(name, moveShown),
+            actions: [
+              FilledButton.tonal(key: contactPageMoveAcceptKey, onPressed: busy ? null : acceptMove, child: Text(l.relayMoveAccept)),
+              OutlinedButton(key: contactPageMoveRefuseKey, onPressed: busy ? null : refuseMove, child: Text(l.relayMoveRefuse)),
             ],
           ),
           const SizedBox(height: 12),

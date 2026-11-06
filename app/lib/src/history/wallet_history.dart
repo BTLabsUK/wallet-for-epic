@@ -23,6 +23,7 @@ import 'export.dart';
 import 'name_service_pins.dart';
 import 'merge.dart';
 import 'meta_store.dart';
+import 'relay_move_book.dart';
 
 /// Public fingerprint of a wallet's seed, as the old core writes it in a history file: SHA-256
 /// of the text of its Epicbox key (the part of [epicboxAddress] before `@`), first 16 bytes.
@@ -433,6 +434,9 @@ class WalletHistory {
   /// The records of payments made from links, over this wallet's meta file; [onChange] runs
   /// after a change.
   LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MetaLinkPayments(_store, onChange: onChange);
+
+  /// The contacts' relay moves, over this wallet's meta file ([Meta.relayMoves]).
+  MoveLog relayMoveLog() => MetaMoveLog(_store);
 
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
   Set<String> favourites() => {...meta.favourites};
@@ -936,4 +940,24 @@ class WalletHistory {
   /// the confirmations its balance counts with.
   String csv(List<TxEntry> live, BigInt? tip, {int target = confirmationsTarget}) =>
       historyCsv(transactions(live), tip, target: target);
+}
+
+/// [MoveLog] over the meta file of the open wallet.
+class MetaMoveLog implements MoveLog {
+  MetaMoveLog(this.store);
+
+  final MetaStore store;
+
+  @override
+  RelayMoveBook get book => store.snapshot.relayMoves;
+
+  @override
+  Future<void> recordMove(String id, String from, String to, DateTime at) =>
+      store.update((m) => m.relayMoves.recordMove(id, from, to, at.millisecondsSinceEpoch));
+
+  @override
+  Future<void> markShown(String id, String relay) => store.update((m) => m.relayMoves.shown.add(relayMoveKey(id, relay)));
+
+  @override
+  Future<void> refuse(String id, String relay) => store.update((m) => m.relayMoves.refused.add(relayMoveKey(id, relay)));
 }

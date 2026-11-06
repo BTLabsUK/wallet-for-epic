@@ -44,8 +44,6 @@ final pairingApiProvider = Provider<PairingApi>((ref) {
   final session = ref.watch(sessionProvider);
   final api = session?.pairing ?? const NoPairing();
   api.setConnectionServers(ref.watch(hostSettingsProvider.select((s) => s.pairingServers)));
-  // A host added to the Epicbox list lets a move a contact asked for earlier go through.
-  ref.listen(hostSettingsProvider.select((s) => s.epicboxServers.map((e) => e.label).toList().join(',')), (_, _) => unawaited(api.followRelayMoves().catchError((Object _) {})));
   return api;
 });
 

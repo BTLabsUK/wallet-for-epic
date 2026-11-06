@@ -5,7 +5,7 @@
 ///
 /// Tests drive the other side with [answerInvite], [confirmAnswer], [hear], [peerMatch],
 /// [peerMismatch], [neverFinished], [removedByPeer], [receiveRequest], [failPending],
-/// [changeKeys], [restoreKeys], [setRelayDown], [secondAnswer] and [emit]. With
+/// [changeKeys], [restoreKeys], [setRelayDown], [askRelayMove], [secondAnswer] and [emit]. With
 /// [autoAnswerAfter] set, a request is answered and an answer confirmed on their own after
 /// that long, as the preview wants.
 library;
@@ -16,10 +16,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'name_service/wire.dart' show nsHelloUnsigned, withSignature;
-import 'key_picture.dart' show inviteKeyOf;
+import 'key_picture.dart' show btLabsKeys, inviteKeyOf;
 import 'models.dart';
 import 'pairing_api.dart';
 import 'recipient.dart';
+import 'relay_moves.dart';
 import 'sas_table.dart';
 import 'trust/policy.dart' show featureStatusNotices, statedAutomated;
 import 'wallet_service.dart' show FakeWalletSession, fakeTx;
@@ -87,8 +88,67 @@ class FakePairing implements PairingApi {
   @override
   void setConnectionServers(List<String>? hosts) => connectionServers = hosts == null ? null : List.unmodifiable(hosts);
 
+  /// The relay moves made, shown and refused, as the wallet's meta file keeps them.
+  MoveLog moves = MemoryMoveLog();
+
+  /// Moves [id] to [relay] and records it, as the core's `contactApplyRelayMove` and the adapter.
+  Future<void> _applyMove(PairingRecord r, String relay) async {
+    _put(r.copyWith(homeRelay: relayLabelOf(relay), clearRequestedRelay: true));
+    await moves.recordMove(r.id, relayLabelOf(r.homeRelay), relayLabelOf(relay), clock());
+  }
+
+  /// Makes each waiting move that goes without asking; true when one was made.
+  Future<bool> _settleMoves() async {
+    var moved = false;
+    for (final r in [...records]) {
+      final relay = r.requestedRelay;
+      if (relay == null || !movesSilently(r)) continue;
+      await _applyMove(r, relay);
+      calls.add('move:${r.id}');
+      moved = true;
+    }
+    return moved;
+  }
+
   @override
-  Future<void> followRelayMoves() async {}
+  Future<void> settleRelayMoves() async {
+    if (enabled && await _settleMoves()) emit(const PairingEvent(PairingEventKind.contactUpdated));
+  }
+
+  @override
+  Future<void> acceptRelayMove(String id, String relay) async {
+    _require('acceptRelayMove');
+    final r = _get(id);
+    if (r.requestedRelay == null || !isPublicRelayHost(relay)) return;
+    await _applyMove(r, relay);
+    calls.add('acceptMove:$id');
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+  }
+
+  @override
+  Future<void> refuseRelayMove(String id, String relay) async {
+    await moves.refuse(id, relayLabelOf(relay));
+    calls.add('refuseMove:$id');
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+  }
+
+  @override
+  Future<void> markRelayMoveShown(String id, String relay) async {
+    await moves.markShown(id, relayLabelOf(relay));
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+  }
+
+  /// Contact [id] asks to move to [relay] (its card names it), and the event settles it as
+  /// the adapter's does.
+  Future<void> askRelayMove(String id, String relay) async {
+    final r = _get(id);
+    _put(r.copyWith(requestedRelay: relay));
+    await _settleMoves();
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+  }
+
+  /// [r] with its move state and "moved here" date, as the adapter lists it.
+  PairingRecord _shown(PairingRecord r) => withRelayMoves(r, moves.book, clock());
 
   /// The contacts [checkContacts] asked, in order.
   final List<String> checked = [];
@@ -257,8 +317,16 @@ class FakePairing implements PairingApi {
   /// Adds [record] as if it had been paired before (a seeded wallet, a test).
   void seed(PairingRecord record) => _put(record);
 
+  /// The key of the first BT Labs service, for [seedPaired]'s `peerEncKey`.
+  static Uint8List get serviceKey {
+    final hex = btLabsKeys.first.keyHex;
+    return Uint8List.fromList([for (var i = 0; i < hex.length; i += 2) int.parse(hex.substring(i, i + 2), radix: 16)]);
+  }
+
   /// A paired contact in one call, for tests and the preview. [state] waiting leaves the peer
   /// unheard; ended needs [endedReason]. [unproven]: made before 26.10.25, no proven address.
+  /// [peerEncKey] one of [btLabsKeys] makes a BT Labs service ([isDomainBacked]);
+  /// [requestedRelay] is a move it asked for before the wallet opened, settled at the next list.
   PairingRecord seedPaired({
     bool unproven = false,
     required String name,
@@ -281,6 +349,8 @@ class FakePairing implements PairingApi {
     int? peerFeatures,
     int? peerProfile,
     bool inviter = false,
+    Uint8List? peerEncKey,
+    String? requestedRelay,
   }) {
     final rid = id ?? _id('pairing');
     final now = clock();
@@ -309,6 +379,8 @@ class FakePairing implements PairingApi {
       endedReason: ended ? (endedReason ?? PairingEndReason.peerMismatch) : null,
       endedAt: ended ? now.subtract(const Duration(hours: 1)) : null,
       relayDown: relayDown,
+      peerEncKey: peerEncKey,
+      requestedRelay: requestedRelay,
     );
     _put(record);
     return record;
@@ -567,7 +639,8 @@ class FakePairing implements PairingApi {
   @override
   Future<List<PairingRecord>> pairings() async {
     if (!enabled) return const [];
-    final snapshot = [...records];
+    if (records.any((r) => r.requestedRelay != null && movesSilently(r))) await _settleMoves();
+    final snapshot = [for (final r in records) _shown(r)];
     if (listDelay case final delay?) await Future<void>.delayed(delay);
     return snapshot;
   }
@@ -575,13 +648,15 @@ class FakePairing implements PairingApi {
   @override
   Future<PairingRecord?> pairing(String id) async {
     if (!enabled) return null;
-    return records.where((r) => r.id == id).firstOrNull ?? (standing?.id == id ? standing : null);
+    final r = records.where((r) => r.id == id).firstOrNull;
+    return r != null ? _shown(r) : (standing?.id == id ? standing : null);
   }
 
   @override
   Future<PairingRecord?> pairingForContact(String contactId) async {
     if (!enabled) return null;
-    return contactPairingOf(records, contactId);
+    final r = contactPairingOf(records, contactId);
+    return r == null ? null : _shown(r);
   }
 
   @override

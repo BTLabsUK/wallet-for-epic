@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 // Send to a contact that has only a pairing (DESIGN 1.2): the contact page's Send by the
 // pairing's state, Send with the pairing as recipient (its card, the mailbox readout, no
-// address), the queue while Epicbox is off, and "Waiting for Anna" on the payment's row.
+// address), the queue while Epicbox is off, "Waiting for Anna" on the payment's row, and a
+// relay move: the sheet, the contact page's lines and the moved date before Send.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
+import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'package:epic_wallet/src/ui/pairing/contact_pairing_block.dart';
+import 'package:epic_wallet/src/ui/pairing/relay_move_sheet.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -293,4 +298,118 @@ void main() {
       expect(find.textContaining(_l.txStatusWaitingRecipient, findRichText: true), findsOneWidget);
     });
   });
+
+  group('a contact moves to another relay', () {
+    const old = 'epicbox.epiccash.com';
+    const moved = 'box.example.org';
+
+    testWidgets('a domain-backed contact asks once; Accept adds the relay last and moves it', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
+      final p = (await h.session.pairing.pairings()).single;
+      expect(p.relayMove, RelayMoveState.ask);
+      await h.pump(tester, _Ask(p));
+      await tester.tap(find.byKey(_askKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(relayMoveSheetKey), findsOneWidget);
+      expect(find.text(_l.relayMoveTitle('Anna')), findsOneWidget);
+      expect(find.text(_l.relayMoveBody('Anna', moved)), findsOneWidget);
+      expect(find.text(_l.relayMoveAddsServer(moved)), findsOneWidget);
+      await tester.tap(find.byKey(relayMoveAcceptKey));
+      await tester.pumpAndSettle();
+      expect(h.session.pairing.calls, contains('acceptMove:p1'));
+      expect((await h.session.pairing.pairings()).single.homeRelay, moved);
+      final hosts = h.container(tester).read(hostSettingsProvider);
+      expect(hosts.epicboxLabels.last, moved);
+      expect(hosts.epicboxUse, isNot(moved), reason: 'never made the one in use');
+    });
+
+    testWidgets('Refuse moves nothing and adds no server', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
+      final p = (await h.session.pairing.pairings()).single;
+      await h.pump(tester, _Ask(p));
+      await tester.tap(find.byKey(_askKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(relayMoveRefuseKey));
+      await tester.pumpAndSettle();
+      expect(h.session.pairing.calls, contains('refuseMove:p1'));
+      final after = (await h.session.pairing.pairings()).single;
+      expect((after.homeRelay, after.relayMove), (old, RelayMoveState.refused));
+      expect(h.container(tester).read(hostSettingsProvider).epicboxLabels, isNot(contains(moved)));
+    });
+
+    testWidgets('closed without a choice: the request stays on the contact page and Accept there moves it', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
+      final p = (await h.session.pairing.pairings()).single;
+      await h.pump(tester, _Ask(p));
+      await tester.tap(find.byKey(_askKey));
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.byKey(relayMoveSheetKey))).pop();
+      await tester.pumpAndSettle();
+      expect((await h.session.pairing.pairings()).single.relayMove, RelayMoveState.open);
+
+      await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await _reach(tester, find.byKey(contactPageMoveAskedKey));
+      expect(find.text(_l.contactMoveAsked(moved)), findsOneWidget);
+      expect(find.byKey(contactPageMoveRefuseKey), findsOneWidget);
+      await _tap(tester, find.byKey(contactPageMoveAcceptKey));
+      expect(h.session.pairing.calls, contains('acceptMove:p1'));
+      expect(find.byKey(contactPageMoveAskedKey), findsNothing);
+    });
+
+    testWidgets('a refused move is a quiet line with Accept', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
+      await h.session.pairing.refuseRelayMove('p1', moved);
+      await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await _reach(tester, find.byKey(contactPageMoveLineKey));
+      expect(find.text(_l.contactMoveRefused(moved)), findsOneWidget);
+      expect(find.byKey(contactPageMoveAskedKey), findsNothing);
+      await _tap(tester, find.byKey(contactPageMoveAcceptKey));
+      expect(h.session.pairing.calls, contains('acceptMove:p1'));
+    });
+
+    testWidgets('a relay that is not public is not followed, and says so', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, requestedRelay: '192.168.1.20');
+      await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await _reach(tester, find.byKey(contactPageMoveLineKey));
+      expect(find.text(_l.contactMoveNotPublic('192.168.1.20')), findsOneWidget);
+      expect(find.byKey(contactPageMoveAcceptKey), findsNothing);
+    });
+
+    testWidgets('any other contact is moved without a word; the page and pre-send give the date', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, requestedRelay: moved);
+      final p = (await h.session.pairing.pairings()).single;
+      expect(p.homeRelay, moved);
+      final date = localDayMonth(_l, p.movedAt!);
+      await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await _reach(tester, find.byKey(contactPageMoveLineKey));
+      expect(find.text(_l.contactMovedOn(date)), findsOneWidget);
+      expect(find.byKey(contactPageMoveAskedKey), findsNothing);
+
+      await h.openSend(tester, 'p1');
+      expect(find.text(_l.sendViaMailboxMovedHint(moved, date)), findsOneWidget);
+      expect(find.text(_l.sendViaMailboxHint(moved)), findsNothing);
+    });
+  });
+}
+
+const Key _askKey = ValueKey('test-ask-move');
+
+/// A button that shows [p]'s relay move the way the pairing notices do.
+class _Ask extends ConsumerWidget {
+  const _Ask(this.p);
+
+  final PairingRecord p;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    body: Center(
+      child: TextButton(key: _askKey, onPressed: () => askPhoneRelayMove(context, ref, p), child: const Text('Ask')),
+    ),
+  );
 }

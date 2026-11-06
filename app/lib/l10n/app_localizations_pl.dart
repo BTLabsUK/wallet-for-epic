@@ -14610,6 +14610,52 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String relayMoveTitle(String name) {
+    return '$name ma nowy przekaźnik';
+  }
+
+  @override
+  String relayMoveBody(String name, String relay) {
+    return '$name prosi, żeby od teraz wysyłać przez $relay. Jeśli odmówisz, nic się nie zmieni, a $name się o tym nie dowie.';
+  }
+
+  @override
+  String relayMoveAddsServer(String relay) {
+    return 'Akceptacja doda też $relay do twoich serwerów Epicbox.';
+  }
+
+  @override
+  String get relayMoveAccept => 'Akceptuj';
+
+  @override
+  String get relayMoveRefuse => 'Odmów';
+
+  @override
+  String contactMoveAsked(String relay) {
+    return 'Prosi o przejście na $relay';
+  }
+
+  @override
+  String contactMoveRefused(String relay) {
+    return 'Przejście na $relay odrzucone.';
+  }
+
+  @override
+  String contactMoveNotPublic(String relay) {
+    return 'Prośba o przejście na $relay. Nie wykonano: to nie jest publiczny przekaźnik.';
+  }
+
+  @override
+  String contactMovedOn(String date) {
+    return 'Przejście tutaj: $date';
+  }
+
+  @override
+  String sendViaMailboxMovedHint(String relay, String date) {
+    return 'Zapieczętowane. Dostarczane przez $relay, przejście tutaj: $date';
+  }
+
+  @override
   String contactRelayDownTitle(String name) {
     return 'Serwer $name nie odpowiada';
   }
@@ -15264,11 +15310,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String noticeOutboxStuck(String name) {
     return 'Brak kontaktu z $name. Ponawianie próby.';
-  }
-
-  @override
-  String noticeRelayMoveRefused(String name, String host) {
-    return '$name prosi o przejście na przekaźnik $host. Nie ma go na twojej liście serwerów Epicbox, więc zmiany nie wykonano.';
   }
 
   @override

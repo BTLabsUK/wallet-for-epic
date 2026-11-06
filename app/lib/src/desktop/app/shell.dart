@@ -16,7 +16,7 @@ import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
-import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
+import '../../models.dart' show PairingCollectTrigger, PairingEventKind, PairingRecord;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../data/name_service_state.dart' show deskNameServiceProvider;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
@@ -26,6 +26,8 @@ import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, 
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
+import '../screens/pairing/relay_move_dialog.dart' show deskAskRelayMove;
+import '../../relay_moves.dart' show relayMoveToAsk;
 import '../../ui/invite_link_gate.dart';
 import '../../scan/incoming_link.dart' show incomingLinkProvider, linkBusyProvider;
 import '../../scan/scan_checks.dart' show CodeOrigin;
@@ -210,6 +212,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         final name = deskPairingName(c.record, ref.read(deskProvider).contacts, l: l);
         showEToast(context, c.takesPayments ? l.contactTakesPaymentsAgain(name) : l.contactNoPaymentsNamed(name), tone: ETone.info);
       }
+      // A domain-backed contact's relay move not shown yet: asked once, as a dialog.
+      final move = relayMoveToAsk(records);
+      if (move != null) unawaited(_askMove(move));
     }, fireImmediately: true);
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
@@ -297,6 +302,21 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.warn);
     } finally {
       _askingOld = false;
+    }
+  }
+
+  bool _askingMove = false;
+
+  Future<void> _askMove(PairingRecord p) async {
+    if (_askingMove) return;
+    _askingMove = true;
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      if (mounted) await deskAskRelayMove(context, ref, p);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.warn);
+    } finally {
+      _askingMove = false;
     }
   }
 

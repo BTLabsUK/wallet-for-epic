@@ -15,7 +15,8 @@ import '../../app/shell.dart' show deskRouteShown;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
-import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
+import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, RelayMoveState, SealMode, contactKinds, pairingVouchesFor;
+import '../../../relay_moves.dart' show relayLabelOf;
 import '../../../pairing_text.dart' show pairingEndedRowText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, NoPaymentsMark, PairPendingBadge, TrustBadge;
@@ -24,6 +25,7 @@ import '../../data/pairing_state.dart';
 import '../pairing/name_service_dialogs.dart' show DeskNameServiceBlock;
 import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
+import '../pairing/relay_move_dialog.dart' show deskAcceptRelayMove, deskRefuseRelayMove;
 import 'contact_label_menu.dart';
 import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
@@ -1451,9 +1453,35 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 : (verified && p.peerVerifiedAt != null)
                     ? l.pairConfirmedToo(name)
                     : l.pairNotChecked(name);
+    // A relay move (`relay_moves.dart`): asked and open as a notice; refused, not followed or
+    // made in the last 30 days as a quiet line on the relay row.
+    final asked = p.requestedRelay;
+    final moveShown = asked == null ? null : relayLabelOf(asked);
+    final moveOpen = asked != null && !paused && (p.relayMove == RelayMoveState.ask || p.relayMove == RelayMoveState.open);
+    final moveLine = paused
+        ? null
+        : switch (p.relayMove) {
+            RelayMoveState.refused when moveShown != null => l.contactMoveRefused(moveShown),
+            RelayMoveState.notPublic when moveShown != null => l.contactMoveNotPublic(moveShown),
+            _ => p.movedAt == null ? null : l.contactMovedOn(localDayMonth(l, p.movedAt!)),
+          };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (moveOpen) ...[
+          ENotice(
+            key: deskContactMoveAskedKey,
+            title: l.contactMoveAsked(moveShown!),
+            text: l.relayMoveBody(name, moveShown),
+            tone: ETone.info,
+            icon: EIcons.epicbox,
+            actions: [
+              EButton.primary(key: deskContactMoveAcceptKey, label: l.relayMoveAccept, size: EBtnSize.sm, onPressed: _busy ? null : () => _run(() => deskAcceptRelayMove(ref, p, asked))),
+              EButton(key: deskContactMoveRefuseKey, label: l.relayMoveRefuse, size: EBtnSize.sm, onPressed: _busy ? null : () => _run(() => deskRefuseRelayMove(ref, p, asked))),
+            ],
+          ),
+          SizedBox(height: Sp.x4),
+        ],
         if (changed) ...[
           ENotice(
             title: l.contactKeysChangedTitle(name),
@@ -1565,7 +1593,14 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                         }),
                 ),
               ),
-            ESetRow(title: paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay)),
+            ESetRow(
+              key: deskContactRelayKey,
+              title: paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay),
+              text: moveLine,
+              control: !paused && asked != null && p.relayMove == RelayMoveState.refused
+                  ? EButton(key: deskContactMoveAcceptKey, label: l.relayMoveAccept, size: EBtnSize.sm, onPressed: _busy ? null : () => _run(() => deskAcceptRelayMove(ref, p, asked)))
+                  : null,
+            ),
             if (unproven)
               ESetRow(
                 key: deskContactUnprovenKey,
@@ -1620,6 +1655,10 @@ const Key deskContactUnprovenKey = ValueKey('desk-contact-unproven');
 const Key deskContactPairAgainUnprovenKey = ValueKey('desk-contact-pair-again-unproven');
 const Key deskContactUpdateAddressKey = ValueKey('desk-contact-update-address');
 const Key deskContactDetachKey = ValueKey('desk-contact-detach');
+const Key deskContactMoveAskedKey = ValueKey('desk-contact-move-asked');
+const Key deskContactMoveAcceptKey = ValueKey('desk-contact-move-accept');
+const Key deskContactMoveRefuseKey = ValueKey('desk-contact-move-refuse');
+const Key deskContactRelayKey = ValueKey('desk-contact-relay');
 
 /// The Contacts header's Pair (secondary, glyph and label), and its key.
 const Key deskContactsPairKey = ValueKey('desk-contacts-pair');

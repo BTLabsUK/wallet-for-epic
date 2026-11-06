@@ -13256,6 +13256,52 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String relayMoveTitle(String name) {
+    return '$name 已切换到新的中继';
+  }
+
+  @override
+  String relayMoveBody(String name, String relay) {
+    return '$name 请你今后经 $relay 发送。如果拒绝，一切不变，$name 也不会收到通知。';
+  }
+
+  @override
+  String relayMoveAddsServer(String relay) {
+    return '接受后，$relay 也会加入你的 Epicbox 服务器列表。';
+  }
+
+  @override
+  String get relayMoveAccept => '接受';
+
+  @override
+  String get relayMoveRefuse => '拒绝';
+
+  @override
+  String contactMoveAsked(String relay) {
+    return '请求切换到 $relay';
+  }
+
+  @override
+  String contactMoveRefused(String relay) {
+    return '你拒绝了切换到 $relay。';
+  }
+
+  @override
+  String contactMoveNotPublic(String relay) {
+    return '请求切换到 $relay。未切换：不是公共中继。';
+  }
+
+  @override
+  String contactMovedOn(String date) {
+    return '$date 切换到此处';
+  }
+
+  @override
+  String sendViaMailboxMovedHint(String relay, String date) {
+    return '已密封。经 $relay 投递，$date 切换到此处';
+  }
+
+  @override
   String contactRelayDownTitle(String name) {
     return '$name 的服务器没有响应';
   }
@@ -13865,11 +13911,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String noticeOutboxStuck(String name) {
     return '暂时无法联系 $name。正在重试。';
-  }
-
-  @override
-  String noticeRelayMoveRefused(String name, String host) {
-    return '$name 请求切换到中继 $host。它不在你的 Epicbox 服务器列表中，因此未切换。';
   }
 
   @override

@@ -14,6 +14,8 @@ import 'import_tx_screen.dart';
 import 'receive_screen.dart';
 import 'send_code.dart' show CodeOrigin;
 import 'send_screen.dart';
+import '../wallet/shots.dart' show annaMovedForShots;
+import '../../data/mock_wallet.dart' show mockAnnaPairing;
 
 final _onion = 'http://$fakeWalletOnion';
 final _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox';
@@ -35,6 +37,7 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '13-send-l1', title: 'Send, Shallow', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5'), before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '13-send-l2', title: 'Send, Deeper', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5'), before: _level(WalletLevel.casual)),
   DeskShot(id: '13b-send-node-syncing', title: 'Send, node not synced', route: DeskRoute.send, arg: SendArgs(nodeSync: 0.62, recipient: _anna, amount: '12.5')),
+  DeskShot(id: '13w-send-pairing-moved', title: 'Send to a contact that moved relay: Delivered via, moved here on', route: DeskRoute.send, arg: const SendArgs(pairingTo: mockAnnaPairing, amount: '1', epicboxHealth: ServiceHealth.ok), before: annaMovedForShots),
   DeskShot(id: '13c-send-epicbox-off', title: 'Send, Epicbox not connected', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.off)),
   DeskShot(id: '13d-send-epicbox-down', title: 'Send, Epicbox down', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.down)),
   DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),

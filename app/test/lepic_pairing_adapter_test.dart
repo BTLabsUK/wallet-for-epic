@@ -3,10 +3,11 @@
 // messages, a pairing the other side removed, removal that tells it, and a key check that may
 // not run. No native library is loaded.
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/models.dart';
-import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
@@ -26,6 +27,7 @@ lepic.ContactView _view(
   lepic.ContactKind? kind,
   int? heard,
   int peerProfile = 0,
+  Uint8List? enc,
 }) => lepic.ContactView(
   contactId: id,
   label: '',
@@ -50,6 +52,7 @@ lepic.ContactView _view(
   appContact: app,
   homeRelay: relay,
   requestedRelay: requested,
+  peerEncKey: enc,
   importedFromBackup: false,
   lapsed: false,
   removedByPeer: removed,
@@ -433,77 +436,91 @@ void main() {
   });
 
   group('a contact asks to move to another relay', () {
-    late HostSettings before;
-    setUp(() {
-      before = hostSettings;
-      hostSettings = before.withValues(const {'epicbox.servers': <String>['listed.example.org']});
-    });
-    tearDown(() => hostSettings = before);
+    final domain = FakePairing.serviceKey;
 
-    const asked = lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: 'listed.example.org:443');
+    lepic.WalletEvent asked(String relay) => lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: relay);
 
-    test('a relay in the server list: the move is applied', () async {
-      wallet.paired.add(_view('c1', requested: 'listed.example.org:443'));
-      wallet.eventSink.add(asked);
+    test('any other contact to a public relay: moved without a word, and dated', () async {
+      wallet.paired.add(_view('c1', requested: 'new.example.org:443'));
+      wallet.eventSink.add(asked('new.example.org:443'));
       await _settle();
 
-      expect(wallet.moved, ['c1 listed.example.org:443']);
+      expect(wallet.moved, ['c1 new.example.org:443']);
       expect(seen.map((e) => e.kind), [PairingEventKind.contactUpdated]);
-      expect((await session.pairing.pairings()).single.homeRelay, 'listed.example.org:443');
-    });
-
-    test('a relay not in the list: not applied, the user is told which relay', () async {
-      wallet.paired.add(_view('c1', requested: 'other.example.org'));
-      wallet.eventSink.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: 'other.example.org'));
-      await _settle();
-
-      expect(wallet.moved, isEmpty);
-      expect(seen.single.kind, PairingEventKind.relayMoveRefused);
-      expect(seen.single.relay, 'other.example.org');
-      expect(seen.single.name, 'Bob');
-      // A pass over the contacts leaves it too.
-      expect((await session.pairing.pairings()).single.homeRelay, _relay);
-      expect(wallet.moved, isEmpty);
-    });
-
-    test('the port counts: the list has the default port only', () async {
-      wallet.paired.add(_view('c1', requested: 'listed.example.org:8443'));
-      wallet.eventSink.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: 'listed.example.org:8443'));
-      await _settle();
-
-      expect(wallet.moved, isEmpty);
-      expect(seen.single.kind, PairingEventKind.relayMoveRefused);
-    });
-
-    test('a pending move is applied once the list gains the host', () async {
-      wallet.paired.add(_view('c1', requested: 'later.example.org'));
-      await session.pairing.followRelayMoves();
-      expect(wallet.moved, isEmpty);
-
-      hostSettings = hostSettings.withValues(const {'epicbox.servers': <String>['listed.example.org', 'later.example.org']});
-      await session.pairing.followRelayMoves();
-
-      await _settle();
-
-      expect(wallet.moved, ['c1 later.example.org']);
-      expect(seen.map((e) => e.kind), [PairingEventKind.contactUpdated]);
-    });
-
-    test('loading the contacts applies a pending move to a listed relay', () async {
-      wallet.paired.add(_view('c1', requested: 'listed.example.org'));
       final r = (await session.pairing.pairings()).single;
-      expect(r.homeRelay, 'listed.example.org');
-      expect(wallet.moved, ['c1 listed.example.org']);
+      expect(r.homeRelay, 'new.example.org:443');
+      expect(r.movedAt, isNotNull);
+      expect(r.relayMove, RelayMoveState.none);
+    });
+
+    for (final host in ['192.168.1.20', 'localhost', 'box.local', 'relay.lan', 'x.internal', 'nas.home.arpa', 'abc.onion', 'relay']) {
+      test('a relay that is not a public DNS name ($host): not moved, a quiet line', () async {
+        wallet.paired.add(_view('c1', requested: host));
+        wallet.eventSink.add(asked(host));
+        await _settle();
+
+        expect(wallet.moved, isEmpty);
+        final r = (await session.pairing.pairings()).single;
+        expect((r.homeRelay, r.relayMove), (_relay, RelayMoveState.notPublic));
+        expect(wallet.moved, isEmpty);
+      });
+    }
+
+    test('a domain-backed contact: asked once, nothing moves until the user says', () async {
+      wallet.paired.add(_view('c1', requested: 'new.example.org', enc: domain));
+      wallet.eventSink.add(asked('new.example.org'));
+      await _settle();
+
+      expect(wallet.moved, isEmpty);
+      var r = (await session.pairing.pairings()).single;
+      expect((r.homeRelay, r.relayMove), (_relay, RelayMoveState.ask));
+
+      await session.pairing.markRelayMoveShown('c1', 'new.example.org');
+      r = (await session.pairing.pairings()).single;
+      expect(r.relayMove, RelayMoveState.open);
+      expect(wallet.moved, isEmpty);
+    });
+
+    test('Accept moves a domain-backed contact', () async {
+      wallet.paired.add(_view('c1', requested: 'new.example.org', enc: domain));
+      await session.pairing.acceptRelayMove('c1', 'new.example.org');
+
+      expect(wallet.moved, ['c1 new.example.org']);
+      final r = (await session.pairing.pairings()).single;
+      expect((r.homeRelay, r.relayMove), ('new.example.org', RelayMoveState.none));
+      expect(r.movedAt, isNotNull);
+    });
+
+    test('Refuse keeps the relay; a move to another relay asks again', () async {
+      wallet.paired.add(_view('c1', requested: 'new.example.org', enc: domain));
+      await session.pairing.refuseRelayMove('c1', 'new.example.org');
+
+      var r = (await session.pairing.pairings()).single;
+      expect((r.homeRelay, r.relayMove), (_relay, RelayMoveState.refused));
+      expect(wallet.moved, isEmpty);
+
+      wallet.paired[0] = _view('c1', requested: 'third.example.org', enc: domain);
+      r = (await session.pairing.pairings()).single;
+      expect(r.relayMove, RelayMoveState.ask);
+    });
+
+    test('a move waiting from before is settled when the contacts load', () async {
+      wallet.paired.add(_view('c1', requested: 'new.example.org'));
+      final r = (await session.pairing.pairings()).single;
+      expect(r.homeRelay, 'new.example.org');
+      expect(wallet.moved, ['c1 new.example.org']);
+    });
+
+    test('settleRelayMoves makes the silent moves and leaves the asked ones', () async {
+      wallet.paired.addAll([_view('c1', requested: 'new.example.org'), _view('c2', requested: 'other.example.org', enc: domain)]);
+      await session.pairing.settleRelayMoves();
+      await _settle();
+
+      expect(wallet.moved, ['c1 new.example.org']);
+      expect(seen.map((e) => e.kind), contains(PairingEventKind.contactUpdated));
     });
   });
   group('the contact check after a long gap', () {
-    late HostSettings before;
-    setUp(() {
-      before = hostSettings;
-      hostSettings = before.withValues(const {'epicbox.servers': <String>['listed.example.org']});
-    });
-    tearDown(() => hostSettings = before);
-
     const wait = Duration(milliseconds: 60);
     const every = Duration(milliseconds: 20);
     final longAgo = DateTime.now().millisecondsSinceEpoch - 86400000;
@@ -585,7 +602,7 @@ void main() {
       expect(wallet.collects.length, 1);
     });
 
-    test('an answer that names a listed relay is followed', () async {
+    test('an answer that names a public relay is followed', () async {
       wallet.paired.add(_view('shop', peerProfile: 2, heard: longAgo));
       wallet.onCollect = (only) => hear('shop', requested: 'listed.example.org:443');
 
@@ -596,16 +613,16 @@ void main() {
       expect((await session.pairing.pairings()).single.notAnswering, isFalse);
     });
 
-    test('an answer that names a relay not listed tells the user once', () async {
+    test('an answer that names a relay that is not public is not followed', () async {
       wallet.paired.add(_view('shop', peerProfile: 2, heard: longAgo));
-      wallet.onCollect = (only) => hear('shop', requested: 'other.example.org');
+      wallet.onCollect = (only) => hear('shop', requested: '10.0.0.7');
 
       final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
       await _settle();
 
       expect(outcomes['shop'], ContactCheckOutcome.moved);
       expect(wallet.moved, isEmpty);
-      expect(seen.where((e) => e.kind == PairingEventKind.relayMoveRefused).single.relay, 'other.example.org');
+      expect((await session.pairing.pairings()).single.relayMove, RelayMoveState.notPublic);
     });
   });
 }

@@ -9,6 +9,7 @@ import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
+import '../../../pairing_text.dart' show sendViaMailboxHintOf;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
@@ -2856,7 +2857,7 @@ class _PairingCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(l.sendViaMailbox(name), style: ts.body),
-                            Text(paused ? l.contactPausedEpicboxOff : l.sendViaMailboxHint(pairing.homeRelay), style: ts.small),
+                            Text(paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing), style: ts.small),
                           ],
                         )
                       : Text(
