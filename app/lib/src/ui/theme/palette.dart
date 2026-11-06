@@ -59,30 +59,39 @@ abstract final class PaletteDark {
   static const scrim = Color(0xB8050506);
   static const shadow = Color(0x66000000);
   static const glow = Color(0x52F6D471);
+
+  /// Dark has no resting shadow and no wash: a panel is its fill and hairline.
+  static const lift = Color(0x00000000);
+  static const wash = Color(0x00F6D471);
+  static const hero = Color(0x00000000);
+  static const tint = Color(0x00000000);
+  static const dots = Color(0x00000000);
 }
 
 /// The light set. Gold becomes an AA brown, amber a burnt orange well apart from it in hue
-/// (19° against the brown's 34°, so a warning never reads as the brand), the ticks charcoal.
-/// Fields are white wells with a [lineField] edge, as on the desktop.
+/// (19° against the brown's 34°, so a warning never reads as the brand), the ticks the same
+/// brown as the dark set's (the brand's frame, never charcoal). The window is a warm paper
+/// grey, a clear step under the white panels; fields are white wells with a [lineField] edge,
+/// as on the desktop.
 abstract final class PaletteLight {
-  static const bg = Color(0xFFF7F7F8);
+  static const bg = Color(0xFFEAE7E2);
   static const s1 = Color(0xFFFFFFFF);
   static const s2 = Color(0xFFFFFFFF);
   static const s3 = Color(0xFFEEEEF0);
   static const s4 = Color(0xFFFFFFFF);
-  static const line = Color(0xFFE0E0E4);
+  static const line = Color(0xFFD9D6D1);
   static const lineStrong = Color(0xFFC9C9D0);
   static const lineField = Color(0xFF868690);
   static const text = Color(0xFF1C1E21);
   static const dim = Color(0xFF55555F);
-  static const faint = Color(0xFF6B6B75);
+  static const faint = Color(0xFF65656F);
   static const accent = Color(0xFF8F5E1F);
   static const accentDeep = Color(0xFF8F5E1F);
   static const accentInk = Color(0xFFFFFFFF);
   static const accentText = Color(0xFF815525);
   static const accentSoft = Color(0x1F8F5E1F);
   static const accentFaint = Color(0x0D8F5E1F);
-  static const tick = Color(0xFF1C1E21);
+  static const tick = Color(0xFF8F5E1F);
   static const ok = Color(0xFF1F7A3A);
   static const okSoft = Color(0x1A1F7A3A);
   static const warn = Color(0xFFB54708);
@@ -101,8 +110,21 @@ abstract final class PaletteLight {
 
   static const hover = Color(0x0A000000);
   static const press = Color(0x12000000);
-  static const grid = Color(0x0D1C1E21);
+  static const grid = Color(0x081C1E21);
   static const scrim = Color(0x661C1E21);
   static const shadow = Color(0x1F1C1E21);
   static const glow = Color(0x298F5E1F);
+
+  /// [lift] is the one low shadow under a resting panel, so white panels sit on the paper
+  /// grey instead of dissolving into it; [wash] is the warm brand tint of the page backdrop
+  /// (desktop `DeskBackdrop`), at a strength that leaves text and panels crisp.
+  static const lift = Color(0x1F1C1E21);
+  static const wash = Color(0x408F5E1F);
+
+  /// Light only, transparent in dark: [hero] the warm fill the balance frame starts from,
+  /// [tint] the brand tint of an icon tile and the sidebar's selected item, [dots] the dot
+  /// texture of the page backdrop.
+  static const hero = Color(0xFFFBF2E0);
+  static const tint = Color(0x248F5E1F);
+  static const dots = Color(0x2E8F5E1F);
 }

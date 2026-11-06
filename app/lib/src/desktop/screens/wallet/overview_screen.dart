@@ -217,10 +217,13 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
       fill: restore == null || (s.txs?.isNotEmpty ?? false)
           ? BrandLattice(
-              color: context.dc.text,
+              // Light draws it in the brand brown, stronger: the text colour at the dark
+              // theme's alpha is a smudge on paper.
+              color: context.dc.wash.a == 0 ? context.dc.text : context.dc.accentDeep,
               strength: latticeStrength(txs?.length),
               cell: latticeCellDesktop.u,
               vignette: true,
+              gain: context.dc.wash.a == 0 ? 1 : 3,
             )
           : null,
       actions: [
