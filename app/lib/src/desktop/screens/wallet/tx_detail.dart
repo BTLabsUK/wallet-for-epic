@@ -134,7 +134,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ? (t.receivedOn != null ? l.txDetailsDeviceIn(t.receivedOn!) : l.txDetailsOtherWalletIn)
             : (t.unverified ? '${l.txDetailsOtherWallet} ${l.txDetailsUnverified}' : l.txDetailsOtherWallet))
       : t.immature
-      ? l.deskTxNowImmature(coinbaseMaturity)
+      ? l.deskTxNowImmature(t.maturity!)
       : switch (t.state) {
           TxState.waitingRecipient when t.undelivered => switch ((t.method, recipientRelay(t.counterparty ?? ''))) {
             (TxMethod.http || TxMethod.tor, _) => l.deskTxNowUndeliveredDirect(methodLabel(l, t.method)),
@@ -951,11 +951,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final at = t.startedAt ?? t.created;
     String hm(Duration d) => timeOf(Tx(id: 0, slateId: '', direction: t.direction, state: t.state, method: t.method, amount: 0, fee: 0, created: at.add(d)));
     if (t.coinbase || t.foundByScan) {
-      final left = coinbaseMaturity - t.confirmations;
       return [
         _Step(t.coinbase ? l.deskTxStepMined : foundTexts(l, t).step, _S.done, hm(Duration.zero), sub: t.coinbase ? null : foundTexts(l, t).note),
         if (t.coinbase)
-          _Step(l.deskTxStepSpendable, t.immature ? _S.now : _S.done, '', sub: t.immature ? l.deskTxStepBlocksToGo(left) : null)
+          _Step(l.deskTxStepSpendable, t.immature ? _S.now : _S.done, '', sub: t.immature ? l.deskTxStepBlocksToGo(t.blocksToMature) : null)
         else
           _Step(l.deskTxStepSpendable, _S.done, ''),
       ];

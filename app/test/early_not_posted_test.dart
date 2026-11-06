@@ -71,6 +71,7 @@ class _PostingWallet implements lepic.EpicWallet {
     outputCommits: const [],
     spentCommits: const [],
     unverified: false,
+    coinbase: false,
   );
 }
 

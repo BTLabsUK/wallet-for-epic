@@ -27,6 +27,7 @@ import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingByIdPro
 import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
 import '../settings_file/host_settings.dart' show hostSettings;
+import '../smart_outputs.dart' show rewardBlocksToGo, rewardMaturity;
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
@@ -744,6 +745,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final hidden = display.hidden;
     final tip = tipHeight(ref);
     final target = confirmationsTargetOf(ref);
+    // A mining reward's output, for the blocks to go until it can be spent.
+    final rewardOutput = tx.kind == TxKind.coinbase
+        ? ref.watch(walletOutputsProvider).value?.where((o) => tx.outputCommits.contains(o.commitment) || (tx.id != null && o.txId == tx.id)).firstOrNull
+        : null;
+    final rewardBlocks = rewardOutput == null ? null : rewardBlocksToGo(rewardOutput, tip);
     final chain = ref.watch(walletConfigProvider)?.chain;
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
@@ -937,8 +943,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     Text(
                       device
                           ? (hold != null ? l.txDeviceStatusHeld(deviceName) : l.txDeviceStatusMadeOn(deviceName))
+                          : rewardBlocks != null
+                          ? l.deskTxNowImmature(rewardMaturity(rewardOutput!))
                           : txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow),
                     ),
+                    if (rewardBlocks != null) ...[
+                      const SizedBox(height: 8),
+                      Text(l.deskTxStepBlocksToGo(rewardBlocks), style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim)),
+                    ],
                     if (device && tx.deviceEnding != null)
                       if (deviceEndingLine(l, tx.deviceEnding!, deviceName, tx.deviceWhy) case final line?) ...[
                         const SizedBox(height: 8),

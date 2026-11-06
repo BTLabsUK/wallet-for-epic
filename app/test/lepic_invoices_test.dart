@@ -191,6 +191,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
         outputCommits: const [],
         spentCommits: const [],
         unverified: false,
+        coinbase: false,
       ),
     );
     outbox.add(

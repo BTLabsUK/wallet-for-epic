@@ -61,6 +61,7 @@ lepic.TransactionDetails _tx({
   outputCommits: const [],
   spentCommits: const [],
   unverified: false,
+  coinbase: false,
 );
 
 /// LEPIC's wallet in memory: a paired shop, its invoices, transactions and a summary. Fails any
@@ -356,6 +357,7 @@ void main() {
           outputCommits: const [],
           spentCommits: const [],
           unverified: false,
+          coinbase: false,
         ),
       );
       Tx desk(core.TxEntry e) => deskTx(e, tip: 100, minConf: 3, fallbackId: -1);

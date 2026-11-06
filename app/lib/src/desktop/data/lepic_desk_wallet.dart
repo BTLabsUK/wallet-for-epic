@@ -2085,6 +2085,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (_session != session) return;
       final run = ++_reloads;
       final entries = await session.transactions(refresh: false);
+      await _readRewardLocks(session, entries);
       if (run == _reloads) _entries = entries;
       _lastUpdate = DateTime.now();
       _syncError = _nodeHealth == ServiceHealth.down ? DeskError.l10n((l) => l.deskErrNodeNoAnswer) : null;
@@ -2330,6 +2331,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<List<Tx>> transactions() async {
     final raw = _entries ?? await _open.transactions(refresh: false);
     _entries = raw;
+    await _readRewardLocks(_open, raw);
     final entries = _withDevices(raw);
     final contacts = await _open.contacts();
     // Any of a contact's addresses names it, as the address reads in a row (an onion with or
@@ -2342,8 +2344,41 @@ class LepicDeskWallet implements DeskWalletApi {
     final paired = entries.any((e) => e.pairingId != null) ? await _pairingNames(contacts) : const <String, String>{};
     return [
       for (final (i, e) in entries.indexed)
-        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[parseRecipient(e.counterparty ?? '').address] ?? paired[e.pairingId], cancelFinal: _cancelFinal[e.id]),
+        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[parseRecipient(e.counterparty ?? '').address] ?? paired[e.pairingId], cancelFinal: _cancelFinal[e.id], lockHeight: _rewardLockOf(e)),
     ];
+  }
+
+  /// Each mining reward's first spendable height, by its output's commitment: the core's lock
+  /// height, which carries the network's maturity. Read from the outputs once per new reward;
+  /// a spent reward's stays, its row keeps showing when it matured.
+  final Map<String, int> _rewardLocks = {};
+
+  /// Reward commitments the outputs did not have (the entry stays without a lock height), so a
+  /// reward is looked up once and not on every reload.
+  final Set<String> _rewardLockMisses = {};
+
+  Future<void> _readRewardLocks(core.WalletSession session, List<core.TxEntry> entries) async {
+    bool unknown(String c) => !_rewardLocks.containsKey(c) && !_rewardLockMisses.contains(c);
+    final rewards = entries.where((e) => e.kind == core.TxKind.coinbase);
+    if (!rewards.any((e) => e.outputCommits.any(unknown))) return;
+    try {
+      for (final o in await session.outputs()) {
+        if (o.isCoinbase) _rewardLocks[o.commitment] = o.lockHeight.toInt();
+      }
+      for (final e in rewards) {
+        _rewardLockMisses.addAll(e.outputCommits.where(unknown));
+      }
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'reward locks: ${e.kind.name}');
+    }
+  }
+
+  int? _rewardLockOf(core.TxEntry e) {
+    if (e.kind != core.TxKind.coinbase) return null;
+    for (final c in e.outputCommits) {
+      if (_rewardLocks[c] case final h?) return h;
+    }
+    return null;
   }
 
   /// Each pairing's name, by id: its address-book contact's, else the one it shows; none
@@ -5575,6 +5610,7 @@ class LepicDeskWallet implements DeskWalletApi {
       final summary = await session.summary(refresh: false, minimumConfirmations: _minConf);
       final entries = await session.transactions(refresh: false);
       final finals = await _cancelFinalOf(session, entries);
+      await _readRewardLocks(session, entries);
       // A later read is under way or done: it saw the newer state (a posted payment, LNX3-4).
       if (run != _reloads) return;
       _summary = summary;
@@ -5595,12 +5631,12 @@ class LepicDeskWallet implements DeskWalletApi {
     final entries = _withDevices(_entries ?? const <core.TxEntry>[]);
     _blockWaits.saw(entries, BigInt.from(_tip));
     return [
-      for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, wait: _waitOf(e), cancelFinal: _cancelFinal[e.id]),
+      for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, wait: _waitOf(e), cancelFinal: _cancelFinal[e.id], lockHeight: _rewardLockOf(e)),
     ];
   }
 
   Tx _txFor(core.TxEntry e) =>
-      _txs().where((t) => t.id == e.id && e.id != null).firstOrNull ?? deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1, wait: _waitOf(e), cancelFinal: _cancelFinal[e.id]);
+      _txs().where((t) => t.id == e.id && e.id != null).firstOrNull ?? deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1, wait: _waitOf(e), cancelFinal: _cancelFinal[e.id], lockHeight: _rewardLockOf(e));
 
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
@@ -5663,7 +5699,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf, String? heldBy}) {
 
 /// One history row as the desktop UI shows it. [tip] is the node's height, for confirmations.
 /// Rows without a local id (imported, restored) get [fallbackId], below 0.
-Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now, BlockWait wait = BlockWait.none, bool? cancelFinal}) {
+Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now, BlockWait wait = BlockWait.none, bool? cancelFinal, int? lockHeight}) {
   final sent = e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled;
   final fee = e.fee?.toInt() ?? 0;
   final height = e.blockHeight?.toInt();
@@ -5724,6 +5760,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     outputCommits: e.outputCommits,
     expiryHeight: e.ttlCutoffHeight?.toInt(),
     coinbase: e.kind == core.TxKind.coinbase,
+    lockHeight: e.kind == core.TxKind.coinbase ? lockHeight : null,
     otherWallet: e.origin == core.TxOrigin.otherWallet,
     unverified: e.unverified,
     foundByScan: e.source == core.TxSource.restored,

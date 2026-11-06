@@ -125,9 +125,6 @@ enum TxMethod { epicbox, http, tor, file }
 /// Who started a transaction: the sender ([payment]) or the receiver with a request ([invoice]).
 enum TxFlow { payment, invoice }
 
-/// Confirmations before a mining reward can be spent.
-const int coinbaseMaturity = 1440;
-
 enum OutputStatus { unconfirmed, confirming, unspent, immature, locked, spent }
 
 /// The word the Outputs page shows for an output, one place.
@@ -288,6 +285,7 @@ class Tx {
     this.proofSender,
     this.proofSignature,
     this.coinbase = false,
+    this.lockHeight,
     this.otherWallet = false,
     this.unverified = false,
     this.foundByScan = false,
@@ -399,8 +397,13 @@ class Tx {
   final String? proofSender;
   final String? proofSignature;
 
-  /// A mining reward: spendable only after [coinbaseMaturity] confirmations.
+  /// A mining reward: spendable only from [lockHeight].
   final bool coinbase;
+
+  /// A mining reward's first spendable height, from its output (the core adds the network's
+  /// maturity to the block that mined it); null for any other row, and for a reward whose
+  /// output is not read yet.
+  final int? lockHeight;
 
   /// Coins another wallet using this recovery phrase spent (a send) or received: the chain shows
   /// it and this wallet has no record. Confirmed, no counterparty, and for a send no fee known.
@@ -583,6 +586,7 @@ class Tx {
     proofSender: proofSender,
     proofSignature: proofSignature,
     coinbase: coinbase,
+    lockHeight: lockHeight,
     otherWallet: otherWallet,
     unverified: unverified,
     foundByScan: foundByScan,
@@ -616,7 +620,18 @@ class Tx {
     receivedOn: receivedOn,
   );
 
-  bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
+  /// A mining reward in a block the chain has not reached [lockHeight] for.
+  bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && lockHeight != null && _tip < lockHeight!;
+
+  /// Blocks until an [immature] reward can be spent; 0 for any other row.
+  int get blocksToMature => immature ? lockHeight! - _tip : 0;
+
+  /// Confirmations a reward needs before it can be spent (the network's maturity); null where
+  /// the row has no [lockHeight] or no block.
+  int? get maturity => lockHeight == null || height == null ? null : lockHeight! - height!;
+
+  /// The chain's height this row was counted at: its block plus the confirmations since.
+  int get _tip => (height ?? 0) + confirmations - 1;
 
   bool get incoming => direction == TxDirection.received;
   bool get pending => state == TxState.waitingRecipient || state == TxState.posted || state == TxState.confirming;

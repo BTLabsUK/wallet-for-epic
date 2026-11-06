@@ -20,6 +20,7 @@ void main() {
     created: DateTime(2026, 10, 28),
     otherWallet: true,
     unverified: unverified,
+    coinbase: false,
   );
 
   test('the row names an unverified send, and only a send', () {
