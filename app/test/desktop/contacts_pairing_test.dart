@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/settings_file/settings_providers.dart' show host
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show DeskPairedSaveDialog, deskConfirmRemovePairingKey, deskSaveContactNameKey, deskWay1SendKey;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
+import 'package:epic_wallet/src/history/domain_check_book.dart' show DomainStatus;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import '../support/experimental.dart';
@@ -150,6 +151,32 @@ void main() {
     expect(find.byKey(deskContactPairAgainKey), findsOneWidget);
     // The row's badge and the notice's title.
     expect(find.text(_l.trustNotAnswering), findsAtLeastNWidgets(2));
+  });
+
+  testWidgets('a proven domain shows under the name and in Pairing; a refused one only in Pairing', (tester) async {
+    await _contact(tester, 'c6');
+    final piotr = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c6');
+    for (final (status, under, word) in [
+      (DomainStatus.proven, findsOneWidget, _l.contactDomainVerified),
+      (DomainStatus.refused, findsNothing, _l.contactDomainRefused),
+    ]) {
+      _fake.seedPaired(
+        id: 'p-piotr',
+        name: 'Piotr',
+        contactId: 'c6',
+        state: PairingState.verified,
+        paymentsAddress: piotr.epicbox,
+        peerDomain: 'piotr.example',
+        domainStatus: status,
+      );
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      expect(find.byKey(deskContactHeaderDomainKey), under, reason: status.name);
+      if (under == findsOneWidget) {
+        expect(find.descendant(of: find.byKey(deskContactHeaderDomainKey), matching: find.text('piotr.example')), findsOneWidget);
+      }
+      expect(find.descendant(of: find.byKey(deskContactDomainKey), matching: find.text(word)), findsOneWidget, reason: status.name);
+    }
   });
 
   testWidgets('never finished: Remove drops it, the contact stays with Pair', (tester) async {

@@ -779,6 +779,22 @@ class _ContactDetail extends ConsumerWidget {
                     children: [
                       if (pairing != null && pairingVouchesFor(pairing, x.epicbox)) TrustBadge(pairing),
                       if (noPayments) const NoPaymentsBadge(),
+                      // Only a proven domain is shown here; claimed or refused is in the pairing's details.
+                      if (pairing != null && pairingVouchesFor(pairing, x.epicbox) && pairing.domainStatus == DomainStatus.proven)
+                        if (pairing.peerDomain case final domain?)
+                          Semantics(
+                            key: deskContactHeaderDomainKey,
+                            label: '$domain, ${l.contactDomainVerified}',
+                            excludeSemantics: true,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(EIcons.web, size: 14.u, color: c.dim),
+                                SizedBox(width: Sp.x1),
+                                Text(domain, style: ts.small),
+                              ],
+                            ),
+                          ),
                       if (service case final e? when e.joined && e.joinedAt != null)
                         Text(
                           l.nsJoined(e.payAsArg, x.name, MaterialLocalizations.of(context).formatMediumDate(e.joinedAt!.toLocal())),
@@ -1681,6 +1697,9 @@ const Key deskContactMoveAcceptKey = ValueKey('desk-contact-move-accept');
 const Key deskContactMoveRefuseKey = ValueKey('desk-contact-move-refuse');
 const Key deskContactRelayKey = ValueKey('desk-contact-relay');
 const Key deskContactDomainKey = ValueKey('desk-contact-domain');
+
+/// A proven domain under the contact's name.
+const Key deskContactHeaderDomainKey = ValueKey('desk-contact-header-domain');
 
 /// The Contacts header's Pair (secondary, glyph and label), and its key.
 const Key deskContactsPairKey = ValueKey('desk-contacts-pair');
