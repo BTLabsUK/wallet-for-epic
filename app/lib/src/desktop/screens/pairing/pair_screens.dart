@@ -76,6 +76,7 @@ const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
 const Key deskCheckLaterKey = ValueKey('desk-check-later');
 const Key deskSavedNotNowKey = ValueKey('desk-saved-not-now');
 const Key deskSavedAddToNamedKey = ValueKey('desk-saved-add-to-named');
+const Key deskSavedAddKey = ValueKey('desk-saved-add');
 const Key deskWay1SendKey = ValueKey('desk-way1-send');
 const Key deskWay1ShowInviteKey = ValueKey('desk-way1-show-invite');
 const Key deskRequestsPairKey = ValueKey('desk-requests-pair');
@@ -1464,9 +1465,10 @@ class DeskPairedSaveDialog extends ConsumerWidget {
         ],
       ),
       actions: [
-        // With a contact to offer, the × is Not now: the choices keep one line.
+        // With a contact to offer, the × is Not now: the choices keep one line. Add to contacts
+        // is keyed: saving a new contact brings the offer, and its save must run on.
         if (suggested == null) EButton(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
-        if (r != null) DeskAddToContactsButton(record: r, primary: suggested == null, size: EBtnSize.md, onSaved: () => Navigator.pop(context)),
+        if (r != null) DeskAddToContactsButton(key: deskSavedAddKey, record: r, primary: suggested == null, size: EBtnSize.md, onSaved: () => Navigator.pop(context)),
         if (suggested != null) ...[
           EButton.primary(
             key: deskSavedAddToNamedKey,

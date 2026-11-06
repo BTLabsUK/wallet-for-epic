@@ -113,9 +113,14 @@ class EDialog extends StatelessWidget {
         return r != 0 ? r : a.$1.compareTo(b.$1);
       });
     final lastPrimary = ordered.lastIndexWhere((e) => rank(e.$2) == 2);
+    // An action's own key keys its slot: one that moves when the footer changes (a button that
+    // comes or goes beside it) keeps its state, and its work in flight, instead of starting over.
+    final keys = [for (final a in actions) a.key];
+    Key? slot(Widget w) => w.key != null && keys.where((k) => k == w.key).length == 1 ? ValueKey<Key>(w.key!) : null;
     return [
       for (var i = 0; i < ordered.length; i++)
         EDialogActions(
+          key: slot(ordered[i].$2),
           kind: rank(ordered[i].$2) == 2 && i != lastPrimary ? EBtnKind.secondary : null,
           child: ordered[i].$2,
         ),

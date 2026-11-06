@@ -198,6 +198,9 @@ class FakePairing implements PairingApi {
   /// (up to 10 s for the relay).
   Duration? removeDelay;
 
+  /// When set, [attach] takes this long, as the core's call does while it writes the record.
+  Duration? attachDelay;
+
   /// When set, the other side answers requests and confirms answers on its own after this long.
   Duration? autoAnswerAfter;
 
@@ -1065,6 +1068,7 @@ class FakePairing implements PairingApi {
   Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) async {
     _require('attach');
     calls.add('attach');
+    if (attachDelay case final delay?) await Future<void>.delayed(delay);
     final fresh = _get(id);
     // The contact's Epicbox address decides first: a proven address of another key refuses,
     // and a contact with an address needs a proof to attach to.

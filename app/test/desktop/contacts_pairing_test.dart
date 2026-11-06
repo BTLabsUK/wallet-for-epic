@@ -4,6 +4,8 @@
 // its reason and the held send, Not paired with Pair, and deleting a paired contact removes
 // this wallet's pairing too. Also the Contacts rows' badges, the Experimental switch gone, and
 // a relay move: the dialog, the open request, the refused line and the moved date.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +22,7 @@ import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairin
 import 'package:epic_wallet/src/desktop/screens/pairing/add_to_contacts_button.dart';
 import 'package:epic_wallet/src/desktop/screens/pairing/relay_move_dialog.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
-import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show deskConfirmRemovePairingKey, deskSaveContactNameKey, deskWay1SendKey;
+import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show DeskPairedSaveDialog, deskConfirmRemovePairingKey, deskSaveContactNameKey, deskWay1SendKey;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -224,6 +226,28 @@ void main() {
       expect((await tester.runAsync(() => _pairing.pairing('p-zoe')))!.contactId, zoe.id);
     });
   }
+
+  testWidgets('the Verified dialog: Save as a new contact puts the pairing in it and closes, though the new contact changes the dialog', (tester) async {
+    await _open(tester, const ContactsScreen());
+    _fake.seedPaired(id: 'p-shop', name: 'Shop', state: PairingState.verified, paymentsAddress: 'esShopProvenKey@epicbox.epiccash.com');
+    // Frames run while the core attaches: the dialog rebuilds for the new contact meanwhile.
+    _fake.attachDelay = const Duration(milliseconds: 600);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    unawaited(showEDialog<void>(tester.element(find.byType(ContactsScreen)), builder: (_) => const DeskPairedSaveDialog(pairingId: 'p-shop', verified: true)));
+    await _real(tester);
+    final add = find.descendant(of: find.byType(DeskPairedSaveDialog), matching: find.byKey(deskAddToContactsKey));
+    await tester.tap(add);
+    await _real(tester);
+    await tester.tap(find.byKey(deskAddToContactsNewKey));
+    await _real(tester);
+    await tester.enterText(find.byKey(deskSaveContactNameKey), 'Shop');
+    await tester.tap(find.widgetWithText(EButton, _l.deskConSave));
+    await _real(tester);
+    final shop = _c.read(deskProvider).contacts!.singleWhere((x) => x.name == 'Shop');
+    expect((await tester.runAsync(() => _pairing.pairing('p-shop')))!.contactId, shop.id, reason: 'the pairing joins the contact the dialog made');
+    expect(find.byType(DeskPairedSaveDialog), findsNothing, reason: 'saved: the dialog closes, it does not offer "Add to Shop"');
+  });
 
   testWidgets('a pairing not in contacts: Add to contacts and a ⋯ menu, no row of buttons; a contact of its name is offered first; Remove pairing from the menu', (tester) async {
     await _open(tester, const ContactsScreen());
