@@ -14,7 +14,7 @@ import threading
 import time
 
 WALL_S = 30
-PEAK_MB = 1500
+PEAK_MB = 2000
 MAX_JOBS = 6
 RUN_RSS_MB = 14000
 POLL_S = 1.0

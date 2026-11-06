@@ -6,6 +6,7 @@ import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskTextScaler;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
+import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
@@ -35,7 +36,7 @@ void smokeWalletShots(List<(Size, double)> runs) {
           tester.view.reset();
           deskScale = deskBase;
         });
-        final container = ProviderContainer();
+        final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
         addTearDown(container.dispose);
         await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
         await tester.runAsync(() => container.read(deskOutputsProvider.future));
