@@ -13138,7 +13138,7 @@ abstract class AppLocalizations {
   /// Status line at the top of the transaction detail for a mining reward that is not yet spendable.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{Confirmed, but a mining reward is spendable only after {count} confirmation.} other{Confirmed, but a mining reward is spendable only after {count} confirmations.}}'**
+  /// **'{count, plural, one{Maturing. Spendable after {count} confirmation. A reward can be lost if its block is replaced before that.} other{Maturing. Spendable after {count} confirmations. A reward can be lost if its block is replaced before that.}}'**
   String deskTxNowImmature(int count);
 
   /// Status line on the transaction detail: an incoming payment this wallet signed and sent back.

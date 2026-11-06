@@ -41,7 +41,7 @@
   "deskTxSemKind": "{kind} {amount}, {who}, {status}",
   "deskTxHiddenAmount": "จำนวนที่ซ่อนไว้",
   "deskTxNowBackup": "นำเข้าจากไฟล์ข้อมูลกระเป๋าเงิน ยังไม่ได้ตรวจสถานะบนเชน",
-  "deskTxNowImmature": "{count, plural, other{ยืนยันแล้ว แต่รางวัลการขุดใช้ได้หลังยืนยันครบ {count} ครั้ง}}",
+  "deskTxNowImmature": "{count, plural, other{รอครบกำหนด ใช้ได้หลังยืนยันครบ {count} ครั้ง รางวัลอาจสูญหายได้หากบล็อกของรางวัลถูกแทนที่ก่อนถึงตอนนั้น}}",
   "deskTxNowWaitingSender": "รอให้ผู้ส่งส่งรายการเข้าเครือข่าย",
   "deskTxNowSenderPosted": "ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อเครือข่ายยืนยัน",
   "deskTxNowWaitingResponseFile": "รอไฟล์ตอบกลับ ทำรายการให้เสร็จเมื่อได้รับ",

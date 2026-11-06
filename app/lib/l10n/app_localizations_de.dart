@@ -8460,9 +8460,9 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Bestätigt, aber eine Mining-Belohnung ist erst nach $countString Bestätigungen verfügbar.',
+          'Reift. Verfügbar nach $countString Bestätigungen. Eine Belohnung kann verloren gehen, wenn ihr Block vorher ersetzt wird.',
       one:
-          'Bestätigt, aber eine Mining-Belohnung ist erst nach $countString Bestätigung verfügbar.',
+          'Reift. Verfügbar nach $countString Bestätigung. Eine Belohnung kann verloren gehen, wenn ihr Block vorher ersetzt wird.',
     );
     return '$_temp0';
   }
