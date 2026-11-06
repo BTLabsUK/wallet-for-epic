@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Test files over the budget in tools/tlib/budget.py (docs/TESTING.md, "Budgets").
+# <test> <wall ceiling in s> <slow|keep> <reason>
+# slow: left out of tools/t affected unless the file itself changed; tools/t full runs it, so the
+# nightly and the candidate do. keep: stays in the selection, with this ceiling.
+# A new line is an exception: the lead who merges reads its reason. Seeded from full run 3c02b28b49.
+test/desktop/controls_sweep_settings_2_test.dart 573 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/controls_sweep_wallet_test.dart 483 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/wallet_smoke_scaled_test.dart 386 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/controls_sweep_settings_test.dart 380 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/wallet_smoke_test.dart 345 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/one_primary_test.dart 174 slow walks every shot of the catalogue; split or cheaper later
+test/home_test.dart 149 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/transfer_smoke_test.dart 95 slow walks every shot of the catalogue; split or cheaper later
+test/desktop/contacts_pairing_test.dart 85 keep large screen file; recorded cost at seeding
+test/settings_test.dart 84 keep large screen file; recorded cost at seeding
+test/desktop/grid_test.dart 84 keep large screen file; recorded cost at seeding
+test/desktop/settings_smoke_test.dart 64 keep large screen file; recorded cost at seeding
+test/trust_ids_semantics_test.dart 63 keep large screen file; recorded cost at seeding
+test/desktop/pair_screens_test.dart 56 keep large screen file; recorded cost at seeding
+test/desktop/l10n_layout_test.dart 55 keep large screen file; recorded cost at seeding
+test/send_methods_test.dart 55 keep large screen file; recorded cost at seeding
+test/desktop/onboarding_smoke_test.dart 49 keep large screen file; recorded cost at seeding
+test/send_test.dart 49 keep large screen file; recorded cost at seeding
+test/wallet_flow_test.dart 47 keep large screen file; recorded cost at seeding
+test/offline/desk_screens_offline_test.dart 46 keep large screen file; recorded cost at seeding

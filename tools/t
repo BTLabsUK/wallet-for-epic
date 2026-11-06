@@ -37,7 +37,7 @@ ROOT = os.path.dirname(TOOLS)
 sys.path.insert(0, TOOLS)
 
 import flutter_test_order as order  # noqa: E402
-from tlib import cache, graph as g, history, report, select, variants, watch  # noqa: E402
+from tlib import budget, cache, graph as g, history, report, select, variants, watch  # noqa: E402
 
 APP = os.path.join(ROOT, "app")
 RESULTS = os.path.join(ROOT, ".test-results")
@@ -192,13 +192,13 @@ def heavy(env):
 
 def jobs(n_files, wanted):
     if wanted:
-        return max(1, min(wanted, n_files))
+        return max(1, min(wanted, n_files, budget.MAX_JOBS))
     j = os.environ.get("FLUTTER_TEST_JOBS")
     if j and j.isdigit() and int(j) > 0:
-        return int(j)
+        return min(int(j), budget.MAX_JOBS)
     # Three quarters of the logical CPUs, at most 8: three quarters of 16 threads kept a 16-thread
     # machine at 96 % CPU.
-    return max(1, min(n_files, 8, (os.cpu_count() or 4) * 3 // 4))
+    return max(1, min(n_files, budget.MAX_JOBS, (os.cpu_count() or 4) * 3 // 4))
 
 
 def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_name="latest.events.jsonl",
@@ -232,6 +232,13 @@ def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_
             print(w.line(time.time() - (started or t0)), flush=True)
 
     threading.Thread(target=progress, daemon=True).start()
+
+    def over_run_limit(message):
+        print(f"tools/t: budget: {message}", file=sys.stderr, flush=True)
+        run.aborted = {"file": "(run limit)", "message": message, "count": 1}
+        stop_group(proc)
+
+    sampler = budget.Sampler(APP, over_run_limit).start()
     try:
         with open(events_path, "w", encoding="utf-8") as ev:
             for line in proc.stdout:
@@ -253,6 +260,7 @@ def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_
         raise
     finally:
         stop.set()
+        MEASURED.extend(sampler.stop())
     end = time.time()
     started = started or t0
     try:
@@ -275,6 +283,7 @@ def stop_group(proc):
 
 
 MAX_RETRY_FILES = 20
+MEASURED = []  # budget.Sampler's files of this tools/t process
 RETRY_JOBS = 2
 
 
@@ -448,7 +457,11 @@ def cmd_affected(args):
     changed = select.changed_files(ROOT, base)
     gr = g.Graph(ROOT, select.repo_files(ROOT))
     sel = select.select(ROOT, changed, base=base, graph=gr, closure=args.closure)
-    tests = sorted(sel.tests)
+    tests, slow = sorted(sel.tests), []
+    if not args.closure:
+        tests, slow = budget.drop_slow(tests, set(changed), budget.read_allow(ROOT))
+    if slow:
+        sel.notes.append(f"{len(slow)} slow tests left to the nightly and the candidate ({budget.ALLOW})")
     n_sent = sum(1 for r in sel.tests.values() if r == "sentinel")
     line = (f"selection: {len(tests)} tests ({len(tests) - n_sent} reached by the change, {n_sent} sentinels) "
             f"for {len(changed)} changed files vs {args.base} ({base[:10]})")
@@ -550,6 +563,17 @@ def cmd_goldens(args):
     return code
 
 
+def budget_gate(code, args):
+    """A new or changed test file over its budget fails the run (tlib/budget.py); no flag skips it."""
+    changed = set(select.changed_files(ROOT, select.merge_base(ROOT, args.base)))
+    os.makedirs(RESULTS, exist_ok=True)
+    broken = budget.gate(RESULTS, MEASURED, changed, budget.read_allow(ROOT))
+    for m in broken:
+        print(f"tools/t: over budget: {m} (make it cheaper, then tools/t file --no-cache it; "
+              f"or an exception with its reason in {budget.ALLOW})", file=sys.stderr)
+    return code or (1 if broken else 0)
+
+
 def main(argv):
     p = argparse.ArgumentParser(prog="tools/t", add_help=True,
                                 description="Run the app's Flutter tests (docs/TESTING.md).")
@@ -576,8 +600,9 @@ def main(argv):
         with worktree_lock() if not (args.list or args.command == "flaky") else contextlib.nullcontext():
             if args.command == "flaky":
                 return cmd_flaky(args)
-            return {"affected": cmd_affected, "file": cmd_file, "full": cmd_full,
+            code = {"affected": cmd_affected, "file": cmd_file, "full": cmd_full,
                     "goldens": cmd_goldens}[args.command](args)
+            return code if args.list else budget_gate(code, args)
     except Usage as e:
         print(f"tools/t: {e}", file=sys.stderr)
         return 2
