@@ -14,6 +14,10 @@ A test (app/test/**/*_test.dart) depends on its transitive closure plus every
 flutter_test_config.dart above it. It is affected when a changed path is in its closure, is one of
 its data files or lies under one of its data folders.
 
+Those closures reach most of the suite from most files, so tools/t's default selection does not use
+them: it asks direct(), the files a test itself imports (with what they export), and its own data.
+Only `tools/t affected --closure` walks the closure.
+
 Paths are repository-relative, with forward slashes.
 """
 import os
@@ -140,6 +144,7 @@ class Graph:
                 self.dirs.add(d)
                 d = os.path.dirname(d)
         self.edges = {}  # dart file -> set of dart files (or PKG_LEPIC)
+        self.surface = {}  # dart file -> what it exports or holds as parts
         self.data_files = {}  # dart file -> set of files
         self.data_dirs = {}  # dart file -> set of folders
         self.sources = {}  # dart file -> text
@@ -163,13 +168,16 @@ class Graph:
             return
         self.sources[f] = src
         heads, body = directives(src)
-        deps = set()
+        deps, surface = set(), set()
         for d in heads:
             for u in uris(d):
                 r = resolve(u, f)
                 if r:
                     deps.add(r)
+                    if d.lstrip().startswith(("export", "part")):
+                        surface.add(r)
         self.edges[f] = deps
+        self.surface[f] = surface
         self.data_files[f], self.data_dirs[f] = data_deps(body, f, self._exists)
 
     def tests(self):
@@ -216,6 +224,22 @@ class Graph:
             files |= self.data_files.get(f, set())
             dirs |= self.data_dirs.get(f, set())
         return clo, files, dirs
+
+    def direct(self, test):
+        """The test, what it imports, and what those files export or hold as parts: no further."""
+        seen = set()
+        stack = [test, *self.edges.get(test, ())]
+        while stack:
+            f = stack.pop()
+            if f not in seen:
+                seen.add(f)
+                stack.extend(self.surface.get(f, ()))
+        return seen
+
+    def reads(self, test, path):
+        """Does the test's own source name this path, or a folder above it, as data?"""
+        return path in self.data_files.get(test, ()) or \
+            any(path.startswith(d + "/") for d in self.data_dirs.get(test, ()))
 
     def hit(self, test, changed, data_only=()):
         """The first changed path (sorted) that affects `test`, or None. Paths in `data_only`
