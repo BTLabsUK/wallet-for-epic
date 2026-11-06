@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "等待 {name} 的钱包",
   "pairAnsweredNotHeard": "已回复你的邀请 · 尚无消息",
   "pairNotChecked": "{name} 尚未核对",
+  "contactTakesPaymentsAgain": "{name} 现在接受付款。",
+  "pairIsService": "自动化服务。",
   "pairConfirmedToo": "{name} 也已确认。",
   "pairEndedShort": "配对已结束",
   "pairEndedMismatch": "你报告了词语不一致。",
@@ -5318,5 +5320,12 @@
   "pairEndedRowPeerMismatch": "报告了词语不一致。",
   "pairEndedRowNeverFinished": "其钱包始终未完成。",
   "pairEndedRowUnpaired": "已移除配对。",
-  "deskSendErrOwnNamed": "这是当前打开的钱包“{wallet}”。要向它付款，请先打开另一个钱包。"
+  "deskSendErrOwnNamed": "这是当前打开的钱包“{wallet}”。要向它付款，请先打开另一个钱包。",
+  "deskConLabelTitle": "标签",
+  "deskConLabelWallet": "普通钱包",
+  "deskConLabelExchange": "交易所",
+  "deskConLabelVendor": "商家",
+  "deskConLabelService": "服务",
+  "deskConLabelDefault": "默认",
+  "deskConLabelCurrent": "标签：{name}"
 }

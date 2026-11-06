@@ -36,6 +36,7 @@ import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'src/desktop/data/desk_levels.dart';
 import 'src/desktop/data/name_service_state.dart' show deskNameServices, deskLinkPayments;
+import 'src/desktop/data/pairing_state.dart' show deskPairingRefusalsProvider;
 import 'src/name_service/membership.dart' show nameServiceMembershipProvider;
 import 'src/name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import 'src/name_service/receipts.dart' show nameServiceReceiptsProvider, linkPaymentRecordsProvider;
@@ -78,7 +79,7 @@ Future<void> main(List<String> args) async {
     await loadShippedSettings();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
-    runApp(ProviderScope(overrides: [launch, nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskNameServices.refusals)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
+    runApp(ProviderScope(overrides: [launch, nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
@@ -243,7 +244,7 @@ Future<List<Override>> deskOverrides() async {
     deskApiProvider.overrideWithValue(wallet),
     // What the rest of the app may ask of the name services the open wallet joined.
     nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)),
-    paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskNameServices.refusals)),
+    paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)),
     nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)),
     linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)),
     // The balance line's dollars (overview_screen.dart), not the phone's fiat settings; none on

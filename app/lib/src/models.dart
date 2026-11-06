@@ -9,6 +9,7 @@ import 'dart:typed_data';
 
 import 'package:characters/characters.dart';
 
+import 'contact_label.dart';
 import 'recipient.dart';
 
 /// Why a payment was cancelled.
@@ -46,6 +47,9 @@ class Contact {
   final String name;
   final String? note;
 
+  /// The user's label for this contact; display only, never sent anywhere.
+  final ContactLabel label;
+
   /// `<key>@<relay>`.
   final String? epicbox;
 
@@ -66,6 +70,7 @@ class Contact {
     String? http,
     String? tor,
     this.note,
+    this.label = ContactLabel.wallet,
   }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
        http = _blank(http) ?? _ofKind(address, RecipientKind.http),
        tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
@@ -102,6 +107,7 @@ class Contact {
     id: id,
     name: name,
     note: note,
+    label: label,
     epicbox: kind == RecipientKind.epicbox ? value : epicbox,
     http: kind == RecipientKind.http ? value : http,
     tor: kind == RecipientKind.tor ? value : tor,
@@ -113,17 +119,19 @@ class Contact {
     String? name,
     String? note,
     bool clearNote = false,
+    ContactLabel? label,
   }) => Contact(
     id: id ?? this.id,
     name: name ?? this.name,
     note: clearNote ? null : note ?? this.note,
+    label: label ?? this.label,
     epicbox: epicbox,
     http: http,
     tor: tor,
   );
 
   @override
-  int get hashCode => Object.hash(id, name, note, epicbox, http, tor);
+  int get hashCode => Object.hash(id, name, note, label, epicbox, http, tor);
 
   @override
   bool operator ==(Object other) =>
@@ -133,6 +141,7 @@ class Contact {
           id == other.id &&
           name == other.name &&
           note == other.note &&
+          label == other.label &&
           epicbox == other.epicbox &&
           http == other.http &&
           tor == other.tor;
@@ -2956,6 +2965,7 @@ enum PairingEndReason {
 }
 
 /// What the other side's card says it is (card tag 03).
+@Deprecated('Kept so stores, backups and linked-device payloads still read; the card profile (peerProfile) says automated and no payments, and nothing is decided by this.')
 enum PairingParty { person, shop, exchange }
 
 /// Seal payments for a contact (RFC 7.6, 9.3).
@@ -3067,6 +3077,7 @@ class PairingRecord {
     this.peerHeardAt,
     this.peerVerifiedAt,
     this.peerFeatures = 0,
+    this.peerProfile = 0,
     this.endedReason,
     this.endedAt,
     this.relayDown = false,
@@ -3142,6 +3153,11 @@ class PairingRecord {
   /// The other wallet's feature bits as this pairing holds them (0: none received). The app
   /// reads them through the trust policy only.
   final int peerFeatures;
+
+  /// The profile word of the contact's card (tag `0x80`, 0 when absent): what the contact says
+  /// about itself. Decoded from the stored card on every read, never stored by the app. Read
+  /// through the trust policy only (`statedNoPayments`, `statedAutomated`).
+  final int peerProfile;
 
   /// Set once the pairing ended; the state is then [PairingState.ended].
   final PairingEndReason? endedReason;
@@ -3222,6 +3238,7 @@ class PairingRecord {
     DateTime? peerVerifiedAt,
     bool clearPeerVerified = false,
     int? peerFeatures,
+    int? peerProfile,
     PairingEndReason? endedReason,
     DateTime? endedAt,
   }) => PairingRecord(
@@ -3249,6 +3266,7 @@ class PairingRecord {
     peerHeardAt: peerHeardAt ?? this.peerHeardAt,
     peerVerifiedAt: clearPeerVerified ? null : peerVerifiedAt ?? this.peerVerifiedAt,
     peerFeatures: peerFeatures ?? this.peerFeatures,
+    peerProfile: peerProfile ?? this.peerProfile,
     endedReason: endedReason ?? this.endedReason,
     endedAt: endedAt ?? this.endedAt,
     relayDown: relayDown ?? this.relayDown,

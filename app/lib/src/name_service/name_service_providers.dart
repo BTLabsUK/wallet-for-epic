@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'name_service_model.dart';
 import 'name_service_service.dart';
 import 'membership.dart';
-import 'payment_refusals.dart';
 import 'receipts.dart';
 
 /// What the screens show of the service: its book and where each words step stands.
@@ -60,12 +59,6 @@ class NameServiceProviders {
   late final Provider<NameServiceMembership> membership = Provider<NameServiceMembership>(
     (ref) => ref.watch(service) ?? const NoNameServiceMembership(),
   );
-
-  /// [PaymentRefusals] over the open wallet's book, for [paymentRefusalsProvider].
-  late final Provider<PaymentRefusals> refusals = Provider<PaymentRefusals>((ref) {
-    final v = ref.watch(view);
-    return v == null ? const NoPaymentRefusals() : BookRefusals(v.book);
-  });
 
   /// [NameServiceReceipts] over the open wallet's service, for [nameServiceReceiptsProvider].
   late final Provider<NameServiceReceipts> receipts = Provider<NameServiceReceipts>(

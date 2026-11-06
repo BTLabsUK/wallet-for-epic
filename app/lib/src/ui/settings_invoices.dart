@@ -199,7 +199,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PairAvatar(name: name, kind: r.kind, size: 48),
+            PairAvatar(name: name, size: 48),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

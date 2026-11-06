@@ -43,7 +43,7 @@ Future<bool> showDeskNameServiceJoin(BuildContext context, WidgetRef ref, {requi
   final entry = service.entryOf(serviceKey);
   final joined = await showEDialog<bool>(
     context,
-    builder: (_) => _JoinDialog(serviceKey: serviceKey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: entry?.noPayments ?? false),
+    builder: (_) => _JoinDialog(serviceKey: serviceKey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: ref.read(paymentRefusalsProvider).refusesPayments(pairingId: entry?.pairingId)),
   );
   return joined ?? false;
 }

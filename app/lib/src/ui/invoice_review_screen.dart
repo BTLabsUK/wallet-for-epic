@@ -31,6 +31,7 @@ import 'net_block.dart';
 import 'pairing/pairing_parts.dart';
 import 'pin.dart';
 import 'qr_show_screen.dart' show QrShowDone, showPaidReplyQr;
+import '../trust/policy.dart' show statedAutomated;
 import 'slate_file_screen.dart' show SlateFileResult;
 import 'theme/brand.dart' show GlyphTile;
 import 'theme/protocol.dart';
@@ -327,7 +328,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
           // name. Sealed: it came through the contact's mailbox, sealed and signed.
           Row(
             children: [
-              PairAvatar(name: service, kind: pairing?.kind ?? PairingParty.person, size: 48),
+              PairAvatar(name: service, size: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -707,7 +708,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
             // Sealed by a paired contact: the sender is known, as on a contact's request.
             Row(
               children: [
-                PairAvatar(name: service, kind: pairing.kind, size: 48),
+                PairAvatar(name: service, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -1204,10 +1205,11 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
               PairEdgeNotice(
                 tone: BadgeTone.info,
                 title: l.reqPaidWaiting(service),
-                // A person's wallet posts it, not "the exchange".
-                body: (ref.watch(pairingByIdProvider(paid.pairingId!))?.kind ?? PairingParty.exchange) == PairingParty.person
-                    ? l.reqPaidWaitingBodyPerson
-                    : l.reqPaidWaitingBody,
+                // A person's wallet posts it, not "the exchange": only a card that says automated
+                // gets the service wording.
+                body: statedAutomated(ref.watch(pairingByIdProvider(paid.pairingId!))?.peerProfile ?? 0)
+                    ? l.reqPaidWaitingBody
+                    : l.reqPaidWaitingBodyPerson,
               ),
               const SizedBox(height: 12),
             ],

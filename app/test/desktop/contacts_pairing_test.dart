@@ -135,7 +135,7 @@ void main() {
     await _contact(tester, 'c6');
     final piotr = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c6');
     _fake
-      ..seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: piotr.epicbox)
+      ..seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', kind: PairingParty.shop, peerProfile: 2, state: PairingState.paired, paymentsAddress: piotr.epicbox)
       ..silent.add('p-piotr');
     await tester.runAsync(() => _fake.checkContacts());
     _c.invalidate(deskPairingsProvider);

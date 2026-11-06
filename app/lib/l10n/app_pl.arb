@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "Czekanie na portfel {name}",
   "pairAnsweredNotHeard": "Odpowiedź na twoje zaproszenie · jeszcze bez wieści",
   "pairNotChecked": "{name} jeszcze nie sprawdził(a)",
+  "contactTakesPaymentsAgain": "{name} znów przyjmuje płatności.",
+  "pairIsService": "Usługa automatyczna.",
   "pairConfirmedToo": "{name} też potwierdził(a).",
   "pairEndedShort": "Parowanie zakończone",
   "pairEndedMismatch": "Zgłoszono, że słowa się nie zgadzają.",
@@ -5318,5 +5320,12 @@
   "pairEndedRowPeerMismatch": "Zgłoszono, że słowa się nie zgadzają.",
   "pairEndedRowNeverFinished": "Portfel nigdy nie dokończył.",
   "pairEndedRowUnpaired": "Parowanie usunięte po tamtej stronie.",
-  "deskSendErrOwnNamed": "To „{wallet}”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel."
+  "deskSendErrOwnNamed": "To „{wallet}”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel.",
+  "deskConLabelTitle": "Etykieta",
+  "deskConLabelWallet": "Tylko portfel",
+  "deskConLabelExchange": "Giełda",
+  "deskConLabelVendor": "Sprzedawca",
+  "deskConLabelService": "Usługa",
+  "deskConLabelDefault": "Domyślna",
+  "deskConLabelCurrent": "Etykieta: {name}"
 }

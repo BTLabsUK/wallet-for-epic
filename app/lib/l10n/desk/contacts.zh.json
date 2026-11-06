@@ -49,5 +49,12 @@
   "deskConKeep": "保留联系人",
   "deskConDeleteAction": "删除联系人",
   "deskConPickForPairing": "配对将添加到你选择的联系人。",
-  "deskConExportDo": "导出"
+  "deskConExportDo": "导出",
+  "deskConLabelTitle": "标签",
+  "deskConLabelWallet": "普通钱包",
+  "deskConLabelExchange": "交易所",
+  "deskConLabelVendor": "商家",
+  "deskConLabelService": "服务",
+  "deskConLabelDefault": "默认",
+  "deskConLabelCurrent": "标签：{name}"
 }

@@ -7,6 +7,7 @@ library;
 import '../../advanced.dart';
 import '../../amount.dart' show AmountFormatException, AmountProblem, AmountSurface, cutEpic, displayDecimals, epicFor, exactDecimals, exactEpic, normalizeAmountText;
 import '../../amount.dart' as shared show parseEpic;
+import '../../contact_label.dart';
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
@@ -645,6 +646,7 @@ class Contact {
     String? http,
     String? tor,
     this.note,
+    this.label = ContactLabel.wallet,
     this.favourite = false,
     this.lastUsed,
     this.hasPicture = false,
@@ -662,6 +664,9 @@ class Contact {
   final String id;
   final String name;
   final String? note;
+
+  /// The user's label; display only.
+  final ContactLabel label;
   final bool favourite;
   final DateTime? lastUsed;
 
@@ -696,13 +701,14 @@ class Contact {
       if (addressOf(k) != null) k,
   ];
 
-  Contact copyWith({bool? favourite, DateTime? lastUsed}) => Contact(
+  Contact copyWith({bool? favourite, DateTime? lastUsed, ContactLabel? label}) => Contact(
     id: id,
     name: name,
     epicbox: epicbox,
     http: http,
     tor: tor,
     note: note,
+    label: label ?? this.label,
     favourite: favourite ?? this.favourite,
     lastUsed: lastUsed ?? this.lastUsed,
     hasPicture: hasPicture,

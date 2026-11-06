@@ -13,6 +13,7 @@ import 'src/name_service/membership.dart' show nameServiceMembershipProvider;
 import 'src/name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import 'src/name_service/receipts.dart' show nameServiceReceiptsProvider, linkPaymentRecordsProvider;
 import 'src/name_service/phone_name_service.dart' show phoneNameServices, phoneLinkPayments;
+import 'src/pairing_providers.dart' show pairingRefusalsProvider;
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
@@ -105,7 +106,7 @@ Future<void> main() async {
           networkChangesProvider.overrideWithValue(androidNetworkChanges()),
           // What the rest of the app may ask of the name services the open wallet joined.
           nameServiceMembershipProvider.overrideWith((ref) => ref.watch(phoneNameServices.membership)),
-          paymentRefusalsProvider.overrideWith((ref) => ref.watch(phoneNameServices.refusals)),
+          paymentRefusalsProvider.overrideWith((ref) => ref.watch(pairingRefusalsProvider)),
           nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(phoneNameServices.receipts)),
           linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(phoneLinkPayments)),
         ],

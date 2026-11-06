@@ -126,6 +126,34 @@ void main() {
     });
   });
 
+  group('card profile', () {
+    test('bit 0 is no payments, bit 1 automated', () {
+      expect(profileNoPayments, 1);
+      expect(profileAutomated, 2);
+      expect(statedNoPayments(0), isFalse);
+      expect(statedNoPayments(profileNoPayments), isTrue);
+      expect(statedNoPayments(profileAutomated), isFalse);
+      expect(statedAutomated(profileAutomated), isTrue);
+      expect(statedAutomated(profileNoPayments), isFalse);
+      expect(statedNoPayments(profileNoPayments | profileAutomated) && statedAutomated(profileNoPayments | profileAutomated), isTrue);
+    });
+
+    test('unknown bits are ignored', () {
+      const unknown = 0xFFFFFFFC;
+      expect(statedNoPayments(unknown), isFalse);
+      expect(statedAutomated(unknown), isFalse);
+      expect(statedNoPayments(unknown | profileNoPayments), isTrue);
+      expect(statedAutomated(unknown | profileAutomated), isTrue);
+    });
+
+    test('the relationship carries the word as given', () {
+      const r = Relationship(RelationshipKind.paired, peerProfile: 0x80000001);
+      expect(r.peerProfile, 0x80000001);
+      expect(statedNoPayments(r.peerProfile), isTrue);
+      expect(const Relationship.none().peerProfile, 0);
+    });
+  });
+
   group('contact line', () {
     final cases =
         <(String, PeerCompat?, Relationship, DateTime?, ContactLineKind)>[
@@ -207,6 +235,11 @@ void main() {
         expect(line.kind, want);
       });
     }
+    test('an automated peer shows no line, not even Not heard from', () {
+      const service = Relationship(RelationshipKind.paired, peerProfile: profileAutomated);
+      expect(contactLine(compat(marked: day * 200), service, now).kind, ContactLineKind.none);
+      expect(contactLine(compat(marked: day * 200, unmarked: day), service, now).kind, ContactLineKind.none);
+    });
     test('not heard carries the latest date', () {
       final line = contactLine(
         compat(marked: day * 200),

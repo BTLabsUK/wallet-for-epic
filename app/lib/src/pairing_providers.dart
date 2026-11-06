@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contacts.dart';
 import 'levels/level_providers.dart' show effectiveAdvancedProvider;
+import 'name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
 import 'pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
 import 'providers.dart';
 import 'settings.dart';
@@ -87,6 +88,10 @@ class PairingsNotifier extends AsyncNotifier<List<PairingRecord>> {
     }
   }
 }
+
+/// [PairingRefusals] over the open wallet's pairings, for [paymentRefusalsProvider]; none while
+/// they load.
+final pairingRefusalsProvider = Provider<PaymentRefusals>((ref) => PairingRefusals(ref.watch(pairingsProvider).value ?? const []));
 
 /// The requests to pair that came to this wallet's address, from contacts only, newest first;
 /// reloads on every pairing event and when the address book loads. A request from someone not
@@ -330,6 +335,7 @@ final contactRelationshipProvider = Provider.family<Relationship, String>((ref, 
     },
     hasEpicboxAddress: hasAddress,
     peerFeatures: p.peerFeatures,
+    peerProfile: p.peerProfile,
   );
 });
 

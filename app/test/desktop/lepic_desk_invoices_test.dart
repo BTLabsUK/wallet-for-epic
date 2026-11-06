@@ -104,6 +104,7 @@ class _Wallet implements lepic.EpicWallet {
   @override
   Future<List<lepic.ContactView>> contacts() async => const [
     lepic.ContactView(
+      peerProfile: 0,
       contactId: _shopContact,
       label: 'Shop',
       state: lepic.PairingState.verified,
