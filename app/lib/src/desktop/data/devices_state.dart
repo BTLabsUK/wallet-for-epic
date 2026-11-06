@@ -123,6 +123,7 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
 ForwardKind? _forwardKindOf(InvoiceEventKind kind) => switch (kind) {
   InvoiceEventKind.paymentPosted => ForwardKind.posted,
   InvoiceEventKind.paymentCancelled => ForwardKind.cancelled,
+  InvoiceEventKind.paymentDeclined => ForwardKind.declined,
   InvoiceEventKind.received => ForwardKind.invoice,
   _ => null,
 };

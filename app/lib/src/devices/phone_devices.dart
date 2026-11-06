@@ -77,6 +77,7 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
       final kind = switch (e.kind) {
         InvoiceEventKind.paymentPosted => ForwardKind.posted,
         InvoiceEventKind.paymentCancelled => ForwardKind.cancelled,
+        InvoiceEventKind.paymentDeclined => ForwardKind.declined,
         InvoiceEventKind.received => ForwardKind.invoice,
         _ => null,
       };
@@ -93,6 +94,8 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
         unawaited(ref.read(paymentPostedProvider.notifier).forwarded(event));
       case ForwardKind.cancelled:
         unawaited(ref.read(paymentCancelledProvider.notifier).forwarded(event));
+      case ForwardKind.declined:
+        if (ref.exists(homeProvider)) unawaited(ref.read(homeProvider.notifier).reload());
       case ForwardKind.invoice:
         ref.read(noticeProvider.notifier).show(_strings().devicesForwardedInvoice(n.device), level: NoticeLevel.info);
     }
