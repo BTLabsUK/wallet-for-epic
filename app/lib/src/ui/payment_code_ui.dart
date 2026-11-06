@@ -12,7 +12,6 @@ import '../scan/scan_router.dart' show RequestProblem;
 import '../scan/scan_text.dart';
 import 'badge.dart';
 import 'notices.dart';
-import 'theme/tokens.dart';
 
 const Key sendRequestBannerKey = Key('send-request-banner');
 const Key sendRequestDismissKey = Key('send-request-dismiss');
@@ -73,73 +72,16 @@ class RequestBanner extends StatelessWidget {
   Widget _card(BuildContext context) {
     final l = context.l10n;
     final lines = requestProblemLines(l, problems);
-    // Parts the app dropped make it a warning; a clean request only informs.
+    // Only the parts the app dropped from the code; a plain send has no banner of its own.
     return InlineNotice(
       key: sendRequestBannerKey,
-      level: lines.isEmpty ? NoticeLevel.info : NoticeLevel.warning,
+      level: NoticeLevel.warning,
       icon: originIcon(origin),
-      title: l.sendRequestTitle,
-      text: lines.isEmpty ? l.sendRequestCheck : lines.join('\n'),
+      title: lines.join('\n'),
       liveRegion: true,
       onClose: onDismiss,
       closeKey: sendRequestDismissKey,
       closeLabel: l.sendRequestDismiss,
-    );
-  }
-}
-
-/// The payee's name and note from a code, captioned, in a well ([WalletTokens.well], as the
-/// desktop's EPayeeClaims). Plain text, wrapped, never cut. Nothing when both are absent.
-class PayeeClaims extends StatelessWidget {
-  const PayeeClaims({super.key, this.name, this.note});
-
-  /// The code's `label`; the caller leaves it out when a saved contact has the same name.
-  final String? name;
-
-  /// The code's `message`.
-  final String? note;
-
-  @override
-  Widget build(BuildContext context) {
-    final name = this.name;
-    final note = this.note;
-    if (name == null && note == null) return const SizedBox.shrink();
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final caption = theme.textTheme.labelSmall?.copyWith(color: t.dim);
-    final value = theme.textTheme.bodyMedium?.copyWith(color: t.text);
-    final parts = [
-      if (name != null) (l.payeeNameLabel, name),
-      if (note != null) (l.payeeNoteLabel, note),
-    ];
-    return Container(
-      key: payeeClaimsKey,
-      decoration: t.well,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Semantics(
-              container: true,
-              label: [for (final (c, v) in parts) '$c: $v'].join('. '),
-              excludeSemantics: true,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final (i, (c, v)) in parts.indexed) ...[
-                    if (i > 0) const SizedBox(height: 8),
-                    Text(c, style: caption),
-                    const SizedBox(height: 4),
-                    Text(v, style: value, softWrap: true),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

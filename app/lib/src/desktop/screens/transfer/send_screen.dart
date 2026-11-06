@@ -2080,7 +2080,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final c = context.dc;
     final spendable = st.balance?.spendable;
     final picked = _picked(st);
-    final contact = picked ?? _contactOf(st.contacts);
     final file = _file;
     final code = file ? null : _codeNow;
     final toErr = _codeError?.call(l) ?? (_toTouched || _onionNoTor ? _toError(st) : null);
@@ -2165,7 +2164,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ..._underTo(st, picked),
           // A payment request's banner: it keeps the last code's words while it closes.
           ExpandFade(
-            open: code != null && code.banner && _codeBanner,
+            open: code != null && code.problems.isNotEmpty && _codeBanner,
             child: _code == null
                 ? const SizedBox(width: double.infinity)
                 : Padding(
@@ -2177,11 +2176,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           if (_linkNow case final link?) ...[
             SizedBox(height: Sp.x3),
             DeskLinkTrust(link: link),
-          ],
-          // The payee's words; the name not when the contact has it already.
-          if (code != null && (code.note != null || EPayeeClaims.labelBeside(code.label, contact?.name) != null)) ...[
-            SizedBox(height: Sp.x2),
-            EPayeeClaims(label: EPayeeClaims.labelBeside(code.label, contact?.name), note: code.note),
           ],
           SizedBox(height: Sp.x5),
         ],
@@ -3229,8 +3223,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     };
     final code = d.code;
     final route = d.route;
-    // The payee's words under the facts; the name not when the contact has it.
-    final codeLabel = EPayeeClaims.labelBeside(code?.label, d.contactName);
     // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
     final directHost = code != null && d.to != null && (d.method == TxMethod.http || d.method == TxMethod.tor) ? directHostBesideOf(d.to!) : null;
     final sum = d.summary;
@@ -3344,10 +3336,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
-          ],
-          if (code != null && (code.note != null || codeLabel != null)) ...[
-            SizedBox(height: Sp.x4),
-            EPayeeClaims(label: codeLabel, note: code.note),
           ],
           if (d.queued && !_busy) ...[
             SizedBox(height: Sp.x4),

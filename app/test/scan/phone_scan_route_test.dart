@@ -264,9 +264,6 @@ Finder _inBanner(String text) => find.descendant(
   matching: find.text(text),
 );
 
-Finder _inPayee(String text) =>
-    find.descendant(of: find.byKey(payeeClaimsKey), matching: find.text(text));
-
 /// The folded note tile's subtitle.
 Finder _noteTile(String note) =>
     find.descendant(of: find.byType(ListTile), matching: find.text(note));
@@ -299,17 +296,16 @@ void main() {
       expect(find.byType(SendView), findsOneWidget);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner(_l.sendRequestTitle), findsOneWidget);
-      expect(_inBanner(_l.sendRequestCheck), findsOneWidget);
+      // A normal send: no Invoice card, no "Message from the recipient" card, no name line.
+      expect(find.byKey(sendRequestBannerKey), findsNothing);
+      expect(find.text(_l.sendRequestTitle), findsNothing);
+      expect(find.text('Invoice'), findsNothing);
+      expect(find.byKey(payeeClaimsKey), findsNothing);
+      expect(find.text(_l.payeeNoteLabel), findsNothing);
+      expect(find.text('Anna'), findsNothing);
       expect(find.text(_l.sendAmountFromCode), findsOneWidget);
       // The note travels in the payment: its tile is folded and shows it.
       expect(_noteTile('Lunch with Anna'), findsOneWidget);
-      expect(_inPayee('Anna'), findsOneWidget);
-      expect(_inPayee('Lunch with Anna'), findsOneWidget);
-      expect(
-        _inPayee(_l.payeeNameLabel),
-        findsOneWidget,
-      );
       expect(h.session.epicboxSends, isEmpty);
       expect(h.session.sentAmounts, isEmpty);
     });
@@ -324,8 +320,8 @@ void main() {
 
       expect(_origin(_l.sendOriginQr), findsOneWidget);
       expect(tester.widget<AddressEnds>(find.byType(AddressEnds)).address, _e);
-      expect(_inPayee('Anna'), findsOneWidget);
-      expect(_inPayee('Lunch with Anna'), findsOneWidget);
+      expect(find.byKey(payeeClaimsKey), findsNothing);
+      expect(find.text('Invoice'), findsNothing);
 
       await _tap(tester, find.textContaining('Send 1.5'));
       expect(find.widgetWithText(TextField, _l.pinLabel), findsOneWidget);
@@ -388,22 +384,22 @@ void main() {
       expect(_onAmount(), isTrue);
       expect(find.text(_l.sendAddNote), findsOneWidget);
       expect(_noteTile(note), findsNothing);
-      expect(_inPayee(note), findsOneWidget);
+      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _tap(tester, find.text(_l.sendAddNote));
       expect(_field(tester, sendNoteFieldKey), isEmpty);
     });
   });
 
   group('editing what the code filled in', () {
-    testWidgets('× closes only the banner', (tester) async {
+    testWidgets('× closes only the dropped-parts notice', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await h.scan(tester, _lunch);
+      await h.scan(tester, 'epic:$_e?amount=1.5&message=Lunch%20with%20Anna&min=zero');
+      expect(find.byKey(sendRequestBannerKey), findsOneWidget);
       await _tap(tester, find.byKey(sendRequestDismissKey));
       expect(find.byKey(sendRequestBannerKey), findsNothing);
       expect(_field(tester, sendAmountFieldKey), '1.5');
       expect(find.text(_l.sendAmountFromCode), findsOneWidget);
-      expect(find.byKey(payeeClaimsKey), findsOneWidget);
       expect(_noteTile('Lunch with Anna'), findsOneWidget);
     });
 
@@ -427,10 +423,8 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, _lunch);
       await _back(tester);
-      expect(find.byKey(payeeClaimsKey), findsOneWidget);
       await tester.enterText(find.byKey(sendRecipientFieldKey), _other);
       await tester.pumpAndSettle();
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _continue(tester);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), isEmpty);
@@ -457,21 +451,20 @@ void main() {
   });
 
   group('the code\'s name and saved contacts', () {
-    testWidgets('a contact of that name at the address hides the name line', (
+    testWidgets('the name is shown nowhere; a saved contact keeps its own name', (
       tester,
     ) async {
       final h = _Harness();
       h.session.contactsValue.add(
-        Contact(id: 'c1', name: 'anna', address: _e),
+        Contact(id: 'c1', name: 'Bob', address: _e),
       );
       await h.pump(tester);
-      await h.scan(tester, 'epic:$_e?amount=1&message=Hi&label=%20ANNA%20');
-      // The contact's own name above the amount; the code's name line hidden, its note kept.
-      expect(find.text('To anna'), findsOneWidget);
+      await h.scan(tester, _lunch);
+      expect(find.text('To Bob'), findsOneWidget);
+      expect(find.text('Anna'), findsNothing);
       await _back(tester);
-      expect(_inPayee(_l.payeeNameLabel), findsNothing);
-      expect(_inPayee('Hi'), findsOneWidget);
-      expect(_field(tester, sendRecipientFieldKey), _e);
+      expect(find.byKey(payeeClaimsKey), findsNothing);
+      expect(find.text('Anna'), findsNothing);
     });
 
     testWidgets('a contact of that name elsewhere is not picked', (
@@ -487,22 +480,6 @@ void main() {
       expect(_field(tester, sendRecipientFieldKey), _e);
       // Not a saved contact at this address: it can be saved.
       expect(find.text(_l.sendSaveContact), findsOneWidget);
-      expect(_inPayee('Anna'), findsOneWidget);
-    });
-
-    testWidgets('a contact under another name keeps its name on the card', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.session.contactsValue.add(
-        Contact(id: 'c1', name: 'Bob', address: _e),
-      );
-      await h.pump(tester);
-      await h.scan(tester, _lunch);
-      // The saved name above the amount; the code's name stays with the payee's words.
-      expect(find.text('To Bob'), findsOneWidget);
-      await _back(tester);
-      expect(_inPayee('Anna'), findsOneWidget);
     });
   });
 
@@ -702,7 +679,7 @@ void main() {
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), isEmpty);
       expect(_noteTile('Table 4'), findsNothing);
-      expect(_inPayee('Bob'), findsOneWidget);
+      expect(find.text('Bob'), findsNothing);
     });
   });
 
@@ -902,8 +879,8 @@ void main() {
       await paste(tester, h, _lunch);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner(_l.sendRequestTitle), findsOneWidget);
-      expect(_inPayee('Lunch with Anna'), findsOneWidget);
+      expect(find.byKey(sendRequestBannerKey), findsNothing);
+      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _continue(tester);
       expect(_origin(_l.sendOriginPasted), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
@@ -944,7 +921,7 @@ void main() {
       expect(_tab(tester), ShellTab.send);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner(_l.sendRequestTitle), findsOneWidget);
+      expect(find.byKey(sendRequestBannerKey), findsNothing);
       await _continue(tester);
       expect(_origin(_l.sendOriginLink), findsOneWidget);
     });
@@ -1107,7 +1084,7 @@ void main() {
         const Offset(0, -200),
       );
       expect(_onAmount(), isTrue);
-      expect(_inPayee(note), findsOneWidget);
+      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _continue(tester);
       expect(tester.takeException(), isNull);
       await tester.dragUntilVisible(
