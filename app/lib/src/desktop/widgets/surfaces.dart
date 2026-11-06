@@ -148,8 +148,8 @@ class ETicked extends StatelessWidget {
         boxShadow: c.panelShadow,
       ),
       child: CustomPaint(
-        painter: grid ? GridFieldPainter(hero ? c.tick.withValues(alpha: 0.2) : c.grid.withValues(alpha: c.grid.a * 2.2)) : null,
-        foregroundPainter: hero ? CornerTicksPainter(c.tick, length: 14.u, width: 3) : CornerTicksPainter(c.tick),
+        painter: grid ? GridFieldPainter(hero ? c.tick.withValues(alpha: 0.12) : c.grid.withValues(alpha: c.grid.a * 2.2)) : null,
+        foregroundPainter: hero ? CornerTicksPainter(c.tick, length: 12.u, width: 2) : CornerTicksPainter(c.tick),
         child: child,
       ),
     );

@@ -223,7 +223,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               strength: latticeStrength(txs?.length),
               cell: latticeCellDesktop.u,
               vignette: true,
-              gain: context.dc.wash.a == 0 ? 1 : 3,
+              gain: context.dc.wash.a == 0 ? 1 : 1.6,
             )
           : null,
       actions: [
