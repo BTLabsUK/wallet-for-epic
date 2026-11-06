@@ -15040,14 +15040,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Einmal koppeln; Transaktionsdateien und Rechnungen mit diesem Kontakt sind versiegelt.';
+      'Einmal koppeln; Zahlungen, Transaktionsdateien und Rechnungen mit diesem Kontakt sind versiegelt.';
 
   @override
   String get helpPairWhatTitle => 'Was Kopplung ist';
 
   @override
   String get helpPairWhatShort =>
-      'Koppeln Sie einmal mit jemandem; danach sind Transaktionsdateien und Rechnungen zwischen den beiden Wallets versiegelt.';
+      'Koppeln Sie einmal mit jemandem; danach sind Zahlungen, Transaktionsdateien und Rechnungen zwischen den beiden Wallets versiegelt.';
 
   @override
   String get helpPairWhatP1 =>
@@ -15055,7 +15055,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'Nach dem Koppeln ist eine Transaktionsdatei an diesen Kontakt **versiegelt**: Nur dessen Wallet kann sie öffnen, und unterwegs kann sie weder verändert noch gefälscht werden. Zahlungen über Epicbox zwischen Personen funktionieren wie bisher.';
+      'Nach dem Koppeln sind Zahlungen, Transaktionsdateien und Rechnungen zwischen den beiden Wallets **versiegelt**: Nur die andere Wallet kann sie lesen, und die Identität des Kontakts wird geprüft. Zahlungen laufen standardmäßig über die Kopplung; siehe „Zahlungen nach dem Koppeln“.';
 
   @override
   String get helpPairWhatStep1 =>
@@ -15071,7 +15071,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Kopplung braucht BT Wallet auf beiden Seiten. Ein nicht gekoppelter Kontakt bekommt weiterhin gewöhnliche Transaktionsdateien und Epicbox-Zahlungen.';
+      'Kopplung braucht BT Wallet auf beiden Seiten. Ein nicht gekoppelter Kontakt bekommt weiterhin gewöhnliche Transaktionsdateien und Zahlungen an seine öffentliche Epicbox-Adresse.';
 
   @override
   String get helpPairWhyTitle => 'Warum verifizieren';
@@ -15159,7 +15159,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      'Ohne die Datei sind die Kopplungen aus dieser Wallet verschwunden, die Schlüssel aber nicht: Sie entstehen aus der Wiederherstellungsphrase. Koppeln Sie erneut mit einem Kontakt, der die Kopplung behalten hat, und dessen Wallet findet dieselben Schlüssel. Sie meldet, dass die Schlüssel zurück sind, und der Kontakt behält seine Verifiziert-Markierung. In dieser Wallet starten Zahlungen versiegeln und Rechnungen erlauben mit ihren Vorgaben.';
+      'Ohne die Datei sind die Kopplungen aus dieser Wallet verschwunden, die Schlüssel aber nicht: Sie entstehen aus der Wiederherstellungsphrase. Koppeln Sie erneut mit einem Kontakt, der die Kopplung behalten hat, und dessen Wallet findet dieselben Schlüssel. Sie meldet, dass die Schlüssel zurück sind, und der Kontakt behält seine Verifiziert-Markierung. In dieser Wallet starten Transaktionsdateien versiegeln und Rechnungen erlauben mit ihren Vorgaben.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -19210,6 +19210,33 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairBackLater => 'Zurück';
+
+  @override
+  String get helpPairRouteTitle => 'Zahlungen nach dem Koppeln';
+
+  @override
+  String get helpPairRouteShort =>
+      'Zahlungen an einen gekoppelten Kontakt laufen über die Kopplung; die öffentliche Epicbox-Adresse ist der Ausweichweg.';
+
+  @override
+  String get helpPairRouteP1 =>
+      'Nach dem Koppeln läuft eine Zahlung an diesen Kontakt standardmäßig über die Kopplung, die private Route. Unter [[Senden|Send]] ist der Schalter **Über die Kopplung senden** zunächst an.';
+
+  @override
+  String get helpPairRouteP2 =>
+      'Stattdessen geht eine Zahlung an die öffentliche Epicbox-Adresse des Kontakts, wenn: der Kontakt nicht gekoppelt ist; Sie den Schalter ausgeschaltet haben; der Kontakt zuletzt aus einer anderen Wallet-App geantwortet hat; vom Kontakt seit 90 Tagen nichts zu hören war; ein Versand über die Kopplung einen Tag lang unbeantwortet blieb; oder sein Server ausgefallen ist.';
+
+  @override
+  String get helpPairRouteP3 =>
+      'Bleibt ein Versand über die Kopplung einen Tag lang unbeantwortet, erscheint **Stornieren und an die öffentliche Epicbox-Adresse senden**. Die Wallet fragt zuerst; spätere Zahlungen an diesen Kontakt starten dann mit der öffentlichen Adresse.';
+
+  @override
+  String get helpPairRouteP4 =>
+      '**Transaktionsdateien versiegeln** auf der Kontaktseite verschlüsselt Dateien an diesen Kontakt. Sie sind versiegelt und nur von diesem Kontakt lesbar. Der Schalter betrifft nur Dateien; er schaltet die Route über die Kopplung weder ein noch aus.';
+
+  @override
+  String get helpPairRouteP5 =>
+      'Eine Kopplung per Einladung oder QR hat keine öffentliche Epicbox-Adresse als Ausweichweg, es sei denn, der Kontakt hat unter [[Kontakte|Contacts]] eine Epicbox-Adresse.';
 
   @override
   String get helpPairTwoWaysTitle => 'Zwei Wege zum Koppeln';

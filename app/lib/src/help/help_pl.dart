@@ -61,6 +61,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Otwórz Wyślij, wklej adres Epicbox odbiorcy, wpisz kwotę, sprawdź opłatę i wyślij.',
       [
         HelpBlock.ol(['Otwórz [[Wyślij|Send]] i wklej adres odbiorcy lub wybierz kontakt.', 'Wpisz kwotę. Opłata jest widoczna przed wysłaniem.', phone ? 'Dotknij **Dalej**, sprawdź dane, potem **Wyślij … EPIC**.' : 'Naciśnij **Sprawdź**, sprawdź dane, potem **Wyślij … EPIC**.']),
+        const HelpBlock.p('Przy sparowanym kontakcie przełącznik **Wyślij przez parowanie** jest na początku włączony, a płatność jest zapieczętowana. Po wyłączeniu albo przy kontakcie niesparowanym płatność idzie na jego publiczny adres Epicbox.'),
         const HelpBlock.p('Teraz musi odpowiedzieć portfel odbiorcy (zobacz „Dlaczego transakcja wymaga obu stron?”). Przez Epicbox odbiorca nie musi być teraz online: płatność poczeka, aż jego portfel się otworzy. W tym czasie użyte monety są zablokowane, więc nie da się ich wydać dwa razy.'),
         HelpBlock.p('Gdy odpowiedź wróci, portfel sam zakończy płatność i opublikuje ją w sieci. Staje się ostateczna po osiągnięciu wymaganej liczby potwierdzeń ($confirmations).'),
         HelpBlock.p('**Brak odpowiedzi?** Po kilku minutach stan zmienia się na „Czeka na odbiorcę”. Poproś odbiorcę, by otworzył portfel. Jeśli odpowiedź nigdy nie przyjdzie, anuluj płatność w $cancelPlace, aby odblokować monety. Płatność, na którą nikt nie odpowie, anuluje się sama po około jednym dniu.'),
