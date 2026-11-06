@@ -208,7 +208,10 @@ class _TxLabelEditorState extends ConsumerState<TxLabelEditor> {
     final field = Semantics(
       label: l.txLabel,
       child: Center(
-        child: TextField(
+        // A tap outside saves even if the field never got the focus.
+        child: TextFieldTapRegion(
+          onTapOutside: (_) => _commit(),
+          child: TextField(
           controller: _controller,
           focusNode: _focus,
           style: widget.style,
@@ -217,7 +220,6 @@ class _TxLabelEditorState extends ConsumerState<TxLabelEditor> {
           textInputAction: TextInputAction.done,
           textCapitalization: TextCapitalization.sentences,
           onSubmitted: (_) => _commit(),
-          onTapOutside: (_) => _focus.unfocus(),
           decoration: InputDecoration(
             isDense: true,
             counterText: '',
@@ -226,6 +228,7 @@ class _TxLabelEditorState extends ConsumerState<TxLabelEditor> {
             border: border,
             enabledBorder: border,
             focusedBorder: border,
+          ),
           ),
         ),
       ),

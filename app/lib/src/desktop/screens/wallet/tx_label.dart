@@ -78,6 +78,10 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
   void initState() {
     super.initState();
     _focus.addListener(_onFocus);
+    // Not `autofocus`: that does nothing while the pen or the row in the same scope has the focus.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_done) _focus.requestFocus();
+    });
   }
 
   @override
@@ -125,12 +129,15 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
       child: Semantics(
         label: widget.semanticsLabel ?? l.deskTxLabelField,
         textField: true,
-        child: TextField(
+        // A click outside saves, whether or not the field ever got the focus (the field's own
+        // onTapOutside only fires while it has it). The text menu stays inside.
+        child: TextFieldTapRegion(
+          onTapOutside: (_) => _commit(byKey: false),
+          child: TextField(
           controller: _text,
           // A mouse caret and selection, never the phone's teardrop handles.
           selectionControls: desktopTextSelectionControls,
           focusNode: _focus,
-          autofocus: true,
           maxLength: widget.maxLength,
           maxLengthEnforcement: MaxLengthEnforcement.enforced,
           textInputAction: TextInputAction.done,
@@ -138,7 +145,6 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
           cursorColor: c.accent,
           onSubmitted: (_) => _commit(byKey: true),
           onEditingComplete: () {},
-          onTapOutside: (_) => _focus.unfocus(),
           decoration: InputDecoration(
             isDense: true,
             counterText: '',
@@ -150,6 +156,7 @@ class _TxLabelFieldState extends ConsumerState<TxLabelField> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(Rad.xs), borderSide: BorderSide(color: c.accent)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Rad.xs), borderSide: BorderSide(color: c.accent)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(Rad.xs), borderSide: BorderSide(color: c.accent)),
+          ),
           ),
         ),
       ),

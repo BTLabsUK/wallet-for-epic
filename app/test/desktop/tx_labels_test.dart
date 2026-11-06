@@ -148,6 +148,27 @@ void main() {
       expect(find.text('Rent, November'), findsWidgets);
     });
 
+    testWidgets('opened while the pen has the focus: the field takes it, and a click outside saves', (tester) async {
+      await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Rent')));
+      final pen = find.descendant(of: find.byType(TxPen), matching: find.byType(GestureDetector)).first;
+      var focused = false;
+      for (var i = 0; i < 30 && !focused; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        focused = Focus.of(tester.element(pen)).hasPrimaryFocus;
+      }
+      expect(focused, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.byType(TxLabelField), findsOneWidget);
+      expect(tester.widget<TextField>(find.byType(TextField).last).focusNode!.hasFocus, isTrue);
+      await tester.enterText(find.byType(TextField).last, 'Flat');
+      await tester.tapAt(const Offset(1200, 880));
+      await tester.pumpAndSettle();
+      expect(find.byType(TxLabelField), findsNothing);
+      expect(_tx(35).label, 'Flat');
+    });
+
     testWidgets('a tap outside saves', (tester) async {
       await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Rent')));
       await openField(tester);
