@@ -3,9 +3,21 @@
 /// wallet from before the update, never for one made on this version, never without Tor.
 library;
 
+import 'dart:io';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
+import 'package:epic_wallet/src/desktop/data/desk_store.dart';
+import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/onion_notice.dart';
+import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
+import 'package:epic_wallet/src/wallet_service.dart' as core;
+
+const _password = 'test-pass-1234';
 
 void main() {
   group('onion notice', () {
@@ -46,6 +58,78 @@ void main() {
     test('the marker key names the chain and the wallet', () {
       expect(onionNoticeKey('mainnet', null), 'onion_notice.mainnet.legacy');
       expect(onionNoticeKey('mainnet', 'w2'), 'onion_notice.mainnet.w2');
+    });
+  });
+
+  group('onion notice on the desktop adapter', () {
+    late Directory support;
+    late MemorySecretStore secrets;
+    late core.FakeWalletService service;
+
+    setUp(() async {
+      support = await Directory.systemTemp.createTemp('desk-onion-notice-');
+      secrets = MemorySecretStore();
+      service = core.FakeWalletService(password: _password);
+    });
+
+    tearDown(() => support.delete(recursive: true));
+
+    LepicDeskWallet wallet() => LepicDeskWallet(
+      service: service,
+      walletDir: (chain) async {
+        final d = Directory(WalletRegistry.firstWalletDir(support.path, chain));
+        await d.create(recursive: true);
+        return d.path;
+      },
+      secrets: secrets,
+      filesDir: () async => support,
+      nodePoll: const Duration(hours: 1),
+      rememberDir: () async => Directory('${support.path}/remember'),
+    );
+
+    ProviderContainer container(LepicDeskWallet w) {
+      final c = ProviderContainer(
+        overrides: [
+          deskApiProvider.overrideWithValue(w),
+          deskStoreProvider.overrideWithValue(DeskStore(secrets)),
+          secretStoreProvider.overrideWithValue(secrets),
+        ],
+      );
+      addTearDown(c.dispose);
+      return c;
+    }
+
+    test('a new wallet opens without it; an old one sees it until OK, then never', () async {
+      final w = wallet();
+      await w.createWallet(password: _password);
+      expect(await w.unlock(_password), isTrue);
+      final c = container(w);
+      await c.read(deskProvider.notifier).refresh();
+      expect(c.read(deskProvider).account, isNotNull);
+      expect(await c.read(deskOnionNoticeProvider.future), isFalse);
+
+      // The same wallet as an update finds it: no marker.
+      secrets.values.remove(onionNoticeKey('mainnet', null));
+      c.invalidate(deskOnionNoticeProvider);
+      expect(await c.read(deskOnionNoticeProvider.future), isTrue);
+      await c.read(deskOnionNoticeProvider.notifier).dismiss();
+      c.invalidate(deskOnionNoticeProvider);
+      expect(await c.read(deskOnionNoticeProvider.future), isFalse);
+      await w.dispose();
+    });
+
+    test('a restored first wallet and a second wallet are marked at birth', () async {
+      final w = wallet();
+      await w.restoreWallet(password: _password, phrase: service.phrase.split(' '));
+      expect(await onionNoticeDue(secrets, chain: 'mainnet', walletId: null, torBuilt: true), isFalse);
+      await w.createWallet(name: 'Two', password: _password);
+      final ids = [for (final e in await w.wallets()) e.id];
+      expect(ids, hasLength(2));
+      for (final id in ids) {
+        final walletId = id.startsWith(WalletRegistry.legacyPrefix) ? null : id;
+        expect(await onionNoticeDue(secrets, chain: 'mainnet', walletId: walletId, torBuilt: true), isFalse, reason: id);
+      }
+      await w.dispose();
     });
   });
 }

@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/settings_file/host_settings.dart' show AppConfig
 import 'package:epic_wallet/src/dev_networks.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/onion_notice.dart';
 import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -293,6 +294,7 @@ class _Harness {
     this.size,
     this.advanced = AdvancedPrefs.none,
     FakeWalletSession? session,
+    bool fromBeforeOnionKey = false,
   }) : session =
            session ??
            FakeWalletSession(
@@ -304,6 +306,8 @@ class _Harness {
     store.values['wallet.${chain.name}.backedUp'] = '1';
     // Every send asks this PIN; the check goes through the service that opened the session.
     store.values['wallet.${chain.name}.pinSealed'] = fakeSealedPassword(_pin);
+    // Made on this version, as creation and restore mark it: no notice about the Tor address.
+    if (!fromBeforeOnionKey) store.values[onionNoticeKey(chain.name, config.walletId)] = onionNoticeSeen;
     this.session.owner = service;
     // The reminder is already tracked from today, so home does not write the setting.
     store.values['app.history_reminder_first_seen.${chain.name}'] =
@@ -2077,6 +2081,49 @@ void main() {
       ).forget(Chain.mainnet);
       expect(store.values['wallet.mainnet.backupCardDismissed'], isNull);
       expect(store.values['wallet.mainnet.backupNoticeAt'], isNull);
+    });
+  });
+
+  group('the Tor address notice', () {
+    testWidgets('a wallet made through the vault opens without it, the phrase reminder shows', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: _backlog(), fromBeforeOnionKey: true);
+      _reminderDue(h);
+      h.store.values
+        ..remove('wallet.mainnet.backedUp')
+        ..remove('wallet.mainnet.pinSealed');
+      final created = await tester.runAsync(
+        () => WalletVault(store: h.store, biometrics: MemoryBiometricStore(), service: FakeWalletService(), legacyFiles: (_) async => false).create(h.config, pin: _Harness._pin),
+      );
+      created!.session.dispose();
+      await h.pump(tester);
+      expect(find.text(_l.torAddressChangedTitle), findsNothing);
+      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+    });
+
+    testWidgets('a wallet from before the update sees one line, once; the phrase reminder comes next opening', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: _backlog(), fromBeforeOnionKey: true);
+      _reminderDue(h);
+      h.store.values.remove('wallet.mainnet.backedUp');
+      await h.pump(tester);
+      final notice = find.byKey(noticeKey);
+      expect(find.descendant(of: notice, matching: find.text(_l.torAddressChangedTitle)), findsOneWidget);
+      expect(find.descendant(of: notice, matching: find.byIcon(Icons.close)), findsOneWidget);
+      expect(find.descendant(of: notice, matching: find.byType(Text)), findsOneWidget);
+      expect(h.store.values[onionNoticeKey('mainnet', null)], onionNoticeSeen);
+      expect(h.store.values['wallet.mainnet.backupNoticeAt'], isNull);
+
+      await tester.tap(find.descendant(of: notice, matching: find.byIcon(Icons.close)));
+      await tester.pumpAndSettle();
+      expect(notice, findsNothing);
+
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester);
+      expect(find.text(_l.torAddressChangedTitle), findsNothing);
+      expect(find.text(_l.homeBackupCardText), findsOneWidget);
     });
   });
 
