@@ -82,6 +82,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
       );
 
   final contactView = const lepic.ContactView(
+    peerProfile: 0,
     contactId: _shop,
     label: 'Shop',
     state: lepic.PairingState.verified,

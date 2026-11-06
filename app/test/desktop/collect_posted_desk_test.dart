@@ -103,6 +103,7 @@ class _Wallet implements lepic.EpicWallet {
   @override
   Future<List<lepic.ContactView>> contacts() async => [
     lepic.ContactView(
+      peerProfile: 0,
       contactId: _pairing,
       label: '',
       claimedName: 'Floo C',

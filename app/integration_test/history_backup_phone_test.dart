@@ -398,7 +398,7 @@ Future<HistoryPayload> decodeFile(WidgetTester tester, String phrase, Uint8List 
     final preset = networkPresets.firstWhere((p) => p.chain == chain);
     final w = await lepic.EpicWallet.create(
       runtime: lepic.LepicRuntime(logLevel: lepic.LogLevel.warn),
-      config: lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, 
+      config: lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, profile: 0,
         dataDir: dir.path,
         chain: chain == Chain.mainnet ? lepic.Chain.mainnet : lepic.Chain.floonet,
         nodeUrl: 'http://127.0.0.1:9',

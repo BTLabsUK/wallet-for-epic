@@ -25,6 +25,7 @@ lepic.ContactView _view(
   String relay = _relay,
   lepic.ContactKind? kind,
   int? heard,
+  int peerProfile = 0,
 }) => lepic.ContactView(
   contactId: id,
   label: '',
@@ -38,6 +39,7 @@ lepic.ContactView _view(
       ? lepic.PairingStatus.verified
       : lepic.PairingStatus.paired,
   peerFeatures: 0,
+  peerProfile: peerProfile,
   paymentsAddress: proven,
   peerHeardAtMs: created,
   endedReason: removed ? lepic.PairingEndReason.unpaired : null,
@@ -337,6 +339,11 @@ void main() {
     final attached = await session.pairing.attach('old-pairing', fresh.id);
     expect(attached.contactId, fresh.id);
     expect((await session.contacts()).firstWhere((x) => x.id == fresh.id).epicbox, isNull);
+  });
+
+  test("the peer's profile bits reach the record", () async {
+    wallet.paired.add(_view('svc', peerProfile: 3));
+    expect((await session.pairing.pairing('svc'))!.peerProfile, 3);
   });
 
   test('a pairing that ended keeps its record with the reason', () async {

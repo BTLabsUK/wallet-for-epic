@@ -1066,6 +1066,7 @@ class LepicWalletService implements WalletService {
         // Kill switch runs no tor, and the build without Tor has none.
         torWanted: torBuilt && !config.offline && await (torWantedFor?.call(config) ?? Future.value(false)),
         hostFeatures: appHostFeatures,
+        profile: 0,
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
