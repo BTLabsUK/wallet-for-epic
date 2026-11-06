@@ -79,8 +79,10 @@ abstract interface class PairingApi {
   /// [PairingEventKind.relayMoveRefused]); an unreachable home relay, or no word by the end of
   /// the wait, is [ContactCheckOutcome.notAnswering] ([PairingRecord.notAnswering], until the
   /// contact is heard again). A check that cannot be sent for one contact leaves the others
-  /// alone. Returns the outcome by pairing id; empty when nothing was checked.
-  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery});
+  /// alone. With [only], exactly those pairings are asked, whatever their kind or profile, if
+  /// they are paired and not ended (the check after a backup restore). Returns the outcome by
+  /// pairing id; empty when nothing was checked.
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only});
 
   // Your code (RFC 7.1): this wallet is A.
 
@@ -334,7 +336,7 @@ class NoPairing implements PairingApi {
   Future<void> followRelayMoves() async {}
 
   @override
-  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async => const {};
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only}) async => const {};
 
   @override
   Future<List<PairingRecord>> pairings() async => const [];

@@ -148,6 +148,17 @@ final List<DeskShot> invoiceSetShotsCore = [
     },
     dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => const DeskPairedSaveDialog(pairingId: 'p-anna-new', verified: true)),
   ),
+  // The same result for an automated peer that takes no payments (profile 3).
+  DeskShot(
+    id: 'pair-04b-result-service',
+    title: 'The words-check result of a pairing with a service: No payments, service wording',
+    route: DeskRoute.pair,
+    prepare: (c, _) async {
+      (c.read(deskApiProvider) as MockDeskWallet).pairing.seedPaired(id: 'p-service-new', name: 'Northwind', state: PairingState.verified, peerProfile: 3);
+      c.invalidate(deskPairingsProvider);
+    },
+    dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => const DeskPairedSaveDialog(pairingId: 'p-service-new', verified: true)),
+  ),
   // A contact with all three kinds of address: the list row shows their tags.
   DeskShot(
     id: 'pair-05-contacts-three-addresses',

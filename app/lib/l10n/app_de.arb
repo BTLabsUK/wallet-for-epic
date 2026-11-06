@@ -4849,6 +4849,8 @@
   "pairWaitingFor": "Warten auf die Wallet von {name}",
   "pairAnsweredNotHeard": "Hat deine Einladung beantwortet · noch nichts gehört",
   "pairNotChecked": "{name} hat noch nicht geprüft",
+  "contactTakesPaymentsAgain": "{name} nimmt wieder Zahlungen an.",
+  "pairIsService": "Automatisierter Dienst.",
   "pairConfirmedToo": "{name} hat auch bestätigt.",
   "pairEndedShort": "Kopplung beendet",
   "pairEndedMismatch": "Du hast gemeldet, dass die Wörter nicht übereinstimmen.",
@@ -5318,5 +5320,12 @@
   "pairEndedRowPeerMismatch": "Hat gemeldet, dass die Wörter nicht übereinstimmen.",
   "pairEndedRowNeverFinished": "Die Wallet hat nie abgeschlossen.",
   "pairEndedRowUnpaired": "Hat die Kopplung entfernt.",
-  "deskSendErrOwnNamed": "Das ist „{wallet}“, die gerade geöffnete Wallet. Um sie zu bezahlen, öffne zuerst eine andere Wallet."
+  "deskSendErrOwnNamed": "Das ist „{wallet}“, die gerade geöffnete Wallet. Um sie zu bezahlen, öffne zuerst eine andere Wallet.",
+  "deskConLabelTitle": "Label",
+  "deskConLabelWallet": "Nur eine Wallet",
+  "deskConLabelExchange": "Börse",
+  "deskConLabelVendor": "Händler",
+  "deskConLabelService": "Dienst",
+  "deskConLabelDefault": "Standard",
+  "deskConLabelCurrent": "Label: {name}"
 }

@@ -225,7 +225,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
               if (key != null)
                 KeyPictureView(picture: KeyPicture.of(key), size: 72, framed: true)
               else
-                PairAvatar(name: noName ? l.pairUnnamed : name, kind: p.kind, size: 72),
+                PairAvatar(name: noName ? l.pairUnnamed : name, size: 72),
               // 24, less the bracket offset on a key picture: about 18 from bracket to text.
               SizedBox(width: key != null ? 24 - KeyPictureView.frameOffsetOf(72) + 1 : 24),
               Expanded(

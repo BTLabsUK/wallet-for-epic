@@ -49,5 +49,12 @@
   "deskConKeep": "Kontakt behalten",
   "deskConDeleteAction": "Kontakt löschen",
   "deskConPickForPairing": "Die Kopplung kommt zu dem Kontakt, den Sie wählen.",
-  "deskConExportDo": "Exportieren"
+  "deskConExportDo": "Exportieren",
+  "deskConLabelTitle": "Label",
+  "deskConLabelWallet": "Nur eine Wallet",
+  "deskConLabelExchange": "Börse",
+  "deskConLabelVendor": "Händler",
+  "deskConLabelService": "Dienst",
+  "deskConLabelDefault": "Standard",
+  "deskConLabelCurrent": "Label: {name}"
 }

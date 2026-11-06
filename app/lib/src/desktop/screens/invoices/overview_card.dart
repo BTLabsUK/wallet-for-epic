@@ -37,11 +37,42 @@ class OverviewInvoicesCard extends ConsumerWidget {
         ],
       ),
     );
+    // Nothing waiting either way: the two lines and the button share one row, so the card
+    // takes the room of a list row instead of a box around two "nothing" lines.
+    final quiet = waiting.isEmpty && open.isEmpty && attention.isEmpty;
+    final openButton = InvButton(label: l.deskInvActOpenInvoices, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices));
     return Padding(
       padding: EdgeInsets.only(top: Sp.x4),
       child: EPanel(
         title: l.deskInvActOverviewTitle,
-        child: Column(
+        padding: quiet ? EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x3) : null,
+        child: quiet
+            ? LayoutBuilder(
+                builder: (context, box) {
+                  final lines = Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      line(EIcons.invoice, l.deskInvActOverviewToPay(0)),
+                      line(EIcons.request, l.deskInvActOverviewWaiting(0)),
+                    ],
+                  );
+                  if (box.maxWidth < Lay.sm) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [lines, SizedBox(height: Sp.x3), openButton],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Expanded(child: lines),
+                      SizedBox(width: Sp.x4),
+                      openButton,
+                    ],
+                  );
+                },
+              )
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             line(
@@ -64,7 +95,7 @@ class OverviewInvoicesCard extends ConsumerWidget {
               alignment: Alignment.centerLeft,
               child: waiting.isNotEmpty || attention.isNotEmpty
                   ? InvButton(label: l.deskInvActReview, kind: EBtnKind.primary, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices, InvoicesTab.pay))
-                  : InvButton(label: l.deskInvActOpenInvoices, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices)),
+                  : openButton,
             ),
           ],
         ),

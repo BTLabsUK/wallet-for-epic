@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../contacts.dart';
 import '../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
+import '../../trust/policy.dart' show statedAutomated;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -310,9 +311,11 @@ class ContactPairingBlock extends ConsumerWidget {
         ? l.contactKeysChangedStatus
         : waiting
             ? l.pairAnsweredNotHeard
-            : (verified && p.peerVerifiedAt != null)
-                ? l.pairConfirmedToo(name)
-                : l.pairNotChecked(name);
+            : statedAutomated(p.peerProfile)
+                ? l.pairIsService
+                : (verified && p.peerVerifiedAt != null)
+                    ? l.pairConfirmedToo(name)
+                    : l.pairNotChecked(name);
     final status = Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
       child: Row(

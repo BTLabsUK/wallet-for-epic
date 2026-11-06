@@ -1624,7 +1624,7 @@ void main() {
         allowInvoices: allow,
         contactId: id,
         paymentsAddress: shop,
-        kind: PairingParty.exchange,
+        peerProfile: 2,
       );
     }
 

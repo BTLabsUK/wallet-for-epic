@@ -240,6 +240,19 @@ void main() {
     await _real(tester);
   });
 
+  testWidgets('an automated peer: the check leads with the service wording', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    _pairing.seedPaired(id: 'p-bot', name: 'Tipbot', state: PairingState.paired, peerProfile: 3);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    unawaited(showDeskCheckWordsFor(tester.element(find.byKey(deskPairEnterKey)), 'p-bot'));
+    await _real(tester);
+    expect(find.text(_l.sasLeadExchange('Tipbot')), findsOneWidget);
+    expect(find.text(_l.sasLead('Tipbot')), findsNothing);
+    Navigator.of(tester.element(find.byKey(deskCheckMatchKey))).pop();
+    await _real(tester);
+  });
+
   testWidgets('They do not match ends the pairing, kept, with the notice', (tester) async {
     await _open(tester, const DeskPairScreen());
     _pairing.seedPaired(id: 'p-ola', name: 'Ola', state: PairingState.paired);

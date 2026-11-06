@@ -21,7 +21,7 @@ import 'models.dart';
 import 'pairing_api.dart';
 import 'recipient.dart';
 import 'sas_table.dart';
-import 'trust/policy.dart' show featureStatusNotices;
+import 'trust/policy.dart' show featureStatusNotices, statedAutomated;
 import 'wallet_service.dart' show FakeWalletSession, fakeTx;
 
 /// The fake's links: `epiccash://<path>/1/<base64url of a JSON object>`.
@@ -96,14 +96,15 @@ class FakePairing implements PairingApi {
   /// Contacts that do not answer a check, besides those whose relay is down.
   final Set<String> silent = {};
 
-  /// As the real check without the wait: a paired shop or exchange that is not ended is asked;
+  /// As the real check without the wait: a paired automated contact that is not ended is asked;
   /// one that is silent or on a relay that is down is "Not answering", the rest are reachable.
   @override
-  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async {
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only}) async {
     final outcomes = <String, ContactCheckOutcome>{};
     if (!enabled) return outcomes;
     for (final r in [...records]) {
-      if (r.kind == PairingParty.person || r.ended || !(r.state == PairingState.paired || r.state == PairingState.verified)) continue;
+      if (only != null ? !only.contains(r.id) : !statedAutomated(r.peerProfile)) continue;
+      if (r.ended || !(r.state == PairingState.paired || r.state == PairingState.verified)) continue;
       checked.add(r.id);
       final silentNow = silent.contains(r.id) || r.relayDown;
       outcomes[r.id] = silentNow ? ContactCheckOutcome.notAnswering : ContactCheckOutcome.reachable;
@@ -152,6 +153,10 @@ class FakePairing implements PairingApi {
   /// The feature bits the other side announces when it answers ([answerInvite] default):
   /// status notices on, so the inviter waits until heard.
   int peerFeatures = featureStatusNotices;
+
+  /// The profile word the other side's card carries when it answers or confirms
+  /// ([answerInvite], [confirmAnswer] default): 0, a person's card.
+  int peerProfile = 0;
 
   /// Whether a key check (a new pairing added to a contact that has one) finds the old keys:
   /// true is a restored wallet ("keys are back"), false another wallet ("keys changed").
@@ -274,6 +279,7 @@ class FakePairing implements PairingApi {
     List<SasWord>? sas,
     PairingEndReason? endedReason,
     int? peerFeatures,
+    int? peerProfile,
     bool inviter = false,
   }) {
     final rid = id ?? _id('pairing');
@@ -299,6 +305,7 @@ class FakePairing implements PairingApi {
       peerHeardAt: state == PairingState.waiting ? null : now.subtract(const Duration(days: 3)),
       peerVerifiedAt: peerVerifiedAt,
       peerFeatures: peerFeatures ?? this.peerFeatures,
+      peerProfile: peerProfile ?? this.peerProfile,
       endedReason: ended ? (endedReason ?? PairingEndReason.peerMismatch) : null,
       endedAt: ended ? now.subtract(const Duration(hours: 1)) : null,
       relayDown: relayDown,
@@ -312,7 +319,7 @@ class FakePairing implements PairingApi {
   /// another wallet", [PairingFailure.otherWallet]). With status notices in [features] the
   /// inviter waits until heard (Waiting); without, it is paired at the reply. A request
   /// answered by the expected key is verified on completion, shown Waiting until heard.
-  PairingRecord? answerInvite(String id, {String? name, String? fromAddress, PairingParty kind = PairingParty.person, PairingCaps? caps, int? features}) {
+  PairingRecord? answerInvite(String id, {String? name, String? fromAddress, PairingParty kind = PairingParty.person, PairingCaps? caps, int? features, int? profile}) {
     final r = id == standing?.id ? standing! : _get(id);
     final who = name ?? r.label ?? autoAnswerName;
     final from = fromAddress ?? r.expectAddress ?? fakePairedAddress(r.id);
@@ -332,6 +339,7 @@ class FakePairing implements PairingApi {
       sas: fakeSasWords(r.id),
       paymentsAddress: from,
       peerFeatures: bits,
+      peerProfile: profile ?? peerProfile,
       peerHeardAt: waits ? null : now,
       // Both addresses proven: verified once heard (D3).
       verifiedAt: r.expectAddress != null ? now : null,
@@ -349,7 +357,7 @@ class FakePairing implements PairingApi {
   /// verified when it answered a request (both addresses proven), with
   /// [PairingEventKind.confirmed]. The inviter's [features] come with the confirm, as in
   /// LEPIC: the answerer knows nothing of them before.
-  PairingRecord confirmAnswer(String id, {int? features}) {
+  PairingRecord confirmAnswer(String id, {int? features, int? profile}) {
     final r = _get(id);
     final now = clock();
     final request = r.expectAddress != null;
@@ -359,6 +367,7 @@ class FakePairing implements PairingApi {
       sas: fakeSasWords(r.id),
       paymentsAddress: r.expectAddress ?? fakePairedAddress(r.id),
       peerFeatures: features ?? r.peerFeatures,
+      peerProfile: profile ?? r.peerProfile,
       peerHeardAt: now,
     );
     _put(paired);
@@ -475,6 +484,7 @@ class FakePairing implements PairingApi {
       verifiedAt: old.verifiedAt,
       peerHeardAt: clock(),
       peerFeatures: old.peerFeatures,
+      peerProfile: old.peerProfile,
     );
     records.removeWhere((r) => r.id == oldId);
     _superseded[id] = old;
@@ -487,6 +497,14 @@ class FakePairing implements PairingApi {
   void restoreKeys(String id) {
     final r = _get(id);
     emit(PairingEvent(PairingEventKind.keysRestored, pairingId: id, name: _nameOf(r)));
+  }
+
+  /// The contact of [id] sent a newer card carrying [profile], with [PairingEventKind.contactUpdated].
+  PairingRecord updateProfile(String id, int profile) {
+    final r = _get(id).copyWith(peerProfile: profile);
+    _put(r);
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id, name: _nameOf(r)));
+    return r;
   }
 
   /// The relay of [id] stops (or starts again) answering.
@@ -1302,6 +1320,7 @@ class FakePairing implements PairingApi {
             'verified_at': r.verifiedAt?.millisecondsSinceEpoch,
             'contact_id': r.contactId,
             'peer_features': r.peerFeatures,
+            'peer_profile': r.peerProfile,
             'peer_heard_at': r.peerHeardAt?.millisecondsSinceEpoch,
             'peer_verified_at': r.peerVerifiedAt?.millisecondsSinceEpoch,
           },
@@ -1315,6 +1334,7 @@ class FakePairing implements PairingApi {
   int importBackup(Map<String, Object?>? backup, {bool otherDevice = true}) {
     if (!enabled || backup == null) return 0;
     var n = 0;
+    final restored = <String>{};
     for (final raw in (backup['records'] as List?) ?? const []) {
       final m = raw as Map<String, Object?>;
       final id = m['id'] as String;
@@ -1336,14 +1356,18 @@ class FakePairing implements PairingApi {
           paymentsAddress: m['payments'] as String?,
           contactId: m['contact_id'] as String?,
           peerFeatures: m['peer_features'] as int? ?? 0,
+          peerProfile: m['peer_profile'] as int? ?? 0,
           peerHeardAt: at('peer_heard_at') ?? created,
           peerVerifiedAt: at('peer_verified_at'),
           otherDevice: otherDevice,
         ),
       );
       n++;
+      restored.add(id);
     }
     if (otherDevice) importedOtherDevice += n;
+    // As the real one: each restored pairing is asked once, whatever its kind.
+    if (restored.isNotEmpty) unawaited(checkContacts(only: restored));
     return n;
   }
 
@@ -1546,12 +1570,10 @@ class FakePairing implements PairingApi {
     Uint8List? bind,
     int net = 0,
     int issued = 1,
-    int flags = 0,
     String? label,
   }) {
     final r = records.firstWhere((e) => e.id == id);
     final unsigned = nsHelloUnsigned(
-      flags: flags,
       label: label,
       net: net,
       serviceKey: serviceKey,

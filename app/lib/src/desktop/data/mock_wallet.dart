@@ -22,7 +22,7 @@ import '../../name_service/name_service_service.dart' show NameServiceHost;
 import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
+import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
@@ -1053,7 +1053,7 @@ class MockDeskWallet implements DeskWalletApi {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);
     _contacts.add(
-      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
+      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, label: contact.label, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
     );
     // A payment to one of its addresses takes its name, as the real wallet's rows do.
     for (final (i, t) in _txs.indexed) {
@@ -1405,7 +1405,7 @@ class MockDeskWallet implements DeskWalletApi {
       id: mockNorthwindPairing,
       name: 'Northwind Exchange',
       contactId: 'c8',
-      kind: PairingParty.exchange,
+      peerProfile: 2,
       caps: const PairingCaps(issuesInvoices: true, sharedInbox: true, sendsWithdrawals: true),
       allowInvoices: true,
       paymentsAddress: _northwindAddr,
@@ -1416,7 +1416,7 @@ class MockDeskWallet implements DeskWalletApi {
       id: mockCoffeePairing,
       name: 'Coffee Roasters',
       contactId: 'c5',
-      kind: PairingParty.shop,
+      peerProfile: 2,
       caps: const PairingCaps(issuesInvoices: true),
       allowInvoices: true,
       paymentsAddress: _coffeeAddr,

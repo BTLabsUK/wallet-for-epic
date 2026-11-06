@@ -22,6 +22,7 @@ import 'dart:typed_data';
 import 'package:cryptography/cryptography.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 
+import 'contact_label.dart';
 import 'log.dart';
 import 'recipient.dart';
 import 'sealed_file.dart';
@@ -34,7 +35,7 @@ const int contactsFileVersion = 1;
 
 /// One address book entry as stored.
 class ContactFields {
-  const ContactFields({this.id = '', required this.name, this.epicbox, this.http, this.tor, this.note});
+  const ContactFields({this.id = '', required this.name, this.epicbox, this.http, this.tor, this.note, this.label = ContactLabel.wallet});
 
   /// Empty for a contact not saved yet.
   final String id;
@@ -50,6 +51,8 @@ class ContactFields {
   final String? tor;
   final String? note;
 
+  /// Display only; written only when not [ContactLabel.wallet].
+  final ContactLabel label;
 
   String? of(RecipientKind kind) => switch (kind) {
     RecipientKind.epicbox => epicbox,
@@ -59,13 +62,14 @@ class ContactFields {
 
   List<String> get addresses => [?epicbox, ?http, ?tor];
 
-  ContactFields copyWith({String? id, String? epicbox, String? http, String? tor, String? note}) => ContactFields(
+  ContactFields copyWith({String? id, String? epicbox, String? http, String? tor, String? note, ContactLabel? label}) => ContactFields(
     id: id ?? this.id,
     name: name,
     epicbox: epicbox ?? this.epicbox,
     http: http ?? this.http,
     tor: tor ?? this.tor,
     note: note ?? this.note,
+    label: label ?? this.label,
   );
 
   Map<String, Object?> toJson() => {
@@ -75,6 +79,7 @@ class ContactFields {
     if (http != null) 'http': http,
     if (tor != null) 'tor': tor,
     if (note != null) 'note': note,
+    'label': ?label.stored,
   };
 
   /// Null for an entry of the wrong shape.
@@ -83,7 +88,7 @@ class ContactFields {
     String? opt(String k) => j[k] is String && (j[k] as String).trim().isNotEmpty ? j[k] as String : null;
     final id = opt('id'), name = opt('name');
     if (id == null || name == null) return null;
-    return ContactFields(id: id, name: name, epicbox: opt('epicbox'), http: opt('http'), tor: opt('tor'), note: opt('note'));
+    return ContactFields(id: id, name: name, epicbox: opt('epicbox'), http: opt('http'), tor: opt('tor'), note: opt('note'), label: ContactLabel.fromStored(j['label']));
   }
 
   @override
@@ -94,13 +99,14 @@ class ContactFields {
       other.epicbox == epicbox &&
       other.http == http &&
       other.tor == tor &&
-      other.note == note;
+      other.note == note &&
+      other.label == label;
 
   @override
-  int get hashCode => Object.hash(id, name, epicbox, http, tor, note);
+  int get hashCode => Object.hash(id, name, epicbox, http, tor, note, label);
 
   @override
-  String toString() => 'ContactFields($id, $name, epicbox: $epicbox, http: $http, tor: $tor, note: $note)';
+  String toString() => 'ContactFields($id, $name, epicbox: $epicbox, http: $http, tor: $tor, note: $note, label: ${label.name})';
 }
 
 WalletError _io(String message) => WalletError(kind: WalletErrorKind.io, message: message);
@@ -660,7 +666,7 @@ class ContactStore {
     String? t(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
     final name = t(c.name);
     if (name == null) throw _invalid('the contact needs a name');
-    return ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note));
+    return ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note), label: c.label);
   }
 
   /// Applies [change] to a copy and persists it; the contacts change only if the write

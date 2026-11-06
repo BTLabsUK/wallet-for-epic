@@ -22,6 +22,7 @@ import 'address_view.dart' show MarkedAddress;
 import 'app_dialog.dart';
 import 'common.dart';
 import 'inline_button.dart';
+import 'contact_label_picker.dart';
 import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
@@ -323,6 +324,18 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: p.id, recheck: p.state.isPaired)));
 }
 
+/// Asks for the contact's label and saves it on the contact as it stands (every other field
+/// is kept). Dismissing the sheet changes nothing.
+Future<void> _pickLabel(BuildContext context, WidgetRef ref, Contact contact) async {
+  final picked = await showContactLabelPicker(context, contact.label);
+  if (picked == null || picked == contact.label) return;
+  try {
+    await ref.read(contactsProvider.notifier).save(contact.copyWith(label: picked));
+  } catch (error) {
+    if (context.mounted) ref.read(noticeProvider.notifier).show(describeError(context.l10n, error), level: NoticeLevel.error);
+  }
+}
+
 class _Header extends ConsumerWidget {
   const _Header({
     required this.contact,
@@ -380,7 +393,12 @@ class _Header extends ConsumerWidget {
       children: [
         Row(
           children: [
-            PairAvatar(name: contact.name, kind: p?.kind ?? PairingParty.person, size: 72),
+            PairAvatar(
+              name: contact.name,
+              size: 72,
+              label: contact.label,
+              onLabelTap: () => _pickLabel(context, ref, contact),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

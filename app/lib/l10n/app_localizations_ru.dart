@@ -19396,6 +19396,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name снова принимает платежи.';
+  }
+
+  @override
+  String get pairIsService => 'Автоматический сервис.';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name тоже подтвердил(а).';
   }
@@ -21107,5 +21115,28 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String deskSendErrOwnNamed(String wallet) {
     return 'Это «$wallet», открытый сейчас кошелёк. Чтобы отправить на него, сначала откройте другой кошелёк.';
+  }
+
+  @override
+  String get deskConLabelTitle => 'Метка';
+
+  @override
+  String get deskConLabelWallet => 'Просто кошелёк';
+
+  @override
+  String get deskConLabelExchange => 'Биржа';
+
+  @override
+  String get deskConLabelVendor => 'Продавец';
+
+  @override
+  String get deskConLabelService => 'Сервис';
+
+  @override
+  String get deskConLabelDefault => 'По умолчанию';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return 'Метка: $name';
   }
 }

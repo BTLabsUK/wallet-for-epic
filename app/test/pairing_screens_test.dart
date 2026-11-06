@@ -360,6 +360,18 @@ void main() {
       expect(find.byKey(resultSaveNewKey), findsOneWidget);
     });
 
+    testWidgets('an automated peer: the service lead, and the result says so instead of the confirmed line', (tester) async {
+      final h = _Harness();
+      final r = h.api.seedPaired(name: 'Tipbot', state: PairingState.paired, peerProfile: 3);
+      await h.pump(tester, CheckWordsScreen(pairingId: r.id));
+      expect(find.text(_l.sasLeadExchange('Tipbot')), findsOneWidget);
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(PairingResultScreen), findsOneWidget);
+      expect(find.text(_l.pairIsService), findsOneWidget);
+      expect(find.text(_l.pairNotChecked('Tipbot')), findsNothing);
+    });
+
     testWidgets('They do not match asks, then ends the pairing (kept) with the notice', (tester) async {
       final h = _Harness();
       final r = h.api.seedPaired(name: 'Anna', state: PairingState.paired);
@@ -458,6 +470,7 @@ void main() {
       expect(find.byKey(contactPageUnprovenKey), findsOneWidget);
       expect(find.text(_l.pairAddressNotConfirmed), findsOneWidget);
       await tester.ensureVisible(find.byKey(contactPagePairAgainUnprovenKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPagePairAgainUnprovenKey));
       await tester.pumpAndSettle();
       expect(find.byType(PairScreen), findsOneWidget, reason: 'not a proven peer: the Pair screen framed for the contact');
@@ -490,7 +503,7 @@ void main() {
 
     testWidgets('a shop that did not answer the check: Not answering, the line, Pair again; heard again: gone', (tester) async {
       final h = await page(tester, (h) {
-        h.api.seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: _anna);
+        h.api.seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, peerProfile: 2, state: PairingState.paired, paymentsAddress: _anna);
         h.api.silent.add('s');
       });
       await h.api.checkContacts();
@@ -617,7 +630,7 @@ void main() {
       final h = _Harness();
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
       h.api
-        ..seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: _anna)
+        ..seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, peerProfile: 2, state: PairingState.paired, paymentsAddress: _anna)
         ..silent.add('s');
       await h.api.checkContacts();
       await h.pump(tester, const ContactsScreen());

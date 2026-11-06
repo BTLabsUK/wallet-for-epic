@@ -198,6 +198,10 @@ class QrSlateReader {
           return const QrRead(QrReadKind.notSlate);
         case WalletErrorKind.invalidQrCode:
         case WalletErrorKind.qrCodeTooLarge:
+          // The parts held so far cannot make a payment (one of them was forged or damaged,
+          // or they grew past the limit): start over, so the code in front of the camera
+          // can still be read instead of failing on every frame until the screen closes.
+          reset();
           return const QrRead(QrReadKind.unreadable);
         default:
           rethrow;

@@ -4,6 +4,7 @@
 
 import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/pairing_providers.dart' show pairingRefusalsProvider;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -16,6 +17,7 @@ import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
+import 'package:epic_wallet/src/trust/policy.dart' show profileAutomated, profileNoPayments;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,9 +75,12 @@ class _PickerState extends State<_Picker> {
 }
 
 class _Harness {
-  _Harness({this.refusals});
+  _Harness({this.refusals, this.fromPairings = false});
 
   final PaymentRefusals? refusals;
+
+  /// The app's own refusals, read from the pairings' card profile.
+  final bool fromPairings;
   final session = FakeWalletSession();
   late final service = FakeWalletService(session: session);
 
@@ -102,6 +107,7 @@ class _Harness {
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           if (refusals != null) paymentRefusalsProvider.overrideWithValue(refusals!),
+          if (fromPairings) paymentRefusalsProvider.overrideWith((ref) => ref.watch(pairingRefusalsProvider)),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -280,6 +286,54 @@ void main() {
       await tester.tap(find.text('Alice'));
       await tester.pumpAndSettle();
       expect(find.text(_l.contactsPickTitle), findsOneWidget, reason: 'the disabled row does not pick');
+      await tester.tap(find.text('Bob'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactsPickTitle), findsNothing);
+      expect(find.text('Bob'), findsOneWidget);
+    });
+  });
+
+  group('the card profile says no payments', () {
+    // A pairing whose card carries the profile word, and no name service entry.
+    Future<_Harness> seeded(int profile) async {
+      final h = _Harness(fromPairings: true);
+      await h.add('Alice', _alice);
+      await h.add('Bob', _bob);
+      final alice = (await h.session.contacts()).firstWhere((c) => c.name == 'Alice');
+      h.session.pairing.seedPaired(name: 'Alice', contactId: alice.id, state: PairingState.verified, paymentsAddress: _alice, peerProfile: profile);
+      return h;
+    }
+
+    Future<void> openAlice(WidgetTester tester, _Harness h) async {
+      await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.text('Alice').first);
+      await tester.pumpAndSettle();
+      expect(find.byType(ContactPage), findsOneWidget);
+    }
+
+    testWidgets('bit 0: the page has no Send', (tester) async {
+      final h = await seeded(profileNoPayments);
+      await openAlice(tester, h);
+      expect(find.byKey(contactPageSendKey), findsNothing);
+      expect(find.byKey(contactPageNoPaymentsKey), findsOneWidget);
+    });
+
+    testWidgets('bit 0 clear: the page has Send', (tester) async {
+      final h = await seeded(profileAutomated);
+      await openAlice(tester, h);
+      expect(find.byKey(contactPageSendKey), findsOneWidget);
+      expect(find.byKey(contactPageNoPaymentsKey), findsNothing);
+    });
+
+    testWidgets('bit 0: the picker for a payment refuses the contact; Bob can be picked', (tester) async {
+      final h = await seeded(profileNoPayments);
+      await h.pump(tester, const _Picker(forPayment: true));
+      await tester.tap(find.text('pick'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactTakesNoPayments), findsOneWidget);
+      await tester.tap(find.text('Alice').first);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactsPickTitle), findsOneWidget, reason: 'the refused row does not pick');
       await tester.tap(find.text('Bob'));
       await tester.pumpAndSettle();
       expect(find.text(_l.contactsPickTitle), findsNothing);

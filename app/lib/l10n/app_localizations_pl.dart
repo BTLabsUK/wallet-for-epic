@@ -19408,6 +19408,14 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name znów przyjmuje płatności.';
+  }
+
+  @override
+  String get pairIsService => 'Usługa automatyczna.';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name też potwierdził(a).';
   }
@@ -21122,5 +21130,28 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String deskSendErrOwnNamed(String wallet) {
     return 'To „$wallet”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel.';
+  }
+
+  @override
+  String get deskConLabelTitle => 'Etykieta';
+
+  @override
+  String get deskConLabelWallet => 'Tylko portfel';
+
+  @override
+  String get deskConLabelExchange => 'Giełda';
+
+  @override
+  String get deskConLabelVendor => 'Sprzedawca';
+
+  @override
+  String get deskConLabelService => 'Usługa';
+
+  @override
+  String get deskConLabelDefault => 'Domyślna';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return 'Etykieta: $name';
   }
 }

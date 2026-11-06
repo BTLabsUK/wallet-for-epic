@@ -20,6 +20,9 @@ import '../../data/pairing_state.dart' show deskPairingsProvider;
 import '../../widgets/kit.dart';
 import '../settings/backup.dart' show historyBackupProvider;
 import 'activity_screen.dart';
+import '../../../contact_label.dart';
+import '../../../ui/contact_label_mark.dart' show contactLabelMarkKey;
+import '../pairing/add_to_contacts_button.dart' show deskAddToContactsKey, deskAddToContactsNewKey;
 import 'contacts_screen.dart';
 import 'contacts_transfer.dart' show deskExportContacts, deskImportContacts;
 import 'outputs_dialogs.dart';
@@ -65,6 +68,31 @@ Future<void> _click(Key key) async {
 }
 
 /// Opens the status popover of [jump] (`node`, `epicbox`, `http`, `tor`).
+/// An exchange, a service and a vendor among the mock's contacts, for the label shots.
+Future<void> _labelled(ProviderContainer c) async {
+  final api = c.read(deskApiProvider);
+  final all = await api.contacts();
+  for (final (id, label) in [('c3', ContactLabel.exchange), ('c2', ContactLabel.service), ('c5', ContactLabel.vendor)]) {
+    await api.saveContact(all.firstWhere((x) => x.id == id).copyWith(label: label));
+  }
+}
+
+/// Taps the widget with [key] that answers to a tap (the label mark), after a frame.
+Future<void> _tapKey(Key key) async {
+  dynamic found;
+  void visit(Element e) {
+    if (found != null) return;
+    if (e.widget.key == key) {
+      found = e.widget;
+      return;
+    }
+    e.visitChildren(visit);
+  }
+  WidgetsBinding.instance.rootElement!.visitChildren(visit);
+  (found?.onTap as VoidCallback?)?.call();
+  await Future<void>.delayed(const Duration(milliseconds: 250));
+}
+
 Future<void> Function(ProviderContainer, BuildContext) _status(String jump) => (c, _) => _click(ValueKey('bar-status-$jump'));
 
 /// Clicks a button inside the open popover (a shot's [DeskShot.after]).
@@ -118,6 +146,15 @@ Future<void> _unsavedPairings(ProviderContainer c) async {
   if (api is! MockDeskWallet) return;
   api.pairing.seedPaired(id: 'p-faucet', name: 'BT Labs Faucet', paymentsAddress: 'esFaucetKey9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox', verifiedAt: DateTime(2026, 10, 28));
   api.pairing.seedPaired(id: 'p-sam', name: 'Sam', state: PairingState.waiting);
+  c.invalidate(deskPairingsProvider);
+}
+
+/// Anna's card says automated and takes no payments (profile 3): her details show the service
+/// wording and no Send.
+Future<void> _servicePairing(ProviderContainer c) async {
+  final api = c.read(deskApiProvider);
+  if (api is! MockDeskWallet) return;
+  api.pairing.updateProfile(mockAnnaPairing, 3);
   c.invalidate(deskPairingsProvider);
 }
 
@@ -329,6 +366,26 @@ final List<DeskShot> walletShots = [
     title: 'Contacts, one selected',
     route: DeskRoute.contacts,
     arg: ContactsArgs(selectedId: 'c1'),
+  ),
+  DeskShot(id: '21f-contacts-pairing-service', title: 'Contacts, a paired service selected: no payments', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), before: _servicePairing),
+  DeskShot(id: '21g-contact-labels-list', title: 'Contacts, labelled contacts marked on the avatar', route: DeskRoute.contacts, before: _labelled),
+  DeskShot(id: '21g-contact-label-details', title: 'Contacts, an exchange selected: its label mark on the avatar', route: DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c3'), before: _labelled),
+  DeskShot(
+    id: '21g-contact-label-menu',
+    title: 'Contacts, the label menu open from the mark',
+    route: DeskRoute.contacts,
+    arg: const ContactsArgs(selectedId: 'c3'),
+    before: _labelled,
+    prepare: (c, _) => _tapKey(contactLabelMarkKey),
+  ),
+  DeskShot(
+    id: '21g-pairing-save-label',
+    title: 'Save in your contacts, with the Label row',
+    route: DeskRoute.contacts,
+    before: _unsavedPairings,
+    prepare: (c, _) => _click(deskAddToContactsKey),
+    after: (c, _) => _click(deskAddToContactsNewKey),
+    opensDialog: true,
   ),
   const DeskShot(id: '21d-contacts-loading', title: 'Contacts, loading', route: DeskRoute.contacts, arg: ContactsArgs(loading: true)),
   DeskShot(id: '21f-contacts-pairing-unsaved', title: 'Contacts, pairings not in contacts: Add to contacts, Cancel', route: DeskRoute.contacts, before: _unsavedPairings),

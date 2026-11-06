@@ -192,7 +192,7 @@ class _RequestRow extends ConsumerWidget {
           if (inviteKeyOf(request.inviteLink) case final key?)
             KeyPictureView(picture: KeyPicture.of(key), size: 48)
           else
-            PairAvatar(name: name, kind: request.kind),
+            PairAvatar(name: name),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

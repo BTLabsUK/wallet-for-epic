@@ -42,7 +42,9 @@ double latticeStrength(int? rows) {
 /// The lattice, filling the space it is given. [color] is the text colour of the theme
 /// (`context.tokens.text`, `context.dc.text`); [strength] scales it (see [latticeStrength]).
 /// [vignette] fades it out towards an ellipse touching the four sides (the desktop's wide
-/// area).
+/// area). [gain] scales the lines' and nodes' own alpha: 1 is the dark theme's whisper; a
+/// light page, where the same alpha reads as a smudge, draws it at 3 in a warm colour so it
+/// reads as the lattice it is.
 class BrandLattice extends StatelessWidget {
   const BrandLattice({
     super.key,
@@ -50,12 +52,14 @@ class BrandLattice extends StatelessWidget {
     required this.strength,
     this.cell = latticeCellPhone,
     this.vignette = false,
+    this.gain = 1,
   });
 
   final Color color;
   final double strength;
   final double cell;
   final bool vignette;
+  final double gain;
 
   @override
   Widget build(BuildContext context) => strength <= 0
@@ -65,7 +69,7 @@ class BrandLattice extends StatelessWidget {
     child: IgnorePointer(
       child: RepaintBoundary(
         child: CustomPaint(
-          painter: LatticePainter(color: color, strength: strength, cell: cell, vignette: vignette),
+          painter: LatticePainter(color: color, strength: strength, cell: cell, vignette: vignette, gain: gain),
         ),
       ),
     ),
@@ -79,12 +83,14 @@ class LatticePainter extends CustomPainter {
     required this.strength,
     required this.cell,
     this.vignette = false,
+    this.gain = 1,
   });
 
   final Color color;
   final double strength;
   final double cell;
   final bool vignette;
+  final double gain;
 
   // The "Faint" strength: lines and nodes, a base plus a share of the vignette's weight.
   static const _line0 = .012, _line1 = .055, _node0 = .03, _node1 = .14;
@@ -187,7 +193,7 @@ class LatticePainter extends CustomPainter {
     for (var k = 0; k < bands.length; k++) {
       final wk = (k + .5) / 10;
       if (wk < .05) continue;
-      canvas.drawPath(bands[k], line..color = color.withValues(alpha: color.a * (_line0 + _line1 * wk)));
+      canvas.drawPath(bands[k], line..color = color.withValues(alpha: (color.a * gain * (_line0 + _line1 * wk)).clamp(0, 1)));
     }
 
     // A 2 px node on each vertex.
@@ -196,12 +202,12 @@ class LatticePainter extends CustomPainter {
       if (nk[i] < .03) continue;
       canvas.drawRect(
         Rect.fromLTWH(xs[i] - 1, ys[i] - 1, 2, 2),
-        dot..color = color.withValues(alpha: color.a * (_node0 + _node1 * nk[i])),
+        dot..color = color.withValues(alpha: (color.a * gain * (_node0 + _node1 * nk[i])).clamp(0, 1)),
       );
     }
   }
 
   @override
   bool shouldRepaint(LatticePainter old) =>
-      old.color != color || old.strength != strength || old.cell != cell || old.vignette != vignette;
+      old.color != color || old.strength != strength || old.cell != cell || old.vignette != vignette || old.gain != gain;
 }

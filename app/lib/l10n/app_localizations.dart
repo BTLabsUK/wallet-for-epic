@@ -29184,6 +29184,18 @@ abstract class AppLocalizations {
   /// **'{name} has not checked yet'**
   String pairNotChecked(String name);
 
+  /// Notice (phone) and toast (desktop) when a paired contact that took no payments takes them again. name is the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} takes payments again.'**
+  String contactTakesPaymentsAgain(String name);
+
+  /// Status line of a paired contact that says it is automated (a service), in place of the line about whether it confirmed the words. A short phrase with a full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated service.'**
+  String get pairIsService;
+
   /// Pairing block, Verified: the other side pressed They match.
   ///
   /// In en, this message translates to:
@@ -31937,6 +31949,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is “{wallet}”, the wallet open now. To pay it, open another wallet first.'**
   String deskSendErrOwnNamed(String wallet);
+
+  /// Title of the contact label picker and name of the Label row: what kind of party a contact is, chosen by the user and shown only to them.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get deskConLabelTitle;
+
+  /// Contact label: an ordinary wallet. The default; nothing is shown for it in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Just a wallet'**
+  String get deskConLabelWallet;
+
+  /// Contact label: a crypto exchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange'**
+  String get deskConLabelExchange;
+
+  /// Contact label: a shop or seller that takes payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor'**
+  String get deskConLabelVendor;
+
+  /// Contact label: an online service or provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get deskConLabelService;
+
+  /// Small tag on the Just a wallet row of the label picker: the label a contact has until the user picks another.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get deskConLabelDefault;
+
+  /// Tooltip and screen reader name of a contact's label mark on its avatar; {name} is the label's name, for example Exchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Label: {name}'**
+  String deskConLabelCurrent(String name);
 }
 
 class _AppLocalizationsDelegate

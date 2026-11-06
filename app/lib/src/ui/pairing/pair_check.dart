@@ -10,10 +10,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../contact_label.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service.dart';
 import '../../name_service/phone_name_service.dart';
-import '../../trust/policy.dart' show featureNameService;
+import '../../trust/policy.dart' show featureNameService, statedAutomated;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -22,6 +23,8 @@ import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../contact_page.dart' show ContactPage;
+import '../contact_label_mark.dart' show ContactLabelGlyph, contactLabelName;
+import '../contact_label_picker.dart' show showContactLabelPicker;
 import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
@@ -39,6 +42,7 @@ const Key checkDoneKey = ValueKey('check-done');
 const Key checkAllowKey = ValueKey('check-allow');
 const Key resultAllowKey = ValueKey('result-allow');
 const Key resultSaveNewKey = ValueKey('result-save-new');
+const Key resultLabelRowKey = ValueKey('result-label-row');
 const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
 /// Asks before removing the pairing with [name]: Keep, or Remove in risk. Undoing it
@@ -272,9 +276,8 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       if (step == HelloStep.check && serviceKey != null) {
         return NameServiceCodeCheck(
           label: name,
-          kind: record.kind,
           serviceKey: serviceKey,
-          noPayments: helloEntry!.noPayments,
+          noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id),
           busy: _busy,
           onMatch: () => _answer(PairingCheck.match),
           onNoMatch: _noMatch,
@@ -287,7 +290,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       }
     }
     // A name service confirms by itself once this side matched: nothing to confirm on its page.
-    final service = record.kind != PairingParty.person && record.peerFeatures & featureNameService == 0;
+    final service = statedAutomated(record.peerProfile) && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
     return SlotScaffold(
@@ -316,7 +319,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         children: [
           Row(
             children: [
-              PairAvatar(name: name, kind: record.kind),
+              PairAvatar(name: name),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -380,6 +383,14 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   String? _attachedTo;
   bool _left = false;
 
+  /// The label for the contact this saves; the default writes nothing.
+  ContactLabel _label = ContactLabel.wallet;
+
+  Future<void> _pickLabel() async {
+    final picked = await showContactLabelPicker(context, _label);
+    if (picked != null && mounted) setState(() => _label = picked);
+  }
+
   Future<void> _run(Future<void> Function() call) async {
     if (_busy) return;
     setState(() => _busy = true);
@@ -395,7 +406,9 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   Future<void> _saveNew(PairingRecord r) async {
     final saved = await savePairingAsNewContact(context, r);
     if (saved == null || !mounted) return;
-    await _attach(r, saved);
+    final stored = _label == ContactLabel.wallet ? saved : await ref.read(contactsProvider.notifier).save(saved.copyWith(label: _label));
+    if (!mounted) return;
+    await _attach(r, stored);
   }
 
   Future<void> _addTo(PairingRecord r) async {
@@ -521,7 +534,11 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           if (verified) ...[
             const SizedBox(height: 8),
             Text(
-              record.peerVerifiedAt != null ? l.pairConfirmedToo(who) : l.pairNotChecked(who),
+              statedAutomated(record.peerProfile)
+                  ? l.pairIsService
+                  : record.peerVerifiedAt != null
+                      ? l.pairConfirmedToo(who)
+                      : l.pairNotChecked(who),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
@@ -537,7 +554,18 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(l.pairSaveContactTitle(name), style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 6),
+                      ListTile(
+                        key: resultLabelRowKey,
+                        contentPadding: EdgeInsets.zero,
+                        enabled: !_busy,
+                        leading: ContactLabelGlyph(_label, size: 24, color: _label == ContactLabel.wallet ? t.faint : t.dim),
+                        title: Text(l.deskConLabelTitle),
+                        subtitle: Text(contactLabelName(l, _label)),
+                        trailing: Icon(Icons.chevron_right, color: t.faint),
+                        onTap: _pickLabel,
+                      ),
+                      const SizedBox(height: 6),
                       if (suggested != null) ...[
                         FilledButton(
                           key: resultAddToNamedKey,

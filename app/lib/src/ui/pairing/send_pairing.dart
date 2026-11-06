@@ -174,7 +174,7 @@ class PairingRecipientCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          PairAvatar(name: name, kind: pairing.kind, size: 40),
+          PairAvatar(name: name, size: 40),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

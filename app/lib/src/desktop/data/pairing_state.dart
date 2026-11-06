@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
+import '../../name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
 import '../../models.dart' show PairRequest, PairingEndReason, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf, epicboxKey;
 import '../../pairing_api.dart';
 import '../../l10n.dart' show AppLocalizations;
@@ -77,6 +78,10 @@ class DeskPairings extends AsyncNotifier<List<PairingRecord>> {
     }
   }
 }
+
+/// [PairingRefusals] over the open wallet's pairings, for [paymentRefusalsProvider]; none while
+/// they load.
+final deskPairingRefusalsProvider = Provider<PaymentRefusals>((ref) => PairingRefusals(ref.watch(deskPairingsProvider).value ?? const []));
 
 /// The Epicbox keys of the desktop's address book, or null while it is unknown: not loaded
 /// yet ([contacts] null) or [closed] (the shared book has no key for this wallet yet).
@@ -272,6 +277,7 @@ final deskContactRelationshipProvider = Provider.family<Relationship, String>((r
     },
     hasEpicboxAddress: hasAddress,
     peerFeatures: p.peerFeatures,
+    peerProfile: p.peerProfile,
   );
 });
 
@@ -315,6 +321,7 @@ Future<void> deskWriteProvenAddress(WidgetRef ref, PairingRecord r) async {
         http: contact.http,
         tor: contact.tor,
         note: contact.note,
+        label: contact.label,
         favourite: contact.favourite,
         lastUsed: contact.lastUsed,
         hasPicture: contact.hasPicture,

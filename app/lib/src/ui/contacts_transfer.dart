@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contact_label.dart';
 import '../contact_store.dart' show ContactFields;
 import '../contacts.dart';
 import '../contacts_file.dart';
@@ -29,7 +30,7 @@ import 'method_names.dart' show recipientMethodWord;
 const Key contactsImportDoKey = ValueKey('contacts-import-do');
 
 ContactFields _fields(Contact c) =>
-    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note);
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: c.label);
 
 /// Writes the address book to a file and hands it over. Returns true once saved or shared.
 Future<bool> exportContacts(BuildContext context, WidgetRef ref) async {
@@ -111,6 +112,7 @@ Future<bool> importContacts(BuildContext context, WidgetRef ref) async {
           http: was?.http ?? c.http,
           tor: was?.tor ?? c.tor,
           note: (was?.note ?? '').trim().isEmpty ? c.note : was!.note,
+          label: was == null || was.label == ContactLabel.wallet ? c.label : was.label,
         ),
       );
     });

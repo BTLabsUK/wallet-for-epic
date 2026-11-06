@@ -18341,6 +18341,14 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String contactTakesPaymentsAgain(String name) {
+    return '$name รับการจ่ายเงินอีกครั้ง';
+  }
+
+  @override
+  String get pairIsService => 'บริการอัตโนมัติ';
+
+  @override
   String pairConfirmedToo(String name) {
     return '$name ยืนยันแล้วเช่นกัน';
   }
@@ -20017,5 +20025,28 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String deskSendErrOwnNamed(String wallet) {
     return 'นี่คือ “$wallet” กระเป๋าเงินที่เปิดอยู่ตอนนี้ หากต้องการจ่ายเข้ากระเป๋านี้ ให้เปิดกระเป๋าเงินอื่นก่อน';
+  }
+
+  @override
+  String get deskConLabelTitle => 'ป้ายกำกับ';
+
+  @override
+  String get deskConLabelWallet => 'แค่กระเป๋าเงิน';
+
+  @override
+  String get deskConLabelExchange => 'ตลาดแลกเปลี่ยน';
+
+  @override
+  String get deskConLabelVendor => 'ร้านค้า';
+
+  @override
+  String get deskConLabelService => 'บริการ';
+
+  @override
+  String get deskConLabelDefault => 'ค่าเริ่มต้น';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return 'ป้ายกำกับ: $name';
   }
 }

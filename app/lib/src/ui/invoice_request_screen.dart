@@ -264,7 +264,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           for (final r in payers)
             ListTile(
               minTileHeight: 64,
-              leading: PairAvatar(name: pairingName(r, contacts), kind: r.kind, size: 48),
+              leading: PairAvatar(name: pairingName(r, contacts), size: 48),
               title: Text(pairingName(r, contacts)),
               trailing: TrustBadge(r, short: true),
               selected: r.id == _to && _toFile != true && !_toQr,
@@ -524,7 +524,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                   ? Text(payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : l.reqPickContactOrMethod, style: TextStyle(color: t.dim))
                   : Row(
                       children: [
-                        PairAvatar(name: pairingName(to, contacts), kind: to.kind, size: 28),
+                        PairAvatar(name: pairingName(to, contacts), size: 28),
                         const SizedBox(width: 8),
                         Flexible(child: Text(pairingName(to, contacts), overflow: TextOverflow.ellipsis)),
                         const SizedBox(width: 8),

@@ -19,10 +19,10 @@ import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairin
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../data/name_service_state.dart' show deskNameServiceProvider;
-import '../../name_service/name_service_model.dart' show NameServiceEntry;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
-import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
+import '../../trust/profile_watch.dart';
+import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
@@ -201,12 +201,15 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();
-    // A hello that comes after the words step: the contact takes no payments, said once.
-    ref.listenManual(deskNameServiceProvider, (_, next) {
-      _lateSub?.cancel();
-      _lateSub = next?.lateNoPayments.listen((e) {
-        if (mounted) showEToast(context, context.l10n.contactNoPaymentsNamed(e.label), tone: ETone.info);
-      });
+    // A paired contact that starts or stops taking payments, said once a day per direction.
+    ref.listenManual(deskPairingsProvider, (_, next) {
+      final records = next.value;
+      if (records == null || !mounted) return;
+      for (final c in _profiles.update(records)) {
+        final l = context.l10n;
+        final name = deskPairingName(c.record, ref.read(deskProvider).contacts, l: l);
+        showEToast(context, c.takesPayments ? l.contactTakesPaymentsAgain(name) : l.contactNoPaymentsNamed(name), tone: ETone.info);
+      }
     }, fireImmediately: true);
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
@@ -223,7 +226,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   }
 
   AppLifecycleListener? _focus;
-  StreamSubscription<NameServiceEntry>? _lateSub;
+  late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(clockProvider));
 
   /// The hidden Settings place last answered with a fallback toast (once per place).
   DeskLocation? _fellBack;
@@ -312,7 +315,6 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _linkRetry?.cancel();
     _collectTimer?.cancel();
     _focus?.dispose();
-    _lateSub?.cancel();
     _settingsFocus.dispose();
     super.dispose();
   }
@@ -417,7 +419,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
     final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
-    final main = Material(color: c.bg, child: DeskSelectable(child: page));
+    // The light backdrop sits under the page and stays put while the page scrolls.
+    final main = Material(color: c.bg, child: DeskBackdrop(child: DeskSelectable(child: page)));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
     final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
     final Widget frame;
@@ -634,7 +637,8 @@ class _Sidebar extends ConsumerWidget {
       label: l.deskShellMainNav,
       child: Container(
         width: compact ? Ctl.rail : Ctl.sidebar,
-        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
+        // Light: the white column stands off the warm page with a visible divider.
+        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.tint.a == 0 ? c.line : c.lineStrong))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

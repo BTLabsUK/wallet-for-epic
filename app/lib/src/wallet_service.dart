@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 
+import 'contact_label.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'name_service/base58.dart' show epicboxKeyText, netMainnet;
 import 'name_service/pins.dart' show LinkMemory;
@@ -1001,10 +1002,18 @@ class FakeWalletService implements WalletService {
       complete: complete,
       received: byIndex.length,
       count: count,
-      json: complete
-          ? utf8.decode([for (var i = 0; i < count; i++) ...byIndex[i]!])
-          : null,
+      json: complete ? _qrSlateJson([for (var i = 0; i < count; i++) ...byIndex[i]!]) : null,
     );
+  }
+
+  /// The payment text of a complete code; parts that do not reassemble to text are invalid,
+  /// as LEPIC reports them.
+  static String _qrSlateJson(List<int> bytes) {
+    try {
+      return utf8.decode(bytes);
+    } on FormatException {
+      throw const WalletError(kind: WalletErrorKind.invalidQrCode, message: 'not a payment');
+    }
   }
 
   @override
@@ -2485,6 +2494,7 @@ class FakeWalletSession implements WalletSession, ListingKeys {
       note: (contact.note?.trim().isEmpty ?? true)
           ? null
           : contact.note!.trim(),
+      label: contact.label,
     );
     final index = contactsValue.indexWhere((c) => c.id == stored.id);
     if (index >= 0) {
@@ -2538,7 +2548,7 @@ class FakeWalletSession implements WalletSession, ListingKeys {
         'pairings': pairing.exportBackup(),
         'contacts': [
           for (final c in contactsValue)
-            {'id': c.id, 'name': c.name, 'epicbox': c.epicbox, 'http': c.http, 'tor': c.tor, 'note': c.note},
+            {'id': c.id, 'name': c.name, 'epicbox': c.epicbox, 'http': c.http, 'tor': c.tor, 'note': c.note, 'label': ?c.label.stored},
         ],
       })}',
     ),
@@ -2663,6 +2673,7 @@ class FakeWalletSession implements WalletSession, ListingKeys {
         http: c['http'] as String?,
         tor: c['tor'] as String?,
         note: c['note'] as String?,
+        label: ContactLabel.fromStored(c['label']),
       );
       if (contactsValue.any((e) => e.addresses.any(contact.addresses.contains))) {
         continue;
