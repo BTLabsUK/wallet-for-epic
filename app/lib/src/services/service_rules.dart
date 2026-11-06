@@ -68,7 +68,9 @@ final class ServiceFile {
 }
 
 final RegExp _idPattern = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
-final RegExp _hostPattern = RegExp(r'^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$');
+/// An Epicbox address takes letters, digits and dots in its relay: a host with a hyphen could
+/// never match one.
+final RegExp _hostPattern = RegExp(r'^[a-z0-9]+(\.[a-z0-9]+)+$');
 
 /// A file's `id`: lowercase letters and digits, words joined by `-`.
 bool validServiceId(Object? id) => id is String && id.length <= 32 && _idPattern.hasMatch(id);
