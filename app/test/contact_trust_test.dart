@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // The trust policy on the phone's screens: the contact page's compatibility lines (a line,
 // never a badge), the mailbox route hidden while a contact's key answers as another wallet app,
-// a mailbox send unanswered for 24 hours and 7 days with Cancel and send by Epicbox (one
+// a mailbox send unanswered for 24 hours and 7 days with Cancel and send to their public Epicbox address (one
 // confirm, then the ordinary cancel and an ordinary Epicbox send), and the pruning of what the
 // wallet learned about keys on every open.
 
@@ -193,22 +193,24 @@ void main() {
 
   group('Send', () {
     Widget line() => Scaffold(
-      body: SendPairingLine(address: _anna, epicbox: true, viaMailbox: false, onViaMailbox: (_) {}, onAddress: (_) {}),
+      body: SendPairingLine(address: _anna, epicbox: true, viaMailbox: null, onViaMailbox: (_) {}, onAddress: (_) {}),
     );
+    bool on(WidgetTester tester) => tester.widget<Switch>(find.byKey(sendViaMailboxKey)).value;
 
-    testWidgets('the mailbox switch is hidden while the key answers as another wallet app', (tester) async {
+    testWidgets('the pairing switch starts off, with the line, while the key answers as another wallet app', (tester) async {
       final h = _Harness()
         ..anna()
         ..pair();
       await h.pump(tester, line());
-      expect(find.byKey(sendViaMailboxKey), findsOneWidget, reason: 'nothing learned: the route is offered');
+      expect(on(tester), isTrue, reason: 'nothing learned: the pairing is the default');
 
       final g = _Harness()
         ..anna()
         ..pair()
         ..learned(marked: _ago(const Duration(days: 40)), unmarked: _ago(const Duration(days: 1)));
       await g.pump(tester, line());
-      expect(find.byKey(sendViaMailboxKey), findsNothing);
+      expect(on(tester), isFalse);
+      expect(find.text(_l.trustLineOtherApp('Anna')), findsOneWidget);
     });
   });
 
@@ -223,7 +225,7 @@ void main() {
       expect(find.byKey(mailboxResendCardKey), findsNothing);
     });
 
-    testWidgets('after 24 hours: Not answered yet, Cancel and send by Epicbox first, Keep waiting closes', (tester) async {
+    testWidgets('after 24 hours: Not answered yet, Cancel and send to their public Epicbox address first, Keep waiting closes', (tester) async {
       final h = _Harness()
         ..anna()
         ..pair();

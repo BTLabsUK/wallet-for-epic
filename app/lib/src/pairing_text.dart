@@ -8,6 +8,7 @@ import 'dart:ui' show Locale, PlatformDispatcher;
 
 import 'l10n.dart';
 import 'models.dart';
+import 'trust/policy.dart' show MailboxDefault, PlainReason;
 
 /// The answerer's wait: the answer went to the relay too, so the pairing usually finishes by
 /// itself. Only when it has not after this long is the answer offered to send back by hand,
@@ -171,3 +172,14 @@ String sendViaMailboxHintOf(AppLocalizations l, PairingRecord p) {
   final moved = p.movedAt;
   return moved == null ? l.sendViaMailboxHint(p.homeRelay) : l.sendViaMailboxMovedHint(p.homeRelay, localDayMonth(l, moved));
 }
+
+/// The line under Send's pairing switch when the rule starts it off: why the payment goes to
+/// [name]'s public Epicbox address this time. Null when the switch starts on or is hidden.
+String? plainReasonText(AppLocalizations l, String name, MailboxDefault d) => switch (d.reason) {
+  PlainReason.none => null,
+  PlainReason.otherApp => l.trustLineOtherApp(name),
+  PlainReason.notHeard => l.trustLineNotHeard(name, localDayMonth(l, d.since!)),
+  PlainReason.unanswered => l.sendMailboxUnanswered(localDayMonth(l, d.since!)),
+  PlainReason.notAnswering => l.trustNotAnswering,
+  PlainReason.relayDown => l.contactRelayDownTitle(name),
+};

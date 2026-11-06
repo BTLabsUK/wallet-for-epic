@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../contacts.dart';
 import '../models.dart';
@@ -40,16 +41,18 @@ final contactLineProvider = Provider.autoDispose.family<ContactLine, String>((re
 });
 
 /// Where Send stands on the pairing route for [contact] (paired through [pairing]): hidden,
-/// on, or off with the reason (`trust/policy.dart`).
-MailboxDefault mailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord pairing) {
+/// on, or off with the reason (`trust/policy.dart`). [watch] false reads once, for a handler
+/// outside build; the screen that shows the switch watches, so the sources stay alive.
+MailboxDefault mailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord pairing, {bool watch = true}) {
+  T get<T>(ProviderListenable<T> p) => watch ? ref.watch(p) : ref.read(p);
   final address = trustAddressOf(contact.epicbox, pairing);
-  final compat = address == null ? null : ref.watch(peerCompatProvider(address)).value;
-  final now = ref.watch(clockProvider)();
-  final txs = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
+  final compat = address == null ? null : get(peerCompatProvider(address)).value;
+  final now = get(clockProvider)();
+  final txs = get(homeProvider).value?.transactions ?? const <TxEntry>[];
   return mailboxDefault(
     r: relationshipOf(inContacts: true, epicboxAddress: contact.epicbox, pairing: pairing),
     opensSealed: pairing.caps.opensSealed,
-    online: ref.watch(pairNetProvider) == PairNet.online,
+    online: get(pairNetProvider) == PairNet.online,
     compat: compat,
     now: now,
     lastSealedIn: pairing.lastSealedIn,
@@ -58,8 +61,3 @@ MailboxDefault mailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord p
     relayDown: pairing.relayDown,
   );
 }
-
-/// Whether Send offers the pairing route for [contact]. The Seal switch no longer gates it.
-@Deprecated('Use mailboxDefaultFor; the route is offered whenever the default is not hidden.')
-bool mailboxRouteOffered(WidgetRef ref, Contact contact, PairingRecord pairing) =>
-    mailboxDefaultFor(ref, contact, pairing).offered;

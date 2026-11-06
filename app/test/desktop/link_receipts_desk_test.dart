@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // A payment made from a link, on the desktop: the optional receipt line (hidden when the name service
 // cannot be told, one post per stage, stage 2 after finalize) and the silent-payee rows at 0 hours,
-// 24 hours and 7 days (Cancel and send by Epicbox: the cancel, then Send with the amount and the
+// 24 hours and 7 days (Cancel and send to their public Epicbox address: the cancel, then Send with the amount and the
 // payee's saved address).
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
 import 'package:epic_wallet/src/desktop/data/clock.dart';
@@ -168,7 +168,7 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('after 24 hours: Not answered yet; Cancel and send by Epicbox cancels and opens Send with the amount', (tester) async {
+    testWidgets('after 24 hours: Not answered yet; Cancel and send to their public Epicbox address cancels and opens Send with the amount', (tester) async {
       await _open(tester, _payment(_ago(const Duration(hours: 30))), matchContact: true);
       expect(find.text(_l.mailboxNotAnswered), findsWidgets);
       expect(tester.widget<EButton>(find.byKey(deskTxResendKey)).kind, EBtnKind.primary);

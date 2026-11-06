@@ -633,7 +633,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     }
   }
 
-  /// Cancel and send by Epicbox for a payment made from a payment link nobody answered: one
+  /// Cancel and send to their public Epicbox address for a payment made from a payment link nobody answered: one
   /// confirm, the ordinary cancel (inputs unlocked, a late answer refused), then Send opens with
   /// the amount, to the payee's saved contact address when there is one, else empty.
   Future<void> _resendLink(TxEntry tx, LinkPaymentRec rec, String name) async {
@@ -675,7 +675,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     }
   }
 
-  /// Cancel and send by Epicbox (trust policy, an unanswered mailbox send): the waiting send
+  /// Cancel and send to their public Epicbox address (trust policy, an unanswered mailbox send): the waiting send
   /// is cancelled through the ordinary cancel, then an ordinary Epicbox send of the same amount
   /// and message goes to [address], the contact's Epicbox address. One confirm first; two rows
   /// stay in the history, so the details close on the list.
@@ -757,7 +757,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             null => null,
           };
     final mailboxWaiting = mailboxName != null && tx.status == TxStatus.awaitingRecipient;
-    // The paired contact behind the mailbox and its Epicbox address: Cancel and send by Epicbox
+    // The paired contact behind the mailbox and its Epicbox address: Cancel and send to their public Epicbox address
     // needs one (trust policy, mailboxResendOffer).
     final mailboxContact = mailboxPairing?.contactId == null
         ? null

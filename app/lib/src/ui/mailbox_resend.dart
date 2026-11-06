@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// A send through a paired contact's mailbox that nobody answered (`trust/contact_trust.dart`,
-/// [mailboxResendOffer]): after 24 hours the details offer **Cancel and send by Epicbox**, which
+/// [mailboxResendOffer]): after 24 hours the details offer **Cancel and send to their public Epicbox address**, which
 /// cancels the waiting send through the ordinary cancel and starts an ordinary Epicbox send of
 /// the same amount to the contact's address, after one confirm. At 7 days the relay has dropped
 /// the message: the line says so and Cancel is the main action.
@@ -19,7 +19,7 @@ const Key txDetailsKeepWaitingKey = ValueKey('tx-details-keep-waiting');
 const Key mailboxResendConfirmKey = ValueKey('mailbox-resend-confirm');
 const Key mailboxResendCardKey = ValueKey('mailbox-resend-card');
 
-/// The one confirm before Cancel and send by Epicbox. True when the user chose it.
+/// The one confirm before Cancel and send to their public Epicbox address. True when the user chose it.
 Future<bool> confirmCancelAndSendByEpicbox(BuildContext context, String name) async {
   final l = context.l10n;
   final sure = await showDialog<bool>(
@@ -71,11 +71,11 @@ class MailboxResendCard extends StatelessWidget {
       stretchActions: offer.resendPrimary,
       actions: [
         if (resend != null && offer.resendPrimary) ...[
-          FilledButton(key: txDetailsResendKey, onPressed: busy ? null : resend, child: Text(l.mailboxResendTitle)),
+          FilledButton(key: txDetailsResendKey, onPressed: busy ? null : resend, child: Text(l.mailboxResendTitleShort)),
           TextButton(key: txDetailsKeepWaitingKey, onPressed: onKeepWaiting, child: Text(l.mailboxKeepWaiting)),
         ] else if (resend != null)
           // At 7 days Cancel (below) is the main action; this one stays second.
-          OutlinedButton(key: txDetailsResendKey, onPressed: busy ? null : resend, child: Text(l.mailboxResendTitle)),
+          OutlinedButton(key: txDetailsResendKey, onPressed: busy ? null : resend, child: Text(l.mailboxResendTitleShort)),
       ],
     );
   }

@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../../models.dart' show PairingRecord;
 import '../../trust/contact_trust.dart';
@@ -42,18 +43,21 @@ ContactLine deskContactLine(WidgetRef ref, Contact contact) {
 }
 
 /// Where desktop Send stands on the pairing route for [contact] (paired through [pairing]):
-/// hidden, on, or off with the reason (`trust/policy.dart`).
-MailboxDefault deskMailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord pairing) {
-  final now = ref.watch(deskClockProvider)();
+/// hidden, on, or off with the reason (`trust/policy.dart`). [watch] false reads once, for a
+/// handler outside build; the screen that shows the switch watches, so the sources stay alive.
+MailboxDefault deskMailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord pairing, {bool watch = true}) {
+  T get<T>(ProviderListenable<T> p) => watch ? ref.watch(p) : ref.read(p);
+  final now = get(deskClockProvider)();
   final sent = [
-    for (final t in ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
+    for (final t in get(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
       if (t.pairingId == pairing.id && t.direction == TxDirection.sent && t.state == TxState.waitingRecipient) t.created,
   ];
+  final address = trustAddressOf(contact.epicbox, pairing);
   return mailboxDefault(
     r: deskRelationship(contact, pairing),
     opensSealed: pairing.caps.opensSealed,
-    online: ref.watch(deskPairNetProvider) == DeskPairNet.online,
-    compat: deskPeerCompatOf(ref, contact, pairing),
+    online: get(deskPairNetProvider) == DeskPairNet.online,
+    compat: address == null ? null : get(deskPeerCompatProvider(address)).value,
     now: now,
     lastSealedIn: pairing.lastSealedIn,
     unansweredSince: mailboxUnansweredAmong(sent, pairing.lastSealedIn, now),

@@ -43,7 +43,7 @@ const int appHostFeatures = featureNameService;
 /// this young; an unasked send also needs no unmarked message this young.
 const Duration compatWindow = Duration(days: 30);
 
-/// A mailbox send with no answer for this long offers "Cancel and send by Epicbox".
+/// A mailbox send with no answer for this long offers "Cancel and send to their public Epicbox address".
 const Duration mailboxUnansweredAfter = Duration(hours: 24);
 
 /// At this age an unanswered mailbox send is gone from the relay; Cancel becomes the main action.
@@ -188,7 +188,7 @@ MailboxSendStage mailboxSendStage(DateTime sentAt, DateTime now) {
   return MailboxSendStage.waiting;
 }
 
-/// Is "Cancel and send by Epicbox" offered for a mailbox send made at [sentAt]: unanswered for
+/// Is "Cancel and send to their public Epicbox address" offered for a mailbox send made at [sentAt]: unanswered for
 /// 24 hours, the contact paired or verified, and an Epicbox address known. No compatibility
 /// needed: the new send is an ordinary slate.
 bool mayCancelAndSendByEpicbox(Relationship r, DateTime sentAt, DateTime now) =>

@@ -60,7 +60,7 @@ class TxMoreShot extends Notifier<bool> {
 
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
 /// technical details and the actions it allows (cancel, finalize).
-/// Cancel and send by Epicbox on the details, and its dialog's confirm, for tests.
+/// Cancel and send to their public Epicbox address on the details, and its dialog's confirm, for tests.
 const Key deskTxResendKey = ValueKey('tx-resend-epicbox');
 const Key deskMailboxResendConfirmKey = ValueKey('mailbox-resend-confirm');
 
@@ -228,7 +228,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     showEToast(context, context.l10n.deskTxBroadcastDone, tone: ETone.ok);
   }
 
-  /// Cancel and send by Epicbox (trust policy, an unanswered mailbox send): the waiting send
+  /// Cancel and send to their public Epicbox address (trust policy, an unanswered mailbox send): the waiting send
   /// is cancelled through the ordinary cancel, then an ordinary Epicbox send of the same amount
   /// and message goes to [address], the contact's Epicbox address. One confirm first.
   Future<void> _resend(String name, String address) async {
@@ -263,7 +263,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     showEToast(context, l.mailboxResent, tone: ETone.ok);
   }
 
-  /// Cancel and send by Epicbox for a payment made from a payment link nobody answered: one
+  /// Cancel and send to their public Epicbox address for a payment made from a payment link nobody answered: one
   /// confirm, the ordinary cancel, then Send opens with the amount, to the payee's saved contact
   /// address when there is one, else empty.
   Future<void> _resendLink(LinkPaymentRec rec, String name) async {
@@ -381,7 +381,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             final id? => ref.watch(deskPairingByIdProvider(id)),
             null => null,
           };
-    // The paired contact behind the mailbox and its Epicbox address: Cancel and send by Epicbox
+    // The paired contact behind the mailbox and its Epicbox address: Cancel and send to their public Epicbox address
     // needs one (trust policy, mailboxResendOffer).
     final mailboxContact = mailboxPairing?.contactId == null
         ? null
@@ -448,7 +448,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         resendOffer.resendPrimary
             ? EButton.primary(
                 key: deskTxResendKey,
-                label: l.mailboxResendTitle,
+                label: l.mailboxResendTitleShort,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
                 busy: _cancelling,
@@ -456,7 +456,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               )
             : EButton(
                 key: deskTxResendKey,
-                label: l.mailboxResendTitle,
+                label: l.mailboxResendTitleShort,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
                 busy: _cancelling,
@@ -466,7 +466,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         linkOffer.resendPrimary
             ? EButton.primary(
                 key: deskTxResendKey,
-                label: l.mailboxResendTitle,
+                label: l.mailboxResendTitleShort,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
                 busy: _cancelling,
@@ -474,7 +474,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               )
             : EButton(
                 key: deskTxResendKey,
-                label: l.mailboxResendTitle,
+                label: l.mailboxResendTitleShort,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
                 busy: _cancelling,

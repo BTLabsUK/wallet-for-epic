@@ -15,6 +15,7 @@ import '../contacts.dart';
 import '../name_service/link_open.dart' show LinkOpened;
 import '../name_service/pins.dart' show NameServiceTrust;
 import '../scan/incoming_link.dart' show linkClockProvider;
+import '../trust/trust_providers.dart' show mailboxDefaultFor;
 import 'link_send.dart';
 import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
@@ -141,6 +142,9 @@ const Key sendTryAgainKey = ValueKey('send-try-again');
 /// The warning that the recipient's relay is not one the app knows, for tests.
 const Key sendUnknownRelayKey = ValueKey('send-unknown-relay');
 const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
+
+/// "Send to their public Epicbox address" on the review after a failed pairing send, for tests.
+const Key sendPublicFallbackKey = ValueKey('send-public-fallback');
 
 /// The review's card that a mailbox payment waits while Epicbox is off, and the tracker's
 /// "Payment queued", for tests.
@@ -1062,7 +1066,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _pairingTo = id;
       _contact = null;
       _touched = false;
-      _viaMailbox = false;
+      _viaMailboxChoice = null;
       _viaQr = false;
       // Not held (above): the amount, the review or the file route go back to the recipient.
       _stage = SendStage.recipient;
@@ -1085,7 +1089,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _pairingTo = null;
       _contact = null;
       _touched = false;
-      _viaMailbox = false;
+      _viaMailboxChoice = null;
       _recipientError = null;
       _error = null;
       _viaQr = false;
@@ -1127,6 +1131,7 @@ class _SendViewState extends ConsumerState<SendView> {
       }
       _contact = contact;
       _touched = true;
+      _viaMailboxChoice = null;
       _recipientError = _recipientProblem(_recipient.text);
       _error = null;
     });
@@ -1617,12 +1622,11 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
-    // Through the paired contact's mailbox, sealed (RFC 9.1): a contact with no address, or
-    // one whose switch the user turned on. Read now: the screen may be gone after the await.
+    // Through the pairing, sealed (RFC 9.1): a contact with no address, or one whose switch
+    // is on (the rule's default, or the user's choice). Read now: the screen may be gone
+    // after the await.
     final pairingTo = _pairingTo;
-    final mailbox = pairingTo != null
-        ? _toPairing(watch: false)
-        : (_viaMailbox ? sendPairingFor(ref, to.address, watch: false) : null);
+    final mailbox = pairingTo != null ? _toPairing(watch: false) : _addressMailbox(watch: false);
     if (pairingTo != null && mailbox == null) return;
     final pairingApi = ref.read(pairingApiProvider);
     final queued = _queues(watch: false);
@@ -1672,6 +1676,7 @@ class _SendViewState extends ConsumerState<SendView> {
         if (mounted) {
           setState(() {
             _sendFailed = true;
+            _failedViaMailbox = pairingTo == null && mailbox != null;
             _undelivered = left.payment;
             _nothingStored = left.nothingStored;
           });
@@ -1711,7 +1716,7 @@ class _SendViewState extends ConsumerState<SendView> {
             to: to,
             reviewedFee: reviewed.fee,
             noteSaved: noteSaved,
-            pairingId: pairingTo,
+            pairingId: mailbox?.id,
             queued: queued,
           );
           _stage = SendStage.sent;
@@ -1976,6 +1981,27 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Cancels the waiting Tor or HTTP payment, back to the amount with the recipient kept.
   Future<void> _cancelDirectSend() =>
       _cancelUndelivered(then: SendStage.amount);
+
+  /// After a failed pairing send: the same amount and note to the contact's public Epicbox
+  /// address, the one in To. A payment LEPIC holds is cancelled first; the switch goes off
+  /// for this recipient, and the send asks for the PIN again.
+  Future<void> _sendPublicFallback() async {
+    if (_busy || _pairingTo != null) return;
+    if (_undelivered != null) {
+      await _cancelUndelivered(then: SendStage.review);
+      // The cancel failed, or their reply came first: its own buttons say what is next.
+      if (!mounted || _undelivered != null || _stage != SendStage.review) return;
+      _checks ??= ref.listenManual(sendPreflightProvider(_relay), (_, _) {});
+    }
+    setState(() {
+      _viaMailboxChoice = false;
+      _sendFailed = false;
+      _failedViaMailbox = false;
+      _nothingStored = false;
+      _error = null;
+    });
+    await _send();
+  }
 
   /// Cancels [_undelivered], then shows [then] with the amount and the note. After Max the
   /// maximum is asked again, now that the coins are free.
@@ -2252,8 +2278,28 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Offline on a node that is not local: the file steps carry [OfflineNodeNote].
   bool _offlineNode = false;
 
-  /// Send through the paired contact's mailbox instead of its payments address (RFC 9.1).
-  bool _viaMailbox = false;
+  /// The user's choice on the pairing switch under an address in To: send through the paired
+  /// contact's pairing instead of its public Epicbox address (RFC 9.1). Null follows the
+  /// rule's default ([mailboxDefaultFor]); a tap holds until the recipient changes.
+  bool? _viaMailboxChoice;
+
+  /// The failed send went through the pairing to a contact whose address is in To: the
+  /// review offers the same payment to the public Epicbox address.
+  bool _failedViaMailbox = false;
+
+  /// The pairing the address in To is paid through now: the contact's, when the rule offers
+  /// it for the Epicbox method and the switch is on. Null for the public Epicbox address.
+  PairingRecord? _addressMailbox({bool watch = true}) {
+    if (_pairingTo != null || _method != TransferMethod.epicbox) return null;
+    final address = _read.isAddress ? _read.address : _recipient.text.trim();
+    final pairing = sendPairingFor(ref, address, watch: watch);
+    if (pairing == null) return null;
+    final contacts = (watch ? ref.watch(contactsProvider) : ref.read(contactsProvider)).value ?? const <Contact>[];
+    final contact = contactFor(contacts, address);
+    if (contact == null) return null;
+    final d = mailboxDefaultFor(ref, contact, pairing, watch: watch);
+    return d.offered && (_viaMailboxChoice ?? d.on) ? pairing : null;
+  }
 
   /// A paired contact with no address, paid through its mailbox (DESIGN 1.2): the pairing's
   /// id. Its card takes the To field's place; the To text stays empty.
@@ -2847,8 +2893,8 @@ class _SendViewState extends ConsumerState<SendView> {
         SendPairingLine(
           address: read.address,
           epicbox: _method == TransferMethod.epicbox,
-          viaMailbox: _viaMailbox,
-          onViaMailbox: (on) => setState(() => _viaMailbox = on),
+          viaMailbox: _viaMailboxChoice,
+          onViaMailbox: (on) => setState(() => _viaMailboxChoice = on),
           showVia: false,
           onAddress: _pickAddress,
         ),
@@ -2965,6 +3011,7 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() {
       _lastTo = text;
       _touched = false;
+      _viaMailboxChoice = null;
       _recipientError = null;
       _error = null;
       _leaveRequest();
@@ -3648,7 +3695,11 @@ class _SendViewState extends ConsumerState<SendView> {
     } else {
       // The relay is named: a mistyped domain is the usual reason it never answers. A
       // pairing's mailbox is on the contact's own relay.
-      final relayName = _pairingTo != null ? (_toPairing()?.homeRelay ?? '') : (_relay?.label ?? '');
+      final relayName = _pairingTo != null
+          ? (_toPairing()?.homeRelay ?? '')
+          : _failedViaMailbox
+          ? (sendPairingFor(ref, to.address)?.homeRelay ?? _relay?.label ?? '')
+          : (_relay?.label ?? '');
       failed = _nothingStored
           ? l.sendRelayDown(relayName)
           : _undelivered == null
@@ -3886,6 +3937,33 @@ class _SendViewState extends ConsumerState<SendView> {
             style: quiet,
             onPressed: _busy ? null : _done,
             child: Text(l.commonDone),
+          ),
+        ] else if (_sendFailed && _failedViaMailbox && _pairingTo == null) ...[
+          // The pairing's relay did not take it: the same payment to the contact's public
+          // Epicbox address, the one in To. A held payment is cancelled first.
+          BusyButton(
+            key: sendPublicFallbackKey,
+            label: l.sendPublicFallback,
+            busy: _busy,
+            onPressed: _sendPublicFallback,
+          ),
+          const SizedBox(height: 4),
+          if (_undelivered != null)
+            TextButton(
+              style: quiet,
+              onPressed: _busy ? null : _cancelAndFile,
+              child: Text(l.sendCancelAndFile),
+            )
+          else if (_nothingStored)
+            TextButton(
+              style: quiet,
+              onPressed: _busy ? null : _toFileRoute,
+              child: Text(l.sendPayWithFile),
+            ),
+          TextButton(
+            style: quiet,
+            onPressed: _busy ? null : _done,
+            child: Text(_undelivered != null ? l.sendLeaveIt : l.commonDone),
           ),
         ] else if (_sendFailed && _undelivered != null) ...[
           BusyButton(

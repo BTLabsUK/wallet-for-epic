@@ -58,7 +58,7 @@ class MailboxResendOffer {
 
   final MailboxSendStage stage;
 
-  /// "Cancel and send by Epicbox" is offered (the contact has an Epicbox address).
+  /// "Cancel and send to their public Epicbox address" is offered (the contact has an Epicbox address).
   final bool resend;
 
   /// After 24 hours the resend is the main action; at 7 days Cancel is, and the resend second.

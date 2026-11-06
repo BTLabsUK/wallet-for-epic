@@ -251,7 +251,7 @@ void main() {
     });
   });
 
-  group('Cancel and send by Epicbox', () {
+  group('Cancel and send to their public Epicbox address', () {
     final cases = <(String, Relationship, Duration, bool)>[
       ('23 h', paired, const Duration(hours: 23), false),
       ('24 h paired', paired, const Duration(hours: 24), true),
