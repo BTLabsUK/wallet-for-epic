@@ -310,8 +310,10 @@ def load_scope(path=None, version=None, only=None, skip_platform=None, no_varian
     return scope
 
 
-def validate_scope(scope, pipeline, version_at_commit=None, previous_version=None, base_steps=None):
-    """Refuses a scope that makes no sense, with one message per problem. Returns warnings."""
+def validate_scope(scope, pipeline, version_at_commit=None, previous_version=None, base_steps=None, carried=None):
+    """Refuses a scope that makes no sense, with one message per problem. Returns warnings.
+    carried: the platforms a follow-up run carries from the published run it adds to."""
+    carried = list(carried or [])
     errs, warns = [], []
     v = scope["version"]
     if not v:
@@ -360,7 +362,7 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
         errs.append("Apple ad hoc ios needs the notor variant (the one unsigned ipa is the build without Tor): "
                     "keep notor or leave ios out")
     if scope["publish"]["manifests"]:
-        if not scope["platforms"].get("android"):
+        if not scope["platforms"].get("android") and "android" not in carried:
             errs.append("publish.manifests needs android in scope (app/tool/release_android.sh builds the manifest "
                         "from the APKs): add android or set publish.manifests = false (then no app is offered the update)")
         elif not all(scope["variants"].values()):
@@ -395,7 +397,7 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
             errs.append(f"[proof.waive] {p}: not in scope, nothing to waive")
         elif not str(reason).strip():
             errs.append(f"[proof.waive] {p}: give a reason")
-    left = [p for p in ("windows", "linux", "macos") if not scope["platforms"].get(p)]
+    left = [p for p in ("windows", "linux", "macos") if not scope["platforms"].get(p) and p not in carried]
     if left and scope["publish"].get("manifests"):
         warns.append(f"{', '.join(left)} out of scope: the update manifests keep those systems' live entries, "
                      "and the releases page, SHA256SUMS and the server keep their newest files")

@@ -105,6 +105,17 @@ void main() {
       expect((await reader.feed(other[1])).received, 1);
     });
 
+    test('parts that cannot make a payment start reading over', () async {
+      final mine = await encode(_json(3));
+      final reader = QrSlateReader(service);
+      // Two parts of one code whose bytes are no text: a forged or damaged code.
+      await reader.feed('UR:EPIC-SLATE/1-2/ABCDEF01/FF');
+      expect((await reader.feed('UR:EPIC-SLATE/2-2/ABCDEF01/FE')).kind, QrReadKind.unreadable);
+      expect((reader.received, reader.count), (0, 0));
+      // Nothing of it is kept: the real code reads from the start.
+      expect((await reader.feed(mine[0])).received, 1);
+    });
+
     test('texts fed together are read in order', () async {
       final texts = await encode(_json(3));
       final reader = QrSlateReader(service);

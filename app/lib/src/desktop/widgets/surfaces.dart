@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'dart:ui' show PointMode;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
@@ -82,6 +84,7 @@ class EPanel extends StatelessWidget {
         color: c.s1,
         border: Border.all(color: strong ? c.lineStrong : c.line),
         borderRadius: BorderRadius.circular(Rad.sm),
+        boxShadow: c.panelShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,19 +136,91 @@ class ETicked extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    // Light makes it the hero: a warm fill running to white, the brand edge, the grid and the
+    // ticks in the brand brown. Dark keeps the flat panel.
+    final hero = c.hero.a != 0;
     return Container(
       decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.line),
+        color: hero ? null : c.s1,
+        gradient: hero ? LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.hero, c.s1]) : null,
+        border: Border.all(color: hero ? c.tick.withValues(alpha: 0.45) : c.line),
         borderRadius: BorderRadius.circular(Rad.xs),
+        boxShadow: c.panelShadow,
       ),
       child: CustomPaint(
-        painter: grid ? GridFieldPainter(c.grid.withValues(alpha: c.grid.a * 2.2)) : null,
-        foregroundPainter: CornerTicksPainter(c.tick),
+        painter: grid ? GridFieldPainter(hero ? c.tick.withValues(alpha: 0.12) : c.grid.withValues(alpha: c.grid.a * 2.2)) : null,
+        foregroundPainter: hero ? CornerTicksPainter(c.tick, length: 12.u, width: 2) : CornerTicksPainter(c.tick),
         child: child,
       ),
     );
   }
+}
+
+/// The page area's backdrop behind every desktop screen: the window colour with a warm
+/// brand wash ([DeskColors.wash]) rising behind the top of the content, where the title and
+/// the balance sit, gone before the page's foot and at the sidebar's edge. One gradient, no
+/// blur, drawn once; in dark the wash is transparent and the child is returned as it is.
+class DeskBackdrop extends StatelessWidget {
+  const DeskBackdrop({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    if (c.wash.a == 0) return child;
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        Positioned.fill(
+          child: IgnorePointer(
+            child: ExcludeSemantics(
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: c.dots.a == 0 ? null : _PageDots(c.dots, step: 22.u, radius: 1.u),
+                  child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(0.55, -0.4),
+                      radius: 1.15,
+                      colors: [c.wash, c.wash.withValues(alpha: c.wash.a * 0.5), c.wash.withValues(alpha: 0)],
+                      stops: const [0, 0.42, 1],
+                    ),
+                  ),
+                ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        child,
+      ],
+    );
+  }
+}
+
+/// The page backdrop's texture: a dot at every [step], drawn once as one set of points.
+class _PageDots extends CustomPainter {
+  const _PageDots(this.color, {required this.step, required this.radius});
+
+  final Color color;
+  final double step, radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = radius * 2
+      ..strokeCap = StrokeCap.round;
+    final pts = <Offset>[
+      for (var y = step / 2; y < size.height; y += step)
+        for (var x = step / 2; x < size.width; x += step) Offset(x, y),
+    ];
+    canvas.drawPoints(PointMode.points, pts, p);
+  }
+
+  @override
+  bool shouldRepaint(_PageDots old) => old.color != color || old.step != step || old.radius != radius;
 }
 
 /// Section head: a short accent rule and the title in sentence case.
@@ -761,6 +836,7 @@ class EEmpty extends StatelessWidget {
             width: 56.u,
             height: 56.u,
             decoration: BoxDecoration(
+              color: c.tint.a == 0 ? null : c.tint,
               borderRadius: BorderRadius.circular(Rad.sm),
               border: Border.all(color: c.lineStrong),
             ),
@@ -842,6 +918,7 @@ class ESetGroup extends StatelessWidget {
                 color: c.s1,
                 border: Border.all(color: c.line),
                 borderRadius: BorderRadius.circular(Rad.sm),
+                boxShadow: c.panelShadow,
               ),
               // The marked rows' tint stays inside the rounded box.
               clipBehavior: Clip.antiAlias,

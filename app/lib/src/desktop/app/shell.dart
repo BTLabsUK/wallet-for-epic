@@ -439,7 +439,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
     final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
-    final main = Material(color: c.bg, child: DeskSelectable(child: page));
+    // The light backdrop sits under the page and stays put while the page scrolls.
+    final main = Material(color: c.bg, child: DeskBackdrop(child: DeskSelectable(child: page)));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
     final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
     final Widget frame;
@@ -656,7 +657,8 @@ class _Sidebar extends ConsumerWidget {
       label: l.deskShellMainNav,
       child: Container(
         width: compact ? Ctl.rail : Ctl.sidebar,
-        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
+        // Light: the white column stands off the warm page with a visible divider.
+        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.tint.a == 0 ? c.line : c.lineStrong))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

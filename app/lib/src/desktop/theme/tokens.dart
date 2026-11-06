@@ -226,6 +226,11 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.scrim,
     required this.shadow,
     required this.glow,
+    required this.lift,
+    required this.wash,
+    required this.hero,
+    required this.tint,
+    required this.dots,
   });
 
   /// Window, then four elevation steps: sidebar and panels, fields, hover and selection,
@@ -259,6 +264,19 @@ class DeskColors extends ThemeExtension<DeskColors> {
   /// drawn with [popShadow]. Never [scrim]: that is the dialog barrier, and as a shadow it
   /// draws a hard grey band in light.
   final Color shadow;
+
+  /// The one low shadow under a resting panel ([EPanel], [ETicked]) and the warm tint of
+  /// the page backdrop ([DeskBackdrop]). Both are transparent in dark, where a panel is its
+  /// fill and hairline and the window stays flat.
+  final Color lift, wash;
+
+  /// Light only, transparent in dark: the balance frame's warm fill ([ETicked]), the brand
+  /// tint of icon tiles and the selected navigation item, the page backdrop's dot texture.
+  final Color hero, tint, dots;
+
+  /// The resting panel's shadow, drawn with [lift]; nothing in dark.
+  List<BoxShadow>? get panelShadow =>
+      lift.a == 0 ? null : [BoxShadow(color: lift, blurRadius: 18.u, offset: Offset(0, 6.u), spreadRadius: -4.u)];
 
   /// The shadow under a floating surface: soft and low, the same for every popover and menu.
   List<BoxShadow> get popShadow => [BoxShadow(color: shadow, blurRadius: 24.u, offset: Offset(0, 8.u))];
@@ -329,6 +347,11 @@ const DeskColors deskDark = DeskColors(
   scrim: PaletteDark.scrim,
   shadow: PaletteDark.shadow,
   glow: PaletteDark.glow,
+  lift: PaletteDark.lift,
+  wash: PaletteDark.wash,
+  hero: PaletteDark.hero,
+  tint: PaletteDark.tint,
+  dots: PaletteDark.dots,
 );
 
 const DeskColors deskLight = DeskColors(
@@ -367,6 +390,11 @@ const DeskColors deskLight = DeskColors(
   scrim: PaletteLight.scrim,
   shadow: PaletteLight.shadow,
   glow: PaletteLight.glow,
+  lift: PaletteLight.lift,
+  wash: PaletteLight.wash,
+  hero: PaletteLight.hero,
+  tint: PaletteLight.tint,
+  dots: PaletteLight.dots,
 );
 
 /// The type scale, about 1.2 per step. Montserrat for display (balance, titles, section heads),

@@ -41,6 +41,11 @@ def artefact_paths(engine):
             out[os.path.basename(o)] = os.path.join(engine.run.files, os.path.basename(o))
         for e in s.extras:
             out[e] = os.path.join(engine.run.extra, e)
+    # A follow-up run's carried files and extras (tools/rel start --follow-up) ship too.
+    for name in engine.info.get("carried") or {}:
+        out[name] = os.path.join(engine.run.files, name)
+    for name in engine.info.get("carried_extra") or {}:
+        out[name] = os.path.join(engine.run.extra, name)
     return out
 
 

@@ -3,7 +3,7 @@
 """Shared test binaries of Epic Wallet: one Linux debug bundle and one debug APK per app commit,
 built once into a store on this host and reused by every agent and worktree.
 
-  testbin.sh get [linux|apk] [--commit X] [--variant tor|notor] [--no-build]
+  testbin.sh get [linux|apk] [--commit X] [--variant tor|notor|devnet] [--no-build]
         print the path of the binary for commit X (default: HEAD of the worktree you are in).
         A hit prints at once. A miss builds it once into the store, under the store's build
         lock (a second caller waits for the first and then reuses its build), and prints it.
@@ -54,7 +54,7 @@ KEEP = int(os.environ.get("TESTBIN_KEEP", "4"))
 MIN_FREE_GB = float(os.environ.get("TESTBIN_MIN_FREE_GB", "12"))
 REL_LOCKS = str(HOME / "epic-build" / "rel" / "*" / "run-*" / ".lock")
 ARTIFACTS = {"linux": "linux", "apk": "app-debug.apk"}
-VARIANTS = ("tor", "notor")
+VARIANTS = ("tor", "notor", "devnet")  # devnet: tor plus the test networks (WFE_DEV_NETWORKS)
 # systemd's PATH lacks ~/.local/bin, where build-slot lives
 if str(HOME / ".local" / "bin") not in os.environ.get("PATH", "").split(":"):
     os.environ["PATH"] = f"{HOME / '.local' / 'bin'}:{os.environ.get('PATH', '/usr/bin:/bin')}"
@@ -303,7 +303,8 @@ def build(sha, lepic, binding, variant, wants):
     ensure_worktree(sha)
     (entry / variant).mkdir(parents=True, exist_ok=True)
     notor = variant == "notor"
-    define = " --dart-define=WFE_TOR=false" if notor else ""
+    define = {"notor": " --dart-define=WFE_TOR=false",
+              "devnet": " --dart-define=WFE_DEV_NETWORKS=true"}.get(variant, "")
     lepic_what = "all" if len(wants) == 2 else ("linux" if wants == ["linux"] else "android")
     steps = [". tools/env.sh", "tools/lepic.sh sync",
              f"{'WFE_TOR=0 ' if notor else ''}LEPIC_SHARED=1 tools/lepic.sh build {lepic_what}",

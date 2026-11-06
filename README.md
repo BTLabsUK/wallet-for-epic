@@ -54,7 +54,8 @@ are in the [wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki).
 - **Its own node or a public one:** the desktop can run the Epic node it bundles; both apps can use a
   node of your own on your network, with failover between public nodes.
 - **Contacts and linked devices:** the same wallet on a phone and a computer, linked so each knows
-  what the other is paying. Pairing and invoices are experimental switches, off by default.
+  what the other is paying. Pairing is on for everyone; invoices (requests from a paired shop or
+  exchange) are an experimental switch, off by default, in Settings › Advanced.
 - **Moving in from older wallets:** import the seed and transaction history of the Epic Cash GUI
   wallet and `epic-wallet`, checked against a chain scan.
 - **Six languages:** English, German, Polish, Russian, Chinese and Thai, with help in each.

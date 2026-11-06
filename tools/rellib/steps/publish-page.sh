@@ -9,7 +9,8 @@
 # releases.json has no change of its own; the commit takes that one file (git commit --only), so
 # whatever else is staged or changed there stays as it was. Otherwise nothing is committed and the
 # step leaves notice.json (one message to the owner, in the report) saying what to commit by hand.
-# A copy of the file stays in the step's folder either way (the release worktree goes at cleanup).
+# A copy of the file stays in the step's folder either way; the release source's copy goes back
+# to the commit's.
 # REL_GITHUB=1 (release.toml publish.github) adds the GitHub Release as a Mirror link.
 # When publish-downloads served a signed SHA256SUMS (the run's signer), build.py sees a
 # SHA256SUMS.sig beside the files and the page shows the signature check.
@@ -43,6 +44,10 @@ fi
 ./deploy-epic-cash.sh
 stage="${REL_STAGE:-${REL_RUN:?}/publish-page-out}"
 mkdir -p "$stage" && cp -f "$src/tools/releases/releases.json" "$stage/releases.json"
+# The release source stays clean: a later run of the same commit (tools/rel --follow-up) uses it.
+if git -C "$src" rev-parse -q --git-dir >/dev/null 2>&1; then
+  git -C "$src" checkout -q -- tools/releases/releases.json
+fi
 echo "page deployed"
 
 # main's releases.json: the record of this release (build.py add replaces the one record).

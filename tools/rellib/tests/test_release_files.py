@@ -272,6 +272,36 @@ class GitHubReleaseTest(unittest.TestCase):
             self.assertEqual(f.read(), sums)  # the run's SHA256SUMS is left as G6 reads it
         self.assertFalse(os.path.exists(os.path.join(self.files, "SHA256SUMS.sig")))
 
+    def test_replace_listing_swaps_only_the_listing(self):
+        # A follow-up run adds files: SHA256SUMS, its signature and provenance.json change, the
+        # release files keep their bytes.
+        self.gh.tags.add("v26.10.25")
+        with open(os.path.join(self.files, "provenance.json"), "w") as f:
+            f.write('{"run": 1}')
+        rc, out = self.publish()
+        self.assertEqual(rc, 0, out)
+        with open(os.path.join(self.files, "provenance.json"), "w") as f:
+            f.write('{"run": 2}')
+        with open(os.path.join(self.files, "bt-wallet-26.10.25-macos.dmg"), "wb") as f:
+            f.write(b"dmg" * 100)
+        rc, out = self.publish()
+        self.assertNotEqual(rc, 0)
+        self.assertIn("provenance.json is already on the GitHub release v26.10.25 with other bytes", out)
+        apk = os.path.join(self.files, "bt-wallet-26.10.25-android-arm64-v8a.apk")
+        with open(apk, "ab") as f:
+            f.write(b"x")
+        rc, out = self.publish("--replace-listing")
+        self.assertNotEqual(rc, 0)
+        self.assertIn("bt-wallet-android-arm64-v8a.apk is already on the GitHub release", out)
+        with open(apk, "wb") as f:
+            f.write(os.path.basename(apk).encode() * 100)
+        rc, out = self.publish("--replace-listing")
+        self.assertEqual(rc, 0, out)
+        rel = next(r for r in self.gh.releases.values() if r["tag_name"] == "v26.10.25")
+        self.assertIn("bt-wallet-macos.dmg", [a["name"] for a in rel["assets"]])
+        prov = next(a for a in rel["assets"] if a["name"] == "provenance.json")
+        self.assertEqual(self.gh.blobs[prov["id"]], b'{"run": 2}')
+
     def test_dry_run_writes_nothing(self):
         self.gh.add_release("v26.10.24")
         self.gh.tags.add("v26.10.25")
