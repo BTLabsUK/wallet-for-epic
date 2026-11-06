@@ -6,7 +6,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
-import '../../models.dart' show PairingRecord;
+import '../../models.dart' show PairingRecord, sameEpicboxServer;
 import '../../trust/contact_trust.dart';
 import '../../trust/policy.dart';
 import 'clock.dart';
@@ -63,5 +63,6 @@ MailboxDefault deskMailboxDefaultFor(WidgetRef ref, Contact contact, PairingReco
     unansweredSince: mailboxUnansweredAmong(sent, pairing.lastSealedIn, now),
     notAnswering: pairing.notAnswering,
     relayDown: pairing.relayDown,
+    relayShared: sameEpicboxServer(contact.epicbox, pairing.homeRelay),
   );
 }

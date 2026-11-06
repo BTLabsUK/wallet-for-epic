@@ -106,6 +106,9 @@ abstract final class TrustIds {
   static const sendPassword = 'g4.send.password';
   static const sendConfirm = 'g4.send.confirm';
   static const sendAnother = 'g4.send.another';
+  /// Send's address selector for a paired contact: the paired address and the public one.
+  static const sendRoutePaired = 'g4.send.route.paired';
+  static const sendRoutePublic = 'g4.send.route.public';
   static const overviewRefresh = 'g4.overview.refresh';
   static const overviewAvailable = 'g4.overview.available';
   static const homeLock = 'g4.home.lock';
@@ -207,6 +210,8 @@ abstract final class TrustIds {
     'g4.send.password',
     'g4.send.confirm',
     'g4.send.another',
+    'g4.send.route.paired',
+    'g4.send.route.public',
     'g4.overview.refresh',
     'g4.overview.available',
     'g4.home.lock',

@@ -81,14 +81,14 @@ void main() {
   testWidgets('the picker lists a contact with only a pairing, through its pairing', (tester) async {
     await pump(tester, const ContactPickerDialog(query: 'zo'));
     expect(find.text('Zoe'), findsOneWidget);
-    expect(find.text(_l.sendRecipientPairing('Zoe')), findsOneWidget);
+    expect(find.text(_l.sendRecipientPairing('Zoe', _l.sendRoutePairedInline)), findsOneWidget);
   });
 
   testWidgets('Send: the pairing card and readout; Link off; the review names Zoe, no address', (tester) async {
     await pump(tester, const SendScreen(arg: SendArgs(pairingTo: 'pz', amount: '1', epicboxHealth: ServiceHealth.ok)));
     expect(find.byKey(const ValueKey('send-picked-pairing')), findsOneWidget);
-    expect(find.text(_l.sendViaMailbox), findsOneWidget);
-    expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsOneWidget);
+    expect(find.text(_l.sendRoutePaired), findsOneWidget);
+    expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
     expect(find.text(_l.deskSendToHint), findsNothing);
     await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
     await tester.pumpAndSettle();
@@ -112,7 +112,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(_l.contactSendKeysChanged), findsOneWidget);
     expect(find.byKey(const ValueKey('send-pairing-check')), findsOneWidget);
-    expect(find.text(_l.sendViaMailbox), findsNothing);
+    expect(find.text(_l.sendRoutePaired), findsNothing);
   });
 
   testWidgets('Epicbox off: the readout pauses and the review queues the payment', (tester) async {
@@ -141,14 +141,14 @@ void main() {
     }))!;
     container.invalidate(deskPairingsProvider);
     await tester.pumpAndSettle();
-    expect(find.text(_l.sendViaMailboxMovedHint('box.example.org', localDayMonth(_l, p.movedAt!))), findsOneWidget);
-    expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsNothing);
+    expect(find.text(_l.sendRoutePairedMovedLine('box.example.org', localDayMonth(_l, p.movedAt!))), findsOneWidget);
+    expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsNothing);
   });
 
   // A paired contact with an Epicbox address in To: the switch under To starts as the rule says
   // and the send goes through the pairing while it is on.
   group('mailbox first', () {
-    final viaSwitch = find.byKey(const ValueKey('send-via-mailbox'));
+    final selector = find.byKey(const ValueKey('send-pairing-route'));
     final password = find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField));
 
     /// The mock's contact [id], as the state lists it (Anna 'c1' is paired and verified).
@@ -167,26 +167,32 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    bool switchOn(WidgetTester tester) => tester.widget<ESwitch>(viaSwitch).value;
+    /// Whether the address selector has Paired address selected.
+    bool pairedOn(WidgetTester tester) => tester.widget<ESegmented<bool>>(find.descendant(of: selector, matching: find.byType(ESegmented<bool>))).value;
+
+    /// Picks Public address on the selector.
+    Future<void> pickPublic(WidgetTester tester) async {
+      await tester.tap(find.text(_l.sendRoutePublic));
+      await tester.pumpAndSettle();
+    }
 
     testWidgets('desktop defaults to the pairing for a paired contact with an address', (tester) async {
       final anna = await contact(tester, 'c1');
       await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
       expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
-      expect(switchOn(tester), isTrue);
-      expect(find.text(_l.sendViaMailbox), findsOneWidget);
+      expect(pairedOn(tester), isTrue);
+      expect(find.text(_l.sendRoutePaired), findsOneWidget);
       await sendOne(tester);
       expect(wallet.sent.single.pairingId, mockAnnaPairing);
       expect(wallet.sent.single.to, isNull);
     });
 
-    testWidgets('switch off sends by Epicbox', (tester) async {
+    testWidgets('Public address sends by Epicbox', (tester) async {
       final anna = await contact(tester, 'c1');
       await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
-      await tester.tap(viaSwitch);
-      await tester.pumpAndSettle();
-      expect(switchOn(tester), isFalse);
-      expect(find.text(_l.sendViaPublicHint(anna.name)), findsOneWidget);
+      await pickPublic(tester);
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRoutePublicLine(anna.name)), findsOneWidget);
       await sendOne(tester);
       expect(wallet.sent.single.pairingId, isNull);
       expect(wallet.sent.single.to, anna.address);
@@ -195,20 +201,20 @@ void main() {
     testWidgets('typed address of a paired contact defaults to the pairing too', (tester) async {
       final anna = await contact(tester, 'c1');
       await pump(tester, const SendScreen(arg: SendArgs(amount: '1', epicboxHealth: ServiceHealth.ok)));
-      expect(viaSwitch, findsNothing);
+      expect(selector, findsNothing);
       await tester.enterText(find.byType(EditableText).first, anna.address);
       await tester.pumpAndSettle();
-      expect(switchOn(tester), isTrue);
+      expect(pairedOn(tester), isTrue);
       await sendOne(tester);
       expect(wallet.sent.single.pairingId, mockAnnaPairing);
     });
 
-    testWidgets('a reason the rule knows starts the switch off, with its line', (tester) async {
+    testWidgets('a reason the rule knows starts on the public address, with its line', (tester) async {
       final anna = await contact(tester, 'c1');
       wallet.peerCompats[anna.address] = PeerCompat(lastMarkedAt: DateTime.now().subtract(const Duration(days: 40)), lastUnmarkedAt: DateTime.now().subtract(const Duration(days: 1)));
       await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
-      expect(switchOn(tester), isFalse);
-      expect(find.text(_l.trustLineOtherApp(anna.name)), findsOneWidget);
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRouteReasonOtherApp(anna.name)), findsOneWidget);
       await sendOne(tester);
       expect(wallet.sent.single.pairingId, isNull);
       expect(wallet.sent.single.to, anna.address);
@@ -219,15 +225,14 @@ void main() {
       container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), paymentRefusalsProvider.overrideWithValue(_RefusesAnna())]);
       final anna = await contact(tester, 'c1');
       await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
-      expect(switchOn(tester), isTrue);
+      expect(pairedOn(tester), isTrue);
       await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
       await tester.pumpAndSettle();
       expect(find.text(_l.contactNoPaymentsNamed('Anna')), findsOneWidget);
       expect(find.text(_l.deskSendReviewTitle), findsNothing);
       expect(wallet.sent, isEmpty);
-      // The public address is not refused: off, the send goes by Epicbox.
-      await tester.tap(viaSwitch);
-      await tester.pumpAndSettle();
+      // The public address is not refused: picked, the send goes by Epicbox.
+      await pickPublic(tester);
       expect(find.text(_l.contactNoPaymentsNamed('Anna')), findsNothing);
       await sendOne(tester);
       expect(wallet.sent.single.to, anna.address);
@@ -257,12 +262,12 @@ void main() {
       expect(fallback, findsNothing);
     });
 
-    testWidgets('unpaired contact shows no switch', (tester) async {
+    testWidgets('unpaired contact shows no selector', (tester) async {
       final pool = await contact(tester, 'c2');
       await pump(tester, SendScreen(arg: SendArgs(contact: pool, amount: '1', epicboxHealth: ServiceHealth.ok)));
       expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
-      expect(viaSwitch, findsNothing);
-      expect(find.text(_l.sendViaMailbox), findsNothing);
+      expect(selector, findsNothing);
+      expect(find.text(_l.sendRoutePaired), findsNothing);
       await sendOne(tester);
       expect(wallet.sent.single.pairingId, isNull);
       expect(wallet.sent.single.to, pool.address);

@@ -13699,13 +13699,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactSealPayments => 'ปิดผนึกไฟล์ธุรกรรม';
 
   @override
-  String contactSealInfo(String name) {
-    return 'ไฟล์ธุรกรรมถูกเข้ารหัส (ปิดผนึก) มีเพียงกระเป๋าเงินของ $name ที่อ่านได้';
-  }
-
-  @override
-  String contactSealInfoMore(String name) {
-    return 'เมื่อปิด ไฟล์ธุรกรรมถึง $name จะไม่ปิดผนึก ใครที่ได้ไฟล์ก็อ่านได้ ปิดเฉพาะเมื่อกระเป๋าเงินของ $name เปิดไฟล์ที่ปิดผนึกไม่ได้';
+  String contactSealTip(String name) {
+    return 'ไฟล์ธุรกรรมถึง $name ถูกปิดผนึก มีเพียงกระเป๋าเงินของ $name ที่อ่านได้ ปิดเฉพาะเมื่อกระเป๋าเงินของ $name เปิดไฟล์ที่ปิดผนึกไม่ได้';
   }
 
   @override
@@ -13787,11 +13782,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String contactMovedOn(String date) {
     return 'ย้ายมาที่นี่เมื่อ $date';
-  }
-
-  @override
-  String sendViaMailboxMovedHint(String relay, String date) {
-    return 'ปิดผนึก ส่งผ่าน $relay ย้ายมาที่นี่เมื่อ $date';
   }
 
   @override
@@ -14137,21 +14127,57 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqNewSend => 'ส่งใบแจ้งหนี้';
 
   @override
-  String get sendViaMailbox => 'ส่งผ่านการจับคู่';
+  String get sendRoutePaired => 'ที่อยู่ที่จับคู่';
 
   @override
-  String sendViaMailboxHint(String relay) {
-    return 'ปิดผนึก ส่งผ่าน $relay';
+  String get sendRoutePublic => 'ที่อยู่สาธารณะ';
+
+  @override
+  String get sendRoutePairedInline => 'ที่อยู่ที่จับคู่';
+
+  @override
+  String sendRoutePairedLine(String relay) {
+    return 'สร้างเมื่อจับคู่ ส่งผ่าน $relay';
   }
 
   @override
-  String sendViaPublicHint(String name) {
-    return 'ส่งไปยังที่อยู่ Epicbox สาธารณะของ $name';
+  String sendRoutePairedMovedLine(String relay, String date) {
+    return 'สร้างเมื่อจับคู่ ส่งผ่าน $relay ย้ายมาที่นี่เมื่อ $date';
   }
 
   @override
-  String sendMailboxUnanswered(String date) {
-    return 'ไม่มีการตอบกลับผ่านการจับคู่ตั้งแต่ $date';
+  String sendRoutePublicLine(String name) {
+    return 'ที่อยู่ Epicbox สาธารณะของ $name';
+  }
+
+  @override
+  String sendRouteReasonOtherApp(String name) {
+    return 'เลือกไว้เพราะการชำระเงินล่าสุดของ $name ถูกตอบโดยแอปกระเป๋าอื่น';
+  }
+
+  @override
+  String sendRouteReasonNotHeard(String name, String date) {
+    return 'เลือกไว้เพราะไม่ได้ข่าวจากกระเป๋าของ $name ตั้งแต่ $date';
+  }
+
+  @override
+  String sendRouteReasonUnanswered(String name, String route, String date) {
+    return 'เลือกไว้เพราะกระเป๋าของ $name ไม่ตอบกลับผ่าน$routeตั้งแต่ $date';
+  }
+
+  @override
+  String sendRouteReasonNotAnswering(String name, String route) {
+    return 'เลือกไว้เพราะกระเป๋าของ $name ไม่ตอบกลับผ่าน$route';
+  }
+
+  @override
+  String sendRouteReasonRelayDown(String relay, String route) {
+    return 'เลือกไว้เพราะ $relay ซึ่งเป็นเซิร์ฟเวอร์ Epicbox ของ$route ไม่ตอบสนอง';
+  }
+
+  @override
+  String sendRouteServerDown(String relay) {
+    return '$relay ไม่ตอบสนอง ทั้งสองที่อยู่ใช้เซิร์ฟเวอร์ Epicbox นี้';
   }
 
   @override
@@ -14850,8 +14876,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String sendRecipientPairing(String name) {
-    return 'ผ่านการจับคู่กับ $name';
+  String sendRecipientPairing(String name, String route) {
+    return '$routeของ $name';
   }
 
   @override
@@ -18619,9 +18645,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get helpPairRouteP5 =>
       '**ปิดผนึกไฟล์ธุรกรรม** ในหน้าผู้ติดต่อ จะเข้ารหัสไฟล์ที่ส่งถึงผู้ติดต่อนั้น สวิตช์นี้ครอบคลุมเฉพาะไฟล์ ไม่เปลี่ยนที่อยู่ ผู้ติดต่อที่จับคู่ด้วยคำเชิญหรือ QR ไม่มีที่อยู่ Epicbox สาธารณะ เว้นแต่คุณเพิ่มใน [[ผู้ติดต่อ|Contacts]]';
-
-  @override
-  String get sendRoutePaired => 'ที่อยู่ที่จับคู่';
 
   @override
   String get helpPairTwoWaysTitle => 'สองวิธีในการจับคู่';

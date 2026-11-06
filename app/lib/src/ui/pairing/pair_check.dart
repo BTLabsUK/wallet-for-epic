@@ -591,7 +591,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
               children: [
                 PairSwitchRow(
                   label: l.contactSealPayments,
-                  info: '${l.contactSealInfo(name)}\n\n${l.contactSealInfoMore(name)}',
+                  info: l.contactSealTip(name),
                   value: record.seal != SealMode.off,
                   onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v))),
                 ),

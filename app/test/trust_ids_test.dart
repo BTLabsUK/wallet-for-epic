@@ -148,6 +148,7 @@ void main() {
       'g4.overview.refresh', 'g4.overview.available',
     ],
     '13-send': ['g4.send.to', 'g4.send.amount', 'g4.send.max', 'g4.send.review'],
+    '13x-send-pairing-address': ['g4.send.route.paired', 'g4.send.route.public'],
     '16-send-review': ['g4.send.password', 'g4.send.confirm'],
     '16c-send-done': ['g4.send.another'],
     '17-receive': ['g4.receive.address'],

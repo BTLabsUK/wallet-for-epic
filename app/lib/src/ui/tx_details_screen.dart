@@ -1222,7 +1222,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(label: l.sendMethodLabel, value: MethodIcons.fullName(l, MethodKind.epicbox)),
             _DetailRow(
               label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
-              value: '$mailboxName\n${l.sendRecipientPairing(mailboxName)}',
+              value: '$mailboxName\n${l.sendRecipientPairing(mailboxName, l.sendRoutePairedInline)}',
             ),
           ],
           if (fee != null && outgoing)

@@ -14053,13 +14053,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactSealPayments => 'Seal transaction files';
 
   @override
-  String contactSealInfo(String name) {
-    return 'Transaction files are encrypted (sealed) and readable only by $name.';
-  }
-
-  @override
-  String contactSealInfoMore(String name) {
-    return 'Off, a transaction file to $name is plain: anyone who gets the file can read it. Turn it off only if $name’s wallet cannot open sealed files.';
+  String contactSealTip(String name) {
+    return 'Transaction files to $name are sealed so only $name’s wallet can read them. Turn this off only if $name’s wallet cannot open sealed files.';
   }
 
   @override
@@ -14141,11 +14136,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String contactMovedOn(String date) {
     return 'Moved here on $date';
-  }
-
-  @override
-  String sendViaMailboxMovedHint(String relay, String date) {
-    return 'Sealed. Delivered via $relay, moved here on $date';
   }
 
   @override
@@ -14494,21 +14484,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqNewSend => 'Send invoice';
 
   @override
-  String get sendViaMailbox => 'Send through the pairing';
+  String get sendRoutePaired => 'Paired address';
 
   @override
-  String sendViaMailboxHint(String relay) {
-    return 'Sealed. Delivered via $relay';
+  String get sendRoutePublic => 'Public address';
+
+  @override
+  String get sendRoutePairedInline => 'paired address';
+
+  @override
+  String sendRoutePairedLine(String relay) {
+    return 'Made when you paired. Delivered via $relay.';
   }
 
   @override
-  String sendViaPublicHint(String name) {
-    return 'Goes to $name’s public Epicbox address.';
+  String sendRoutePairedMovedLine(String relay, String date) {
+    return 'Made when you paired. Delivered via $relay, moved here on $date.';
   }
 
   @override
-  String sendMailboxUnanswered(String date) {
-    return 'No answer through the pairing since $date.';
+  String sendRoutePublicLine(String name) {
+    return '$name’s public Epicbox address.';
+  }
+
+  @override
+  String sendRouteReasonOtherApp(String name) {
+    return 'Picked because $name’s last payment was answered by another wallet app.';
+  }
+
+  @override
+  String sendRouteReasonNotHeard(String name, String date) {
+    return 'Picked because $name’s wallet has not been heard from since $date.';
+  }
+
+  @override
+  String sendRouteReasonUnanswered(String name, String route, String date) {
+    return 'Picked because $name’s wallet has not answered through the $route since $date.';
+  }
+
+  @override
+  String sendRouteReasonNotAnswering(String name, String route) {
+    return 'Picked because $name’s wallet is not answering through the $route.';
+  }
+
+  @override
+  String sendRouteReasonRelayDown(String relay, String route) {
+    return 'Picked because $relay, the Epicbox server of the $route, is not answering.';
+  }
+
+  @override
+  String sendRouteServerDown(String relay) {
+    return '$relay is not answering. Both addresses use this Epicbox server.';
   }
 
   @override
@@ -15219,8 +15245,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String sendRecipientPairing(String name) {
-    return 'Through $name’s pairing';
+  String sendRecipientPairing(String name, String route) {
+    return '$name’s $route';
   }
 
   @override
@@ -19032,9 +19058,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpPairRouteP5 =>
       '**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].';
-
-  @override
-  String get sendRoutePaired => 'Paired address';
 
   @override
   String get helpPairTwoWaysTitle => 'Two ways to pair';

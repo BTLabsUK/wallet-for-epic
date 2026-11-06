@@ -307,7 +307,7 @@ class ContactPairingBlock extends ConsumerWidget {
     });
     Future<void> detach() => run(() => pairingCall(ref, (api) => api.attach(p.id, null)));
 
-    final sealInfo = '${l.contactSealInfo(name)}\n\n${l.contactSealInfoMore(name)}';
+    final sealInfo = l.contactSealTip(name);
     final allowInfo = '${l.contactAllowInfo(name)}\n\n${l.contactAllowInfoMore}';
     final statusText = changed
         ? l.trustKeysChanged

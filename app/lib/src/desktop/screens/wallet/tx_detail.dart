@@ -706,7 +706,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               Column(
                 key: const ValueKey('tx-fact-pairing'),
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text(mailboxName), Text(l.sendRecipientPairing(mailboxName), style: ts.small)],
+                children: [Text(mailboxName), Text(l.sendRecipientPairing(mailboxName, l.sendRoutePairedInline), style: ts.small)],
               ),
             )
           else if (t.counterparty != null)

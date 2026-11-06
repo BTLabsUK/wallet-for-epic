@@ -166,20 +166,29 @@ AppLocalizations pairingStrings(Locale? locale) {
   }
 }
 
-/// The line under Send's mailbox switch: sealed, the relay it goes through, and the day the
-/// contact moved there when that was in the last 30 days (`relay_moves.dart`).
-String sendViaMailboxHintOf(AppLocalizations l, PairingRecord p) {
+/// The line under Send's address selector for the paired address: made when the two paired,
+/// the Epicbox server it goes through, and the day the contact moved there when that was in the
+/// last 30 days (`relay_moves.dart`). Also the readout for a contact with no public address.
+String sendRoutePairedLineOf(AppLocalizations l, PairingRecord p) {
   final moved = p.movedAt;
-  return moved == null ? l.sendViaMailboxHint(p.homeRelay) : l.sendViaMailboxMovedHint(p.homeRelay, localDayMonth(l, moved));
+  return moved == null ? l.sendRoutePairedLine(p.homeRelay) : l.sendRoutePairedMovedLine(p.homeRelay, localDayMonth(l, moved));
 }
 
-/// The line under Send's pairing switch when the rule starts it off: why the payment goes to
-/// [name]'s public Epicbox address this time. Null when the switch starts on or is hidden.
-String? plainReasonText(AppLocalizations l, String name, MailboxDefault d) => switch (d.reason) {
+/// The line under Send's address selector for [name]'s public Epicbox address.
+String sendRoutePublicLineOf(AppLocalizations l, String name) => l.sendRoutePublicLine(name);
+
+/// The amber line under Send's address selector while the public address is selected because
+/// the rule picked it: why, this time. Null when the rule starts on the paired address.
+String? sendRouteReasonText(AppLocalizations l, String name, PairingRecord p, MailboxDefault d) => switch (d.reason) {
   PlainReason.none => null,
-  PlainReason.otherApp => l.trustLineOtherApp(name),
-  PlainReason.notHeard => l.trustLineNotHeard(name, localDayMonth(l, d.since!)),
-  PlainReason.unanswered => l.sendMailboxUnanswered(localDayMonth(l, d.since!)),
-  PlainReason.notAnswering => l.trustNotAnswering,
-  PlainReason.relayDown => l.contactRelayDownTitle(name),
+  PlainReason.otherApp => l.sendRouteReasonOtherApp(name),
+  PlainReason.notHeard => l.sendRouteReasonNotHeard(name, localDayMonth(l, d.since!)),
+  PlainReason.unanswered => l.sendRouteReasonUnanswered(name, l.sendRoutePairedInline, localDayMonth(l, d.since!)),
+  PlainReason.notAnswering => l.sendRouteReasonNotAnswering(name, l.sendRoutePairedInline),
+  PlainReason.relayDown => l.sendRouteReasonRelayDown(p.homeRelay, l.sendRoutePairedInline),
 };
+
+/// The amber line on either option when the Epicbox server both addresses use is not answering
+/// ([MailboxDefault.serverDown]). Null otherwise.
+String? sendRouteServerDownText(AppLocalizations l, PairingRecord p, MailboxDefault d) =>
+    d.serverDown ? l.sendRouteServerDown(p.homeRelay) : null;

@@ -10,7 +10,7 @@ import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
-import '../../../pairing_text.dart' show plainReasonText, sendViaMailboxHintOf;
+import '../../../pairing_text.dart' show sendRoutePairedLineOf, sendRoutePublicLineOf, sendRouteReasonText, sendRouteServerDownText;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
@@ -335,8 +335,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return ref.read(deskContactPairingProvider(c.id))?.id;
   }
 
-  /// The user's tap on the pairing switch under To (a paired contact's Epicbox address);
-  /// null follows the rule's default. Goes with the recipient.
+  /// The user's pick on the address selector under To (a paired contact's Epicbox address):
+  /// true the paired address, false the public one; null follows the rule's default. Goes with
+  /// the recipient.
   bool? _viaMailboxChoice;
 
   /// The last send went through the pairing of an address in To and failed: the notice
@@ -344,7 +345,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   bool _failedViaPairing = false;
 
   /// The pairing a paired contact's Epicbox address in To could be paid through, with the
-  /// rule's say on the switch; null when nothing is offered (no such contact, not paired, a
+  /// rule's say on the selector; null when nothing is offered (no such contact, not paired, a
   /// pairing recipient or the file form). [watch] in a build.
   ({Contact contact, PairingRecord pairing, MailboxDefault d})? _mailboxOffer(DeskState st, {bool watch = false}) {
     if (_pairingTo != null || _file) return null;
@@ -363,7 +364,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   /// The pairing this send goes through: a pairing recipient's, or the one of a paired
-  /// contact's address in To while the switch is on. Null for a plain address.
+  /// contact's address in To while the paired address is selected. Null for a plain address.
   String? get _pairingId {
     if (_pairingTo != null) return _pairingTo;
     final o = _mailboxOffer(ref.read(deskProvider));
@@ -2337,45 +2338,41 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         gap: Sp.x1,
       );
     }
-    // A paired contact's address: the switch to pay through the pairing, sealed, as the rule
-    // sets it (trust policy); the user's tap holds until the recipient changes.
+    // A paired contact's address: the selector between its paired address (sealed) and its
+    // public one, as the rule sets it (trust policy); the user's pick holds until the recipient
+    // changes. Selected is neutral (ESegmented), never gold.
     if (_mailboxOffer(st, watch: true) case final o?) {
       final on = _viaMailboxChoice ?? o.d.on;
-      final hint = switch (_viaMailboxChoice) {
-        false => l.sendViaPublicHint(o.contact.name),
-        null when !o.d.on => plainReasonText(l, o.contact.name, o.d),
-        _ => sendViaMailboxHintOf(l, o.pairing),
-      };
-      add(Container(
-        key: const ValueKey('send-via-pairing'),
-        decoration: c.well,
-        padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
-        child: Row(
-          children: [
-            Icon(on ? EIcons.lock : EIcons.lockOpen, size: 16.u, color: c.dim),
-            SizedBox(width: Sp.x3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.sendViaMailbox, style: ts.body),
-                  if (hint != null) Text(hint, style: ts.small),
-                ],
-              ),
-            ),
-            SizedBox(width: Sp.x3),
-            ESwitch(
-              key: const ValueKey('send-via-mailbox'),
-              value: on,
-              semanticLabel: l.sendViaMailbox,
-              onChanged: (v) => setState(() {
-                _viaMailboxChoice = v;
-                _failure = null;
-                _failedViaPairing = false;
-              }),
-            ),
+      final line = on ? sendRoutePairedLineOf(l, o.pairing) : sendRoutePublicLineOf(l, o.contact.name);
+      // Amber: why the rule picked the public address (gone once the user picks the paired
+      // one), or the server both addresses use not answering (on either option).
+      final warn = !on && _viaMailboxChoice == null
+          ? sendRouteReasonText(l, o.contact.name, o.pairing, o.d)
+          : sendRouteServerDownText(l, o.pairing, o.d);
+      add(Column(
+        key: const ValueKey('send-pairing-route'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ESegmented<bool>(
+            stretch: true,
+            value: on,
+            segments: [
+              ESegment(true, l.sendRoutePaired, semanticsId: TrustIds.sendRoutePaired),
+              ESegment(false, l.sendRoutePublic, semanticsId: TrustIds.sendRoutePublic),
+            ],
+            onChanged: (v) => setState(() {
+              _viaMailboxChoice = v;
+              _failure = null;
+              _failedViaPairing = false;
+            }),
+          ),
+          SizedBox(height: Sp.x2),
+          Text(line, style: ts.small),
+          if (warn != null) ...[
+            SizedBox(height: Sp.x1),
+            Text(warn, key: const ValueKey('send-pairing-route-warn'), style: ts.small.copyWith(color: c.warn)),
           ],
-        ),
+        ],
       ));
     }
     if (hold != null) {
@@ -2959,7 +2956,7 @@ class _PairingCard extends StatelessWidget {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [Text(name, style: ts.strong), TrustBadge(pairing, short: true)],
                       ),
-                      Text(l.sendRecipientPairing(name), style: ts.small),
+                      Text(l.sendRecipientPairing(name, l.sendRoutePairedInline), style: ts.small),
                     ],
                   ),
                 ),
@@ -2981,8 +2978,8 @@ class _PairingCard extends StatelessWidget {
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l.sendViaMailbox, style: ts.body),
-                            Text(paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing), style: ts.small),
+                            Text(l.sendRoutePaired, style: ts.body),
+                            Text(paused ? l.contactPausedEpicboxOff : sendRoutePairedLineOf(l, pairing), style: ts.small),
                           ],
                         )
                       : Text(
@@ -3268,7 +3265,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(d.contactName ?? '', style: ts.strong),
-                    Text(l.sendRecipientPairing(d.contactName ?? ''), style: ts.small),
+                    Text(l.sendRecipientPairing(d.contactName ?? '', l.sendRoutePairedInline), style: ts.small),
                   ],
                 ),
               ),

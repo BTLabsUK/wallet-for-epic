@@ -14586,13 +14586,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactSealPayments => 'Pieczętuj pliki transakcji';
 
   @override
-  String contactSealInfo(String name) {
-    return 'Pliki transakcji są szyfrowane (pieczętowane). Tylko portfel $name może je odczytać.';
-  }
-
-  @override
-  String contactSealInfoMore(String name) {
-    return 'Po wyłączeniu plik transakcji dla $name jest jawny: każdy, kto go dostanie, może go odczytać. Wyłącz tylko wtedy, gdy portfel $name nie otwiera zapieczętowanych plików.';
+  String contactSealTip(String name) {
+    return 'Pliki transakcji dla $name są zapieczętowane, więc odczyta je tylko portfel $name. Wyłącz tylko wtedy, gdy portfel $name nie otwiera zapieczętowanych plików.';
   }
 
   @override
@@ -14674,11 +14669,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String contactMovedOn(String date) {
     return 'Przejście tutaj: $date';
-  }
-
-  @override
-  String sendViaMailboxMovedHint(String relay, String date) {
-    return 'Zapieczętowane. Dostarczane przez $relay, przejście tutaj: $date';
   }
 
   @override
@@ -15039,21 +15029,57 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reqNewSend => 'Wyślij fakturę';
 
   @override
-  String get sendViaMailbox => 'Wyślij przez parowanie';
+  String get sendRoutePaired => 'Adres sparowany';
 
   @override
-  String sendViaMailboxHint(String relay) {
-    return 'Zapieczętowane. Dostarczane przez $relay';
+  String get sendRoutePublic => 'Adres publiczny';
+
+  @override
+  String get sendRoutePairedInline => 'adres sparowany';
+
+  @override
+  String sendRoutePairedLine(String relay) {
+    return 'Utworzony przy parowaniu. Dostarczany przez $relay.';
   }
 
   @override
-  String sendViaPublicHint(String name) {
-    return 'Trafi na publiczny adres Epicbox $name.';
+  String sendRoutePairedMovedLine(String relay, String date) {
+    return 'Utworzony przy parowaniu. Dostarczany przez $relay, przejście tutaj: $date.';
   }
 
   @override
-  String sendMailboxUnanswered(String date) {
-    return 'Brak odpowiedzi przez parowanie od $date.';
+  String sendRoutePublicLine(String name) {
+    return 'Publiczny adres Epicbox $name.';
+  }
+
+  @override
+  String sendRouteReasonOtherApp(String name) {
+    return 'Wybrany, bo na ostatnią płatność $name odpowiedziała inna aplikacja portfela.';
+  }
+
+  @override
+  String sendRouteReasonNotHeard(String name, String date) {
+    return 'Wybrany, bo od $date nie ma wieści od portfela $name.';
+  }
+
+  @override
+  String sendRouteReasonUnanswered(String name, String route, String date) {
+    return 'Wybrany, bo portfel $name nie odpowiada przez $route od $date.';
+  }
+
+  @override
+  String sendRouteReasonNotAnswering(String name, String route) {
+    return 'Wybrany, bo portfel $name nie odpowiada przez $route.';
+  }
+
+  @override
+  String sendRouteReasonRelayDown(String relay, String route) {
+    return 'Wybrany, bo $relay, czyli serwer Epicbox obsługujący $route, nie odpowiada.';
+  }
+
+  @override
+  String sendRouteServerDown(String relay) {
+    return '$relay nie odpowiada. Oba adresy korzystają z tego serwera Epicbox.';
   }
 
   @override
@@ -15796,8 +15822,8 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String sendRecipientPairing(String name) {
-    return 'Przez parowanie z $name';
+  String sendRecipientPairing(String name, String route) {
+    return 'Na $route $name';
   }
 
   @override
@@ -19686,9 +19712,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get helpPairRouteP5 =>
       '**Pieczętuj pliki transakcji** na stronie kontaktu szyfruje pliki wysyłane do tego kontaktu. Przełącznik dotyczy samych plików; nie zmienia adresu. Kontakt sparowany przez zaproszenie lub kod QR nie ma publicznego adresu Epicbox, chyba że dodasz go w [[Kontakty|Contacts]].';
-
-  @override
-  String get sendRoutePaired => 'Sparowany adres';
 
   @override
   String get helpPairTwoWaysTitle => 'Dwa sposoby parowania';

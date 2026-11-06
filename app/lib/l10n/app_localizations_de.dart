@@ -14223,13 +14223,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactSealPayments => 'Transaktionsdateien versiegeln';
 
   @override
-  String contactSealInfo(String name) {
-    return 'Transaktionsdateien sind verschlüsselt (versiegelt). Nur die Wallet von $name kann sie lesen.';
-  }
-
-  @override
-  String contactSealInfoMore(String name) {
-    return 'Ausgeschaltet ist eine Transaktionsdatei an $name unversiegelt: Wer die Datei bekommt, kann sie lesen. Schalten Sie es nur aus, wenn die Wallet von $name keine versiegelten Dateien öffnen kann.';
+  String contactSealTip(String name) {
+    return 'Transaktionsdateien an $name sind versiegelt, sodass nur die Wallet von $name sie lesen kann. Schalten Sie dies nur aus, wenn die Wallet von $name keine versiegelten Dateien öffnen kann.';
   }
 
   @override
@@ -14311,11 +14306,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String contactMovedOn(String date) {
     return 'Hierher gewechselt am $date';
-  }
-
-  @override
-  String sendViaMailboxMovedHint(String relay, String date) {
-    return 'Versiegelt. Zugestellt über $relay, hierher gewechselt am $date';
   }
 
   @override
@@ -14668,21 +14658,57 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reqNewSend => 'Rechnung senden';
 
   @override
-  String get sendViaMailbox => 'Über die Kopplung senden';
+  String get sendRoutePaired => 'Gekoppelte Adresse';
 
   @override
-  String sendViaMailboxHint(String relay) {
-    return 'Versiegelt. Zugestellt über $relay';
+  String get sendRoutePublic => 'Öffentliche Adresse';
+
+  @override
+  String get sendRoutePairedInline => 'gekoppelte Adresse';
+
+  @override
+  String sendRoutePairedLine(String relay) {
+    return 'Beim Koppeln erstellt. Zugestellt über $relay.';
   }
 
   @override
-  String sendViaPublicHint(String name) {
-    return 'Geht an die öffentliche Epicbox-Adresse von $name.';
+  String sendRoutePairedMovedLine(String relay, String date) {
+    return 'Beim Koppeln erstellt. Zugestellt über $relay, hierher gewechselt am $date.';
   }
 
   @override
-  String sendMailboxUnanswered(String date) {
-    return 'Seit $date keine Antwort über die Kopplung.';
+  String sendRoutePublicLine(String name) {
+    return 'Die öffentliche Epicbox-Adresse von $name.';
+  }
+
+  @override
+  String sendRouteReasonOtherApp(String name) {
+    return 'Gewählt, weil die letzte Zahlung von $name von einer anderen Wallet-App beantwortet wurde.';
+  }
+
+  @override
+  String sendRouteReasonNotHeard(String name, String date) {
+    return 'Gewählt, weil seit $date nichts von der Wallet von $name gehört wurde.';
+  }
+
+  @override
+  String sendRouteReasonUnanswered(String name, String route, String date) {
+    return 'Gewählt, weil die Wallet von $name seit $date nicht über die $route geantwortet hat.';
+  }
+
+  @override
+  String sendRouteReasonNotAnswering(String name, String route) {
+    return 'Gewählt, weil die Wallet von $name über die $route nicht antwortet.';
+  }
+
+  @override
+  String sendRouteReasonRelayDown(String relay, String route) {
+    return 'Gewählt, weil $relay, der Epicbox-Server für die $route, nicht antwortet.';
+  }
+
+  @override
+  String sendRouteServerDown(String relay) {
+    return '$relay antwortet nicht. Beide Adressen nutzen diesen Epicbox-Server.';
   }
 
   @override
@@ -15402,8 +15428,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String sendRecipientPairing(String name) {
-    return 'Über die Kopplung mit $name';
+  String sendRecipientPairing(String name, String route) {
+    return 'Die $route von $name';
   }
 
   @override
@@ -19257,9 +19283,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get helpPairRouteP5 =>
       '**Transaktionsdateien versiegeln** auf der Kontaktseite verschlüsselt Dateien an diesen Kontakt. Der Schalter betrifft nur Dateien; die Adresse ändert er nicht. Ein Kontakt, der per Einladung oder QR gekoppelt wurde, hat keine öffentliche Epicbox-Adresse, es sei denn, Sie fügen unter [[Kontakte|Contacts]] eine hinzu.';
-
-  @override
-  String get sendRoutePaired => 'Gekoppelte Adresse';
 
   @override
   String get helpPairTwoWaysTitle => 'Zwei Wege zum Koppeln';

@@ -11,6 +11,8 @@ import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, Po
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart' show TrustId;
+
 import '../../desk_l10n.dart';
 
 import '../../app/app_dialogs.dart';
@@ -526,11 +528,16 @@ final List<DeskShot> settingsShots = [
 ];
 
 /// A tap at the middle of the widget with [key] under [context], as a pointer would make it.
-void tapShotKey(BuildContext context, Key key) {
+void tapShotKey(BuildContext context, Key key) => _tapShot(context, (w) => w.key == key);
+
+/// The same for the control marked [TrustId] [id] (a segment of an [ESegmented], a button).
+void tapShotTrustId(BuildContext context, String id) => _tapShot(context, (w) => w is TrustId && w.id == id);
+
+void _tapShot(BuildContext context, bool Function(Widget) match) {
   Element? found;
   void visit(Element e) {
     if (found != null) return;
-    if (e.widget.key == key) {
+    if (match(e.widget)) {
       found = e;
       return;
     }

@@ -13231,13 +13231,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactSealPayments => '密封交易文件';
 
   @override
-  String contactSealInfo(String name) {
-    return '交易文件已加密（密封），只有 $name 的钱包能读取。';
-  }
-
-  @override
-  String contactSealInfoMore(String name) {
-    return '关闭后，发给 $name 的交易文件为明文：拿到文件的任何人都能读取。仅当 $name 的钱包无法打开密封文件时才关闭。';
+  String contactSealTip(String name) {
+    return '发给 $name 的交易文件已密封，只有 $name 的钱包能读取。仅当 $name 的钱包无法打开密封文件时才关闭。';
   }
 
   @override
@@ -13318,11 +13313,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String contactMovedOn(String date) {
     return '$date 切换到此处';
-  }
-
-  @override
-  String sendViaMailboxMovedHint(String relay, String date) {
-    return '已密封。经 $relay 投递，$date 切换到此处';
   }
 
   @override
@@ -13653,21 +13643,57 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewSend => '发送账单';
 
   @override
-  String get sendViaMailbox => '通过配对发送';
+  String get sendRoutePaired => '配对地址';
 
   @override
-  String sendViaMailboxHint(String relay) {
-    return '已密封。经 $relay 投递';
+  String get sendRoutePublic => '公开地址';
+
+  @override
+  String get sendRoutePairedInline => '配对地址';
+
+  @override
+  String sendRoutePairedLine(String relay) {
+    return '配对时创建。经 $relay 投递。';
   }
 
   @override
-  String sendViaPublicHint(String name) {
-    return '将发送到 $name 的公开 Epicbox 地址。';
+  String sendRoutePairedMovedLine(String relay, String date) {
+    return '配对时创建。经 $relay 投递，$date 切换到此处。';
   }
 
   @override
-  String sendMailboxUnanswered(String date) {
-    return '自 $date 起未通过配对收到应答。';
+  String sendRoutePublicLine(String name) {
+    return '$name 的公开 Epicbox 地址。';
+  }
+
+  @override
+  String sendRouteReasonOtherApp(String name) {
+    return '选择此项，因为 $name 的上一笔付款由另一款钱包应用应答。';
+  }
+
+  @override
+  String sendRouteReasonNotHeard(String name, String date) {
+    return '选择此项，因为自 $date 起未收到 $name 的钱包的任何消息。';
+  }
+
+  @override
+  String sendRouteReasonUnanswered(String name, String route, String date) {
+    return '选择此项，因为 $name 的钱包自 $date 起未通过$route应答。';
+  }
+
+  @override
+  String sendRouteReasonNotAnswering(String name, String route) {
+    return '选择此项，因为 $name 的钱包未通过$route应答。';
+  }
+
+  @override
+  String sendRouteReasonRelayDown(String relay, String route) {
+    return '选择此项，因为$route的 Epicbox 服务器 $relay 没有响应。';
+  }
+
+  @override
+  String sendRouteServerDown(String relay) {
+    return '$relay 没有响应。两个地址都使用此 Epicbox 服务器。';
   }
 
   @override
@@ -14335,8 +14361,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String sendRecipientPairing(String name) {
-    return '通过与 $name 的配对';
+  String sendRecipientPairing(String name, String route) {
+    return '$name 的$route';
   }
 
   @override
@@ -17962,9 +17988,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get helpPairRouteP5 =>
       '联系人页面上的**密封交易文件**会加密发给该联系人的文件。该开关只管文件，不会改变地址。通过邀请或二维码配对的联系人没有公开 Epicbox 地址，除非你在[[联系人|Contacts]]中添加一个。';
-
-  @override
-  String get sendRoutePaired => '配对地址';
 
   @override
   String get helpPairTwoWaysTitle => '两种配对方式';

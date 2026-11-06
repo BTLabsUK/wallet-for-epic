@@ -196,27 +196,33 @@ bool mayCancelAndSendByEpicbox(Relationship r, DateTime sentAt, DateTime now) =>
     r.hasEpicboxAddress &&
     mailboxSendStage(sentAt, now) != MailboxSendStage.waiting;
 
-/// Why the pairing route starts off for a paired contact, in the order they are checked.
+/// Why Send starts on the public address for a paired contact, in the order they are checked.
 enum PlainReason { none, otherApp, notHeard, unanswered, notAnswering, relayDown }
 
-/// Where Send stands on the pairing route for a contact: not offered at all, on, or offered but
-/// starting off for [reason]. [since] is the date of [PlainReason.notHeard] and
-/// [PlainReason.unanswered].
+/// Where Send stands on the paired address for a contact: not offered at all, on, or offered but
+/// starting on the public address for [reason]. [since] is the date of [PlainReason.notHeard]
+/// and [PlainReason.unanswered]. [serverDown]: the paired address starts selected although its
+/// Epicbox server is not answering, because the public address uses the same server; Send warns
+/// about the server on either option.
 class MailboxDefault {
-  const MailboxDefault.hidden() : offered = false, reason = PlainReason.none, since = null;
-  const MailboxDefault.on() : offered = true, reason = PlainReason.none, since = null;
-  const MailboxDefault.off(this.reason, [this.since]) : offered = true;
+  const MailboxDefault.hidden() : offered = false, reason = PlainReason.none, since = null, serverDown = false;
+  const MailboxDefault.on({this.serverDown = false}) : offered = true, reason = PlainReason.none, since = null;
+  const MailboxDefault.off(this.reason, [this.since]) : offered = true, serverDown = false;
 
   final bool offered;
   final PlainReason reason;
   final DateTime? since;
+  final bool serverDown;
 
   bool get on => offered && reason == PlainReason.none;
 }
 
-/// The route rule: whether Send offers the pairing for a payment to a contact, and which way the
-/// switch starts. Hidden unless the contact is paired or verified, the card opens sealed and
-/// Epicbox is [online]. The "Seal payments" switch does not gate it.
+/// The route rule: whether Send offers the paired address for a payment to a contact, and which
+/// address the selector starts on. Hidden unless the contact is paired or verified, the card opens
+/// sealed and Epicbox is [online]. The "Seal transaction files" switch does not gate it.
+/// [relayDown]: the pairing's Epicbox server is not answering; with [relayShared] (the contact's
+/// public address lives on the same server) the public address is no better, so the paired
+/// address stays the start and the result carries [MailboxDefault.serverDown].
 MailboxDefault mailboxDefault({
   required Relationship r,
   required bool opensSealed,
@@ -227,6 +233,7 @@ MailboxDefault mailboxDefault({
   DateTime? unansweredSince,
   bool notAnswering = false,
   bool relayDown = false,
+  bool relayShared = false,
 }) {
   if (!r.isPaired || !opensSealed || !online) return const MailboxDefault.hidden();
   final line = contactLine(compat, r, now, lastSealedIn: lastSealedIn);
@@ -240,7 +247,7 @@ MailboxDefault mailboxDefault({
   }
   if (unansweredSince != null) return MailboxDefault.off(PlainReason.unanswered, unansweredSince);
   if (notAnswering) return const MailboxDefault.off(PlainReason.notAnswering);
-  if (relayDown) return const MailboxDefault.off(PlainReason.relayDown);
+  if (relayDown) return relayShared ? const MailboxDefault.on(serverDown: true) : const MailboxDefault.off(PlainReason.relayDown);
   return const MailboxDefault.on();
 }
 
