@@ -3405,7 +3405,7 @@
   "nodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
   "nodeFailoverInsteadOf": "Вместо {host}",
   "deskSetAdvNodeFailover": "Автопереключение узла",
-  "deskSetAdvNodeFailoverHint": "Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.",
+  "deskSetAdvNodeFailoverHint": "Когда ваш узел перестаёт отвечать или отстаёт, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.",
   "deskNodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
   "deskNodeFailoverInsteadOf": "Вместо {host}",
   "netOfflineNoPeers": "У вашего узла нет пиров: платёж ждёт в его пуле, пока он не подключится снова.",
@@ -5363,5 +5363,6 @@
   "contactDomainRefused": "отклонён",
   "deskUpdStripAct": "Обновить",
   "deskUpdStripHide": "Скрыть до следующей версии",
-  "deskTorAddressChangedTitle": "Ваш адрес Tor изменился"
+  "deskTorAddressChangedTitle": "Ваш адрес Tor изменился",
+  "deskNodeFailoverBehind": "Узел отстаёт. Переключено на {host}."
 }

@@ -75,6 +75,7 @@
   "deskTorNodeOver": "Über Tor",
   "deskTorNodeNotEncrypted": "Nach Tor nicht verschlüsselt",
   "deskTorNodeWaits": "Wartet, bis Tor verbunden ist.",
+  "deskNodeFailoverBehind": "Node liegt zurück. Gewechselt zu {host}.",
   "deskNodeFailoverSwitched": "Node antwortet nicht. Gewechselt zu {host}.",
   "deskNodeFailoverInsteadOf": "Statt {host}",
   "deskNodeDurationDh": "{days} T. {hours} h",

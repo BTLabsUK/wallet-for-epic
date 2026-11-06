@@ -75,6 +75,7 @@
   "deskTorNodeOver": "ผ่าน Tor",
   "deskTorNodeNotEncrypted": "ไม่เข้ารหัสหลังออกจาก Tor",
   "deskTorNodeWaits": "รอจนกว่า Tor จะเชื่อมต่อ",
+  "deskNodeFailoverBehind": "โหนดตามหลังอยู่ สลับไปที่ {host} แล้ว",
   "deskNodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
   "deskNodeFailoverInsteadOf": "แทน {host}",
   "deskNodeDurationDh": "{days} วัน {hours} ชั่วโมง",

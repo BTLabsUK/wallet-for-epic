@@ -13556,7 +13556,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvNodeFailoverHint =>
-      'Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.';
+      'Когда ваш узел перестаёт отвечать или отстаёт, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.';
 
   @override
   String deskNodeFailoverSwitched(String host) {
@@ -21286,4 +21286,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTorAddressChangedTitle => 'Ваш адрес Tor изменился';
+
+  @override
+  String deskNodeFailoverBehind(String host) {
+    return 'Узел отстаёт. Переключено на $host.';
+  }
 }

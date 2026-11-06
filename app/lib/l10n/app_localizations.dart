@@ -20559,7 +20559,7 @@ abstract class AppLocalizations {
   /// Hover card of the Node failover switch on Settings › Advanced.
   ///
   /// In en, this message translates to:
-  /// **'When your node stops answering, the wallet uses the next working node in your list for this session.'**
+  /// **'When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.'**
   String get deskSetAdvNodeFailoverHint;
 
   /// Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
@@ -32207,6 +32207,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your Tor address changed'**
   String get deskTorAddressChangedTitle;
+
+  /// Toast when the node in use fell behind the network and the wallet moved to a node of the list that is ahead, for this session. host: the new node's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Node behind. Switched to {host}.'**
+  String deskNodeFailoverBehind(String host);
 }
 
 class _AppLocalizationsDelegate

@@ -3405,7 +3405,7 @@
   "nodeFailoverSwitched": "节点无响应。已切换到 {host}。",
   "nodeFailoverInsteadOf": "代替 {host}",
   "deskSetAdvNodeFailover": "节点故障切换",
-  "deskSetAdvNodeFailoverHint": "当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。",
+  "deskSetAdvNodeFailoverHint": "当你的节点不再响应或落后时，钱包在本次会话中改用列表里下一个可用的节点。",
   "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
   "deskNodeFailoverInsteadOf": "代替 {host}",
   "netOfflineNoPeers": "你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。",
@@ -5363,5 +5363,6 @@
   "contactDomainRefused": "已拒绝",
   "deskUpdStripAct": "更新",
   "deskUpdStripHide": "隐藏至下一版本",
-  "deskTorAddressChangedTitle": "你的 Tor 地址已更改"
+  "deskTorAddressChangedTitle": "你的 Tor 地址已更改",
+  "deskNodeFailoverBehind": "节点已落后。已切换到 {host}。"
 }

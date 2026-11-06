@@ -3405,7 +3405,7 @@
   "nodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
   "nodeFailoverInsteadOf": "Zamiast {host}",
   "deskSetAdvNodeFailover": "Automatyczna zmiana węzła",
-  "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
+  "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać lub zostaje w tyle, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
   "deskNodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
   "deskNodeFailoverInsteadOf": "Zamiast {host}",
   "netOfflineNoPeers": "Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.",
@@ -5363,5 +5363,6 @@
   "contactDomainRefused": "odrzucona",
   "deskUpdStripAct": "Aktualizuj",
   "deskUpdStripHide": "Ukryj do następnej wersji",
-  "deskTorAddressChangedTitle": "Twój adres Tor się zmienił"
+  "deskTorAddressChangedTitle": "Twój adres Tor się zmienił",
+  "deskNodeFailoverBehind": "Węzeł jest w tyle. Przełączono na {host}."
 }

@@ -112,7 +112,7 @@
   "@deskSetAdvNodeFailover": {
     "description": "Switch on Settings › Advanced, under the network modes: on by default."
   },
-  "deskSetAdvNodeFailoverHint": "When your node stops answering, the wallet uses the next working node in your list for this session.",
+  "deskSetAdvNodeFailoverHint": "When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.",
   "@deskSetAdvNodeFailoverHint": {
     "description": "Hover card of the Node failover switch on Settings › Advanced."
   },

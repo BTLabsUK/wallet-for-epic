@@ -75,6 +75,7 @@
   "deskTorNodeOver": "Przez Tor",
   "deskTorNodeNotEncrypted": "Za Torem bez szyfrowania",
   "deskTorNodeWaits": "Czeka na połączenie z Torem.",
+  "deskNodeFailoverBehind": "Węzeł jest w tyle. Przełączono na {host}.",
   "deskNodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
   "deskNodeFailoverInsteadOf": "Zamiast {host}",
   "deskNodeDurationDh": "{days} d {hours} h",

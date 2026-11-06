@@ -100,6 +100,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   /// Overview was left before the tour opened by itself.
   bool _tourMissed = false;
   Timer? _ownAsk;
+  Timer? _behindAsk;
 
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   Timer? _collectTimer;
@@ -183,6 +184,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // timer lives with the shell, not in the provider, so a test's container keeps none.
     _ownAsk = Timer.periodic(ownAskBackEvery, (_) {
       if (mounted) unawaited(ref.read(deskFailoverWatchProvider.notifier).askOwn());
+    });
+    _behindAsk = Timer.periodic(behindAskEvery, (_) {
+      if (mounted) unawaited(ref.read(deskFailoverWatchProvider.notifier).askBehind());
     });
     HardwareKeyboard.instance.addHandler(_onKey);
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
@@ -333,6 +337,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     HardwareKeyboard.instance.removeHandler(_onKey);
     _tourTimer?.cancel();
     _ownAsk?.cancel();
+    _behindAsk?.cancel();
     _linkRetry?.cancel();
     _collectTimer?.cancel();
     _focus?.dispose();
@@ -408,7 +413,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskKeysBackProvider, (_, _) {});
     ref.listen(deskFailoverProvider, (before, now) {
       if (now != null && now != before && mounted) {
-        showEToast(context, context.l10n.deskNodeFailoverSwitched(nodeHost(now.inUse)), tone: ETone.info);
+        final host = nodeHost(now.inUse);
+        showEToast(context, now.behind ? context.l10n.deskNodeFailoverBehind(host) : context.l10n.deskNodeFailoverSwitched(host), tone: ETone.info);
       }
     });
     // The old wallet's history differs from details the user typed: the same per-field

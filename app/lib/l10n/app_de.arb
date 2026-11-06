@@ -3405,7 +3405,7 @@
   "nodeFailoverSwitched": "Node antwortet nicht. Gewechselt zu {host}.",
   "nodeFailoverInsteadOf": "Statt {host}",
   "deskSetAdvNodeFailover": "Automatischer Node-Wechsel",
-  "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
+  "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr oder fällt er zurück, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
   "deskNodeFailoverSwitched": "Node antwortet nicht. Gewechselt zu {host}.",
   "deskNodeFailoverInsteadOf": "Statt {host}",
   "netOfflineNoPeers": "Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.",
@@ -5363,5 +5363,6 @@
   "contactDomainRefused": "abgelehnt",
   "deskUpdStripAct": "Aktualisieren",
   "deskUpdStripHide": "Bis zur nächsten Version ausblenden",
-  "deskTorAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert"
+  "deskTorAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
+  "deskNodeFailoverBehind": "Node liegt zurück. Gewechselt zu {host}."
 }

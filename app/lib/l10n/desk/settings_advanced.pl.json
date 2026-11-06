@@ -26,7 +26,7 @@
   "deskNetSendFileHint": "Przesyłanie pliku nadal działa.",
   "deskNetRecvWaitTorText": "Odbieranie zacznie się, gdy Tor się połączy. Przesyłanie pliku nadal działa.",
   "deskSetAdvNodeFailover": "Automatyczna zmiana węzła",
-  "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
+  "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać lub zostaje w tyle, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
   "deskSetAdvConfirmations": "Potwierdzenia",
   "deskSetAdvConfirmationsHint": "Ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać. Domyślnie {byDefault}; od {min} do {max}.",
   "deskSetAdvConfirmationsDefault": "Domyślnie",
