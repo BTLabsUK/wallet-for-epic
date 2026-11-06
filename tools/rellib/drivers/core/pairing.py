@@ -123,9 +123,15 @@ class Pairing:
         self.ui.nav(NAV_CONTACTS)
         d.press(CONTACTS_PAIR, step="pair-open", then=shows(PAIR_YOUR), timeout=30)
 
+    def _on_pair(self):
+        """A wallet that locked itself is unlocked and back on Contacts › Pair."""
+        if self.ui.ensure_unlocked():
+            self.open_pair()
+
     def seen_as(self, name):
         """The name the other wallet sees this one as (the Pair page's They will see you as … Change)."""
         d = self.d
+        self._on_pair()
         line = d.wait(shows(PAIR_SEEN_AS), 20)
         if line and line.name.strip().endswith(name):
             self.log("SKIP pair-name: seen as %s already" % name)
@@ -140,6 +146,7 @@ class Pairing:
     def copy_invite(self):
         """Copy invite on the Pair page; -> the message the app copied (it carries the invite link)."""
         d = self.d
+        self._on_pair()
         self.clip("")
         d.must(Expect("Copy invite enabled", lambda dd, tree: next((n for n in dd.find_in(PAIR_COPY, tree)
                                                                        if "enabled" in n.states or "sensitive" in n.states), None)),
@@ -158,6 +165,7 @@ class Pairing:
     def enter_invite(self, text, inviter):
         """The answerer: the invite into Have their invite?, Pair, then Pair with <inviter>? › Pair."""
         d = self.d
+        self._on_pair()
         d.fill(PAIR_ENTER, text, step="pair-enter")
         with self._own_not_now():
             d.press(PAIR_GO, step="pair-go", then=shows(INCOMING_TITLE), timeout=60)

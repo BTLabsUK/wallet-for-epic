@@ -441,10 +441,19 @@ class Desktop:
         self.log("%s: wallet open" % self.which)
 
     def ensure_unlocked(self):
-        """The wallet unlocked (auto-lock can close it while the lane waits for a payment)."""
+        """The wallet unlocked (auto-lock can close it while the lane waits for a payment); True when
+        it had locked itself and was unlocked here (the page it was on is gone)."""
         if self.d.seen(UNLOCK_TITLE):
             self.log("the wallet locked itself (auto-lock): unlocking again")
             self.unlock()
+            return True
+        return False
+
+    def poke(self):
+        """Shift through the keyboard: the app's idle time starts again. Presses through AT-SPI are
+        neither a key nor the mouse to auto-lock, so a wallet the lane works only through them
+        locks itself after its idle time (26.11.3 and 26.11.4 run-2: the Pair page's Change)."""
+        self.d.s.key("shift")
 
     def unlock(self):
         d = self.d

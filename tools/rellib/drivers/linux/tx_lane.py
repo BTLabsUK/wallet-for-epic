@@ -349,11 +349,11 @@ class TxLane(Lane):
             for name in ("pair-remove", "pair-proven", "pair-invoice"):
                 self.skip_phase(name, why)
         else:
-            self.run_phase("pair-remove", self._pair_remove)
-            self.run_phase("pair-proven", self._pair_proven)
-            self.run_phase("pair-invoice", self._pair_invoice)
+            for name, fn in (("pair-remove", self._pair_remove), ("pair-proven", self._pair_proven),
+                             ("pair-invoice", self._pair_invoice)):
+                self.run_phase(name, lambda fn=fn: (self.awake(), fn())[1])
         if self.results.get("pair_invite_ok") or self.results.get("pair_proven_ok"):
-            self.run_phase("pair-end", self._pair_end)
+            self.run_phase("pair-end", lambda: (self.awake(), self._pair_end())[1])
         else:
             self.skip_phase("pair-end", "A and B are not paired")
 
@@ -371,6 +371,7 @@ class TxLane(Lane):
 
     def _pair_invite(self):
         """A's invite (Copy invite, the clipboard) into B's Have their invite?; the words read on both."""
+        self.awake()
         for k in ("a", "b"):
             p = self.w[k].pair
             p.enable(invoices=True)
@@ -702,10 +703,12 @@ class TxLane(Lane):
             return None
 
     def awake(self):
-        """Both wallets unlocked: a locked wallet neither listens nor sends (auto-lock while waiting)."""
+        """Both wallets unlocked, their idle time started again: a locked wallet neither listens nor
+        sends (auto-lock while waiting)."""
         for w in self.w.values():
             if w.ui is not None:
                 w.ui.ensure_unlocked()
+                w.ui.poke()
 
     # ---- the core's hooks
 
