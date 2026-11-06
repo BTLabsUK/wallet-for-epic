@@ -14115,6 +14115,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String noticeSealedUnopenable(String name) {
+    return 'Eine Nachricht von $name konnte nicht geöffnet werden.';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name hat die Kopplung entfernt.';
   }

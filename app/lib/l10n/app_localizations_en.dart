@@ -13949,6 +13949,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String noticeSealedUnopenable(String name) {
+    return 'A message from $name could not be opened.';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name removed the pairing.';
   }

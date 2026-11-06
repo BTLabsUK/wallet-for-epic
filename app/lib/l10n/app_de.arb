@@ -5378,5 +5378,6 @@
   "msgCheckFailed": "Die letzte Nachrichtenprüfung ist fehlgeschlagen",
   "msgCheckHeld": "Zurückgehaltene Nachrichten: {count}",
   "msgCheckRefused": "Abgewiesene Nachrichten: {count}",
-  "msgCheckUnreadable": "Nicht lesbare Nachrichten: {count}"
+  "msgCheckUnreadable": "Nicht lesbare Nachrichten: {count}",
+  "noticeSealedUnopenable": "Eine Nachricht von {name} konnte nicht geöffnet werden."
 }

@@ -13126,6 +13126,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String noticeSealedUnopenable(String name) {
+    return '无法打开来自 $name 的消息。';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name 已移除配对。';
   }

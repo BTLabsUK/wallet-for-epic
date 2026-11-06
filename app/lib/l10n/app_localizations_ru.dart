@@ -14457,6 +14457,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String noticeSealedUnopenable(String name) {
+    return 'Не удалось открыть сообщение от $name.';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: сопряжение удалено.';
   }

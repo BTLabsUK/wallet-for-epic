@@ -18543,6 +18543,16 @@
       }
     }
   },
+  "noticeSealedUnopenable": "A message from {name} could not be opened.",
+  "@noticeSealedUnopenable": {
+    "description": "Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
   "noticeUnpaired": "{name} removed the pairing.",
   "@noticeUnpaired": {
     "description": "Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.",

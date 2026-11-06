@@ -5378,5 +5378,6 @@
   "msgCheckFailed": "การตรวจสอบข้อความครั้งล่าสุดล้มเหลว",
   "msgCheckHeld": "ข้อความที่พักไว้: {count}",
   "msgCheckRefused": "ข้อความที่ถูกปฏิเสธ: {count}",
-  "msgCheckUnreadable": "ข้อความที่อ่านไม่ได้: {count}"
+  "msgCheckUnreadable": "ข้อความที่อ่านไม่ได้: {count}",
+  "noticeSealedUnopenable": "เปิดข้อความจาก {name} ไม่ได้"
 }

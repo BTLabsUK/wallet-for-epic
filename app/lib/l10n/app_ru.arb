@@ -5378,5 +5378,6 @@
   "msgCheckFailed": "Последняя проверка сообщений не удалась",
   "msgCheckHeld": "Сообщений отложено: {count}",
   "msgCheckRefused": "Сообщений отклонено: {count}",
-  "msgCheckUnreadable": "Сообщений, которые не удалось прочитать: {count}"
+  "msgCheckUnreadable": "Сообщений, которые не удалось прочитать: {count}",
+  "noticeSealedUnopenable": "Не удалось открыть сообщение от {name}."
 }

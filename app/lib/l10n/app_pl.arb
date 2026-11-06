@@ -5378,5 +5378,6 @@
   "msgCheckFailed": "Ostatnie sprawdzenie wiadomości nie powiodło się",
   "msgCheckHeld": "Wiadomości wstrzymane: {count}",
   "msgCheckRefused": "Wiadomości odrzucone: {count}",
-  "msgCheckUnreadable": "Wiadomości, których nie można odczytać: {count}"
+  "msgCheckUnreadable": "Wiadomości, których nie można odczytać: {count}",
+  "noticeSealedUnopenable": "Nie można otworzyć wiadomości od {name}."
 }

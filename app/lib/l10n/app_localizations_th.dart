@@ -13592,6 +13592,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String noticeSealedUnopenable(String name) {
+    return 'เปิดข้อความจาก $name ไม่ได้';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name ลบการจับคู่แล้ว';
   }

@@ -5378,5 +5378,6 @@
   "msgCheckFailed": "上次消息检查失败",
   "msgCheckHeld": "暂缓的消息：{count}",
   "msgCheckRefused": "被拒绝的消息：{count}",
-  "msgCheckUnreadable": "无法读取的消息：{count}"
+  "msgCheckUnreadable": "无法读取的消息：{count}",
+  "noticeSealedUnopenable": "无法打开来自 {name} 的消息。"
 }

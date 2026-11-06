@@ -57,7 +57,11 @@ Future<void> askPhoneRelayMove(BuildContext context, WidgetRef ref, PairingRecor
     context: context,
     showDragHandle: true,
     builder: (_) => Consumer(
-      builder: (context, ref, _) => RelayMoveSheet(name: name, relay: relayLabelOf(relay), addsServer: relayMoveAddsServer(ref, relay)),
+      builder: (context, ref, _) => RelayMoveGuard(
+        pairingId: p.id,
+        relay: relay,
+        child: RelayMoveSheet(name: name, relay: relayLabelOf(relay), addsServer: relayMoveAddsServer(ref, relay)),
+      ),
     ),
   );
   switch (accept) {
@@ -67,6 +71,39 @@ Future<void> askPhoneRelayMove(BuildContext context, WidgetRef ref, PairingRecor
       await refusePhoneRelayMove(ref, p, relay);
     case null:
       break;
+  }
+}
+
+/// Closes the sheet it wraps when its request is gone: the contact was unpaired, or asks for
+/// another relay than [relay]. The sheet then pops with no answer, as a swipe does, so nothing
+/// is accepted or refused for a request that no longer stands.
+class RelayMoveGuard extends ConsumerStatefulWidget {
+  const RelayMoveGuard({super.key, required this.pairingId, required this.relay, required this.child});
+
+  final String pairingId;
+  final String relay;
+  final Widget child;
+
+  @override
+  ConsumerState<RelayMoveGuard> createState() => _RelayMoveGuardState();
+}
+
+class _RelayMoveGuardState extends ConsumerState<RelayMoveGuard> {
+  bool _closing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final records = ref.watch(pairingsProvider).value;
+    if (records != null && !_closing) {
+      final now = records.where((r) => r.id == widget.pairingId).firstOrNull;
+      if (now == null || now.ended || now.requestedRelay != widget.relay) {
+        _closing = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) Navigator.of(context).pop();
+        });
+      }
+    }
+    return widget.child;
   }
 }
 

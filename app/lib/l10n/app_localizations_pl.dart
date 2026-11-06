@@ -14481,6 +14481,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String noticeSealedUnopenable(String name) {
+    return 'Nie można otworzyć wiadomości od $name.';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: parowanie usunięte.';
   }

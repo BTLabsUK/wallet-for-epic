@@ -21942,6 +21942,12 @@ abstract class AppLocalizations {
   /// **'Messages that could not be read: {count}'**
   String msgCheckUnreadable(int count);
 
+  /// Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'A message from {name} could not be opened.'**
+  String noticeSealedUnopenable(String name);
+
   /// Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.
   ///
   /// In en, this message translates to:
