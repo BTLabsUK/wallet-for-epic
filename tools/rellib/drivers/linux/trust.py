@@ -72,6 +72,8 @@ LAST_SESSION_FROZE = facts.label("deskLastSessionFroze", "The app stopped respon
 # a finalized send's row while its post may still succeed (c640a0593: up to 30 s), and after it failed
 POSTING = facts.label("postFinishedPosting", "Posting…")
 NOT_POSTED = (facts.label("deskTxStatusNotPosted", "Not on the network"), facts.label("txPostElsewhere", "To be posted elsewhere"))
+# a send its receiver refused: cancelled, though its row says so without the word
+DECLINED = facts.label("txStatusReceiverDeclined", "Declined by the receiver")
 FIRST_RUN_LOG = re.compile(r"first run: ")  # first_run_servers.dart's log lines: the server pick of a fresh install
 D = decimal.Decimal
 
@@ -901,7 +903,7 @@ class Run:
                 # waiting for: the app may post it again)
                 sent = [r for r in rows if r.startswith("Sent")][:1]
                 done = [r for r in sent if not re.search(r"(?i)waiting for (the )?recipient|cancel|not sent|failed", r)
-                        and POSTING not in r and not any(w in r for w in NOT_POSTED)]
+                        and POSTING not in r and DECLINED not in r and not any(w in r for w in NOT_POSTED)]
                 if done and waiting == 0:
                     return True, done[0]
                 time.sleep(15)

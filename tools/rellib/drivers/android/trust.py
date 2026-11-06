@@ -983,6 +983,10 @@ NOT_POSTED_YET = (facts.label("postFinishedPosting", "Posting…"),
                   facts.label("txStatusNotPosted", "Not on the network"))
 
 
+# A send its receiver refused: cancelled, though its row says so without the word
+DECLINED = facts.label("txStatusReceiverDeclined", "Declined by the receiver")
+
+
 def not_posted_yet(label):
     """A row whose payment is finished but not (yet) on the network; the row's spoken status
     is lower-cased mid-sentence in English, so the words are matched without case."""
@@ -1102,7 +1106,7 @@ def funds(p, my_addr):
         send_epicbox(p_addr, SEND_AMOUNT)
         row = wait_tx(lambda r: r.startswith(("Sent", "Sending")) and row_amount(r) == Decimal(SEND_AMOUNT)
                       and p_short in r and r not in before
-                      and not re.search(r"waiting for|Waiting for|cancel", r, re.I)
+                      and not re.search(r"waiting for|Waiting for|cancel", r, re.I) and DECLINED not in r
                       and not not_posted_yet(r), 420, "send")
         res["send_ok"] = bool(row)
         det["send_ok"] = (f"{SEND_AMOUNT} EPIC to P ({short(p_addr)}) by Epicbox: {row}" if row
