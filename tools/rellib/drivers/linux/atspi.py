@@ -42,8 +42,9 @@ KEYS = {"escape": "Escape", "back": "Escape", "enter": "Return", "tab": "Tab", "
         "page_down": "Next", "page_up": "Prior", "space": "space", "ctrl_enter": "ctrl+Return", "end": "End"}
 CALL_S = 45       # one AT-SPI call; Flutter's tree read takes a few seconds on a busy host
 TAB_LIMIT = 60    # focus steps tried to reach a control with no action
-ENABLE_WAIT_S = 10  # a control with no action is read again this long: a disabled button (a form still
-                    # working out its fee) has neither action nor focus until it is enabled
+ENABLE_WAIT_S = 45  # a control with no action is read again this long: a disabled button (a form still
+                    # working out its fee) has neither action nor focus until it is enabled; Send's fee
+                    # estimate over Tor held Review for more than 10 s (26.11.4 run-2)
 SECRET_FOCUS_S = 8  # a secret field that does not take focus at once is asked again this long (never set_text)
 DESTRUCTIVE = re.compile(r"(?i)delete|remove|forget|reset|erase|wipe|replace|restore|unlink|clear|send|pay")
 
