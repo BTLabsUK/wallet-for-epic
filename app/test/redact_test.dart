@@ -101,6 +101,18 @@ void main() {
       expect(redact(url), url);
     });
 
+    test('keeps a pairing or device link\'s kind and drops its body', () {
+      const body = 'AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4_QA==';
+      expect(redact('invite epiccash://pair/$body sent'), 'invite epiccash://pair/[redacted] sent');
+      expect(redact('EPICCASH://pair-reply/1/$body'), 'EPICCASH://pair-reply/[redacted]');
+      expect(redact('epiccash://device-link/$body'), 'epiccash://device-link/[redacted]');
+      expect(
+        redact('open https://pair.example.com/pair#1/$body now'),
+        'open https://pair.example.com/pair#[redacted] now',
+      );
+      expect(redact('short epiccash://pair/abc'), 'short epiccash://pair/[redacted]');
+    });
+
     test('drops a slate whole', () {
       expect(
         redact(

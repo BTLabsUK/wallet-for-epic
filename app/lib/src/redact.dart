@@ -16,6 +16,9 @@
 /// 4. A UUID keeps its first 8 characters and gets `…`. 32 or more hex digits become `[hex]`.
 ///    Any other run of 64 or more token characters that is not a URL path becomes `[redacted]`
 ///    (FCM tokens, JWTs, base64).
+/// 8. A pairing or device link keeps its kind and loses its body: `epiccash://pair/[redacted]`,
+///    and the invite page form `https://<page>/pair#[redacted]` (an invite's words, keys and
+///    the mailbox it names are the pairing's secrets).
 ///
 /// The slate rule keeps the slate's id (8 characters) and state: `[slate 0f3b2a1c… S2]`.
 ///
@@ -82,6 +85,8 @@ String redact(String text, {bool details = false}) {
   out = _redactPhrases(out);
   out = out.replaceAll(_compatRow, 'peer_compat $redacted');
   out = _redactKeyed(out);
+  out = out.replaceAllMapped(_pairingLink, (m) => '${m[1]!}$redacted');
+  out = out.replaceAllMapped(_invitePage, (m) => '${m[1]!}$redacted');
   out = out.replaceAllMapped(
     RegExp(r'[A-Za-z0-9-]+'),
     (m) => _uuid.hasMatch(m[0]!) ? '${m[0]!.substring(0, 8)}…' : m[0]!,
@@ -106,6 +111,18 @@ String redact(String text, {bool details = false}) {
 /// The fingerprint an address is logged as: its first 6 and last 4 characters.
 String addressFingerprint(String address) =>
     address.length <= 12 ? address : '${address.substring(0, 6)}…${address.substring(address.length - 4)}';
+
+/// Rule 8: the bare link, `epiccash://<kind>/<body>`, in any case of the scheme.
+final RegExp _pairingLink = RegExp(
+  r'(epiccash://(?:pair|pair-reply|pair-confirm|contact|device-link)/)[A-Za-z0-9_\-/=]+',
+  caseSensitive: false,
+);
+
+/// Rule 8: the invite page form, `https://<page>/pair#<body>` or `…/link#<body>`.
+final RegExp _invitePage = RegExp(
+  r'(https://[^\s/?#]+(?:/[^\s?#]*)?/(?:pair|link)/?#)[^\s]+',
+  caseSensitive: false,
+);
 
 final RegExp _onion = RegExp(r'(?<![A-Za-z0-9])(?=[a-z]*[2-7])([a-z2-7]{56})(\.onion)?(?![A-Za-z0-9])');
 
