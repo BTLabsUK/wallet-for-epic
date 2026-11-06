@@ -13,7 +13,6 @@ import '../../name_service/phone_name_service.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../info_hint.dart';
@@ -193,7 +192,6 @@ class NameServiceCodeCheck extends StatelessWidget {
   const NameServiceCodeCheck({
     super.key,
     required this.label,
-    required this.kind,
     required this.serviceKey,
     this.noPayments = false,
     required this.busy,
@@ -204,7 +202,6 @@ class NameServiceCodeCheck extends StatelessWidget {
   });
 
   final String label;
-  final PairingParty kind;
   final String serviceKey;
 
   /// The hello says the contact takes no payments: its badge sits in the head row.
@@ -245,7 +242,7 @@ class NameServiceCodeCheck extends StatelessWidget {
         children: [
           Row(
             children: [
-              PairAvatar(name: label, kind: kind),
+              PairAvatar(name: label),
               const SizedBox(width: 12),
               Expanded(child: Text(label, style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily))),
               if (noPayments) ...[const SizedBox(width: 8), const NoPaymentsBadge()],

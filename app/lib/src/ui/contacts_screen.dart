@@ -452,7 +452,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
       key: contactsPairingRowKey(r.id),
       minTileHeight: 64,
       horizontalTitleGap: 12,
-      leading: PairAvatar(name: name, kind: r.kind, size: 48),
+      leading: PairAvatar(name: name, size: 48),
       subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
       title: Row(
         children: [
@@ -540,9 +540,6 @@ class _ContactRow extends ConsumerWidget {
     // A request sent to this contact, or its code answered: Waiting until it is paired.
     final pending = pairing == null && ref.watch(pairingSupportedProvider) ? ref.watch(contactPendingPairingProvider(contact.id)) : null;
     final inFlight = pending != null;
-    // The tile's colour follows the party of any pairing with the contact (paired, pending or
-    // ended), as a pairing's own row colours it; a contact without one is a person.
-    final party = (pairing ?? pending)?.kind ?? PairingParty.person;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
@@ -567,7 +564,7 @@ class _ContactRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              PairAvatar(name: contact.name, kind: party, size: 48),
+              PairAvatar(name: contact.name, size: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

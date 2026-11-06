@@ -24,7 +24,6 @@ import '../../../models.dart'
         PairingEventKind,
         PairingFailure,
         PairingInvitePreview,
-        PairingParty,
         PairingRecord,
         PairingState,
         WalletError,
@@ -1370,7 +1369,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
         return DeskNameServiceWaiting(label: name, onCancel: () => _nameService?.cancelHello(widget.pairingId));
       }
     }
-    final lead = r.kind != PairingParty.person || statedAutomated(r.peerProfile) ? l.sasLeadExchange(name) : l.sasLead(name);
+    final lead = statedAutomated(r.peerProfile) ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (r.asksInvoices || r.caps.issuesInvoices) && r.state == PairingState.paired;
     return EDialog(
       title: l.sasDialogTitle(name),

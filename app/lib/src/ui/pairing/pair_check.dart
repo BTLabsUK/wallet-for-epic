@@ -272,7 +272,6 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       if (step == HelloStep.check && serviceKey != null) {
         return NameServiceCodeCheck(
           label: name,
-          kind: record.kind,
           serviceKey: serviceKey,
           noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id),
           busy: _busy,
@@ -287,7 +286,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       }
     }
     // A name service confirms by itself once this side matched: nothing to confirm on its page.
-    final service = (record.kind != PairingParty.person || statedAutomated(record.peerProfile)) && record.peerFeatures & featureNameService == 0;
+    final service = statedAutomated(record.peerProfile) && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
     return SlotScaffold(
@@ -316,7 +315,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         children: [
           Row(
             children: [
-              PairAvatar(name: name, kind: record.kind),
+              PairAvatar(name: name),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

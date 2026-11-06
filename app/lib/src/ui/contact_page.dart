@@ -380,7 +380,7 @@ class _Header extends ConsumerWidget {
       children: [
         Row(
           children: [
-            PairAvatar(name: contact.name, kind: p?.kind ?? PairingParty.person, size: 72),
+            PairAvatar(name: contact.name, size: 72),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

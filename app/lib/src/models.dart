@@ -2956,6 +2956,7 @@ enum PairingEndReason {
 }
 
 /// What the other side's card says it is (card tag 03).
+@Deprecated('Kept so stores, backups and linked-device payloads still read; the card profile (peerProfile) says automated and no payments, and nothing is decided by this.')
 enum PairingParty { person, shop, exchange }
 
 /// Seal payments for a contact (RFC 7.6, 9.3).
