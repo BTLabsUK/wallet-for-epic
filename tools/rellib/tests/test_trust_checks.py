@@ -40,6 +40,7 @@ class FakeLane:
                                      "custom_relays_kept", "settings_kept"]
         self.funds, self.funder, self.mode = funds, None, mode
         self.results, self.details, self.lines = {}, {}, []
+        self.returned = []
         self.out = tempfile.mkdtemp(prefix="lane-")
         # what the driver set on the previous release (the fixtures' settings): its setup took
         self.want_settings = {"theme": "Light", "label": "Trust 1102 1200", "confirmations": 1, "technical_details": True}
@@ -579,6 +580,7 @@ class SendAmount(unittest.TestCase):
         self.assertEqual(asked, [(checks.P_ADDR, "0.02")])
         self.assertTrue(ok, why)
         self.assertIsNone(lane.send_pending)
+        self.assertEqual(lane.returned, [True])
 
     def test_another_amount_sent_is_false(self):
         _, _, ok, why = self.send(7000000)

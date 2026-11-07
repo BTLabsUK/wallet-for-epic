@@ -271,6 +271,7 @@ class Lane:
         self.balance = None  # the last balance the wallet's data showed in this run (seed mode)
         self.needles = None  # what the end-of-lane scan looks for (lane_seed.Needles): no word kept
         self.fund_tx = self.inflow = self.send_pending = None  # set by checks.py
+        self.returned = []  # checks._send_to_p: the sends back to P the wallet's data shows confirmed
         self.touched = []      # the servers the driver gave the app at prepare, and P's relay
         self.last_digest = None  # the newest digest read (checks._digest): its log names the hosts the app used
         self.split = None      # the app log's line count when live-servers started

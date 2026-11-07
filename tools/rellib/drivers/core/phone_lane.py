@@ -92,15 +92,6 @@ def run(make_platform, proof_extra, not_checked=None):
             paid.append(amount)
         return ok, out_
     funder.send = counted
-    returned = []  # the sends back to P that the wallet's data shows confirmed (send_ok is unset without REL_FUNDS)
-    send_to_p = checks._send_to_p
-
-    def tracked(lane_, d0, amount=None, **kw):
-        ok, why = send_to_p(lane_, d0, amount, **kw)
-        returned.append(ok)
-        return ok, why
-    checks._send_to_p = tracked
-
     def recipe_for(lane, which, surface):
         d = Driver(surface, Labels.for_build(which), lane.rec, out=lane.out, log=lane.log)
         return Phone(d, which, lane.log)
@@ -110,7 +101,7 @@ def run(make_platform, proof_extra, not_checked=None):
     signal.signal(signal.SIGTERM, stopped)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
     rc = lane.main()
-    if paid and not any(returned):
+    if paid and not any(lane.returned):
         if getattr(lane, "mode", None) == "seed":  # the lane's own wallet: its phrase is in the seed store, nothing written here
             log("funds left on the lane's seed wallet: sent back by the next run, no secrets written")
         else:

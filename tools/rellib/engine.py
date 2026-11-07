@@ -646,13 +646,19 @@ class Engine:
             return {"status": "done", "note": "dry run", "dry": True}
         if not os.path.isdir(cwd):
             return {"status": "failed", "note": f"working dir {cwd} does not exist"}
+        gated = repeats.gated(step)
+        if gated:
+            left = repeats.end_park(stage)
+            if left:
+                self.run.event(step.id, "park-ended", name=left.get("step"), phase=left.get("phase"))
+                self.echo(f"{step.id}: the lane still parked at {left.get('step')} is ended: this attempt takes its rig")
         if step.driven:
             # A proof from an earlier attempt never counts for this one.
             old = os.path.join(stage, "proof.json")
             if os.path.exists(old):
                 os.replace(old, os.path.join(stage, f"proof.before-{os.path.basename(log)[:-4]}.json"))
         kw = {}
-        if repeats.gated(step):
+        if gated:
             repeats.clear_park(stage)
             kw["held"] = self.park_watch(step, stage)
         rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout, **kw)

@@ -26,11 +26,16 @@ seeds and the file and log cursors are left out: the app's live state is the one
 
 When the fix changes the path: an action that does not match the record ends the replay and goes
 live there, on the screen the app is on. In a funds phase that is refused: core.faults.Diverged ends
-the lane rather than risk paying twice. A fault during the replay parks again.
+the lane rather than risk paying twice. Once raised it stays raised: each further call in the phase
+raises it again, and a phase that returned with it swallowed raises it at its end, so no catch-all on
+the way (the Tor fallback, a kick) can carry on to the next send. A funds phase that ends with recorded
+actions unused ends the same way. A fault during the replay parks again.
 
 What cannot go on from the action, and where it goes instead:
 - one platform call (an install, an update, a restore) is one action: it runs again whole.
 - HarnessGone, a dead app, product and infra faults do not park.
+- a send or cancel on the funder that raised does not park: P's service may finish it after the client
+  gave up, and nothing here can tell.
 - the frames already running keep their code: Lane._main and _candidate (the phase order) and lambdas
   written inside them. What they call is new.
 - windows/agent.ps1, linux/atspi_worker.py and linux/standin.py run outside the lane process.
@@ -58,7 +63,8 @@ READS = {"s": {"tree", "alive", "screenshot", "in_front", "foreground", "display
          "w": {"listening"}}
 UNKEYED = {"screenshot"}  # its path counts shots, which a fix may change
 PASS = {"log", "unwrap"}
-FUNDS = re.compile(r"fund|pay|sweep|send|receive|back")
+FUNDS = re.compile(r"fund|pay|sweep|send|receive|back|invoice|link-end")
+SPENDS = ("send", "cancel")  # on the funder
 NEVER = {"ProductFault", "Frozen", "HarnessGone", "LaneStopped", "RefusedStart", "InfraFault", "Diverged", "_Stop",
          "StepReached"}
 OUT = {"Platform", "P", "LaneSeed", "_Watched", "Held", "BaseException",  # the surfaces are duck typed: named one by one
@@ -273,11 +279,24 @@ class Replay:
         rest = [x for _, x in self.parts[self.i:]]
         at = "action %d of %d: %s %s, the record has %s %s" % (self.i + 1, self.total, tag, name, e.tag, e.name)
         self.j.stop()
-        if FUNDS.search(self.j.phase) or any(x.tag[0] == "f" and x.name in ("send", "cancel") for x in rest):
-            raise self.j.hold.diverged(self.j.phase, "the replay left the recorded path at %s. In a funds phase it stops "
-                                                     "there: going on live could pay twice." % at)
+        if self.pays(rest):
+            raise self.j.diverge("the replay left the recorded path at %s. In a funds phase it stops there: going on "
+                                 "live could pay twice." % at)
         self.j.log("replay left the recorded path at %s: live from here" % at)
         return None
+
+    def pays(self, rest):
+        return FUNDS.search(self.j.phase) or any(x.tag[0] == "f" and x.name in SPENDS for x in rest)
+
+    def unused(self):
+        """The phase returned before the record ran out: the fixed code never did what the app has done."""
+        rest = [x for _, x in self.parts[self.i:]]
+        at = "%d of %d recorded actions not reached, the first %s %s" % (len(rest), self.total, rest[0].tag, rest[0].name)
+        self.j.stop()
+        if self.pays(rest):
+            raise self.j.diverge("the phase ended on the replay with %s. In a funds phase what was paid must be "
+                                 "accounted for: the lane stops." % at)
+        self.j.log("the phase ended on the replay with %s" % at)
 
     def attr(self, tag, k, live):
         known = self.attrs.get(tag)
@@ -288,6 +307,7 @@ class Journal:
     def __init__(self, hold, phase, entries=()):
         self.hold, self.phase = hold, phase
         self.entries, self.depth, self.replay, self.was, self.tail, self.searching = [], 0, None, None, {}, 0
+        self.dead = None
         if any(e.kind == "act" for e in entries):
             self.replay = Replay(self, entries)
             _Clock.t, _Clock.m = entries[0].t, entries[0].m
@@ -301,6 +321,21 @@ class Journal:
         if self.replay is not None:
             self.replay = None
             _clock_end()
+
+    def diverge(self, why):
+        self.dead = self.hold.diverged(self.phase, why)
+        return self.dead
+
+    def ended(self):
+        """The phase returned."""
+        if self.dead is not None:
+            raise self.dead
+        if self.replay is not None:
+            self.replay.unused()
+
+    def unsure(self):
+        """A send or cancel on the funder that raised: it may have gone all the same."""
+        return next((e for e in self.entries if e.exc is not None and e.tag[0] == "f" and e.name in SPENDS), None)
 
     def failed(self):
         """A fault: when it came in the replay, the record stands whole for the next fix."""
@@ -324,6 +359,8 @@ class Journal:
     def call(self, tag, name, fn, a, kw, target=None):
         if self.depth or threading.get_ident() != _MAIN:
             return fn(*a, **kw)
+        if self.dead is not None:
+            raise self.dead
         kind = "read" if name in READS.get(tag[0], ()) else "act"
         key = (tag, name) if name in UNKEYED else (tag, name, _norm(a), _norm(kw))
         if self.replay is not None:
@@ -418,11 +455,15 @@ class Hold:
             while True:
                 current = j
                 try:
-                    return fn()
+                    out = fn()
+                    j.ended()
+                    return out
                 except _Again:
                     pass
                 except Exception as e:  # noqa: BLE001 — a bug in the harness is what a fix is for
                     j.failed()
+                    if j.dead is not None:
+                        raise j.dead
                     if not self.parkable(lane, e) or not self.park(lane, name, e, j):
                         raise
                 j = self.again(lane, saved, j)
@@ -443,6 +484,10 @@ class Hold:
         if self.off or {c.__name__ for c in type(e).__mro__} & NEVER:
             return False
         if getattr(e, "fatal", False) or getattr(e, "kind", "harness") != "harness":
+            return False
+        sent = current.unsure() if current is not None else None
+        if sent is not None:
+            self.log("no park: the funder's %s raised (%s), and it may have gone: a replay could pay twice" % (sent.name, sent.exc))
             return False
         alive = getattr(lane.p, "alive", None)
         try:
@@ -491,6 +536,10 @@ class Hold:
                     go = self.answer(ask, step, what, name, at, n, acts)
                     if go is not None:
                         return go
+                if not os.path.exists(self.path(PARKED)):
+                    self.off = True
+                    self.log("PARK over: a new attempt took this stage")
+                    return False
                 if _real["time"]() - at > self.limit:
                     self.off = True
                     self.log("PARK over: nobody continued %s within %d s" % (step, self.limit))
@@ -545,6 +594,12 @@ def install(lane, diverged):
     return True
 
 
+def join(w, key):
+    """A wallet that came after install: its platform's calls go through the journal like the others'."""
+    if _held is not None:
+        w.p = Held(w.p, "p:" + key)
+
+
 def uninstall():
     global _held, current
     _held = current = None
@@ -568,6 +623,8 @@ def kept(lane, fault):
     if h is None or j is None:
         return
     j.failed()
+    if j.dead is not None:
+        raise j.dead
     if h.parkable(lane, fault) and h.park(lane, j.phase, fault, j):
         raise _Again()
 

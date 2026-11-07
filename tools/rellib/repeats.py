@@ -31,7 +31,9 @@ the `end` event and metrics.jsonl for the Release panel."""
 import contextlib
 import json
 import os
+import signal
 import subprocess
+import time
 import uuid
 
 from . import evidence
@@ -248,6 +250,33 @@ def parked(stage):
         return None
     except PermissionError:
         pass
+    return park
+
+
+def lane_of(pid, stage):
+    """Is pid, right now, a lane of this stage? A pid in an old park file may be anybody's by now."""
+    try:
+        with open(f"/proc/{pid}/environ", "rb") as f:
+            return b"REL_STAGE=" + os.fsencode(stage) in f.read().split(b"\0")
+    except OSError:
+        return False
+
+
+def end_park(stage, wait_s=30):
+    """A lane still parked here, left by a tools/rel that died, ended before a new attempt takes its rig
+    and its stage: it would go live at the end of its park. -> the park it held, or None."""
+    park = parked(stage)
+    if park is None or not lane_of(park["pid"], stage):
+        return None
+    with contextlib.suppress(OSError):
+        os.kill(park["pid"], signal.SIGTERM)
+    end = time.monotonic() + wait_s
+    while time.monotonic() < end:
+        if not lane_of(park["pid"], stage):
+            return park
+        time.sleep(0.2)
+    with contextlib.suppress(OSError):
+        os.killpg(park["pid"], signal.SIGKILL)
     return park
 
 

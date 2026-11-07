@@ -12,6 +12,7 @@ import sys
 import tempfile
 import threading
 import time
+import types
 import unittest
 from unittest import mock
 
@@ -69,10 +70,12 @@ class Plat(core_lane.Platform):
 class Funder:
     def __init__(self):
         self.sends = []
-        self.slate = None
+        self.slate = self.boom = None
 
     def send(self, to, amount):
         self.sends.append((to, amount))
+        if self.boom:
+            raise self.boom
         self.slate = "slate-%d" % len(self.sends)
         return self.slate
 
@@ -355,6 +358,109 @@ def walk(lane):
             lane.run_phase("address", lambda: self.mod.walk(lane))
         self.assertEqual(self.funder.sends, [("w", 1)])
 
+    def test_an_app_press_that_pays_in_an_invoice_or_link_phase_ends_the_lane(self):
+        for phase in ("pair-invoice", "link-end"):
+            with self.subTest(phase):
+                lane = self.lane(BROKEN)
+                self.fix(BROKEN.replace('lane.s.press("a")', 'lane.s.press("z")'))
+                with self.assertRaises(Diverged):
+                    lane.run_phase(phase, lambda: self.mod.walk(lane))
+                self.assertNotIn("z", self.app.presses)
+                self.person.join(5)
+                self.app.presses.clear()
+                hold.uninstall()
+
+    def test_a_catch_all_cannot_carry_a_refused_replay_on_to_the_next_send(self):
+        code = """
+from core.faults import Fault, HarnessFault
+
+def walk(lane):
+    try:
+        lane.s.press("a")
+    except Exception as e:
+        lane.said = e
+    lane.funder.send("w", 1)
+    if "technical" not in lane.s.tree():
+        raise HarnessFault("find-x", "no row")
+"""
+        lane = self.lane(code)
+        self.fix(code.replace('lane.s.press("a")', 'lane.s.press("z")'))
+        with self.assertRaises(Diverged):
+            lane.run_phase("pay-send", lambda: self.mod.walk(lane))
+        self.assertIsInstance(lane.said, Diverged)
+        self.assertEqual(self.funder.sends, [("w", 1)])
+
+    def test_a_refused_replay_swallowed_to_the_end_of_the_phase_still_ends_the_lane(self):
+        lane = self.lane(BROKEN)
+        self.fix('def walk(lane):\n    try:\n        lane.s.press("z")\n    except Exception:\n        pass\n')
+        with self.assertRaises(Diverged):
+            lane.run_phase("pay-send", lambda: self.mod.walk(lane))
+
+    def test_a_refused_replay_swallowed_then_a_fault_does_not_park_again(self):
+        fixed = """
+from core.faults import Fault, HarnessFault
+
+def walk(lane):
+    try:
+        lane.s.press("z")
+    except Fault:
+        raise HarnessFault("tor", "the fallback failed too")
+"""
+        lane = self.lane(BROKEN)
+        self.fix(fixed)
+        with self.assertRaises(Diverged):
+            lane.run_phase("pay-send", lambda: self.mod.walk(lane))
+        self.assertEqual(len(self.parks), 1)
+
+    def test_a_funds_phase_that_ends_short_of_the_record_ends_the_lane(self):
+        lane = self.lane(BROKEN)
+        self.fix('def walk(lane):\n    lane.s.press("a")\n')
+        with self.assertRaises(Diverged) as e:
+            lane.run_phase("pay-send", lambda: self.mod.walk(lane))
+        self.assertIn("not reached", str(e.exception.what))
+
+    def test_elsewhere_a_phase_may_end_short_of_the_record(self):
+        lane = self.lane(BROKEN)
+        self.fix('def walk(lane):\n    lane.s.press("a")\n    return "short"\n')
+        self.assertEqual(lane.run_phase("settings", lambda: self.mod.walk(lane)), "short")
+        self.assertTrue(any("not reached" in s for s in self.said))
+
+    def test_a_wallet_that_came_later_replays_with_the_others(self):
+        code = """
+from core.faults import HarnessFault
+
+def walk(lane):
+    lane.w.p.digest("before")
+    lane.s.press("a")
+    if "technical" not in lane.s.tree():
+        raise HarnessFault("find-x", "no row")
+    return lane.w.p.digest("after")
+"""
+        lane = self.lane(code)
+        calls = []
+        lane.w = types.SimpleNamespace(p=types.SimpleNamespace(digest=lambda tag: calls.append(tag) or len(calls)))
+        hold.join(lane.w, "a2")
+        self.fix(code.replace('"technical" not in lane.s.tree()', '"ready" not in lane.s.tree()'))
+        self.assertEqual(lane.run_phase("link-end", lambda: self.mod.walk(lane)), 2)
+        self.assertEqual(calls, ["before", "after"])
+
+    def test_a2_joins_the_journal_in_link_up(self):
+        class Up(Exception):
+            pass
+
+        def restore(_w, put):
+            raise Up()
+        from linux import tx_lane
+        self.lane(BROKEN)
+        plat = types.SimpleNamespace()
+        tx = types.SimpleNamespace(w={"a": types.SimpleNamespace(seed="s")}, p=types.SimpleNamespace(add_a2=lambda: plat),
+                                   _restore_one=restore)
+        with self.assertRaises(Up):
+            tx_lane.TxLane._link_up(tx)
+        self.assertIsInstance(tx.w["a2"].p, hold.Held)
+        self.assertIs(tx.w["a2"].p._t, plat)
+        self.assertEqual(tx.w["a2"].p._tag, "p:a2")
+
     def test_coins_go_once_and_what_the_send_left_comes_back(self):
         code = """
 from core.faults import HarnessFault
@@ -462,6 +568,48 @@ class Refuses(Kit):
             go()
         self.assertEqual(self.parks, [])
         self.assertFalse(any(s.startswith("PARKED") for s in self.said))
+
+    def test_a_send_on_the_funder_that_raised_does_not_park(self):
+        code = """
+from core.faults import HarnessFault
+
+def walk(lane):
+    lane.s.press("a")
+    try:
+        lane.funder.send("w", 1)
+    except OSError as e:
+        raise HarnessFault("fund", "P did not answer: %s" % e)
+"""
+        lane = self.lane(code)
+        self.funder.boom = TimeoutError("timed out")
+        with self.assertRaises(HarnessFault):
+            lane.run_phase("fund", lambda: self.mod.walk(lane))
+        self.assertEqual(self.parks, [])
+        self.assertEqual(self.funder.sends, [("w", 1)])
+        self.assertTrue(any("may have gone" in s for s in self.said))
+
+    def test_the_same_when_the_driver_lets_it_through(self):
+        lane = self.lane('def walk(lane):\n    lane.funder.send("w", 1)\n')
+        self.funder.boom = TimeoutError("timed out")
+        with self.assertRaises(Exception):
+            lane.run_phase("fund", lambda: self.mod.walk(lane))
+        self.assertEqual(self.parks, [])
+
+    def test_a_park_whose_file_was_taken_ends(self):
+        lane, go = self.faulting(HarnessFault("x", "no row"))
+        park = os.path.join(self.out, hold.PARKED)
+
+        def take():
+            end = time.monotonic() + 20
+            while not os.path.exists(park) and time.monotonic() < end:
+                time.sleep(0.02)
+            os.remove(park)
+        t = threading.Thread(target=take, daemon=True)
+        t.start()
+        with self.assertRaises(HarnessFault):
+            go()
+        t.join(5)
+        self.assertTrue(any("a new attempt took this stage" in s for s in self.said))
 
     def test_a_product_fault_does_not_park(self):
         self.assert_no_park(ProductFault("find-x", "the app said no"))
@@ -917,6 +1065,24 @@ class ThroughRel(Repeats):
             self.rel("continue", KEY, "--stop")
         t.join(20)
 
+    def stage(self):
+        return os.path.join(self.run_.step_dir(KEY), "out")
+
+    def left_parked(self, first=""):
+        """A lane in this stage that a dead tools/rel left at its park."""
+        stage = self.stage()
+        os.makedirs(stage, exist_ok=True)
+        p = subprocess.Popen([sys.executable, "-c", first + "import time\nprint(1, flush=True)\ntime.sleep(60)"],
+                             env=dict(os.environ, REL_STAGE=stage), start_new_session=True, stdout=subprocess.PIPE)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.wait)
+        self.addCleanup(p.kill)
+        p.stdout.readline()
+        threading.Thread(target=p.wait, daemon=True).start()  # reaps it: a zombie still has its pid
+        with open(os.path.join(stage, repeats.PARKED), "w") as f:
+            json.dump({"pid": p.pid, "step": "x", "phase": "settings"}, f)
+        return p
+
     def until_parked(self):
         end = time.monotonic() + 20
         while time.monotonic() < end:
@@ -994,6 +1160,39 @@ class ThroughRel(Repeats):
         self.assertEqual(st["status"], "failed")
         self.assertEqual(st["failures"][-1]["kind"], "harness")
         self.assertEqual(self.presses(), ["a"])
+
+    def test_a_lane_left_parked_ends_before_a_new_attempt(self):
+        self.start()
+        park = self.until_parked()["parked"]
+        stage = self.stage()
+        pid = repeats.parked(stage)["pid"]
+        self.assertTrue(repeats.lane_of(pid, stage))
+        self.assertEqual(repeats.end_park(stage)["step"], park["step"])
+        self.assertFalse(repeats.lane_of(pid, stage))
+
+    def test_a_new_attempt_ends_what_is_left_parked_before_it_starts(self):
+        p = self.left_parked()
+        self.driver_fix(FIXED_A)
+        self.eng.execute(self.android)
+        self.assertEqual(p.wait(5), -15)
+        self.assertEqual(self.st()["status"], "done")
+        self.assertEqual(len(self.events("park-ended")), 1)
+
+    def test_a_pid_that_is_no_lane_of_this_stage_is_left_alone(self):
+        stage = self.stage()
+        os.makedirs(stage, exist_ok=True)
+        p = subprocess.Popen(["sleep", "60"])
+        self.addCleanup(p.wait)
+        self.addCleanup(p.kill)
+        with open(os.path.join(stage, repeats.PARKED), "w") as f:
+            json.dump({"pid": p.pid, "step": "x"}, f)
+        self.assertIsNone(repeats.end_park(stage))
+        self.assertIsNone(p.poll())
+
+    def test_a_lane_that_ignores_the_stop_is_killed(self):
+        p = self.left_parked("import signal,time\nsignal.signal(signal.SIGTERM, signal.SIG_IGN)\n")
+        self.assertEqual(repeats.end_park(self.stage(), wait_s=0.5)["pid"], p.pid)
+        self.assertEqual(p.wait(5), -9)
 
     def test_a_parked_lane_does_not_time_out(self):
         code = self.eng.spawn(["bash", "-c", "sleep 3"], self.tmp, dict(os.environ), os.path.join(self.tmp, "log"), 1, held=lambda: True)

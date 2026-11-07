@@ -805,6 +805,12 @@ def kick(lane, p, what):
 
 
 def _send_to_p(lane, d0, amount=None, fallback=None):
+    ok, why = _send_it(lane, d0, amount, fallback)
+    lane.returned.append(ok)  # on the lane, not a wrapper round this: tools/rel continue reloads this module
+    return ok, why
+
+
+def _send_it(lane, d0, amount, fallback):
     """[amount] (EPIC, a Decimal) to P through the recipe's Send page, or everything (Max) when None; True
     when the data shows the payment posted and confirmed (and of that amount). [fallback](why) is called
     once at the first miss (see _again): a Send that did not go is tried again, a payment waited for."""

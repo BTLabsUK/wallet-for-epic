@@ -658,6 +658,7 @@ class TxLane(Lane):
             plat = self.p.add_a2()
             w = Wallet(self, "a2", plat)
             w.seed = a.seed  # the same lane seed: its lock is A's
+            hold.join(w, "a2")
             self.w["a2"] = w
         w = self.w["a2"]
         if w.ui is None or not w.secrets.get("password"):
