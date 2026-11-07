@@ -79,6 +79,8 @@ void main() {
       'lib/src/net/socks.dart',
       // Platform.isAndroid behind !kIsWeb: the web keeps the bundled Thai fallback.
       'lib/src/ui/theme/fonts.dart',
+      // The failover reads the local node's state types; the node itself runs on the desktop.
+      'lib/src/builtin_node.dart',
     };
     final withIo = {
       for (final MapEntry(key: file, value: uris) in _webGraph().entries)

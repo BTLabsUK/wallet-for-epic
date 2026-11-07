@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart' show pairNameFieldKey;
 import 'package:epic_wallet/src/relay_directory.dart';
+import 'package:epic_wallet/src/onion_notice.dart' show onionNoticeKey, onionNoticeSeen;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/settings.dart';
@@ -160,6 +161,7 @@ class _Harness {
     }
     if (sealed) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
+      store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     }
     // Home's recovery phrase reminder (a notice, due once a day) was shown today: it is not
     // what these tests look at, and an open dock would move the rows they measure.

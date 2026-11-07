@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/dev_networks.dart';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/onion_notice.dart' show onionNoticeKey, onionNoticeSeen;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -100,6 +101,7 @@ class _Device {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealedMainnet) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
+      store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     }
   }
 
@@ -309,6 +311,7 @@ void main() {
         expect({...device.store.values}..remove('app.level')..remove('wallet.mainnet.backupNoticeAt'), {
           'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
           'wallet.mainnet.pinBiometrics': '1',
+          onionNoticeKey('mainnet', null): onionNoticeSeen,
         });
         expect(device.bio.values, {'wallet.mainnet.pin': _pin});
       },
