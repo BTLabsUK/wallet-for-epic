@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
+import 'package:epic_wallet/src/ui/message_check_lines.dart' show messageCheckLines;
 import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingNoticeOf;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
@@ -112,6 +113,9 @@ class _PairingWallet implements lepic.EpicWallet {
   /// Mailboxes each collect reports stopped at a message held for later.
   int collectKept = 0;
 
+  /// What collects report of their mailboxes in turn, ahead of [collectKept].
+  final List<({int kept, int mailboxes, int notReached})> collectLooks = [];
+
   final List<lepic.QuarantinedMessageView> quarantine = [];
   final List<String> discarded = [];
   int retries = 0;
@@ -141,16 +145,17 @@ class _PairingWallet implements lepic.EpicWallet {
     collects.add(only);
     onCollect?.call(only);
     final end = collectEnds.isEmpty ? (capped: 0, timedOut: 0) : collectEnds.removeAt(0);
+    final look = collectLooks.isEmpty ? (kept: collectKept, mailboxes: 0, notReached: 0) : collectLooks.removeAt(0);
     return lepic.ContactCollectReport(
       capped: end.capped,
-      kept: collectKept,
+      kept: look.kept,
       refused: 0,
       timedOut: end.timedOut,
-      notReached: 0,
+      notReached: look.notReached,
       quarantined: 0,
       quarantineDropped: 0,
       buffered: 0,
-      mailboxes: 0,
+      mailboxes: look.mailboxes,
       messages: 1,
       paired: 0,
       failed: const [],
@@ -337,6 +342,43 @@ void main() {
         ..collectEnds.addAll([(capped: 1, timedOut: 0), (capped: 0, timedOut: 0)]);
       await session.pairing.collect(trigger: PairingCollectTrigger.pull);
       expect(session.checks.value.outcome.held, 1);
+    });
+
+    test('a held message stays on the check when a later round does not reach its mailbox', () async {
+      wallet
+        ..collectLooks.addAll([(kept: 1, mailboxes: 50, notReached: 0), (kept: 0, mailboxes: 50, notReached: 0)])
+        ..collectEnds.addAll([(capped: 1, timedOut: 0), (capped: 0, timedOut: 0)]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(messageCheckLines(englishStrings, session.checks.value), contains(englishStrings.msgCheckItemHeld(1)));
+    });
+
+    test('a look at fewer mailboxes leaves what a wider one held', () async {
+      wallet.collectLooks.addAll([
+        (kept: 1, mailboxes: 3, notReached: 0),
+        // One contact's mailbox only.
+        (kept: 0, mailboxes: 1, notReached: 0),
+        // A relay down: only one of the three was read.
+        (kept: 0, mailboxes: 3, notReached: 2),
+      ]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      await (session.pairing as dynamic).collectOrFail(PairingCollectTrigger.foreground, only: ['bob']);
+      expect(session.checks.value.outcome.held, 1);
+      await session.pairing.collect();
+      expect(session.checks.value.outcome.held, 1);
+    });
+
+    test('a look as wide as the last clears what it held', () async {
+      wallet.collectLooks.addAll([(kept: 1, mailboxes: 3, notReached: 0), (kept: 0, mailboxes: 3, notReached: 0)]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      await session.pairing.collect();
+      expect(session.checks.value.outcome.held, 0);
+    });
+
+    test('a pull clears what a wider look held: it reads every mailbox', () async {
+      wallet.collectLooks.addAll([(kept: 1, mailboxes: 3, notReached: 0), (kept: 0, mailboxes: 2, notReached: 0)]);
+      await session.pairing.collect();
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(session.checks.value.outcome.held, 0);
     });
 
     test('tries kept messages again on open only', () async {
