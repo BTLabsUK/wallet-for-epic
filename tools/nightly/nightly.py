@@ -71,7 +71,8 @@ A run:
   7e. after a green source check: LEPIC acceptance (`tools/lepic.sh smoke`, step group acceptance),
      then `tools/rel start --night --commit <sha>` (the night lanes, run by the rel engine, which
      queues its own steps on build-slot; 3 h limit). rel writes /tmp/epic-build/nightly/lanes/<sha>.json
-     ({lanes: {name: {class, status, note}}}); latest.json `lanes` holds it plus `status`. A failed
+     ({lanes: {name: {class, status, note}}}), then `tools/rel cleanup --night` applies retention
+     (a failure is only a `warning`); latest.json `lanes` holds it plus `status`. A failed
      Blocks lane or a failed acceptance run sends ONE DM (key nightly-<sha8>-lanes) and the summary
      line names it; Warns lanes never do. Acceptance and the lanes share port 43413 with the
      hermetic node: each is skipped while a rel run is active or the port is in use. A timer run
@@ -142,6 +143,7 @@ TRUST_NODE = "https://node.btlabs.uk"
 TRUST_EPICBOX = "epicbox.stackwallet.com"
 SENT_KEYS_KEPT = 500
 NIGHT_TIMEOUT_S = 3 * 3600  # tools/rel start --night: its own limit, counted from its start
+NIGHT_CLEANUP_TIMEOUT_S = 10 * 60  # tools/rel cleanup --night
 NIGHT_START_BY = 7  # a timer run starts the night lanes before 07:00 local time, else skips them
 ACCEPT_TIMEOUT_S = 60 * 60
 ACCEPT_PORT = 43413  # the hermetic node's port, which `lepic.sh smoke` also takes
@@ -878,9 +880,27 @@ def run_night_lanes(sha, run_dir, env, by_hand, catchup, worktree=None, runner=N
     except OSError:
         fresh = False
     record = read_json(out, None) if fresh else None
+    warning = night_cleanup(rel, env, run_dir, runner or run_driver, worktree)
     if not isinstance(record, dict) or not isinstance(record.get("lanes"), dict):
-        return {"status": "unknown", "reason": f"rel exited {rc} and wrote no lanes file for {sha[:8]}: " + _clip(_last_line(log_path), 120), "record": None}
-    return {"status": "red" if blocks_failed(record) else "ok", "reason": "", "record": record}
+        return {"status": "unknown", "reason": f"rel exited {rc} and wrote no lanes file for {sha[:8]}: " + _clip(_last_line(log_path), 120), "record": None, "warning": warning}
+    return {"status": "red" if blocks_failed(record) else "ok", "reason": "", "record": record, "warning": warning}
+
+
+def night_cleanup(rel, env, run_dir, runner, worktree):
+    """`tools/rel cleanup --night`: the retention of night runs. Returns a warning, "" when it
+    worked; a failure here never changes the night's status."""
+    log_path = Path(run_dir) / "lanes-cleanup.log"
+    try:
+        rc = runner([str(rel), "cleanup", "--night"], env, log_path, NIGHT_CLEANUP_TIMEOUT_S, cwd=str(worktree))
+    except Exception as e:
+        rc, why = 1, str(e)
+    else:
+        why = "stopped at the time limit" if rc is None else _last_line(log_path)
+    if rc == 0:
+        return ""
+    warning = _clip(f"rel cleanup --night failed: {why}", 200)
+    print(warning, file=sys.stderr)
+    return warning
 
 
 def lanes_step(lanes):
@@ -1288,7 +1308,7 @@ def cmd_run(by_hand, pinned_sha=None):
         if acc["status"] != "skipped":
             record = dict(record, lanes=dict(record["lanes"], acceptance=acceptance_lane(
                 0 if acc["status"] == "ok" else 1, acc["reason"])))
-        lanes_rec = dict(record, status=lanes["status"], reason=lanes["reason"])
+        lanes_rec = dict(record, status=lanes["status"], reason=lanes["reason"], warning=lanes.get("warning", ""))
     else:
         lanes_rec = None
 

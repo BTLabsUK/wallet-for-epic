@@ -762,6 +762,34 @@ class LanesTest(unittest.TestCase):
         self.assertEqual(out["status"], "unknown")
         self.assertIsNone(out["record"])
 
+    def test_cleanup_runs_after_the_record_is_read(self):
+        seen = []
+        out = self.go(self.fake({"sha": self.sha, "lanes": {}}, seen=seen))
+        self.assertEqual(seen[1][0], [str(self.rel), "cleanup", "--night"])
+        self.assertEqual(seen[1][2], str(self.wt))
+        self.assertEqual(out["warning"], "")
+
+    def test_a_failed_cleanup_is_a_warning_and_keeps_the_status(self):
+        rec = {"sha": self.sha, "lanes": {"x": {"class": "blocks", "status": "ok"}}}
+
+        def fails(rc, raises=False):
+            def run(argv, env, log, timeout, cwd=None):
+                if argv[1] == "start":
+                    return self.fake(rec)(argv, env, log, timeout, cwd)
+                Path(log).write_text("no space left\n")
+                if raises:
+                    raise OSError("cannot start")
+                return rc
+            return run
+
+        out = self.go(fails(1))
+        self.assertEqual((out["status"], out["record"]), ("ok", rec))
+        self.assertIn("no space left", out["warning"])
+        self.assertIn("time limit", self.go(fails(None))["warning"])
+        out = self.go(fails(0, raises=True))
+        self.assertEqual(out["status"], "ok")
+        self.assertIn("cannot start", out["warning"])
+
     def test_a_lanes_file_from_an_earlier_run_is_not_read(self):
         (self.lanes / f"{self.sha}.json").write_text(json.dumps({"sha": self.sha, "lanes": {}}))
         old = Path(self.lanes / f"{self.sha}.json")
