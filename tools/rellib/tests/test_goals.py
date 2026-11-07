@@ -281,6 +281,20 @@ run = "exit 1"
         rows = self.rows(db, "SELECT a.state, a.note FROM attempts a JOIN lanes l ON l.id = a.lane_id WHERE l.name = 'publish-source'")
         self.assertEqual(rows, [{"state": "skipped", "note": "token renewal"}])
 
+    def test_goal4_a_step_skipped_at_the_start_writes_journal_metrics_and_testdb(self):
+        db = self.db()
+        with mock.patch.object(App, "drive", return_value=0):
+            code, out, err = rel(*self.common(self.write_pipeline(FAKE_PIPELINE)), "start", V, "--test", "--no-relmsg",
+                                 "--set", "publish.github=false", "--skip", "publish-source=token renewal")
+        self.assertEqual(code, 0, err + out)
+        run = Run.find(self.root)
+        self.assertEqual(run.status("publish-source")["status"], "skipped")
+        self.assertIn("skipped", [e["event"] for e in run.events() if e.get("step") == "publish-source"])
+        metrics = [json.loads(x) for x in pathlib.Path(health.metrics_path(run)).read_text().splitlines()]
+        self.assertEqual([m["status"] for m in metrics if m.get("step") == "publish-source"], ["skipped"])
+        rows = self.rows(db, "SELECT a.state FROM attempts a JOIN lanes l ON l.id = a.lane_id WHERE l.name = 'publish-source'")
+        self.assertEqual(rows, [{"state": "skipped"}])
+
     def test_goal4_warned_is_stored_as_warned_with_a_class(self):
         db = self.db()
         self.warn_pipeline()

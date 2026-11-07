@@ -388,6 +388,11 @@ class App:
         for w in warns:
             self.echo(f"warning: {w}")
         eng = self.engine(run, dry=bool(a.dry_run))
+        for s in run.steps:
+            st = run.status(s.id)
+            if st["status"] == "skipped":
+                run.event(s.id, "skipped", reason=st["reason"])
+                eng.record_skip(s, st["reason"])
         if eng.relmsg:
             self.supersede(run)
         self.relmsg_start(run, eng)
