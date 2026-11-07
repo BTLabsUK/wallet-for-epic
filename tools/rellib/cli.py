@@ -297,7 +297,7 @@ class App:
     # ---- start / resume / publish ----
 
     def run_refusal(self, info):
-        return guards.trust_break_refusal(info) or guards.never_ship_refusal(info, self.repo)
+        return guards.never_ship_refusal(info, self.repo)
 
     def cmd_start(self, a):
         commit, scope, prev, warns = self.resolve(a)

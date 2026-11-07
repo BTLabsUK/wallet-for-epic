@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Things that must never ship: break tests in a release run, and the commits on release/never-ship.toml.
+"""Things that must never ship: the commits on release/never-ship.toml.
 Each check returns the one-line reason to refuse, or None."""
 import os
 import tomllib
@@ -17,15 +17,6 @@ def test_key(info):
     against the run's test keyring: a --test run, or a tainted run (it never publishes, so its
     manifests never take a real serial or the real update key)."""
     return bool(info.get("test") or info.get("tainted"))
-
-
-def trust_break_refusal(info, env=None):
-    """REL_TRUST_BREAK puts faults into the trust lanes on purpose (drivers/core/breaks.py): test runs only."""
-    val = (os.environ if env is None else env).get("REL_TRUST_BREAK", "").strip()
-    if val and run_kind(info) != "test":
-        return (f"REL_TRUST_BREAK is set ({val}) and {info.get('run_id', 'this run')} is not a --test run: "
-                "break tests never run in a release; unset it")
-    return None
 
 
 def never_ship_commits(repo):

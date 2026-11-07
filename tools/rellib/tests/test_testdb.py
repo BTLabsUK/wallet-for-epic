@@ -279,11 +279,6 @@ class ViewsTest(TdbCase):
         client.emit("attempt.heartbeat", ts=t(6), run="r1", lane="trust-linux-tor", n=2)
         client.emit("attempt.start", ts=t(2), run="r1", lane="build-linux", n=1)
         client.emit("attempt.end", ts=t(3), run="r1", lane="build-linux", n=1, state="ok", rc=0)
-        client.emit("playbook.propose", ts=t(1), key="k1", situation="s", fix="f")
-        client.emit("aipath.put", ts=t(1), key="p1", platform="linux", goal="g", actions=[{"click": 3}])
-        client.emit("aipath.hit", ts=t(2), key="p1")
-        client.emit("aipath.fail", ts=t(3), key="p1")
-        client.emit("aipath.fail", ts=t(4), key="p1")
         self.drain()
         conn = client.read(self.db)
         try:
@@ -300,15 +295,9 @@ class ViewsTest(TdbCase):
             self.assertEqual(queries.failures(conn, cause="INFRA"), [])
             self.assertEqual(queries.failures(conn, run="r1")[0]["lane"], "trust-linux-tor")
             self.assertEqual([r["n"] for r in conn.execute("SELECT n FROM failures_by_cause")], [1])
-            self.assertEqual(len(queries.playbook(conn, state="open")), 1)
-            p = queries.paths(conn)[0]
-            self.assertEqual((p["hits"], p["fails"], p["state"]), (1, 2, "rejected"))
         finally:
             conn.close()
-        self.assertIsNone(client.path_lookup("p1"))  # rejected: not offered for replay
-        client.emit("aipath.put", key="p2", platform="linux", goal="g", actions=[1, 2])
-        self.drain()
-        self.assertEqual(client.path_lookup("p2")["actions"], [1, 2])
+        self.assertFalse(client.emit("playbook.propose", key="k1"))  # the AI tables are history: no new events
 
 
 class ImportTest(TdbCase):

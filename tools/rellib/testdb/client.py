@@ -24,11 +24,6 @@ Events (fields besides these are kept in the event body; `ts` defaults to now, U
   step.end       run, lane, n, step, state (ok|skipped|failed|recovered), detail
   failure        run, lane, n, step, cause_class, cause, what, resolved_by
   bundle         run, lane, n, step, dir, screen_path, log_tail_path, shot_path
-  playbook.propose  key, situation, fix, source_failure, version_added
-  playbook.set_state  key, state (open|accepted|rejected)
-  aipath.put     key, platform, goal, screen_sig, actions
-  aipath.hit / aipath.fail   key
-  aipath.set_state  key, state (new|replayed|reviewed|promoted|rejected), reviewed_by
   wallet.put     name, role, platform, lane, phrase, password, created, origin, note, state (active|retired)
                  An upsert by name: a newer ts wins, an empty value never blanks a known one.
   wallet.address name, role, kind (epicbox|http|tor|other), address
@@ -52,8 +47,7 @@ import time
 import urllib.request
 
 KINDS = frozenset("""run.start run.end lane.start lane.end attempt.start attempt.end attempt.heartbeat
-step.start step.end failure bundle playbook.propose playbook.set_state aipath.put aipath.hit aipath.fail
-aipath.set_state wallet.put wallet.address wallet.snapshot wallet.retire""".split())
+step.start step.end failure bundle wallet.put wallet.address wallet.snapshot wallet.retire""".split())
 MAX_EVENT = 256 * 1024
 DRAIN_BUDGET = 0.1
 HOST = socket.gethostname()
@@ -226,21 +220,3 @@ def read(db=None):
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA busy_timeout=5000")
     return conn
-
-
-def path_lookup(key, db=None):
-    """The cached AI path stored under key as a dict (actions decoded), or None when there is none, it
-    is rejected, or the DB cannot be read. Read-only."""
-    try:
-        conn = read(db)
-        try:
-            row = conn.execute("SELECT * FROM ai_paths WHERE key=?", (key,)).fetchone()
-        finally:
-            conn.close()
-        if row is None or row["state"] == "rejected":
-            return None
-        out = dict(row)
-        out["actions"] = json.loads(out["actions"]) if out.get("actions") else None
-        return out
-    except Exception:  # noqa: BLE001
-        return None

@@ -198,9 +198,6 @@ class Engine:
 
     def refusal(self, step):
         """Why this step must not start (guards.py), or None. Every start, resume, retry and run passes here."""
-        why = guards.trust_break_refusal(self.info)
-        if why:
-            return why
         if step.base == "source" or step.kind in ("gate",) or step.publish or step.base.startswith("publish"):
             return guards.never_ship_refusal(self.info, self.repo)
         return None

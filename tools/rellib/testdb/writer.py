@@ -13,8 +13,6 @@ from . import client
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 WALLET_ROLES = ("lane", "seed", "funder", "qa", "sandbox", "create", "reviewer")
-PLAYBOOK_STATES = ("open", "accepted", "rejected")
-PATH_STATES = ("new", "replayed", "reviewed", "promoted", "rejected")
 
 
 class Refused(Exception):
@@ -198,43 +196,6 @@ def apply_event(conn, ev):
                             body.get("shot_path")))
         conn.execute("UPDATE failures SET bundle_id=? WHERE attempt_id=? AND step IS ? AND bundle_id IS NULL",
                      (cur.lastrowid, aid, step))
-    elif kind == "playbook.propose":
-        _need(body, "key")
-        conn.execute("INSERT OR IGNORE INTO playbook(key, situation, fix, source_failure, state, version_added, created) "
-                     "VALUES(?,?,?,?,'open',?,?)",
-                     (body["key"], body.get("situation"), body.get("fix"), body.get("source_failure"),
-                      body.get("version_added"), ts))
-        conn.execute("UPDATE playbook SET updated=? WHERE key=? AND (updated IS NULL OR updated<?)", (ts, body["key"], ts))
-    elif kind == "playbook.set_state":
-        _need(body, "key", "state")
-        if body["state"] not in PLAYBOOK_STATES:
-            raise Bad("bad playbook state %s" % body["state"])
-        conn.execute("INSERT OR IGNORE INTO playbook(key, state, created) VALUES(?, 'open', ?)", (body["key"], ts))
-        _fill_and_set(conn, "playbook", "key", body["key"], ts, {"state": body["state"], "updated": ts})
-    elif kind == "aipath.put":
-        _need(body, "key")
-        conn.execute("INSERT OR IGNORE INTO ai_paths(key, platform, goal, screen_sig, actions, state, created) "
-                     "VALUES(?,?,?,?,?,'new',?)",
-                     (body["key"], body.get("platform"), body.get("goal"), body.get("screen_sig"),
-                      _json(body.get("actions")), ts))
-    elif kind in ("aipath.hit", "aipath.fail"):
-        _need(body, "key")
-        conn.execute("INSERT OR IGNORE INTO ai_paths(key, state, created) VALUES(?, 'new', ?)", (body["key"], ts))
-        col = "hits" if kind == "aipath.hit" else "fails"
-        conn.execute("UPDATE ai_paths SET %s=%s+1, last_used=MAX(COALESCE(last_used,''), ?) WHERE key=?" % (col, col),
-                     (ts, body["key"]))
-        if kind == "aipath.hit":
-            conn.execute("UPDATE ai_paths SET state='replayed', state_ts=? WHERE key=? AND state='new'", (ts, body["key"]))
-        else:  # a replay that fails twice is not trusted again
-            conn.execute("UPDATE ai_paths SET state='rejected', state_ts=? WHERE key=? AND fails>=2 "
-                         "AND state IN ('new','replayed')", (ts, body["key"]))
-    elif kind == "aipath.set_state":
-        _need(body, "key", "state")
-        if body["state"] not in PATH_STATES:
-            raise Bad("bad path state %s" % body["state"])
-        conn.execute("INSERT OR IGNORE INTO ai_paths(key, state, created) VALUES(?, 'new', ?)", (body["key"], ts))
-        _fill_and_set(conn, "ai_paths", "key", body["key"], ts,
-                      {"state": body["state"], "reviewed_by": body.get("reviewed_by")})
     elif kind.startswith("wallet."):
         _wallet(conn, kind, ts, body)
     else:

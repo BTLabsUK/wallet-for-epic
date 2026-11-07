@@ -53,17 +53,6 @@ def query(name, args, db):
     show(name, data, args.pop("json", False), db)
 
 
-def resolve(db, table_name, ident):
-    conn = client.read(db)
-    try:
-        row = conn.execute("SELECT key FROM %s WHERE id=? OR key=?" % table_name, (ident, ident)).fetchone()
-    finally:
-        conn.close()
-    if row is None:
-        sys.exit("testdb: no %s entry %s" % (table_name, ident))
-    return row[0]
-
-
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="testdb", description="The BT Wallet test database (REL_TESTDB, TESTDB_URL).")
     ap.add_argument("--db", help="DB path (default REL_TESTDB or /tmp/epic-build/rel/tests.db)")
@@ -90,12 +79,6 @@ def main(argv=None):
     p = q("wallet", "one test wallet")
     p.add_argument("name")
     p.add_argument("--secrets", action="store_true", help="also show the phrase and the password")
-    pp = sub.add_parser("path", help="path review|promote|reject <id>")
-    pp.add_argument("action", choices=["review", "promote", "reject"])
-    pp.add_argument("id")
-    pb = sub.add_parser("pb", help="pb accept|reject <id>")
-    pb.add_argument("action", choices=["accept", "reject"])
-    pb.add_argument("id")
     sub.add_parser("writer", help="the writer service: drain the inbox every second")
     p = sub.add_parser("serve", help="HTTP intake and read-only queries")
     p.add_argument("--bind", default=os.environ.get("TESTDB_BIND", "127.0.0.1:8765"))
@@ -104,20 +87,7 @@ def main(argv=None):
     sub.add_parser("migrate", help="apply pending migrations")
     p = sub.add_parser("import", help="backfill from a tools/rel run folder")
     p.add_argument("run_dir")
-    # `paths review|promote|reject <id>` and `playbook accept|reject <id>` are the same words as the
-    # queries, so they are told apart by their first argument.
-    argv = list(sys.argv[1:] if argv is None else argv)
-    for i, a in enumerate(argv):
-        if a in ("paths", "playbook") and i + 1 < len(argv):
-            nxt = argv[i + 1]
-            if a == "paths" and nxt in ("review", "promote", "reject"):
-                argv[i:i + 1] = ["path"]
-            elif a == "playbook" and nxt in ("accept", "reject"):
-                argv[i:i + 1] = ["pb"]
-            break
-        if not a.startswith("-") and a not in ("paths", "playbook"):
-            break
-    ns = ap.parse_args(argv)
+    ns = ap.parse_args(sys.argv[1:] if argv is None else argv)
     db = client.db_path(ns.db)
     if ns.cmd == "wallets" and ns.action == "import":
         from . import walletimport
@@ -143,16 +113,6 @@ def main(argv=None):
         if getattr(ns, "open", False):
             args["state"] = "open"
         query(ns.cmd, args, db)
-    elif ns.cmd == "path":
-        key = resolve(db, "ai_paths", ns.id)
-        state = {"review": "reviewed", "promote": "promoted", "reject": "rejected"}[ns.action]
-        client.emit("aipath.set_state", source="cli", db=db, key=key, state=state, reviewed_by=os.environ.get("USER", "cli"))
-        print("path %s -> %s" % (key, state))
-    elif ns.cmd == "pb":
-        key = resolve(db, "playbook", ns.id)
-        state = "accepted" if ns.action == "accept" else "rejected"
-        client.emit("playbook.set_state", source="cli", db=db, key=key, state=state)
-        print("playbook %s -> %s" % (key, state))
     elif ns.cmd == "writer":
         writer.run_loop(db)
     elif ns.cmd == "serve":
