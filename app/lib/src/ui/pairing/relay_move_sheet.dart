@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../../contacts.dart' show contactsProvider;
 import '../../l10n.dart';
@@ -57,7 +58,11 @@ Future<void> askPhoneRelayMove(BuildContext context, WidgetRef ref, PairingRecor
     context: context,
     showDragHandle: true,
     builder: (_) => Consumer(
-      builder: (context, ref, _) => RelayMoveSheet(name: name, relay: relayLabelOf(relay), addsServer: relayMoveAddsServer(ref, relay)),
+      builder: (context, ref, _) => RelayMoveGuard(
+        pairingId: p.id,
+        relay: relay,
+        child: RelayMoveSheet(name: name, relay: relayLabelOf(relay), addsServer: relayMoveAddsServer(ref, relay)),
+      ),
     ),
   );
   switch (accept) {
@@ -67,6 +72,41 @@ Future<void> askPhoneRelayMove(BuildContext context, WidgetRef ref, PairingRecor
       await refusePhoneRelayMove(ref, p, relay);
     case null:
       break;
+  }
+}
+
+/// Closes the sheet or dialog it wraps when its request is gone: the contact was unpaired, or
+/// asks for another relay than [relay]. It then pops with no answer, as a swipe does, so nothing
+/// is accepted or refused for a request that no longer stands. [records] is the pairings
+/// provider of the app in use (phone by default).
+class RelayMoveGuard extends ConsumerStatefulWidget {
+  const RelayMoveGuard({super.key, required this.pairingId, required this.relay, required this.child, this.records});
+
+  final String pairingId;
+  final String relay;
+  final Widget child;
+  final ProviderListenable<AsyncValue<List<PairingRecord>>>? records;
+
+  @override
+  ConsumerState<RelayMoveGuard> createState() => _RelayMoveGuardState();
+}
+
+class _RelayMoveGuardState extends ConsumerState<RelayMoveGuard> {
+  bool _closing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final records = ref.watch(widget.records ?? pairingsProvider).value;
+    if (records != null && !_closing) {
+      final now = records.where((r) => r.id == widget.pairingId).firstOrNull;
+      if (now == null || now.ended || now.requestedRelay != widget.relay) {
+        _closing = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) Navigator.of(context).pop();
+        });
+      }
+    }
+    return widget.child;
   }
 }
 

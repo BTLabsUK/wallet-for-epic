@@ -14455,6 +14455,51 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairLateCheck => 'Sprawdzam, czy przyszła spóźniona odpowiedź…';
 
   @override
+  String get noticeEventsMissed =>
+      'Pominięto część aktualizacji. Listy zostały odczytane ponownie.';
+
+  @override
+  String get msgChecking => 'Sprawdzanie wiadomości';
+
+  @override
+  String get msgCheckFailed =>
+      'Ostatnie sprawdzenie wiadomości nie powiodło się';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'Wiadomości wstrzymane: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'Wiadomości odrzucone: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'Wiadomości, których nie można odczytać: $count';
+  }
+
+  @override
+  String msgCheckRead(int count) {
+    return 'Wiadomości odczytane: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'Nieudane parowania: $count';
+  }
+
+  @override
+  String get msgCheckMore =>
+      'Kolejne wiadomości czekają na następne sprawdzenie';
+
+  @override
+  String noticeSealedUnopenable(String name) {
+    return 'Nie można otworzyć wiadomości od $name.';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: parowanie usunięte.';
   }
@@ -15417,6 +15462,87 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get noticeView => 'Pokaż';
+
+  @override
+  String noticeDigest(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aktualizacji: $parts',
+      many: '$count aktualizacji: $parts',
+      few: '$count aktualizacje: $parts',
+      one: '$count aktualizacja: $parts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestInvoices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury',
+      many: '$count faktur',
+      few: '$count faktury',
+      one: '$count faktura',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wypłaty',
+      many: '$count wypłat',
+      few: '$count wypłaty',
+      one: '$count wypłata',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury zapłaconej',
+      many: '$count faktur zapłaconych',
+      few: '$count faktury zapłacone',
+      one: '$count faktura zapłacona',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury wycofanej',
+      many: '$count faktur wycofanych',
+      few: '$count faktury wycofane',
+      one: '$count faktura wycofana',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury wygasłej',
+      many: '$count faktur wygasłych',
+      few: '$count faktury wygasłe',
+      one: '$count faktura wygasła',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeDigestSeparator => ', ';
 
   @override
   String pairSaveContactTitle(String name) {

@@ -13102,6 +13102,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairLateCheck => '正在检查迟到的回复…';
 
   @override
+  String get noticeEventsMissed => '部分更新已错过。列表已重新读取。';
+
+  @override
+  String get msgChecking => '正在检查消息';
+
+  @override
+  String get msgCheckFailed => '上次消息检查失败';
+
+  @override
+  String msgCheckHeld(int count) {
+    return '暂缓的消息：$count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return '被拒绝的消息：$count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return '无法读取的消息：$count';
+  }
+
+  @override
+  String msgCheckRead(int count) {
+    return '已读取的消息：$count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return '失败的配对：$count';
+  }
+
+  @override
+  String get msgCheckMore => '其余消息等待下次检查';
+
+  @override
+  String noticeSealedUnopenable(String name) {
+    return '无法打开来自 $name 的消息。';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name 已移除配对。';
   }
@@ -14015,6 +14057,69 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noticeView => '查看';
+
+  @override
+  String noticeDigest(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条更新：$parts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestInvoices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张账单',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 笔提款',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张账单已支付',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张账单已撤回',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张账单已过期',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeDigestSeparator => '、';
 
   @override
   String pairSaveContactTitle(String name) {

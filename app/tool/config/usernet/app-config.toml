@@ -52,6 +52,7 @@ onion_discovery_timeout_s = 45
 onion_discovery_retry_s = 600
 listener_heal_after_s = 30     # a listener down this long is restarted, backing off to
 listener_heal_max_s = 300
+listener_held_rounds = 8       # a listener with a message held moves to a new connection after this many rounds
 
 [http]
 # The Link · HTTP listener and HTTP sends.
@@ -155,6 +156,16 @@ vpn_suffixes = [".ts.net"]
 # After the app starts or comes back to the front, warnings about the node, Epicbox and Tor wait
 # this long: meanwhile only the title-bar icons show the state ("Connecting").
 server_grace_s = 20
+# A check of the messages that is done sooner than this shows no "Checking messages" state, so a
+# quick empty check does not flash it.
+check_show_after_ms = 600
+# A collect or a drain gives one notice. Events land on their own, so its batch stays open this
+# long after the run ended.
+digest_grace_ms = 400
+# A declined, withdrawn or cancelled notice that comes before its slate is kept: at most this many,
+# for at most this many seconds.
+early_notice_max_count = 256
+early_notice_max_age_s = 604800
 
 [payments]
 # After a payment is posted: how often the tip is read, then how long, then how often after.
@@ -171,3 +182,13 @@ stale_after_days = 7
 # After that check, the contacts are collected every 15 s for this many seconds; one that has not
 # answered by then shows "Not answering".
 check_wait_s = 120
+# A message from a contact that fails to apply is held and tried again on later checks, up to
+# this many attempts and for this many seconds, then dropped. The core's bounds.
+hold_attempts = 10
+hold_patience_s = 86400
+# A message that opened but could not be taken is kept on this device, up to this many bytes in
+# all, tried again each time the app opens and removed after this many days.
+quarantine_max_bytes = 16777216
+quarantine_keep_days = 30
+# A collect that stops at a mailbox's message limit runs again, up to this many more times.
+collect_repeats = 5

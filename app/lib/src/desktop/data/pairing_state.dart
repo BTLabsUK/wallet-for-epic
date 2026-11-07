@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
 import '../../name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
+import '../../notice_digest.dart' show NoticeDigest;
 import '../../models.dart' show PairRequest, PairingEndReason, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf, epicboxKey;
 import '../../pairing_api.dart';
 import '../../l10n.dart' show AppLocalizations;
@@ -169,6 +170,13 @@ final deskContactPendingProvider = Provider.family<PairingRecord?, String>(
 );
 
 final deskPairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(deskPairingApiProvider).events());
+
+/// The digests of the open wallet's runs ([NoticeBatch]); the shell shows each as one toast.
+final deskNoticeDigestsProvider = StreamProvider<NoticeDigest>((ref) {
+  // Follows the unlock and the reopen, as the pairing does.
+  ref.watch(deskPairingApiProvider);
+  return ref.watch(deskApiProvider).messageChecks?.notices.digests ?? const Stream.empty();
+});
 
 /// The sealed sends through the pairing [pairingId] still waiting for the recipient: after a
 /// mismatch they are held, never finalized, and each offers Cancel.

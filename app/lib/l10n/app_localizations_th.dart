@@ -13568,6 +13568,48 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairLateCheck => 'กำลังตรวจหาคำตอบที่มาช้า…';
 
   @override
+  String get noticeEventsMissed => 'พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว';
+
+  @override
+  String get msgChecking => 'กำลังตรวจสอบข้อความ';
+
+  @override
+  String get msgCheckFailed => 'การตรวจสอบข้อความครั้งล่าสุดล้มเหลว';
+
+  @override
+  String msgCheckHeld(int count) {
+    return 'ข้อความที่พักไว้: $count';
+  }
+
+  @override
+  String msgCheckRefused(int count) {
+    return 'ข้อความที่ถูกปฏิเสธ: $count';
+  }
+
+  @override
+  String msgCheckUnreadable(int count) {
+    return 'ข้อความที่อ่านไม่ได้: $count';
+  }
+
+  @override
+  String msgCheckRead(int count) {
+    return 'ข้อความที่อ่านแล้ว: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'การจับคู่ที่ล้มเหลว: $count';
+  }
+
+  @override
+  String get msgCheckMore => 'ข้อความที่เหลือรอการตรวจครั้งถัดไป';
+
+  @override
+  String noticeSealedUnopenable(String name) {
+    return 'เปิดข้อความจาก $name ไม่ได้';
+  }
+
+  @override
   String noticeUnpaired(String name) {
     return '$name ลบการจับคู่แล้ว';
   }
@@ -14508,6 +14550,69 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get noticeView => 'ดู';
+
+  @override
+  String noticeDigest(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count รายการอัปเดต: $parts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestInvoices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ใบแจ้งหนี้ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'การถอน $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ชำระใบแจ้งหนี้แล้ว $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เรียกคืนใบแจ้งหนี้แล้ว $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ใบแจ้งหนี้หมดอายุ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeDigestSeparator => ' ';
 
   @override
   String pairSaveContactTitle(String name) {

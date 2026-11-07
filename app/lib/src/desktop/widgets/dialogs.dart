@@ -359,8 +359,10 @@ class EDrawer extends StatelessWidget {
 /// A toast at the bottom right: icon, title, one line. Use [showEToast]. [tone] has no default,
 /// so a failure never borrows the success tick: [ETone.risk] for errors, [ETone.warn] for refusals
 /// and cautions, [ETone.ok] or [ETone.gold] for done, [ETone.info] or [ETone.neutral] for notes.
-/// [action] is the next step (a button that closes the toast first); it stays longer.
-void showEToast(BuildContext context, String title, {String? text, required ETone tone, ({String label, VoidCallback run})? action}) {
+/// [action] is the next step (a button that closes the toast first); it stays longer. A toast
+/// goes with the screen it was shown on; one that [stay]s shows again on the next, until it is
+/// closed or the window leaves the wallet (lock, welcome).
+void showEToast(BuildContext context, String title, {String? text, required ETone tone, ({String label, VoidCallback run})? action, bool stay = false}) {
   final c = context.dc;
   final messenger = ScaffoldMessenger.maybeOf(context);
   if (messenger == null) return;
@@ -373,6 +375,7 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
     // Gold is the brand's, never a notice's: a done toast in gold reads as done (ok).
     ETone.gold => c.ok,
   };
+  var acted = false;
   final shown = messenger.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
@@ -420,6 +423,7 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
               label: action.label,
               size: EBtnSize.sm,
               onPressed: () {
+                acted = true;
                 messenger.hideCurrentSnackBar();
                 action.run();
               },
@@ -445,6 +449,12 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
       messenger.clearSnackBars();
       sub?.close();
       sub = null;
+      if (stay && !acted && !next.route.bare) {
+        // After every toast of the old screen cleared, this one's own clear included.
+        scheduleMicrotask(() {
+          if (context.mounted) showEToast(context, title, text: text, tone: tone, action: action, stay: true);
+        });
+      }
     }
   });
   shown.closed.then((_) {

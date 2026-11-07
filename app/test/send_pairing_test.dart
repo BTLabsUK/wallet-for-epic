@@ -351,6 +351,33 @@ void main() {
       expect(h.container(tester).read(hostSettingsProvider).epicboxLabels, isNot(contains(moved)));
     });
 
+    testWidgets('a newer move closes the open sheet', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
+      final p = (await h.session.pairing.pairings()).single;
+      await h.pump(tester, _Ask(p));
+      await tester.tap(find.byKey(_askKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(relayMoveSheetKey), findsOneWidget);
+      await h.session.pairing.askRelayMove('p1', 'other.example.org');
+      await tester.pumpAndSettle();
+      expect(find.byKey(relayMoveSheetKey), findsNothing);
+      expect(h.session.pairing.calls, isNot(contains('acceptMove:p1')));
+    });
+
+    testWidgets('an unpairing closes the open sheet', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
+      final p = (await h.session.pairing.pairings()).single;
+      await h.pump(tester, _Ask(p));
+      await tester.tap(find.byKey(_askKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(relayMoveSheetKey), findsOneWidget);
+      h.session.pairing.removedByPeer('p1');
+      await tester.pumpAndSettle();
+      expect(find.byKey(relayMoveSheetKey), findsNothing);
+    });
+
     testWidgets('closed without a choice: the request stays on the contact page and Accept there moves it', (tester) async {
       final h = _Harness();
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);

@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
@@ -100,6 +101,33 @@ class _PairingWallet implements lepic.EpicWallet {
   }
 
   @override
+  Future<lepic.InvoiceSweep> sweepInvoices({BigInt? expirySecs}) async =>
+      lepic.InvoiceSweep(deleted: const [], cancelled: Uint32List(0), cancellable: Uint32List(0));
+
+  /// What collects report in turn; past the end, nothing more.
+  final List<({int capped, int timedOut})> collectEnds = [];
+
+  final List<lepic.QuarantinedMessageView> quarantine = [];
+  final List<String> discarded = [];
+  int retries = 0;
+
+  @override
+  Future<List<lepic.QuarantinedMessageView>> contactQuarantine() async => List.of(quarantine);
+
+  @override
+  Future<bool> contactQuarantineDiscard({required String id}) async {
+    discarded.add(id);
+    quarantine.removeWhere((m) => m.id == id);
+    return true;
+  }
+
+  @override
+  Future<lepic.QuarantineRetryReport> contactQuarantineRetry({String? id, required lepic.ContactRelayMode relayMode}) async {
+    retries++;
+    return lepic.QuarantineRetryReport(retried: quarantine.length, cleared: 0, kept: quarantine.length);
+  }
+
+  @override
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
@@ -107,7 +135,24 @@ class _PairingWallet implements lepic.EpicWallet {
   }) async {
     collects.add(only);
     onCollect?.call(only);
-    return lepic.ContactCollectReport(mailboxes: 0, messages: 0, paired: 0, failed: const [], delivered: 0, unreachable: unreachable, ended: const []);
+    final end = collectEnds.isEmpty ? (capped: 0, timedOut: 0) : collectEnds.removeAt(0);
+    return lepic.ContactCollectReport(
+      capped: end.capped,
+      kept: 0,
+      refused: 0,
+      timedOut: end.timedOut,
+      notReached: 0,
+      quarantined: 0,
+      quarantineDropped: 0,
+      buffered: 0,
+      mailboxes: 0,
+      messages: 1,
+      paired: 0,
+      failed: const [],
+      delivered: 0,
+      unreachable: unreachable,
+      ended: const [],
+    );
   }
 
   @override
@@ -251,6 +296,52 @@ void main() {
     session = LepicWalletSession(wallet);
     seen = [];
     session.pairing.events().listen(seen.add);
+  });
+
+  group('a collect', () {
+    lepic.QuarantinedMessageView kept(String id, Duration age) => lepic.QuarantinedMessageView(
+      id: id,
+      contactId: 'bob',
+      reason: 'undecodable_slate',
+      firstSeenMs: DateTime.now().subtract(age).millisecondsSinceEpoch,
+      attempts: 1,
+      size: BigInt.from(100),
+    );
+
+    test('goes back to a capped mailbox up to the limit', () async {
+      wallet.collectEnds.addAll(List.filled(20, (capped: 1, timedOut: 0)));
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(wallet.collects, hasLength(1 + appConfig.number('contacts.collect_repeats')));
+    });
+
+    test('does not go back when it ran out of time', () async {
+      wallet.collectEnds.addAll([(capped: 1, timedOut: 0), (capped: 1, timedOut: 1), (capped: 1, timedOut: 0)]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(wallet.collects, hasLength(2));
+    });
+
+    test('adds the messages of every round to the check', () async {
+      wallet.collectEnds.addAll([(capped: 1, timedOut: 0), (capped: 0, timedOut: 0)]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(session.checks.value.outcome.messages, 2);
+    });
+
+    test('tries kept messages again on open only', () async {
+      wallet.quarantine.add(kept('a', Duration.zero));
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(wallet.retries, 0);
+      await session.pairing.collect(trigger: PairingCollectTrigger.open);
+      expect(wallet.retries, 1);
+      expect(session.checks.value.outcome.unreadable, 1);
+    });
+
+    test('removes kept messages past the keep time', () async {
+      final days = appConfig.number('contacts.quarantine_keep_days');
+      wallet.quarantine.addAll([kept('old', Duration(days: days + 1)), kept('new', Duration.zero)]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(wallet.discarded, ['old']);
+      expect(session.checks.value.outcome.unreadable, 1);
+    });
   });
 
   test("an invite whose home relay did not answer says so and names the relay", () async {

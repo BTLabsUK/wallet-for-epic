@@ -13,17 +13,20 @@ import '../../amount.dart';
 import '../../connection_grace.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
+import '../../notice_digest.dart';
+import '../../notice_digest_text.dart';
 import '../../name_service/phone_name_service.dart' show nameServiceProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../relay_moves.dart' show relayMoveToAsk;
-import '../../providers.dart' show homeProvider, pendingInvoicesProvider, sessionProvider;
+import '../../providers.dart' show homeProvider, noticeDigestProvider, pendingInvoicesProvider, sessionProvider;
 import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
+import '../history_screen.dart';
 import '../invoices_screen.dart';
 import '../levels/shell_pairing.dart' show offerPairRequest;
 import '../scan_route.dart' show showPairingSheet;
@@ -49,6 +52,14 @@ String pairingContactNoticeTag(String pairingId) => 'pairing-contact:$pairingId'
 
 /// The tag of a withdrawal's notice: its transaction page closes it when it opens.
 String pairingSlateNoticeTag(String slateId) => 'pairing-slate:$slateId';
+
+/// How a digest counts the routine news of a contact; null for a notice that always shows alone.
+HeldKind? heldKindOf(PairingEventKind kind) => switch (kind) {
+  PairingEventKind.invoiceFromContact => HeldKind.invoice,
+  PairingEventKind.withdrawalFromContact => HeldKind.withdrawal,
+  PairingEventKind.requestWithdrawn => HeldKind.withdrawn,
+  _ => null,
+};
 
 /// Whether [e] is an answer a screen already turns into the words check, or news an open page
 /// already shows.
@@ -88,12 +99,14 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.withdrawalFromContact => (text: l.noticeWithdrawal(epic(e.amount), name), level: NoticeLevel.success),
     PairingEventKind.homeRelayUnreachable => (text: l.noticeRelayDown(name), level: NoticeLevel.warning),
     PairingEventKind.outboxStuck => (text: l.noticeOutboxStuck(name), level: NoticeLevel.warning),
-    PairingEventKind.sealedUnopenable => (text: l.openSealedOtherTitle, level: NoticeLevel.warning),
+    // Named when the contact is known; the general line when it is not.
+    PairingEventKind.sealedUnopenable => (text: name.trim().isEmpty ? l.openSealedOtherTitle : l.noticeSealedUnopenable(name), level: NoticeLevel.warning),
     PairingEventKind.secondReply => (text: l.pairSecondReplyTitle(name), level: NoticeLevel.warning),
     PairingEventKind.duplicateRequests => (text: l.reqTwoSame(name, e.count, epic(e.amount)), level: NoticeLevel.warning),
     PairingEventKind.tooManyRequests => (text: l.noticeTooMany(name), level: NoticeLevel.warning),
     PairingEventKind.requestWithdrawn => (text: l.noticeWithdrew(name), level: NoticeLevel.info),
     PairingEventKind.unpaired => (text: l.noticeUnpaired(name), level: NoticeLevel.warning),
+    PairingEventKind.eventsMissed => (text: l.noticeEventsMissed, level: NoticeLevel.info),
     // The payment's row, the contact page and the tracker move on by themselves.
     PairingEventKind.contactUpdated ||
     PairingEventKind.addressUpdated ||
@@ -179,6 +192,11 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       final e = next.value;
       if (e != null && mounted) unawaited(_show(e));
     });
+    // Reloading keeps the last value: a digest shows once.
+    ref.listenManual<AsyncValue<NoticeDigest>>(noticeDigestProvider, (_, next) {
+      final digest = next.value;
+      if (digest != null && !next.isLoading && mounted) _showDigest(digest);
+    });
     // A contact whose keys came back docks the notice on its page, whenever that opens.
     ref.listenManual(keysBackProvider, (_, _) {});
     // A paired contact that starts or stops taking payments, said once a day per direction.
@@ -214,11 +232,14 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // transactions.
     if (e.kind == PairingEventKind.withdrawalFromContact ||
         e.kind == PairingEventKind.requestWithdrawn ||
-        e.kind == PairingEventKind.paymentFinalized) {
+        e.kind == PairingEventKind.paymentFinalized ||
+        e.kind == PairingEventKind.eventsMissed) {
       ref.invalidate(homeProvider);
     }
     // A request from a contact: an open Invoices screen lists it now.
-    if (e.kind == PairingEventKind.invoiceFromContact || e.kind == PairingEventKind.requestWithdrawn) {
+    if (e.kind == PairingEventKind.invoiceFromContact ||
+        e.kind == PairingEventKind.requestWithdrawn ||
+        e.kind == PairingEventKind.eventsMissed) {
       ref.read(pendingInvoicesProvider.notifier).reload().ignore();
     }
     // A request to pair: the list reads it again (and dismisses a stranger's once the address
@@ -291,13 +312,33 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.withdrawalFromContact when event.slateId != null => pairingSlateNoticeTag(event.slateId!),
       _ => null,
     };
+    final notices = ref.read(noticeProvider.notifier);
     // Old keys not checked is news the user must not miss: it stays until closed.
-    ref.read(noticeProvider.notifier).show(
+    void show() => notices.show(
       notice.text,
       level: notice.level,
       action: action,
       tag: tag,
       persistent: event.kind == PairingEventKind.keyCheckRefused,
+    );
+    final held = heldKindOf(event.kind);
+    if (held == null) return show();
+    raiseNotice(ref.read(sessionProvider)?.checks.notices, HeldNotice(held, slateId: event.slateId, named: true, show: show));
+  }
+
+  /// The result of a run with several notices: its action opens the place that lists them.
+  void _showDigest(NoticeDigest digest) {
+    final l = context.l10n;
+    final nav = Navigator.of(context);
+    final Widget place = switch (digest.place) {
+      DigestPlace.invoices => const InvoicesScreen(),
+      DigestPlace.sentInvoices => const InvoicesScreen(segment: InvoicesSegment.sent),
+      DigestPlace.activity => const HistoryScreen(),
+    };
+    ref.read(noticeProvider.notifier).show(
+      noticeDigestText(l, digest),
+      level: NoticeLevel.info,
+      action: NoticeAction(l.noticeView, () => nav.push<void>(MaterialPageRoute<void>(builder: (_) => place))),
     );
   }
 

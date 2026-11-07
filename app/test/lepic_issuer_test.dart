@@ -180,7 +180,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     final b = bounced;
     bounced = 0;
     return lepic.InboxReport(
-      received: 1,
+      buffered: 0, received: 1,
       finalized: 2,
       repeated: 0,
       rejected: 0,

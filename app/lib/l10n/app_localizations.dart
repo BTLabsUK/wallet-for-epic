@@ -21906,6 +21906,66 @@ abstract class AppLocalizations {
   /// **'Checking for a late answer…'**
   String get pairLateCheck;
 
+  /// Notice when the wallet's event stream dropped some events: payments and requests were read again from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Some updates were missed. The lists were read again.'**
+  String get noticeEventsMissed;
+
+  /// Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking messages'**
+  String get msgChecking;
+
+  /// Status line when the last check of the wallet's messages ended with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'The last message check failed'**
+  String get msgCheckFailed;
+
+  /// Status line: messages the last check left on the relay for a later check.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages held: {count}'**
+  String msgCheckHeld(int count);
+
+  /// Status line: messages the last check turned away (refused or dropped).
+  ///
+  /// In en, this message translates to:
+  /// **'Messages refused: {count}'**
+  String msgCheckRefused(int count);
+
+  /// Status line: messages the wallet keeps on this device because it could not take them.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 message could not be read} other{{count} messages could not be read}}'**
+  String msgCheckUnreadable(int count);
+
+  /// Status line: messages the last check read from the paired contacts' mailboxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages read: {count}'**
+  String msgCheckRead(int count);
+
+  /// Status line: pairings in progress that ended without pairing in the last check.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairings failed: {count}'**
+  String msgCheckPairingFailed(int count);
+
+  /// Status line: a mailbox still had messages when the last check stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'More messages wait for the next check'**
+  String get msgCheckMore;
+
+  /// Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'A message from {name} could not be opened.'**
+  String noticeSealedUnopenable(String name);
+
   /// Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.
   ///
   /// In en, this message translates to:
@@ -23339,6 +23399,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get noticeView;
+
+  /// One notice for all that a check of the messages brought; parts is the list of kinds. The count is always two or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{{count} updates: {parts}}}'**
+  String noticeDigest(int count, String parts);
+
+  /// Part of the digest notice: invoices waiting for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice} other{{count} invoices}}'**
+  String noticeDigestInvoices(int count);
+
+  /// Part of the digest notice: withdrawals received from a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 withdrawal} other{{count} withdrawals}}'**
+  String noticeDigestWithdrawals(int count);
+
+  /// Part of the digest notice: invoices paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice paid} other{{count} invoices paid}}'**
+  String noticeDigestPaid(int count);
+
+  /// Part of the digest notice: invoices withdrawn by their sender.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice withdrawn} other{{count} invoices withdrawn}}'**
+  String noticeDigestWithdrawn(int count);
+
+  /// Part of the digest notice: invoices expired.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice expired} other{{count} invoices expired}}'**
+  String noticeDigestExpired(int count);
+
+  /// Between the parts of the digest notice.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get noticeDigestSeparator;
 
   /// Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.
   ///

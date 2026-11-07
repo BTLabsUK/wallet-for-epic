@@ -18,6 +18,8 @@ import '../../network.dart' show EpicboxRelay;
 import '../../levels/level_features.dart' show StatusIcon;
 import '../../levels/wallet_level.dart';
 import '../../ui/common.dart' as common show shortAddress;
+import '../../message_checks.dart' show MessageCheck;
+import '../../ui/message_check_lines.dart';
 import '../data/desk_levels.dart';
 import '../data/desk_node.dart';
 import '../desk_l10n.dart';
@@ -173,6 +175,7 @@ class DeskStatusPopover extends ConsumerWidget {
         secondMono = !modeLine;
         if (address != null && address.isNotEmpty) facts.add((label: l.lvShellAddress, value: common.shortAddress(address, relay: false), mono: true));
         if (shallow && (i.state == EState.risk || i.state == EState.warn)) notes.add(l.lvShellBoxDownBody);
+        notes.addAll(messageCheckLines(l, ref.watch(deskMessageCheckProvider).value ?? const MessageCheck()));
       default:
         tile = DeskServiceTile(icon: i.icon, state: i.state);
         if (i.second != '–' && i.second != i.word) second = [i.second, ?i.marker].join(' ');

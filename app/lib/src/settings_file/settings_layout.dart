@@ -316,6 +316,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('epicbox.onion_discovery_retry_s', _seconds),
   SettingsKey('epicbox.listener_heal_after_s', _seconds),
   SettingsKey('epicbox.listener_heal_max_s', _seconds),
+  SettingsKey('epicbox.listener_held_rounds', IntKind(min: 1, max: 64), byDefault: 8),
   // [http]: the Link · HTTP listener and HTTP sends.
   SettingsKey('http.listen_port', _port),
   SettingsKey('http.header_timeout_s', _seconds),
@@ -393,6 +394,10 @@ const List<SettingsKey> configKeys = [
   // [notices]: the grace after start and resume before a server warning shows
   // (`connection_grace.dart`; 0 shows them at once).
   SettingsKey('notices.server_grace_s', IntKind(min: 0, max: 600)),
+  SettingsKey('notices.check_show_after_ms', IntKind(min: 0, max: 10000), byDefault: 600),
+  SettingsKey('notices.digest_grace_ms', IntKind(min: 0, max: 10000), byDefault: 400),
+  SettingsKey('notices.early_notice_max_count', IntKind(min: 1, max: 10000), byDefault: 256),
+  SettingsKey('notices.early_notice_max_age_s', IntKind(min: 1, max: 2592000), byDefault: 604800),
   // [payments]
   SettingsKey('payments.watch_fast_every_s', _seconds),
   SettingsKey('payments.watch_fast_for_s', _seconds),
@@ -405,6 +410,14 @@ const List<SettingsKey> configKeys = [
   SettingsKey('contacts.stale_after_days', IntKind(min: 1, max: 3650), byDefault: 7),
   // ... and, after the check, waits this long for the answers
   SettingsKey('contacts.check_wait_s', IntKind(min: 15, max: 3600), byDefault: 120),
+  // ... and a contact's message that fails to apply is held for this many attempts and seconds
+  SettingsKey('contacts.hold_attempts', IntKind(min: 1, max: 100), byDefault: 10),
+  SettingsKey('contacts.hold_patience_s', IntKind(min: 1, max: 604800), byDefault: 86400),
+  // ... then kept on this device, up to this size in all and this long
+  SettingsKey('contacts.quarantine_max_bytes', IntKind(min: 1, max: 67108864), byDefault: 16777216),
+  SettingsKey('contacts.quarantine_keep_days', IntKind(min: 1, max: 3650), byDefault: 30),
+  // ... and a collect stopped at a mailbox's limit repeats this many times
+  SettingsKey('contacts.collect_repeats', IntKind(min: 0, max: 50), byDefault: 5),
 ];
 
 ValueProblem? _explorerBlock(String v) => checkTemplate('height', optional: true)(v);

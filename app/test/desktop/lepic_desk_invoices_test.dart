@@ -185,6 +185,9 @@ class _Wallet implements lepic.EpicWallet {
   Future<bool> checkPassword({required String password}) async => password == _password;
 
   @override
+  Future<List<lepic.QuarantinedMessageView>> contactQuarantine() async => const [];
+
+  @override
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
@@ -192,13 +195,13 @@ class _Wallet implements lepic.EpicWallet {
   }) async {
     invoiceDrains++;
     if (drainError != null) throw _lepicError(drainError!);
-    return const lepic.ContactCollectReport(mailboxes: 1, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: [], ended: []);
+    return const lepic.ContactCollectReport(capped: 0, kept: 0, refused: 0, timedOut: 0, notReached: 0, quarantined: 0, quarantineDropped: 0, buffered: 0, mailboxes: 1, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: [], ended: []);
   }
 
   @override
   Future<lepic.InboxReport> drainEpicbox() async {
     paymentDrains++;
-    return const lepic.InboxReport(received: 0, finalized: 0, repeated: 0, rejected: 0, held: 0, notices: 0, bounced: 0, dropped: 0);
+    return const lepic.InboxReport(buffered: 0, received: 0, finalized: 0, repeated: 0, rejected: 0, held: 0, notices: 0, bounced: 0, dropped: 0);
   }
 
   @override

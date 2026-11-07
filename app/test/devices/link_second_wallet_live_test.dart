@@ -51,7 +51,7 @@ class _EchoSink extends MemoryLogSink {
 late lepic.LepicRuntime _runtime;
 
 Future<LepicWalletSession> _open(String name, {String? mnemonic}) async {
-  final config = lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, profile: 0,
+  final config = lepic.WalletConfig(policy: LepicWalletService.hostPolicyOf(appConfig), torWanted: false, hostFeatures: 0, profile: 0,
     dataDir: (Directory('$_dir/$name')..createSync(recursive: true)).path,
     chain: lepic.Chain.mainnet,
     nodeUrl: 'https://node.btlabs.uk',

@@ -18504,6 +18504,77 @@
   "@pairLateCheck": {
     "description": "An invite past its time whose relay has not been checked since: a late answer may still be there."
   },
+  "noticeEventsMissed": "Some updates were missed. The lists were read again.",
+  "@noticeEventsMissed": {
+    "description": "Notice when the wallet's event stream dropped some events: payments and requests were read again from the wallet."
+  },
+  "msgChecking": "Checking messages",
+  "@msgChecking": {
+    "description": "Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment."
+  },
+  "msgCheckFailed": "The last message check failed",
+  "@msgCheckFailed": {
+    "description": "Status line when the last check of the wallet's messages ended with an error."
+  },
+  "msgCheckHeld": "Messages held: {count}",
+  "@msgCheckHeld": {
+    "description": "Status line: messages the last check left on the relay for a later check.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckRefused": "Messages refused: {count}",
+  "@msgCheckRefused": {
+    "description": "Status line: messages the last check turned away (refused or dropped).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckUnreadable": "{count, plural, =1{1 message could not be read} other{{count} messages could not be read}}",
+  "@msgCheckUnreadable": {
+    "description": "Status line: messages the wallet keeps on this device because it could not take them.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckRead": "Messages read: {count}",
+  "@msgCheckRead": {
+    "description": "Status line: messages the last check read from the paired contacts' mailboxes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckPairingFailed": "Pairings failed: {count}",
+  "@msgCheckPairingFailed": {
+    "description": "Status line: pairings in progress that ended without pairing in the last check.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckMore": "More messages wait for the next check",
+  "@msgCheckMore": {
+    "description": "Status line: a mailbox still had messages when the last check stopped."
+  },
+  "noticeSealedUnopenable": "A message from {name} could not be opened.",
+  "@noticeSealedUnopenable": {
+    "description": "Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
   "noticeUnpaired": "{name} removed the pairing.",
   "@noticeUnpaired": {
     "description": "Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.",
@@ -20031,6 +20102,74 @@
   "noticeView": "View",
   "@noticeView": {
     "description": "Action of a request notice."
+  },
+  "noticeDigest": "{count, plural, other{{count} updates: {parts}}}",
+  "@noticeDigest": {
+    "description": "One notice for all that a check of the messages brought; parts is the list of kinds. The count is always two or more.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "parts": {
+        "type": "String",
+        "example": "2 invoices, 1 withdrawal"
+      }
+    }
+  },
+  "noticeDigestInvoices": "{count, plural, =1{1 invoice} other{{count} invoices}}",
+  "@noticeDigestInvoices": {
+    "description": "Part of the digest notice: invoices waiting for an answer.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "noticeDigestWithdrawals": "{count, plural, =1{1 withdrawal} other{{count} withdrawals}}",
+  "@noticeDigestWithdrawals": {
+    "description": "Part of the digest notice: withdrawals received from a contact.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "noticeDigestPaid": "{count, plural, =1{1 invoice paid} other{{count} invoices paid}}",
+  "@noticeDigestPaid": {
+    "description": "Part of the digest notice: invoices paid.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "noticeDigestWithdrawn": "{count, plural, =1{1 invoice withdrawn} other{{count} invoices withdrawn}}",
+  "@noticeDigestWithdrawn": {
+    "description": "Part of the digest notice: invoices withdrawn by their sender.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "noticeDigestExpired": "{count, plural, =1{1 invoice expired} other{{count} invoices expired}}",
+  "@noticeDigestExpired": {
+    "description": "Part of the digest notice: invoices expired.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "noticeDigestSeparator": ", ",
+  "@noticeDigestSeparator": {
+    "description": "Between the parts of the digest notice."
   },
   "pairSaveContactTitle": "Save {name} in your contacts?",
   "@pairSaveContactTitle": {

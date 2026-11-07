@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../data/mock_hosts.dart';
+import 'dart:async' show Completer, unawaited;
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show Uint8List;
@@ -11,11 +12,12 @@ import '../../../contact_store.dart' show ContactFields;
 import '../../../contacts_file.dart' show encodeContactsFile;
 import '../../app/shots.dart';
 import '../../../levels/level_providers.dart' show walletLevelProvider;
+import '../../../message_checks.dart';
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/history_files.dart';
 import '../../data/mock_wallet.dart';
-import '../../../models.dart' show PairingState;
+import '../../../models.dart' show PairingEvent, PairingEventKind, PairingState;
 import '../../data/pairing_state.dart' show deskPairingsProvider;
 import '../../widgets/kit.dart';
 import '../settings/backup.dart' show historyBackupProvider;
@@ -96,6 +98,31 @@ Future<void> _tapKey(Key key) async {
 }
 
 Future<void> Function(ProviderContainer, BuildContext) _status(String jump) => (c, _) => _click(ValueKey('bar-status-$jump'));
+
+/// Checks of the mock's that show at once.
+MessageChecks _checks(ProviderContainer c) => mockBehind(c.read(deskApiProvider))!.messageChecks = MessageChecks(showAfter: Duration.zero, digestGrace: Duration.zero);
+
+/// A message check that does not end.
+Future<void> _checkRunning(ProviderContainer c) async {
+  unawaited(_checks(c).run(CheckSource.collect, () => Completer<int>().future, outcomeOf: (_) => const CheckOutcome()));
+}
+
+/// A check that read three messages and held, refused or could not read others.
+Future<void> _checkEnded(ProviderContainer c) async {
+  await _checks(c).run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome(messages: 3, held: 2, rejected: 1, unreadable: 1, capped: 1));
+}
+
+/// Several notices of one check: the toast that counts them.
+Future<void> _digest(ProviderContainer c, BuildContext _) async {
+  final mock = mockBehind(c.read(deskApiProvider))!;
+  final batch = mock.messageChecks!.notices..begin();
+  for (final (i, kind) in [PairingEventKind.invoiceFromContact, PairingEventKind.invoiceFromContact, PairingEventKind.withdrawalFromContact].indexed) {
+    mock.pairing.emit(PairingEvent(kind, name: 'Anna', slateId: 'digest-$i'));
+  }
+  await Future<void>.delayed(const Duration(milliseconds: 50));
+  batch.end();
+  await Future<void>.delayed(const Duration(milliseconds: 100));
+}
 
 /// Clicks a button inside the open popover (a shot's [DeskShot.after]).
 Future<void> Function(ProviderContainer, BuildContext) _inPopover(String key) => (c, _) => _click(ValueKey(key));
@@ -209,6 +236,9 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '10s-status-epicbox-l1-switch', title: 'Epicbox status popover, Shallow, Switch server open', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('epicbox'), after: _inPopover('status-switch-epicbox')),
   DeskShot(id: '10s-status-node', title: 'Node status popover', route: DeskRoute.overview, prepare: _status('node')),
   DeskShot(id: '10s-status-epicbox', title: 'Epicbox status popover', route: DeskRoute.overview, prepare: _status('epicbox')),
+  DeskShot(id: '10s-status-epicbox-checking', title: 'Epicbox status popover, a message check running', route: DeskRoute.overview, before: _checkRunning, prepare: _status('epicbox')),
+  DeskShot(id: '10s-status-epicbox-held', title: 'Epicbox status popover, messages held, refused and kept unread', route: DeskRoute.overview, before: _checkEnded, prepare: _status('epicbox')),
+  DeskShot(id: '10s-notice-digest', title: 'One toast for several notices of a check', route: DeskRoute.overview, before: (c) async => _checks(c), prepare: _digest),
   DeskShot(id: '10s-status-http', title: 'Link · HTTP status popover', route: DeskRoute.overview, prepare: _status('http')),
   DeskShot(id: '10s-status-tor', title: 'Tor status popover', route: DeskRoute.overview, prepare: _status('tor')),
   const DeskShot(id: '10-overview', title: 'Overview', route: DeskRoute.overview),

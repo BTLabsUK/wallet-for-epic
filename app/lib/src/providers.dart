@@ -31,6 +31,8 @@ import 'stall_retry.dart';
 import 'watch_mode.dart' show BlockWatch;
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
+import 'message_checks.dart';
+import 'notice_digest.dart';
 import 'wallet_service.dart';
 
 export 'models.dart' show defaultMinimumConfirmations;
@@ -1651,6 +1653,26 @@ class IssuerNoticeNotifier extends Notifier<IssuerNotice?> {
     return null;
   }
 }
+
+/// The checks of the open wallet's messages, for the status places: from [checks] now, then on
+/// every change. Nothing is checked without a wallet.
+Stream<MessageCheck> messageCheckStream(MessageChecks? checks) async* {
+  if (checks == null) {
+    yield const MessageCheck();
+    return;
+  }
+  yield checks.value;
+  yield* checks.stream;
+}
+
+final messageCheckProvider = StreamProvider.autoDispose<MessageCheck>(
+  (ref) => messageCheckStream(ref.watch(sessionProvider)?.checks),
+);
+
+/// The digests of the open wallet's runs ([NoticeBatch]), for the notices on home.
+final noticeDigestProvider = StreamProvider.autoDispose<NoticeDigest>(
+  (ref) => ref.watch(sessionProvider)?.checks.notices.digests ?? const Stream.empty(),
+);
 
 /// Drains the payments address when a wallet opens and, through [PaymentsDrainNotifier.drain],
 /// on every resume, beside the listener: payments that arrived while the app was away are

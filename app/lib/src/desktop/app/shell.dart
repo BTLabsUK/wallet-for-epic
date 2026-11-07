@@ -15,14 +15,16 @@ import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
-import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
+import '../../notice_digest.dart' show DigestPlace, HeldNotice, NoticeDigest, raiseNotice;
+import '../../notice_digest_text.dart';
+import '../../ui/pairing/pairing_notices.dart' show heldKindOf, pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind, PairingRecord;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../data/name_service_state.dart' show deskNameServiceProvider;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../../trust/profile_watch.dart';
-import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
+import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskNoticeDigestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
@@ -231,6 +233,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         unawaited(ref.read(deskNameServiceProvider)?.sync(NameServiceSyncTrigger.resume));
         // A node failover that waits longer each time tries again soon.
         ref.read(deskFailoverWatchProvider.notifier).resumed();
+        // The contacts' mailboxes too, as the phone does on resume (the shell exists only
+        // unlocked; the collect itself stays off in Node only, Kill switch and with Epicbox off).
+        if (mounted) _collect(PairingCollectTrigger.open);
       },
     );
   }
@@ -391,17 +396,29 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       final check = (e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && id != null
           ? (label: context.l10n.noticeCheckWords, run: () => unawaited(showDeskCheckWords(context, ref, id)))
           : null;
-      showEToast(
-        context,
-        n.text,
-        tone: switch (n.level) {
-          NoticeLevel.success => ETone.ok,
-          NoticeLevel.info => ETone.info,
-          NoticeLevel.warning => ETone.warn,
-          NoticeLevel.error => ETone.risk,
-        },
-        action: check,
-      );
+      void toast() {
+        if (!mounted) return;
+        showEToast(
+          context,
+          n.text,
+          tone: switch (n.level) {
+            NoticeLevel.success => ETone.ok,
+            NoticeLevel.info => ETone.info,
+            NoticeLevel.warning => ETone.warn,
+            NoticeLevel.error => ETone.risk,
+          },
+          action: check,
+        );
+      }
+      final held = heldKindOf(e.kind);
+      if (held == null) return toast();
+      raiseNotice(ref.read(deskApiProvider).messageChecks?.notices, HeldNotice(held, slateId: e.slateId, named: true, show: toast));
+    });
+    // The result of a run with several notices. Reloading keeps the last value: a digest shows
+    // once.
+    ref.listen(deskNoticeDigestsProvider, (_, next) {
+      final digest = next.value;
+      if (digest != null && !next.isLoading && mounted) _digestToast(context, ref, digest);
     });
     // Linked devices: the service lives while the shell is up (it reads the channel every 5 s,
     // minimized too).
@@ -540,6 +557,24 @@ void _invoiceToast(BuildContext context, InvoiceNotice n) {
     InvoiceNoticeKind.requestOnDevice => (l.devicesForwardedInvoice(n.who), ETone.neutral),
   };
   showEToast(context, text, tone: tone);
+}
+
+/// A digest as one toast. It outlives a change of screen, with its way to the place that lists
+/// what it counts.
+void _digestToast(BuildContext context, WidgetRef ref, NoticeDigest digest) {
+  final l = context.l10n;
+  final (route, arg) = switch (digest.place) {
+    DigestPlace.invoices => (DeskRoute.invoices, InvoicesTab.pay),
+    DigestPlace.sentInvoices => (DeskRoute.invoices, InvoicesTab.issue),
+    DigestPlace.activity => (DeskRoute.activity, null),
+  };
+  showEToast(
+    context,
+    noticeDigestText(l, digest),
+    tone: ETone.info,
+    stay: true,
+    action: (label: l.noticeView, run: () => ref.read(deskNavProvider.notifier).go(route, arg)),
+  );
 }
 
 /// Back: an open dialog or the tour holds it (Esc closes those); then the screen's inner step

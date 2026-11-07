@@ -16,8 +16,10 @@ import '../../l10n.dart';
 import '../../levels/relay_switch_providers.dart';
 import '../../node_failover_phone.dart';
 import '../../server_list.dart' show ServerKind;
+import '../../message_checks.dart';
 import '../../providers.dart';
 import '../common.dart';
+import '../message_check_lines.dart';
 import '../status.dart';
 import '../status_icons.dart';
 import '../theme/tokens.dart';
@@ -193,6 +195,7 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
         // The state in a sentence under the header; what it means for payments when down.
         if (stateText != face.word) stateText,
         if (down && !(moved != null && offer == null)) l.lvShellBoxDownBody,
+        ...messageCheckLines(l, ref.watch(messageCheckProvider).value ?? const MessageCheck()),
       ],
       cards: [
         if (moved != null && offer == null)

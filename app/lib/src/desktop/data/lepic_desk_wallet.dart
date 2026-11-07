@@ -54,6 +54,8 @@ import '../../node/node_settings.dart' show NodeSettings;
 import '../../name_service/name_service.dart' show NameServiceMembership, LinkOutcome, Payreq, openLink;
 import '../../name_service/base58.dart' show netFloonet, netMainnet;
 import '../../scan/scan_router.dart' show PaymentLink;
+import '../../message_checks.dart' show MessageChecks;
+import '../../notice_digest.dart' show HeldKind, HeldNotice, raiseNotice;
 import '../../models.dart' show Chain;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
@@ -965,6 +967,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   bool get openedRemembered => _session != null && _openedRemembered;
+
+  @override
+  MessageChecks? get messageChecks => _session?.checks;
 
   @override
   Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds}) {
@@ -4948,6 +4953,13 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!_invoiceNotices.isClosed) _invoiceNotices.add(notice);
   }
 
+  /// Routine news of [session]'s slate [slateId]: [notice] waits for the end of its run
+  /// ([NoticeBatch]). None just ends the slate in the batch.
+  void _hold(core.WalletSession session, HeldKind kind, String slateId, [InvoiceNotice? notice]) => raiseNotice(
+    session.checks.notices,
+    HeldNotice(kind, slateId: slateId, show: notice == null ? null : () => _notify(notice)),
+  );
+
   /// After an unlock or a reopen on another server: the session's invoice events and the
   /// scheduler, on that session only.
   void _startInvoices() {
@@ -4959,7 +4971,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // can find the payment not yet posted ("Not on the network", LNX3-4).
     if (session.pairing.supported) {
       _pairingSub = session.pairing.events().listen((e) {
-        if (e.kind == core.PairingEventKind.paymentFinalized && _session == session) unawaited(_reload());
+        final again = e.kind == core.PairingEventKind.paymentFinalized || e.kind == core.PairingEventKind.eventsMissed;
+        if (again && _session == session) unawaited(_reload());
       });
     }
     if (!session.supportsInvoices) return;
@@ -5028,15 +5041,23 @@ class LepicDeskWallet implements DeskWalletApi {
       _forward?.call(e);
     }
     if (_session != session) return;
+    final ended = switch (e.kind) {
+      core.InvoiceEventKind.withdrawn => HeldKind.withdrawn,
+      core.InvoiceEventKind.expired => HeldKind.expired,
+      core.InvoiceEventKind.declined => HeldKind.declined,
+      core.InvoiceEventKind.paymentCancelled || core.InvoiceEventKind.paymentDeclined => HeldKind.cancelled,
+      _ => null,
+    };
+    if (ended != null) _hold(session, ended, e.slateId);
     final seen = _waitingSeen[e.slateId];
     final now = DateTime.now();
     switch (e.kind) {
       case core.InvoiceEventKind.withdrawn when seen != null:
         _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.withdrawn, answeredAt: now);
-        _notify(InvoiceNotice(InvoiceNoticeKind.withdrawn, slateId: e.slateId, who: seen.label));
+        _hold(session, HeldKind.withdrawn, e.slateId, InvoiceNotice(InvoiceNoticeKind.withdrawn, slateId: e.slateId, who: seen.label));
       case core.InvoiceEventKind.expired when seen != null:
         _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.expired, answeredAt: now);
-        _notify(InvoiceNotice(InvoiceNoticeKind.expired, slateId: e.slateId, who: seen.label));
+        _hold(session, HeldKind.expired, e.slateId, InvoiceNotice(InvoiceNoticeKind.expired, slateId: e.slateId, who: seen.label));
       case core.InvoiceEventKind.declined when seen != null:
         _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.declined, answeredAt: now);
       // Unverified (the session tells each slate once): inform only, act on nothing.
@@ -5081,6 +5102,15 @@ class LepicDeskWallet implements DeskWalletApi {
   /// raises each once (a repeated bounce withdraws and tells once).
   Future<void> _onIssuerEvent(core.WalletSession session, core.IssuerEvent e) async {
     if (_session != session) return;
+    // Held now, in the run that brought it: the words are looked up when it shows.
+    final held = switch (e.kind) {
+      core.IssuerEventKind.paid => HeldKind.paid,
+      core.IssuerEventKind.expired => HeldKind.expired,
+      _ => null,
+    };
+    if (held != null) {
+      raiseNotice(session.checks.notices, HeldNotice(held, slateId: e.slateId, show: () => unawaited(_tellIssuer(session, e))));
+    }
     await _reload();
     // "Paid" comes when the invoice is finalized; its post follows in the same collect. Read
     // again once it is out, so the row never sits on "Not posted" (LNX3-4).
@@ -5089,6 +5119,11 @@ class LepicDeskWallet implements DeskWalletApi {
         if (_session == session) await _reload();
       }));
     }
+    if (held == null) await _tellIssuer(session, e);
+  }
+
+  /// The notice of an issuer's event, with the amount and the payer's name.
+  Future<void> _tellIssuer(core.WalletSession session, core.IssuerEvent e) async {
     final kind = switch (e.kind) {
       core.IssuerEventKind.paid => InvoiceNoticeKind.paid,
       core.IssuerEventKind.declined => InvoiceNoticeKind.declined,

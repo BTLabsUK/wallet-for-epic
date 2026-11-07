@@ -108,6 +108,9 @@ class _InvoiceWallet implements lepic.EpicWallet {
   Future<String?> contactOfTransaction({required int txId}) async => _shop;
 
   @override
+  Future<List<lepic.QuarantinedMessageView>> contactQuarantine() async => const [];
+
+  @override
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
@@ -118,7 +121,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
     park('new-1', BigInt.from(7));
     park('new-2', BigInt.from(8));
     return const lepic.ContactCollectReport(
-      mailboxes: 1,
+      capped: 0, kept: 0, refused: 0, timedOut: 0, notReached: 0, quarantined: 0, quarantineDropped: 0, buffered: 0, mailboxes: 1,
       messages: 2,
       paired: 0,
       unreachable: [],

@@ -31,7 +31,9 @@ import 'finished_payment.dart';
 import 'key_picture.dart' show inviteKeyOf;
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'listener_receives.dart';
+import 'coalesce.dart';
 import 'log.dart';
+import 'message_checks.dart';
 import 'net/lan_node_relay.dart';
 import 'net/tor_net.dart' show TorNet;
 import 'net/tor_switch.dart';
@@ -1060,7 +1062,7 @@ class LepicWalletService implements WalletService {
   /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
-        policy: const lepic.HostPolicy(),
+        policy: hostPolicyOf(appConfig),
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
         nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),
@@ -1080,6 +1082,17 @@ class LepicWalletService implements WalletService {
         // The app claims no domain; a service's wallet (the CLI) does.
         domain: null,
       );
+
+  /// The host's policy for the wallet core: how long a contact's message that fails to apply is
+  /// held, from `[contacts]` of `app-config.toml`. Fields not set here keep the core's default.
+  static lepic.HostPolicy hostPolicyOf(AppConfig c) => lepic.HostPolicy(
+    contactHoldAttempts: c.number('contacts.hold_attempts'),
+    contactHoldPatienceS: BigInt.from(c.number('contacts.hold_patience_s')),
+    listenerHeldRounds: c.number('epicbox.listener_held_rounds'),
+    quarantineMaxBytes: BigInt.from(c.number('contacts.quarantine_max_bytes')),
+    earlyNoticeMaxCount: c.number('notices.early_notice_max_count'),
+    earlyNoticeMaxAgeS: BigInt.from(c.number('notices.early_notice_max_age_s')),
+  );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
   /// of `app-config.toml`, under the same names (LEPIC's ADR 0030).
@@ -1616,6 +1629,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     _lastActivityAtOpen = at == null ? null : DateTime.fromMillisecondsSinceEpoch(at * 1000, isUtc: true);
   }
 
+  @override
+  late final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace, settle: () => _inTurn(() async {}));
+
   /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
   String? nodeUrl;
@@ -1760,6 +1776,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     _pairing.close();
     _invoiceEvents.close();
     _issuerEvents.close();
+    checks.dispose();
     _unmatched.close();
     _history.close();
     final detach = _detachBook;
@@ -2969,6 +2986,12 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       logWarn('wallet', 'send not posted: ${e.message ?? ''}');
       return;
     }
+    // The event stream lagged: the lists are read again and one notice says so.
+    if (e.kind == lepic.WalletEventKind.missed) {
+      logWarn('wallet', 'events missed: ${e.missed}');
+      _pairing.eventsMissed();
+      return;
+    }
     // For the linked device only: nothing here holds its slate, and nothing verified it.
     if (e.kind == lepic.WalletEventKind.noticeUnmatched) {
       final (slate, kind, sender, notice) = (e.slateId, e.noticeKind, e.sender, e.notice);
@@ -3105,8 +3128,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     if (!NetGate.invoices) return const InvoiceCollectReport();
     _watchEvents();
     final before = (await _wallet.contactInvoices()).length;
-    await _pairing.collectOrFail(PairingCollectTrigger.open);
-    await _sweep();
+    // What the sweep expires is news of the same run.
+    await checks.notices.during(() async {
+      await _pairing.collectOrFail(PairingCollectTrigger.open);
+      await _sweep();
+    });
     final after = (await _wallet.contactInvoices()).length;
     return InvoiceCollectReport(parked: after > before ? after - before : 0);
   });
@@ -3515,17 +3541,25 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       });
 
   @override
-  Future<PaymentsDrainReport> drainPayments() => _epicboxGuard('payments drain', () async {
-    _watchEvents();
-    // Each bounce raises `invoiceBounced` on the events, which withdraws that request.
-    final report = await _wallet.drainEpicbox();
-    await _sweep();
-    return PaymentsDrainReport(
-      received: report.received,
-      finalized: report.finalized,
-      bounced: report.bounced,
-    );
-  });
+  Future<PaymentsDrainReport> drainPayments() => checks.run(
+    CheckSource.drain,
+    () => _epicboxGuard('payments drain', () async {
+      _watchEvents();
+      // Each bounce raises `invoiceBounced` on the events, which withdraws that request.
+      final report = await _wallet.drainEpicbox();
+      await _sweep();
+      return report;
+    }),
+    outcomeOf: (r) => CheckOutcome(
+      received: r.received,
+      finalized: r.finalized,
+      bounced: r.bounced,
+      held: r.held,
+      rejected: r.rejected,
+      dropped: r.dropped,
+      buffered: r.buffered,
+    ),
+  ).then((r) => PaymentsDrainReport(received: r.received, finalized: r.finalized, bounced: r.bounced));
 
   @override
   Stream<IssuerEvent> issuerEvents() {
@@ -4283,28 +4317,53 @@ class _LepicPairing implements PairingApi {
     return _record(await _w.contact(contactId: id));
   });
 
+  final Coalesced _collects = Coalesced();
+
   @override
   Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
     if (!supported || NetGate.epicboxOff) return 0;
-    try {
-      return await collectOrFail(trigger);
-    } on lepic.WalletError catch (error) {
-      logWarn('pairing', 'collect failed: ${error.kind.name}');
-      return 0;
-    } finally {
-      // Contact invoices arrive with this collect: what ran out expires on the same beat.
-      if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
-    }
+    // What the sweep expires is news of the same run.
+    return _s.checks.notices.during(() async {
+      try {
+        // A trigger during a running collect marks one rerun; the later ones add none.
+        return await _collects.run(() => collectOrFail(trigger));
+      } on lepic.WalletError catch (error) {
+        logWarn('pairing', 'collect failed: ${error.kind.name}');
+        return 0;
+      } finally {
+        // Contact invoices arrive with this collect: what ran out expires on the same beat.
+        if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
+      }
+    });
   }
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
-  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) async {
-    // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
-    if (!NetGate.pairing) return 0;
+  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) => !NetGate.pairing
+      // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
+      ? Future.value(0)
+      : _s.checks.run(
+    CheckSource.collect,
+    () => _collectCounted(trigger, only: only),
+    // The 45-second tick stays quiet; a look the user asked for, or a resume, shows.
+    quiet: trigger == PairingCollectTrigger.foreground && only == null,
+    outcomeOf: (r) => CheckOutcome(
+      messages: r.messages,
+      failed: r.failed,
+      dropped: r.lost,
+      buffered: r.buffered,
+      capped: r.capped,
+      unreadable: r.unreadable,
+    ),
+  ).then((r) => r.paired);
+
+  Future<({int paired, int messages, int failed, int lost, int buffered, int capped, int unreadable})> _collectCounted(
+    PairingCollectTrigger trigger, {
+    List<String>? only,
+  }) async {
     _s._watchEvents();
     final before = {for (final c in await _w.contacts()) c.contactId};
-    final report = await _w.contactsCollect(
+    Future<lepic.ContactCollectReport> once() => _w.contactsCollect(
       trigger: switch (trigger) {
         PairingCollectTrigger.open => lepic.CollectTrigger.open,
         PairingCollectTrigger.foreground => lepic.CollectTrigger.foreground,
@@ -4314,6 +4373,21 @@ class _LepicPairing implements PairingApi {
       relayMode: lepicRelayMode(),
       only: only,
     );
+    var report = await once();
+    var (paired, messages, failed, ended) = (report.paired, report.messages, report.failed.length, report.ended.length);
+    var (lost, buffered) = (report.quarantineDropped, report.buffered);
+    // A mailbox stopped at its message limit has more waiting. Out of time, it waits for the
+    // next check. The limit on repeats is the app's: LEPIC only reports.
+    for (var i = appConfig.number('contacts.collect_repeats'); i > 0 && report.capped > 0 && report.timedOut == 0; i--) {
+      report = await once();
+      paired += report.paired;
+      messages += report.messages;
+      failed += report.failed.length;
+      ended += report.ended.length;
+      lost += report.quarantineDropped;
+      buffered += report.buffered;
+    }
+    final unreadable = await _tendQuarantine(retry: trigger == PairingCollectTrigger.open);
     // A relay that answers again is no longer down; a look at a few contacts says nothing of
     // the others' relays.
     if (only == null) {
@@ -4338,10 +4412,40 @@ class _LepicPairing implements PairingApi {
     if (only == null) unawaited(_checkDomains());
     // Pairings that ended this cycle are kept, ended: their own events name them; the lists
     // read again.
-    if ((before.difference(now).isNotEmpty || report.ended.isNotEmpty) && !_events.isClosed) {
+    if ((before.difference(now).isNotEmpty || ended > 0) && !_events.isClosed) {
       _events.add(const PairingEvent(PairingEventKind.contactUpdated));
     }
-    return report.paired + report.ended.length;
+    return (
+      paired: paired + ended,
+      messages: messages,
+      failed: failed,
+      lost: lost,
+      buffered: buffered,
+      capped: report.capped,
+      unreadable: unreadable,
+    );
+  }
+
+  /// How many messages the wallet keeps unread (LEPIC's quarantine), for the status. Old ones are
+  /// removed; with [retry] (on open, which an update also goes through) the rest are tried again.
+  /// A failure leaves them for the next time.
+  Future<int> _tendQuarantine({required bool retry}) async {
+    try {
+      final keep = Duration(days: appConfig.number('contacts.quarantine_keep_days'));
+      final oldest = DateTime.now().subtract(keep).millisecondsSinceEpoch;
+      var kept = await _w.contactQuarantine();
+      for (final m in kept) {
+        if (m.firstSeenMs.toInt() < oldest) await _w.contactQuarantineDiscard(id: m.id);
+      }
+      kept = kept.where((m) => m.firstSeenMs.toInt() >= oldest).toList();
+      if (kept.isEmpty || !retry) return kept.length;
+      final done = await _w.contactQuarantineRetry(relayMode: lepicRelayMode());
+      logInfo('pairing', 'quarantine retried ${done.retried}, ${done.kept} left');
+      return done.kept;
+    } on lepic.WalletError catch (error) {
+      logWarn('pairing', 'quarantine not tended: ${error.kind.name}');
+      return 0;
+    }
   }
 
   @override
@@ -4725,6 +4829,11 @@ class _LepicPairing implements PairingApi {
         endedReason: e.endedReason == null ? null : lepicPairingEndReason(e.endedReason!),
       ),
     );
+  }
+
+  /// The app missed wallet events: every list is read again.
+  void eventsMissed() {
+    if (!_events.isClosed) _events.add(const PairingEvent(PairingEventKind.eventsMissed));
   }
 
   void close() => _events.close();

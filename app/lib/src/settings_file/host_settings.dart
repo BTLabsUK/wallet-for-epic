@@ -209,6 +209,12 @@ class AppConfig {
 
   /// After start and resume, how long server warnings wait (`connection_grace.dart`).
   Duration get serverGrace => _s('notices.server_grace_s');
+
+  /// How long a check of the messages runs before "Checking messages" shows.
+  Duration get checkShowAfter => Duration(milliseconds: _int('notices.check_show_after_ms'));
+
+  /// How long after a collect or a drain its notices may still land in its one result.
+  Duration get digestGrace => Duration(milliseconds: _int('notices.digest_grace_ms'));
   int get localNodeApiPort => _int('node.local.api_port');
   int get localNodeP2pPort => _int('node.local.p2p_port');
 

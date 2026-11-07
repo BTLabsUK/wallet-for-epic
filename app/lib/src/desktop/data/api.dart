@@ -8,6 +8,7 @@ import 'dart:typed_data';
 
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
+import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../name_service/name_service_service.dart' show NameServiceHost;
@@ -66,6 +67,9 @@ abstract interface class DeskWalletApi {
   /// Whether the open wallet was opened with the remembered password. Sends ask the password
   /// either way.
   bool get openedRemembered;
+
+  /// The open wallet's message checks, for the status popover; null when none is open.
+  MessageChecks? get messageChecks;
 
   /// Whether [password] is the open wallet's password.
   Future<bool> checkPassword(String password);
