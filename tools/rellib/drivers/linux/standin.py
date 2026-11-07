@@ -7,13 +7,18 @@ real custom node and Epicbox server to look for in the lists:
                                               forwarded unchanged to an https node
     standin.py relay <port> <upstream host>   plain TCP on 127.0.0.1:<port> piped into TLS to
                                               <host>:443 (the app speaks ws:// to a loopback relay)
+
+A stand-in ends with the lane that started it: a lane killed outside its own shutdown left them
+holding ports a resume needs (26.11.4 night, run-1).
 """
 import http.server
 import socket
 import socketserver
+import os
 import ssl
 import sys
 import threading
+import time
 import urllib.error
 import urllib.request
 
@@ -94,7 +99,14 @@ class T(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
 
 
+def _end_with_parent(parent):
+    while os.getppid() == parent:
+        time.sleep(2)
+    os._exit(0)
+
+
 if __name__ == "__main__":
+    threading.Thread(target=_end_with_parent, args=(os.getppid(),), daemon=True).start()
     if MODE == "node":
         S(("127.0.0.1", PORT), H).serve_forever()
     elif MODE == "relay":
