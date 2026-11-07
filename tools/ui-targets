@@ -293,6 +293,10 @@ def check():
                     bad.append((at(i), i, "group member %s is not in the registry" % m, "add it or take it out of the group"))
         if kind(c) == "template" and "*" not in i:
             bad.append((at(i), i, "a template without *", "put a * where the data goes"))
+        for k in list(c.get("keys", ())) + list(c.get("android", {}).get("keys", ())):
+            if k not in arb:
+                bad.append((at(i), i, "key %s is not in %s" % (k, ARB),
+                            "set the ARB key the app shows here, or drop it and keep the text in `names`"))
         if kind(c) == "copy" and not any(k in arb for k in c.get("keys", ())):
             k = ", ".join(c.get("keys", ())) or "none"
             bad.append((at(i), i, "copy with no key in %s (keys: %s)" % (ARB, k),

@@ -52,6 +52,18 @@ class UiTargetsTest(unittest.TestCase):
         self.assertGreater(len(keys), 20)
         self.assertLessEqual(keys, set(json.loads(ut.read(ut.ARB))))
 
+    def test_a_control_key_gone_from_the_arb_is_named(self):
+        real = ut.load
+        controls = real()
+        controls[0]["keys"] = ["noSuchArbKey"]
+        ut.load = lambda: controls
+        try:
+            rc, out = quiet(ut.check)
+        finally:
+            ut.load = real
+        self.assertEqual(rc, 1)
+        self.assertIn("key noSuchArbKey is not in", out)
+
     def test_walk_names_a_target_no_shot_showed(self):
         with tempfile.TemporaryDirectory() as d:
             os.makedirs(os.path.join(d, "phone"))
