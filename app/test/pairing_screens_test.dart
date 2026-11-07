@@ -352,12 +352,16 @@ void main() {
       expect(find.byKey(checkNoMatchKey), findsOneWidget);
       expect(find.text(_l.sasSkip), findsNothing);
       expect(find.text(_l.sasLater), findsNothing);
+      expect(find.text(_l.contactAllowInvoices), findsNothing, reason: 'no Allow switch on the words screen');
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pumpAndSettle();
       expect(h.api.records.single.state, PairingState.verified);
       expect(find.byType(PairingResultScreen), findsOneWidget);
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
       expect(find.byKey(resultSaveNewKey), findsOneWidget);
+      // Allow invoices is here, off, with its line; the words screen had no switch.
+      expect(find.byKey(resultAllowKey), findsOneWidget);
+      expect(find.text(_l.sasAllowOffLine('Anna')), findsOneWidget);
     });
 
     testWidgets('an automated peer: the service lead, and the result says so instead of the confirmed line', (tester) async {
