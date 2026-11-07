@@ -18,6 +18,7 @@ import re
 import secrets as _secrets
 import time
 
+from . import hold
 from . import targets as tg
 from .driver import Expect, Goal, either, gone, shows, where
 from .faults import HarnessFault, InfraFault, ProductFault
@@ -268,7 +269,7 @@ class Desktop:
         """A new wallet on the welcome screen; returns {password, phrase}. The phrase is read off the
         reveal screen and only handed back."""
         d = self.d
-        self.password = _secrets.token_urlsafe(16)
+        self.password = hold.value("password", lambda: _secrets.token_urlsafe(16))
         d.must(shows(WELCOME_CREATE), 120, step="welcome", goal="the welcome screen with Create a new wallet")
         self._depth_dial()
         d.press(WELCOME_CREATE, step="create", then=shows(CREATE_TITLE), timeout=30)
@@ -293,7 +294,7 @@ class Desktop:
         words = phrase.split()
         if len(words) not in (12, 15, 18, 21, 24):
             raise HarnessFault("restore", "the lane's phrase has %d words" % len(words))
-        self.password = _secrets.token_urlsafe(16)
+        self.password = hold.value("password", lambda: _secrets.token_urlsafe(16))
         d.must(shows(WELCOME_RESTORE), 120, step="welcome", goal="the welcome screen with Restore from phrase")
         self._depth_dial()
         d.press(WELCOME_RESTORE, step="restore", then=shows(self._word(1)), timeout=30)

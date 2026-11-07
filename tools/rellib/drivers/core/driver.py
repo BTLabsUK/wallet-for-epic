@@ -34,6 +34,7 @@ import re
 import time
 
 from . import freeze
+from . import hold
 from . import record
 from . import targets as tg
 from .faults import HarnessFault, HarnessGone, ProductFault, StepReached
@@ -115,7 +116,7 @@ class _Watched:
 
         def call(*a, **kw):
             try:
-                return attr(*a, **kw)
+                return hold.call("s%x" % id(self._s), k, attr, a, kw)
             except freeze.Frozen as e:
                 raise self._d._frozen(e.detail, e.evidence) from None
         return call
@@ -364,7 +365,8 @@ class Driver:
         """The known-trouble rules, in TROUBLE's order, until `target` shows: the node, or None. Each rule
         that acted is logged and kept in `tried`."""
         for rule in self.TROUBLE:
-            did = getattr(self, "_trouble_" + rule)(target)
+            with hold.searching():
+                did = getattr(self, "_trouble_" + rule)(target)
             if not did:
                 continue
             self.tried.append("%s (%s)" % (rule, did))
@@ -456,7 +458,8 @@ class Driver:
             if hits:
                 self.log("obstacle %s (%s): pressed %s" % (t, why, hits[0].brief()))
                 try:
-                    self.s.press(hits[0])
+                    with hold.searching():
+                        self.s.press(hits[0])
                 except RuntimeError as e:  # the next read shows whether it went
                     self.log("obstacle %s: %s" % (t, e))
                 time.sleep(self.poll)

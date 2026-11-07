@@ -308,5 +308,6 @@ class Run:
                          "flaky": bool(st.get("flaky")), "failed_before": st.get("failed_before"),
                          "driver_changed": bool(st.get("driver_changed")), "stopped": st.get("stopped"),
                          "repeats": st.get("repeats") or 0, "seconds_repeated": st.get("seconds_repeated") or 0,
-                         "repeats_forced": len(st.get("forced") or []), "failures": st.get("failures") or []})
+                         "repeats_forced": len(st.get("forced") or []), "failures": st.get("failures") or [],
+                         "parked": st.get("parked"), "continues": len(st.get("continues") or [])})
         return rows

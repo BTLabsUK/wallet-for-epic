@@ -20,8 +20,9 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 
-from . import builtins, failures as known, flow, guards, health, hosted, repeats, retention
+from . import builtins, evidence, failures as known, flow, guards, health, hosted, repeats, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, VERSION_RE, is_night, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, STALE_BYTES, relmsg_state)
@@ -29,6 +30,7 @@ from .graph import build_graph, dependents
 from .relmsg import Relmsg
 from .run import Busy, Run, now_iso, read_json, write_json
 
+CONTINUE_WAIT = 60  # a parked lane looks for the word each second, then reloads
 EXIT_TEXT = {0: "ok", 10: "waiting", 20: "step failed", 30: "preflight failed", 40: "gate closed", 64: "usage", 75: "busy"}
 
 
@@ -690,6 +692,82 @@ class App:
         finally:
             run.release_lanes([s])
 
+    def cmd_continue(self, a):
+        """The fix goes in where the lane stopped: a parked lane reloads the drivers and goes on from the
+        failed action. A lane that is gone goes on from its nearest resume point, by the retry's road.
+        It takes no lock: the lane is running, and the tools/rel that started it holds its rig."""
+        run = self.load_run()
+        s = run.step(a.step)
+        if not repeats.gated(s):
+            return self.out(EXIT_USAGE, f"{s.id} is no lane", run)
+        eng = self.engine(run, relmsg_on=False)
+        stage = os.path.join(run.step_dir(s.id), "out")
+        park = repeats.parked(stage)
+        if park:
+            return self.go_on(eng, run, s, stage, park, a.stop)
+        st = run.status(s.id)
+        if a.stop:
+            return self.out(EXIT_USAGE, f"{s.id} is not parked", run)
+        if st["status"] == "running":
+            return self.out(EXIT_BUSY, f"{s.id} is running and not parked: nothing to continue yet", run)
+        if st["status"] != "failed":
+            return self.out(EXIT_USAGE, f"{s.id} is {st['status']}: nothing to continue", run)
+        fails = st.get("failures") or []
+        last = fails[-1] if fails else None
+        if last and last["kind"] == "harness":
+            why = self.lane_gone(eng, s, last)
+            if why:
+                run.event(s.id, "repeat-refused", rule="continue-gone", line=why, manual=True)
+                return self.out(EXIT_DENIED, why, run)
+            run.set_status(s.id, go_on=last["attempt"])
+        self.echo(f"{s.id} has no lane left to hold it: it goes back to the nearest resume point")
+        a.fresh, a.again = None, False
+        return self.cmd_retry(a)
+
+    def go_on(self, eng, run, s, stage, park, stop):
+        now = evidence.driver_record(eng.runner)
+        if now.get("dirty") and not stop:
+            return self.out(EXIT_DENIED, f"refused: {s.id} is parked at {park['step']}, and this checkout has "
+                                         "uncommitted driver changes. Commit the fix: the proof names a commit.", run)
+        token = repeats.ask_park(stage, now, stop)
+        deadline = time.time() + CONTINUE_WAIT
+        answer = None
+        while answer is None and time.time() < deadline and repeats.parked(stage):
+            time.sleep(0.5)
+            answer = repeats.park_answer(stage, token)
+        answer = answer or repeats.park_answer(stage, token)
+        if answer is None:
+            return self.out(EXIT_FAILED, f"{s.id} did not answer: it is {'still parked' if repeats.parked(stage) else 'gone'}", run)
+        if not answer.get("ok"):
+            return self.out(EXIT_FAILED, f"not continued: the drivers do not load: {answer.get('note')}. {s.id} stays "
+                                         f"parked at {park['step']}: fix, commit, tools/rel continue {s.id}", run)
+        if stop:
+            run.event(s.id, "park-stopped", name=park["step"])
+            return self.out(EXIT_OK, f"{s.id} leaves {park['step']}: the fault takes its way as without a park", run)
+        run.event(s.id, "continue", name=park["step"], driver=evidence.driver_label(now), acts=answer.get("acts"))
+        was = self.park_outside(eng.runner, run.status(s.id).get("driver"), now)
+        return self.out(EXIT_OK, f"{s.id}: {answer.get('modules')} driver modules reloaded, {answer.get('acts')} actions of "
+                                 f"phase {answer.get('phase')} replayed without touching the app, live again at "
+                                 f"{answer.get('step')}, on {evidence.driver_label(now)}.{was}", run)
+
+    @staticmethod
+    def park_outside(repo, old, now):
+        changed = repeats.changed(repo, (old or {}).get("commit"), now.get("commit"))
+        moved = [p for p in repeats.OUTSIDE if any(c.endswith(p) for c in changed)]
+        return f" Not reloaded, they run beside the lane: {', '.join(moved)}." if moved else ""
+
+    @staticmethod
+    def lane_gone(eng, s, last):
+        """Why a harness failure whose lane has gone may not go on, or None: the drivers must have moved on."""
+        now = evidence.driver_record(eng.runner)
+        old = (last.get("driver") or {}).get("commit")
+        moved = (not now.get("dirty") and repeats.newer(eng.runner, old, now.get("commit"))
+                 and repeats.tree(eng.runner, old) != repeats.tree(eng.runner, now.get("commit")))
+        if moved or not old:
+            return None
+        return (f"refused: {s.id} is not parked (the lane is gone) and the drivers have not changed since it failed at "
+                f"{last['step']}. Commit the fix, then tools/rel continue {s.id}")
+
     def cmd_probe(self, a):
         """The failing step alone: the target lane by the shortest route to it, recorded in the run. It
         holds the target's lane, so it runs while other lanes do; a step on that lane holds it off."""
@@ -826,7 +904,9 @@ class App:
         for r in rows:
             d = f"{r['duration_s']:.0f}s" if r.get("duration_s") is not None else ""
             extra = (repeat_note(r) + (r.get("stopped") or r.get("note") or r.get("reason") or "")).strip()
-            print(f"  {r['status']:8} {r['id']:28} {d:>7}  {extra[:110]}")
+            if r.get("parked"):
+                extra = f"at {r['parked']['step']}, app up: fix, commit, tools/rel continue {r['id']}"
+            print(f"  {'parked' if r.get('parked') else r['status']:8} {r['id']:28} {d:>7}  {extra[:110]}")
         return EXIT_OK
 
     def cmd_logs(self, a):
@@ -1141,6 +1221,10 @@ def repeat_note(r):
 def row_note(r):
     """The report's note column: the note (or skip reason), what the driver was, the known-failure hint."""
     note = ("DRIVERS CHANGED between attempts; " if r.get("driver_changed") else "") + repeat_note(r) + (r.get("note") or r.get("reason") or "")
+    if r.get("parked"):
+        note = f"PARKED at {r['parked']['step']}: {r['parked']['what']}; " + note
+    if r.get("continues"):
+        note += f" — continued {r['continues']}×"
     if r.get("stopped"):
         note += f" — {r['stopped']}"
     if r.get("hint"):
@@ -1305,6 +1389,11 @@ def parser():
             sp.add_argument("--exec", action="store_true")
         if name == "skip":
             sp.add_argument("--reason", required=True)
+    sp = sub.add_parser("continue", help="a lane parked at a harness fault: reload the committed fix, go on from that action")
+    sp.add_argument("step")
+    sp.add_argument("--run")
+    sp.add_argument("--stop", action="store_true", help="end the park: the fault takes its way as without one")
+    sp.add_argument("--stop-on-fail", action="store_true", help=argparse.SUPPRESS)
     sp = sub.add_parser("probe", help="the failing step alone: a retry after a driver failure needs its pass")
     sp.add_argument("step", help="the failing step, as the failure names it (find-g4.advanced.technical)")
     sp.add_argument("target", help="the lane to run it on")
@@ -1346,7 +1435,7 @@ def parser():
     sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
     sp.add_argument("base")
     sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
-    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "probe", "logs", "debug", "skip",
+    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "continue", "probe", "logs", "debug", "skip",
                  "stats", "runs", "cleanup", "walk"):
         sub.choices[name].add_argument("--night", action="store_true",
                                        help="the night stage: its steps and its runs (release/pipeline.toml [night])")

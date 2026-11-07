@@ -15,6 +15,7 @@ import re
 import secrets as _secrets
 import time
 
+from . import hold
 from . import targets as tg
 from .driver import SLOW, Expect, Goal, either, gone, shows, where
 from .faults import HarnessFault, InfraFault, ProductFault
@@ -222,8 +223,8 @@ class Phone:
         """A new wallet on the welcome screen; returns {pin, password, phrase}. The phrase is read off
         Settings › Security and only handed back."""
         d = self.d
-        self.pin = "".join(_secrets.choice("0123456789") for _ in range(6))
-        self.password = _secrets.token_urlsafe(16)
+        self.pin = hold.value("pin", lambda: "".join(_secrets.choice("0123456789") for _ in range(6)))
+        self.password = hold.value("password", lambda: _secrets.token_urlsafe(16))
         at = d.must(where({"welcome": shows(WELCOME_CREATE), "levels": shows(LEVEL_PICK)}), 180, step="welcome",
                     goal="the welcome screen with Create a new wallet")
         if at == "levels":
@@ -247,8 +248,8 @@ class Phone:
         typed hushed from a file on the emulator: never on a command line, a log, a shot or a dump."""
         d = self.d
         birth = birth or {}
-        self.pin = "".join(_secrets.choice("0123456789") for _ in range(6))
-        self.password = _secrets.token_urlsafe(16)
+        self.pin = hold.value("pin", lambda: "".join(_secrets.choice("0123456789") for _ in range(6)))
+        self.password = hold.value("password", lambda: _secrets.token_urlsafe(16))
         self.phrase = phrase
         at = d.must(where({"welcome": shows(RESTORE), "levels": shows(LEVEL_PICK)}), 180, step="welcome",
                     goal="the first screen with Restore from phrase")

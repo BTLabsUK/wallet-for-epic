@@ -66,6 +66,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 
+from core import hold  # noqa: E402
 from core import lane as core_lane  # noqa: E402
 from core import lane_seed as ls  # noqa: E402
 from core import record  # noqa: E402
@@ -309,6 +310,7 @@ class Wallet:
             self.lane.log("wallet snapshot not sent: %s" % e)
         return d
 
+    @hold.journaled
     def clip(self, text=None):
         """The app's clipboard on this sandbox's display: read (text None) or set."""
         return clipboard.read(self.p.sb) if text is None else clipboard.write(self.p.sb, text)
@@ -327,6 +329,7 @@ class Wallet:
             raise HarnessFault("addresses", "%s: settings.toml names no Epicbox server" % self.key.upper())
         return "%s@%s" % (address, first)
 
+    @hold.journaled
     def listening(self):
         """The Epicbox relay the app last subscribed on (its logs/wfe.log), or None."""
         try:
@@ -336,6 +339,7 @@ class Wallet:
             return None
         return hits[-1] if hits else None
 
+    @hold.journaled
     def choose(self, path):
         portal_stub.ensure(self.p.sb)  # the app's restart takes the stand-in with it
         portal_stub.answer(self.p.sb, path)
@@ -926,6 +930,7 @@ class TxLane(Lane):
 
     def _phase(self, name, fn):
         """A harness that went is rebuilt and the phase run again once, with both wallets open again."""
+        fn = hold.guard(self, name, fn)
         while True:
             try:
                 return fn()

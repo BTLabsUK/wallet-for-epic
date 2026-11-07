@@ -603,13 +603,23 @@ class Engine:
         return full
 
     @staticmethod
-    def spawn(argv, cwd, env, log, timeout):
-        """Runs argv with its output in log. -> its exit code, None when it hit timeout."""
+    def spawn(argv, cwd, env, log, timeout, held=None):
+        """Runs argv with its output in log. -> its exit code, None when it hit timeout. held() says the
+        step is parked for a person: that time does not count against timeout."""
         with open(log, "ab") as f:
             p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=f, stderr=subprocess.STDOUT,
                                  stdin=subprocess.DEVNULL, start_new_session=True)
+            left = timeout
             try:
-                return p.wait(timeout=timeout)
+                while held is not None:
+                    try:
+                        return p.wait(timeout=2 if left is None else min(2, left))
+                    except subprocess.TimeoutExpired:
+                        if not held() and left is not None:
+                            left -= 2
+                            if left <= 0:
+                                raise
+                return p.wait(timeout=left)
             except subprocess.TimeoutExpired:
                 os.killpg(p.pid, signal.SIGTERM)
                 try:
@@ -641,7 +651,13 @@ class Engine:
             old = os.path.join(stage, "proof.json")
             if os.path.exists(old):
                 os.replace(old, os.path.join(stage, f"proof.before-{os.path.basename(log)[:-4]}.json"))
-        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout)
+        kw = {}
+        if repeats.gated(step):
+            repeats.clear_park(stage)
+            kw["held"] = self.park_watch(step, stage)
+        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout, **kw)
+        if kw:
+            self.after_park(step, stage)
         if rc is None:
             return {"status": "failed", "rc": None, "timed_out": True,
                     "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
@@ -651,6 +667,46 @@ class Engine:
         if rc != 0:
             return {"status": "failed", "rc": rc, "note": f"exit {rc}"}
         return self.collect(step, stage)
+
+    def park_watch(self, step, stage):
+        """What spawn asks while a lane runs: is it parked at a fault? Tells the run when that changes."""
+        seen = {}
+
+        def held():
+            park = repeats.parked(stage)
+            at = (park or {}).get("n")
+            if at != seen.get("n"):
+                seen["n"] = at
+                if park:
+                    line = (f"PARKED {step.id} at {park['step']}: {park['what']}. The app is up. Fix the driver, "
+                            f"commit, then tools/rel continue {step.id}")
+                    self.run.set_status(step.id, parked={k: park.get(k) for k in ("step", "what", "phase", "at", "n")})
+                    self.run.event(step.id, "parked", name=park["step"], what=park["what"], phase=park.get("phase"))
+                    self.echo(f"⏸ {line}")
+                    if self.relmsg:
+                        self.relmsg.step(step.id, "failed", note=line)
+                else:
+                    self.run.set_status(step.id, parked=None)
+                    self.run.event(step.id, "unparked")
+            return bool(park)
+        return held
+
+    def after_park(self, step, stage):
+        """The driver a continued lane ended on is the driver its proof names."""
+        done = repeats.continues(stage)
+        st = self.run.status(step.id)
+        fields = {"parked": None} if st.get("parked") else {}
+        if done:
+            fields["continues"] = (st.get("continues") or []) + done
+            for rec in done:
+                self.run.event(step.id, "continued", name=rec.get("step"), phase=rec.get("phase"), acts=rec.get("acts"),
+                               parked_s=rec.get("parked_s"), driver=evidence.driver_label(rec.get("driver") or {}))
+            last = done[-1].get("driver")
+            if last:
+                fields["driver"] = last
+                fields["drivers"] = (st.get("drivers") or []) + [dict(last, attempt=st.get("attempts"))]
+        if fields:
+            self.run.set_status(step.id, **fields)
 
     def _dry_proof(self, step, cwd, env, log):
         full_env = self.spawn_env(env)
@@ -851,7 +907,8 @@ class Engine:
     def may_start(self, s, running, now, elsewhere=()):
         """None when s may start now, else why it waits ([concurrency], tools/rellib/window.py).
         elsewhere: what other tools/rel processes run, which the cap and `apart` count too."""
-        why = self.policy.why_not(s, [r[2] for r in running.values()] + list(elsewhere))
+        others = [r[2] for r in running.values()] + list(elsewhere)
+        why = self.policy.why_not(s, others, [x for x in others if self.run.status(x.id).get("parked")])
         if why is None and self.policy.guards_external(s) and not self.dry:
             ext = self.external_suite()
             if ext:

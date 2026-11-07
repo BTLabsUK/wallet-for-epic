@@ -69,10 +69,11 @@ class Policy:
             return False
         return bool(step.heavy or step.proof or getattr(step, "capped", False))
 
-    def why_not(self, step, running):
-        """None when step may start beside the steps in `running`, else why it waits."""
+    def why_not(self, step, running, idle=()):
+        """None when step may start beside the steps in `running`, else why it waits. idle: those parked
+        at a fault, which hold their rig but take no cap slot."""
         if self.counts(step):
-            n = sum(1 for s in running if self.counts(s))
+            n = sum(1 for s in running if self.counts(s) and s not in idle)
             if n >= self.max_heavy:
                 return f"heavy-step cap ({self.max_heavy}) reached"
         for s in running:

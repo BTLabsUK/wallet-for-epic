@@ -4,6 +4,8 @@ A no-op when the DB package is missing; never raises, never blocks a lane."""
 import os
 import sys
 
+from . import hold
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 try:
     from testdb import client as _client
@@ -13,7 +15,7 @@ except Exception:  # noqa: BLE001 - the DB is optional for a lane
 
 def emit(event, /, **fields):
     """Positional-only: events carry a field named kind (wallet.address)."""
-    if _client is None:
+    if _client is None or hold.quiet():
         return
     try:
         _client.emit(event, source="driver", **fields)

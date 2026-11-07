@@ -72,6 +72,11 @@ class RefusedStart(HarnessFault):
     fatal = True
 
 
+class Diverged(HarnessFault):
+    """A replay after a fix left the recorded path in a funds phase: going on could pay twice (core/hold.py)."""
+    fatal = True
+
+
 class StepReached(BaseException):
     """The probe's step passed. A BaseException: no recovery and no `except Exception` may run on past it."""
 

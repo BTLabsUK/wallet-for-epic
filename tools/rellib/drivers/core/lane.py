@@ -108,11 +108,12 @@ from decimal import Decimal
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import facts  # noqa: E402
 from . import hermetic  # noqa: E402
+from . import hold  # noqa: E402
 from . import lane_seed as ls  # noqa: E402
 from . import record  # noqa: E402
 from . import state as st  # noqa: E402
 from .recover import Recover, phrase_screen  # noqa: E402
-from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault, RefusedStart, StepReached  # noqa: E402
+from .faults import Diverged, Fault, HarnessFault, HarnessGone, InfraFault, ProductFault, RefusedStart, StepReached  # noqa: E402
 
 def fail_closed(platform, reason, req):
     """The entry script could not start the lane: result.txt and a proof.json with every required check false
@@ -247,6 +248,7 @@ class Lane:
     def __init__(self, platform, recipe_for, checks, *, out, log, required, funds, p=None):
         """recipe_for(lane, which, surface) -> the family's recipe on a Driver over that surface, with the
         build's strings (core.labels) and the lane's one Recover (lane.rec)."""
+        log = hold.quieted(log)
         self.until = until_phase(self.PHASES)
         self.probe = probe_request()
         self.stopped = None
@@ -363,7 +365,7 @@ class Lane:
     def soft(self, name, fn):
         """fn(), its fault kept under phase [name] when the lane can go on. -> its result, or None."""
         try:
-            return fn()
+            return hold.guard(self, name, fn)()
         except _Stop:
             raise
         except Fault as f:
@@ -371,6 +373,7 @@ class Lane:
         except Exception as e:  # noqa: BLE001 — a bug in the harness is the harness's fault
             self.log(traceback.format_exc())
             fault = HarnessFault(name, "%s: %s" % (type(e).__name__, e))
+        hold.kept(self, fault)
         self.keep(name, fault)
 
     def keep(self, phase, f):
@@ -417,6 +420,7 @@ class Lane:
         return 1 if products or ran_false else 2
 
     def _phase(self, name, fn):
+        fn = hold.guard(self, name, fn)
         while True:
             try:
                 return fn()
@@ -451,6 +455,7 @@ class Lane:
     def _run(self, body):
         code = 2
         try:
+            hold.install(self, Diverged)
             code = body()
         except _Stop:
             code = 0

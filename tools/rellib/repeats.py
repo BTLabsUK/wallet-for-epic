@@ -20,18 +20,29 @@ Rules, on the failures of the bytes under test (a build that ran again is a new 
 
 A failure from before these records carries none, so it is not gated.
 
+A lane with REL_TRUST_PARK set (every gated lane but a dry run or a probe) does not end at a harness
+fault: it parks where it stands (core/hold.py). `tools/rel continue` carries it on from that action;
+nothing here counts a park as a failed attempt. A lane that is gone goes on through the rules above,
+with the change in the drivers standing in for the probe.
+
 Each attempt also adds to the status: attempt_seconds, repeats (attempts after a failure),
 seconds_repeated and forced ([{attempt, reason, at}], `repeats_forced` in the rows). The same go to
 the `end` event and metrics.jsonl for the Release panel."""
+import contextlib
+import json
 import os
 import subprocess
+import uuid
 
 from . import evidence
 from .run import now_iso, read_json
 
 # Only tools/rel sets these on a lane: from a caller's shell they would be a way round the rules.
 PRIVATE = ("REL_TRUST_FRESH", "REL_TRUST_PROBE", "REL_PROBE_PHASE", "REL_PROBE_FROM", "REL_PRIOR_CAUSE",
-           "REL_TRUST_RESUME")
+           "REL_TRUST_RESUME", "REL_TRUST_PARK")
+PARK_S = 7200  # how long a lane waits at a fault for tools/rel continue, before it ends as it would have
+PARKED, ASK, ANSWER, CONTINUES = "parked.json", "continue.json", "continue-done.json", "continues.jsonl"  # core/hold.py
+OUTSIDE = ("windows/agent.ps1", "linux/atspi_worker.py", "linux/standin.py")  # run beside the lane process, no reload reaches them
 NEW_BYTES = "the build changed since the failed attempt"
 REFUSED = "check: refused"
 
@@ -111,6 +122,8 @@ def verdict(eng, step, st=None, manual=False, fresh=None):
     if st.get("status") != "failed" and not st.get("warned"):
         return None
     last = fails[-1]
+    if st.get("go_on") == last["attempt"]:
+        return None  # tools/rel continue let this one past: the driver changed, the lane was gone
     if last.get("inputs") != eng.inputs_digest(step):
         return None
     if last["kind"] == "harness" and named(last):
@@ -181,6 +194,13 @@ def newer(repo, old, new):
     return bool(old and new) and old != new and _git(repo, "merge-base", "--is-ancestor", old, new).returncode == 0
 
 
+def changed(repo, old, new):
+    """The driver files between two commits."""
+    if not (old and new) or old == new:
+        return []
+    return _git(repo, "diff", "--name-only", old, new, "--", evidence.DRIVERS_DIR).stdout.split()
+
+
 def tree(repo, commit):
     return _git(repo, "rev-parse", f"{commit}:{evidence.DRIVERS_DIR}").stdout.strip()
 
@@ -199,6 +219,8 @@ def attempt_env(eng, step, st):
     env = {}
     fails = st.get("failures") or []
     prior = last_cause(st)
+    if gated(step) and not eng.dry:
+        env["REL_TRUST_PARK"] = str(PARK_S)
     if prior and gated(step):
         env["REL_PRIOR_CAUSE"] = prior
     if st.get("fresh"):
@@ -206,6 +228,51 @@ def attempt_env(eng, step, st):
     elif fails and gated(step) and fails[-1].get("inputs") != eng.inputs_digest(step):
         env["REL_TRUST_FRESH"] = NEW_BYTES  # other bytes: a new test, nothing of the old one to resume
     return env
+
+
+def clear_park(stage):
+    """A new attempt: what the last one left of a park means nothing to it."""
+    for name in (PARKED, ASK, ANSWER, CONTINUES):
+        with contextlib.suppress(OSError):
+            os.remove(os.path.join(stage, name))
+
+
+def parked(stage):
+    """The park the lane in stage holds, or None. A lane that went took its park with it."""
+    park = read_json(os.path.join(stage, PARKED))
+    if not isinstance(park, dict) or not park.get("pid"):
+        return None
+    try:
+        os.kill(park["pid"], 0)
+    except ProcessLookupError:
+        return None
+    except PermissionError:
+        pass
+    return park
+
+
+def continues(stage):
+    """What the lane in stage continued from, in order."""
+    try:
+        with open(os.path.join(stage, CONTINUES), encoding="utf-8") as f:
+            return [json.loads(line) for line in f if line.strip()]
+    except (OSError, ValueError):
+        return []
+
+
+def ask_park(stage, driver, stop=False):
+    """Tells the parked lane to go on. -> the token its answer carries."""
+    token = uuid.uuid4().hex
+    path = os.path.join(stage, ASK)
+    with open(path + ".tmp", "w", encoding="utf-8") as f:
+        json.dump({"token": token, "driver": driver, "stop": stop}, f)
+    os.replace(path + ".tmp", path)
+    return token
+
+
+def park_answer(stage, token):
+    answer = read_json(os.path.join(stage, ANSWER))
+    return answer if isinstance(answer, dict) and answer.get("token") == token else None
 
 
 def forced(st, attempt):
