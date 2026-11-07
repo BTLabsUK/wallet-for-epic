@@ -756,7 +756,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     }
     _events = api.events().listen((e) {
       if (e.pairingId != widget.pairingId || !mounted || _done) return;
-      if (e.kind == PairingEventKind.confirmed) _finished();
+      if (e.kind == PairingEventKind.confirmed) unawaited(_finished());
       if (e.kind == PairingEventKind.failed && e.failure != null) {
         _done = true;
         Navigator.pop(context);
@@ -790,12 +790,22 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     return known.isEmpty ? widget.name : known;
   }
 
-  void _finished() {
+  /// The confirm is in. The provider's records are read again by a pairing event, so they may
+  /// still be the old ones here: the wallet is asked for this pairing, and the words open
+  /// whenever it cannot be seen Verified.
+  Future<void> _finished() async {
     _done = true;
     final host = Navigator.of(context).context;
-    final record = ref.read(deskPairingByIdProvider(widget.pairingId));
+    final api = ref.read(deskPairingApiProvider);
     final l = context.l10n;
     final name = _name;
+    PairingRecord? record;
+    try {
+      record = await api.pairing(widget.pairingId);
+    } on Object {
+      // Not read: the words are the safe way on.
+    }
+    if (!mounted) return;
     Navigator.pop(context);
     if (record != null && record.state == PairingState.verified) {
       if (host.mounted) showEToast(host, l.pairPairedWith(name), tone: ETone.ok);
