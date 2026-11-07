@@ -4306,6 +4306,10 @@ class _LepicPairing implements PairingApi {
 
   final Coalesced _collects = Coalesced();
 
+  /// The mailboxes held for later at the last look, and how many mailboxes it read. Nothing
+  /// says which: only a look as wide can clear them.
+  ({int count, int read}) _held = (count: 0, read: 0);
+
   @override
   Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
     if (!supported || NetGate.epicboxOff) return 0;
@@ -4364,6 +4368,7 @@ class _LepicPairing implements PairingApi {
     var report = await once();
     var (paired, messages, failed, ended) = (report.paired, report.messages, report.failed.length, report.ended.length);
     var (lost, buffered) = (report.quarantineDropped, report.buffered);
+    var (kept, read, reachedAll) = (report.kept, report.mailboxes - report.notReached, report.notReached == 0);
     // A mailbox stopped at its message limit has more waiting. Out of time, it waits for the
     // next check. The limit on repeats is the app's: LEPIC only reports.
     for (var i = appConfig.number('contacts.collect_repeats'); i > 0 && report.capped > 0 && report.timedOut == 0; i--) {
@@ -4374,7 +4379,18 @@ class _LepicPairing implements PairingApi {
       ended += report.ended.length;
       lost += report.quarantineDropped;
       buffered += report.buffered;
+      // A message held stops its mailbox, and the same one stops it on a second look: the
+      // rounds do not add. A later round may read other mailboxes.
+      kept = max(kept, report.kept);
+      read = max(read, report.mailboxes - report.notReached);
+      reachedAll = reachedAll && report.notReached == 0;
     }
+    // Open and pull read every mailbox; a tick may skip some, and [only] reads a few. What a
+    // look did not read stays held.
+    final explicit = trigger == PairingCollectTrigger.open || trigger == PairingCollectTrigger.pull;
+    _held = only == null && reachedAll && (explicit || read >= _held.read)
+        ? (count: kept, read: kept > 0 ? read : 0)
+        : (count: max(kept, _held.count), read: max(kept > 0 ? read : 0, _held.read));
     final unreadable = await _tendQuarantine(retry: trigger == PairingCollectTrigger.open);
     // A relay that answers again is no longer down; a look at a few contacts says nothing of
     // the others' relays.
@@ -4407,8 +4423,7 @@ class _LepicPairing implements PairingApi {
       paired: paired + ended,
       messages: messages,
       failed: failed,
-      // A message held stops its mailbox, and the same one stops it on a second look.
-      held: report.kept,
+      held: _held.count,
       lost: lost,
       buffered: buffered,
       capped: report.capped,
