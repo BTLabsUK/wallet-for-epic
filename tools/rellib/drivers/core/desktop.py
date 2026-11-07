@@ -138,15 +138,13 @@ SEND_DONE = T("g4.send.done")
 # is gone; Tor only is the one whole-wallet Tor control). The rail's and the title bar's Tor and Epicbox
 # status are not in AT-SPI on Linux (26.11.0), so the UI read is Settings: Tor only checked there, and
 # Epicbox's state line on the Transactions page under its server picker, "Connected · <host>, over Tor"
-# (methodStateLine: Epicbox through Tor, subscribed) once Tor is up.
+# (methodStateLine: Epicbox through Tor, subscribed) once Tor is up: its state words, by ARB key.
 MODE_TOR_ONLY = T("g4.privacy.mode.toronly")
 MODE_NORMAL = T("g4.privacy.mode.standard")
 # one line of a node's name: on Linux the line is a line of its group's text ("Epicbox\nReceiving\n
 # Connected · epicbox.stackwallet.com, over Tor\nStart with the wallet")
-EPICBOX_LINE = re.compile(
-    r"(connected|connecting|waiting for tor|not connected|not answering|slow|off|blocked) · [\w.:-]+(, over tor)?")
-EPICBOX_UP = "connected"   # ShownState.connected (netStatusConnected): Epicbox subscribed
-OVER_TOR = ", over tor"    # deskKitMethodOverTor: "{host}, over Tor"
+EPICBOX_STATE_KEYS = ("netStatusConnected", "netStatusConnecting", "torWaiting", "netStatusNotConnected",
+                      "serverNotResponding", "deskRailSlow", "netStatusOff", "netStatusBlocked")
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
 ADDRESS_RX = re.compile(r"\b([1-9A-HJ-NP-Za-km-z]{48,56})(@[\w.:-]+)?")
@@ -406,7 +404,8 @@ class Desktop:
             return
         if True:
             d._act(d.s.press, n)
-            time.sleep(1)
+            d.wait(Expect("Deep end chosen", lambda dd, tree: any(
+                "checked" in h.states or "selected" in h.states for h in dd.find_in(DEEP_END, tree))), 3, dismiss=False)
         self.log("depth dial: Deep end (level 3)")
 
     def open_wallet(self, secrets, after_update=False):
@@ -468,7 +467,22 @@ class Desktop:
             d.wait(gone(SETTINGS_BACK), 3)
         d.press(target, step="nav-%s" % target.id.rsplit(".", 1)[-1], then=Expect("page %s" % target, lambda dd, tree: True),
                 timeout=30)
-        time.sleep(0.8)
+        self._settled()
+
+    def _settled(self, timeout=3):
+        """Until two reads of the window match, at most `timeout` s: a press that opens a page with
+        no one control to wait for has landed."""
+        end, last = time.time() + timeout, None
+        while True:
+            now = [(n.role, n.name, n.value) for n in self.d.tree()]
+            if now == last or time.time() > end:
+                return
+            last = now
+            time.sleep(0.3)
+
+    def _closed_picker(self):
+        """After the Escape that closes a picker: until its rows are gone."""
+        self.d.wait(Expect("the picker closed", lambda dd, tree: not self._picker_rows(tree)), 3, dismiss=False)
 
     def settings(self):
         d = self.d
@@ -493,7 +507,7 @@ class Desktop:
                 # page moves it: once more from a fresh Settings page
                 self.log("Settings › %s: not in the open section list; opening Settings again" % t)
                 d.s.key("escape")
-                time.sleep(0.8)
+                self._settled()
                 self.nav(NAV_OVERVIEW)
                 return self.section(key_or_target, _again=True)
         # 26.10.25 names the back button "Wallet" too: a press that leaves Settings was the wrong one
@@ -504,7 +518,7 @@ class Desktop:
             if k >= len(hits):
                 continue
             d._act(d.s.press, hits[k])
-            time.sleep(1)
+            self._settled()
             if d.wait(Expect("still in Settings", lambda dd, tree: self.in_settings(tree)), 4, dismiss=False):
                 self._section_hit = dict(getattr(self, "_section_hit", {}), **{t.id: k})
                 return True
@@ -536,7 +550,7 @@ class Desktop:
             return False
         self.log("Settings: the section list is folded into %s; opening it" % sel[0].brief())
         self.d._act(self.d.s.press, sel[0])
-        time.sleep(0.8)
+        self._settled()
         return True
 
     def find_setting(self, target, pages, what):
@@ -578,7 +592,7 @@ class Desktop:
             if not self.in_settings():
                 return
             d.s.key("escape")
-            time.sleep(0.8)
+            d.wait(Expect("Settings closed", lambda dd, tree: not self.in_settings(tree)), 3, dismiss=False)
 
     # ---- set up on the previous release
 
@@ -636,12 +650,16 @@ class Desktop:
         case, None where it does not show) and over_tor whether it says over Tor."""
         tree = tree if tree is not None else self.d.tree()
         tor = "tor only" if self._chosen(MODE_TOR_ONLY, tree) else "normal" if self._chosen(MODE_NORMAL, tree) else None
-        line = next((ln for x in tree for ln in map(tg._norm, (x.name or "").split("\n")) if EPICBOX_LINE.fullmatch(ln)), None)
-        return {"tor": tor, "epicbox": line.split(" · ")[0] if line else None, "over_tor": bool(line) and line.endswith(OVER_TOR)}
+        labels = self.d.labels
+        over_tor = tg._norm(tg.copy(labels, "deskKitMethodOverTor").split("}", 1)[1])
+        states = "|".join(re.escape(tg._norm(tg.copy(labels, k))) for k in EPICBOX_STATE_KEYS)
+        line_rx = re.compile(r"(%s) · [\w.:-]+(%s)?" % (states, re.escape(over_tor)))
+        line = next((ln for x in tree for ln in map(tg._norm, (x.name or "").split("\n")) if line_rx.fullmatch(ln)), None)
+        return {"tor": tor, "epicbox": line.split(" · ")[0] if line else None, "over_tor": bool(line) and line.endswith(over_tor)}
 
     def _tor_up(self, tree):
         s = self.tor_state(tree)
-        return s["epicbox"] == EPICBOX_UP and s["over_tor"]
+        return s["epicbox"] == tg._norm(tg.copy(self.d.labels, "netStatusConnected")) and s["over_tor"]
 
     def _epicbox_page(self):
         """Settings › Transactions, where Epicbox's state line is (under its server picker)."""
@@ -701,7 +719,7 @@ class Desktop:
         self._epicbox_page()
         s = self.tor_state()
         s["tor"] = tor
-        s["up"] = tor == "tor only" and s["epicbox"] == EPICBOX_UP and s["over_tor"]
+        s["up"] = tor == "tor only" and s["epicbox"] == tg._norm(tg.copy(self.d.labels, "netStatusConnected")) and s["over_tor"]
         self.leave_settings()
         return s
 
@@ -761,7 +779,7 @@ class Desktop:
             return None
         picker, typed = self._picking
         self.d.s.key("escape")
-        time.sleep(0.8)
+        self._closed_picker()
         self._open_picker(picker)
         self._type_server(picker, typed)
         return "closed %s, opened it again and typed %s" % (picker, typed)
@@ -774,7 +792,7 @@ class Desktop:
         if not use and self._listed(entry, d.tree()):
             self.log("SKIP add-%s: already listed in %s" % (entry, picker))
             d.s.key("escape")
-            time.sleep(0.8)
+            self._closed_picker()
             return "skipped"
         self._type_server(picker, typed)
         self._picking = (picker, typed)
@@ -825,7 +843,7 @@ class Desktop:
             sw = d.find_in(SWITCH, tree)
             if use and sw:
                 d._act(d.s.press, sw[0])
-                time.sleep(1)
+                d.wait(Expect("the Switch offer taken", lambda dd, tree: not dd.find_in(SWITCH, tree)), 3, dismiss=False)
                 continue
             if use and self._in_use(picker, entry, tree):
                 break
@@ -842,7 +860,7 @@ class Desktop:
         open_ = lambda tree: self._picker_rows(tree)
         if open_(d.tree()) and not d.wait(Expect("the picker closed", lambda dd, tree: not open_(tree)), 3, dismiss=False):
             d.s.key("escape")  # closes the picker (if it closed first, _open_picker finds the page again)
-            time.sleep(0.8)
+            self._closed_picker()
         if use and not d.wait(shows(picker), 2) and not self._in_use(picker, entry):  # an Escape too many left the page: back to it to read the choice
             self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
         if use and not (d.wait(Expect("%s in use with the picker closed" % entry,

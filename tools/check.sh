@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Repository gate. Two modes:
 #   tools/check.sh           fast, the default (a branch before review, main after a merge):
-#                            version, install contract, LEPIC at the pin, no hosts, workflows,
+#                            version, install contract, UI targets, LEPIC at the pin, no hosts, workflows,
 #                            the plain-Dart core, flutter analyze, and only the Flutter tests of
 #                            what really changed (tools/t affected); the bot's tests only when bot/
 #                            changed; the smaller release-tool tests (the nightly, sbom, test order,
@@ -103,6 +103,9 @@ step "version (https://docs.btlabs.uk/developers/releases/)"
 
 step "install contract (docs/install-contract.md)"
 "$root/tools/check-install-contract.sh" || step_failed $?
+
+step "UI targets (tools/ui-targets)"
+"$root/tools/ui-targets" check || step_failed $?
 
 step "no hosts in code (docs/settings-file.md)"
 "$root/tools/check-no-hosts.sh" || step_failed $?

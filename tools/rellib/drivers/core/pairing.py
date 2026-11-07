@@ -17,6 +17,7 @@ import re
 import time
 
 from .driver import Expect, either, gone, shows
+from . import targets as tg
 from .targets import T
 
 NAV_CONTACTS = T("g4.nav.contacts")
@@ -352,7 +353,7 @@ class Pairing:
 def words_in(text):
     """The words a word-tile group's name reads: its label line dropped, numbers dropped."""
     lines = [x for x in re.split(r"[\n,]+", text or "") if x.strip()]
-    if lines and re.match(r"(?i)the four words", lines[0].strip()):
+    if lines and lines[0].strip().lower().startswith(tg.copy(None, "sasWordsLabel").lower()):
         lines = lines[1:]
     words = []
     for x in lines:

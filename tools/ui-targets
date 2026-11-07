@@ -24,6 +24,8 @@ DART = "app/lib/src/trust_ids.g.dart"
 LIB = "app/lib"
 ARB = "app/lib/l10n/app_en.arb"
 DRIVERS = "tools/rellib/drivers"
+COPY_RX = re.compile(r"""(?:\b(?:copy|regex|_text)\([^"\n]*|\.(?:text|pattern)\()"([a-z]\w+)\"""")
+KEYS_RX = re.compile(r"^\w*_KEYS = [({].*?[)}]$", re.M | re.S)
 ID_RX = re.compile(r"^(g4|pair|link|tx|inv)(\.[A-Za-z0-9_*-]+)+$")
 KINDS = ("control", "copy", "group", "template")
 PHONE_FILES = ("core/phone.py", "core/phone_lane.py")
@@ -188,6 +190,63 @@ def steps_for(tid, uses, files):
     return sorted(set(out))
 
 
+def driver_copy(files):
+    """(file, line, ARB key) of every text a driver asserts: `copy`/`regex` calls and *_KEYS tables."""
+    out = []
+    for f in files:
+        src = read(f)
+        for m in COPY_RX.finditer(src):
+            out.append((f, src.count("\n", 0, m.start()) + 1, m.group(1)))
+        for m in KEYS_RX.finditer(src):
+            for k in re.finditer(r'"([a-z]+[A-Z]\w*)"', m.group(0)):
+                out.append((f, src.count("\n", 0, m.start() + k.start()) + 1, k.group(1)))
+    return out
+
+
+def walk(root):
+    """Which targets the seeded tours put on stage: reads the `ids` of each shot's .json under `root`
+    (tools/dry-walk.sh writes them). Every target a driver uses must show, or carry "walk": false."""
+    seen = {"desktop": set(), "android": set()}
+    shots = 0
+    for d, _, names in os.walk(root):
+        fam = "android" if os.sep + "phone" in d else "desktop"
+        for n in names:
+            if n.endswith(".json"):
+                with open(os.path.join(d, n), encoding="utf-8") as f:
+                    got = json.load(f)
+                shots += 1
+                seen[fam] |= set(got.get("ids", ()))
+    if not shots:
+        print("ui-targets walk: no shots under %s" % root)
+        return 1
+    controls = load()
+    files = list(driver_files())
+    uses, prefixes, _ = driver_uses(files)
+    used = set(uses)
+    for c in controls:
+        if any(c["id"].startswith(p) for p in prefixes):
+            used.add(c["id"])
+    out, known = 0, 0
+    for c in controls:
+        if kind(c) != "control" or c["id"] not in used:
+            continue
+        for fam in family(c):
+            if c["id"] in seen[fam]:
+                if c.get("walk") is False:
+                    print("%s (%s): the walk reached it now, drop its \"walk\": false" % (c["id"], fam))
+                continue
+            if c.get("walk") is False:
+                known += 1
+                continue
+            out += 1
+            s = steps_for(c["id"], uses, files)
+            print("%s (%s): no screen of the tour shows it\n    fix: put it back on its screen, or update %s"
+                  % (c["id"], fam, "; ".join(s) or "its driver step"))
+    print("ui-targets walk: %d shots, %d ids on stage, %d driver targets missing, %d the tours cannot reach"
+          % (shots, len(seen["desktop"] | seen["android"]), out, known))
+    return 1 if out else 0
+
+
 def check():
     controls = load()
     arb = json.loads(read(ARB))
@@ -279,6 +338,10 @@ def check():
             if m and m.group(1) in by_id:
                 bad.append(("%s:%d" % (f, no), m.group(1), "an id spelled out in the app",
                             "use TrustIds.%s" % const_name(m.group(1))))
+    for f, no, key in driver_copy(files):
+        if key not in arb:
+            bad.append(("%s:%d" % (f, no), key, "a driver reads text the app no longer has (%s)" % ARB,
+                        "use the key the app shows now, or take the check out of the driver step"))
     want = generated(controls)
     try:
         have = read(DART)
@@ -376,11 +439,15 @@ def main():
     n.add_argument("--family", default="desktop,android")
     n.add_argument("--keys", default="")
     n.add_argument("--copy", action="store_true")
+    w = sub.add_parser("walk")
+    w.add_argument("dir")
     a = p.parse_args()
     if a.cmd == "check":
         return check()
     if a.cmd == "gen":
         return gen()
+    if a.cmd == "walk":
+        return walk(a.dir)
     if a.cmd == "rename":
         return rename(a.old, a.new)
     return add(a)

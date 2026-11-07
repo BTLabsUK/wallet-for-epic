@@ -72,7 +72,6 @@ THEME = {
 LEVEL_ROW = T("g4.advanced.level")
 TECHNICAL = T("g4.advanced.technical")
 CONF_FEWER = T("g4.confirmations.fewer")
-CONF_RX = re.compile(r"^(\d+)\s+confirmations?\b", re.I)
 
 SERVER = {
     "node": {"status": T("g4.status.node"),
@@ -98,8 +97,6 @@ SERVER_REFUSED = T("g4.server.refused")
 MODE_TOR_ONLY = T("g4.privacy.mode.toronly")
 MODE_NORMAL = T("g4.privacy.mode.standard")
 EPICBOX_ROW = T("g4.privacy.status.epicbox")
-EPICBOX_UP = "epicbox connected"
-OVER_TOR = "over tor"   # netStatusOverTor
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
 RECEIVE_EPICBOX = T("g4.receive.method.epicbox")
@@ -689,11 +686,11 @@ class Phone:
         if not n:
             return {"epicbox": None, "over_tor": False}
         parts = [tg._norm(p) for p in n.name.replace("\n", ",").split(",")]
-        return {"epicbox": parts[0], "over_tor": OVER_TOR in parts}
+        return {"epicbox": parts[0], "over_tor": tg._norm(tg.copy(self.d.labels, "netStatusOverTor")) in parts}
 
     def _tor_up(self, tree):
         s = self.tor_state(tree)
-        return s["epicbox"] == EPICBOX_UP and s["over_tor"]
+        return s["epicbox"] == tg._norm("%s %s" % (tg.copy(self.d.labels, "netStatusEpicbox"), tg.copy(self.d.labels, "netStatusConnected"))) and s["over_tor"]
 
     def _mode(self, target, what):
         """Settings › Network & privacy › Network: `target` chosen."""
@@ -960,11 +957,11 @@ class Phone:
 
     def _confirmations(self, tree=None):
         tree = tree if tree is not None else self.d.tree()
+        rx = re.compile(tg.regex(self.d.labels, "advConfirmationsCount").replace(".+?", r"\d+") + r"\b", re.I)
         for n in tree:
             for text in (n.name, n.value):   # Android: in the name; iOS: the node's value
-                m = CONF_RX.match((text or "").strip())
-                if m:
-                    return int(m.group(1))
+                if rx.match((text or "").strip()):
+                    return int(re.match(r"\d+", text.strip()).group())
         return None
 
     # ---- reading and paying

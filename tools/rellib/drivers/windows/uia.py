@@ -24,6 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
 from core import freeze  # noqa: E402
+from core import targets as tg  # noqa: E402
 from core.faults import HarnessFault, HarnessGone  # noqa: E402
 from core.surface import Node  # noqa: E402
 
@@ -35,7 +36,6 @@ ROLE = {
 VK = {"escape": 0x1B, "back": 0x1B, "enter": 0x0D, "tab": 0x09, "page_down": 0x22, "page_up": 0x21, "space": 0x20,
       "end": 0x23, "ctrl_enter": 0x0D, "shift_tab": 0x09}
 EYE = re.compile(r"(?i)^(show|hide)\b[^(]*\(")
-SEARCH_HINTS = ("Search settings",)
 ERASE_SECRET = 64   # a password field's text is not readable: this many backspaces clear it
 
 
@@ -131,7 +131,7 @@ class WinSurface:
         """REL_TRUST_TREES=<file>: every read of a Settings page (the screens with the settings search field,
         never a secret screen) as one block of lines, to see how the engine exposes a page over time."""
         path = os.environ.get("REL_TRUST_TREES")
-        if not path or not any(n.role == "text_field" and n.name.split("\n")[0] in SEARCH_HINTS for n in nodes):
+        if not path or not any(n.role == "text_field" and n.name.split("\n")[0] == tg.copy(None, "deskSetSearchHint") for n in nodes):
             return
         with open(path, "a") as f:
             f.write("---- %s\n%s\n" % (time.strftime("%H:%M:%S"), "\n".join(n.brief() for n in nodes)))

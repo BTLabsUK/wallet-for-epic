@@ -24,6 +24,7 @@ from .desktop import (NAV_ACTIVITY, NAV_RECEIVE, NAV_SEND, SEND_AMOUNT, SEND_ANO
                       SEND_REVIEW, SEND_REVIEW_TITLE, SEND_TO)
 from .driver import Expect, either, shows
 from .faults import ProductFault
+from . import targets as tg
 from .targets import T
 
 METHODS = ("epicbox", "http", "tor", "file")
@@ -35,7 +36,8 @@ PAY_SWITCH = {
     "file": T("tx.pay.file"),
 }
 # the method a transaction's detail (Activity, Deep end) names, by transport
-METHOD_LABEL = {"epicbox": "Epicbox", "http": "Link · HTTP", "tor": "Link · Tor", "file": "Direct · File Transfer"}
+METHOD_KEYS = {"epicbox": "methodEpicbox", "http": "methodDirectHttp", "tor": "methodDirectTor", "file": "methodDirectFile"}
+METHOD_LABEL = {m: tg.copy(None, k) for m, k in METHOD_KEYS.items()}
 
 HTTP_ADDRESS_RX = re.compile(r"^https?://[\w.:\[\]-]+/?$")
 ONION_RX = re.compile(r"^(?:https?://)?([a-z2-7]{56})(?:\.onion)?/?$")
@@ -47,7 +49,8 @@ FILES_OPENED = T("tx.recv.files")
 # Send with an onion while Link · Tor is off: "Link · Tor is off in Settings › Transactions." › Turn on Link · Tor
 SEND_TURN_ON = T("tx.send.turnon")
 TX_METHOD = T("tx.detail.method")
-TX_ROW_RX = re.compile(r"^(sent|received) ", re.I)
+TX_SENT, TX_RECEIVED = tg.copy(None, "txStatusSent").lower(), tg.copy(None, "txStatusReceived").lower()
+TX_ROW_RX = re.compile(r"^(%s|%s) " % (TX_SENT, TX_RECEIVED), re.I)
 
 TOR_WAIT_S = 180   # Review enabled for an onion while the sender's Tor starts ("Tor starts when you send")
 ONION_WAIT_S = 240  # the onion service's first start (Tor bootstrap and descriptor upload)
@@ -205,7 +208,7 @@ class Payments:
         is an earlier payment's."""
         d = self.d
         self.ui.nav(NAV_ACTIVITY)
-        word = "received" if incoming else "sent"
+        word = TX_RECEIVED if incoming else TX_SENT
         amt = re.escape(amount_text) + "0*"  # the row may show 4 decimals (0.0100)
 
         def row(dd, tree):

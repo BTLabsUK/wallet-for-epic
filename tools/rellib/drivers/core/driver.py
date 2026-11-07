@@ -88,13 +88,14 @@ class Goal:
         return self.name
 
 
-# A scan or sync covering the page (English: the lanes run the apps in English). Waited out, then closed.
+# A scan or sync covering the page. Waited out, then closed.
 # "Scanning from January 2025" and "Scanning starts ..." are lines on the restore page, no overlay.
-OVERLAY = re.compile(r"^(scanning(?! from\b| starts\b)|syncing|catching up|restoring|checking the chain|updating the wallet)\b", re.I)
+OVERLAY_KEYS = ("deskSlotScanning", "scanProgress", "netStatusSyncing", "lvShellStateCatchingUp", "workRestoring",
+                "deskOnbRestoreRestoring", "deskNodeLineKernelsBare")
 OVERLAY_ROLES = ("dialog", "other", "text")
-OVERLAY_CLOSE = ("close", "hide", "run in background", "continue in background")
+OVERLAY_CLOSE_KEYS = ("commonClose", "deskOvHide")
 # A folded section's control, by its first line (or an expandable state the platform reports)
-FOLD_NAMES = ("show more", "more", "more options", "show all", "advanced", "view", "expand", "show details")
+FOLD_KEYS = ("deskTxMore", "deskSetFrameAdvanced", "deskSetRowView", "msgCheckShowDetails")
 
 
 class _Watched:
@@ -339,7 +340,8 @@ class Driver:
 
     def overlay(self, tree):
         """A scan or sync overlay covering the page, or None."""
-        return next((n for n in tree if n.role in OVERLAY_ROLES and OVERLAY.match(n.name.strip())), None)
+        rx = re.compile(r"^(%s)\b" % "|".join(tg.regex(self.labels, k).split(r"\ \(")[0].rstrip("…") for k in OVERLAY_KEYS), re.I)
+        return next((n for n in tree if n.role in OVERLAY_ROLES and rx.match(n.name.strip())), None)
 
     def untangle(self, target, timeout=3):
         """The known-trouble rules, in TROUBLE's order, until `target` shows: the node, or None. Each rule
@@ -375,7 +377,7 @@ class Driver:
         if self.wait(Expect("%s gone" % what, lambda d, tree: not d.overlay(tree)), self.overlay_wait, dismiss=False):
             return "waited out %r" % what
         close = [n for n in self.tree() if n.role in ("button", "link")
-                 and n.name.split("\n")[0].strip().lower() in OVERLAY_CLOSE]
+                 and n.name.split("\n")[0].strip().lower() in {tg.copy(self.labels, k).lower() for k in OVERLAY_CLOSE_KEYS}]
         if close:
             self._act(self.s.press, close[0])
             time.sleep(self.poll)
@@ -384,10 +386,11 @@ class Driver:
 
     def _trouble_folded(self, target):
         pressed = []
+        fold_names = {tg.copy(self.labels, k).lower() for k in FOLD_KEYS}
         for n in self.tree():
             first = n.name.split("\n")[0].strip().lower()
             folded = ("expandable" in n.states and "expanded" not in n.states) or \
-                (n.role in ("button", "row", "other", "link") and first in FOLD_NAMES)
+                (n.role in ("button", "row", "other", "link") and first in fold_names)
             key = (self.step, n.role, first)
             if not folded or first in self.not_folds or key in self._unfolded or "expanded" in n.states:
                 continue

@@ -1,0 +1,4 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# A merge runs the UI target check too: two clean branches can still drift together.
+[ ! -x tools/ui-targets ] || exec tools/ui-targets check

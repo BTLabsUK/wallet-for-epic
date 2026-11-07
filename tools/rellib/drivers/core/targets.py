@@ -23,6 +23,7 @@ import os
 import re
 from dataclasses import dataclass, replace
 
+from .labels import Labels
 from .surface import COMPATIBLE
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -55,6 +56,24 @@ class Target:
         """A template's concrete target (`value` None: this target with `names` added)."""
         tid = self.id if value is None else self.id.replace("*", str(value))
         return replace(self, id=tid, names=tuple(names) + self.names, kind="control")
+
+
+_checkout = None
+
+
+def copy(labels, key):
+    """The text of ARB `key` in the driven build; a build without the key, this checkout's. A driver
+    asserts copy through this or `regex`, never with a literal (tools/ui-targets checks the keys)."""
+    global _checkout
+    _checkout = _checkout or Labels()
+    return (labels.text(key) if labels else None) or _checkout.text(key)
+
+
+def regex(labels, key):
+    """`copy` as a regex: placeholders match any text."""
+    global _checkout
+    _checkout = _checkout or Labels()
+    return (labels.pattern(key) if labels else None) or _checkout.pattern(key)
 
 
 def _norm(s):

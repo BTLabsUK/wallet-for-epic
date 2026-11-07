@@ -69,6 +69,7 @@ sys.path.insert(0, HERE)
 from core import lane as core_lane  # noqa: E402
 from core import lane_seed as ls  # noqa: E402
 from core import record  # noqa: E402
+from core import targets as tg  # noqa: E402
 from core import state as st  # noqa: E402
 from core import txchecks as tx  # noqa: E402
 from core import walletdata as wd  # noqa: E402
@@ -554,7 +555,7 @@ class TxLane(Lane):
             self.ok(check, "%s: Verified on both contact pages%s" % (how, ", each with the other confirmed too" if words else ""))
         else:
             self.fail(check, "%s: A reads %s, B reads %s" % (how, *(
-                ("Verified" if got[k] else "%s" % (self.w[k].pair.state(PAIR_NAME[o], refresh=False)[0],))
+                (tg.copy(None, "trustVerified") if got[k] else "%s" % (self.w[k].pair.state(PAIR_NAME[o], refresh=False)[0],))
                 + ("" if too[k] else ", the other's confirmation not shown") for k, o in (("a", "b"), ("b", "a")))))
 
     def _pair_invite(self):
@@ -888,7 +889,7 @@ class TxLane(Lane):
         sent = shutil.copy2(made, os.path.join(inbox(b.p), os.path.basename(made)))
         self.ui = b.ui
         line = b.pay.open_file(sent) or ""
-        if not line.lower().startswith("signed"):
+        if not re.match(tg.regex(None, "deskTfSigned"), line, re.I):
             return False, "B opened %s: %s" % (os.path.basename(made), line or "no result line")
         resp = file_for([inbox(b.p)], slate, ".response")
         if not resp:
@@ -896,7 +897,7 @@ class TxLane(Lane):
         back = shutil.copy2(resp, os.path.join(inbox(a.p), os.path.basename(resp)))
         self.ui = a.ui
         line = a.pay.open_file(back) or ""
-        if "posted" not in line.lower() or "not posted" in line.lower():
+        if line not in (tg.copy(None, "deskFinPosted"), tg.copy(None, "deskTfAlreadyPosted")):
             return False, "A opened %s: %s" % (os.path.basename(resp), line or "no result line")
         self.details["file_round_trip"] = "A made %s, B: signed, A: %s" % (os.path.basename(made), line)
         return True, "file round trip: %s" % line

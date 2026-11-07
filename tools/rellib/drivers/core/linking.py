@@ -13,7 +13,7 @@ each install's wallet data (walletdata's digest) and is unit-tested (tests/test_
 import re
 
 from .driver import Expect, either, gone, shows
-from .payments import NAV_ACTIVITY, TX_ROW_RX
+from .payments import NAV_ACTIVITY, TX_RECEIVED, TX_ROW_RX
 from .targets import T
 
 LINK_OPEN = T("link.open")
@@ -224,7 +224,7 @@ def activity_row(ui, amount_text, timeout=120):
     amt = re.escape(amount_text) + "0*"
 
     def row(dd, tree):
-        return next((n for n in tree if n.name and TX_ROW_RX.match(n.name) and n.name.lower().startswith("received")
+        return next((n for n in tree if n.name and TX_ROW_RX.match(n.name) and n.name.lower().startswith(TX_RECEIVED)
                      and re.search(r"\b%s\b" % amt, n.name)), None)
     r = d.wait(Expect("an Activity row: received %s" % amount_text, row), timeout)
     d.shot("link-activity")

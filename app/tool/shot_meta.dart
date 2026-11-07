@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // Metadata beside each tour screenshot, for the release screen catalog (tools/screens.sh): with
 // SHOTS_META=1 a tour writes `<shot>.json` next to `<shot>.png` holding the text the screen shows
-// and the widget classes on stage, so an agent can find a screen by its words or its code.
+// and the widget classes on stage, so an agent can find a screen by its words or its code; `ids`
+// lists the UI targets on stage, for the dry walk (tools/dry-walk.sh, tools/ui-targets walk).
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,8 +26,15 @@ void writeShotMeta(String png, Element root, Map<String, Object?> fields) {
   final texts = <String>[];
   final seen = <String>{};
   final classes = <String>[];
+  final ids = <String>{};
   for (final e in collectAllElementsFrom(root, skipOffstage: true)) {
     final w = e.widget;
+    final id = switch (w) {
+      TrustId() => w.id,
+      Semantics() => w.properties.identifier,
+      _ => null,
+    };
+    if (id != null) ids.add(id);
     final name = w.runtimeType.toString();
     if (_named.hasMatch(name) && !name.startsWith('_') && !classes.contains(name)) classes.add(name);
     final String? text = switch (w) {
@@ -47,7 +56,7 @@ void writeShotMeta(String png, Element root, Map<String, Object?> fields) {
   final interactive = countInteractive(root, screen);
   final out = File('${png.substring(0, png.length - 4)}.json');
   out.writeAsStringSync(
-    jsonEncode({...fields, 'text': texts, 'widgets': classes, 'interactive': interactive, 'meta_ms': clock.elapsedMicroseconds / 1000}),
+    jsonEncode({...fields, 'text': texts, 'widgets': classes, 'ids': ids.toList(), 'interactive': interactive, 'meta_ms': clock.elapsedMicroseconds / 1000}),
   );
 }
 

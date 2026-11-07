@@ -1,0 +1,6 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# A commit that touches the app's screens, its strings or the drivers runs the UI target check:
+# the registry, the ids in the app and the targets in the drivers cannot drift. Seconds, no device.
+git diff --cached --name-only | grep -qE '^(app/lib/|tools/rellib/drivers/|tools/ui-targets$)' || exit 0
+[ ! -x tools/ui-targets ] || exec tools/ui-targets check
