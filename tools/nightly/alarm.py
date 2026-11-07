@@ -15,6 +15,7 @@ nightly files except by-commit.json and alarm.json.
   alarm.py --dry-run  print what would be sent
 """
 import argparse
+import fcntl
 import json
 import sys
 from pathlib import Path
@@ -40,6 +41,20 @@ def last_attempt(path=None):
     return None, ""
 
 
+def running(base):
+    """True while a nightly run holds BASE/.lock (non-blocking probe)."""
+    try:
+        with open(Path(base) / ".lock", "a") as f:
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return True
+            fcntl.flock(f, fcntl.LOCK_UN)
+    except OSError:
+        pass
+    return False
+
+
 def alive(now=None, base=None):
     """(True, why) when a night result landed in the window; else (False, what was seen)."""
     base = Path(base or n.BASE)
@@ -51,6 +66,14 @@ def alive(now=None, base=None):
             return True, f"result {latest.get('status')} {str(latest.get('sha'))[:8]}"
     except (KeyError, ValueError, TypeError):
         pass
+    for rec in n.read_json(base / "by-commit.json", {}).values():  # written as the source check ends
+        try:
+            if (now - n.parse_iso(rec["ended"])).total_seconds() < limit:
+                return True, f"source check {rec.get('status')} recorded"
+        except (KeyError, ValueError, TypeError):
+            pass
+    if running(base):
+        return True, "a run holds the lock"
     when, line = last_attempt(base / "attempts.log")
     if when and (now - when).total_seconds() < limit and any(k in line for k in ALIVE_SKIPS):
         return True, "main unchanged"

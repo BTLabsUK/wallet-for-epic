@@ -865,6 +865,8 @@ def run_night_lanes(sha, run_dir, env, by_hand, catchup, worktree=None, runner=N
     started = time.time()
     log_path = Path(run_dir) / "lanes.log"
     argv = [str(rel), "start", "--night", "--commit", sha]
+    # rel's steps queue on build-slot: the timer's 120 s slot wait would fail a lane on a busy machine.
+    env = dict(env, BUILD_SLOT_WAIT=str(timeout or NIGHT_TIMEOUT_S))
     try:
         rc = (runner or run_driver)(argv, env, log_path, timeout or NIGHT_TIMEOUT_S, cwd=str(worktree))
     except Exception as e:

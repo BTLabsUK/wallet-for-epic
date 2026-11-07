@@ -732,6 +732,13 @@ class LanesTest(unittest.TestCase):
         self.assertNotIn("build-slot", argv)
         self.assertEqual((timeout, cwd), (nightly.NIGHT_TIMEOUT_S, str(self.wt)))
 
+    def test_the_lanes_env_has_a_long_slot_wait(self):
+        got = []
+        run = self.fake({"sha": self.sha, "lanes": {}})
+        self.go(lambda argv, env, log, timeout, cwd=None: (got.append(env), run(argv, env, log, timeout, cwd))[1],
+                )
+        self.assertEqual(int(got[0]["BUILD_SLOT_WAIT"]), nightly.NIGHT_TIMEOUT_S)
+
     def test_a_failed_blocks_lane_is_red_and_a_warns_lane_is_not(self):
         rec = {"sha": self.sha, "lanes": {"a": {"class": "blocks", "status": "fail", "note": "boom"},
                                           "b": {"class": "warns", "status": "fail"}}}
@@ -853,6 +860,15 @@ class AlarmTest(unittest.TestCase):
         rc2, opener2 = self.run_alarm()
         self.assertEqual(rc2, 1)
         self.assertEqual(opener2.requests, [])
+
+    def test_a_run_in_progress_is_alive(self):
+        (self.base / "by-commit.json").write_text(json.dumps({"d" * 40: {"status": "green", "ended": "2026-11-07T05:40:00Z"}}))
+        self.assertEqual(self.run_alarm()[0], 0)
+        (self.base / "by-commit.json").unlink()
+        import fcntl
+        with open(self.base / ".lock", "w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            self.assertEqual(self.run_alarm()[0], 0)
 
     def test_no_files_at_all_alarms(self):
         self.assertEqual(self.run_alarm()[0], 1)
