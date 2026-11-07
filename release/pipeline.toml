@@ -20,6 +20,7 @@
 # night    blocks   flow-windows             needs testbuild-windows@variant
 # night    informs  create-android           needs flow-android@variant
 # night    informs  create-linux             needs flow-linux@variant
+# night    informs  dry-walk                 needs source, source-check
 # night    informs  lane-payments-linux      needs testbuild-linux@variant
 # night    informs  lane-pairing-linux       needs testbuild-linux@variant
 # night    informs  lane-linking-linux       needs testbuild-linux@variant
@@ -464,6 +465,19 @@ capped = true
 run = "{rel}/tools/rellib/drivers/trust-linux.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_EXTRA = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+# The seeded dry walk: both tours visit the lanes' screens, no coins, no device. Fails when a target
+# a driver presses is on no screen (tools/ui-targets walk names the driver step).
+[step.dry-walk]
+title = "Seeded dry walk of the lanes' screens"
+when = "night"
+host = "build"
+lane = "screens"
+needs = ["source", "source-check"]
+warn_only = true
+heavy = true
+run = "{rel}/tools/dry-walk.sh {stage}/walk"
+timeout = "60m"
 
 # The Linux lanes between two wallets: two wallets on the test build pay each other 0.01 by Epicbox,
 # Link · HTTP, Link · Tor and File (payments), pair (pairing) and link (linking). P funds A (at most

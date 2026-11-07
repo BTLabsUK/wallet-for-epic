@@ -268,14 +268,14 @@ class CoreTest(unittest.TestCase):
         with unittest.mock.patch("core.desktop.time.sleep"):   # the recipe names Payments; the setting is under Advanced
             self.assertTrue(desk.find_setting(TECHNICAL, ("payments",), "Technical details"))
         self.assertEqual(f.cur, "adv")
-        self.assertTrue(any("found under Settings › Advanced" in line for line in self.logs), self.logs)
+        self.assertTrue(any("found under Settings › g4.settings.section.advanced" in line for line in self.logs), self.logs)
         # listed as a recovery (proof.json, recovered.json) with a drafted fix to the recipe
         self.assertEqual([(r["kind"], r["target"], r["picked"]["name"]) for r in d.rec.used],
-                         [("moved", "g4.advanced.technical", "Advanced")])
+                         [("moved", "g4.advanced.technical", "g4.settings.section.advanced")])
         with open(os.path.join(self.out, "recovered.json")) as fh:
             self.assertEqual(json.load(fh)[0]["kind"], "moved")
         with open(os.path.join(self.out, "selector-fixes.md")) as fh:
-            self.assertIn("found under Settings › Advanced", fh.read())
+            self.assertIn("found under Settings › g4.settings.section.advanced", fh.read())
 
 
 

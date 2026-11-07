@@ -457,8 +457,9 @@ class Driver:
         n = self.untangle(target)
         if n:
             return n
-        self.harness("%s not on screen (looked for %s %s%s)" % (target, target.role, self.texts(target) or "no text",
-                                                                self._tried_text()))
+        by_id = self.labels is not None and self.labels.ids_only
+        self.harness("%s not on screen (looked for %s%s)" % (target, "the id" if by_id else "%s %s" % (target.role, self.texts(target) or "no text"),
+                                                             self._tried_text()))
 
     def _note_label(self, target, node):
         """A target found by its label: once per lane into by-label.txt, so a build whose ids do not

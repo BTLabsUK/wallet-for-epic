@@ -284,7 +284,7 @@ class HushTest(unittest.TestCase):
         s.cur = "restore"
         d = Driver(s, None, Recover(out, "android", log=lambda *_: None), out=out, log=lambda *_: None, poll=0.01)
         d.fill(RESTORE_PHRASE, PHRASE, step="phrase")
-        plain = tg.T("g4.test.plain", role="text_field", names=("Recovery phrase",), match="starts")
+        plain = tg.Target("g4.test.plain", role="text_field", names=("Recovery phrase",), match="starts")
         d.fill(plain, "abc", step="plain")
         self.assertEqual([t[2] for t in s.typed], [True, False])
         self.assertTrue(PIN_FIELD.secret)
