@@ -316,7 +316,7 @@ class _DeskColumn extends StatelessWidget {
     final l = context.l10n;
     final check = state.check();
     final popover = Container(
-      width: 360,
+      constraints: const BoxConstraints(maxWidth: 360),
       decoration: BoxDecoration(
         color: c.s2,
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -332,9 +332,12 @@ class _DeskColumn extends StatelessWidget {
               children: [
                 Icon(EIcons.epicbox, size: Ctl.icon, color: c.dim),
                 SizedBox(width: Sp.x2),
-                Expanded(child: Text(l.netStatusEpicbox, style: ts.body)),
-                Text(check.failed ? l.lvShellBoxNotReachable : l.lvShellBoxListening,
-                    style: ts.small.copyWith(color: check.failed ? c.risk : c.dim)),
+                Text(l.netStatusEpicbox, style: ts.body),
+                SizedBox(width: Sp.x2),
+                Expanded(
+                  child: Text(check.failed ? l.lvShellBoxNotReachable : l.lvShellBoxListening,
+                      textAlign: TextAlign.end, maxLines: 2, style: ts.small.copyWith(color: check.failed ? c.risk : c.dim)),
+                ),
               ],
             ),
           ),
