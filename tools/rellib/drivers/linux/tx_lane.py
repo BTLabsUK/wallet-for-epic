@@ -35,17 +35,30 @@ REL_FUNDS=0: no fund and no payments (sweep-start and sweep-end still return lef
 pair-end, link-up and link-end run, link-pay, pair-remove, pair-proven and pair-invoice skip (they need the Epicbox payment and coins); no
 check is required. REL_TRUST_UNTIL=<phase> stops after it (--test runs). REL_TX_METHODS=epicbox,file narrows.
 
+REL_TX_PART=payments|pairing|linking runs one part alone, for one step of the release pipeline, so a
+fault reruns that part only. Each part starts from one state of both wallets (core/state.py, kept once
+per build): state-load puts it back, or the first part restores the seeds and, once sweep-start left both
+wallets empty, keeps it (state-save, reopen). Each returns its coins to P in the same run.
+  payments  fund, pay-<method>, sweep-end
+  pairing   fund and pay-epicbox (the proven address), fund-b (what B pays the invoice with), the pair
+            phases, sweep-end
+  linking   the link phases, sweep-last
+The state knows only what the wallets held when it was kept. A run that did not bring all coins back moves
+it aside, and the next run restores from the phrases: that finds them all.
+
 File dialogs: each sandbox runs linux/portal_stub.py, the stand-in file-chooser portal on the
 sandbox's own bus; Receive › Transaction files › Open is answered with a file in that sandbox's
 inbox (HOME/inbox), never one outside it.
 
 The phrases and passwords go to the test DB (wallet.put); trust.log and proof.json name neither, and
 the end-of-lane scan looks for both phrases in REL_OUT."""
+import hashlib
 import json
 import re
 import os
 import shutil
 import signal
+import socket
 import sys
 import time
 
@@ -56,6 +69,7 @@ sys.path.insert(0, HERE)
 from core import lane as core_lane  # noqa: E402
 from core import lane_seed as ls  # noqa: E402
 from core import record  # noqa: E402
+from core import state as st  # noqa: E402
 from core import txchecks as tx  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
@@ -76,7 +90,7 @@ import portal_stub  # noqa: E402
 
 LANE = "linux-tx"
 SEEDS = {"a": "linux-tx-a", "b": "linux-tx-b", "a2": "linux-tx-a"}  # A2: A's phrase on a second install
-PHASES = ("prepare", "restore-a", "restore-b", "addresses", "sweep-start", "fund",
+PHASES = ("prepare", "state-load", "restore-a", "restore-b", "addresses", "sweep-start", "state-save", "reopen", "fund", "fund-b",
           "pay-epicbox", "pay-http", "pay-tor", "pay-file",
           "pair-invite", "pair-remove", "pair-proven", "pair-invoice", "pair-end", "sweep-end",
           "link-up", "link-pay", "link-end", "sweep-last")
@@ -87,6 +101,25 @@ LINK_CHECKS = ("link_ok", "link_pay_ok", "link_end_ok")
 LINK_NAME = "Lane A2"  # A2's device name, as A lists it
 LINK_AMOUNT = tx.AMOUNT  # link-pay: P -> A's address
 LINK_DROP_S = 600  # the losing install's own answer dropped within this after the winner's confirmed
+PARTS = ("payments", "pairing", "linking")  # the pipeline's lane-<part>-linux steps
+
+
+def methods_for(part, want):
+    """The payments a run makes: pairing needs the one its proven address rests on, linking none."""
+    return {"pairing": ["epicbox"], "linking": []}.get(part, want)
+
+
+def required_for(part, methods):
+    """The checks that decide a funded run: the whole lane's or a part's."""
+    pays = ["tx_%s_ok" % m for m in methods]
+    if part == "payments":
+        return pays + ["returned_ok"]
+    if part == "pairing":
+        return list(PAIR_CHECKS) + ["returned_ok"]
+    if part == "linking":
+        return list(LINK_CHECKS) + ["returned_ok"]
+    pairs = [c for c in PAIR_CHECKS if "epicbox" in methods or c in ("pair_invite_ok", "pair_end_ok")]
+    return pays + pairs + list(LINK_CHECKS) + ["returned_ok"]
 
 
 class PairPlatform(Platform):
@@ -135,6 +168,45 @@ class PairPlatform(Platform):
 
     def digest(self, tag, secrets):
         raise HarnessFault("digest", "the pair has no one wallet: read A or B (Wallet.digest)")
+
+    # ---- the parts' saved state (core/state.py): both sandboxes, for this build
+
+    def build(self):
+        e = os.environ
+        p = self.pair["a"]
+        h = hashlib.sha256()
+        with open(p.appimage(e.get("REL_CANDIDATE_DIR", ""), e.get("REL_CANDIDATE_VERSION", "")), "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+
+    def fits_build(self, meta):
+        """(ok, why): a state holds this build's app data, and the stand-in ports its settings name are free."""
+        if meta.get("build") != self.build():
+            return False, "saved on another build"
+        for k, ports in (meta.get("ports") or {}).items():
+            for kind, port in ports.items():
+                if not port_free(port):
+                    return False, "%s's %s stand-in port %d (in the wallet's settings) is taken" % (k.upper(), kind, port)
+        return True, ""
+
+    def use_ports(self, meta):
+        for k, ports in (meta.get("ports") or {}).items():
+            self.pair[k].ports = dict(ports)
+
+    def state_meta(self):
+        return {"build": self.build(), "ports": {k: dict(self.pair[k].ports) for k in ("a", "b")}}
+
+    def save_state(self, folder):
+        for k in ("a", "b"):
+            d = os.path.join(folder, k)
+            os.makedirs(d, mode=0o700)
+            self.pair[k].save_state(d)
+
+    def restore_state(self, folder):
+        for k in ("a", "b"):
+            self.pair[k].restore_state(os.path.join(folder, k))
+            os.makedirs(inbox(self.pair[k]), exist_ok=True)
 
     # ---- A2 (LINK-1): a third sandbox, only while the link phases run
 
@@ -193,6 +265,16 @@ class PairPlatform(Platform):
                 p.shutdown()
             except Exception as e:  # noqa: BLE001 — the other one still goes
                 p.log("shutdown: %s" % e)
+
+
+def port_free(port):
+    with socket.socket() as so:
+        so.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            so.bind(("127.0.0.1", int(port)))
+        except OSError:
+            return False
+    return True
 
 
 def inbox(p):
@@ -269,11 +351,13 @@ class TxLane(Lane):
         self.base = {}
         self.pending = {}  # method -> (A's, B's data) just before its send (txchecks.pay)
         self.address = {"a": {}, "b": {}}
+        self.part = os.environ.get("REL_TX_PART") or None
+        self.state = None  # the saved state this run started from or made (a part)
         want = [m.strip() for m in (os.environ.get("REL_TX_METHODS") or "").split(",") if m.strip()]
         bad = [m for m in want if m not in METHODS]
         if bad:
             raise HarnessFault("start", "REL_TX_METHODS: unknown %s (known: %s)" % (", ".join(bad), " ".join(METHODS)))
-        self.methods = want or list(METHODS)
+        self.methods = methods_for(self.part, want or list(METHODS))
         self.p_before = self.p_after = None
         self.link_answered = None  # link-pay: the install whose answer took ("a" | "a2")
 
@@ -281,34 +365,44 @@ class TxLane(Lane):
 
     def main(self):
         try:
-            return self._run(self._main)
+            return self._run(self._refuse if self.part not in (None,) + PARTS else self._main)
         finally:
             for w in self.w.values():
                 w.seed.unlock()  # A2 shares A's seed (and its lock); unlocking twice is nothing
+
+    def _refuse(self):
+        raise HarnessFault("start", "REL_TX_PART: unknown %s (known: %s)" % (self.part, " ".join(PARTS)))
 
     def _main(self):
         try:
             return self._lane()
         finally:  # P's balance after, whatever stopped the lane (proof.json's money)
             self.p_after = self._p_balance()
+            if self.state and not self.results.get("returned_ok"):
+                self.log("coins may be left outside the saved state: the next run restores from the phrases")
+                st.retire(self.state, self.log)
 
     def _lane(self):
         for w in self.w.values():
             w.seed.lock()
         self.needles = ls.Needles([w.seed.phrase() for w in self.w.values()])
         self.p_before = self._p_balance()
+        saved = self._saved()
+        if saved:
+            self.p.use_ports(saved.meta)
         self.run_phase("prepare", self.p.prepare)
         self._hermetic()
-        for k in ("a", "b"):
-            self.run_phase("restore-" + k, lambda k=k: self._restore_one(self.w[k]))
-        self.run_phase("addresses", self._addresses)
-        self.soft("sweep-start", lambda: self._sweep_phase("sweep-start"))
+        self._start(saved)
         try:
-            self._fund_and_pay()
-            self._pairing()
-            self.soft("sweep-end", self._sweep_end)
-            self._linking()
-            if self.kept:  # what a failed phase left behind
+            if self.part != "linking":
+                self._fund_and_pay()
+            if self.part in (None, "pairing"):
+                self._pairing()
+            if self.part != "linking":
+                self.soft("sweep-end", self._sweep_end)
+            if self.part in (None, "linking"):
+                self._linking()
+            if self.kept or self.part == "linking":  # what a failed phase, or link-pay, left behind
                 self.soft("sweep-last", lambda: self._sweep_end("sweep-last"))
         except core_lane._Stop:
             raise  # REL_TRUST_UNTIL: what A holds goes back in the next run's sweep-start
@@ -324,6 +418,59 @@ class TxLane(Lane):
         self._returned()
         return 0
 
+    def _saved(self):
+        """A part's saved state of this build, or None: read before prepare, whose stand-ins take its ports."""
+        if not self.part:
+            return None
+        return st.pick(LANE, self.p.variant, os.environ.get("REL_CANDIDATE_VERSION"), self.p.fits_build, self.log)
+
+    def _start(self, saved):
+        """Both wallets open on the candidate, their addresses read, what runs before left sent to P."""
+        ok, why = st.hermetic_fits(saved.meta, self.p) if saved else (False, "")
+        if saved and not ok:
+            self.log("saved state %s not used: %s" % (saved.folder, why))
+        if ok:
+            self.state = saved.folder
+            self.run_phase("state-load", lambda: self._load_state(saved))
+        else:
+            for k in ("a", "b"):
+                self.run_phase("restore-" + k, lambda k=k: self._restore_one(self.w[k]))
+        self.run_phase("addresses", self._addresses)
+        self.soft("sweep-start", lambda: self._sweep_phase("sweep-start"))
+        if self.part and not ok and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
+            self._keep_state()
+
+    def _load_state(self, saved):
+        try:
+            got = saved.secrets()
+            self.p.restore_state(saved.payload)
+            for k in ("a", "b"):
+                w = self.w[k]
+                w.secrets.update({n: got["%s.%s" % (k, n)] for n in ("password", "pin") if "%s.%s" % (k, n) in got})
+                w.secrets["phrase"] = w.seed.phrase()
+                self._put(w, "the TX lane's saved state")
+                self._open_one(w)
+        except core_lane.Fault as e:
+            if not e.fatal:
+                st.retire(saved.folder, self.log)
+                self.state = None
+            raise
+
+    def _keep_state(self):
+        """Both wallets kept for the parts after this one, only when sweep-start emptied them: coins kept in
+        them would read as held after a later run spent them. Saving stops the apps."""
+        if any(((tx.digest(self, w, "state-save").get("balance") or {}).get("total") or 0) >= tx.nano(tx.DUST) for w in self.w.values()):
+            self.skip_phase("state-save", "A or B still holds coins (wallet data): the next run restores too")
+            return
+        secrets = {"%s.%s" % (k, n): w.secrets[n] for k, w in self.w.items() for n in ("password", "pin") if w.secrets.get(n)}
+        try:
+            self.state = self.run_phase("state-save", lambda: st.save(self.p, secrets, None, log=self.log, family=LANE))
+        except core_lane.Fault as e:
+            if e.fatal:
+                raise
+            self.log("no saved state: %s" % e.line())
+        self.run_phase("reopen", lambda: [self._open_one(self.w[k]) for k in ("a", "b") if not self.w[k].p.running])
+
     def _fund_and_pay(self):
         """fund, then a payment per method; a payment that fails leaves the others to run."""
         funded = None
@@ -333,6 +480,8 @@ class TxLane(Lane):
                 self.skip_phase("fund", why)
             else:
                 funded = self.soft("fund", self._fund)
+            if funded and self.part == "pairing":
+                self.try_phase("fund-b", lambda: tx.fund(self, ["the invoice"], key="b"))
         else:
             self.skip_phase("fund", "REL_FUNDS=0: no coins from P")
         for m in self.methods:
@@ -381,10 +530,11 @@ class TxLane(Lane):
             why = "needs this run's Epicbox payment (tx_epicbox_ok)"
         elif not self.results.get("pair_invite_ok"):
             why = "needs the pairing from pair-invite"
-        for name, fn, needs in (("pair-remove", self._pair_remove, None), ("pair-proven", self._pair_proven, "pair-remove"),
-                                ("pair-invoice", self._pair_invoice, "pair-proven")):
-            if why or self.failed(needs):
-                self.skip_phase(name, why or "needs " + needs)
+        for name, fn, needs in (("pair-remove", self._pair_remove, ()), ("pair-proven", self._pair_proven, ("pair-remove",)),
+                                ("pair-invoice", self._pair_invoice, ("pair-proven", "fund-b"))):
+            lost = next((n for n in needs if self.failed(n)), None)
+            if why or lost:
+                self.skip_phase(name, why or "needs " + lost)
             else:
                 self.try_phase(name, lambda fn=fn: (self.awake(), fn())[1])
         if self.results.get("pair_invite_ok") or self.results.get("pair_proven_ok"):
@@ -648,12 +798,7 @@ class TxLane(Lane):
         if w.ui is not None and w.secrets.get("password"):
             w.ui.open_wallet(w.secrets)
             return
-        surface = w.p.start("candidate")
-        self.rec.build = os.environ.get("REL_CANDIDATE_VERSION", "candidate")
-        w.ui = self.recipe_for(self, "candidate", surface)
-        w.pay = Payments(w.ui, w.choose, self.log)
-        w.pair = Pairing(w.ui, w.clip, self.log)
-        w.link = Linking(w.ui, w.clip, self.log)
+        self._recipes(w, w.p.start("candidate"))
         birth = w.seed.birth()
         if birth.get("height") is None:
             raise HarnessFault("restore", "lane seed %s has no birth height (lane_seed.py birth %s)" % (w.seed.lane, w.seed.lane))
@@ -662,11 +807,29 @@ class TxLane(Lane):
         w.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
         w.secrets["phrase"] = w.seed.phrase()
         if put:  # A2 holds A's phrase: its password is its own sandbox's, kept there, not over A's record
-            record.emit("wallet.put", name=w.seed.lane, role="lane", platform="linux", lane=LANE, phrase=w.secrets["phrase"],
-                        password=w.secrets.get("password") or "", origin="the lane seed restored on the candidate (TX lane)")
+            self._put(w, "the lane seed restored on the candidate (TX lane)")
         w.ui._view_deep_end()
         portal_stub.ensure(w.p.sb)
         self.ui = w.ui  # the fault bundle reads the screen of the wallet that ran last
+
+    def _recipes(self, w, surface):
+        self.rec.build = os.environ.get("REL_CANDIDATE_VERSION", "candidate")
+        w.ui = self.recipe_for(self, "candidate", surface)
+        w.pay = Payments(w.ui, w.choose, self.log)
+        w.pair = Pairing(w.ui, w.clip, self.log)
+        w.link = Linking(w.ui, w.clip, self.log)
+
+    def _open_one(self, w):
+        """The candidate started on a wallet that is there already."""
+        self._recipes(w, w.p.start("candidate"))
+        w.ui.open_wallet(w.secrets)
+        w.ui._view_deep_end()
+        portal_stub.ensure(w.p.sb)
+        self.ui = w.ui
+
+    def _put(self, w, origin):
+        record.emit("wallet.put", name=w.seed.lane, role="lane", platform="linux", lane=LANE, phrase=w.secrets["phrase"],
+                    password=w.secrets.get("password") or "", origin=origin)
 
     def _addresses(self):
         """Every address the methods need; one that cannot be read leaves its method out (_cannot_pay)."""
@@ -797,7 +960,7 @@ class TxLane(Lane):
 
     def proof(self, extra=None):
         self.details["money"] = self.ledger.doc(self.p_before, self.p_after)
-        return super().proof(dict(extra or {}, lane=LANE, methods=self.methods))
+        return super().proof(dict(extra or {}, lane=LANE, part=self.part, methods=self.methods))
 
 
 def main():
@@ -825,11 +988,10 @@ def main():
     def stopped(sig, _frame):  # a runner's timeout: the sandboxes and stand-ins still go
         raise LaneStopped(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
     given = [c.strip() for c in (e.get("REL_CHECKS") or "").split(",") if c.strip()]
-    methods = [m.strip() for m in (e.get("REL_TX_METHODS") or ",".join(METHODS)).split(",") if m.strip()]
-    pairs = [c for c in PAIR_CHECKS if "epicbox" in methods or c in ("pair_invite_ok", "pair_end_ok")]
+    part = e.get("REL_TX_PART") or None
+    methods = methods_for(part, [m.strip() for m in (e.get("REL_TX_METHODS") or ",".join(METHODS)).split(",") if m.strip()])
     lane = TxLane(plat, recipe_for, out=out, log=log, funds=funds, p=funder,
-                  required=given or (["tx_%s_ok" % m for m in methods] + pairs + list(LINK_CHECKS) + ["returned_ok"]
-                                     if funds else []))
+                  required=given or (required_for(part, methods) if funds else []))
     signal.signal(signal.SIGTERM, stopped)
     return lane.main()
 

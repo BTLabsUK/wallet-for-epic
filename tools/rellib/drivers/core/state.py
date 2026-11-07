@@ -18,6 +18,10 @@ A state keeps the servers its wallet had in use: meta "hermetic" says which were
 node and relay (core/hermetic.py). A run restores only a state whose servers are as local as its own
 (hermetic_fits, from the platform's fits): the restored previous release is not pointed again.
 A state without the key was saved before hermetic lanes, on public servers.
+
+The TX lane's parts start from one such state of two wallets, made by the first part that ran, under
+the name linux-tx-<variant> (save's family). It holds the candidate's own build, so it is good for that
+build only, and is moved aside (retire) once it no longer matches what the wallets hold on the chain.
 """
 import json
 import os
@@ -27,7 +31,7 @@ import time
 from . import hermetic
 
 KEEP = 2
-SECRET_NAMES = ("password", "pin", "phrase")
+SECRET_NAMES = ("password", "pin", "phrase", "a.password", "a.pin", "b.password", "b.pin")
 
 
 def root():
@@ -89,12 +93,13 @@ def pick(platform, variant, version, fits=None, log=print):
     return s
 
 
-def save(platform, secrets, digest, *, log=print, extra=None):
-    """Called by a lane whose every check passed, after its funds went back to P."""
+def save(platform, secrets, digest, *, log=print, extra=None, family=None):
+    """Called by a lane whose every check passed, after its funds went back to P; [family]: the name it
+    is kept under, when not the platform's."""
     version = os.environ.get("REL_CANDIDATE_VERSION")
     if not version:
         return None
-    base = os.path.join(root(), "%s-%s" % (platform.name, platform.variant))
+    base = os.path.join(root(), "%s-%s" % (family or platform.name, platform.variant))
     os.makedirs(base, exist_ok=True)
     tmp = os.path.join(base, "%s.tmp-%d" % (version, os.getpid()))
     os.makedirs(tmp, mode=0o700)
@@ -121,6 +126,15 @@ def save(platform, secrets, digest, *, log=print, extra=None):
     _prune(base, log)
     log("saved end state %s" % final)
     return final
+
+
+def retire(folder, log=print):
+    """A saved state moved aside into its platform-variant's .trash: nothing starts from it again."""
+    base, name = os.path.split(folder)
+    trash = os.path.join(base, ".trash")
+    os.makedirs(trash, exist_ok=True)
+    shutil.move(folder, os.path.join(trash, "%s-%d" % (name, int(time.time()))))
+    log("saved state moved aside: %s" % folder)
 
 
 def _prune(base, log):

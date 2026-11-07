@@ -316,24 +316,24 @@ def fund_to(address, relay):
     return pay_to(address, relay)
 
 
-def fund(lane, methods):
-    """P pays A what [methods] need (fund_plan), each send waited for in A's data, then A spendable for
-    the first payment. -> what P sent ([EPIC])."""
-    a = lane.w["a"]
+def fund(lane, methods, key="a"):
+    """P pays wallet [key] what [methods] need (fund_plan), each send waited for in its data, then it
+    is spendable for the first payment. -> what P sent ([EPIC])."""
+    a, name = lane.w[key], key.upper()
     d0 = digest(lane, a, "fund")
     plan = fund_plan(held(d0), len(methods))
     if not plan:
-        lane.log("fund: A's spendable %s covers %d payments" % (num(spendable(d0)), len(methods)))
+        lane.log("fund: %s's spendable %s covers %d payments" % (name, num(spendable(d0)), len(methods)))
         return []
     p = checks._p_ready(lane)
     for amount in plan:
         lane.ledger.charge(amount)
         before = digest(lane, a, "fund")
-        with p.exchange("fund A"):
+        with p.exchange("fund " + name):
             relay = checks._relay_with_p(lane, p)
-            to = fund_to(lane.address["a"]["epicbox"], relay)
+            to = fund_to(lane.address[key]["epicbox"], relay)
             ok, out = p.send(to, amount)
-            lane.log("P -> A %s EPIC: %s (%s)" % (amount, "sent" if ok else "FAILED", out))
+            lane.log("P -> %s %s EPIC: %s (%s)" % (name, amount, "sent" if ok else "FAILED", out))
             if not ok:
                 lane.ledger.p_sent.pop()
                 raise HarnessFault("fund", "P send failed: %s" % out)
@@ -342,7 +342,7 @@ def fund(lane, methods):
         try:
             wait_for(lane, a, "fund", lambda d: bool(mine(d)), 900)
         except ProductFault as e:
-            unanswered(lane, p, amount, "fund: A did not answer")
+            unanswered(lane, p, amount, "fund: %s did not answer" % name)
             wrong = wrong_relay(to, getattr(a, "listening", lambda: None)())
             if wrong:
                 raise HarnessFault("fund", "%s: %s" % (e.what, wrong))
@@ -354,15 +354,15 @@ def fund(lane, methods):
             if p.finalized():
                 break
             if not kicked and time.time() - start >= KICK_AFTER_S:
-                kick(lane, p, "fund: A answered, P has not finalized")
+                kick(lane, p, "fund: %s answered, P has not finalized" % name)
                 kicked = True
             if time.time() - start >= 900:
-                raise InfraFault("fund", "P sent %s EPIC, A answered, P did not finalize it in 900 s (P's node or "
-                                 "listener)" % amount, sub="p")
+                raise InfraFault("fund", "P sent %s EPIC, %s answered, P did not finalize it in 900 s (P's node or "
+                                 "listener)" % (amount, name), sub="p")
             time.sleep(POLL_S)
     wait_for(lane, a, "fund spendable", lambda d: spendable(d) >= nano(per_pay()), SPEND_WAIT_S)
-    lane.details["fund"] = "P -> A %s EPIC in %d sends (A's spendable was %s, %d payments left)" % (
-        "+".join(format(x, "f") for x in plan), len(plan), num(spendable(d0)), len(methods))
+    lane.details["fund" if key == "a" else "fund_" + key] = "P -> %s %s EPIC in %d sends (its spendable was %s, %d payments left)" % (
+        name, "+".join(format(x, "f") for x in plan), len(plan), num(spendable(d0)), len(methods))
     return plan
 
 

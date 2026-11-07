@@ -10,8 +10,10 @@
 #   REL_NODE, REL_EPICBOX        servers to use; picked here when unset (the local node when healthy)
 #   REL_OUT                      proof.json (details.money: what P sent, what came back, the fees), trust.log
 #   REL_TX_METHODS               optional comma list (default epicbox,http,tor,file)
+#   REL_TX_PART                  optional payments|pairing|linking: that part alone, from the saved state;
+#                                unset: the whole lane
 #   REL_TRUST_UNTIL              optional, --test runs: stop after that phase
-# Optional: REL_WORK (sandboxes, default ~/.cache/rel-trust-linux), REL_P_TOOL, REL_P_PASS_FILE,
+# Optional: REL_WORK (sandboxes, default ~/.cache/rel-trust-linux), REL_TRUST_SAVE_STATE=0, REL_P_TOOL, REL_P_PASS_FILE,
 # REL_P_PASS_LINE, REL_P_ADDR, REL_P_SERVICE_DIR.
 #
 # Exit: 0 every check true, 1 some false or a product fault, 2 could not run.
