@@ -524,7 +524,16 @@ Future<T?> askPin<T extends Object>(
   String? reason,
   bool allowBiometrics = true,
   required Future<T> Function(String pin) action,
-}) {
+}) async {
+  // The web preview asks nothing: the fake wallet takes any PIN (previewNoLock is const false
+  // in every real build).
+  if (previewNoLock) {
+    try {
+      return await action('000000');
+    } catch (_) {
+      return null;
+    }
+  }
   return showAppDialog<T>(
     context,
     builder: (_) => _PinPromptDialog<T>(

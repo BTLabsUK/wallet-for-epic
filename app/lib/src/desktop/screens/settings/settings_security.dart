@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show autoLockLabel;
 import '../../../settings.dart' show autoLockChoices;
+import '../../app/routes.dart' show deskNoLock;
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -90,7 +91,7 @@ class _SettingsSecurityScreenState extends ConsumerState<SettingsSecurityScreen>
                 ),
               ),
               _AutoLockRow(open: widget.arg == SecurityShot.autoLockOpen),
-              ESetRow(
+              if (!deskNoLock) ESetRow(
                 anchor: SetId.password,
                 title: l.deskSetDlgPassword,
                 hint: l.deskSetAcctPasswordHint,

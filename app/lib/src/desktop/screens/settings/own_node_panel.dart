@@ -535,6 +535,7 @@ class _OwnerAccessDialogState extends ConsumerState<_OwnerAccessDialog> {
           Text(l.deskOwnDlgPaste, style: ts.small),
           SizedBox(height: Sp.x1),
           EPasswordInput(
+            wallet: false,
             controller: _secret,
             autofocus: true,
             invalid: _error != null,

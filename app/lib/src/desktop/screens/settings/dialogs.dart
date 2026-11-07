@@ -12,6 +12,7 @@ import '../../data/desk_node.dart' show deskNodeProvider;
 import 'local_node_dialogs.dart' show ReuseChainDataDialog;
 import '../../../ui/wallet_delete.dart' show DeleteStep, deleteStepText;
 import '../../../ui/work_status.dart';
+import '../../app/routes.dart' show deskNoLock;
 
 // ---- Existing blockchain data --------------------------------------------------------------
 
@@ -187,7 +188,7 @@ class RemoveWalletDialog extends ConsumerStatefulWidget {
 
 class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
   final _typed = TextEditingController();
-  final _password = TextEditingController();
+  final _password = TextEditingController(text: deskNoLock ? 'demo' : '');
   bool _busy = false;
   bool _ack = false;
   String? _error;
@@ -398,7 +399,7 @@ class DeleteWalletDialog extends ConsumerStatefulWidget {
 }
 
 class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
-  final _password = TextEditingController();
+  final _password = TextEditingController(text: deskNoLock ? 'demo' : '');
   bool _ack = false;
   bool _busy = false;
   String? _error;

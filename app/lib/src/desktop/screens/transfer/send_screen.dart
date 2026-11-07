@@ -28,6 +28,7 @@ import '../../../trust/policy.dart' show MailboxDefault;
 import '../../data/trust_state.dart' show deskMailboxDefaultFor;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig;
+import '../../app/routes.dart' show deskNoLock;
 import '../../../advanced.dart' show NetworkMode;
 import '../../../ui/network_mode_text.dart' show switchPausesSends;
 import '../../../send_reach.dart';
@@ -3113,7 +3114,7 @@ class _ReviewDialog extends StatefulWidget {
 class _ReviewDialogState extends State<_ReviewDialog> {
   late bool _busy = widget.startBusy;
   late _Draft _draft = widget.draft;
-  final _password = TextEditingController();
+  final _password = TextEditingController(text: deskNoLock ? 'demo' : '');
   String? _wrong;
 
   /// The fee shown before the last check, when that check moved it.

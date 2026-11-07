@@ -37,6 +37,7 @@ import '../../name_service/name_service.dart' show NameServiceMembership, NameSe
 import '../../history/name_service_pins.dart';
 import '../../history/meta_store.dart' show Meta;
 import '../../scan/scan_router.dart' show PaymentLink;
+import '../app/routes.dart' show deskNoLock;
 import 'api.dart';
 import 'backup_settings_desk.dart';
 import 'features.dart';
@@ -516,6 +517,11 @@ class MockDeskWallet implements DeskWalletApi {
       }
     }
   }
+
+  static const _demoWords = [
+    'demo', 'only', 'not', 'real', 'fake', 'words', 'demo', 'only', 'not', 'real', 'fake', 'words',
+    'demo', 'only', 'not', 'real', 'fake', 'words', 'demo', 'only', 'not', 'real', 'fake', 'words',
+  ];
 
   static const _words = [
     'orbit', 'hazard', 'velvet', 'cabin', 'sudden', 'meadow', 'brick', 'gesture', 'lunar', 'invest', 'pledge', 'saddle',
@@ -1444,6 +1450,8 @@ class MockDeskWallet implements DeskWalletApi {
   Future<List<String>> revealPhrase(String password) async {
     await _wait(2);
     if (password == 'wrong') throw StateError('Wrong password');
+    // The web demo shows obviously fake words, never a phrase that looks real.
+    if (deskNoLock) return _demoWords;
     return _words;
   }
 

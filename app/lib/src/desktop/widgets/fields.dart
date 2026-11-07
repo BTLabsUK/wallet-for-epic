@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatf
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../app/routes.dart' show deskNoLock;
 import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -44,6 +45,8 @@ class EField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The web demo asks for no wallet password: its field and label go away.
+    if (deskNoLock && child is EPasswordInput && (child as EPasswordInput).wallet) return const SizedBox.shrink();
     final c = context.dc;
     final ts = context.ts;
     return Column(
@@ -446,6 +449,7 @@ class EPasswordInput extends StatefulWidget {
     this.semanticLabel,
     this.semanticsId,
     this.textInputAction,
+    this.wallet = true,
   });
 
   final TextEditingController? controller;
@@ -459,6 +463,11 @@ class EPasswordInput extends StatefulWidget {
   /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
   final TextInputAction? textInputAction;
+  /// A field for the wallet's own password. The web demo draws none of these (a node secret
+  /// is not one, so it passes false).
+  final bool wallet;
+
+  bool get _hidden => deskNoLock && wallet;
 
   @override
   State<EPasswordInput> createState() => _EPasswordInputState();
@@ -467,6 +476,13 @@ class EPasswordInput extends StatefulWidget {
 class _EPasswordInputState extends State<EPasswordInput> {
   bool _show = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // The web demo asks for no password: the field is not drawn and the mock takes this one.
+    if (widget._hidden && (widget.controller?.text.isEmpty ?? false)) widget.controller!.text = 'demo';
+  }
+
   void _toggle() => setState(() => _show = !_show);
 
   /// Alt+F8 is the Windows sign-in key; GNOME takes it (resize window), so other systems use
@@ -474,7 +490,7 @@ class _EPasswordInputState extends State<EPasswordInput> {
   static bool get _windows => defaultTargetPlatform == TargetPlatform.windows;
 
   @override
-  Widget build(BuildContext context) => CallbackShortcuts(
+  Widget build(BuildContext context) => widget._hidden ? const SizedBox.shrink() : CallbackShortcuts(
     bindings: {
       _windows ? const SingleActivator(LogicalKeyboardKey.f8, alt: true) : const SingleActivator(LogicalKeyboardKey.keyP, control: true, shift: true): _toggle,
     },

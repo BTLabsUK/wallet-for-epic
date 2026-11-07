@@ -15,6 +15,7 @@ import '../../widgets/kit.dart';
 import '../../../help/help_content.dart' show HelpAnchor;
 import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
+import '../../app/routes.dart' show deskNoLock;
 
 /// An invoice or request file of [amount] against the [spendable] balance ([SendAmountGate]):
 /// the amount is fixed and the fee was estimated with it ([fee], null when it could not be), so
@@ -57,7 +58,7 @@ class _ApproveDialog extends ConsumerStatefulWidget {
 }
 
 class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
-  final _password = TextEditingController();
+  final _password = TextEditingController(text: deskNoLock ? 'demo' : '');
   bool _busy = false;
   String? _fieldError;
 
@@ -390,7 +391,7 @@ class _ApproveFileDialog extends ConsumerStatefulWidget {
 }
 
 class _ApproveFileDialogState extends ConsumerState<_ApproveFileDialog> {
-  final _password = TextEditingController();
+  final _password = TextEditingController(text: deskNoLock ? 'demo' : '');
   bool _busy = false;
   String? _fieldError;
 

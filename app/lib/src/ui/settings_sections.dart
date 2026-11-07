@@ -599,14 +599,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
         onTap: () => _pickAutoLock(s),
       ),
-      ListTile(
+      if (!previewNoLock) ListTile(
         leading: const Icon(Icons.pin),
         title: Text(l.settingsChangePin),
         trailing: const NavChevron(),
         onTap: () => _push(const ChangePinScreen()),
       ),
       // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
-      ListTile(
+      if (!previewNoLock) ListTile(
         leading: const Icon(Icons.password),
         title: Text(
           ref.watch(usesPassphraseProvider).value ?? false

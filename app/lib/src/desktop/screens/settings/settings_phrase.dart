@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/routes.dart' show deskNoLock;
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -74,6 +75,8 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
       _left = 48;
       if (widget.arg == PhraseShot.qr) WidgetsBinding.instance.addPostFrameCallback((_) => _openQr());
     }
+    // The web demo asks no password: the words show at once.
+    if (deskNoLock && _words == null) WidgetsBinding.instance.addPostFrameCallback((_) => _show());
   }
 
   @override
@@ -111,7 +114,8 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
 
   Future<void> _show() async {
     final l = context.l10n;
-    if (_password.text.isEmpty) {
+    final password = deskNoLock ? 'demo' : _password.text;
+    if (password.isEmpty) {
       setState(() => _error = l.deskSetPhraseEnterPassword);
       return;
     }
@@ -120,7 +124,7 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
       _error = null;
     });
     try {
-      final w = await ref.read(deskApiProvider).revealPhrase(_password.text);
+      final w = await ref.read(deskApiProvider).revealPhrase(password);
       if (!mounted) return;
       setState(() {
         _words = w;
