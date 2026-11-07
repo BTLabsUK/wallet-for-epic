@@ -45,10 +45,10 @@ CHECK_TITLE = T("pair.check.title", role="text", keys=("sasDialogTitle",), match
 CHECK_WORDS = T("pair.check.words", role="other", keys=("sasWordsLabel",), names=("The four words",), match="starts")
 CHECK_MATCH = T("pair.check.match", keys=("sasMatch",), names=("They match",), match="exact")
 CHECK_ALLOW = T("pair.check.allow", role="toggle", keys=("contactAllowInvoices",), names=("Allow invoices",), match="exact")
-# "Lane B is verified" › Add to contacts › Save as a new contact › Save contact
+# "Lane B is verified" › Add to contacts › Save as a new contact (a menu item, no button on Flutter desktop) › Save contact
 SAVED_TITLE = T("pair.saved.title", role="text", keys=("sasMatchedTitle",), match="exact")
 SAVED_ADD = T("pair.saved.add", keys=("txDetailsAddToContacts",), names=("Add to contacts",), match="exact")
-SAVED_NEW = T("pair.saved.new", keys=("pairSaveNewContact",), names=("Save as a new contact",), match="exact")
+SAVED_NEW = T("pair.saved.new", role="text", keys=("pairSaveNewContact",), names=("Save as a new contact",), match="exact")
 SAVE_CONTACT = T("pair.saved.save", keys=("deskConSave",), names=("Save contact",), match="exact")
 # the contact page's Pairing block
 STATE_VERIFIED = T("pair.state.verified", role="text", keys=("trustVerified",), names=("Verified",), match="line")
