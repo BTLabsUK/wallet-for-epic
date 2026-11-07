@@ -83,7 +83,7 @@ INV_SENT = T("inv.issue.sent", role="other", keys=("reqSent", "deskInvIssuerWait
 INV_FAILED = T("inv.issue.failed", role="other", keys=("deskInvFailed", "deskInvIssuerNotDelivered"), match="contains")
 NAV_INVOICES = T("inv.nav", keys=("deskInvNav",), names=("Invoices",), match="exact")
 INV_TAB_PAY = T("inv.tab.pay", role="other", keys=("deskInvTabPay",), names=("Pay",), match="line")  # its count may follow
-INV_REVIEW = T("inv.pay.review", keys=("deskInvPayerReview",), names=("Review",), match="exact")
+INV_REVIEW = T("inv.pay.review", keys=("deskInvPayerReview",), names=("Review",), match="line")  # the row reads as one button, this its last line
 INV_APPROVE = T("inv.pay.approve", keys=("invoiceApprove",), names=("Approve and pay",), match="exact")
 INV_PASSWORD = T("inv.pay.password", role="text_field", keys=("deskInvPayerPassword",), names=("Wallet password",),
                  match="starts", secret=True)
