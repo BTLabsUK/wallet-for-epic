@@ -9,11 +9,16 @@ InfraFault: the machine, network or rig under the test failed (node unreachable,
 leftover install): a HarnessFault the engine retries as infra.
 HarnessGone: the display, emulator, rig or sandbox behind a Surface disappeared mid-step; the lane
 rebuilds the platform and resumes at the phase it was in (lane.py), once per phase.
+LaneStopped: a signal stopped the lane (a runner's timeout).
+
+A fault in a phase the lane can go on without is recorded and the lane goes on (Lane.try_phase).
+`fatal` marks the ones that make going on impossible.
 """
 
 
 class Fault(Exception):
     kind = "fault"
+    fatal = False  # True: the lane cannot go on to its next phase
 
     def __init__(self, step, what, shot=None, check=None):
         super().__init__(what)
@@ -40,6 +45,12 @@ class HarnessFault(Fault):
 
 class HarnessGone(HarnessFault):
     """The infrastructure under the app went away (not the app itself)."""
+    fatal = True
+
+
+class LaneStopped(HarnessFault):
+    """A signal stopped the lane: what is left is the coins going back and the shutdown."""
+    fatal = True
 
 
 class InfraFault(HarnessFault):

@@ -99,7 +99,7 @@ class P:
         r = self.client.call("info")
         return r.get("spendable") if r.get("ok") else None
 
-    def settled(self):
-        """P's spendable once its total is all spendable (nothing awaiting confirmation), else None."""
+    def total(self):
+        """P's total, what awaits confirmation included (a send to P counts once P has finalized it)."""
         r = self.client.call("info")
-        return r["spendable"] if r.get("ok") and r.get("spendable") == r.get("total") else None
+        return r.get("total") if r.get("ok") else None

@@ -200,17 +200,20 @@ class Payments:
 
     # ---- history
 
-    def history_method(self, amount_text, incoming, timeout=60):
+    def history_method(self, amount_text, incoming, timeout=60, rows=1):
         """The method the newest Activity row of [amount_text] EPIC (sent, or received when [incoming])
-        names in its detail, read from the Deep end's Method fact; None when no such row shows."""
+        names in its detail, read from the Deep end's Method fact; None when no such row shows, or fewer
+        than the [rows] the wallet's data holds: the newest is not on the list yet, and the one on top
+        is an earlier payment's."""
         d = self.d
         self.ui.nav(NAV_ACTIVITY)
         word = "received" if incoming else "sent"
         amt = re.escape(amount_text) + "0*"  # the row may show 4 decimals (0.0100)
 
         def row(dd, tree):
-            return next((n for n in tree if n.name and TX_ROW_RX.match(n.name) and n.name.lower().startswith(word)
-                         and re.search(r"\b%s\b" % amt, n.name)), None)
+            found = [n for n in tree if n.name and TX_ROW_RX.match(n.name) and n.name.lower().startswith(word)
+                     and re.search(r"\b%s\b" % amt, n.name)]
+            return found[0] if len(found) >= max(rows, 1) else None
         r = d.wait(Expect("an Activity row: %s %s" % (word, amount_text), row), timeout)
         if not r:
             return None

@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(CORE), "linux"))  # p_funder only; 
 
 from core import checks  # noqa: E402
 from core.driver import Driver  # noqa: E402
-from core.faults import HarnessFault  # noqa: E402
+from core.faults import LaneStopped  # noqa: E402
 from core.labels import Labels  # noqa: E402
 from core.lane import Lane, fail_closed as lane_fail_closed  # noqa: E402
 from core.phone import Phone  # noqa: E402
@@ -106,7 +106,7 @@ def run(make_platform, proof_extra, not_checked=None):
         return Phone(d, which, lane.log)
 
     def stopped(sig, _frame):  # a runner's timeout: the device and stand-ins still go
-        raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
+        raise LaneStopped(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
     signal.signal(signal.SIGTERM, stopped)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
     rc = lane.main()

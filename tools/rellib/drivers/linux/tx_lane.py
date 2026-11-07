@@ -25,7 +25,9 @@ Phases (each starts by reading where things are, and skips what is done):
                 dropped (wallet data), and both show the receipt in Activity (link_pay_ok)
   link-end      A removes A2: A offers Link a device again, A2 reads it was removed (link_end_ok); the
                 install that answered sends the 0.01 back to P; A2 is stopped and its folder removed.
-                returned_ok after it.
+  sweep-last    after a failed phase: what it left in A or B goes to P. returned_ok last of all.
+A failed phase does not stop the others (core/lane.py try_phase): pay-http failed, pay-tor still runs;
+phases that need it skip and say why (no fund: no payments; no pairing: no invoice; no link: no link-pay).
 An A2 a crashed run left (running or not) is stopped and removed in prepare, before any payment: it holds
 A's phrase and would answer A's payments.
 
@@ -58,7 +60,7 @@ from core import txchecks as tx  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
-from core.faults import HarnessFault, ProductFault  # noqa: E402
+from core.faults import HarnessFault, LaneStopped, ProductFault  # noqa: E402
 from core import linking as lk  # noqa: E402
 from core.labels import Labels  # noqa: E402
 from core.lane import Lane, Platform  # noqa: E402
@@ -77,7 +79,7 @@ SEEDS = {"a": "linux-tx-a", "b": "linux-tx-b", "a2": "linux-tx-a"}  # A2: A's ph
 PHASES = ("prepare", "restore-a", "restore-b", "addresses", "sweep-start", "fund",
           "pay-epicbox", "pay-http", "pay-tor", "pay-file",
           "pair-invite", "pair-remove", "pair-proven", "pair-invoice", "pair-end", "sweep-end",
-          "link-up", "link-pay", "link-end")
+          "link-up", "link-pay", "link-end", "sweep-last")
 PAIR_NAME = {"a": "Lane A", "b": "Lane B"}  # the name each is seen as, and its contact's name on the other
 PAIR_CHECKS = ("pair_invite_ok", "pair_proven_ok", "pair_invoice_ok", "pair_end_ok")
 INVOICE = "0.01"  # pair-invoice: what A asks B for (B pays it)
@@ -126,6 +128,10 @@ class PairPlatform(Platform):
         for k, p in self.pair.items():
             if not (p.surface and p.surface.display_alive()) or (p.running and not p.alive()):
                 p.recover()
+
+    def alive(self):
+        """Both wallets' apps and displays up (A2 comes and goes)."""
+        return all(p.surface and p.surface.display_alive() and p.alive() for k, p in self.pair.items() if k != "a2")
 
     def digest(self, tag, secrets):
         raise HarnessFault("digest", "the pair has no one wallet: read A or B (Wallet.digest)")
@@ -284,7 +290,7 @@ class TxLane(Lane):
         try:
             return self._lane()
         finally:  # P's balance after, whatever stopped the lane (proof.json's money)
-            self.p_after = self._p_balance(settle=True)
+            self.p_after = self._p_balance()
 
     def _lane(self):
         for w in self.w.values():
@@ -296,30 +302,47 @@ class TxLane(Lane):
         for k in ("a", "b"):
             self.run_phase("restore-" + k, lambda k=k: self._restore_one(self.w[k]))
         self.run_phase("addresses", self._addresses)
-        self._sweep_phase("sweep-start")
-        if not self.funds:
-            for name in ("fund",) + tuple("pay-" + m for m in self.methods):
-                self.skip_phase(name, "REL_FUNDS=0: no coins from P")
+        self.soft("sweep-start", lambda: self._sweep_phase("sweep-start"))
+        try:
+            self._fund_and_pay()
             self._pairing()
-            self._sweep_end()
+            self.soft("sweep-end", self._sweep_end)
             self._linking()
-        else:
-            try:
-                self._fund_and_pay()
-                self._sweep_end(check=False)
-                self._linking()
-            except core_lane._Stop:
-                raise  # REL_TRUST_UNTIL: what A holds goes back in the next run's sweep-start
-            except BaseException:
-                try:  # the coins go back whatever went wrong; the first fault is the lane's
-                    self._sweep_end()
-                except BaseException as e:  # noqa: BLE001
-                    self.log("sweep-end after the fault: %s" % e)
-                raise
+            if self.kept:  # what a failed phase left behind
+                self.soft("sweep-last", lambda: self._sweep_end("sweep-last"))
+        except core_lane._Stop:
+            raise  # REL_TRUST_UNTIL: what A holds goes back in the next run's sweep-start
+        except BaseException:
+            at = self.phase
+            try:  # the coins go back whatever went wrong; the first fault is the lane's
+                self._sweep_end()
+            except BaseException as e:  # noqa: BLE001
+                self.log("sweep-end after the fault: %s" % e)
             self._returned()
+            self.phase = at
+            raise
+        self._returned()
         return 0
 
     def _fund_and_pay(self):
+        """fund, then a payment per method; a payment that fails leaves the others to run."""
+        funded = None
+        if self.funds:
+            why = "A has no Epicbox address (addresses)" if "epicbox" not in self.address["a"] else None
+            if why:
+                self.skip_phase("fund", why)
+            else:
+                funded = self.soft("fund", self._fund)
+        else:
+            self.skip_phase("fund", "REL_FUNDS=0: no coins from P")
+        for m in self.methods:
+            why = self._cannot_pay(m, funded)
+            if why:
+                self.skip_phase("pay-" + m, why)
+            else:
+                self.soft("pay-" + m, lambda m=m: self._pay(m))
+
+    def _fund(self):
         a0 = tx.digest(self, self.w["a"], "fund")
         self.base.setdefault("a", a0)
         left = tx.remaining(self)
@@ -328,19 +351,29 @@ class TxLane(Lane):
             self.run_phase("fund", lambda: tx.fund(self, left))
         else:
             self.skip_phase("fund", "A's %s EPIC covers %d payments" % (tx.num(tx.held(a0)), len(left)))
-        for m in self.methods:
-            done = tx.paid_already(self.base["a"], tx.digest(self, self.w["a"], "pay-" + m), m)
-            if done:
-                self.skip_phase("pay-" + m, "A paid B by %s this run (%s)" % (m, done["state"]))
-                continue
-            self.run_phase("pay-" + m, lambda m=m: tx.pay(self, m, self._sender(m)))
-        self._pairing()
+        return True
+
+    def _cannot_pay(self, method, funded):
+        if not self.funds:
+            return "REL_FUNDS=0: no coins from P"
+        if not funded:
+            return "needs fund"
+        if method not in self.address["b"] or (method == "file" and method not in self.address["a"]):
+            return "no %s address (addresses)" % method
+        return None
+
+    def _pay(self, m):
+        done = tx.paid_already(self.base["a"], tx.digest(self, self.w["a"], "pay-" + m), m)
+        if done:
+            self.skip_phase("pay-" + m, "A paid B by %s this run (%s)" % (m, done["state"]))
+        else:
+            self.run_phase("pay-" + m, lambda: tx.pay(self, m, self._sender(m)))
 
     # ---- PAIR-1: pairing between A and B, through the UI
 
     def _pairing(self):
         """pair-invite, then (funded) pair-remove, pair-proven and pair-invoice, then pair-end."""
-        self.run_phase("pair-invite", self._pair_invite)
+        self.try_phase("pair-invite", self._pair_invite)
         why = None
         if not self.funds:
             why = "REL_FUNDS=0: needs the Epicbox payment and coins"
@@ -348,15 +381,14 @@ class TxLane(Lane):
             why = "needs this run's Epicbox payment (tx_epicbox_ok)"
         elif not self.results.get("pair_invite_ok"):
             why = "needs the pairing from pair-invite"
-        if why:
-            for name in ("pair-remove", "pair-proven", "pair-invoice"):
-                self.skip_phase(name, why)
-        else:
-            for name, fn in (("pair-remove", self._pair_remove), ("pair-proven", self._pair_proven),
-                             ("pair-invoice", self._pair_invoice)):
-                self.run_phase(name, lambda fn=fn: (self.awake(), fn())[1])
+        for name, fn, needs in (("pair-remove", self._pair_remove, None), ("pair-proven", self._pair_proven, "pair-remove"),
+                                ("pair-invoice", self._pair_invoice, "pair-proven")):
+            if why or self.failed(needs):
+                self.skip_phase(name, why or "needs " + needs)
+            else:
+                self.try_phase(name, lambda fn=fn: (self.awake(), fn())[1])
         if self.results.get("pair_invite_ok") or self.results.get("pair_proven_ok"):
-            self.run_phase("pair-end", lambda: (self.awake(), self._pair_end())[1])
+            self.try_phase("pair-end", lambda: (self.awake(), self._pair_end())[1])
         else:
             self.skip_phase("pair-end", "A and B are not paired")
 
@@ -427,23 +459,19 @@ class TxLane(Lane):
         else:
             self.fail("pair_end_ok", "A removed the pairing: B reads %s, A reads %s" % (b.state(PAIR_NAME["a"])[0], mine))
 
-    def _sweep_end(self, check=True):
-        """sweep-end; returned_ok read after it when [check] (else after the link phases)."""
+    def _sweep_end(self, name="sweep-end"):
         for k in ("a", "b"):  # off the contact pages: their own Send and Receive would stand in for nav's
             if not (k in self.w and self.w[k].pair):
                 continue
             try:
                 self.w[k].pair.contacts_list()
-            except Exception as e:  # noqa: BLE001 — sweep-end's nav says the rest
+            except Exception as e:  # noqa: BLE001 — the sweep's nav says the rest
                 self.log("%s: Contacts list not reached: %s" % (k.upper(), e))
         try:
-            self._sweep_phase("sweep-end", ("b", "a"))
+            self._sweep_phase(name, ("b", "a"))
         except core_lane.Fault as e:
-            self.log("sweep-end: %s; the next run's sweep-start returns what is left" % e.line())
+            self.log("%s: %s; the next run's sweep-start returns what is left" % (name, e.line()))
             raise
-        finally:
-            if check:
-                self._returned()
 
     def _returned(self):
         try:
@@ -456,12 +484,16 @@ class TxLane(Lane):
     def _linking(self):
         """link-up, link-pay (funded), link-end; A2 goes whatever happens (its coin, if it holds one, to P first)."""
         try:
-            self.run_phase("link-up", self._link_up)
+            self.try_phase("link-up", self._link_up)
+            if self.failed("link-up"):
+                self.skip_phase("link-pay", "needs the link from link-up")
+                self.skip_phase("link-end", "needs the link from link-up")
+                return
             if self.funds:
-                self.run_phase("link-pay", self._link_pay)
+                self.try_phase("link-pay", self._link_pay)
             else:
                 self.skip_phase("link-pay", "REL_FUNDS=0: no coins from P")
-            self.run_phase("link-end", self._link_end)
+            self.try_phase("link-end", self._link_end)
         finally:
             self._a2_down()
 
@@ -637,24 +669,27 @@ class TxLane(Lane):
         self.ui = w.ui  # the fault bundle reads the screen of the wallet that ran last
 
     def _addresses(self):
+        """Every address the methods need; one that cannot be read leaves its method out (_cannot_pay)."""
         a, b = self.w["a"], self.w["b"]
         # A: File on to pay with a file (the Send page offers it only then)
         for w, methods in ((a, ("epicbox",) + (("file",) if "file" in self.methods else ())), (b, self.methods)):
             for m in methods:
-                if m in self.address[w.key]:
-                    continue
-                self.ui = w.ui
-                addr = w.pay.enable_receive(m)
-                if m == "epicbox":
-                    shown, addr = addr, w.epicbox(addr)
-                    self.details.setdefault("epicbox_address", {})[w.key] = {"receive_shows": shown, "paid_at": addr}
-                    if shown != addr:
-                        self.log("%s: Receive shows the Epicbox address without its server (%s); paid at %s (settings.toml's "
-                                 "first server)" % (w.key.upper(), short(shown), short(addr)))
-                self.address[w.key][m] = addr
-                if addr:
-                    record.emit("wallet.address", name=w.seed.lane, role="lane", kind=m, address=addr)
+                if m not in self.address[w.key]:
+                    self.soft("addresses", lambda w=w, m=m: self._address(w, m))
         self.details["addresses"] = {k: sorted(v) for k, v in self.address.items()}
+
+    def _address(self, w, m):
+        self.ui = w.ui
+        addr = w.pay.enable_receive(m)
+        if m == "epicbox":
+            shown, addr = addr, w.epicbox(addr)
+            self.details.setdefault("epicbox_address", {})[w.key] = {"receive_shows": shown, "paid_at": addr}
+            if shown != addr:
+                self.log("%s: Receive shows the Epicbox address without its server (%s); paid at %s (settings.toml's "
+                         "first server)" % (w.key.upper(), short(shown), short(addr)))
+        self.address[w.key][m] = addr
+        if addr:
+            record.emit("wallet.address", name=w.seed.lane, role="lane", kind=m, address=addr)
 
     # ---- the sends
 
@@ -708,7 +743,9 @@ class TxLane(Lane):
         a = self.w["a"]
         self.ui = a.ui
         try:
-            return a.pay.history_method(format(tx.AMOUNT, "f"), False)
+            sent = [t for t in tx._txs(tx.digest(self, a, "pay-" + method))
+                    if t["direction"] == "outgoing" and tx.sent_of(t) == tx.nano(tx.AMOUNT) and t["state"] != "cancelled"]
+            return a.pay.history_method(format(tx.AMOUNT, "f"), False, rows=len(sent))
         except (HarnessFault, ProductFault) as e:
             self.log("pay-%s: A's Activity detail not read: %s" % (method, e.what))
             return None
@@ -749,20 +786,11 @@ class TxLane(Lane):
     def _save_resume_secrets(self):
         return None
 
-    def _p_balance(self, settle=False):
-        """P's spendable; [settle]: once nothing of P's awaits confirmation (the sweeps' sends to P and
-        P's change), up to tx.LOCK_WAIT_S, so p_change_actual reads what this run moved."""
+    def _p_balance(self):
+        """P's total: it counts what awaits confirmation, so it reads this run's sweeps at once. Evidence."""
         try:
             with self.funder.exchange("P's balance"):
-                end = time.time() + tx.LOCK_WAIT_S
-                while settle and time.time() < end:
-                    got = self.funder.settled()
-                    if got is not None:
-                        return got
-                    time.sleep(tx.POLL_S)
-                if settle:
-                    self.log("P's balance: still awaiting confirmation after %d s; read as it is" % tx.LOCK_WAIT_S)
-                return self.funder.info()
+                return self.funder.total()
         except Exception as e:  # noqa: BLE001 — evidence only
             self.log("P's balance not read: %s" % e)
             return None
@@ -795,7 +823,7 @@ def main():
         return Desktop(d, which, lane.log)
 
     def stopped(sig, _frame):  # a runner's timeout: the sandboxes and stand-ins still go
-        raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
+        raise LaneStopped(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
     given = [c.strip() for c in (e.get("REL_CHECKS") or "").split(",") if c.strip()]
     methods = [m.strip() for m in (e.get("REL_TX_METHODS") or ",".join(METHODS)).split(",") if m.strip()]
     pairs = [c for c in PAIR_CHECKS if "epicbox" in methods or c in ("pair_invite_ok", "pair_end_ok")]

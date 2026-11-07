@@ -15,7 +15,7 @@ sys.path.insert(0, HERE)
 from core import checks  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
-from core.faults import HarnessFault  # noqa: E402
+from core.faults import LaneStopped  # noqa: E402
 from core.labels import Labels  # noqa: E402
 from core.lane import Lane, dry_or_fail  # noqa: E402
 from linux_platform import LinuxPlatform  # noqa: E402
@@ -60,7 +60,7 @@ def main():
         return Desktop(d, which, lane.log)
 
     def stopped(sig, _frame):  # a runner's timeout: the sandbox and stand-ins still go
-        raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
+        raise LaneStopped(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=["create_ok"] if create else required(funds), funds=funds, p=funder)
     signal.signal(signal.SIGTERM, stopped)
     return lane.create_only() if create else lane.main()

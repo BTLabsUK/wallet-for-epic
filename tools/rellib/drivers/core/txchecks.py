@@ -132,9 +132,9 @@ class Ledger:
              "cap_run": f(self.cap_run), "cap_send": f(self.cap_send)}
         # P's info: EPIC text
         if p_before is not None:
-            d["p_spendable_before"] = str(p_before)
+            d["p_total_before"] = str(p_before)
         if p_after is not None:
-            d["p_spendable_after"] = str(p_after)
+            d["p_total_after"] = str(p_after)
         d["p_fees"] = {s[:8]: (f(a) if a is not None else None) for s, a in self.p_fees.items()}
         d["p_fees_total"] = f(self.p_fee())
         # what P's balance should have moved by from this run: back - what left P - P's own fees. P is

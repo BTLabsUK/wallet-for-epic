@@ -38,6 +38,7 @@ ANR_IN = re.compile(r"\bANR in (\S+)")
 
 class Frozen(ProductFault):
     """The app froze. `evidence` is {file name: text} the lane's bundle keeps."""
+    fatal = True  # no app to drive
 
     def __init__(self, step, what, shot=None, evidence=None):
         super().__init__(step, "the app froze: " + what, shot)
