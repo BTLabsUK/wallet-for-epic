@@ -28,6 +28,9 @@ import 'ui/theme/advanced.dart';
 import 'ui/theme/tokens.dart';
 import 'updater.dart';
 
+/// The web preview build (tool/build_preview.sh): shows the Demo label.
+const bool _demoLabel = bool.fromEnvironment('WFE_WEB_FAKE');
+
 /// Root widget. Expects a `ProviderScope` above it.
 class WalletApp extends ConsumerStatefulWidget {
   const WalletApp({super.key});
@@ -285,13 +288,50 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             usePin: l.biometricPromptUsePin,
           );
         }
-        return PhoneFrame(
+        final framed = PhoneFrame(
           child: SettingsFileNotices(
             child: AdvancedOptions(
               prefs: ref.watch(effectiveAdvancedProvider),
               child: child!,
             ),
           ),
+        );
+        // The web preview is a demo and says so on every screen (WFE_WEB_FAKE is never set in
+        // a real build, so this branch is removed from it).
+        if (!_demoLabel) return framed;
+        return Stack(
+          children: [
+            framed,
+            Positioned(
+              top: 4,
+              right: 6,
+              child: SafeArea(
+                child: IgnorePointer(
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Semantics(
+                      label: 'Demo',
+                      child: ExcludeSemantics(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: const Color(0xCC000000),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            child: Text(
+                              'Demo',
+                              style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 11, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
       themeMode: themeMode,

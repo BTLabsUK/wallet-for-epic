@@ -23,9 +23,10 @@ class ProtoButton extends ConsumerWidget {
       right: Sp.x5,
       bottom: Sp.x5,
       child: ETip(
-        'Play the other side: payer, service, Epicbox, node, chain, clock',
+        'Demo. Play the other side: payer, service, Epicbox, node, chain, clock',
         child: InvButton(
-          label: 'Prototype',
+          // The web build is the public demo: the button says so (it only exists there).
+          label: 'Demo',
           icon: EIcons.prototype,
           kind: EBtnKind.secondary,
           width: InvW.sm,
