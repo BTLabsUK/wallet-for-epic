@@ -166,6 +166,45 @@ def driver_uses(files):
     return uses, prefixes, problems
 
 
+def found_by_text(c, fam):
+    """The texts `c` can be found by where no id reaches: its keys and names, the family's own first."""
+    c = dict(c, **c.get(fam, {}))
+    return list(c.get("keys", ())) + list(c.get("names", ()))
+
+
+def blind_uses(files, uses, by_id):
+    """-> [(file, line, id, platform)]: a driver looks for a target on a platform where nothing can find
+    it. Windows gets no ids, only names, so a desktop target needs a text; a row given its text with
+    .of(data, names=...) or .at(value, names=...) has one. A `named` target has no id anywhere. Read from
+    the code, so it fails here and not hours into a lane."""
+    blind = {}  # (const, family) -> (id, platform)
+    for tid, us in uses.items():
+        c = by_id.get(tid)
+        if c is None:
+            continue
+        for f, line, const in us:
+            fam = "android" if is_phone(f) else "desktop"
+            if not found_by_text(c, fam) and (fam == "desktop" or kind(c) == "named"):
+                blind[const, fam] = (tid, "Windows" if fam == "desktop" else fam)
+    out = []
+    for f in files:
+        fam = "android" if is_phone(f) else "desktop"
+        tree = ast.parse(read(f))
+        for n in ast.walk(tree):
+            for t in ast.iter_child_nodes(n):
+                t.parent = n
+        for n in ast.walk(tree):
+            if not (isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load) and (n.id, fam) in blind):
+                continue
+            up = getattr(n, "parent", None)
+            call = getattr(up, "parent", None)
+            if isinstance(up, ast.Attribute) and up.attr in ("of", "at") and isinstance(call, ast.Call) \
+                    and any(k.arg == "names" for k in call.keywords):
+                continue
+            out.append((f, n.lineno) + blind[n.id, fam])
+    return sorted(set(out))
+
+
 def steps_for(tid, uses, files):
     """The driver steps that use `tid`: its constant's uses, each with its method and step name."""
     out = []
@@ -343,6 +382,9 @@ def check():
             for p in sorted({p for v in pl.values() for p in v}):
                 bad.append((p, "TrustIds.%s" % const, "no such id in %s" % DART,
                             "rename with tools/ui-targets rename OLD NEW, or tools/ui-targets add ID"))
+    for f, line, i, where in blind_uses(files, uses, by_id):
+        bad.append(("%s:%d" % (f, line), i, "a driver looks for it on %s, where nothing can find it: no id reaches that build and it has no text" % where,
+                    'give it `keys` or `names` in %s, or pass the text: .of(data, names=...)' % REG))
     for f in dart_files(LIB):
         for no, line in enumerate(read(f).split("\n"), 1):
             m = re.search(r"""['"]((?:g4|pair|link|tx|inv)\.[a-zA-Z]+\.[A-Za-z0-9_.]+)['"]""", line)

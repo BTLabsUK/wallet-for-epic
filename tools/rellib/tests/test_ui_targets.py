@@ -52,6 +52,44 @@ class UiTargetsTest(unittest.TestCase):
         self.assertGreater(len(keys), 20)
         self.assertLessEqual(keys, set(json.loads(ut.read(ut.ARB))))
 
+    def test_a_target_windows_cannot_find_fails_with_no_rig(self):
+        """Windows finds by text: a desktop target with none, looked for bare, is a miss on that rig."""
+        real = ut.load
+        controls = real()
+        c = next(c for c in controls if c["id"] == "g4.advanced.technical")
+        c.pop("keys", None), c.pop("names", None)
+        ut.load = lambda: controls
+        try:
+            rc, out = quiet(ut.check)
+        finally:
+            ut.load = real
+        self.assertEqual(rc, 1)
+        self.assertRegex(out, r"core/desktop\.py:\d+: g4\.advanced\.technical: a driver looks for it on Windows")
+
+    def test_a_row_given_its_text_is_found_on_windows(self):
+        by_id = {"g4.a.row": {"id": "g4.a.row"}}
+        tree = "ROW = T('g4.a.row')\nfind(ROW.of(x, names=(x,)))\nfind(ROW.at(1, names=(x,)))\n"
+        bare = tree + "find(ROW.of(x))\n"
+        files, real = ["tools/x/core/desktop.py"], ut.read
+        uses = {"g4.a.row": [(files[0], 1, "ROW")]}
+        try:
+            ut.read = lambda f: tree
+            self.assertEqual(ut.blind_uses(files, uses, by_id), [])
+            ut.read = lambda f: bare
+            self.assertEqual(ut.blind_uses(files, uses, by_id), [(files[0], 4, "g4.a.row", "Windows")])
+        finally:
+            ut.read = real
+
+    def test_a_named_target_with_no_text_is_blind_on_the_phone_too(self):
+        by_id = {"g4.a.row": {"id": "g4.a.row", "kind": "named"}, "g4.b": {"id": "g4.b"}}
+        files, real = ["tools/x/core/phone.py"], ut.read
+        uses = {"g4.a.row": [(files[0], 1, "ROW")], "g4.b": [(files[0], 2, "B")]}
+        try:
+            ut.read = lambda f: "ROW = T_phone('g4.a.row')\nB = T_phone('g4.b')\nfind(ROW)\nfind(B)\n"
+            self.assertEqual(ut.blind_uses(files, uses, by_id), [(files[0], 3, "g4.a.row", "android")])
+        finally:
+            ut.read = real
+
     def test_a_control_key_gone_from_the_arb_is_named(self):
         real = ut.load
         controls = real()
