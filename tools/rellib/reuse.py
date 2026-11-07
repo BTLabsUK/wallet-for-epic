@@ -14,15 +14,20 @@ run: its files are copied in and it is marked "reused from <run> (<commit>)". Fo
 nightly full check (`reuse_nightly`) of a commit with the same key counts too, and so does any
 green `tools/check.sh --full` on a clean tree (`reuse_green`: the <sha>.json records check.sh
 writes in /tmp/epic-build/green/ after tools/t's full and full-notor passes, the nightly's own run
-included). A candidate none of these covers runs G2 first in its run. A changed key runs the step. Dry runs
-never reuse.
+included). A commit that differs from a green one only by its version (`tools/version.sh set`, within
+the step's paths) counts as that green commit, for a step that leaves no files. A candidate none of
+these covers runs G2 first in its run. A changed key runs the step. Dry runs never reuse.
 """
 import pathlib
 import glob
 import hashlib
 import json
 import os
+import re
 import subprocess
+
+# What `tools/version.sh set` writes: a line in one of these files that fully matches is the version.
+VERSION_LINES = {"app/pubspec.yaml": r"version:\s*\S+", "app/lib/src/app_version.dart": r"const String appVersion = '[^']*';"}
 
 
 def _git(repo, *args):
@@ -71,6 +76,29 @@ def key(repo, commit, version, step, paths):
         "outputs": sorted(step.outputs or []), "extras": sorted(step.extras or []),
     }
     return hashlib.sha256(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:24], parts
+
+
+def version_only_diff(repo, a, b, paths):
+    """Whether commits a and b differ, within paths, by nothing but the version lines."""
+    spec = [p for p in paths if not p.startswith("!")] + [f":(exclude){p[1:].rstrip('/')}" for p in paths if p.startswith("!")]
+    out = _git(repo, "diff", "--no-ext-diff", "--no-renames", "--unified=0", "--no-color", a, b, "--", *spec)
+    if out is None:
+        return False
+    cur, header = "", False
+    for line in out.splitlines():
+        if line.startswith("diff --git "):
+            if cur is None:  # the last file had no text change: a mode or a binary file
+                return False
+            cur, header = None, True
+        elif header:
+            if line.startswith("+++ "):
+                cur = line[6:]
+                if cur not in VERSION_LINES:
+                    return False
+            header = not line.startswith("@@")
+        elif line[:1] in ("+", "-") and not re.fullmatch(VERSION_LINES[cur], line[1:]):
+            return False
+    return cur is not None
 
 
 def _outputs_intact(run_dir, outs):
@@ -130,6 +158,12 @@ def find_source(repo, root, info, step, paths, nightly=None, green=None, this_ru
     k, parts = key(repo, info["commit"], info["version"], step, paths)
     keys = {}  # commit → key, computed once
     cands = []
+
+    def same(c):
+        if c not in keys:
+            keys[c] = key(repo, c, info["version"], step, paths)[0]
+        return keys[c] == k or not (step.outputs or step.extras) and version_only_diff(repo, c, info["commit"], paths)
+
     for st_path in glob.glob(os.path.join(root, "*", "run-*", "steps", step.id, "status.json")):
         run_dir = os.path.dirname(os.path.dirname(os.path.dirname(st_path)))
         if this_run and os.path.realpath(run_dir) == os.path.realpath(this_run):
@@ -164,17 +198,13 @@ def find_source(repo, root, info, step, paths, nightly=None, green=None, this_ru
                 continue
             c = n.get("sha")
             if c and _git(repo, "cat-file", "-e", f"{c}^{{commit}}") is not None:
-                if c not in keys:
-                    keys[c] = key(repo, c, info["version"], step, paths)[0]
-                if keys[c] == k:
+                if same(c):
                     return k, parts, {"kind": "nightly", "label": f"nightly {n.get('ended', '')}".strip(), "commit": c}
     if green and os.path.isdir(green):
         for c, r in green_records(green):
             if _git(repo, "cat-file", "-e", f"{c}^{{commit}}") is None:
                 continue
-            if c not in keys:
-                keys[c] = key(repo, c, info["version"], step, paths)[0]
-            if keys[c] == k:
+            if same(c):
                 label = f"tools/check.sh --full {r.get('ended', '')} ({r.get('by') or r.get('host') or '?'})".strip()
                 return k, parts, {"kind": "green", "label": label, "commit": c}
     return k, parts, None

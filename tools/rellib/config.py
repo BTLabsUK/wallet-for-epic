@@ -97,6 +97,7 @@ class Pipeline:
         self.health = data.get("health", {})  # per-lane health (tools/rellib/health.py)
         self.serverlogs = data.get("serverlogs", {})  # server-side lines for a failed lane (tools/rellib/serverlogs.py)
         self.night = data.get("night", {})  # where `tools/rel start --night` keeps its runs
+        self.ledger = data.get("ledger", {})  # the bug ledger file (Engine.record_bug)
         if not self.steps:
             raise ConfigError(f"{path}: no [step.*] tables")
         c = self.concurrency

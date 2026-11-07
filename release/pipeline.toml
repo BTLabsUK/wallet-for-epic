@@ -151,6 +151,10 @@ watch_hours = 72
 
 # The night stage (`tools/rel start --night`): its run folders, and lanes/<sha>.json beside them, one
 # per commit, which `tools/rel cut` and the gate note read. Its events go to the release's tests.db.
+# One line per failed attempt, also in tests.db (`testdb bugs`) and each run's journal.
+[ledger]
+path = ".test-results/bug-ledger.jsonl"
+
 [night]
 state_root = "/tmp/epic-build/nightly/rel"
 

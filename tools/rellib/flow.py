@@ -7,9 +7,10 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 import tomllib
 
-from .config import ConfigError, Pipeline, is_night
+from .config import ConfigError, PLATFORMS, Pipeline, is_night
 from .run import now_iso, read_json
 
 BEGIN = "# flow:begin"
@@ -206,6 +207,131 @@ def change_class(main, base, cls, pipeline):
         git("checkout", "--", rel)
         raise ConfigError(f"git commit: {done.stderr.strip()}")
     return git("rev-parse", "HEAD").stdout.strip()
+
+
+# ---- the cut ----
+
+def cut_refusal(rec, blocks):
+    """Why a night's record is no base for a cut, or None."""
+    if (rec.get("source") or {}).get("status") != "done":
+        return f"source is {(rec.get('source') or {}).get('status') or 'missing'}"
+    lanes = rec["lanes"]
+    names = set(blocks) | {b for b, v in lanes.items() if v.get("class") == "blocks"}
+    bad = [f"{b} is {lanes.get(b, {}).get('status', 'missing')}" for b in sorted(names)
+           if lanes.get(b, {}).get("status") != "done" or lanes[b].get("warned")]
+    return ", ".join(bad) or None
+
+
+def cut_base(pipeline, main):
+    """-> (commit, [why the newer nights do not count]): the newest commit of main with a green
+    source and every Blocks night lane passed."""
+    blocks = [b for b, stage in lane_bases(pipeline) if stage == "night" and class_of(pipeline.steps[b]) == "blocks"]
+    records = {r["sha"]: r for r in night_records(lanes_dir(pipeline))}
+    p = subprocess.run(["git", "-C", main, "rev-list", "--max-count", "2000", "main"], capture_output=True, text=True, check=False)
+    if p.returncode:
+        raise ConfigError(f"git rev-list main: {p.stderr.strip()}")
+    why = []
+    for sha in p.stdout.split():
+        if sha in records:
+            no = cut_refusal(records[sha], blocks)
+            if not no:
+                return sha, why
+            why.append(f"{sha[:12]}: {no}")
+    return None, why
+
+
+def make_cut(main, version, base, work_root):
+    """Branch release/<version> at base plus the version commit. -> (tip, made). A branch that is
+    already there and has the version stands: main may move, the branch does not."""
+    def git(*args, cwd=main):
+        return subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, check=False)
+
+    branch = f"release/{version}"
+    tip = git("rev-parse", "-q", "--verify", f"refs/heads/{branch}").stdout.strip()
+    if tip:
+        have = git("show", f"{tip}:app/lib/src/app_version.dart").stdout
+        if f"appVersion = '{version}';" not in have:
+            raise ConfigError(f"{branch} exists without version {version}: look at it before cutting again")
+        return tip, False
+    os.makedirs(work_root, exist_ok=True)
+    wt = tempfile.mkdtemp(prefix=".cut-", dir=work_root)
+    add = git("worktree", "add", "-q", "--force", "--detach", wt, base)
+    if add.returncode:
+        os.rmdir(wt)
+        raise ConfigError(f"git worktree add: {add.stderr.strip()}")
+    try:
+        v = subprocess.run(["bash", os.path.join(wt, "tools", "version.sh"), "set", version], capture_output=True, text=True, check=False)
+        if v.returncode:
+            raise ConfigError(f"tools/version.sh set {version}: {(v.stderr or v.stdout).strip()}")
+        git("add", "app/pubspec.yaml", "app/lib/src/app_version.dart", cwd=wt)
+        if git("diff", "--cached", "--quiet", cwd=wt).returncode:
+            done = git("commit", "-q", "-m", f"Set the version to {version}", cwd=wt)
+            if done.returncode:
+                raise ConfigError(f"git commit: {done.stderr.strip()}")
+        tip = git("rev-parse", "HEAD", cwd=wt).stdout.strip()
+        made = git("branch", branch, tip)
+        if made.returncode:
+            raise ConfigError(f"git branch {branch}: {made.stderr.strip()}")
+    finally:
+        git("worktree", "remove", "--force", wt)
+    return tip, True
+
+
+# ---- the gate note ----
+
+def night_of(pipeline, repo, commit):
+    """The night record of commit, or of the newest commit it stands on: a cut adds the version
+    commit and maybe exception fixes on top of the night it came from."""
+    p = subprocess.run(["git", "-C", repo, "rev-list", "--max-count", "50", commit], capture_output=True, text=True, check=False)
+    for sha in p.stdout.split():
+        rec = read_json(os.path.join(lanes_dir(pipeline), f"{sha}.json"), None)
+        if isinstance(rec, dict) and isinstance(rec.get("lanes"), dict):
+            return rec
+    return None
+
+
+def result_word(status, warned):
+    return "warned" if warned else {"done": "passed"}.get(status, status or "not run")
+
+
+def lane_lines(engine):
+    """Every lane with its class and result: the night's, then this run's. Warned lanes hold nothing."""
+    run = engine.run
+    groups = {}
+
+    def add(base, cls, status, warned):
+        groups.setdefault((cls, result_word(status, warned)), []).append(base)
+
+    rec = night_of(engine.pipeline, engine.repo, engine.info["commit"])
+    for base, v in sorted((rec or {}).get("lanes", {}).items()):
+        add(base, v.get("class") or "blocks", v.get("status"), v.get("warned"))
+    mine = {}
+    for s in run.steps:
+        if s.proof or s.warn_only:
+            st = run.status(s.id)
+            cur = mine.setdefault(s.base, ["informs" if s.warn_only else "blocks", st["status"], False])
+            cur[1] = worst(cur[1], st["status"])
+            cur[2] = cur[2] or bool(st.get("warned"))
+    for base, (cls, status, warned) in mine.items():
+        add(base, cls, status, warned)
+    head = f"Lanes (night {rec['sha'][:12]}; warned lanes hold nothing):" if rec else \
+        "Lanes (no night record for this commit; warned lanes hold nothing):"
+    return [head] + [f"- {cls} {word}: {', '.join(names)}" for (cls, word), names in sorted(groups.items())]
+
+
+def walk_path(run):
+    return os.path.join(run.path, "person-walk.json")
+
+
+def walk_lines(run):
+    """The person walk (release/person-walk.md): one result per platform of the run."""
+    done = read_json(walk_path(run), {}) or {}
+    lines = ["Person walk (release/person-walk.md):"]
+    for p in PLATFORMS:
+        if run.info["scope"]["platforms"].get(p):
+            w = done.get(p)
+            lines.append(f"- {p}: " + (f"{w['result']}" + (f" ({w['note']})" if w.get("note") else "") if w else "not walked yet"))
+    return lines
 
 
 # ---- what a night leaves ----

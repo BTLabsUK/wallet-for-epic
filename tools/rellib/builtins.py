@@ -17,7 +17,7 @@ import time
 import tomllib
 import urllib.request
 
-from . import guards, health, hosted
+from . import flow, guards, health, hosted
 from .config import PLATFORMS, scope_summary
 from .run import Run, now_iso, read_json, write_json
 
@@ -447,8 +447,12 @@ def preflight(engine, step, say):
         # The tag step refuses a commit that is not on main: say so now, not after the gate.
         main = os.path.expanduser(hosts["path"].get("main_checkout") or engine.repo)
         rc, _ = sh(["git", "-C", main, "merge-base", "--is-ancestor", info["commit"], "main"], lambda *a: None)
+        branch = f"release/{info['version']}"
+        _, tip = sh(["git", "-C", main, "rev-parse", "-q", "--verify", f"refs/heads/{branch}"], lambda *a: None)
         if rc == 0:
             ok(f"release commit {info['commit'][:12]} is on main ({main})")
+        elif tip.strip() == info["commit"]:
+            ok(f"release commit {info['commit'][:12]} is the tip of {branch}: step tag merges it into main")
         else:
             warns.append(f"release commit {info['commit'][:12]} is not on main ({main}): merge it before the "
                          "publish gate, or step tag refuses it")
@@ -1001,6 +1005,9 @@ def gate_summary(engine):
     lines.append("Update trust (G4):")
     for p, (state, text) in proof_table(engine).items():
         lines.append(f"- {p}: {text}"[:300])
+    lines.extend(flow.lane_lines(engine))
+    lines.extend(flow.walk_lines(run))
+    lines.extend(health.slow_line(h) for h in health.slow_steps(health.metrics_path(run))[:6])
     srv = server_log_lines(engine)
     at_srv = len(lines)
     lines.extend(srv)

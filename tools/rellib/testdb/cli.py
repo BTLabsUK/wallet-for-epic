@@ -22,6 +22,7 @@ def table(rows, cols=None):
 COLS = {
     "last": ["lane", "run_id", "n", "state", "rc", "cause_class", "cause", "ended"],
     "failures": ["ts", "run_id", "lane", "n", "step", "cause_class", "cause", "what"],
+    "bugs": ["ts", "run_id", "lane", "n", "class", "cause", "warned", "commit_sha", "note"],
     "playbook": ["id", "key", "state", "situation", "fix", "version_added"],
     "wallets": ["name", "role", "platform", "address", "spendable", "total", "balance_at", "state"],
     "paths": ["id", "key", "platform", "goal", "state", "hits", "fails", "reviewed_by"],
@@ -67,6 +68,9 @@ def main(argv=None):
     p = q("failures", "failures, newest first")
     p.add_argument("--cause")
     p.add_argument("--run")
+    p = q("bugs", "the bug ledger: one row per failed attempt, newest first")
+    p.add_argument("--cause")
+    p.add_argument("--run")
     q("live", "running attempts and steps, heartbeat age, inbox pending")
     p = q("playbook", "playbook entries")
     p.add_argument("--state")
@@ -108,7 +112,7 @@ def main(argv=None):
                     print("%-10s %s" % (k, "" if v is None else v))
             print("\naddresses:\n" + table(data["addresses"]))
             print("\nsnapshots:\n" + table(data["snapshots"]))
-    elif ns.cmd in ("last", "failures", "live", "playbook", "paths", "wallets"):
+    elif ns.cmd in ("last", "failures", "bugs", "live", "playbook", "paths", "wallets"):
         args = {k: v for k, v in vars(ns).items() if k not in ("db", "cmd", "open", "action") and v is not None}
         if getattr(ns, "open", False):
             args["state"] = "open"

@@ -25,6 +25,20 @@ def failures(conn, cause=None, run=None, **_):
     return _rows(conn, sql + " ORDER BY f.ts DESC, f.id DESC", args)
 
 
+def bugs(conn, cause=None, run=None, **_):
+    sql = ("SELECT b.ts, l.run_id AS run_id, l.name AS lane, a.n AS n, b.step, b.class, b.cause, b.note, b.warned, "
+           "b.commit_sha, b.version, b.log_path FROM bugs b JOIN attempts a ON a.id=b.attempt_id "
+           "JOIN lanes l ON l.id=a.lane_id WHERE 1=1")
+    args = []
+    if cause:
+        sql += " AND (b.class=? OR b.cause=?)"
+        args += [cause, cause]
+    if run:
+        sql += " AND l.run_id=?"
+        args.append(run)
+    return _rows(conn, sql + " ORDER BY b.ts DESC, b.id DESC", args)
+
+
 def live(conn, db=None, **_):
     out = {"running": _rows(conn, "SELECT * FROM live ORDER BY started"),
            "pending": writer.pending(db) if db else None}
@@ -80,5 +94,5 @@ def wallet(conn, name=None, secrets=False, snapshots=10, **_):
     return out
 
 
-QUERIES = {"last": last, "failures": failures, "live": live, "playbook": playbook, "paths": paths,
+QUERIES = {"last": last, "failures": failures, "bugs": bugs, "live": live, "playbook": playbook, "paths": paths,
            "wallets": wallets, "wallet": wallet}

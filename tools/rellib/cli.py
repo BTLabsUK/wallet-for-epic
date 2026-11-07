@@ -21,9 +21,9 @@ import sys
 import tempfile
 
 from . import builtins, failures as known, flow, guards, health, hosted, retention
-from .config import (ConfigError, PLATFORMS, Pipeline, is_night, load_hosts, load_scope, scope_summary, scope_toml,
+from .config import (ConfigError, PLATFORMS, Pipeline, VERSION_RE, is_night, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
-from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
+from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, STALE_BYTES, relmsg_state)
 from .graph import build_graph, dependents
 from .relmsg import Relmsg
 from .run import Busy, Run, now_iso, read_json, write_json
@@ -391,7 +391,7 @@ class App:
         if eng.relmsg:
             self.supersede(run)
         self.relmsg_start(run, eng)
-        return self.drive(run, eng, phase="build", until=a.until, keep_going=a.keep_going)
+        return self.drive(run, eng, phase="build", until=a.until, stop_on_fail=a.stop_on_fail)
 
     def concurrency_overrides(self, run, a):
         """--max-heavy N / --exclusive-machine: kept in run.json, so a resume keeps them."""
@@ -404,7 +404,7 @@ class App:
             run.info["concurrency"] = over
             run.save_info()
 
-    def drive(self, run, eng, phase, until=None, retry_failed=False, keep_going=False):
+    def drive(self, run, eng, phase, until=None, retry_failed=False, stop_on_fail=False):
         why = self.run_refusal(run.info)
         if why:
             return self.out(EXIT_DENIED, why, run)
@@ -443,15 +443,10 @@ class App:
                     continue
                 if st["status"] == "failed" and retry_failed:
                     run.set_status(sid, retry=True)
-                if st["status"] == "done" and not st.get("dry") and st.get("input_hash") and \
-                        st["input_hash"] != eng.input_hash(s) and not s.publish:
-                    run.set_status(sid, status="pending", note="inputs changed since it ran")
-                elif st["status"] == "done" and not st.get("dry") and st.get("inputs_digest") and not s.publish and \
-                        st["inputs_digest"] != eng.inputs_digest(s):
-                    # Evidence tied to the artefacts: a build it depends on ran again, so what this
-                    # step proved (G3, a trust proof, signing, the gate) is about other bytes.
-                    run.set_status(sid, status="pending", note="not applicable any more: a build it depends on "
-                                                               "ran again since (new bytes)")
+                why = eng.stale_why(s, st)
+                if why:
+                    run.set_status(sid, status="pending", note=why)
+                if why == STALE_BYTES:
                     run.event(sid, "invalidated", reason="build inputs changed")
                     if s.kind == "gate":
                         gname = "rollback" if s.base == "rollback-gate" else "publish"
@@ -459,8 +454,9 @@ class App:
                         run.save_info()
                 if st["status"] == "running":
                     run.set_status(sid, status="pending", note="was running when tools/rel stopped")
-            # --keep-going: a failed build-phase step stops only what needs it; publishing always stops.
-            code = eng.drive(sel, stop_on_fail=not (keep_going and phase == "build"))
+            # A failed build-phase step stops only what needs it (--stop-on-fail: everything);
+            # publishing always stops.
+            code = eng.drive(sel, stop_on_fail=stop_on_fail or phase != "build")
         except Interrupted as e:
             # Stopped or killed: this run is over (a new run, not this one, is what comes next).
             if eng.relmsg:
@@ -558,7 +554,7 @@ class App:
         if eng.relmsg:
             eng.relmsg.reopen()
         self.relmsg_start(run, eng)
-        return self.drive(run, eng, phase="build", keep_going=a.keep_going)
+        return self.drive(run, eng, phase="build", stop_on_fail=a.stop_on_fail)
 
     def cmd_resume(self, a):
         run = self.load_run()
@@ -571,12 +567,13 @@ class App:
             eng.relmsg.reopen()
         self.relmsg_start(run, eng)
         return self.drive(run, eng, phase="publish" if a.publish else "build", until=a.until, retry_failed=True,
-                          keep_going=a.keep_going)
+                          stop_on_fail=a.stop_on_fail)
 
     def cmd_run(self, a):
         """One step, and nothing after it. Several steps run side by side across their lanes under one
-        lock; a need among them is waited for, a need outside them must be met (or --ignore-needs).
-        --keep-going: a failed step stops only the steps that need it."""
+        lock; a need among them is waited for, a need outside them must be met and still hold (or
+        --ignore-needs): a done need whose inputs changed counts as not met. A failed step stops
+        only the steps that need it (--stop-on-fail: all of them); a publish step always stops."""
         run = self.load_run()
         sel = [run.step(x) for x in [a.step, *(getattr(a, "more", None) or [])]]
         ids = [s.id for s in sel]
@@ -591,9 +588,13 @@ class App:
                 if gate and run.status(gate[0].id)["status"] != "done":
                     return self.out(EXIT_DENIED, f"{s.id} publishes: the gate {gate[0].id} has not approved this run", run)
             unmet = [n for n in s.needs if n not in ids and run.status(n)["status"] not in ("done", "skipped")]
+            why = [f"{n} is {run.status(n)['status']}" for n in unmet]
+            for n, stale in self.stale_needs(run, eng, s, ids):
+                unmet.append(n)
+                why.append(f"{n} is stale: {stale}")
             if unmet and not a.ignore_needs:
-                return self.out(EXIT_USAGE, f"{s.id} needs {', '.join(unmet)} first (or --ignore-needs: the run is then "
-                                            "tainted and can never be published)", run)
+                return self.out(EXIT_USAGE, f"{s.id} needs {', '.join(unmet)} first ({'; '.join(why)}; or --ignore-needs: "
+                                            "the run is then tainted and can never be published)", run)
             if unmet and s.publish:
                 return self.out(EXIT_USAGE, "a publish step never runs with --ignore-needs", run)
             unmet_of[s.id] = unmet
@@ -609,12 +610,28 @@ class App:
             for s in sel:
                 run.set_status(s.id, status="pending", retry=False)
                 s.needs = [n for n in s.needs if n not in unmet_of[s.id]]
-            code = eng.drive(ids, stop_on_fail=not getattr(a, "keep_going", False))
+            code = eng.drive(ids, stop_on_fail=getattr(a, "stop_on_fail", False) or any(s.publish for s in sel))
             for s in sel:
                 s.needs = saved[s.id]
         finally:
             run.unlock()
         return self.finish(run, eng, code)
+
+    @staticmethod
+    def stale_needs(run, eng, step, ids):
+        """-> [(id, why)] of the done steps step rests on, outside ids, whose result no longer holds."""
+        out, seen, frontier = [], set(ids), list(step.needs)
+        while frontier:
+            sid = frontier.pop()
+            if sid in seen:
+                continue
+            seen.add(sid)
+            s = run.step(sid)
+            why = eng.stale_why(s, run.status(sid))
+            if why:
+                out.append((sid, why))
+            frontier.extend(s.needs)
+        return sorted(out)
 
     def cmd_retry(self, a):
         run = self.load_run()
@@ -661,7 +678,7 @@ class App:
         except Busy as e:
             return self.out(EXIT_BUSY, str(e), run)
         try:
-            st = eng.execute(g)
+            st = eng.execute_alone(g)
         finally:
             run.unlock()
         code = {"done": EXIT_OK, "waiting": EXIT_WAITING}.get(st["status"], EXIT_DENIED)
@@ -912,6 +929,35 @@ class App:
         sha = flow.change_class(main, a.base, a.cls, self.pipeline)
         return self.out(EXIT_OK, f"{a.base} {a.cls}: {sha[:12] if sha else 'already so'}", commit=sha)
 
+    def cmd_cut(self, a):
+        """Branch release/<version> from the newest green night, plus the version commit. The app is
+        frozen on that branch: main may move, an exception fix is cherry-picked and reruns G2."""
+        if not VERSION_RE.fullmatch(a.version):
+            return self.out(EXIT_USAGE, f"--version {a.version}: expected YY.MM.patch")
+        main = os.path.expanduser(self.hosts["path"].get("main_checkout") or self.repo)
+        base, why = flow.cut_base(self.pipeline, main)
+        branch = f"release/{a.version}"
+        have = subprocess.run(["git", "-C", main, "rev-parse", "-q", "--verify", f"refs/heads/{branch}"],
+                              capture_output=True, text=True, check=False).stdout.strip()
+        if base is None and not have:
+            return self.out(EXIT_FAILED, "no commit of main has a green night"
+                            + (": " + "; ".join(why[:5]) if why else " (tools/rel start --night)"), nights=why)
+        tip, made = flow.make_cut(main, a.version, base, self.state_root)
+        start = f"tools/rel start {a.version} --commit {tip}"
+        return self.out(EXIT_OK, f"{branch} at {tip[:12]}{'' if made else ' (already cut)'}\n{start}",
+                        version=a.version, commit=tip, branch=branch, base=base, start=start)
+
+    def cmd_walk(self, a):
+        """The person walk's result for one platform (release/person-walk.md); the gate note shows it."""
+        run = self.load_run()
+        if a.platform not in PLATFORMS or not run.info["scope"]["platforms"].get(a.platform):
+            return self.out(EXIT_USAGE, f"{a.platform} is not in this run", run)
+        done = read_json(flow.walk_path(run), {}) or {}
+        done[a.platform] = {"result": a.result, "note": a.note or "", "at": now_iso()}
+        write_json(flow.walk_path(run), done)
+        run.event("", "person-walk", platform=a.platform, result=a.result, note=a.note or "")
+        return self.out(EXIT_OK, f"person walk {a.platform}: {a.result}", run)
+
     def cmd_lane_health(self, a):
         """`stats --lanes`: the lane health table (tools/rellib/health.py)."""
         lanes = health.lanes_of(os.path.join(self.state_root, "metrics.jsonl"), self.pipeline.health)
@@ -942,6 +988,7 @@ class App:
         by = {}
         for r in rows:
             by.setdefault(r["base"], []).append(r)
+        slow = {h["step"]: h for h in health.slow_steps(path)}
         table = []
         for base, rs in by.items():
             done = [r["duration_s"] for r in rs if r["status"] == "done"]
@@ -950,7 +997,8 @@ class App:
             avg = sum(prev5) / len(prev5) if prev5 else None
             table.append({"step": base, "runs": len(rs), "failed": sum(1 for r in rs if r["status"] == "failed"),
                           "last_s": last, "avg_prev5_s": round(avg, 1) if avg else None,
-                          "slower": bool(last and avg and last > 1.25 * avg)})
+                          "slower": bool(last and avg and last > 1.25 * avg),
+                          "over_median": slow.get(base)})
         if a.json:
             return self.out(EXIT_OK, "stats", stats=table)
         print(f"{'step':24} {'runs':>5} {'failed':>6} {'last':>8} {'avg(5)':>8}")
@@ -958,6 +1006,8 @@ class App:
             fmt = lambda v: f"{v:.0f}s" if v is not None else "-"
             print(f"{t['step']:24} {t['runs']:>5} {t['failed']:>6} {fmt(t['last_s']):>8} {fmt(t['avg_prev5_s']):>8}"
                   + ("  slower" if t["slower"] else ""))
+        for h in slow.values():
+            print(health.slow_line(h))
         return EXIT_OK
 
     def cmd_report(self, a):
@@ -1117,8 +1167,10 @@ def parser():
         sp.add_argument("--max-heavy", type=int, help="heavy steps at once (default [concurrency] max_heavy, 2)")
         sp.add_argument("--exclusive-machine", action="store_true",
                         help="no agents share this machine: Android and Windows trust may run side by side")
-        sp.add_argument("--keep-going", action="store_true",
-                        help="a failed step stops only the steps that need it (not the publish phase)")
+        sp.add_argument("--stop-on-fail", action="store_true",
+                        help="the first failed step stops the run (default: only the steps that need it; "
+                             "publishing always stops)")
+        sp.add_argument("--keep-going", action="store_true", help=argparse.SUPPRESS)  # the default now
     machine_args(sp)
     sp = sub.add_parser("doctor", help="G1 preflight alone")
     scope_args(sp, version_required=False)
@@ -1142,10 +1194,11 @@ def parser():
         sp.add_argument("--run")
         if name in ("run", "retry"):
             sp.add_argument("--again", action="store_true", help="also a step that is done (publish steps need it)")
+            sp.add_argument("--stop-on-fail", action="store_true",
+                            help="a failed step stops the others too (default: only the steps that need it)")
         if name == "run":
             sp.add_argument("more", nargs="*", metavar="step", help="more steps, run side by side across their lanes")
-            sp.add_argument("--keep-going", action="store_true",
-                            help="a failed step stops only the steps that need it, not the others")
+            sp.add_argument("--keep-going", action="store_true", help=argparse.SUPPRESS)  # the default now
             sp.add_argument("--ignore-needs", action="store_true", help="taints the run: never publishable")
             sp.add_argument("--dry-run", action="store_true")
         if name == "logs":
@@ -1181,13 +1234,19 @@ def parser():
     sp = sub.add_parser("flow", help="the stages in order: class, needs, outputs (the header of pipeline.toml)")
     sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="one JSON object on stdout")
     sp.add_argument("--write", action="store_true", help="regenerate the header block of pipeline.toml")
+    sp = sub.add_parser("cut", help="branch release/<version> from the newest green night, with the version commit")
+    sp.add_argument("--version", required=True)
+    sp = sub.add_parser("walk", help="record the person walk of one platform (release/person-walk.md)")
+    sp.add_argument("platform")
+    sp.add_argument("result", choices=("ok", "fail"))
+    sp.add_argument("--note", default="")
     sp = sub.add_parser("lanes", help="every lane: Blocks or Informs, stage, last result, green streak")
     sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="a JSON list on stdout")
     sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
     sp.add_argument("base")
     sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
     for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "logs", "debug", "skip",
-                 "stats", "runs", "cleanup"):
+                 "stats", "runs", "cleanup", "walk"):
         sub.choices[name].add_argument("--night", action="store_true",
                                        help="the night stage: its steps and its runs (release/pipeline.toml [night])")
     return p

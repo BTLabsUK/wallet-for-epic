@@ -8,6 +8,7 @@ are shown in summary.md, report.html, the gate message and `tools/rel stats --la
 import json
 import os
 from collections import Counter
+from statistics import median
 
 from .config import PLATFORMS
 
@@ -103,6 +104,41 @@ def markdown(lanes, conf=None):
     t = rows(lanes)
     return ["", f"## {title(conf)}", "", "| " + " | ".join(t[0]) + " |", "|" + "---|" * len(t[0])] \
         + ["| " + " | ".join(c.replace("|", "/") for c in r) + " |" for r in t[1:]]
+
+
+SLOW_FACTOR = 1.3  # a step this far over its median is reported
+SLOW_MIN_RUNS = 3
+
+
+def slow_steps(path):
+    """The steps whose latest passing runs sit 30% over the median before them: [{step, last_s,
+    median_s, over_pct, commit}], commit being the first run that moved it (empty on older lines)."""
+    by = {}
+    try:
+        lines = open(path, encoding="utf-8").read().splitlines()
+    except OSError:
+        return []
+    for line in lines:
+        try:
+            r = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(r, dict) and r.get("base") and r.get("status") == "done" and not r.get("dry") and not r.get("reused"):
+            by.setdefault(r["base"], []).append(r)
+    out = []
+    for base, rows in sorted(by.items()):
+        d = [r.get("duration_s") or 0 for r in rows]
+        for i in range(SLOW_MIN_RUNS, len(d)):
+            med = median(d[:i])
+            if med > 0 and all(x > SLOW_FACTOR * med for x in d[i:]):
+                out.append({"step": base, "last_s": d[-1], "median_s": med, "over_pct": round((d[-1] / med - 1) * 100),
+                            "commit": rows[i].get("commit") or ""})
+                break
+    return out
+
+
+def slow_line(h):
+    return f"Slower: {h['step']} {h['last_s']:.0f}s, median {h['median_s']:.0f}s (+{h['over_pct']}%), moved at {h['commit'][:12] or 'an older commit'}"
 
 
 def metrics_path(run):

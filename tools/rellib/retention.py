@@ -3,13 +3,17 @@
 its files, manifests and run record). Everything older goes: older published runs, failed,
 test and dry runs of versions that are not newer than the current release, older runs of a
 version still in progress, and the release worktrees tools/rel made for them. Runs on every
-release (step `cleanup`) and on its own (`tools/rel cleanup`, e.g. from a timer)."""
+release (step `cleanup`) and on its own (`tools/rel cleanup`, e.g. from a timer). Before a run goes,
+its logs and journal move to <state_root>/.logs/<version>/<run>/: the last KEEP_LOG_VERSIONS stay."""
 import fcntl
 import os
 import shutil
 import subprocess
 
 from .run import Run, now_iso, read_json, write_json
+
+KEEP_LOG_VERSIONS = 10
+LOG_FILES = ("run.json", "events.jsonl", "plan.json", "summary.md")
 
 
 def _vkey(v):
@@ -114,6 +118,26 @@ def plan(state_root, keep_run=None):
     return {"keep": sorted(keep), "remove": remove, "kept": why}
 
 
+def keep_logs(state_root, path, version):
+    """Copies a run's journal and attempt logs to .logs/<version>/<run>/ (no release files, no
+    stage folders), then drops the oldest versions past KEEP_LOG_VERSIONS."""
+    logs = os.path.join(state_root, ".logs")
+    dst = os.path.join(logs, version or "unknown", os.path.basename(path))
+    os.makedirs(dst, exist_ok=True)
+    for name in LOG_FILES:
+        if os.path.isfile(os.path.join(path, name)):
+            shutil.copy2(os.path.join(path, name), dst)
+    steps = os.path.join(path, "steps")
+    for sid in sorted(os.listdir(steps)) if os.path.isdir(steps) else []:
+        d = os.path.join(steps, sid)
+        names = [n for n in os.listdir(d) if n == "status.json" or (n.startswith("attempt-") and n.endswith(".log"))]
+        os.makedirs(os.path.join(dst, "steps", sid), exist_ok=True)
+        for n in names:
+            shutil.copy2(os.path.join(d, n), os.path.join(dst, "steps", sid))
+    for v in sorted(os.listdir(logs), key=_vkey)[:-KEEP_LOG_VERSIONS]:
+        shutil.rmtree(os.path.join(logs, v))
+
+
 def apply(state_root, repo, say=print, keep_run=None, dry=False):
     p = plan(state_root, keep_run)
     removed = []
@@ -128,6 +152,7 @@ def apply(state_root, repo, say=print, keep_run=None, dry=False):
         if src and info.get("src_made") and src not in kept_srcs and os.path.isdir(src):
             rc = subprocess.run(["git", "-C", repo, "worktree", "remove", src], capture_output=True, text=True)
             say(f"worktree {src}: {'removed' if rc.returncode == 0 else 'kept (' + rc.stderr.strip()[:120] + ')'}")
+        keep_logs(state_root, path, info.get("version"))
         shutil.rmtree(path)
         removed.append(path)
         say(f"removed {path}")

@@ -17,12 +17,14 @@ Events (fields besides these are kept in the event body; `ts` defaults to now, U
   lane.start     run, lane, platform, variant
   lane.end       run, lane, state, cause_class, cause, note
   attempt.start  run, lane, n, platform, variant
-  attempt.end    run, lane, n, state (ok|failed|...), rc, cause_class (PRODUCT|INFRA|HARNESS-ui),
+  attempt.end    run, lane, n, state (ok|warned|failed|...), rc, cause_class (attempt_class),
                  cause, note, log_path, out_dir
   attempt.heartbeat  run, lane, n
   step.start     run, lane, n, step, detail
   step.end       run, lane, n, step, state (ok|skipped|failed|recovered), detail
   failure        run, lane, n, step, cause_class, cause, what, resolved_by
+  bug            run, lane, n, step, cause_class (required), cause, note, warned, log_path, commit, version
+                 One per failed attempt, a warned one too (the bugs table).
   bundle         run, lane, n, step, dir, screen_path, log_tail_path, shot_path
   wallet.put     name, role, platform, lane, phrase, password, created, origin, note, state (active|retired)
                  An upsert by name: a newer ts wins, an empty value never blanks a known one.
@@ -47,7 +49,7 @@ import time
 import urllib.request
 
 KINDS = frozenset("""run.start run.end lane.start lane.end attempt.start attempt.end attempt.heartbeat
-step.start step.end failure bundle wallet.put wallet.address wallet.snapshot wallet.retire""".split())
+step.start step.end failure bug bundle wallet.put wallet.address wallet.snapshot wallet.retire""".split())
 MAX_EVENT = 256 * 1024
 DRAIN_BUDGET = 0.1
 HOST = socket.gethostname()
@@ -100,6 +102,13 @@ def cause_class(cause):
     if c.startswith("harness"):
         return "HARNESS-ui"
     return None
+
+
+def attempt_class(cause):
+    """The class every failed attempt closes with: cause_class, else STEP (a build or script exited
+    non-zero), CHECK (a builtin or gate said no), TIMEOUT, TOOLS (tools/rel itself), UNKNOWN."""
+    c = (cause or "").partition(":")[0]
+    return cause_class(cause) or {"step": "STEP", "check": "CHECK", "timeout": "TIMEOUT", "error": "TOOLS"}.get(c, "UNKNOWN")
 
 
 def _context():

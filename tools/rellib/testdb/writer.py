@@ -187,6 +187,13 @@ def apply_event(conn, ev):
                      "VALUES(?,?,?,?,?,?,?,?,?)",
                      (ev["eid"], aid, step, body.get("cause_class"), body.get("cause"), body.get("what"),
                       row[0] if row else None, body.get("resolved_by"), ts))
+    elif kind == "bug":
+        _need(body, "cause_class")
+        _, aid = _ensure_attempt(conn, body, host)
+        conn.execute("INSERT INTO bugs(eid, attempt_id, step, class, cause, note, warned, log_path, commit_sha, version, ts) "
+                     "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                     (ev["eid"], aid, body.get("step"), str(body["cause_class"]), body.get("cause"), body.get("note"),
+                      1 if body.get("warned") else 0, body.get("log_path"), body.get("commit"), body.get("version"), ts))
     elif kind == "bundle":
         _, aid = _ensure_attempt(conn, body, host)
         step = body.get("step")

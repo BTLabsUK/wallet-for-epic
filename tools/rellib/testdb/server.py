@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """`testdb serve`: remote machines POST events here; the server only drops them into the inbox (the
-writer applies them). GET /q/<last|failures|live|playbook|paths|wallets|wallet> answers read-only JSON (wallet phrases and passwords are never in it).
+writer applies them). GET /q/<last|failures|bugs|live|playbook|paths|wallets|wallet> answers read-only JSON (wallet phrases and passwords are never in it).
 
 Bind it to the tailnet address only. A non-loopback bind refuses to start without TESTDB_TOKEN; clients
 send it as a bearer token (set the same TESTDB_TOKEN on the posting machines)."""

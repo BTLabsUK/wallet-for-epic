@@ -24,6 +24,10 @@ from .run import SETTLED, now_iso, read_json, write_json
 # Exit codes (stable; agents read them).
 EXIT_OK, EXIT_WAITING, EXIT_FAILED, EXIT_PREFLIGHT, EXIT_DENIED, EXIT_USAGE, EXIT_BUSY = 0, 10, 20, 30, 40, 64, 75
 
+STALE_INPUTS = "inputs changed since it ran"
+STALE_BYTES = "not applicable any more: a build it depends on ran again since (new bytes)"
+
+
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -135,6 +139,19 @@ class Engine:
                         "REL_CANDIDATE_DIR": self.run.files, "REL_CANDIDATE_EXTRA": self.run.extra,
                         "REL_CANDIDATE_SRC": i.get("src", ""), "REL_CANDIDATE_VERSION": i["version"]})
         return env
+
+    def stale_why(self, step, st):
+        """Why a done result no longer holds: STALE_INPUTS, STALE_BYTES, or None. Every start, resume
+        and run asks the same question."""
+        if st["status"] != "done" or st.get("dry") or step.publish:
+            return None
+        if st.get("input_hash") and st["input_hash"] != self.input_hash(step):
+            return STALE_INPUTS
+        if st.get("inputs_digest") and st["inputs_digest"] != self.inputs_digest(step):
+            # Evidence tied to the artefacts: a build it depends on ran again, so what this step
+            # proved (G3, a trust proof, signing, the gate) is about other bytes.
+            return STALE_BYTES
+        return None
 
     def input_hash(self, step):
         h = hashlib.sha256()
@@ -255,14 +272,20 @@ class Engine:
         from . import builtins
         st = self.run.status(step.id)
         attempt = st.get("attempts", 0) + 1
+        lane = self.lane_fields(step, attempt)
         why = self.refusal(step)
         if why:
-            with open(self.attempt_log(step, attempt), "a", encoding="utf-8") as f:
+            log = self.attempt_log(step, attempt)
+            with open(log, "a", encoding="utf-8") as f:
                 f.write(f"tools/rel: refused: {why}\n")
             self.echo(f"✗ {step.id}  refused: {why}")
-            return self.run.set_status(step.id, status="failed", attempts=attempt, note=f"refused: {why}",
-                                       cause="check: refused", ended=now_iso(),
-                                       attempt_causes=(st.get("attempt_causes") or []) + ["check: refused"])
+            self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None)
+            self.tdb("attempt.start", **lane)
+            st = self.run.set_status(step.id, status="failed", attempts=attempt, note=f"refused: {why}",
+                                     cause="check: refused", ended=now_iso(),
+                                     attempt_causes=(st.get("attempt_causes") or []) + ["check: refused"])
+            self.close_attempt(step, lane, st, log, 0)
+            return st
         started = time.time()
         log = self.attempt_log(step, attempt)
         driver, changed_from = self.pin_driver(step, st, attempt)
@@ -272,8 +295,6 @@ class Engine:
         self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None,
                        infra_try=infra_try or None)
         self.load.step_started(step.id)
-        lane = dict(lane=step.id, n=attempt, platform=step.platforms[0] if len(step.platforms) == 1 else None,
-                    variant=getattr(step, "variant", None))
         self.tdb("attempt.start", **lane)
         if self.relmsg:
             self.relmsg.step(step.id, "running", label=step.title, platform=(step.platforms[0] if len(step.platforms) == 1 else None))
@@ -336,10 +357,7 @@ class Engine:
             if rkey:
                 result["reuse_key"] = rkey
         st = self.run.set_status(step.id, **result)
-        self.tdb_end(step, lane, st, log)
-        self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
-                       note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"))
-        self.metric(step, st, dur, self.load.step_ended(step.id), infra_try=infra_try)
+        self.close_attempt(step, lane, st, log, dur, self.load.step_ended(step.id), infra_try)
         icon = {"done": "✓", "failed": "✗", "waiting": "⏸", "held": "✋", "closed": "✋", "skipped": "⏭"}.get(st["status"], "?")
         self.echo(f"{icon} {step.id}  {st['status']}  {dur:.0f}s" + (f"  {st['note']}" if st.get("note") else "")
                   + (f"  [{st['cause']}]" if st.get("cause") else ""))
@@ -363,17 +381,53 @@ class Engine:
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
 
+    @staticmethod
+    def lane_fields(step, attempt):
+        return dict(lane=step.id, n=attempt, platform=step.platforms[0] if len(step.platforms) == 1 else None,
+                    variant=getattr(step, "variant", None))
+
+    def close_attempt(self, step, lane, st, log, dur, load=None, infra_try=0):
+        """Every attempt of every run ends here: the journal, metrics.jsonl and tests.db get the same
+        record, and a failed attempt (a warned one too) one bug with its class."""
+        self.tdb_end(step, lane, st, log)
+        self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
+                       note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"), warned=st.get("warned") or None)
+        if st["status"] == "failed" or st.get("warned"):
+            self.record_bug(step, lane, st, log)
+        self.metric(step, st, dur, load, infra_try=infra_try)
+
     def tdb_end(self, step, lane, st, log):
         try:
             from .testdb import client
             cause = st.get("cause")
-            cls = client.cause_class(cause)
-            self.tdb("attempt.end", state={"done": "ok"}.get(st["status"], st["status"]), rc=st.get("rc"), cause=cause,
+            cls = client.attempt_class(cause) if st["status"] == "failed" or st.get("warned") else None
+            state = "warned" if st.get("warned") else {"done": "ok"}.get(st["status"], st["status"])
+            self.tdb("attempt.end", state=state, rc=st.get("rc"), cause=cause,
                      cause_class=cls, note=st.get("note"), log_path=log, out_dir=os.path.join(self.run.step_dir(step.id), "out"),
                      **lane)
             if st["status"] == "failed":
                 self.tdb("failure", step=step.id, cause=cause, cause_class=cls, what=st.get("note") or cause, **lane)
         except Exception:  # noqa: BLE001
+            pass
+
+    def record_bug(self, step, lane, st, log):
+        """One line per failed attempt: the journal, tests.db's bugs table and the ledger file ([ledger]
+        path in pipeline.toml, under the repo's private docs). Never raises."""
+        from .testdb import client
+        rec = dict(step=step.id, cause_class=client.attempt_class(st.get("cause")), cause=st.get("cause"),
+                   note=st.get("note"), warned=bool(st.get("warned")), log_path=log, commit=self.info.get("commit"),
+                   version=self.info.get("version"))
+        self.run.event(step.id, "bug", n=lane["n"], **{k: rec[k] for k in ("cause_class", "cause", "warned")})
+        self.tdb("bug", **rec, **lane)
+        rel = self.pipeline.ledger.get("path")
+        if self.dry or not rel:
+            return
+        path = os.path.join(self.repo, rel)
+        try:
+            if os.path.isdir(os.path.dirname(path)):
+                with open(path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(dict(rec, ts=now_iso(), run=self.info["run_id"], n=lane["n"])) + "\n")
+        except OSError:
             pass
 
     def server_logs(self, step, st, log):
@@ -452,6 +506,7 @@ class Engine:
                 "started": st.get("started"), "ended": st.get("ended"), "reused": bool(st.get("reused_from")) or None,
                 "attempt": st.get("attempts"), "bytes": st.get("bytes"), "dry": self.dry or None,
                 "test": self.info.get("test") or None, "cause": st.get("cause"), "infra_try": infra_try or None,
+                "commit": self.info.get("commit"), "warned": st.get("warned") or None,
                 "waited_s": st.get("waited_s"), "max_heavy": self.policy.max_heavy,
                 "flaky": st.get("flaky") or None, "driver_changed": st.get("driver_changed") or None,
                 "recovered": len(st["recovered"]) if st.get("recovered") else None}
@@ -730,6 +785,17 @@ class Engine:
             self.load.stop()
             self.overlap_metrics()
 
+    def execute_alone(self, step):
+        """One step outside drive (the gate), with the same run.start and run.end around it."""
+        self.tdb("run.start", run_kind=self.info.get("kind"), version=self.info.get("version"))
+        st = None
+        try:
+            st = self.execute(step)
+            return st
+        finally:
+            self.tdb("run.end", state="waiting" if st and st["status"] == "waiting" else
+                     "ok" if st and st["status"] == "done" else "failed", note=f"{step.id}: {st and st['status']}")
+
     def external_suite(self):
         """A full suite running in a build-slot slot outside this run, or None (asked at most once
         per [concurrency] poll)."""
@@ -810,7 +876,8 @@ class Engine:
         try:
             st = self.execute(step)
         except Exception as e:  # never lose the queue entry
-            st = self.run.set_status(step.id, status="failed", note=f"tools/rel: {e}")
+            st = self.run.set_status(step.id, status="failed", note=f"tools/rel: {e}", cause="error", ended=now_iso())
+            self.close_attempt(step, self.lane_fields(step, st.get("attempts", 0)), st, None, 0)
         self._q.put((step.id, st))
 
     def exit_code(self, selected):
