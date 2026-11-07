@@ -659,6 +659,7 @@ class App:
         run.set_status(s.id, status="skipped", reason=a.reason)
         run.event(s.id, "skipped", reason=a.reason)
         eng = self.engine(run)
+        eng.record_skip(s, a.reason)
         if eng.relmsg:
             eng.relmsg.step(s.id, "skipped", note=a.reason)
         return self.out(EXIT_OK, f"{s.id} skipped: {a.reason}", run)

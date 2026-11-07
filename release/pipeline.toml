@@ -914,8 +914,9 @@ kind = "publish"
 host = "build"
 needs = ["publish-page"]
 skippable = true
-run = "cd {path.main_checkout} && tools/publish-github.sh --push"
-# To github.com/BTLabsUK, tag included, where publish-github-release needs it.
+run = "cd {path.main_checkout} && tools/publish-github.sh --push --ref {commit}"
+# To github.com/BTLabsUK, tag included, where publish-github-release needs it: main up to the
+# release commit and no further. What main has after it goes out with the next release.
 scratch = "scratch_source"
 
 # The GitHub Release of tag v{version}: every published file as an asset, marked latest, so

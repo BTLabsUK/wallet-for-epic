@@ -4,8 +4,8 @@
 # from the run's files, render into the page repository, check the changelog has the version's
 # entry, commit there and deploy with its ./deploy-epic-cash.sh (which checks the live URLs).
 # Then commits the new tools/releases/releases.json on main in <main checkout> (as tag.sh tags
-# there), so main always has the released version and publish-source, next, publishes it. Only
-# when that is safe: the checkout is on main, no merge/rebase/cherry-pick is in progress and its
+# there), so main always has the released version; publish-source stops at the release commit,
+# so GitHub gets this one with the next release. Only when that is safe: the checkout is on main, no merge/rebase/cherry-pick is in progress and its
 # releases.json has no change of its own; the commit takes that one file (git commit --only), so
 # whatever else is staged or changed there stays as it was. Otherwise nothing is committed and the
 # step leaves notice.json (one message to the owner, in the report) saying what to commit by hand.
@@ -82,8 +82,7 @@ import json, sys
 out, v, why, copy, main = sys.argv[1:]
 with open(out, "w", encoding="utf-8") as f:
     json.dump({"title": f"{v}: releases.json not committed on main",
-               "detail": f"{why}. Copy {copy} to {main}/tools/releases/releases.json and commit it on main, "
-                         "then run tools/publish-github.sh --push there (publish-source ran without it).",
+               "detail": f"{why}. Copy {copy} to {main}/tools/releases/releases.json and commit it on main.",
                "expects": "commit releases.json on main by hand"}, f)
 PY
 fi

@@ -1260,7 +1260,8 @@ def scratch_source(engine, step, say):
     is pushed."""
     pub = os.path.join(engine.run.path, "scratch", "publish")
     main = engine.hosts["path"].get("main_checkout") or engine.repo
-    rc, _ = sh(["tools/publish-github.sh"], say, cwd=main, env={"PUBLISH_DIR": pub}, timeout=3600)
+    rc, _ = sh(["tools/publish-github.sh", "--ref", engine.info["commit"]], say, cwd=main,
+               env={"PUBLISH_DIR": pub}, timeout=3600)
     if os.path.isdir(pub):
         shutil.rmtree(pub, ignore_errors=True)
     if rc != 0:

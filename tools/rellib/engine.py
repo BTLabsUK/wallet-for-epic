@@ -396,6 +396,15 @@ class Engine:
             self.record_bug(step, lane, st, log)
         self.metric(step, st, dur, load, infra_try=infra_try)
 
+    def record_skip(self, step, reason):
+        """A step skipped by hand (tools/rel skip): the same record as an attempt that ended, in
+        metrics.jsonl and tests.db; the caller has written the journal."""
+        st = self.run.status(step.id)
+        lane = self.lane_fields(step, (st.get("attempts") or 0) + 1)
+        self.tdb("attempt.start", **lane)
+        self.tdb("attempt.end", state="skipped", note=reason, **lane)
+        self.metric(step, st, 0)
+
     def tdb_end(self, step, lane, st, log):
         try:
             from .testdb import client

@@ -215,6 +215,18 @@ class Goal3KeepGoing(Goal):
         self.assertTrue(drive.call_args.kwargs["stop_on_fail"], "a publish step always stops")
 
 
+class PublishSource(Goal):
+    def test_publish_source_stops_at_the_release_commit(self):
+        self.assertIn("tools/publish-github.sh --push --ref {commit}", Pipeline.load(REAL).steps["publish-source"]["run"])
+
+    def test_the_scratch_publish_stops_at_the_release_commit_and_never_pushes(self):
+        run = self.make_run(test=True)
+        with mock.patch("rellib.builtins.sh", return_value=(0, "")) as sh:
+            out = builtins.scratch_source(self.engine(run), run.step("publish-source"), print)
+        self.assertEqual(out["status"], "done")
+        self.assertEqual(sh.call_args.args[0], ["tools/publish-github.sh", "--ref", "c" * 40])
+
+
 class Goal4Record(Goal):
     def warn_pipeline(self):
         self.pipeline = Pipeline(tomllib.loads(FAKE_PIPELINE + """
@@ -254,6 +266,20 @@ run = "exit 1"
         self.assertEqual(line["commit"], "c" * 40)
         states = self.rows(db, "SELECT a.state FROM attempts a JOIN lanes l ON l.id = a.lane_id WHERE l.name = 'build-android-tor'")
         self.assertEqual(states, [{"state": "failed"}])
+
+    def test_goal4_a_skipped_step_writes_journal_metrics_and_testdb(self):
+        db = self.db()
+        run = self.make_run(test=True)
+        with mock.patch.object(App, "load_run", return_value=run), mock.patch.object(App, "engine", return_value=self.engine(run)):
+            code, out, err = rel(*self.common(), "skip", "publish-source", "--reason", "token renewal")
+        self.assertEqual(code, 0, err + out)
+        self.assertEqual(run.status("publish-source")["status"], "skipped")
+        self.assertIn("skipped", [e["event"] for e in run.events() if e.get("step") == "publish-source"])
+        metrics = [json.loads(x) for x in pathlib.Path(health.metrics_path(run)).read_text().splitlines()]
+        line = [m for m in metrics if m.get("step") == "publish-source"][-1]
+        self.assertEqual((line["status"], line["duration_s"], line["commit"]), ("skipped", 0, "c" * 40))
+        rows = self.rows(db, "SELECT a.state, a.note FROM attempts a JOIN lanes l ON l.id = a.lane_id WHERE l.name = 'publish-source'")
+        self.assertEqual(rows, [{"state": "skipped", "note": "token renewal"}])
 
     def test_goal4_warned_is_stored_as_warned_with_a_class(self):
         db = self.db()
