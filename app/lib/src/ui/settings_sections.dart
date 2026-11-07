@@ -159,7 +159,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.logs => l.advLogs,
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
   AdvancedFeature.pairing => l.expPairing,
-  AdvancedFeature.invoices => l.expInvoices,
+  AdvancedFeature.invoices => l.invoicesTitle,
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
@@ -185,22 +185,18 @@ Key settingsSectionKey(SettingsSection section) =>
     ValueKey('settings-section-${section.name}');
 
 /// Opens [section]'s page over the current route.
-Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toExperimental = false, bool toNetwork = false}) =>
+Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toNetwork = false}) =>
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SettingsSectionScreen(section: section, toExperimental: toExperimental, toNetwork: toNetwork),
+        builder: (_) => SettingsSectionScreen(section: section, toNetwork: toNetwork),
       ),
     );
 
 /// One group's page: its rows under the group's title, with the actions they need.
 class SettingsSectionScreen extends ConsumerStatefulWidget {
-  const SettingsSectionScreen({super.key, required this.section, this.toExperimental = false, this.toNetwork = false});
+  const SettingsSectionScreen({super.key, required this.section, this.toNetwork = false});
 
   final SettingsSection section;
-
-  /// Advanced opened from an "experimental" sheet: scrolled to the Pairing and Invoices
-  /// switches, not its top (LNX3-1).
-  final bool toExperimental;
 
   /// Network & privacy opened from the mode mark or an Off (mode) status: scrolled to the
   /// Network section (its first group, so the page opens on it).
@@ -214,13 +210,11 @@ class SettingsSectionScreen extends ConsumerStatefulWidget {
 class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   bool _busy = false;
   final _scroll = ScrollController();
-  final _experimentalKey = GlobalKey();
   final _networkKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    if (widget.toExperimental) WidgetsBinding.instance.addPostFrameCallback((_) => _showExperimental());
     if (widget.toNetwork) WidgetsBinding.instance.addPostFrameCallback((_) => _showNetwork());
   }
 
@@ -228,20 +222,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   void dispose() {
     _scroll.dispose();
     super.dispose();
-  }
-
-  /// The group sits near the end of a lazy list: towards the end first, so it is built, then
-  /// it to the top.
-  void _showExperimental([int tries = 0]) {
-    if (!mounted || !_scroll.hasClients) return;
-    final at = _experimentalKey.currentContext;
-    if (at == null) {
-      if (tries > 2) return;
-      _scroll.jumpTo(_scroll.position.maxScrollExtent);
-      WidgetsBinding.instance.addPostFrameCallback((_) => _showExperimental(tries + 1));
-      return;
-    }
-    Scrollable.ensureVisible(at, alignment: 0);
   }
 
   /// The Network mode section sits under the servers; the list is built that far first.
@@ -1069,22 +1049,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       );
       return f == AdvancedFeature.technicalDetails ? trustId(TrustIds.advancedTechnical, tile) : tile;
     }
-    // Pairing and Invoices: on as the rule between them says; an Experimental tag on each.
-    Widget experimental(AdvancedFeature f, IconData icon, String title, String hint) => HintSwitchTile(
-      key: ValueKey('adv-${f.name}'),
-      icon: icon,
-      title: title,
-      hint: hint,
-      subtitle: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(children: [EBadge(l.advExperimental)]),
-      ),
-      value: switch (f) {
-        AdvancedFeature.invoices => adv.invoicesOn,
-        _ => adv.has(f),
-      },
-      onChanged: (on) => _settings.setExperimental(f, on),
-    );
     return [
       trustId(
         TrustIds.advancedLevel,
@@ -1164,18 +1128,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       const SizedBox(height: 8),
       SettingsHeader(l.advBalanceHeader),
       const ConfirmationsRow(),
-      // Experimental, so last: Pairing and Invoices (off by default).
-      const SizedBox(height: 8),
-      SettingsHeader(l.advExperimental, key: _experimentalKey),
-      experimental(AdvancedFeature.invoices, Icons.request_quote_outlined, l.expInvoices, l.expInvoicesHint),
-      Padding(
-        key: const ValueKey('adv-exp-rule'),
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: Text(
-          l.expNeedsPairing,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
-        ),
-      ),
       ],
     ];
   }

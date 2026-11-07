@@ -132,7 +132,7 @@
   },
   "deskSetSearchFeatGate": "Advanced › {feature}",
   "@deskSetSearchFeatGate": {
-    "description": "What shows a hidden setting: a switch on Settings › Advanced, e.g. \"Advanced › Invoices\".",
+    "description": "What shows a hidden setting: a switch on Settings › Advanced, e.g. \"Advanced › Outputs\".",
     "placeholders": {
       "feature": {
         "type": "String",
@@ -142,7 +142,7 @@
   },
   "deskSetSearchGateJoin": "{first} and {last}",
   "@deskSetSearchGateJoin": {
-    "description": "Joins the reasons that show hidden options: \"Deep end view and Advanced › Invoices\". first may itself be a comma-separated list.",
+    "description": "Joins the reasons that show hidden options: \"Deep end view and Advanced › Outputs\". first may itself be a comma-separated list.",
     "placeholders": {
       "first": {
         "type": "String"
@@ -154,7 +154,7 @@
   },
   "deskSetSearchMore": "{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}",
   "@deskSetSearchMore": {
-    "description": "More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. \"Deep end view and Advanced › Invoices\".",
+    "description": "More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. \"Deep end view and Advanced › Outputs\".",
     "placeholders": {
       "count": {
         "type": "int"
@@ -306,10 +306,6 @@
   "deskSetGrpShowsMore": "Shows more",
   "@deskSetGrpShowsMore": {
     "description": "Settings: heading of the “Shows more” group of rows (on its page and over search results)."
-  },
-  "deskSetGrpExperiments": "Experiments",
-  "@deskSetGrpExperiments": {
-    "description": "Settings: heading of the “Experiments” group of rows (on its page and over search results)."
   },
   "deskSetGrpOnComputer": "On this computer",
   "@deskSetGrpOnComputer": {
@@ -734,14 +730,6 @@
   "deskSetSynAdvLogs": "log, debug, diagnostics",
   "@deskSetSynAdvLogs": {
     "description": "Settings search: other words that find the “Logs” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSetRowXInvoicesHint": "Ask paired contacts for payments; approve theirs.",
-  "@deskSetRowXInvoicesHint": {
-    "description": "Settings row “Invoices”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
-  },
-  "deskSetSynXInvoices": "invoice, request payment, pairing, bill",
-  "@deskSetSynXInvoices": {
-    "description": "Settings search: other words that find the “Invoices” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
   "deskSetRowWalletRows": "Wallet list",
   "@deskSetRowWalletRows": {

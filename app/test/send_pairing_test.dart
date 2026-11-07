@@ -28,7 +28,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/experimental.dart';
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -81,11 +80,9 @@ final WalletSummary _forty = WalletSummary(
 );
 
 class _Harness {
-  _Harness({bool pairing = true, String? address}) {
+  _Harness({String? address}) {
     allowPinCheck(session);
     session.contactsValue.add(Contact(id: 'c1', name: 'Anna', epicbox: address));
-    // Pairing is an experimental switch (Settings › Advanced), off by default.
-    if (pairing) store.values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   }
 
   final session = FakeWalletSession(summary: _forty);

@@ -27,7 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/experimental.dart';
 
 final AppLocalizations _l = englishStrings;
 final DateTime _now = DateTime(2026, 11, 1, 12);
@@ -81,7 +80,7 @@ class _NoPrice implements PriceSource {
 
 class _Harness {
   final session = FakeWalletSession(summary: _summary);
-  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+  final store = MemorySecretStore();
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
 
@@ -131,7 +130,6 @@ class _Harness {
         overrides: [
     walletServiceProvider.overrideWithValue(service),
     secretStoreProvider.overrideWithValue(store),
-    invoicesOnProvider.overrideWithValue(true),
     updatePlatformProvider.overrideWithValue(null),
     priceSourceProvider.overrideWithValue(_NoPrice()),
     qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),

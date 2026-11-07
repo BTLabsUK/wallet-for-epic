@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/experimental.dart';
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -55,8 +54,7 @@ class _Mainnet extends WalletConfigNotifier {
 const String _requestJson = '{"id":"req-qr-1","sta":"I1"}';
 
 class _Harness {
-  _Harness({bool invoicesOn = false}) {
-    if (invoicesOn) store.values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+  _Harness() {
     allowPinCheck(session, service);
   }
 
@@ -170,7 +168,7 @@ class _Entry extends ConsumerWidget {
 void main() {
   group('whoever asks', () {
     testWidgets('the entry opens the form that shows the request as a QR', (tester) async {
-      final h = _Harness(invoicesOn: true);
+      final h = _Harness();
       await h.pump(tester, const _Entry());
       await tester.tap(find.text('entry'));
       await tester.pumpAndSettle();
@@ -181,7 +179,7 @@ void main() {
     });
 
     testWidgets('makes the request, shows its code, finishes on the payer\'s answer and shows the receipt', (tester) async {
-      final h = _Harness(invoicesOn: true);
+      final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
       await tester.enterText(find.byKey(requestAmountKey), '12.5');
       await tester.enterText(find.byKey(requestMessageKey), 'Table 4');
@@ -224,7 +222,7 @@ void main() {
     });
 
     testWidgets('an answer to another request is refused on the request screen; nothing is finished', (tester) async {
-      final h = _Harness(invoicesOn: true);
+      final h = _Harness();
       final other = await h.session.pairing.requestFile(amount: _epic(3));
       final otherAnswer = await h.session.payRequestFile(slateJson: other.json, amount: _epic(3));
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
@@ -248,7 +246,6 @@ void main() {
     testWidgets('a scanned request needs no switch: Review, PIN, then the answer QR opens by itself', (tester) async {
       final h = _Harness()..knowRequest();
       await h.pump(tester, const SlateFileScreen(file: SlateFile(name: scannedSlateName, json: _requestJson), pasted: true, scanned: true));
-      expect(find.text(_l.expInvoicesOffTitle), findsNothing);
       expect(find.text(_l.reqFromQrTitle), findsOneWidget);
       expect(find.text(_l.reqFromQrWarn), findsOneWidget);
       expect(find.text(_l.reqQrMessageLabel), findsOneWidget);

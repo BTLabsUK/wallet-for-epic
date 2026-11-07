@@ -16059,29 +16059,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Однократное сопряжение с тем, с кем часто бывают платежи: файлы транзакций и счета между двумя кошельками запечатаны, а контакт отмечен как сопряжённый. Экспериментально: может ещё измениться.';
 
   @override
-  String get expInvoices => 'Счета';
-
-  @override
-  String get expInvoicesHint =>
-      'Запрос платежа у сопряжённого контакта и одобрение счетов от сопряжённых контактов. Нужно сопряжение. Экспериментально: может ещё измениться.';
-
-  @override
-  String get expNeedsPairing => 'Счетам нужно сопряжение.';
-
-  @override
   String get expPairingOffTitle => 'Сопряжение — экспериментальная функция';
 
   @override
   String get expPairingOffBody => 'Включается в Настройки › Дополнительно.';
-
-  @override
-  String get expInvoicesOffTitle => 'Счета — экспериментальная функция';
-
-  @override
-  String get expInvoicesOffBody => 'Включаются в Настройки › Дополнительно.';
-
-  @override
-  String get expOpenAdvanced => 'Открыть Дополнительно';
 
   @override
   String get contactNoAddressPaired => 'Нет публичного адреса';
@@ -17528,9 +17509,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get linkTryAgain => 'Попробовать снова';
-
-  @override
-  String get linkOffTitle => 'Связанные устройства — экспериментальная функция';
 
   @override
   String txSentFromDevice(String device) {
@@ -20302,9 +20280,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetGrpShowsMore => 'Показывает больше';
 
   @override
-  String get deskSetGrpExperiments => 'Эксперименты';
-
-  @override
   String get deskSetGrpOnComputer => 'На этом компьютере';
 
   @override
@@ -20691,13 +20666,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetSynAdvLogs => 'журнал, лог, отладка, диагностика';
 
   @override
-  String get deskSetRowXInvoicesHint =>
-      'Просить сопряжённые контакты о платежах; одобрять их запросы.';
-
-  @override
-  String get deskSetSynXInvoices => 'счёт, запрос платежа, сопряжение, оплата';
-
-  @override
   String get deskSetRowWalletRows => 'Список кошельков';
 
   @override
@@ -20817,9 +20785,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Добавляет выходы, счета, локальный узел и все переключатели раздела «Дополнительно».';
-
-  @override
-  String get deskSetAdvExperiments => 'Эксперименты';
 
   @override
   String get deskSetFrameBack => 'Кошелёк';

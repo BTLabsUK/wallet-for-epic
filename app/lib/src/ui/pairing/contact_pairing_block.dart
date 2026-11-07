@@ -519,8 +519,7 @@ class ContactPairingBlock extends ConsumerWidget {
               hint: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
               onChanged: switchesLocked ? null : setSeal,
             ),
-            // Invoices off (Settings › Advanced): the switch is not offered; what it holds stays.
-            if (!noPayments && ref.watch(invoicesOnProvider))
+            if (!noPayments)
               PairSwitchRow(
                 switchKey: contactPageInvoicesKey,
                 label: l.contactAllowInvoices,

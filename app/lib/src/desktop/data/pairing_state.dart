@@ -21,17 +21,16 @@ import '../../pairing_providers.dart' show dismissStrangers, repostWaitingSends,
 import '../../pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../trust/policy.dart';
+import 'desk_levels.dart' show deskLevelUiProvider;
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact, Tx, TxDirection, TxState;
 import 'state.dart';
 
-/// Invoices are on (Settings › Advanced › Experimental; off by default).
-final deskInvoicesOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.invoicesOn)));
 
 /// The invoices show: the wallet takes them and Invoices is on. Off, the Invoices page,
 /// Settings › Invoices, Requests on Activity and every invoice block are hidden.
 final deskInvoicesShownProvider = Provider<bool>(
-  (ref) => ref.watch(deskInvoicesOnProvider) && ref.watch(deskApiProvider).supportsInvoices,
+  (ref) => ref.watch(deskLevelUiProvider).invoicesPage && ref.watch(deskApiProvider).supportsInvoices,
 );
 
 /// The open wallet's pairing; [NoPairing] while locked. Follows the unlock and the reopen a

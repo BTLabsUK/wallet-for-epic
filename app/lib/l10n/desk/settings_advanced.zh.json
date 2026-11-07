@@ -38,6 +38,5 @@
   "deskSetAdvConfirmationsNotSaved": "确认数未更改",
   "deskSetAdvViewLineOne": "发送、收款和备份。节点和 Epicbox 服务器自动选择。",
   "deskSetAdvViewLineTwo": "增加付款方式、节点、网络模式和更多钱包。",
-  "deskSetAdvViewLineThree": "增加输出、发票、本地节点和所有高级开关。",
-  "deskSetAdvExperiments": "实验功能"
+  "deskSetAdvViewLineThree": "增加输出、发票、本地节点和所有高级开关。"
 }

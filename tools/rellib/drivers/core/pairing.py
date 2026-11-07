@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The pairing recipes of the TX lane (linux/tx_lane.py, PAIR-1) on the desktop family, over
-core/desktop.py: Pairing turned on (Settings › Advanced, experimental), the name a wallet is seen as,
+core/desktop.py: the pairing flows, the name a wallet is seen as,
 an invite copied on one wallet and pasted on the other, the four words read on both sides and
 confirmed, the pairing saved as a contact, a pair request to a proven contact, an invoice issued
 and paid between the two, and the pairing removed.
@@ -22,7 +22,6 @@ from .targets import T
 
 NAV_CONTACTS = T("g4.nav.contacts", keys=("deskShellNavContacts",), names=("Contacts",), match="exact")
 ADV_PAIRING = T("pair.adv.pairing", role="toggle", keys=("expPairing",), names=("Pairing",), match="exact")
-ADV_INVOICES = T("pair.adv.invoices", role="toggle", keys=("expInvoices",), names=("Invoices",), match="exact")
 
 # Contacts › Pair: Your invite | Have their invite?
 CONTACTS_SEARCH = T("pair.contacts.search", role="text_field", keys=("deskConSearchLabel", "deskConSearch"), names=("Search contacts",),
@@ -115,14 +114,12 @@ class Pairing:
         finally:
             d.obstacles = keep
 
-    def enable(self, invoices=False):
-        """Settings › Advanced › Experiments: Invoices on when [invoices] (off on a new install). Pairing
-        is on for everyone since 26.11.0; an older build's Pairing switch is turned on when it shows."""
+    def enable(self):
+        """Pairing is on for everyone since 26.11.0, invoices are each contact's Allow invoices; an
+        older build's Pairing switch is turned on when it shows."""
         self.ui.section("advanced")
         if self.d.seen(ADV_PAIRING):
             self.d.toggle(ADV_PAIRING, True, step="pairing-on", timeout=30)
-        if invoices:
-            self.d.toggle(ADV_INVOICES, True, step="invoices-on", timeout=30)
         self.ui.leave_settings()
 
     def open_pair(self):

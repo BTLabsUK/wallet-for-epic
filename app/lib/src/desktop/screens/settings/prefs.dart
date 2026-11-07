@@ -26,7 +26,7 @@ enum HttpRun { off, busy, on, failed }
 const String builtinNode = 'internal';
 
 /// Where a jump into Settings lands: the node, a receiving group, or the Tor switch (Privacy).
-enum SettingsJump { node, epicbox, http, tor, experimental, confirmations, network }
+enum SettingsJump { node, epicbox, http, tor, confirmations, network }
 
 /// A jump request: [n] changes on every request so the same section flashes again. A jump to
 /// a section names [section]; a jump to one row (search) names its [row] id instead.
@@ -205,7 +205,7 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
       // The mode is on Network & privacy; at Shallow (no mode there) Advanced, the way out.
       SettingsJump.network =>
         ref.read(deskLevelFeaturesProvider).advancedPage == AdvancedPageKind.full ? DeskRoute.settingsPrivacy : DeskRoute.settingsAdvanced,
-      SettingsJump.experimental || SettingsJump.confirmations => DeskRoute.settingsAdvanced,
+      SettingsJump.confirmations => DeskRoute.settingsAdvanced,
       _ => DeskRoute.settingsReceiving,
     });
   }

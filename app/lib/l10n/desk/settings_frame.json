@@ -150,6 +150,6 @@
   },
   "deskSetFrameExperiment": "Experiment",
   "@deskSetFrameExperiment": {
-    "description": "Tag beside an experimental feature’s title (Linked devices, Invoices)."
+    "description": "Tag beside an experimental feature’s title (Linked devices)."
   }
 }

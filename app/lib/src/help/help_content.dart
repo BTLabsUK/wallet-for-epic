@@ -116,12 +116,11 @@ const pairingHelpSection = 'pairing';
 /// The ids screens open Help by ([HelpTopic.id]).
 /// The topics that explain a part Advanced hides, by id: Help lists and finds them only while
 /// that switch is on, so a search never leads to a page the wallet does not show. The Outputs
-/// topics and the experimental ones (the Pairing section goes with Pairing as a whole): the
+/// topics and the linked device ones (the Pairing section goes with Pairing as a whole): the
 /// File Transfer method is everyday use and keeps its topic.
 const Map<String, AdvancedFeature> helpTopicFeature = {
   HelpId.strategy: AdvancedFeature.outputs,
   HelpId.split: AdvancedFeature.outputs,
-  HelpId.invoices: AdvancedFeature.invoices,
   HelpId.linkedDevices: AdvancedFeature.linkedDevices,
   HelpId.lostDevice: AdvancedFeature.linkedDevices,
   HelpId.heldCoins: AdvancedFeature.linkedDevices,
@@ -131,7 +130,6 @@ const Map<String, AdvancedFeature> helpTopicFeature = {
 List<HelpTopic> helpTopicsShown(List<HelpTopic> topics, AdvancedPrefs prefs) => [
   for (final t in topics)
     if (switch (helpTopicFeature[t.id]) {
-      AdvancedFeature.invoices => prefs.invoicesOn,
       final f? => prefs.has(f),
       null => true,
     }) t,
@@ -591,7 +589,6 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Logs**: the Logs group under $filesPlace, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but less safe.${phone ? '' : ' It is set under $payPlace.'}'),
-        const HelpBlock.p('**Experimental** holds **Invoices**, off to begin with: requests and invoices between paired contacts. Off, they are hidden and nothing is checked for them. Pairing itself is always on.'),
         HelpBlock.p(phone ? 'The network mode and **Node failover** are under $netPlace: see "Network modes".' : 'The network mode is under $netPlace: see "Network modes". **Switch node automatically** is under $nodePlace.'),
       ],
       id: HelpId.advanced,
@@ -662,7 +659,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
         const HelpBlock.p('When a payment arrives, this wallet answers at once, and none of its coins are locked. From then on the sender’s wallet finishes and posts the payment, usually within minutes. Cancel is unavailable for 15 minutes, and longer while the sender reports it posted.'),
         const HelpBlock.p('After that, Cancel clears a payment the sender never posted. It is not certain: the wallet checks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
-        const HelpBlock.h('Invoices (experimental)', anchor: HelpAnchor.requests),
+        const HelpBlock.h('Invoices', anchor: HelpAnchor.requests),
         const HelpBlock.p('An invoice sent from this wallet holds no coins until it is paid. It can be withdrawn any time before then: the payer can no longer pay it, and no coins move. An invoice nobody pays expires after 24 hours. An invoice shown as a QR code can be paid once; a second scan is refused, so nothing is paid twice.'),
         const HelpBlock.p('An invoice paid from this wallet is the other way round: the other side already has what it needs to finish the payment. Cancel appears once the invoice’s time runs out, about a day after it was paid, or sooner when the other side withdraws it. It offers the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee, so the old payment can no longer go through; Unlock coins is free and leaves it to the other side. If the coins cannot be moved back at once, the wallet tries again while it is open. Until then the other side could still finish the payment, and if it does, it shows as paid.'),
       ],

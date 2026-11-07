@@ -583,14 +583,10 @@ void main() {
     }, timeout: const Duration(minutes: 10), everyMs: 15000);
     record('B has 10 EPIC spendable', bFunded != null, '$bFunded');
 
-    // ---- 2. History: the Experimental switches, a contact for B, the pairing, payments.
+    // ---- 2. History: a contact for B, the pairing, payments.
     // Read again at each use: the providers rebuild when the wallet changes.
     AppSettingsNotifier settings() => c.read(appSettingsProvider.notifier);
     ContactsNotifier contactsN() => c.read(contactsProvider.notifier);
-    await tester.runAsync(() async {
-      await settings().setExperimental(AdvancedFeature.pairing, true);
-      await settings().setExperimental(AdvancedFeature.invoices, true);
-    });
     await settle(tester, ms: 800);
     final ben = (await tester.runAsync(() => contactsN().save(Contact(id: '', name: 'Ben Shop', address: bAddress))))!;
     final carol = (await tester.runAsync(() => contactsN().save(Contact(id: '', name: 'Carol Link', address: 'https://carol.example.org'))))!;
@@ -790,7 +786,7 @@ void main() {
     record('…auto-lock 30 min', sNow.autoLockMinutes == 30, '${sNow.autoLockMinutes}');
     record('…send strategy All', sNow.sendStrategy == SelectionStrategy.all, sNow.sendStrategy.name);
     record('…the added node is listed', nodes.entries.any((e) => e.contains('floonet-node.example.org')), nodes.entries.join(', '));
-    record('…Pairing and Invoices on', sNow.advanced.pairingOn && sNow.advanced.invoicesOn);
+    record('…Pairing on', sNow.advanced.pairingOn);
     record('…"seen as" name', seenAs == 'Phone A seen', '$seenAs');
 
     // The screens.

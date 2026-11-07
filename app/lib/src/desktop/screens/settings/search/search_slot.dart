@@ -18,7 +18,7 @@ import '../../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import '../help_pairing.dart' show HelpAt;
 import '../help_topics.dart';
 import '../prefs.dart' show settingsPrefsProvider;
-import '../settings_advanced.dart' show advancedOf, experimentalFeatures;
+import '../settings_advanced.dart' show advancedOf;
 import '../settings_help.dart' show marked;
 import 'inplace_controls.dart';
 import 'settings_search.dart';
@@ -131,7 +131,7 @@ Future<void> _go(BuildContext context, WidgetRef ref, _Item item) async {
         var adv = s.advanced;
         for (final f in hit.features) {
           if (adv.has(f)) continue;
-          adv = experimentalFeatures.contains(f) ? adv.withExperimental(f, true) : adv.withFeature(f, true);
+          adv = adv.withFeature(f, true);
           notices.add(l.deskSetSearchFeatApplied(setFeatureName(l, f)));
         }
         if (adv != s.advanced) await ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv));

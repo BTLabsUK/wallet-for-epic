@@ -189,9 +189,5 @@
   "deskSetAdvViewLineThree": "Adds outputs, invoices, the local node and every Advanced switch.",
   "@deskSetAdvViewLineThree": {
     "description": "Advanced › View: the Deep end view’s one line. Facts only."
-  },
-  "deskSetAdvExperiments": "Experiments",
-  "@deskSetAdvExperiments": {
-    "description": "Advanced: heading of the experimental features (Invoices)."
   }
 }

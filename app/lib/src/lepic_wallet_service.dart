@@ -3124,8 +3124,6 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   /// mailboxes, then the sweep.
   @override
   Future<InvoiceCollectReport> collectInvoices() => _epicboxGuard('invoice collect', () async {
-    // Invoices off (Settings › Advanced › Experimental): no mailbox is opened, nothing expires.
-    if (!NetGate.invoices) return const InvoiceCollectReport();
     _watchEvents();
     final before = (await _wallet.contactInvoices()).length;
     // What the sweep expires is news of the same run.
@@ -4332,7 +4330,7 @@ class _LepicPairing implements PairingApi {
         return 0;
       } finally {
         // Contact invoices arrive with this collect: what ran out expires on the same beat.
-        if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
+        if (!_s._wallet.isDisposed) await _s._sweep();
       }
     });
   }
@@ -4340,7 +4338,7 @@ class _LepicPairing implements PairingApi {
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
   Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) => !NetGate.pairing
-      // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
+      // Pairing off: no pairing or contact mailbox is opened.
       ? Future.value(0)
       : _s.checks.run(
     CheckSource.collect,

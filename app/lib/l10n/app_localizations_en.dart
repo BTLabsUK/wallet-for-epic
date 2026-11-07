@@ -15470,29 +15470,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pair once with someone you pay often: transaction files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.';
 
   @override
-  String get expInvoices => 'Invoices';
-
-  @override
-  String get expInvoicesHint =>
-      'Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.';
-
-  @override
-  String get expNeedsPairing => 'Invoices need Pairing.';
-
-  @override
   String get expPairingOffTitle => 'Pairing is experimental';
 
   @override
   String get expPairingOffBody => 'Turn it on in Settings › Advanced.';
-
-  @override
-  String get expInvoicesOffTitle => 'Invoices are experimental';
-
-  @override
-  String get expInvoicesOffBody => 'Turn them on in Settings › Advanced.';
-
-  @override
-  String get expOpenAdvanced => 'Open Advanced';
 
   @override
   String get contactNoAddressPaired => 'No public address';
@@ -16895,9 +16876,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkTryAgain => 'Try again';
-
-  @override
-  String get linkOffTitle => 'Linked devices are experimental';
 
   @override
   String txSentFromDevice(String device) {
@@ -19616,9 +19594,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetGrpShowsMore => 'Shows more';
 
   @override
-  String get deskSetGrpExperiments => 'Experiments';
-
-  @override
   String get deskSetGrpOnComputer => 'On this computer';
 
   @override
@@ -19994,13 +19969,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetSynAdvLogs => 'log, debug, diagnostics';
 
   @override
-  String get deskSetRowXInvoicesHint =>
-      'Ask paired contacts for payments; approve theirs.';
-
-  @override
-  String get deskSetSynXInvoices => 'invoice, request payment, pairing, bill';
-
-  @override
   String get deskSetRowWalletRows => 'Wallet list';
 
   @override
@@ -20118,9 +20086,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Adds outputs, invoices, the local node and every Advanced switch.';
-
-  @override
-  String get deskSetAdvExperiments => 'Experiments';
 
   @override
   String get deskSetFrameBack => 'Wallet';

@@ -26,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/experimental.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -71,7 +70,7 @@ class _Harness {
 
   DateTime now = DateTime(2026, 10, 25, 12);
   final session = FakeWalletSession(summary: _summary);
-  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+  final store = MemorySecretStore();
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
 
@@ -294,17 +293,6 @@ void main() {
       await h.open(tester, _requestJson);
       expect(find.text(_l.reqFileAlreadyPaid), findsOneWidget);
       expect(find.byKey(requestFileApproveKey), findsNothing);
-    });
-
-    testWidgets('with Invoices off it opens nothing and says Invoices are experimental', (tester) async {
-      final h = _Harness()..knowRequest();
-      h.store.values.remove(phoneAdvancedPrefsKey);
-      await h.open(tester, _requestJson);
-      expect(find.text(_l.expInvoicesOffTitle), findsOneWidget);
-      expect(find.text(_l.expOpenAdvanced), findsOneWidget);
-      expect(find.text(_l.reqFromFileTitle), findsNothing);
-      expect(find.text(_l.slateAcceptPayment), findsNothing);
-      expect(h.session.paidRequestFiles, isEmpty);
     });
 
     testWidgets('on a core without request files it is not a file this wallet takes', (tester) async {

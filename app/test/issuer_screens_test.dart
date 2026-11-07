@@ -25,8 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'support/experimental.dart';
-import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider;
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -75,7 +73,7 @@ class _Harness {
 
   DateTime now = DateTime(2026, 10, 5, 12);
   final session = FakeWalletSession(summary: _summary);
-  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+  final store = MemorySecretStore();
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
   final copied = <String>[];
@@ -138,7 +136,6 @@ class _Harness {
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
           // On from the first frame, before the stored settings load.
-          invoicesOnProvider.overrideWithValue(true),
           biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),

@@ -15652,31 +15652,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Einmal mit jemandem koppeln, mit dem oft gezahlt wird: Transaktionsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt, und der Kontakt erscheint als gekoppelt. Experimentell: Es kann sich noch ändern.';
 
   @override
-  String get expInvoices => 'Rechnungen';
-
-  @override
-  String get expInvoicesHint =>
-      'Einen gekoppelten Kontakt um eine Zahlung bitten und Rechnungen gekoppelter Kontakte freigeben. Braucht Kopplung. Experimentell: Es kann sich noch ändern.';
-
-  @override
-  String get expNeedsPairing => 'Rechnungen brauchen Kopplung.';
-
-  @override
   String get expPairingOffTitle => 'Kopplung ist experimentell';
 
   @override
   String get expPairingOffBody =>
       'Einschalten unter Einstellungen › Erweitert.';
-
-  @override
-  String get expInvoicesOffTitle => 'Rechnungen sind experimentell';
-
-  @override
-  String get expInvoicesOffBody =>
-      'Einschalten unter Einstellungen › Erweitert.';
-
-  @override
-  String get expOpenAdvanced => 'Erweitert öffnen';
 
   @override
   String get contactNoAddressPaired => 'Keine öffentliche Adresse';
@@ -17090,9 +17070,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get linkTryAgain => 'Erneut versuchen';
-
-  @override
-  String get linkOffTitle => 'Verknüpfte Geräte sind experimentell';
 
   @override
   String txSentFromDevice(String device) {
@@ -19846,9 +19823,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetGrpShowsMore => 'Zeigt mehr';
 
   @override
-  String get deskSetGrpExperiments => 'Experimente';
-
-  @override
   String get deskSetGrpOnComputer => 'Auf diesem Computer';
 
   @override
@@ -20238,14 +20212,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetSynAdvLogs => 'protokoll, log, debug, diagnose';
 
   @override
-  String get deskSetRowXInvoicesHint =>
-      'Gekoppelte Kontakte um Zahlungen bitten; ihre genehmigen.';
-
-  @override
-  String get deskSetSynXInvoices =>
-      'rechnung, zahlung anfordern, kopplung, abrechnung';
-
-  @override
   String get deskSetRowWalletRows => 'Wallet-Liste';
 
   @override
@@ -20367,9 +20333,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.';
-
-  @override
-  String get deskSetAdvExperiments => 'Experimente';
 
   @override
   String get deskSetFrameBack => 'Wallet';

@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Turns every Advanced switch on (the network stays Standard) and Link in Transactions.
 Future<void> advancedOn(ProviderContainer c, {Set<AdvancedFeature>? only}) async {
   final s = c.read(deskProvider).settings;
-  // The experimental switches stay as they are (on in the tests that turned them on).
-  final prefs = only == null ? AdvancedPrefs.all : AdvancedPrefs(features: {...only, ...s.advanced.features.intersection(experimentalFeatures)});
+  // The retired values stay as they are.
+  final prefs = only == null ? AdvancedPrefs.all : AdvancedPrefs(features: {...only, ...s.advanced.features.intersection(retiredFeatures)});
   await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: prefs, payments: s.payments.copyWith(linkHttp: true, linkTor: true)));
 }

@@ -20688,18 +20688,6 @@
   "@expPairingHint": {
     "description": "Info sheet of the Pairing switch: what it is, that it is experimental"
   },
-  "expInvoices": "Invoices",
-  "@expInvoices": {
-    "description": "Name of the experimental Invoices switch in Settings › Advanced"
-  },
-  "expInvoicesHint": "Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.",
-  "@expInvoicesHint": {
-    "description": "Info sheet of the Invoices switch: what it is, that it needs Pairing and is experimental"
-  },
-  "expNeedsPairing": "Invoices need Pairing.",
-  "@expNeedsPairing": {
-    "description": "One line under the experimental switches: the rule between them"
-  },
   "expPairingOffTitle": "Pairing is experimental",
   "@expPairingOffTitle": {
     "description": "Title of the sheet shown when a pairing link opens while Pairing is off"
@@ -20707,18 +20695,6 @@
   "expPairingOffBody": "Turn it on in Settings › Advanced.",
   "@expPairingOffBody": {
     "description": "Body of that sheet"
-  },
-  "expInvoicesOffTitle": "Invoices are experimental",
-  "@expInvoicesOffTitle": {
-    "description": "Title of the sheet shown when an invoice opens while Invoices is off"
-  },
-  "expInvoicesOffBody": "Turn them on in Settings › Advanced.",
-  "@expInvoicesOffBody": {
-    "description": "Body of that sheet"
-  },
-  "expOpenAdvanced": "Open Advanced",
-  "@expOpenAdvanced": {
-    "description": "Button of those sheets: opens Settings › Advanced"
   },
   "contactNoAddressPaired": "No public address",
   "@contactNoAddressPaired": {
@@ -22596,10 +22572,6 @@
   "linkTryAgain": "Try again",
   "@linkTryAgain": {
     "description": "Button after a failed link."
-  },
-  "linkOffTitle": "Linked devices are experimental",
-  "@linkOffTitle": {
-    "description": "Sheet when a device link code is scanned while Linked devices is off."
   },
   "txSentFromDevice": "Sent from {device}",
   "@txSentFromDevice": {
@@ -26449,7 +26421,7 @@
   },
   "deskSetSearchFeatGate": "Advanced › {feature}",
   "@deskSetSearchFeatGate": {
-    "description": "What shows a hidden setting: a switch on Settings › Advanced, e.g. \"Advanced › Invoices\".",
+    "description": "What shows a hidden setting: a switch on Settings › Advanced, e.g. \"Advanced › Outputs\".",
     "placeholders": {
       "feature": {
         "type": "String",
@@ -26459,7 +26431,7 @@
   },
   "deskSetSearchGateJoin": "{first} and {last}",
   "@deskSetSearchGateJoin": {
-    "description": "Joins the reasons that show hidden options: \"Deep end view and Advanced › Invoices\". first may itself be a comma-separated list.",
+    "description": "Joins the reasons that show hidden options: \"Deep end view and Advanced › Outputs\". first may itself be a comma-separated list.",
     "placeholders": {
       "first": {
         "type": "String"
@@ -26471,7 +26443,7 @@
   },
   "deskSetSearchMore": "{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}",
   "@deskSetSearchMore": {
-    "description": "More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. \"Deep end view and Advanced › Invoices\".",
+    "description": "More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. \"Deep end view and Advanced › Outputs\".",
     "placeholders": {
       "count": {
         "type": "int"
@@ -26623,10 +26595,6 @@
   "deskSetGrpShowsMore": "Shows more",
   "@deskSetGrpShowsMore": {
     "description": "Settings: heading of the “Shows more” group of rows (on its page and over search results)."
-  },
-  "deskSetGrpExperiments": "Experiments",
-  "@deskSetGrpExperiments": {
-    "description": "Settings: heading of the “Experiments” group of rows (on its page and over search results)."
   },
   "deskSetGrpOnComputer": "On this computer",
   "@deskSetGrpOnComputer": {
@@ -27052,14 +27020,6 @@
   "@deskSetSynAdvLogs": {
     "description": "Settings search: other words that find the “Logs” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
-  "deskSetRowXInvoicesHint": "Ask paired contacts for payments; approve theirs.",
-  "@deskSetRowXInvoicesHint": {
-    "description": "Settings row “Invoices”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
-  },
-  "deskSetSynXInvoices": "invoice, request payment, pairing, bill",
-  "@deskSetSynXInvoices": {
-    "description": "Settings search: other words that find the “Invoices” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
   "deskSetRowWalletRows": "Wallet list",
   "@deskSetRowWalletRows": {
     "description": "Settings row title: Wallet list (section wallets)."
@@ -27200,10 +27160,6 @@
   "@deskSetAdvViewLineThree": {
     "description": "Advanced › View: the Deep end view’s one line. Facts only."
   },
-  "deskSetAdvExperiments": "Experiments",
-  "@deskSetAdvExperiments": {
-    "description": "Advanced: heading of the experimental features (Invoices)."
-  },
   "deskSetFrameBack": "Wallet",
   "@deskSetFrameBack": {
     "description": "Settings column: the button at its top that goes back to the wallet pages. Narrow."
@@ -27231,7 +27187,7 @@
   },
   "deskSetFrameExperiment": "Experiment",
   "@deskSetFrameExperiment": {
-    "description": "Tag beside an experimental feature’s title (Linked devices, Invoices)."
+    "description": "Tag beside an experimental feature’s title (Linked devices)."
   },
   "deskSetHelpReportButton": "Report…",
   "@deskSetHelpReportButton": {

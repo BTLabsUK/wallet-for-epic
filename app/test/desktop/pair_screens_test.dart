@@ -24,7 +24,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../support/experimental.dart';
 
 final _l = englishStrings;
 late ProviderContainer _c;
@@ -58,7 +57,6 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, bool 
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(_c);
   });
   final n = _c.read(deskProvider.notifier);
   if (mode != null) {

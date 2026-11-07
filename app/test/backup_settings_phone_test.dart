@@ -127,7 +127,7 @@ void main() {
     expect(networkModeIn(file.settings), NetworkMode.torOnly, reason: 'restored into settings.toml');
     expect(File('${dir.path}/settings.toml').readAsStringSync(), contains('mode = "tor_only"'));
     // Linked devices is this phone's own choice, on by default; a file never sets it.
-    expect(s.advanced.features, {AdvancedFeature.outputs, AdvancedFeature.pairing, AdvancedFeature.linkedDevices});
+    expect(s.advanced.features, {AdvancedFeature.outputs, AdvancedFeature.linkedDevices});
     expect(s.payments, PaymentPrefs.phoneDefaults.copyWith(linkTor: true, defaultMethod: MethodKind.directQr));
     expect(await fresh.read(pairingSeenAsProvider.future), 'Alice');
     expect(moves, [('https://node.net.invalid:3413', 'box.stack.invalid:8443')], reason: 'the new first servers move the wallet live');

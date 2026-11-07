@@ -27,7 +27,7 @@ void main() {
     final c = f(WalletLevel.casual);
     expect(c.wording, LevelWording.casual);
     expect(c.timeline, TimelineStyle.casualSteps);
-    expect(c.invoices, InvoicePresence.off);
+    expect(c.invoices, InvoicePresence.shown);
     expect(c.pairingListener, isTrue);
     expect(c.outputs, isFalse);
     final e = f(WalletLevel.everything, AdvancedPrefs.all);
@@ -47,7 +47,7 @@ void main() {
     );
     final one = effectiveAdvanced(WalletLevel.justSendReceive, stored);
     expect(one.shownFeatures, isEmpty);
-    expect(one.pairingOn && one.invoicesOn, isTrue);
+    expect(one.pairingOn, isTrue);
     // A build without Tor reads a stored Tor only as Standard.
     expect(one.networkMode, torBuilt ? NetworkMode.torOnly : NetworkMode.standard);
     expect(one.nodeFailover, isTrue);
@@ -58,7 +58,7 @@ void main() {
   test('levelPreset', () {
     const stored = AdvancedPrefs(networkMode: NetworkMode.nodeOnly, nodeFailover: false);
     final three = levelPreset(WalletLevel.everything, stored);
-    for (final x in AdvancedFeature.values.where((x) => !experimentalFeatures.contains(x))) {
+    for (final x in AdvancedFeature.values.where((x) => !retiredFeatures.contains(x))) {
       expect(three.has(x), isTrue, reason: x.name);
     }
     expect(three.has(AdvancedFeature.invoices), isFalse);

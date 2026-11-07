@@ -150,9 +150,10 @@ void main() {
     final f = settingsFallback(en, shallow, DeskRoute.settingsNode);
     expect(f.route, DeskRoute.settingsAppearance);
     expect(f.notice, 'Node shows in the Deeper view.');
-    final inv = settingsFallback(en, const SetView(3, {}), DeskRoute.settingsInvoices);
+    final inv = settingsFallback(en, const SetView(2, {}), DeskRoute.settingsInvoices);
     expect(inv.route, DeskRoute.settingsAccount);
-    expect(inv.notice, 'Invoices shows with Advanced › Invoices.');
+    expect(inv.notice, 'Invoices shows in the Deep end view.');
+    expect(settingsFallback(en, const SetView(3, {}), DeskRoute.settingsInvoices), (route: DeskRoute.settingsInvoices, notice: null));
     expect(settingsFallback(en, all, DeskRoute.settingsNode), (route: DeskRoute.settingsNode, notice: null));
   });
 }

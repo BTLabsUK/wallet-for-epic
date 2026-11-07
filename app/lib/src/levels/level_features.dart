@@ -37,9 +37,6 @@ enum AdvancedPageKind {
 
 /// How invoices are present.
 enum InvoicePresence {
-  /// No invoices.
-  off,
-
   /// The engine runs and an incoming invoice notice works; no invoice screens are offered.
   quiet,
 
@@ -80,7 +77,6 @@ AdvancedPrefs effectiveAdvanced(WalletLevel level, AdvancedPrefs prefs) {
   return AdvancedPrefs(
     features: {
       AdvancedFeature.pairing,
-      AdvancedFeature.invoices,
       AdvancedFeature.linkedDevices,
     },
     networkMode: prefs.networkMode,
@@ -88,14 +84,14 @@ AdvancedPrefs effectiveAdvanced(WalletLevel level, AdvancedPrefs prefs) {
   );
 }
 
-/// The prefs after the user picks [to]. Level 3 turns on every non-experimental feature;
-/// experimental features, the network mode and node failover are untouched. Levels 1 and 2
+/// The prefs after the user picks [to]. Level 3 turns on every feature with a switch;
+/// retired features, the network mode and node failover are untouched. Levels 1 and 2
 /// never switch off what the user turned on. Only an explicit pick calls this, never launch
 /// or migration.
 AdvancedPrefs levelPreset(WalletLevel to, AdvancedPrefs prefs) {
   if (to != WalletLevel.everything) return prefs;
   return AdvancedPrefs(
-    features: {...prefs.features, ...AdvancedFeature.values.where((f) => !experimentalFeatures.contains(f))},
+    features: {...prefs.features, ...AdvancedFeature.values.where((f) => !retiredFeatures.contains(f))},
     networkMode: prefs.networkMode,
     nodeFailover: prefs.nodeFailover,
   );
@@ -160,11 +156,7 @@ class LevelFeatures {
       pairingListener: true,
       pairingSetupScreens: !one,
       incomingPairingPrompt: true,
-      invoices: one
-          ? InvoicePresence.quiet
-          : prefs.invoicesOn
-              ? InvoicePresence.shown
-              : InvoicePresence.off,
+      invoices: one ? InvoicePresence.quiet : InvoicePresence.shown,
       // Every level (item 10): an experiment, shown to all.
       linkedDevices: true,
       timeline: switch (level) {
@@ -228,7 +220,7 @@ class LevelFeatures {
   /// What Settings › Advanced holds.
   final AdvancedPageKind advancedPage;
 
-  /// The pairing mailbox is collected while a wallet is open, even with Experimental off.
+  /// The pairing mailbox is collected while a wallet is open.
   final bool pairingListener;
 
   /// Pair flows and paired-contact management.

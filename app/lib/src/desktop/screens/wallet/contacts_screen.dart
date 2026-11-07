@@ -1602,7 +1602,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
               ),
             ),
-            if (!noPayments && ref.watch(deskInvoicesOnProvider))
+            if (!noPayments)
               ESetRow(
                 title: l.contactAllowInvoices,
                 text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
