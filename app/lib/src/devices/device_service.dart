@@ -659,7 +659,7 @@ class DeviceService {
   /// missing one: a `send` (the coins it names are held or already are), a `status` whose hold
   /// is known, `unlink`, `recv` and `fwd`. The order still carries them ([_applyWaiting]).
   Future<void> _applyEarly(String deviceId) async {
-    for (final seq in (book.device(deviceId)?.waiting.keys.toList() ?? const <int>[])..sort()) {
+    for (final seq in (book.device(deviceId)?.waiting.keys.toList() ?? <int>[])..sort()) {
       final d = book.device(deviceId);
       if (d == null || d.early.contains(seq)) continue;
       final entry = d.waiting[seq];

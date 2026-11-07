@@ -416,6 +416,23 @@ void main() {
       expect(b.service.book.removedBy, 'Desktop');
     });
 
+    test('an unlink in order ends the link, saved and told', () async {
+      final seq = b.service.book.devices.single.seqIn;
+      var told = 0;
+      final watch = b.service.changes.listen((_) => told++);
+      addTearDown(watch.cancel);
+      _inject(a, b, _env(a, seq + 1, 'unlink', {}));
+      await b.sync();
+      await pumpEventQueue();
+      expect(b.service.book.devices, isEmpty);
+      final again = DeviceService(host: SessionDeviceHost(b.session), store: b.service.store, defaultName: 'Phone', clock: clock.call);
+      addTearDown(again.dispose);
+      await again.load();
+      expect(again.book.devices, isEmpty);
+      expect(again.book.removedBy, 'Desktop');
+      expect(told, greaterThan(0));
+    });
+
     test('a notice too far ahead is dropped', () async {
       final seq = b.service.book.devices.single.seqIn;
       _inject(a, b, _env(a, seq + noticeWindow + 1, 'rename', {'name': 'Far'}));
