@@ -173,11 +173,9 @@ class PlanTest(unittest.TestCase):
         self.assertIsNone(lane._resume_plan())
         self.assertFalse(lane.details["resume"]["resumed"])
 
-    def test_a_product_fault_is_a_result(self):
+    def test_a_product_fault_resumes_too(self):  # it may be a misread: the checks run again from the point
         self.attempt("candidate", kind="product")
-        p = Fake(self.keep)
-        self.assertIsNone(self.lane(p)._resume_plan())
-        self.assertIsNone(p.given)
+        self.assertEqual(self.lane(Fake(self.keep))._resume_plan()["failed"], "candidate")
 
     def test_no_point_is_refused(self):
         self.attempt("candidate", point=False)

@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(DRV, "linux"))
 
 from core import lane as core_lane  # noqa: E402
 from core import txchecks as tx  # noqa: E402
-from core.faults import HarnessFault  # noqa: E402
+from core.faults import HarnessFault, ProductFault  # noqa: E402
 from core import linking as lk  # noqa: E402
 from core.pairing import invite_link, words_in  # noqa: E402
 from core.payments import METHOD_LABEL, ONION_RX, file_for, method_of  # noqa: E402
@@ -468,7 +468,7 @@ class PartsTest(unittest.TestCase):
     def test_a_rebuild_reopens_only_the_wallets_whose_app_runs(self):
         from linux import tx_lane
         lane = object.__new__(tx_lane.TxLane)
-        lane.log, lane.retried, lane.details = (lambda s: None), set(), {}
+        lane.log, lane.retried, lane.details, lane.state = (lambda s: None), set(), {}, None
         lane.p = unittest.mock.Mock()
         lane.w = {k: unittest.mock.Mock(secrets={"password": "pw"}, p=unittest.mock.Mock(running=r))
                   for k, r in (("a", "candidate"), ("b", None))}
@@ -516,17 +516,56 @@ class PartsTest(unittest.TestCase):
         self.assertEqual(save.call_args.kwargs["family"], tx_lane.LANE)
         self.assertEqual(len(lane.opened), 2)
 
-    def test_a_state_that_will_not_load_is_moved_aside(self):
+    def load_fails(self, fault):
         tx_lane, lane, _ = self.state_lane([])
         saved = unittest.mock.Mock(folder="/state", payload="/state/payload")
         saved.secrets.return_value = {}
-        lane.p.restore_state.side_effect = HarnessFault("state-load", "no tar")
+        lane.p.restore_state.side_effect = fault
         lane.state = saved.folder
         with unittest.mock.patch.object(tx_lane.st, "retire") as retire:
-            with self.assertRaises(HarnessFault):
+            with self.assertRaises(type(fault)):
                 lane._load_state(saved)
+        return lane, retire
+
+    def test_a_state_that_will_not_load_is_moved_aside(self):
+        lane, retire = self.load_fails(ProductFault("state-load", "the wallet does not open"))
         retire.assert_called_once()
         self.assertIsNone(lane.state)
+
+    def test_a_harness_fault_while_loading_keeps_the_state(self):
+        lane, retire = self.load_fails(HarnessFault("state-load", "the keyring went"))
+        retire.assert_not_called()
+        self.assertEqual(lane.state, "/state")
+
+    def ended(self, phases):
+        """A lane started from its saved state that ran phases, then a fault: is the state retired?"""
+        tx_lane, lane, _ = self.state_lane([])
+        lane.state, lane.spent, lane.results = "/state", False, {}
+        lane._p_balance = lambda: None
+
+        def walk():
+            for name in phases:
+                with unittest.mock.patch.object(tx_lane.hold, "guard", lambda lane_, name, fn: fn):
+                    lane._phase(name, lambda: None)
+            raise HarnessFault("x", "no row")
+        lane._lane = walk
+        with unittest.mock.patch.object(tx_lane.st, "retire") as retire, self.assertRaises(HarnessFault):
+            lane._main()
+        return retire
+
+    def test_a_fault_before_any_coin_moved_keeps_the_state(self):
+        self.ended(["state-load", "addresses"]).assert_not_called()
+
+    def test_a_fault_after_a_phase_that_may_send_retires_the_state(self):
+        self.ended(["state-load", "addresses", "fund"]).assert_called_once()
+
+    def test_fresh_starts_from_the_phrases(self):
+        tx_lane, lane, _ = self.state_lane([])
+        lane.part = "pairing"
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_FRESH": "the state is bad"}), \
+                unittest.mock.patch.object(tx_lane.st, "pick") as pick:
+            self.assertIsNone(lane._saved())
+        pick.assert_not_called()
 
     def test_retire_moves_it_out_of_reach(self):
         from core import state as st

@@ -664,6 +664,7 @@ class Engine:
             kw["held"] = self.park_watch(step, stage)
         rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout, **kw)
         if kw:
+            kw["held"]()  # an answer the lane gave just before it ended goes on the record too
             self.after_park(step, stage)
         if rc is None:
             return {"status": "failed", "rc": None, "timed_out": True,
@@ -678,8 +679,11 @@ class Engine:
         return self.collect(step, stage)
 
     def park_watch(self, step, stage):
-        """What spawn asks while a lane runs: is it parked at a fault? Tells the run when that changes."""
-        seen = {}
+        """What spawn asks while a lane runs: is it parked at a fault? Tells the run when that changes. A
+        parked lane goes on by itself on the fix: once a newer clean commit changes the drivers, the
+        runner asks it to continue (repeats.fix_landed), as tools/rel go would. Nobody has to say so."""
+        start = evidence.driver_record(self.runner)
+        seen = {"start": start, "base": start, "look": 0.0, "asked": None}
 
         def held():
             park = repeats.parked(stage)
@@ -687,18 +691,69 @@ class Engine:
             if at != seen.get("n"):
                 seen["n"] = at
                 if park:
-                    line = (f"PARKED {step.id} at {park['step']}: {park['what']}. The app is up. Fix the driver, "
-                            f"commit, then tools/rel continue {step.id}")
+                    seen["asked"] = None  # a new park: an ask left over from the last one is answered or void
+                went = [c["driver"] for c in repeats.continues(stage) if c.get("driver")]
+                seen["base"] = went[-1] if went else seen["start"]  # the drivers the lane runs now
+                if park:
+                    line = (f"PARKED {step.id} at {park['step']}: {park['what']}. The app is up. Commit the fix to the "
+                            f"drivers: the lane goes on by itself (or tools/rel go {step.id}; --stop ends it)")
                     self.run.set_status(step.id, parked={k: park.get(k) for k in ("step", "what", "phase", "at", "n")})
                     self.run.event(step.id, "parked", name=park["step"], what=park["what"], phase=park.get("phase"))
+                    self.park_doing(step, "waits", f"parked at {park['step']} since {now_iso()}: the fix's commit "
+                                                   "continues it", seen["base"].get("commit"))
                     self.echo(f"⏸ {line}")
                     if self.relmsg:
                         self.relmsg.step(step.id, "failed", note=line)
                 else:
                     self.run.set_status(step.id, parked=None)
                     self.run.event(step.id, "unparked")
+            if park or seen["asked"]:
+                self.auto_continue(step, stage, park, seen)
             return bool(park)
         return held
+
+    AUTO_LOOK_S = 10  # how often a parked lane's runner looks for the fix's commit
+
+    def auto_continue(self, step, stage, park, seen):
+        """A parked lane, once the fix is committed: asked to go on, its answer put on the record."""
+        if seen["asked"]:
+            token, now, park = seen["asked"]
+            answer = repeats.park_answer(stage, token)
+            if answer is None:
+                return
+            seen["asked"] = None
+            if not answer.get("ok"):
+                self.run.event(step.id, "auto-continue-failed", name=park["step"], note=answer.get("note"),
+                               driver=evidence.driver_label(now))
+                self.echo(f"⏸ {step.id}: the drivers on {evidence.driver_label(now)} do not load "
+                          f"({answer.get('note')}); still parked at {park['step']}")
+                return
+            seen["base"] = now
+            self.run.event(step.id, "continue", name=park["step"], driver=evidence.driver_label(now),
+                           acts=answer.get("acts"), automatic=True, parked_at=park.get("at"))
+            self.park_doing(step, "continuing", f"going on from {park['step']} on the fix", now.get("commit"))
+            self.echo(f"▶ {step.id}: continued at {park['step']} on {evidence.driver_label(now)} "
+                      f"({answer.get('acts')} actions replayed), parked {repeats.since(park.get('at'))}")
+            return
+        t = time.monotonic()
+        if t - seen["look"] < self.AUTO_LOOK_S:
+            return
+        seen["look"] = t
+        if os.path.exists(os.path.join(stage, repeats.ASK)):
+            return  # tools/rel go asked already: its answer is its own
+        now = repeats.fix_landed(self.runner, seen["base"])
+        if now is None:
+            return
+        seen["base"] = now  # this commit is asked once; a fix that does not load waits for the next one
+        seen["asked"] = (repeats.ask_park(stage, now), now, park)
+        self.run.event(step.id, "auto-continue", name=park["step"], driver=evidence.driver_label(now),
+                       parked_at=park.get("at"))
+        self.echo(f"↻ {step.id}: the fix {evidence.driver_label(now)} is committed: continuing at {park['step']}")
+
+    def park_doing(self, step, state, note, commit):
+        mark = {"state": state, "note": note, "commit": commit, "at": now_iso(), "by": "rel"}
+        self.run.set_status(step.id, doing=mark)
+        self.run.event(step.id, "doing", state=state, note=note, commit=commit, by="rel")
 
     def after_park(self, step, stage):
         """The driver a continued lane ended on is the driver its proof names."""
