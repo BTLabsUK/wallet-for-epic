@@ -22,7 +22,7 @@ import time
 from . import checks
 from . import hermetic
 from . import walletdata as wd
-from .checks import CAP_SEND, FEE_MAX, P_ADDR, POLL_S, pay_to
+from .checks import CAP_SEND, FEE_MAX, KICK_AFTER_S, P_ADDR, POLL_S, kick, pay_to
 from .faults import HarnessFault, InfraFault, ProductFault
 from .payments import METHODS, method_of
 from .walletdata import num
@@ -33,7 +33,6 @@ AMOUNT = D("0.01")         # each payment A -> B
 CAP_RUN = D("0.1")         # out of P per run, every lane phase included
 DUST = FEE_MAX             # a balance below this is not worth a send (its fee would eat it)
 PAY_WAIT_S = {"epicbox": 900, "http": 600, "tor": 900, "file": 600}
-KICK_AFTER_S = 180         # a send to P unanswered this long: P's listener kicked once (the service's kick)
 LOCK_WAIT_S = 600          # returned_ok: the sweeps' posted sends confirmed (their coins no longer locked)
 SPEND_WAIT_S = 1800        # A's change and B's receipts confirmed (10 blocks and some)
 CHECKS = ["tx_%s_ok" % m for m in METHODS] + ["returned_ok"]
@@ -270,17 +269,6 @@ def wait_for(lane, w, what, ok, timeout, poll=POLL_S):
         if time.time() >= end:
             raise ProductFault(what, "%s: not reached in %d s (%s)" % (w.key.upper(), timeout, wd.fmt(last)))
         time.sleep(poll)
-
-
-def kick(lane, p, what):
-    """The service's kick: P's listener started again when it has been silent KICK_AFTER_S (at most once
-    per 5 min). -> whether it was; False from a service without the op."""
-    try:
-        r = p.kick(what)
-    except Exception as e:  # noqa: BLE001 — an older service: no kick, the wait goes on
-        r = {"ok": False, "note": str(e)}
-    lane.log("%s: P's listener kicked: %s" % (what, r))
-    return bool(r.get("restarted"))
 
 
 def wait_p(lane, p, w, what, ok, timeout, step):

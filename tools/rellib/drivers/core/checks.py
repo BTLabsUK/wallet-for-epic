@@ -44,6 +44,7 @@ FEE_MAX = D("0.01")  # what the doctor allows for each payment's fee (0.003-0.00
 CREATE_CHECKS = ["create_ok"]
 P_ADDR = os.environ.get("REL_P_ADDR") or "esa57kJmWkZyX8fSkKPW2Gu12ENhFF6MXfdsrsY4gqVK58ZwzB4d@epicbox.stackwallet.com"
 POLL_S = 20
+KICK_AFTER_S = 180         # a send to P unanswered this long: P's listener kicked (the service's kick)
 FUND_WAIT_S = 1800
 
 MIGRATION_CHECKS = ["store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept"]
@@ -226,9 +227,13 @@ def _pay(lane, address, amount, tag, what, count_dir="incoming", fallback=None):
             raise HarnessFault("fund", "P send failed: %s" % out)
         fault = HarnessFault if tag == "previous" else ProductFault
         end = time.time() + 900
+        kick_at = time.time() + KICK_AFTER_S
         last, posted = None, False
         while not posted:
             while time.time() < end:
+                if time.time() >= kick_at:  # P's listener can drop its subscription after a reconnect, silently
+                    kick_at = time.time() + 2 * KICK_AFTER_S
+                    kick(lane, p, "send back")
                 d = _digest(lane, tag)
                 new = [t for t in _txs(d) if t["direction"] == count_dir][n0:]
                 state = [(t["state"], num(t["credited"])) for t in new]
@@ -788,6 +793,17 @@ def _shows(lane, words):
         return False
 
 
+def kick(lane, p, what):
+    """The service's kick: P's listener started again when it has been silent KICK_AFTER_S (at most once
+    per 5 min). -> whether it was; False from a service without the op."""
+    try:
+        r = p.kick(what)
+    except Exception as e:  # noqa: BLE001 — an older service: no kick, the wait goes on
+        r = {"ok": False, "note": str(e)}
+    lane.log("%s: P's listener kicked: %s" % (what, r))
+    return bool(r.get("restarted"))
+
+
 def _send_to_p(lane, d0, amount=None, fallback=None):
     """[amount] (EPIC, a Decimal) to P through the recipe's Send page, or everything (Max) when None; True
     when the data shows the payment posted and confirmed (and of that amount). [fallback](why) is called
@@ -813,9 +829,13 @@ def _send_to_p(lane, d0, amount=None, fallback=None):
             lane.send_pending = None
             return False, "the Send did not go through: %s" % why
         end = time.time() + 900
+        kick_at = time.time() + KICK_AFTER_S
         last, posted = None, False
         while not posted:
             while time.time() < end:
+                if time.time() >= kick_at:  # P's listener can drop its subscription after a reconnect, silently
+                    kick_at = time.time() + 2 * KICK_AFTER_S
+                    kick(lane, p, "send back")
                 out = [t for t in _txs(_digest(lane, "candidate")) if t["direction"] == "outgoing"][n0:]
                 state = [(t["state"], num(t["debited"]), num(t["fee"] or 0)) for t in out]
                 if state != last:
