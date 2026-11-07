@@ -77,8 +77,9 @@ failed phase refuses (RefusedStart, proof.refused, before it touches anything) a
 phase. A reason in REL_TRUST_FRESH (tools/rel retry <step> --fresh "<reason>") is the only way past;
 REL_TRUST_RESUME=0 asks for the same thing and needs it too. A start from the beginning needs no reason
 when it is the shortest route or a result stands behind it: the attempt failed before the wallet was there
-(BEFORE_WALLET), ended on a product fault or on false checks, or the machine failed (infra) and left
-nothing to take. Each is logged and kept in details.resume, and tools/rel counts it as a repeat.
+(BEFORE_WALLET), ended on false checks, or the machine failed (infra) and left nothing to take. After a
+product fault the lane resumes like after a harness fault (the fault may be the driver misreading the
+app), and starts from the beginning with no reason only when it cannot. Each is logged and kept in details.resume, and tools/rel counts it as a repeat.
 
 Probe (REL_TRUST_PROBE=<step>, from tools/rel probe, REL_PROBE_PHASE=<phase>, REL_PROBE_FROM=<out folder of
 the failed attempt>): the lane reaches that one step by the shortest route and ends there. With the failed
@@ -516,10 +517,11 @@ class Lane:
         return code
 
     def _leave_up(self):
-        """True when the app stays up behind this lane: a probe, or a harness fault to look at and resume from."""
+        """True when the app stays up behind this lane: a probe, or a harness or product fault (a misread, maybe)
+        to look at and resume from."""
         if self.mode in (None, "create") or isinstance(self.fault, RefusedStart):
             return False
-        return bool(self.probe) or (self.fault is not None and self.fault.kind == "harness" and not self.fault.fatal)
+        return bool(self.probe) or (self.fault is not None and self.fault.kind in ("harness", "product") and not self.fault.fatal)
 
     def _result(self, code):
         """proof.json and result.txt for [code]."""
@@ -905,8 +907,7 @@ class Lane:
         """A probe keeps nothing: it leaves the failed attempt's state to the retry."""
         if self.probe or self.mode in (None, "create") or self.phase not in RESUMABLE + FROM_POINT or self._fault_kept():
             return
-        if self.fault.kind != "product":
-            self.p.keep_state()
+        self.p.keep_state()
         self._save_resume_secrets()
 
     def _save_resume_secrets(self):
@@ -962,7 +963,8 @@ class Lane:
             failed = ((prev_.get("details") or {}).get("resume") or {}).get("at") or "previous-setup"
         infra = fault.get("kind") == "infra" or (not prev and prior.startswith("infra"))
         free = None if self.probe else self._free_start(prev, failed, fault, prior, infra)
-        if free:
+        product = free if fault.get("kind") == "product" else None  # resumed when it can be: it may be a misread
+        if free and not product:
             return self._from_start(free)
         reason = (os.environ.get("REL_TRUST_FRESH") or "").strip()
         if reason and not self.probe:
@@ -998,6 +1000,8 @@ class Lane:
             return None
         if infra:
             return self._from_start("the machine failed and %s" % why)
+        if product:
+            return self._from_start("%s, and %s" % (product, why))
         step = fault.get("step")
         self.details["resume"] = {"resumed": False, "why": why, "refused": True, "phase": failed}
         raise RefusedStart("start", "the failed attempt stopped in phase %s%s and cannot be resumed: %s. A start from the beginning "
@@ -1010,7 +1014,7 @@ class Lane:
         if not prev:
             return "the machine failed and left no proof (%s)" % prior if infra else None
         if fault.get("kind") == "product":
-            return "the previous attempt ended on a product fault (a result, not resumed)"
+            return "the previous attempt ended on a product fault"
         if not fault:
             return "the previous attempt ran to its end"
         if failed is None or failed in BEFORE_WALLET:

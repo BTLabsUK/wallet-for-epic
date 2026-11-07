@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Continue: a lane that hits a harness fault stays where it is, and goes on from that action after the fix.
+"""Continue: a lane that hits a fault stays where it is, and goes on from that action after the fix.
 
-The lane parks instead of ending: the app stays up on its screen, the process waits, `tools/rel
-continue <step>` asks it to go on. It reloads the driver code (reload_drivers) and runs the phase
+The lane parks instead of ending: the app stays up on its screen, the process waits. The tools/rel
+that runs it asks it to go on by itself once a commit changes the drivers (engine.auto_continue), and
+`tools/rel go <step>` (or continue) asks the same at once. It reloads the driver code (reload_drivers) and runs the phase
 again, this time on what the first run recorded: the same code path, fixed, reaches the failed
 action without touching the app, and from there everything is live. So the fix may be anywhere in
 the drivers, in the middle of the phase's own call stack.
@@ -33,7 +34,9 @@ actions unused ends the same way. A fault during the replay parks again.
 
 What cannot go on from the action, and where it goes instead:
 - one platform call (an install, an update, a restore) is one action: it runs again whole.
-- HarnessGone, a dead app, product and infra faults do not park.
+- HarnessGone, a dead app and infra faults do not park. A product fault parks, for PRODUCT_S at most:
+  it may be the driver misreading the app (a fix goes on from there), and when it is the app's, the
+  park runs out, or tools/rel go <step> --stop ends it, and the lane ends PRODUCT as before.
 - a send or cancel on the funder that raised does not park: P's service may finish it after the client
   gave up, and nothing here can tell.
 - the frames already running keep their code: Lane._main and _candidate (the phase order) and lambdas
@@ -65,8 +68,9 @@ UNKEYED = {"screenshot"}  # its path counts shots, which a fix may change
 PASS = {"log", "unwrap"}
 FUNDS = re.compile(r"fund|pay|sweep|send|receive|back|invoice|link-end")
 SPENDS = ("send", "cancel")  # on the funder
+PRODUCT_S = 1800  # a product fault parks this long at most: a misread is fixed in the drivers, a real one ends
 UP_FIRST = ("prepare",)  # nothing is up yet to keep, a start over costs nothing, and a rig's lock is not taken twice
-NEVER = {"ProductFault", "Frozen", "HarnessGone", "LaneStopped", "RefusedStart", "InfraFault", "Diverged", "_Stop",
+NEVER = {"Frozen", "HarnessGone", "LaneStopped", "RefusedStart", "InfraFault", "Diverged", "_Stop",
          "StepReached"}
 OUT = {"Platform", "P", "LaneSeed", "_Watched", "Held", "BaseException",  # the surfaces are duck typed: named one by one
        "AtspiSurface", "WinSurface", "WdaSurface", "Wda", "Uia", "Device", "Rig", "Mac", "Sim",
@@ -486,7 +490,7 @@ class Hold:
             return False
         if current is not None and current.phase in UP_FIRST:
             return False
-        if getattr(e, "fatal", False) or getattr(e, "kind", "harness") != "harness":
+        if getattr(e, "fatal", False) or getattr(e, "kind", "harness") not in ("harness", "product"):
             return False
         sent = current.unsure() if current is not None else None
         if sent is not None:
@@ -528,9 +532,10 @@ class Hold:
                 self.log("fault bundle not written: %s" % ex)
         at = _real["time"]()
         n = len(self.done) + 1
+        limit = min(self.limit, PRODUCT_S) if getattr(e, "kind", "harness") == "product" else self.limit
         acts = sum(1 for x in j.trimmed() if x.kind == "act")
         self.write(PARKED, {"pid": os.getpid(), "step": step, "what": what, "phase": name, "at": at, "n": n,
-                            "limit": self.limit, "acts": acts, "line": e.line() if hasattr(e, "line") else what})
+                            "limit": limit, "kind": getattr(e, "kind", "harness"), "acts": acts, "line": e.line() if hasattr(e, "line") else what})
         self.log("PARKED at %s (phase %s): %s" % (step, name, what))
         try:
             while True:
@@ -543,9 +548,9 @@ class Hold:
                     self.off = True
                     self.log("PARK over: a new attempt took this stage")
                     return False
-                if _real["time"]() - at > self.limit:
+                if _real["time"]() - at > limit:
                     self.off = True
-                    self.log("PARK over: nobody continued %s within %d s" % (step, self.limit))
+                    self.log("PARK over: nobody continued %s within %d s" % (step, limit))
                     return False
                 _real["sleep"](1)
         finally:

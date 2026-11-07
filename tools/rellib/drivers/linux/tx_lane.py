@@ -96,6 +96,7 @@ PHASES = ("prepare", "state-load", "restore-a", "restore-b", "addresses", "sweep
           "pay-epicbox", "pay-http", "pay-tor", "pay-file",
           "pair-invite", "pair-remove", "pair-proven", "pair-invoice", "pair-end", "sweep-end",
           "link-up", "link-pay", "link-end", "sweep-last")
+COINLESS = ("prepare", "state-load", "restore-a", "restore-b", "addresses", "state-save", "reopen")  # send nothing
 PAIR_NAME = {"a": "Lane A", "b": "Lane B"}  # the name each is seen as, and its contact's name on the other
 PAIR_CHECKS = ("pair_invite_ok", "pair_proven_ok", "pair_invoice_ok", "pair_end_ok")
 INVOICE = "0.01"  # pair-invoice: what A asks B for (B pays it)
@@ -359,6 +360,7 @@ class TxLane(Lane):
         self.address = {"a": {}, "b": {}}
         self.part = os.environ.get("REL_TX_PART") or None
         self.state = None  # the saved state this run started from or made (a part)
+        self.spent = False  # a phase that may send ran with self.state set: the state may no longer fit
         want = [m.strip() for m in (os.environ.get("REL_TX_METHODS") or "").split(",") if m.strip()]
         bad = [m for m in want if m not in METHODS]
         if bad:
@@ -385,9 +387,11 @@ class TxLane(Lane):
             return self._lane()
         finally:  # P's balance after, whatever stopped the lane (proof.json's money)
             self.p_after = self._p_balance()
-            if self.state and not self.results.get("returned_ok"):
+            if self.state and self.spent and not self.results.get("returned_ok"):
                 self.log("coins may be left outside the saved state: the next run restores from the phrases")
                 st.retire(self.state, self.log)
+            elif self.state and not self.results.get("returned_ok"):
+                self.log("saved state kept: nothing was sent since it was saved, the next run starts from it")
 
     def _lane(self):
         for w in self.w.values():
@@ -429,6 +433,10 @@ class TxLane(Lane):
         """A part's saved state of this build, or None: read before prepare, whose stand-ins take its ports."""
         if not self.part:
             return None
+        fresh = (os.environ.get("REL_TRUST_FRESH") or "").strip()
+        if fresh:
+            self.log("RESUME none: from the very beginning, both wallets restored (%s)" % fresh)
+            return None
         return st.pick(LANE, self.p.variant, os.environ.get("REL_CANDIDATE_VERSION"), self.p.fits_build, self.log)
 
     def _start(self, saved):
@@ -438,8 +446,14 @@ class TxLane(Lane):
             self.log("saved state %s not used: %s" % (saved.folder, why))
         if ok:
             self.state = saved.folder
+            m = saved.meta
+            self.details["resume"] = {"from": "state-load", "saved_at": m.get("saved_at"), "run": m.get("run"),
+                                      "why": "both wallets saved empty at state-save"}
+            self.log("RESUME state-load: both wallets as saved %s (run %s), no restore" % (m.get("saved_at"), m.get("run")))
             self.run_phase("state-load", lambda: self._load_state(saved))
         else:
+            self.details["resume"] = {"from": "restore", "why": why or ("--fresh" if os.environ.get("REL_TRUST_FRESH")
+                                                                        else "no saved state of this build")}
             for k in ("a", "b"):
                 self.run_phase("restore-" + k, lambda k=k: self._restore_one(self.w[k]))
         self.run_phase("addresses", self._addresses)
@@ -458,10 +472,10 @@ class TxLane(Lane):
                 self._put(w, "the TX lane's saved state")
                 self._open_one(w)
         except core_lane.Fault as e:
-            if not e.fatal:
+            if e.kind == "product" and not e.fatal:  # the state did not load in this build: never again
                 st.retire(saved.folder, self.log)
                 self.state = None
-            raise
+            raise  # a harness fault while loading leaves the state as it is: the next run loads it again
 
     def _keep_state(self):
         """Both wallets kept for the parts after this one, only when sweep-start emptied them: coins kept in
@@ -936,6 +950,8 @@ class TxLane(Lane):
 
     def _phase(self, name, fn):
         """A harness that went is rebuilt and the phase run again once, with both wallets open again."""
+        if self.state and name not in COINLESS:
+            self.spent = True
         fn = hold.guard(self, name, fn)
         while True:
             try:

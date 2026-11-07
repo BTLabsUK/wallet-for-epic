@@ -204,6 +204,26 @@ def changed(repo, old, new):
     return _git(repo, "diff", "--name-only", old, new, "--", evidence.DRIVERS_DIR).stdout.split()
 
 
+def fix_landed(repo, base):
+    """The driver record to continue a parked lane on, or None: a clean checkout whose HEAD is newer than
+    base's commit and holds other drivers. A commit elsewhere in the repo is no fix for a lane."""
+    now = evidence.driver_record(repo)
+    old = (base or {}).get("commit")
+    if now.get("dirty") or not now.get("commit") or now["commit"] == old:
+        return None
+    if old and (not newer(repo, old, now["commit"]) or tree(repo, old) == tree(repo, now["commit"])):
+        return None
+    return now
+
+
+def since(at):
+    """'for N min' from a park's epoch seconds."""
+    try:
+        return "for %.1f min" % ((time.time() - float(at)) / 60)
+    except (TypeError, ValueError):
+        return ""
+
+
 def tree(repo, commit):
     return _git(repo, "rev-parse", f"{commit}:{evidence.DRIVERS_DIR}").stdout.strip()
 

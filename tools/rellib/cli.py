@@ -600,6 +600,9 @@ class App:
         unmet_of = {}
         for s in sel:
             st = run.status(s.id)
+            no = self.parked_refusal(run, s)
+            if no is not None:
+                return no
             if s.publish and st["status"] == "done" and not a.again:
                 return self.out(EXIT_USAGE, f"{s.id} is a publish step and already done: --again to run it again", run)
             if s.publish and not run.info.get("dry"):
@@ -691,10 +694,26 @@ class App:
         mark = self.doing(run, s.id, state, (a.note or "").strip() or None, a.commit, by="lead")
         return self.out(EXIT_OK, f"{s.id}: {mark['state']}{': ' + mark['note'] if mark['note'] else ''}", run)
 
+    def parked_refusal(self, run, s):
+        """A lane parked with its app up is gone on from, never started again: the refusal, or None."""
+        if not repeats.gated(s):
+            return None
+        stage = os.path.join(run.step_dir(s.id), "out")
+        park = repeats.parked(stage)
+        if not park or not repeats.lane_of(park["pid"], stage):
+            return None
+        line = (f"refused: {s.id} is parked at {park['step']} with its app up. Commit the fix to the drivers: it goes "
+                f"on by itself. Or now: tools/rel go {s.id} (--stop ends the park)")
+        run.event(s.id, "repeat-refused", rule="parked", line=line, manual=True)
+        return self.out(EXIT_DENIED, line, run)
+
     def cmd_retry(self, a):
         run = self.load_run()
         s = run.step(a.step)
         st = run.status(s.id)
+        no = self.parked_refusal(run, s)
+        if no is not None:
+            return no
         if st["status"] not in ("failed", "waiting", "held", "closed") and not a.again:
             return self.out(EXIT_USAGE, f"{s.id} is {st['status']}; retry is for a failed step (--again to re-run a done one)", run)
         if s.publish and st["status"] == "done" and not a.again:
@@ -719,7 +738,8 @@ class App:
             a.ignore_needs, a.dry_run, a.gated = False, False, True
             a.step = s.id
             n = st.get("attempts", 0) + 1
-            self.doing(run, s.id, "rerunning", f"attempt {n}", evidence.driver_record(self.repo).get("commit"))
+            self.doing(run, s.id, "rerunning", f"attempt {n}" + (f" from the very beginning: {fresh}" if fresh else ""),
+                       evidence.driver_record(self.repo).get("commit"))
             try:
                 return self.cmd_run(a, run)
             finally:
@@ -758,6 +778,9 @@ class App:
         self.echo(f"{s.id} has no lane left to hold it: it goes back to the nearest resume point")
         a.fresh, a.again = None, False
         return self.cmd_retry(a)
+
+    def cmd_go(self, a):
+        return self.cmd_continue(a)
 
     def go_on(self, eng, run, s, stage, park, stop):
         now = evidence.driver_record(eng.runner)
@@ -814,6 +837,9 @@ class App:
         eng = self.engine(run, relmsg_on=False)
         if eng.dry or run.info.get("dry"):
             return self.out(EXIT_DENIED, "a dry run has no failure to probe", run)
+        no = self.parked_refusal(run, s)
+        if no is not None:
+            return no
         busy = [x.id for x in run.steps if x.lane == s.lane and run.status(x.id)["status"] == "running"]
         if busy:
             return self.out(EXIT_BUSY, f"{', '.join(busy)} is running on this lane: probe when it has ended", run)
@@ -1506,7 +1532,8 @@ def parser():
     sp.add_argument("--out", required=True, help="its folder: proof.json and logs")
     sp.add_argument("--pid", type=int, default=0, help="the process doing it; 0 when it has ended")
     sp.add_argument("--run")
-    sp = sub.add_parser("continue", help="a lane parked at a harness fault: reload the committed fix, go on from that action")
+    sp = sub.add_parser("continue", aliases=["go"], help="a parked lane: reload the committed fix, go on from the failed action "
+                        "(it does so by itself on the fix's commit); a lane that ended: from its nearest resume point")
     sp.add_argument("step")
     sp.add_argument("--run")
     sp.add_argument("--stop", action="store_true", help="end the park: the fault takes its way as without one")

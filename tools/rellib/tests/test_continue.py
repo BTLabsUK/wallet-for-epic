@@ -17,7 +17,7 @@ import unittest
 from unittest import mock
 
 from test_repeats import GOOD, Repeats
-from rellib import repeats
+from rellib import evidence, repeats
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DRV = os.path.join(os.path.dirname(HERE), "drivers")
@@ -617,8 +617,30 @@ def walk(lane):
         t.join(5)
         self.assertTrue(any("a new attempt took this stage" in s for s in self.said))
 
-    def test_a_product_fault_does_not_park(self):
-        self.assert_no_park(ProductFault("find-x", "the app said no"))
+    def test_a_product_fault_parks_and_goes_on_on_the_fix(self):
+        code = """
+from core.faults import ProductFault
+
+def walk(lane):
+    lane.s.press("a")
+    if "sent" not in lane.s.tree():
+        raise ProductFault("check-sent", "no sent row")
+    lane.s.press("b")
+    return "walked"
+"""
+        lane = self.lane(code)
+        self.fix(code.replace('"sent" not in', '"nothing" in'))  # it was a misread: the check looked for the wrong row
+        self.assertEqual(lane.run_phase("address", lambda: self.mod.walk(lane)), "walked")
+        self.assertEqual(self.app.presses, ["a", "b"])
+        self.person.join(5)
+        self.assertEqual(self.parks[0]["kind"], "product")
+        self.assertEqual(self.parks[0]["step"], "check-sent")
+
+    def test_a_product_park_is_capped(self):
+        lane, go = self.faulting(ProductFault("find-x", "the app said no"), limit=7200)
+        with mock.patch.object(hold, "PRODUCT_S", 1), self.assertRaises(ProductFault):
+            go()
+        self.assertTrue(any("PARK over" in s for s in self.said))
 
     def test_harness_gone_does_not_park(self):
         lane, go = self.faulting(HarnessGone("rig", "gone"))
@@ -1132,6 +1154,64 @@ class ThroughRel(Repeats):
         self.assertEqual(self.presses(), ["a", "b"])
         self.assertEqual(len(self.events("continue")), 1)
         self.assertEqual(len(self.events("continued")), 1)
+
+    def test_the_fix_s_commit_continues_the_lane_by_itself(self):
+        self.eng.AUTO_LOOK_S = 0
+        t = self.start()
+        self.until_parked()
+        self.assertEqual(self.st()["doing"]["state"], "waits")
+        self.driver_fix(FIXED_A)
+        fixed = self.git("rev-parse", "HEAD")
+        t.join(30)  # nobody runs tools/rel continue
+        st = self.st()
+        self.assertEqual(st["status"], "done")
+        self.assertEqual(st["attempts"], 1)
+        self.assertEqual(st["driver"]["commit"], fixed)
+        self.assertEqual(self.presses(), ["a", "b"])
+        self.assertEqual(len(self.events("auto-continue")), 1)
+        self.assertTrue(self.events("continue")[0]["automatic"])
+        self.assertEqual(len(self.events("continued")), 1)
+
+    def test_a_commit_that_does_not_load_keeps_the_park_for_the_next(self):
+        self.eng.AUTO_LOOK_S = 0
+        t = self.start()
+        self.until_parked()
+        self.driver_fix("def walk(lane:\n")
+        end = time.monotonic() + 20
+        while not self.events("auto-continue-failed") and time.monotonic() < end:
+            time.sleep(0.05)
+        self.assertTrue(self.st().get("parked"))
+        self.driver_fix(FIXED_A)
+        t.join(30)
+        self.assertEqual(self.st()["status"], "done")
+        self.assertEqual(len(self.events("auto-continue")), 2)
+
+    def test_a_commit_outside_the_drivers_is_no_fix(self):
+        base = evidence.driver_record(self.repo)
+        pathlib.Path(self.repo, "notes.txt").write_text("x")
+        self.commit()
+        self.assertIsNone(repeats.fix_landed(self.repo, base))
+        self.driver_fix(FIXED_A)
+        self.assertIsNotNone(repeats.fix_landed(self.repo, base))
+
+    def test_a_parked_lane_is_never_started_again(self):
+        self.start()
+        self.until_parked()
+        for cmd in (("retry", KEY), ("retry", KEY, "--fresh", "the state is bad"), ("probe", "settings", KEY), ("run", KEY)):
+            code, out, err = self.rel(*cmd)
+            self.assertEqual(code, 40, (cmd, err + out))
+            self.assertIn("tools/rel go %s" % KEY, out + err)
+        self.assertEqual(len(self.events("repeat-refused")), 4)
+        self.assertEqual(self.st()["attempts"], 1)
+
+    def test_go_is_continue(self):
+        t = self.start()
+        self.until_parked()
+        self.driver_fix(FIXED_A)
+        code, out, err = self.rel("go", KEY)
+        self.assertEqual(code, 0, err + out)
+        t.join(20)
+        self.assertEqual(self.st()["status"], "done")
 
     def test_an_uncommitted_fix_is_refused(self):
         self.start()
