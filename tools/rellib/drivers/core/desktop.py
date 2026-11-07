@@ -493,8 +493,12 @@ class Desktop:
         d = self.d
         if self.in_settings():
             return
+        listed = Expect("Settings sections", lambda dd, tree: self.in_settings(tree))
         self.nav(NAV_SETTINGS)
-        d.must(Expect("Settings sections", lambda dd, tree: self.in_settings(tree)), 30, step="settings")
+        if not d.wait(listed, 10):   # a press in the fade of a dialog just closed is lost
+            self.log("settings: the page did not open, pressing again")
+            self.nav(NAV_SETTINGS)
+        d.must(listed, 30, step="settings")
 
     def section(self, key_or_target, _again=False):
         """Settings › a section, by its SECTION key or its target. False when the build lists no such
