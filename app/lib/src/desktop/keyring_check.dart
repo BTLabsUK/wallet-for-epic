@@ -49,7 +49,7 @@ Future<bool> _askSecretService() async {
       name: 'org.freedesktop.secrets',
       path: DBusObjectPath('/org/freedesktop/secrets'),
     );
-    await service.getProperty(_service, 'Collections');
+    await service.getProperty(_service, 'Collections'); // l10n-ok
     final alias = await service.callMethod(
       _service,
       'ReadAlias',
@@ -59,7 +59,7 @@ Future<bool> _askSecretService() async {
     final path = alias.returnValues.first.asObjectPath();
     if (path.value == '/') throw StateError('no default keyring');
     final collection = DBusRemoteObject(bus, name: 'org.freedesktop.secrets', path: path);
-    return (await collection.getProperty(_collection, 'Locked', signature: DBusSignature('b'))).asBoolean();
+    return (await collection.getProperty(_collection, 'Locked', signature: DBusSignature('b'))).asBoolean(); // l10n-ok
   } finally {
     // The daemon forgets its client for this connection when it closes.
     unawaited(bus.close().catchError((_) {}));
