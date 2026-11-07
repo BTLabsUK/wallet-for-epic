@@ -13594,7 +13594,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ตรวจสอบเมื่อ $count ชม. ที่แล้ว',
+      other: 'ตรวจสอบเมื่อ $count ชั่วโมงที่แล้ว',
     );
     return '$_temp0';
   }

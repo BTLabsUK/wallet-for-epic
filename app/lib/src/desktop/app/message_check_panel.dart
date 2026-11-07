@@ -84,7 +84,6 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Semantics(
-          key: deskMessageCheckRowKey,
           button: canOpen,
           expanded: canOpen ? open : null,
           label: summary.isEmpty ? headline : '$headline. $summary',
@@ -92,6 +91,7 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
           excludeSemantics: true,
           onTap: canOpen ? toggle : null,
           child: EInkWell(
+            key: deskMessageCheckRowKey,
             onTap: canOpen ? toggle : null,
             borderRadius: BorderRadius.circular(Rad.sm),
             child: Padding(

@@ -734,7 +734,7 @@ void main() {
 
     testWidgets('several are one digest when the run ends; it unfolds, and its invoices line opens the invoices', (tester) async {
       final h = _Harness();
-      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      await h.pump(tester, const Scaffold(body: Column(children: [NoticeDock(), PairingNotices()])));
       final notices = h.session.checks.notices;
       notices.begin();
       h.api.emit(invoice('a'));
@@ -750,6 +750,8 @@ void main() {
       expect(notice.action, isNull);
       expect(notice.items.map((i) => i.label), ['2 invoices', '1 withdrawal']);
       expect(find.byKey(noticeItemsKey), findsNothing, reason: 'folded at first');
+      // The dock slides the card into place before its chevron can be tapped.
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(noticeUnfoldKey));
       await tester.pumpAndSettle();
       expect(find.byKey(noticeItemsKey), findsOneWidget);

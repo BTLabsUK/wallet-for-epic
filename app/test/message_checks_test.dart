@@ -83,7 +83,7 @@ void main() {
     expect(view.of(CheckGroup.read).map((i) => i.kind), [CheckItemKind.read]);
     expect(view.of(CheckGroup.waiting).map((i) => i.kind), [CheckItemKind.held, CheckItemKind.more]);
     expect(view.of(CheckGroup.problems).map((i) => i.kind), [CheckItemKind.refused, CheckItemKind.pairingFailed, CheckItemKind.unreadable]);
-    expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck(outcome: CheckOutcome(capped: 1)))), 'more waiting');
+    expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck(outcome: CheckOutcome(capped: 1)))), keepWhole('more waiting'));
     expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck())), '');
     expect(messageCheckView(l, const MessageCheck()).hasItems, isFalse);
   });

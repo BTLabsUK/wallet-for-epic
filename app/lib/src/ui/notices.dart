@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../desktop/theme/tokens.dart' show Motion;
+import '../desktop/widgets/motion.dart' show ExpandFade;
 import 'notice_layout.dart';
 import 'settings_rows.dart' show NavChevron;
 import 'theme/tokens.dart';
@@ -493,7 +495,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     final progress = notice.progress;
     final items = notice.items;
     final still = MediaQuery.disableAnimationsOf(context);
-    final unfold = still ? Duration.zero : noticeUnfoldDuration;
+    final unfoldIn = still ? Duration.zero : noticeUnfoldDuration;
     final chevron = items.isEmpty
         ? null
         : IconButton(
@@ -502,78 +504,89 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             onPressed: _toggle,
             icon: AnimatedRotation(
               turns: _open ? 0.5 : 0,
-              duration: unfold,
+              duration: unfoldIn,
               curve: Curves.easeOutCubic,
               child: Icon(Icons.expand_more, color: t.dim),
             ),
           );
+    // The items unfold under the whole card, the words' left edge as their own, so the chevron
+    // that unfolds them stays beside the one line it belongs to. Height and fade move together
+    // both ways; a folded list is off stage, so nothing in it can be tapped or found.
+    final unfold = items.isEmpty
+        ? null
+        : ExpandFade(
+            open: _open,
+            child: Padding(
+              key: noticeItemsKey,
+              padding: const EdgeInsetsDirectional.only(
+                start: _wordsStart - 8,
+                end: 4,
+                bottom: 4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final item in items)
+                    InkWell(
+                      onTap: () {
+                        _notices.dismiss(notice.id);
+                        item.onPressed();
+                      },
+                      borderRadius: BorderRadius.circular(t.radiusSmall),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 44),
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 8,
+                          end: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.label,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                            const NavChevron(size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
     final body = Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
-      child: NoticeParts(
-        level: notice.level,
-        title: notice.title,
-        text: notice.text,
-        // A persistent notice is read, not glanced at: it shows its whole text.
-        maxLines: notice.persistent ? null : noticeMaxLines,
-        icon: icon,
-        color: color,
-        onWords: items.isEmpty ? null : _toggle,
-        below: progress != null
-            ? Padding(
-                padding: const EdgeInsets.only(top: 6, bottom: 4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 2,
-                  semanticsLabel: notice.progressLabel,
-                ),
-              )
-            : items.isEmpty
-            ? null
-            : AnimatedSize(
-                duration: unfold,
-                reverseDuration: unfold,
-                curve: _open ? Curves.easeOutCubic : Curves.easeInCubic,
-                alignment: Alignment.topCenter,
-                clipBehavior: Clip.hardEdge,
-                child: AnimatedSwitcher(
-                  duration: unfold,
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  child: _open
-                      ? Padding(
-                          key: noticeItemsKey,
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              for (final item in items)
-                                InkWell(
-                                  onTap: () {
-                                    _notices.dismiss(notice.id);
-                                    item.onPressed();
-                                  },
-                                  borderRadius: BorderRadius.circular(t.radiusSmall),
-                                  child: Container(
-                                    constraints: const BoxConstraints(minHeight: 44),
-                                    padding: const EdgeInsetsDirectional.only(start: 8, end: 4),
-                                    child: Row(
-                                      children: [
-                                        Expanded(child: Text(item.label, style: Theme.of(context).textTheme.bodyMedium)),
-                                        const NavChevron(size: 20),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(width: double.infinity),
-                ),
-              ),
-        actions: [?secondaryButton, ?actionButton, ?chevron],
-        close: close,
-        liveRegion: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          NoticeParts(
+            level: notice.level,
+            title: notice.title,
+            text: notice.text,
+            maxLines: notice.persistent ? null : noticeMaxLines,
+            icon: icon,
+            color: color,
+            onWords: items.isEmpty ? null : _toggle,
+            below: progress == null
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(top: 6, bottom: 4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 2,
+                      semanticsLabel: notice.progressLabel,
+                    ),
+                  ),
+            actions: [?secondaryButton, ?actionButton, ?chevron],
+            close: close,
+            liveRegion: true,
+          ),
+          ?unfold,
+        ],
       ),
     );
     return Listener(
@@ -608,8 +621,11 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   }
 }
 
+/// Where the words start inside the card's body: the level's icon and the gap after it.
+const double _wordsStart = 24 + 12;
+
 /// How long a digest takes to unfold its items, and to fold them.
-const Duration noticeUnfoldDuration = Duration(milliseconds: 220);
+const Duration noticeUnfoldDuration = Motion.expand;
 
 /// The chevron that unfolds a digest, and its items once unfolded: for tests.
 const Key noticeUnfoldKey = ValueKey('notice-unfold');

@@ -5384,7 +5384,7 @@
   "noticeSealedUnopenable": "เปิดข้อความจาก {name} ไม่ได้",
   "msgCheckedJustNow": "ตรวจสอบเมื่อสักครู่",
   "msgCheckedMinutesAgo": "{count, plural, other{ตรวจสอบเมื่อ {count} นาทีที่แล้ว}}",
-  "msgCheckedHoursAgo": "{count, plural, other{ตรวจสอบเมื่อ {count} ชม. ที่แล้ว}}",
+  "msgCheckedHoursAgo": "{count, plural, other{ตรวจสอบเมื่อ {count} ชั่วโมงที่แล้ว}}",
   "msgCheckedDaysAgo": "{count, plural, other{ตรวจสอบเมื่อ {count} วันที่แล้ว}}",
   "msgCheckSumRead": "{count, plural, other{อ่านแล้ว {count}}}",
   "msgCheckSumWaiting": "{count, plural, other{รอ {count}}}",
