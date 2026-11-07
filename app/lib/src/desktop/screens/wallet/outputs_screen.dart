@@ -500,7 +500,7 @@ class _Tiles extends StatelessWidget {
                 children: [
                   ?mark,
                   if (mark != null) SizedBox(width: Sp.x2),
-                  Text(label, style: ts.small),
+                  Flexible(child: Text(label, style: ts.small, maxLines: 1, overflow: TextOverflow.ellipsis)),
                   if (hint != null && !loading) ...[SizedBox(width: Sp.x1), EInfoHint(hint)],
                 ],
               ),
@@ -531,19 +531,27 @@ class _Tiles extends StatelessWidget {
     }
 
     final icon = Ctl.iconSm;
+    final tiles = [
+      tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b?.spendable, n?.spendable),
+      // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
+      // as the phone's: they are in no other figure and not in Total.
+      tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b?.minConfirmations ?? defaultMinimumConfirmations, size: icon), b == null ? null : b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
+      tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b?.immature, n?.immature),
+      tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b?.locked, n?.locked, hint: (b?.locked ?? 0) > 0 ? l.deskOutLockedNote : null),
+      tile(l.deskOutTileTotal, null, b == null ? null : outputsTotalValue(b), n?.total, total: true),
+    ];
+    // Two-column width and up the tiles share the card in equal columns; narrower they wrap
+    // at their own width.
     return EPanel(
-      child: Wrap(
-        spacing: 40.u,
-        runSpacing: 24.u,
-        children: [
-          tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b?.spendable, n?.spendable),
-          // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
-          // as the phone's: they are in no other figure and not in Total.
-          tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b?.minConfirmations ?? defaultMinimumConfirmations, size: icon), b == null ? null : b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
-          tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b?.immature, n?.immature),
-          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b?.locked, n?.locked, hint: (b?.locked ?? 0) > 0 ? l.deskOutLockedNote : null),
-          tile(l.deskOutTileTotal, null, b == null ? null : outputsTotalValue(b), n?.total, total: true),
-        ],
+      child: LayoutBuilder(
+        builder: (context, box) => box.maxWidth >= Lay.xl
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final (i, t) in tiles.indexed) ...[if (i > 0) SizedBox(width: Sp.x6), Expanded(child: t)],
+                ],
+              )
+            : Wrap(spacing: 40.u, runSpacing: 24.u, children: tiles),
       ),
     );
   }
