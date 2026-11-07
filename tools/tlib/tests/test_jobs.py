@@ -14,12 +14,12 @@ class JobsTest(unittest.TestCase):
             return t.jobs(n, wanted)
 
     def test_default_capped_at_the_budget(self):
-        self.assertEqual(self.jobs({}), 6)
+        self.assertEqual(self.jobs({}), 10)
         self.assertEqual(self.jobs({}, cpus=4), 3)
 
     def test_flutter_test_jobs(self):
         self.assertEqual(self.jobs({"FLUTTER_TEST_JOBS": "6"}), 6)
-        self.assertEqual(self.jobs({"FLUTTER_TEST_JOBS": "0"}), 6)
+        self.assertEqual(self.jobs({"FLUTTER_TEST_JOBS": "0"}), 10)
 
     def test_explicit_wins(self):
         self.assertEqual(self.jobs({"FLUTTER_TEST_JOBS": "6"}, wanted=2), 2)

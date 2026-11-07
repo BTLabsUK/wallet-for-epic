@@ -15,7 +15,7 @@ import time
 
 WALL_S = 30
 PEAK_MB = 2000
-MAX_JOBS = 6
+MAX_JOBS = 10
 RUN_RSS_MB = 14000
 POLL_S = 1.0
 ALLOW = "tools/test-budget.allow"

@@ -196,7 +196,8 @@ def jobs(n_files, wanted):
     j = os.environ.get("FLUTTER_TEST_JOBS")
     if j and j.isdigit() and int(j) > 0:
         return min(int(j), budget.MAX_JOBS)
-    # Three quarters of the logical CPUs, at most 8: three quarters of 16 threads kept a 16-thread
+    # Three quarters of the logical CPUs, at most MAX_JOBS (10: on 16 threads the full suite ran
+    # 9:16 against 10:50 at 6, no more flakes). Three quarters of 16 threads kept a 16-thread
     # machine at 96 % CPU.
     return max(1, min(n_files, budget.MAX_JOBS, (os.cpu_count() or 4) * 3 // 4))
 
