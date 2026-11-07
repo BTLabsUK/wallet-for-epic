@@ -93,7 +93,8 @@ class Goal:
 
 
 # A scan or sync covering the page (English: the lanes run the apps in English). Waited out, then closed.
-OVERLAY = re.compile(r"^(scanning|syncing|catching up|restoring|checking the chain|updating the wallet)\b", re.I)
+# "Scanning from January 2025" and "Scanning starts ..." are lines on the restore page, no overlay.
+OVERLAY = re.compile(r"^(scanning(?! from\b| starts\b)|syncing|catching up|restoring|checking the chain|updating the wallet)\b", re.I)
 OVERLAY_ROLES = ("dialog", "other", "text")
 OVERLAY_CLOSE = ("close", "hide", "run in background", "continue in background")
 # A folded section's control, by its first line (or an expandable state the platform reports)
