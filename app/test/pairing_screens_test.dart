@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_way1.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show PairingNotices, pairingNoticeOf;
+import 'package:epic_wallet/src/ui/invoices_screen.dart' show InvoicesScreen;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -725,6 +726,49 @@ void main() {
       await h.api.requestHandledOn(q.id, 'Desktop');
       await tester.pumpAndSettle();
       expect(_notice(tester), _l.pairPairedOn('Desktop'));
+    });
+  });
+
+  group('a run\'s notices', () {
+    PairingEvent invoice(String slate) => PairingEvent(PairingEventKind.invoiceFromContact, name: 'Anna', slateId: slate, amount: BigInt.from(100000000));
+
+    testWidgets('several are one digest when the run ends; View opens the invoices', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      final notices = h.session.checks.notices;
+      notices.begin();
+      h.api.emit(invoice('a'));
+      h.api.emit(invoice('b'));
+      h.api.emit(PairingEvent(PairingEventKind.withdrawalFromContact, name: 'Anna', slateId: 'c', amount: BigInt.from(100000000)));
+      await tester.pump();
+      expect(_notice(tester), isNull, reason: 'held until the run ends');
+      notices.end();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(_notice(tester), '3 updates: 2 invoices, 1 withdrawal');
+      final view = h.container(tester).read(noticeProvider)!.action!;
+      expect(view.label, _l.noticeView);
+      view.onPressed();
+      await tester.pumpAndSettle();
+      expect(find.byType(InvoicesScreen), findsOneWidget);
+    });
+
+    testWidgets('one is today\'s notice, named; outside a run it shows at once', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      final notices = h.session.checks.notices;
+      notices.begin();
+      h.api.emit(invoice('a'));
+      await tester.pump();
+      expect(_notice(tester), isNull);
+      notices.end();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(_notice(tester), _l.noticeRequest('Anna', '1.0'));
+      h.api.emit(invoice('b'));
+      await tester.pump();
+      expect(_notice(tester), _l.noticeRequest('Anna', '1.0'));
+      expect(find.text('2 updates'), findsNothing);
     });
   });
 

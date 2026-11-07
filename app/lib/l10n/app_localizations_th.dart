@@ -14539,6 +14539,69 @@ class AppLocalizationsTh extends AppLocalizations {
   String get noticeView => 'ดู';
 
   @override
+  String noticeDigest(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count รายการอัปเดต: $parts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestInvoices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ใบแจ้งหนี้ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'การถอน $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ชำระใบแจ้งหนี้แล้ว $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เรียกคืนใบแจ้งหนี้แล้ว $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ใบแจ้งหนี้หมดอายุ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeDigestSeparator => ' ';
+
+  @override
   String pairSaveContactTitle(String name) {
     return 'บันทึก $name ในผู้ติดต่อของคุณหรือไม่';
   }

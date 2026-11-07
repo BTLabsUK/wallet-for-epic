@@ -20,6 +20,7 @@ import '../cancel_final.dart';
 import '../errors.dart';
 import '../pairing_providers.dart';
 import '../l10n.dart';
+import '../notice_digest.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
@@ -150,6 +151,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
           level: level,
           action: open == null ? null : NoticeAction(l.homeNoticeView, open),
         );
+    // Routine news waits for the end of its run ([NoticeBatch]).
+    void hold(HeldKind kind, {void Function()? show}) =>
+        raiseNotice(ref.read(sessionProvider)?.checks.notices, HeldNotice(kind, slateId: event.slateId, show: show));
     // Who sent it, read before the list drops it.
     final invoice = ref.read(pendingInvoicesProvider).value?.where((i) => i.slateId == event.slateId).firstOrNull;
     switch (event.kind) {
@@ -164,14 +168,15 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       case InvoiceEventKind.received:
         // Level 1 keeps invoices quiet: no notice; the invoice is a row under Recent activity.
         if (ref.read(levelFeaturesProvider).invoices == InvoicePresence.quiet) break;
-        view(l.invoiceNoticeReceived, NoticeLevel.info, () => _openInvoice(event.slateId));
+        hold(HeldKind.invoice, show: () => view(l.invoiceNoticeReceived, NoticeLevel.info, () => _openInvoice(event.slateId)));
       case InvoiceEventKind.posted:
-        view(
-          l.invoiceNoticePosted,
-          NoticeLevel.success,
-          await _openPayment(event.slateId),
-        );
+        hold(HeldKind.paid, show: () async {
+          final open = await _openPayment(event.slateId);
+          if (mounted) view(l.invoiceNoticePosted, NoticeLevel.success, open);
+        });
       case InvoiceEventKind.withdrawn:
+        // Held before the check below: no prompt for an invoice withdrawn in the same run.
+        hold(HeldKind.withdrawn);
         final session = ref.read(sessionProvider);
         final paid = session == null
             ? null
@@ -179,15 +184,12 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         if (!mounted) return;
         if (paid == null) {
           // The sender by name, a person as much as a service.
-          view(
-            invoice == null
-                ? l.invoiceNoticeWithdrawn
-                : l.deskInvNoticeWithdrawn(
-                    invoiceSenderName(l, ref.read(pairingsProvider).value ?? const [], ref.read(contactsProvider).value ?? const [], invoice.pairingId),
-                  ),
-            NoticeLevel.info,
-            null,
-          );
+          final text = invoice == null
+              ? l.invoiceNoticeWithdrawn
+              : l.deskInvNoticeWithdrawn(
+                  invoiceSenderName(l, ref.read(pairingsProvider).value ?? const [], ref.read(contactsProvider).value ?? const [], invoice.pairingId),
+                );
+          hold(HeldKind.withdrawn, show: () => view(text, NoticeLevel.info, null));
         } else {
           // Cancel, which asks first, while the payment can still be cancelled; else the way
           // to its details.
@@ -207,10 +209,10 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
           );
         }
       case InvoiceEventKind.expired:
-        view(l.invoiceNoticeExpired, NoticeLevel.info, null);
+        hold(HeldKind.expired, show: () => view(l.invoiceNoticeExpired, NoticeLevel.info, null));
       case InvoiceEventKind.declined:
         // The review screen says so itself.
-        break;
+        hold(HeldKind.declined);
       // Unverified (anyone can raise it): a notice only, naming no one.
       case InvoiceEventKind.unknownInvoicePayment:
         view(l.deskInvNoticeUnknownPayment, NoticeLevel.warning, null);
@@ -219,10 +221,10 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       case InvoiceEventKind.receiveSuperseded:
         view(l.deskInvNoticeReceiveSuperseded, NoticeLevel.info, null);
       // Not an invoice: home words it (paymentPostedProvider, paymentCancelledProvider).
-      case InvoiceEventKind.paymentPosted ||
-          InvoiceEventKind.paymentCancelled ||
-          InvoiceEventKind.paymentDeclined:
+      case InvoiceEventKind.paymentPosted:
         break;
+      case InvoiceEventKind.paymentCancelled || InvoiceEventKind.paymentDeclined:
+        hold(HeldKind.cancelled);
     }
   }
 
@@ -235,13 +237,16 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       l.homeNoticeView,
       _detailsOf('s:${event.slateId}'),
     );
+    // Routine news waits for the end of its run ([NoticeBatch]).
+    void hold(HeldKind kind, void Function() show) =>
+        raiseNotice(ref.read(sessionProvider)?.checks.notices, HeldNotice(kind, slateId: event.slateId, show: show));
     switch (event.kind) {
       case IssuerEventKind.paid:
-        notices.show(
+        hold(HeldKind.paid, () => notices.show(
           l.issuerNoticePaid,
           level: NoticeLevel.success,
           action: view,
-        );
+        ));
       case IssuerEventKind.declined:
         notices.show(
           l.issuerNoticeDeclined,
@@ -252,11 +257,11 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         // The user withdrew it a moment ago; nothing to open.
         notices.show(l.issuerNoticeWithdrawn, level: NoticeLevel.warning);
       case IssuerEventKind.expired:
-        notices.show(
+        hold(HeldKind.expired, () => notices.show(
           l.issuerNoticeExpired,
           level: NoticeLevel.info,
           action: view,
-        );
+        ));
       case IssuerEventKind.bounced:
         // Named, so the user knows whom to ask for a payment file.
         final payer = payerName(

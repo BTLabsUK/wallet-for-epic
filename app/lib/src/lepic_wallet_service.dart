@@ -1626,7 +1626,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   }
 
   @override
-  final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter);
+  late final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace, settle: () => _inTurn(() async {}));
 
   /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
@@ -3124,8 +3124,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     if (!NetGate.invoices) return const InvoiceCollectReport();
     _watchEvents();
     final before = (await _wallet.contactInvoices()).length;
-    await _pairing.collectOrFail(PairingCollectTrigger.open);
-    await _sweep();
+    // What the sweep expires is news of the same run.
+    await checks.notices.during(() async {
+      await _pairing.collectOrFail(PairingCollectTrigger.open);
+      await _sweep();
+    });
     final after = (await _wallet.contactInvoices()).length;
     return InvoiceCollectReport(parked: after > before ? after - before : 0);
   });
@@ -4314,16 +4317,19 @@ class _LepicPairing implements PairingApi {
   @override
   Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
     if (!supported || NetGate.epicboxOff) return 0;
-    try {
-      // A trigger during a running collect marks one rerun; the later ones add none.
-      return await _collects.run(() => collectOrFail(trigger));
-    } on lepic.WalletError catch (error) {
-      logWarn('pairing', 'collect failed: ${error.kind.name}');
-      return 0;
-    } finally {
-      // Contact invoices arrive with this collect: what ran out expires on the same beat.
-      if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
-    }
+    // What the sweep expires is news of the same run.
+    return _s.checks.notices.during(() async {
+      try {
+        // A trigger during a running collect marks one rerun; the later ones add none.
+        return await _collects.run(() => collectOrFail(trigger));
+      } on lepic.WalletError catch (error) {
+        logWarn('pairing', 'collect failed: ${error.kind.name}');
+        return 0;
+      } finally {
+        // Contact invoices arrive with this collect: what ran out expires on the same beat.
+        if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
+      }
+    });
   }
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is

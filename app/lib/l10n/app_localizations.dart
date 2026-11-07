@@ -23382,6 +23382,48 @@ abstract class AppLocalizations {
   /// **'View'**
   String get noticeView;
 
+  /// One notice for all that a check of the messages brought; parts is the list of kinds. The count is always two or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{{count} updates: {parts}}}'**
+  String noticeDigest(int count, String parts);
+
+  /// Part of the digest notice: invoices waiting for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice} other{{count} invoices}}'**
+  String noticeDigestInvoices(int count);
+
+  /// Part of the digest notice: withdrawals received from a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 withdrawal} other{{count} withdrawals}}'**
+  String noticeDigestWithdrawals(int count);
+
+  /// Part of the digest notice: invoices paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice paid} other{{count} invoices paid}}'**
+  String noticeDigestPaid(int count);
+
+  /// Part of the digest notice: invoices withdrawn by their sender.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice withdrawn} other{{count} invoices withdrawn}}'**
+  String noticeDigestWithdrawn(int count);
+
+  /// Part of the digest notice: invoices expired.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invoice expired} other{{count} invoices expired}}'**
+  String noticeDigestExpired(int count);
+
+  /// Between the parts of the digest notice.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get noticeDigestSeparator;
+
   /// Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.
   ///
   /// In en, this message translates to:

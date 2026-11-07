@@ -32,6 +32,7 @@ import 'watch_mode.dart' show BlockWatch;
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'message_checks.dart';
+import 'notice_digest.dart';
 import 'wallet_service.dart';
 
 export 'models.dart' show defaultMinimumConfirmations;
@@ -1666,6 +1667,11 @@ Stream<MessageCheck> messageCheckStream(MessageChecks? checks) async* {
 
 final messageCheckProvider = StreamProvider.autoDispose<MessageCheck>(
   (ref) => messageCheckStream(ref.watch(sessionProvider)?.checks),
+);
+
+/// The digests of the open wallet's runs ([NoticeBatch]), for the notices on home.
+final noticeDigestProvider = StreamProvider.autoDispose<NoticeDigest>(
+  (ref) => ref.watch(sessionProvider)?.checks.notices.digests ?? const Stream.empty(),
 );
 
 /// Drains the payments address when a wallet opens and, through [PaymentsDrainNotifier.drain],

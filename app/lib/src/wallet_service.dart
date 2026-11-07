@@ -1359,7 +1359,7 @@ class FakeWalletSession implements WalletSession, ListingKeys {
        invoiceHistory = invoiceHistory ?? WalletHistory.memory();
 
   @override
-  final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter);
+  final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace);
 
   static final WalletSummary emptySummary = WalletSummary(
     lastConfirmedHeight: BigInt.zero,

@@ -14,7 +14,7 @@ void main() {
   });
 
   test('a quick check never shows, a slow one does, a tick stays quiet', () async {
-    final checks = MessageChecks(showAfter: const Duration(milliseconds: 40));
+    final checks = MessageChecks(showAfter: const Duration(milliseconds: 40), digestGrace: Duration.zero);
     final seen = <bool>[];
     checks.stream.listen((c) => seen.add(c.checking));
     await checks.run(CheckSource.drain, () async => 1, outcomeOf: (_) => const CheckOutcome());
@@ -30,7 +30,7 @@ void main() {
   });
 
   test('a failure is kept and shown until a check ends well', () async {
-    final checks = MessageChecks(showAfter: const Duration(seconds: 5));
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero);
     await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
     expect(checks.value.failed, isTrue);
     await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome());

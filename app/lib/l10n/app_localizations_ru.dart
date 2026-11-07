@@ -15424,6 +15424,87 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noticeView => 'Показать';
 
   @override
+  String noticeDigest(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count обновления: $parts',
+      many: '$count обновлений: $parts',
+      few: '$count обновления: $parts',
+      one: '$count обновление: $parts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestInvoices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count счёта',
+      many: '$count счетов',
+      few: '$count счёта',
+      one: '$count счёт',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count вывода',
+      many: '$count выводов',
+      few: '$count вывода',
+      one: '$count вывод',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count счёта оплачено',
+      many: '$count счетов оплачено',
+      few: '$count счёта оплачено',
+      one: '$count счёт оплачен',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count счёта отозвано',
+      many: '$count счетов отозвано',
+      few: '$count счёта отозвано',
+      one: '$count счёт отозван',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count счёта истекло',
+      many: '$count счетов истекло',
+      few: '$count счёта истекли',
+      one: '$count счёт истёк',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeDigestSeparator => ', ';
+
+  @override
   String pairSaveContactTitle(String name) {
     return 'Сохранить $name в контактах?';
   }

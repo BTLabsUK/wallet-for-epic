@@ -394,6 +394,7 @@ const List<SettingsKey> configKeys = [
   // (`connection_grace.dart`; 0 shows them at once).
   SettingsKey('notices.server_grace_s', IntKind(min: 0, max: 600)),
   SettingsKey('notices.check_show_after_ms', IntKind(min: 0, max: 10000), byDefault: 600),
+  SettingsKey('notices.digest_grace_ms', IntKind(min: 0, max: 10000), byDefault: 400),
   // [payments]
   SettingsKey('payments.watch_fast_every_s', _seconds),
   SettingsKey('payments.watch_fast_for_s', _seconds),

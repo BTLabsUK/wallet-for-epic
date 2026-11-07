@@ -6,6 +6,8 @@ library;
 
 import 'dart:async';
 
+import 'notice_digest.dart';
+
 /// The counts of one check, from the drain's report and the collect's. Every field is a plain
 /// count; [buffered], [quarantined] and [capped] are room for what the core will report later.
 class CheckOutcome {
@@ -131,10 +133,15 @@ class MessageCheck {
 
 /// Keeps the [MessageCheck] of one wallet session and tells its listeners when it changes.
 class MessageChecks {
-  MessageChecks({required this.showAfter, DateTime Function()? clock}) : _now = clock ?? DateTime.now;
+  MessageChecks({required this.showAfter, required Duration digestGrace, Future<void> Function()? settle, DateTime Function()? clock})
+    : notices = NoticeBatch(grace: digestGrace, settle: settle),
+      _now = clock ?? DateTime.now;
 
   /// A check shows as running only after it has run this long.
   final Duration showAfter;
+
+  /// The notices held while a check runs, quiet ones too: one result per run.
+  final NoticeBatch notices;
   final DateTime Function() _now;
   final StreamController<MessageCheck> _changes = StreamController<MessageCheck>.broadcast();
   final Map<CheckSource, CheckOutcome> _outcomes = {};
@@ -151,6 +158,7 @@ class MessageChecks {
   /// Runs [body] as one check of [source]. [outcomeOf] reads its result. A failure marks the
   /// check failed and is thrown again. A [quiet] run (a timer's tick) never shows "checking".
   Future<T> run<T>(CheckSource source, Future<T> Function() body, {required CheckOutcome Function(T result) outcomeOf, bool quiet = false}) async {
+    notices.begin();
     if (!quiet) _begin();
     try {
       final result = await body();
@@ -163,6 +171,7 @@ class MessageChecks {
       rethrow;
     } finally {
       if (!quiet) _end();
+      notices.end();
       _publish();
     }
   }
@@ -200,6 +209,7 @@ class MessageChecks {
 
   void dispose() {
     _timer?.cancel();
+    notices.dispose();
     _changes.close();
   }
 }

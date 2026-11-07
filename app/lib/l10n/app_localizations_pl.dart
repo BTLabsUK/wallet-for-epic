@@ -15450,6 +15450,87 @@ class AppLocalizationsPl extends AppLocalizations {
   String get noticeView => 'Pokaż';
 
   @override
+  String noticeDigest(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aktualizacji: $parts',
+      many: '$count aktualizacji: $parts',
+      few: '$count aktualizacje: $parts',
+      one: '$count aktualizacja: $parts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestInvoices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury',
+      many: '$count faktur',
+      few: '$count faktury',
+      one: '$count faktura',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wypłaty',
+      many: '$count wypłat',
+      few: '$count wypłaty',
+      one: '$count wypłata',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury zapłaconej',
+      many: '$count faktur zapłaconych',
+      few: '$count faktury zapłacone',
+      one: '$count faktura zapłacona',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestWithdrawn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury wycofanej',
+      many: '$count faktur wycofanych',
+      few: '$count faktury wycofane',
+      one: '$count faktura wycofana',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String noticeDigestExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury wygasłej',
+      many: '$count faktur wygasłych',
+      few: '$count faktury wygasłe',
+      one: '$count faktura wygasła',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeDigestSeparator => ', ';
+
+  @override
   String pairSaveContactTitle(String name) {
     return 'Zapisać $name w kontaktach?';
   }

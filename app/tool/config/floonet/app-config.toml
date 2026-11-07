@@ -157,6 +157,9 @@ server_grace_s = 20
 # A check of the messages that is done sooner than this shows no "Checking messages" state, so a
 # quick empty check does not flash it.
 check_show_after_ms = 600
+# A collect or a drain gives one notice. Events land on their own, so its batch stays open this
+# long after the run ended.
+digest_grace_ms = 400
 
 [payments]
 # After a payment is posted: how often the tip is read, then how long, then how often after.
