@@ -15,6 +15,7 @@ The clipboard: Copy invite puts the invite on the inviter's display; the platfor
 field."""
 import contextlib
 import re
+import time
 
 from .driver import Expect, either, gone, shows
 from .targets import T
@@ -40,6 +41,7 @@ PAIR_GO = T("pair.screen.go", keys=("pairTitle",), names=("Pair",), match="exact
 INCOMING_TITLE = T("pair.incoming.title", role="text", keys=("pairIncomingTitle",), match="exact")
 INCOMING_PAIR = T("pair.incoming.pair", keys=("pairTitle",), names=("Pair",), match="exact")
 WAITING_TITLE = T("pair.waiting.title", role="text", keys=("pairPairingWith",), match="exact")
+WAITING_CLOSE = T("pair.waiting.close", keys=("commonClose",), names=("Close",), match="exact")
 # the words: "Check the words with Lane B", The four words, They match
 CHECK_TITLE = T("pair.check.title", role="text", keys=("sasDialogTitle",), match="exact")
 CHECK_WORDS = T("pair.check.words", role="other", keys=("sasWordsLabel",), names=("The four words",), match="starts")
@@ -58,12 +60,15 @@ STATE_NONE = T("pair.state.none", role="text", keys=("pairNotPaired",), names=("
 CONFIRMED_TOO = T("pair.state.both", role="text", keys=("pairConfirmedToo",), names=("re:.* confirmed too\\.",),
                   match="contains")
 REMOVE_PAIRING = T("pair.contact.remove", keys=("contactRemovePairing",), names=("Remove pairing",), match="exact")
+REMOVE_TITLE = T("pair.contact.removetitle", role="text", keys=("contactRemovePairingTitle",),
+                 names=("re:remove the pairing with .*\\?",), match="exact")
 REMOVE_CONFIRM = T("pair.contact.removeok", keys=("contactRemove",), names=("Remove",), match="exact")
 CONTACT_CHECK = T("pair.contact.check", keys=("pairCheckWords",), names=("Check the words",), match="exact")
 CONTACT_PAIR = T("pair.contact.pair", keys=("pairTitle", "pairAgain"), names=("Pair", "Pair again"), match="exact")
 # a pair request to a proven contact: "Pair with Lane A" › Send request; the other side's Pair requests · 1 › Pair
 REQUEST_SEND = T("pair.request.send", keys=("pairSendRequest",), names=("Send request",), match="exact")
 REQUESTS_ROW = T("pair.requests.row", keys=("pairRequestsRow",), names=("re:pair requests · \\d+",), match="exact")
+REQUESTS_TITLE = T("pair.requests.title", role="text", keys=("pairRequestsTitle",), names=("Pair requests",), match="exact")
 REQUESTS_PAIR = T("pair.requests.pair", keys=("pairRequestPair",), names=("Pair",), match="exact")
 
 # invoices: the issuer's contact page › Issue an invoice › Amount › Send invoice; the payer's
@@ -75,7 +80,7 @@ INV_SENT = T("inv.issue.sent", role="other", keys=("reqSent", "deskInvIssuerWait
              names=("re:invoice sent to .*", "re:delivered to .*epicbox server.*"), match="contains")
 INV_FAILED = T("inv.issue.failed", role="other", keys=("deskInvFailed", "deskInvIssuerNotDelivered"), match="contains")
 NAV_INVOICES = T("inv.nav", keys=("deskInvNav",), names=("Invoices",), match="exact")
-INV_TAB_PAY = T("inv.tab.pay", role="other", keys=("deskInvTabPay",), names=("Pay",), match="starts")
+INV_TAB_PAY = T("inv.tab.pay", role="other", keys=("deskInvTabPay",), names=("Pay",), match="line")  # its count may follow
 INV_REVIEW = T("inv.pay.review", keys=("deskInvPayerReview",), names=("Review",), match="exact")
 INV_APPROVE = T("inv.pay.approve", keys=("invoiceApprove",), names=("Approve and pay",), match="exact")
 INV_PASSWORD = T("inv.pay.password", role="text_field", keys=("deskInvPayerPassword",), names=("Wallet password",),
@@ -250,17 +255,31 @@ class Pairing:
 
     def wait_state(self, name, want, timeout=180):
         """Until <name>'s contact page reads [want] (the page reopened now and then)."""
+        r = self._wait_page(name, dict(STATES)[want], timeout)
+        self.d.shot("pair-state-%s" % want)
+        return r
+
+    def wait_confirmed(self, name, timeout=180):
+        """Until <name>'s contact page says <name> confirmed too: their verdict comes as a notice, some
+        time after this wallet's own Verified."""
+        return self._wait_page(name, CONFIRMED_TOO, timeout)
+
+    def _wait_page(self, name, target, timeout):
         d = self.d
         self.open_contact(name)
-        r = d.wait(Expect("%s %s" % (name, want), lambda dd, tree: d.find_in(dict(STATES)[want], tree) or None), timeout)
-        d.shot("pair-state-%s" % want)
-        return bool(r)
+        end = time.time() + timeout
+        while True:
+            if d.wait(shows(target), min(45, max(1, end - time.time()))):
+                return True
+            if time.time() >= end:
+                return False
+            self.open_contact(name)
 
     def remove(self, name):
         """<name>'s contact page › Remove pairing › Remove."""
         d = self.d
         self.open_contact(name)
-        d.press(REMOVE_PAIRING, step="pair-remove", then=shows(REMOVE_CONFIRM), timeout=20)
+        d.press(REMOVE_PAIRING, step="pair-remove", then=shows(REMOVE_TITLE), timeout=20)
         hits = d.find_in(REMOVE_CONFIRM, d.tree())
         d._act(d.s.press, hits[-1])
         d.must(either(shows(STATE_ENDED), shows(STATE_NONE)), 60, step="pair-removed")
@@ -272,7 +291,10 @@ class Pairing:
         the app opened the invite page instead (not proven)."""
         d = self.d
         self.open_contact(name)
-        d.press(CONTACT_PAIR, step="pair-request-open", then=either(shows(REQUEST_SEND), shows(PAIR_YOUR)), timeout=60)
+        d.must(shows(CONTACT_PAIR), 20, step="pair-request-open")
+        hits = d.find_in(CONTACT_PAIR, d.tree())
+        d._act(d.s.press, hits[-1])  # the Pairing block's (the Contacts page's own, to the invite page, comes first)
+        d.must(either(shows(REQUEST_SEND), shows(PAIR_YOUR)), 60, step="pair-request-opened")
         if not d.seen(REQUEST_SEND):
             self.log("%s: no request offered for %s (the invite page opened)" % (self.ui.which, name))
             return False
@@ -282,19 +304,29 @@ class Pairing:
 
     def accept_request(self, timeout=300):
         """Contacts › Pair requests · n › Pair (the newest), then its Pair with <name>? › Pair (desktop opens
-        the same dialog as an invite; no words for a proven contact)."""
+        the same dialog as an invite; no words for a proven contact), then Pairing with <name>… until the
+        other wallet's confirm closes it. -> None, or what stands in the way of a pairing with no words."""
         d = self.d
         self.ui.ensure_unlocked()
         self.contacts_list()
         d.must(shows(REQUESTS_ROW), timeout, step="pair-request-seen")
         with self._own_not_now():
-            d.press(REQUESTS_ROW, step="pair-requests-open", then=shows(REQUESTS_PAIR), timeout=20)
+            d.press(REQUESTS_ROW, step="pair-requests-open", then=shows(REQUESTS_TITLE), timeout=20)
             hits = d.find_in(REQUESTS_PAIR, d.tree())
             d._act(d.s.press, hits[-1])
             if d.wait(shows(INCOMING_TITLE), 20):
                 hits = d.find_in(INCOMING_PAIR, d.tree())
                 d._act(d.s.press, hits[-1])  # the dialog's Pair (the page's own is under it)
                 d.must(gone(INCOMING_TITLE), 60, step="pair-request-accepted")
+            d.wait(shows(WAITING_TITLE), 10)
+            d.wait(either(shows(CHECK_TITLE), gone(WAITING_TITLE)), 240)
+            d.shot("pair-request-answered")
+            if d.seen(CHECK_TITLE):
+                return "the request to a proven contact asked for the four words"
+            if d.seen(WAITING_TITLE):
+                d.press(WAITING_CLOSE, step="pair-waiting-close", then=gone(WAITING_TITLE), timeout=20)
+                return "the other wallet's confirm did not reach A"
+        return None
 
     # ---- an invoice between paired contacts
 
@@ -322,7 +354,7 @@ class Pairing:
         d = self.d
         self.ui.nav(NAV_INVOICES)
         if d.wait(shows(INV_TAB_PAY), 10):
-            d.press(INV_TAB_PAY, step="inv-pay-tab", timeout=20)
+            d.press(INV_TAB_PAY, step="inv-pay-tab", then=shows(INV_TAB_PAY), timeout=20)  # often the open tab
         d.must(shows(INV_REVIEW), timeout, step="inv-received")
         d.press(INV_REVIEW, step="inv-review", then=shows(INV_APPROVE), timeout=30)
         d.shot("inv-review")

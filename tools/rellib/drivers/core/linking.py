@@ -2,8 +2,8 @@
 """The linked-devices recipes of the TX lane (linux/tx_lane.py, LINK-1) on the desktop family, over
 core/desktop.py: Settings › Linked devices, the name this device goes by (This device › Rename),
 Link a device with its invite copied on one install and pasted on the other (the dialog's Paste
-invite tab), the link's result (Linked to <name>. | Not linked), and Remove on one install with
-what the other then reads.
+invite tab), the link's result (Linked to <name>. | the failure's own line), and Remove on one
+install with what the other then reads.
 
 Targets the registry does not hold are made here with T(): ARB keys first, the 26.11.0 English
 text as the fallback.
@@ -30,9 +30,13 @@ CANCEL = T("link.cancel", keys=("commonCancel",), names=("Cancel",), match="exac
 CLOSE = T("link.close", keys=("commonClose",), names=("Close",), match="exact")
 LINKING = T("link.linking", role="other", keys=("linkLinkingWith",), names=("re:linking with .*",), match="contains")
 DONE = T("link.done", role="other", keys=("linkDone",), names=("re:linked to .*\\.",), match="contains")
-FAILED = T("link.failed", role="other", keys=("linkFailedTitle",), names=("Not linked",), match="exact")
+# desktop's failure is one line, the reason (deskLinkFailureText); "Not linked" is the phone's title
+FAILED = T("link.failed", role="other", keys=(
+    "linkFailInvalid", "linkFailExpired", "linkFailNotFound", "linkFailOwn", "linkFailOtherWallet", "linkFailOtherWalletCode",
+    "linkFailTooMany", "linkFailFull", "linkFailUpdate", "linkFailUpdateOther", "linkFailUnreachable"), match="contains")
 # the linked row's Remove, its dialog's Remove; the other install's notice
 REMOVE = T("link.remove", keys=("devicesRemove",), names=("Remove",), match="exact")
+REMOVE_TITLE = T("link.remove.title", role="text", keys=("devicesRemoveTitle",), names=("re:remove .*\\?",), match="exact")
 REMOVED_BY = T("link.removedby", role="other", keys=("devicesRemovedBy",), names=("re:.* removed this device\\.",),
                match="contains")
 REMOVING = T("link.removing", role="other", keys=("devicesRemoving",), names=("re:removing… .*",), match="starts")
@@ -80,7 +84,7 @@ class Linking:
         self.clip("")
         d.press(LINK_OPEN, step="link-open", then=either(shows(COPY), shows(FAILED)), timeout=60)
         if d.seen(FAILED):
-            d.harness("Link a device: Not linked before an invite was shown")
+            d.harness("Link a device failed before an invite was shown: %s" % d.seen(FAILED).name.replace("\n", " ")[:120])
         got = None
         for _ in range(3):
             d.press(COPY, step="link-copy", then=Expect("copied", lambda dd, tree: True), timeout=10)
@@ -96,7 +100,8 @@ class Linking:
         """Link a device › Paste invite › the invite in Invite › Link."""
         d = self.d
         self.open()
-        d.press(LINK_OPEN, step="link-open", then=shows(TAB_PASTE), timeout=30)
+        # the dialog opens on Show QR, making an invite: leaving the tab before it stands can land on it
+        d.press(LINK_OPEN, step="link-open", then=either(shows(COPY), shows(FAILED)), timeout=60)
         d.press(TAB_PASTE, step="link-paste-tab", then=shows(FIELD), timeout=20)
         d.fill(FIELD, text, step="link-paste-field")
         hits = d.find_in(GO, d.tree())
@@ -104,8 +109,8 @@ class Linking:
         d.must(either(shows(LINKING), shows(DONE), shows(FAILED), gone(FIELD)), 60, step="link-go")
 
     def result(self, timeout=300):
-        """The link dialog's result: (True, "Linked to …") | (False, why); Linked closes by itself, so
-        a dialog gone with the device listed counts as linked."""
+        """The link dialog's result: (True, "Linked to …") | (False, its line); Linked closes by itself
+        (waited for, Settings is under it), so a dialog gone with the device listed counts as linked."""
         d = self.d
 
         def got(dd, tree):
@@ -114,20 +119,20 @@ class Linking:
                 if hits:
                     return t, hits
             return None
-        r = d.wait(Expect("Linked or Not linked", got), timeout)
+        r = d.wait(Expect("Linked or a failure line", got), timeout)
         d.shot("link-result")
         if r is None:
             if self.linked():
                 return True, "the dialog closed; Linked devices lists the other install"
             return False, "no result in %d s" % timeout
         t, hits = r
+        said = hits[0].name.replace("\n", " ")[:200]
         if t is DONE:
-            return True, hits[0].name.replace("\n", " ")[:120]
-        why = " ".join(n.name.replace("\n", " ") for n in d.tree() if n.role in ("text", "other")
-                       and n.name and "not linked" not in n.name.lower())[:200]
+            d.wait(gone(DONE), 15)
+            return True, said
         if d.seen(CLOSE):
             d.press(CLOSE, step="link-close", then=gone(FAILED), timeout=20)
-        return False, "Not linked: %s" % (why or "no reason shown")
+        return False, "Not linked: %s" % said
 
     def cancel(self):
         """The link dialog closed (Cancel or Close), when one is open."""
@@ -141,8 +146,7 @@ class Linking:
         """The linked row's Remove › Remove (the dialog's); -> True once Link a device is offered again."""
         d = self.d
         self.open()
-        d.press(REMOVE, step="link-remove", then=Expect("the Remove dialog", lambda dd, tree: len(dd.find_in(REMOVE, tree)) > 1 or None),
-                timeout=20)
+        d.press(REMOVE, step="link-remove", then=shows(REMOVE_TITLE), timeout=20)
         hits = d.find_in(REMOVE, d.tree())
         d._act(d.s.press, hits[-1])  # the dialog's
         r = d.wait(shows(LINK_OPEN), 60)

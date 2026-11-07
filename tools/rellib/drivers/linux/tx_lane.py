@@ -357,13 +357,16 @@ class TxLane(Lane):
         else:
             self.skip_phase("pair-end", "A and B are not paired")
 
-    def _both_verified(self, check, how):
+    def _both_verified(self, check, how, words=True):
+        """Verified on both contact pages; after the [words] check also each with the other confirmed too
+        (a request to a proven contact has no check, so no verdict comes over: LEPIC verifies it by the address)."""
         self.awake()  # a locked wallet takes no notice of the other's confirmation
         a, b = self.w["a"].pair, self.w["b"].pair
-        got = {k: p.wait_state(PAIR_NAME[o], "verified") for k, o, p in (("a", "b", a), ("b", "a", b))}
-        too = {k: p.state(PAIR_NAME[o], refresh=False)[1] for k, o, p in (("a", "b", a), ("b", "a", b))}
+        sides = (("a", "b", a), ("b", "a", b))
+        got = {k: p.wait_state(PAIR_NAME[o], "verified") for k, o, p in sides}
+        too = {k: not words or (got[k] and p.wait_confirmed(PAIR_NAME[o])) for k, o, p in sides}
         if all(got.values()) and all(too.values()):
-            self.ok(check, "%s: Verified on both contact pages, each with the other confirmed too" % how)
+            self.ok(check, "%s: Verified on both contact pages%s" % (how, ", each with the other confirmed too" if words else ""))
         else:
             self.fail(check, "%s: A reads %s, B reads %s" % (how, *(
                 ("Verified" if got[k] else "%s" % (self.w[k].pair.state(PAIR_NAME[o], refresh=False)[0],))
@@ -381,7 +384,7 @@ class TxLane(Lane):
         b.enter_invite(a.copy_invite(), PAIR_NAME["a"])
         wa = a.words()  # the inviter's check opens on B's answer; B's waits for A's confirmation
         a.confirm_words(allow_invoices=True)
-        wb = b.words(timeout=60, contact=PAIR_NAME["a"])  # 26.11.0 does not always open it on B
+        wb = b.words(timeout=240, contact=PAIR_NAME["a"])  # opens on A's confirmation, which comes by Epicbox
         if wa != wb:  # the words are no secret, but a mismatch is all the proof needs
             self.fail("pair_invite_ok", "the four words differ between A and B")
             return
@@ -399,10 +402,13 @@ class TxLane(Lane):
         if not self.w["b"].pair.request(PAIR_NAME["a"]):
             self.fail("pair_proven_ok", "B was not offered a request to A after the Epicbox payment (the invite page opened)")
             return
-        self.w["a"].pair.accept_request()
+        why = self.w["a"].pair.accept_request()
         if self.results.get("pair_proven_ok") is False:
             return  # pair-remove's finding stands
-        self._both_verified("pair_proven_ok", "a request to a proven contact, no words")
+        if why:
+            self.fail("pair_proven_ok", why)
+            return
+        self._both_verified("pair_proven_ok", "a request to a proven contact, no words", words=False)
 
     def _pair_invoice(self):
         """A asks B for INVOICE EPIC; B approves and pays; checked in both wallets' data."""
