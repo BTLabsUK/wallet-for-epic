@@ -1088,6 +1088,10 @@ class LepicWalletService implements WalletService {
   static lepic.HostPolicy hostPolicyOf(AppConfig c) => lepic.HostPolicy(
     contactHoldAttempts: c.number('contacts.hold_attempts'),
     contactHoldPatienceS: BigInt.from(c.number('contacts.hold_patience_s')),
+    listenerHeldRounds: c.number('epicbox.listener_held_rounds'),
+    quarantineMaxBytes: BigInt.from(c.number('contacts.quarantine_max_bytes')),
+    earlyNoticeMaxCount: c.number('notices.early_notice_max_count'),
+    earlyNoticeMaxAgeS: BigInt.from(c.number('notices.early_notice_max_age_s')),
   );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
@@ -3553,6 +3557,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       held: r.held,
       rejected: r.rejected,
       dropped: r.dropped,
+      buffered: r.buffered,
     ),
   ).then((r) => PaymentsDrainReport(received: r.received, finalized: r.finalized, bounced: r.bounced));
 
@@ -4342,13 +4347,23 @@ class _LepicPairing implements PairingApi {
     () => _collectCounted(trigger, only: only),
     // The 45-second tick stays quiet; a look the user asked for, or a resume, shows.
     quiet: trigger == PairingCollectTrigger.foreground && only == null,
-    outcomeOf: (r) => CheckOutcome(messages: r.messages, failed: r.failed),
+    outcomeOf: (r) => CheckOutcome(
+      messages: r.messages,
+      failed: r.failed,
+      dropped: r.lost,
+      buffered: r.buffered,
+      capped: r.capped,
+      unreadable: r.unreadable,
+    ),
   ).then((r) => r.paired);
 
-  Future<({int paired, int messages, int failed})> _collectCounted(PairingCollectTrigger trigger, {List<String>? only}) async {
+  Future<({int paired, int messages, int failed, int lost, int buffered, int capped, int unreadable})> _collectCounted(
+    PairingCollectTrigger trigger, {
+    List<String>? only,
+  }) async {
     _s._watchEvents();
     final before = {for (final c in await _w.contacts()) c.contactId};
-    final report = await _w.contactsCollect(
+    Future<lepic.ContactCollectReport> once() => _w.contactsCollect(
       trigger: switch (trigger) {
         PairingCollectTrigger.open => lepic.CollectTrigger.open,
         PairingCollectTrigger.foreground => lepic.CollectTrigger.foreground,
@@ -4358,6 +4373,21 @@ class _LepicPairing implements PairingApi {
       relayMode: lepicRelayMode(),
       only: only,
     );
+    var report = await once();
+    var (paired, messages, failed, ended) = (report.paired, report.messages, report.failed.length, report.ended.length);
+    var (lost, buffered) = (report.quarantineDropped, report.buffered);
+    // A mailbox stopped at its message limit has more waiting. Out of time, it waits for the
+    // next check. The limit on repeats is the app's: LEPIC only reports.
+    for (var i = appConfig.number('contacts.collect_repeats'); i > 0 && report.capped > 0 && report.timedOut == 0; i--) {
+      report = await once();
+      paired += report.paired;
+      messages += report.messages;
+      failed += report.failed.length;
+      ended += report.ended.length;
+      lost += report.quarantineDropped;
+      buffered += report.buffered;
+    }
+    final unreadable = await _tendQuarantine(retry: trigger == PairingCollectTrigger.open);
     // A relay that answers again is no longer down; a look at a few contacts says nothing of
     // the others' relays.
     if (only == null) {
@@ -4382,10 +4412,40 @@ class _LepicPairing implements PairingApi {
     if (only == null) unawaited(_checkDomains());
     // Pairings that ended this cycle are kept, ended: their own events name them; the lists
     // read again.
-    if ((before.difference(now).isNotEmpty || report.ended.isNotEmpty) && !_events.isClosed) {
+    if ((before.difference(now).isNotEmpty || ended > 0) && !_events.isClosed) {
       _events.add(const PairingEvent(PairingEventKind.contactUpdated));
     }
-    return (paired: report.paired + report.ended.length, messages: report.messages, failed: report.failed.length);
+    return (
+      paired: paired + ended,
+      messages: messages,
+      failed: failed,
+      lost: lost,
+      buffered: buffered,
+      capped: report.capped,
+      unreadable: unreadable,
+    );
+  }
+
+  /// How many messages the wallet keeps unread (LEPIC's quarantine), for the status. Old ones are
+  /// removed; with [retry] (on open, which an update also goes through) the rest are tried again.
+  /// A failure leaves them for the next time.
+  Future<int> _tendQuarantine({required bool retry}) async {
+    try {
+      final keep = Duration(days: appConfig.number('contacts.quarantine_keep_days'));
+      final oldest = DateTime.now().subtract(keep).millisecondsSinceEpoch;
+      var kept = await _w.contactQuarantine();
+      for (final m in kept) {
+        if (m.firstSeenMs.toInt() < oldest) await _w.contactQuarantineDiscard(id: m.id);
+      }
+      kept = kept.where((m) => m.firstSeenMs.toInt() >= oldest).toList();
+      if (kept.isEmpty || !retry) return kept.length;
+      final done = await _w.contactQuarantineRetry(relayMode: lepicRelayMode());
+      logInfo('pairing', 'quarantine retried ${done.retried}, ${done.kept} left');
+      return done.kept;
+    } on lepic.WalletError catch (error) {
+      logWarn('pairing', 'quarantine not tended: ${error.kind.name}');
+      return 0;
+    }
   }
 
   @override

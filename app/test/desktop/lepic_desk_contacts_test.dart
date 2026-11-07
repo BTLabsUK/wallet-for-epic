@@ -86,11 +86,14 @@ class _Wallet implements lepic.EpicWallet {
   Future<List<lepic.PendingPairingView>> pairingsPending() async => const [];
 
   @override
+  Future<List<lepic.QuarantinedMessageView>> contactQuarantine() async => const [];
+
+  @override
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
     List<String>? only,
-  }) async => const lepic.ContactCollectReport(mailboxes: 0, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: [], ended: []);
+  }) async => const lepic.ContactCollectReport(capped: 0, kept: 0, refused: 0, timedOut: 0, notReached: 0, quarantined: 0, quarantineDropped: 0, buffered: 0, mailboxes: 0, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: [], ended: []);
 
   @override
   Future<lepic.OutboxReport> contactsOutboxDeliver({required lepic.ContactRelayMode relayMode}) async =>
@@ -98,7 +101,7 @@ class _Wallet implements lepic.EpicWallet {
 
   @override
   Future<lepic.InboxReport> drainEpicbox() async =>
-      const lepic.InboxReport(received: 0, finalized: 0, repeated: 0, rejected: 0, held: 0, notices: 0, bounced: 0, dropped: 0);
+      const lepic.InboxReport(buffered: 0, received: 0, finalized: 0, repeated: 0, rejected: 0, held: 0, notices: 0, bounced: 0, dropped: 0);
 
   @override
   Future<lepic.InvoiceSweep> sweepInvoices({BigInt? expirySecs}) async =>

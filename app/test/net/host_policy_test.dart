@@ -19,6 +19,26 @@ void main() {
     expect(other.contactHoldPatienceS, BigInt.from(600));
   });
 
+  test('hostPolicyOf reads the listener, quarantine and early notice bounds from the config', () {
+    final p = LepicWalletService.hostPolicyOf(testConfig());
+    expect(p.listenerHeldRounds, 8);
+    expect(p.quarantineMaxBytes, BigInt.from(16777216));
+    expect(p.earlyNoticeMaxCount, 256);
+    expect(p.earlyNoticeMaxAgeS, BigInt.from(604800));
+    final other = LepicWalletService.hostPolicyOf(
+      testConfig().withValues({
+        'epicbox.listener_held_rounds': 3,
+        'contacts.quarantine_max_bytes': 1024,
+        'notices.early_notice_max_count': 5,
+        'notices.early_notice_max_age_s': 60,
+      }),
+    );
+    expect(other.listenerHeldRounds, 3);
+    expect(other.quarantineMaxBytes, BigInt.from(1024));
+    expect(other.earlyNoticeMaxCount, 5);
+    expect(other.earlyNoticeMaxAgeS, BigInt.from(60));
+  });
+
   test('the config the app gives LEPIC carries the policy', () async {
     final c = await LepicWalletService.lepicConfigOf(
       const WalletConfig(dataDir: '/wallets/main', chain: Chain.mainnet, nodeUrl: '', epicboxDomain: '', epicboxPort: 443),
