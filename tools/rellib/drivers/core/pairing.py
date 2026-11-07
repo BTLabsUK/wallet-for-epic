@@ -54,6 +54,7 @@ SAVED_ADD = T("pair.saved.add", keys=("txDetailsAddToContacts",), names=("Add to
 SAVED_NEW = T("pair.saved.new", role="text", keys=("pairSaveNewContact",), names=("Save as a new contact",), match="exact")
 SAVE_CONTACT = T("pair.saved.save", keys=("deskConSave",), names=("Save contact",), match="exact")
 # the contact page's Pairing block
+BLOCK = T("pair.block", role="text", keys=("contactPairing",), names=("Pairing",), match="exact")  # every state, a request sent too
 STATE_VERIFIED = T("pair.state.verified", role="text", keys=("trustVerified",), names=("Verified",), match="line")
 STATE_PAIRED = T("pair.state.paired", role="text", keys=("trustPaired",), names=("Paired, not verified",), match="line")
 STATE_ENDED = T("pair.state.ended", role="text", keys=("pairEndedShort",), names=("Pairing ended",), match="line")
@@ -232,7 +233,7 @@ class Pairing:
         self.ui.ensure_unlocked()  # a wallet that waited long enough locked itself
         self.contacts_list()
         row = T("pair.contact.row.%s" % name.lower().replace(" ", "_"), role="button", names=(name,), match="line")
-        d.press(row, step="contact-open", then=either(*(shows(t) for _, t in STATES)), timeout=30)
+        d.press(row, step="contact-open", then=shows(BLOCK), timeout=30)
 
     def contacts_list(self):
         """Contacts, the list (Pair requests · n shows only there); a contact page left open stays open
@@ -250,6 +251,7 @@ class Pairing:
         whether it says <name> confirmed too; (None, False) when the page shows none of them."""
         if refresh:
             self.open_contact(name)
+        self.d.wait(either(*(shows(t) for _, t in STATES)), 5)
         tree = self.d.tree()
         st = next((k for k, t in STATES if self.d.find_in(t, tree)), None)
         return st, bool(self.d.find_in(CONFIRMED_TOO, tree))
