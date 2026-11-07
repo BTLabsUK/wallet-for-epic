@@ -510,6 +510,8 @@ class Desktop:
             return True   # already open: pressing the selector would fold the page away for the section list
         if not d.wait(shows(t), 4):
             if not self._open_section_list():
+                near = [n.brief() for n in d.tree() if tg._norm(n.name.split("\n")[0]) in tg.texts_of([t], d.labels)]
+                self.log("Settings › %s: not listed; of that name on screen: %s" % (t, near or "nothing"))
                 return False
             if not d.wait(shows(t), 4):
                 if _again:

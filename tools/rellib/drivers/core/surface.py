@@ -28,7 +28,7 @@ COMPATIBLE = {
     "text": {"text", "other", "row", "button"},
     "text_field": {"text_field"},
     "link": {"link", "button"},
-    "menu_item": {"menu_item", "button", "row"},
+    "menu_item": {"menu_item", "button", "row", "tab", "link"},   # a published build may say tab or link
     "dialog": {"dialog"},
     "other": set(ROLES),
 }
