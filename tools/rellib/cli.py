@@ -661,7 +661,7 @@ class App:
             frontier.extend(s.needs)
         return sorted(out)
 
-    DOING = ("fixing", "probing", "rerun-queued", "rerunning", "continuing", "accepted", "none")
+    DOING = ("fixing", "probing", "rerun-queued", "rerunning", "continuing", "accepted", "waits", "none")
 
     @staticmethod
     def doing(run, sid, state, note, commit=None, by="rel"):
@@ -686,7 +686,7 @@ class App:
         run = self.load_run()
         s = run.step(a.step)
         state = a.state
-        if state in ("fixing", "accepted", "rerun-queued") and not (a.note or "").strip():
+        if state in ("fixing", "accepted", "rerun-queued", "waits") and not (a.note or "").strip():
             return self.out(EXIT_USAGE, f"{state} needs --note: what is fixed, why it is accepted, or what waits", run)
         mark = self.doing(run, s.id, state, (a.note or "").strip() or None, a.commit, by="lead")
         return self.out(EXIT_OK, f"{s.id}: {mark['state']}{': ' + mark['note'] if mark['note'] else ''}", run)
