@@ -77,6 +77,10 @@ void showShellTab(BuildContext context, ShellTab tab, {String? recipient, String
   Navigator.of(context).popUntil((route) => route.isFirst);
 }
 
+/// The web preview build (tool/build_preview.sh) has no lock: a const of its define, false in
+/// every real build, so what it guards is removed from them.
+const bool previewNoLock = bool.fromEnvironment('WFE_WEB_FAKE');
+
 /// Closes the wallet and returns to the unlock screen. [reason] is manual unless the auto-lock
 /// locks it ([LockReason.timeout]), which lets the unlock screen start biometrics itself.
 void lockWallet(

@@ -623,12 +623,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           value: biometrics!.enabled,
           onChanged: _setBiometrics,
         ),
-      const Divider(height: 24),
-      ListTile(
-        leading: const Icon(Icons.lock),
-        title: Text(l.settingsLockWallet),
-        onTap: () => lockWallet(context, ref),
-      ),
+      if (!previewNoLock) ...[
+        const Divider(height: 24),
+        ListTile(
+          leading: const Icon(Icons.lock),
+          title: Text(l.settingsLockWallet),
+          onTap: () => lockWallet(context, ref),
+        ),
+      ],
     ];
   }
 

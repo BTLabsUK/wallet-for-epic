@@ -790,6 +790,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: _scan,
               ),
+            if (!previewNoLock)
             IconButton(
               tooltip: l.homeLockTooltip,
               icon: trustId(TrustIds.homeLock, const Icon(Icons.lock_outline)),

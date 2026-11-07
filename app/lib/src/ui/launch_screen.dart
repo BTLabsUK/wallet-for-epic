@@ -18,9 +18,6 @@ import 'restore_screen.dart';
 import 'theme/brand.dart';
 import 'work_status.dart';
 
-/// The web preview (tool/build_preview.sh) has no lock: a const of its define, false in every
-/// real build, so `_previewHome` and its PIN are removed from them.
-const bool _previewNoLock = bool.fromEnvironment('WFE_WEB_FAKE');
 const String _previewPin = '000000';
 
 /// Where the first-start picker sends a fresh install: the PIN of a new wallet, or the phrase.
@@ -72,7 +69,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
     ref.read(walletConfigProvider.notifier).select(config);
 
     // The web preview has no lock: it makes its fake wallet and opens it (web/preview.dart).
-    if (_previewNoLock) return _previewHome(config);
+    if (previewNoLock) return _previewHome(config);
 
     return switch (await ref.read(vaultProvider).prepare(config)) {
       VaultStage.ready => const PinUnlockScreen(),
