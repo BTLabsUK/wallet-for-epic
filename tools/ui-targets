@@ -205,7 +205,7 @@ def driver_copy(files):
 
 def walk(root):
     """Which targets the seeded tours put on stage: reads the `ids` of each shot's .json under `root`
-    (tools/dry-walk.sh writes them). Every target a driver uses must show, or carry "walk": false."""
+    (tools/dry-walk.sh writes them). Every target a driver uses must show, or list the family in `walk_off`."""
     seen = {"desktop": set(), "android": set()}
     shots = 0
     for d, _, names in os.walk(root):
@@ -231,11 +231,12 @@ def walk(root):
         if kind(c) != "control" or c["id"] not in used:
             continue
         for fam in family(c):
+            off = fam in c.get("walk_off", ())
             if c["id"] in seen[fam]:
-                if c.get("walk") is False:
-                    print("%s (%s): the walk reached it now, drop its \"walk\": false" % (c["id"], fam))
+                if off:
+                    print("%s (%s): the walk reached it now, take it out of `walk_off`" % (c["id"], fam))
                 continue
-            if c.get("walk") is False:
+            if off:
                 known += 1
                 continue
             out += 1
