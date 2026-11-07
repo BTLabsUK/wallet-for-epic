@@ -29,9 +29,9 @@ CONTACTS_SEARCH = T("pair.contacts.search", role="text_field", keys=("deskConSea
 CONTACTS_PAIR = T("pair.contacts.pair", keys=("pairTitle",), names=("Pair",), match="exact")
 PAIR_YOUR = T("pair.screen.yours", role="text", keys=("pairYourCode",), names=("Your invite",), match="exact")
 PAIR_COPY = T("pair.screen.copy", keys=("pairCopyLink",), names=("Copy invite",), match="exact")
-PAIR_SEEN_AS = T("pair.screen.seenas", role="text", keys=("pairSeenAsLine",), names=("re:they (will )?see you as .*",),
-                 match="starts")
-PAIR_CHANGE = T("pair.screen.change", keys=("pairChange",), names=("Change",), match="exact")
+PAIR_SEEN_AS = T("pair.screen.seenas", role="text", keys=("pairSeenAsLine", "pairSeenAsNone"),
+                 names=("re:they (will )?see you as .*", "They see no name"), match="starts")
+PAIR_CHANGE = T("pair.screen.change", keys=("pairChange", "pairSeenAsAdd"), names=("Change", "Add name"), match="exact")
 PAIR_NAME_FIELD = T("pair.name.field", role="text_field", keys=("pairSeenAsField",), match="starts")
 PAIR_NAME_SAVE = T("pair.name.save", keys=("commonSave",), names=("Save",), match="exact")
 PAIR_ENTER = T("pair.screen.enter", role="text_field", keys=("pairPasteField",), names=("Paste the invite",), match="starts")
@@ -129,7 +129,8 @@ class Pairing:
             self.open_pair()
 
     def seen_as(self, name):
-        """The name the other wallet sees this one as (the Pair page's They will see you as … Change)."""
+        """The name the other wallet sees this one as (the Pair page's They see you as … Change; a wallet
+        with no name yet: They see no name, Add name)."""
         d = self.d
         self._on_pair()
         line = d.wait(shows(PAIR_SEEN_AS), 20)

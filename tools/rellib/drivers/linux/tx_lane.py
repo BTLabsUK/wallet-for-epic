@@ -597,6 +597,9 @@ class TxLane(Lane):
     def _sweep_phase(self, name, keys=("a", "b")):
         held = {k: tx.digest(self, self.w[k], name) for k in keys}
         if all(((d.get("balance") or {}).get("total") or 0) < tx.nano(tx.DUST) for d in held.values()):
+            if name == "sweep-start":  # too little to send back, still in the wallets: returned_ok counts it
+                for k, d in held.items():
+                    tx.carry(self, k, d)
             self.skip_phase(name, "%s hold less than %s EPIC (wallet data)" % (" and ".join(k.upper() for k in keys), tx.DUST))
             return
         self.run_phase(name, lambda: tx.sweep(self, keys, name))

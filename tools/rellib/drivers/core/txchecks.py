@@ -445,6 +445,11 @@ def invoice(lane, amount, names, check="pair_invoice_ok"):
     (lane.ok if res else lane.fail)(check, why)
 
 
+def carry(lane, k, d):
+    """What wallet [k] held at sweep-start, from its data [d]; a phase run again keeps the first reading."""
+    lane.ledger.carried.setdefault(k, D((d.get("balance") or {}).get("total") or 0) / NANO)
+
+
 def sweep(lane, keys, tag, settle=True):
     """Every coin of the wallets [keys] to P (sweep_plan), each send waited for until P posted it.
     settle: first wait until the wallet's balance is all spendable (its receipts and change confirmed).
@@ -454,8 +459,8 @@ def sweep(lane, keys, tag, settle=True):
     for k in keys:
         w = lane.w[k]
         d = digest(lane, w, tag)
-        if tag == "sweep-start":  # a phase run again keeps the first reading
-            lane.ledger.carried.setdefault(k, D((d.get("balance") or {}).get("total") or 0) / NANO)
+        if tag == "sweep-start":
+            carry(lane, k, d)
         if settle and ((d.get("balance") or {}).get("total") or 0) >= nano(DUST):
             d = wait_for(lane, w, "%s %s settled" % (tag, k.upper()),
                          lambda x: ((x.get("balance") or {}).get("total") or 0) == spendable(x), SPEND_WAIT_S)
