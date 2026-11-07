@@ -19,6 +19,16 @@
 #                            (tools/rellib/green.py; tools/t full ran both passes, with and
 #                            without Tor), which G2 reuses for that content; without one G2 runs
 #                            first in the release run.
+#   tools/check.sh --full --cached
+#                            --full with tools/t's per-file result cache (tools/t full without
+#                            --no-cache); the rest runs as in --full. For a fast first look at a
+#                            G2 rerun (tools/rellib/steps/source-check.sh). It NEVER writes a green
+#                            record: a cached run is not evidence; the uncached --full is.
+#   In both full modes the step "release tools (tools/)" is skipped when the newest green record
+#   (${WFE_GREEN_DIR:-/tmp/epic-build/green}) whose sha is an ancestor of HEAD has no diff to HEAD
+#   under tools/ release/ app/assets/config/app-config.toml .github/workflows/ (what those tests
+#   read): the same tools tree passed at that commit, so the green record this run writes stays
+#   valid. No such record, or any diff: the step runs.
 #   tools/check.sh --list    print the mode, the rule and the tests the fast mode would run; run
 #                            nothing.
 # Which Flutter tests the fast mode runs is tools/t's selection (tools/tlib/select.py,
@@ -26,19 +36,21 @@
 # (committed, staged, unstaged and untracked); the tests that directly import a changed file or
 # name a changed string key run, plus a fixed set of sentinels, at most 40 for any change. The
 # import closure is not walked (tools/t affected --closure; the full run covers the rest). CHECK_BASE=<ref> compares with another ref.
-# Usage: tools/check.sh [--full | --list]   (from anywhere inside the main checkout or a worktree)
+# Usage: tools/check.sh [--full [--cached] | --list]   (from anywhere inside the main checkout or a worktree)
 set -euo pipefail
 started_epoch="$(date +%s)"
 root="$(git rev-parse --show-toplevel)"
 . "$(cd "$(dirname "$0")" && pwd)/env.sh"
 
-mode=fast
+mode=fast cached=0
 case "${1:-}" in
   "") ;;
-  --full) mode=full ;;
+  --full) mode=full
+    case "${2:-}" in "") ;; --cached) cached=1 ;; *) mode=bad ;; esac ;;
   --list) mode=list ;;
-  *) echo "usage: tools/check.sh [--full | --list]" >&2; exit 64 ;;
+  *) mode=bad ;;
 esac
+[[ $mode == bad || ( $# -gt 1 && $cached == 0 ) ]] && { echo "usage: tools/check.sh [--full [--cached] | --list]" >&2; exit 64; }
 
 # Each step prints its time when it ends, one line (`== bot: ok 4s`; the name is the title up to
 # " ("), so the nightly's log and the audit have per-step times.
@@ -89,7 +101,7 @@ rel_changed=0
 grep -qE '^(tools/(rel|env\.sh|release-files\.py|publish-update-json\.sh|push-github\.sh)$|tools/(rellib|signer|releases)/|release/|app/assets/config/app-config\.toml$)' <<<"$changed" && rel_changed=1
 
 if [[ $mode == full ]]; then
-  echo "check mode: FULL (whole flutter test suite, integration tests, bot, release tools, web build)"
+  echo "check mode: FULL$( ((cached)) && echo ' CACHED') (whole flutter test suite, integration tests, bot, release tools, web build)"
 else
   echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
   echo "rule: tools/t affected (the tests that directly import the change or name a changed key, plus the sentinels, at most 40)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: small tool tests run (nightly, sbom, tlib ...)')$([[ $rel_changed == 1 ]] && echo '; tools/rel inputs changed: tools/rellib/tests run (rule: tools/rel, env.sh, rellib/, signer/, releases/, release-files.py, publish-update-json.sh, push-github.sh, release/, app-config.toml)')"
@@ -131,8 +143,28 @@ if [[ $mode == full || $bot_changed == 1 ]]; then
   (cd "$root/bot" || exit; uvx ruff check .; r=$?; uv run pytest -q || r=$?; exit $r) || step_failed $?
 fi
 
+# Newest green record whose sha is an ancestor of HEAD, if nothing under the paths the release
+# tools' tests read differs from it (working tree and untracked files included): prints its short sha.
+release_tools_green() {
+  local dir="${WFE_GREEN_DIR:-$HOME/epic-build/green}" f sha
+  local paths=(tools release app/assets/config/app-config.toml .github/workflows)
+  for f in $(ls -t "$dir"/*.json 2>/dev/null); do
+    sha="$(sed -n 's/.*"sha": *"\([0-9a-f]\{7,40\}\)".*/\1/p' "$f" | head -1)"
+    [[ -n $sha ]] && git -C "$root" merge-base --is-ancestor "$sha" HEAD 2>/dev/null || continue
+    # the newest ancestor decides; an older one is not looked at
+    git -C "$root" diff --quiet "$sha" -- "${paths[@]}" || return 1
+    [[ -z "$(git -C "$root" ls-files --others --exclude-standard -- "${paths[@]}")" ]] || return 1
+    git -C "$root" rev-parse --short "$sha"
+    return 0
+  done
+  return 1
+}
+
 if [[ $mode == full || $tools_changed == 1 ]]; then
   step "release tools (tools/)"
+  if [[ $mode == full ]] && green_sha="$(release_tools_green)"; then
+    echo "skip: release tools unchanged since green $green_sha"
+  else
   # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
   if [[ $mode == full || $rel_changed == 1 ]]; then
     (cd "$root" && python3 -m unittest discover -s tools/rellib/tests) || step_failed $?
@@ -147,6 +179,7 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
     (cd "$root" && node --test tools/screens-feedback/feedback.test.mjs) || step_failed $?
   else
     echo "skip: node is not installed (tools/screens-feedback/feedback.test.mjs)"
+  fi
   fi
 fi
 
@@ -170,8 +203,13 @@ step "flutter analyze"
 
 if [[ $mode == full ]]; then
   step "flutter test (all)"
-  # Every test file, slowest first, never from the result cache (green files still fill it).
-  "$root/tools/t" full --no-cache || step_failed $?
+  # Every test file, slowest first, never from the result cache (green files still fill it);
+  # only --cached reads it.
+  if (( cached )); then
+    "$root/tools/t" full || step_failed $?
+  else
+    "$root/tools/t" full --no-cache || step_failed $?
+  fi
 
   step "integration tests on LEPIC (Linux, offline)"
   # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
@@ -215,7 +253,9 @@ fi
 
 check_end
 printf '\ncheck passed (%s)\n' "$mode"
-if [[ $mode == full ]]; then
+if (( cached )); then
+  echo "cached run: no green record written (a cached run is not evidence)"
+elif [[ $mode == full ]]; then
   # For tools/rel's G2 (docs/RELEASING.md, "Reused results"); never fails the check.
   python3 "$root/tools/rellib/green.py" record --root "$root" --started "$started_epoch" || true
 fi
