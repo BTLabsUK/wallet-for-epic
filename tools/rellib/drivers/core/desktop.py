@@ -64,6 +64,7 @@ TOUR_SKIP = T("g4.tour.skip")
 # The update strip above the page while a newer release is out (update_strip.dart, 26.11.x): its Update
 # would start a download mid-lane, and a Tab walk may land on it; × hides it for that version.
 UPDATE_STRIP_HIDE = T("g4.updatestrip.hide")
+RESTORED_NOT_NOW = T("g4.restore.notnow")
 LEVEL_PICK = T("g4.level.stop.3")
 MAIN_NAV = T("g4.nav")
 
@@ -192,7 +193,8 @@ class Desktop:
         self.password = self.phrase = None
         d = self.d
         d.obstacles += [(TOUR_SKIP, "the first-run tour"), (SETUP_SKIP, "the setup assistant"),
-                        (UPDATE_STRIP_HIDE, "the update strip")]
+                        (UPDATE_STRIP_HIDE, "the update strip"),
+                        (RESTORED_NOT_NOW, "the wallet-data offer after a restore")]
         d.not_folds |= self.section_names()   # Settings › Advanced is a page, not a folded section
         d.reopen = self._reopen
         self._picking = None   # (picker, typed) while a server is chosen: the stale-picker rule's context

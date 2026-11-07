@@ -38,6 +38,7 @@
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 drv="$here/android"
+. "$here/../../env.sh"   # java for apksigner: the nightly's PATH is bare
 sdk="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
 export ADB="${ADB:-$sdk/platform-tools/adb}"
 # The default checks are android/lane.py's (settings_kept is not among them: the theme and Technical details are

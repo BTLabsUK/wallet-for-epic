@@ -655,6 +655,38 @@ class CatchupTest(unittest.TestCase):
                 nightly.BASE = old
 
 
+class IncompleteTest(unittest.TestCase):
+    OK = {"status": "ok", "reason": ""}
+    LEG = {"platform": "linux", "status": "ok"}
+
+    def test_a_complete_night_lists_nothing_a_failure_ran(self):
+        self.assertEqual(nightly.not_run(self.OK, [self.LEG, dict(self.LEG, status="fail")], {"status": "red"}), [])
+
+    def test_a_skipped_part_is_named(self):
+        got = nightly.not_run({"status": "skipped", "reason": "port"},
+                        [dict(self.LEG, status="skipped", reason="driver could not run")],
+                        {"status": "skipped", "reason": "a release run is active"})
+        self.assertEqual(got, ["LEPIC acceptance: port", "G4 trust linux: driver could not run",
+                               "night lanes: a release run is active"])
+        self.assertEqual(nightly.not_run(None, [], None), ["G4 trust: no leg started", "night lanes: did not start"])
+
+    def result(self, **over):
+        return dict({"status": "incomplete", "source_status": "green", "sha": "a" * 40, "steps": [],
+                     "ended": "2026-11-07T15:47:44Z", "not_run": ["night lanes: x"], "trust": None}, **over)
+
+    def test_it_is_told_and_reads_incomplete(self):
+        body = nightly.dm_body(self.result())
+        self.assertEqual(body["kind"], "broken")
+        self.assertEqual(body["reason"], "night lanes: x")
+        self.assertIn(" incomplete aaaaaaaa", nightly.summary_line(self.result()))
+        self.assertIn("source green, 1 did not run", nightly.summary_line(self.result()))
+
+    def test_a_red_trust_leg_still_counts_on_an_incomplete_night(self):
+        r = self.result(trust={"status": "red", "failed": ["linux: x"], "step": "G4 trust"})
+        self.assertTrue(nightly.trust_red(r))
+        self.assertEqual(nightly.dm_kind(r), "red")
+
+
 class DriftTest(unittest.TestCase):
     def _run(self, rc, out, lepic_text="  xtask)\n"):
         with tempfile.TemporaryDirectory() as d:
@@ -756,6 +788,11 @@ class LanesTest(unittest.TestCase):
     def test_skips_without_night_support_when_busy_or_too_late(self):
         self.rel.write_text("#!/bin/sh\n")
         self.assertIn("no --night", self.go(self.fake(None))["reason"])
+        cli = self.wt / "tools" / "rellib" / "cli.py"   # the wrapper form: the flag is in rellib's cli
+        cli.parent.mkdir()
+        cli.write_text("--night")
+        self.assertIn("release run", self.go(self.fake(None), busy=lambda: ["x"])["reason"])
+        cli.unlink()
         self.rel.write_text("--night")
         self.assertIn("release run", self.go(self.fake(None), busy=lambda: ["x"])["reason"])
         late = self.go(self.fake(None), hour=7)

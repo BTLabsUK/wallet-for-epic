@@ -209,7 +209,7 @@
 {"id": "g4.restore.retry", "screen": "restore", "family": ["android"], "keys": ["launchTryAgain"], "names": ["Try again"], "match": "exact", "secret": true, "many": true, "walk_off": ["android"]},
 {"id": "g4.restore.open", "screen": "restore", "family": ["android"], "keys": ["restoreOpenWallet"], "names": ["Open wallet"], "match": "exact", "secret": true, "walk_off": ["android"]},
 {"id": "g4.restore.done", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreDoneTitle"], "names": ["Your wallet is restored"], "match": "exact", "secret": true},
-{"id": "g4.restore.notnow", "screen": "restore", "family": ["android"], "keys": ["restoreImportNotNow"], "names": ["Not now"], "match": "exact", "secret": true, "many": true},
+{"id": "g4.restore.notnow", "screen": "restore", "keys": ["restoreImportNotNow"], "desktop": {"keys": ["deskSetBackupNotNow"]}, "names": ["Not now"], "match": "exact", "secret": true, "many": true},
 {"id": "g4.restore.unfinished", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreUnfinishedTitle"], "names": ["Restore not finished"], "secret": true},
 {"id": "g4.restore.offline", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreUnfinishedOffline"], "names": ["re:the scan goes on when offline is off.*"], "match": "starts", "secret": true},
 {"id": "g4.status.node", "screen": "status", "family": ["android"], "names": ["re:node, .*"], "match": "starts"},

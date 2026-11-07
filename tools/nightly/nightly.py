@@ -78,7 +78,9 @@ A run:
      Blocks lane or a failed acceptance run sends ONE DM (key nightly-<sha8>-lanes) and the summary
      line names it; Warns lanes never do. Acceptance and the lanes share port 43413 with the
      hermetic node: each is skipped while a rel run is active or the port is in use. A timer run
-     starts the lanes only before 07:00 local time. The verdict of every green or red run is also
+     starts the lanes only before 07:00 local time. A green check with acceptance, a trust leg or
+     the lanes not run reads `incomplete` in latest.json (`not_run` lists them, `source_status`
+     keeps green for G2) and sends a DM. The verdict of every green or red run is also
      kept per commit in by-commit.json;
   7f. tools/nightly/alarm.py (wfe-nightly-alarm.timer, 07:15): one message when no result or
      "unchanged" skip landed in 26 h, so a nightly that is switched off is still noticed;
@@ -511,8 +513,27 @@ def _clip(s, n):
     return s if len(s) <= n else s[: n - 1] + "…"
 
 
+def source_green(result):
+    """The source check's own result: a green check on an incomplete night stays green here."""
+    return result.get("source_status", result["status"]) == "green"
+
+
+def not_run(acc, trust_steps, lanes):
+    """What this night was meant to run and did not, as lines: the night is complete only when
+    this is empty. A failure ran; a skip or an unknown did not."""
+    out = []
+    if acc and acc["status"] == "skipped":
+        out.append(f"LEPIC acceptance: {acc['reason']}")
+    if not trust_steps:
+        out.append("G4 trust: no leg started")
+    out += [f"G4 trust {s['platform']}: {s.get('reason')}" for s in trust_steps if s["status"] == "skipped"]
+    if not lanes or lanes["status"] not in ("ok", "red"):
+        out.append(f"night lanes: {(lanes or {}).get('reason') or 'did not start'}")
+    return out
+
+
 def trust_red(result):
-    return result["status"] == "green" and (result.get("trust") or {}).get("status") == "red"
+    return source_green(result) and (result.get("trust") or {}).get("status") == "red"
 
 
 def blocks_failed(lanes):
@@ -522,7 +543,7 @@ def blocks_failed(lanes):
 
 
 def lanes_red(result):
-    return result["status"] == "green" and bool(blocks_failed(result.get("lanes")))
+    return source_green(result) and bool(blocks_failed(result.get("lanes")))
 
 
 def side_red(result):
@@ -553,7 +574,7 @@ def dm_body(result, test=False):
     if result.get("duration_s"):
         body["duration"] = fmt_duration(result["duration_s"])
     if kind == "broken":
-        body["reason"] = _clip(result.get("error") or "unknown", 300)
+        body["reason"] = _clip(result.get("error") or "; ".join(result.get("not_run") or []) or "unknown", 300)
     if trust or lanes:  # source green: the failing checks, no commit list (driver drift or a real regression)
         tests = [_clip(f, DM_TEST_CHARS) for f in (result["trust"]["failed"] if trust else [])[:DM_ITEMS]]
         tests += [_clip(f"lane {b}: {l.get('status')} {l.get('note') or ''}".strip(), DM_TEST_CHARS)
@@ -858,8 +879,10 @@ def run_night_lanes(sha, run_dir, env, by_hand, catchup, worktree=None, runner=N
     source_red: the check failed here, so rel skips its own source-check instead of repeating it."""
     worktree = Path(worktree or WORKTREE)
     rel = worktree / "tools" / "rel"
+    # tools/rel is a thin wrapper now: the flag lives in rellib's cli on any later commit.
+    cli = worktree / "tools" / "rellib" / "cli.py"
     try:
-        if "--night" not in rel.read_text(encoding="utf-8", errors="replace"):
+        if not any("--night" in f.read_text(encoding="utf-8", errors="replace") for f in (rel, cli) if f.is_file()):
             return {"status": "skipped", "reason": "this commit's tools/rel has no --night", "record": None}
     except OSError as e:
         return {"status": "skipped", "reason": _clip(str(e), 200), "record": None}
@@ -1325,8 +1348,13 @@ def cmd_run(by_hand, pinned_sha=None):
         drift = run_drift(run_dir, side_env)
     rigs = rig_health()
     last_green = state.get("last_green_sha")
+    missing = not_run(acc, trust_steps, lanes) if status != "error" else []
     result = {
-        "status": status,
+        # A green check with lanes or trust that did not run reads incomplete, never green:
+        # source_status keeps the check's own result for what reuses it (G2, the state file).
+        "status": "incomplete" if status == "green" and missing else status,
+        "source_status": status,
+        "not_run": missing,
         "sha": sha,
         "started": iso(started),
         "ended": iso(ended),
@@ -1401,6 +1429,8 @@ def summary_line(r):
            f"{fmt_duration(r.get('duration_s'))}"
     if r["status"] == "red":
         line += f" failing: {r.get('failing_step')}"
+    elif r["status"] == "incomplete":
+        line += f" source green, {len(r.get('not_run') or [])} did not run"
     elif r["status"] == "error":
         line += f" error: {r.get('error')}"
     t = r.get("trust")

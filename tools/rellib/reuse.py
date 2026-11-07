@@ -194,7 +194,8 @@ def find_source(repo, root, info, step, paths, nightly=None, green=None, this_ru
                 n = json.loads(pathlib.Path(lj).read_text())
             except (OSError, ValueError):
                 continue
-            if n.get("status") != "green" or n.get("exit") != 0 or "--full" not in n.get("command", ""):
+            source = n.get("source_status", n.get("status"))   # an incomplete night's check still passed
+            if source != "green" or n.get("exit") != 0 or "--full" not in n.get("command", ""):
                 continue
             c = n.get("sha")
             if c and _git(repo, "cat-file", "-e", f"{c}^{{commit}}") is not None:
