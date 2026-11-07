@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart' show pairNameFieldKey;
@@ -571,7 +572,10 @@ void main() {
       await h.openSettings(tester, SettingsSection.security);
       final titles = tester
           .widgetList<ListTile>(find.byType(ListTile))
-          .map((t) => (t.title as Text?)?.data)
+          .map((t) => switch (t.title) {
+            final TrustId id => (id.child as Text).data,
+            final title => (title as Text?)?.data,
+          })
           .whereType<String>()
           .toList();
       expect(titles.first, _l.settingsBackupPhrase);

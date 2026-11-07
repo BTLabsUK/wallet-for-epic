@@ -217,12 +217,10 @@ void main() {
         tester.getSize(find.byKey(receiveTabsKey)).width,
         tester.getSize(find.byKey(receiveAddressKey)).width,
       );
-      // Epicbox address: the card, the epicbox line, the code, the help. No request button:
-      // Invoices are off by default (Settings › Advanced › Experimental).
-      for (final key in [receiveAddressKey, receiveEpicboxKey]) {
+      // Epicbox address: the card, the epicbox line, the request button, the code, the help.
+      for (final key in [receiveAddressKey, receiveEpicboxKey, receiveRequestKey]) {
         expect(find.byKey(key), findsOneWidget);
       }
-      expect(find.byKey(receiveRequestKey), findsNothing);
       expect(find.byType(MarkedQr), findsOneWidget);
       expect(find.text(_l.receiveFileTitle), findsNothing);
       expect(find.text(_l.receiveHelpButton), findsOneWidget);

@@ -94,7 +94,7 @@ class OverviewInvoicesCard extends ConsumerWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: waiting.isNotEmpty || attention.isNotEmpty
-                  ? InvButton(label: l.deskInvActReview, kind: EBtnKind.primary, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices, InvoicesTab.pay))
+                  ? InvButton(label: l.deskInvActReview, kind: EBtnKind.primarySoft, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices, InvoicesTab.pay))
                   : openButton,
             ),
           ],

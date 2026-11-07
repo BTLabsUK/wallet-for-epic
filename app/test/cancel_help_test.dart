@@ -47,7 +47,7 @@ void main() {
         expect(topic.title, 'Cancelling a payment');
         // The two ways first, named as their buttons are (B-04), then the three cases.
         expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.twoWays, HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests]);
-        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Move coins back, or unlock them', 'Sending', 'Receiving', 'Invoices (experimental)']);
+        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Move coins back, or unlock them', 'Sending', 'Receiving', 'Invoices']);
         // Every other block has no anchor; a heading is never a list.
         for (final b in topic.body) {
           expect(b.anchor.isNotEmpty, b.kind == HelpBlockKind.h, reason: b.text);
