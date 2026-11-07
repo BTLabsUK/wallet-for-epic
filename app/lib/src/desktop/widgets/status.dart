@@ -432,7 +432,9 @@ class EStatusGlyph extends StatelessWidget {
 }
 
 /// The glyph's dot, cross-fading on a change of state. Each change gets its own key, so a
-/// state that comes back while its old dot still fades out never meets itself.
+/// state that comes back while its old dot still fades out never meets itself. The amber
+/// echo ([WarnPulse]) sits outside the switcher, so it keeps one state across changes and its
+/// cooldown holds when a warning flaps.
 class _DotSwitch extends StatefulWidget {
   const _DotSwitch({required this.state, required this.dim});
 
@@ -453,13 +455,14 @@ class _DotSwitchState extends State<_DotSwitch> {
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedSwitcher(
-    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
-    child: _MaybePulse(
-      key: ValueKey((widget.state, _changes)),
-      active: widget.state == EState.active,
-      child: WarnPulse(
-        active: widget.state == EState.warn,
+  Widget build(BuildContext context) => WarnPulse(
+    active: widget.state == EState.warn,
+    color: stateColor(context.dc, EState.warn).withValues(alpha: widget.dim ? 0.6 : 1),
+    child: AnimatedSwitcher(
+      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
+      child: _MaybePulse(
+        key: ValueKey((widget.state, _changes)),
+        active: widget.state == EState.active,
         child: EStateDot(widget.state, ring: true, dim: widget.dim),
       ),
     ),
