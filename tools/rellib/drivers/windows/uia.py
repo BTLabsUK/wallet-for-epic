@@ -215,6 +215,11 @@ class WinSurface:
         # MSAA's default action is a no-op on a check box or switch, and a press the driver sees did nothing
         # and repeats is clicked instead; never a node outside the view, which only its default action reaches
         if node.ref.get("click"):
+            # a long list's rows below its clip are in the view but take no click, only their default action
+            r = self._call("ui_at", idx=node.ref["idx"], name=node.ref["name"], what="press")
+            if r.get("ok") and not self._unchanged(node, 6):
+                self.pressed["msaa"] = self.pressed.get("msaa", 0) + 1
+                return
             return self._click(node)
         key = (node.role, node.name)
         again = self.last_press == (key, int(time.time() // 30))
@@ -247,9 +252,9 @@ class WinSurface:
     def _signature(nodes):
         return [(n.role, n.name, n.value, tuple(sorted(n.states))) for n in nodes]
 
-    def _unchanged(self, node):
+    def _unchanged(self, node, wait=0.8):
         """True when the screen reads the same just after a default action: some controls take none."""
-        before, end = self._signature(self.tree_nodes), time.time() + 0.8
+        before, end = self._signature(self.tree_nodes), time.time() + wait
         while True:
             same = self._signature(self.tree()) == before
             if not same or time.time() >= end:
