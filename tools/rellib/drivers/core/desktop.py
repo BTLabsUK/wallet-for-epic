@@ -632,9 +632,10 @@ class Desktop:
         d = self.d
         if not self.section("advanced"):
             return
-        n = d.wait(shows(DEEP_END), 3)
+        n = d.wait(shows(DEEP_END), 15) or d.untangle(DEEP_END)   # a Windows read takes seconds, the page may scroll
         if not n:
             self.log("view-deep-end: no Deep end stop on Advanced, the view stays as it is")
+            d.dump("no-deep-end", d.tree())
             return
         if "checked" in n.states or "selected" in n.states:
             self.log("SKIP view-deep-end: already done")
