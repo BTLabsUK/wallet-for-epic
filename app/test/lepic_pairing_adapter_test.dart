@@ -8,7 +8,9 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
+import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingNoticeOf;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
@@ -391,6 +393,35 @@ void main() {
     expect(r.removedByPeer, isTrue);
     expect(r.paysByMailbox, isFalse);
     expect(r.seals, isFalse);
+  });
+
+  group('a sealed message that could not be opened', () {
+    // The notice the user reads for the event the wallet raised.
+    Future<String?> notice(lepic.WalletEvent e) async {
+      wallet.eventSink.add(e);
+      await _settle();
+      final r = pairingNoticeOf(englishStrings, seen.single);
+      return r?.text;
+    }
+
+    test('names the sender when its contact is known', () async {
+      wallet.paired.add(_view('c1'));
+      expect(await notice(const lepic.WalletEvent(kind: lepic.WalletEventKind.sealedUnopenable, contactId: 'c1')), 'A message from Bob could not be opened.');
+    });
+
+    test('names the sender when only its relay is known and a contact lives there', () async {
+      wallet.paired.add(_view('c1'));
+      expect(await notice(const lepic.WalletEvent(kind: lepic.WalletEventKind.sealedUnopenable, relay: _relay)), 'A message from Bob could not be opened.');
+    });
+
+    test('says it was sealed for another wallet or install when the sender is not known', () async {
+      expect(await notice(const lepic.WalletEvent(kind: lepic.WalletEventKind.sealedUnopenable, contactId: 'stranger')), englishStrings.openSealedOtherTitle);
+      expect(seen.single.name, isEmpty);
+    });
+
+    test('says the same with no contact and no relay at all', () async {
+      expect(await notice(const lepic.WalletEvent(kind: lepic.WalletEventKind.sealedUnopenable)), englishStrings.openSealedOtherTitle);
+    });
   });
 
   test('removing a pairing tells the other side', () async {
