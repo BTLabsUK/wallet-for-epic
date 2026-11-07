@@ -35,6 +35,8 @@ def main(platform, variant):
     except (OSError, ValueError):
         print("trust-pair: no proof.json", flush=True)
         return rc or 1
+    if env.get("REL_TRUST_PROBE"):   # a probe stops at its step: the rest stays unproven
+        return rc
     failing = nightly.failing_checks(proof)
     if failing:
         print("trust-pair: not proven: " + ", ".join(failing), flush=True)
