@@ -533,6 +533,7 @@ class StatusGlyph extends StatelessWidget {
               bottom: -2,
               child: WarnPulse(
                 active: dot == StatusDot.warn,
+                color: StatusDot.warn.color(t),
                 child: StateDot(dot: dot, size: statusDotSize, ring: ring),
               ),
             ),
