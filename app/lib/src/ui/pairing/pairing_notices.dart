@@ -326,11 +326,12 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     raiseNotice(ref.read(sessionProvider)?.checks.notices, HeldNotice(held, slateId: event.slateId, named: true, show: show));
   }
 
-  /// The result of a run with several notices: its action opens the place that lists them.
+  /// The result of a run with several notices: one line that counts them, unfolding into one
+  /// line per kind, each opening the place that lists what it counts.
   void _showDigest(NoticeDigest digest) {
     final l = context.l10n;
     final nav = Navigator.of(context);
-    final Widget place = switch (digest.place) {
+    Widget placeOf(DigestPlace place) => switch (place) {
       DigestPlace.invoices => const InvoicesScreen(),
       DigestPlace.sentInvoices => const InvoicesScreen(segment: InvoicesSegment.sent),
       DigestPlace.activity => const HistoryScreen(),
@@ -338,7 +339,10 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     ref.read(noticeProvider.notifier).show(
       noticeDigestText(l, digest),
       level: NoticeLevel.info,
-      action: NoticeAction(l.noticeView, () => nav.push<void>(MaterialPageRoute<void>(builder: (_) => place))),
+      items: [
+        for (final item in noticeDigestItems(l, digest))
+          NoticeAction(item.text, () => nav.push<void>(MaterialPageRoute<void>(builder: (_) => placeOf(item.place)))),
+      ],
     );
   }
 

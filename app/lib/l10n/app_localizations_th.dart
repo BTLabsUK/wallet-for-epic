@@ -13577,32 +13577,144 @@ class AppLocalizationsTh extends AppLocalizations {
   String get msgCheckFailed => 'การตรวจสอบข้อความครั้งล่าสุดล้มเหลว';
 
   @override
-  String msgCheckHeld(int count) {
-    return 'ข้อความที่พักไว้: $count';
+  String get msgCheckedJustNow => 'ตรวจสอบเมื่อสักครู่';
+
+  @override
+  String msgCheckedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ตรวจสอบเมื่อ $count นาทีที่แล้ว',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRefused(int count) {
-    return 'ข้อความที่ถูกปฏิเสธ: $count';
+  String msgCheckedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ตรวจสอบเมื่อ $count ชั่วโมงที่แล้ว',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckUnreadable(int count) {
-    return 'ข้อความที่อ่านไม่ได้: $count';
+  String msgCheckedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ตรวจสอบเมื่อ $count วันที่แล้ว',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRead(int count) {
-    return 'ข้อความที่อ่านแล้ว: $count';
+  String msgCheckSumRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อ่านแล้ว $count',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckPairingFailed(int count) {
-    return 'การจับคู่ที่ล้มเหลว: $count';
+  String msgCheckSumWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รอ $count',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get msgCheckMore => 'ข้อความที่เหลือรอการตรวจครั้งถัดไป';
+  String get msgCheckSumMore => 'มีรออีก';
+
+  @override
+  String msgCheckSumProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ควรดู $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckShowDetails => 'แสดงรายละเอียด';
+
+  @override
+  String get msgCheckHideDetails => 'ซ่อนรายละเอียด';
+
+  @override
+  String get msgCheckGroupRead => 'อ่านแล้ว';
+
+  @override
+  String get msgCheckGroupWaiting => 'กำลังรอ';
+
+  @override
+  String get msgCheckGroupProblems => 'ควรดู';
+
+  @override
+  String msgCheckItemRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อ่านข้อความแล้ว $count ข้อความ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ข้อความ $count ข้อความรอการตรวจสอบครั้งถัดไป',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckItemMore => 'มีข้อความอีกที่รอการตรวจสอบครั้งถัดไป';
+
+  @override
+  String msgCheckItemRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ปฏิเสธข้อความ $count ข้อความ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyRefused => 'ไม่ใช่ของกระเป๋านี้ ใหญ่เกินไป หรือเสียหาย';
+
+  @override
+  String msgCheckItemPairingFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'การจับคู่ $count รายการไม่เสร็จสมบูรณ์',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemUnreadable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อ่านข้อความไม่ได้ $count ข้อความ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyUnreadable => 'เก็บไว้ในอุปกรณ์นี้';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -14552,16 +14664,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get noticeView => 'ดู';
 
   @override
-  String noticeDigest(int count, String parts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count รายการอัปเดต: $parts',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String noticeDigestInvoices(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14612,7 +14714,14 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get noticeDigestSeparator => ' ';
+  String noticeDigestNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อัปเดตใหม่ $count รายการ',
+    );
+    return '$_temp0';
+  }
 
   @override
   String pairSaveContactTitle(String name) {

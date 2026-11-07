@@ -10,6 +10,7 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import '../../ui/theme/dialog_metrics.dart';
 import 'buttons.dart';
+import 'motion.dart';
 import 'selectable.dart';
 import 'surfaces.dart';
 
@@ -359,10 +360,20 @@ class EDrawer extends StatelessWidget {
 /// A toast at the bottom right: icon, title, one line. Use [showEToast]. [tone] has no default,
 /// so a failure never borrows the success tick: [ETone.risk] for errors, [ETone.warn] for refusals
 /// and cautions, [ETone.ok] or [ETone.gold] for done, [ETone.info] or [ETone.neutral] for notes.
-/// [action] is the next step (a button that closes the toast first); it stays longer. A toast
+/// [action] is the next step (a button that closes the toast first); it stays longer. [items]
+/// fold under the title (a digest's kinds), a chevron unfolds them, each a way somewhere; such
+/// a toast stays while the pointer is over it or it is unfolded. A toast
 /// goes with the screen it was shown on; one that [stay]s shows again on the next, until it is
 /// closed or the window leaves the wallet (lock, welcome).
-void showEToast(BuildContext context, String title, {String? text, required ETone tone, ({String label, VoidCallback run})? action, bool stay = false}) {
+void showEToast(
+  BuildContext context,
+  String title, {
+  String? text,
+  required ETone tone,
+  ({String label, VoidCallback run})? action,
+  List<({String label, VoidCallback run})> items = const [],
+  bool stay = false,
+}) {
   final c = context.dc;
   final messenger = ScaffoldMessenger.maybeOf(context);
   if (messenger == null) return;
@@ -376,61 +387,75 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
     ETone.gold => c.ok,
   };
   var acted = false;
+  final icon = switch (tone) {
+    ETone.risk => EIcons.error,
+    ETone.warn => EIcons.alert,
+    ETone.info || ETone.neutral => EIcons.info,
+    ETone.ok || ETone.gold => EIcons.okCircle,
+  };
+  Widget head({Widget? trailing}) => Row(
+    children: [
+      Icon(icon, size: Ctl.icon, color: color),
+      SizedBox(width: Sp.x3),
+      Expanded(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
+            ),
+            if (text != null)
+              Text(
+                text,
+                style: TextStyle(color: c.dim, fontSize: Fs.sm),
+              ),
+          ],
+        ),
+      ),
+      if (action != null) ...[
+        SizedBox(width: Sp.x3),
+        EButton(
+          label: action.label,
+          size: EBtnSize.sm,
+          onPressed: () {
+            acted = true;
+            messenger.hideCurrentSnackBar();
+            action.run();
+          },
+        ),
+      ],
+      if (trailing != null) ...[SizedBox(width: Sp.x2), trailing],
+    ],
+  );
+  // A toast with items keeps its own clock: it stops while the pointer is over the toast or
+  // the items are unfolded, so the SnackBar's own must not run out first.
+  final folds = items.isNotEmpty;
   final shown = messenger.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
       width: 380.u,
       backgroundColor: c.s4,
       elevation: 6,
-      duration: Duration(seconds: action == null ? 4 : 10),
+      duration: folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.sm),
         side: BorderSide(color: c.lineStrong),
       ),
-      content: Row(
-        children: [
-          Icon(
-            switch (tone) {
-              ETone.risk => EIcons.error,
-              ETone.warn => EIcons.alert,
-              ETone.info || ETone.neutral => EIcons.info,
-              ETone.ok || ETone.gold => EIcons.okCircle,
-            },
-            size: Ctl.icon,
-            color: color,
-          ),
-          SizedBox(width: Sp.x3),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
-                ),
-                if (text != null)
-                  Text(
-                    text,
-                    style: TextStyle(color: c.dim, fontSize: Fs.sm),
-                  ),
-              ],
-            ),
-          ),
-          if (action != null) ...[
-            SizedBox(width: Sp.x3),
-            EButton(
-              label: action.label,
-              size: EBtnSize.sm,
-              onPressed: () {
+      padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : null,
+      content: folds
+          ? _ToastFold(
+              head: head,
+              items: items,
+              onItem: (item) {
                 acted = true;
                 messenger.hideCurrentSnackBar();
-                action.run();
+                item.run();
               },
-            ),
-          ],
-        ],
-      ),
+              onExpire: () => messenger.hideCurrentSnackBar(),
+            )
+          : head(),
     ),
   );
   // A toast belongs to the screen it was shown on: leaving the screen closes it.
@@ -452,7 +477,7 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
       if (stay && !acted && !next.route.bare) {
         // After every toast of the old screen cleared, this one's own clear included.
         scheduleMicrotask(() {
-          if (context.mounted) showEToast(context, title, text: text, tone: tone, action: action, stay: true);
+          if (context.mounted) showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true);
         });
       }
     }
@@ -461,4 +486,138 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
     sub?.close();
     sub = null;
   });
+}
+
+/// The unfold chevron and the items of a digest toast, for tests.
+const Key toastUnfoldKey = ValueKey('toast-unfold');
+const Key toastItemsKey = ValueKey('toast-items');
+
+/// How long a toast with items stays, folded and untouched.
+const Duration toastFoldDuration = Duration(seconds: 10);
+
+/// A toast's body that folds: the head with a chevron at its end, and under it, once unfolded,
+/// one row per item, each a way somewhere. Its clock stops while the pointer is over it or the
+/// items are unfolded.
+class _ToastFold extends StatefulWidget {
+  const _ToastFold({required this.head, required this.items, required this.onItem, required this.onExpire});
+
+  final Widget Function({Widget? trailing}) head;
+  final List<({String label, VoidCallback run})> items;
+  final void Function(({String label, VoidCallback run}) item) onItem;
+  final VoidCallback onExpire;
+
+  @override
+  State<_ToastFold> createState() => _ToastFoldState();
+}
+
+class _ToastFoldState extends State<_ToastFold> {
+  bool _open = false;
+  bool _hover = false;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _arm();
+  }
+
+  void _arm() {
+    _timer?.cancel();
+    _timer = Timer(toastFoldDuration, () {
+      if (mounted) widget.onExpire();
+    });
+  }
+
+  void _settle() {
+    if (_hover || _open) {
+      _timer?.cancel();
+    } else {
+      _arm();
+    }
+  }
+
+  void _toggle() {
+    setState(() => _open = !_open);
+    _settle();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final still = MediaQuery.disableAnimationsOf(context);
+    return MouseRegion(
+      onEnter: (_) {
+        _hover = true;
+        _settle();
+      },
+      onExit: (_) {
+        _hover = false;
+        _settle();
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            button: true,
+            expanded: _open,
+            onTap: _toggle,
+            child: EInkWell(
+              onTap: _toggle,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              child: widget.head(
+                trailing: AnimatedRotation(
+                  turns: _open ? 0.5 : 0,
+                  duration: still ? Duration.zero : Motion.expand,
+                  curve: Motion.easeOut,
+                  child: EIconButton(
+                    key: toastUnfoldKey,
+                    icon: EIcons.chevronDown,
+                    label: _open ? l.msgCheckHideDetails : l.msgCheckShowDetails,
+                    onPressed: _toggle,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          ExpandFade(
+            open: _open,
+            child: Padding(
+              key: toastItemsKey,
+              padding: EdgeInsetsDirectional.only(start: Ctl.icon + Sp.x3 - Sp.x2, top: Sp.x2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final item in widget.items)
+                    EInkWell(
+                      onTap: () => widget.onItem(item),
+                      borderRadius: BorderRadius.circular(Rad.sm),
+                      hoverColor: c.hover,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 6.u),
+                        child: Row(
+                          children: [
+                            Expanded(child: Text(item.label, style: ts.body)),
+                            Icon(EIcons.chevronRight, size: Ctl.iconSm, color: c.dim),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

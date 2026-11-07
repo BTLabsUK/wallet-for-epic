@@ -19,7 +19,6 @@ import '../../levels/level_features.dart' show StatusIcon;
 import '../../levels/wallet_level.dart';
 import '../../ui/common.dart' as common show shortAddress;
 import '../../message_checks.dart' show MessageCheck;
-import '../../ui/message_check_lines.dart';
 import '../data/desk_levels.dart';
 import '../data/desk_node.dart';
 import '../desk_l10n.dart';
@@ -27,6 +26,7 @@ import '../screens/settings/prefs.dart';
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_failover.dart';
+import 'message_check_panel.dart';
 import 'rail.dart' show RailItem;
 import 'relay_offer.dart';
 import 'server_switch.dart';
@@ -125,6 +125,7 @@ class DeskStatusPopover extends ConsumerWidget {
     Widget tile;
     String? second;
     var secondMono = false;
+    Widget? panel;
     switch (i.jump) {
       case SettingsJump.node:
         final node = status?.node;
@@ -175,7 +176,7 @@ class DeskStatusPopover extends ConsumerWidget {
         secondMono = !modeLine;
         if (address != null && address.isNotEmpty) facts.add((label: l.lvShellAddress, value: common.shortAddress(address, relay: false), mono: true));
         if (shallow && (i.state == EState.risk || i.state == EState.warn)) notes.add(l.lvShellBoxDownBody);
-        notes.addAll(messageCheckLines(l, ref.watch(deskMessageCheckProvider).value ?? const MessageCheck()));
+        panel = DeskMessageCheckPanel(ref.watch(deskMessageCheckProvider).value ?? const MessageCheck());
       default:
         tile = DeskServiceTile(icon: i.icon, state: i.state);
         if (i.second != '–' && i.second != i.word) second = [i.second, ?i.marker].join(' ');
@@ -211,6 +212,15 @@ class DeskStatusPopover extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [for (final n in notes) Padding(padding: EdgeInsets.only(bottom: 4.u), child: Text(n, style: ts.small.copyWith(color: c.dim)))],
+              ),
+            ),
+          if (panel case final panel?)
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x1, facts.isEmpty && notes.isEmpty ? 0 : Sp.x2, Sp.x1, 0),
+              child: Container(
+                padding: EdgeInsets.only(top: Sp.x1),
+                decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+                child: panel,
               ),
             ),
           if (i.jump == SettingsJump.epicbox) Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: DeskRelayOfferPanel(close: close)),

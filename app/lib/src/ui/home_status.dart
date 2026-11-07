@@ -19,7 +19,7 @@ import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../message_checks.dart' show MessageCheck;
 import '../providers.dart';
-import 'message_check_lines.dart';
+import 'message_check_panel.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../levels/level_providers.dart';
@@ -359,7 +359,6 @@ class ConnectionsSheet extends ConsumerWidget {
     final (:mode, :entries) = statusEntries(context, ref, bar: false);
     final shallow = shellStatusesShown(ref.watch(levelFeaturesProvider));
     final ring = t.surface;
-    final checkLines = messageCheckLines(l, ref.watch(messageCheckProvider).value ?? const MessageCheck());
     Widget row({
       required IconData icon,
       required Widget glyph,
@@ -491,14 +490,14 @@ class ConnectionsSheet extends ConsumerWidget {
             r,
           ],
           // The message checks; Shallow shows them on its Epicbox sheet.
-          if (!shallow && checkLines.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [for (final line in checkLines) Text(line, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))],
-              ),
+          if (!shallow) ...[
+            const SizedBox(height: 8),
+            Divider(height: 1, thickness: 1, indent: 12, endIndent: 12, color: t.line),
+            MessageCheckPanel(
+              ref.watch(messageCheckProvider).value ?? const MessageCheck(),
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
             ),
+          ],
         ],
       ),
     );

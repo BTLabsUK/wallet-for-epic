@@ -1,4 +1,5 @@
 import 'package:epic_wallet/src/message_checks.dart';
+import 'package:epic_wallet/src/text_join.dart';
 import 'package:epic_wallet/src/ui/message_check_lines.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/l10n/app_localizations_en.dart';
@@ -38,16 +39,52 @@ void main() {
     checks.dispose();
   });
 
-  test('lines say only what is not zero', () {
+  test('lines say only what is not zero, the headline first', () {
     final l = AppLocalizationsEn();
-    expect(messageCheckLines(l, const MessageCheck(checking: true)), ['Checking messages']);
-    final lines = messageCheckLines(l, MessageCheck(checkedAt: DateTime(2026, 1, 1, 14, 5), outcome: const CheckOutcome(held: 2, rejected: 1, unreadable: 1)));
-    expect(lines, ['Checked at 14:05', 'Messages held: 2', 'Messages refused: 1', '1 message could not be read']);
-    expect(messageCheckLines(l, const MessageCheck(failed: true)), ['The last message check failed']);
-    expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(messages: 3, failed: 1, capped: 1))), [
-      'Messages read: 3',
-      'Pairings failed: 1',
-      'More messages wait for the next check',
+    final now = DateTime(2026, 1, 1, 14, 5);
+    expect(messageCheckLines(l, const MessageCheck(checking: true), now: now), ['Checking messages']);
+    final lines = messageCheckLines(
+      l,
+      MessageCheck(checkedAt: DateTime(2026, 1, 1, 14, 3), outcome: const CheckOutcome(held: 2, rejected: 1, unreadable: 1)),
+      now: now,
+    );
+    expect(lines, [
+      'Checked 2 min ago',
+      '2 messages left for the next check',
+      '1 message turned away',
+      'Not for this wallet, too large or damaged.',
+      '1 message could not be read',
+      'Kept on this device.',
     ]);
+    expect(messageCheckLines(l, const MessageCheck(failed: true), now: now), ['The last message check failed']);
+    expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(messages: 3, failed: 1, capped: 1)), now: now), [
+      'Not checked yet',
+      '3 messages read',
+      'More messages wait for the next check',
+      '1 pairing did not complete',
+    ]);
+  });
+
+  test('the age reads in minutes, hours or days', () {
+    final l = AppLocalizationsEn();
+    expect(messageCheckedAgo(l, const Duration(seconds: 20)), 'Checked just now');
+    expect(messageCheckedAgo(l, const Duration(minutes: 1)), 'Checked 1 min ago');
+    expect(messageCheckedAgo(l, const Duration(minutes: 89)), 'Checked 89 min ago');
+    expect(messageCheckedAgo(l, const Duration(minutes: 90)), 'Checked 1 h ago');
+    expect(messageCheckedAgo(l, const Duration(hours: 47)), 'Checked 47 h ago');
+    expect(messageCheckedAgo(l, const Duration(hours: 48)), 'Checked 2 d ago');
+    expect(messageCheckedAgo(l, const Duration(seconds: -5)), 'Checked just now');
+  });
+
+  test('the folded summary and the groups', () {
+    final l = AppLocalizationsEn();
+    final view = messageCheckView(l, const MessageCheck(outcome: CheckOutcome(messages: 3, held: 2, rejected: 1, failed: 1, unreadable: 1, capped: 1)));
+    expect(messageCheckSummary(l, view), metaLine(['3 read', '2 waiting', '3 to look at'], whole: true));
+    expect(view.of(CheckGroup.read).map((i) => i.kind), [CheckItemKind.read]);
+    expect(view.of(CheckGroup.waiting).map((i) => i.kind), [CheckItemKind.held, CheckItemKind.more]);
+    expect(view.of(CheckGroup.problems).map((i) => i.kind), [CheckItemKind.refused, CheckItemKind.pairingFailed, CheckItemKind.unreadable]);
+    expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck(outcome: CheckOutcome(capped: 1)))), keepWhole('more waiting'));
+    expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck())), '');
+    expect(messageCheckView(l, const MessageCheck()).hasItems, isFalse);
   });
 }

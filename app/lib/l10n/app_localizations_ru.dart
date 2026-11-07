@@ -14442,32 +14442,178 @@ class AppLocalizationsRu extends AppLocalizations {
   String get msgCheckFailed => 'Последняя проверка сообщений не удалась';
 
   @override
-  String msgCheckHeld(int count) {
-    return 'Сообщений отложено: $count';
+  String get msgCheckedJustNow => 'Проверено только что';
+
+  @override
+  String msgCheckedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Проверено $count мин назад',
+      many: 'Проверено $count мин назад',
+      few: 'Проверено $count мин назад',
+      one: 'Проверено $count мин назад',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRefused(int count) {
-    return 'Сообщений отклонено: $count';
+  String msgCheckedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Проверено $count ч назад',
+      many: 'Проверено $count ч назад',
+      few: 'Проверено $count ч назад',
+      one: 'Проверено $count ч назад',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckUnreadable(int count) {
-    return 'Сообщений, которые не удалось прочитать: $count';
+  String msgCheckedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Проверено $count дня назад',
+      many: 'Проверено $count дней назад',
+      few: 'Проверено $count дня назад',
+      one: 'Проверено $count день назад',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRead(int count) {
-    return 'Сообщений прочитано: $count';
+  String msgCheckSumRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count прочитано',
+      many: '$count прочитано',
+      few: '$count прочитано',
+      one: '$count прочитано',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckPairingFailed(int count) {
-    return 'Неудачных сопряжений: $count';
+  String msgCheckSumWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ждёт',
+      many: '$count ждут',
+      few: '$count ждут',
+      one: '$count ждёт',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get msgCheckMore => 'Остальные сообщения ждут следующей проверки';
+  String get msgCheckSumMore => 'ещё ждут';
+
+  @override
+  String msgCheckSumProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count требует внимания',
+      many: '$count требуют внимания',
+      few: '$count требуют внимания',
+      one: '$count требует внимания',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckShowDetails => 'Показать подробности';
+
+  @override
+  String get msgCheckHideDetails => 'Скрыть подробности';
+
+  @override
+  String get msgCheckGroupRead => 'Прочитано';
+
+  @override
+  String get msgCheckGroupWaiting => 'Ожидают';
+
+  @override
+  String get msgCheckGroupProblems => 'Требуют внимания';
+
+  @override
+  String msgCheckItemRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сообщения прочитано',
+      many: '$count сообщений прочитано',
+      few: '$count сообщения прочитано',
+      one: '$count сообщение прочитано',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сообщения ждёт следующей проверки',
+      many: '$count сообщений ждут следующей проверки',
+      few: '$count сообщения ждут следующей проверки',
+      one: '$count сообщение ждёт следующей проверки',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckItemMore => 'Ещё сообщения ждут следующей проверки';
+
+  @override
+  String msgCheckItemRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сообщения отклонено',
+      many: '$count сообщений отклонено',
+      few: '$count сообщения отклонено',
+      one: '$count сообщение отклонено',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyRefused =>
+      'Не для этого кошелька, слишком большое или повреждено.';
+
+  @override
+  String msgCheckItemPairingFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сопряжения не завершено',
+      many: '$count сопряжений не завершены',
+      few: '$count сопряжения не завершены',
+      one: '$count сопряжение не завершено',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemUnreadable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сообщения не удалось прочитать',
+      many: '$count сообщений не удалось прочитать',
+      few: '$count сообщения не удалось прочитать',
+      one: '$count сообщение не удалось прочитать',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyUnreadable => 'Сохранено на этом устройстве.';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -15437,19 +15583,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noticeView => 'Показать';
 
   @override
-  String noticeDigest(int count, String parts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count обновления: $parts',
-      many: '$count обновлений: $parts',
-      few: '$count обновления: $parts',
-      one: '$count обновление: $parts',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String noticeDigestInvoices(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -15515,7 +15648,17 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get noticeDigestSeparator => ', ';
+  String noticeDigestNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count нового обновления',
+      many: '$count новых обновлений',
+      few: '$count новых обновления',
+      one: '$count новое обновление',
+    );
+    return '$_temp0';
+  }
 
   @override
   String pairSaveContactTitle(String name) {

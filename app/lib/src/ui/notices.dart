@@ -10,7 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../desktop/theme/tokens.dart' show Motion;
+import '../desktop/widgets/motion.dart' show ExpandFade;
 import 'notice_layout.dart';
+import 'settings_rows.dart' show NavChevron;
 import 'theme/tokens.dart';
 
 export 'notice_layout.dart' show NoticeLayout, RenderNoticeLayout;
@@ -78,6 +81,7 @@ class Notice {
     this.progressLabel,
     this.tag,
     this.onClose,
+    this.items = const [],
   });
 
   /// Distinct per notice, so the card animates when another one takes its place.
@@ -107,10 +111,15 @@ class Notice {
   /// out, is replaced or its action is pressed.
   final VoidCallback? onClose;
 
+  /// What [text] counts, one line each ("2 invoices", "1 withdrawal"): folded under the text,
+  /// a tap on the card or its chevron unfolds them, each a way to its own place. A digest.
+  final List<NoticeAction> items;
+
   /// Has a close button: warnings, errors, persistent notices and any with an action.
   bool get closable =>
       persistent ||
       action != null ||
+      items.isNotEmpty ||
       level == NoticeLevel.warning ||
       level == NoticeLevel.error;
 }
@@ -156,6 +165,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     String? progressLabel,
     String? tag,
     VoidCallback? onClose,
+    List<NoticeAction> items = const [],
   }) {
     Notice make(int id) => Notice(
       id,
@@ -169,6 +179,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       progressLabel: progressLabel,
       tag: tag,
       onClose: onClose,
+      items: items,
     );
     final visible = state;
     if (visible != null &&
@@ -236,7 +247,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     if (notice.persistent) return;
     _left = noticeDuration(
       notice.level,
-      action: notice.action != null,
+      action: notice.action != null || notice.items.isNotEmpty,
       accessible: accessibleNavigation,
     );
     _timer = Timer.periodic(_tick, (_) {
@@ -410,7 +421,19 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   /// Whether a mouse is over the card: then lifting a click does not restart the clock.
   bool _hovering = false;
 
+  /// Whether the notice's [Notice.items] are unfolded; the clock stops while they are.
+  bool _open = false;
+
   NoticeNotifier get _notices => ref.read(noticeProvider.notifier);
+
+  void _toggle() {
+    setState(() => _open = !_open);
+    if (_open) {
+      _notices.hold();
+    } else {
+      _releaseUnlessHovered();
+    }
+  }
 
   void _onDragEnd(DragEndDetails details) {
     final v = details.velocity.pixelsPerSecond;
@@ -430,7 +453,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   }
 
   void _releaseUnlessHovered() {
-    if (!_hovering) _notices.release();
+    if (!_hovering && !_open) _notices.release();
   }
 
   @override
@@ -470,29 +493,100 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
           )
         : null;
     final progress = notice.progress;
+    final items = notice.items;
+    final still = MediaQuery.disableAnimationsOf(context);
+    final unfoldIn = still ? Duration.zero : noticeUnfoldDuration;
+    final chevron = items.isEmpty
+        ? null
+        : IconButton(
+            key: noticeUnfoldKey,
+            tooltip: _open ? l.msgCheckHideDetails : l.msgCheckShowDetails,
+            onPressed: _toggle,
+            icon: AnimatedRotation(
+              turns: _open ? 0.5 : 0,
+              duration: unfoldIn,
+              curve: Curves.easeOutCubic,
+              child: Icon(Icons.expand_more, color: t.dim),
+            ),
+          );
+    // The items unfold under the whole card, the words' left edge as their own, so the chevron
+    // that unfolds them stays beside the one line it belongs to. Height and fade move together
+    // both ways; a folded list is off stage, so nothing in it can be tapped or found.
+    final unfold = items.isEmpty
+        ? null
+        : ExpandFade(
+            open: _open,
+            child: Padding(
+              key: noticeItemsKey,
+              padding: const EdgeInsetsDirectional.only(
+                start: _wordsStart - 8,
+                end: 4,
+                bottom: 4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final item in items)
+                    InkWell(
+                      onTap: () {
+                        _notices.dismiss(notice.id);
+                        item.onPressed();
+                      },
+                      borderRadius: BorderRadius.circular(t.radiusSmall),
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 44),
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 8,
+                          end: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.label,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                            const NavChevron(size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
     final body = Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
-      child: NoticeParts(
-        level: notice.level,
-        title: notice.title,
-        text: notice.text,
-        // A persistent notice is read, not glanced at: it shows its whole text.
-        maxLines: notice.persistent ? null : noticeMaxLines,
-        icon: icon,
-        color: color,
-        below: progress == null
-            ? null
-            : Padding(
-                padding: const EdgeInsets.only(top: 6, bottom: 4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 2,
-                  semanticsLabel: notice.progressLabel,
-                ),
-              ),
-        actions: [?secondaryButton, ?actionButton],
-        close: close,
-        liveRegion: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          NoticeParts(
+            level: notice.level,
+            title: notice.title,
+            text: notice.text,
+            maxLines: notice.persistent ? null : noticeMaxLines,
+            icon: icon,
+            color: color,
+            onWords: items.isEmpty ? null : _toggle,
+            below: progress == null
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(top: 6, bottom: 4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 2,
+                      semanticsLabel: notice.progressLabel,
+                    ),
+                  ),
+            actions: [?secondaryButton, ?actionButton, ?chevron],
+            close: close,
+            liveRegion: true,
+          ),
+          ?unfold,
+        ],
       ),
     );
     return Listener(
@@ -526,6 +620,16 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     );
   }
 }
+
+/// Where the words start inside the card's body: the level's icon and the gap after it.
+const double _wordsStart = 24 + 12;
+
+/// How long a digest takes to unfold its items, and to fold them.
+const Duration noticeUnfoldDuration = Motion.expand;
+
+/// The chevron that unfolds a digest, and its items once unfolded: for tests.
+const Key noticeUnfoldKey = ValueKey('notice-unfold');
+const Key noticeItemsKey = ValueKey('notice-items');
 
 /// The most lines a passing notice shows; a persistent one shows its whole text. Three keep a
 /// sentence whole on a phone (A-10); the screen reader always hears all of it.
@@ -573,6 +677,7 @@ class NoticeParts extends StatelessWidget {
     required this.icon,
     required this.color,
     this.below,
+    this.onWords,
     this.actions = const [],
     this.actionsBelow = false,
     this.close,
@@ -586,6 +691,9 @@ class NoticeParts extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Widget? below;
+
+  /// A tap on the words (a digest unfolds); the chevron in [actions] says what it does.
+  final VoidCallback? onWords;
   final List<Widget> actions;
   final bool actionsBelow;
   final Widget? close;
@@ -619,16 +727,19 @@ class NoticeParts extends StatelessWidget {
         ),
       ),
     );
+    final wordsRow = onWords == null
+        ? words
+        : GestureDetector(behavior: HitTestBehavior.opaque, onTap: onWords, child: words);
     return NoticeLayout(
       icon: ExcludeSemantics(child: Icon(icon, color: color)),
       words: Padding(
         padding: const EdgeInsets.symmetric(vertical: wordsPad),
         child: below == null
-            ? words
+            ? wordsRow
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [words, below!],
+                children: [wordsRow, below!],
               ),
       ),
       actions: actions.isEmpty

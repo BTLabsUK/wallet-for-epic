@@ -21924,41 +21924,131 @@ abstract class AppLocalizations {
   /// **'The last message check failed'**
   String get msgCheckFailed;
 
-  /// Status line: messages the last check left on the relay for a later check.
+  /// Status: the last check of the wallet's messages ended less than a minute ago.
   ///
   /// In en, this message translates to:
-  /// **'Messages held: {count}'**
-  String msgCheckHeld(int count);
+  /// **'Checked just now'**
+  String get msgCheckedJustNow;
 
-  /// Status line: messages the last check turned away (refused or dropped).
+  /// Status: when the last message check ended, in minutes (1 to 89).
   ///
   /// In en, this message translates to:
-  /// **'Messages refused: {count}'**
-  String msgCheckRefused(int count);
+  /// **'{count, plural, one{Checked {count} min ago} other{Checked {count} min ago}}'**
+  String msgCheckedMinutesAgo(int count);
 
-  /// Status line: messages the wallet keeps on this device because it could not take them.
+  /// Status: when the last message check ended, in hours (under two days).
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 message could not be read} other{{count} messages could not be read}}'**
-  String msgCheckUnreadable(int count);
+  /// **'{count, plural, one{Checked {count} h ago} other{Checked {count} h ago}}'**
+  String msgCheckedHoursAgo(int count);
 
-  /// Status line: messages the last check read from the paired contacts' mailboxes.
+  /// Status: when the last message check ended, in days.
   ///
   /// In en, this message translates to:
-  /// **'Messages read: {count}'**
-  String msgCheckRead(int count);
+  /// **'{count, plural, one{Checked {count} d ago} other{Checked {count} d ago}}'**
+  String msgCheckedDaysAgo(int count);
 
-  /// Status line: pairings in progress that ended without pairing in the last check.
+  /// Folded summary of the last message check, one part: messages read. Parts join with msgCheckSumSeparator.
   ///
   /// In en, this message translates to:
-  /// **'Pairings failed: {count}'**
-  String msgCheckPairingFailed(int count);
+  /// **'{count, plural, one{{count} read} other{{count} read}}'**
+  String msgCheckSumRead(int count);
 
-  /// Status line: a mailbox still had messages when the last check stopped.
+  /// Folded summary of the last message check, one part: messages left on the relay for the next check.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} waiting} other{{count} waiting}}'**
+  String msgCheckSumWaiting(int count);
+
+  /// Folded summary of the last message check, one part: a mailbox still had messages when the check stopped, number unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'more waiting'**
+  String get msgCheckSumMore;
+
+  /// Folded summary of the last message check, one part: messages turned away or not readable, and pairings that did not complete.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} to look at} other{{count} to look at}}'**
+  String msgCheckSumProblems(int count);
+
+  /// Chevron that unfolds what the last message check found; also the digest notice's chevron.
+  ///
+  /// In en, this message translates to:
+  /// **'Show details'**
+  String get msgCheckShowDetails;
+
+  /// The same chevron once the details are open.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get msgCheckHideDetails;
+
+  /// Small heading over the messages the last check read.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get msgCheckGroupRead;
+
+  /// Small heading over the messages left on the relay for the next check.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get msgCheckGroupWaiting;
+
+  /// Small heading over the messages turned away or not readable and the pairings that did not complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a look'**
+  String get msgCheckGroupProblems;
+
+  /// Detail of the last message check: messages read from the paired contacts' mailboxes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} message read} other{{count} messages read}}'**
+  String msgCheckItemRead(int count);
+
+  /// Detail of the last message check: messages it left on the relay for a later check.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} message left for the next check} other{{count} messages left for the next check}}'**
+  String msgCheckItemHeld(int count);
+
+  /// Detail of the last message check: a mailbox still had messages when the check stopped.
   ///
   /// In en, this message translates to:
   /// **'More messages wait for the next check'**
-  String get msgCheckMore;
+  String get msgCheckItemMore;
+
+  /// Detail of the last message check: messages it refused or dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} message turned away} other{{count} messages turned away}}'**
+  String msgCheckItemRefused(int count);
+
+  /// Quiet line under msgCheckItemRefused: why a message is turned away.
+  ///
+  /// In en, this message translates to:
+  /// **'Not for this wallet, too large or damaged.'**
+  String get msgCheckWhyRefused;
+
+  /// Detail of the last message check: pairings in progress that ended without pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} pairing did not complete} other{{count} pairings did not complete}}'**
+  String msgCheckItemPairingFailed(int count);
+
+  /// Detail of the last message check: messages the wallet keeps on this device because it could not take them.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} message could not be read} other{{count} messages could not be read}}'**
+  String msgCheckItemUnreadable(int count);
+
+  /// Quiet line under msgCheckItemUnreadable: where such a message is.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept on this device.'**
+  String get msgCheckWhyUnreadable;
 
   /// Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.
   ///
@@ -23400,12 +23490,6 @@ abstract class AppLocalizations {
   /// **'View'**
   String get noticeView;
 
-  /// One notice for all that a check of the messages brought; parts is the list of kinds. The count is always two or more.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, other{{count} updates: {parts}}}'**
-  String noticeDigest(int count, String parts);
-
   /// Part of the digest notice: invoices waiting for an answer.
   ///
   /// In en, this message translates to:
@@ -23436,11 +23520,11 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 invoice expired} other{{count} invoices expired}}'**
   String noticeDigestExpired(int count);
 
-  /// Between the parts of the digest notice.
+  /// One notice for all that a check of the messages brought, folded: a tap unfolds one line per kind (noticeDigestInvoices and the like). The count is always two or more.
   ///
   /// In en, this message translates to:
-  /// **', '**
-  String get noticeDigestSeparator;
+  /// **'{count, plural, one{{count} new update} other{{count} new updates}}'**
+  String noticeDigestNew(int count);
 
   /// Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.
   ///

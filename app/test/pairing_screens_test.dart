@@ -732,9 +732,9 @@ void main() {
   group('a run\'s notices', () {
     PairingEvent invoice(String slate) => PairingEvent(PairingEventKind.invoiceFromContact, name: 'Anna', slateId: slate, amount: BigInt.from(100000000));
 
-    testWidgets('several are one digest when the run ends; View opens the invoices', (tester) async {
+    testWidgets('several are one digest when the run ends; it unfolds, and its invoices line opens the invoices', (tester) async {
       final h = _Harness();
-      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      await h.pump(tester, const Scaffold(body: Column(children: [NoticeDock(), PairingNotices()])));
       final notices = h.session.checks.notices;
       notices.begin();
       h.api.emit(invoice('a'));
@@ -745,10 +745,18 @@ void main() {
       notices.end();
       await tester.pump(const Duration(seconds: 1));
       await tester.pump();
-      expect(_notice(tester), '3 updates: 2 invoices, 1 withdrawal');
-      final view = h.container(tester).read(noticeProvider)!.action!;
-      expect(view.label, _l.noticeView);
-      view.onPressed();
+      expect(_notice(tester), '3 new updates');
+      final notice = h.container(tester).read(noticeProvider)!;
+      expect(notice.action, isNull);
+      expect(notice.items.map((i) => i.label), ['2 invoices', '1 withdrawal']);
+      expect(find.byKey(noticeItemsKey), findsNothing, reason: 'folded at first');
+      // The dock slides the card into place before its chevron can be tapped.
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(noticeUnfoldKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(noticeItemsKey), findsOneWidget);
+      expect(find.text('2 invoices'), findsOneWidget);
+      await tester.tap(find.text('2 invoices'));
       await tester.pumpAndSettle();
       expect(find.byType(InvoicesScreen), findsOneWidget);
     });

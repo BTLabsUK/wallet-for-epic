@@ -13111,32 +13111,144 @@ class AppLocalizationsZh extends AppLocalizations {
   String get msgCheckFailed => '上次消息检查失败';
 
   @override
-  String msgCheckHeld(int count) {
-    return '暂缓的消息：$count';
+  String get msgCheckedJustNow => '刚刚检查过';
+
+  @override
+  String msgCheckedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 分钟前检查过',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRefused(int count) {
-    return '被拒绝的消息：$count';
+  String msgCheckedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 小时前检查过',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckUnreadable(int count) {
-    return '无法读取的消息：$count';
+  String msgCheckedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 天前检查过',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRead(int count) {
-    return '已读取的消息：$count';
+  String msgCheckSumRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已读 $count 条',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckPairingFailed(int count) {
-    return '失败的配对：$count';
+  String msgCheckSumWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条等待中',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get msgCheckMore => '其余消息等待下次检查';
+  String get msgCheckSumMore => '还有更多等待中';
+
+  @override
+  String msgCheckSumProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条需留意',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckShowDetails => '显示详情';
+
+  @override
+  String get msgCheckHideDetails => '隐藏详情';
+
+  @override
+  String get msgCheckGroupRead => '已读';
+
+  @override
+  String get msgCheckGroupWaiting => '等待中';
+
+  @override
+  String get msgCheckGroupProblems => '需留意';
+
+  @override
+  String msgCheckItemRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已读 $count 条消息',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条消息留待下次检查',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckItemMore => '还有更多消息等待下次检查';
+
+  @override
+  String msgCheckItemRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条消息已被拒收',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyRefused => '不属于此钱包、过大或已损坏。';
+
+  @override
+  String msgCheckItemPairingFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 次配对未完成',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemUnreadable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条消息无法读取',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyUnreadable => '已保留在此设备上。';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -14059,16 +14171,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noticeView => '查看';
 
   @override
-  String noticeDigest(int count, String parts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 条更新：$parts',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String noticeDigestInvoices(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14119,7 +14221,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get noticeDigestSeparator => '、';
+  String noticeDigestNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条新更新',
+    );
+    return '$_temp0';
+  }
 
   @override
   String pairSaveContactTitle(String name) {

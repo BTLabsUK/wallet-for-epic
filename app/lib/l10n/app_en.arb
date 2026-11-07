@@ -18516,54 +18516,155 @@
   "@msgCheckFailed": {
     "description": "Status line when the last check of the wallet's messages ended with an error."
   },
-  "msgCheckHeld": "Messages held: {count}",
-  "@msgCheckHeld": {
-    "description": "Status line: messages the last check left on the relay for a later check.",
+  "msgCheckedJustNow": "Checked just now",
+  "@msgCheckedJustNow": {
+    "description": "Status: the last check of the wallet's messages ended less than a minute ago."
+  },
+  "msgCheckedMinutesAgo": "{count, plural, one{Checked {count} min ago} other{Checked {count} min ago}}",
+  "@msgCheckedMinutesAgo": {
+    "description": "Status: when the last message check ended, in minutes (1 to 89).",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "example": "2"
       }
     }
   },
-  "msgCheckRefused": "Messages refused: {count}",
-  "@msgCheckRefused": {
-    "description": "Status line: messages the last check turned away (refused or dropped).",
+  "msgCheckedHoursAgo": "{count, plural, one{Checked {count} h ago} other{Checked {count} h ago}}",
+  "@msgCheckedHoursAgo": {
+    "description": "Status: when the last message check ended, in hours (under two days).",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "example": "3"
       }
     }
   },
-  "msgCheckUnreadable": "{count, plural, =1{1 message could not be read} other{{count} messages could not be read}}",
-  "@msgCheckUnreadable": {
-    "description": "Status line: messages the wallet keeps on this device because it could not take them.",
+  "msgCheckedDaysAgo": "{count, plural, one{Checked {count} d ago} other{Checked {count} d ago}}",
+  "@msgCheckedDaysAgo": {
+    "description": "Status: when the last message check ended, in days.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "example": "2"
       }
     }
   },
-  "msgCheckRead": "Messages read: {count}",
-  "@msgCheckRead": {
-    "description": "Status line: messages the last check read from the paired contacts' mailboxes.",
+  "msgCheckSumRead": "{count, plural, one{{count} read} other{{count} read}}",
+  "@msgCheckSumRead": {
+    "description": "Folded summary of the last message check, one part: messages read. Parts join with msgCheckSumSeparator.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "example": "3"
       }
     }
   },
-  "msgCheckPairingFailed": "Pairings failed: {count}",
-  "@msgCheckPairingFailed": {
-    "description": "Status line: pairings in progress that ended without pairing in the last check.",
+  "msgCheckSumWaiting": "{count, plural, one{{count} waiting} other{{count} waiting}}",
+  "@msgCheckSumWaiting": {
+    "description": "Folded summary of the last message check, one part: messages left on the relay for the next check.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "example": "2"
       }
     }
   },
-  "msgCheckMore": "More messages wait for the next check",
-  "@msgCheckMore": {
-    "description": "Status line: a mailbox still had messages when the last check stopped."
+  "msgCheckSumMore": "more waiting",
+  "@msgCheckSumMore": {
+    "description": "Folded summary of the last message check, one part: a mailbox still had messages when the check stopped, number unknown."
+  },
+  "msgCheckSumProblems": "{count, plural, one{{count} to look at} other{{count} to look at}}",
+  "@msgCheckSumProblems": {
+    "description": "Folded summary of the last message check, one part: messages turned away or not readable, and pairings that did not complete.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "msgCheckShowDetails": "Show details",
+  "@msgCheckShowDetails": {
+    "description": "Chevron that unfolds what the last message check found; also the digest notice's chevron."
+  },
+  "msgCheckHideDetails": "Hide details",
+  "@msgCheckHideDetails": {
+    "description": "The same chevron once the details are open."
+  },
+  "msgCheckGroupRead": "Read",
+  "@msgCheckGroupRead": {
+    "description": "Small heading over the messages the last check read."
+  },
+  "msgCheckGroupWaiting": "Waiting",
+  "@msgCheckGroupWaiting": {
+    "description": "Small heading over the messages left on the relay for the next check."
+  },
+  "msgCheckGroupProblems": "Needs a look",
+  "@msgCheckGroupProblems": {
+    "description": "Small heading over the messages turned away or not readable and the pairings that did not complete."
+  },
+  "msgCheckItemRead": "{count, plural, one{{count} message read} other{{count} messages read}}",
+  "@msgCheckItemRead": {
+    "description": "Detail of the last message check: messages read from the paired contacts' mailboxes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "msgCheckItemHeld": "{count, plural, one{{count} message left for the next check} other{{count} messages left for the next check}}",
+  "@msgCheckItemHeld": {
+    "description": "Detail of the last message check: messages it left on the relay for a later check.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "msgCheckItemMore": "More messages wait for the next check",
+  "@msgCheckItemMore": {
+    "description": "Detail of the last message check: a mailbox still had messages when the check stopped."
+  },
+  "msgCheckItemRefused": "{count, plural, one{{count} message turned away} other{{count} messages turned away}}",
+  "@msgCheckItemRefused": {
+    "description": "Detail of the last message check: messages it refused or dropped.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "msgCheckWhyRefused": "Not for this wallet, too large or damaged.",
+  "@msgCheckWhyRefused": {
+    "description": "Quiet line under msgCheckItemRefused: why a message is turned away."
+  },
+  "msgCheckItemPairingFailed": "{count, plural, one{{count} pairing did not complete} other{{count} pairings did not complete}}",
+  "@msgCheckItemPairingFailed": {
+    "description": "Detail of the last message check: pairings in progress that ended without pairing.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "msgCheckItemUnreadable": "{count, plural, one{{count} message could not be read} other{{count} messages could not be read}}",
+  "@msgCheckItemUnreadable": {
+    "description": "Detail of the last message check: messages the wallet keeps on this device because it could not take them.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "msgCheckWhyUnreadable": "Kept on this device.",
+  "@msgCheckWhyUnreadable": {
+    "description": "Quiet line under msgCheckItemUnreadable: where such a message is."
   },
   "noticeSealedUnopenable": "A message from {name} could not be opened.",
   "@noticeSealedUnopenable": {
@@ -20103,20 +20204,6 @@
   "@noticeView": {
     "description": "Action of a request notice."
   },
-  "noticeDigest": "{count, plural, other{{count} updates: {parts}}}",
-  "@noticeDigest": {
-    "description": "One notice for all that a check of the messages brought; parts is the list of kinds. The count is always two or more.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "2"
-      },
-      "parts": {
-        "type": "String",
-        "example": "2 invoices, 1 withdrawal"
-      }
-    }
-  },
   "noticeDigestInvoices": "{count, plural, =1{1 invoice} other{{count} invoices}}",
   "@noticeDigestInvoices": {
     "description": "Part of the digest notice: invoices waiting for an answer.",
@@ -20167,9 +20254,15 @@
       }
     }
   },
-  "noticeDigestSeparator": ", ",
-  "@noticeDigestSeparator": {
-    "description": "Between the parts of the digest notice."
+  "noticeDigestNew": "{count, plural, one{{count} new update} other{{count} new updates}}",
+  "@noticeDigestNew": {
+    "description": "One notice for all that a check of the messages brought, folded: a tap unfolds one line per kind (noticeDigestInvoices and the like). The count is always two or more.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   },
   "pairSaveContactTitle": "Save {name} in your contacts?",
   "@pairSaveContactTitle": {

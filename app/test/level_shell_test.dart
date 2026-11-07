@@ -185,7 +185,7 @@ void main() {
     expect(find.textContaining('A payment is waiting'), findsNothing);
   });
 
-  testWidgets('the Network sheet keeps OK clear of the bottom system inset', (tester) async {
+  testWidgets('the Network sheet keeps Close clear of the bottom system inset', (tester) async {
     await _pump(tester, level: '1');
     // An edge-to-edge phone: a 48 dp navigation bar under the sheet.
     tester.view.padding = const FakeViewPadding(bottom: 48 * 3);
@@ -203,7 +203,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(find.byKey(networkSheetKey), findsOneWidget);
-    final okBottom = tester.getBottomLeft(find.widgetWithText(TextButton, _l.commonOk)).dy;
+    final okBottom = tester.getBottomLeft(find.widgetWithText(TextButton, _l.commonClose)).dy;
     expect(okBottom, lessThanOrEqualTo(2400 / 3 - 48));
   });
 

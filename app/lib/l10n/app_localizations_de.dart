@@ -14100,33 +14100,157 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die letzte Nachrichtenprüfung ist fehlgeschlagen';
 
   @override
-  String msgCheckHeld(int count) {
-    return 'Zurückgehaltene Nachrichten: $count';
+  String get msgCheckedJustNow => 'Gerade eben geprüft';
+
+  @override
+  String msgCheckedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vor $count Min. geprüft',
+      one: 'Vor $count Min. geprüft',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRefused(int count) {
-    return 'Abgewiesene Nachrichten: $count';
+  String msgCheckedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vor $count Std. geprüft',
+      one: 'Vor $count Std. geprüft',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckUnreadable(int count) {
-    return 'Nicht lesbare Nachrichten: $count';
+  String msgCheckedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vor $count Tagen geprüft',
+      one: 'Vor $count Tag geprüft',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRead(int count) {
-    return 'Nachrichten gelesen: $count';
+  String msgCheckSumRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gelesen',
+      one: '$count gelesen',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckPairingFailed(int count) {
-    return 'Fehlgeschlagene Kopplungen: $count';
+  String msgCheckSumWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count warten',
+      one: '$count wartet',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get msgCheckMore =>
+  String get msgCheckSumMore => 'weitere warten';
+
+  @override
+  String msgCheckSumProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zu prüfen',
+      one: '$count zu prüfen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckShowDetails => 'Details anzeigen';
+
+  @override
+  String get msgCheckHideDetails => 'Details ausblenden';
+
+  @override
+  String get msgCheckGroupRead => 'Gelesen';
+
+  @override
+  String get msgCheckGroupWaiting => 'Wartend';
+
+  @override
+  String get msgCheckGroupProblems => 'Bitte ansehen';
+
+  @override
+  String msgCheckItemRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Nachrichten gelesen',
+      one: '$count Nachricht gelesen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Nachrichten bleiben für die nächste Prüfung',
+      one: '$count Nachricht bleibt für die nächste Prüfung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckItemMore =>
       'Weitere Nachrichten warten auf die nächste Prüfung';
+
+  @override
+  String msgCheckItemRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Nachrichten abgewiesen',
+      one: '$count Nachricht abgewiesen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyRefused =>
+      'Nicht für diese Wallet, zu groß oder beschädigt.';
+
+  @override
+  String msgCheckItemPairingFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kopplungen nicht abgeschlossen',
+      one: '$count Kopplung nicht abgeschlossen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemUnreadable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Nachrichten konnten nicht gelesen werden',
+      one: '$count Nachricht konnte nicht gelesen werden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyUnreadable => 'Auf diesem Gerät aufbewahrt.';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -15090,16 +15214,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get noticeView => 'Ansehen';
 
   @override
-  String noticeDigest(int count, String parts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Neuigkeiten: $parts',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String noticeDigestInvoices(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -15155,7 +15269,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get noticeDigestSeparator => ', ';
+  String noticeDigestNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count neue Aktualisierungen',
+      one: '$count neue Aktualisierung',
+    );
+    return '$_temp0';
+  }
 
   @override
   String pairSaveContactTitle(String name) {

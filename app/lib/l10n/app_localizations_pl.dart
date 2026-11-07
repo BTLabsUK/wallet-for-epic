@@ -14466,33 +14466,179 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ostatnie sprawdzenie wiadomości nie powiodło się';
 
   @override
-  String msgCheckHeld(int count) {
-    return 'Wiadomości wstrzymane: $count';
+  String get msgCheckedJustNow => 'Sprawdzono przed chwilą';
+
+  @override
+  String msgCheckedMinutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sprawdzono $count min temu',
+      many: 'Sprawdzono $count min temu',
+      few: 'Sprawdzono $count min temu',
+      one: 'Sprawdzono $count min temu',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRefused(int count) {
-    return 'Wiadomości odrzucone: $count';
+  String msgCheckedHoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sprawdzono $count godz. temu',
+      many: 'Sprawdzono $count godz. temu',
+      few: 'Sprawdzono $count godz. temu',
+      one: 'Sprawdzono $count godz. temu',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckUnreadable(int count) {
-    return 'Wiadomości, których nie można odczytać: $count';
+  String msgCheckedDaysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sprawdzono $count dnia temu',
+      many: 'Sprawdzono $count dni temu',
+      few: 'Sprawdzono $count dni temu',
+      one: 'Sprawdzono $count dzień temu',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckRead(int count) {
-    return 'Wiadomości odczytane: $count';
+  String msgCheckSumRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count przeczytanej',
+      many: '$count przeczytanych',
+      few: '$count przeczytane',
+      one: '$count przeczytana',
+    );
+    return '$_temp0';
   }
 
   @override
-  String msgCheckPairingFailed(int count) {
-    return 'Nieudane parowania: $count';
+  String msgCheckSumWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count czeka',
+      many: '$count czeka',
+      few: '$count czekają',
+      one: '$count czeka',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get msgCheckMore =>
+  String get msgCheckSumMore => 'kolejne czekają';
+
+  @override
+  String msgCheckSumProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count do sprawdzenia',
+      many: '$count do sprawdzenia',
+      few: '$count do sprawdzenia',
+      one: '$count do sprawdzenia',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckShowDetails => 'Pokaż szczegóły';
+
+  @override
+  String get msgCheckHideDetails => 'Ukryj szczegóły';
+
+  @override
+  String get msgCheckGroupRead => 'Przeczytane';
+
+  @override
+  String get msgCheckGroupWaiting => 'Oczekujące';
+
+  @override
+  String get msgCheckGroupProblems => 'Do sprawdzenia';
+
+  @override
+  String msgCheckItemRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wiadomości przeczytanej',
+      many: '$count wiadomości przeczytanych',
+      few: '$count wiadomości przeczytane',
+      one: '$count wiadomość przeczytana',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemHeld(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wiadomości czeka na następne sprawdzenie',
+      many: '$count wiadomości czeka na następne sprawdzenie',
+      few: '$count wiadomości czekają na następne sprawdzenie',
+      one: '$count wiadomość czeka na następne sprawdzenie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckItemMore =>
       'Kolejne wiadomości czekają na następne sprawdzenie';
+
+  @override
+  String msgCheckItemRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wiadomości odrzuconej',
+      many: '$count wiadomości odrzuconych',
+      few: '$count wiadomości odrzucone',
+      one: '$count wiadomość odrzucona',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyRefused =>
+      'Nie dla tego portfela, za duża lub uszkodzona.';
+
+  @override
+  String msgCheckItemPairingFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parowania nie zostało ukończone',
+      many: '$count parowań nie zostało ukończonych',
+      few: '$count parowania nie zostały ukończone',
+      one: '$count parowanie nie zostało ukończone',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgCheckItemUnreadable(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wiadomości nie udało się odczytać',
+      many: '$count wiadomości nie udało się odczytać',
+      few: '$count wiadomości nie udało się odczytać',
+      one: '$count wiadomości nie udało się odczytać',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get msgCheckWhyUnreadable => 'Zachowana na tym urządzeniu.';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -15464,19 +15610,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get noticeView => 'Pokaż';
 
   @override
-  String noticeDigest(int count, String parts) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count aktualizacji: $parts',
-      many: '$count aktualizacji: $parts',
-      few: '$count aktualizacje: $parts',
-      one: '$count aktualizacja: $parts',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String noticeDigestInvoices(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -15542,7 +15675,17 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get noticeDigestSeparator => ', ';
+  String noticeDigestNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nowej aktualizacji',
+      many: '$count nowych aktualizacji',
+      few: '$count nowe aktualizacje',
+      one: '$count nowa aktualizacja',
+    );
+    return '$_temp0';
+  }
 
   @override
   String pairSaveContactTitle(String name) {
