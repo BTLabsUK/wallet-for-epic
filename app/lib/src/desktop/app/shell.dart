@@ -679,6 +679,7 @@ final deskLockingProvider = NotifierProvider<DeskLocking, bool>(DeskLocking.new)
 /// Lock: back to the unlock screen, the wallet closed. [then] is Unlock's argument (an
 /// `UnlockPick` to have another wallet selected).
 Future<void> lockWallet(WidgetRef ref, {Object? then}) async {
+  if (deskNoLock) return;
   if (ref.read(deskLockingProvider)) return;
   ref.read(deskLockingProvider.notifier).set(true);
   // A payment under way is never ended by the lock: the lock waits for it.
@@ -805,9 +806,12 @@ class _PhoneTopBar extends ConsumerWidget {
               onPressed: () => ref.read(deskNavProvider.notifier).go(deskSettingsHome(ref)),
             ),
           ),
-          locking
-              ? SizedBox.square(dimension: Ctl.sm, child: Center(child: ESpinner(size: Ctl.iconSm)))
-              : EIconButton(icon: EIcons.lock, label: context.l10n.deskShellLockWallet(deskKeys('L')), onPressed: () => lockWallet(ref)),
+          if (deskNoLock)
+            const SizedBox.shrink()
+          else if (locking)
+            SizedBox.square(dimension: Ctl.sm, child: Center(child: ESpinner(size: Ctl.iconSm)))
+          else
+            EIconButton(icon: EIcons.lock, label: context.l10n.deskShellLockWallet(deskKeys('L')), onPressed: () => lockWallet(ref)),
         ],
       ),
     );

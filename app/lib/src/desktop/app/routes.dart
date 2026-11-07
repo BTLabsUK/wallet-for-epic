@@ -3,6 +3,7 @@
 /// (first run, unlock), the rest sit in the app shell with the sidebar.
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/desk_levels.dart' show DeskLevelFeatures;
@@ -131,8 +132,13 @@ bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
 /// The tabs of Invoices: Pay (invoices to pay) and Issue (invoices this wallet issued).
 enum InvoicesTab { pay, issue }
 
-/// Start place: `--dart-define=WFE_DESK_START=<route name>`, unlock by default.
-const String _start = String.fromEnvironment('WFE_DESK_START', defaultValue: 'unlock');
+/// The browser preview of the canned desktop (tool/build_desktop_web.sh): no lock screen, so
+/// nothing asks for a password. A const of the preview build's defines: false in every real build.
+const bool deskNoLock = kIsWeb && bool.fromEnvironment('WFE_DESK_MOCK');
+
+/// Start place: `--dart-define=WFE_DESK_START=<route name>`, unlock by default (Overview in the
+/// no-lock preview).
+const String _start = String.fromEnvironment('WFE_DESK_START', defaultValue: deskNoLock ? 'overview' : 'unlock');
 
 /// True when WFE_DESK_START names the start place; otherwise the app picks it (Welcome without
 /// a wallet, Unlock with one) by overriding [deskStartProvider].
@@ -189,6 +195,11 @@ class DeskNav extends Notifier<DeskLocation> {
 
   /// Replaces the place without history (after unlock, lock, finishing a flow).
   void reset(DeskRoute route, [Object? arg]) {
+    // The no-lock preview has nothing to unlock: every way back to Unlock stays on Overview.
+    if (deskNoLock && route == DeskRoute.unlock) {
+      route = DeskRoute.overview;
+      arg = null;
+    }
     _history.clear();
     _forward.clear();
     _to(DeskLocation(route, arg));

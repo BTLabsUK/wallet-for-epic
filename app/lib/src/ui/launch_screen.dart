@@ -7,6 +7,8 @@ import '../l10n.dart';
 import '../levels/first_start.dart';
 import '../providers.dart';
 import '../vault.dart';
+import '../wallet_service.dart' show WalletConfig;
+import 'home_screen.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'first_run_screen.dart';
@@ -15,6 +17,11 @@ import 'pin_unlock_screen.dart';
 import 'restore_screen.dart';
 import 'theme/brand.dart';
 import 'work_status.dart';
+
+/// The web preview (tool/build_preview.sh) has no lock: a const of its define, false in every
+/// real build, so `_previewHome` and its PIN are removed from them.
+const bool _previewNoLock = bool.fromEnvironment('WFE_WEB_FAKE');
+const String _previewPin = '000000';
 
 /// Where the first-start picker sends a fresh install: the PIN of a new wallet, or the phrase.
 enum FirstRunStart { create, restore }
@@ -64,6 +71,9 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
     final config = choice.config(dataDir);
     ref.read(walletConfigProvider.notifier).select(config);
 
+    // The web preview has no lock: it makes its fake wallet and opens it (web/preview.dart).
+    if (_previewNoLock) return _previewHome(config);
+
     return switch (await ref.read(vaultProvider).prepare(config)) {
       VaultStage.ready => const PinUnlockScreen(),
       VaultStage.empty => switch (widget.start) {
@@ -75,6 +85,18 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
       },
       VaultStage.stranded => const PinUnlockScreen(stranded: true),
     };
+  }
+
+  /// The preview's wallet, made on the first visit and opened again after any lock, with no PIN
+  /// asked. Only the preview build (`WFE_WEB_FAKE`) gets here; the fake wallet takes any PIN.
+  Future<Widget> _previewHome(WalletConfig config) async {
+    final vault = ref.read(vaultProvider);
+    final session = await vault.prepare(config) == VaultStage.ready
+        ? await vault.unlock(config, _previewPin)
+        : (await vault.create(config, pin: _previewPin)).session;
+    await ref.read(sessionProvider.notifier).open(session);
+    ref.read(shellTabProvider.notifier).go(ShellTab.wallet);
+    return const HomeScreen();
   }
 
   @override
