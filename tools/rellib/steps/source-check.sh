@@ -7,7 +7,8 @@
 # fails, removed when it passes) first runs `tools/check.sh --full --cached` (tools/t's result
 # cache, which lives in ~/.cache/wfe-test-results, keyed by content, so it holds across attempts and
 # checkouts): a failure there ends the step at once; a pass is no evidence, so the normal uncached
-# `tools/check.sh --full` runs after it. A first attempt runs only the latter.
+# `tools/check.sh --full` runs after it. A first attempt runs only the latter, and so does a rerun
+# in a checkout whose check.sh predates --cached (a candidate cut before it).
 # Usage: source-check.sh <step out dir>   (from the release checkout)
 set -euo pipefail
 export XDG_DATA_HOME="${1:?step out dir}/xdg-data"
@@ -17,7 +18,9 @@ dbus-run-session -- bash -c '
   eval "$(printf rel | gnome-keyring-daemon --unlock --components=secrets)"
   export GNOME_KEYRING_CONTROL
   marker="$1"
-  if [[ -f $marker ]]; then
+  if [[ -f $marker ]] && ! grep -q -- "--cached" tools/check.sh; then
+    echo "G2 rerun: this checkout'"'"'s check.sh has no --cached (older candidate); uncached full check"
+  elif [[ -f $marker ]]; then
     echo "G2 rerun: cached full check first, then the uncached evidence run"
     tools/check.sh --full --cached || { echo "G2 rerun: the cached check failed; step fails"; exit 1; }
   else
