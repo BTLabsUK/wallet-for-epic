@@ -405,10 +405,9 @@ class TxLane(Lane):
         why = self.w["a"].pair.accept_request()
         if self.results.get("pair_proven_ok") is False:
             return  # pair-remove's finding stands
-        if why:
-            self.fail("pair_proven_ok", why)
-            return
         self._both_verified("pair_proven_ok", "a request to a proven contact, no words", words=False)
+        if why and self.results.get("pair_proven_ok"):  # the proof names the finding; the phases after it still run
+            self.fail("pair_proven_ok", "Verified on both contact pages, but %s" % why)
 
     def _pair_invoice(self):
         """A asks B for INVOICE EPIC; B approves and pays; checked in both wallets' data."""

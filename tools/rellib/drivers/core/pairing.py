@@ -44,6 +44,7 @@ WAITING_TITLE = T("pair.waiting.title", role="text", keys=("pairPairingWith",), 
 WAITING_CLOSE = T("pair.waiting.close", keys=("commonClose",), names=("Close",), match="exact")
 # the words: "Check the words with Lane B", The four words, They match
 CHECK_TITLE = T("pair.check.title", role="text", keys=("sasDialogTitle",), match="exact")
+CHECK_CLOSE = T("pair.check.close", keys=("deskKitCloseEsc",), names=("Close (Esc)",), match="exact")
 CHECK_WORDS = T("pair.check.words", role="other", keys=("sasWordsLabel",), names=("The four words",), match="starts")
 CHECK_MATCH = T("pair.check.match", keys=("sasMatch",), names=("They match",), match="exact")
 CHECK_ALLOW = T("pair.check.allow", role="toggle", keys=("contactAllowInvoices",), names=("Allow invoices",), match="exact")
@@ -321,8 +322,9 @@ class Pairing:
             d.wait(shows(WAITING_TITLE), 10)
             d.wait(either(shows(CHECK_TITLE), gone(WAITING_TITLE)), 240)
             d.shot("pair-request-answered")
-            if d.seen(CHECK_TITLE):
-                return "the request to a proven contact asked for the four words"
+            if d.seen(CHECK_TITLE):  # 26.11.4: the wait reads the record before it reloads, Verified or not
+                d.press(CHECK_CLOSE, step="pair-check-close", then=gone(CHECK_TITLE), timeout=20)
+                return "the words check opened on A after the request"
             if d.seen(WAITING_TITLE):
                 d.press(WAITING_CLOSE, step="pair-waiting-close", then=gone(WAITING_TITLE), timeout=20)
                 return "the other wallet's confirm did not reach A"
