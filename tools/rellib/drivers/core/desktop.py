@@ -556,9 +556,10 @@ class Desktop:
 
     def _section_selector(self, tree):
         """A narrow window folds the section list into one selector: a button named like the open section,
-        holding it as its value."""
-        return [n for n in tree if n.role == "button" and n.value and tg._norm(n.name.split("\n")[0]) == tg._norm(n.value)
-                and tg._norm(n.value) in self.section_names()]
+        holding it as its value. Several names so held are the open list: a published build's rows read so."""
+        sel = [n for n in tree if n.role == "button" and n.value and tg._norm(n.name.split("\n")[0]) == tg._norm(n.value)
+               and tg._norm(n.value) in self.section_names()]
+        return sel if len({tg._norm(n.value) for n in sel}) == 1 else []
 
     def _open_section_list(self):
         """Pressing the selector lists the sections again."""

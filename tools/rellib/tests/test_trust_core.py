@@ -297,6 +297,17 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(hit.exception.step, "find-g4.level.stop.3")
         self.assertEqual(hit.exception.route["pages"], ["advanced"])
 
+    def test_a_list_of_rows_holding_their_names_is_no_folded_selector(self):
+        """26.11.2 on Linux: every row of the open list holds its name as its value; the press must go."""
+        row = lambda i, name: n(i, "button", name, value=name)
+        f = Fake({"wallet": [row(0, "Wallet"), row(1, "Advanced"), n(2, "text_field", "Search settings")],
+                  "adv": [row(0, "Wallet"), row(1, "Advanced"), n(2, "text_field", "Search settings"), n(3, "checkbox", "Deep end")]},
+                 "wallet", {("wallet", "Advanced"): "adv"})
+        desk = Desktop(self.driver(f, {"lvPickStopThree": "Deep end"}), "previous", self.logs.append)
+        self.assertEqual(desk._section_selector(f.tree()), [])
+        self.assertTrue(desk.section("advanced"))
+        self.assertEqual(f.pressed, ["Advanced"])
+
     def test_deep_end_is_nothing_on_a_build_without_levels(self):
         f = Fake({"adv": [n(0, "button", "Advanced", value="Advanced")]}, "adv", {})
         Desktop(self.driver(f, {}), "previous", self.logs.append)._view_deep_end()
