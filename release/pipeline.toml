@@ -4,12 +4,73 @@
 # role is on this machine (release/hosts.example.toml). The scripts named in `run` do the work;
 # tools/rel decides order, host, gates, logs and state.
 #
+# The flow, in order. Common steps run in both stages; night steps only in `tools/rel start --night`;
+# release and publish steps only in a release run. blocks: a failure holds what comes after, and the
+# cut. informs: a failure is shown and holds nothing (warn_only).
+# flow:begin (tools/rel flow --write; a test fails when it differs from the steps below)
+# common   blocks   scope                    needs -
+# common   blocks   preflight                needs scope
+# common   blocks   source                   needs preflight
+# common   blocks   source-check             needs source
+# night    blocks   testbuild-android        needs source, source-check
+# night    blocks   testbuild-linux          needs source, source-check
+# night    blocks   testbuild-windows        needs source, source-check
+# night    blocks   flow-android             needs testbuild-android@variant
+# night    blocks   flow-linux               needs testbuild-linux@variant
+# night    blocks   flow-windows             needs testbuild-windows@variant
+# night    informs  create-android           needs flow-android@variant
+# night    informs  create-linux             needs flow-linux@variant
+# night    informs  lane-payments-linux      needs testbuild-linux@variant
+# night    informs  lane-pairing-linux       needs testbuild-linux@variant
+# night    informs  lane-linking-linux       needs testbuild-linux@variant
+# night    informs  create-windows           needs flow-windows@variant
+# release  blocks   hosted-dispatch          needs source, source-check
+# release  blocks   build-android            needs source, source-check, hosted-dispatch; outputs bt-wallet-{version}{notor}-android-arm64-v8a.apk
+# release  blocks   build-play               needs build-android
+# release  blocks   build-linux              needs source, source-check, hosted-dispatch; outputs bt-wallet-{version}{notor}-linux-x86_64.AppImage
+# release  blocks   build-windows            needs source, source-check, hosted-dispatch; outputs bt-wallet-{version}{notor}-windows-x64-setup.exe
+# release  blocks   apple-mac                needs source, source-check
+# release  blocks   apple-mac-check          needs apple-mac@variant; outputs bt-wallet-{version}{notor}-macos.dmg
+# release  blocks   ios-testflight           needs source, source-check
+# release  blocks   apple-adhoc              needs source, source-check
+# release  blocks   apple-adhoc-mac          needs apple-adhoc@variant; outputs bt-wallet-{version}{notor}-macos.dmg
+# release  blocks   apple-adhoc-ios          needs apple-adhoc@variant; outputs bt-wallet-{version}{notor}-ios-unsigned.ipa
+# release  blocks   sign-android             needs build-android, build-play, build-linux, build-windows, apple-mac-check, ios-testflight, apple-adhoc-mac, apple-adhoc-ios
+# release  informs  screens                  needs source, source-check, build-android, build-play, build-linux
+# release  blocks   artefacts                needs build-android, sign-android, build-linux, build-windows, apple-mac-check, ios-testflight, apple-adhoc-mac, apple-adhoc-ios
+# release  blocks   manifests                needs artefacts
+# release  blocks   trust-manifest           needs manifests
+# release  blocks   trust-android            needs build-android, build-play, sign-android, build-linux
+# release  blocks   trust-linux              needs build-android, build-play, build-linux
+# release  blocks   trust-windows            needs build-android, build-play, build-linux, build-windows@variant
+# release  blocks   trust-macos              needs build-android, build-play, sign-android, build-linux, apple-mac-check@variant, apple-adhoc-mac@variant
+# release  blocks   trust-ios                needs build-android, build-play, sign-android, build-linux, ios-testflight, apple-adhoc-ios@variant
+# release  blocks   update-trust             needs artefacts, trust-manifest, trust-android, trust-linux, trust-windows, trust-macos, trust-ios
+# release  blocks   screens-check            needs screens, update-trust
+# release  blocks   publish-gate             needs update-trust, screens-check
+# publish  blocks   tag                      needs publish-gate
+# publish  blocks   publish-downloads        needs tag
+# publish  blocks   publish-page             needs publish-downloads
+# publish  blocks   publish-source           needs publish-page
+# publish  blocks   publish-github-release   needs publish-source
+# publish  blocks   publish-manifests        needs publish-downloads, publish-page, publish-source, publish-github-release
+# publish  blocks   verify-live              needs publish-manifests, publish-downloads, publish-page
+# publish  blocks   prune-downloads          needs verify-live
+# publish  blocks   store-play               needs verify-live, build-play@variant
+# publish  blocks   store-play-promote       needs store-play
+# publish  informs  screens-publish          needs verify-live
+# publish  informs  announce                 needs verify-live
+# publish  informs  key-copies               needs verify-live
+# publish  blocks   cleanup                  needs verify-live, prune-downloads, store-play, store-play-promote, screens-publish, announce, key-copies
+# flow:end
+#
 # Step fields:
 #   title      what the live message and the report call it ({variant} is filled in)
 #   kind       command (default) | builtin | gate | handoff | publish
 #   platform   android | linux | windows | macos | ios, or a list: the step is in the graph only
 #              when one of them is in the release's scope (release.toml [platforms])
-#   when       scope switches that must all be on, e.g. ["stores.play"] or ["publish.manifests"]
+#   when       scope switches that must all be on, e.g. ["stores.play"] or ["publish.manifests"];
+#              the string "night" puts the step in the night stage (`tools/rel start --night`) only
 #   unless     scope switches that must all be off, e.g. ["apple.signed"]
 #   for_each   "variant" (one step per variant in scope: -tor, -notor) or "proof_variant"
 #              (the variants [proof] tests; a step's own `variants` replaces that list)
@@ -30,8 +91,10 @@
 #   skippable  true: release.toml [skip] may skip it with a reason (builds and gates never)
 #   publish    true: a command step of the publish phase (after the gate); kind publish implies it
 #   warn_only  true: a failure is shown as a warning (relmsg: failed, no alert; report: warned) and
-#              holds nothing; the run still ends ok. For after-publish steps, and for the pre-gate
-#              screens render, whose result screens-check judges (never a gate, proof or build)
+#              holds nothing; the run still ends ok. A lane with it Informs, one without it Blocks
+#              (`tools/rel lanes`, `tools/rel lane <base> blocks|informs`). For night lanes, after-publish
+#              steps and the pre-gate screens render, whose result screens-check judges (never a
+#              gate, proof or build). A run's plan.json freezes it: a change applies to the next run
 #   timeout    e.g. "90m", a hard limit (then killed; never retried by itself); a build-phase command
 #              without one gets [defaults] timeout. retries: re-runs on any failure before it
 #              counts as failed (infrastructure failures retry by themselves: [concurrency])
@@ -86,6 +149,11 @@ title = "Epic Wallet"
 watch_every = 60
 watch_hours = 72
 
+# The night stage (`tools/rel start --night`): its run folders, and lanes/<sha>.json beside them, one
+# per commit, which `tools/rel cut` and the gate note read. Its events go to the release's tests.db.
+[night]
+state_root = "/tmp/epic-build/nightly/rel"
+
 # How a run shares this machine (tools/rellib/window.py; docs/RELEASING.md, "Sharing the
 # machine"). 26.10.25 run-8 lost every Android and Windows trust lane ("no proof.json (driver
 # exit -15)" at about 1,190 s) with 7-9 steps side by side at load 36 and 17-22 GB in use.
@@ -98,9 +166,9 @@ watch_hours = 72
 # window_marker: the release window file build-slot reads (default
 # $XDG_RUNTIME_DIR/wfe-release-window, i.e. /run/user/<uid>/wfe-release-window).
 #
-# max_heavy = 2 (2026-11-05): the Android chain (test build, flow, create, then its package lane) in
-# one slot, the Linux chain (test build, flow, create, payments, package lane) in the other; the
-# Windows lanes run on the rigs (remote) and start beside both at once. Sized from metrics.jsonl on
+# max_heavy = 2 (2026-11-05): the Android chain (test build, flow, create) in one slot, the Linux
+# chain (test build, flow, create, the two-wallet lanes) in the other; the Windows lanes run on the
+# rigs (remote) and start beside both at once. Sized from metrics.jsonl on
 # 16 CPUs and 30 GB: 26.11.2 run-3 (trust-android-tor 1,759 s, create-android-tor 187 s,
 # trust-linux-tor 669 s, create-linux-tor 66 s) at --max-heavy 4 peaked at load 13.3 and 21 GB;
 # 26.10.26 run-4 with two Android lanes at once reached load 52.9 and 23.4 GB; 26.10.25 run-8 (6
@@ -170,10 +238,10 @@ beside_pairs = [["uk.btlabs.epiccash.mobile", "uk.btlabs.btwallet"]]
 beside_not_applicable = ["history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept",
                          "store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept"]
 funds_variant = "tor"
-# Which lanes run the send and receive legs: "flow" (the flow lanes on the test build, before any
-# release build; 2026-11-05) or "proof" (the G4 lanes on the release files).
+# Which lanes run the send and receive legs: "flow" (the night's flow lanes on the test build;
+# 2026-11-05) or "proof" (the G4 lanes on the release files).
 funds_in = "flow"
-# The builds tested on rigs and devices (trust-*, create-*), the owner 2026-11-05: Tor only. The notor
+# The builds tested on rigs and devices (trust-*, flow-*, create-*), the owner 2026-11-05: Tor only. The notor
 # builds are still built, verified (checksums, attestation, platform verify) and shipped. iOS has only
 # a notor build: trust-ios names it itself.
 variants = ["tor"]
@@ -223,7 +291,7 @@ android = "90m"
 linux = "90m"
 windows = "105m"
 
-# ---- G0, G1, source -------------------------------------------------------------------------
+# ---- common to night and release: G0, G1, source, G2 ------------------------------------------
 
 [step.scope]
 title = "G0 scope"
@@ -252,36 +320,34 @@ timeout = "120m"
 # Skippable only with the owner's reason (`--skip source-check="…"`); the report and the gate message
 # then say SKIPPED with it.
 skippable = true
-# Reused (not run) when an earlier run or the nightly passed it on the same content of these:
-# the app, the bot, the pins and tools/check.sh with what it runs (tools/rellib/reuse.py), the
-# release tools' own tests and what they test included (not release/release.toml: the scope,
-# edited for every release, would never let G2 be reused).
+# Reused (not run) when an earlier run or the nightly passed it on the same content of these: the
+# app, the bot, the pins and tools/check.sh with what it runs (tools/rellib/reuse.py). The release
+# tools are not in it: a change to them alone does not rerun G2, their tests run when they change. A
+# candidate that differs from a green commit only by its version (tools/version.sh set) counts as
+# that commit (not release/release.toml either: the scope is edited for every release).
 reuse = ["app", "bot", "scripts/linux/flutter.version", "tools/check.sh", "tools/env.sh", "tools/version.sh",
          "tools/lepic.sh", "tools/lepic.rev", "tools/lepic-flutter.rev", "tools/check-install-contract.sh",
          "tools/install_contract.py", "tools/install-contract.json", "docs/install-contract.md",
-         "tools/check-no-hosts.sh", "tools/no_hosts.py", "tools/no-hosts.allow",
-         "tools/rel", "tools/rellib", "release/pipeline.toml", "release/failures.toml", "release/hosts.example.toml",
-         "tools/nightly", "tools/sbom.py", "tools/test_sbom.py",
-         "tools/t", "tools/tlib", "tools/flutter_test_order.py", "tools/test_flutter_test_order.py", "tools/publish-github.sh",
-         "tools/publish", "tools/screens-feedback", "tools/release-files.py", "tools/signer"]
+         "tools/check-no-hosts.sh", "tools/no_hosts.py", "tools/no-hosts.allow"]
 reuse_nightly = true
 # Any green `tools/check.sh --full` (full and full-notor) on a clean tree with this content (the
 # nightly's, a person's on the candidate). Without one G2 runs in the run, and nothing builds or
 # dispatches before it passed.
 reuse_green = true
 
-# ---- flow lanes, on a test build, before any release build ----------------------------------
-# Cheapest first (2026-11-05): G2, then the drivers' flows on a quick local test build of the
-# candidate, and only then the hosted or local release builds. The flow lanes are the update lane's
-# checks with the send and receive legs (REL_TRUST_MODE=flow: previous and candidate are the same
-# test build, the update a reinstall of it), a new user's wallet (create-*), and the Linux payments
-# and pairing lane (trust-tx-linux). A flow failure stops the run before one hosted dispatch or
-# release build is spent. Tor builds only, as [proof] variants. The test builds are never shipped:
-# they stay in their steps' folders. One chain per platform, in its trust lane: Android in one
-# [concurrency] slot, Linux in the other, Windows on its rig beside both.
+# ---- night: the lanes on a test build, every night ---------------------------------------------
+# `tools/rel start --night` runs these (when = "night") after G2, on a quick local test build of the
+# main tip, keep going. A release cut starts from a commit whose night was green (`tools/rel cut`), so
+# a release run has none of them. The night lanes are the update lane's checks with the send and
+# receive legs (REL_TRUST_MODE=flow: previous and candidate are the same test build, the update a
+# reinstall of it), a new user's wallet (create-*), and the Linux lanes between two wallets
+# (lane-*-linux). Tor builds only, as [proof] variants. The test builds are never shipped: they stay
+# in their steps' folders. One chain per platform, in its trust lane: Android in one [concurrency]
+# slot, Linux in the other, Windows on its rig beside both.
 
 [step.testbuild-android]
 title = "Android test build ({variant})"
+when = "night"
 platform = "android"
 for_each = "proof_variant"
 host = "build"
@@ -295,6 +361,7 @@ timeout = "60m"
 
 [step.testbuild-linux]
 title = "Linux test build ({variant})"
+when = "night"
 platform = "linux"
 for_each = "proof_variant"
 host = "build"
@@ -307,6 +374,7 @@ timeout = "60m"
 
 [step.testbuild-windows]
 title = "Windows test build ({variant})"
+when = "night"
 platform = "windows"
 for_each = "proof_variant"
 host = "windows"
@@ -322,6 +390,7 @@ timeout = "90m"
 # like a proof step; never counts as release proof and saves no trust state.
 [step.flow-android]
 title = "Flows on the test build, Android ({variant})"
+when = "night"
 platform = "android"
 for_each = "proof_variant"
 host = "build"
@@ -334,6 +403,7 @@ env = { REL_TRUST_MODE = "flow", REL_PREVIOUS_DIR = "{run}/steps/testbuild-andro
 
 [step.flow-linux]
 title = "Flows on the test build, Linux ({variant})"
+when = "night"
 platform = "linux"
 for_each = "proof_variant"
 host = "build"
@@ -346,6 +416,7 @@ env = { REL_TRUST_MODE = "flow", REL_PREVIOUS_DIR = "{run}/steps/testbuild-linux
 
 [step.flow-windows]
 title = "Flows on the test build, Windows ({variant})"
+when = "night"
 platform = "windows"
 for_each = "proof_variant"
 host = "build"
@@ -359,9 +430,10 @@ env = { REL_TRUST_MODE = "flow", REL_PREVIOUS_DIR = "{run}/steps/testbuild-windo
 # A new user's first start (REL_TRUST_MODE=create, drivers/core/lane.py): the test build installed
 # with no app data, a wallet created through its screens and its home reached (check create_ok). No
 # funds; the phrase is checked and dropped. On the lane's own emulator, sandbox or rig, after that
-# platform's flow lane. A warning only: not a proof step; flow-lanes waits for it.
+# platform's flow lane. A warning only: not a proof step.
 [step.create-android]
 title = "New wallet on the candidate, Android ({variant})"
+when = "night"
 platform = "android"
 for_each = "proof_variant"
 variants = ["tor"]
@@ -376,6 +448,7 @@ env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok"
 
 [step.create-linux]
 title = "New wallet on the candidate, Linux ({variant})"
+when = "night"
 platform = "linux"
 for_each = "proof_variant"
 variants = ["tor"]
@@ -388,25 +461,60 @@ run = "{rel}/tools/rellib/drivers/trust-linux.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_EXTRA = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
-[step.trust-tx-linux]
+# The Linux lanes between two wallets: two wallets on the test build pay each other 0.01 by Epicbox,
+# Link · HTTP, Link · Tor and File (payments), pair (pairing) and link (linking). P funds A (at most
+# 0.1 EPIC a run) and every coin goes back to P in the same run (linux/tx_lane.py). REL_TX_PART picks
+# the part; each starts alone from saved state, so a failure in one holds nothing of the others. No
+# timing from a release run yet: each limit stays 150 min.
+[step.lane-payments-linux]
 title = "Payments between two wallets, Linux ({variant})"
+when = "night"
 platform = "linux"
 for_each = "proof_variant"
 variants = ["tor"]
 host = "build"
 lane = "trust-linux-{variant}"
-needs = ["create-linux@variant"]
+needs = ["testbuild-linux@variant"]
 warn_only = true
 capped = true
-# Two wallets on the test build pay each other 0.01 by Epicbox, Link · HTTP, Link · Tor and File, pair
-# and link; P funds A (at most 0.1 EPIC a run) and every coin goes back to P in the same run
-# (linux/tx_lane.py). No timing from a release run yet: its limit stays 150 min.
 run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
 timeout = "150m"
-env = { REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+env = { REL_TX_PART = "payments", REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+[step.lane-pairing-linux]
+title = "Pairing between two wallets, Linux ({variant})"
+when = "night"
+platform = "linux"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-linux-{variant}"
+needs = ["testbuild-linux@variant"]
+warn_only = true
+capped = true
+run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
+timeout = "150m"
+env = { REL_TX_PART = "pairing", REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+[step.lane-linking-linux]
+title = "Linking two devices, Linux ({variant})"
+when = "night"
+platform = "linux"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-linux-{variant}"
+needs = ["testbuild-linux@variant"]
+warn_only = true
+capped = true
+run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
+timeout = "150m"
+env = { REL_TX_PART = "linking", REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
 
 [step.create-windows]
 title = "New wallet on the candidate, Windows ({variant})"
+when = "night"
 platform = "windows"
 for_each = "proof_variant"
 variants = ["tor"]
@@ -419,24 +527,15 @@ run = "{rel}/tools/rellib/drivers/trust-windows.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_EXTRA = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
-# Every flow lane, new-wallet lane and the payments lane passed or warned: the hosted builds and the
-# release builds may start.
-[step.flow-lanes]
-title = "Flow lanes passed"
-kind = "builtin"
-host = "local"
-needs = ["source-check", "testbuild-android", "testbuild-linux", "testbuild-windows", "flow-android",
-         "flow-linux", "flow-windows", "create-android", "create-linux", "create-windows", "trust-tx-linux"]
-
 [step.hosted-dispatch]
 title = "Hosted builds dispatch"
 kind = "builtin"
 host = "local"
 when = ["builds.hosted"]
-# Never before G2 and the flow lanes passed (26.11.2 run-2 spent two dispatches on a red G2).
-needs = ["source", "source-check", "flow-lanes"]
+# Never before G2 passed (26.11.2 run-2 spent two dispatches on a red G2).
+needs = ["source", "source-check"]
 
-# ---- builds ----------------------------------------------------------------------------------
+# ---- release: the builds -----------------------------------------------------------------------
 
 [step.build-android]
 title = "Android APK ({variant})"
@@ -445,7 +544,7 @@ for_each = "variant"
 # Without a signer Android is signed inside the Gradle build, so it runs where the release key
 # is; with one it builds unsigned (tool/build_android_release.sh) and sign-android signs it.
 host = "signer"
-needs = ["source", "source-check", "flow-lanes", "hosted-dispatch"]
+needs = ["source", "source-check", "hosted-dispatch"]
 hosted = "android"
 run = "app/tool/build_android_release.sh {stage}"
 env = { WFE_TOR = "{tor}", WFE_EMULATOR_X86_64 = "1", WFE_BUILD_ID = "{build_id}" }
@@ -500,7 +599,7 @@ host = "build"
 # its own copy of the code. Each build still takes a build-slot slot (heavy = true); the two
 # Linux variants one after the other. metrics.jsonl has the pair's peak memory ("overlap" lines).
 lane = "build-linux"
-needs = ["source", "source-check", "flow-lanes", "hosted-dispatch"]
+needs = ["source", "source-check", "hosted-dispatch"]
 hosted = "linux"
 run = "scripts/build-linux.sh && mv -f build-linux/bt-wallet-{version}{notor}-linux-x86_64.AppImage {stage}/"
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}", WFE_BUILD_ID = "{build_id}" }
@@ -519,7 +618,7 @@ host = "windows"
 # The variants build side by side, each in its own work dir (the owner 2026-10-31: the Windows
 # machine takes 4-6 jobs).
 lane = "build-windows-{variant}"
-needs = ["source", "source-check", "flow-lanes", "hosted-dispatch"]
+needs = ["source", "source-check", "hosted-dispatch"]
 hosted = "windows"
 # A fresh work dir per run, commit and variant on the Windows machine (never a stale LEPIC blob or
 # build tree from an older run: run ids come back after a cleanup, and 26.10.26-run3 once built on
@@ -547,7 +646,7 @@ platform = "macos"
 when = ["apple.signed"]
 for_each = "variant"
 host = "apple"
-needs = ["source", "source-check", "flow-lanes"]
+needs = ["source", "source-check"]
 run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/{variant}/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-macos.dmg.sha256", "bt-wallet-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
@@ -571,7 +670,7 @@ kind = "handoff"
 platform = "ios"
 when = ["apple.signed"]
 host = "apple"
-needs = ["source", "source-check", "flow-lanes"]
+needs = ["source", "source-check"]
 run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare  # then Xcode Archive → Distribute → App Store Connect; results/REPORT.txt: build number + uploaded"
 results = ["REPORT.txt"]
 timeout = "48h"
@@ -620,7 +719,7 @@ needs = ["apple-adhoc@variant"]
 run = "{rel}/tools/rellib/steps/apple-adhoc-check.sh {run}/handoff/apple-adhoc-{variant}/results bt-wallet-{version}{notor}-ios-unsigned.ipa {commit} {version} {stage}"
 outputs = ["bt-wallet-{version}{notor}-ios-unsigned.ipa"]
 
-# ---- screens, beside the builds (docs/RELEASING.md, "Screens") --------------------------------
+# ---- release: screens, beside the builds (docs/RELEASING.md, "Screens") -----------------------
 
 # The screen catalogue (tools/screens.sh --candidate) of this release's own source, from when G2
 # passed, in its own lane beside the builds and G4: each tour's flutter test takes a build-slot
@@ -642,7 +741,7 @@ needs = ["source", "source-check", "build-android", "build-play", "build-linux"]
 run = "{rel}/tools/rellib/steps/screens.sh {version} {stage}"
 timeout = "120m"
 
-# ---- G3, manifests, G4, G5 -------------------------------------------------------------------
+# ---- release: G3, manifests, G4 ----------------------------------------------------------------
 
 [step.artefacts]
 title = "G3 artefacts"
@@ -668,11 +767,11 @@ needs = ["manifests"]
 
 # G4 checks only what belongs to the release files: install, the previous release updating to this
 # one and keeping everything, signing as installed. The flows, the send and receive legs among them
-# ([proof] funds_in), passed on the test build before any release build (flow-lanes).
+# ([proof] funds_in), passed on the test build the night before the cut.
 # Every trust step runs tools/rellib/hermetic/up.sh before its driver ([proof.drivers]) and carries on
 # when it exits 1 (the node still syncing): the lanes use this machine's mainnet node and Epicbox relay
 # where they are healthy, and public servers for the one live-funds leg (REL_FUNDS) per platform,
-# which runs in the flow lanes.
+# which runs in the night's flow lanes.
 # Update trust runs per platform from when this machine's builds are done (no driver competes
 # with a build for the CPU), Windows and macOS also after their own build, Android and Linux
 # without waiting for them; at most [concurrency] max_heavy at once (Windows runs on its rigs and
@@ -752,7 +851,7 @@ kind = "builtin"
 host = "local"
 needs = ["artefacts", "trust-manifest", "trust-android", "trust-linux", "trust-windows", "trust-macos", "trust-ios"]
 
-# ---- screen check, before the gate (docs/RELEASING.md, "Screens") ---------------------------
+# ---- release: screen check, G5 (docs/RELEASING.md, "Screens") ----------------------------------
 
 # The pre-gate screen check (tools/rellib/steps/screens_check.py): tour failures, screens gone vs
 # the published release, raw l10n keys, unfilled placeholders, debug text, new hosts / network
@@ -775,10 +874,10 @@ kind = "gate"
 host = "local"
 needs = ["update-trust", "screens-check"]
 
-# ---- publish, in fixed order: tag -> downloads -> page -> source -> manifests last -----------
+# ---- publish, in fixed order: tag -> downloads -> page -> source -> manifests last --------------
 
 # The release tag v<version> (v<version>-rN for a rebuild) on the release commit, which must be on
-# main; local only, pushed by publish-source. TEST runs and the scratch target make none.
+# main or on release/<version> (then merged into main first); local only, pushed by publish-source. TEST runs and the scratch target make none.
 [step.tag]
 title = "Release tag"
 host = "build"

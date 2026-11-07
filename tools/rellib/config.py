@@ -78,6 +78,10 @@ def render(text, ctx, where=""):
 
 # ---- pipeline ----------------------------------------------------------------------------------
 
+def is_night(spec):
+    return spec.get("when") == "night"
+
+
 class Pipeline:
     def __init__(self, data, path="pipeline.toml"):
         self.path = path
@@ -92,6 +96,7 @@ class Pipeline:
         self.sign = data.get("sign", {})
         self.health = data.get("health", {})  # per-lane health (tools/rellib/health.py)
         self.serverlogs = data.get("serverlogs", {})  # server-side lines for a failed lane (tools/rellib/serverlogs.py)
+        self.night = data.get("night", {})  # where `tools/rel start --night` keeps its runs
         if not self.steps:
             raise ConfigError(f"{path}: no [step.*] tables")
         c = self.concurrency
@@ -131,6 +136,13 @@ class Pipeline:
                 if p not in PLATFORMS:
                     raise ConfigError(f"{path}: step {name}: unknown platform {p}")
             parse_duration(s.get("timeout"))
+            when = s.get("when", [])
+            if isinstance(when, str) and when != "night":
+                raise ConfigError(f"{path}: step {name}: when = {when!r}: \"night\" or a list of scope switches")
+            if not is_night(s):
+                for n in s.get("needs", []):
+                    if is_night(self.steps[n.split("@")[0]]):
+                        raise ConfigError(f"{path}: step {name} is in the release but needs night step {n}")
             for v in s.get("variants", []):
                 if v not in VARIANTS:
                     raise ConfigError(f"{path}: step {name}: unknown variant {v}")
@@ -182,6 +194,23 @@ class Pipeline:
 
     def state_root(self, override=None):
         return expand(override or os.environ.get("REL_STATE_ROOT") or self.defaults.get("state_root", "/tmp/epic-build/rel"))
+
+    def night_root(self):
+        """Where night runs live: their own run folders, and lanes/<sha>.json beside them."""
+        return expand(os.environ.get("REL_NIGHT_ROOT") or self.night.get("state_root", "/tmp/epic-build/nightly/rel"))
+
+    def stage_steps(self, stage):
+        """The step names of a stage. release: every step without `when = "night"`. night: the night
+        steps and what they need (scope, preflight, source, G2)."""
+        if stage == "release":
+            return {n for n, s in self.steps.items() if not is_night(s)}
+        names, todo = set(), [n for n, s in self.steps.items() if is_night(s)]
+        while todo:
+            n = todo.pop()
+            if n not in names:
+                names.add(n)
+                todo.extend(d.split("@")[0] for d in self.steps[n].get("needs", []))
+        return names
 
 
 # ---- hosts -------------------------------------------------------------------------------------

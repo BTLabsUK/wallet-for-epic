@@ -63,7 +63,8 @@ def _in_scope(spec, scope):
         pls = [pl] if isinstance(pl, str) else pl
         if not any(scope["platforms"].get(p) for p in pls):
             return False
-    for w in spec.get("when", []):
+    when = spec.get("when", [])
+    for w in [] if isinstance(when, str) else when:  # the string form names the stage: build_graph
         if not _switch(scope, w):
             return False
     for w in spec.get("unless", []):
@@ -105,11 +106,13 @@ def lane_of(spec, host):
     return host
 
 
-def build_graph(pipeline, scope, ctx):
-    """-> ordered list of Step (topological, pipeline order among equals)."""
+def build_graph(pipeline, scope, ctx, stage="release"):
+    """-> ordered list of Step (topological, pipeline order among equals). stage: release, or night
+    (Pipeline.stage_steps says which steps each one has)."""
     instances = {}
+    wanted = pipeline.stage_steps(stage)
     for name, spec in pipeline.steps.items():
-        if not _in_scope(spec, scope):
+        if name not in wanted or not _in_scope(spec, scope):
             continue
         instances[name] = variants_for(spec, scope, pipeline)
     steps = []

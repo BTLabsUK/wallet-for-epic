@@ -297,7 +297,7 @@ class ViewsTest(TdbCase):
             self.assertEqual([r["n"] for r in conn.execute("SELECT n FROM failures_by_cause")], [1])
         finally:
             conn.close()
-        self.assertFalse(client.emit("playbook.propose", key="k1"))  # the AI tables are history: no new events
+        self.assertNotIn("playbook.propose", client.KINDS)  # the AI tables are history: no new events
 
 
 class ImportTest(TdbCase):

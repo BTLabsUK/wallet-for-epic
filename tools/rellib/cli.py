@@ -20,8 +20,8 @@ import subprocess
 import sys
 import tempfile
 
-from . import builtins, failures as known, guards, health, hosted, retention
-from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
+from . import builtins, failures as known, flow, guards, health, hosted, retention
+from .config import (ConfigError, PLATFORMS, Pipeline, is_night, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
 from .graph import build_graph, dependents
@@ -112,6 +112,9 @@ class App:
         self.pipeline = Pipeline.load(args.pipeline or os.path.join(self.repo, "release/pipeline.toml"))
         self.hosts = load_hosts(args.hosts)
         self.state_root = self.pipeline.state_root(args.state_root)
+        self.night = bool(getattr(args, "night", False))
+        if self.night:
+            self.state_root = args.state_root or self.pipeline.night_root()
         self.failures = known.load(os.path.join(self.repo, "release/failures.toml"))
 
     def out(self, code, message, run=None, **extra):
@@ -133,6 +136,8 @@ class App:
             print(text, flush=True)
 
     def engine(self, run, relmsg_on=True, dry=False):
+        if run.info.get("kind") == "night":
+            os.environ.setdefault("REL_TESTDB", os.path.join(self.pipeline.state_root(), "tests.db"))  # one DB
         rm = None
         if not run.info.get("dry") and not dry:
             rm = Relmsg(run, self.pipeline.relmsg, enabled=relmsg_on and not run.info.get("no_relmsg"))
@@ -149,6 +154,11 @@ class App:
                                             text=True, check=True).stdout.strip()
         commit = subprocess.run(["git", "-C", self.repo, "rev-parse", "--verify", f"{commit}^{{commit}}"],
                                 capture_output=True, text=True).stdout.strip() or commit
+        if getattr(a, "night", False):
+            a.test = True
+            a.version = a.version or version_at(self.repo, commit)
+        elif not a.version and a.cmd != "doctor":
+            raise ConfigError("a version, e.g. tools/rel start 26.11.5 (only --night reads it from the commit)")
         scope = load_scope(a.scope, a.version, a.only, a.skip_platform, a.no_variant, a.set, a.skip,
                            a.test, None, a.waive)
         if a.previous:
@@ -268,7 +278,8 @@ class App:
         path, run_id = Run.next_path(self.state_root, scope["version"])
         src = a.src or os.path.join(self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees")),
                                     f"rel-{scope['version']}-{commit[:7]}")
-        steps = build_graph(self.pipeline, scope, context(scope["version"], commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)))
+        steps = build_graph(self.pipeline, scope, context(scope["version"], commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)),
+                            stage="night" if a.night else "release")
         if a.json:
             return self.out(0, "plan", steps=[s.to_dict() for s in steps], scope=scope, warnings=warns,
                             summary=scope_summary(scope))
@@ -308,12 +319,13 @@ class App:
         path, run_id = Run.next_path(self.state_root, version)
         wt = self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees"))
         src = os.path.abspath(a.src) if a.src else os.path.join(wt, f"rel-{version}-{commit[:7]}")
-        steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)))
+        steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)),
+                            stage="night" if a.night else "release")
         g2 = next((s for s in steps if s.base == "source-check"), None)
         if g2 and not a.dry_run and g2.base not in scope["skip"]:
             # Cheapest first: a candidate whose content passed the whole suite (full and full-notor:
             # an earlier run, the nightly, a `tools/check.sh --full` on that commit) reuses it; any
-            # other runs G2 here first. Nothing builds or dispatches before G2 and the flow lanes pass.
+            # other runs G2 here first. Nothing builds or dispatches before G2 passes.
             found, key = self.green_source(commit, version, g2)
             if found:
                 self.echo(f"G2: green full check on this content: {found['label']} ({found['commit'][:12]})")
@@ -324,7 +336,10 @@ class App:
                 if v is not None}
         info = {"version": version, "commit": commit, "scope": scope, "test": scope["test"], "dry": bool(a.dry_run),
                 "target": scope["publish"]["target"], "src": src, "src_made": not a.src, "warnings": warns,
-                "previous": prev, "kind": "release", "no_relmsg": bool(a.no_relmsg), "argv": sys.argv[1:]}
+                "previous": prev, "kind": "night" if a.night else "release",
+                "no_relmsg": bool(a.no_relmsg or a.night), "argv": sys.argv[1:]}
+        if a.night:
+            info["night_steps"] = sorted({s.base for s in steps if is_night(self.pipeline.steps[s.base])})
         if conc:
             info["concurrency"] = conc
         if a.sign_inline:
@@ -457,6 +472,8 @@ class App:
 
     def finish(self, run, eng, code):
         report(run, self.pipeline.health)
+        if run.info.get("kind") == "night" and not run.info.get("dry") and not eng.dry:
+            flow.write_night_record(run)
         rows = run.summary_rows()
         waiting = [r for r in rows if r["status"] in ("waiting", "held", "closed")]
         failed = [r for r in rows if r["status"] == "failed"]
@@ -863,7 +880,39 @@ class App:
         msg = f"{'would remove' if a.dry_run else 'removed'} {len(res['removed']) if not a.dry_run else len(lines)} run(s); kept: {', '.join(res['kept']) or 'nothing'}"
         return self.out(EXIT_OK, msg, kept=res["kept"], removed=res["removed"] if not a.dry_run else lines)
 
+    def cmd_flow(self, a):
+        if a.write:
+            with open(self.pipeline.path, encoding="utf-8") as f:
+                text = f.read()
+            with open(self.pipeline.path, "w", encoding="utf-8") as f:
+                f.write(flow.rewrite_header(text, self.pipeline))
+            return self.out(EXIT_OK, f"{self.pipeline.path}: header rewritten")
+        if a.json:
+            print(json.dumps({"stages": flow.flow_stages(self.pipeline)}))
+            return EXIT_OK
+        print("\n".join(flow.flow_lines(self.pipeline)))
+        return EXIT_OK
+
     def cmd_lanes(self, a):
+        """The lane table: class, stage, last result and green streak of every lane."""
+        table = flow.lanes_table(self.pipeline, self.state_root)
+        if a.json:
+            print(json.dumps(table))
+            return EXIT_OK
+        for r in table:
+            last = r["last"] or {}
+            print(f"{r['stage']:8} {r['class']:8} {r['base']:24} {last.get('status') or '-':8}"
+                  f"{' warned' if last.get('warned') else ''}  streak {r['green_streak']}  {last.get('sha', '')[:12]}")
+        return EXIT_OK
+
+    def cmd_lane(self, a):
+        """Blocks or Informs for one lane: one line of pipeline.toml, committed on main. The run in
+        flight keeps its plan.json: the change applies to the next run."""
+        main = os.path.expanduser(self.hosts["path"].get("main_checkout") or self.repo)
+        sha = flow.change_class(main, a.base, a.cls, self.pipeline)
+        return self.out(EXIT_OK, f"{a.base} {a.cls}: {sha[:12] if sha else 'already so'}", commit=sha)
+
+    def cmd_lane_health(self, a):
         """`stats --lanes`: the lane health table (tools/rellib/health.py)."""
         lanes = health.lanes_of(os.path.join(self.state_root, "metrics.jsonl"), self.pipeline.health)
         if a.json:
@@ -880,7 +929,7 @@ class App:
 
     def cmd_stats(self, a):
         if getattr(a, "lanes", False):
-            return self.cmd_lanes(a)
+            return self.cmd_lane_health(a)
         path = os.path.join(self.state_root, "metrics.jsonl")
         rows = []
         if os.path.isfile(path):
@@ -1023,7 +1072,7 @@ def parser():
     sub = p.add_subparsers(dest="cmd", required=True)
 
     def scope_args(sp, version_required=True):
-        sp.add_argument("version", nargs="?" if not version_required else None, help="YY.MM.patch (= app/pubspec.yaml)")
+        sp.add_argument("version", nargs="?", help="YY.MM.patch (= app/pubspec.yaml)")
         sp.add_argument("--scope", help="a release.toml (default: everything on, stores off)")
         sp.add_argument("--only", help="only these platforms, e.g. android,linux")
         sp.add_argument("--skip-platform", help="drop platforms, e.g. macos,ios")
@@ -1129,6 +1178,18 @@ def parser():
     sp = sub.add_parser("stats", help="per-step times and failures across runs")
     sp.add_argument("--lanes", action="store_true", help="per trust lane: first-try pass rate, tries a run, recoveries, causes")
     sub.add_parser("runs", help="every run kept")
+    sp = sub.add_parser("flow", help="the stages in order: class, needs, outputs (the header of pipeline.toml)")
+    sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="one JSON object on stdout")
+    sp.add_argument("--write", action="store_true", help="regenerate the header block of pipeline.toml")
+    sp = sub.add_parser("lanes", help="every lane: Blocks or Informs, stage, last result, green streak")
+    sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="a JSON list on stdout")
+    sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
+    sp.add_argument("base")
+    sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
+    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "logs", "debug", "skip",
+                 "stats", "runs", "cleanup"):
+        sub.choices[name].add_argument("--night", action="store_true",
+                                       help="the night stage: its steps and its runs (release/pipeline.toml [night])")
     return p
 
 
