@@ -337,6 +337,12 @@ def check():
             if fam not in family(by_id[i]):
                 bad.append(("%s:%d" % (f, line), i, "a %s driver uses a target the registry gives only %s" % (fam, family(by_id[i])),
                             "add %s to its family, with the id on that app's control" % fam))
+    known = set(re.findall(r"static (?:const|String) (\w+)", read(DART))) | {"all"}
+    for const, pl in sorted(places.items()):
+        if const not in known:
+            for p in sorted({p for v in pl.values() for p in v}):
+                bad.append((p, "TrustIds.%s" % const, "no such id in %s" % DART,
+                            "rename with tools/ui-targets rename OLD NEW, or tools/ui-targets add ID"))
     for f in dart_files(LIB):
         for no, line in enumerate(read(f).split("\n"), 1):
             m = re.search(r"""['"]((?:g4|pair|link|tx|inv)\.[a-zA-Z]+\.[A-Za-z0-9_.]+)['"]""", line)

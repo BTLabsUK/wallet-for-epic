@@ -64,6 +64,16 @@ class UiTargetsTest(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertIn("key noSuchArbKey is not in", out)
 
+    def test_an_id_renamed_in_the_app_alone_is_named(self):
+        real = ut.app_places
+        ut.app_places = lambda controls: {**real(controls), "sendApprove": {"desktop": ["app/lib/x.dart:1"]}}
+        try:
+            rc, out = quiet(ut.check)
+        finally:
+            ut.app_places = real
+        self.assertEqual(rc, 1)
+        self.assertIn("app/lib/x.dart:1: TrustIds.sendApprove: no such id", out)
+
     def test_walk_names_a_target_no_shot_showed(self):
         with tempfile.TemporaryDirectory() as d:
             os.makedirs(os.path.join(d, "phone"))
