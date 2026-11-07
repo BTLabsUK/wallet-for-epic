@@ -258,6 +258,24 @@ void main() {
       expect(find.byType(CheckWordsScreen), findsOneWidget);
     });
 
+    testWidgets('the wait, a request confirmed while the records are old: Paired with, no words', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      final q = h.api.receiveRequest(from: _anna, name: 'Anna')!;
+      final preview = await h.api.openRequest(q.id);
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', contactId: 'c1');
+      await h.pump(tester, Builder(builder: (context) => TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: answered.id, name: 'Anna'))), child: const Text('host'))));
+      await tester.tap(find.text('host'));
+      await _frames(tester);
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      h.api.confirmAnswer(answered.id);
+      await _frames(tester);
+      expect(h.api.records.single.state, PairingState.verified);
+      expect(find.byType(CheckWordsScreen), findsNothing);
+      expect(find.byType(PairingWaitingScreen), findsNothing);
+      expect(_notice(tester), _l.pairPairedWith('Anna'));
+    });
+
     testWidgets('the wait: Your answer after 30 s with a QR, Share and the confirmation field; at once with Epicbox off', (tester) async {
       final h = _Harness();
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));

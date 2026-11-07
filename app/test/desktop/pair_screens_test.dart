@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/desktop/widgets/dialogs.dart' show showEDialog;
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
@@ -287,6 +288,52 @@ void main() {
     await _real(tester);
     expect((await tester.runAsync(() => _pairing.pairing(answered.id)))!.state, PairingState.verified);
     expect(find.byKey(deskCheckMatchKey), findsNothing);
+  });
+
+  // The wait is open with the provider's records read before the confirm; the confirm's event
+  // only marks them for a new read, so the dialog must ask the wallet, not the provider.
+  Future<String> openWaitAfterAnswer(WidgetTester tester, {required bool request}) async {
+    await _open(
+      tester,
+      Builder(builder: (context) => TextButton(onPressed: () {}, child: const Text('host'))),
+    );
+    final String id;
+    if (request) {
+      final q = _pairing.receiveRequest(from: _anna, name: 'Anna')!;
+      final preview = await tester.runAsync(() => _pairing.openRequest(q.id));
+      id = (await tester.runAsync(() => _pairing.acceptInvite(token: preview!.token, name: 'Alex')))!.id;
+    } else {
+      final preview = await tester.runAsync(() => _pairing.openInvite(_pairing.inviteLinkFrom(name: 'Anna')));
+      id = (await tester.runAsync(() => _pairing.acceptInvite(token: preview!.token, name: 'Alex')))!.id;
+    }
+    _c.invalidate(deskPairingsProvider);
+    await tester.runAsync(() => _c.read(deskPairingsProvider.future));
+    unawaited(showEDialog<void>(tester.element(find.text('host')), dismissible: false, builder: (_) => DeskPairWaitingDialog(pairingId: id, name: 'Anna')));
+    await _real(tester);
+    expect(find.byKey(deskWaitingCloseKey), findsOneWidget);
+    expect(_c.read(deskPairingsProvider).value!.singleWhere((r) => r.id == id).state, PairingState.pendingReply);
+    return id;
+  }
+
+  testWidgets('the wait, a request confirmed: the records still old at the confirm, Paired with a toast, no words', (tester) async {
+    final id = await openWaitAfterAnswer(tester, request: true);
+    _pairing.confirmAnswer(id);
+    await _real(tester);
+    expect((await tester.runAsync(() => _pairing.pairing(id)))!.state, PairingState.verified);
+    expect(find.byKey(deskCheckMatchKey), findsNothing);
+    expect(find.text(_l.sasDialogTitle('Anna')), findsNothing);
+    expect(find.byKey(deskWaitingCloseKey), findsNothing);
+    expect(find.text(_l.pairPairedWith('Anna')), findsOneWidget);
+  });
+
+  testWidgets('the wait, a code confirmed: not Verified, so the words open and no toast', (tester) async {
+    final id = await openWaitAfterAnswer(tester, request: false);
+    _pairing.confirmAnswer(id);
+    await _real(tester);
+    expect((await tester.runAsync(() => _pairing.pairing(id)))!.state, PairingState.paired);
+    expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget);
+    expect(find.text(_l.pairPairedWith('Anna')), findsNothing);
   });
 
   testWidgets('the contact pane: a proven peer gets the request dialog; Send request sends; Waiting with Show my invite and Cancel', (tester) async {
