@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/onion_notice.dart';
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/tor_build.dart' show torBuilt;
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 
@@ -116,7 +117,7 @@ void main() {
       c.invalidate(deskOnionNoticeProvider);
       expect(await c.read(deskOnionNoticeProvider.future), isFalse);
       await w.dispose();
-    });
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
 
     test('a restored first wallet and a second wallet are marked at birth', () async {
       final w = wallet();
