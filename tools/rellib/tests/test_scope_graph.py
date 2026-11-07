@@ -195,6 +195,8 @@ class GraphTest(unittest.TestCase):
         by = {x.id: x for x in steps}
         self.assertFalse([x.id for x in steps if x.publish or x.base.startswith(("build-", "apple-"))
                           or (x.base.startswith("trust-") and not x.base.startswith("trust-pair-"))])
+        # a night's trust pair resumes from its last proof: a refused start must not write over it
+        self.assertTrue(all(x.proof_kept for x in steps if x.base.startswith("trust-pair-")))
         for plat in ("android", "linux", "windows"):
             t, f = by[f"testbuild-{plat}-tor"], by[f"flow-{plat}-tor"]
             self.assertNotIn(f"testbuild-{plat}-notor", by)

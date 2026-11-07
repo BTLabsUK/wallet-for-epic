@@ -43,6 +43,12 @@ class Step:
         return self.proof or self.env.get("REL_TRUST_MODE") == "flow"
 
     @property
+    def proof_kept(self):
+        """Its proof.json is set aside before each attempt (proof.before-attempt-N.json): a driven lane, or a
+        night's trust pair, whose rerun resumes from it. A refused start must not write over it."""
+        return self.driven or bool(self.env.get("REL_TRUST_PAIR"))
+
+    @property
     def phase(self):
         return "publish" if self.publish else "build"
 

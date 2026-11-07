@@ -653,7 +653,7 @@ class Engine:
             if left:
                 self.run.event(step.id, "park-ended", name=left.get("step"), phase=left.get("phase"))
                 self.echo(f"{step.id}: the lane still parked at {left.get('step')} is ended: this attempt takes its rig")
-        if step.driven:
+        if step.proof_kept:
             # A proof from an earlier attempt never counts for this one.
             old = os.path.join(stage, "proof.json")
             if os.path.exists(old):
