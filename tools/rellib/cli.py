@@ -1240,6 +1240,7 @@ def parser():
     sp.add_argument("platform")
     sp.add_argument("result", choices=("ok", "fail"))
     sp.add_argument("--note", default="")
+    sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
     sp = sub.add_parser("lanes", help="every lane: Blocks or Informs, stage, last result, green streak")
     sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="a JSON list on stdout")
     sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")

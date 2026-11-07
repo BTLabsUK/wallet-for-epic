@@ -473,7 +473,7 @@ def preflight(engine, step, say):
             warns.append(f"the changelog has no entry for {info['version']} ({log}): publish-page will refuse, "
                          "announce will warn; write it before the gate")
             say("warn", warns[-1])
-    if any(s["platforms"].get(p) and p not in s["proof"]["waive"] for p in PLATFORMS):
+    if any(st.proof for st in engine.run.steps) and any(s["platforms"].get(p) and p not in s["proof"]["waive"] for p in PLATFORMS):
         prev = resolve_previous(engine)
         if not prev or not os.path.isdir(prev.get("dir", "")):
             bad("G4 needs the previous release: set [proof] previous_dir in release.toml (or publish one with tools/rel)")

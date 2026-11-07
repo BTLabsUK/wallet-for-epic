@@ -185,6 +185,7 @@ class Base(unittest.TestCase):
         os.environ["REL_WINDOW_MARKER"] = os.path.join(self.tmp, "release-window")
         os.environ["REL_HEAVY_STATUS_CMD"] = ""
         os.environ["WFE_GREEN_DIR"] = os.path.join(self.tmp, "green")
+        os.environ["REL_NIGHT_ROOT"] = os.path.join(self.tmp, "nightly", "rel")
         # Never the machine's shared P service (p.sock, its funds): with no p.py a step that
         # needs P reports it missing at once instead of asking the real wallet.
         os.environ["REL_P_TOOL"] = os.path.join(self.tmp, "no-p.py")
@@ -200,7 +201,7 @@ class Base(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
         for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN",
-                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_P_TOOL", "REL_P_SERVICE_DIR",
+                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_NIGHT_ROOT", "REL_P_TOOL", "REL_P_SERVICE_DIR",
                   "REL_GATEWATCH", "REL_SIGNER_APPROVE_TOKEN"):
             os.environ.pop(k, None)
 

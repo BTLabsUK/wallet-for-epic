@@ -7,6 +7,7 @@ AI recoveries the proofs needed, how long a pass takes and what failed. A lane b
 are shown in summary.md, report.html, the gate message and `tools/rel stats --lanes`."""
 import json
 import os
+import pathlib
 from collections import Counter
 from statistics import median
 
@@ -115,7 +116,7 @@ def slow_steps(path):
     median_s, over_pct, commit}], commit being the first run that moved it (empty on older lines)."""
     by = {}
     try:
-        lines = open(path, encoding="utf-8").read().splitlines()
+        lines = pathlib.Path(path).read_text(encoding="utf-8").splitlines()
     except OSError:
         return []
     for line in lines:
