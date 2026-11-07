@@ -45,8 +45,9 @@ CHECK_TITLE = T("pair.check.title", role="text", keys=("sasDialogTitle",), match
 CHECK_WORDS = T("pair.check.words", role="other", keys=("sasWordsLabel",), names=("The four words",), match="starts")
 CHECK_MATCH = T("pair.check.match", keys=("sasMatch",), names=("They match",), match="exact")
 CHECK_ALLOW = T("pair.check.allow", role="toggle", keys=("contactAllowInvoices",), names=("Allow invoices",), match="exact")
-# "Lane B is verified" › Save as a new contact › Save contact
+# "Lane B is verified" › Add to contacts › Save as a new contact › Save contact
 SAVED_TITLE = T("pair.saved.title", role="text", keys=("sasMatchedTitle",), match="exact")
+SAVED_ADD = T("pair.saved.add", keys=("txDetailsAddToContacts",), names=("Add to contacts",), match="exact")
 SAVED_NEW = T("pair.saved.new", keys=("pairSaveNewContact",), names=("Save as a new contact",), match="exact")
 SAVE_CONTACT = T("pair.saved.save", keys=("deskConSave",), names=("Save contact",), match="exact")
 # the contact page's Pairing block
@@ -206,9 +207,14 @@ class Pairing:
         d = self.d
         if allow_invoices and d.seen(CHECK_ALLOW):
             d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
-        with self._own_not_now():  # "<name> is verified": Not now | Add to a contact | Save as a new contact
-            d.press(CHECK_MATCH, step="pair-match", then=either(shows(SAVED_NEW), gone(CHECK_MATCH)), timeout=60)
-            if d.wait(shows(SAVED_NEW), 10):
+        with self._own_not_now():  # "<name> is verified": Not now | Add to contacts, a menu with Save as a new contact
+            d.press(CHECK_MATCH, step="pair-match", then=either(shows(SAVED_ADD), shows(SAVED_NEW), gone(CHECK_MATCH)),
+                    timeout=60)
+            if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW)), 30):
+                if not d.seen(SAVED_NEW):
+                    hits = d.find_in(SAVED_ADD, d.tree())
+                    d._act(d.s.press, hits[-1])  # the dialog's (a page under it can have its own)
+                    d.must(shows(SAVED_NEW), 20, step="pair-save-add")
                 d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
                 d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
 
