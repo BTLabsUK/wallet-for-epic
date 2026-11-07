@@ -15,43 +15,50 @@ double _opacity(WidgetTester tester) {
   return fade.evaluate().isEmpty ? 1 : tester.widget<FadeTransition>(fade).opacity.value;
 }
 
+bool _pulsing(WidgetTester tester) => find.byType(FadeTransition).evaluate().isNotEmpty;
+
 void main() {
   testWidgets('no pulse at 14 s, pulses from 15 s', (tester) async {
     await tester.pumpWidget(_app(true));
     await tester.pump(const Duration(seconds: 14));
     await tester.pump(const Duration(seconds: 1) - const Duration(milliseconds: 1));
-    expect(tester.hasRunningAnimations, isFalse);
+    expect(_pulsing(tester), isFalse);
     expect(_opacity(tester), 1);
     await tester.pump(const Duration(milliseconds: 1));
     await tester.pump(warnPulseHalf);
-    expect(tester.hasRunningAnimations, isTrue);
+    expect(_pulsing(tester), isTrue);
     expect(_opacity(tester), lessThan(1));
     expect(_opacity(tester), greaterThanOrEqualTo(warnPulseLow));
+    await tester.pump(warnPulseHalf);
+    expect(_opacity(tester), moreOrLessEquals(1, epsilon: 0.02));
+    // Between two steps nothing asks for a frame.
+    expect(tester.hasRunningAnimations, isFalse);
+    expect(tester.binding.hasScheduledFrame, isFalse);
     await tester.pumpWidget(_app(false));
     await tester.pump();
-    expect(tester.hasRunningAnimations, isFalse);
+    expect(_pulsing(tester), isFalse);
     expect(_opacity(tester), 1);
   });
 
   testWidgets('green ends it and a fresh amber waits 15 s again', (tester) async {
     await tester.pumpWidget(_app(true));
     await tester.pump(const Duration(seconds: 16));
-    expect(tester.hasRunningAnimations, isTrue);
+    expect(_pulsing(tester), isTrue);
     await tester.pumpWidget(_app(false));
     await tester.pump(const Duration(seconds: 30));
-    expect(tester.hasRunningAnimations, isFalse);
+    expect(_pulsing(tester), isFalse);
     await tester.pumpWidget(_app(true));
     await tester.pump(const Duration(seconds: 14));
-    expect(tester.hasRunningAnimations, isFalse);
+    expect(_pulsing(tester), isFalse);
     await tester.pump(const Duration(seconds: 2));
-    expect(tester.hasRunningAnimations, isTrue);
+    expect(_pulsing(tester), isTrue);
     await tester.pumpWidget(_app(false));
   });
 
   testWidgets('reduced motion: never pulses', (tester) async {
     await tester.pumpWidget(_app(true, reduce: true));
     await tester.pump(const Duration(seconds: 40));
-    expect(tester.hasRunningAnimations, isFalse);
+    expect(_pulsing(tester), isFalse);
     expect(_opacity(tester), 1);
   });
 }
