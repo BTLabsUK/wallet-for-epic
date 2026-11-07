@@ -89,6 +89,21 @@ class CliTest(Base):
             self.assertIn("trust-manifest", [s["id"] for s in json.load(f)])
         self.assertEqual(rel(*self.common(), "add-step", "no-such-step", "--run", V)[0], 64)
 
+    def test_doing_says_what_is_done_about_a_failed_step(self):
+        run = self.planned_run()
+        path = os.path.join(run, "steps", "trust-manifest", "status.json")
+        self.assertEqual(rel(*self.common(), "doing", "trust-manifest", "fixing", "--run", V)[0], 64)   # no note
+        code, out, err = rel(*self.common(), "doing", "trust-manifest", "fixing", "--note", "the selector", "--commit", "abc", "--run", V)
+        self.assertEqual(code, 0, err)
+        with open(path) as f:
+            mark = json.load(f)["doing"]
+        self.assertEqual((mark["state"], mark["note"], mark["commit"], mark["by"]), ("fixing", "the selector", "abc", "lead"))
+        self.assertEqual(rel(*self.common(), "doing", "trust-manifest", "none", "--run", V)[0], 0)
+        with open(path) as f:
+            self.assertEqual(json.load(f)["doing"]["state"], "none")
+        with open(os.path.join(run, "events.jsonl")) as f:
+            self.assertEqual([e["state"] for e in map(json.loads, f) if e["event"] == "doing"], ["fixing", "none"])
+
     def test_adopt_takes_the_result_from_the_proof_alone(self):
         run = self.planned_run()
         out = os.path.join(self.tmp, "outside")

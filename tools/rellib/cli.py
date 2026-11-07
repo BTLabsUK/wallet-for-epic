@@ -661,6 +661,36 @@ class App:
             frontier.extend(s.needs)
         return sorted(out)
 
+    DOING = ("fixing", "probing", "rerun-queued", "rerunning", "continuing", "accepted", "none")
+
+    @staticmethod
+    def doing(run, sid, state, note, commit=None, by="rel"):
+        """What is being done about a step that failed, for the panel: status.json's `doing`, state "none"
+        when nothing is. The journal keeps each change (event "doing")."""
+        mark = {"state": state, "note": note, "commit": commit, "at": now_iso(), "by": by}
+        run.set_status(sid, doing=mark)
+        run.event(sid, "doing", state=state, note=note, commit=commit, by=by)
+        return mark
+
+    def after_rerun(self, run, sid, what):
+        """A rerun's end: a pass needs nothing more; a failure is open until someone takes it up."""
+        st = run.status(sid)
+        if st["status"] == "done" and not st.get("warned"):
+            self.doing(run, sid, "none", f"{what} passed")
+        else:
+            self.doing(run, sid, "none", f"{what} ended {st['status']}{' (warned)' if st.get('warned') else ''}")
+
+    def cmd_doing(self, a):
+        """Says what is being done about a failed step: fixing (with the commit), rerun-queued, accepted
+        for the gate (with the reason), or none. Probe, retry and continue set it themselves."""
+        run = self.load_run()
+        s = run.step(a.step)
+        state = a.state
+        if state in ("fixing", "accepted", "rerun-queued") and not (a.note or "").strip():
+            return self.out(EXIT_USAGE, f"{state} needs --note: what is fixed, why it is accepted, or what waits", run)
+        mark = self.doing(run, s.id, state, (a.note or "").strip() or None, a.commit, by="lead")
+        return self.out(EXIT_OK, f"{s.id}: {mark['state']}{': ' + mark['note'] if mark['note'] else ''}", run)
+
     def cmd_retry(self, a):
         run = self.load_run()
         s = run.step(a.step)
@@ -688,7 +718,12 @@ class App:
             run.event(s.id, "retry-requested")
             a.ignore_needs, a.dry_run, a.gated = False, False, True
             a.step = s.id
-            return self.cmd_run(a, run)
+            n = st.get("attempts", 0) + 1
+            self.doing(run, s.id, "rerunning", f"attempt {n}", evidence.driver_record(self.repo).get("commit"))
+            try:
+                return self.cmd_run(a, run)
+            finally:
+                self.after_rerun(run, s.id, f"rerun attempt {n}")
         finally:
             run.release_lanes([s])
 
@@ -745,6 +780,7 @@ class App:
             run.event(s.id, "park-stopped", name=park["step"])
             return self.out(EXIT_OK, f"{s.id} leaves {park['step']}: the fault takes its way as without a park", run)
         run.event(s.id, "continue", name=park["step"], driver=evidence.driver_label(now), acts=answer.get("acts"))
+        self.doing(run, s.id, "continuing", f"going on from {park['step']} on the fix", now.get("commit"))
         was = self.park_outside(eng.runner, run.status(s.id).get("driver"), now)
         return self.out(EXIT_OK, f"{s.id}: {answer.get('modules')} driver modules reloaded, {answer.get('acts')} actions of "
                                  f"phase {answer.get('phase')} replayed without touching the app, live again at "
@@ -796,10 +832,17 @@ class App:
                 run.claim_lanes([s])
             except Busy as e:
                 return self.out(EXIT_BUSY, str(e), run)
+            commit = evidence.driver_record(eng.runner).get("commit")
+            self.doing(run, s.id, "probing", f"probe of {a.step}", commit)
+            rec = None
             try:
                 rec = eng.probe(s, fail)
             finally:
                 run.release_lanes([s])
+                if rec and rec["passed"]:
+                    self.doing(run, s.id, "rerun-queued", f"probe {rec['n']} passed {rec['step']}: rerun due", commit)
+                else:
+                    self.doing(run, s.id, "none", f"probe{' %s' % rec['n'] if rec else ''} of {a.step} failed", commit)
         return self.out(EXIT_OK if rec["passed"] else EXIT_FAILED,
                         f"probe {rec['n']} of {rec['step']} on {rec['platform']}: {repeats.counts(rec)}", run, probe=rec)
 
@@ -1468,6 +1511,12 @@ def parser():
     sp.add_argument("--run")
     sp.add_argument("--stop", action="store_true", help="end the park: the fault takes its way as without one")
     sp.add_argument("--stop-on-fail", action="store_true", help=argparse.SUPPRESS)
+    sp = sub.add_parser("doing", help="what is being done about a failed step, for the panel: fixing, accepted, none...")
+    sp.add_argument("step")
+    sp.add_argument("state", choices=App.DOING)
+    sp.add_argument("--note", help="what is fixed, why it is accepted, what waits")
+    sp.add_argument("--commit", help="the fix's commit")
+    sp.add_argument("--run")
     sp = sub.add_parser("probe", help="the failing step alone: a retry after a driver failure needs its pass")
     sp.add_argument("step", help="the failing step, as the failure names it (find-g4.advanced.technical)")
     sp.add_argument("target", help="the lane to run it on")
@@ -1509,7 +1558,7 @@ def parser():
     sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
     sp.add_argument("base")
     sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
-    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "continue", "probe", "logs", "debug", "skip", "add-step", "adopt",
+    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "continue", "probe", "doing", "logs", "debug", "skip", "add-step", "adopt",
                  "stats", "runs", "cleanup", "walk"):
         sub.choices[name].add_argument("--night", action="store_true",
                                        help="the night stage: its steps and its runs (release/pipeline.toml [night])")
