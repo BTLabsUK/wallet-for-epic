@@ -18534,14 +18534,36 @@
       }
     }
   },
-  "msgCheckUnreadable": "Messages that could not be read: {count}",
+  "msgCheckUnreadable": "{count, plural, =1{1 message could not be read} other{{count} messages could not be read}}",
   "@msgCheckUnreadable": {
-    "description": "Status line: messages the last check could not open.",
+    "description": "Status line: messages the wallet keeps on this device because it could not take them.",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
+  },
+  "msgCheckRead": "Messages read: {count}",
+  "@msgCheckRead": {
+    "description": "Status line: messages the last check read from the paired contacts' mailboxes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckPairingFailed": "Pairings failed: {count}",
+  "@msgCheckPairingFailed": {
+    "description": "Status line: pairings in progress that ended without pairing in the last check.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgCheckMore": "More messages wait for the next check",
+  "@msgCheckMore": {
+    "description": "Status line: a mailbox still had messages when the last check stopped."
   },
   "noticeSealedUnopenable": "A message from {name} could not be opened.",
   "@noticeSealedUnopenable": {

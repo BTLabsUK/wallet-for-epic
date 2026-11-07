@@ -5386,5 +5386,8 @@
   "msgCheckHeld": "Сообщений отложено: {count}",
   "msgCheckRefused": "Сообщений отклонено: {count}",
   "msgCheckUnreadable": "Сообщений, которые не удалось прочитать: {count}",
+  "msgCheckRead": "Сообщений прочитано: {count}",
+  "msgCheckPairingFailed": "Неудачных сопряжений: {count}",
+  "msgCheckMore": "Остальные сообщения ждут следующей проверки",
   "noticeSealedUnopenable": "Не удалось открыть сообщение от {name}."
 }

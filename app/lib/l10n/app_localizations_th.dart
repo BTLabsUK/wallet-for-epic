@@ -13592,6 +13592,19 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String msgCheckRead(int count) {
+    return 'ข้อความที่อ่านแล้ว: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'การจับคู่ที่ล้มเหลว: $count';
+  }
+
+  @override
+  String get msgCheckMore => 'ข้อความที่เหลือรอการตรวจครั้งถัดไป';
+
+  @override
   String noticeSealedUnopenable(String name) {
     return 'เปิดข้อความจาก $name ไม่ได้';
   }

@@ -42,8 +42,12 @@ void main() {
     final l = AppLocalizationsEn();
     expect(messageCheckLines(l, const MessageCheck(checking: true)), ['Checking messages']);
     final lines = messageCheckLines(l, MessageCheck(checkedAt: DateTime(2026, 1, 1, 14, 5), outcome: const CheckOutcome(held: 2, rejected: 1, unreadable: 1)));
-    expect(lines, ['Checked at 14:05', 'Messages held: 2', 'Messages refused: 1']);
+    expect(lines, ['Checked at 14:05', 'Messages held: 2', 'Messages refused: 1', '1 message could not be read']);
     expect(messageCheckLines(l, const MessageCheck(failed: true)), ['The last message check failed']);
-    expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(unreadable: 1)), showUnreadable: true), ['Messages that could not be read: 1']);
+    expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(messages: 3, failed: 1, capped: 1))), [
+      'Messages read: 3',
+      'Pairings failed: 1',
+      'More messages wait for the next check',
+    ]);
   });
 }

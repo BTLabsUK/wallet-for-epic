@@ -14115,6 +14115,20 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String msgCheckRead(int count) {
+    return 'Nachrichten gelesen: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'Fehlgeschlagene Kopplungen: $count';
+  }
+
+  @override
+  String get msgCheckMore =>
+      'Weitere Nachrichten warten auf die nächste Prüfung';
+
+  @override
   String noticeSealedUnopenable(String name) {
     return 'Eine Nachricht von $name konnte nicht geöffnet werden.';
   }

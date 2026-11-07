@@ -13945,8 +13945,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String msgCheckUnreadable(int count) {
-    return 'Messages that could not be read: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count messages could not be read',
+      one: '1 message could not be read',
+    );
+    return '$_temp0';
   }
+
+  @override
+  String msgCheckRead(int count) {
+    return 'Messages read: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'Pairings failed: $count';
+  }
+
+  @override
+  String get msgCheckMore => 'More messages wait for the next check';
 
   @override
   String noticeSealedUnopenable(String name) {

@@ -14481,6 +14481,20 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String msgCheckRead(int count) {
+    return 'Wiadomości odczytane: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'Nieudane parowania: $count';
+  }
+
+  @override
+  String get msgCheckMore =>
+      'Kolejne wiadomości czekają na następne sprawdzenie';
+
+  @override
   String noticeSealedUnopenable(String name) {
     return 'Nie można otworzyć wiadomości od $name.';
   }

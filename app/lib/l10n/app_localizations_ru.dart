@@ -14457,6 +14457,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String msgCheckRead(int count) {
+    return 'Сообщений прочитано: $count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return 'Неудачных сопряжений: $count';
+  }
+
+  @override
+  String get msgCheckMore => 'Остальные сообщения ждут следующей проверки';
+
+  @override
   String noticeSealedUnopenable(String name) {
     return 'Не удалось открыть сообщение от $name.';
   }

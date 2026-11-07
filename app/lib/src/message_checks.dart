@@ -9,7 +9,7 @@ import 'dart:async';
 import 'notice_digest.dart';
 
 /// The counts of one check, from the drain's report and the collect's. Every field is a plain
-/// count; [buffered], [quarantined] and [capped] are room for what the core will report later.
+/// count.
 class CheckOutcome {
   const CheckOutcome({
     this.received = 0,
@@ -22,7 +22,6 @@ class CheckOutcome {
     this.failed = 0,
     this.unreadable = 0,
     this.buffered = 0,
-    this.quarantined = 0,
     this.capped = 0,
   });
 
@@ -50,16 +49,14 @@ class CheckOutcome {
   /// Pairings that ended without pairing in the collect.
   final int failed;
 
-  /// Messages that could not be opened (a count the core does not report yet).
+  /// Messages the wallet keeps because it could not take them: all it holds now, not this
+  /// check's alone.
   final int unreadable;
 
-  /// Not reported yet.
+  /// Notices kept until their slate arrives.
   final int buffered;
 
-  /// Not reported yet.
-  final int quarantined;
-
-  /// Not reported yet.
+  /// Mailboxes that still had messages when the check ended.
   final int capped;
 
   /// What a check turned away: refused for good, or dropped.
@@ -80,12 +77,11 @@ class CheckOutcome {
     failed: failed + o.failed,
     unreadable: unreadable + o.unreadable,
     buffered: buffered + o.buffered,
-    quarantined: quarantined + o.quarantined,
     capped: capped + o.capped,
   );
 
   @override
-  int get hashCode => Object.hash(received, finalized, bounced, held, rejected, dropped, messages, failed, unreadable, buffered, quarantined, capped);
+  int get hashCode => Object.hash(received, finalized, bounced, held, rejected, dropped, messages, failed, unreadable, buffered, capped);
 
   @override
   bool operator ==(Object other) =>
@@ -100,7 +96,6 @@ class CheckOutcome {
       failed == other.failed &&
       unreadable == other.unreadable &&
       buffered == other.buffered &&
-      quarantined == other.quarantined &&
       capped == other.capped;
 }
 

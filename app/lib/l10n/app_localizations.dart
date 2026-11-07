@@ -21936,11 +21936,29 @@ abstract class AppLocalizations {
   /// **'Messages refused: {count}'**
   String msgCheckRefused(int count);
 
-  /// Status line: messages the last check could not open.
+  /// Status line: messages the wallet keeps on this device because it could not take them.
   ///
   /// In en, this message translates to:
-  /// **'Messages that could not be read: {count}'**
+  /// **'{count, plural, =1{1 message could not be read} other{{count} messages could not be read}}'**
   String msgCheckUnreadable(int count);
+
+  /// Status line: messages the last check read from the paired contacts' mailboxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages read: {count}'**
+  String msgCheckRead(int count);
+
+  /// Status line: pairings in progress that ended without pairing in the last check.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairings failed: {count}'**
+  String msgCheckPairingFailed(int count);
+
+  /// Status line: a mailbox still had messages when the last check stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'More messages wait for the next check'**
+  String get msgCheckMore;
 
   /// Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.
   ///

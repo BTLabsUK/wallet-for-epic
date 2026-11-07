@@ -5386,5 +5386,8 @@
   "msgCheckHeld": "Zurückgehaltene Nachrichten: {count}",
   "msgCheckRefused": "Abgewiesene Nachrichten: {count}",
   "msgCheckUnreadable": "Nicht lesbare Nachrichten: {count}",
+  "msgCheckRead": "Nachrichten gelesen: {count}",
+  "msgCheckPairingFailed": "Fehlgeschlagene Kopplungen: {count}",
+  "msgCheckMore": "Weitere Nachrichten warten auf die nächste Prüfung",
   "noticeSealedUnopenable": "Eine Nachricht von {name} konnte nicht geöffnet werden."
 }

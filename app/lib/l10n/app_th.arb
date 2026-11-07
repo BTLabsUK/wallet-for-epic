@@ -5386,5 +5386,8 @@
   "msgCheckHeld": "ข้อความที่พักไว้: {count}",
   "msgCheckRefused": "ข้อความที่ถูกปฏิเสธ: {count}",
   "msgCheckUnreadable": "ข้อความที่อ่านไม่ได้: {count}",
+  "msgCheckRead": "ข้อความที่อ่านแล้ว: {count}",
+  "msgCheckPairingFailed": "การจับคู่ที่ล้มเหลว: {count}",
+  "msgCheckMore": "ข้อความที่เหลือรอการตรวจครั้งถัดไป",
   "noticeSealedUnopenable": "เปิดข้อความจาก {name} ไม่ได้"
 }

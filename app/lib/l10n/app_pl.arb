@@ -5386,5 +5386,8 @@
   "msgCheckHeld": "Wiadomości wstrzymane: {count}",
   "msgCheckRefused": "Wiadomości odrzucone: {count}",
   "msgCheckUnreadable": "Wiadomości, których nie można odczytać: {count}",
+  "msgCheckRead": "Wiadomości odczytane: {count}",
+  "msgCheckPairingFailed": "Nieudane parowania: {count}",
+  "msgCheckMore": "Kolejne wiadomości czekają na następne sprawdzenie",
   "noticeSealedUnopenable": "Nie można otworzyć wiadomości od {name}."
 }

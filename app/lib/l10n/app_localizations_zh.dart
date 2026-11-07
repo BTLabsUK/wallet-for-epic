@@ -13126,6 +13126,19 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String msgCheckRead(int count) {
+    return '已读取的消息：$count';
+  }
+
+  @override
+  String msgCheckPairingFailed(int count) {
+    return '失败的配对：$count';
+  }
+
+  @override
+  String get msgCheckMore => '其余消息等待下次检查';
+
+  @override
   String noticeSealedUnopenable(String name) {
     return '无法打开来自 $name 的消息。';
   }

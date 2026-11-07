@@ -5386,5 +5386,8 @@
   "msgCheckHeld": "暂缓的消息：{count}",
   "msgCheckRefused": "被拒绝的消息：{count}",
   "msgCheckUnreadable": "无法读取的消息：{count}",
+  "msgCheckRead": "已读取的消息：{count}",
+  "msgCheckPairingFailed": "失败的配对：{count}",
+  "msgCheckMore": "其余消息等待下次检查",
   "noticeSealedUnopenable": "无法打开来自 {name} 的消息。"
 }
