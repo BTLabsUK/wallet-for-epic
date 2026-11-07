@@ -116,7 +116,7 @@ Future<void> _checkEnded(ProviderContainer c) async {
 /// Several notices of one check: the toast that counts them.
 Future<void> _digest(ProviderContainer c, BuildContext _) async {
   final mock = mockBehind(c.read(deskApiProvider))!;
-  final batch = mock.messageChecks!.notices..begin();
+  final batch = (mock.messageChecks ?? _checks(c)).notices..begin();
   for (final (i, kind) in [PairingEventKind.invoiceFromContact, PairingEventKind.invoiceFromContact, PairingEventKind.withdrawalFromContact].indexed) {
     mock.pairing.emit(PairingEvent(kind, name: 'Anna', slateId: 'digest-$i'));
   }

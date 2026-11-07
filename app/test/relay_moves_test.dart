@@ -136,6 +136,8 @@ void main() {
 
     test('settleRelayMoves says when something moved', () async {
       api.seedPaired(name: 'Anna', relay: 'old.example.org', requestedRelay: 'new.example.org');
+      await Future<void>.delayed(Duration.zero);
+      seen.clear();
       await api.settleRelayMoves();
       await Future<void>.delayed(Duration.zero);
       expect(seen.map((e) => e.kind), [PairingEventKind.contactUpdated]);

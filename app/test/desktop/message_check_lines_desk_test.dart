@@ -1,11 +1,12 @@
 // The desktop status popover's lines for the wallet's message checks (Epicbox popover):
-// "Checking messages" after notices.check_show_after_ms, "Checked at", a failed check, and
-// the lines for messages read, pairings failed, held, refused, kept and more waiting. Each
-// shows for a report that has it and is absent otherwise.
+// "Checking messages" after notices.check_show_after_ms, "Checked just now", a failed check,
+// and, unfolded, the lines for messages read, pairings failed, held, refused, kept and more
+// waiting. Each shows for a report that has it and is absent otherwise.
 import 'dart:async';
 
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
+import 'package:epic_wallet/src/desktop/app/message_check_panel.dart' show deskMessageCheckRowKey;
 import 'package:epic_wallet/src/desktop/app/routes.dart' show DeskRoute, deskStartProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
@@ -21,10 +22,10 @@ import 'package:flutter_test/flutter_test.dart';
 final _delay = appConfig.checkShowAfter;
 
 final _lines = {
-  'Messages read: 3': const CheckOutcome(messages: 3),
-  'Pairings failed: 1': const CheckOutcome(failed: 1),
-  'Messages held: 2': const CheckOutcome(held: 2),
-  'Messages refused: 3': const CheckOutcome(rejected: 1, dropped: 2),
+  '3 messages read': const CheckOutcome(messages: 3),
+  '1 pairing did not complete': const CheckOutcome(failed: 1),
+  '2 messages left for the next check': const CheckOutcome(held: 2),
+  '3 messages turned away': const CheckOutcome(rejected: 1, dropped: 2),
   '1 message could not be read': const CheckOutcome(unreadable: 1),
   'More messages wait for the next check': const CheckOutcome(capped: 1),
 };
@@ -57,6 +58,11 @@ Future<MessageChecks> _openPopover(WidgetTester tester) async {
 
 Finder _inPopover(String text) => find.descendant(of: find.byKey(_popover), matching: find.textContaining(text));
 
+Future<void> _unfold(WidgetTester tester) async {
+  await tester.tap(find.byKey(deskMessageCheckRowKey));
+  await tester.pump(const Duration(milliseconds: 500));
+}
+
 Future<void> _end(WidgetTester tester) async {
   await tester.sendKeyEvent(LogicalKeyboardKey.escape);
   await tester.pumpWidget(const SizedBox());
@@ -66,7 +72,7 @@ Future<void> _end(WidgetTester tester) async {
 void main() {
   testWidgets('no check yet: the popover says nothing about checks', (tester) async {
     await _openPopover(tester);
-    for (final t in ['Checking messages', 'Checked at', 'Messages', 'could not be read', 'More messages']) {
+    for (final t in ['Checking messages', 'Checked just now', 'Messages', 'could not be read', 'More messages']) {
       expect(_inPopover(t), findsNothing, reason: t);
     }
     await _end(tester);
@@ -80,12 +86,12 @@ void main() {
     expect(_inPopover('Checking messages'), findsNothing, reason: 'a quick check never shows');
     await tester.pump(const Duration(milliseconds: 150));
     expect(_inPopover('Checking messages'), findsOneWidget);
-    expect(_inPopover('Checked at'), findsNothing);
+    expect(_inPopover('Checked just now'), findsNothing);
     done.complete(1);
     await run;
     await tester.pump();
     expect(_inPopover('Checking messages'), findsNothing);
-    expect(_inPopover('Checked at'), findsOneWidget);
+    expect(_inPopover('Checked just now'), findsOneWidget);
     await _end(tester);
   });
 
@@ -94,7 +100,7 @@ void main() {
     await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
     await tester.pump();
     expect(_inPopover('The last message check failed'), findsOneWidget);
-    expect(_inPopover('Checked at'), findsNothing);
+    expect(_inPopover('Checked just now'), findsNothing);
     await _end(tester);
   });
 
@@ -103,7 +109,8 @@ void main() {
       final checks = await _openPopover(tester);
       await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => outcome);
       await tester.pump();
-      expect(_inPopover('Checked at'), findsOneWidget);
+      expect(_inPopover('Checked just now'), findsOneWidget);
+      await _unfold(tester);
       expect(_inPopover(line), findsOneWidget);
       for (final other in _lines.keys.where((k) => k != line)) {
         expect(_inPopover(other), findsNothing, reason: other);
@@ -116,7 +123,7 @@ void main() {
     final checks = await _openPopover(tester);
     await checks.run(CheckSource.drain, () async => 1, outcomeOf: (_) => const CheckOutcome(received: 4, buffered: 2));
     await tester.pump();
-    expect(_inPopover('Checked at'), findsOneWidget);
+    expect(_inPopover('Checked just now'), findsOneWidget);
     for (final other in _lines.keys) {
       expect(_inPopover(other), findsNothing, reason: other);
     }

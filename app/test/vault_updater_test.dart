@@ -9,6 +9,7 @@ import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
 import 'package:epic_wallet/src/btlabs_public.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/onion_notice.dart' show onionNoticeKey, onionNoticeSeen;
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -70,6 +71,7 @@ void main() {
       expect(service.createdPin, '123456');
       expect(store.values, {
         'wallet.mainnet.pinSealed': fakeSealedPassword('123456'),
+        onionNoticeKey('mainnet', null): onionNoticeSeen,
       });
       expect(await vault.prepare(config), VaultStage.ready);
       expect(await vault.unlock(config, '123456'), same(service.session));

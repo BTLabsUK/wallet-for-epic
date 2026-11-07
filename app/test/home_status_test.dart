@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/ui/home_status.dart';
+import 'package:epic_wallet/src/ui/message_check_panel.dart' show messageCheckRowKey;
 import 'package:epic_wallet/src/ui/receive_screen.dart'
     show ReceiveTab, receiveTabProvider;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart' show ServerListSheet;
@@ -906,10 +907,10 @@ void main() {
   group('message checks on the connections sheet footer', () {
     final delay = appConfig.checkShowAfter;
     final lines = {
-      'Messages read: 3': const CheckOutcome(messages: 3),
-      'Pairings failed: 1': const CheckOutcome(failed: 1),
-      'Messages held: 2': const CheckOutcome(held: 2),
-      'Messages refused: 3': const CheckOutcome(rejected: 1, dropped: 2),
+      '3 messages read': const CheckOutcome(messages: 3),
+      '1 pairing did not complete': const CheckOutcome(failed: 1),
+      '2 messages left for the next check': const CheckOutcome(held: 2),
+      '3 messages turned away': const CheckOutcome(rejected: 1, dropped: 2),
       '1 message could not be read': const CheckOutcome(unreadable: 1),
       'More messages wait for the next check': const CheckOutcome(capped: 1),
     };
@@ -937,12 +938,12 @@ void main() {
 
     testWidgets('no check yet: the footer says nothing', (tester) async {
       await openSheet(tester, make());
-      for (final t in ['Checking messages', 'Checked at', 'Messages', 'could not be read', 'More messages']) {
+      for (final t in ['Checking messages', 'Checked', 'messages', 'could not be read', 'More messages']) {
         expect(inSheet(t), findsNothing, reason: t);
       }
     });
 
-    testWidgets('"Checking messages" shows only after notices.check_show_after_ms, then "Checked at" replaces it', (tester) async {
+    testWidgets('"Checking messages" shows only after notices.check_show_after_ms, then "Checked just now" replaces it', (tester) async {
       final checks = make();
       await openSheet(tester, checks);
       final done = Completer<int>();
@@ -951,12 +952,12 @@ void main() {
       expect(inSheet('Checking messages'), findsNothing, reason: 'a quick check never shows');
       await tester.pump(const Duration(milliseconds: 150));
       expect(inSheet('Checking messages'), findsOneWidget);
-      expect(inSheet('Checked at'), findsNothing);
+      expect(inSheet('Checked just now'), findsNothing);
       done.complete(1);
       await run;
       await settle(tester);
       expect(inSheet('Checking messages'), findsNothing);
-      expect(inSheet('Checked at'), findsOneWidget);
+      expect(inSheet('Checked just now'), findsOneWidget);
     });
 
     testWidgets('a failed check says so', (tester) async {
@@ -965,7 +966,7 @@ void main() {
       await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
       await settle(tester);
       expect(inSheet('The last message check failed'), findsOneWidget);
-      expect(inSheet('Checked at'), findsNothing);
+      expect(inSheet('Checked just now'), findsNothing);
     });
 
     for (final MapEntry(key: line, value: outcome) in lines.entries) {
@@ -974,7 +975,11 @@ void main() {
         await openSheet(tester, checks);
         await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => outcome);
         await settle(tester);
-        expect(inSheet('Checked at'), findsOneWidget);
+        expect(inSheet('Checked just now'), findsOneWidget);
+        await tester.ensureVisible(find.byKey(messageCheckRowKey));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(messageCheckRowKey));
+        await tester.pump(const Duration(milliseconds: 500));
         expect(inSheet(line), findsOneWidget);
         for (final other in lines.keys.where((k) => k != line)) {
           expect(inSheet(other), findsNothing, reason: other);
@@ -987,7 +992,7 @@ void main() {
       await openSheet(tester, checks);
       await checks.run(CheckSource.drain, () async => 1, outcomeOf: (_) => const CheckOutcome(received: 4, buffered: 2));
       await settle(tester);
-      expect(inSheet('Checked at'), findsOneWidget);
+      expect(inSheet('Checked just now'), findsOneWidget);
       for (final other in lines.keys) {
         expect(inSheet(other), findsNothing, reason: other);
       }

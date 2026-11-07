@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/onion_notice.dart' show onionNoticeKey, onionNoticeSeen;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -105,7 +106,8 @@ Future<void> _pump(
   );
   final store = MemorySecretStore()
     ..values['wallet.${config.chain.name}.backedUp'] = '1'
-    ..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+    ..values[phoneAdvancedPrefsKey] = phoneExperimentalOn
+    ..values[onionNoticeKey(config.chain.name, null)] = onionNoticeSeen;
   await tester.pumpWidget(
     ProviderScope(
       retry: (_, _) => null,
