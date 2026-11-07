@@ -271,51 +271,12 @@ class TrustTest(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.prev = make_release(self.root / "rel", "26.10.24")
         self.cand = make_release(self.root / "rel", "26.10.25")
-        self.drivers = self.root / "wt" / "tools" / "rellib" / "drivers"
-        self.drivers.mkdir(parents=True)
-        for p in nightly.TRUST_PLATFORMS:
-            (self.drivers / f"trust-{p}.sh").write_text("#!/bin/sh\n")
 
     def tearDown(self):
         self.tmp.cleanup()
 
     def publish(self, *pubs):
         (self.root / "rel" / "published.json").write_text(json.dumps(list(pubs)))
-
-    def runner(self, rc, checks=None, seen=None):
-        def run(argv, env, log, timeout):
-            if seen is not None:
-                seen.append(env)
-            if checks is not None:
-                Path(env["REL_OUT"], "proof.json").write_text(json.dumps({"checks": checks}))
-            return rc
-        return run
-
-    def trust(self, runner, notor=False, **kw):
-        """The steps; the no-Tor leg is left out unless asked (the fixture releases have no -notor build)."""
-        steps = nightly.run_trust(self.root / "run", {}, worktree=self.root / "wt",
-                                  rel_root=self.root / "rel", runner=runner,
-                                  busy=lambda: [], **kw)
-        return steps if notor else [s for s in steps if s["platform"] != "linux-notor"]
-
-    def test_the_no_tor_leg_follows_linux_and_sends_no_funds(self):
-        for rel in (self.prev, self.cand):
-            v = rel["version"]
-            (Path(rel["run"]) / "files" / f"bt-wallet-{v}-notor-linux-x86_64.AppImage").write_text("x")
-        self.publish(self.prev, self.cand)
-        seen = []
-        steps = self.trust(self.runner(0, {"a": True}, seen), notor=True)
-        self.assertEqual([s["platform"] for s in steps], ["linux", "linux-notor", "android", "windows"])
-        self.assertEqual([s["status"] for s in steps], ["ok"] * 4)
-        legs = [(e["REL_VARIANT"], e["REL_FUNDS"]) for e in seen if e["REL_VARIANT"] != "tor" or e["REL_FUNDS"] == "1"]
-        self.assertIn(("notor", "0"), legs)
-        self.assertIn(("tor", "1"), legs)
-
-    def test_the_no_tor_leg_is_skipped_when_a_release_has_no_notor_build(self):
-        self.publish(self.prev, self.cand)
-        steps = self.trust(self.runner(0, {"a": True}), notor=True)
-        notor = next(s for s in steps if s["platform"] == "linux-notor")
-        self.assertEqual(notor["status"], "skipped")
 
     def test_pair_is_the_last_two_published(self):
         old = make_release(self.root / "rel", "26.10.23")
@@ -348,87 +309,57 @@ class TrustTest(unittest.TestCase):
         self.assertIsNone(env)
         self.assertIn("binary missing", why)
 
-    def test_no_published_json_skips_every_platform(self):
-        steps = self.trust(self.runner(0))
-        self.assertEqual([s["status"] for s in steps], ["skipped"] * 3)
-        self.assertEqual(nightly.trust_summary(steps)["status"], "skipped")
+    def test_failing_checks_names_what_is_not_true(self):
+        self.assertEqual(nightly.failing_checks({"checks": {"a": True, "send_ok": False, "b": None}}), ["b", "send_ok"])
+        self.assertEqual(nightly.failing_checks(None), [])
 
-    def test_green_pass_env_and_step_shape(self):
-        self.publish(self.prev, self.cand)
-        seen = []
-        ok = {"wallet_opens": True, "send_ok": True}
-        steps = self.trust(self.runner(0, ok, seen))
-        self.assertEqual([s["status"] for s in steps], ["ok"] * 3)
-        s = steps[0]
-        self.assertEqual(s["name"], "G4 trust linux (26.10.24 \u2192 26.10.25)")
-        self.assertEqual(set(s) - {"log"}, {"name", "group", "platform", "status", "duration_s", "proof"})
-        self.assertTrue(s["proof"].endswith("trust-linux/proof.json"))
-        env = [e for e in seen if e["REL_OUT"].endswith("trust-android")][0]
-        self.assertEqual((env["REL_VARIANT"], env["REL_FUNDS"], env["REL_NODE"], env["REL_EPICBOX"]),
-                         ("tor", "1", "https://node.btlabs.uk", "epicbox.stackwallet.com"))
-        self.assertTrue(env["REL_PREVIOUS_DIR"].endswith("26.10.24/run-1/extra"))
-        self.assertTrue(env["REL_CANDIDATE_DIR"].endswith("26.10.25/run-1/files"))
-        self.assertTrue(env["REL_CANDIDATE_EXTRA"].endswith("26.10.25/run-1/extra"))
+    def lanes(self, **entries):
+        base = {"class": "warn", "status": "done", "warned": False, "note": "", "duration_s": 60}
+        return {"status": "ok", "reason": "",
+                "record": {"sha": "x", "lanes": {k: dict(base, **v) for k, v in entries.items()}}}
+
+    def test_lanes_trust_all_green(self):
+        steps = nightly.lanes_trust(self.lanes(**{
+            "trust-pair-linux": {}, "trust-pair-linux-notor": {}, "trust-pair-android": {},
+            "trust-pair-windows": {}, "flutter-test": {}}))
+        self.assertEqual(sorted(s["platform"] for s in steps), ["android", "linux", "linux-notor", "windows"])
+        self.assertEqual({s["status"] for s in steps}, {"ok"})
+        s = next(s for s in steps if s["platform"] == "linux-notor")
+        self.assertEqual((s["name"], s["group"], s["duration_s"]), ("G4 trust linux-notor", "trust", 60))
         self.assertEqual(nightly.trust_summary(steps)["status"], "green")
 
-    def test_missing_binaries_skip_and_driver_exit_2_skips(self):
-        self.publish(self.prev, self.cand)
-        (Path(self.cand["run"]) / "files" / "bt-wallet-26.10.25-windows-x64-setup.exe").unlink()
-        steps = self.trust(self.runner(2))
+    def test_lanes_trust_warned_failed_and_skipped(self):
+        steps = nightly.lanes_trust(self.lanes(**{
+            "trust-pair-linux": {"warned": True, "note": "balance_kept"},
+            "trust-pair-android": {"status": "failed", "note": "driver exit 1"},
+            "trust-pair-windows": {"status": "skipped", "note": "x"}}))
         by = {s["platform"]: s for s in steps}
-        self.assertEqual(by["windows"]["status"], "skipped")
-        self.assertIn("binary missing", by["windows"]["reason"])
-        self.assertEqual(by["linux"]["status"], "skipped")
-        self.assertIn("could not run", by["linux"]["reason"])
-        self.assertEqual(nightly.trust_summary(steps)["status"], "skipped")
-
-    def test_failed_checks_are_named_and_make_the_dm(self):
-        self.publish(self.prev, self.cand)
-        bad = {"wallet_opens": True, "balance_kept": False, "send_ok": False}
-        steps = self.trust(self.runner(1, bad))
-        self.assertEqual([s["status"] for s in steps], ["fail"] * 3)
-        self.assertEqual(steps[0]["failing_checks"], ["balance_kept", "send_ok"])
-        summary = nightly.trust_summary(steps)
+        self.assertEqual((by["linux"]["status"], by["linux"]["reason"]), ("fail", "balance_kept"))
+        self.assertEqual((by["android"]["status"], by["android"]["reason"]), ("fail", "driver exit 1"))
+        self.assertEqual((by["windows"]["status"], by["windows"]["reason"]), ("skipped", "skipped"))
+        summary = nightly.trust_summary(steps)  # steps carry no failing_checks
         self.assertEqual(summary["status"], "red")
-        self.assertEqual(summary["failed"][0], "linux: balance_kept, send_ok")
+        self.assertEqual(summary["failed"], ["android: driver exit 1", "linux: balance_kept"])
         result = {"status": "green", "sha": RED["sha"], "duration_s": 60, "trust": summary,
                   "steps": steps, "commits_since_green": ["abc subject"]}
         self.assertTrue(nightly.trust_red(result))
         body = nightly.dm_body(result)
         self.assertEqual(body["kind"], "red")
         self.assertEqual(body["key"], "nightly-7b2cc6ce-trust")
-        self.assertEqual(body["step"], steps[0]["name"])
-        self.assertEqual(body["tests"][0], "linux: balance_kept, send_ok")
-        self.assertNotIn("commits", body)
         self.assertLessEqual(set(body), nightly.DM_FIELDS)
         line = nightly.summary_line(dict(result, ended="2026-10-31T03:00:00Z"))
-        self.assertIn("G4 trust red: linux: balance_kept, send_ok", line)
+        self.assertIn("G4 trust red: android: driver exit 1", line)
 
-    def test_timeout_and_no_proof_fail(self):
-        self.publish(self.prev, self.cand)
-        steps = self.trust(self.runner(None), )
-        self.assertTrue(all(s["status"] == "fail" and "timed out" in s["reason"] for s in steps))
-        steps = self.trust(self.runner(0))  # exit 0 without a proof.json is not proof
-        self.assertEqual({s["status"] for s in steps}, {"fail"})
+    def test_lanes_trust_without_a_record_or_steps_is_empty(self):
+        self.assertEqual(nightly.lanes_trust(None), [])
+        self.assertEqual(nightly.lanes_trust({"status": "skipped", "reason": "x", "record": None}), [])
+        self.assertEqual(nightly.lanes_trust(self.lanes(**{"flutter-test": {}})), [])
+        self.assertIsNone(nightly.trust_summary([]))
 
-    def test_switches_and_busy(self):
-        self.publish(self.prev, self.cand)
-        import os
-        old = dict(os.environ)
-        try:
-            os.environ["NIGHTLY_TRUST"] = "0"
-            self.assertEqual(self.trust(self.runner(0)), [])
-            os.environ["NIGHTLY_TRUST"] = "1"
-            os.environ["NIGHTLY_TRUST_PLATFORMS"] = "linux,android"
-            self.assertEqual([s["platform"] for s in self.trust(self.runner(0, {"a": True}))],
-                             ["linux", "android"])
-        finally:
-            os.environ.clear()
-            os.environ.update(old)
-        steps = nightly.run_trust(self.root / "run", {}, worktree=self.root / "wt",
-                                  rel_root=self.root / "rel", runner=self.runner(0),
-                                  busy=lambda: ["lock"])
-        self.assertEqual({s["reason"] for s in steps}, {"a release run is active"})
+    def test_not_run_names_trust_when_lanes_give_none(self):
+        lanes = self.lanes(**{"flutter-test": {}})
+        got = nightly.not_run(None, nightly.lanes_trust(lanes), lanes)
+        self.assertEqual(got, ["G4 trust: no leg started"])
 
     def test_green_source_with_trust_green_sends_nothing(self):
         result = {"status": "green", "sha": RED["sha"], "trust": {"status": "green", "failed": []}}

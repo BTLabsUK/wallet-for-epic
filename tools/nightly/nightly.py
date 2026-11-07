@@ -53,21 +53,15 @@ A run:
      (tools/lepic.sh xtask, report only): latest.json `drift` {status: clean|drift|unknown, lines},
      a `group: drift` step, and the summary line names the modules with upstream changes. Drift or an
      unreachable upstream never turns the nightly red or sends a DM;
-  7b. after a green or red source check, one fast G4 update-trust pass per platform (linux, android,
-     windows) on the LAST TWO PUBLISHED releases (no builds): previous = the one before the last in
-     /tmp/epic-build/rel/published.json plus published-by-hand.json (hand releases), candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
-     and Epicbox first, the commit's own drivers (tools/rellib/drivers/trust-<platform>.sh). The
-     three run side by side, each under a time limit, output in <run>/trust-<platform>/ (proof.json
-     there). Each is a step in latest.json (`group: trust`, `proof`, `failing_checks`) with
-     status ok / fail / skipped (missing binaries, fewer than two published releases, a release run
-     active, a driver that could not run: exit 2). The source status stays green (the G2 reuse and
-     last_green_sha stay about the source); a failed trust step is `trust: {status: red, ...}` and
-     sends ONE DM (key nightly-<sha8>-trust) naming the failing checks. NIGHTLY_TRUST=0 turns the
-     pass off, NIGHTLY_TRUST_PLATFORMS=linux,android limits it, NIGHTLY_TRUST_CHECKS overrides
-     REL_CHECKS (default: the driver's eight);
-  7b2. the Linux trust pass has a second, no-Tor leg (platform linux-notor: the -notor AppImages,
-     REL_VARIANT=notor, REL_FUNDS=0, so it sends nothing) after the Tor leg; it is skipped when a
-     release has no -notor build;
+  7b. the update trust pass on the LAST TWO PUBLISHED releases (no builds) is four steps of the
+     night stage (tools/rel --night, release/pipeline.toml: trust-pair-linux, trust-pair-linux-notor,
+     trust-pair-android, trust-pair-windows; driver wrapper tools/nightly/trust_pair.py). The
+     nightly no longer runs it: it reads the steps from the night's lanes record (`lanes_trust`)
+     and each is a step in latest.json (`group: trust`) with status ok / fail / skipped. A trust
+     step that is not in the record reads as not run (`incomplete`). The source status stays green
+     (the G2 reuse and last_green_sha stay about the source); a failed trust step is
+     `trust: {status: red, ...}` and sends ONE DM (key nightly-<sha8>-trust);
+  7b2. the Linux no-Tor leg is trust-pair-linux-notor (REL_FUNDS=0, so it sends nothing);
   7e. after a green or red source check (a red one is recorded and the night carries on, so one
      night collects every bug): LEPIC acceptance (`tools/lepic.sh smoke`, step group acceptance),
      then `tools/rel start --night --commit <sha>`, with --skip source-check after a red check, which
@@ -141,8 +135,6 @@ DM_FIELDS = {"kind", "sha", "key", "step", "counts", "duration", "reason", "test
              "log", "test"}
 DM_RETRIES = 3
 REL_ROOT = Path(os.environ.get("WFE_NIGHTLY_REL_ROOT", HOME / "epic-build" / "rel"))
-TRUST_PLATFORMS = ("linux", "android", "windows")
-TRUST_TIMEOUT_S = {"linux": 50 * 60, "android": 60 * 60, "windows": 60 * 60}
 TRUST_NODE = "https://node.btlabs.uk"
 TRUST_EPICBOX = "epicbox.stackwallet.com"
 SENT_KEYS_KEPT = 500
@@ -739,70 +731,12 @@ def failing_checks(proof):
     return sorted(k for k, v in checks.items() if v is not True)
 
 
-def run_trust_one(platform, prev, cand, run_dir, driver, env_base, runner=None, now=time.monotonic,
-                  variant="tor"):
-    """One platform's step dict. `runner(argv, env, log_path, timeout)` -> rc or None (timeout);
-    injectable for tests."""
-    label = platform if variant == "tor" else f"{platform}-{variant}"
-    title = f"G4 trust {label} ({prev['version']} \u2192 {cand['version']})"
-    step = {"name": title, "group": "trust", "platform": label, "status": "skipped",
-            "duration_s": 0}
-    out = Path(run_dir) / f"trust-{label}"
-    env_extra, why = trust_inputs(platform, prev, cand, variant)
-    if env_extra is None:
-        step["reason"] = why
-        return step
-    if not Path(driver).is_file():
-        step["reason"] = f"no driver {driver}"
-        return step
-    out.mkdir(parents=True, exist_ok=True)
-    env = dict(env_base)
-    env.update(env_extra)
-    # The no-Tor leg sends nothing: the test builds' funds run on the Tor variant only (pipeline.toml funds_variant).
-    env.update(REL_VARIANT=variant, REL_FUNDS="1" if variant == "tor" else "0", REL_NODE=TRUST_NODE, REL_EPICBOX=TRUST_EPICBOX,
-               REL_OUT=str(out))
-    if os.environ.get("NIGHTLY_TRUST_CHECKS"):
-        env["REL_CHECKS"] = os.environ["NIGHTLY_TRUST_CHECKS"]
-    log = out / "driver.log"
-    t0 = now()
-    rc = (runner or run_driver)([str(driver)], env, log, TRUST_TIMEOUT_S[platform])
-    step["duration_s"] = int(now() - t0)
-    proof_path = out / "proof.json"
-    proof = read_json(proof_path, None)
-    if proof_path.is_file():
-        step["proof"] = str(proof_path)
-    step["log"] = str(log)
-    if rc is None:
-        step["status"] = "fail"
-        step["reason"] = f"timed out after {TRUST_TIMEOUT_S[platform] // 60} min"
-    elif rc == 0 and not failing_checks(proof) and proof is not None:
-        step["status"] = "ok"
-    elif rc == 2:
-        step["status"] = "skipped"  # the driver could not run (rig / emulator / tool missing)
-        step["reason"] = "driver could not run: " + _clip(
-            str((proof or {}).get("reason") or (proof or {}).get("error") or _harness_line(log)), 200)
-    else:
-        step["status"] = "fail"
-        step["failing_checks"] = failing_checks(proof)
-        step["reason"] = f"driver exit {rc}" + ("" if proof is not None else ", no proof.json")
-    return step
-
-
 def _last_line(path):
     try:
         lines = [l for l in Path(path).read_text(encoding="utf-8", errors="replace").splitlines() if l.strip()]
     except OSError:
         return "no log"
     return lines[-1] if lines else "no output"
-
-
-def _harness_line(log):
-    """The line that says why a driver could not run; else its last line (a phrase scan follows)."""
-    try:
-        lines = Path(log).read_text(encoding="utf-8", errors="replace").splitlines()
-    except OSError:
-        lines = []
-    return next((l for l in reversed(lines) if "HARNESS" in l), None) or _last_line(log)
 
 
 def run_driver(argv, env, log_path, timeout, cwd=None):
@@ -965,53 +899,25 @@ def record_by_commit(sha, status, ended, path=None):
     write_json(path, data)
 
 
-def trust_enabled(environ=None):
-    e = os.environ if environ is None else environ
-    return str(e.get("NIGHTLY_TRUST", "1")).strip().lower() not in ("0", "false", "no", "off")
-
-
-def trust_platforms(environ=None):
-    e = os.environ if environ is None else environ
-    want = [p.strip() for p in str(e.get("NIGHTLY_TRUST_PLATFORMS", "")).split(",") if p.strip()]
-    return [p for p in TRUST_PLATFORMS if not want or p in want]
-
-
-def run_trust(run_dir, env_base, worktree=None, rel_root=None, runner=None, busy=None):
-    """The whole pass: a list of step dicts, one per platform (parallel); [] when switched off."""
-    if not trust_enabled():
-        return []
-    platforms = trust_platforms()
-    prev, cand = published_pair(rel_root)
-    if prev is None:
-        return [{"name": f"G4 trust {p}", "group": "trust", "platform": p, "status": "skipped",
-                 "duration_s": 0, "reason": cand} for p in platforms]
-    held = (busy or rel_busy)()
-    if held:
-        return [{"name": f"G4 trust {p} ({prev['version']} \u2192 {cand['version']})", "group": "trust",
-                 "platform": p, "status": "skipped", "duration_s": 0,
-                 "reason": "a release run is active"} for p in platforms]
-    drivers = Path(worktree or WORKTREE) / "tools" / "rellib" / "drivers"
-    results = {}
-
-    def one(p):
-        # Linux's no-Tor leg follows its Tor leg in the same thread: both use Xvfb, the keyring and AT-SPI.
-        legs = [(p, "tor")] + ([(p, "notor")] if p == "linux" else [])
-        results[p] = []
-        for plat, variant in legs:
-            try:
-                results[p].append(run_trust_one(plat, prev, cand, run_dir, drivers / f"trust-{plat}.sh",
-                                                env_base, runner=runner, variant=variant))
-            except Exception as e:  # one platform's trouble never stops the others
-                results[p].append({"name": f"G4 trust {plat} ({prev['version']} \u2192 {cand['version']})",
-                                   "group": "trust", "platform": plat, "status": "fail", "duration_s": 0,
-                                   "reason": f"nightly error: {str(e)[:150]}"})
-
-    threads = [threading.Thread(target=one, args=(p,)) for p in platforms]
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
-    return [step for p in platforms for step in results[p]]
+def lanes_trust(lanes):
+    """The night's trust steps, one per trust-pair-* step of the lanes record, in the shape of the
+    result and the DM. No record or no such step gives []."""
+    out = []
+    for base, e in sorted(((lanes or {}).get("record") or {}).get("lanes", {}).items()):
+        if not base.startswith("trust-pair-"):
+            continue
+        label = base[len("trust-pair-"):]
+        status, note = e.get("status"), e.get("note") or ""
+        step = {"name": f"G4 trust {label}", "group": "trust", "platform": label,
+                "duration_s": e.get("duration_s") or 0}
+        if status == "done" and not e.get("warned"):
+            step["status"] = "ok"
+        elif status in ("done", "failed"):
+            step.update(status="fail", reason=note or ("warned" if status == "done" else "failed"))
+        else:
+            step.update(status="skipped", reason=str(status or "not run"))
+        out.append(step)
+    return out
 
 
 def rig_health(worktree=None, hosts_file=None, probe=None):
@@ -1342,8 +1248,8 @@ def cmd_run(by_hand, pinned_sha=None):
     acc = None
     if status != "error":
         acc = run_acceptance(run_dir, side_env)
-        trust_steps = run_trust(run_dir, side_env)
         lanes = run_night_lanes(sha, run_dir, side_env, by_hand, catchup, source_red=status == "red")
+        trust_steps = lanes_trust(lanes)
         record = lanes["record"] or {"sha": sha, "lanes": {}}
         if acc["status"] != "skipped":
             record = dict(record, lanes=dict(record["lanes"], acceptance=acceptance_lane(
