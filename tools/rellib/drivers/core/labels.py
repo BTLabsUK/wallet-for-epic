@@ -67,10 +67,11 @@ class Labels:
     @classmethod
     def for_build(cls, which, ids=True):
         """`previous` or `candidate`, from the runner's env (tools/rel's contract, trust-*.sh). `ids=False`
-        for a platform the app's ids do not reach: its candidate goes by its own labels."""
+        for a platform the app's ids do not reach: its candidate goes by its own labels, as does a
+        published build in the candidate's place (REL_TRUST_PAIR, trust-pair-*: it may predate the ids)."""
         if which == "candidate":
             lab = cls(src=os.environ.get("REL_CANDIDATE_SRC"), ref=os.environ.get("REL_CANDIDATE_REF"))
-            lab.ids_only = ids
+            lab.ids_only = ids and not os.environ.get("REL_TRUST_PAIR")
             return lab
         v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
         ref = (os.environ.get("REL_PREVIOUS_REF") or "").strip() or (("v" + v.lstrip("v")) if v else None)

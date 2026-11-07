@@ -26,7 +26,8 @@ def main(platform, variant):
     out = Path(os.environ["REL_OUT"])
     out.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ, REL_VARIANT=variant, REL_FUNDS="1" if variant == "tor" else "0",
-               REL_NODE=nightly.TRUST_NODE, REL_EPICBOX=nightly.TRUST_EPICBOX, **extra)
+               REL_NODE=nightly.TRUST_NODE, REL_EPICBOX=nightly.TRUST_EPICBOX,
+               REL_CANDIDATE_REF="v" + cand["version"], **extra)
     print(f"trust-pair: {platform} {variant}, {prev['version']} to {cand['version']}", flush=True)
     rc = subprocess.call([str(HERE.parent / "rellib" / "drivers" / f"trust-{platform}.sh")], env=env)
     try:

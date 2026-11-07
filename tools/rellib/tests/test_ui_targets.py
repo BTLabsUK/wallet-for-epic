@@ -10,6 +10,7 @@ import os
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path[:0] = [os.path.join(os.path.dirname(HERE), "drivers"), os.path.join(os.path.dirname(HERE), "drivers", "linux")]
@@ -144,6 +145,14 @@ class MarkTest(unittest.TestCase):
         self.assertEqual(_marked("⟦g4.send.confirm⟧\nConfirm"), ("g4.send.confirm", "Confirm"))
         self.assertEqual(_marked("Confirm"), (None, "Confirm"))
         self.assertEqual(_marked(None), (None, ""))
+
+
+class PublishedPairTest(unittest.TestCase):
+    def test_a_published_build_in_the_candidates_place_goes_by_labels(self):
+        with unittest.mock.patch.dict(os.environ, {"REL_CANDIDATE_REF": "HEAD"}):
+            self.assertTrue(Labels.for_build("candidate").ids_only)
+            with unittest.mock.patch.dict(os.environ, {"REL_TRUST_PAIR": "published"}):
+                self.assertFalse(Labels.for_build("candidate").ids_only)
 
 
 if __name__ == "__main__":
