@@ -101,7 +101,8 @@ class WindowsPlatform(Platform):
         self.custom_node = self.custom_relay = None
         self.lan_before = None
         stamp = time.strftime("%Y%m%d-%H%M%S")
-        self.name_run = "%s-%s-to-%s-%s" % (self.variant, self.prev_ver or "?", self.cand_ver or "?", stamp)
+        # no "?" for a missing version: the name is a folder on the rig, and a create run has no previous
+        self.name_run = "%s-%s-to-%s-%s" % (self.variant, self.prev_ver or "none", self.cand_ver or "none", stamp)
         self.work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows")
         self.work = os.path.join(self.work_root, self.name_run)
         self.rig = None
