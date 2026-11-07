@@ -3666,14 +3666,13 @@
   "sasSkip": "Vorerst überspringen",
   "sasLater": "Später",
   "sasMatchedTitle": "{name} ist verifiziert",
-  "sasMatchedBody": "Transaktionsdateien und Rechnungen mit {name} sind ab jetzt versiegelt.",
+  "sasMatchedBody": "Transaktionsdateien mit {name} sind ab jetzt versiegelt.",
   "sasNoMatchTitle": "Die Wörter stimmen nicht überein",
   "sasNoMatchBody": "Die Kopplung endet auf beiden Seiten, und nichts, was hindurch gesendet wurde, wird abgeschlossen. Koppeln Sie erneut mit einer frischen Einladung.",
   "sasStopPairing": "Kopplung abbrechen",
   "sasSkippedTitle": "Mit {name} gekoppelt",
   "sasSkippedBody": "Transaktionsdateien mit {name} sind versiegelt. Prüfen Sie die Wörter auf der Kontaktseite von {name}, sobald es geht; Rechnungen warten bis dahin.",
   "sasCheckNow": "Jetzt prüfen",
-  "sasAllowAfterMatch": "Gilt, sobald Sie bestätigen, dass die Wörter übereinstimmen.",
   "sasAllowInvoicesHint": "Die Wallet von {name} kann Sie um Zahlung bitten. Ohne Ihre PIN wird nichts bezahlt.",
   "trustVerified": "Verifiziert",
   "trustPaired": "Gekoppelt, nicht verifiziert",
@@ -5392,5 +5391,8 @@
   "msgCheckItemPairingFailed": "{count, plural, one{{count} Kopplung nicht abgeschlossen} other{{count} Kopplungen nicht abgeschlossen}}",
   "msgCheckItemUnreadable": "{count, plural, one{{count} Nachricht konnte nicht gelesen werden} other{{count} Nachrichten konnten nicht gelesen werden}}",
   "msgCheckWhyUnreadable": "Auf diesem Gerät aufbewahrt.",
-  "noticeDigestNew": "{count, plural, one{{count} neue Aktualisierung} other{{count} neue Aktualisierungen}}"
+  "noticeDigestNew": "{count, plural, one{{count} neue Aktualisierung} other{{count} neue Aktualisierungen}}",
+  "sasAllowOffLine": "Rechnungen von {name} sind aus.",
+  "contactAllowFinishCheck": "Zuerst die Schlüsselprüfung abschließen",
+  "sasAllowInvoicesHintDesktop": "Die Wallet von {name} kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt."
 }

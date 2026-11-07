@@ -18804,7 +18804,7 @@
       }
     }
   },
-  "sasMatchedBody": "Transaction files and invoices with {name} are sealed from now on.",
+  "sasMatchedBody": "Transaction files with {name} are sealed from now on.",
   "@sasMatchedBody": {
     "description": "Result body.",
     "placeholders": {
@@ -18849,10 +18849,6 @@
   "sasCheckNow": "Check now",
   "@sasCheckNow": {
     "description": "Button after Skip."
-  },
-  "sasAllowAfterMatch": "On once you confirm the words match.",
-  "@sasAllowAfterMatch": {
-    "description": "Under the Allow invoices switch on the exchange check."
   },
   "sasAllowInvoicesHint": "{name}’s wallet can ask you to pay. Nothing is paid without your PIN.",
   "@sasAllowInvoicesHint": {
@@ -28264,6 +28260,30 @@
       "host": {
         "type": "String",
         "example": "epic.node.example"
+      }
+    }
+  },
+  "sasAllowOffLine": "Invoices from {name} are off.",
+  "@sasAllowOffLine": {
+    "description": "Under Allow invoices on the result while it is off.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "contactAllowFinishCheck": "Finish the key check first",
+  "@contactAllowFinishCheck": {
+    "description": "Under the disabled Allow invoices switch while a key check is open."
+  },
+  "sasAllowInvoicesHintDesktop": "{name}’s wallet can ask you to pay. Nothing is paid without the wallet password.",
+  "@sasAllowInvoicesHintDesktop": {
+    "description": "Under Allow invoices on the desktop result while it is on.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
       }
     }
   }

@@ -18,7 +18,7 @@ import '../../app/shell.dart' show deskRouteShown;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
-import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, RelayMoveState, SealMode, contactKinds, pairingVouchesFor;
+import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, RelayMoveState, SealMode, contactKinds, keyCheckOpenFor, pairingVouchesFor;
 import '../../../relay_moves.dart' show relayLabelOf;
 import '../../../pairing_text.dart' show pairingEndedRowText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
@@ -1466,6 +1466,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     final waiting = p.state == PairingState.waiting;
     final paused = ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff;
     final locked = _busy || paused || changed || waiting;
+    final keyCheckOpen = keyCheckOpenFor(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[], p);
     final back = ref.watch(deskKeysBackProvider).contains(p.id);
     final provesOther = p.paymentsAddress != null && x.epicbox != null && !pairingVouchesFor(p, x.epicbox);
     // A pairing made before addresses were proven: nothing confirms the contact's address.
@@ -1605,12 +1606,12 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             if (!noPayments)
               ESetRow(
                 title: l.contactAllowInvoices,
-                text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
+                text: changed ? l.contactPausedUntilChecked : (keyCheckOpen ? l.contactAllowFinishCheck : (verified ? null : l.contactCheckWordsFirst)),
                 hint: l.contactAllowInfoDesktop(name),
                 control: ESwitch(
                   value: verified && p.allowInvoices,
                   semanticLabel: l.contactAllowInvoices,
-                  onChanged: locked || !verified
+                  onChanged: locked || !verified || keyCheckOpen
                       ? null
                       : (v) => _run(() async {
                           final declined = await deskPairingCall(ref, (api) => api.setAllowInvoices(p.id, v));

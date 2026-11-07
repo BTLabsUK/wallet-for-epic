@@ -14338,7 +14338,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Transaktionsdateien und Rechnungen mit $name sind ab jetzt versiegelt.';
+    return 'Transaktionsdateien mit $name sind ab jetzt versiegelt.';
   }
 
   @override
@@ -14363,10 +14363,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'Jetzt prüfen';
-
-  @override
-  String get sasAllowAfterMatch =>
-      'Gilt, sobald Sie bestätigen, dass die Wörter übereinstimmen.';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -21100,5 +21096,19 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'Node liegt zurück. Gewechselt zu $host.';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'Rechnungen von $name sind aus.';
+  }
+
+  @override
+  String get contactAllowFinishCheck =>
+      'Zuerst die Schlüsselprüfung abschließen';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'Die Wallet von $name kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt.';
   }
 }

@@ -3161,7 +3161,6 @@ class PairingRecord {
     this.sas = const [],
     this.verifiedAt,
     this.allowInvoices = false,
-    this.asksInvoices = false,
     this.seal = SealMode.on,
     this.homeRelay = '',
     this.contactId,
@@ -3216,9 +3215,6 @@ class PairingRecord {
   /// record (RFC 11.1).
   final bool allowInvoices;
 
-  /// The invite asked to allow invoices (an exchange's): preselected, effective only once the
-  /// words match.
-  final bool asksInvoices;
   final SealMode seal;
 
   /// The relay the contact delivers through ("Delivered via"), `domain[:port]`.
@@ -3390,7 +3386,6 @@ class PairingRecord {
     sas: sas ?? this.sas,
     verifiedAt: clearVerified ? null : verifiedAt ?? this.verifiedAt,
     allowInvoices: allowInvoices ?? this.allowInvoices,
-    asksInvoices: asksInvoices,
     seal: seal ?? this.seal,
     homeRelay: homeRelay ?? this.homeRelay,
     contactId: clearContact ? null : contactId ?? this.contactId,
@@ -3503,6 +3498,14 @@ PairingRecord? contactPairingOf(Iterable<PairingRecord> pairings, String contact
   return best;
 }
 
+/// Whether a newer pairing of [p]'s contact is still checking whether [p]'s keys are back
+/// ([PairingRecord.checksKeys]): invoices arrive on that one, while the contact page shows [p].
+bool keyCheckOpenFor(Iterable<PairingRecord> pairings, PairingRecord p) {
+  final contactId = p.contactId;
+  if (contactId == null) return false;
+  return pairings.any((r) => r.id != p.id && r.contactId == contactId && r.checksKeys && !r.ended);
+}
+
 /// Whether the pairing [r] vouches for a contact whose Epicbox address is [epicbox] (every
 /// contact alike, never one by name): a contact holds one Epicbox address, and "Verified" is
 /// only ever about it. True for a contact with none, or with the address the pairing delivered
@@ -3534,7 +3537,6 @@ class PairingInvitePreview {
     required this.name,
     required this.expiresAt,
     this.kind = PairingParty.person,
-    this.asksInvoices = false,
     this.homeRelay = '',
     this.wordsAvailable = true,
     this.fromAddress,
@@ -3550,8 +3552,6 @@ class PairingInvitePreview {
   final DateTime expiresAt;
   final PairingParty kind;
 
-  /// The invite asks the user to allow the inviter's invoices (an exchange's, RFC 12.2).
-  final bool asksInvoices;
   final String homeRelay;
 
   /// The relay the answer goes to is reachable now; false sends the answer by hand.

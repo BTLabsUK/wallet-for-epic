@@ -168,8 +168,7 @@ abstract interface class PairingApi {
   /// [PairingEventKind.requested]. Not kept across a restart.
   Future<void> takeForwardedRequest(PairRequest request);
 
-  /// Answers the code of [preview] as [name]. [allowInvoices] is the user's choice on a code
-  /// that asks for it; it takes effect once the words match. [contactId] attaches the
+  /// Answers the code of [preview] as [name]. [contactId] attaches the
   /// pairing to an address-book contact. The answer goes through the code's relay; when
   /// [byHand] is set, or the relay is unreachable ([PairingRecord.relayDown] on the result),
   /// it waits to be sent as a link ([replyLink]). A preview of a request expects the confirm
@@ -180,7 +179,6 @@ abstract interface class PairingApi {
   Future<PairingRecord> acceptInvite({
     required String token,
     required String name,
-    bool allowInvoices = false,
     String? contactId,
     bool byHand = false,
   });
@@ -427,7 +425,7 @@ class NoPairing implements PairingApi {
   Future<void> takeForwardedRequest(PairRequest request) async => throw pairingUnsupported('takeForwardedRequest');
 
   @override
-  Future<PairingRecord> acceptInvite({required String token, required String name, bool allowInvoices = false, String? contactId, bool byHand = false}) async =>
+  Future<PairingRecord> acceptInvite({required String token, required String name, String? contactId, bool byHand = false}) async =>
       throw pairingUnsupported('acceptInvite');
 
   @override

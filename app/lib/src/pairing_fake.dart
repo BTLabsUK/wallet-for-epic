@@ -617,7 +617,6 @@ class FakePairing implements PairingApi {
     required String name,
     Duration expiresIn = const Duration(days: 6, hours: 23),
     PairingParty kind = PairingParty.person,
-    bool asksInvoices = false,
     String? relay,
     String? from,
   }) {
@@ -627,7 +626,6 @@ class FakePairing implements PairingApi {
       'n': name,
       'e': clock().add(expiresIn).millisecondsSinceEpoch,
       'k': kind.name,
-      'i': asksInvoices,
       'r': relay ?? homeRelay,
       'from': ?from,
     });
@@ -842,7 +840,6 @@ class FakePairing implements PairingApi {
       name: body['n'] as String? ?? '',
       expiresAt: expires,
       kind: PairingParty.values.asNameMap()[body['k']] ?? PairingParty.person,
-      asksInvoices: body['i'] == true,
       homeRelay: body['r'] as String? ?? homeRelay,
       wordsAvailable: !relayUnreachable,
       fromAddress: stored?.fromAddress ?? body['from'] as String?,
@@ -900,7 +897,6 @@ class FakePairing implements PairingApi {
   Future<PairingRecord> acceptInvite({
     required String token,
     required String name,
-    bool allowInvoices = false,
     String? contactId,
     bool byHand = false,
   }) async {
@@ -936,8 +932,7 @@ class FakePairing implements PairingApi {
       createdAt: now,
       name: preview.name,
       kind: preview.kind,
-      caps: PairingCaps(issuesInvoices: preview.asksInvoices || preview.kind != PairingParty.person, sendsWithdrawals: preview.kind == PairingParty.exchange),
-      asksInvoices: preview.asksInvoices && allowInvoices,
+      caps: PairingCaps(issuesInvoices: preview.kind != PairingParty.person, sendsWithdrawals: preview.kind == PairingParty.exchange),
       homeRelay: preview.homeRelay,
       contactId: contactId,
       expiresAt: now.add(pairingReplyWait),
@@ -987,7 +982,6 @@ class FakePairing implements PairingApi {
           state: PairingState.verified,
           verifiedAt: clock(),
           peerHeardAt: r.peerHeardAt ?? clock(),
-          allowInvoices: r.asksInvoices || r.allowInvoices,
         );
         _put(verified);
         return verified;

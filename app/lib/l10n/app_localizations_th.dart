@@ -13801,7 +13801,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'นับจากนี้ ไฟล์ธุรกรรมและใบแจ้งหนี้กับ $name จะถูกปิดผนึก';
+    return 'นับจากนี้ ไฟล์ธุรกรรมกับ $name จะถูกปิดผนึก';
   }
 
   @override
@@ -13826,9 +13826,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'ตรวจตอนนี้';
-
-  @override
-  String get sasAllowAfterMatch => 'เปิดใช้เมื่อคุณยืนยันว่าคำตรงกัน';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -20409,5 +20406,18 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'โหนดตามหลังอยู่ สลับไปที่ $host แล้ว';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'ใบแจ้งหนี้จาก $name ปิดอยู่';
+  }
+
+  @override
+  String get contactAllowFinishCheck => 'ตรวจสอบกุญแจให้เสร็จก่อน';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ';
   }
 }

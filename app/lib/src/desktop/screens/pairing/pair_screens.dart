@@ -28,6 +28,7 @@ import '../../../models.dart'
         PairingInvitePreview,
         PairingRecord,
         PairingState,
+        SealMode,
         WalletError,
         epicboxKey,
         pairingFailureOf;
@@ -45,6 +46,7 @@ import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../devices/link_flow.dart' show showDeskLinkDevice;
+import 'desk_allow_row.dart';
 import 'name_service_dialogs.dart';
 import '../wallet/contact_label_menu.dart' show ContactLabelField;
 import 'add_to_contacts_button.dart' show DeskAddToContactsButton;
@@ -1240,7 +1242,6 @@ class _CheckDialog extends ConsumerStatefulWidget {
 
 class _CheckDialogState extends ConsumerState<_CheckDialog> {
   bool _busy = false;
-  bool _allow = false;
 
   /// The name service's wait as the service first answered; null while asking.
   HelloStep? _began;
@@ -1317,7 +1318,6 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
           await nameService.dismiss(widget.pairingId);
         }
       }
-      if (r != null && check == PairingCheck.match && _allow) await deskPairingCall(ref, (api) => api.setAllowInvoices(r.id, true));
       if (r != null && check == PairingCheck.match) await deskWriteProvenAddress(ref, r);
       if (!mounted) return;
       final host = Navigator.of(context).context;
@@ -1339,7 +1339,12 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
         await showEDialog<void>(host, builder: (_) => DeskPairedSaveDialog(pairingId: r.id, verified: true));
         return;
       }
-      if (host.mounted) showEToast(host, l.sasMatchedTitle(name), text: l.sasMatchedBody(name), tone: ETone.ok);
+      if (!host.mounted) return;
+      if (r != null && check == PairingCheck.match && !ref.read(paymentRefusalsProvider).refusesPayments(pairingId: r.id)) {
+        await showEDialog<void>(host, builder: (_) => DeskMatchedResult(pairingId: r.id));
+      } else {
+        showEToast(host, l.sasMatchedTitle(name), tone: ETone.ok);
+      }
     } catch (error) {
       if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
     } finally {
@@ -1378,7 +1383,6 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       }
     }
     final lead = statedAutomated(r.peerProfile) ? l.sasLeadExchange(name) : l.sasLead(name);
-    final offersInvoices = !widget.recheck && (r.asksInvoices || r.caps.issuesInvoices) && r.state == PairingState.paired;
     return EDialog(
       title: l.sasDialogTitle(name),
       icon: EIcons.trusted,
@@ -1392,19 +1396,6 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
           Text(lead, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           WordTiles(words: r.sas, label: l.sasWordsLabel, size: WordTileSize.check),
-          if (offersInvoices) ...[
-            SizedBox(height: Sp.x4),
-            ESetGroup(
-              gap: false,
-              rows: [
-                ESetRow(
-                  title: l.contactAllowInvoices,
-                  text: l.sasAllowAfterMatch,
-                  control: ESwitch(value: _allow, semanticLabel: l.contactAllowInvoices, onChanged: _busy ? null : (v) => setState(() => _allow = v)),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
       actions: [
@@ -1441,6 +1432,7 @@ class DeskPairedSaveDialog extends ConsumerWidget {
     }
     final name = ref.watch(deskPairingNameProvider(pairingId));
     final suggested = r == null ? null : deskSuggestedContact(ref, r);
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairingId);
     return EDialog(
       title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
       tone: verified ? ETone.ok : ETone.warn,
@@ -1451,8 +1443,12 @@ class DeskPairedSaveDialog extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
-          if (ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairingId)) ...[
+          if (!verified || !noPayments) Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
+          if (verified && !noPayments) ...[
+            SizedBox(height: Sp.x3),
+            DeskAllowGroup(pairingId: pairingId),
+          ],
+          if (noPayments) ...[
             SizedBox(height: Sp.x3),
             Align(alignment: AlignmentDirectional.centerStart, child: const NoPaymentsBadge()),
           ],
@@ -1480,6 +1476,87 @@ class DeskPairedSaveDialog extends ConsumerWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// The seal and Allow invoices rows of a verified pairing, each writing its own change: the
+/// result after the words match, in [DeskMatchedResult] and in [DeskPairedSaveDialog].
+class DeskAllowGroup extends ConsumerStatefulWidget {
+  const DeskAllowGroup({super.key, required this.pairingId});
+
+  final String pairingId;
+
+  @override
+  ConsumerState<DeskAllowGroup> createState() => _DeskAllowGroupState();
+}
+
+class _DeskAllowGroupState extends ConsumerState<DeskAllowGroup> {
+  DeskBusyRow? _busy;
+
+  Future<void> _run(DeskBusyRow row, Future<Object?> Function(PairingApi api) call) async {
+    if (_busy != null) return;
+    setState(() => _busy = row);
+    try {
+      await deskPairingCall(ref, call);
+    } catch (error) {
+      if (mounted) showEToast(context, deskErrorText(error, context.l10n), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _busy = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final r = ref.watch(deskPairingByIdProvider(widget.pairingId));
+    if (r == null) return const SizedBox.shrink();
+    final name = ref.watch(deskPairingNameProvider(widget.pairingId));
+    return DeskMatchedGroup(
+      name: name,
+      seal: r.seal != SealMode.off,
+      onSeal: _busy != null ? null : (v) => _run(DeskBusyRow.seal, (api) => api.setSeal(r.id, v)),
+      allow: r.allowInvoices,
+      offLine: l.sasAllowOffLine(name),
+      onLine: l.sasAllowInvoicesHintDesktop(name),
+      onAllow: _busy != null ? null : (v) => _run(DeskBusyRow.allow, (api) => api.setAllowInvoices(r.id, v)),
+      busy: _busy,
+    );
+  }
+}
+
+/// The result of a words check that matched, for a pairing already in a contact (or a
+/// recheck): the verified title, the line, and the Allow invoices row, off until the payer
+/// turns it on. The phone shows the same on its result screen.
+class DeskMatchedResult extends ConsumerWidget {
+  const DeskMatchedResult({super.key, required this.pairingId});
+
+  final String pairingId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final r = ref.watch(deskPairingByIdProvider(pairingId));
+    final name = ref.watch(deskPairingNameProvider(pairingId));
+    return EDialog(
+      title: l.sasMatchedTitle(name),
+      tone: ETone.ok,
+      icon: EIcons.trusted,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l.sasMatchedBody(name), style: ts.bodyDim),
+          if (r != null && statedAutomated(r.peerProfile)) ...[
+            SizedBox(height: Sp.x1),
+            Text(l.pairIsService, style: ts.bodyDim),
+          ],
+          SizedBox(height: Sp.x4),
+          DeskAllowGroup(pairingId: pairingId),
+        ],
+      ),
+      actions: [EButton.primary(key: deskMatchedDoneKey, label: l.commonDone, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }

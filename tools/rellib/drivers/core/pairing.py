@@ -49,6 +49,8 @@ CHECK_MATCH = T("pair.check.match", keys=("sasMatch",), names=("They match",), m
 CHECK_ALLOW = T("pair.check.allow", role="toggle", keys=("contactAllowInvoices",), names=("Allow invoices",), match="exact")
 # "Lane B is verified" › Add to contacts › Save as a new contact (a menu item, no button on Flutter desktop) › Save contact
 SAVED_TITLE = T("pair.saved.title", role="text", keys=("sasMatchedTitle",), match="exact")
+RESULT_DONE = T("pair.result.done", keys=("commonDone",), names=("Done",), match="exact")  # a saved contact's verified result
+ALLOW_FINISH_CHECK = T("pair.allow.finish", role="text", keys=("contactAllowFinishCheck",), names=("Finish the key check first",), match="line")
 SAVED_ADD = T("pair.saved.add", keys=("txDetailsAddToContacts",), names=("Add to contacts",), match="exact")
 SAVED_NEW = T("pair.saved.new", role="text", keys=("pairSaveNewContact",), names=("Save as a new contact",), match="exact")
 SAVE_CONTACT = T("pair.saved.save", keys=("deskConSave",), names=("Save contact",), match="exact")
@@ -207,20 +209,24 @@ class Pairing:
         return w
 
     def confirm_words(self, allow_invoices=False):
-        """They match (Allow invoices on first when asked and offered); then the result saved as a new contact."""
+        """They match; then the verified result: Allow invoices is there, off, and is turned on when
+        asked; saved as a new contact (an unsaved one) or closed with Done (a saved one)."""
         d = self.d
-        if allow_invoices and d.seen(CHECK_ALLOW):
-            d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
         with self._own_not_now():  # "<name> is verified": Not now | Add to contacts, a menu with Save as a new contact
-            d.press(CHECK_MATCH, step="pair-match", then=either(shows(SAVED_ADD), shows(SAVED_NEW), gone(CHECK_MATCH)),
-                    timeout=60)
-            if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW)), 30):
-                if not d.seen(SAVED_NEW):
+            d.press(CHECK_MATCH, step="pair-match",
+                    then=either(shows(SAVED_ADD), shows(SAVED_NEW), shows(RESULT_DONE), gone(CHECK_MATCH)), timeout=60)
+            if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW), shows(RESULT_DONE)), 30):
+                if allow_invoices and d.seen(CHECK_ALLOW):  # off by default; only the payer turns it on
+                    d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
+                if not d.seen(SAVED_NEW) and d.seen(SAVED_ADD):
                     hits = d.find_in(SAVED_ADD, d.tree())
                     d._act(d.s.press, hits[-1])  # the dialog's (a page under it can have its own)
                     d.must(shows(SAVED_NEW), 20, step="pair-save-add")
-                d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
-                d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
+                if d.seen(SAVED_NEW):
+                    d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
+                    d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
+                elif d.seen(RESULT_DONE):  # a saved contact's result: Done closes it
+                    d.press(RESULT_DONE, step="pair-result-done", then=gone(RESULT_DONE), timeout=20)
 
     # ---- the contact page
 
@@ -335,6 +341,13 @@ class Pairing:
         """<name>'s contact page › Allow invoices on (the payer's side; a verified pairing only)."""
         self.open_contact(name)
         self.d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
+
+    def allow_blocked(self, name):
+        """<name>'s contact page during an open key check: the Allow invoices switch is disabled and
+        the page says to finish the key check first. -> True when both hold."""
+        self.open_contact(name)
+        node = self.d.locate(CHECK_ALLOW, 20)
+        return bool(node) and not node.enabled and bool(self.d.seen(ALLOW_FINISH_CHECK))
 
     def issue_invoice(self, name, amount):
         """<name>'s contact page › Issue an invoice (to <name>) › Amount › Send invoice. -> (ok, why)."""

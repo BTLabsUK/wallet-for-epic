@@ -14724,7 +14724,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Pliki płatności i faktury z $name są od teraz zapieczętowane.';
+    return 'Pliki płatności z $name są od teraz zapieczętowane.';
   }
 
   @override
@@ -14749,10 +14749,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'Sprawdź teraz';
-
-  @override
-  String get sasAllowAfterMatch =>
-      'Włącza się, gdy potwierdzisz, że słowa się zgadzają.';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -21566,5 +21562,18 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'Węzeł jest w tyle. Przełączono na $host.';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'Faktury od $name są wyłączone.';
+  }
+
+  @override
+  String get contactAllowFinishCheck => 'Najpierw dokończ sprawdzanie kluczy';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'Portfel $name może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela.';
   }
 }

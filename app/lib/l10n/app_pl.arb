@@ -3666,14 +3666,13 @@
   "sasSkip": "Pomiń na razie",
   "sasLater": "Później",
   "sasMatchedTitle": "{name}: zweryfikowano",
-  "sasMatchedBody": "Pliki płatności i faktury z {name} są od teraz zapieczętowane.",
+  "sasMatchedBody": "Pliki płatności z {name} są od teraz zapieczętowane.",
   "sasNoMatchTitle": "Słowa się nie zgadzają",
   "sasNoMatchBody": "Parowanie kończy się po obu stronach i nic, co przez nie wysłano, nie zostanie dokończone. Sparuj ponownie z nowym zaproszeniem.",
   "sasStopPairing": "Przerwij parowanie",
   "sasSkippedTitle": "Sparowano z: {name}",
   "sasSkippedBody": "Pliki płatności z {name} są zapieczętowane. Sprawdź słowa na stronie kontaktu {name}, gdy tylko możesz; faktury czekają do tego czasu.",
   "sasCheckNow": "Sprawdź teraz",
-  "sasAllowAfterMatch": "Włącza się, gdy potwierdzisz, że słowa się zgadzają.",
   "sasAllowInvoicesHint": "Portfel {name} może prosić cię o zapłatę. Nic nie zostanie zapłacone bez twojego PIN-u.",
   "trustVerified": "Zweryfikowany",
   "trustPaired": "Sparowany, niezweryfikowany",
@@ -5392,5 +5391,8 @@
   "msgCheckItemPairingFailed": "{count, plural, one{{count} parowanie nie zostało ukończone} few{{count} parowania nie zostały ukończone} many{{count} parowań nie zostało ukończonych} other{{count} parowania nie zostało ukończone}}",
   "msgCheckItemUnreadable": "{count, plural, one{{count} wiadomości nie udało się odczytać} few{{count} wiadomości nie udało się odczytać} many{{count} wiadomości nie udało się odczytać} other{{count} wiadomości nie udało się odczytać}}",
   "msgCheckWhyUnreadable": "Zachowana na tym urządzeniu.",
-  "noticeDigestNew": "{count, plural, one{{count} nowa aktualizacja} few{{count} nowe aktualizacje} many{{count} nowych aktualizacji} other{{count} nowej aktualizacji}}"
+  "noticeDigestNew": "{count, plural, one{{count} nowa aktualizacja} few{{count} nowe aktualizacje} many{{count} nowych aktualizacji} other{{count} nowej aktualizacji}}",
+  "sasAllowOffLine": "Faktury od {name} są wyłączone.",
+  "contactAllowFinishCheck": "Najpierw dokończ sprawdzanie kluczy",
+  "sasAllowInvoicesHintDesktop": "Portfel {name} może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela."
 }

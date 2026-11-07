@@ -22179,7 +22179,7 @@ abstract class AppLocalizations {
   /// Result body.
   ///
   /// In en, this message translates to:
-  /// **'Transaction files and invoices with {name} are sealed from now on.'**
+  /// **'Transaction files with {name} are sealed from now on.'**
   String sasMatchedBody(String name);
 
   /// Dialog title.
@@ -22217,12 +22217,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check now'**
   String get sasCheckNow;
-
-  /// Under the Allow invoices switch on the exchange check.
-  ///
-  /// In en, this message translates to:
-  /// **'On once you confirm the words match.'**
-  String get sasAllowAfterMatch;
 
   /// Under Allow invoices on the result screen.
   ///
@@ -32381,6 +32375,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Node behind. Switched to {host}.'**
   String deskNodeFailoverBehind(String host);
+
+  /// Under Allow invoices on the result while it is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices from {name} are off.'**
+  String sasAllowOffLine(String name);
+
+  /// Under the disabled Allow invoices switch while a key check is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the key check first'**
+  String get contactAllowFinishCheck;
+
+  /// Under Allow invoices on the desktop result while it is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet can ask you to pay. Nothing is paid without the wallet password.'**
+  String sasAllowInvoicesHintDesktop(String name);
 }
 
 class _AppLocalizationsDelegate

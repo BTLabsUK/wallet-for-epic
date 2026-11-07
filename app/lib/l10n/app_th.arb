@@ -3666,14 +3666,13 @@
   "sasSkip": "ข้ามไปก่อน",
   "sasLater": "ภายหลัง",
   "sasMatchedTitle": "{name} ยืนยันแล้ว",
-  "sasMatchedBody": "นับจากนี้ ไฟล์ธุรกรรมและใบแจ้งหนี้กับ {name} จะถูกปิดผนึก",
+  "sasMatchedBody": "นับจากนี้ ไฟล์ธุรกรรมกับ {name} จะถูกปิดผนึก",
   "sasNoMatchTitle": "คำไม่ตรงกัน",
   "sasNoMatchBody": "การจับคู่จะสิ้นสุดทั้งสองฝ่าย และสิ่งที่ส่งผ่านมันจะไม่เสร็จสมบูรณ์ จับคู่อีกครั้งด้วยคำเชิญใหม่",
   "sasStopPairing": "หยุดการจับคู่",
   "sasSkippedTitle": "จับคู่กับ {name} แล้ว",
   "sasSkippedBody": "ไฟล์ธุรกรรมกับ {name} ถูกปิดผนึก ตรวจคำจากหน้าผู้ติดต่อของ {name} เมื่อสะดวก ใบแจ้งหนี้จะรอจนกว่าจะตรวจ",
   "sasCheckNow": "ตรวจตอนนี้",
-  "sasAllowAfterMatch": "เปิดใช้เมื่อคุณยืนยันว่าคำตรงกัน",
   "sasAllowInvoicesHint": "กระเป๋าเงินของ {name} ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มี PIN ของคุณ",
   "trustVerified": "ยืนยันแล้ว",
   "trustPaired": "จับคู่แล้ว ยังไม่ยืนยัน",
@@ -5392,5 +5391,8 @@
   "msgCheckItemPairingFailed": "{count, plural, other{การจับคู่ {count} รายการไม่เสร็จสมบูรณ์}}",
   "msgCheckItemUnreadable": "{count, plural, other{อ่านข้อความไม่ได้ {count} ข้อความ}}",
   "msgCheckWhyUnreadable": "เก็บไว้ในอุปกรณ์นี้",
-  "noticeDigestNew": "{count, plural, other{อัปเดตใหม่ {count} รายการ}}"
+  "noticeDigestNew": "{count, plural, other{อัปเดตใหม่ {count} รายการ}}",
+  "sasAllowOffLine": "ใบแจ้งหนี้จาก {name} ปิดอยู่",
+  "contactAllowFinishCheck": "ตรวจสอบกุญแจให้เสร็จก่อน",
+  "sasAllowInvoicesHintDesktop": "กระเป๋าเงินของ {name} ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ"
 }

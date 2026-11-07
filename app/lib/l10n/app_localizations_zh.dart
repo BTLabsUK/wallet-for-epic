@@ -13333,7 +13333,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return '从现在起，与 $name 的交易文件和账单都会被密封。';
+    return '从现在起，与 $name 的交易文件都会被密封。';
   }
 
   @override
@@ -13357,9 +13357,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sasCheckNow => '立即核对';
-
-  @override
-  String get sasAllowAfterMatch => '确认词语一致后开启。';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -19670,5 +19667,18 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return '节点已落后。已切换到 $host。';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return '来自 $name 的账单已关闭。';
+  }
+
+  @override
+  String get contactAllowFinishCheck => '请先完成密钥核对';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return '$name 的钱包可以请求你付款。没有钱包密码不会付款。';
   }
 }

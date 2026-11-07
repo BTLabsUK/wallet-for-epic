@@ -14167,7 +14167,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Transaction files and invoices with $name are sealed from now on.';
+    return 'Transaction files with $name are sealed from now on.';
   }
 
   @override
@@ -14192,9 +14192,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'Check now';
-
-  @override
-  String get sasAllowAfterMatch => 'On once you confirm the words match.';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -20846,5 +20843,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'Node behind. Switched to $host.';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'Invoices from $name are off.';
+  }
+
+  @override
+  String get contactAllowFinishCheck => 'Finish the key check first';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return '$name’s wallet can ask you to pay. Nothing is paid without the wallet password.';
   }
 }

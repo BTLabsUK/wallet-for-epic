@@ -3666,14 +3666,13 @@
   "sasSkip": "Пропустить пока",
   "sasLater": "Позже",
   "sasMatchedTitle": "{name}: проверено",
-  "sasMatchedBody": "Файлы платежей и счета с {name} теперь запечатаны.",
+  "sasMatchedBody": "Файлы платежей с {name} теперь запечатаны.",
   "sasNoMatchTitle": "Слова не совпадают",
   "sasNoMatchBody": "Сопряжение завершится с обеих сторон, и ничего отправленного через него не будет завершено. Сопрягите снова с новым приглашением.",
   "sasStopPairing": "Прервать сопряжение",
   "sasSkippedTitle": "Сопряжено: {name}",
   "sasSkippedBody": "Файлы платежей с {name} запечатаны. Проверьте слова на странице контакта {name}, когда сможете; счета до тех пор ждут.",
   "sasCheckNow": "Проверить сейчас",
-  "sasAllowAfterMatch": "Включится, когда вы подтвердите, что слова совпадают.",
   "sasAllowInvoicesHint": "Кошелёк {name} сможет просить вас об оплате. Без вашего PIN ничего не оплачивается.",
   "trustVerified": "Проверено",
   "trustPaired": "Сопряжено, не проверено",
@@ -5392,5 +5391,8 @@
   "msgCheckItemPairingFailed": "{count, plural, one{{count} сопряжение не завершено} few{{count} сопряжения не завершены} many{{count} сопряжений не завершены} other{{count} сопряжения не завершено}}",
   "msgCheckItemUnreadable": "{count, plural, one{{count} сообщение не удалось прочитать} few{{count} сообщения не удалось прочитать} many{{count} сообщений не удалось прочитать} other{{count} сообщения не удалось прочитать}}",
   "msgCheckWhyUnreadable": "Сохранено на этом устройстве.",
-  "noticeDigestNew": "{count, plural, one{{count} новое обновление} few{{count} новых обновления} many{{count} новых обновлений} other{{count} нового обновления}}"
+  "noticeDigestNew": "{count, plural, one{{count} новое обновление} few{{count} новых обновления} many{{count} новых обновлений} other{{count} нового обновления}}",
+  "sasAllowOffLine": "Счета от {name} выключены.",
+  "contactAllowFinishCheck": "Сначала завершите проверку ключей",
+  "sasAllowInvoicesHintDesktop": "Кошелёк {name} сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается."
 }

@@ -14700,7 +14700,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Файлы платежей и счета с $name теперь запечатаны.';
+    return 'Файлы платежей с $name теперь запечатаны.';
   }
 
   @override
@@ -14725,10 +14725,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'Проверить сейчас';
-
-  @override
-  String get sasAllowAfterMatch =>
-      'Включится, когда вы подтвердите, что слова совпадают.';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -21555,5 +21551,18 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'Узел отстаёт. Переключено на $host.';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'Счета от $name выключены.';
+  }
+
+  @override
+  String get contactAllowFinishCheck => 'Сначала завершите проверку ключей';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'Кошелёк $name сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается.';
   }
 }
