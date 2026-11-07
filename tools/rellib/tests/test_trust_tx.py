@@ -76,7 +76,7 @@ class MoneyTest(unittest.TestCase):
         self.assertEqual(led.sent(), D("0.1"))
         doc = led.doc("5.0", "4.95")
         self.assertEqual(doc["p_sent_total"], "0.10")
-        self.assertEqual(doc["p_spendable_before"], "5.0")
+        self.assertEqual(doc["p_total_before"], "5.0")
 
     def test_returned_counts_every_coin_p_sent(self):
         class Lane:
@@ -433,6 +433,74 @@ class UntilTest(unittest.TestCase):
         with unittest.mock.patch.dict(os.environ, {"REL_TRUST_UNTIL": "fund", "REL_RUN_KIND": "release"}):
             with self.assertRaises(core_lane.UntilRefused):
                 core_lane.until_phase(tx_lane.PHASES)
+
+
+class PartsTest(unittest.TestCase):
+    def test_each_part_pays_only_what_it_needs(self):
+        from linux import tx_lane
+        all_ = list(tx_lane.METHODS)
+        self.assertEqual(tx_lane.methods_for("payments", all_), all_)
+        self.assertEqual(tx_lane.methods_for("pairing", all_), ["epicbox"])
+        self.assertEqual(tx_lane.methods_for("linking", all_), [])
+        self.assertEqual(tx_lane.methods_for(None, all_), all_)
+
+    def test_each_part_requires_its_checks_and_the_coins_back(self):
+        from linux import tx_lane
+        got = {part: tx_lane.required_for(part, tx_lane.methods_for(part, list(tx_lane.METHODS))) for part in tx_lane.PARTS}
+        self.assertEqual(got["payments"], ["tx_%s_ok" % m for m in tx_lane.METHODS] + ["returned_ok"])
+        self.assertEqual(got["pairing"], list(tx_lane.PAIR_CHECKS) + ["returned_ok"])
+        self.assertEqual(got["linking"], list(tx_lane.LINK_CHECKS) + ["returned_ok"])
+        whole = tx_lane.required_for(None, list(tx_lane.METHODS))
+        self.assertEqual(sorted(whole), sorted(set(got["payments"] + got["pairing"] + got["linking"])))
+
+    def state_lane(self, totals):
+        from linux import tx_lane
+        lane = object.__new__(tx_lane.TxLane)
+        lane.log, lane.skipped, lane.state, lane.opened = (lambda s: None), [], None, []
+        lane.w = {k: unittest.mock.Mock(secrets={"password": "pw-" + k}, p=unittest.mock.Mock(running=False)) for k in "ab"}
+        lane.p = unittest.mock.Mock()
+        lane.skip_phase = lambda name, why: lane.skipped.append(name)
+        lane.run_phase = lambda name, fn: fn()
+        lane._open_one = lane.opened.append
+        left = iter(totals)
+        return tx_lane, lane, unittest.mock.patch.object(tx, "digest", lambda *a: {"balance": {"total": next(left)}})
+
+    def test_the_state_is_kept_only_when_the_wallets_are_empty(self):
+        tx_lane, lane, digest_ = self.state_lane([0, tx.nano(tx.DUST)])
+        with digest_, unittest.mock.patch.object(tx_lane.st, "save") as save:
+            lane._keep_state()
+        save.assert_not_called()
+        self.assertEqual(lane.skipped, ["state-save"])
+
+    def test_dust_does_not_stop_the_state_and_saving_reopens_the_wallets(self):
+        tx_lane, lane, digest_ = self.state_lane([tx.nano(tx.DUST) - 1, 0])
+        with digest_, unittest.mock.patch.object(tx_lane.st, "save", return_value="/state") as save:
+            lane._keep_state()
+        self.assertEqual(lane.state, "/state")
+        self.assertEqual(save.call_args.args[1], {"a.password": "pw-a", "b.password": "pw-b"})
+        self.assertEqual(save.call_args.kwargs["family"], tx_lane.LANE)
+        self.assertEqual(len(lane.opened), 2)
+
+    def test_a_state_that_will_not_load_is_moved_aside(self):
+        tx_lane, lane, _ = self.state_lane([])
+        saved = unittest.mock.Mock(folder="/state", payload="/state/payload")
+        saved.secrets.return_value = {}
+        lane.p.restore_state.side_effect = HarnessFault("state-load", "no tar")
+        lane.state = saved.folder
+        with unittest.mock.patch.object(tx_lane.st, "retire") as retire:
+            with self.assertRaises(HarnessFault):
+                lane._load_state(saved)
+        retire.assert_called_once()
+        self.assertIsNone(lane.state)
+
+    def test_retire_moves_it_out_of_reach(self):
+        from core import state as st
+        with tempfile.TemporaryDirectory() as d:
+            folder = os.path.join(d, "linux-tx-tor", "26.11.2")
+            os.makedirs(folder)
+            st.retire(folder, log=lambda s: None)
+            self.assertFalse(os.path.exists(folder))
+            self.assertEqual(len(os.listdir(os.path.join(d, "linux-tx-tor", ".trash"))), 1)
 
 
 if __name__ == "__main__":

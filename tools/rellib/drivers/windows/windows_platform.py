@@ -45,6 +45,8 @@ from uia import WinSurface  # noqa: E402
 
 AGENT_IDLE_MIN = 90
 SSH_TRIES = 3   # the first try and two retries in place
+HEALTH_S = 60   # the rig health check's limit: a sick rig ends the run on it
+RUN_NAME = re.compile(r"^[A-Za-z0-9.?+-]+$")
 APP_LANGUAGE = '{"language":"en"}'   # the desk.settings the rig user's store starts with (store_init)
 
 
@@ -100,14 +102,16 @@ class WindowsPlatform(Platform):
         self.lan_before = None
         stamp = time.strftime("%Y%m%d-%H%M%S")
         self.name_run = "%s-%s-to-%s-%s" % (self.variant, self.prev_ver or "?", self.cand_ver or "?", stamp)
-        work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows")
-        self.work = os.path.join(work_root, self.name_run)
+        self.work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows")
+        self.work = os.path.join(self.work_root, self.name_run)
         self.rig = None
         self.surface = None
         self.running = None     # 'previous' | 'candidate' while an app runs
         self.exe = None         # the installed app's exe
         self.entry = None
         self.ports = {}
+        self.session = None     # the rig session a resume must use: the store opens for that user alone
+        self.point_saved = False
         self.hermetic = None    # core/hermetic.py plan(), from prepare
         self.step = "rig"       # the rig op in hand, for an InfraFault's step
 
@@ -128,12 +132,12 @@ class WindowsPlatform(Platform):
     def prepare(self):
         prev = None if self.create else self.setup_exe(self.prev_dir, self.prev_ver)
         cand = self.setup_exe(self.cand_dir, self.cand_ver)
-        self.hermetic = hermetic.plan(checks.P_ADDR, env=windows_env())
-        self.log("hermetic: %s" % self.hermetic["reason"])
-        self._pick_servers()
         os.makedirs(self.work, mode=0o700, exist_ok=True)
         self.log("previous %s, candidate %s" % (os.path.basename(prev) if prev else "none (create)", os.path.basename(cand)))
         self._healthy_rig(prev, cand)
+        self.hermetic = hermetic.plan(checks.P_ADDR, env=windows_env())
+        self.log("hermetic: %s" % self.hermetic["reason"])
+        self._pick_servers()
         self._servers()
         self.surface = WinSurface(self.rig, self.log, secret_dir=self.work, app_log=self.data + "\\logs\\wfe.log")
 
@@ -183,13 +187,13 @@ class WindowsPlatform(Platform):
             self.node = "https://" + self.node
 
     def _healthy_rig(self, prev, cand):
-        """The variant's rig session, or the next healthy one when it is dead (rig.candidate_sessions)."""
-        sessions = candidate_sessions(self.variant)
+        """The first thing a run does with the rig: the variant's rig session, or the next healthy one when it
+        is dead (rig.candidate_sessions); a rig that does not say it is healthy ends the run here as infra."""
+        sessions = candidate_sessions(self.variant) if self.session is None else [self.session]
         try:
-            report = health(self.host, sessions)
-        except (RigError, OSError, ValueError, subprocess.SubprocessError) as e:  # an unanswered health check never blocks the run
-            self.log("rig health not read (%s): trying rig session %d as configured" % (e, sessions[0]))
-            report = {}
+            report = health(self.host, sessions, timeout=HEALTH_S)
+        except (RigError, OSError, ValueError, subprocess.SubprocessError) as e:
+            raise InfraFault("prepare", "the rig health check on %s did not answer: %s" % (self.host, e), sub="rig")
         dead = []
         for k in sessions:
             probs = report.get(k, (None, []))[1]
@@ -318,7 +322,6 @@ class WindowsPlatform(Platform):
             if not r.get("ok") and self._procs():
                 raise HarnessFault("stop", "the app did not quit after its window was closed: %s" % (r.get("error") or "")[:120])
         self.running = None
-        time.sleep(2)
 
     def update(self):
         if self.running:
@@ -362,6 +365,51 @@ class WindowsPlatform(Platform):
         which = self.running
         if which:
             self.start(which)
+
+    # ---- resume (core/lane.py): from the point only; the failed attempt's rig folder and rig user, its stand-in
+    # ports in the wallet's settings. Its shutdown uninstalled the app, so the previous release goes on again.
+
+    def resume_dir(self):
+        return os.path.join(self.work_root, ".resume-%s" % self.variant)
+
+    def resume_handle(self):
+        if not self.point_saved:
+            return None
+        return {"session": self.rig.session, "run": self.name_run, "ports": dict(self.ports)}
+
+    def resume_from(self, handle):
+        h = handle or {}
+        run, prefix = str(h.get("run") or ""), "-".join(self.name_run.split("-")[:-2])
+        if not RUN_NAME.match(run) or "-".join(run.split("-")[:-2]) != prefix:
+            return False, "the failed attempt's run %r is not an earlier attempt of %s" % (run, prefix)
+        if not isinstance(h.get("session"), int):
+            return False, "the failed attempt names no rig session"
+        self.name_run, self.session = run, h["session"]
+        self.work = os.path.join(self.work_root, run)
+        self.ports = {k: int(v) for k, v in (h.get("ports") or {}).items() if v}
+        return True, "rig session %d, run folder %s, stand-in ports %s" % (self.session, run, self.ports or "none")
+
+    def _point(self):
+        return self.rig.run + "\\point"
+
+    def _copy_tree(self, frm, to, step):
+        r = self._call("copy_tree", timeout=300, **{"from": frm, "to": to})
+        if not r.get("ok"):
+            raise HarnessFault(step, "the app's data folder was not copied: %s" % (r.get("error") or "")[:160])
+
+    def save_point(self):
+        if self.running:
+            self.stop()
+        self._copy_tree(self.data, self._point(), "resume-point")
+        self.point_saved = True
+        self.log("the closed app's data folder kept in %s" % self._point())
+        return True
+
+    def load_point(self):
+        self._install("previous", "prev-setup.exe")
+        self._copy_tree(self._point(), self.data, "point-load")
+        self.running = None
+        self.log("the data folder from before the update is back in %s" % self.data)
 
     # ---- data
 

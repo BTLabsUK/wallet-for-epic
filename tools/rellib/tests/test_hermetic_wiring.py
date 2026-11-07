@@ -142,7 +142,7 @@ class AndroidServersTest(unittest.TestCase):
         p = object.__new__(ap.AndroidPlatform)
         p.out, p.log, p.standins, p.hermetic = tempfile.mkdtemp(prefix="hw-android-"), lambda line: None, [], plan
         p.node, p.relay = (plan.get("node") or "https://node.pub"), (plan.get("relay") or "box.pub")
-        p.dev = mock.Mock()
+        p.dev, p.resume_ports = mock.Mock(), {}
         return p
 
     def standins(self, p):

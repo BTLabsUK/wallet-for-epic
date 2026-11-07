@@ -58,14 +58,17 @@ password (wallet.put, where it is created or restored), its address (wallet.addr
 balance and transactions (wallet.snapshot). The bundle's shot is taken on any screen, a phrase's too:
 they are test wallets and the bundle stays under REL_OUT. trust.log and proof.json stay clean.
 
-Resume (REL_TRUST_RESUME=1): the previous attempt's proof (proof.before-attempt-N.json, the newest, or
-proof.json) names the phases done and the one that failed. When it failed after the previous release
-was installed and its wallet made (RESUMABLE) and the platform can take its state again
-(platform.resume_from: Linux, the sandbox still there and its stand-ins' ports free), the lane opens
-the previous release on that state and starts at the failed phase; the checks that passed are kept.
-A fault from the update on (FROM_POINT) reruns from the resume point: phase resume-point keeps the
-closed previous release's state before the update (platform.save_point), and point-load puts it back
-(platform.load_point); the update and all after it run again. Else it starts fresh and logs why. What
+Resume (on unless REL_TRUST_RESUME=0): a rerun in the same REL_OUT reads the previous attempt's proof
+(proof.before-attempt-N.json, the newest, or proof.json): it names the phases done and the one that
+failed. When it failed after the previous release was installed and its wallet made (RESUMABLE) and
+the platform can take its state again (platform.resume_from: Linux, the sandbox still there and its
+stand-ins' ports free), the lane opens the previous release on that state and starts at the failed
+phase; the checks that passed are kept. A fault from the update on (FROM_POINT) reruns from the resume
+point: phase resume-point keeps the closed previous release's state before the update
+(platform.save_point), and point-load puts it back (platform.load_point); the update and all after it
+run again. Linux, Android (an emulator snapshot) and Windows (a copy of the data folder, the previous
+release installed again) keep a point; Android and Windows resume from it and no earlier; iOS keeps
+none. The funds phase is not in FROM_POINT: its coins may have gone. Else it starts fresh and logs why. What
 the resumed lane needs (the secrets, and the point's digest and checks) waits in a 0600 file in the
 platform's resume_dir() (outside REL_OUT), read once. A kept fault leaves no resume: its phase's state
 is long gone by the end of the run.
@@ -185,7 +188,7 @@ class Platform:
     def install_candidate_fresh(self):          # create mode: the candidate installed with no app data
         raise HarnessFault("install", "%s has no fresh install of the candidate (REL_TRUST_MODE=create)" % self.name)
 
-    # resume (REL_TRUST_RESUME=1): a platform that can take a failed attempt's state again
+    # resume (core/lane.py): a platform that can take a failed attempt's state again
     def resume_dir(self):                       # a private folder outside REL_OUT for the resume secrets, or None
         return None
 
@@ -850,7 +853,7 @@ class Lane:
 
     def _resume_plan(self):
         """The resume plan, or None (logged why) when the lane starts fresh."""
-        if os.environ.get("REL_TRUST_RESUME") != "1":
+        if os.environ.get("REL_TRUST_RESUME") == "0":
             return None
         path, prev = self._previous_proof()
         ph = (prev or {}).get("phases") or {}

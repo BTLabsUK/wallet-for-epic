@@ -5,6 +5,7 @@ nightly's `rigs`. No rig: the box's answers are canned (rig 1 and rig 5 as read 
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -31,7 +32,7 @@ import windows_platform as wp  # noqa: E402
 sys.modules.pop("uia", None)
 if _other_uia is not None:
     sys.modules["uia"] = _other_uia
-from core.faults import InfraFault  # noqa: E402
+from core.faults import HarnessFault, InfraFault  # noqa: E402
 nightly = load("nightly_rigs", os.path.join(TOOLS, "nightly", "nightly.py"))
 from rellib import builtins  # noqa: E402
 
@@ -246,6 +247,7 @@ class DriverFallbackTest(unittest.TestCase):
         r = object.__new__(wp.WindowsPlatform)
         r.out = tempfile.mkdtemp()
         r.variant, r.host, r.name_run = "notor", "box", "run"
+        r.session = None
         r.step, r.rig = "prepare", None
         r.logs = []
         r.log = r.logs.append
@@ -290,7 +292,7 @@ class DriverFallbackTest(unittest.TestCase):
         R, made = self.fake_rig_class()
         report = {5: (RIG5, rig.judge(RIG5)), 1: (RIG1, [])}
         with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wp, "health", lambda host, s: report):
+                mock.patch.object(wp, "health", lambda host, s, **kw: report):
             r._healthy_rig("prev", "cand")
         self.assertEqual(r.rig.session, 1)
         self.assertEqual([m.session for m in made], [1])
@@ -303,7 +305,7 @@ class DriverFallbackTest(unittest.TestCase):
         r = self.make_run()
         R, made = self.fake_rig_class(dead_on_pickup=(5,))
         with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wp, "health", lambda host, s: {5: (RIG5, []), 1: (RIG1, [])}):
+                mock.patch.object(wp, "health", lambda host, s, **kw: {5: (RIG5, []), 1: (RIG1, [])}):
             r._healthy_rig("prev", "cand")
         self.assertEqual([m.session for m in made], [5, 1])
         self.assertEqual(r.rig.session, 1)
@@ -313,7 +315,7 @@ class DriverFallbackTest(unittest.TestCase):
         r = self.make_run()
         R, _ = self.fake_rig_class()
         with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [1]), \
-                mock.patch.object(wp, "health", lambda host, s: {1: (RIG1, [])}):
+                mock.patch.object(wp, "health", lambda host, s, **kw: {1: (RIG1, [])}):
             r._healthy_rig("prev", "cand")
         self.assertFalse(os.path.exists(os.path.join(r.out, "notice.json")))
 
@@ -322,22 +324,94 @@ class DriverFallbackTest(unittest.TestCase):
         R, _ = self.fake_rig_class()
         report = {5: (RIG5, rig.judge(RIG5)), 1: (RIG1, ["account epicrig is locked out"])}
         with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wp, "health", lambda host, s: report):
+                mock.patch.object(wp, "health", lambda host, s, **kw: report):
             with self.assertRaises(InfraFault) as e:
                 r._healthy_rig("prev", "cand")
         self.assertIn("no healthy Windows rig", str(e.exception))
         self.assertIn("no healthy rig left", read_notice(r)["title"])
 
-    def test_health_unreadable_still_tries(self):
-        r = self.make_run()
-        R, _ = self.fake_rig_class()
+    def test_health_unanswered_is_infra_before_any_rig_work(self):
+        for trouble in (rig.RigError("box asleep"), subprocess.TimeoutExpired("ssh", wp.HEALTH_S)):
+            r = self.make_run()
+            R, made = self.fake_rig_class()
 
-        def boom(host, s):
-            raise rig.RigError("box asleep")
+            def boom(host, s, timeout):
+                raise trouble
+            with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
+                    mock.patch.object(wp, "health", boom):
+                with self.assertRaises(InfraFault) as e:
+                    r._healthy_rig("prev", "cand")
+            self.assertEqual(e.exception.sub, "rig")
+            self.assertEqual(made, [])
+
+    def test_a_resume_stays_on_its_rig(self):
+        r = self.make_run()
+        r.session = 1
+        R, _ = self.fake_rig_class()
         with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wp, "health", boom):
+                mock.patch.object(wp, "health", lambda host, s, **kw: {k: (RIG1, []) for k in s}):
             r._healthy_rig("prev", "cand")
-        self.assertEqual(r.rig.session, 5)
+        self.assertEqual(r.rig.session, 1)
+
+    def test_prepare_asks_the_rig_before_the_servers(self):
+        r = self.make_run()
+        r.create, r.work, r.seen = True, tempfile.mkdtemp(), []
+        r.cand_dir, r.cand_ver = "", ""
+        r.setup_exe = lambda d, v: "cand.exe"
+        r._healthy_rig = lambda prev, cand: r.seen.append("rig")
+        r._pick_servers = lambda: r.seen.append("servers")
+        r._servers = lambda: None
+        r.rig = mock.Mock(run="C:\\run")
+        with mock.patch.object(wp, "WinSurface"), mock.patch.object(wp.hermetic, "plan", lambda *a, **kw: {"reason": "x"}):
+            r.prepare()
+        self.assertEqual(r.seen, ["rig", "servers"])
+
+
+class ResumePointTest(unittest.TestCase):
+    def run_(self):
+        r = object.__new__(wp.WindowsPlatform)
+        r.variant, r.running, r.point_saved, r.session = "tor", None, False, None
+        r.work_root, r.name_run = "/w", "tor-26.11.1-to-26.11.2-20261107-010101"
+        r.ports, r.log, r.calls = {"node": 40001}, lambda s: None, []
+        r.rig = mock.Mock(run="C:\\r", session=5)
+        r._call = lambda op, timeout=120, **kw: r.calls.append((op, kw)) or {"ok": True}
+        return r
+
+    def test_no_handle_before_the_point(self):
+        r = self.run_()
+        self.assertIsNone(r.resume_handle())
+        self.assertTrue(r.save_point())
+        self.assertEqual(r.calls, [("copy_tree", {"from": r.data, "to": "C:\\r\\point"})])
+        self.assertEqual(r.resume_handle(), {"session": 5, "run": r.name_run, "ports": {"node": 40001}})
+
+    def test_a_copy_that_failed_keeps_no_point(self):
+        r = self.run_()
+        r._call = lambda op, timeout=120, **kw: {"ok": False, "error": "the app is running"}
+        with self.assertRaises(HarnessFault):
+            r.save_point()
+        self.assertIsNone(r.resume_handle())
+
+    def test_load_installs_the_previous_release_and_puts_the_data_back(self):
+        r = self.run_()
+        order = []
+        r._install = lambda which, setup: order.append(which)
+        r._call = lambda op, timeout=120, **kw: order.append((op, kw["to"])) or {"ok": True}
+        r.load_point()
+        self.assertEqual(order, ["previous", ("copy_tree", r.data)])
+
+    def test_resume_takes_the_failed_attempts_folder_rig_and_ports(self):
+        r = self.run_()
+        old = "tor-26.11.1-to-26.11.2-20261107-000000"
+        ok, _ = r.resume_from({"session": 1, "run": old, "ports": {"node": 40002}})
+        self.assertTrue(ok)
+        self.assertEqual((r.name_run, r.session, r.ports), (old, 1, {"node": 40002}))
+        self.assertEqual(r.work, os.path.join("/w", old))
+
+    def test_resume_refuses_another_run_or_a_strange_name(self):
+        r = self.run_()
+        for run in ("notor-26.11.1-to-26.11.2-20261107-000000", "tor-26.11.1-to-26.11.2-20261107-000000\\..\\x", ""):
+            self.assertFalse(r.resume_from({"session": 1, "run": run})[0])
+        self.assertFalse(r.resume_from({"run": "tor-26.11.1-to-26.11.2-20261107-000000"})[0])
 
 
 class PreflightTest(unittest.TestCase):

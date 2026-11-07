@@ -174,9 +174,8 @@ class LinuxPlatform(Platform):
         """Closed the way the desktop session closes it (SIGTERM, then the window's process tree)."""
         if self.surface:
             self.surface.close()
-        sandbox.app_stop(self.sb)
+        sandbox.app_stop(self.sb)  # returns once the app and its helpers are gone
         self.running = None
-        time.sleep(2)
 
     def update(self):
         """The AppImage swap: the candidate runs from now on, on the same HOME."""
@@ -279,7 +278,7 @@ class LinuxPlatform(Platform):
             return False, "saved for %s %s" % (meta.get("platform"), meta.get("variant"))
         return st.hermetic_fits(meta, self)
 
-    # ---- resume (core/lane.py, REL_TRUST_RESUME=1)
+    # ---- resume (core/lane.py)
 
     def resume_dir(self):
         return os.path.join(self.work_root, ".resume-%s" % self.variant)
@@ -305,6 +304,17 @@ class LinuxPlatform(Platform):
                 return False, "the %s stand-in's port %d (in the wallet's settings) is taken" % (kind, port)
         self.work, self.sb, self.ports = work, sb, ports
         return True, "sandbox %s, stand-in ports %s" % (sb, ports or "none")
+
+    def _point(self):
+        return os.path.join(self.work, "point")
+
+    def save_point(self):
+        os.makedirs(self._point(), mode=0o700, exist_ok=True)
+        self.save_state(self._point())
+        return True
+
+    def load_point(self):
+        self.restore_state(self._point())
 
     def logs(self):
         return {"wfe.log": os.path.join(data_root(self.sb), "logs", "wfe.log"), "sandbox": os.path.join(self.sb, "logs")}

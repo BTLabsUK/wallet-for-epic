@@ -360,6 +360,7 @@ function StopMine {
   Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } |
     ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue; "$($_.Name) $($_.Id)" }
 }
+function EntryGone { $end = (Get-Date).AddSeconds(30); while ((Entry) -and (Get-Date) -lt $end) { Start-Sleep -Milliseconds 300 } }  # Inno's uninstaller hands over to a copy of itself
 function Entry { $k = Get-ItemProperty -Path $uk -ErrorAction SilentlyContinue; if ($k) { @{ version = $k.DisplayVersion; location = $k.InstallLocation; uninstall = $k.UninstallString; name = $k.DisplayName; exe = $k.DisplayIcon } } else { $null } }
 
 # The desk store (DPAPI, entropy epic-cash-desktop/secret-store/v1, in the data folder): only keys
@@ -600,13 +601,22 @@ function Do-Cmd($c) {
       Set-Content -LiteralPath $f -Value ([string]$c.text) -NoNewline -Encoding utf8
       return @{ ok = $true }
     }
+    'copy_tree' {
+      # the closed app's data folder to or from the run's resume point; the target replaced
+      if ((AppProcs).Count -gt 0) { return @{ ok = $false; error = 'the app is running' } }
+      $from = Mine $c.from; $to = Mine $c.to
+      if (-not (Test-Path -LiteralPath $from)) { return @{ ok = $false; error = "no $from" } }
+      if (Test-Path -LiteralPath $to) { Remove-Item -LiteralPath $to -Recurse -Force }
+      Copy-Item -LiteralPath $from -Destination $to -Recurse -Force
+      return @{ ok = $true }
+    }
     'uninstall' {
       $e = Entry
       if (-not $e) { return @{ ok = $true; note = 'nothing installed' } }
       if (-not ([string]$e.location).StartsWith("$Run\", [StringComparison]::OrdinalIgnoreCase)) { return @{ ok = $false; error = "installed at $($e.location), not this run's: left alone" } }
       $u = ([string]$e.uninstall) -replace '"', ''
       $p = Start-Process $u -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
-      Start-Sleep 3
+      EntryGone
       return @{ ok = ($p.ExitCode -eq 0); exit = $p.ExitCode; entry = (Entry) }
     }
     'uninstall_leftover' {
@@ -624,7 +634,7 @@ function Do-Cmd($c) {
         ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }
       $u = ([string]$e.uninstall) -replace '"', ''
       $p = Start-Process $u -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
-      Start-Sleep 3
+      EntryGone
       return @{ ok = ($p.ExitCode -eq 0); exit = $p.ExitCode; was = $e.location; entry = (Entry) }
     }
     'ps' {

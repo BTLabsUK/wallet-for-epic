@@ -249,9 +249,12 @@ class WinSurface:
 
     def _unchanged(self, node):
         """True when the screen reads the same just after a default action: some controls take none."""
-        before = self._signature(self.tree_nodes)
-        time.sleep(0.8)
-        return self._signature(self.tree()) == before
+        before, end = self._signature(self.tree_nodes), time.time() + 0.8
+        while True:
+            same = self._signature(self.tree()) == before
+            if not same or time.time() >= end:
+                return same
+            time.sleep(0.1)
 
     def set_text(self, node, text, secret=False):
         """Click into the field (a field outside the view: its default action, which focuses it), clear

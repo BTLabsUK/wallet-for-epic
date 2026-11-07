@@ -92,6 +92,9 @@ class AndroidPlatform(Platform):
         self.node, self.relay = e.get("REL_NODE", ""), e.get("REL_EPICBOX", "")
         self.custom_node = self.custom_relay = None
         self.ports = []
+        self.standin_ports = {}  # {"node"|"relay": port}: in the wallet's settings, so a resume needs the same
+        self.resume_ports = {}
+        self.point_saved = False
         self.standins = []
         self.lan_before = None
         self.dev = Device(self.serial)
@@ -230,7 +233,7 @@ class AndroidPlatform(Platform):
         for kind, up in (("node", self.node), ("relay", self.relay)):
             if plan.get(kind):
                 continue
-            ports[kind] = free_port()
+            ports[kind] = self.resume_ports.get(kind) or free_port()
             logf = open(os.path.join(self.out, "standin-%s.log" % kind), "w")
             self.standins.append(subprocess.Popen(
                 [sys.executable, "-I", os.path.join(os.path.dirname(HERE), "linux", "standin.py"), kind, str(ports[kind]), up],
@@ -241,6 +244,7 @@ class AndroidPlatform(Platform):
                 break
         else:
             raise HarnessFault("prepare", "the loopback node stand-in does not answer")
+        self.standin_ports = ports
         self.ports = list(ports.values()) + plan.get("ports", [])
         self.custom_node = hermetic.entry(plan["node"]) if plan.get("node") else "127.0.0.1:%d" % ports["node"]
         self.custom_relay = plan["relay"] if plan.get("relay") else "127.0.0.1:%d" % ports["relay"]
@@ -427,10 +431,12 @@ class AndroidPlatform(Platform):
 
     def restore_state(self, folder):
         with open(os.path.join(folder, "snapshot.json")) as f:
-            snap = json.load(f)
-        r = self._emu_cmd("avd", "snapshot", "load", snap["snapshot"], timeout=600)
+            self._load(json.load(f)["snapshot"])
+
+    def _load(self, name):
+        r = self._emu_cmd("avd", "snapshot", "load", name, timeout=600)
         if "OK" not in r.stdout:
-            raise HarnessFault("restore", "emulator snapshot %s did not load: %s" % (snap["snapshot"], (r.stdout + r.stderr).strip()[-200:]))
+            raise HarnessFault("restore", "emulator snapshot %s did not load: %s" % (name, (r.stdout + r.stderr).strip()[-200:]))
         for _ in range(60):
             if self.dev.online() and self._booted():
                 break
@@ -438,7 +444,7 @@ class AndroidPlatform(Platform):
         self._root()
         self._sync_clock()
         self.dev.sh("am force-stop %s" % PKG)
-        self.log("restored emulator snapshot %s (versionCode %s)" % (snap["snapshot"], self.version()))
+        self.log("restored emulator snapshot %s (versionCode %s)" % (name, self.version()))
 
     def fits(self, meta):
         if meta.get("platform") != "android" or meta.get("variant") != self.variant:
@@ -452,6 +458,51 @@ class AndroidPlatform(Platform):
 
     def state_meta(self):
         return {"signer": self.certs.get("candidate"), "avd": self.avd, "snapshot": self.snapshot}
+
+    # ---- resume (core/lane.py): from the point only, as the emulator keeps no state of its own before it
+
+    def _point(self):
+        return "%spoint-%s" % (SNAP_PREFIX, self.variant)  # one per variant, out of _prune_snapshots' names
+
+    def resume_dir(self):
+        return os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-android", ".resume-%s" % self.variant)
+
+    def resume_handle(self):
+        if not self.point_saved:
+            return None
+        return {"avd": self.avd, "snapshot": self._point(), "ports": dict(self.standin_ports)}
+
+    def resume_from(self, handle):
+        h = handle or {}
+        if h.get("avd") != self.avd or h.get("snapshot") != self._point():
+            return False, "the failed attempt's point %s of %s is not this lane's" % (h.get("snapshot"), h.get("avd"))
+        if h["snapshot"] not in self._snapshots():
+            return False, "emulator snapshot %s is gone from AVD %s" % (h["snapshot"], self.avd)
+        ports = {k: int(v) for k, v in (h.get("ports") or {}).items() if v}
+        for kind, port in ports.items():
+            try:
+                with socket.socket() as so:
+                    so.bind(("127.0.0.1", port))
+            except OSError:
+                return False, "the %s stand-in's port %d (in the wallet's settings) is taken" % (kind, port)
+        self.resume_ports = ports
+        return True, "emulator snapshot %s, stand-in ports %s" % (h["snapshot"], ports or "none")
+
+    def save_point(self):
+        if self.running:
+            self.stop()
+        name = self._point()
+        if name in self._snapshots():
+            self._emu_cmd("avd", "snapshot", "delete", name, timeout=120)
+        r = self._emu_cmd("avd", "snapshot", "save", name, timeout=600)
+        if name not in self._snapshots():
+            raise HarnessFault("resume-point", "emulator snapshot %s not saved: %s" % (name, (r.stdout + r.stderr).strip()[-200:]))
+        self.point_saved = True
+        self.log("saved emulator snapshot %s" % name)
+        return True
+
+    def load_point(self):
+        self._load(self._point())
 
 # the same server probes as linux/linux_platform.py (not imported: its files.py is not this folder's)
 def free_port():
