@@ -485,6 +485,21 @@ class PartsTest(unittest.TestCase):
         lane.w["a"].ui.open_wallet.assert_called_once()
         lane.w["b"].ui.open_wallet.assert_not_called()
 
+    def test_a_wallet_not_open_yet_leaves_the_pair_parkable(self):
+        from linux import tx_lane
+        pair = object.__new__(tx_lane.PairPlatform)
+        a = unittest.mock.Mock(sb="a", running="candidate", surface=unittest.mock.Mock())
+        a.alive.return_value = True
+        b = unittest.mock.Mock(sb="b", running=None, surface=None)
+        pair.pair = {"a": a, "b": b}
+        with unittest.mock.patch.object(tx_lane.sandbox, "services_alive", lambda sb: True):
+            self.assertTrue(pair.alive())
+            a.alive.return_value = False
+            self.assertFalse(pair.alive())
+        with unittest.mock.patch.object(tx_lane.sandbox, "services_alive", lambda sb: sb != "b"):
+            a.alive.return_value = True
+            self.assertFalse(pair.alive())
+
     def test_the_state_is_kept_only_when_the_wallets_are_empty(self):
         tx_lane, lane, digest_ = self.state_lane([0, tx.nano(tx.DUST)])
         with digest_, unittest.mock.patch.object(tx_lane.st, "save") as save:

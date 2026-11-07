@@ -165,8 +165,9 @@ class PairPlatform(Platform):
                 p.recover()
 
     def alive(self):
-        """Both wallets' apps and displays up (A2 comes and goes)."""
-        return all(p.surface and p.surface.display_alive() and p.alive() for k, p in self.pair.items() if k != "a2")
+        """Each wallet's sandbox up and, where its app should run, that app running (A2 comes and goes). A
+        wallet not opened yet, or closed by state-save, is no lane gone: a park must hold there too."""
+        return all(sandbox.services_alive(p.sb) and (not p.running or p.alive()) for k, p in self.pair.items() if k != "a2")
 
     def digest(self, tag, secrets):
         raise HarnessFault("digest", "the pair has no one wallet: read A or B (Wallet.digest)")
