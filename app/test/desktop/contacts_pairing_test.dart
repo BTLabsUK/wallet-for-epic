@@ -475,6 +475,37 @@ void main() {
       expect(_c.read(hostSettingsProvider).epicboxLabels, isNot(contains(moved)));
     });
 
+    testWidgets('a newer move closes the open dialog and nothing acts on the old one', (tester) async {
+      await _open(tester, const _AskDesk());
+      await asking(tester);
+      await tester.tap(find.byKey(_askDeskKey));
+      await _real(tester);
+      expect(find.byKey(deskRelayMoveDialogKey), findsOneWidget);
+      await tester.runAsync(() => _fake.askRelayMove(mockAnnaPairing, 'other.example.org'));
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      expect(find.byKey(deskRelayMoveDialogKey), findsNothing);
+      expect(_fake.calls, isNot(contains('acceptMove:$mockAnnaPairing')));
+      expect(_fake.calls, isNot(contains('refuseMove:$mockAnnaPairing')));
+      expect(_c.read(hostSettingsProvider).epicboxLabels, isNot(contains(moved)));
+      expect((await anna(tester)).homeRelay, isNot(moved));
+    });
+
+    testWidgets('an unpairing closes the open dialog and nothing acts on it', (tester) async {
+      await _open(tester, const _AskDesk());
+      await asking(tester);
+      await tester.tap(find.byKey(_askDeskKey));
+      await _real(tester);
+      expect(find.byKey(deskRelayMoveDialogKey), findsOneWidget);
+      _fake.removedByPeer(mockAnnaPairing);
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      expect(find.byKey(deskRelayMoveDialogKey), findsNothing);
+      expect(_fake.calls, isNot(contains('acceptMove:$mockAnnaPairing')));
+      expect(_fake.calls, isNot(contains('refuseMove:$mockAnnaPairing')));
+      expect(_c.read(hostSettingsProvider).epicboxLabels, isNot(contains(moved)));
+    });
+
     testWidgets('closed without a choice: the request on the details with Accept and Refuse; Refuse leaves a line with Accept', (tester) async {
       await _contact(tester, 'c1');
       await asking(tester);

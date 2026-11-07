@@ -4,6 +4,10 @@ import 'dart:math' as math;
 
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/levels/level_providers.dart' show currentLevelProvider;
+import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/message_checks.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -171,6 +175,7 @@ Future<void> _pump(
   double width = 412,
   double scale = 1,
   AdvancedPrefs advanced = AdvancedPrefs.none,
+  MessageChecks? checks,
 }) async {
   final t = tip ?? AsyncData(_tip);
   tester.view.physicalSize = Size(width * 3, 2400);
@@ -198,6 +203,9 @@ Future<void> _pump(
         networkModeProvider.overrideWithValue(advanced.networkMode),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         priceSourceProvider.overrideWithValue(_Price()),
+        // Deep end: the footer is on the connections sheet (Shallow has it on the Epicbox sheet).
+        if (checks != null) currentLevelProvider.overrideWithValue(WalletLevel.everything),
+        if (checks != null) messageCheckProvider.overrideWith((ref) => messageCheckStream(checks)),
       ],
       child: MaterialApp(
         theme: buildWalletTheme(protocolDark, Brightness.dark),
@@ -893,5 +901,96 @@ void main() {
         expect(figure.height, greaterThan(0));
       });
     }
+  });
+
+  group('message checks on the connections sheet footer', () {
+    final delay = appConfig.checkShowAfter;
+    final lines = {
+      'Messages read: 3': const CheckOutcome(messages: 3),
+      'Pairings failed: 1': const CheckOutcome(failed: 1),
+      'Messages held: 2': const CheckOutcome(held: 2),
+      'Messages refused: 3': const CheckOutcome(rejected: 1, dropped: 2),
+      '1 message could not be read': const CheckOutcome(unreadable: 1),
+      'More messages wait for the next check': const CheckOutcome(capped: 1),
+    };
+
+    Future<void> openSheet(WidgetTester tester, MessageChecks checks) async {
+      await _pump(tester, checks: checks);
+      await tester.tap(find.byKey(nodeStatusKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(connectionsSheetKey), findsOneWidget);
+    }
+
+    Finder inSheet(String text) => find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining(text));
+
+    // The stream's event and the digest's zero timer need a frame or two to land.
+    Future<void> settle(WidgetTester tester) async {
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+    }
+
+    MessageChecks make() {
+      final c = MessageChecks(showAfter: delay, digestGrace: Duration.zero);
+      addTearDown(c.dispose);
+      return c;
+    }
+
+    testWidgets('no check yet: the footer says nothing', (tester) async {
+      await openSheet(tester, make());
+      for (final t in ['Checking messages', 'Checked at', 'Messages', 'could not be read', 'More messages']) {
+        expect(inSheet(t), findsNothing, reason: t);
+      }
+    });
+
+    testWidgets('"Checking messages" shows only after notices.check_show_after_ms, then "Checked at" replaces it', (tester) async {
+      final checks = make();
+      await openSheet(tester, checks);
+      final done = Completer<int>();
+      final run = checks.run(CheckSource.collect, () => done.future, outcomeOf: (_) => const CheckOutcome());
+      await tester.pump(delay - const Duration(milliseconds: 100));
+      expect(inSheet('Checking messages'), findsNothing, reason: 'a quick check never shows');
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(inSheet('Checking messages'), findsOneWidget);
+      expect(inSheet('Checked at'), findsNothing);
+      done.complete(1);
+      await run;
+      await settle(tester);
+      expect(inSheet('Checking messages'), findsNothing);
+      expect(inSheet('Checked at'), findsOneWidget);
+    });
+
+    testWidgets('a failed check says so', (tester) async {
+      final checks = make();
+      await openSheet(tester, checks);
+      await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+      await settle(tester);
+      expect(inSheet('The last message check failed'), findsOneWidget);
+      expect(inSheet('Checked at'), findsNothing);
+    });
+
+    for (final MapEntry(key: line, value: outcome) in lines.entries) {
+      testWidgets('"$line" shows for a report that has it and no other outcome line does', (tester) async {
+        final checks = make();
+        await openSheet(tester, checks);
+        await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => outcome);
+        await settle(tester);
+        expect(inSheet('Checked at'), findsOneWidget);
+        expect(inSheet(line), findsOneWidget);
+        for (final other in lines.keys.where((k) => k != line)) {
+          expect(inSheet(other), findsNothing, reason: other);
+        }
+      });
+    }
+
+    testWidgets('buffered and received counts add no line', (tester) async {
+      final checks = make();
+      await openSheet(tester, checks);
+      await checks.run(CheckSource.drain, () async => 1, outcomeOf: (_) => const CheckOutcome(received: 4, buffered: 2));
+      await settle(tester);
+      expect(inSheet('Checked at'), findsOneWidget);
+      for (final other in lines.keys) {
+        expect(inSheet(other), findsNothing, reason: other);
+      }
+    });
   });
 }
