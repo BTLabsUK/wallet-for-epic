@@ -341,7 +341,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     _events = api.events().listen((e) {
       if (e.pairingId != widget.pairingId || !mounted || _left) return;
       if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
-      if (e.kind == PairingEventKind.confirmed) _finished();
+      if (e.kind == PairingEventKind.confirmed) unawaited(_finished());
       if (e.kind == PairingEventKind.failed && e.failure != null) {
         _left = true;
         Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => PairingOutcomeScreen(failure: e.failure!, name: e.name)));
@@ -362,10 +362,20 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     }
   }
 
-  /// The confirm is in: a request ends Verified (no words), a code opens the words.
-  void _finished() {
+  /// The confirm is in: a request ends Verified (no words), a code opens the words. The
+  /// provider's records are read again by a pairing event, so they may still be the old ones
+  /// here: the wallet is asked for this pairing, and the words open whenever it cannot be seen
+  /// Verified.
+  Future<void> _finished() async {
     _left = true;
-    final record = ref.read(pairingByIdProvider(widget.pairingId));
+    final api = ref.read(pairingApiProvider);
+    PairingRecord? record;
+    try {
+      record = await api.pairing(widget.pairingId);
+    } on Object {
+      // Not read: the words are the safe way on.
+    }
+    if (!mounted) return;
     final nav = Navigator.of(context);
     if (record != null && record.state == PairingState.verified) {
       ref.read(noticeProvider.notifier).show(context.l10n.pairPairedWith(_name), level: NoticeLevel.success);
