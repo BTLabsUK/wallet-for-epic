@@ -205,7 +205,7 @@ class LinuxPlatform(Platform):
     def digest(self, tag, secrets):
         if self.running and not self.alive():
             if self.surface and not self.surface.display_alive():  # the app goes with the display
-                raise HarnessGone("digest", "the sandbox's Xvfb or dbus is gone")
+                raise HarnessGone("digest", "the sandbox's Xvfb, dbus or keyring daemon is gone")
             raise ProductFault("app_alive", "the %s app is not running any more when its data was read" % self.running)
         files = SandboxFiles(self.sb, os.path.join(self.work, "read"))
         return wd.read(files, secrets, migrate=checks.migrating()[0], nodes=[self.node], log=self.log)

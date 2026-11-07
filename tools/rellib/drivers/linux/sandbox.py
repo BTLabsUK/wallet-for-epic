@@ -59,6 +59,13 @@ def _alive(pid):
         return False
 
 
+def services_alive(sb):
+    """Xvfb, the dbus session and the keyring daemon all running. The keyring counts too: gnome-keyring
+    can abort on a GLib assertion (seen 2026-11-07: "assertion 'client' failed"), and nothing in the
+    sandbox starts it again, so the app shows "No keyring found" until the sandbox is rebuilt."""
+    return all(_alive(_pid(sb, name)) for name in ("xvfb", "dbus", "keyring"))
+
+
 def _runtime(sb):
     """The sandbox's XDG_RUNTIME_DIR: a short folder of its own outside the sandbox, because the
     sockets in it (dbus, at-spi, the app's atk-bridge server) must fit the 108-byte unix socket
@@ -188,7 +195,8 @@ def start(sb, size="1400x950x24"):
         k, _, v = line.partition("=")
         if k == "GNOME_KEYRING_CONTROL":
             env[k] = v
-    kp = subprocess.run(["pgrep", "-n", "-f", "gnome-keyring-daemon"], capture_output=True, text=True).stdout.split()
+    # every daemon on the machine, not the newest: a sandbox started a moment later may own that one
+    kp = subprocess.run(["pgrep", "-f", "gnome-keyring-daemon"], capture_output=True, text=True).stdout.split()
     for p in kp:
         if _env_of(p).get("XDG_RUNTIME_DIR") == env["XDG_RUNTIME_DIR"]:
             _save_pid(sb, "keyring", p)

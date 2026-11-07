@@ -90,5 +90,23 @@ class PressTest(unittest.TestCase):
         self.assertEqual(s.keys, [])   # no Tab walk
 
 
+class ServicesTest(unittest.TestCase):
+    def test_a_dead_keyring_daemon_is_a_sandbox_gone(self):
+        import subprocess
+        import tempfile
+        import sandbox
+        dead = subprocess.Popen(["true"])
+        dead.wait()
+        with tempfile.TemporaryDirectory() as sb:
+            os.makedirs(os.path.join(sb, "pids"))
+            for name, pid in (("xvfb", os.getpid()), ("dbus", os.getpid()), ("keyring", os.getpid())):
+                with open(os.path.join(sb, "pids", name), "w") as f:
+                    f.write(str(pid))
+            self.assertTrue(sandbox.services_alive(sb))
+            with open(os.path.join(sb, "pids", "keyring"), "w") as f:
+                f.write(str(dead.pid))
+            self.assertFalse(sandbox.services_alive(sb))
+
+
 if __name__ == "__main__":
     unittest.main()

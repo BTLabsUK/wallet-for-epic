@@ -96,7 +96,8 @@ class AtspiSurface:
         self.proc = None
 
     def display_alive(self):
-        return sandbox._alive(sandbox._pid(self.sb, "xvfb")) and sandbox._alive(sandbox._pid(self.sb, "dbus"))
+        """The display, the bus and the keyring daemon behind the app: one gone is HarnessGone."""
+        return sandbox.services_alive(self.sb)
 
     def _call(self, req, timeout=CALL_S, once=False):
         """One request; a worker that hangs or dies is started again and asked once more. The display
@@ -111,7 +112,7 @@ class AtspiSurface:
         for attempt in range(2):
             if not self.display_alive():
                 self._stop()
-                raise HarnessGone("ui", "the sandbox's Xvfb or dbus is gone")
+                raise HarnessGone("ui", "the sandbox's Xvfb, dbus or keyring daemon is gone")
             with self.lock:
                 if self.proc is None or self.proc.poll() is not None:
                     self._start()
@@ -139,7 +140,7 @@ class AtspiSurface:
                     continue
                 return json.loads(ans[0])
         if not self.display_alive():
-            raise HarnessGone("ui", "the sandbox's Xvfb or dbus is gone")
+            raise HarnessGone("ui", "the sandbox's Xvfb, dbus or keyring daemon is gone")
         # the display is up: a rebuild would kill an app that may be busy (a first-start migration)
         raise HarnessFault("ui", "AT-SPI stopped answering (%s twice in %d s)" % (req.get("op"), timeout))
 
@@ -397,5 +398,5 @@ class AtspiSurface:
 
     def _xdo(self, *args, inp=None):
         if not self.display_alive():
-            raise HarnessGone("ui", "the sandbox's Xvfb or dbus is gone")
+            raise HarnessGone("ui", "the sandbox's Xvfb, dbus or keyring daemon is gone")
         return subprocess.run(["xdotool", *args], input=inp, text=True, capture_output=True, timeout=20, env=self._env())
