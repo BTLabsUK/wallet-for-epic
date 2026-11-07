@@ -400,7 +400,7 @@ class _NothingToConsolidate extends StatelessWidget {
 /// the row around it) holding the − button, the number field (label, value, increase and decrease)
 /// and the + button side by side: the value is the field's own text, readable through UI Automation.
 class EStepper extends StatefulWidget {
-  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.fewerId, this.moreId});
+  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.fewerId, this.moreId, this.valueId});
 
   final int value;
   final int min;
@@ -415,6 +415,9 @@ class EStepper extends StatefulWidget {
   /// The test drivers' stable names for the − and + buttons (`TrustIds`, lib/src/trust_ids.dart).
   final String? fewerId;
   final String? moreId;
+
+  /// The same for the number field.
+  final String? valueId;
 
   @override
   State<EStepper> createState() => _EStepperState();
@@ -481,6 +484,7 @@ class _EStepperState extends State<EStepper> {
                 onIncrease: v < widget.max ? () => _set(v + 1) : null,
                 onDecrease: v > widget.min ? () => _set(v - 1) : null,
                 child: EInput(
+                  semanticsId: widget.valueId,
                   controller: _text,
                   mono: true,
                   semanticLabel: widget.label,

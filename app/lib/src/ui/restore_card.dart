@@ -6,6 +6,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../restore_scan.dart';
+import '../trust_ids.dart';
 import 'common.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'settings_history.dart' show importHistoryBackup;
@@ -59,7 +60,7 @@ class RestoreCard extends ConsumerWidget {
                   child: TextButton(
                     key: retryKey,
                     onPressed: () => ref.read(restoreScanProvider.notifier).retry(),
-                    child: Text(l.launchTryAgain),
+                    child: TrustId(TrustIds.restoreRetry, child: Text(l.launchTryAgain)),
                   ),
                 ),
               ] else
@@ -75,7 +76,7 @@ class RestoreCard extends ConsumerWidget {
                 children: [
                   TextButton(
                     onPressed: () => ref.read(historyImportOfferProvider.notifier).set(false),
-                    child: Text(l.restoreImportNotNow),
+                    child: TrustId(TrustIds.restoreNotnow, child: Text(l.restoreImportNotNow)),
                   ),
                   TextButton(
                     onPressed: () async {

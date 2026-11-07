@@ -569,6 +569,7 @@ class UndercoverRow extends StatelessWidget {
               children: [
                 Flexible(
                   child: Semantics(
+                    identifier: trustNode(TrustIds.welcomeToronly),
                     container: true,
                     toggled: value,
                     label: title,
@@ -625,7 +626,7 @@ class UndercoverRow extends StatelessWidget {
           children: [
             Expanded(
               child: MergeSemantics(
-                child: InkWell(
+                child: TrustId(TrustIds.welcomeToronly, child: InkWell(
                   key: levelUndercoverKey,
                   borderRadius: BorderRadius.circular(t.radiusSmall),
                   onTap: onChanged == null ? null : () => onChanged(!value),
@@ -646,7 +647,7 @@ class UndercoverRow extends StatelessWidget {
                       ],
                     ),
                   ),
-                ),
+                )),
               ),
             ),
             const UndercoverHelpHint(later: true),

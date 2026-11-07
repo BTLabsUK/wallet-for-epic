@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../cancel_final.dart' show CancelResult;
 import '../../../send_amount_gate.dart';
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
@@ -170,6 +171,7 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
               error: _fieldError,
               reserveError: true,
               child: EPasswordInput(
+                semanticsId: TrustIds.invPayPassword,
                 controller: _password,
                 autofocus: true,
                 invalid: _fieldError != null,
@@ -190,7 +192,7 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
           ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop())]
           : [
               InvButton(label: l.deskInvPayerCancel, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-              InvButton(label: l.deskInvPayerPay, kind: EBtnKind.primary, busy: _busy, onPressed: _busy ? null : _pay),
+              InvButton(semanticsId: TrustIds.invPayPay, label: l.deskInvPayerPay, kind: EBtnKind.primary, busy: _busy, onPressed: _busy ? null : _pay),
             ],
     );
   }
@@ -490,6 +492,7 @@ class _ApproveFileDialogState extends ConsumerState<_ApproveFileDialog> {
               error: _fieldError,
               reserveError: true,
               child: EPasswordInput(
+                semanticsId: TrustIds.invPayPassword,
                 controller: _password,
                 autofocus: true,
                 invalid: _fieldError != null,
@@ -510,7 +513,7 @@ class _ApproveFileDialogState extends ConsumerState<_ApproveFileDialog> {
           ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop())]
           : [
               InvButton(label: l.deskInvPayerCancel, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-              InvButton(label: l.deskInvPayerPay, kind: EBtnKind.primary, busy: _busy, onPressed: _busy ? null : _pay),
+              InvButton(semanticsId: TrustIds.invPayPay, label: l.deskInvPayerPay, kind: EBtnKind.primary, busy: _busy, onPressed: _busy ? null : _pay),
             ],
     );
   }

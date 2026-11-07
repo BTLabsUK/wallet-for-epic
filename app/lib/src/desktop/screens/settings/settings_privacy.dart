@@ -3,6 +3,7 @@ import '../../../state_language.dart' show torShownState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../../advanced.dart' show NetworkMode;
 import '../../../ui/network_mode_text.dart';
@@ -99,6 +100,9 @@ class PrivacyGroup extends ConsumerWidget {
   }
 }
 
+/// The test drivers' stable names for the modes (`TrustIds`, lib/src/trust_ids.dart).
+const _modeId = {NetworkMode.standard: TrustIds.privacyModeStandard, NetworkMode.torOnly: TrustIds.privacyModeToronly};
+
 /// The network modes as radio rows (each with its ⓘ): Normal, Tor only, Node only, Kill switch.
 /// A switch that would pause a waiting send asks first ([confirmNetworkModeSwitch]).
 class NetworkModeGroup extends ConsumerWidget {
@@ -122,6 +126,7 @@ class NetworkModeGroup extends ConsumerWidget {
     }
     Widget mode(NetworkMode m, {bool tor = false}) => ERadioRow(
       key: ValueKey('adv-mode-${m.name}'),
+      semanticsId: _modeId[m],
       selected: adv.networkMode == m,
       // Just the name and its ⓘ: no explanations in the list (the owner).
       title: networkModeName(l, m),

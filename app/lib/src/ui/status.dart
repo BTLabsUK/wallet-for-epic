@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
+import '../trust_ids.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -442,7 +443,11 @@ class StatusIcon extends StatelessWidget {
     this.actionHint,
     this.pulse = false,
     this.enabled = true,
+    this.semanticsId,
   });
+
+  /// The test drivers' stable name for this status ([TrustIds]).
+  final String? semanticsId;
 
   /// Whether the service is on: the glyph is neutral then and the mark shows its connection;
   /// off, the glyph is faint with a slash and has no mark, and a tap opens the switch.
@@ -477,6 +482,10 @@ class StatusIcon extends StatelessWidget {
     // The semantics node is the widget's root, so tests and screen readers find it by key;
     // the tooltip inside it is excluded (its text is the hint).
     return Semantics(
+      identifier: switch (semanticsId) {
+        final id? => trustNode(id),
+        null => null,
+      },
       container: true,
       button: true,
       label: label,

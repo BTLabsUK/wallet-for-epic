@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../models.dart' show PairingRecord, PairingState;
 import '../../../slate_files.dart' show sendFileName;
+import '../../../trust_ids.dart';
 import '../../data/history_files.dart';
 import '../../data/invoice_state.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -264,6 +265,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           child: SizedBox(
             width: InvW.lg,
             child: EInput(
+              semanticsId: TrustIds.invIssueAmount,
               controller: _amount,
               mono: true,
               invalid: amountErr != null,
@@ -313,6 +315,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
               )
             else
               InvButton(
+                semanticsId: TrustIds.invIssueSend,
                 label: l.reqNewSend,
                 icon: EIcons.request,
                 kind: EBtnKind.primary,

@@ -360,6 +360,7 @@ class ESearch extends StatefulWidget {
     this.autofocus = false,
     this.width,
     this.clearKey,
+    this.semanticsId,
   });
 
   final TextEditingController controller;
@@ -376,6 +377,9 @@ class ESearch extends StatefulWidget {
   /// Null fills the parent; [double.nan] takes the standard width, [standardWidth].
   final double? width;
   final Key? clearKey;
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   static double get standardWidth => 260.u;
 
@@ -416,6 +420,7 @@ class _ESearchState extends State<ESearch> {
   @override
   Widget build(BuildContext context) {
     final field = EInput(
+      semanticsId: widget.semanticsId,
       controller: widget.controller,
       line: true,
       enabled: widget.enabled,

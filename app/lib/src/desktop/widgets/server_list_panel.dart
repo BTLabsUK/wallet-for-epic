@@ -534,7 +534,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           // Enter switches, Esc cancels: the primary button holds the focus on open.
           EButton.primary(
             key: const ValueKey('server-list-switch'),
-            semanticsId: TrustIds.epicboxSwitch,
+            semanticsId: TrustIds.serverEpicboxSwitch,
             label: l.slSwitch,
             autofocus: true,
             onPressed: () => Navigator.pop(context, true),

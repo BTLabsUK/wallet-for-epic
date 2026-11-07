@@ -32,6 +32,7 @@ class InvButton extends StatelessWidget {
     this.icon,
     this.busy = false,
     this.tooltip,
+    this.semanticsId,
   });
 
   final String label;
@@ -46,11 +47,14 @@ class InvButton extends StatelessWidget {
   final bool busy;
   final String? tooltip;
 
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
+
   @override
   Widget build(BuildContext context) => IntrinsicWidth(
     child: ConstrainedBox(
       constraints: BoxConstraints(minWidth: width ?? InvW.sm),
-      child: EButton(label: label, onPressed: onPressed, kind: kind, size: size, icon: icon, busy: busy, expand: true, tooltip: tooltip),
+      child: EButton(semanticsId: semanticsId, label: label, onPressed: onPressed, kind: kind, size: size, icon: icon, busy: busy, expand: true, tooltip: tooltip),
     ),
   );
 }

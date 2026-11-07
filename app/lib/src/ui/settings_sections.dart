@@ -289,6 +289,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     required List<({T value, String label})> options,
     required T current,
     Widget? Function(T value)? leadingOf,
+    String? Function(T value)? idOf,
   }) {
     return showAppDialog<T>(
       context,
@@ -306,6 +307,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   value: option.value,
                   title: option.label,
                   leading: leadingOf?.call(option.value),
+                  semanticsId: idOf?.call(option.value),
                 ),
             ],
           ),
@@ -341,6 +343,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       options: [
         for (final m in ThemeMode.values) (value: m, label: themeLabel(l, m)),
       ],
+      idOf: (m) => switch (m) {
+        ThemeMode.system => TrustIds.appearanceThemeSystem,
+        ThemeMode.dark => TrustIds.appearanceThemeDark,
+        ThemeMode.light => TrustIds.appearanceThemeLight,
+      },
     );
     if (mode != null) await _settings.setThemeMode(mode);
   }
@@ -582,7 +589,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     return [
       ListTile(
         leading: const Icon(Icons.key),
-        title: Text(l.settingsBackupPhrase),
+        title: TrustId(TrustIds.backupRow, child: Text(l.settingsBackupPhrase)),
         // The one state that matters here: not done yet, in the warning colour.
         subtitle: backedUp
             ? null

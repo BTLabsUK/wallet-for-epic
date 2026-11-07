@@ -6,6 +6,7 @@
 /// through [watchWalletStatus] and [phoneTorProvider]; nothing here debounces or decides a route.
 library;
 
+import '../trust_ids.dart';
 import 'settings_rows.dart' show NavChevron;
 import '../state_language.dart' show ShownState, torShownState;
 import 'phone_sheet.dart';
@@ -114,6 +115,14 @@ StatusDot torDot(TorState state) => StatusDot.of(torShownState(state));
 
 /// The key of the mode mark in Wallet's status strip, for tests.
 const Key netModeStatusKey = networkModeMarkKey;
+
+/// The test drivers' stable name for a status icon, on Home's strip and in the sheet
+/// (`TrustIds`, lib/src/trust_ids.dart).
+String? _statusId(Key key) => switch (key) {
+  nodeStatusKey => TrustIds.statusNode,
+  epicboxStatusKey => TrustIds.statusEpicbox,
+  _ => null,
+};
 
 /// One status for the icon rows ([StatusIcons]) and the connections sheet
 /// ([ConnectionsSheet]): the service's glyph, whether it is on, its dot, the service and its
@@ -315,6 +324,7 @@ class StatusIcons extends ConsumerWidget {
         for (final e in entries)
           StatusIcon(
             key: e.key,
+            semanticsId: _statusId(e.key),
             icon: e.icon,
             enabled: e.enabled,
             dot: e.dot,
@@ -367,6 +377,7 @@ class ConnectionsSheet extends ConsumerWidget {
       required String detail,
       required StatusDot dot,
       required VoidCallback onTap,
+      String? id,
     }) {
       final problem = dot == StatusDot.bad;
       void open() {
@@ -375,7 +386,7 @@ class ConnectionsSheet extends ConsumerWidget {
       }
 
       // The row's own tap for a screen reader: excludeSemantics drops the InkWell's.
-      return Semantics(
+      return TrustId(id, child: Semantics(
         button: true,
         label: label,
         hint: detail,
@@ -418,7 +429,7 @@ class ConnectionsSheet extends ConsumerWidget {
             ),
           ),
         ),
-      );
+      ));
     }
     final rows = <Widget>[
       if (mode != NetworkMode.standard)
@@ -437,6 +448,7 @@ class ConnectionsSheet extends ConsumerWidget {
           final face = shellNetworkFace(context, ref);
           final url = ref.watch(walletConfigProvider)?.nodeUrl;
           return row(
+            id: TrustIds.statusNetwork,
             icon: EpicGlyphs.node,
             glyph: StatusGlyph(icon: EpicGlyphs.node, enabled: face.dot != StatusDot.off, dot: face.dot, ring: ring),
             enabled: face.dot != StatusDot.off,
@@ -450,6 +462,7 @@ class ConnectionsSheet extends ConsumerWidget {
           final face = shellEpicboxFace(context, ref);
           final config = ref.watch(walletConfigProvider);
           return row(
+            id: TrustIds.statusEpicbox,
             icon: EpicGlyphs.epicbox,
             glyph: StatusGlyph(icon: EpicGlyphs.epicbox, enabled: face.dot != StatusDot.off, dot: face.dot, ring: ring),
             enabled: face.dot != StatusDot.off,
@@ -462,6 +475,7 @@ class ConnectionsSheet extends ConsumerWidget {
       ] else
         for (final e in entries)
           row(
+            id: _statusId(e.key),
             icon: e.icon,
             glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
             enabled: e.enabled,

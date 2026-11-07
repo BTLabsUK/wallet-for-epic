@@ -59,6 +59,13 @@ const Key deskTorRelayCaptionKey = ValueKey('tor-relay-caption');
 /// Link · Tor's state under its switch, for tests.
 const Key deskTorPayLineKey = ValueKey('st-torPay-line');
 
+/// The test drivers' stable names for the method switches (`TrustIds`, lib/src/trust_ids.dart).
+const _offerId = {
+  MethodKind.linkHttp: TrustIds.txPayHttp,
+  MethodKind.linkTor: TrustIds.txPayTor,
+  MethodKind.directFile: TrustIds.txPayFile,
+};
+
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
 
@@ -329,6 +336,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ? Center(child: Semantics(label: l.deskSetRecvSwitching(full), child: ESpinner(size: 18.u)))
             : ESwitch(
                 key: ValueKey('st-offer-${m.name}'),
+                semanticsId: _offerId[m],
                 value: p.offers(m),
                 semanticLabel: full,
                 onChanged: locked ? null : (v) => _setMethod(m, v),
@@ -732,8 +740,9 @@ class ReceivingGroup extends ConsumerWidget {
                 label: l.deskSetAdvConfirmations,
                 fewerLabel: l.deskSetAdvConfirmationsFewer,
                 moreLabel: l.deskSetAdvConfirmationsMore,
-                fewerId: TrustIds.paymentsConfirmationsFewer,
-                moreId: TrustIds.paymentsConfirmationsMore,
+                valueId: TrustIds.confirmationsValue,
+                fewerId: TrustIds.confirmationsFewer,
+                moreId: TrustIds.confirmationsMore,
                 onChanged: set,
               ),
             ],

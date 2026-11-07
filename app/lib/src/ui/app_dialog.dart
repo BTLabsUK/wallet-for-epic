@@ -12,6 +12,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../trust_ids.dart';
 import 'common.dart' show DangerButton;
 import 'theme/dialog_metrics.dart';
 import 'theme/tokens.dart';
@@ -41,6 +42,7 @@ Future<bool> confirmAppDialog(
   bool risk = false,
   Key? confirmKey,
   Key? cancelKey,
+  String? confirmId,
 }) async {
   final yes = await showAppDialog<bool>(
     context,
@@ -53,8 +55,8 @@ Future<bool> confirmAppDialog(
       actions: [
         DialogButton.secondary(key: cancelKey, label: cancelLabel, onPressed: () => Navigator.pop(context, false)),
         risk
-            ? DialogButton.risk(key: confirmKey, label: confirmLabel, onPressed: () => Navigator.pop(context, true))
-            : DialogButton.primary(key: confirmKey, label: confirmLabel, onPressed: () => Navigator.pop(context, true)),
+            ? DialogButton.risk(key: confirmKey, label: confirmLabel, semanticsId: confirmId, onPressed: () => Navigator.pop(context, true))
+            : DialogButton.primary(key: confirmKey, label: confirmLabel, semanticsId: confirmId, onPressed: () => Navigator.pop(context, true)),
       ],
     ),
   );
@@ -261,16 +263,16 @@ enum DialogButtonKind {
 /// and the one disabled look (theme/tokens.dart). [busy] shows a small spinner and ignores
 /// presses. Use it on screens too wherever the same three kinds apply.
 class DialogButton extends StatelessWidget {
-  const DialogButton.secondary({super.key, required this.label, required this.onPressed, this.icon, this.busy = false})
+  const DialogButton.secondary({super.key, required this.label, required this.onPressed, this.icon, this.busy = false, this.semanticsId})
     : kind = DialogButtonKind.secondary;
 
-  const DialogButton.primary({super.key, required this.label, required this.onPressed, this.icon, this.busy = false})
+  const DialogButton.primary({super.key, required this.label, required this.onPressed, this.icon, this.busy = false, this.semanticsId})
     : kind = DialogButtonKind.primary;
 
-  const DialogButton.risk({super.key, required this.label, required this.onPressed, this.icon, this.busy = false})
+  const DialogButton.risk({super.key, required this.label, required this.onPressed, this.icon, this.busy = false, this.semanticsId})
     : kind = DialogButtonKind.risk;
 
-  const DialogButton._({super.key, required this.kind, required this.label, required this.onPressed, this.icon, this.busy = false});
+  const DialogButton._({super.key, required this.kind, required this.label, required this.onPressed, this.icon, this.busy = false, this.semanticsId});
 
   final DialogButtonKind kind;
   final String label;
@@ -278,7 +280,10 @@ class DialogButton extends StatelessWidget {
   final IconData? icon;
   final bool busy;
 
-  DialogButton _as(DialogButtonKind k) => DialogButton._(key: key, kind: k, label: label, onPressed: onPressed, icon: icon, busy: busy);
+  /// The test drivers' stable name for this button ([TrustIds]).
+  final String? semanticsId;
+
+  DialogButton _as(DialogButtonKind k) => DialogButton._(key: key, kind: k, label: label, onPressed: onPressed, icon: icon, busy: busy, semanticsId: semanticsId);
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +298,7 @@ class DialogButton extends StatelessWidget {
                 : const CircularProgressIndicator(strokeWidth: 2),
           )
         : (icon == null ? null : Icon(icon, size: 18));
-    final text = Text(label, textAlign: TextAlign.center);
+    final text = TrustId(semanticsId, child: Text(label, textAlign: TextAlign.center));
     switch (kind) {
       case DialogButtonKind.primary:
         final style = FilledButton.styleFrom(minimumSize: minimum);

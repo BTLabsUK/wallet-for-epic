@@ -9,6 +9,7 @@
 /// operator's icon from the monitor, else initials, and the health as a dot.
 library;
 
+import '../trust_ids.dart';
 import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'dart:async';
@@ -229,6 +230,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   bool get _node => widget.kind == ServerKind.node;
 
+  /// The test drivers' stable names for this list's controls (`TrustIds`, lib/src/trust_ids.dart).
+  TrustServerIds get _ids => _node ? TrustIds.nodeList : TrustIds.epicboxList;
+
   /// The set ticked now in a selection picker; null in the one-server picker.
   List<String>? _chosen;
 
@@ -338,6 +342,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       confirmLabel: l.slSwitch,
       cancelKey: serverListCancelKey,
       confirmKey: serverListSwitchKey,
+      confirmId: TrustIds.serverSwitch,
     );
     if (sure && mounted) await _switchTo(value, choice);
   }
@@ -721,7 +726,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 if (_sel == null) HelpButton(_node ? HelpId.node : HelpId.epicbox),
                 IconButton(
                   tooltip: l.commonClose,
-                  icon: const Icon(Icons.close),
+                  icon: TrustId(TrustIds.commonClose, child: const Icon(Icons.close)),
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),
               ],
@@ -808,7 +813,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final pinned = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
+        TrustId(_node ? TrustIds.serverNodeField : TrustIds.serverRelayField, child: TextField(
           key: serverListFieldKey,
           controller: _field,
           focusNode: _focus,
@@ -845,14 +850,14 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 : IconButton(
                     key: serverListClearKey,
                     tooltip: l.slClear,
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: TrustId(TrustIds.serverClear, child: const Icon(Icons.close, size: 20)),
                     onPressed: () {
                       _field.clear();
                       setState(() => _fieldError = null);
                     },
                   ),
           ),
-        ),
+        )),
         if (_sel != null)
           _SelectionNote(note: _sel!.note, count: _chosen!.length, limit: _sel!.limit)
         // The server in use: the node's facts, or the relay's address warning. Typing folds
@@ -889,14 +894,14 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     );
     final list = [
       if (showAdd)
-        _AddRow(
+        TrustId(_ids.add, child: _AddRow(
           host: addHost,
           note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
           busy: _adding,
           onTap: () => _add(choice),
-        ),
+        )),
       for (final e in shown) ...[
-        _ServerRow(
+        TrustId(_ids.row, child: _ServerRow(
           key: serverListRowKey(e.value),
           kind: widget.kind,
           entry: e,
@@ -915,7 +920,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           dimmed: _sel != null && !_isChosen(e.value) && _chosen!.length >= _sel!.limit,
           onTap: () => _pick(e.value, choice),
           onRemove: () => _remove(e, choice),
-        ),
+        )),
         if (relayBlocked && _same(e.value, current))
           const Padding(
             padding: EdgeInsetsDirectional.only(start: 8, bottom: 4),

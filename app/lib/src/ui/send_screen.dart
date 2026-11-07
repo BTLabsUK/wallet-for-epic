@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
+import '../trust_ids.dart';
 import 'app_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter/services.dart';
@@ -2595,7 +2596,7 @@ class _SendViewState extends ConsumerState<SendView> {
               if (onBack != null)
                 IconButton(
                   tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  icon: const Icon(Icons.arrow_back),
+                  icon: TrustId(TrustIds.sendBack, child: const Icon(Icons.arrow_back)),
                   onPressed: _busy || _estimating ? null : onBack,
                 ),
               Expanded(
@@ -2799,7 +2800,7 @@ class _SendViewState extends ConsumerState<SendView> {
       else
         PhoneTourTarget(
           id: 'tour-send-recipient',
-          child: TextField(
+          child: TrustId(TrustIds.sendTo, child: TextField(
             key: sendRecipientFieldKey,
             controller: _recipient,
             focusNode: _recipientFocus,
@@ -2824,12 +2825,12 @@ class _SendViewState extends ConsumerState<SendView> {
                   : IconButton(
                       key: sendRecipientClearKey,
                       tooltip: l.sendClearRecipient,
-                      icon: const Icon(Icons.close),
+                      icon: TrustId(TrustIds.sendClear, child: const Icon(Icons.close)),
                       onPressed: _clearRecipient,
                     ),
               error: _recipientError == null ? null : LiveFieldError(_recipientError!),
             ),
-          ),
+          )),
         ),
       // A transaction text: open it where it belongs, no error.
       if (read.kind == RecipientInputKind.slate) ...[
@@ -3032,7 +3033,7 @@ class _SendViewState extends ConsumerState<SendView> {
             IconButton(
               key: sendRecipientClearKey,
               tooltip: l.sendClearRecipient,
-              icon: const Icon(Icons.close),
+              icon: TrustId(TrustIds.sendClear, child: const Icon(Icons.close)),
               onPressed: _clearRecipient,
             ),
           ],
@@ -3359,6 +3360,7 @@ class _SendViewState extends ConsumerState<SendView> {
       : _read.isAddress;
 
   Widget _recipientAction() => BusyButton(
+    semanticsId: TrustIds.commonContinue,
     label: context.l10n.commonContinue,
     onPressed: !_hasRecipient || _block != NetBlock.none || _hold != null
         ? null
@@ -3416,7 +3418,7 @@ class _SendViewState extends ConsumerState<SendView> {
       ],
     ];
     return [
-      TextField(
+      TrustId(file ? null : TrustIds.sendAmount, child: TextField(
         key: file ? sendFileAmountFieldKey : sendAmountFieldKey,
         controller: _amount,
         focusNode: _amountFocus,
@@ -3471,7 +3473,7 @@ class _SendViewState extends ConsumerState<SendView> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
                 onPressed: _busy ? null : _max,
-                child: Text(l.sendMax),
+                child: TrustId(TrustIds.sendMax, child: Text(l.sendMax)),
               ),
               const SizedBox(width: 4),
             ],
@@ -3484,7 +3486,7 @@ class _SendViewState extends ConsumerState<SendView> {
           helperMaxLines: 2,
           error: _amountError == null ? null : LiveFieldError(_amountError!),
         ),
-      ),
+      )),
       if (!file)
         if (_activeLink case final link? when amountEdited(link, _parsedAmount))
           const Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote()),
@@ -3663,6 +3665,7 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _amountAction() {
     final way = _wayOf(_toRoute);
     return BusyButton(
+      semanticsId: TrustIds.commonContinue,
       label: way == TorWay.wait
           ? context.l10n.torWaiting
           : context.l10n.commonContinue,
@@ -3934,7 +3937,7 @@ class _SendViewState extends ConsumerState<SendView> {
       children: [
         // The send failed and LEPIC holds the payment: never a second send from here.
         if (_sendFailed && _cancelFailed)
-          BusyButton(label: l.commonDone, onPressed: _done)
+          BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done)
         // Over Tor or HTTP the waiting payment is delivered again, or cancelled.
         else if (_sendFailed &&
             (_overTor || _overHttp) &&
@@ -3964,7 +3967,7 @@ class _SendViewState extends ConsumerState<SendView> {
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _done,
-            child: Text(l.commonDone),
+            child: TrustId(TrustIds.commonDone, child: Text(l.commonDone)),
           ),
         ] else if (_sendFailed && _failedViaMailbox && _pairingTo == null) ...[
           // The pairing's relay did not take it: the same payment to the contact's public
@@ -4015,10 +4018,10 @@ class _SendViewState extends ConsumerState<SendView> {
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _done,
-            child: Text(l.commonDone),
+            child: TrustId(TrustIds.commonDone, child: Text(l.commonDone)),
           ),
         ] else if (_sendFailed)
-          BusyButton(label: l.commonDone, onPressed: _done)
+          BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done)
         // Their relay is down before any attempt: nothing is stored yet.
         else if (relayDown) ...[
           BusyButton(
@@ -4038,6 +4041,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ] else ...[
           BusyButton(
+            semanticsId: TrustIds.sendConfirm,
             label: _queues() ? l.sendQueue : l.sendReviewSendButton(amount),
             busyLabel: l.sendSending,
             busy: _busy,
@@ -4055,7 +4059,7 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   Widget _doneAction() =>
-      BusyButton(label: context.l10n.commonDone, onPressed: _done);
+      BusyButton(semanticsId: TrustIds.commonDone, label: context.l10n.commonDone, onPressed: _done);
 
   List<Widget> _trackerStep(BuildContext context, _Sent sent) {
     final l = context.l10n;
@@ -4524,7 +4528,7 @@ class _SendViewState extends ConsumerState<SendView> {
       TextButton(
         style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
         onPressed: _done,
-        child: Text(l.commonDone),
+        child: TrustId(TrustIds.commonDone, child: Text(l.commonDone)),
       ),
     ];
   }

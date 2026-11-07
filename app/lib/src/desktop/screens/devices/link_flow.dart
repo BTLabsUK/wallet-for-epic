@@ -16,6 +16,7 @@ import '../../../devices/device_link_code.dart';
 import '../../../devices/device_model.dart' show LinkedDevice;
 import '../../../devices/device_service.dart';
 import '../../../devices/invite_links_api.dart';
+import '../../../trust_ids.dart';
 import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
 import '../../data/devices_state.dart';
 import '../../desk_l10n.dart';
@@ -241,7 +242,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
                 onChanged: (t) => unawaited(_switch(t)),
                 segments: [
                   ESegment(_Tab.show, l.linkShow),
-                  ESegment(_Tab.paste, l.linkPaste),
+                  ESegment(_Tab.paste, l.linkPaste, semanticsId: TrustIds.linkTabPaste),
                 ],
               ),
             ),
@@ -287,7 +288,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
           children: [
             Icon(EIcons.okCircle, size: Ctl.icon, color: c.ok),
             SizedBox(width: Sp.x3),
-            Expanded(child: Text(l.linkDone(name), style: ts.strong)),
+            Expanded(child: TrustId(TrustIds.linkDone, child: Text(l.linkDone(name), style: ts.strong))),
           ],
         );
       case LinkPhase.failed:
@@ -330,7 +331,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
                 child: EMiddleEllipsis(code, key: deskLinkCodeKey, style: ts.mono(size: Fs.xs)),
               ),
               SizedBox(width: Sp.x2),
-              ECopyButton(key: deskLinkCopyKey, text: code, label: l.linkCopy, withLabel: true),
+              ECopyButton(key: deskLinkCopyKey, semanticsId: TrustIds.linkCopy, text: code, label: l.linkCopy, withLabel: true),
             ],
           ),
         ),
@@ -359,6 +360,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
           error: _error,
           child: EInput(
             key: deskLinkPasteFieldKey,
+            semanticsId: TrustIds.linkField,
             controller: _text,
             mono: true,
             invalid: _error != null,
@@ -384,7 +386,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
       // Two devices at most: a refused link offers to replace the one linked.
       final linked = failure == LinkFailure.tooMany ? _service?.book.linked : null;
       return [
-        EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: _close),
+        EButton(semanticsId: TrustIds.linkClose, label: l.commonClose, size: EBtnSize.sm, onPressed: _close),
         if (linked != null)
           EButton.primary(key: deskLinkReplaceKey, label: l.linkReplaceTitle(linked.name), size: EBtnSize.sm, onPressed: () => unawaited(_replace(linked)))
         else if (link.role == LinkRole.scans)
@@ -402,9 +404,9 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
       ];
     }
     return [
-      EButton(key: deskLinkCancelKey, label: l.commonCancel, size: EBtnSize.sm, onPressed: _close),
+      EButton(key: deskLinkCancelKey, semanticsId: TrustIds.linkCancel, label: l.commonCancel, size: EBtnSize.sm, onPressed: _close),
       if (link == null && (_tab == _Tab.paste || _confirming))
-        EButton.primary(key: deskLinkGoKey, label: l.linkGo, size: EBtnSize.sm, busy: _busy, onPressed: _answer),
+        EButton.primary(key: deskLinkGoKey, semanticsId: TrustIds.linkGo, label: l.linkGo, size: EBtnSize.sm, busy: _busy, onPressed: _answer),
     ];
   }
 }

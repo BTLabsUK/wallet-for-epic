@@ -13,6 +13,7 @@ import '../pairing_providers.dart';
 import '../pairing_text.dart' show peerLabel, sameNamedContact;
 import '../providers.dart';
 import '../scan/scan_checks.dart' show addressOfScan;
+import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'app_dialog.dart';
@@ -187,7 +188,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             ),
           IconButton(
             tooltip: l.contactsAdd,
-            icon: const Icon(Icons.person_add_alt),
+            icon: TrustId(TrustIds.contactsAdd, child: const Icon(Icons.person_add_alt)),
             onPressed: _add,
           ),
           if (!widget.pick)
@@ -250,7 +251,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                           minimumSize: const Size(0, 44),
                         ),
                         icon: const Icon(Icons.person_add_alt),
-                        label: Text(l.contactsAdd),
+                        label: TrustId(TrustIds.contactsAdd, child: Text(l.contactsAdd)),
                         onPressed: _add,
                       ),
                       if (pairs) ...[

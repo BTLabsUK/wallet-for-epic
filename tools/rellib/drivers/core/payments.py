@@ -30,10 +30,9 @@ METHODS = ("epicbox", "http", "tor", "file")
 
 # Settings › Payments › Methods: the switches (a button of the same name opens each one's details)
 PAY_SWITCH = {
-    "http": T("tx.pay.http", role="toggle", keys=("methodDirectHttp",), names=("Link · HTTP",), match="exact"),
-    "tor": T("tx.pay.tor", role="toggle", keys=("methodDirectTor",), names=("Link · Tor",), match="exact"),
-    "file": T("tx.pay.file", role="toggle", keys=("methodDirectFile", "advTransactionFiles"),
-              names=("Direct · File Transfer",), match="exact"),
+    "http": T("tx.pay.http"),
+    "tor": T("tx.pay.tor"),
+    "file": T("tx.pay.file"),
 }
 # the method a transaction's detail (Activity, Deep end) names, by transport
 METHOD_LABEL = {"epicbox": "Epicbox", "http": "Link · HTTP", "tor": "Link · Tor", "file": "Direct · File Transfer"}
@@ -41,14 +40,13 @@ METHOD_LABEL = {"epicbox": "Epicbox", "http": "Link · HTTP", "tor": "Link · To
 HTTP_ADDRESS_RX = re.compile(r"^https?://[\w.:\[\]-]+/?$")
 ONION_RX = re.compile(r"^(?:https?://)?([a-z2-7]{56})(?:\.onion)?/?$")
 
-SEND_PAY_FILE = T("tx.send.payfile", keys=("sendPayByFile",), names=("Pay with a file",), match="exact")
-FILE_READY = T("tx.send.fileready", role="text", keys=("deskSendFileReadyTitle",), names=("Transaction file ready",),
-               match="starts")
-RECV_OPEN = T("tx.recv.open", keys=("deskRecvOpen",), names=("Open",), match="exact")
-FILES_OPENED = T("tx.recv.files", role="text", keys=("deskTfResults",), names=("Files opened",), match="starts")
+SEND_PAY_FILE = T("tx.send.payfile")
+FILE_READY = T("tx.send.fileready")
+RECV_OPEN = T("tx.recv.open")
+FILES_OPENED = T("tx.recv.files")
 # Send with an onion while Link · Tor is off: "Link · Tor is off in Settings › Transactions." › Turn on Link · Tor
-SEND_TURN_ON = T("tx.send.turnon", keys=("sendTurnOnMethod",), names=("Turn on Link · Tor",), match="exact")
-TX_METHOD = T("tx.detail.method", role="text", keys=("deskTxFactMethod",), names=("Method",), match="starts")
+SEND_TURN_ON = T("tx.send.turnon")
+TX_METHOD = T("tx.detail.method")
 TX_ROW_RX = re.compile(r"^(sent|received) ", re.I)
 
 TOR_WAIT_S = 180   # Review enabled for an onion while the sender's Tor starts ("Tor starts when you send")

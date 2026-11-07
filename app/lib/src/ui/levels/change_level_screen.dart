@@ -7,6 +7,7 @@ import '../../l10n.dart';
 import '../../levels/level_providers.dart';
 import '../../levels/wallet_level.dart';
 import '../../settings.dart';
+import '../../trust_ids.dart';
 import '../common.dart';
 import '../theme/tokens.dart';
 import 'level_picker.dart';
@@ -122,7 +123,7 @@ class _ChangeLevelScreenState extends ConsumerState<ChangeLevelScreen> {
                               ),
                               const SizedBox(height: 12),
                             ],
-                            BusyButton(key: levelSaveKey, label: l.commonSave, busy: _busy, onPressed: _save),
+                            BusyButton(key: levelSaveKey, semanticsId: TrustIds.commonSave, label: l.commonSave, busy: _busy, onPressed: _save),
                           ],
                         ),
                       ),

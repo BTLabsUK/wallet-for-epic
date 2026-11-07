@@ -12,6 +12,7 @@ import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvide
 import '../../../trust/policy.dart' show statedAutomated;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/shell.dart' show deskRouteShown;
@@ -138,7 +139,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         padding: EdgeInsets.zero,
         head: Padding(
           padding: EdgeInsetsDirectional.only(end: Sp.x3),
-          child: ESearch(controller: _query, enabled: false, hint: l.deskConSearchHint, label: l.deskConSearchLabel, clearLabel: l.deskConClearSearch),
+          child: ESearch(semanticsId: TrustIds.pairContactsSearch, controller: _query, enabled: false, hint: l.deskConSearchHint, label: l.deskConSearchLabel, clearLabel: l.deskConClearSearch),
         ),
         child: Semantics(
           liveRegion: true,
@@ -174,7 +175,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       return EPage(
         title: l.deskConTitle,
         width: EPageWidth.full,
-        actions: [EButton(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: null), const ContactsMoreButton()],
+        actions: [EButton(semanticsId: TrustIds.contactsAdd, label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: null), const ContactsMoreButton()],
         child: split
             ? PanelRow(
                 sideFirst: true,
@@ -237,6 +238,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             },
           },
           child: ESearch(
+            semanticsId: TrustIds.pairContactsSearch,
             controller: _query,
             hint: l.deskConSearchHint,
             label: l.deskConSearchLabel,
@@ -327,6 +329,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           if ((ref.watch(deskPairRequestsProvider).value ?? const <PairRequest>[]).isNotEmpty)
             EButton.ghost(
               key: deskContactsRequestsKey,
+              semanticsId: TrustIds.pairRequestsRow,
               label: l.pairRequestsRow((ref.watch(deskPairRequestsProvider).value ?? const <PairRequest>[]).length),
               icon: EIcons.trusted,
               onPressed: () => showDeskPairRequests(context, ref),
@@ -335,8 +338,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         ],
         // Already on the new contact form: nothing more to add from here.
         compactBar
-            ? EIconButton(icon: EIcons.userPlus, label: l.deskConAdd, onPressed: _adding ? null : _add)
-            : EButton(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _adding ? null : _add),
+            ? EIconButton(semanticsId: TrustIds.contactsAdd, icon: EIcons.userPlus, label: l.deskConAdd, onPressed: _adding ? null : _add)
+            : EButton(semanticsId: TrustIds.contactsAdd, label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _adding ? null : _add),
         const ContactsMoreButton(),
       ],
       child: split
@@ -434,7 +437,7 @@ class _Empty extends ConsumerWidget {
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              EButton.primary(label: l.deskConAdd, icon: EIcons.userPlus, onPressed: onAdd),
+              EButton.primary(semanticsId: TrustIds.contactsAdd, label: l.deskConAdd, icon: EIcons.userPlus, onPressed: onAdd),
               EButton.ghost(label: l.deskConSendToAddress, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
             ],
           ),
@@ -618,7 +621,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final x = widget.contact;
-    return Semantics(
+    return TrustId(TrustIds.pairContactRow, child: Semantics(
       button: true,
       selected: widget.selected,
       label: x.name,
@@ -670,7 +673,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -1241,7 +1244,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           runSpacing: Sp.x2,
           children: [
             EButton(label: l.commonCancel, tabStop: false, onPressed: () => widget.onDone(null)),
-            EButton.primary(label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _fields.any((f) => f.clash != null) ? null : _save),
+            EButton.primary(semanticsId: TrustIds.pairSavedSave, label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _fields.any((f) => f.clash != null) ? null : _save),
           ],
         ),
       ],
@@ -1380,7 +1383,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
               title: expired ? l.pairNoAnswerFrom(x.name) : l.pairWaitingFor(x.name),
               text: q.state == PairingState.pendingInvite ? l.pairRequestSent(localDayMonth(l, q.createdAt)) : l.pairPairingWith(x.name),
               control: expired
-                  ? EButton(key: deskContactPairAgainKey, label: l.pairAgain, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))
+                  ? EButton(key: deskContactPairAgainKey, semanticsId: TrustIds.pairContactPair, label: l.pairAgain, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))
                   : EButton(key: deskContactShowInviteKey, label: l.pairShowMyCode, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
             ),
           ],
@@ -1444,9 +1447,10 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            EButton(key: deskContactPairAgainKey, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
+            EButton(key: deskContactPairAgainKey, semanticsId: TrustIds.pairContactPair, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
             EButton(
               key: deskContactRemovePairingKey,
+              semanticsId: TrustIds.pairContactRemove,
               label: l.contactRemovePairing,
               kind: EBtnKind.danger,
               size: EBtnSize.sm,
@@ -1516,7 +1520,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             tone: ETone.warn,
             actionsBelow: true,
             actions: [
-              EButton.primary(label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
+              EButton.primary(semanticsId: TrustIds.pairContactCheck, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
               EButton(label: l.contactKeepOldKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.keepOld)))),
               EButton(label: l.contactUseNewKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.useNew)))),
             ],
@@ -1543,7 +1547,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             title: l.trustNotAnswering,
             text: l.contactNotAnsweringBody,
             tone: ETone.warn,
-            actions: [EButton.primary(key: deskContactPairAgainKey, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))],
+            actions: [EButton.primary(key: deskContactPairAgainKey, semanticsId: TrustIds.pairContactPair, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))],
           ),
           SizedBox(height: Sp.x4),
         ],
@@ -1587,7 +1591,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
               title: statusTitle,
               text: verified && p.verifiedAt != null ? metaLine([l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)), statusLine]) : statusLine,
               control: !changed && p.sas.isNotEmpty && (waiting || p.state == PairingState.paired)
-                  ? EButton(key: deskContactCheckKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
+                  ? EButton(key: deskContactCheckKey, semanticsId: TrustIds.pairContactCheck, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
                   : null,
             ),
             // A contact that takes no payments has nothing to seal or invoice.
@@ -1644,6 +1648,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 title: l.pairAddressNotConfirmed,
                 control: EButton(
                   key: deskContactPairAgainUnprovenKey,
+                  semanticsId: TrustIds.pairContactPair,
                   label: l.pairAgain,
                   icon: EIcons.trusted,
                   size: EBtnSize.sm,
@@ -1658,10 +1663,11 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           runSpacing: Sp.x2,
           children: [
             if (verified && p.caps.paysInvoices && ref.watch(deskInvoicesShownProvider))
-              EButton(label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
+              EButton(semanticsId: TrustIds.invContactIssue, label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
             if (waiting) EButton(key: deskContactShowInviteKey, label: l.pairShowMyCode, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
             EButton(
               key: deskContactRemovePairingKey,
+              semanticsId: TrustIds.pairContactRemove,
               label: l.contactRemovePairing,
               kind: EBtnKind.danger,
               size: EBtnSize.sm,
@@ -1757,7 +1763,7 @@ class _ContactMoreMenu extends StatelessWidget {
               backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.s3 : null),
             ),
             leadingIcon: Icon(icon, size: Ctl.iconSm, color: risk ? c.risk : c.dim),
-            child: Text(label, style: risk ? ts.body.copyWith(color: c.risk) : ts.body),
+            child: TrustId(key == deskPairingRemoveKey ? TrustIds.pairContactRemove : null, child: Text(label, style: risk ? ts.body.copyWith(color: c.risk) : ts.body)),
           ),
       ],
       builder: (context, controller, _) => CallbackShortcuts(
@@ -1783,6 +1789,6 @@ class DeskContactsPairButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    return EButton(key: deskContactsPairKey, label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair));
+    return EButton(key: deskContactsPairKey, semanticsId: TrustIds.pairContactsPair, label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair));
   }
 }

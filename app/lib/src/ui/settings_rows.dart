@@ -16,6 +16,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../trust_ids.dart';
 import 'info_hint.dart';
 import 'theme/tokens.dart';
 
@@ -56,6 +57,7 @@ class RadioRow<T> extends StatelessWidget {
     this.onHint,
     this.enabled = true,
     this.tileKey,
+    this.semanticsId,
   });
 
   final T value;
@@ -87,6 +89,9 @@ class RadioRow<T> extends StatelessWidget {
   /// The key of the [ListTile] itself, for tests that read the tile.
   final Key? tileKey;
 
+  /// The test drivers' stable name for this row ([TrustIds]).
+  final String? semanticsId;
+
   @override
   Widget build(BuildContext context) {
     final group = RadioGroup.maybeOf<T>(context);
@@ -96,9 +101,9 @@ class RadioRow<T> extends StatelessWidget {
       key: tileKey,
       enabled: enabled,
       leading: leading,
-      title: hint == null
+      title: TrustId(semanticsId, child: hint == null
           ? Text(title)
-          : TitleWithHint(title, hint: hint, hintKey: hintKey, icon: hintIcon ?? icon, labelled: enabled, onOpen: onHint),
+          : TitleWithHint(title, hint: hint, hintKey: hintKey, icon: hintIcon ?? icon, labelled: enabled, onOpen: onHint)),
       subtitle: subtitle == null ? null : Text(subtitle!),
       trailing: Radio<T>(value: value, enabled: enabled),
       onTap: enabled && group != null ? () => group.onChanged(value) : null,

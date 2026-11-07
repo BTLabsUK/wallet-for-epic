@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../trust_ids.dart';
 import '../desk_l10n.dart';
 import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
@@ -209,7 +210,7 @@ class EDialog extends StatelessWidget {
                             ],
                           ),
                         ),
-                        if (dismissible) EIconButton(icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
+                        if (dismissible) EIconButton(semanticsId: TrustIds.dialogClose, icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
                       ],
                     ),
                   ),
@@ -332,7 +333,7 @@ class EDrawer extends StatelessWidget {
                   Expanded(
                     child: Semantics(header: true, child: Text(title, style: context.ts.h3)),
                   ),
-                  EIconButton(icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
+                  EIconButton(semanticsId: TrustIds.dialogClose, icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
                 ],
               ),
             ),

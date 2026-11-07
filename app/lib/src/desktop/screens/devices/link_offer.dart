@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../app/desk_app.dart' show deskNavigatorKey;
 import '../../data/devices_state.dart';
 import '../../desk_l10n.dart';
@@ -50,6 +51,7 @@ class DeskLinkOffer extends ConsumerWidget {
             children: [
               EButton(
                 key: deskLinkOfferButtonKey,
+                semanticsId: TrustIds.linkOpen,
                 label: linked ? l.expLinkedDevices : l.devicesLink,
                 icon: EIcons.devices,
                 size: EBtnSize.inline,

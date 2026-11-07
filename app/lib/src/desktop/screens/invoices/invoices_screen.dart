@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../app/tour.dart' show TourTarget;
 import '../../data/invoice_state.dart';
@@ -120,7 +121,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                   value: tab,
                   onChanged: (t) => setState(() => _tab = t),
                   segments: [
-                    ESegment(InvoicesTab.pay, l.deskInvTabPay, icon: EIcons.invoice, count: book.attention == 0 ? null : book.attention),
+                    ESegment(InvoicesTab.pay, l.deskInvTabPay, semanticsId: TrustIds.invTabPay, icon: EIcons.invoice, count: book.attention == 0 ? null : book.attention),
                     ESegment(InvoicesTab.issue, l.deskInvTabIssue, icon: EIcons.request, count: book.openRequests.isEmpty ? null : book.openRequests.length),
                   ],
                 ),

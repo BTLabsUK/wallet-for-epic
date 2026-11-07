@@ -8,6 +8,7 @@
 /// sheet and server lists.
 library;
 
+import '../../trust_ids.dart';
 import '../phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,7 +97,7 @@ class _SheetBody extends StatelessWidget {
           TextButton(
             style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: t.dim),
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(l.commonClose),
+            child: TrustId(TrustIds.commonClose, child: Text(l.commonClose)),
           ),
         ],
       ),

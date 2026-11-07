@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../tor_build.dart' show inAppUpdates;
+import '../../trust_ids.dart';
 import '../data/desk_update.dart';
 import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart';
@@ -82,6 +83,7 @@ class _Strip extends ConsumerWidget {
                 SizedBox(width: Sp.x1),
                 EIconButton(
                   key: const ValueKey('update-strip-close'),
+                  semanticsId: TrustIds.updatestripHide,
                   icon: EIcons.close,
                   label: l.deskUpdStripHide,
                   size: EBtnSize.inline,

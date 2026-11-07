@@ -278,7 +278,7 @@ void main() {
     testWidgets('the wallet name edited: Save', (tester) async {
       Future<void> open() async {
         await _openDesk(tester, _shots['25-settings-account']!);
-        final field = find.byWidgetPredicate((w) => w is EInput && w.semanticsId == TrustIds.walletLabelField);
+        final field = find.byWidgetPredicate((w) => w is EInput && w.semanticsId == TrustIds.walletLabel);
         await tester.enterText(find.descendant(of: field, matching: find.byType(EditableText)), 'Renamed wallet');
         await tester.pump(const Duration(milliseconds: 200));
       }

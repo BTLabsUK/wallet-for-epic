@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../devices/device_model.dart';
 import '../../../devices/device_providers.dart' show DeviceView;
 import '../../../devices/device_service.dart';
+import '../../../trust_ids.dart';
 import '../../data/devices_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider;
 import '../../desk_l10n.dart';
@@ -132,6 +133,7 @@ class _DevicesGroup extends ConsumerWidget {
               leading: EIcons.computer,
               title: book.deviceName,
               control: EButton(
+                semanticsId: TrustIds.linkRename,
                 label: l.devicesRename,
                 size: EBtnSize.sm,
                 onPressed: () => unawaited(_rename(context, ref, service, book.deviceName, thisDevice: true)),
@@ -145,6 +147,7 @@ class _DevicesGroup extends ConsumerWidget {
               ? null
               : SetAnchor(id: SetId.linkDevice, child: EButton.primary(
                   key: devicesLinkKey,
+                  semanticsId: TrustIds.linkOpen,
                   label: l.devicesLink,
                   icon: EIcons.link,
                   size: EBtnSize.sm,
@@ -162,6 +165,7 @@ class _DevicesGroup extends ConsumerWidget {
                 text: l.devicesRemoving,
                 control: EButton(
                   key: ValueKey('dev-remove-${d.deviceId}'),
+                  semanticsId: TrustIds.linkRemove,
                   label: l.devicesRemove,
                   kind: EBtnKind.danger,
                   size: EBtnSize.sm,
@@ -185,10 +189,11 @@ class _DevicesGroup extends ConsumerWidget {
                 control: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    EButton(label: l.devicesRename, size: EBtnSize.sm, onPressed: () => unawaited(_rename(context, ref, service, d.name, id: d.deviceId))),
+                    EButton(semanticsId: TrustIds.linkRename, label: l.devicesRename, size: EBtnSize.sm, onPressed: () => unawaited(_rename(context, ref, service, d.name, id: d.deviceId))),
                     SizedBox(width: Sp.x2),
                     EButton(
                       key: ValueKey('dev-remove-${d.deviceId}'),
+                      semanticsId: TrustIds.linkRemove,
                       label: l.devicesRemove,
                       kind: EBtnKind.danger,
                       size: EBtnSize.sm,
@@ -225,6 +230,7 @@ Future<void> _rename(BuildContext context, WidgetRef ref, DeviceService service,
         label: l.devicesNameLabel,
         child: EInput(
           key: devicesRenameFieldKey,
+          semanticsId: TrustIds.linkRenameField,
           controller: text,
           autofocus: true,
           semanticLabel: l.devicesNameLabel,
@@ -233,7 +239,7 @@ Future<void> _rename(BuildContext context, WidgetRef ref, DeviceService service,
       ),
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx)),
-        EButton.primary(key: devicesRenameSaveKey, label: l.commonSave, onPressed: () => Navigator.pop(ctx, text.text)),
+        EButton.primary(key: devicesRenameSaveKey, semanticsId: TrustIds.linkRenameSave, label: l.commonSave, onPressed: () => Navigator.pop(ctx, text.text)),
       ],
     ),
   );
@@ -258,7 +264,7 @@ Future<void> removeLinkedDevice(BuildContext context, DeviceService service, Lin
       description: l.devicesRemoveBody(d.name),
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx, false)),
-        EButton(key: devicesRemoveConfirmKey, label: l.devicesRemove, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
+        EButton(key: devicesRemoveConfirmKey, semanticsId: TrustIds.linkRemove, label: l.devicesRemove, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
       ],
     ),
   );

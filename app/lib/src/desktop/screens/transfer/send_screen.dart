@@ -1916,7 +1916,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         actions: [
           // A Link method: one click turns it on here, as its switch would.
           if (_kind.family == MethodFamily.link)
-            EButton(label: l.sendTurnOnMethod(MethodIcons.fullName(l, _kind)), icon: MethodIcons.of(_kind), size: EBtnSize.inline, busy: _turningOn, onPressed: _turningOn ? null : () => _turnOn(_kind)),
+            EButton(semanticsId: TrustIds.txSendTurnon, label: l.sendTurnOnMethod(MethodIcons.fullName(l, _kind)), icon: MethodIcons.of(_kind), size: EBtnSize.inline, busy: _turningOn, onPressed: _turningOn ? null : () => _turnOn(_kind)),
           EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving)),
         ],
       );
@@ -2286,7 +2286,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Pay with a file: the quiet way to the file form, under an empty To and in the notices of
   /// a connection that does not go.
-  Widget _payByFile() => EButton.ghost(key: const ValueKey('send-pay-file'), label: context.l10n.sendPayByFile, icon: EIcons.file, size: EBtnSize.inline, onPressed: _openFile);
+  Widget _payByFile() => EButton.ghost(key: const ValueKey('send-pay-file'), semanticsId: TrustIds.txSendPayfile, label: context.l10n.sendPayByFile, icon: EIcons.file, size: EBtnSize.inline, onPressed: _openFile);
 
   /// Under To: a transaction text's notice, the method line ("Sends to" while typing), then the one notice that holds it (the mode, Tor, a wallet that did not
   /// answer) with its one action; Pay with a file under an empty field.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// The test drivers' control ids (lib/src/trust_ids.dart, tools/rellib/drivers/trust_ids.json):
-// the two lists are one set, and on the screens that carry them each id is one node with the
-// role, the tap action and the label the drivers look for.
+// The test drivers' control ids (tools/rellib/drivers/trust_ids.json, generated into
+// lib/src/trust_ids.g.dart by tools/ui-targets): on the screens that carry them each id is one
+// node with the role, the tap action and the label the registry states.
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show CheckedState, Tristate;
@@ -39,7 +39,11 @@ void main() {
   test('the registry and TrustIds are one set', () {
     final ids = [for (final c in _registry.cast<Map<String, dynamic>>()) c['id'] as String];
     expect(ids.toSet(), hasLength(ids.length), reason: 'an id twice in trust_ids.json');
-    expect(TrustIds.all.toSet(), ids.toSet());
+    final controls = [
+      for (final c in _registry.cast<Map<String, dynamic>>())
+        if (const [null, 'control'].contains(c['kind'])) c['id'] as String,
+    ];
+    expect(TrustIds.all.toSet(), controls.toSet());
     expect(TrustIds.all.toSet(), hasLength(TrustIds.all.length));
     expect(TrustIds.shellNav('overview'), 'g4.nav.overview');
     expect(TrustIds.settingsSection('settingsNode'), 'g4.settings.section.node');
@@ -47,10 +51,9 @@ void main() {
     expect(TrustIds.settingsSection('privacyNetwork'), 'g4.settings.section.privacyNetwork');
     expect(TrustIds.levelStop(2), 'g4.level.stop.2');
     for (final c in _registry.cast<Map<String, dynamic>>()) {
-      for (final key in (c['keys'] as List).cast<String>()) {
+      for (final key in ((c['keys'] ?? const []) as List).cast<String>()) {
         expect(_arb.containsKey(key), isTrue, reason: '${c['id']}: no ARB key $key');
       }
-      expect(c['id'], matches(RegExp(r'^g4\.[a-z]+(\.[A-Za-z0-9_]+)+$')));
     }
   });
 
@@ -68,14 +71,14 @@ void main() {
     final data = tester.getSemantics(found).getSemanticsData();
     final flags = data.flagsCollection;
     final problems = <String>[];
-    final role = control['role'];
+    final role = control['role'] ?? 'button';
     final enabled = flags.isEnabled != Tristate.isFalse;
     if (const ['button', 'tab', 'menu_item', 'link'].contains(role) && enabled && !data.hasAction(SemanticsAction.tap)) problems.add('no tap action');
     if (role == 'button' && !flags.isButton) problems.add('not a button');
     if (role == 'text_field' && !flags.isTextField) problems.add('not a text field');
     if (role == 'checkbox' && flags.isChecked == CheckedState.none) problems.add('no checked state');
     if (role == 'toggle' && flags.isChecked == CheckedState.none && flags.isToggled == Tristate.none) problems.add('no switch state');
-    final keys = (control['keys'] as List).cast<String>();
+    final keys = ((control['keys'] ?? const []) as List).cast<String>();
     if (keys.isNotEmpty) {
       final label = data.label.replaceAll(RegExp(r'\s+'), ' ').trim().toLowerCase();
       final first = data.label.split('\n').first.replaceAll(RegExp(r'\s+'), ' ').trim().toLowerCase();
@@ -191,7 +194,7 @@ void main() {
   testWidgets('the wallet name: Save appears with an edit', (tester) async {
     final handle = tester.ensureSemantics();
     await open(tester, shots['25-settings-account']!);
-    await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EInput && w.semanticsId == TrustIds.walletLabelField), matching: find.byType(EditableText)), 'Renamed wallet');
+    await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EInput && w.semanticsId == TrustIds.walletLabel), matching: find.byType(EditableText)), 'Renamed wallet');
     await tester.pump(const Duration(milliseconds: 200));
     expect(check(tester, 'g4.wallet.label.save'), isNull);
     await close(tester);
@@ -221,20 +224,25 @@ void main() {
     handle.dispose();
   });
 
-  test('every id of the registry is used in lib', () {
-    final source = [
-      for (final f in Directory('lib/src').listSync(recursive: true).whereType<File>())
-        if (f.path.endsWith('.dart') && !f.path.endsWith('trust_ids.dart')) f.readAsStringSync(),
-    ].join('\n');
-    final decl = File('lib/src/trust_ids.dart').readAsStringSync();
-    final unused = <String>[];
-    for (final m in RegExp(r"static const (\w+) = '([^']+)'").allMatches(decl)) {
-      final name = m.group(1)!;
-      if (!source.contains('TrustIds.$name') && RegExp('\\b$name\\b').allMatches(decl).length < 2) {
-        unused.add(m.group(2)!);
-      }
-    }
-    expect(unused, isEmpty);
+  test('tools/ui-targets check: nothing missing, unused or duplicated, the generated file current', () {
+    final check = Process.runSync('python3', ['../tools/ui-targets', 'check']);
+    expect(check.exitCode, 0, reason: '${check.stdout}${check.stderr}');
+  }, skip: Platform.isLinux ? false : 'Linux only: the merge path runs it there');
+
+  testWidgets('an id reaches the label only under the Linux lanes\u2019 hook', (tester) async {
+    final handle = tester.ensureSemantics();
+    addTearDown(() => trustIdsInLabels = false);
+    Widget mark() => const Directionality(
+      textDirection: TextDirection.ltr,
+      child: TrustId('g4.send.review', child: Text('Review')),
+    );
+    await tester.pumpWidget(mark());
+    expect(tester.getSemantics(find.bySemanticsIdentifier('g4.send.review')).label, 'Review');
+    trustIdsInLabels = true;
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(mark());
+    expect(tester.getSemantics(find.bySemanticsIdentifier('g4.send.review')).getSemanticsData().label, contains('\u27e6g4.send.review\u27e7'));
+    handle.dispose();
   });
 
   testWidgets('the tour: Skip', (tester) async {

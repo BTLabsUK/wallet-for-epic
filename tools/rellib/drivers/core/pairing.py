@@ -13,83 +13,76 @@ English text as the fallback.
 The clipboard: Copy invite puts the invite on the inviter's display; the platform reads it there
 (`clip(text=None)`: read when text is None, else set) and the driver types it into the answerer's
 field."""
-import contextlib
 import re
 import time
 
 from .driver import Expect, either, gone, shows
 from .targets import T
 
-NAV_CONTACTS = T("g4.nav.contacts", keys=("deskShellNavContacts",), names=("Contacts",), match="exact")
-ADV_PAIRING = T("pair.adv.pairing", role="toggle", keys=("expPairing",), names=("Pairing",), match="exact")
-ADV_INVOICES = T("pair.adv.invoices", role="toggle", keys=("expInvoices",), names=("Invoices",), match="exact")
+NAV_CONTACTS = T("g4.nav.contacts")
+ADV_PAIRING = T("pair.adv.pairing")
+ADV_INVOICES = T("pair.adv.invoices")
 
 # Contacts › Pair: Your invite | Have their invite?
-CONTACTS_SEARCH = T("pair.contacts.search", role="text_field", keys=("deskConSearchLabel", "deskConSearch"), names=("Search contacts",),
-                    match="starts")
-CONTACTS_PAIR = T("pair.contacts.pair", keys=("pairTitle",), names=("Pair",), match="exact")
-PAIR_YOUR = T("pair.screen.yours", role="text", keys=("pairYourCode",), names=("Your invite",), match="exact")
-PAIR_COPY = T("pair.screen.copy", keys=("pairCopyLink",), names=("Copy invite",), match="exact")
-PAIR_SEEN_AS = T("pair.screen.seenas", role="text", keys=("pairSeenAsLine", "pairSeenAsNone"),
-                 names=("re:they (will )?see you as .*", "They see no name"), match="starts")
-PAIR_CHANGE = T("pair.screen.change", keys=("pairChange", "pairSeenAsAdd"), names=("Change", "Add name"), match="exact")
-PAIR_NAME_FIELD = T("pair.name.field", role="text_field", keys=("pairSeenAsField",), match="starts")
-PAIR_NAME_SAVE = T("pair.name.save", keys=("commonSave",), names=("Save",), match="exact")
-PAIR_ENTER = T("pair.screen.enter", role="text_field", keys=("pairPasteField",), names=("Paste the invite",), match="starts")
-PAIR_GO = T("pair.screen.go", keys=("pairTitle",), names=("Pair",), match="exact")
+CONTACTS_SEARCH = T("pair.contacts.search")
+CONTACTS_PAIR = T("pair.contacts.pair")
+PAIR_YOUR = T("pair.screen.yours")
+PAIR_COPY = T("pair.screen.copy")
+PAIR_SEEN_AS = T("pair.screen.seenas")
+PAIR_CHANGE = T("pair.screen.change")
+PAIR_NAME_FIELD = T("pair.name.field")
+PAIR_NAME_SAVE = T("pair.name.save")
+PAIR_ENTER = T("pair.screen.enter")
+PAIR_GO = T("pair.screen.go")
 # the answerer: "Pair with Lane A?" › Pair; then "Pairing with Lane A…"
-INCOMING_TITLE = T("pair.incoming.title", role="text", keys=("pairIncomingTitle",), match="exact")
-INCOMING_PAIR = T("pair.incoming.pair", keys=("pairTitle",), names=("Pair",), match="exact")
-WAITING_TITLE = T("pair.waiting.title", role="text", keys=("pairPairingWith",), match="exact")
-WAITING_CLOSE = T("pair.waiting.close", keys=("commonClose",), names=("Close",), match="exact")
+INCOMING_TITLE = T("pair.incoming.title")
+INCOMING_PAIR = T("pair.incoming.pair")
+WAITING_TITLE = T("pair.waiting.title")
+WAITING_CLOSE = T("pair.waiting.close")
 # the words: "Check the words with Lane B", The four words, They match
-CHECK_TITLE = T("pair.check.title", role="text", keys=("sasDialogTitle",), match="exact")
-CHECK_CLOSE = T("pair.check.close", keys=("deskKitCloseEsc",), names=("Close (Esc)",), match="exact")
-CHECK_WORDS = T("pair.check.words", role="other", keys=("sasWordsLabel",), names=("The four words",), match="starts")
-CHECK_MATCH = T("pair.check.match", keys=("sasMatch",), names=("They match",), match="exact")
-CHECK_ALLOW = T("pair.check.allow", role="toggle", keys=("contactAllowInvoices",), names=("Allow invoices",), match="exact")
+CHECK_TITLE = T("pair.check.title")
+CHECK_CLOSE = T("g4.dialog.close")
+CHECK_WORDS = T("pair.check.words")
+CHECK_MATCH = T("pair.check.match")
+CONTACT_ROW = T("pair.contact.row")
+CHECK_ALLOW = T("pair.check.allow")
 # "Lane B is verified" › Add to contacts › Save as a new contact (a menu item, no button on Flutter desktop) › Save contact
-SAVED_TITLE = T("pair.saved.title", role="text", keys=("sasMatchedTitle",), match="exact")
-SAVED_ADD = T("pair.saved.add", keys=("txDetailsAddToContacts",), names=("Add to contacts",), match="exact")
-SAVED_NEW = T("pair.saved.new", role="text", keys=("pairSaveNewContact",), names=("Save as a new contact",), match="exact")
-SAVE_CONTACT = T("pair.saved.save", keys=("deskConSave",), names=("Save contact",), match="exact")
+SAVED_TITLE = T("pair.saved.title")
+SAVED_ADD = T("pair.saved.add")
+SAVED_NEW = T("pair.saved.new")
+SAVE_CONTACT = T("pair.saved.save")
 # the contact page's Pairing block
-BLOCK = T("pair.block", role="text", keys=("contactPairing",), names=("Pairing",), match="exact")  # every state, a request sent too
-STATE_VERIFIED = T("pair.state.verified", role="text", keys=("trustVerified",), names=("Verified",), match="line")
-STATE_PAIRED = T("pair.state.paired", role="text", keys=("trustPaired",), names=("Paired, not verified",), match="line")
-STATE_ENDED = T("pair.state.ended", role="text", keys=("pairEndedShort",), names=("Pairing ended",), match="line")
-STATE_NONE = T("pair.state.none", role="text", keys=("pairNotPaired",), names=("Not paired",), match="line")
-CONFIRMED_TOO = T("pair.state.both", role="text", keys=("pairConfirmedToo",), names=("re:.* confirmed too\\.",),
-                  match="contains")
-REMOVE_PAIRING = T("pair.contact.remove", keys=("contactRemovePairing",), names=("Remove pairing",), match="exact")
-REMOVE_TITLE = T("pair.contact.removetitle", role="text", keys=("contactRemovePairingTitle",),
-                 names=("re:remove the pairing with .*\\?",), match="exact")
-REMOVE_CONFIRM = T("pair.contact.removeok", keys=("contactRemove",), names=("Remove",), match="exact")
-CONTACT_CHECK = T("pair.contact.check", keys=("pairCheckWords",), names=("Check the words",), match="exact")
-CONTACT_PAIR = T("pair.contact.pair", keys=("pairTitle", "pairAgain"), names=("Pair", "Pair again"), match="exact")
+BLOCK = T("pair.block")  # every state, a request sent too
+STATE_VERIFIED = T("pair.state.verified")
+STATE_PAIRED = T("pair.state.paired")
+STATE_ENDED = T("pair.state.ended")
+STATE_NONE = T("pair.state.none")
+CONFIRMED_TOO = T("pair.state.both")
+REMOVE_PAIRING = T("pair.contact.remove")
+REMOVE_TITLE = T("pair.contact.removetitle")
+REMOVE_CONFIRM = T("pair.contact.removeok")
+CONTACT_CHECK = T("pair.contact.check")
+CONTACT_PAIR = T("pair.contact.pair")
 # a pair request to a proven contact: "Pair with Lane A" › Send request; the other side's Pair requests · 1 › Pair
-REQUEST_SEND = T("pair.request.send", keys=("pairSendRequest",), names=("Send request",), match="exact")
-REQUESTS_ROW = T("pair.requests.row", keys=("pairRequestsRow",), names=("re:pair requests · \\d+",), match="exact")
-REQUESTS_TITLE = T("pair.requests.title", role="text", keys=("pairRequestsTitle",), names=("Pair requests",), match="exact")
-REQUESTS_PAIR = T("pair.requests.pair", keys=("pairRequestPair",), names=("Pair",), match="exact")
+REQUEST_SEND = T("pair.request.send")
+REQUESTS_ROW = T("pair.requests.row")
+REQUESTS_TITLE = T("pair.requests.title")
+REQUESTS_PAIR = T("pair.requests.pair")
 
 # invoices: the issuer's contact page › Issue an invoice › Amount › Send invoice; the payer's
 # Invoices › Pay › Review › Approve and pay › Wallet password › Pay
-INV_ISSUE = T("inv.contact.issue", keys=("deskInvIssueAction",), names=("Issue an invoice",), match="exact")
-INV_AMOUNT = T("inv.issue.amount", role="text_field", keys=("deskInvIssuerAmount",), names=("Amount",), match="starts")
-INV_SEND = T("inv.issue.send", keys=("reqNewSend",), names=("Send invoice",), match="exact")
-INV_SENT = T("inv.issue.sent", role="other", keys=("reqSent", "deskInvIssuerWaitingText"),
-             names=("re:invoice sent to .*", "re:delivered to .*epicbox server.*"), match="contains")
-INV_FAILED = T("inv.issue.failed", role="other", keys=("deskInvFailed", "deskInvIssuerNotDelivered"), match="contains")
-NAV_INVOICES = T("inv.nav", keys=("deskInvNav",), names=("Invoices",), match="exact")
-INV_TAB_PAY = T("inv.tab.pay", role="other", keys=("deskInvTabPay",), names=("Pay",), match="line")  # its count may follow
-INV_REVIEW = T("inv.pay.review", keys=("deskInvPayerReview",), names=("Review",), match="line")  # the row reads as one button, this its last line
-INV_APPROVE = T("inv.pay.approve", keys=("invoiceApprove",), names=("Approve and pay",), match="exact")
-INV_PASSWORD = T("inv.pay.password", role="text_field", keys=("deskInvPayerPassword",), names=("Wallet password",),
-                 match="starts", secret=True)
-INV_PAY = T("inv.pay.pay", keys=("deskInvPayerPay",), names=("Pay",), match="exact")
-INV_PAID = T("inv.pay.paid", role="other", keys=("invoicePaidNotice", "reqPaidWaiting"),
-             names=("re:paid\\. .*", "re:paid\\. waiting for .*"), match="starts")
+INV_ISSUE = T("inv.contact.issue")
+INV_AMOUNT = T("inv.issue.amount")
+INV_SEND = T("inv.issue.send")
+INV_SENT = T("inv.issue.sent")
+INV_FAILED = T("inv.issue.failed")
+NAV_INVOICES = T("g4.nav.invoices")
+INV_TAB_PAY = T("inv.tab.pay")  # its count may follow
+INV_REVIEW = T("inv.pay.review")  # the row reads as one button, this its last line
+INV_APPROVE = T("inv.pay.approve")
+INV_PASSWORD = T("inv.pay.password")
+INV_PAY = T("inv.pay.pay")
+INV_PAID = T("inv.pay.paid")
 
 STATES = (("verified", STATE_VERIFIED), ("paired", STATE_PAIRED), ("ended", STATE_ENDED), ("none", STATE_NONE))
 WORD_RX = re.compile(r"[a-z]+")
@@ -102,18 +95,6 @@ class Pairing:
         self.ui, self.d, self.clip, self.log = ui, ui.d, clip, log
 
     # ---- set up
-
-    @contextlib.contextmanager
-    def _own_not_now(self):
-        """The pairing dialogs' Not now declines the pairing: while they are up the driver must not
-        take it for the last-session notice's Not now (a desktop obstacle it presses on sight)."""
-        d = self.d
-        keep = d.obstacles
-        d.obstacles = [(t, why) for t, why in keep if "Not now" not in t.names]
-        try:
-            yield
-        finally:
-            d.obstacles = keep
 
     def enable(self, invoices=False):
         """Settings › Advanced › Experiments: Invoices on when [invoices] (off on a new install). Pairing
@@ -176,14 +157,13 @@ class Pairing:
         d = self.d
         self._on_pair()
         d.fill(PAIR_ENTER, text, step="pair-enter")
-        with self._own_not_now():
-            d.press(PAIR_GO, step="pair-go", then=shows(INCOMING_TITLE), timeout=60)
-            title = d.find_in(INCOMING_TITLE, d.tree())
-            if inviter not in title[0].name:
-                d.harness("the invite says %r, not %s" % (title[0].name, inviter))
-            hits = d.find_in(INCOMING_PAIR, d.tree())
-            d._act(d.s.press, hits[-1])  # the dialog's Pair (the page's own is under it)
-            d.must(either(shows(WAITING_TITLE), shows(CHECK_TITLE)), 60, step="pair-answered")
+        d.press(PAIR_GO, step="pair-go", then=shows(INCOMING_TITLE), timeout=60)
+        title = d.find_in(INCOMING_TITLE, d.tree())
+        if inviter not in title[0].name:
+            d.harness("the invite says %r, not %s" % (title[0].name, inviter))
+        hits = d.find_in(INCOMING_PAIR, d.tree())
+        d._act(d.s.press, hits[-1])  # the dialog's Pair (the page's own is under it)
+        d.must(either(shows(WAITING_TITLE), shows(CHECK_TITLE)), 60, step="pair-answered")
 
     # ---- the words
 
@@ -214,16 +194,16 @@ class Pairing:
         d = self.d
         if allow_invoices and d.seen(CHECK_ALLOW):
             d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
-        with self._own_not_now():  # "<name> is verified": Not now | Add to contacts, a menu with Save as a new contact
-            d.press(CHECK_MATCH, step="pair-match", then=either(shows(SAVED_ADD), shows(SAVED_NEW), gone(CHECK_MATCH)),
-                    timeout=60)
-            if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW)), 30):
-                if not d.seen(SAVED_NEW):
-                    hits = d.find_in(SAVED_ADD, d.tree())
-                    d._act(d.s.press, hits[-1])  # the dialog's (a page under it can have its own)
-                    d.must(shows(SAVED_NEW), 20, step="pair-save-add")
-                d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
-                d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
+        # "<name> is verified": Not now | Add to contacts, a menu with Save as a new contact
+        d.press(CHECK_MATCH, step="pair-match", then=either(shows(SAVED_ADD), shows(SAVED_NEW), gone(CHECK_MATCH)),
+                timeout=60)
+        if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW)), 30):
+            if not d.seen(SAVED_NEW):
+                hits = d.find_in(SAVED_ADD, d.tree())
+                d._act(d.s.press, hits[-1])  # the dialog's (a page under it can have its own)
+                d.must(shows(SAVED_NEW), 20, step="pair-save-add")
+            d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
+            d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
 
     # ---- the contact page
 
@@ -232,7 +212,7 @@ class Pairing:
         d = self.d
         self.ui.ensure_unlocked()  # a wallet that waited long enough locked itself
         self.contacts_list()
-        row = T("pair.contact.row.%s" % name.lower().replace(" ", "_"), role="button", names=(name,), match="line")
+        row = CONTACT_ROW.of(name, names=(name,))
         d.press(row, step="contact-open", then=shows(BLOCK), timeout=30)
 
     def contacts_list(self):
@@ -313,23 +293,22 @@ class Pairing:
         self.ui.ensure_unlocked()
         self.contacts_list()
         d.must(shows(REQUESTS_ROW), timeout, step="pair-request-seen")
-        with self._own_not_now():
-            d.press(REQUESTS_ROW, step="pair-requests-open", then=shows(REQUESTS_TITLE), timeout=20)
-            hits = d.find_in(REQUESTS_PAIR, d.tree())
-            d._act(d.s.press, hits[-1])
-            if d.wait(shows(INCOMING_TITLE), 20):
-                hits = d.find_in(INCOMING_PAIR, d.tree())
-                d._act(d.s.press, hits[-1])  # the dialog's Pair (the page's own is under it)
-                d.must(gone(INCOMING_TITLE), 60, step="pair-request-accepted")
-            d.wait(shows(WAITING_TITLE), 10)
-            d.wait(either(shows(CHECK_TITLE), gone(WAITING_TITLE)), 240)
-            d.shot("pair-request-answered")
-            if d.seen(CHECK_TITLE):  # 26.11.4: the wait reads the record before it reloads, Verified or not
-                d.press(CHECK_CLOSE, step="pair-check-close", then=gone(CHECK_TITLE), timeout=20)
-                return "the words check opened on A after the request"
-            if d.seen(WAITING_TITLE):
-                d.press(WAITING_CLOSE, step="pair-waiting-close", then=gone(WAITING_TITLE), timeout=20)
-                return "the other wallet's confirm did not reach A"
+        d.press(REQUESTS_ROW, step="pair-requests-open", then=shows(REQUESTS_TITLE), timeout=20)
+        hits = d.find_in(REQUESTS_PAIR, d.tree())
+        d._act(d.s.press, hits[-1])
+        if d.wait(shows(INCOMING_TITLE), 20):
+            hits = d.find_in(INCOMING_PAIR, d.tree())
+            d._act(d.s.press, hits[-1])  # the dialog's Pair (the page's own is under it)
+            d.must(gone(INCOMING_TITLE), 60, step="pair-request-accepted")
+        d.wait(shows(WAITING_TITLE), 10)
+        d.wait(either(shows(CHECK_TITLE), gone(WAITING_TITLE)), 240)
+        d.shot("pair-request-answered")
+        if d.seen(CHECK_TITLE):  # 26.11.4: the wait reads the record before it reloads, Verified or not
+            d.press(CHECK_CLOSE, step="pair-check-close", then=gone(CHECK_TITLE), timeout=20)
+            return "the words check opened on A after the request"
+        if d.seen(WAITING_TITLE):
+            d.press(WAITING_CLOSE, step="pair-waiting-close", then=gone(WAITING_TITLE), timeout=20)
+            return "the other wallet's confirm did not reach A"
         return None
 
     # ---- an invoice between paired contacts

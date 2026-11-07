@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../trust_ids.dart';
 import 'status_icons.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -237,7 +238,7 @@ class ReceiveView extends ConsumerWidget {
                     ButtonSegment(
                       value: s.value,
                       tooltip: s.label,
-                      label: Column(
+                      label: TrustId(s.value == ReceiveTab.epicbox ? TrustIds.receiveMethodEpicbox : null, child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(s.icon, size: 18, semanticLabel: iconOnly ? s.label : null),
@@ -255,7 +256,7 @@ class ReceiveView extends ConsumerWidget {
                             ),
                           ),
                         ],
-                      ),
+                      )),
                     ),
                 ],
                 selected: {tab},

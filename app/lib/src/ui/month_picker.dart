@@ -139,7 +139,7 @@ class _StartMonthPickerState extends State<StartMonthPicker> {
               IconButton(
                 key: StartMonthPicker.earlierKey,
                 tooltip: l.restoreMonthEarlierYear,
-                icon: const Icon(Icons.chevron_left),
+                icon: TrustId(TrustIds.restoreMonthEarlier, child: const Icon(Icons.chevron_left)),
                 onPressed: _year > years.first ? () => setState(() => _year--) : null,
               ),
               Expanded(
@@ -151,7 +151,7 @@ class _StartMonthPickerState extends State<StartMonthPicker> {
               IconButton(
                 key: StartMonthPicker.laterKey,
                 tooltip: l.restoreMonthLaterYear,
-                icon: const Icon(Icons.chevron_right),
+                icon: TrustId(TrustIds.restoreMonthLater, child: const Icon(Icons.chevron_right)),
                 onPressed: _year < years.last ? () => setState(() => _year++) : null,
               ),
             ],

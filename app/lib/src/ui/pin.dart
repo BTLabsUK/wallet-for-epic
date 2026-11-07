@@ -9,6 +9,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../reserved_slot.dart';
+import '../trust_ids.dart';
 import '../vault.dart';
 import 'app_dialog.dart';
 import 'common.dart';
@@ -43,7 +44,9 @@ class PinField extends StatelessWidget {
   final bool reserveError;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => TrustId(TrustIds.pinField, child: _field(context));
+
+  Widget _field(BuildContext context) {
     if (passphrase) {
       return _PassphraseEntry(
         controller: controller,
@@ -142,7 +145,7 @@ class _PassphraseEntryState extends State<_PassphraseEntry> {
               onPressed: () => setState(() => _obscure = !_obscure),
             ),
             IconButton(
-              icon: const Icon(Icons.arrow_forward),
+              icon: TrustId(TrustIds.commonContinue, child: const Icon(Icons.arrow_forward)),
               tooltip: l.commonContinue,
               onPressed: widget.enabled ? _submit : null,
             ),
@@ -333,7 +336,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
               minimumSize: const Size.fromHeight(48),
             ),
             onPressed: () => widget.onDone(_chosen, false),
-            child: Text(l.pinBiometricsNotNow),
+            child: TrustId(TrustIds.pinBiometricsNotnow, child: Text(l.pinBiometricsNotNow)),
           ),
         ];
 }

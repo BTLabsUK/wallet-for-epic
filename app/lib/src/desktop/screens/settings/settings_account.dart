@@ -92,12 +92,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                     focusNode: _labelFocus,
                     hint: a.name,
                     semanticLabel: l.deskSetAcctLabel,
-                    semanticsId: TrustIds.walletLabelField,
+                    semanticsId: TrustIds.walletLabel,
                     inputFormatters: [LengthLimitingTextInputFormatter(32)],
                     onChanged: (_) => setState(() {}),
                     onSubmitted: (_) => _save(),
                     trailing: _label.text.trim() != a.name && _label.text.trim().isNotEmpty
-                        ? EIconButton(semanticsId: TrustIds.walletSaveLabel, icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save)
+                        ? EIconButton(semanticsId: TrustIds.walletLabelSave, icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save)
                         : EIconButton(icon: EIcons.pencil, label: l.deskSetAcctLabel, size: EBtnSize.inline, onPressed: _labelFocus.requestFocus),
                   ),
                 ),

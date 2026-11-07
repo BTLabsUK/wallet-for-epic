@@ -36,7 +36,7 @@ class AccountForm extends StatelessWidget {
     this.passwordError,
     this.confirmError,
     this.passwordId = TrustIds.accountPassword,
-    this.confirmId = TrustIds.accountConfirmPassword,
+    this.confirmId = TrustIds.accountConfirm,
   });
 
   final TextEditingController password, confirm;

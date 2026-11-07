@@ -11,6 +11,7 @@ import '../l10n.dart';
 import '../pin_wrap.dart' show KeyWrapUnavailable, PinKeyLost;
 import '../providers.dart';
 import '../restore_scan.dart' show historyImportOfferProvider;
+import '../trust_ids.dart';
 import '../vault.dart';
 import '../wallet_service.dart';
 import 'app_dialog.dart';
@@ -354,7 +355,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           if (_keyRefused)
             FilledButton(
               onPressed: _busy || _reading ? null : _tryAgain,
-              child: Text(l.unlockTryAgain),
+              child: TrustId(TrustIds.unlockRetry, child: Text(l.unlockTryAgain)),
             )
           else
             TextButton(

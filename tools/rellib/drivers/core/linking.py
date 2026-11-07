@@ -16,30 +16,26 @@ from .driver import Expect, either, gone, shows
 from .payments import NAV_ACTIVITY, TX_ROW_RX
 from .targets import T
 
-SECTION_NAME = "Linked devices"  # Settings › Linked devices (deskSetSecDevices)
-LINK_OPEN = T("link.open", keys=("devicesLink",), names=("Link a device",), match="exact")
-RENAME = T("link.rename", keys=("devicesRename",), names=("Rename",), match="exact")
-RENAME_FIELD = T("link.rename.field", role="text_field", keys=("devicesNameLabel",), names=("Name",), match="starts")
-RENAME_SAVE = T("link.rename.save", keys=("commonSave",), names=("Save",), match="exact")
+LINK_OPEN = T("link.open")
+RENAME = T("link.rename")
+RENAME_FIELD = T("link.rename.field")
+RENAME_SAVE = T("link.rename.save")
 # the dialog: Show QR | Paste invite; the shower's Copy invite; the paster's Invite field and Link
-TAB_PASTE = T("link.tab.paste", role="other", keys=("linkPaste",), names=("Paste invite",), match="exact")
-COPY = T("link.copy", keys=("linkCopy",), names=("Copy invite",), match="exact")
-FIELD = T("link.field", role="text_field", keys=("linkPasteLabel",), names=("Invite",), match="starts")
-GO = T("link.go", keys=("linkGo",), names=("Link",), match="exact")
-CANCEL = T("link.cancel", keys=("commonCancel",), names=("Cancel",), match="exact")
-CLOSE = T("link.close", keys=("commonClose",), names=("Close",), match="exact")
-LINKING = T("link.linking", role="other", keys=("linkLinkingWith",), names=("re:linking with .*",), match="contains")
-DONE = T("link.done", role="other", keys=("linkDone",), names=("re:linked to .*\\.",), match="contains")
+TAB_PASTE = T("link.tab.paste")
+COPY = T("link.copy")
+FIELD = T("link.field")
+GO = T("link.go")
+CANCEL = T("link.cancel")
+CLOSE = T("link.close")
+LINKING = T("link.linking")
+DONE = T("link.done")
 # desktop's failure is one line, the reason (deskLinkFailureText); "Not linked" is the phone's title
-FAILED = T("link.failed", role="other", keys=(
-    "linkFailInvalid", "linkFailExpired", "linkFailNotFound", "linkFailOwn", "linkFailOtherWallet", "linkFailOtherWalletCode",
-    "linkFailTooMany", "linkFailFull", "linkFailUpdate", "linkFailUpdateOther", "linkFailUnreachable"), match="contains")
+FAILED = T("link.failed")
 # the linked row's Remove, its dialog's Remove; the other install's notice
-REMOVE = T("link.remove", keys=("devicesRemove",), names=("Remove",), match="exact")
-REMOVE_TITLE = T("link.remove.title", role="text", keys=("devicesRemoveTitle",), names=("re:remove .*\\?",), match="exact")
-REMOVED_BY = T("link.removedby", role="other", keys=("devicesRemovedBy",), names=("re:.* removed this device\\.",),
-               match="contains")
-REMOVING = T("link.removing", role="other", keys=("devicesRemoving",), names=("re:removing… .*",), match="starts")
+REMOVE = T("link.remove")
+REMOVE_TITLE = T("link.remove.title")
+REMOVED_BY = T("link.removedby")
+REMOVING = T("link.removing")
 
 DROPPED = re.compile(r"cancel", re.I)  # LEPIC's cancelled state, however it is spelt
 
@@ -52,8 +48,8 @@ class Linking:
     def open(self):
         """Settings › Linked devices."""
         self.ui.ensure_unlocked()
-        if not self.ui.section(SECTION_NAME):
-            self.d.harness("Settings lists no %s section" % SECTION_NAME)
+        if not self.ui.section("linked"):
+            self.d.harness("Settings lists no Linked devices section")
 
     def rename(self, name):
         """This device › Rename: the name the other install sees this one as."""

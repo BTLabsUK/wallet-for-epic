@@ -223,7 +223,7 @@ class PairingRecipientCard extends StatelessWidget {
             IconButton(
               key: sendPairingClearKey,
               tooltip: l.sendClearRecipient,
-              icon: Icon(Icons.close, color: t.dim),
+              icon: TrustId(TrustIds.sendClear, child: Icon(Icons.close, color: t.dim)),
               onPressed: clear,
             ),
         ],

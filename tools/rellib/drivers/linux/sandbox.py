@@ -149,6 +149,7 @@ def base_env(sb):
         "GDK_BACKEND": "x11",
         "NO_AT_BRIDGE": "0",
         "GTK_A11Y": "atspi",
+        "WFE_TRUST_IDS": "1",     # the app's ids in the labels, read back by atspi.py
         "LIBGL_ALWAYS_SOFTWARE": "1",
         "TMPDIR": _p(sb, "tmp"),
     }

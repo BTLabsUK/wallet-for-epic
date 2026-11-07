@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 """The English strings of one build, by ARB key.
 
-A driver looks a control up by the text the build it is driving shows, so the candidate is read
-with the candidate's strings (REL_CANDIDATE_SRC: the release worktree) and the previous release
-with its own (git tag v<version>, or REL_PREVIOUS_REF). A renamed button in the candidate is then
-found by its key, with no driver change. A key a build does not have gives no text; the target's
-other keys and literal names still apply.
+The text a driver checks is the text of the build it is driving: the candidate is read with the
+candidate's strings (REL_CANDIDATE_SRC: the release worktree), and finds controls by id only
+(`ids_only`); the previous release is read with its own strings (git tag v<version>, or
+REL_PREVIOUS_REF), and finds a control without an id by the text of its keys, then its literal names.
 """
 import json
 import os
@@ -49,6 +48,7 @@ class Labels:
         if self.arb is None:
             self.arb, self.origin = _load_dir(ROOT) or {}, "this checkout"
         self.en = self.arb
+        self.ids_only = False
 
     @classmethod
     def for_locale(cls, locale, src=None, ref=None):
@@ -68,7 +68,9 @@ class Labels:
     def for_build(cls, which):
         """`previous` or `candidate`, from the runner's env (tools/rel's contract, trust-*.sh)."""
         if which == "candidate":
-            return cls(src=os.environ.get("REL_CANDIDATE_SRC"), ref=os.environ.get("REL_CANDIDATE_REF"))
+            lab = cls(src=os.environ.get("REL_CANDIDATE_SRC"), ref=os.environ.get("REL_CANDIDATE_REF"))
+            lab.ids_only = True
+            return lab
         v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
         ref = (os.environ.get("REL_PREVIOUS_REF") or "").strip() or (("v" + v.lstrip("v")) if v else None)
         return cls(src=os.environ.get("REL_PREVIOUS_SRC"), ref=ref)

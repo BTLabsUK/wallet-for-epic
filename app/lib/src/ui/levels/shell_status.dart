@@ -17,6 +17,7 @@ import '../../levels/level_features.dart' as lv show StatusIcon;
 import '../../levels/level_providers.dart';
 import '../../levels/relay_switch_providers.dart';
 import '../../providers.dart';
+import '../../trust_ids.dart';
 import '../network_status.dart' show nodeBehind;
 import '../status.dart';
 import '../status_icons.dart';
@@ -86,6 +87,7 @@ class ShellStatusIcons extends ConsumerWidget {
       final tip = l.lvShellStatusTip(name, face.word);
       return StatusIcon(
         key: key,
+        semanticsId: glyph == EpicGlyphs.node ? TrustIds.statusNetwork : TrustIds.statusEpicbox,
         icon: glyph,
         enabled: face.dot != StatusDot.off,
         dot: face.dot,

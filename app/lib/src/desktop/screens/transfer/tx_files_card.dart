@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models.dart' show FinishedPayment;
 import '../../../network_gate.dart' show NetGate;
 import '../../../slate_files.dart' show decodeSlateFile, maxSlateFileBytes;
+import '../../../trust_ids.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/files.dart';
 import '../../data/invoice_state.dart' show RequestFile;
@@ -239,6 +240,7 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
             text: _dropsHere ? '${l.deskTfOpenText} ${l.deskTfDropHint}' : l.deskTfOpenText,
             control: EButton(
               key: const ValueKey('rx-files-open'),
+              semanticsId: TrustIds.txRecvOpen,
               label: l.deskRecvOpen,
               icon: EIcons.fileUp,
               size: EBtnSize.sm,

@@ -806,18 +806,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           // button after a click.
           destinations: [
             NavigationDestination(
-              icon: const Icon(Icons.north_east),
+              icon: TrustId(TrustIds.tabSend, child: const Icon(Icons.north_east)),
               label: l.homeSendButton,
               tooltip: '',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: const Icon(Icons.account_balance_wallet),
+              icon: TrustId(TrustIds.tabWallet, child: const Icon(Icons.account_balance_wallet_outlined)),
+              selectedIcon: TrustId(TrustIds.tabWallet, child: const Icon(Icons.account_balance_wallet)),
               label: l.shellWalletTab,
               tooltip: '',
             ),
             NavigationDestination(
-              icon: const Icon(Icons.south_west),
+              icon: TrustId(TrustIds.tabReceive, child: const Icon(Icons.south_west)),
               label: l.homeReceiveButton,
               tooltip: '',
             ),

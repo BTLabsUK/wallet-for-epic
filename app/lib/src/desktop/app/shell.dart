@@ -716,7 +716,7 @@ class _Sidebar extends ConsumerWidget {
     return Semantics(
       container: true,
       label: l.deskShellMainNav,
-      child: Container(
+      child: TrustId(TrustIds.nav, child: Container(
         width: compact ? Ctl.rail : Ctl.sidebar,
         // Light: the white column stands off the warm page with a visible divider.
         decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.tint.a == 0 ? c.line : c.lineStrong))),
@@ -757,7 +757,7 @@ class _Sidebar extends ConsumerWidget {
                     TourTarget(
                       id: 'nav-settings',
                       child: ENavItem(
-                        semanticsId: TrustIds.shellNavSettings,
+                        semanticsId: TrustIds.navSettings,
                         icon: EIcons.settings,
                         label: l.deskShellNavSettings,
                         selected: section == DeskSection.settings,
@@ -774,7 +774,7 @@ class _Sidebar extends ConsumerWidget {
             NowSlot(compact: compact),
           ],
         ),
-      ),
+      )),
     );
   }
 }

@@ -49,6 +49,17 @@ SECRET_FOCUS_S = 8  # a secret field that does not take focus at once is asked a
 DESTRUCTIVE = re.compile(r"(?i)delete|remove|forget|reset|erase|wipe|replace|restore|unlink|clear|send|pay")
 
 
+# The app's id: on Linux it comes in the label (lib/src/trust_ids.dart, WFE_TRUST_IDS), as AT-SPI has no
+# field for it. Merged nodes hold several, the first is the node's, as `identifier` is on other systems.
+MARK = re.compile("\u27e6([^\u27e7]+)\u27e7\\n?")
+
+
+def _marked(name):
+    """A node's name -> (its id or None, the name without the marks)."""
+    ids = MARK.findall(name or "")
+    return (ids[0] if ids else None), MARK.sub("", name or "").strip()
+
+
 class AtspiSurface:
     platform, family = "linux", "desktop"
 
@@ -218,7 +229,8 @@ class AtspiSurface:
             if role == "text_field":
                 st.add("editable")
             name = raw["name"] or (raw["desc"] if role == "text_field" else "")
-            out.append(Node(i=len(out), role=role, name=name, id=raw.get("id"), value=raw.get("value"),
+            tid, name = _marked(name)
+            out.append(Node(i=len(out), role=role, name=name, id=raw.get("id") or tid, value=raw.get("value"),
                             states=frozenset(st), actions=tuple(raw["actions"]), ref=raw))
         return out
 

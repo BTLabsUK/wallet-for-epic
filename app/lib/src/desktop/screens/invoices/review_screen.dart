@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show localDayMonth;
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../../ui/pairing/pairing_parts.dart' show SealedBadge, TrustBadge;
 import '../../data/invoice_state.dart';
@@ -294,6 +295,7 @@ class _Review extends ConsumerWidget {
               ? [
                   InvButton(label: l.invoiceDecline, width: InvW.md, size: EBtnSize.md, onPressed: () => showDeclineInvoice(context, i)),
                   InvButton(
+                    semanticsId: TrustIds.invPayApprove,
                     label: l.invoiceApprove,
                     width: InvW.md,
                     size: EBtnSize.md,

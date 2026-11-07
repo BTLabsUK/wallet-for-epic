@@ -406,7 +406,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                   OutlinedButton(
                     style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                     onPressed: _openWallet,
-                    child: Text(l.restoreImportNotNow),
+                    child: TrustId(TrustIds.restoreNotnow, child: Text(l.restoreImportNotNow)),
                   ),
                 ],
               ),
@@ -554,6 +554,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         const SizedBox(height: 16),
         BusyButton(
           key: restoreRetryKey,
+          semanticsId: TrustIds.restoreRetry,
           label: l.launchTryAgain,
           onPressed: _scan,
         ),
@@ -562,7 +563,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           key: restoreOpenKey,
           style: outline,
           onPressed: _openWallet,
-          child: Text(l.restoreOpenWallet),
+          child: TrustId(TrustIds.restoreOpen, child: Text(l.restoreOpenWallet)),
         ),
       ],
     ];

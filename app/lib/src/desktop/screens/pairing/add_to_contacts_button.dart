@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models.dart' show PairingRecord;
+import '../../../trust_ids.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -31,7 +32,7 @@ class DeskAddToContactsButton extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    Widget item(Key key, IconData icon, String label, Future<bool> Function() put) => MenuItemButton(
+    Widget item(Key key, IconData icon, String label, Future<bool> Function() put, {String? id}) => MenuItemButton(
       key: key,
       onPressed: () async {
         if (await put()) onSaved?.call();
@@ -45,7 +46,7 @@ class DeskAddToContactsButton extends ConsumerWidget {
         ),
       ),
       leadingIcon: Icon(icon, size: Ctl.iconSm, color: c.dim),
-      child: Text(label, style: ts.body),
+      child: TrustId(id, child: Text(label, style: ts.body)),
     );
     return MenuAnchor(
       consumeOutsideTap: true,
@@ -59,13 +60,14 @@ class DeskAddToContactsButton extends ConsumerWidget {
               return false;
             }
           }),
-        item(deskAddToContactsNewKey, EIcons.userPlus, l.pairSaveNewContact, () => deskPutPairingInContacts(context, ref, record, asNew: true)),
+        item(deskAddToContactsNewKey, EIcons.userPlus, l.pairSaveNewContact, () => deskPutPairingInContacts(context, ref, record, asNew: true), id: TrustIds.pairSavedNew),
         item(deskAddToContactsExistingKey, EIcons.user, l.pairAddToAContact, () => deskPutPairingInContacts(context, ref, record, asNew: false)),
       ],
       builder: (context, controller, _) => CallbackShortcuts(
         bindings: {const SingleActivator(LogicalKeyboardKey.escape): controller.close},
         child: EButton(
           key: deskAddToContactsKey,
+          semanticsId: TrustIds.pairSavedAdd,
           label: l.txDetailsAddToContacts,
           icon: EIcons.userPlus,
           kind: primary ? EBtnKind.primary : EBtnKind.secondary,

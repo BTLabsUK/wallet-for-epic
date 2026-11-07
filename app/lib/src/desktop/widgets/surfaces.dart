@@ -755,7 +755,11 @@ class ECopyButton extends StatefulWidget {
     this.kind = EBtnKind.ghost,
     this.size = EBtnSize.inline,
     this.tabStop,
+    this.semanticsId,
   });
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   final String text;
   /// The button's name; "Copy" when null.
@@ -808,8 +812,8 @@ class _ECopyButtonState extends State<ECopyButton> {
     final label = !_done ? (widget.label ?? context.l10n.commonCopy) : (_failed ? context.l10n.deskKitNotCopied : context.l10n.deskKitCopied);
     final icon = !_done ? EIcons.copy : (_failed ? EIcons.alert : EIcons.check);
     final Widget button = widget.withLabel
-        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: widget.tabStop ?? true, onPressed: _copy)
-        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, tabStop: widget.tabStop ?? false, onPressed: _copy);
+        ? EButton(semanticsId: widget.semanticsId, label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: widget.tabStop ?? true, onPressed: _copy)
+        : EIconButton(semanticsId: widget.semanticsId, icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, tabStop: widget.tabStop ?? false, onPressed: _copy);
     return Semantics(liveRegion: true, child: button);
   }
 }

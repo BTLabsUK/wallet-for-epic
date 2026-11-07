@@ -25,22 +25,23 @@ T = tg.T
 
 # ---- targets (ids: app/lib/src/desktop/trust_ids.dart; keys newest first; names for older builds)
 
-WELCOME_CREATE = T("g4.welcome.create", keys=("deskOnbWelcomeCreate", "firstRunCreate"), names=("Create a new wallet",))
-WELCOME_RESTORE = T("g4.welcome.restore", names=("Restore from phrase",))
-DEEP_END = T("g4.level.stop.3", keys=("lvPickStopThree",), names=("Deep end",))
-CREATE_TITLE = T("g4.create.title", role="text", keys=("deskOnbCreateTitle",), names=("Create wallet",), secret=True)
-PASSWORD = T("g4.account.password", role="text_field", names=("re:.*",), secret=True)
-REVEAL = T("g4.create.reveal", keys=("deskOnbCreateReveal",), names=("Reveal phrase",), secret=True)
-WRITTEN = T("g4.create.written", role="checkbox", keys=("deskOnbCreateWritten",), names=("re:i have written down.*",),
-            match="starts", secret=True)
-CONTINUE = T("g4.create.continue", keys=("commonContinue",), names=("Continue",))
-SETUP_SKIP = T("g4.setup.skip", keys=("deskSetupSkip",), names=("Skip setup",))
+WELCOME_CREATE = T("g4.welcome.create")
+WELCOME_RESTORE = T("g4.welcome.restore")
+DEEP_END = T("g4.level.stop.3")
+CREATE_TITLE = T("g4.create.title")
+PASSWORD = T("g4.account.password")
+REVEAL = T("g4.create.reveal")
+WRITTEN = T("g4.create.written")
+CONTINUE = T("g4.create.continue")
+SETUP_SKIP = T("g4.setup.skip")
 
 # restore from phrase (26.10.25 and 26.10.26: restore_screen.dart, phrase_grid.dart). The word fields are
 # "Word N" (deskOnbWordN, Desktop._word); the words step's button is RESTORE_NEXT. Ids g4.restore.* from
 # the release with restore from a height (trust_ids.dart); older builds are found by label.
-RESTORE_NEXT = T("g4.restore.next", keys=("commonContinue",), names=("Continue",))
-RESTORE_SUBMIT = T("g4.restore.continue", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
+RESTORE_NEXT = T("g4.restore.next")
+RESTORE_PHRASE = T("g4.restore.phrase")
+RESTORE_WORD = T("g4.restore.word.*")
+RESTORE_SUBMIT = T("g4.restore.continue")
 # The start choice (restore_screen.dart, start_date.dart): a mainnet restore scans from January 2025 unless the
 # start is changed. Built to the planned final design of the scan-start block (feat/restore-start-ui, same on
 # phone and desktop): a button "Change the start" opens the Month | Block height panel; "Scan from the start"
@@ -48,116 +49,98 @@ RESTORE_SUBMIT = T("g4.restore.continue", keys=("deskOnbRestoreSide",), names=("
 # button). A rename is a change to these three targets only.
 # role "other": on 26.10.26 the link is an unnamed node with its label a text of its own on Linux;
 # restoreStartFromMonthLink is its key, so the link is found in the build's language (Polish on the rigs)
-RESTORE_FROM_OPEN = T("g4.restore.start", role="other", keys=("scanStartChange", "restoreStartFromMonthLink"),
-                      names=("Change the start", "Start from a month or height"), match="exact", secret=True)
-RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
-                 match="exact", secret=True)
-RESTORE_FROM_START = T("g4.restore.fromStart", role="button", keys=("restoreScanFromStart",),
-                       names=("Scan from the start",), match="exact", secret=True)
-RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), names=("Block height",), match="exact",
-                      secret=True)
-RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("deskOnbRestoreFromLabel",), names=("Start from block",),
-                   match="starts", secret=True)
-RESTORE_RESTORING = T("g4.restore.restoring", role="text", keys=("deskOnbRestoreRestoring",), names=("Restoring the wallet",),
-                      secret=True)
-RESTORE_FAILED = T("g4.restore.failed", role="text", keys=("deskOnbRestoreNotRestored",), names=("Wallet not restored",),
-                   secret=True)
+RESTORE_FROM_OPEN = T("g4.restore.start")
+RESTORE_INFO = T("g4.restore.info")
+RESTORE_FROM_START = T("g4.restore.fromStart")
+RESTORE_BY_HEIGHT = T("g4.restore.by.height")
+RESTORE_HEIGHT = T("g4.restore.height")
+RESTORE_RESTORING = T("g4.restore.restoring")
+RESTORE_FAILED = T("g4.restore.failed")
 # mainnet block 1's time and the margin app/lib/src/start_month.dart keeps: a birth month as a height
 MAINNET_BLOCK_ONE_UNIX, RESTORE_MARGIN_BLOCKS = 1567476608, 2 * 24 * 60
-UNLOCK_TITLE = T("g4.unlock.title", role="text", keys=("deskOnbUnlockTitle",), names=("Unlock wallet",))
-UNLOCK = T("g4.unlock.submit", keys=("deskOnbUnlockButton",), names=("Unlock",))
-UNLOCK_WRONG = T("g4.unlock.wrong", role="text", keys=("deskOnbUnlockWrong",), match="starts")
-TOUR_SKIP = T("g4.tour.skip", keys=("deskTourSkip",), names=("Skip tour",))
-LAST_SESSION = T("g4.lastsession.notnow", keys=("deskLastSessionNotNow",), names=("Not now",))
+UNLOCK_TITLE = T("g4.unlock.title")
+UNLOCK = T("g4.unlock.submit")
+UNLOCK_WRONG = T("g4.unlock.wrong")
+TOUR_SKIP = T("g4.tour.skip")
 # The update strip above the page while a newer release is out (update_strip.dart, 26.11.x): its Update
 # would start a download mid-lane, and a Tab walk may land on it; × hides it for that version.
-UPDATE_STRIP_HIDE = T("g4.updatestrip.hide", keys=("deskUpdStripHide",), names=("Hide until the next version",))
-LEVEL_PICK = T("g4.level.title", role="text", keys=("lvPickTitle",), names=("Pick your view",))
-MAIN_NAV = T("g4.nav", role="other", keys=("deskShellMainNav",), names=("Main navigation",), match="exact")
+UPDATE_STRIP_HIDE = T("g4.updatestrip.hide")
+LEVEL_PICK = T("g4.level.stop.3")
+MAIN_NAV = T("g4.nav")
 
 
-def NAV(section, key):
-    return T("g4.nav.%s" % section, keys=(key,), names=(section.capitalize(),), match="exact")
+NAV_OVERVIEW = T("g4.nav.overview")
+NAV_SEND = T("g4.nav.send")
+NAV_RECEIVE = T("g4.nav.receive")
+NAV_ACTIVITY = T("g4.nav.activity")
+NAV_SETTINGS = T("g4.nav.settings")
+SETTINGS_BACK = T("g4.settings.back")
 
-
-NAV_OVERVIEW = NAV("overview", "deskShellNavOverview")
-NAV_SEND = NAV("send", "deskShellNavSend")
-NAV_RECEIVE = NAV("receive", "deskShellNavReceive")
-NAV_ACTIVITY = NAV("activity", "deskShellNavActivity")
-NAV_SETTINGS = NAV("settings", "deskShellNavSettings")
-SETTINGS_BACK = T("g4.settings.back", keys=("deskSetFrameBack",), names=("← Wallet", "Wallet"))
-
-# Settings section entries, by the page's key; the first that the build has wins
+# Settings section entries, by the page's key
 SECTION = {
-    "node": T("g4.settings.section.node", keys=("deskSetFrameNode",), names=("Node",), match="exact"),
-    "payments": T("g4.settings.section.payments", keys=("deskSetSecPayments", "deskSetFrameTransactions"),
-                  names=("Payments", "Transactions", "Receiving"), match="exact"),
-    "wallet": T("g4.settings.section.wallet", keys=("deskSetSecWallet", "deskSetFrameThisWallet"),
-                names=("Wallet", "This wallet"), match="exact"),
-    "appearance": T("g4.settings.section.appearance", keys=("deskSetFrameAppearance",), names=("Appearance",), match="exact"),
-    "advanced": T("g4.settings.section.advanced", keys=("deskSetFrameAdvanced",), names=("Advanced",), match="exact"),
-    "about": T("g4.settings.section.about", keys=("deskSetFrameAbout",), names=("About",), match="exact"),
-    "privacy": T("g4.settings.section.privacy", keys=("settingsSectionNetworkPrivacy", "deskSetFramePrivacy"),
-                 names=("Network & privacy", "Privacy"), match="exact"),
+    "node": T("g4.settings.section.node"),
+    "payments": T("g4.settings.section.receiving"),
+    "wallet": T("g4.settings.section.account"),
+    "appearance": T("g4.settings.section.appearance"),
+    "advanced": T("g4.settings.section.advanced"),
+    "about": T("g4.settings.section.about"),
+    "privacy": T("g4.settings.section.privacy"),
+    "linked": T("g4.settings.section.devices"),
 }
-# Settings › Contacts leaves Settings for the Contacts page: not a section, so not in SECTION
-SETTINGS_CONTACTS = T("g4.settings.section.contacts", keys=("deskShellNavContacts",), names=("Contacts",), match="exact")
-CONTACTS_ADD = T("g4.contacts.add", keys=("deskConAdd",), names=("Add contact",), match="exact")
-# every section a release has had (for "a setting moved": the pages are walked when the known ones miss it)
-ALL_SECTIONS = ("Node", "Transactions", "Receiving", "Privacy", "Appearance", "This wallet", "All wallets",
-                "Advanced", "About", "Wallet", "Security", "Payments", "Network & privacy", "Wallets", "Files & logs")
+# Settings › Contacts leaves Settings for the Contacts page: not a section, so not in SECTIONS
+SETTINGS_CONTACTS = T("g4.settings.section.contacts")
+# every section (for "a setting moved": the pages are walked when the known ones miss it)
+SECTIONS = [t for t in tg.under("g4.settings.section.", "desktop") if t.id != SETTINGS_CONTACTS.id]
+CONTACTS_ADD = T("g4.contacts.add")
 
-THEME = {t: T("g4.appearance.theme.%s" % t.lower(), keys=("deskSetAppear%s" % t,), names=(t,), match="exact")
-         for t in ("System", "Dark", "Light")}
-LABEL_FIELD = T("g4.wallet.label", role="text_field", keys=("deskSetAcctLabel",), names=("Name",), match="exact")
-LABEL_SAVE = T("g4.wallet.label.save", keys=("deskSetAcctSaveLabel",), names=("Save label",))
-CONF_FEWER = T("g4.confirmations.fewer", keys=("deskSetAdvConfirmationsFewer",), names=("Fewer confirmations",))
-CONF_MORE = T("g4.confirmations.more", keys=("deskSetAdvConfirmationsMore",), names=("More confirmations",))
+THEME = {
+    "System": T("g4.appearance.theme.system"),
+    "Dark": T("g4.appearance.theme.dark"),
+    "Light": T("g4.appearance.theme.light"),
+}
+LABEL_FIELD = T("g4.wallet.label")
+LABEL_SAVE = T("g4.wallet.label.save")
+CONF_FEWER = T("g4.confirmations.fewer")
+CONF_MORE = T("g4.confirmations.more")
 # the number field; up to 26.10.26 its name went on with the − button's tooltip ("Confirmations. Fewer confirmations")
-CONF_FIELD = T("g4.confirmations.value", role="text_field", keys=("deskSetAdvConfirmations",), names=("Confirmations",), match="starts")
-CONF_NOT_SAVED = T("g4.confirmations.not_saved", role="text", keys=("deskSetAdvConfirmationsNotSaved",), names=("Confirmations not changed",))
-CONF_COUNT = T("g4.confirmations.count", role="text", keys=("deskSetAdvConfirmationsCount",), match="starts")
-TECHNICAL = T("g4.advanced.technical", role="toggle", keys=("deskSetAdvTechnical",), names=("Technical details",))
+CONF_FIELD = T("g4.confirmations.value")
+CONF_NOT_SAVED = T("g4.confirmations.not_saved")
+CONF_COUNT = T("g4.confirmations.count")
+TECHNICAL = T("g4.advanced.technical")
 
-NODE_PICKER = T("g4.server.node", keys=("deskSetNodeServer",), names=("Node server",), match="starts")
-RELAY_PICKER = T("g4.server.epicbox", keys=("deskSetRecvEpicboxServer",), names=("Epicbox server",), match="starts")
+NODE_PICKER = T("g4.server.node")
+RELAY_PICKER = T("g4.server.epicbox")
 PICKER_PAGES = {"g4.server.node": ("node",), "g4.server.epicbox": ("payments",)}
-PICKER_SEARCH = T("g4.server.search", role="text_field", names=("re:.*",))
-SWITCH = T("g4.server.switch", keys=("deskSendEpicboxSwitch",), names=("Switch",), match="exact")
-SERVER_REFUSED = T("g4.server.refused", role="text", names=("re:.*(no answer from this server|nothing added|not a node).*",),
-                   match="contains")
+PICKER_SEARCH = T("g4.server.search")
+SWITCH = T("g4.server.epicbox.switch")
+SERVER_REFUSED = T("g4.server.refused")
+PICKER_ROW = T("g4.server.row")      # a server listed in the open picker
+SERVER_ROW = T("g4.server.use")      # that, or its Add row
 
-RECEIVE_ADDRESS = T("g4.receive.address", role="text", keys=("deskRecvEpicboxAddress",), names=("Epicbox address",),
-                    match="starts")
+RECEIVE_ADDRESS = T("g4.receive.address")
 
-SEND_METHOD_EPICBOX = T("g4.send.method.epicbox", names=("Epicbox",), match="exact")
-SEND_METHOD_LINK = T("g4.send.method.link", names=("Link",), match="exact")
-SEND_ANOTHER = T("g4.send.another", keys=("deskSendNewSend",), names=("Send another",))
-SEND_TO = T("g4.send.to", role="text_field", keys=("deskSendToSem", "deskSendTo"), names=("Recipient", "To"), match="starts")
+SEND_ANOTHER = T("g4.send.another")
+SEND_TO = T("g4.send.to")
 # The address selector under To for a paired contact: Paired address | Public address.
-SEND_ROUTE_PAIRED = T("g4.send.route.paired", keys=("sendRoutePaired",), names=("Paired address",), match="exact")
-SEND_ROUTE_PUBLIC = T("g4.send.route.public", keys=("sendRoutePublic",), names=("Public address",), match="exact")
+SEND_ROUTE_PAIRED = T("g4.send.route.paired")
+SEND_ROUTE_PUBLIC = T("g4.send.route.public")
 ROUTE_WAIT_S = 4    # for the address selector after To is filled
-SEND_AMOUNT = T("g4.send.amount", role="text_field", keys=("deskSendAmountSem", "deskSendAmount"), names=("Amount",),
-                match="starts")
-SEND_MAX = T("g4.send.max", keys=("deskSendAllButton",), names=("Max",), match="exact")
-SEND_REVIEW = T("g4.send.review", keys=("deskSendReview",), names=("Review send", "Review"), match="exact")
-SEND_REVIEW_TITLE = T("g4.send.review.title", role="text", keys=("deskSendReviewTitle",), names=("Check and send",),
-                      match="contains")
-SEND_PASSWORD = T("g4.send.password", role="text_field", keys=("deskSendPassword",), names=("Password",), secret=True)
-SEND_CONFIRM = T("g4.send.confirm", keys=("deskSendConfirm",), names=(r"re:send [\d.,]+ epic",), match="exact")
-SEND_FAILED = T("g4.send.failed", role="text", keys=("deskSendFailedTitle", "deskSendNoAnswer"),
-                names=("re:.*(send failed|not sent).*",), match="contains")
-SEND_DONE = T("g4.send.done", role="text", keys=("deskSendDoneViaEpicbox", "deskSendDoneViaDirect", "deskSendHintSent"),
-              match="starts")
+SEND_AMOUNT = T("g4.send.amount")
+SEND_MAX = T("g4.send.max")
+SEND_REVIEW = T("g4.send.review")
+SEND_REVIEW_TITLE = T("g4.send.review.title")
+SEND_PASSWORD = T("g4.send.password")
+SEND_CONFIRM = T("g4.send.confirm")
+SEND_FAILED = T("g4.send.failed")
+SEND_DONE = T("g4.send.done")
 
 # Tor (26.11.0): Settings › Network & privacy › Connection mode, radio rows adv-mode-<name> (the Tor switch
 # is gone; Tor only is the one whole-wallet Tor control). The rail's and the title bar's Tor and Epicbox
 # status are not in AT-SPI on Linux (26.11.0), so the UI read is Settings: Tor only checked there, and
 # Epicbox's state line on the Transactions page under its server picker, "Connected · <host>, over Tor"
 # (methodStateLine: Epicbox through Tor, subscribed) once Tor is up.
-MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
-MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
+MODE_TOR_ONLY = T("g4.privacy.mode.toronly")
+MODE_NORMAL = T("g4.privacy.mode.standard")
 # one line of a node's name: on Linux the line is a line of its group's text ("Epicbox\nReceiving\n
 # Connected · epicbox.stackwallet.com, over Tor\nStart with the wallet")
 EPICBOX_LINE = re.compile(
@@ -212,7 +195,7 @@ class Desktop:
         self.password = self.phrase = None
         d = self.d
         d.obstacles += [(TOUR_SKIP, "the first-run tour"), (SETUP_SKIP, "the setup assistant"),
-                        (LAST_SESSION, "the last-session notice (left unsent)"), (UPDATE_STRIP_HIDE, "the update strip")]
+                        (UPDATE_STRIP_HIDE, "the update strip")]
         d.not_folds |= self.section_names()   # Settings › Advanced is a page, not a folded section
         d.reopen = self._reopen
         self._picking = None   # (picker, typed) while a server is chosen: the stale-picker rule's context
@@ -274,9 +257,9 @@ class Desktop:
         return n.role == "text_field" and tg._norm(n.name.split("\n")[0]) == hint
 
     def section_names(self):
-        """Every section name a release has had, and this build's own (English) section names."""
+        """Every section's name: this build's own strings, and what older releases called it."""
         if getattr(self, "_section_names", None) is None:
-            self._section_names = {tg._norm(s) for s in (*ALL_SECTIONS, *self.d.labels.localized(ALL_SECTIONS))}
+            self._section_names = tg.texts_of(SECTIONS, self.d.labels)
         return self._section_names
 
     # ---- first run and unlock
@@ -343,11 +326,10 @@ class Desktop:
         return {"password": self.password}
 
     def _word(self, i):
-        """Field `i` (from 1) of the phrase grid: "Word {number}" in the build's language, or in English."""
-        texts = {self.d.labels.text("deskOnbWordN"), "Word {number}"} - {None}
-        pats = tuple(sorted("re:(?:.* )?%s(?: .*)?" % re.escape(tg._norm(t)).replace(re.escape("{number}"), str(i))
-                            for t in texts))
-        return T("g4.restore.phrase" if i == 1 else "g4.restore.word.%d" % i, role="text_field", names=pats, match="exact", secret=True)
+        """Field `i` (from 1) of the phrase grid: "Word {number}" on a build without the ids."""
+        text = self.d.labels.text("deskOnbWordN") or "Word {number}"
+        name = "re:(?:.* )?%s(?: .*)?" % re.escape(tg._norm(text)).replace(re.escape("{number}"), str(i))
+        return RESTORE_PHRASE.at(None, names=(name,)) if i == 1 else RESTORE_WORD.at(i, names=(name,))
 
     def _type_words(self, words):
         """Each word into its own field, checked against what the field then holds (a key lost on the way
@@ -495,13 +477,12 @@ class Desktop:
         self.nav(NAV_SETTINGS)
         d.must(Expect("Settings sections", lambda dd, tree: self.in_settings(tree)), 30, step="settings")
 
-    def section(self, key_or_name, _again=False):
-        """Settings › a section, by its target (SECTION key) or a literal name. False when the build
-        lists no such section."""
+    def section(self, key_or_target, _again=False):
+        """Settings › a section, by its SECTION key or its target. False when the build lists no such
+        section."""
         d = self.d
         self.settings()
-        t = SECTION.get(key_or_name) or T("g4.settings.section.%s" % tg._norm(key_or_name).replace(" ", "_"),
-                                          names=(key_or_name,), match="exact")
+        t = SECTION.get(key_or_target, key_or_target)
         if not d.wait(shows(t), 4):
             if not self._open_section_list():
                 return False
@@ -510,11 +491,11 @@ class Desktop:
                     return False
                 # the open list shows only its rows inside the window (UIA drops the rest) and a scrolled
                 # page moves it: once more from a fresh Settings page
-                self.log("Settings › %s: not in the open section list; opening Settings again" % key_or_name)
+                self.log("Settings › %s: not in the open section list; opening Settings again" % t)
                 d.s.key("escape")
                 time.sleep(0.8)
                 self.nav(NAV_OVERVIEW)
-                return self.section(key_or_name, _again=True)
+                return self.section(key_or_target, _again=True)
         # 26.10.25 names the back button "Wallet" too: a press that leaves Settings was the wrong one
         # the one that stayed is tried first next time
         first = getattr(self, "_section_hit", {}).get(t.id, 0)
@@ -527,9 +508,9 @@ class Desktop:
             if d.wait(Expect("still in Settings", lambda dd, tree: self.in_settings(tree)), 4, dismiss=False):
                 self._section_hit = dict(getattr(self, "_section_hit", {}), **{t.id: k})
                 return True
-            self.log("Settings › %s: %s left Settings; trying the next one" % (key_or_name, hits[k].brief()))
+            self.log("Settings › %s: %s left Settings; trying the next one" % (t, hits[k].brief()))
             self.settings()
-        d.harness("Settings › %s: no control of that name opens the section" % key_or_name)
+        d.harness("Settings › %s: no control of that name opens the section" % t)
 
     def contacts(self):
         """Settings › Contacts, until the Contacts page shows (its Add contact), then back to Overview. A build
@@ -569,7 +550,7 @@ class Desktop:
         tried = []
         for p in pages:
             if self.section(p):
-                tried.append(p)
+                tried.append(SECTION[p])
                 if d.wait(shows(target), 3):
                     return True
                 d.step = "find-%s" % target.id
@@ -581,16 +562,15 @@ class Desktop:
         tree = d.tree()
         if self._open_section_list():   # a narrow window: the sections are listed once the selector is open
             tree = d.tree()
-        listed = list(dict.fromkeys(n.name.split("\n")[0].strip() for n in tree
-                                    if n.role in ("button", "tab", "row") and tg._norm(n.name.split("\n")[0]) in self.section_names()))
-        for name in listed:
-            if name in tried:
+        listed = [t for t in SECTIONS if d.find_in(t, tree)]
+        for t in listed:
+            if t in tried:
                 continue
-            if self.section(name) and d.wait(shows(target), 3):
-                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(kept)))
-                d.rec.moved("find-%s" % target.id, target, name, kept)
+            if self.section(t) and d.wait(shows(target), 3):
+                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, t, ", ".join(kept)))
+                d.rec.moved("find-%s" % target.id, target, t.id, kept)
                 return True
-        d.harness("%s not found under Settings (sections %s%s)" % (what, ", ".join(tried + listed) or "none", d._tried_text()))
+        d.harness("%s not found under Settings (sections %s%s)" % (what, ", ".join(str(t) for t in tried + listed) or "none", d._tried_text()))
 
     def leave_settings(self):
         d = self.d
@@ -732,28 +712,20 @@ class Desktop:
             # 26.10.26 on Windows: a choice closes the picker and takes it out of the UIA tree; the
             # page's status line ("Synced: node.btlabs.uk") still names the server in use
             rx = re.compile(r":\s*%s\s*(\||,|$)" % re.escape(entry))
-            return not any(self._picker_row(x.name) for x in tree) and any(
+            return not self._picker_rows(tree) and any(
                 x.role == "text" and rx.search(x.name.replace("\n", " | ")) for x in tree)
         # the server in use after the picker's label ("Node server: node.btlabs.uk"), or as its value
         rests = [re.split(r"[:\n]", n.name, maxsplit=1)[1].strip() if re.search(r"[:\n]", n.name) else "", (n.value or "").strip()]
         return any(r == entry or r.startswith(entry + ",") or r.startswith(entry + " ") for r in rests)
 
-    def _words(self, verb):
-        """The word a picker row starts with: "use" or "add" (the lanes run the apps in English)."""
-        return {verb}
+    def _picker_rows(self, tree):
+        return self.d.find_in(PICKER_ROW, tree)
 
     def _use_row(self, entry):
-        verbs = "|".join(re.escape(w) for w in sorted(self._words("use") | self._words("add")))
-        return T("g4.server.use", names=(r"re:(%s) %s(,.*)?" % (verbs, re.escape(tg._norm(entry))),), match="exact")
-
-    def _picker_row(self, name):
-        n = tg._norm(name)
-        return any(n.startswith(w + " ") for w in self._words("use"))
+        return SERVER_ROW.of(entry, names=("re:(use|add) %s(,.*)?" % re.escape(tg._norm(entry)),))
 
     def _listed(self, entry, tree):
-        verbs = "|".join(re.escape(w) for w in sorted(self._words("use")))
-        rx = re.compile(r"^(%s) %s(,|$)" % (verbs, re.escape(tg._norm(entry))))
-        return any(rx.match(tg._norm(n.name)) for n in tree if n.role == "button")
+        return bool(self.d.find_in(PICKER_ROW.of(entry), tree))
 
     def _open_picker(self, picker):
         d = self.d
@@ -762,7 +734,7 @@ class Desktop:
         d.press(picker, step="open-%s" % picker.id, timeout=20,
                 then=Expect("the picker open", lambda dd, tree: any(n.role == "text_field" and "focused" in n.states
                                                                     and not self._settings_search(n) for n in tree)
-                            or any(self._picker_row(n.name) for n in tree)))
+                            or self._picker_rows(tree)))
 
     def use_server(self, picker, typed, entry, use):
         """`entry` in use (a goal: SKIP when the picker or the status line already names it) or listed
@@ -820,10 +792,10 @@ class Desktop:
                     then=Expect("%s %s" % (entry, "in use" if use else "listed or refused"),
                                 lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)
                                                    # the press closed the picker: the loop below reads the choice
-                                                   or not any(self._picker_row(n.name) for n in tree)) if use else
+                                                   or not self._picker_rows(tree)) if use else
                                                   (self._listed(entry, tree) or self._in_use(picker, entry, tree)
                                                    or dd.find_in(SERVER_REFUSED, tree)
-                                                   or not any(self._picker_row(n.name) for n in tree)))))
+                                                   or not self._picker_rows(tree)))))
             if use or not d.find_in(SERVER_REFUSED, d.tree()) or attempt == 2:
                 break
             self.log("%s %s: no answer from the server; adding again (%d)" % (picker, entry, attempt + 1))
@@ -834,7 +806,7 @@ class Desktop:
         end, gone, rereads = time.time() + 120, None, 0
         while time.time() < end:
             tree = d.tree()
-            if use and rereads < 2 and not d.seen(picker, tree) and not any(self._picker_row(n.name) for n in tree):
+            if use and rereads < 2 and not d.seen(picker, tree) and not self._picker_rows(tree):
                 # 26.10.26 on Windows: a choice closes the picker and UIA marks it off screen until the
                 # page is built again; leaving Settings and coming back shows it with the choice
                 gone = gone or time.time()
@@ -860,14 +832,14 @@ class Desktop:
             if not use:
                 if self._in_use(picker, entry, tree) or self._listed(entry, tree):
                     break
-                if not any(self._picker_row(n.name) for n in tree):
+                if not self._picker_rows(tree):
                     self._open_picker(picker)
                     if self._listed(entry, d.tree()):
                         break
             time.sleep(1.5)
         else:
             d.harness("%s %s never %s" % (picker, entry, "in use" if use else "listed"))
-        open_ = lambda tree: any(self._picker_row(n.name) for n in tree)
+        open_ = lambda tree: self._picker_rows(tree)
         if open_(d.tree()) and not d.wait(Expect("the picker closed", lambda dd, tree: not open_(tree)), 3, dismiss=False):
             d.s.key("escape")  # closes the picker (if it closed first, _open_picker finds the page again)
             time.sleep(0.8)
@@ -993,10 +965,6 @@ class Desktop:
         self.nav(NAV_SEND)
         if d.seen(SEND_ANOTHER):
             d.press(SEND_ANOTHER, step="send-another", timeout=20)
-        eb, link = d.seen(SEND_METHOD_EPICBOX), d.seen(SEND_METHOD_LINK)
-        if eb and link and "selected" not in eb.states:
-            d._act(d.s.press, eb)
-            time.sleep(0.8)
         d.fill(SEND_TO, to, step="send-to")
         # A paired contact: the address selector shows once To resolves, on the paired address by
         # the rule; this send means the public Epicbox address. Bounded wait, as an unpaired

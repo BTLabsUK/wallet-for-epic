@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/invoice_state.dart';
@@ -159,6 +160,7 @@ class _WaitingRow extends ConsumerWidget {
           ),
           SizedBox(width: Sp.x4),
           InvButton(
+            semanticsId: TrustIds.invPayReview,
             label: l.deskInvPayerReview,
             kind: EBtnKind.primary,
             onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoiceReview, i.slateId),

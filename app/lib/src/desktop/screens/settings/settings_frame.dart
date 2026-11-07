@@ -83,6 +83,7 @@ class SettingsColumn extends ConsumerWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: EButton.ghost(
                   key: settingsBackKey,
+                  semanticsId: TrustIds.settingsBack,
                   label: l.deskSetFrameBack,
                   icon: EIcons.arrowLeft,
                   tooltip: l.deskSetFrameBackTip,

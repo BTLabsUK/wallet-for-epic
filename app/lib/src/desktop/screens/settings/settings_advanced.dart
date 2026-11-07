@@ -170,7 +170,11 @@ class _ShowsGroup extends ConsumerWidget {
       hint: hint,
       hintTitle: advancedFeatureName(l, f),
       control: ESwitch(
-        semanticsId: f == AdvancedFeature.technicalDetails ? TrustIds.advancedTechnicalDetails : null,
+        semanticsId: switch (f) {
+          AdvancedFeature.technicalDetails => TrustIds.advancedTechnical,
+          AdvancedFeature.pairing => TrustIds.pairAdvPairing,
+          _ => null,
+        },
         value: adv.has(f),
         semanticLabel: advancedFeatureName(l, f),
         onChanged: (v) => set(f, v),
@@ -234,6 +238,7 @@ class _ExperimentalGroup extends ConsumerWidget {
       hint: l.expInvoicesHint,
       hintTitle: advancedFeatureName(l, AdvancedFeature.invoices),
       control: ESwitch(
+        semanticsId: TrustIds.pairAdvInvoices,
         value: adv.invoicesOn,
         semanticLabel: advancedFeatureName(l, AdvancedFeature.invoices),
         onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withExperimental(AdvancedFeature.invoices, v))),

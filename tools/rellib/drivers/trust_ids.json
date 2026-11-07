@@ -1,1039 +1,229 @@
-{
- "version": 1,
- "controls": [
-  {
-   "id": "g4.welcome.create",
-   "screen": "welcome",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOnbWelcomeCreate",
-    "firstRunCreate"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.welcome.restore",
-   "screen": "welcome",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOnbWelcomeRestore",
-    "firstRunRestore"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.welcome.import",
-   "screen": "welcome",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOnbWelcomeImport"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.account.password",
-   "screen": "create",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskOnbStepPassword"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.account.confirm",
-   "screen": "create",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskSetupConfirmPassword"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.create.submit",
-   "screen": "create",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOnbCreateTitle"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.create.reveal",
-   "screen": "create_phrase",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOnbCreateReveal"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.create.written",
-   "screen": "create_phrase",
-   "family": [
-    "desktop"
-   ],
-   "role": "checkbox",
-   "keys": [
-    "deskOnbCreateWritten"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.create.continue",
-   "screen": "create_phrase",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "commonContinue"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.setup.skip",
-   "screen": "setup",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetupSkip"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.unlock.password",
-   "screen": "unlock",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskOnbStepPassword"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.unlock.submit",
-   "screen": "unlock",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOnbUnlockButton"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.tour.skip",
-   "screen": "tour",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "deskTourSkip",
-    "tourPhoneSkip"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.nav.overview",
-   "screen": "shell",
-   "family": [
-    "desktop"
-   ],
-   "role": "tab",
-   "keys": [
-    "deskShellNavOverview"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.nav.activity",
-   "screen": "shell",
-   "family": [
-    "desktop"
-   ],
-   "role": "tab",
-   "keys": [
-    "deskShellNavActivity"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.nav.send",
-   "screen": "shell",
-   "family": [
-    "desktop"
-   ],
-   "role": "tab",
-   "keys": [
-    "deskShellNavSend"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.nav.receive",
-   "screen": "shell",
-   "family": [
-    "desktop"
-   ],
-   "role": "tab",
-   "keys": [
-    "deskShellNavReceive"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.nav.settings",
-   "screen": "shell",
-   "family": [
-    "desktop"
-   ],
-   "role": "tab",
-   "keys": [
-    "deskShellNavSettings"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.node",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskSetFrameNode"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.receiving",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskSetSecPayments"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.appearance",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskSetFrameAppearance"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.account",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskSetSecWallet"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.contacts",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskShellNavContacts"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.advanced",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskSetFrameAdvanced"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.about",
-   "screen": "settings",
-   "family": [
-    "desktop"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "deskSetFrameAbout"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.level.stop.1",
-   "screen": "level",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "lvPickStopOne"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.level.stop.2",
-   "screen": "level",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "lvPickStopTwo"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.level.stop.3",
-   "screen": "level",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "lvPickStopThree"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.appearance.theme.system",
-   "screen": "appearance",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetAppearSystem"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.appearance.theme.dark",
-   "screen": "appearance",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetAppearDark"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.appearance.theme.light",
-   "screen": "appearance",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetAppearLight"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.wallet.label",
-   "screen": "wallet",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskSetAcctLabel"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.wallet.label.save",
-   "screen": "wallet",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetAcctSaveLabel"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.confirmations.fewer",
-   "screen": "payments",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetAdvConfirmationsFewer",
-    "advConfirmationsFewer"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.confirmations.more",
-   "screen": "payments",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetAdvConfirmationsMore",
-    "advConfirmationsMore"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.advanced.technical",
-   "screen": "advanced",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "toggle",
-   "keys": [
-    "deskSetAdvTechnical",
-    "advTechnical"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.server.node",
-   "screen": "node",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetNodeServer"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.server.epicbox",
-   "screen": "payments",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSetRecvEpicboxServer"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.server.search",
-   "screen": "node",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.server.node.row",
-   "screen": "node",
-   "family": [
-    "desktop"
-   ],
-   "role": "row",
-   "keys": [],
-   "match": "line",
-   "secret": false,
-   "repeats": true
-  },
-  {
-   "id": "g4.server.node.add",
-   "screen": "node",
-   "family": [
-    "desktop"
-   ],
-   "role": "row",
-   "keys": [
-    "slAddRow"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.server.epicbox.row",
-   "screen": "payments",
-   "family": [
-    "desktop"
-   ],
-   "role": "row",
-   "keys": [],
-   "match": "line",
-   "secret": false,
-   "repeats": true
-  },
-  {
-   "id": "g4.server.epicbox.add",
-   "screen": "payments",
-   "family": [
-    "desktop"
-   ],
-   "role": "row",
-   "keys": [
-    "slAddRow"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.server.epicbox.switch",
-   "screen": "payments",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "slSwitch"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.receive.address",
-   "screen": "receive",
-   "family": [
-    "desktop"
-   ],
-   "role": "text",
-   "keys": [],
-   "match": "contains",
-   "secret": false
-  },
-  {
-   "id": "g4.send.to",
-   "screen": "send",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskSendToSem"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.amount",
-   "screen": "send",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskSendAmountSem"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.max",
-   "screen": "send",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSendAllButton"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.review",
-   "screen": "send",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSendReview"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.password",
-   "screen": "send_review",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskSendPassword"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.send.confirm",
-   "screen": "send_review",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSendConfirm"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.another",
-   "screen": "send_done",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskSendNewSend"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.route.paired",
-   "screen": "send",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "sendRoutePaired"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.send.route.public",
-   "screen": "send",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "sendRoutePublic"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.overview.refresh",
-   "screen": "overview",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "deskOvRefresh"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.overview.available",
-   "screen": "overview",
-   "family": [
-    "desktop"
-   ],
-   "role": "text",
-   "keys": [
-    "deskOvAvailable"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.home.lock",
-   "screen": "home",
-   "family": [
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "homeLockTooltip"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.home.settings",
-   "screen": "home",
-   "family": [
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "homeSettingsTooltip"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.home.contacts",
-   "screen": "home",
-   "family": [
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "settingsContacts"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.backup.agree",
-   "screen": "backup",
-   "family": [
-    "android"
-   ],
-   "role": "checkbox",
-   "keys": [
-    "backupCopyAgree"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.backup.show",
-   "screen": "backup",
-   "family": [
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "backupShowPhrase"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.backup.done",
-   "screen": "backup",
-   "family": [
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "commonDone"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.settings.section.security",
-   "screen": "settings",
-   "family": [
-    "android"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "settingsSectionSecurity"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.settings.section.display",
-   "screen": "settings",
-   "family": [
-    "android"
-   ],
-   "role": "menu_item",
-   "keys": [
-    "settingsSectionDisplay"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.appearance.theme",
-   "screen": "display",
-   "family": [
-    "android"
-   ],
-   "role": "row",
-   "keys": [
-    "settingsTheme"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.advanced.level",
-   "screen": "advanced",
-   "family": [
-    "android"
-   ],
-   "role": "row",
-   "keys": [
-    "levelRowTitle"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.phrase",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "text_field",
-   "keys": [
-    "restorePhraseLabel",
-    "deskOnbWordN"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.restore.start",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "scanStartChange"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.info",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "scanStartInfoTitle"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.by.month",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "restoreStartByMonth"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.by.height",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "restoreStartByHeight"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.month",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.height",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "text_field",
-   "keys": [
-    "restoreStartHeightLabel"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.fromStart",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "restoreScanFromStart"
-   ],
-   "match": "line",
-   "secret": false
-  },
-  {
-   "id": "g4.restore.next",
-   "screen": "restore",
-   "family": [
-    "desktop"
-   ],
-   "role": "button",
-   "keys": [
-    "commonContinue"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.restore.continue",
-   "screen": "restore",
-   "family": [
-    "desktop",
-    "android"
-   ],
-   "role": "button",
-   "keys": [
-    "commonContinue",
-    "deskOnbRestoreSide"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.restore.password",
-   "screen": "restore_password",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskOnbStepPassword"
-   ],
-   "match": "line",
-   "secret": true
-  },
-  {
-   "id": "g4.restore.passwordConfirm",
-   "screen": "restore_password",
-   "family": [
-    "desktop"
-   ],
-   "role": "text_field",
-   "keys": [
-    "deskSetupConfirmPassword"
-   ],
-   "match": "line",
-   "secret": true
-  }
- ]
-}
+{"version": 2, "controls": [
+{"id": "g4.welcome.create", "screen": "welcome", "keys": ["deskOnbWelcomeCreate", "firstRunCreate"], "names": ["Create a new wallet"], "many": true},
+{"id": "g4.welcome.restore", "screen": "welcome", "keys": ["deskOnbWelcomeRestore", "firstRunRestore"], "names": ["Restore from phrase"], "android": {"secret": true}, "many": true},
+{"id": "g4.welcome.import", "screen": "welcome", "family": ["desktop"], "keys": ["deskOnbWelcomeImport"], "driver": false},
+{"id": "g4.account.password", "screen": "create", "family": ["desktop"], "role": "text_field", "keys": ["deskOnbStepPassword"], "names": ["re:.*"], "secret": true},
+{"id": "g4.account.confirm", "screen": "create", "family": ["desktop"], "role": "text_field", "keys": ["deskSetupConfirmPassword"], "secret": true, "driver": false},
+{"id": "g4.create.submit", "screen": "create", "family": ["desktop"], "keys": ["deskOnbCreateTitle"], "secret": true, "driver": false},
+{"id": "g4.create.reveal", "screen": "create_phrase", "family": ["desktop"], "keys": ["deskOnbCreateReveal"], "names": ["Reveal phrase"], "secret": true},
+{"id": "g4.create.written", "screen": "create_phrase", "family": ["desktop"], "role": "checkbox", "keys": ["deskOnbCreateWritten"], "names": ["re:i have written down.*"], "match": "starts", "secret": true},
+{"id": "g4.create.continue", "screen": "create_phrase", "family": ["desktop"], "keys": ["commonContinue"], "names": ["Continue"], "secret": true},
+{"id": "g4.setup.skip", "screen": "setup", "family": ["desktop"], "keys": ["deskSetupSkip"], "names": ["Skip setup"]},
+{"id": "g4.unlock.password", "screen": "unlock", "family": ["desktop"], "role": "text_field", "keys": ["deskOnbStepPassword"], "secret": true, "driver": false},
+{"id": "g4.unlock.submit", "screen": "unlock", "family": ["desktop"], "keys": ["deskOnbUnlockButton"], "names": ["Unlock"], "secret": true},
+{"id": "g4.tour.skip", "screen": "tour", "keys": ["deskTourSkip", "tourPhoneSkip"], "names": ["Skip tour"]},
+{"id": "g4.nav.overview", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavOverview"], "names": ["Overview"], "match": "exact"},
+{"id": "g4.nav.activity", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavActivity"], "names": ["Activity"], "match": "exact"},
+{"id": "g4.nav.send", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavSend"], "names": ["Send"], "match": "exact"},
+{"id": "g4.nav.receive", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavReceive"], "names": ["Receive"], "match": "exact"},
+{"id": "g4.nav.settings", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavSettings"], "names": ["Settings"], "match": "exact"},
+{"id": "g4.settings.section.node", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetFrameNode"], "names": ["Node"], "match": "exact"},
+{"id": "g4.settings.section.receiving", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetSecPayments", "deskSetFrameTransactions"], "names": ["Payments", "Transactions", "Receiving"]},
+{"id": "g4.settings.section.appearance", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetFrameAppearance"], "names": ["Appearance"], "match": "exact"},
+{"id": "g4.settings.section.account", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetSecWallet", "deskSetFrameThisWallet"], "names": ["Wallet", "This wallet"]},
+{"id": "g4.settings.section.contacts", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskShellNavContacts"], "names": ["Contacts"], "match": "exact"},
+{"id": "g4.settings.section.advanced", "screen": "settings", "role": "menu_item", "keys": ["deskSetFrameAdvanced"], "names": ["Advanced"], "android": {"keys": ["advTitle"]}},
+{"id": "g4.settings.section.about", "screen": "settings", "role": "menu_item", "keys": ["deskSetFrameAbout"], "names": ["About"], "android": {"keys": ["settingsSectionAbout"]}},
+{"id": "g4.level.stop.1", "screen": "level", "keys": ["lvPickStopOne"], "driver": false},
+{"id": "g4.level.stop.2", "screen": "level", "keys": ["lvPickStopTwo"], "driver": false},
+{"id": "g4.level.stop.3", "screen": "level", "keys": ["lvPickStopThree"], "names": ["Deep end"], "android": {"role": "other", "match": "exact"}},
+{"id": "g4.appearance.theme.system", "screen": "appearance", "keys": ["deskSetAppearSystem"], "names": ["System"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearSystem", "settingsThemeSystem"]}},
+{"id": "g4.appearance.theme.dark", "screen": "appearance", "keys": ["deskSetAppearDark"], "names": ["Dark"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearDark", "settingsThemeDark"]}},
+{"id": "g4.appearance.theme.light", "screen": "appearance", "keys": ["deskSetAppearLight"], "names": ["Light"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearLight", "settingsThemeLight"]}},
+{"id": "g4.wallet.label", "screen": "wallet", "family": ["desktop"], "role": "text_field", "keys": ["deskSetAcctLabel"], "names": ["Name"], "match": "exact"},
+{"id": "g4.wallet.label.save", "screen": "wallet", "family": ["desktop"], "keys": ["deskSetAcctSaveLabel"], "names": ["Save label"]},
+{"id": "g4.confirmations.fewer", "screen": "payments", "keys": ["deskSetAdvConfirmationsFewer", "advConfirmationsFewer"], "names": ["Fewer confirmations"], "android": {"match": "exact"}},
+{"id": "g4.confirmations.more", "screen": "payments", "keys": ["deskSetAdvConfirmationsMore", "advConfirmationsMore"], "names": ["More confirmations"]},
+{"id": "g4.advanced.technical", "screen": "advanced", "role": "toggle", "keys": ["deskSetAdvTechnical", "advTechnical"], "names": ["Technical details"]},
+{"id": "g4.server.node", "screen": "node", "family": ["desktop"], "keys": ["deskSetNodeServer"], "names": ["Node server"], "match": "starts"},
+{"id": "g4.server.epicbox", "screen": "payments", "family": ["desktop"], "keys": ["deskSetRecvEpicboxServer"], "names": ["Epicbox server"], "match": "starts"},
+{"id": "g4.server.search", "screen": "node", "family": ["desktop"], "role": "text_field", "names": ["re:.*"]},
+{"id": "g4.server.node.row", "screen": "node", "role": "row"},
+{"id": "g4.server.node.add", "screen": "node", "role": "row", "keys": ["slAddRow"]},
+{"id": "g4.server.epicbox.row", "screen": "payments", "role": "row"},
+{"id": "g4.server.epicbox.add", "screen": "payments", "role": "row", "keys": ["slAddRow"]},
+{"id": "g4.server.epicbox.switch", "screen": "payments", "family": ["desktop"], "keys": ["slSwitch"]},
+{"id": "g4.receive.address", "screen": "receive", "family": ["desktop"], "role": "text", "keys": ["deskRecvEpicboxAddress"], "names": ["Epicbox address"], "match": "starts"},
+{"id": "g4.send.to", "screen": "send", "role": "text_field", "keys": ["deskSendToSem", "deskSendTo"], "names": ["Recipient", "To"], "match": "starts", "android": {"keys": ["deskSendToSem", "sendToHint", "sendToLabel"], "names": ["Address or contact", "To"], "match": "exact"}},
+{"id": "g4.send.amount", "screen": "send", "role": "text_field", "keys": ["deskSendAmountSem", "deskSendAmount"], "names": ["Amount"], "match": "starts", "android": {"keys": ["deskSendAmountSem", "sendAmountLabel"], "names": ["re:amount\\b.*"]}},
+{"id": "g4.send.max", "screen": "send", "keys": ["deskSendAllButton"], "names": ["Max"], "match": "exact", "android": {"keys": ["deskSendAllButton", "sendMax"]}},
+{"id": "g4.send.review", "screen": "send", "family": ["desktop"], "keys": ["deskSendReview"], "names": ["Review send", "Review"], "match": "exact"},
+{"id": "g4.send.password", "screen": "send_review", "family": ["desktop"], "role": "text_field", "keys": ["deskSendPassword"], "names": ["Password"], "secret": true},
+{"id": "g4.send.confirm", "screen": "send_review", "keys": ["deskSendConfirm"], "names": ["re:send [\\d.,]+ epic"], "match": "exact", "android": {"names": ["re:send [\\d.,]+ ?epic"]}},
+{"id": "g4.send.another", "screen": "send_done", "family": ["desktop"], "keys": ["deskSendNewSend"], "names": ["Send another"]},
+{"id": "g4.send.route.paired", "screen": "send", "keys": ["sendRoutePaired"], "names": ["Paired address"], "match": "exact"},
+{"id": "g4.send.route.public", "screen": "send", "keys": ["sendRoutePublic"], "names": ["Public address"], "match": "exact", "many": true},
+{"id": "g4.overview.refresh", "screen": "overview", "family": ["desktop"], "keys": ["deskOvRefresh"], "driver": false},
+{"id": "g4.overview.available", "screen": "overview", "family": ["desktop"], "role": "text", "keys": ["deskOvAvailable"], "driver": false},
+{"id": "g4.home.lock", "screen": "home", "family": ["android"], "keys": ["homeLockTooltip"], "names": ["Lock wallet"], "match": "exact"},
+{"id": "g4.home.settings", "screen": "home", "family": ["android"], "keys": ["homeSettingsTooltip"], "names": ["Settings"], "match": "exact"},
+{"id": "g4.home.contacts", "screen": "home", "family": ["android"], "keys": ["settingsContacts"], "names": ["Contacts"], "match": "exact"},
+{"id": "g4.backup.agree", "screen": "backup", "family": ["android"], "role": "checkbox", "keys": ["backupCopyAgree"], "names": ["I will keep the phrase private"], "secret": true},
+{"id": "g4.backup.show", "screen": "backup", "family": ["android"], "keys": ["backupShowPhrase"], "names": ["Show recovery phrase"], "secret": true},
+{"id": "g4.backup.done", "screen": "backup", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact", "secret": true},
+{"id": "g4.settings.section.security", "screen": "settings", "role": "menu_item", "keys": ["settingsSectionSecurity"], "names": ["Security"]},
+{"id": "g4.settings.section.display", "screen": "settings", "family": ["android"], "role": "menu_item", "keys": ["settingsSectionDisplay"], "names": ["Appearance"]},
+{"id": "g4.appearance.theme", "screen": "display", "family": ["android"], "role": "row", "keys": ["settingsTheme"], "names": ["Theme"]},
+{"id": "g4.advanced.level", "screen": "advanced", "family": ["android"], "role": "row", "keys": ["levelRowTitle"], "names": ["Wallet view"]},
+{"id": "g4.restore.phrase", "screen": "restore", "role": "text_field", "keys": ["restorePhraseLabel", "deskOnbWordN"], "names": ["Recovery phrase"], "match": "starts", "secret": true},
+{"id": "g4.restore.start", "screen": "restore", "role": "other", "keys": ["scanStartChange", "restoreStartFromMonthLink"], "names": ["Change the start", "Start from a month or height"], "match": "exact", "secret": true, "android": {"role": "button"}},
+{"id": "g4.restore.info", "screen": "restore", "keys": ["scanStartInfoTitle"], "names": ["Scan start"], "match": "exact", "secret": true},
+{"id": "g4.restore.by.month", "screen": "restore", "keys": ["restoreStartByMonth"], "driver": false},
+{"id": "g4.restore.by.height", "screen": "restore", "keys": ["restoreStartByHeight"], "names": ["Block height"], "match": "exact", "secret": true, "android": {"match": "starts"}},
+{"id": "g4.restore.month", "screen": "restore", "names": ["re:(january|february|march|april|may|june|july|august|september|october|november|december) \\d{4}", "Pick the month you created the wallet"], "match": "exact", "secret": true},
+{"id": "g4.restore.height", "screen": "restore", "role": "text_field", "keys": ["restoreStartHeightLabel", "deskOnbRestoreFromLabel"], "names": ["Start from block"], "match": "starts", "secret": true, "android": {"keys": ["restoreStartHeightLabel"], "names": ["Start height (optional)"]}},
+{"id": "g4.restore.fromStart", "screen": "restore", "keys": ["restoreScanFromStart"], "names": ["Scan from the start"], "match": "exact", "secret": true},
+{"id": "g4.restore.next", "screen": "restore", "family": ["desktop"], "keys": ["commonContinue"], "names": ["Continue"], "secret": true},
+{"id": "g4.restore.continue", "screen": "restore", "keys": ["commonContinue", "deskOnbRestoreSide"], "names": ["Restore wallet"], "match": "exact", "secret": true, "android": {"names": ["Continue"]}},
+{"id": "g4.restore.password", "screen": "restore_password", "family": ["desktop"], "role": "text_field", "keys": ["deskOnbStepPassword"], "secret": true, "driver": false},
+{"id": "g4.restore.passwordConfirm", "screen": "restore_password", "family": ["desktop"], "role": "text_field", "keys": ["deskSetupConfirmPassword"], "secret": true, "driver": false},
+{"id": "g4.create.title", "screen": "create", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskOnbCreateTitle"], "names": ["Create wallet"], "secret": true},
+{"id": "g4.restore.restoring", "screen": "restore", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskOnbRestoreRestoring"], "names": ["Restoring the wallet"], "secret": true},
+{"id": "g4.restore.failed", "screen": "restore", "kind": "copy", "role": "text", "keys": ["deskOnbRestoreNotRestored"], "names": ["Wallet not restored"], "secret": true, "android": {"keys": ["restoreUnfinishedFailed"], "names": ["re:the scan stopped and is retried by itself.*"], "match": "starts"}},
+{"id": "g4.unlock.title", "screen": "unlock", "kind": "copy", "role": "text", "keys": ["deskOnbUnlockTitle"], "names": ["Unlock wallet"], "android": {"keys": ["unlockTitle"]}},
+{"id": "g4.unlock.wrong", "screen": "unlock", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskOnbUnlockWrong"], "match": "starts"},
+{"id": "g4.updatestrip.hide", "screen": "updatestrip", "family": ["desktop"], "keys": ["deskUpdStripHide"], "names": ["Hide until the next version"]},
+{"id": "g4.nav", "screen": "nav", "family": ["desktop"], "role": "other", "keys": ["deskShellMainNav"], "names": ["Main navigation"], "match": "exact"},
+{"id": "g4.settings.back", "screen": "settings", "family": ["desktop"], "keys": ["deskSetFrameBack"], "names": ["← Wallet", "Wallet"]},
+{"id": "g4.contacts.add", "screen": "contacts", "keys": ["deskConAdd"], "names": ["Add contact"], "match": "exact", "android": {"keys": ["contactsAdd"]}},
+{"id": "g4.confirmations.value", "screen": "confirmations", "family": ["desktop"], "role": "text_field", "keys": ["deskSetAdvConfirmations"], "names": ["Confirmations"], "match": "starts"},
+{"id": "g4.confirmations.not_saved", "screen": "confirmations", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSetAdvConfirmationsNotSaved"], "names": ["Confirmations not changed"]},
+{"id": "g4.confirmations.count", "screen": "confirmations", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSetAdvConfirmationsCount"], "match": "starts"},
+{"id": "g4.server.switch", "screen": "server", "keys": ["deskSendEpicboxSwitch"], "names": ["Switch"], "match": "exact", "android": {"keys": ["slSwitch", "lvShellSwitch"]}, "family": ["android"]},
+{"id": "g4.server.refused", "screen": "server", "kind": "copy", "role": "text", "keys": ["deskSlNodeNoAnswer", "slRelayNoAnswer", "deskSlTorWait"], "names": ["re:.*(no answer from this server|nothing added|not a node).*"], "match": "contains", "android": {"names": ["re:.*(no answer from this server|nothing added|not a node|could not reach|did not answer).*"]}},
+{"id": "g4.send.review.title", "screen": "send", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSendReviewTitle"], "names": ["Check and send"], "match": "contains"},
+{"id": "g4.send.failed", "screen": "send", "kind": "copy", "role": "text", "keys": ["deskSendFailedTitle", "deskSendNoAnswer", "deskTxNotSent"], "names": ["re:.*(send failed|not sent).*"], "match": "contains", "android": {"keys": ["deskSendFailedTitle", "deskSendNoAnswer", "sendTorNothingSent", "errorPaymentExpired"], "names": ["re:.*(send failed|not sent|nothing was sent|could not send).*"]}},
+{"id": "g4.send.done", "screen": "send", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSendDoneViaEpicbox", "deskSendDoneViaDirect", "deskSendHintSent"], "match": "starts"},
+{"id": "g4.privacy.mode.toronly", "screen": "privacy", "role": "checkbox", "keys": ["advModeTorOnly"], "names": ["Tor only"], "match": "starts"},
+{"id": "g4.privacy.mode.standard", "screen": "privacy", "role": "checkbox", "keys": ["advModeStandard"], "names": ["Normal"], "match": "starts"},
+{"id": "g4.settings.section.wallet", "screen": "settings", "family": ["android"], "role": "menu_item", "keys": ["settingsSectionWallet"], "names": ["This wallet"]},
+{"id": "g4.settings.section.privacy", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["settingsSectionNetworkPrivacy", "deskSetFramePrivacy"], "names": ["Network & privacy", "Privacy"]},
+{"id": "g4.nav.invoices", "screen": "nav", "family": ["desktop"], "keys": ["deskInvNav"], "names": ["Invoices"], "match": "exact"},
+{"id": "g4.dialog.close", "screen": "dialog", "family": ["desktop"], "keys": ["deskKitCloseEsc"], "names": ["Close (Esc)"], "match": "exact", "many": true},
+{"id": "g4.nav.contacts", "screen": "nav", "family": ["desktop"], "keys": ["deskShellNavContacts"], "names": ["Contacts"], "match": "exact"},
+{"id": "pair.adv.pairing", "screen": "pair", "family": ["desktop"], "role": "toggle", "keys": ["expPairing"], "names": ["Pairing"], "match": "exact"},
+{"id": "pair.adv.invoices", "screen": "pair", "family": ["desktop"], "role": "toggle", "keys": ["expInvoices"], "names": ["Invoices"], "match": "exact"},
+{"id": "pair.contacts.search", "screen": "pair", "family": ["desktop"], "role": "text_field", "keys": ["deskConSearchLabel", "deskConSearch"], "names": ["Search contacts"], "match": "starts"},
+{"id": "pair.contacts.pair", "screen": "pair", "family": ["desktop"], "keys": ["pairTitle"], "names": ["Pair"], "match": "exact"},
+{"id": "pair.screen.yours", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairYourCode"], "names": ["Your invite"], "match": "exact"},
+{"id": "pair.screen.copy", "screen": "pair", "family": ["desktop"], "keys": ["pairCopyLink"], "names": ["Copy invite"], "match": "exact"},
+{"id": "pair.screen.seenas", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairSeenAsLine", "pairSeenAsNone"], "names": ["re:they (will )?see you as .*", "They see no name"], "match": "starts"},
+{"id": "pair.screen.change", "screen": "pair", "family": ["desktop"], "keys": ["pairChange", "pairSeenAsAdd"], "names": ["Change", "Add name"], "match": "exact"},
+{"id": "pair.name.field", "screen": "pair", "family": ["desktop"], "role": "text_field", "keys": ["pairSeenAsField"], "match": "starts"},
+{"id": "pair.name.save", "screen": "pair", "family": ["desktop"], "keys": ["commonSave"], "names": ["Save"], "match": "exact"},
+{"id": "pair.screen.enter", "screen": "pair", "family": ["desktop"], "role": "text_field", "keys": ["pairPasteField"], "names": ["Paste the invite"], "match": "starts"},
+{"id": "pair.screen.go", "screen": "pair", "family": ["desktop"], "keys": ["pairTitle"], "names": ["Pair"], "match": "exact"},
+{"id": "pair.incoming.title", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairIncomingTitle"], "match": "exact"},
+{"id": "pair.incoming.pair", "screen": "pair", "family": ["desktop"], "keys": ["pairTitle"], "names": ["Pair"], "match": "exact"},
+{"id": "pair.waiting.title", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairPairingWith"], "match": "exact"},
+{"id": "pair.waiting.close", "screen": "pair", "family": ["desktop"], "keys": ["commonClose"], "names": ["Close"], "match": "exact"},
+{"id": "pair.check.title", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["sasDialogTitle"], "match": "exact"},
+{"id": "pair.check.words", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["sasWordsLabel"], "names": ["The four words"], "match": "starts"},
+{"id": "pair.check.match", "screen": "pair", "family": ["desktop"], "keys": ["sasMatch"], "names": ["They match"], "match": "exact"},
+{"id": "pair.check.allow", "screen": "pair", "family": ["desktop"], "role": "toggle", "keys": ["contactAllowInvoices"], "names": ["Allow invoices"], "match": "exact"},
+{"id": "pair.saved.title", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["sasMatchedTitle"], "match": "exact"},
+{"id": "pair.saved.add", "screen": "pair", "family": ["desktop"], "keys": ["txDetailsAddToContacts"], "names": ["Add to contacts"], "match": "exact"},
+{"id": "pair.saved.new", "screen": "pair", "family": ["desktop"], "role": "text", "keys": ["pairSaveNewContact"], "names": ["Save as a new contact"], "match": "exact", "many": true},
+{"id": "pair.saved.save", "screen": "pair", "family": ["desktop"], "keys": ["deskConSave"], "names": ["Save contact"], "match": "exact", "many": true},
+{"id": "pair.block", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["contactPairing"], "names": ["Pairing"], "match": "exact"},
+{"id": "pair.state.verified", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["trustVerified"], "names": ["Verified"]},
+{"id": "pair.state.paired", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["trustPaired"], "names": ["Paired, not verified"]},
+{"id": "pair.state.ended", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairEndedShort"], "names": ["Pairing ended"]},
+{"id": "pair.state.none", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairNotPaired"], "names": ["Not paired"]},
+{"id": "pair.state.both", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairConfirmedToo"], "names": ["re:.* confirmed too\\."], "match": "contains"},
+{"id": "pair.contact.remove", "screen": "pair", "family": ["desktop"], "keys": ["contactRemovePairing"], "names": ["Remove pairing"], "match": "exact"},
+{"id": "pair.contact.removetitle", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["contactRemovePairingTitle"], "names": ["re:remove the pairing with .*\\?"], "match": "exact"},
+{"id": "pair.contact.removeok", "screen": "pair", "family": ["desktop"], "keys": ["contactRemove"], "names": ["Remove"], "match": "exact"},
+{"id": "pair.contact.check", "screen": "pair", "family": ["desktop"], "keys": ["pairCheckWords"], "names": ["Check the words"], "match": "exact"},
+{"id": "pair.contact.pair", "screen": "pair", "family": ["desktop"], "keys": ["pairTitle", "pairAgain"], "names": ["Pair", "Pair again"], "match": "exact"},
+{"id": "pair.request.send", "screen": "pair", "family": ["desktop"], "keys": ["pairSendRequest"], "names": ["Send request"], "match": "exact"},
+{"id": "pair.requests.row", "screen": "pair", "family": ["desktop"], "keys": ["pairRequestsRow"], "names": ["re:pair requests · \\d+"], "match": "exact"},
+{"id": "pair.requests.title", "screen": "pair", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["pairRequestsTitle"], "names": ["Pair requests"], "match": "exact"},
+{"id": "pair.requests.pair", "screen": "pair", "family": ["desktop"], "keys": ["pairRequestPair"], "names": ["Pair"], "match": "exact"},
+{"id": "inv.contact.issue", "screen": "inv", "family": ["desktop"], "keys": ["deskInvIssueAction"], "names": ["Issue an invoice"], "match": "exact"},
+{"id": "inv.issue.amount", "screen": "inv", "family": ["desktop"], "role": "text_field", "keys": ["deskInvIssuerAmount"], "names": ["Amount"], "match": "starts"},
+{"id": "inv.issue.send", "screen": "inv", "family": ["desktop"], "keys": ["reqNewSend"], "names": ["Send invoice"], "match": "exact"},
+{"id": "inv.issue.sent", "screen": "inv", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["reqSent", "deskInvIssuerWaitingText"], "names": ["re:invoice sent to .*", "re:delivered to .*epicbox server.*"], "match": "contains"},
+{"id": "inv.issue.failed", "screen": "inv", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["deskInvFailed", "deskInvIssuerNotDelivered"], "match": "contains"},
+{"id": "inv.tab.pay", "screen": "inv", "family": ["desktop"], "role": "other", "keys": ["deskInvTabPay"], "names": ["Pay"]},
+{"id": "inv.pay.review", "screen": "inv", "family": ["desktop"], "keys": ["deskInvPayerReview"], "names": ["Review"]},
+{"id": "inv.pay.approve", "screen": "inv", "family": ["desktop"], "keys": ["invoiceApprove"], "names": ["Approve and pay"], "match": "exact"},
+{"id": "inv.pay.password", "screen": "inv", "family": ["desktop"], "role": "text_field", "keys": ["deskInvPayerPassword"], "names": ["Wallet password"], "match": "starts", "secret": true},
+{"id": "inv.pay.pay", "screen": "inv", "family": ["desktop"], "keys": ["deskInvPayerPay"], "names": ["Pay"], "match": "exact"},
+{"id": "inv.pay.paid", "screen": "inv", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["invoicePaidNotice", "reqPaidWaiting"], "names": ["re:paid\\. .*", "re:paid\\. waiting for .*"], "match": "starts"},
+{"id": "link.open", "screen": "link", "family": ["desktop"], "keys": ["devicesLink"], "names": ["Link a device"], "match": "exact", "many": true},
+{"id": "link.rename", "screen": "link", "family": ["desktop"], "keys": ["devicesRename"], "names": ["Rename"], "match": "exact"},
+{"id": "link.rename.field", "screen": "link", "family": ["desktop"], "role": "text_field", "keys": ["devicesNameLabel"], "names": ["Name"], "match": "starts"},
+{"id": "link.rename.save", "screen": "link", "family": ["desktop"], "keys": ["commonSave"], "names": ["Save"], "match": "exact"},
+{"id": "link.tab.paste", "screen": "link", "family": ["desktop"], "role": "other", "keys": ["linkPaste"], "names": ["Paste invite"], "match": "exact"},
+{"id": "link.copy", "screen": "link", "family": ["desktop"], "keys": ["linkCopy"], "names": ["Copy invite"], "match": "exact"},
+{"id": "link.field", "screen": "link", "family": ["desktop"], "role": "text_field", "keys": ["linkPasteLabel"], "names": ["Invite"], "match": "starts"},
+{"id": "link.go", "screen": "link", "family": ["desktop"], "keys": ["linkGo"], "names": ["Link"], "match": "exact"},
+{"id": "link.cancel", "screen": "link", "family": ["desktop"], "keys": ["commonCancel"], "names": ["Cancel"], "match": "exact"},
+{"id": "link.close", "screen": "link", "family": ["desktop"], "keys": ["commonClose"], "names": ["Close"], "match": "exact"},
+{"id": "link.linking", "screen": "link", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["linkLinkingWith"], "names": ["re:linking with .*"], "match": "contains"},
+{"id": "link.done", "screen": "link", "family": ["desktop"], "role": "other", "keys": ["linkDone"], "names": ["re:linked to .*\\."], "match": "contains"},
+{"id": "link.failed", "screen": "link", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["linkFailInvalid", "linkFailExpired", "linkFailNotFound", "linkFailOwn", "linkFailOtherWallet", "linkFailOtherWalletCode", "linkFailTooMany", "linkFailFull", "linkFailUpdate", "linkFailUpdateOther", "linkFailUnreachable"], "match": "contains"},
+{"id": "link.remove", "screen": "link", "family": ["desktop"], "keys": ["devicesRemove"], "names": ["Remove"], "match": "exact"},
+{"id": "link.remove.title", "screen": "link", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["devicesRemoveTitle"], "names": ["re:remove .*\\?"], "match": "exact"},
+{"id": "link.removedby", "screen": "link", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["devicesRemovedBy"], "names": ["re:.* removed this device\\."], "match": "contains"},
+{"id": "link.removing", "screen": "link", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["devicesRemoving"], "names": ["re:removing… .*"], "match": "starts"},
+{"id": "tx.send.payfile", "screen": "tx", "family": ["desktop"], "keys": ["sendPayByFile"], "names": ["Pay with a file"], "match": "exact"},
+{"id": "tx.send.fileready", "screen": "tx", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSendFileReadyTitle"], "names": ["Transaction file ready"], "match": "starts"},
+{"id": "tx.recv.open", "screen": "tx", "family": ["desktop"], "keys": ["deskRecvOpen"], "names": ["Open"], "match": "exact"},
+{"id": "tx.recv.files", "screen": "tx", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskTfResults"], "names": ["Files opened"], "match": "starts"},
+{"id": "tx.send.turnon", "screen": "tx", "family": ["desktop"], "keys": ["sendTurnOnMethod"], "names": ["Turn on Link · Tor"], "match": "exact"},
+{"id": "tx.detail.method", "screen": "tx", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskTxFactMethod"], "names": ["Method"], "match": "starts"},
+{"id": "tx.pay.http", "screen": "tx", "family": ["desktop"], "role": "toggle", "keys": ["methodDirectHttp"], "names": ["Link · HTTP"], "match": "exact"},
+{"id": "tx.pay.tor", "screen": "tx", "family": ["desktop"], "role": "toggle", "keys": ["methodDirectTor"], "names": ["Link · Tor"], "match": "exact"},
+{"id": "tx.pay.file", "screen": "tx", "family": ["desktop"], "role": "toggle", "keys": ["methodDirectFile", "advTransactionFiles"], "names": ["Direct · File Transfer"], "match": "exact"},
+{"id": "g4.welcome.toronly", "screen": "welcome", "family": ["android"], "role": "toggle", "keys": ["advModeTorOnly", "levelUndercoverTitle"], "names": ["Tor only"]},
+{"id": "g4.pin.biometrics.notnow", "screen": "pin", "family": ["android"], "keys": ["pinBiometricsNotNow"], "names": ["Not now"], "match": "exact"},
+{"id": "g4.pin.choose", "screen": "pin", "kind": "copy", "family": ["android"], "role": "text", "keys": ["pinChooseTitle"], "names": ["re:choose a \\d+-digit pin"], "secret": true},
+{"id": "g4.pin.again", "screen": "pin", "kind": "copy", "family": ["android"], "role": "text", "keys": ["pinConfirmTitle"], "names": ["Enter the PIN again"], "secret": true},
+{"id": "g4.pin.field", "screen": "pin", "family": ["android"], "role": "text_field", "keys": ["pinLabel", "pinRepeatLabel"], "names": ["PIN", "Repeat PIN"], "match": "exact", "secret": true},
+{"id": "g4.pin.wrong", "screen": "pin", "kind": "copy", "family": ["android"], "role": "text", "keys": ["pinWrong"], "names": ["re:wrong pin\\b.*"], "match": "starts"},
+{"id": "g4.unlock.retry", "screen": "unlock", "family": ["android"], "keys": ["unlockTryAgain"], "names": ["Try again"], "match": "exact"},
+{"id": "g4.tab.send", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["homeSendButton"], "names": ["Send"]},
+{"id": "g4.tab.wallet", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["shellWalletTab"], "names": ["Wallet"]},
+{"id": "g4.tab.receive", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["homeReceiveButton"], "names": ["Receive"]},
+{"id": "g4.common.close", "screen": "common", "family": ["android"], "keys": ["commonClose"], "names": ["Close"], "match": "exact", "many": true},
+{"id": "g4.common.done", "screen": "common", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact"},
+{"id": "g4.common.save", "screen": "common", "family": ["android"], "keys": ["commonSave"], "names": ["Save"], "match": "exact"},
+{"id": "g4.common.continue", "screen": "common", "family": ["android"], "keys": ["commonContinue"], "names": ["Continue"], "match": "exact", "many": true},
+{"id": "g4.backup.row", "screen": "backup", "family": ["android"], "keys": ["settingsBackupPhrase"], "names": ["Back up recovery phrase"]},
+{"id": "g4.status.network", "screen": "status", "family": ["android"], "names": ["re:network\\b.*"], "match": "starts", "many": true},
+{"id": "g4.server.clear", "screen": "server", "family": ["android"], "keys": ["slClear"], "names": ["Clear"], "match": "exact"},
+{"id": "g4.privacy.status.epicbox", "screen": "privacy", "kind": "copy", "family": ["android"], "role": "other", "keys": ["statusEpicboxOnline", "statusEpicboxConnecting", "statusEpicboxOffline", "statusEpicboxBlocked"], "names": ["re:epicbox (connected|connecting|not connected|blocked)\\b.*"], "match": "starts"},
+{"id": "g4.receive.method.epicbox", "screen": "receive", "family": ["android"], "keys": ["methodEpicbox"], "names": ["Epicbox"], "match": "exact"},
+{"id": "g4.send.clear", "screen": "send", "family": ["android"], "keys": ["sendClearRecipient"], "names": ["Clear recipient"], "match": "exact", "many": true},
+{"id": "g4.send.back", "screen": "send", "family": ["android"], "names": ["Back"], "match": "exact"},
+{"id": "g4.restore.title", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreTitle"], "names": ["Restore wallet"], "match": "exact", "secret": true},
+{"id": "g4.restore.month.title", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreDatePickerTitle"], "names": ["When did you create the wallet?"], "match": "exact", "secret": true},
+{"id": "g4.restore.month.earlier", "screen": "restore", "family": ["android"], "keys": ["restoreMonthEarlierYear"], "names": ["Earlier year"], "match": "exact", "secret": true},
+{"id": "g4.restore.month.later", "screen": "restore", "family": ["android"], "keys": ["restoreMonthLaterYear"], "names": ["Later year"], "match": "exact", "secret": true},
+{"id": "g4.restore.month.start", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreMonthStart"], "names": ["re:scanning starts from block .*"], "match": "starts", "secret": true},
+{"id": "g4.restore.problem", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restorePhraseChecksum", "restorePhraseWordCount", "restorePhraseUnknownWord", "restorePhraseUnknownWords", "restoreStartHeightInvalid"], "names": ["re:.*(does not check out|not in the word list|this phrase has \\d+ words?).*"], "match": "contains", "secret": true},
+{"id": "g4.restore.scan", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreScanIntro"], "names": ["re:looking for this wallet.s coins on the chain.*"], "match": "starts", "secret": true},
+{"id": "g4.restore.retry", "screen": "restore", "family": ["android"], "keys": ["launchTryAgain"], "names": ["Try again"], "match": "exact", "secret": true, "many": true},
+{"id": "g4.restore.open", "screen": "restore", "family": ["android"], "keys": ["restoreOpenWallet"], "names": ["Open wallet"], "match": "exact", "secret": true},
+{"id": "g4.restore.done", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreDoneTitle"], "names": ["Your wallet is restored"], "match": "exact", "secret": true},
+{"id": "g4.restore.notnow", "screen": "restore", "family": ["android"], "keys": ["restoreImportNotNow"], "names": ["Not now"], "match": "exact", "secret": true, "many": true},
+{"id": "g4.restore.unfinished", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreUnfinishedTitle"], "names": ["Restore not finished"], "secret": true},
+{"id": "g4.restore.offline", "screen": "restore", "kind": "copy", "family": ["android"], "role": "text", "keys": ["restoreUnfinishedOffline"], "names": ["re:the scan goes on when offline is off.*"], "match": "starts", "secret": true},
+{"id": "g4.status.node", "screen": "status", "family": ["android"], "names": ["re:node, .*"], "match": "starts"},
+{"id": "g4.server.node.field", "screen": "server", "family": ["android"], "role": "text_field", "keys": ["slNodeField"], "names": ["Node address"], "match": "exact"},
+{"id": "g4.status.epicbox", "screen": "status", "family": ["android"], "names": ["re:epicbox, .*"], "match": "starts", "many": true},
+{"id": "g4.server.relay.field", "screen": "server", "family": ["android"], "role": "text_field", "keys": ["slRelayField"], "names": ["Epicbox server"], "match": "exact"},
+{"id": "g4.settings.section.devices", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetSecDevices"], "names": ["Linked devices"]},
+{"id": "g4.settings.section.wallets", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetSecWallets", "deskSetFrameAllWallets"], "names": ["Wallets", "All wallets"]},
+{"id": "g4.settings.section.help", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetFrameHelp"], "names": ["Help"]},
+{"id": "g4.settings.section.privacyNetwork", "screen": "settings", "family": ["android"], "role": "menu_item", "keys": ["settingsSectionNetworkPrivacy"], "names": ["Network & privacy"]},
+{"id": "g4.settings.section.transactions", "screen": "settings", "family": ["android"], "role": "menu_item", "keys": ["settingsSectionTransactions"], "names": ["Transactions"]},
+{"id": "g4.server.row", "screen": "server", "kind": "group", "ids": ["g4.server.node.row", "g4.server.epicbox.row"], "role": "row", "names": ["re:use .+"], "match": "exact", "android": {"names": ["re:.+"], "match": "line"}},
+{"id": "g4.server.add", "screen": "server", "kind": "group", "ids": ["g4.server.node.add", "g4.server.epicbox.add"], "role": "row", "match": "exact"},
+{"id": "g4.server.use", "screen": "server", "kind": "group", "ids": ["g4.server.node.row", "g4.server.epicbox.row", "g4.server.node.add", "g4.server.epicbox.add"], "role": "row", "match": "exact"},
+{"id": "g4.restore.word.*", "screen": "restore", "kind": "template", "family": ["desktop"], "role": "text_field", "match": "exact", "secret": true},
+{"id": "g4.restore.month.*", "screen": "restore", "kind": "template", "family": ["android"], "match": "exact", "secret": true},
+{"id": "pair.contact.row", "screen": "contacts", "family": ["desktop"]}
+]}

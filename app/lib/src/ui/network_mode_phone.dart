@@ -5,6 +5,7 @@
 /// rules: `network_gate.dart`.
 library;
 
+import '../trust_ids.dart';
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,6 +124,9 @@ class NetworkModeConfirmSheet extends StatelessWidget {
   }
 }
 
+/// The test drivers' stable names for the modes (`TrustIds`, lib/src/trust_ids.dart).
+const _modeId = {NetworkMode.standard: TrustIds.privacyModeStandard, NetworkMode.torOnly: TrustIds.privacyModeToronly};
+
 /// The Network section of Settings › Network & privacy: its header and one radio row per offered mode,
 /// just the name and its ⓘ (the explanation lives in the sheet, none in the list; the owner: "no
 /// explanations in main view"), as tall as the other rows. Tor only is left out of the build
@@ -143,6 +147,7 @@ class NetworkModeSection extends ConsumerWidget {
       final name = networkModeName(l, m);
       // The settings radio row: the mode's glyph leads, the radio ends the row.
       return RadioRow<NetworkMode>(
+        semanticsId: _modeId[m],
         tileKey: networkModeRowKey(m),
         value: m,
         enabled: enabled,

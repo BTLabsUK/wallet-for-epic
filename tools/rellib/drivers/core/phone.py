@@ -19,156 +19,136 @@ from . import targets as tg
 from .driver import SLOW, Expect, Goal, either, gone, shows, where
 from .faults import HarnessFault, InfraFault, ProductFault
 
-T = tg.T
+T = tg.T_phone
 
 # ---- targets (ids: trust_ids.json; keys newest first; names for builds before a key)
 
-WELCOME_CREATE = T("g4.welcome.create", keys=("firstRunCreate",), names=("Create a new wallet",))
-TOR_ONLY = T("g4.welcome.toronly", role="toggle", keys=("advModeTorOnly", "levelUndercoverTitle"), names=("Tor only",))
-LEVEL_PICK = T("g4.level.title", role="text", keys=("lvPickTitle",), names=("Pick your view",))
-DEEP_END = T("g4.level.stop.3", role="other", keys=("lvPickStopThree",), names=("Deep end",), match="exact")
-TOUR_SKIP = T("g4.tour.skip", keys=("tourPhoneSkip",), names=("Skip tour",))
-BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow", keys=("pinBiometricsNotNow",), names=("Not now",), match="exact")
+WELCOME_CREATE = T("g4.welcome.create")
+TOR_ONLY = T("g4.welcome.toronly")
+LEVEL_PICK = T("g4.level.stop.3")
+DEEP_END = T("g4.level.stop.3")
+TOUR_SKIP = T("g4.tour.skip")
+BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 
-PIN_CHOOSE = T("g4.pin.choose", role="text", keys=("pinChooseTitle",), names=(r"re:choose a \d+-digit pin",), secret=True)
-PIN_AGAIN = T("g4.pin.again", role="text", keys=("pinConfirmTitle",), names=("Enter the PIN again",), secret=True)
-PIN_FIELD = T("g4.pin.field", role="text_field", keys=("pinLabel", "pinRepeatLabel"), names=("PIN", "Repeat PIN"),
-              match="exact", secret=True)
-PIN_WRONG = T("g4.pin.wrong", role="text", keys=("pinWrong",), names=(r"re:wrong pin\b.*",), match="starts")
-UNLOCK_TITLE = T("g4.unlock.title", role="text", keys=("unlockTitle",), names=("Unlock wallet",))
+PIN_CHOOSE = T("g4.pin.choose")
+PIN_AGAIN = T("g4.pin.again")
+PIN_FIELD = T("g4.pin.field")
+PIN_WRONG = T("g4.pin.wrong")
+UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
-UNLOCK_RETRY = T("g4.unlock.retry", keys=("unlockTryAgain",), names=("Try again",), match="exact")
+UNLOCK_RETRY = T("g4.unlock.retry")
 
-LOCK = T("g4.home.lock", keys=("homeLockTooltip",), names=("Lock wallet",), match="exact")
-SETTINGS = T("g4.home.settings", keys=("homeSettingsTooltip",), names=("Settings",), match="exact")
-TAB_SEND = T("g4.tab.send", role="tab", keys=("homeSendButton",), names=("Send",))
-TAB_WALLET = T("g4.tab.wallet", role="tab", keys=("shellWalletTab",), names=("Wallet",))
-TAB_RECEIVE = T("g4.tab.receive", role="tab", keys=("homeReceiveButton",), names=("Receive",))
-CLOSE = T("g4.common.close", keys=("commonClose",), names=("Close",), match="exact")
-DONE = T("g4.common.done", keys=("commonDone",), names=("Done",), match="exact")
-SAVE = T("g4.common.save", keys=("commonSave",), names=("Save",), match="exact")
-CONTINUE = T("g4.common.continue", keys=("commonContinue",), names=("Continue",), match="exact")
+LOCK = T("g4.home.lock")
+SETTINGS = T("g4.home.settings")
+TAB_SEND = T("g4.tab.send")
+TAB_WALLET = T("g4.tab.wallet")
+TAB_RECEIVE = T("g4.tab.receive")
+CLOSE = T("g4.common.close")
+DONE = T("g4.common.done")
+SAVE = T("g4.common.save")
+CONTINUE = T("g4.common.continue")
 
 SECTION = {
-    "security": T("g4.settings.section.security", keys=("settingsSectionSecurity",), names=("Security",), match="line"),
-    "appearance": T("g4.settings.section.display", keys=("settingsSectionDisplay",), names=("Appearance",), match="line"),
-    "wallet": T("g4.settings.section.wallet", keys=("settingsSectionWallet",), names=("This wallet",), match="line"),
-    "advanced": T("g4.settings.section.advanced", keys=("advTitle",), names=("Advanced",), match="line"),
-    "privacy": T("g4.settings.section.privacy", keys=("settingsSectionNetworkPrivacy",), names=("Network & privacy",), match="line"),
+    "security": T("g4.settings.section.security"),
+    "appearance": T("g4.settings.section.display"),
+    "wallet": T("g4.settings.section.wallet"),
+    "advanced": T("g4.settings.section.advanced"),
+    "privacy": T("g4.settings.section.privacyNetwork"),
 }
-# every Settings entry a phone release has had (for "a setting moved": the pages are walked when the known ones miss it)
-ALL_SECTIONS = ("Security", "Appearance", "This wallet", "Linked devices", "Help", "Donate", "Advanced", "About",
-                "Network & privacy", "Transactions", "Wallets")
+# every Settings entry (for "a setting moved": the pages are walked when the known ones miss it)
+SECTIONS = tg.under("g4.settings.section.", "android")
 
-BACKUP_ROW = T("g4.backup.row", keys=("settingsBackupPhrase",), names=("Back up recovery phrase",))
-BACKUP_AGREE = T("g4.backup.agree", role="checkbox", keys=("backupCopyAgree",), names=("I will keep the phrase private",), secret=True)
-BACKUP_SHOW = T("g4.backup.show", keys=("backupShowPhrase",), names=("Show recovery phrase",), secret=True)
-BACKUP_DONE = T("g4.backup.done", keys=("commonDone",), names=("Done",), match="exact", secret=True)
+BACKUP_ROW = T("g4.backup.row")
+BACKUP_AGREE = T("g4.backup.agree")
+BACKUP_SHOW = T("g4.backup.show")
+BACKUP_DONE = T("g4.backup.done")
 
-THEME_ROW = T("g4.appearance.theme", keys=("settingsTheme",), names=("Theme",))
-THEME = {t: T("g4.appearance.theme.%s" % t.lower(), role="checkbox", keys=("settingsTheme%s" % t,), names=(t,), match="exact")
-         for t in ("System", "Dark", "Light")}
-LEVEL_ROW = T("g4.advanced.level", keys=("levelRowTitle",), names=("Wallet view",))
-TECHNICAL = T("g4.advanced.technical", role="toggle", keys=("advTechnical",), names=("Technical details",))
-CONF_FEWER = T("g4.confirmations.fewer", keys=("advConfirmationsFewer",), names=("Fewer confirmations",), match="exact")
+THEME_ROW = T("g4.appearance.theme")
+THEME = {
+    "System": T("g4.appearance.theme.system"),
+    "Dark": T("g4.appearance.theme.dark"),
+    "Light": T("g4.appearance.theme.light"),
+}
+LEVEL_ROW = T("g4.advanced.level")
+TECHNICAL = T("g4.advanced.technical")
+CONF_FEWER = T("g4.confirmations.fewer")
 CONF_RX = re.compile(r"^(\d+)\s+confirmations?\b", re.I)
 
 SERVER = {
-    "node": {"status": T("g4.status.node", names=(r"re:node, .*",), match="starts"),
-             "field": T("g4.server.node.field", role="text_field", keys=("slNodeField",), names=("Node address",), match="exact")},
-    "relay": {"status": T("g4.status.epicbox", names=(r"re:epicbox, .*",), match="starts"),
-              "field": T("g4.server.relay.field", role="text_field", keys=("slRelayField",), names=("Epicbox server",), match="exact")},
+    "node": {"status": T("g4.status.node"),
+             "field": T("g4.server.node.field")},
+    "relay": {"status": T("g4.status.epicbox"),
+              "field": T("g4.server.relay.field")},
 }
-STATUS_ANY = T("g4.status.network", names=(r"re:network\b.*",), match="starts")  # level 1's Network icon ("Network · OK")
+STATUS_ANY = T("g4.status.network")  # level 1's Network icon ("Network · OK")
 # Home › Contacts: level 1's one entry under the balance, the Contacts tile of the destinations row at
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
-CONTACTS = T("g4.home.contacts", keys=("settingsContacts",), names=("Contacts",), match="exact")
-CONTACTS_ADD = T("g4.contacts.add", keys=("contactsAdd",), names=("Add contact",), match="exact")
-SWITCH = T("g4.server.switch", keys=("slSwitch", "lvShellSwitch"), names=("Switch",), match="exact")
-CLEAR = T("g4.server.clear", keys=("slClear",), names=("Clear",), match="exact")
-SERVER_REFUSED = T("g4.server.refused", role="text", names=(r"re:.*(no answer from this server|nothing added|not a node|"
-                                                            r"could not reach|did not answer).*",), match="contains")
+CONTACTS = T("g4.home.contacts")
+CONTACTS_ADD = T("g4.contacts.add")
+SWITCH = T("g4.server.switch")
+CLEAR = T("g4.server.clear")
+SERVER_ROW = T("g4.server.row")
+SERVER_ADD = T("g4.server.add")
+SERVER_REFUSED = T("g4.server.refused")
 
 # Tor (26.11.0): Settings › Network & privacy › Network, radio rows adv-mode-<name> (level 2 and up); the
 # page's status card reads its Epicbox row "Epicbox connected, <relay>, …, over Tor" once Tor carries it
 # (network_status.dart: "over Tor" only while Tor is on). Since 26.11.3 the card heads the page (Epicbox,
 # Node, Node failover, then the modes): the Epicbox row is looked for scrolling up (_look_up).
-MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
-MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
-EPICBOX_ROW = T("g4.privacy.status.epicbox", role="other", keys=("statusEpicboxOnline", "statusEpicboxConnecting",
-                "statusEpicboxOffline", "statusEpicboxBlocked"), names=(r"re:epicbox (connected|connecting|not connected|blocked)\b.*",),
-                match="starts")
+MODE_TOR_ONLY = T("g4.privacy.mode.toronly")
+MODE_NORMAL = T("g4.privacy.mode.standard")
+EPICBOX_ROW = T("g4.privacy.status.epicbox")
 EPICBOX_UP = "epicbox connected"
 OVER_TOR = "over tor"   # netStatusOverTor
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
-RECEIVE_EPICBOX = T("g4.receive.method.epicbox", keys=("methodEpicbox",), names=("Epicbox",), match="exact")
-SEND_EPICBOX = T("g4.send.method.epicbox", keys=("methodEpicbox",), names=("Epicbox",), match="exact")
-SEND_TO = T("g4.send.to", role="text_field", keys=("sendToHint", "sendToLabel"), names=("Address or contact", "To"), match="exact")
+RECEIVE_EPICBOX = T("g4.receive.method.epicbox")
+SEND_TO = T("g4.send.to")
 # The address selector under To for a paired contact: Paired address | Public address.
-SEND_ROUTE_PAIRED = T("g4.send.route.paired", keys=("sendRoutePaired",), names=("Paired address",), match="exact")
-SEND_ROUTE_PUBLIC = T("g4.send.route.public", keys=("sendRoutePublic",), names=("Public address",), match="exact")
+SEND_ROUTE_PAIRED = T("g4.send.route.paired")
+SEND_ROUTE_PUBLIC = T("g4.send.route.public")
 ROUTE_WAIT_S = 4    # for the address selector after To is filled
-SEND_CLEAR = T("g4.send.clear", keys=("sendClearRecipient",), names=("Clear recipient",), match="exact")
-SEND_AMOUNT = T("g4.send.amount", role="text_field", keys=("sendAmountLabel",), names=(r"re:amount\b.*",), match="starts")
-SEND_MAX = T("g4.send.max", keys=("sendMax",), names=("Max",), match="exact")
-SEND_CONFIRM = T("g4.send.confirm", names=(r"re:send [\d.,]+ ?epic",), match="exact")  # sendReviewSendButton "Send {amount}"
-SEND_BACK = T("g4.send.back", names=("Back",), match="exact")
-SEND_FAILED = T("g4.send.failed", role="text", names=(r"re:.*(send failed|not sent|nothing was sent|could not send).*",),
-                match="contains")
+SEND_CLEAR = T("g4.send.clear")
+SEND_AMOUNT = T("g4.send.amount")
+SEND_MAX = T("g4.send.max")
+SEND_CONFIRM = T("g4.send.confirm")  # sendReviewSendButton "Send {amount}"
+SEND_BACK = T("g4.send.back")
+SEND_FAILED = T("g4.send.failed")
 
 MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
           "November", "December")
 # Restore from a phrase (restore_screen.dart, month_picker.dart, restore_card.dart): the phrase is on these
 # screens, so every target is secret and the typing is hushed (Driver.hush).
-RESTORE = T("g4.welcome.restore", keys=("firstRunRestore",), names=("Restore from phrase",), secret=True)
-RESTORE_TITLE = T("g4.restore.title", role="text", keys=("restoreTitle",), names=("Restore wallet",), match="exact", secret=True)
-RESTORE_PHRASE = T("g4.restore.phrase", role="text_field", keys=("restorePhraseLabel",), names=("Recovery phrase",),
-                   match="starts", secret=True)
+RESTORE = T("g4.welcome.restore")
+RESTORE_TITLE = T("g4.restore.title")
+RESTORE_PHRASE = T("g4.restore.phrase")
 # The scan starts in January 2025 on mainnet unless told otherwise. Built to the planned final design of the
 # scan-start block (feat/restore-start-ui, same on phone and desktop): a button "Change the start" opens the
 # Month | Block height panel; "Scan from the start" (block 0) sits behind the info button "Scan start". The
 # names after the keys are main's interim texts (a link "Start from a month or height", "Scan from the start"
 # shown in the open), so both screens are found. A rename is a change to these four targets only.
-RESTORE_START = T("g4.restore.start", role="button", keys=("scanStartChange", "restoreStartFromMonthLink"),
-                  names=("Change the start", "Start from a month or height"), match="exact", secret=True)
-RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
-                 match="exact", secret=True)
-RESTORE_FROM_START = T("g4.restore.fromStart", role="button", keys=("restoreScanFromStart",),
-                       names=("Scan from the start",), match="exact", secret=True)
-RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), names=("Block height",), match="starts",
-                      secret=True)
-RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("restoreStartHeightLabel",),
-                   names=("Start height (optional)",), match="starts", secret=True)
-RESTORE_CONTINUE = T("g4.restore.continue", keys=("commonContinue",), names=("Continue",), match="exact", secret=True)
+RESTORE_START = T("g4.restore.start")
+RESTORE_INFO = T("g4.restore.info")
+RESTORE_FROM_START = T("g4.restore.fromStart")
+RESTORE_BY_HEIGHT = T("g4.restore.by.height")
+RESTORE_HEIGHT = T("g4.restore.height")
+RESTORE_CONTINUE = T("g4.restore.continue")
 # The month button shows the chosen month ("January 2025"; the default start is the first choice shown).
-RESTORE_PICK_MONTH = T("g4.restore.month", names=(r"re:(%s) \d{4}" % "|".join(m.casefold() for m in MONTHS),
-                                                  "Pick the month you created the wallet"), match="exact", secret=True)
-MONTH_TITLE = T("g4.restore.month.title", role="text", keys=("restoreDatePickerTitle",),
-                names=("When did you create the wallet?",), match="exact", secret=True)
-MONTH_EARLIER = T("g4.restore.month.earlier", keys=("restoreMonthEarlierYear",), names=("Earlier year",), match="exact",
-                  secret=True)
-MONTH_LATER = T("g4.restore.month.later", keys=("restoreMonthLaterYear",), names=("Later year",), match="exact", secret=True)
-MONTH_START = T("g4.restore.month.start", role="text", keys=("restoreMonthStart",),
-                names=(r"re:scanning starts from block .*",), match="starts", secret=True)
-RESTORE_PROBLEM = T("g4.restore.problem", role="text", keys=("restorePhraseChecksum", "restorePhraseWordCount",
-                                                             "restorePhraseUnknownWord", "restorePhraseUnknownWords",
-                                                             "restoreStartHeightInvalid"),
-                    names=(r"re:.*(does not check out|not in the word list|this phrase has \d+ words?).*",),
-                    match="contains", secret=True)
-RESTORE_SCANNING = T("g4.restore.scan", role="text", keys=("restoreScanIntro",),
-                     names=(r"re:looking for this wallet.s coins on the chain.*",), match="starts", secret=True)
-RESTORE_RETRY = T("g4.restore.retry", keys=("launchTryAgain",), names=("Try again",), match="exact", secret=True)
-RESTORE_OPEN = T("g4.restore.open", keys=("restoreOpenWallet",), names=("Open wallet",), match="exact", secret=True)
-RESTORE_DONE = T("g4.restore.done", role="text", keys=("restoreDoneTitle",), names=("Your wallet is restored",),
-                 match="exact", secret=True)
-RESTORE_NOT_NOW = T("g4.restore.notnow", keys=("restoreImportNotNow",), names=("Not now",), match="exact", secret=True)
-RESTORE_UNFINISHED = T("g4.restore.unfinished", role="text", keys=("restoreUnfinishedTitle",),
-                       names=("Restore not finished",), secret=True)
-RESTORE_OFFLINE = T("g4.restore.offline", role="text", keys=("restoreUnfinishedOffline",),
-                    names=(r"re:the scan goes on when offline is off.*",), match="starts", secret=True)
-RESTORE_FAILED = T("g4.restore.failed", role="text", keys=("restoreUnfinishedFailed",),
-                   names=(r"re:the scan stopped and is retried by itself.*",), match="starts", secret=True)
+RESTORE_PICK_MONTH = T("g4.restore.month")
+RESTORE_MONTH_CELL = T("g4.restore.month.*")
+MONTH_TITLE = T("g4.restore.month.title")
+MONTH_EARLIER = T("g4.restore.month.earlier")
+MONTH_LATER = T("g4.restore.month.later")
+MONTH_START = T("g4.restore.month.start")
+RESTORE_PROBLEM = T("g4.restore.problem")
+RESTORE_SCANNING = T("g4.restore.scan")
+RESTORE_RETRY = T("g4.restore.retry")
+RESTORE_OPEN = T("g4.restore.open")
+RESTORE_DONE = T("g4.restore.done")
+RESTORE_NOT_NOW = T("g4.restore.notnow")
+RESTORE_UNFINISHED = T("g4.restore.unfinished")
+RESTORE_OFFLINE = T("g4.restore.offline")
+RESTORE_FAILED = T("g4.restore.failed")
 # A month from the wallet's birth to a full scan from block 0 on Home (restore_card.dart): the genesis scan
 # takes minutes on an emulator; this is its ceiling before REL_TRUST_SLOW.
 RESTORE_HOME_S = 2400
@@ -359,8 +339,7 @@ class Phone:
         """The month picker opens on the first year a wallet can be from: Later year (or Earlier) to
         [year], then its cell ("November 2026")."""
         d = self.d
-        cell = T("g4.restore.month.%04d-%02d" % (year, mon), names=("%s %d" % (MONTHS[mon - 1], year),),
-                 match="exact", secret=True)
+        cell = RESTORE_MONTH_CELL.at("%04d-%02d" % (year, mon), names=("%s %d" % (MONTHS[mon - 1], year),))
         d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
         for _ in range(20):
             tree = d.tree()
@@ -370,7 +349,7 @@ class Phone:
             arrow = MONTH_EARLIER if shown and shown[0] > year else MONTH_LATER
             n = self._pressable(arrow, tree)
             if n is None or not n.enabled:
-                d.harness("the month picker has no %s cell (%s)" % (cell.names[0], "year %s" % shown[0] if shown else "no year"))
+                d.harness("the month picker has no %s cell (%s)" % (cell.id, "year %s" % shown[0] if shown else "no year"))
             d._act(d.s.press, n)
             d.wait(Expect("the year changed", lambda dd, t, b=shown: [x.name for x in t if re.fullmatch(r"\d{4}", x.name.strip())] != [str(y) for y in b]), 5)
         d.press(cell, step="restore-month-pick", then=gone(MONTH_TITLE), timeout=20)
@@ -592,10 +571,9 @@ class Phone:
         return len(names & self.section_names()) >= 3
 
     def section_names(self):
-        """Every section name a release has had, in English and as this build shows them (its locale)."""
+        """Every section's name: this build's own strings, and what older releases called it."""
         if getattr(self, "_section_names", None) is None:
-            loc = self.d.labels.localized(ALL_SECTIONS, prefix="settings") if self.d.labels else set()
-            self._section_names = {tg._norm(s) for s in (*ALL_SECTIONS, *loc)}
+            self._section_names = tg.texts_of(SECTIONS, self.d.labels)
         return self._section_names
 
     def settings(self):
@@ -614,12 +592,11 @@ class Phone:
         d.press(SETTINGS, step="settings", timeout=30,
                 then=Expect("the Settings list", lambda dd, tree: self.in_settings(tree)))
 
-    def section(self, key_or_name):
-        """Settings › a section, by SECTION key or a literal name. False when the list has no such entry."""
+    def section(self, key_or_target):
+        """Settings › a section, by its SECTION key or its target. False when the list has no such entry."""
         d = self.d
         self.settings()
-        t = SECTION.get(key_or_name) or T("g4.settings.section.%s" % tg._norm(key_or_name).replace(" ", "_"),
-                                          names=(key_or_name,))
+        t = SECTION.get(key_or_target, key_or_target)
         n = d.wait(shows(t), 4)
         if not n:
             return False
@@ -658,19 +635,19 @@ class Phone:
         tried = []
         for p in pages:
             if self.section(p):
-                tried.append(p)
+                tried.append(SECTION[p])
                 if self._look(target):
                     return True
         self.settings()
-        listed = [n.name.split("\n")[0].strip() for n in d.tree() if n.role in ("button", "row", "menu_item")
-                  and tg._norm(n.name.split("\n")[0]) in self.section_names()]
-        for name in listed:
-            if name in [SECTION[p].names[0] for p in tried if p in SECTION]:
+        tree = d.tree()
+        listed = [t for t in SECTIONS if d.find_in(t, tree)]
+        for t in listed:
+            if t in tried:
                 continue
-            if self.section(name) and self._look(target):
-                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(pages)))
+            if self.section(t) and self._look(target):
+                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, t, ", ".join(pages)))
                 return True
-        d.harness("%s not found under Settings (tried %s)" % (what, ", ".join(tried + listed)))
+        d.harness("%s not found under Settings (tried %s)" % (what, ", ".join(str(t) for t in tried + listed)))
 
     # ---- set up on the previous release
 
@@ -799,13 +776,8 @@ class Phone:
         self.log("Settings › Advanced › Wallet view: Deep end")
 
     def _host_rows(self, tree, entry):
-        out = []
-        for n in tree:
-            if n.role in ("button", "row", "text", "checkbox") and n.name and "press" in n.actions:
-                first = n.name.split("\n")[0].split(",")[0].strip()
-                if same_host(first, entry):
-                    out.append(n)
-        return out
+        return [n for n in self.d.find_in(SERVER_ROW, tree) if "press" in n.actions
+                and same_host(n.name.split("\n")[0].split(",")[0].strip(), entry)]
 
     def _in_use(self, tree, entry):
         cur = tg._norm(self._text("serverCurrent", "In use"))
@@ -815,7 +787,7 @@ class Phone:
     def _add_row(self, entry):
         add = self._text("slAddRow", "Add {host}")
         rx = re.escape(tg._norm(add)).replace(re.escape("{host}"), re.escape(tg._norm(bare_host(entry))))
-        return T("g4.server.add", names=("re:" + rx + "(,.*)?",), match="exact")
+        return SERVER_ADD.of(bare_host(entry), names=("re:" + rx + "(,.*)?",))
 
     def _open_sheet(self, kind):
         """The Node or Epicbox sheet: Home's status icon, and on releases where it opens the Connections
@@ -1038,10 +1010,6 @@ class Phone:
             if d.wait(shows(SEND_TO), 3) or not d.seen(SEND_BACK):
                 break
             d.press(SEND_BACK, step="send-back", timeout=10)
-        m = d.seen(SEND_EPICBOX)
-        if m and "selected" not in m.states:
-            d._act(d.s.press, m)
-            time.sleep(0.8)
         if d.seen(SEND_CLEAR):
             d.press(SEND_CLEAR, step="send-clear", timeout=10, then=Expect("the recipient cleared", lambda dd, tree: True))
         d.fill(SEND_TO, to, step="send-to")

@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
@@ -95,7 +96,10 @@ class SendAdvanced extends StatelessWidget {
 /// A radio choice as a row: an 18 u circle, a title (with an optional tag) and one line of
 /// text; the whole row selects it. Arrow keys move between rows as Tab does.
 class ERadioRow extends StatefulWidget {
-  const ERadioRow({super.key, required this.selected, required this.title, this.text, this.tag, this.onSelected, this.hint, this.hintIcon, this.onHint, this.leading});
+  const ERadioRow({super.key, this.semanticsId, required this.selected, required this.title, this.text, this.tag, this.onSelected, this.hint, this.hintIcon, this.onHint, this.leading});
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   final bool selected;
   final String title;
@@ -131,7 +135,7 @@ class _ERadioRowState extends State<ERadioRow> {
     final ts = context.ts;
     final on = widget.onSelected != null;
     final ring = widget.selected ? c.accent : (on ? c.lineStrong : c.line);
-    return Semantics(
+    return TrustId(widget.semanticsId, child: Semantics(
       inMutuallyExclusiveGroup: true,
       checked: widget.selected,
       enabled: on,
@@ -207,6 +211,6 @@ class _ERadioRowState extends State<ERadioRow> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
