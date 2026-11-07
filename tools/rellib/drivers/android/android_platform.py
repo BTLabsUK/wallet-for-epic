@@ -21,8 +21,6 @@ import re
 import shutil
 import socket
 import ssl
-import signal
-import sqlite3
 import subprocess
 import sys
 import time
@@ -104,7 +102,6 @@ class AndroidPlatform(Platform):
         self.certs = {}
         self.snapshot = None     # the saved state's snapshot name, for state_meta()
         self.hermetic = None     # core/hermetic.py plan(), from prepare
-        self._secrets = {}
         self.work = os.path.join(out, "work")
 
     # ---- the emulator
@@ -354,7 +351,6 @@ class AndroidPlatform(Platform):
     def digest(self, tag, secrets):
         if self.running and not self.alive():
             raise ProductFault("app_alive", "the %s app is not running any more when its data was read" % self.running)
-        self._secrets = secrets  # for the lose-balance break, which runs between two digests
         return wd.read(self._files(), secrets, migrate=checks.migrating()[0], nodes=[self.node], log=self.log)
 
     def files_snapshot(self):
@@ -456,127 +452,6 @@ class AndroidPlatform(Platform):
 
     def state_meta(self):
         return {"signer": self.certs.get("candidate"), "avd": self.avd, "snapshot": self.snapshot}
-
-    # ---- break tests (core/breaks.py)
-
-    def break_kill(self):
-        """The emulator dies (as when the host kills it): every adb call then finds it gone."""
-        pids = [int(x) for x in subprocess.run(["pgrep", "-f", "qemu.*-port %d" % self.port], capture_output=True,
-                                               text=True).stdout.split()]
-        if self.emu and self.emu.poll() is None:
-            pids.append(self.emu.pid)
-        for pid in set(pids):
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        self.log("BREAK: emulator processes %s killed" % sorted(set(pids)))
-
-    def break_freeze(self, on):
-        pid = self.dev.sh("pidof %s" % PKG).strip()
-        if pid:
-            self.dev.sh("kill -%s %s" % ("STOP" if on else "CONT", pid))
-
-    def break_input(self):
-        """An input for the frozen app to not answer: the system raises an ANR only when one waits 5 s."""
-        self.dev.sh("input keyevent 59")   # Shift: nothing for the app to do with it
-
-    def _push_bin(self, files, local, rel):
-        dest = "%s/%s" % (files.root, rel)
-        self.dev.run("push", local, "/data/local/tmp/break.tmp", timeout=120)
-        uid = self.dev.sh("stat -c %%u '%s'" % files.root).strip()
-        self.dev.sh("cat /data/local/tmp/break.tmp > '%s' && chown %s:%s '%s' && chmod 600 '%s'; rm -f /data/local/tmp/break.tmp; "
-                    "restorecon '%s' 2>/dev/null" % (dest, uid, uid, dest, dest, dest))
-        self._sync()
-
-    def break_lose_node(self):
-        """The custom node's line goes from the closed previous release's settings.toml."""
-        files = self._files()
-        text = files.text(facts.SETTINGS_TOML)
-        if text is None:
-            raise HarnessFault("break", "lose-node needs the previous release's settings.toml")
-        lines = text.splitlines(keepends=True)
-        kept = [ln for ln in lines if self.custom_node not in ln]
-        if len(kept) == len(lines):
-            raise HarnessFault("break", "lose-node: %s is not in settings.toml" % self.custom_node)
-        os.makedirs(self.work, exist_ok=True)
-        local = os.path.join(self.work, "settings.toml")
-        with open(local, "w") as f:
-            f.writelines(kept)
-        self._push_bin(files, local, facts.SETTINGS_TOML)
-        self.log("BREAK: the custom node %s removed from the closed wallet's settings.toml" % self.custom_node)
-
-    def break_lose_balance(self):
-        """The closed wallet's database loses its outputs. A plain store: its outputs deleted. An encrypted
-        store: replaced by an empty store under the same key (a CLI restore of the wallet's phrase, no scan),
-        so the candidate opens a valid wallet that holds nothing."""
-        files = self._files()
-        listing = files.listing()
-        enc = [p for p in listing if os.path.basename(p) == facts.STORE_ENC]
-        plain = [p for p in listing if os.path.basename(p) == facts.STORE_PLAIN and "/%s/" % facts.STORE_DIR in "/" + p]
-        d = os.path.join(self.work, "break-db")
-        os.makedirs(d, mode=0o700, exist_ok=True)
-        try:
-            if len(enc) == 1:
-                store_dir = os.path.dirname(enc[0])
-                cli = wd.LepicCli(log=self.log)
-                try:
-                    cli._restore(self._secrets["phrase"], self._secrets["password"], files.text("settings.toml"))
-                    empty = [n for n in (facts.STORE_ENC, facts.STORE_CHECK) if os.path.exists(os.path.join(cli.dst, n))]
-                    if facts.STORE_ENC not in empty:
-                        raise HarnessFault("break", "the CLI restore made no %s" % facts.STORE_ENC)
-                    self.dev.sh("rm -f '%s/%s/%s-wal' '%s/%s/%s-shm'" % ((files.root, store_dir, facts.STORE_ENC) * 2))
-                    for n in empty:
-                        self._push_bin(files, os.path.join(cli.dst, n), "%s/%s" % (store_dir, n))
-                finally:
-                    cli.close()
-                self.log("BREAK: the closed wallet's encrypted store replaced by an empty one under the same key")
-            elif len(plain) == 1:
-                for sfx in ("", "-wal", "-shm"):
-                    files.fetch(plain[0] + sfx, os.path.join(d, facts.STORE_PLAIN + sfx))
-                c = sqlite3.connect(os.path.join(d, facts.STORE_PLAIN))
-                try:
-                    n = c.execute("delete from outputs").rowcount
-                    c.commit()
-                    c.execute("pragma wal_checkpoint(truncate)")
-                finally:
-                    c.close()
-                self.dev.sh("rm -f '%s/%s-wal' '%s/%s-shm'" % ((files.root, plain[0]) * 2))
-                self._push_bin(files, os.path.join(d, facts.STORE_PLAIN), plain[0])
-                self.log("BREAK: %d outputs deleted from the closed wallet's database" % n)
-            else:
-                raise HarnessFault("break", "lose-balance needs one wallet store (found %d encrypted, %d plain)" % (len(enc), len(plain)))
-        finally:
-            shutil.rmtree(d, ignore_errors=True)
-
-    def logs(self):
-        return {"logcat": os.path.join(self.out, "logcat.txt"), "emulator": os.path.join(self.out, "emulator.log")}
-
-    def shutdown(self):
-        try:
-            if self.dev.online():
-                r = self.dev.run("logcat", "-d", "-v", "time", timeout=120, check_gone=False)
-                with open(os.path.join(self.out, "logcat.txt"), "w") as f:
-                    f.write(r.stdout)
-                self.dev.run("reverse", "--remove-all", check_gone=False)
-        except Exception as e:  # noqa: BLE001
-            self.log("logcat: %s" % e)
-        for p in self.standins:
-            try:
-                p.terminate()
-                p.wait(5)
-            except Exception:  # noqa: BLE001
-                p.kill()
-        self.health["alive_at_end"] = self.dev.online()
-        self.health["signer"] = self.certs.get("previous")
-        with open(os.path.join(self.out, "emulator.json"), "w") as f:
-            json.dump(self.health, f)
-        if self.own and os.environ.get("REL_ANDROID_KEEP") != "1":
-            self._kill()
-        shutil.rmtree(self.work, ignore_errors=True)
-        self.log("emulator %s; stand-ins stopped" % ("left running" if not self.own or os.environ.get("REL_ANDROID_KEEP") == "1"
-                                                     else "stopped"))
-
 
 # the same server probes as linux/linux_platform.py (not imported: its files.py is not this folder's)
 def free_port():

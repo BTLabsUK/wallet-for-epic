@@ -6,7 +6,7 @@
 # receive and one send on the candidate. Runs on the Windows rig as a rig session's user through that
 # session's queue (in the background, Windows session 0, a per-user install in a run folder of its own
 # under C:\EpicRig<k>\trust); the real app is driven blind and every step is read from its own files;
-# see windows/trust.py and windows/rig.py.
+# see windows/lane.py and windows_platform.py.
 #
 # Env (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (bt-wallet-<v>[-notor]-windows-x64-setup.exe, or the name before it)
@@ -36,24 +36,18 @@
 # 600) and the run's secret folder on the rig (BT and epicrig only); a lane seed's phrase is typed one
 # word at a time from a file there, deleted as soon as the agent has read it.
 set -uo pipefail
-# Break tests (core/breaks.py) never run in a release run; the engine sets REL_RUN_KIND=release for one.
-if [ "${REL_RUN_KIND:-}" = release ] && [ -n "${REL_TRUST_BREAK:-}" ]; then
-  echo "trust-windows: REL_TRUST_BREAK is set in a release run: break tests run in --test runs only" >&2; exit 2
-fi
 here="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 : "${REL_OUT:?REL_OUT is required}"
 [ "${REL_DRY_RUN:-0}" = 1 ] || mkdir -p "$REL_OUT"
 umask 077
 for t in python3 ssh scp; do
   command -v "$t" >/dev/null || { [ "${REL_DRY_RUN:-0}" = 1 ] && echo "PLAN missing tool: $t" && continue
-    python3 -I "$here/windows/trust.py" fail "missing tool $t" 2>/dev/null; echo "trust-windows: missing tool $t" >&2; exit 2; }
+    python3 -I "$here/windows/lane.py" fail "missing tool $t" 2>/dev/null; echo "trust-windows: missing tool $t" >&2; exit 2; }
 done
 if [ "${REL_DRY_RUN:-0}" != 1 ]; then
   host="${REL_WIN_HOST:-windows-pc}"
   timeout 40 ssh -o BatchMode=yes -o ConnectTimeout=15 "$host" "exit" >/dev/null 2>&1 ||
-    { python3 -I "$here/windows/trust.py" fail "the Windows rig $host does not answer over ssh"; echo "trust-windows: $host does not answer over ssh" >&2; exit 2; }
+    { python3 -I "$here/windows/lane.py" fail "the Windows rig $host does not answer over ssh"; echo "trust-windows: $host does not answer over ssh" >&2; exit 2; }
 fi
-# The shared-core lane (windows/lane.py: UI Automation by role and name). REL_TRUST_DRIVER=v1: the key-press
-# driver it replaces (windows/trust.py), kept as a fallback; its Setup key path predates 26.10.25's levels.
-if [ "${REL_TRUST_DRIVER:-v2}" = v1 ] || [ "${REL_DRY_RUN:-0}" = 1 ]; then exec python3 -I "$here/windows/trust.py"; fi
+# The shared-core lane (windows/lane.py: UI Automation by role and name); REL_DRY_RUN=1 prints its plan only.
 exec python3 -I "$here/windows/lane.py"

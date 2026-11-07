@@ -125,15 +125,6 @@ class CoreTest(unittest.TestCase):
         d.obstacles.append((SKIP, "the tour"))
         self.assertTrue(d.wait(shows(HOME), 1))
 
-    def test_renamed_button_found_by_the_model_and_recorded(self):
-        f = Fake({"lock": [n(0, "text", "Welcome back"), n(1, "button", "Open my wallet")],
-                  "home": [n(0, "text", "Available to spend")]}, "lock", {("lock", "Open my wallet"): "home"})
-        with unittest.mock.patch.dict(os.environ, {"REL_AI_CMD": "printf '{\"i\": 1, \"why\": \"opens the wallet\"}'"}):
-            self.driver(f).press(UNLOCK, step="unlock", then=shows(HOME), timeout=0.2)
-        rec = json.loads(pathlib.Path(os.path.join(self.out, "recovered.json")).read_text())
-        self.assertEqual(rec[0]["picked"]["name"], "Open my wallet")
-        self.assertIn("g4.unlock.submit", pathlib.Path(os.path.join(self.out, "selector-fixes.md")).read_text())
-
     def test_in_place_change_counts_as_the_press_taking(self):
         """A switch that only flips its checked state, or a stepper that only changes its value, is
         pressed once: the default wait sees the change instead of timing out and pressing again."""
@@ -155,15 +146,6 @@ class CoreTest(unittest.TestCase):
             self.driver(f).press(sw, step="switch", timeout=0.1)
         self.assertGreater(len(f.pressed), 1)  # pressed again: the focus ring did not count
 
-    def test_secret_screen_never_sent(self):
-        phrase = " ".join(["abandon"] * 24)
-        f = Fake({"s": [n(0, "text", phrase), n(1, "button", "Next")]}, "s", {})
-        with unittest.mock.patch.dict(os.environ, {"REL_AI_CMD": "false"}), \
-                unittest.mock.patch("core.recover._ask") as ask:
-            with self.assertRaises(HarnessFault):
-                self.driver(f).press(UNLOCK, step="phrase", timeout=0.1)
-            ask.assert_not_called()
-
     def test_failure_dump_keeps_a_password_screen_without_its_value_and_never_a_phrase(self):
         """A step that fails on a password screen leaves its tree for the report, the field's value
         left out; a phrase screen leaves none."""
@@ -182,13 +164,6 @@ class CoreTest(unittest.TestCase):
             l = Labels()
         self.assertEqual(l.origin, "this checkout")
         self.assertEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
-
-    def test_destructive_pick_refused(self):
-        f = Fake({"s": [n(0, "button", "Delete wallet")]}, "s", {})
-        with unittest.mock.patch.dict(os.environ, {"REL_AI_CMD": "printf '{\"i\": 0, \"why\": \"x\"}'"}):
-            with self.assertRaises(HarnessFault) as e:
-                self.driver(f).press(UNLOCK, step="unlock", timeout=0.1)
-        self.assertIn("HARNESS unlock", e.exception.line())
 
     def test_app_quit_is_product(self):
         f = Fake({"lock": [n(0, "text", "Loading")]}, "lock", {})
@@ -279,14 +254,6 @@ class CoreTest(unittest.TestCase):
                 self.assertEqual(desk.set_confirmations(2), 2)
                 self.assertEqual(f.pressed[-1], "More confirmations")
 
-    def test_dialog_break_presses_the_info_button(self):
-        f = Fake({"p": [n(0, "button", "More information"), n(1, "button", "Unlock")]}, "p", {})
-        d = self.driver(f, dict(ARB, deskKitInfoLabel="More information"))
-        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "dialog:g4.unlock.submit"}), \
-                unittest.mock.patch("core.driver.time.sleep"):
-            d._clear(UNLOCK)
-        self.assertEqual(f.pressed, ["More information"])
-
     def test_moved_setting_found_through_the_folded_section_list(self):
         search = n(9, "text_field", "Search settings")
         page = lambda name, *rest: [n(0, "button", name, value=name), search, *rest]  # noqa: E731
@@ -298,9 +265,8 @@ class CoreTest(unittest.TestCase):
                   ("list", "Payments"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
         d = self.driver(f)
         desk = Desktop(d, "previous", self.logs.append)
-        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "move:g4.advanced.technical", "REL_AI": "0"}), \
-                unittest.mock.patch("core.desktop.time.sleep"):
-            self.assertTrue(desk.find_setting(TECHNICAL, ("advanced",), "Technical details"))
+        with unittest.mock.patch("core.desktop.time.sleep"):   # the recipe names Payments; the setting is under Advanced
+            self.assertTrue(desk.find_setting(TECHNICAL, ("payments",), "Technical details"))
         self.assertEqual(f.cur, "adv")
         self.assertTrue(any("found under Settings › Advanced" in line for line in self.logs), self.logs)
         # listed as a recovery (proof.json, recovered.json) with a drafted fix to the recipe
@@ -311,26 +277,6 @@ class CoreTest(unittest.TestCase):
         with open(os.path.join(self.out, "selector-fixes.md")) as fh:
             self.assertIn("found under Settings › Advanced", fh.read())
 
-    def test_cached_ai_path_replays_without_the_model(self):
-        """A way past an unknown notice the model found (expand Details, then Continue) is stored once the
-        step's rule holds (rec.reached); the next lane on the same screen replays it with no model call."""
-        sys.path.insert(0, HERE)
-        from test_trust_ai import Fake as Notice, Script, never
-        events = []
-        with unittest.mock.patch("core.record.emit", lambda kind, **f: events.append((kind, f))), \
-                unittest.mock.patch("core.record.read", lambda: None), \
-                unittest.mock.patch.dict(os.environ, {"REL_AI": "1"}):
-            os.environ.pop("REL_AI_CMD", None)
-            home = tg.Target(id="g4.home.available", role="text", names=("Available to spend",), match="starts")
-            for ask in (Script({"do": "expand", "i": 1}, {"do": "click", "i": 3}), never):
-                f = Notice()
-                rec = Recover(self.out, "linux", log=self.logs.append, ask=ask)
-                d = Driver(f, Labels(arb=ARB), rec, out=self.out, log=self.logs.append, poll=0.01)
-                d.must(shows(home), 0.1, step="notice", goal="the home screen")
-                self.assertEqual((f.cur, f.pressed), ("home", ["Details", "Continue"]))
-        self.assertEqual(len([k for k, _ in events if k == "aipath.put"]), 1)
-        self.assertEqual(len([k for k, _ in events if k == "aipath.hit"]), 1)
-        self.assertIn("replay", rec.used[0]["why"])
 
 
 if __name__ == "__main__":

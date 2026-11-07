@@ -77,13 +77,44 @@ import traceback
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import facts  # noqa: E402
-from . import breaks  # noqa: E402
 from . import hermetic  # noqa: E402
 from . import lane_seed as ls  # noqa: E402
 from . import record  # noqa: E402
 from . import state as st  # noqa: E402
 from .recover import Recover, phrase_screen  # noqa: E402
 from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault  # noqa: E402
+
+def fail_closed(platform, reason, req):
+    """The entry script could not start the lane: result.txt and a proof.json with every required check false
+    (the nightly and the engine read both; exit 2 is "could not run")."""
+    e = os.environ
+    out = os.path.abspath(e.get("REL_OUT") or ".")
+    os.makedirs(out, exist_ok=True)
+    f = HarnessFault("start", reason)
+    proof = {"platform": platform, "variant": e.get("REL_VARIANT", "tor"),
+             "previous": e.get("REL_PREVIOUS_VERSION"), "candidate": e.get("REL_CANDIDATE_VERSION"),
+             "checks": {c: False for c in req}, "details": {c: "not performed: %s" % reason for c in req},
+             "fault": {"kind": f.kind, "step": f.step, "what": f.what, "shot": None, "line": f.line()}}
+    with open(os.path.join(out, "proof.json"), "w") as fh:
+        json.dump(proof, fh, indent=1)
+    with open(os.path.join(out, "result.txt"), "w") as fh:
+        fh.write(f.line() + "\n")
+    return 2
+
+
+def dry_or_fail(platform, required_for):
+    """The launcher's other entries, before anything is created: `checks` or REL_DRY_RUN=1 print the plan (the
+    required checks) and touch nothing; `fail <reason>` writes the fail-closed result. None: run the lane."""
+    funds = lambda: os.environ.get("REL_FUNDS", "1") == "1" and (os.environ.get("REL_TRUST_MODE") or "") != "create"
+    req = lambda: ["create_ok"] if (os.environ.get("REL_TRUST_MODE") or "") == "create" else required_for(funds())
+    if sys.argv[1:2] == ["fail"]:
+        return fail_closed(platform, sys.argv[2] if len(sys.argv) > 2 else "the lane could not start", req())
+    if sys.argv[1:2] == ["checks"] or os.environ.get("REL_DRY_RUN") == "1":
+        print("PLAN %s lane, checks: %s" % (platform, ",".join(req())) if os.environ.get("REL_DRY_RUN") == "1"
+              else ",".join(req()))
+        return 0
+    return None
+
 
 # The phases a lane can be resumed at: the previous release installed, its wallet made and open.
 RESUMABLE = ("previous-setup", "settings-ui-before", "address", "fund")
@@ -157,7 +188,6 @@ class Lane:
     def __init__(self, platform, recipe_for, checks, *, out, log, required, funds, p=None):
         """recipe_for(lane, which, surface) -> the family's recipe on a Driver over that surface, with the
         build's strings (core.labels) and the lane's one Recover (lane.rec)."""
-        breaks.refuse_in_release()
         self.until = until_phase(self.PHASES)
         self.stopped = None
         self.attempt = time.strftime("%Y%m%d-%H%M%S", time.gmtime())   # a fresh wallet's name in the test DB
@@ -230,7 +260,6 @@ class Lane:
         self.log("== phase %s" % name)
         record.emit("step.start", step=name, detail="phase")
         try:
-            breaks.at_phase(self, name)
             r = self._phase(name, fn)
         except BaseException as e:
             record.emit("step.end", step=name, state="failed", detail=str(e)[:200])

@@ -12,9 +12,7 @@ import glob
 import os
 import re
 import shutil
-import signal
 import socket
-import sqlite3
 import ssl
 import subprocess
 import sys
@@ -281,20 +279,6 @@ class LinuxPlatform(Platform):
             return False, "saved for %s %s" % (meta.get("platform"), meta.get("variant"))
         return st.hermetic_fits(meta, self)
 
-    # ---- break tests (core/breaks.py)
-
-    def break_kill(self):
-        """Xvfb gone, as when the host's display server dies: the app goes with it."""
-        os.kill(int(sandbox._pid(self.sb, "xvfb")), signal.SIGKILL)
-
-    def break_quit(self):
-        """The app gone at once (quit@<phase>), its display left up: a product fault, as a crash is."""
-        pid = sandbox._pid(self.sb, "app")
-        if not pid or not sandbox._alive(pid):
-            raise HarnessFault("break", "quit: no app running")
-        os.killpg(os.getpgid(int(pid)), signal.SIGKILL)
-        self.log("BREAK: the app (pid %s) killed; the display stays" % pid)
-
     # ---- resume (core/lane.py, REL_TRUST_RESUME=1)
 
     def resume_dir(self):
@@ -321,36 +305,6 @@ class LinuxPlatform(Platform):
                 return False, "the %s stand-in's port %d (in the wallet's settings) is taken" % (kind, port)
         self.work, self.sb, self.ports = work, sb, ports
         return True, "sandbox %s, stand-in ports %s" % (sb, ports or "none")
-
-    def break_freeze(self, on):
-        pid = sandbox._pid(self.sb, "app")
-        if pid and sandbox._alive(pid):
-            os.killpg(os.getpgid(int(pid)), signal.SIGSTOP if on else signal.SIGCONT)
-
-    def break_lose_balance(self):
-        dbs = glob.glob(os.path.join(data_root(self.sb), "wallets", "*", facts.STORE_DIR, facts.STORE_PLAIN))
-        if len(dbs) != 1:
-            raise HarnessFault("break", "lose-balance needs one plain %s (found %d)" % (facts.STORE_PLAIN, len(dbs)))
-        c = sqlite3.connect(dbs[0])
-        try:
-            n = c.execute("delete from outputs").rowcount
-            c.commit()
-        finally:
-            c.close()
-        self.log("BREAK: %d outputs deleted from the closed wallet's database" % n)
-
-    def break_lose_node(self):
-        path = os.path.join(data_root(self.sb), "settings.toml")
-        if not os.path.exists(path):
-            raise HarnessFault("break", "lose-node needs the previous release's settings.toml")
-        with open(path) as f:
-            lines = f.readlines()
-        kept = [ln for ln in lines if self.custom_node not in ln]
-        if len(kept) == len(lines):
-            raise HarnessFault("break", "lose-node: %s is not in settings.toml" % self.custom_node)
-        with open(path, "w") as f:
-            f.writelines(kept)
-        self.log("BREAK: the custom node %s removed from the closed wallet's settings.toml" % self.custom_node)
 
     def logs(self):
         return {"wfe.log": os.path.join(data_root(self.sb), "logs", "wfe.log"), "sandbox": os.path.join(self.sb, "logs")}

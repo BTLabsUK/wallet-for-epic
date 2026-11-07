@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The Windows G4 lane on the shared core (core/lane.py): windows_platform.py for the rig, Setup and its
 files, core/desktop.py on UI Automation (uia.py) for the screens, core/checks.py on the wallet's files.
-Called by ../trust-windows.sh (the default; REL_TRUST_DRIVER=v1 runs windows/trust.py) with the REL_* environment (see there).
+Called by ../trust-windows.sh with the REL_* environment (see there).
 The app runs in English: windows_platform.py puts the language setting in the rig user's store before the first start."""
 import os
 import signal
@@ -22,7 +22,7 @@ from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
 from core.faults import HarnessFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
-from core.lane import Lane  # noqa: E402
+from core.lane import Lane, dry_or_fail  # noqa: E402
 from windows_platform import WindowsPlatform  # noqa: E402
 from p_funder import P  # noqa: E402
 
@@ -39,6 +39,9 @@ def required(funds):
 
 
 def main():
+    done = dry_or_fail("windows", required)
+    if done is not None:
+        return done
     e = os.environ
     out = os.path.abspath(e.get("REL_OUT") or ".")
     os.makedirs(out, exist_ok=True)

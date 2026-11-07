@@ -9,13 +9,12 @@ holds it: the pages a release is known to use first, then every page the Setting
 Secrets: the PIN and the password are made here (the password only guards the LEPIC CLI's vault the
 checks read the store with; the store's key comes from the phrase), the phrase is read off Settings ›
 Security › Back up recovery phrase. All three go back to the lane (saved state, never a log). PIN and
-phrase screens are secret targets: never sent to a model, never dumped.
+phrase screens are secret targets: never dumped.
 """
 import re
 import secrets as _secrets
 import time
 
-from . import breaks
 from . import targets as tg
 from .driver import SLOW, Expect, Goal, either, gone, shows, where
 from .faults import HarnessFault, InfraFault, ProductFault
@@ -654,11 +653,7 @@ class Phone:
         """Opens the Settings page that holds `target`: the known `pages` first, then every entry the
         Settings list shows (a setting moved to another page is found there, and the log says so)."""
         d = self.d
-        if breaks.moved(target.id):
-            self.log("BREAK: %s taken as moved; the recipe's pages %s are not tried first" % (what, ", ".join(pages)))
-            pages = ()
-            self.settings()
-        elif d.seen(target):
+        if d.seen(target):
             return True
         tried = []
         for p in pages:
@@ -675,9 +670,6 @@ class Phone:
             if self.section(name) and self._look(target):
                 self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(pages)))
                 return True
-        n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
-        if n:
-            return True
         d.harness("%s not found under Settings (tried %s)" % (what, ", ".join(tried + listed)))
 
     # ---- set up on the previous release
@@ -938,7 +930,7 @@ class Phone:
         theme = THEME[want.get("theme", "Light")]
         self.find_setting(THEME_ROW, ("appearance",), "the theme row")
         if not self._theme_is(theme):
-            # the picker is open once any of its choices shows: the wanted one may be renamed (found by the model next)
+            # the picker is open once any of its choices shows: the wanted one may be renamed 
             d.press(THEME_ROW, step="theme-open", timeout=20,
                     then=Expect("the theme picker", lambda dd, tree: next((n for t in THEME.values() for n in dd.find_in(t, tree)), None)))
             d.press(theme, step="theme", timeout=20, then=Expect("theme %s" % theme, lambda dd, tree: self._theme_is(theme, tree)))

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """Windows rig health (drivers/windows/rig.py): the judge on the facts rig-health.ps1 reads, the fallback
-order, the fail-fast pickup, the driver's move to a healthy rig with one alert, G1 preflight and the
+order, the fail-fast pickup, the platform's move to a healthy rig with one alert, G1 preflight and the
 nightly's `rigs`. No rig: the box's answers are canned (rig 1 and rig 5 as read on 2026-11-01)."""
 import importlib.util
 import json
@@ -24,8 +24,14 @@ def load(name, path):
     return mod
 
 
-import rig  # noqa: E402  (the module trust.py imports)
-wt = load("win_trust_rigs", os.path.join(WIN, "trust.py"))
+# drivers/android has a uia.py too: windows_platform gets the Windows one and leaves the name as it found it.
+_other_uia = sys.modules.pop("uia", None)
+import rig  # noqa: E402
+import windows_platform as wp  # noqa: E402
+sys.modules.pop("uia", None)
+if _other_uia is not None:
+    sys.modules["uia"] = _other_uia
+from core.faults import InfraFault  # noqa: E402
 nightly = load("nightly_rigs", os.path.join(TOOLS, "nightly", "nightly.py"))
 from rellib import builtins  # noqa: E402
 
@@ -237,11 +243,10 @@ class PickupTest(unittest.TestCase):
 
 class DriverFallbackTest(unittest.TestCase):
     def make_run(self):
-        r = object.__new__(wt.Run)
+        r = object.__new__(wp.WindowsPlatform)
         r.out = tempfile.mkdtemp()
-        r.work = r.out
-        r.variant, r.host, r.name = "notor", "box", "run"
-        r.details = {}
+        r.variant, r.host, r.name_run = "notor", "box", "run"
+        r.step, r.rig = "prepare", None
         r.logs = []
         r.log = r.logs.append
         return r
@@ -251,6 +256,7 @@ class DriverFallbackTest(unittest.TestCase):
 
         class R:
             def __init__(self, host, name, log, ctl, session=1):
+                self.host = host
                 self.session, self.run = session, "C:\\EpicRig%d\\trust\\runs\\run" % session
                 made.append(self)
 
@@ -258,6 +264,11 @@ class DriverFallbackTest(unittest.TestCase):
                 pass
 
             def put(self, *a):
+                pass
+
+            get = ssh = put
+
+            def stop_orphans(self):
                 pass
 
             def put_secret(self, *a):
@@ -278,9 +289,9 @@ class DriverFallbackTest(unittest.TestCase):
         r = self.make_run()
         R, made = self.fake_rig_class()
         report = {5: (RIG5, rig.judge(RIG5)), 1: (RIG1, [])}
-        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wt, "health", lambda host, s: report):
-            r.start_on_healthy_rig("prev", "cand", "pw")
+        with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wp, "health", lambda host, s: report):
+            r._healthy_rig("prev", "cand")
         self.assertEqual(r.rig.session, 1)
         self.assertEqual([m.session for m in made], [1])
         notice = read_notice(r)
@@ -291,9 +302,9 @@ class DriverFallbackTest(unittest.TestCase):
     def test_no_pickup_moves_on(self):
         r = self.make_run()
         R, made = self.fake_rig_class(dead_on_pickup=(5,))
-        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wt, "health", lambda host, s: {5: (RIG5, []), 1: (RIG1, [])}):
-            r.start_on_healthy_rig("prev", "cand", "pw")
+        with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wp, "health", lambda host, s: {5: (RIG5, []), 1: (RIG1, [])}):
+            r._healthy_rig("prev", "cand")
         self.assertEqual([m.session for m in made], [5, 1])
         self.assertEqual(r.rig.session, 1)
         self.assertTrue(os.path.isfile(os.path.join(r.out, "notice.json")))
@@ -301,19 +312,19 @@ class DriverFallbackTest(unittest.TestCase):
     def test_healthy_rig_no_alert(self):
         r = self.make_run()
         R, _ = self.fake_rig_class()
-        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [1]), \
-                mock.patch.object(wt, "health", lambda host, s: {1: (RIG1, [])}):
-            r.start_on_healthy_rig("prev", "cand", "pw")
+        with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [1]), \
+                mock.patch.object(wp, "health", lambda host, s: {1: (RIG1, [])}):
+            r._healthy_rig("prev", "cand")
         self.assertFalse(os.path.exists(os.path.join(r.out, "notice.json")))
 
     def test_all_dead_cannot_run(self):
         r = self.make_run()
         R, _ = self.fake_rig_class()
         report = {5: (RIG5, rig.judge(RIG5)), 1: (RIG1, ["account epicrig is locked out"])}
-        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wt, "health", lambda host, s: report):
-            with self.assertRaises(wt.CannotRun) as e:
-                r.start_on_healthy_rig("prev", "cand", "pw")
+        with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wp, "health", lambda host, s: report):
+            with self.assertRaises(InfraFault) as e:
+                r._healthy_rig("prev", "cand")
         self.assertIn("no healthy Windows rig", str(e.exception))
         self.assertIn("no healthy rig left", read_notice(r)["title"])
 
@@ -323,9 +334,9 @@ class DriverFallbackTest(unittest.TestCase):
 
         def boom(host, s):
             raise rig.RigError("box asleep")
-        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
-                mock.patch.object(wt, "health", boom):
-            r.start_on_healthy_rig("prev", "cand", "pw")
+        with mock.patch.object(wp, "Rig", R), mock.patch.object(wp, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wp, "health", boom):
+            r._healthy_rig("prev", "cand")
         self.assertEqual(r.rig.session, 5)
 
 

@@ -17,7 +17,7 @@ from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
 from core.faults import HarnessFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
-from core.lane import Lane  # noqa: E402
+from core.lane import Lane, dry_or_fail  # noqa: E402
 from linux_platform import LinuxPlatform  # noqa: E402
 from p_funder import P  # noqa: E402
 
@@ -34,6 +34,9 @@ def required(funds):
 
 
 def main():
+    done = dry_or_fail("linux", required)
+    if done is not None:
+        return done
     e = os.environ
     out = os.path.abspath(e.get("REL_OUT") or ".")
     os.makedirs(out, exist_ok=True)

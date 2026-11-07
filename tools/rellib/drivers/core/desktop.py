@@ -8,9 +8,9 @@ holds it: the pages a release is known to use first, then every page the section
 setting moved to another page is still found.
 
 Secrets: the password is made here, the recovery phrase read off the reveal screen; both go back to
-the lane (saved state, never a log). Screens that show them are never sent to a model (recover.py).
+the lane (saved state, never a log). Screens that show them are never kept as a shot or a dump (secret.py).
 A phrase restored is typed word by word as a secret (Surface.set_text) with the driver hushed: no
-screenshot, tree dump or model while words are on screen, and no word in any line.
+screenshot or tree dump while words are on screen, and no word in any line.
 """
 import calendar
 import re
@@ -18,7 +18,6 @@ import secrets as _secrets
 import time
 
 from . import targets as tg
-from . import breaks
 from .driver import Expect, Goal, either, gone, shows, where
 from .faults import HarnessFault, InfraFault, ProductFault
 
@@ -565,10 +564,7 @@ class Desktop:
         d = self.d
         self.settings()
         kept = pages
-        if breaks.moved(target.id):
-            self.log("BREAK: %s taken as moved; the recipe's pages %s are not tried first" % (what, ", ".join(pages)))
-            pages = ()
-        elif d.seen(target):
+        if d.seen(target):
             return True
         tried = []
         for p in pages:
@@ -578,9 +574,6 @@ class Desktop:
                     return True
                 d.step = "find-%s" % target.id
                 if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
-                    return True
-                # renamed on the page the recipe expects: the model's pick, before every section is searched
-                if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True
         d.step = "find-%s" % target.id
         if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
@@ -597,9 +590,6 @@ class Desktop:
                 self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(kept)))
                 d.rec.moved("find-%s" % target.id, target, name, kept)
                 return True
-        n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
-        if n:
-            return True
         d.harness("%s not found under Settings (sections %s%s)" % (what, ", ".join(tried + listed) or "none", d._tried_text()))
 
     def leave_settings(self):
@@ -780,10 +770,6 @@ class Desktop:
         d = self.d
         if not use:
             return self._choose(picker, typed, entry, False)
-        if breaks.selected(picker.id):
-            self.log("BREAK: %s chosen in %s before its step; the step must find it done" % (entry, picker))
-            self._choose(picker, typed, entry, True)
-            d.wait(shows(picker), 3)
         return d.achieve(Goal("use-%s" % entry, lambda tree: self._in_use(picker, entry, tree),
                               lambda: self._choose(picker, typed, entry, True)), timeout=5)
 
@@ -819,9 +805,6 @@ class Desktop:
             time.sleep(0.8)
             return "skipped"
         self._type_server(picker, typed)
-        if breaks.stale_once(picker.id):
-            self.log("BREAK: %s rows read stale after typing %s" % (picker, typed))
-            breaks.stale_rows(d.s, lambda n: n.role == "button" and re.match(r"^(use|add) ", tg._norm(n.name)))
         self._picking = (picker, typed)
         try:
             self._press_server(picker, entry, use)

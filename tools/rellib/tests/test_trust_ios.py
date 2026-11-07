@@ -238,11 +238,6 @@ class TrustIosShTest(unittest.TestCase):
         self.assertIn("no candidate", r.stderr)
         self.assertTrue(os.path.exists(os.path.join(self.out, "proof.json")))
 
-    def test_a_break_in_a_release_run_is_refused(self):
-        r = run_trust({"REL_OUT": self.out, "REL_RUN_KIND": "release", "REL_TRUST_BREAK": "x"})
-        self.assertEqual(r.returncode, 2)
-        self.assertIn("break tests", r.stderr)
-
     def test_checks_lists_the_required_checks(self):
         r = subprocess.run([sys.executable, "-I", os.path.join(DRIVERS, "ios", "lane.py"), "checks"],
                            capture_output=True, text=True, timeout=60)

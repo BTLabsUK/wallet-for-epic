@@ -12,7 +12,6 @@ lane.py calls, in this order:
     public(digest)                  the digest without anything secret (it goes into a saved state)
 
 A check that cannot be read says so in its detail ("NOT read: ..."); it is never passed by saying nothing.
-The wording of the details follows windows/trust.py, which this replaces.
 """
 import datetime
 import decimal
@@ -305,7 +304,7 @@ def _funded_at(lane, tx, d):
 
 def fund_before(lane, address):
     """P pays the previous release's wallet FUND_IN and the data shows it spendable, on every lane: the
-    update must keep a balance and a history (as v1). REL_FUNDS only adds the candidate's legs. A lane
+    update must keep a balance and a history. REL_FUNDS only adds the candidate's legs. A lane
     seed's wallet below TOPUP_BELOW gets the top-up in the same payment."""
     lane.address = address
     d0 = _digest(lane, "previous")

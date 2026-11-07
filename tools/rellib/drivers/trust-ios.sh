@@ -47,9 +47,6 @@ if [[ "${1:-}" == setup ]]; then
   exit $?
 fi
 
-if [[ "${REL_RUN_KIND:-}" = release ]] && [[ -n "${REL_TRUST_BREAK:-}" ]]; then
-  say "REL_TRUST_BREAK is set in a release run: break tests run in --test runs only"; exit 2
-fi
 export REL_FUNDS="${REL_FUNDS:-1}" REL_VARIANT="${REL_VARIANT:-notor}" REL_TRUST_SAVE_STATE="${REL_TRUST_SAVE_STATE:-0}"
 dry="${REL_DRY_RUN:-0}"
 cannot() { # reason: write a fail-closed proof (when REL_OUT is known) and exit 2

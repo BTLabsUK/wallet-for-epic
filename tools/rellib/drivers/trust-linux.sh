@@ -3,7 +3,7 @@
 # G4 update trust, Linux desktop: a user on the previous release updates to the candidate AppImage
 # and keeps the wallet, balance, history, their node and Epicbox servers and settings; then (REL_FUNDS=1)
 # one receive and one send on the candidate. The real release AppImages run in a sandbox (own HOME,
-# Xvfb, dbus, keyring) and are driven over AT-SPI; see linux/trust.py.
+# Xvfb, dbus, keyring) and are driven over AT-SPI; see linux/lane.py.
 #
 # Env (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION [, REL_PREVIOUS_REF]   previous release folder (bt-wallet-<v>[-notor]-linux-x86_64.AppImage, or the name before it)
@@ -26,10 +26,6 @@
 # Exit: 0 every check in REL_CHECKS true, 1 some false, 2 could not run.
 # Never prints a recovery phrase or password: they stay in the sandbox folder (mode 600).
 set -uo pipefail
-# Break tests (core/breaks.py) never run in a release run; the engine sets REL_RUN_KIND=release for one.
-if [ "${REL_RUN_KIND:-}" = release ] && [ -n "${REL_TRUST_BREAK:-}" ]; then
-  echo "trust-linux: REL_TRUST_BREAK is set in a release run: break tests run in --test runs only" >&2; exit 2
-fi
 here="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 : "${REL_OUT:?REL_OUT is required}"
 [ "${REL_DRY_RUN:-0}" = 1 ] || mkdir -p "$REL_OUT"
@@ -42,6 +38,5 @@ if [ "${REL_DRY_RUN:-0}" != 1 ]; then
     { echo "trust-linux: python3 needs gi (Atspi 2.0) and PIL" >&2; exit 2; }
 fi
 umask 077
-# REL_TRUST_DRIVER=v1: the screen-reading driver this lane replaces (linux/trust.py), kept while v2 proves itself
-if [ "${REL_TRUST_DRIVER:-v2}" = v1 ] || [ "${REL_DRY_RUN:-0}" = 1 ]; then exec python3 -I "$here/linux/trust.py"; fi
+# REL_DRY_RUN=1: lane.py prints the plan (the required checks) and touches nothing.
 exec python3 -I "$here/linux/lane.py"

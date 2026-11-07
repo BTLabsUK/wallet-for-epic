@@ -6,7 +6,6 @@ quitting stays app_quit(), the surface gone stays HarnessGone. The Android ANR d
 import os
 import sys
 import tempfile
-import types
 import unittest
 import unittest.mock
 
@@ -16,7 +15,7 @@ sys.path.insert(0, DRIVERS)
 for sub in ("linux", "android", "windows"):
     sys.path.insert(1, os.path.join(DRIVERS, sub))
 
-from core import breaks, freeze  # noqa: E402
+from core import freeze  # noqa: E402
 from core.driver import Driver, Expect  # noqa: E402
 from core.faults import HarnessGone, ProductFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
@@ -276,13 +275,11 @@ class AndroidTest(unittest.TestCase):
         self.assertEqual(len(got), 1)
         self.assertEqual(freeze.log_problem(got)[0], "stack overflow")
 
-    def test_the_anr_obstacle_is_gone_and_the_playbook_says_why(self):
+    def test_the_anr_obstacle_is_gone(self):
         with open(os.path.join(DRIVERS, "core", "phone.py")) as f:
             src = f.read()
         self.assertNotIn("ANR_WAIT", src)
         self.assertNotIn("g4.system.anr.wait", src)
-        with open(os.path.join(DRIVERS, "playbook.toml")) as f:
-            self.assertIn('key = "anr-dialog"', f.read())
 
 
 class LinuxTest(unittest.TestCase):
@@ -397,30 +394,6 @@ class WindowsTest(unittest.TestCase):
         self.assertIn("processes.txt", cm.exception.evidence)
 
 
-class BreakTest(unittest.TestCase):
-    def lane(self):
-        calls = []
-        p = types.SimpleNamespace(name="x", break_freeze=lambda on: calls.append(("freeze", on)),
-                                  break_input=lambda: calls.append("input"))
-        return types.SimpleNamespace(log=lambda *_: None, p=p, retried=set()), calls
-
-    def test_freeze_is_a_known_break(self):
-        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "freeze@previous-setup:12", "REL_RUN_KIND": ""}):
-            breaks.refuse_in_release()   # no BreakRefused
-
-    def test_freeze_stops_the_app_sends_an_input_and_resumes(self):
-        lane, calls = self.lane()
-        breaks.reset()
-        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "freeze@previous-setup:0.05"}):
-            breaks.at_phase(lane, "previous-setup")
-            self.assertEqual(calls[:2], [("freeze", True), "input"])
-            import time
-            time.sleep(0.4)
-            self.assertEqual(calls[-1], ("freeze", False))
-            n = len(calls)
-            breaks.at_phase(lane, "previous-setup")   # once only
-            self.assertEqual(len(calls), n)
-        breaks.reset()
 
 
 if __name__ == "__main__":

@@ -10,10 +10,7 @@ expected state shows. When it does not:
   3. the target itself not found: the known-trouble rules (TROUBLE) are tried in order, each
      logged: a known dialog, a scan overlay (waited out or closed), a folded section (expanded),
      the page scrolled, a stale picker (left and opened again by the recipe's `reopen`);
-  4. still not found: recover.pick() asks the model which node it is;
-  5. an unknown screen in the way: recover.advance() asks the model for the control that gets past
-     it (never on a secret screen).
-Every recovery is logged; the model's are listed in proof.json. If none works the step raises
+Every recovery is logged and listed in proof.json. If none works the step raises
 HarnessFault with one line naming what was tried and a screenshot. If the app's process is gone
 while its platform is alive, that is the product's fault (ProductFault): the app quit by itself;
 when the surface itself went away (the display, the session), HarnessGone.
@@ -36,7 +33,6 @@ import os
 import re
 import time
 
-from . import breaks
 from . import freeze
 from . import record
 from . import targets as tg
@@ -128,14 +124,13 @@ class Driver:
     TROUBLE = ("dialog", "overlay", "folded", "scroll", "stale")
 
     def __init__(self, surface, labels, recover, *, out, log, poll=0.4):
-        surface = breaks.wrap(surface)
         self.s = _Watched(self, surface)
         self.labels, self.rec, self.out, self.log, self.poll = labels, recover, out, log, poll
         self.obstacles = []   # [(Target to press when it shows, why)]: tours, toasts, notices a step may meet
         self.shots = 0
         self.step = "start"
         self.trail = []       # the last steps, for the failure line
-        self.hushed = 0       # inside hush(): no shot, no dump, no model (words being typed)
+        self.hushed = 0       # inside hush(): no shot, no dump (words being typed)
         self.by_label = set() # target ids this build matched by label only: it gives them no id
         self.tried = []       # the recoveries tried in the current step, for the failure line and the bundle
         self.not_folds = set()  # names a recipe knows are not folded sections (Settings' own sections)
@@ -144,9 +139,6 @@ class Driver:
         self.last_tree = []   # the newest tree read (a frozen app's screen is judged by it, not read again)
         self.checked = 0      # when alive_check last ran in full (a step's end and a wait loop share it)
         self._unfolded = set()
-        bind = getattr(recover, "bind", None)
-        if bind:
-            bind(self)
 
     # ---- reading
 
@@ -163,14 +155,8 @@ class Driver:
             return self.last_tree
 
     def find_in(self, target, tree):
-        """By id or label; else the name the AI fallback picked for it earlier in this run, so the
-        step's own check (and later steps) see the recovered control too."""
-        hits = tg.find(target, tree, self.labels)
-        known = getattr(self.rec, "learned", {}).get(target.id) if not hits else None
-        if known:
-            ok = tg.COMPATIBLE.get(target.role, {target.role})
-            hits = [n for n in tree if n.name == known and n.role in ok]
-        return hits
+        """By id or label."""
+        return tg.find(target, tree, self.labels)
 
     def texts(self, target):
         return [p for p in tg.patterns(target, self.labels)]
@@ -184,7 +170,7 @@ class Driver:
     @contextlib.contextmanager
     def hush(self):
         """While a secret is typed or on screen in a shape the guards may miss (the first words of a
-        phrase): no screenshot, no tree dump and no model call, a failure line only."""
+        phrase): no screenshot, no tree dump, a failure line only."""
         self.hushed += 1
         try:
             yield self
@@ -194,7 +180,7 @@ class Driver:
     def shot(self, name, tree=None):
         """A screenshot, never of a secret screen (the phrase or a password shown). [tree]: the screen as
         last read, for an app that cannot be read now (frozen)."""
-        from .recover import secret_screen
+        from .secret import secret_screen
         if self.hushed:
             return None
         try:
@@ -214,7 +200,7 @@ class Driver:
     def dump(self, name, tree):
         """The tree as text next to the shots: a password screen's without the field's value
         (Node.brief), never a phrase screen's."""
-        from .recover import phrase_screen
+        from .secret import phrase_screen
         if self.hushed or phrase_screen(tree):
             return
         with open(os.path.join(self.out, "tree-%03d-%s.txt" % (self.shots, name)), "w") as f:
@@ -291,9 +277,6 @@ class Driver:
 
     def _reached(self):
         self._tick()
-        hook = getattr(self.rec, "reached", None)
-        if hook:
-            hook(self.step)
 
     # ---- waiting
 
@@ -320,29 +303,13 @@ class Driver:
             time.sleep(self.poll)
 
     def must(self, expect, timeout=30, *, step=None, goal=None):
-        """wait(), then an AI advance past an unknown screen, then a HarnessFault."""
+        """wait(), then a HarnessFault."""
         if step:
             self._begin(step)
         r = self.wait(expect, timeout)
         if r:
             self._reached()
             return r
-        for _ in range(0 if self.hushed else 3):
-            tree = self.tree()
-            n = self.rec.advance(goal or str(expect), tree, step=self.step)
-            if n is None:
-                # the loop may have scrolled or expanded its way there and answered "done"
-                r = expect.test(self, self.tree())
-                if r:
-                    self._reached()
-                    return r
-                break
-            self.s.press(n)
-            self.tried.append("model advance: %s" % n.brief())
-            r = self.wait(expect, timeout)
-            if r:
-                self._reached()
-                return r
         self.harness("never reached: %s%s" % (expect, self._tried_text()))
 
     def _tried_text(self):
@@ -455,13 +422,6 @@ class Driver:
             did = self._trouble_overlay(target)
             self.tried.append("overlay (%s)" % did)
             self.log("step %s: known trouble overlay: %s" % (self.step, did))
-        if target is not None and breaks.dialog(target.id):
-            names = {"More information", self.labels.text("deskKitInfoLabel")}
-            info = [n for n in self.tree() if n.role == "button" and n.name in names]
-            if info:
-                self.log("BREAK: a dialog the recipe does not know opened before %s" % target)
-                self._act(self.s.press, info[0])
-                time.sleep(1.5)
 
     def _act(self, fn, node, *args):
         """A surface action; its own error (no way to reach the control) becomes this step's harness line."""
@@ -486,7 +446,7 @@ class Driver:
     # ---- acting
 
     def locate(self, target, timeout=20):
-        """The node for `target`: by id/label within `timeout`, else the model's pick; HarnessFault when none."""
+        """The node for `target`: by id/label within `timeout`; HarnessFault when none."""
         n = self.wait(shows(target), timeout)
         if n:
             self._note_label(target, n)
@@ -494,25 +454,6 @@ class Driver:
         n = self.untangle(target)
         if n:
             return n
-        for _ in range(0 if self.hushed else 2):
-            tree = self.tree()
-            n = self.rec.pick(target, tree, step=self.step, texts=self.texts(target))
-            if n:
-                self.tried.append("model pick")
-                return n
-            past = self.rec.advance("the screen with %s" % target, tree, step=self.step)  # a dialog in the way
-            if past is None:
-                n = next(iter(self.find_in(target, self.tree())), None)  # the loop may have got there itself
-                if n:
-                    return n
-                break
-            self.tried.append("model advance: %s" % past.brief())
-            self._act(self.s.press, past)
-            n = self.wait(shows(target), 10)
-            if n:
-                return n
-        if not self.hushed:
-            self.tried.append("model pick")
         self.harness("%s not on screen (looked for %s %s%s)" % (target, target.role, self.texts(target) or "no text",
                                                                 self._tried_text()))
 

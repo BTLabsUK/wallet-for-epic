@@ -35,7 +35,6 @@ sys.path.insert(0, os.path.join(DRIVERS, "linux"))
 import facts  # noqa: E402
 import nodehealth  # noqa: E402
 import seed  # noqa: E402
-from core import breaks  # noqa: E402
 from core import checks  # noqa: E402
 from core import hermetic  # noqa: E402
 from core import walletdata as wd  # noqa: E402
@@ -58,8 +57,6 @@ def retry_ssh(rig, log, step=lambda: "rig"):
         def run(*a, **kw):
             for n in range(1, SSH_TRIES + 1):
                 try:
-                    if breaks.ssh_timeout(step()):
-                        raise subprocess.TimeoutExpired("ssh (REL_TRUST_BREAK)", 0)
                     return inner(*a, **kw)
                 except subprocess.TimeoutExpired:
                     if n == SSH_TRIES:
@@ -419,54 +416,6 @@ class WindowsPlatform(Platform):
 
     def fits(self, meta):
         return False, "no saved states on Windows yet"
-
-    # ---- break tests (core/breaks.py)
-
-    def break_kill(self):
-        """The rig agent quits: the app, the stand-ins and the session's agent go, as when the rig's job dies."""
-        self.rig.call("quit", timeout=60)
-
-    def break_freeze(self, on):
-        script = ("Add-Type -Namespace N -Name S -MemberDefinition '[DllImport(\"ntdll.dll\")] public static extern int NtSuspendProcess(IntPtr h); "
-                  "[DllImport(\"ntdll.dll\")] public static extern int NtResumeProcess(IntPtr h);'; "
-                  "Get-Process btwallet, epic_wallet -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '%s\\*' } | "
-                  "ForEach-Object { [N.S]::%s($_.Handle) | Out-Null }" % (self.rig.run, "NtSuspendProcess" if on else "NtResumeProcess"))
-        self.rig.as_owner(script)
-
-    def break_lose_node(self):
-        """The custom node's line goes from the closed previous release's settings.toml (written back by
-        the agent, as the rig's user)."""
-        path = self.data + "\\" + facts.SETTINGS_TOML
-        text = self.rig.text(path)
-        if text is None:
-            raise HarnessFault("break", "lose-node needs the previous release's settings.toml")
-        lines = text.splitlines(keepends=True)
-        kept = [ln for ln in lines if self.custom_node not in ln]
-        if len(kept) == len(lines):
-            raise HarnessFault("break", "lose-node: %s is not in settings.toml" % self.custom_node)
-        r = self._call("write_file", file=path, text="".join(kept))
-        if not r.get("ok"):
-            raise HarnessFault("break", "lose-node: writing settings.toml: %s" % (r.get("error") or "")[:120])
-        self.log("BREAK: the custom node %s removed from the closed wallet's settings.toml" % self.custom_node)
-
-    def break_lose_balance(self):
-        files = self._files().listing()
-        dbs = [f for f in files if re.fullmatch(r"wallets/[^/]+/%s/%s" % (re.escape(facts.STORE_DIR), re.escape(facts.STORE_PLAIN)), f)]
-        if len(dbs) != 1:
-            raise HarnessFault("break", "lose-balance needs one plain %s (found %d)" % (facts.STORE_PLAIN, len(dbs)))
-        import sqlite3
-        remote = self.data + "\\" + dbs[0].replace("/", "\\")
-        local = self.rig.fetch_db(remote, os.path.join(self.work, "db"), "break")
-        c = sqlite3.connect(local)
-        try:
-            n = c.execute("delete from outputs").rowcount
-            c.commit()
-            c.execute("pragma wal_checkpoint(truncate)")
-        finally:
-            c.close()
-        self.rig.put(local, self.rig.run + "\\break-wallet.sqlite3")
-        self._call("put_db", **{"from": self.rig.run + "\\break-wallet.sqlite3", "to": remote})
-        self.log("BREAK: %d outputs deleted from the closed wallet's database" % n)
 
     # ---- end
 

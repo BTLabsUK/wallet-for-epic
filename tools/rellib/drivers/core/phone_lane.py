@@ -16,7 +16,7 @@ from core import checks  # noqa: E402
 from core.driver import Driver  # noqa: E402
 from core.faults import HarnessFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
-from core.lane import Lane  # noqa: E402
+from core.lane import Lane, fail_closed as lane_fail_closed  # noqa: E402
 from core.phone import Phone  # noqa: E402
 
 
@@ -58,20 +58,7 @@ def keep_secrets(out, secrets, log):
 
 def fail_closed(platform, reason):
     """The entry script could not start the lane: result.txt and a proof.json with every required check false."""
-    e = os.environ
-    out = os.path.abspath(e.get("REL_OUT") or ".")
-    os.makedirs(out, exist_ok=True)
-    f = HarnessFault("start", reason)
-    req = required(e.get("REL_FUNDS", "1") == "1")
-    proof = {"platform": platform, "variant": e.get("REL_VARIANT", "tor"),
-             "previous": e.get("REL_PREVIOUS_VERSION"), "candidate": e.get("REL_CANDIDATE_VERSION"),
-             "checks": {c: False for c in req}, "details": {c: "not performed: %s" % reason for c in req},
-             "fault": {"kind": f.kind, "step": f.step, "what": f.what, "shot": None, "line": f.line()}}
-    with open(os.path.join(out, "proof.json"), "w") as fh:
-        json.dump(proof, fh, indent=1)
-    with open(os.path.join(out, "result.txt"), "w") as fh:
-        fh.write(f.line() + "\n")
-    return 2
+    return lane_fail_closed(platform, reason, required(os.environ.get("REL_FUNDS", "1") == "1"))
 
 
 def run(make_platform, proof_extra, not_checked=None):

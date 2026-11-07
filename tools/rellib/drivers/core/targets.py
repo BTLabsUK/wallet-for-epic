@@ -16,7 +16,6 @@ import os
 import re
 from dataclasses import dataclass, field
 
-from . import breaks
 from .surface import COMPATIBLE
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +30,7 @@ class Target:
     names: tuple = ()             # literal names (regex allowed with "re:") for builds without the keys
     match: str = "line"           # line | starts | contains | exact
     screen: str = ""
-    secret: bool = False          # the screen holds a phrase, password or PIN: never sent to a model
+    secret: bool = False          # the screen holds a phrase, password or PIN: never kept as a shot or a dump
     family: tuple = ("desktop", "phone")
 
     def __str__(self):
@@ -99,8 +98,6 @@ def _control_in(row, tree):
 
 def find(target, tree, labels=None):
     """The nodes that are this target: by id first, else by role and label. Best first."""
-    if breaks.hidden(target.id):
-        return []
     by_id = [n for n in tree if n.id and n.id == target.id]
     if by_id:
         return [_control_in(n, tree) if target.role in ("toggle", "checkbox") else n for n in by_id]

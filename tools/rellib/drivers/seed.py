@@ -149,8 +149,8 @@ _BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 def decoy_epicbox(addr):
     """An Epicbox address of the same shape as [addr] that is not it: the first character of the key
     changed (the @host kept). The candidate's desktop Send turns a To field that holds a contact's
-    address into a contact chip and moves everything under it, which the click map of a blind driver
-    (windows/trust.py) was not measured with; a contact on a different address leaves To a plain field,
+    address into a contact chip and moves everything under it, which the old click map of a blind driver
+    was not measured with; a contact on a different address leaves To a plain field,
     while the contact itself is still seeded and kept."""
     key, at, host = addr.partition("@")
     if not key or key[0] not in _BASE58:
