@@ -65,6 +65,7 @@ UNKEYED = {"screenshot"}  # its path counts shots, which a fix may change
 PASS = {"log", "unwrap"}
 FUNDS = re.compile(r"fund|pay|sweep|send|receive|back|invoice|link-end")
 SPENDS = ("send", "cancel")  # on the funder
+UP_FIRST = ("prepare",)  # nothing is up yet to keep, a start over costs nothing, and a rig's lock is not taken twice
 NEVER = {"ProductFault", "Frozen", "HarnessGone", "LaneStopped", "RefusedStart", "InfraFault", "Diverged", "_Stop",
          "StepReached"}
 OUT = {"Platform", "P", "LaneSeed", "_Watched", "Held", "BaseException",  # the surfaces are duck typed: named one by one
@@ -482,6 +483,8 @@ class Hold:
 
     def parkable(self, lane, e):
         if self.off or {c.__name__ for c in type(e).__mro__} & NEVER:
+            return False
+        if current is not None and current.phase in UP_FIRST:
             return False
         if getattr(e, "fatal", False) or getattr(e, "kind", "harness") != "harness":
             return False

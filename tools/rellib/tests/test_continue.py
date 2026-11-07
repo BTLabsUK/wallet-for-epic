@@ -192,6 +192,12 @@ class GoesOn(Kit):
         lane.run_phase("settings-ui-before", lambda: self.mod.walk(lane))
         self.assertEqual(self.app.presses, ["a", "b", "technical", "c"])
 
+    def test_a_fault_in_prepare_ends_the_lane(self):
+        lane = self.lane(BROKEN)
+        with self.assertRaises(HarnessFault):
+            hold.guard(lane, "prepare", lambda: self.mod.walk(lane))()
+        self.assertFalse(os.path.exists(os.path.join(self.out, hold.PARKED)))
+
     def test_a_bug_in_the_driver_parks_like_a_fault(self):
         code = BROKEN.replace('lane.s.press("technical")', 'lane.s.prress("technical")')
         lane = self.lane(code)

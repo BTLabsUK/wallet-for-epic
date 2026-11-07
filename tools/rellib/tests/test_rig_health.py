@@ -201,7 +201,8 @@ class StopFileTest(unittest.TestCase):
         r.pwsh = lambda script, *a, **kw: seen.append(script) or ""
         r.put = r.lock_user = lambda *a: None
         r.prepare()
-        self.assertIn("Remove-Item -LiteralPath '%s\\stop'" % r.run, seen[0])
+        self.assertIn("if (Test-Path -LiteralPath '%s\\stop') { Remove-Item -LiteralPath '%s\\stop'" % (r.run, r.run), seen[0])
+        self.assertTrue(seen[0].endswith("}"), "a last command that fails is pwsh's exit 1, and there mostly is no such file")
 
 
 class Clock:

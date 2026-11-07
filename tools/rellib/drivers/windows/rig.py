@@ -334,8 +334,9 @@ class Rig:
     def prepare(self):
         self.lock_user()
         # a stop file left in this run folder, for the agent stop_orphans ended, would end the next one on its first pass
-        self.pwsh("New-Item -ItemType Directory -Force '%s\\bin','%s' | Out-Null; Remove-Item -LiteralPath '%s\\stop' "
-                  "-Force -ErrorAction SilentlyContinue" % (self.base, self.run, self.run))
+        # (the if: a last command that failed, even silently, is pwsh's exit 1, and mostly there is no such file)
+        self.pwsh("New-Item -ItemType Directory -Force '%s\\bin','%s' | Out-Null; if (Test-Path -LiteralPath '%s\\stop') { "
+                  "Remove-Item -LiteralPath '%s\\stop' -Force -ErrorAction Stop }" % (self.base, self.run, self.run, self.run))
         for f in ("agent.ps1", "rpc.ps1"):
             self.put(os.path.join(HERE, f), self.base + "\\bin\\" + f)
 
