@@ -62,6 +62,9 @@ dependencies:
   # FilePickerLinuxOptions.parentWindow, so the portal's chooser opens above the app
   # (lib/src/desktop/data/file_dialogs.dart). The version file_picker 13.1.0 locks.
   file_picker_linux: 2.0.1
+  # The Linux keyring check talks to the Secret Service over D-Bus (lib/src/desktop/keyring_check.dart).
+  # The version the lock already holds (file_picker_linux takes 0.8).
+  dbus: 0.8.0
   # Dropping transaction files on Receive's Transaction files card (desktop only; the card does
   # not listen for drops on Android or the web). 0.8.0: 0.7.1 with an Android part that leaves
   # Kotlin to AGP's built-in Kotlin (no Kotlin Gradle Plugin warning). Later ones need dbus 0.7

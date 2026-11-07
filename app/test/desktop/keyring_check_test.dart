@@ -1,50 +1,56 @@
 // SPDX-License-Identifier: Apache-2.0
 // linux-01: without a usable keyring the desktop app starts on a screen that says what is
 // missing, instead of a window that never shows (libsecret held its thread) or a bogus
-// "Unlock wallet … Something went wrong". The check asks the Secret Service over D-Bus in
-// another process, with a time limit.
+// "Unlock wallet … Something went wrong". The check asks the Secret Service over D-Bus on a
+// connection of its own, with a time limit.
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dbus/dbus.dart';
 import 'package:epic_wallet/src/desktop/keyring_check.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-KeyringRunner _answers(int code, String stdout, [String stderr = '']) =>
-    (_, _) async => ProcessResult(1, code, stdout, stderr);
+KeyringRunner _locked(bool locked) => () async => locked;
+
+KeyringRunner _fails(Object error) => () async => throw error;
 
 void main() {
-  group('the D-Bus answer', () {
+  group('the Secret Service answer', () {
     test('an unlocked default keyring: nothing to say', () async {
-      expect(await checkLinuxKeyring(linux: true, run: _answers(0, '   variant       boolean false\n')), isNull);
+      expect(await checkLinuxKeyring(linux: true, run: _locked(false)), isNull);
     });
 
     test('a locked one', () async {
-      expect(await checkLinuxKeyring(linux: true, run: _answers(0, '   variant       boolean true\n')), KeyringProblem.locked);
+      expect(await checkLinuxKeyring(linux: true, run: _locked(true)), KeyringProblem.locked);
     });
 
     test('no session bus, no Secret Service, or no default keyring: missing', () async {
-      for (final err in [
-        'Failed to open connection to "session" message bus: Failed to connect to socket /nonexistent',
-        'Error org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.secrets was not provided',
-        'Error org.freedesktop.DBus.Error.UnknownMethod: Object does not exist at path “/org/freedesktop/secrets/collection/login”',
+      for (final error in [
+        const SocketException('Connection refused'),
+        DBusServiceUnknownException(
+          DBusMethodErrorResponse('org.freedesktop.DBus.Error.ServiceUnknown', [DBusString('no secrets')]),
+        ),
+        DBusUnknownObjectException(
+          DBusMethodErrorResponse('org.freedesktop.DBus.Error.UnknownObject', [DBusString('no collection')]),
+        ),
+        StateError('no default keyring'),
       ]) {
-        expect(await checkLinuxKeyring(linux: true, run: _answers(1, '', err)), KeyringProblem.missing, reason: err);
+        expect(await checkLinuxKeyring(linux: true, run: _fails(error)), KeyringProblem.missing, reason: '$error');
       }
     });
 
     test('a service that does not answer in time is missing, and the start goes on', () async {
-      final never = Completer<ProcessResult>();
+      final never = Completer<bool>();
       expect(
-        await checkLinuxKeyring(linux: true, run: (_, _) => never.future, timeout: const Duration(milliseconds: 20)),
+        await checkLinuxKeyring(linux: true, run: () => never.future, timeout: const Duration(milliseconds: 20)),
         KeyringProblem.missing,
       );
     });
 
-    test('no dbus-send, or not Linux: cannot tell, the app starts as before', () async {
-      expect(await checkLinuxKeyring(linux: true, run: (_, _) => throw const ProcessException('dbus-send', [])), isNull);
-      expect(await checkLinuxKeyring(linux: false, run: _answers(1, '')), isNull);
+    test('not Linux: cannot tell, the app starts as before', () async {
+      expect(await checkLinuxKeyring(linux: false, run: _locked(true)), isNull);
     });
   });
 
