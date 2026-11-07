@@ -634,6 +634,7 @@ class Desktop:
             return
         n = d.wait(shows(DEEP_END), 3)
         if not n:
+            self.log("view-deep-end: no Deep end stop on Advanced, the view stays as it is")
             return
         if "checked" in n.states or "selected" in n.states:
             self.log("SKIP view-deep-end: already done")

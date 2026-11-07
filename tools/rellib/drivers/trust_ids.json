@@ -26,7 +26,7 @@
 {"id": "g4.settings.section.about", "screen": "settings", "role": "menu_item", "keys": ["deskSetFrameAbout"], "names": ["About"], "android": {"keys": ["settingsSectionAbout"]}},
 {"id": "g4.level.stop.1", "screen": "level", "keys": ["lvPickStopOne"], "driver": false},
 {"id": "g4.level.stop.2", "screen": "level", "keys": ["lvPickStopTwo"], "driver": false},
-{"id": "g4.level.stop.3", "screen": "level", "keys": ["lvPickStopThree"], "names": ["Deep end"], "android": {"role": "other", "match": "exact"}},
+{"id": "g4.level.stop.3", "screen": "level", "role": "checkbox", "keys": ["lvPickStopThree"], "names": ["Deep end"], "android": {"role": "other", "match": "exact"}},
 {"id": "g4.appearance.theme.system", "screen": "appearance", "keys": ["deskSetAppearSystem"], "names": ["System"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearSystem", "settingsThemeSystem"]}},
 {"id": "g4.appearance.theme.dark", "screen": "appearance", "keys": ["deskSetAppearDark"], "names": ["Dark"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearDark", "settingsThemeDark"]}},
 {"id": "g4.appearance.theme.light", "screen": "appearance", "keys": ["deskSetAppearLight"], "names": ["Light"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearLight", "settingsThemeLight"]}},
