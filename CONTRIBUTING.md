@@ -16,7 +16,7 @@ Thank you for helping. Bug reports, translations and code are all welcome.
 2. Keep each commit to one logical change and stage files by name.
 3. Before you open a pull request, run `tools/check.sh` from the repository root: it checks
    LEPIC at the pin, runs the analyzer and the tests your change reaches (`tools/t`, which you
-   can also run alone; `tools/t --list` shows which and why). See [docs/TESTING.md](docs/TESTING.md).
+   can also run alone; `tools/t --list` shows which and why). See [docs/TESTING.md](docs/TESTING.md). How a release runs: [docs/HOW-A-RELEASE-RUNS.md](docs/HOW-A-RELEASE-RUNS.md).
 4. User-facing text goes through the ARB files in `app/lib/l10n/` (English in `app_en.arb`); run
    `tools/l10n sync` after editing them. It adds your keys to the other languages in English and
    lists them in `app/lib/l10n/untranslated.json`; `l10n_quality_test` stays red until they are
