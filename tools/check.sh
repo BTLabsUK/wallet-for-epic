@@ -136,6 +136,7 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
     (cd "$root" && python3 -m unittest discover -s tools/rellib/tests) || step_failed $?
   fi
   (cd "$root" && python3 -m unittest discover -s tools/tlib/tests) || step_failed $?
+  (cd "$root" && python3 -m unittest discover -s tools/signer/tests) || step_failed $?
   (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py \
     tools/test_check_workflow.py tools/publish/test_buildcheck.py) || step_failed $?
   # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.

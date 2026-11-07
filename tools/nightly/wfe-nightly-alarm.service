@@ -1,0 +1,7 @@
+[Unit]
+Description=Stop alarm for the nightly check (no night result in 26 h)
+
+[Service]
+Type=oneshot
+ExecStart=python3 %h/.local/lib/wfe-nightly/alarm.py
+Nice=10

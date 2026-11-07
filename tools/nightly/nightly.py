@@ -65,16 +65,20 @@ A run:
      sends ONE DM (key nightly-<sha8>-trust) naming the failing checks. NIGHTLY_TRUST=0 turns the
      pass off, NIGHTLY_TRUST_PLATFORMS=linux,android limits it, NIGHTLY_TRUST_CHECKS overrides
      REL_CHECKS (default: the driver's eight);
-  7d. after a proved Linux trust pass, one BREAK lane on the same pair, only with drivers that restore
-     the lane's permanent seed (P's payment before the update stays in that wallet when the break
-     fails; without lane seeds it is skipped): REL_FUNDS=0 (no candidate legs),
-     REL_TRUST_SAVE_STATE=0, REL_TRUST_BREAK = one break of the night (day number modulo the list:
-     hide:<id> for each reachable desktop control of drivers/trust_ids.json, plus one dialog:<id>).
-     Scored from <run>/breaks-linux/proof.json and result.txt into <run>/breaks.json, latest.json
-     `breaks` and a step (group breaks): recovered right | recovered wrong | failed honestly |
-     failed silently (a pass without a recovery means the break was not applied: a harness bug).
-     A wrong pick or a silent result writes breaks-fix.md (a drafted selector fix; a file, no code
-     change). It never changes the run's status or sends a DM. NIGHTLY_BREAKS=0 turns it off;
+  7b2. the Linux trust pass has a second, no-Tor leg (platform linux-notor: the -notor AppImages,
+     REL_VARIANT=notor, REL_FUNDS=0, so it sends nothing) after the Tor leg; it is skipped when a
+     release has no -notor build;
+  7e. after a green source check: LEPIC acceptance (`tools/lepic.sh smoke`, step group acceptance),
+     then `tools/rel start --night --commit <sha>` (the night lanes, run by the rel engine, which
+     queues its own steps on build-slot; 3 h limit). rel writes /tmp/epic-build/nightly/lanes/<sha>.json
+     ({lanes: {name: {class, status, note}}}); latest.json `lanes` holds it plus `status`. A failed
+     Blocks lane or a failed acceptance run sends ONE DM (key nightly-<sha8>-lanes) and the summary
+     line names it; Warns lanes never do. Acceptance and the lanes share port 43413 with the
+     hermetic node: each is skipped while a rel run is active or the port is in use. A timer run
+     starts the lanes only before 07:00 local time. The verdict of every green or red run is also
+     kept per commit in by-commit.json;
+  7f. tools/nightly/alarm.py (wfe-nightly-alarm.timer, 07:15): one message when no result or
+     "unchanged" skip landed in 26 h, so a nightly that is switched off is still noticed;
   7c. reads every Windows rig session's health (drivers/windows/rig.py health, read-only over SSH:
      task, last run and result, account, batch logon right, queue): latest.json `rigs` {status:
      ok|dead|unknown, dead: ["rig <k>: <cause>"]} and a `Windows rig health` step (group rigs);
@@ -137,11 +141,12 @@ TRUST_TIMEOUT_S = {"linux": 50 * 60, "android": 60 * 60, "windows": 60 * 60}
 TRUST_NODE = "https://node.btlabs.uk"
 TRUST_EPICBOX = "epicbox.stackwallet.com"
 SENT_KEYS_KEPT = 500
-BREAK_TIMEOUT_S = TRUST_TIMEOUT_S["linux"]
-BREAK_DIALOG = "dialog:g4.unlock.submit"
-# Registry screens whose controls a Linux lane without funds reaches (send, first-run and secret screens are not).
-BREAK_SCREENS = ("shell", "settings", "advanced", "payments", "overview")
-BREAK_ROLES = ("button", "tab", "menu_item", "toggle")
+NIGHT_TIMEOUT_S = 3 * 3600  # tools/rel start --night: its own limit, counted from its start
+NIGHT_START_BY = 7  # a timer run starts the night lanes before 07:00 local time, else skips them
+ACCEPT_TIMEOUT_S = 60 * 60
+ACCEPT_PORT = 43413  # the hermetic node's port, which `lepic.sh smoke` also takes
+LANES_DIR = BASE / "lanes"
+LANE_OK = ("ok", "pass", "passed", "green", "skipped")
 
 STEP_RE = re.compile(r"^== (.+?)\s*$")
 # The line check.sh prints when a step ends: `== bot: ok 4s`, or `== bot: FAILED (exit 1) after 4s`.
@@ -506,20 +511,35 @@ def trust_red(result):
     return result["status"] == "green" and (result.get("trust") or {}).get("status") == "red"
 
 
+def blocks_failed(lanes):
+    """The Blocks lanes of a lanes record that did not pass: [(base, lane dict)]."""
+    return [(b, l) for b, l in sorted(((lanes or {}).get("lanes") or {}).items())
+            if l.get("class") == "blocks" and l.get("status") not in LANE_OK]
+
+
+def lanes_red(result):
+    return result["status"] == "green" and bool(blocks_failed(result.get("lanes")))
+
+
+def side_red(result):
+    return trust_red(result) or lanes_red(result)
+
+
 def dm_kind(result):
-    return "red" if result["status"] == "red" or trust_red(result) else "broken"
+    return "red" if result["status"] == "red" or side_red(result) else "broken"
 
 
-def dm_key(sha, kind, test=False, trust=False):
-    return f"nightly-{'test-' if test else ''}{sha[:8]}-{'trust' if trust else kind}"
+def dm_key(sha, kind, test=False, trust=False, lanes=False):
+    return f"nightly-{'test-' if test else ''}{sha[:8]}-{'trust' if trust else 'lanes' if lanes else kind}"
 
 
 def dm_body(result, test=False):
     """The JSON body for POST /nightly/notify: only the route's fields, within its caps."""
     kind = dm_kind(result)
     trust = trust_red(result)
-    body = {"kind": kind, "sha": result["sha"], "key": dm_key(result["sha"], kind, test, trust)}
-    step = result["trust"]["step"] if trust else result.get("failing_step")
+    lanes = lanes_red(result)
+    body = {"kind": kind, "sha": result["sha"], "key": dm_key(result["sha"], kind, test, trust, lanes and not trust)}
+    step = result["trust"]["step"] if trust else "night lanes" if lanes else result.get("failing_step")
     if step:
         body["step"] = ("TEST " if test else "") + step
     elif test:
@@ -530,8 +550,11 @@ def dm_body(result, test=False):
         body["duration"] = fmt_duration(result["duration_s"])
     if kind == "broken":
         body["reason"] = _clip(result.get("error") or "unknown", 300)
-    if trust:  # source green: the failing checks, no commit list (driver drift or a real regression)
-        tests = [_clip(f, DM_TEST_CHARS) for f in result["trust"]["failed"][:DM_ITEMS]]
+    if trust or lanes:  # source green: the failing checks, no commit list (driver drift or a real regression)
+        tests = [_clip(f, DM_TEST_CHARS) for f in (result["trust"]["failed"] if trust else [])[:DM_ITEMS]]
+        tests += [_clip(f"lane {b}: {l.get('status')} {l.get('note') or ''}".strip(), DM_TEST_CHARS)
+                  for b, l in blocks_failed(result.get("lanes"))]
+        tests = tests[:DM_ITEMS]
     else:
         tests = []
         for t in (result.get("failing_tests") or [])[:DM_ITEMS]:
@@ -541,7 +564,7 @@ def dm_body(result, test=False):
     if tests:
         body["tests"] = tests
     commits = [_clip(c, DM_COMMIT_CHARS)
-               for c in (result.get("commits_since_green") or [])[:DM_ITEMS]] if not trust else []
+               for c in (result.get("commits_since_green") or [])[:DM_ITEMS]] if not (trust or lanes) else []
     if commits:
         body["commits"] = commits
     if result.get("log"):
@@ -603,7 +626,7 @@ def post_dm(body, url, token, opener=None, sleep=time.sleep):
 def report(result, state, test=False, conf_dir=None, opener=None, sleep=time.sleep):
     """Sends the one DM a result calls for; green sends nothing. Adds the key to
     state['sent_keys'] once the bot took it."""
-    if result["status"] == "green" and not trust_red(result):
+    if result["status"] == "green" and not side_red(result):
         return {"sent": False, "why": "green sends nothing"}
     body = dm_body(result, test=test)
     sent_keys = state.setdefault("sent_keys", [])
@@ -657,14 +680,17 @@ def release_names(platform, v):
             "android": (f"bt-wallet-{v}-android-x86_64.apk", f"epic-cash-mobile-{v}-x86_64.apk")}[platform]
 
 
-def trust_inputs(platform, prev, cand):
+def trust_inputs(platform, prev, cand, variant="tor"):
     """(env for the driver, None) or (None, why it is skipped): the pair's binaries must be on
     disk: `files` holds the desktop and Windows files, `extra`/emulator the x86_64 APKs."""
     pv, cv = prev["version"], cand["version"]
     pf, cf = Path(prev["files"]), Path(cand["files"])
     pe, ce = Path(prev["extra"]), Path(cand["extra"])
     # Each binary by its bt-wallet name, or the name before it (releases made before the rename).
-    if platform == "linux":
+    if variant == "notor":  # Linux only: the AppImage names carry -notor after the version
+        names = [(d, (f"bt-wallet-{v}-notor-linux-x86_64.AppImage",)) for d, v in ((pf, pv), (cf, cv))]
+        env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}
+    elif platform == "linux":
         names = [(pf, release_names("linux", pv)), (cf, release_names("linux", cv))]
         env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}
     elif platform == "windows":
@@ -685,14 +711,16 @@ def failing_checks(proof):
     return sorted(k for k, v in checks.items() if v is not True)
 
 
-def run_trust_one(platform, prev, cand, run_dir, driver, env_base, runner=None, now=time.monotonic):
+def run_trust_one(platform, prev, cand, run_dir, driver, env_base, runner=None, now=time.monotonic,
+                  variant="tor"):
     """One platform's step dict. `runner(argv, env, log_path, timeout)` -> rc or None (timeout);
     injectable for tests."""
-    title = f"G4 trust {platform} ({prev['version']} \u2192 {cand['version']})"
-    step = {"name": title, "group": "trust", "platform": platform, "status": "skipped",
+    label = platform if variant == "tor" else f"{platform}-{variant}"
+    title = f"G4 trust {label} ({prev['version']} \u2192 {cand['version']})"
+    step = {"name": title, "group": "trust", "platform": label, "status": "skipped",
             "duration_s": 0}
-    out = Path(run_dir) / f"trust-{platform}"
-    env_extra, why = trust_inputs(platform, prev, cand)
+    out = Path(run_dir) / f"trust-{label}"
+    env_extra, why = trust_inputs(platform, prev, cand, variant)
     if env_extra is None:
         step["reason"] = why
         return step
@@ -702,7 +730,8 @@ def run_trust_one(platform, prev, cand, run_dir, driver, env_base, runner=None, 
     out.mkdir(parents=True, exist_ok=True)
     env = dict(env_base)
     env.update(env_extra)
-    env.update(REL_VARIANT="tor", REL_FUNDS="1", REL_NODE=TRUST_NODE, REL_EPICBOX=TRUST_EPICBOX,
+    # The no-Tor leg sends nothing: the test builds' funds run on the Tor variant only (pipeline.toml funds_variant).
+    env.update(REL_VARIANT=variant, REL_FUNDS="1" if variant == "tor" else "0", REL_NODE=TRUST_NODE, REL_EPICBOX=TRUST_EPICBOX,
                REL_OUT=str(out))
     if os.environ.get("NIGHTLY_TRUST_CHECKS"):
         env["REL_CHECKS"] = os.environ["NIGHTLY_TRUST_CHECKS"]
@@ -739,11 +768,11 @@ def _last_line(path):
     return lines[-1] if lines else "no output"
 
 
-def run_driver(argv, env, log_path, timeout):
+def run_driver(argv, env, log_path, timeout, cwd=None):
     """Runs a driver with its output in log_path; rc, or None after killing it on the timeout."""
     with open(log_path, "w", encoding="utf-8") as log:
         proc = subprocess.Popen(argv, env=env, stdout=log, stderr=subprocess.STDOUT,
-                                stdin=subprocess.DEVNULL, start_new_session=True)
+                                stdin=subprocess.DEVNULL, start_new_session=True, cwd=cwd)
         try:
             return proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
@@ -758,6 +787,120 @@ def run_driver(argv, env, log_path, timeout):
                 except subprocess.TimeoutExpired:
                     pass
             return None
+
+
+def port_taken(port=ACCEPT_PORT, host="127.0.0.1"):
+    import socket
+    with socket.socket() as s:
+        s.settimeout(1)
+        return s.connect_ex((host, port)) == 0
+
+
+def acceptance_lane(rc, reason=""):
+    """A lanes-record entry for LEPIC acceptance; Blocks, so a failure reaches the DM."""
+    return {"class": "blocks", "status": "ok" if rc == 0 else "fail",
+            "note": reason, "duration_s": 0}
+
+
+def run_acceptance(run_dir, env, worktree=None, runner=None, busy=None, taken=None):
+    """LEPIC acceptance is `tools/lepic.sh smoke` (interop/acceptance/run.sh). It takes 127.0.0.1:43413,
+    the hermetic node's port, so it runs alone: skipped while a rel run is active or the port is in use.
+    Returns {status: ok|fail|skipped, reason, duration_s}."""
+    worktree = Path(worktree or WORKTREE)
+    lepic = worktree / "tools" / "lepic.sh"
+    try:
+        if "  smoke)" not in lepic.read_text(encoding="utf-8"):
+            return {"status": "skipped", "reason": "this commit's tools/lepic.sh has no smoke command", "duration_s": 0}
+    except OSError as e:
+        return {"status": "skipped", "reason": _clip(str(e), 200), "duration_s": 0}
+    if (busy or rel_busy)():
+        return {"status": "skipped", "reason": "a release run is active", "duration_s": 0}
+    if (taken or port_taken)():
+        return {"status": "skipped", "reason": f"port {ACCEPT_PORT} is in use", "duration_s": 0}
+    argv = ["nice", "-n", "15", "build-slot", str(lepic), "smoke"]
+    log_path = Path(run_dir) / "acceptance.log"
+    t0 = time.monotonic()
+    try:
+        with open(log_path, "w", encoding="utf-8") as log:
+            rc, tail = (runner or run_logged)(argv, log, env, str(worktree), timeout=ACCEPT_TIMEOUT_S, slot_wait=True)
+    except Exception as e:
+        return {"status": "skipped", "reason": _clip(f"nightly error: {e}", 200), "duration_s": 0}
+    dur = int(time.monotonic() - t0)
+    if rc == 0:
+        return {"status": "ok", "reason": "", "duration_s": dur}
+    if rc == 75 and any("no build slot free" in l for l in tail or []):
+        return {"status": "skipped", "reason": "no build slot free", "duration_s": dur}
+    why = "timed out" if rc is None else f"exit {rc}"
+    return {"status": "fail", "reason": f"{why}: " + _clip(" / ".join((tail or [])[-2:]), 160), "duration_s": dur}
+
+
+def acceptance_step(acc):
+    step = {"name": "LEPIC acceptance (lepic.sh smoke)", "group": "acceptance", "status": acc["status"],
+            "duration_s": acc["duration_s"]}
+    if acc["reason"]:
+        step["reason"] = acc["reason"]
+    return step
+
+
+def run_night_lanes(sha, run_dir, env, by_hand, catchup, worktree=None, runner=None, busy=None,
+                    lanes_dir=None, now_local=None, timeout=None):
+    """After a green source check: `tools/rel start --night --commit <sha>` runs the night lanes in
+    the rel engine (its steps queue on build-slot themselves, so it is not wrapped in it) and writes
+    LANES_DIR/<sha>.json. Returns {status: ok|red|skipped|unknown, reason, record: dict|None}.
+    A timer run starts it only before NIGHT_START_BY local time; it stops after NIGHT_TIMEOUT_S."""
+    worktree = Path(worktree or WORKTREE)
+    rel = worktree / "tools" / "rel"
+    try:
+        if "--night" not in rel.read_text(encoding="utf-8", errors="replace"):
+            return {"status": "skipped", "reason": "this commit's tools/rel has no --night", "record": None}
+    except OSError as e:
+        return {"status": "skipped", "reason": _clip(str(e), 200), "record": None}
+    now_local = now_local or dt.datetime.now()
+    if not by_hand and not catchup and now_local.hour >= NIGHT_START_BY:
+        return {"status": "skipped", "reason": f"after {NIGHT_START_BY:02d}:00, too late to start", "record": None}
+    if (busy or rel_busy)():
+        return {"status": "skipped", "reason": "a release run is active", "record": None}
+    lanes_dir = Path(lanes_dir or LANES_DIR)
+    out = lanes_dir / f"{sha}.json"
+    started = time.time()
+    log_path = Path(run_dir) / "lanes.log"
+    argv = [str(rel), "start", "--night", "--commit", sha]
+    try:
+        rc = (runner or run_driver)(argv, env, log_path, timeout or NIGHT_TIMEOUT_S, cwd=str(worktree))
+    except Exception as e:
+        return {"status": "unknown", "reason": _clip(f"nightly error: {e}", 200), "record": None}
+    if rc is None:
+        return {"status": "unknown", "reason": f"night lanes ran past {(timeout or NIGHT_TIMEOUT_S) // 60} min and were stopped", "record": None}
+    try:
+        fresh = out.stat().st_mtime >= started - 2
+    except OSError:
+        fresh = False
+    record = read_json(out, None) if fresh else None
+    if not isinstance(record, dict) or not isinstance(record.get("lanes"), dict):
+        return {"status": "unknown", "reason": f"rel exited {rc} and wrote no lanes file for {sha[:8]}: " + _clip(_last_line(log_path), 120), "record": None}
+    return {"status": "red" if blocks_failed(record) else "ok", "reason": "", "record": record}
+
+
+def lanes_step(lanes):
+    step = {"name": "Night lanes (tools/rel start --night)", "group": "lanes",
+            "status": {"ok": "ok", "red": "fail"}.get(lanes["status"], "skipped"), "duration_s": 0}
+    if lanes["reason"]:
+        step["reason"] = lanes["reason"]
+    elif lanes["status"] == "red":
+        step["reason"] = ", ".join(b for b, _ in blocks_failed(lanes["record"]))
+    return step
+
+
+def record_by_commit(sha, status, ended, path=None):
+    """BASE/by-commit.json: the night's verdict per commit (green or red), newest SENT_KEYS_KEPT kept.
+    Written as soon as the source check ends, so the stop alarm and later runs can read it."""
+    path = Path(path or BASE / "by-commit.json")
+    data = read_json(path, {})
+    data[sha] = {"status": status, "ended": ended}
+    if len(data) > SENT_KEYS_KEPT:
+        for k in sorted(data, key=lambda k: data[k].get("ended") or "")[:len(data) - SENT_KEYS_KEPT]:
+            del data[k]
+    write_json(path, data)
 
 
 def trust_enabled(environ=None):
@@ -789,215 +932,24 @@ def run_trust(run_dir, env_base, worktree=None, rel_root=None, runner=None, busy
     results = {}
 
     def one(p):
-        try:
-            results[p] = run_trust_one(p, prev, cand, run_dir, drivers / f"trust-{p}.sh", env_base,
-                                       runner=runner)
-        except Exception as e:  # one platform's trouble never stops the others
-            results[p] = {"name": f"G4 trust {p} ({prev['version']} \u2192 {cand['version']})",
-                          "group": "trust", "platform": p, "status": "fail", "duration_s": 0,
-                          "reason": f"nightly error: {str(e)[:150]}"}
+        # Linux's no-Tor leg follows its Tor leg in the same thread: both use Xvfb, the keyring and AT-SPI.
+        legs = [(p, "tor")] + ([(p, "notor")] if p == "linux" else [])
+        results[p] = []
+        for plat, variant in legs:
+            try:
+                results[p].append(run_trust_one(plat, prev, cand, run_dir, drivers / f"trust-{plat}.sh",
+                                                env_base, runner=runner, variant=variant))
+            except Exception as e:  # one platform's trouble never stops the others
+                results[p].append({"name": f"G4 trust {plat} ({prev['version']} \u2192 {cand['version']})",
+                                   "group": "trust", "platform": plat, "status": "fail", "duration_s": 0,
+                                   "reason": f"nightly error: {str(e)[:150]}"})
 
     threads = [threading.Thread(target=one, args=(p,)) for p in platforms]
     for t in threads:
         t.start()
     for t in threads:
         t.join()
-    return [results[p] for p in platforms]
-
-
-# ---------------------------------------------------------------- G4 break lane
-
-def breaks_enabled(environ=None):
-    e = os.environ if environ is None else environ
-    return str(e.get("NIGHTLY_BREAKS", "1")).strip().lower() not in ("0", "false", "no", "off")
-
-
-def drivers_dir(worktree=None):
-    return Path(worktree or WORKTREE) / "tools" / "rellib" / "drivers"
-
-
-def registry_controls(worktree=None):
-    """{id: control dict} of trust_ids.json (the drivers' own list of targets); {} when unreadable."""
-    data = read_json(drivers_dir(worktree) / "trust_ids.json", {})
-    return {c["id"]: c for c in (data.get("controls") or []) if isinstance(c, dict) and c.get("id")}
-
-
-def break_list(worktree=None):
-    """The breaks to rotate through: hide:<id> for every desktop, non-secret control of the registry
-    on a screen a Linux lane without funds reaches, then one dialog. breaks.py names the kinds, not
-    the targets; the targets are the registry's."""
-    ids = sorted(i for i, c in registry_controls(worktree).items()
-                 if "desktop" in (c.get("family") or []) and not c.get("secret")
-                 and c.get("screen") in BREAK_SCREENS and c.get("role") in BREAK_ROLES
-                 and not i.endswith((".send", ".switch")))  # funds=0 never sends or switches Epicbox
-    return [f"hide:{i}" for i in ids] + [BREAK_DIALOG]
-
-
-def break_for(day, breaks):
-    """The night's break: `day` (a date ordinal) modulo the list; None for an empty list."""
-    return breaks[day % len(breaks)] if breaks else None
-
-
-def _text(path):
-    try:
-        return Path(path).read_text(encoding="utf-8", errors="replace").strip()
-    except OSError:
-        return ""
-
-
-def score_break(brk, rc, out, controls, worktree=None):
-    """{score, why, ...} from the lane's proof.json, result.txt and exit code.
-    kind hide:<id>: right = proved, with a `pick` recovery for that target, of a role the target
-    allows and not another registry control's id; wrong = proved with another role or id picked;
-    honest = failed with a fault that names the target; silent = failed without a fault (or one
-    that does not name the target), or proved with no recovery for the target (not applied).
-    kind dialog:<id>: right = proved with an `advance` recovery at a step of that id's screen."""
-    kind, _, target = brk.partition(":")
-    out = Path(out)
-    proof = read_json(out / "proof.json", None)
-    line = _text(out / "result.txt")
-    res = {"break": brk, "target": target, "result": line[:300], "rc": rc}
-    if not isinstance(proof, dict):
-        return dict(res, score="failed silently", why="no proof.json: nothing says what the lane did")
-    fault = proof.get("fault") or {}
-    recovered = [r for r in (proof.get("recovered") or []) if isinstance(r, dict)]
-    proved = rc == 0 and line.startswith("PASS") and all(v is True for v in (proof.get("checks") or {}).values())
-    if not proved:
-        text = " ".join(str(fault.get(k) or "") for k in ("line", "what", "step"))
-        if fault and target and (target in text or target.rsplit(".", 1)[-1] in text):
-            return dict(res, score="failed honestly", why=fault.get("line") or text[:200])
-        if fault:
-            return dict(res, score="failed silently", why="a fault that does not name the target: " + (fault.get("line") or "")[:200])
-        return dict(res, score="failed silently", why="failed with no fault in proof.json")
-    if kind == "dialog":
-        got = [r for r in recovered if r.get("kind") == "advance"]
-        if not got:
-            return dict(res, score="failed silently", why="proved with no advance recovery: the dialog break was not applied")
-        return dict(res, score="recovered right", picked=got[0].get("picked"), step=got[0].get("step"))
-    mine = [r for r in recovered if r.get("kind") == "pick" and r.get("target") == target]
-    if not mine:
-        return dict(res, score="failed silently", why="proved with no recovery for the hidden target: the break was not applied")
-    pick = mine[0].get("picked") or {}
-    want = (controls.get(target) or {}).get("role", "")
-    other = pick.get("id") and pick.get("id") != target and pick["id"] in controls
-    if want and pick.get("role") not in _compatible(want, worktree) or other:
-        why = ("picked a %s, the target is a %s" % (pick.get("role"), want)) if not other else \
-            "picked the control %s, which is another target" % pick.get("id")
-        return dict(res, score="recovered wrong", why=why, picked=pick, step=mine[0].get("step"),
-                    looked_for=mine[0].get("looked_for"))
-    return dict(res, score="recovered right", picked=pick, step=mine[0].get("step"))
-
-
-def _compatible(role, worktree=None):
-    """Roles a target of this role may be pressed through: core/surface.py's COMPATIBLE, read from the
-    source (a literal), so it cannot drift; the role itself when unreadable."""
-    import ast
-    try:
-        tree = ast.parse((drivers_dir(worktree) / "core" / "surface.py").read_text(encoding="utf-8"))
-        for node in tree.body:
-            if isinstance(node, ast.Assign) and any(getattr(t, "id", "") == "COMPATIBLE" for t in node.targets):
-                table = ast.literal_eval(node.value)
-                return set(table.get(role, {role}))
-    except (OSError, SyntaxError, ValueError):
-        pass
-    return {role}
-
-
-def driver_line(target, worktree=None):
-    """'core/desktop.py:75' where the drivers name the target id; '' when none does."""
-    root = drivers_dir(worktree)
-    hits = []
-    for f in sorted(root.rglob("*.py"), key=lambda f: (f.parent.name != "core", str(f))):
-        try:
-            for n, text in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-                if f'"{target}"' in text or f"'{target}'" in text:
-                    hits.append(f"{f.relative_to(root.parent.parent.parent)}:{n}")
-                    break
-        except OSError:
-            continue
-    return hits[0] if hits else ""
-
-
-def draft_fix(scored, controls, worktree=None):
-    """A markdown note for a wrong pick or a silent result; None for the other scores."""
-    if scored["score"] not in ("recovered wrong", "failed silently"):
-        return None
-    t = scored["target"]
-    c = controls.get(t) or {}
-    where = driver_line(t, worktree) or "no driver names it (check core/breaks.py)"
-    lines = [f"# Drafted selector fix: {scored['break']}", "",
-             f"- score: {scored['score']}", f"- target: `{t}` ({c.get('role', '?')}, screen {c.get('screen', '?')})",
-             f"- expected: id `{t}`, label keys {c.get('keys') or []}, names {c.get('names') or []}",
-             f"- control picked: {scored.get('picked') or 'none recorded'}",
-             f"- why: {scored.get('why', '')}", f"- driver: {where}", ""]
-    if scored["score"] == "recovered wrong":
-        lines.append("Fix: the AI fallback pressed the wrong control. Give the real control `trustId('%s', ...)` "
-                     "(app/lib/src/trust_ids.dart) or tighten its keys/names in trust_ids.json, then rerun the break." % t)
-    else:
-        lines.append("Fix: the break was not applied or the failure is not tied to the target. Check that the step "
-                     "reaches `%s` on a Linux lane without funds, and that `breaks.hidden/dialog` is consulted there." % t)
-    return "\n".join(lines) + "\n"
-
-
-def run_breaks(run_dir, env_base, trust_steps, worktree=None, rel_root=None, runner=None, busy=None,
-               today=None, now=time.monotonic):
-    """The break lane's step dict (with `breaks`: the score), or None when it does not run: switched
-    off, or the plain Linux lane did not prove (a break result would mean nothing)."""
-    if not breaks_enabled() or not trust_enabled():
-        return None
-    plain = [s for s in trust_steps if s.get("platform") == "linux"]
-    if not plain or plain[0]["status"] != "ok":
-        return None
-    prev, cand = published_pair(rel_root)
-    if prev is None:
-        return None
-    title = f"G4 break linux ({prev['version']} → {cand['version']})"
-    step = {"name": title, "group": "breaks", "platform": "linux", "status": "skipped", "duration_s": 0}
-    if (busy or rel_busy)():
-        step["reason"] = "a release run is active"
-        return step
-    driver = drivers_dir(worktree) / "trust-linux.sh"
-    env_extra, why = trust_inputs("linux", prev, cand)
-    if env_extra is None or not driver.is_file():
-        step["reason"] = why or f"no driver {driver}"
-        return step
-    if not (drivers_dir(worktree) / "core" / "lane_seed.py").is_file():
-        # P pays every lane before the update, REL_FUNDS=0 or not, and a break is meant to fail: only a
-        # lane on its permanent seed keeps those coins when it does; a throwaway wallet loses them.
-        step["reason"] = "the drivers have no lane seeds: a failed break would strand P's payment"
-        return step
-    breaks = break_list(worktree)
-    brk = break_for((today or dt.date.today()).toordinal(), breaks)
-    if brk is None:
-        step["reason"] = "no breaks: trust_ids.json unreadable"
-        return step
-    out = Path(run_dir) / "breaks-linux"
-    out.mkdir(parents=True, exist_ok=True)
-    env = dict(env_base)
-    env.update(env_extra)
-    env.update(REL_VARIANT="tor", REL_FUNDS="0", REL_TRUST_BREAK=brk, REL_TRUST_SAVE_STATE="0",
-               REL_NODE=TRUST_NODE, REL_EPICBOX=TRUST_EPICBOX, REL_OUT=str(out))
-    env.pop("REL_RUN_KIND", None)
-    log = out / "driver.log"
-    t0 = now()
-    rc = (runner or run_driver)([str(driver)], env, log, BREAK_TIMEOUT_S)
-    step["duration_s"] = int(now() - t0)
-    step["log"] = str(log)
-    controls = registry_controls(worktree)
-    if rc is None:
-        scored = {"break": brk, "target": brk.partition(":")[2], "rc": None, "score": "failed silently",
-                  "why": f"timed out after {BREAK_TIMEOUT_S // 60} min"}
-    else:
-        scored = score_break(brk, rc, out, controls, worktree)
-    fix = draft_fix(scored, controls, worktree)
-    if fix:
-        write_atomic(Path(run_dir) / "breaks-fix.md", fix)
-        scored["fix"] = str(Path(run_dir) / "breaks-fix.md")
-    write_json(Path(run_dir) / "breaks.json", scored)
-    step["breaks"] = scored
-    step["status"] = "ok" if scored["score"] in ("recovered right", "failed honestly") else "fail"
-    step["reason"] = f"{brk}: {scored['score']}" + (f" ({scored['why']})" if scored.get("why") else "")
-    return step
+    return [step for p in platforms for step in results[p]]
 
 
 def rig_health(worktree=None, hosts_file=None, probe=None):
@@ -1317,22 +1269,30 @@ def cmd_run(by_hand, pinned_sha=None):
         elif rc == 0:
             error = "the check exited 0 without `check passed`"
     status = "error" if error else ("green" if rc == 0 else "red")
-    trust_steps = []
-    if status == "green":
-        trust_steps = run_trust(run_dir, {k: v for k, v in env.items()
-                                          if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")})
-
-    break_step = None
-    if status == "green":
+    side_env = {k: v for k, v in env.items() if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")}
+    if status != "error":
         try:
-            break_step = run_breaks(run_dir, {k: v for k, v in env.items()
-                                              if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")}, trust_steps)
-        except Exception as e:  # the break lane never breaks the run
-            break_step = {"name": "G4 break linux", "group": "breaks", "platform": "linux", "status": "skipped",
-                          "duration_s": 0, "reason": f"nightly error: {str(e)[:150]}"}
+            record_by_commit(sha, status, iso(ended))
+        except Exception as e:  # a record that cannot be written never stops the run
+            attempt(kind, sha, f"by-commit record failed: {e}")
+    trust_steps = []
+    lanes = None
+    acc = None
+    if status == "green":
+        acc = run_acceptance(run_dir, side_env)
+        trust_steps = run_trust(run_dir, side_env)
+        lanes = run_night_lanes(sha, run_dir, side_env, by_hand, catchup)
+        record = lanes["record"] or {"sha": sha, "lanes": {}}
+        if acc["status"] != "skipped":
+            record = dict(record, lanes=dict(record["lanes"], acceptance=acceptance_lane(
+                0 if acc["status"] == "ok" else 1, acc["reason"])))
+        lanes_rec = dict(record, status=lanes["status"], reason=lanes["reason"])
+    else:
+        lanes_rec = None
+
     drift = None
     if status != "error":
-        drift = run_drift(run_dir, {k: v for k, v in env.items() if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")})
+        drift = run_drift(run_dir, side_env)
     rigs = rig_health()
     last_green = state.get("last_green_sha")
     result = {
@@ -1344,10 +1304,11 @@ def cmd_run(by_hand, pinned_sha=None):
         "kind": kind,
         "command": command,
         "exit": rc,
-        "steps": parsed["steps"] + trust_steps + ([break_step] if break_step else []) + ([drift_step(drift)] if drift else []) + [rig_step(rigs)],
+        "steps": parsed["steps"] + ([acceptance_step(acc)] if acc else []) + trust_steps
+                 + ([lanes_step(lanes)] if lanes else []) + ([drift_step(drift)] if drift else []) + [rig_step(rigs)],
         "drift": drift,
         "trust": trust_summary(trust_steps),
-        "breaks": (break_step or {}).get("breaks") or ({"score": "skipped", "why": break_step["reason"]} if break_step else None),
+        "lanes": lanes_rec,
         "rigs": rigs,
         "failing_step": parsed["failing_step"],
         "tests": parsed["tests"],
@@ -1418,9 +1379,15 @@ def summary_line(r):
         skipped = [s["platform"] for s in r["steps"] if s.get("group") == "trust" and s["status"] == "skipped"]
         if skipped:
             line += f" (skipped: {', '.join(skipped)})"
-    b = r.get("breaks")
-    if b:
-        line += f" | G4 break {b.get('break', '-')}: {b['score']}" + (f" ({b['why']})" if b.get("why") and b["score"] not in ("recovered right",) else "")
+    ln = r.get("lanes") or {}
+    if ln:
+        bad = blocks_failed(ln)
+        if bad:
+            line += " | night lanes red: " + ", ".join(b for b, _ in bad)
+        elif ln.get("status") == "ok":
+            line += " | night lanes ok"
+        else:
+            line += f" | night lanes {ln.get('status')}: {ln.get('reason')}"
     d = r.get("drift") or {}
     if d.get("status") == "drift":
         found = next((m.group(1) for l in reversed(d.get("lines") or [])

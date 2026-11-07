@@ -13,6 +13,7 @@ import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import alarm  # noqa: E402
 import nightly  # noqa: E402
 
 GREEN_LOG = """\
@@ -290,10 +291,31 @@ class TrustTest(unittest.TestCase):
             return rc
         return run
 
-    def trust(self, runner, **kw):
-        return nightly.run_trust(self.root / "run", {}, worktree=self.root / "wt",
-                                 rel_root=self.root / "rel", runner=runner,
-                                 busy=lambda: [], **kw)
+    def trust(self, runner, notor=False, **kw):
+        """The steps; the no-Tor leg is left out unless asked (the fixture releases have no -notor build)."""
+        steps = nightly.run_trust(self.root / "run", {}, worktree=self.root / "wt",
+                                  rel_root=self.root / "rel", runner=runner,
+                                  busy=lambda: [], **kw)
+        return steps if notor else [s for s in steps if s["platform"] != "linux-notor"]
+
+    def test_the_no_tor_leg_follows_linux_and_sends_no_funds(self):
+        for rel in (self.prev, self.cand):
+            v = rel["version"]
+            (Path(rel["run"]) / "files" / f"bt-wallet-{v}-notor-linux-x86_64.AppImage").write_text("x")
+        self.publish(self.prev, self.cand)
+        seen = []
+        steps = self.trust(self.runner(0, {"a": True}, seen), notor=True)
+        self.assertEqual([s["platform"] for s in steps], ["linux", "linux-notor", "android", "windows"])
+        self.assertEqual([s["status"] for s in steps], ["ok"] * 4)
+        legs = [(e["REL_VARIANT"], e["REL_FUNDS"]) for e in seen if e["REL_VARIANT"] != "tor" or e["REL_FUNDS"] == "1"]
+        self.assertIn(("notor", "0"), legs)
+        self.assertIn(("tor", "1"), legs)
+
+    def test_the_no_tor_leg_is_skipped_when_a_release_has_no_notor_build(self):
+        self.publish(self.prev, self.cand)
+        steps = self.trust(self.runner(0, {"a": True}), notor=True)
+        notor = next(s for s in steps if s["platform"] == "linux-notor")
+        self.assertEqual(notor["status"], "skipped")
 
     def test_pair_is_the_last_two_published(self):
         old = make_release(self.root / "rel", "26.10.23")
@@ -412,167 +434,6 @@ class TrustTest(unittest.TestCase):
         result = {"status": "green", "sha": RED["sha"], "trust": {"status": "green", "failed": []}}
         self.assertFalse(nightly.trust_red(result))
         self.assertEqual(nightly.report(result, {})["why"], "green sends nothing")
-
-
-class BreakLaneTest(unittest.TestCase):
-    CONTROLS = [
-        {"id": "g4.nav.settings", "screen": "shell", "family": ["desktop"], "role": "tab", "secret": False},
-        {"id": "g4.advanced.technical", "screen": "advanced", "family": ["desktop"], "role": "toggle", "secret": False,
-         "keys": ["deskTech"], "names": ["Technical details"]},
-        {"id": "g4.confirmations.more", "screen": "payments", "family": ["desktop", "android"], "role": "button", "secret": False},
-        {"id": "g4.send.max", "screen": "send", "family": ["desktop"], "role": "button", "secret": False},
-        {"id": "g4.unlock.submit", "screen": "unlock", "family": ["desktop"], "role": "button", "secret": True},
-        {"id": "g4.home.lock", "screen": "home", "family": ["android"], "role": "button", "secret": False},
-    ]
-
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
-        make_release(self.root / "rel", "26.10.24")
-        make_release(self.root / "rel", "26.10.25")
-        self.drivers = self.root / "wt" / "tools" / "rellib" / "drivers"
-        (self.drivers / "core").mkdir(parents=True)
-        (self.drivers / "trust-linux.sh").write_text("#!/bin/sh\n")
-        (self.drivers / "trust_ids.json").write_text(json.dumps({"controls": self.CONTROLS}))
-        (self.drivers / "core" / "surface.py").write_text(
-            'COMPATIBLE = {"toggle": {"toggle", "checkbox", "button"}, "tab": {"tab", "button"}}\n')
-        (self.drivers / "core" / "desktop.py").write_text('x = 1\nTECH = T("g4.advanced.technical")\n')
-        (self.drivers / "core" / "lane_seed.py").write_text("")
-        self.pub = [{"version": v, "run": str(self.root / "rel" / v / "run-1"), "kind": "release"}
-                    for v in ("26.10.24", "26.10.25")]
-        (self.root / "rel" / "published.json").write_text(json.dumps(self.pub))
-        self.ok = [{"platform": "linux", "status": "ok"}]
-        n = len(nightly.break_list(self.root / "wt"))  # a night whose break is the first hide:
-        self.today = dt.date.fromordinal(dt.date(2026, 11, 3).toordinal() // n * n + n)
-
-    def tearDown(self):
-        self.tmp.cleanup()
-
-    def lane(self, rc, proof=None, result="", seen=None, trust=None, **kw):
-        def run(argv, env, log, timeout):
-            if seen is not None:
-                seen.append(env)
-            if proof is not None:
-                Path(env["REL_OUT"], "proof.json").write_text(json.dumps(proof))
-            Path(env["REL_OUT"], "result.txt").write_text(result + "\n")
-            return rc
-        return nightly.run_breaks(self.root / "run", {}, self.ok if trust is None else trust,
-                                  worktree=self.root / "wt", rel_root=self.root / "rel", runner=run,
-                                  busy=lambda: [], today=self.today, **kw)
-
-    def break_of(self):
-        return nightly.break_for(self.today.toordinal(), nightly.break_list(self.root / "wt"))
-
-    def test_list_comes_from_the_registry_and_rotation_covers_it(self):
-        lst = nightly.break_list(self.root / "wt")
-        self.assertEqual(lst, ["hide:g4.advanced.technical", "hide:g4.confirmations.more",
-                               "hide:g4.nav.settings", nightly.BREAK_DIALOG])
-        days = [dt.date(2026, 11, 3).toordinal() + i for i in range(len(lst) * 2)]
-        picks = [nightly.break_for(d, lst) for d in days]
-        self.assertEqual(set(picks), set(lst))
-        self.assertEqual(picks, [nightly.break_for(d, lst) for d in days])  # deterministic
-        self.assertIsNone(nightly.break_for(5, []))
-
-    def test_skipped_when_the_plain_lane_did_not_prove(self):
-        seen = []
-        for trust in ([{"platform": "linux", "status": "fail"}], [{"platform": "linux", "status": "skipped"}],
-                      [{"platform": "android", "status": "ok"}], []):
-            self.assertIsNone(self.lane(0, seen=seen, trust=trust))
-        self.assertEqual(seen, [])
-
-    def test_off_switch(self):
-        import os
-        old = os.environ.get("NIGHTLY_BREAKS")
-        os.environ["NIGHTLY_BREAKS"] = "0"
-        try:
-            self.assertIsNone(self.lane(0))
-        finally:
-            os.environ.pop("NIGHTLY_BREAKS") if old is None else os.environ.__setitem__("NIGHTLY_BREAKS", old)
-
-    def test_skipped_without_lane_seeds(self):
-        """P pays every lane before the update; a throwaway wallet would lose it when the break fails."""
-        (self.drivers / "core" / "lane_seed.py").unlink()
-        seen = []
-        step = self.lane(0, seen=seen)
-        self.assertEqual((step["status"], seen), ("skipped", []))
-        self.assertIn("lane seeds", step["reason"])
-
-    def test_env_has_no_candidate_legs_and_names_the_break(self):
-        seen = []
-        self.lane(0, {"checks": {}, "recovered": []}, "PASS", seen=seen)
-        e = seen[0]
-        self.assertEqual((e["REL_FUNDS"], e["REL_TRUST_SAVE_STATE"]), ("0", "0"))
-        self.assertEqual(e["REL_TRUST_BREAK"], self.break_of())
-        self.assertTrue(e["REL_OUT"].endswith("breaks-linux"))
-        self.assertNotIn("REL_RUN_KIND", e)
-
-    def score_for(self, rc, proof, result):
-        step = self.lane(rc, proof, result)
-        return step, step["breaks"]
-
-    def hide_pick(self, role="toggle", pid=None):
-        t = self.break_of().partition(":")[2]
-        return t, {"kind": "pick", "step": "s", "target": t, "picked": {"role": role, "name": "Tech", "id": pid}}
-
-    def test_four_scores(self):
-        self.assertEqual(self.break_of(), "hide:g4.advanced.technical")
-        t, rec = self.hide_pick()
-        step, sc = self.score_for(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS linux")
-        self.assertEqual((sc["score"], step["status"]), ("recovered right", "ok"))
-        t, rec = self.hide_pick(role="text")
-        step, sc = self.score_for(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS linux")
-        self.assertEqual((sc["score"], step["status"]), ("recovered wrong", "fail"))
-        fault = {"kind": "harness", "step": "x", "what": "control %s never reached" % t, "line": "HARNESS x: %s" % t}
-        step, sc = self.score_for(2, {"checks": {}, "fault": fault, "recovered": []}, "HARNESS x: " + t)
-        self.assertEqual((sc["score"], step["status"]), ("failed honestly", "ok"))
-        step, sc = self.score_for(1, {"checks": {"a": False}}, "PRODUCT checks false")
-        self.assertEqual(sc["score"], "failed silently")
-        step, sc = self.score_for(0, {"checks": {"a": True}, "recovered": []}, "PASS linux")
-        self.assertEqual(sc["score"], "failed silently")
-        self.assertIn("not applied", sc["why"])
-        step, sc = self.score_for(1, None, "")
-        self.assertEqual(sc["score"], "failed silently")
-
-    def test_another_control_picked_is_wrong_and_dialog_scores(self):
-        t, rec = self.hide_pick(role="tab", pid="g4.nav.settings")
-        rec["target"] = t
-        _, sc = self.score_for(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS")
-        self.assertEqual(sc["score"], "recovered wrong")
-        controls = nightly.registry_controls(self.root / "wt")
-        out = self.root / "d"
-        out.mkdir()
-        (out / "proof.json").write_text(json.dumps({"checks": {"a": True}, "recovered": [{"kind": "advance", "step": "unlock", "picked": {"role": "button", "name": "OK"}}]}))
-        (out / "result.txt").write_text("PASS\n")
-        self.assertEqual(nightly.score_break(nightly.BREAK_DIALOG, 0, out, controls)["score"], "recovered right")
-        (out / "proof.json").write_text(json.dumps({"checks": {"a": True}, "recovered": []}))
-        self.assertEqual(nightly.score_break(nightly.BREAK_DIALOG, 0, out, controls)["score"], "failed silently")
-
-    def test_wrong_pick_drafts_a_fix_with_the_driver_line(self):
-        out = self.root / "w"
-        out.mkdir()
-        rec = {"kind": "pick", "step": "s", "target": "g4.advanced.technical", "looked_for": ["technical details"],
-               "picked": {"role": "text", "name": "Network", "id": None}}
-        (out / "proof.json").write_text(json.dumps({"checks": {"a": True}, "recovered": [rec]}))
-        (out / "result.txt").write_text("PASS\n")
-        controls = nightly.registry_controls(self.root / "wt")
-        sc = nightly.score_break("hide:g4.advanced.technical", 0, out, controls, self.root / "wt")
-        self.assertEqual(sc["score"], "recovered wrong")
-        note = nightly.draft_fix(sc, controls, self.root / "wt")
-        for want in ("g4.advanced.technical", "Network", "deskTech", "core/desktop.py:2"):
-            self.assertIn(want, note)
-        sc["score"] = "recovered right"
-        self.assertIsNone(nightly.draft_fix(sc, controls))
-
-    def test_lane_writes_breaks_json_and_fix_file(self):
-        t, rec = self.hide_pick(role="text")
-        step = self.lane(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS")
-        run = self.root / "run"
-        self.assertEqual(json.loads((run / "breaks.json").read_text())["score"], "recovered wrong")
-        self.assertIn(t, (run / "breaks-fix.md").read_text())
-        line = nightly.summary_line({"status": "green", "sha": "a" * 40, "ended": "2026-11-03T03:00:00Z",
-                                     "tests": {}, "breaks": step["breaks"], "steps": []})
-        self.assertIn("G4 break", line)
-        self.assertIn("recovered wrong", line)
 
 
 class FakeResponse:
@@ -825,6 +686,176 @@ class DriftTest(unittest.TestCase):
         line = nightly.summary_line(r)
         self.assertIn("green", line)
         self.assertIn("3 of 40 module(s)", line)
+
+
+GREEN = {"status": "green", "sha": "9" * 40, "duration_s": 60, "ended": "2026-11-07T03:00:00Z",
+         "tests": {}, "trust": None}
+
+
+class LanesTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.wt = self.root / "wt"
+        (self.wt / "tools").mkdir(parents=True)
+        self.rel = self.wt / "tools" / "rel"
+        self.rel.write_text("#!/bin/sh\n# start --night\n")
+        self.lanes = self.root / "lanes"
+        self.lanes.mkdir()
+        self.run_dir = self.root / "run"
+        self.run_dir.mkdir()
+        self.sha = "a" * 40
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def fake(self, record, rc=0, seen=None):
+        def run(argv, env, log, timeout, cwd=None):
+            if seen is not None:
+                seen.append((argv, timeout, cwd))
+            if record is not None:
+                (self.lanes / f"{self.sha}.json").write_text(json.dumps(record))
+            return rc
+        return run
+
+    def go(self, runner, by_hand=False, catchup=False, hour=3, busy=lambda: [], **kw):
+        return nightly.run_night_lanes(self.sha, self.run_dir, {}, by_hand, catchup, worktree=self.wt,
+                                       runner=runner, busy=busy, lanes_dir=self.lanes,
+                                       now_local=dt.datetime(2026, 11, 7, hour, 0), **kw)
+
+    def test_the_command_is_rel_start_night_commit_without_build_slot(self):
+        seen = []
+        out = self.go(self.fake({"sha": self.sha, "lanes": {"x": {"class": "blocks", "status": "ok"}}}, seen=seen))
+        self.assertEqual(out["status"], "ok")
+        argv, timeout, cwd = seen[0]
+        self.assertEqual(argv, [str(self.rel), "start", "--night", "--commit", self.sha])
+        self.assertNotIn("build-slot", argv)
+        self.assertEqual((timeout, cwd), (nightly.NIGHT_TIMEOUT_S, str(self.wt)))
+
+    def test_a_failed_blocks_lane_is_red_and_a_warns_lane_is_not(self):
+        rec = {"sha": self.sha, "lanes": {"a": {"class": "blocks", "status": "fail", "note": "boom"},
+                                          "b": {"class": "warns", "status": "fail"}}}
+        out = self.go(self.fake(rec))
+        self.assertEqual(out["status"], "red")
+        self.assertEqual([b for b, _ in nightly.blocks_failed(out["record"])], ["a"])
+
+    def test_skips_without_night_support_when_busy_or_too_late(self):
+        self.rel.write_text("#!/bin/sh\n")
+        self.assertIn("no --night", self.go(self.fake(None))["reason"])
+        self.rel.write_text("--night")
+        self.assertIn("release run", self.go(self.fake(None), busy=lambda: ["x"])["reason"])
+        late = self.go(self.fake(None), hour=7)
+        self.assertEqual(late["status"], "skipped")
+        for kw in ({"by_hand": True}, {"catchup": True}):  # by hand and catch-up start at any hour
+            self.assertEqual(self.go(self.fake({"sha": self.sha, "lanes": {}}), hour=9, **kw)["status"], "ok")
+
+    def test_time_limit_and_missing_file_are_unknown_not_red(self):
+        self.assertIn("stopped", self.go(self.fake(None, rc=None))["reason"])
+        out = self.go(self.fake(None, rc=1))
+        self.assertEqual(out["status"], "unknown")
+        self.assertIsNone(out["record"])
+
+    def test_a_lanes_file_from_an_earlier_run_is_not_read(self):
+        (self.lanes / f"{self.sha}.json").write_text(json.dumps({"sha": self.sha, "lanes": {}}))
+        old = Path(self.lanes / f"{self.sha}.json")
+        import os
+        os.utime(old, (1, 1))
+        self.assertEqual(self.go(self.fake(None))["status"], "unknown")
+
+    def test_dm_for_green_source_with_red_lanes(self):
+        rec = {"status": "red", "sha": self.sha, "lanes": {"a": {"class": "blocks", "status": "fail", "note": "boom"}}}
+        result = dict(GREEN, sha=self.sha, lanes=rec)
+        self.assertTrue(nightly.lanes_red(result))
+        body = nightly.dm_body(result)
+        self.assertEqual(body["key"], f"nightly-{self.sha[:8]}-lanes")
+        self.assertEqual(body["step"], "night lanes")
+        self.assertEqual(body["tests"], ["lane a: fail boom"])
+        self.assertNotIn("commits", body)
+        self.assertFalse(nightly.lanes_red(dict(GREEN, lanes={"lanes": {}})))
+        self.assertIn("night lanes red: a", nightly.summary_line(dict(result, ended=GREEN["ended"])))
+
+    def test_by_commit_record_keeps_green_and_red(self):
+        path = self.root / "by-commit.json"
+        nightly.record_by_commit("a" * 40, "green", "2026-11-07T03:00:00Z", path=path)
+        nightly.record_by_commit("b" * 40, "red", "2026-11-08T03:00:00Z", path=path)
+        data = json.loads(path.read_text())
+        self.assertEqual((data["a" * 40]["status"], data["b" * 40]["status"]), ("green", "red"))
+
+
+class AcceptanceTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        (self.root / "tools").mkdir()
+        (self.root / "tools" / "lepic.sh").write_text("case $1 in\n  smoke)\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def acc(self, runner=None, busy=lambda: [], taken=lambda: False):
+        return nightly.run_acceptance(self.root, {}, worktree=self.root, runner=runner, busy=busy, taken=taken)
+
+    def test_runs_smoke_and_reports_ok_or_fail(self):
+        seen = []
+
+        def run(argv, log, env, cwd, timeout=None, slot_wait=False):
+            seen.append(argv)
+            return 0, []
+        self.assertEqual(self.acc(run)["status"], "ok")
+        self.assertTrue(seen[0][-2].endswith("lepic.sh") and seen[0][-1] == "smoke")
+        out = self.acc(lambda *a, **k: (3, ["bad"]))
+        self.assertEqual(out["status"], "fail")
+        self.assertEqual(nightly.acceptance_lane(1)["status"], "fail")
+
+    def test_skips_while_rel_is_active_or_the_port_is_taken(self):
+        def never(*a, **k):
+            raise AssertionError("must not run")
+        self.assertIn("release run", self.acc(never, busy=lambda: ["x"])["reason"])
+        self.assertIn("43413", self.acc(never, taken=lambda: True)["reason"])
+
+
+class AlarmTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.base = Path(self.tmp.name)
+        self.conf = self.base / "conf"
+        self.conf.mkdir()
+        (self.conf / "notify_url").write_text("https://bot.invalid:1\n")
+        (self.conf / "notify_token").write_text("t0ken\n")
+        self.now = dt.datetime(2026, 11, 7, 7, 15, tzinfo=dt.timezone.utc)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def run_alarm(self, answers=(200,)):
+        opener = FakeOpener(answers)
+        rc = alarm.run(now=self.now, base=self.base, conf_dir=self.conf, opener=opener, sleep=lambda s: None)
+        return rc, opener
+
+    def test_a_fresh_result_means_alive_and_records_the_commit(self):
+        (self.base / "latest.json").write_text(json.dumps({"sha": "c" * 40, "status": "red", "ended": "2026-11-07T03:00:00Z"}))
+        rc, opener = self.run_alarm()
+        self.assertEqual(rc, 0)
+        self.assertEqual(opener.requests, [])
+        self.assertEqual(json.loads((self.base / "by-commit.json").read_text())["c" * 40]["status"], "red")
+
+    def test_an_unchanged_main_skip_counts_as_alive(self):
+        (self.base / "attempts.log").write_text("2026-11-07T03:30:00Z timer cccccccc skipped: unchanged\n")
+        self.assertEqual(self.run_alarm()[0], 0)
+
+    def test_nothing_in_26_hours_sends_one_message_a_day(self):
+        (self.base / "latest.json").write_text(json.dumps({"sha": "c" * 40, "status": "green", "ended": "2026-11-05T03:00:00Z"}))
+        (self.base / "attempts.log").write_text("2026-11-06T03:30:00Z timer cccccccc skipped: busy (slot 1)\n")
+        rc, opener = self.run_alarm()
+        self.assertEqual(rc, 1)
+        self.assertEqual(json.loads(opener.requests[0][0].data)["key"], "nightly-alarm-20261107")
+        self.assertEqual(json.loads((self.base / "alarm.json").read_text())["sent_keys"], ["nightly-alarm-20261107"])
+        rc2, opener2 = self.run_alarm()
+        self.assertEqual(rc2, 1)
+        self.assertEqual(opener2.requests, [])
+
+    def test_no_files_at_all_alarms(self):
+        self.assertEqual(self.run_alarm()[0], 1)
 
 
 if __name__ == "__main__":
