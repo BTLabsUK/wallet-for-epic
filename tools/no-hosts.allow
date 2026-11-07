@@ -81,3 +81,6 @@ app/lib/src/ui/contact_label_mark.dart	xmlns="http://www\.w3\.org/2000/svg"
 lepic/crates/lepic-cli/src/settings.rs	btlabs\.uk
 lepic/crates/lepic-contact/src/domain.rs	btlabs\.uk|[ab]\.com
 lepic/crates/lepic-wallet-contacts/src/domain.rs	integration\.btlabs\.uk
+
+# Generated from the driver registry: control ids, not hosts (`g4.send.to`).
+app/lib/src/trust_ids.g.dart	'[a-z0-9_.]+'
