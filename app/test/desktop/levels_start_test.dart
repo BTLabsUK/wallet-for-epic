@@ -195,7 +195,6 @@ void main() {
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
     expect(find.text(_l.lvPickStopTwo), findsWidgets);
     expect(find.byKey(const ValueKey('adv-outputs')), findsOneWidget);
-    expect(find.byKey(const ValueKey('adv-experimental')), findsOneWidget);
     await end(tester);
   });
 

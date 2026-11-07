@@ -28,7 +28,6 @@ import '../../../trust/policy.dart' show MailboxDefault;
 import '../../data/trust_state.dart' show deskMailboxDefaultFor;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig;
-import '../../app/routes.dart' show deskNoLock;
 import '../../../advanced.dart' show NetworkMode;
 import '../../../ui/network_mode_text.dart' show switchPausesSends;
 import '../../../send_reach.dart';

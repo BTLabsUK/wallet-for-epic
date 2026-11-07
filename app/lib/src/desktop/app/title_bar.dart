@@ -38,7 +38,6 @@ import 'close_guard.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_window.dart';
 import 'rail.dart';
-import 'routes.dart' show deskNoLock;
 import 'shell.dart' show deskKeys, lockWallet, deskLockingProvider;
 import 'status_popover.dart';
 

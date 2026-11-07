@@ -12,7 +12,6 @@ import '../../data/desk_node.dart' show deskNodeProvider;
 import 'local_node_dialogs.dart' show ReuseChainDataDialog;
 import '../../../ui/wallet_delete.dart' show DeleteStep, deleteStepText;
 import '../../../ui/work_status.dart';
-import '../../app/routes.dart' show deskNoLock;
 
 // ---- Existing blockchain data --------------------------------------------------------------
 

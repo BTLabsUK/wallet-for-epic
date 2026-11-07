@@ -14,7 +14,6 @@ import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/desktop/widgets/dialogs.dart' show showEDialog;
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';

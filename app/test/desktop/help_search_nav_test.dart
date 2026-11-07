@@ -47,6 +47,9 @@ void main() {
       await tester.enterText(find.descendant(of: field, matching: find.byType(EditableText)), 'tor');
       await _settle(tester);
       expect(find.byType(SettingsSearchResults), findsOneWidget);
+      // At 700 high the status cards under the Settings list cover it: scroll to the entry.
+      await tester.ensureVisible(find.text('Appearance').first);
+      await _settle(tester);
       await tester.tap(find.text('Appearance').first);
       await _settle(tester);
       expect(container.read(deskNavProvider).route, DeskRoute.settingsAppearance);
@@ -61,6 +64,9 @@ void main() {
       await tester.tap(field);
       await _settle(tester);
       await tester.enterText(field, 'tor');
+      await _settle(tester);
+      // At 700 high the status cards under the Settings list cover it: scroll to the entry.
+      await tester.ensureVisible(find.text('Appearance').first);
       await _settle(tester);
       await tester.tap(find.text('Appearance').first);
       await _settle(tester);

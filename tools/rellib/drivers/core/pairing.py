@@ -13,6 +13,7 @@ English text as the fallback.
 The clipboard: Copy invite puts the invite on the inviter's display; the platform reads it there
 (`clip(text=None)`: read when text is None, else set) and the driver types it into the answerer's
 field."""
+import contextlib
 import re
 import time
 

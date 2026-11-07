@@ -123,8 +123,7 @@ void main() {
 
   // The shell with the tour open on each step, at the three layouts.
   for (final size in const [Size(1280, 800), Size(1000, 700), Size(560, 800)]) {
-    // Invoices is experimental and off by default: the tour has no Invoices step then.
-    final steps = deskTourStepsFor(supportsInvoices: false);
+    final steps = deskTourStepsFor(supportsInvoices: true);
     for (final step in [0, 1, steps.length - 1]) {
       testWidgets('shell tour step $step at ${size.width.toInt()}', (tester) async {
         tester.view.physicalSize = size;

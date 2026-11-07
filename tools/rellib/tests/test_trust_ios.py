@@ -16,6 +16,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DRIVERS = os.path.join(os.path.dirname(HERE), "drivers")
 sys.path.insert(0, DRIVERS)
 sys.path.insert(0, os.path.join(DRIVERS, "ios"))
+# An earlier test may have imported another platform's files.py under the same name.
+_others = {_name: sys.modules.pop(_name) for _name in ("files", "lane", "mac") if _name in sys.modules}
 
 import ios_platform  # noqa: E402
 import wda  # noqa: E402
@@ -26,6 +28,7 @@ sys.path.remove(os.path.join(DRIVERS, "ios"))
 for _name in ("files", "lane", "mac"):
     if os.path.dirname(getattr(sys.modules.get(_name), "__file__", "") or "") == os.path.join(DRIVERS, "ios"):
         del sys.modules[_name]
+sys.modules.update(_others)
 
 TRUST = os.path.join(DRIVERS, "trust-ios.sh")
 

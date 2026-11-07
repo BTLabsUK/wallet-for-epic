@@ -4,6 +4,7 @@
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
+import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart' show OverviewScreen;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
@@ -12,7 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<ProviderContainer> _pump(WidgetTester tester, WalletLevel level, {DeskRoute start = DeskRoute.overview}) async {
+Future<ProviderContainer> _pump(WidgetTester tester, WalletLevel level, {DeskRoute start = DeskRoute.overview, int invoicesToAnswer = 0}) async {
   tester.view.physicalSize = const Size(1440, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -20,6 +21,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, WalletLevel level, {DeskRou
     overrides: [
       deskStartProvider.overrideWithValue(start),
       deskLevelProvider.overrideWithValue(level),
+      deskInvoiceBadgeProvider.overrideWithValue(invoicesToAnswer),
       // One wallet on this computer.
       deskLevelUiProvider.overrideWithValue(DeskLevelFeatures.of(level, prefs: const AdvancedPrefs(), wallets: 1)),
     ],
@@ -40,6 +42,11 @@ Finder _rail(String label) => find.descendant(of: find.byType(ENavItem), matchin
 
 void main() {
   group('Shallow', () {
+    testWidgets('an invoice to answer brings Invoices to the rail', (tester) async {
+      await _pump(tester, WalletLevel.justSendReceive, invoicesToAnswer: 1);
+      expect(_rail('Invoices'), findsOneWidget);
+    });
+
     testWidgets('six rail items, the name without a menu, Network and Epicbox, a popover without For support or Copy details', (tester) async {
       await _pump(tester, WalletLevel.justSendReceive);
       for (final l in ['Overview', 'Activity', 'Contacts', 'Send', 'Receive', 'Settings']) {

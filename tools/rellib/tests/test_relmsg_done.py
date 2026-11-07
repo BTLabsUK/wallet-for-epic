@@ -28,6 +28,9 @@ class DyingEngine:
     def input_hash(self, step):
         return ""
 
+    def stale_why(self, step, st):
+        return None
+
 
 class RelmsgDoneTest(Base):
     def app(self):
