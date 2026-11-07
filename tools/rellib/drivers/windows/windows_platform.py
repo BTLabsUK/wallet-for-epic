@@ -408,6 +408,7 @@ class WindowsPlatform(Platform):
     def load_point(self):
         self._install("previous", "prev-setup.exe")
         self._copy_tree(self._point(), self.data, "point-load")
+        self.point_saved = True   # still on the rig: a resumed attempt that fails can be resumed too
         self.running = None
         self.log("the data folder from before the update is back in %s" % self.data)
 

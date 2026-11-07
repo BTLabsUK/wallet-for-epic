@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 """The Windows desktop app as a core Surface, over the rig agent (agent.ps1) in epicrig's session 0.
 
-Reading: UI Automation's tree of the app's FLUTTERVIEW (roles, names, values, states, rects, and
-the AutomationId the engine sets from a Semantics identifier as Node.id; builds before the app's ids
-have none, and core/targets.py falls back to role + label).
+Reading: UI Automation's tree of the app's FLUTTERVIEW (roles, names, values, states, rects). The
+tree comes through MSAA: the engine is built without FLUTTER_ENGINE_USE_UIA, so a Semantics identifier
+never reaches AutomationId, Node.id stays empty on every build and core/targets.py goes by role + label.
 Pressing: MSAA's default action on the node (UIA's own Invoke and SetFocus fail in a session without
 a desktop); a node with none is clicked at the centre of its UIA rect, with a posted mouse message.
 Both paths are logged. Typing: posted WM_CHAR after a click in the field; a secret goes to the rig as

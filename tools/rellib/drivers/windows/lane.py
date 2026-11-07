@@ -63,7 +63,7 @@ def main():
                e.get("REL_P_LOCK") or os.path.expanduser("/opt/epic/qa-funder/.rel-lock"), out, log)
 
     def recipe_for(lane, which, surface):
-        d = Driver(surface, Labels.for_build(which), lane.rec, out=lane.out, log=lane.log)
+        d = Driver(surface, Labels.for_build(which, ids=False), lane.rec, out=lane.out, log=lane.log)
         return Desktop(d, which, lane.log)
 
     def stopped(sig, _frame):  # a runner's timeout: the sandbox and stand-ins still go
