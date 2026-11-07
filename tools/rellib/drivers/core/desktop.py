@@ -13,6 +13,7 @@ A phrase restored is typed word by word as a secret (Surface.set_text) with the 
 screenshot or tree dump while words are on screen, and no word in any line.
 """
 import calendar
+from dataclasses import replace
 import re
 import secrets as _secrets
 import time
@@ -328,7 +329,9 @@ class Desktop:
         """Field `i` (from 1) of the phrase grid: "Word {number}" on a build without the ids."""
         text = self.d.labels.text("deskOnbWordN") or "Word {number}"
         name = "re:(?:.* )?%s(?: .*)?" % re.escape(tg._norm(text)).replace(re.escape("{number}"), str(i))
-        return RESTORE_PHRASE.at(None, names=(name,)) if i == 1 else RESTORE_WORD.at(i, names=(name,))
+        if i == 1:
+            return RESTORE_PHRASE.at(None, names=(name,))
+        return replace(RESTORE_WORD.at(i, names=(name,)), kind="named")   # the grid marks its first field only
 
     def _type_words(self, words):
         """Each word into its own field, checked against what the field then holds (a key lost on the way

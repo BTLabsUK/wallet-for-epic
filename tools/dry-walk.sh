@@ -12,6 +12,8 @@ command -v build-slot >/dev/null && heavy=(build-slot)
 mkdir -p "$out/phone" "$out/desktop"
 out=$(cd "$out" && pwd)
 rc=0
+# A fresh worktree has the clones, not this host's library: the prebuilt cache has it.
+LEPIC_SHARED=1 "${heavy[@]}" "$root/tools/lepic.sh" build linux >"$out/lepic.log" 2>&1 || rc=$?
 cd "$root/app" || exit 1
 SHOTS_META=1 TOUR_SHOTS_OUT="$out/phone" "${heavy[@]}" flutter test tool/screenshot_tour_test.dart >"$out/phone.log" 2>&1 || rc=$?
 tail -n 1 "$out/phone.log"

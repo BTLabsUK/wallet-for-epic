@@ -99,14 +99,15 @@ def _fits(name, pat, match):
 def patterns(target, labels):
     """The regexes (over normalised text) this target's label can be on this build, newest first."""
     ids_only = bool(getattr(labels, "ids_only", False))
-    if ids_only and target.kind != "copy":
+    named = target.kind == "named"   # a control the build gives no id: its accessible name is all there is
+    if ids_only and target.kind != "copy" and not named:
         return []
     out = []
     for k in target.keys:
         p = labels.pattern(k) if labels else None
         if p:
             out.append(_norm_pat(p))
-    if not ids_only:
+    if not ids_only or named:
         for n in target.names:
             out.append(n[3:] if n.startswith("re:") else re.escape(_norm(n)))
     return out

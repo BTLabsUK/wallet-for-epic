@@ -497,7 +497,7 @@ warn_only = true
 capped = true
 run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
 timeout = "150m"
-env = { REL_TX_PART = "payments", REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+env = { REL_TX_PART = "payments", REL_OUT = "{stage}", REL_FUNDS = "1", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
 [step.lane-pairing-linux]
 title = "Pairing between two wallets, Linux ({variant})"
@@ -512,7 +512,7 @@ warn_only = true
 capped = true
 run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
 timeout = "150m"
-env = { REL_TX_PART = "pairing", REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+env = { REL_TX_PART = "pairing", REL_OUT = "{stage}", REL_FUNDS = "1", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
 [step.lane-linking-linux]
 title = "Linking two devices, Linux ({variant})"
@@ -527,7 +527,7 @@ warn_only = true
 capped = true
 run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
 timeout = "150m"
-env = { REL_TX_PART = "linking", REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+env = { REL_TX_PART = "linking", REL_OUT = "{stage}", REL_FUNDS = "1", REL_CANDIDATE_DIR = "{run}/steps/testbuild-linux-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
 
 [step.create-windows]

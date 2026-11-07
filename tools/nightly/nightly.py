@@ -780,7 +780,7 @@ def run_trust_one(platform, prev, cand, run_dir, driver, env_base, runner=None, 
     elif rc == 2:
         step["status"] = "skipped"  # the driver could not run (rig / emulator / tool missing)
         step["reason"] = "driver could not run: " + _clip(
-            str((proof or {}).get("reason") or (proof or {}).get("error") or _last_line(log)), 200)
+            str((proof or {}).get("reason") or (proof or {}).get("error") or _harness_line(log)), 200)
     else:
         step["status"] = "fail"
         step["failing_checks"] = failing_checks(proof)
@@ -794,6 +794,15 @@ def _last_line(path):
     except OSError:
         return "no log"
     return lines[-1] if lines else "no output"
+
+
+def _harness_line(log):
+    """The line that says why a driver could not run; else its last line (a phrase scan follows)."""
+    try:
+        lines = Path(log).read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        lines = []
+    return next((l for l in reversed(lines) if "HARNESS" in l), None) or _last_line(log)
 
 
 def run_driver(argv, env, log_path, timeout, cwd=None):
