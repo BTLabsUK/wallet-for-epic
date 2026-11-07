@@ -13801,7 +13801,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'นับจากนี้ ไฟล์ธุรกรรมและใบแจ้งหนี้กับ $name จะถูกปิดผนึก';
+    return 'นับจากนี้ ไฟล์ธุรกรรมกับ $name จะถูกปิดผนึก';
   }
 
   @override
@@ -13826,9 +13826,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'ตรวจตอนนี้';
-
-  @override
-  String get sasAllowAfterMatch => 'เปิดใช้เมื่อคุณยืนยันว่าคำตรงกัน';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -15083,29 +15080,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'จับคู่ครั้งเดียวกับคนที่ชำระเงินกันบ่อย จากนั้นไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก และผู้ติดต่อจะแสดงว่าจับคู่แล้ว เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
 
   @override
-  String get expInvoices => 'ใบแจ้งหนี้';
-
-  @override
-  String get expInvoicesHint =>
-      'ขอรับเงินจากผู้ติดต่อที่จับคู่แล้ว และอนุมัติใบแจ้งหนี้ที่ผู้ติดต่อที่จับคู่แล้วส่งมา ต้องเปิดการจับคู่ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
-
-  @override
-  String get expNeedsPairing => 'ใบแจ้งหนี้ต้องใช้การจับคู่';
-
-  @override
   String get expPairingOffTitle => 'การจับคู่เป็นฟีเจอร์ทดลอง';
 
   @override
   String get expPairingOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
-
-  @override
-  String get expInvoicesOffTitle => 'ใบแจ้งหนี้เป็นฟีเจอร์ทดลอง';
-
-  @override
-  String get expInvoicesOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
-
-  @override
-  String get expOpenAdvanced => 'เปิดขั้นสูง';
 
   @override
   String get contactNoAddressPaired => 'ไม่มีที่อยู่สาธารณะ';
@@ -16485,9 +16463,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get linkTryAgain => 'ลองอีกครั้ง';
-
-  @override
-  String get linkOffTitle => 'อุปกรณ์ที่เชื่อมโยงเป็นฟีเจอร์ทดลอง';
 
   @override
   String txSentFromDevice(String device) {
@@ -19183,9 +19158,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetGrpShowsMore => 'แสดงเพิ่มเติม';
 
   @override
-  String get deskSetGrpExperiments => 'การทดลอง';
-
-  @override
   String get deskSetGrpOnComputer => 'บนคอมพิวเตอร์เครื่องนี้';
 
   @override
@@ -19560,13 +19532,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetSynAdvLogs => 'บันทึก, log, ดีบัก, วินิจฉัย';
 
   @override
-  String get deskSetRowXInvoicesHint =>
-      'ขอให้รายชื่อที่จับคู่ชำระเงิน อนุมัติคำขอของพวกเขา';
-
-  @override
-  String get deskSetSynXInvoices => 'ใบแจ้งหนี้, ขอชำระเงิน, จับคู่, บิล';
-
-  @override
   String get deskSetRowWalletRows => 'รายการวอลเล็ต';
 
   @override
@@ -19684,9 +19649,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'เพิ่มเอาต์พุต ใบแจ้งหนี้ โหนดในเครื่อง และทุกสวิตช์ขั้นสูง';
-
-  @override
-  String get deskSetAdvExperiments => 'การทดลอง';
 
   @override
   String get deskSetFrameBack => 'กระเป๋า';
@@ -20444,5 +20406,18 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'โหนดตามหลังอยู่ สลับไปที่ $host แล้ว';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'ใบแจ้งหนี้จาก $name ปิดอยู่';
+  }
+
+  @override
+  String get contactAllowFinishCheck => 'ตรวจสอบกุญแจให้เสร็จก่อน';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ';
   }
 }

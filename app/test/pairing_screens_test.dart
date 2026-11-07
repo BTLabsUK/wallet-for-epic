@@ -33,7 +33,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'support/experimental.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -57,12 +56,12 @@ class _NoPrice implements PriceSource {
 }
 
 class _Harness {
-  _Harness({String? seenAs = 'Alex', this.prefs = phoneExperimentalOn}) {
+  _Harness({String? seenAs = 'Alex', this.prefs}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
-    store.values[phoneAdvancedPrefsKey] = prefs;
+    if (prefs != null) store.values['app.advanced_prefs'] = prefs!;
   }
 
-  final String prefs;
+  final String? prefs;
   final session = FakeWalletSession();
   final store = MemorySecretStore();
   final files = FakeSlateFiles();
@@ -82,7 +81,6 @@ class _Harness {
         overrides: [
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
-          invoicesOnProvider.overrideWithValue(true),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
@@ -354,12 +352,16 @@ void main() {
       expect(find.byKey(checkNoMatchKey), findsOneWidget);
       expect(find.text(_l.sasSkip), findsNothing);
       expect(find.text(_l.sasLater), findsNothing);
+      expect(find.text(_l.contactAllowInvoices), findsNothing, reason: 'no Allow switch on the words screen');
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pumpAndSettle();
       expect(h.api.records.single.state, PairingState.verified);
       expect(find.byType(PairingResultScreen), findsOneWidget);
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
       expect(find.byKey(resultSaveNewKey), findsOneWidget);
+      // Allow invoices is here, off, with its line; the words screen had no switch.
+      expect(find.byKey(resultAllowKey), findsOneWidget);
+      expect(find.text(_l.sasAllowOffLine('Anna')), findsOneWidget);
     });
 
     testWidgets('an automated peer: the service lead, and the result says so instead of the confirmed line', (tester) async {
@@ -780,7 +782,7 @@ void main() {
     });
   });
 
-  group('the Experimental switch', () {
+  group('the retired Pairing switch', () {
     testWidgets('Pair shows with the old pairing switch stored off', (tester) async {
       final h = _Harness(prefs: 'outputs|standard');
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));

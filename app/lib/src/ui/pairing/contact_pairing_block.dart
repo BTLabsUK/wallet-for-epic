@@ -436,6 +436,7 @@ class ContactPairingBlock extends ConsumerWidget {
             ),
           );
     final switchesLocked = busy || paused || changed || waiting;
+    final keyCheckOpen = keyCheckOpenFor(ref.watch(pairingsProvider).value ?? const <PairingRecord>[], p);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -519,15 +520,14 @@ class ContactPairingBlock extends ConsumerWidget {
               hint: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
               onChanged: switchesLocked ? null : setSeal,
             ),
-            // Invoices off (Settings › Advanced): the switch is not offered; what it holds stays.
-            if (!noPayments && ref.watch(invoicesOnProvider))
+            if (!noPayments)
               PairSwitchRow(
                 switchKey: contactPageInvoicesKey,
                 label: l.contactAllowInvoices,
                 info: allowInfo,
                 value: verified && p.allowInvoices,
-                hint: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
-                onChanged: switchesLocked || !verified ? null : setInvoices,
+                hint: changed ? l.contactPausedUntilChecked : (keyCheckOpen ? l.contactAllowFinishCheck : (verified ? null : l.contactCheckWordsFirst)),
+                onChanged: switchesLocked || !verified || keyCheckOpen ? null : setInvoices,
               ),
             relayRow,
             ?domainRow,

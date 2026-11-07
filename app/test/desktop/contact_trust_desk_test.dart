@@ -18,7 +18,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import '../support/experimental.dart';
 
 final _l = englishStrings;
 final DateTime _now = DateTime(2026, 11, 1, 12);
@@ -83,7 +82,6 @@ Future<Contact> _open(WidgetTester tester, Widget Function(Contact anna) screen,
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(_c);
   });
   await tester.pumpWidget(
     UncontrolledProviderScope(

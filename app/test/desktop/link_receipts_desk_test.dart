@@ -19,7 +19,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import '../name_service_vectors_support.dart';
-import '../support/experimental.dart';
 import '../support/fake_receipts.dart';
 
 final _l = englishStrings;
@@ -95,7 +94,6 @@ Future<void> _open(WidgetTester tester, Tx tx, {bool tell = true, String? label 
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(_c);
   });
   await tester.pumpWidget(
     UncontrolledProviderScope(

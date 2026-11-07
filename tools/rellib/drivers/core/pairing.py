@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The pairing recipes of the TX lane (linux/tx_lane.py, PAIR-1) on the desktop family, over
-core/desktop.py: Pairing turned on (Settings › Advanced, experimental), the name a wallet is seen as,
+core/desktop.py: the pairing flows, the name a wallet is seen as,
 an invite copied on one wallet and pasted on the other, the four words read on both sides and
 confirmed, the pairing saved as a contact, a pair request to a proven contact, an invoice issued
 and paid between the two, and the pairing removed.
@@ -22,7 +22,6 @@ from .targets import T
 
 NAV_CONTACTS = T("g4.nav.contacts")
 ADV_PAIRING = T("pair.adv.pairing")
-ADV_INVOICES = T("pair.adv.invoices")
 
 # Contacts › Pair: Your invite | Have their invite?
 CONTACTS_SEARCH = T("pair.contacts.search")
@@ -49,6 +48,8 @@ CONTACT_ROW = T("pair.contact.row")
 CHECK_ALLOW = T("pair.check.allow")
 # "Lane B is verified" › Add to contacts › Save as a new contact (a menu item, no button on Flutter desktop) › Save contact
 SAVED_TITLE = T("pair.saved.title")
+RESULT_DONE = T("pair.result.done")  # a saved contact's verified result
+ALLOW_FINISH_CHECK = T("pair.allow.finish")
 SAVED_ADD = T("pair.saved.add")
 SAVED_NEW = T("pair.saved.new")
 SAVE_CONTACT = T("pair.saved.save")
@@ -97,14 +98,24 @@ class Pairing:
 
     # ---- set up
 
-    def enable(self, invoices=False):
-        """Settings › Advanced › Experiments: Invoices on when [invoices] (off on a new install). Pairing
-        is on for everyone since 26.11.0; an older build's Pairing switch is turned on when it shows."""
+    @contextlib.contextmanager
+    def _own_not_now(self):
+        """The pairing dialogs' Not now declines the pairing: while they are up the driver must not
+        take it for the last-session notice's Not now (a desktop obstacle it presses on sight)."""
+        d = self.d
+        keep = d.obstacles
+        d.obstacles = [(t, why) for t, why in keep if "Not now" not in t.names]
+        try:
+            yield
+        finally:
+            d.obstacles = keep
+
+    def enable(self):
+        """Pairing is on for everyone since 26.11.0, invoices are each contact's Allow invoices; an
+        older build's Pairing switch is turned on when it shows."""
         self.ui.section("advanced")
         if self.d.seen(ADV_PAIRING):
             self.d.toggle(ADV_PAIRING, True, step="pairing-on", timeout=30)
-        if invoices:
-            self.d.toggle(ADV_INVOICES, True, step="invoices-on", timeout=30)
         self.ui.leave_settings()
 
     def open_pair(self):
@@ -191,20 +202,24 @@ class Pairing:
         return w
 
     def confirm_words(self, allow_invoices=False):
-        """They match (Allow invoices on first when asked and offered); then the result saved as a new contact."""
+        """They match; then the verified result: Allow invoices is there, off, and is turned on when
+        asked; saved as a new contact (an unsaved one) or closed with Done (a saved one)."""
         d = self.d
-        if allow_invoices and d.seen(CHECK_ALLOW):
-            d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
-        # "<name> is verified": Not now | Add to contacts, a menu with Save as a new contact
-        d.press(CHECK_MATCH, step="pair-match", then=either(shows(SAVED_ADD), shows(SAVED_NEW), gone(CHECK_MATCH)),
-                timeout=60)
-        if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW)), 30):
-            if not d.seen(SAVED_NEW):
-                hits = d.find_in(SAVED_ADD, d.tree())
-                d._act(d.s.press, hits[-1])  # the dialog's (a page under it can have its own)
-                d.must(shows(SAVED_NEW), 20, step="pair-save-add")
-            d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
-            d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
+        with self._own_not_now():  # "<name> is verified": Not now | Add to contacts, a menu with Save as a new contact
+            d.press(CHECK_MATCH, step="pair-match",
+                    then=either(shows(SAVED_ADD), shows(SAVED_NEW), shows(RESULT_DONE), gone(CHECK_MATCH)), timeout=60)
+            if d.wait(either(shows(SAVED_ADD), shows(SAVED_NEW), shows(RESULT_DONE)), 30):
+                if allow_invoices and d.seen(CHECK_ALLOW):  # off by default; only the payer turns it on
+                    d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
+                if not d.seen(SAVED_NEW) and d.seen(SAVED_ADD):
+                    hits = d.find_in(SAVED_ADD, d.tree())
+                    d._act(d.s.press, hits[-1])  # the dialog's (a page under it can have its own)
+                    d.must(shows(SAVED_NEW), 20, step="pair-save-add")
+                if d.seen(SAVED_NEW):
+                    d.press(SAVED_NEW, step="pair-save-new", then=shows(SAVE_CONTACT), timeout=20)
+                    d.press(SAVE_CONTACT, step="pair-save-contact", then=gone(SAVE_CONTACT), timeout=30)
+                elif d.seen(RESULT_DONE):  # a saved contact's result: Done closes it
+                    d.press(RESULT_DONE, step="pair-result-done", then=gone(RESULT_DONE), timeout=20)
 
     # ---- the contact page
 
@@ -318,6 +333,13 @@ class Pairing:
         """<name>'s contact page › Allow invoices on (the payer's side; a verified pairing only)."""
         self.open_contact(name)
         self.d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
+
+    def allow_blocked(self, name):
+        """<name>'s contact page during an open key check: the Allow invoices switch is disabled and
+        the page says to finish the key check first. -> True when both hold."""
+        self.open_contact(name)
+        node = self.d.locate(CHECK_ALLOW, 20)
+        return bool(node) and not node.enabled and bool(self.d.seen(ALLOW_FINISH_CHECK))
 
     def issue_invoice(self, name, amount):
         """<name>'s contact page › Issue an invoice (to <name>) › Amount › Send invoice. -> (ok, why)."""

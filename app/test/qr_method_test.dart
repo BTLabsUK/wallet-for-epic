@@ -32,7 +32,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/experimental.dart';
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -85,7 +84,7 @@ WalletSummary _summary({int height = 2499990}) => WalletSummary(
 );
 
 class _Harness {
-  _Harness({this.scanner = true, this.prefs = '|epicbox', this.invoicesOn = false}) {
+  _Harness({this.scanner = true, this.prefs = '|epicbox'}) {
     session = FakeWalletSession(summary: _summary())
       ..sendSlate = Slate(slateId: 'slate-1', json: _paymentJson)
       ..responseSlate = Slate(slateId: 'slate-1', json: _replyJson);
@@ -93,9 +92,6 @@ class _Harness {
   }
 
   final bool scanner;
-
-  /// The experimental Invoices switch.
-  final bool invoicesOn;
 
   /// The stored payments value: QR on, File off (a phone's new wallet).
   final String? prefs;
@@ -108,7 +104,6 @@ class _Harness {
   MemorySecretStore store() {
     final s = sendPinStore();
     if (prefs != null) s.values['app.payment_prefs'] = prefs!;
-    if (invoicesOn) s.values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
     return s;
   }
 
@@ -300,7 +295,7 @@ void main() {
     testWidgets('Receive: a QR tab with its card and the scan button', (
       tester,
     ) async {
-      final h = _Harness(invoicesOn: true);
+      final h = _Harness();
       await h.pump(tester, const ReceiveView());
       expect(find.byKey(receiveTabsKey), findsOneWidget);
       await tester.tap(
@@ -312,25 +307,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.receiveQrTitle), findsOneWidget);
       expect(find.byKey(receiveScanQrKey), findsOneWidget);
-      // Asking for an amount, shown as a QR, sits under the scan (Invoices on).
+      // Asking for an amount, shown as a QR, sits under the scan.
       expect(find.byKey(receiveQrRequestKey), findsOneWidget);
       expect(find.text(_l.methodShortFile), findsNothing);
-    });
-
-    testWidgets('Receive: with Invoices off the QR tab has no Request button', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byKey(receiveScanQrKey), findsOneWidget);
-      expect(find.byKey(receiveQrRequestKey), findsNothing);
     });
 
     // Offline lets QR Payment use the node in use, like a file; on a node that is not local

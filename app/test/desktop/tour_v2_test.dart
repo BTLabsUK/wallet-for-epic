@@ -19,7 +19,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
-import '../support/experimental.dart';
 
 final _l = englishStrings;
 
@@ -52,7 +51,6 @@ Future<ProviderContainer> _open(
   addTearDown(container.dispose);
   await tester.runAsync(() async {
     await container.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(container);
   });
   container.read(deskNavProvider.notifier).reset(route);
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));

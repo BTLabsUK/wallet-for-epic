@@ -429,10 +429,6 @@ final List<DeskShot> settingsShots = [
     route: DeskRoute.overview,
     prepare: (c, _) async => c.read(deskTourProvider.notifier).open(at: deskTourSteps.length - 2),
   ),
-  // Settings › Advanced › Experimental: Pairing and Invoices on, then off (the default), and
-  // what off leaves: Contacts without Pair, a pairing link that says where to turn it on.
-  const DeskShot(id: '43k-advanced-experimental', title: 'Settings › Advanced › Experimental, Pairing and Invoices on', route: DeskRoute.settingsAdvanced, height: 1450),
-  const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1450),
   // Advanced mode (Settings › Advanced; the network mode is on Network & privacy) and what the
   // network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
@@ -612,8 +608,3 @@ final List<ImportConflict> _conflicts = [
   ImportConflict(key: 's:e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', field: ManualField.label, mine: 'Rent, October', theirs: 'Tom, rent', timeUnix: DateTime(2026, 10, 19, 8, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(-4000000000)),
 ];
 
-/// Shots taken with Pairing and Invoices on (Settings › Advanced › Experimental); every other
-/// shot runs as a new install, with both off. The invoice shots are all in the invoice shots (invoices/shots.dart).
-const deskExperimentalShots = {
-  '43k-advanced-experimental',
-};

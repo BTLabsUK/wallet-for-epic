@@ -54,7 +54,6 @@ import 'package:flutter/services.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'support/experimental.dart';
 import 'support/real_time.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
 
@@ -149,16 +148,9 @@ class _Harness {
     bool walletExists = true,
     bool advanced = false,
     bool scanSupported = false,
-    bool experimental = false,
     this.tor = false,
   }) : scanner = FakeQrScanner(supported: scanSupported) {
     if (advanced) store.values['app.advanced'] = 'true';
-    // Pairing and Invoices on (Experimental), with what the old Advanced switch showed.
-    if (experimental) {
-      store.values[phoneAdvancedPrefsKey] = advanced
-          ? 'invoices,pairing,recheckFromHeight,serverDetails,technicalDetails|standard'
-          : phoneExperimentalOn;
-    }
     if (sealed) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
       store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
@@ -1597,7 +1589,7 @@ void main() {
       bool advanced = false,
       Future<void> Function(_Harness h)? seed,
     }) async {
-      final h = _Harness(advanced: advanced, experimental: true);
+      final h = _Harness(advanced: advanced);
       await seed?.call(h);
       await h.pump(tester);
       await h.unlock(tester);
@@ -1647,7 +1639,7 @@ void main() {
     });
 
     testWidgets('the section says who may ask you to pay', (tester) async {
-      final h = _Harness(experimental: true);
+      final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
@@ -2061,47 +2053,46 @@ void main() {
         return rows;
       }
 
-      for (final experimental in [false, true]) {
-        testWidgets('every Settings page, Experimental ${experimental ? 'on' : 'off'}: tablet and foldable show what the phone shows', (
-          tester,
-        ) async {
-          final h = _Harness(experimental: experimental, advanced: true);
-          await h.pump(tester);
-          await h.unlock(tester);
-          Map<SettingsSection?, Set<String>>? phone;
-          for (final size in sizes) {
-            tester.view.devicePixelRatio = 2;
-            tester.view.physicalSize = Size(size.w * 2, size.h * 2);
-            final pages = <SettingsSection?, Set<String>>{};
-            for (final section in [null, ...SettingsSection.values]) {
-              await h.openSettings(tester, section);
-              pages[section] = await pageRows(tester);
-              if (section == SettingsSection.advanced) {
-                // No Connection servers row: they are the first of the Epicbox list.
-                expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
-                expect(pages[section], contains('key:adv-invoices'), reason: 'adv-invoices at $size');
-                // Linked devices has no switch any more (item 10).
-                expect(pages[section], isNot(contains('key:adv-linkedDevices')), reason: '$size');
-                // The network mode and failover moved to Network & privacy (B-03).
-                for (final row in ['adv-mode-standard', 'adv-nodeFailover']) {
-                  expect(pages[section], isNot(contains('key:$row')), reason: '$row at $size');
-                }
+      testWidgets('every Settings page: tablet and foldable show what the phone shows', (
+        tester,
+      ) async {
+        final h = _Harness(advanced: true);
+        await h.pump(tester);
+        await h.unlock(tester);
+        Map<SettingsSection?, Set<String>>? phone;
+        for (final size in sizes) {
+          tester.view.devicePixelRatio = 2;
+          tester.view.physicalSize = Size(size.w * 2, size.h * 2);
+          final pages = <SettingsSection?, Set<String>>{};
+          for (final section in [null, ...SettingsSection.values]) {
+            await h.openSettings(tester, section);
+            pages[section] = await pageRows(tester);
+            if (section == SettingsSection.advanced) {
+              // No Connection servers row: they are the first of the Epicbox list.
+              expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
+              // Invoices has no switch any more: whether they arrive is each contact's Allow invoices.
+              expect(pages[section], isNot(contains('key:adv-invoices')), reason: 'adv-invoices at $size');
+              // Linked devices has no switch any more (item 10).
+              expect(pages[section], isNot(contains('key:adv-linkedDevices')), reason: '$size');
+              // The network mode and failover moved to Network & privacy (B-03).
+              for (final row in ['adv-mode-standard', 'adv-nodeFailover']) {
+                expect(pages[section], isNot(contains('key:$row')), reason: '$row at $size');
               }
-              if (section == SettingsSection.privacyNetwork) {
-                for (final row in ['adv-mode-standard', 'adv-mode-nodeOnly', 'adv-mode-killSwitch', 'adv-nodeFailover']) {
-                  expect(pages[section], contains('key:$row'), reason: '$row at $size');
-                }
+            }
+            if (section == SettingsSection.privacyNetwork) {
+              for (final row in ['adv-mode-standard', 'adv-mode-nodeOnly', 'adv-mode-killSwitch', 'adv-nodeFailover']) {
+                expect(pages[section], contains('key:$row'), reason: '$row at $size');
               }
-              tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-              await tester.pumpAndSettle();
             }
-            phone ??= pages;
-            for (final section in pages.keys) {
-              expect(pages[section], phone[section], reason: '${section?.name ?? 'hub'} at ${size.w.round()}x${size.h.round()}');
-            }
+            tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+            await tester.pumpAndSettle();
           }
-        });
-      }
+          phone ??= pages;
+          for (final section in pages.keys) {
+            expect(pages[section], phone[section], reason: '${section?.name ?? 'hub'} at ${size.w.round()}x${size.h.round()}');
+          }
+        }
+      });
     });
 
     testWidgets('restore scans from January 2025 by default, at level 1', (tester) async {

@@ -103,7 +103,6 @@ abstract final class TrustIds {
   static const dialogClose = 'g4.dialog.close';
   static const navContacts = 'g4.nav.contacts';
   static const pairAdvPairing = 'pair.adv.pairing';
-  static const pairAdvInvoices = 'pair.adv.invoices';
   static const pairContactsSearch = 'pair.contacts.search';
   static const pairContactsPair = 'pair.contacts.pair';
   static const pairScreenCopy = 'pair.screen.copy';
@@ -116,6 +115,7 @@ abstract final class TrustIds {
   static const pairWaitingClose = 'pair.waiting.close';
   static const pairCheckMatch = 'pair.check.match';
   static const pairCheckAllow = 'pair.check.allow';
+  static const pairResultDone = 'pair.result.done';
   static const pairSavedAdd = 'pair.saved.add';
   static const pairSavedNew = 'pair.saved.new';
   static const pairSavedSave = 'pair.saved.save';
@@ -297,7 +297,6 @@ abstract final class TrustIds {
     'g4.dialog.close',
     'g4.nav.contacts',
     'pair.adv.pairing',
-    'pair.adv.invoices',
     'pair.contacts.search',
     'pair.contacts.pair',
     'pair.screen.copy',
@@ -310,6 +309,7 @@ abstract final class TrustIds {
     'pair.waiting.close',
     'pair.check.match',
     'pair.check.allow',
+    'pair.result.done',
     'pair.saved.add',
     'pair.saved.new',
     'pair.saved.save',

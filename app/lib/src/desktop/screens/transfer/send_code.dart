@@ -9,14 +9,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../scan/scan_checks.dart' show CodeOrigin;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 
 export '../../../scan/scan_checks.dart' show CodeOrigin;
 
@@ -166,28 +164,3 @@ void showCodeDialog(BuildContext context, {required IconData icon, required Stri
   );
 }
 
-/// An invoice while Invoices in Settings › Advanced › Experimental is off: says so, Open
-/// Advanced goes there.
-void showExperimentalOffDialog(BuildContext context, {bool invoices = true}) => unawaited(
-  showEDialog<void>(
-    context,
-    builder: (ctx) => EDialog(
-      key: const ValueKey('experimental-off'),
-      title: ctx.l10n.expInvoicesOffTitle,
-      description: ctx.l10n.expInvoicesOffBody,
-      icon: EIcons.invoice,
-      actions: [
-        EButton(label: ctx.l10n.commonClose, onPressed: () => Navigator.of(ctx).pop()),
-        EButton.primary(
-          key: const ValueKey('experimental-off-open'),
-          label: ctx.l10n.expOpenAdvanced,
-          onPressed: () {
-            Navigator.of(ctx).pop();
-            // Scrolled to the switches, not the top of Advanced (LNX3-1).
-            ProviderScope.containerOf(context, listen: false).read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.experimental);
-          },
-        ),
-      ],
-    ),
-  ),
-);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Settings › Advanced: the view (Shallow, Deeper, Deep end), the switches that show more of
-/// the wallet, each explained behind its ⓘ, and the experiments (Invoices). What a switch turns
+/// the wallet, each explained behind its ⓘ. What a switch turns
 /// on appears where it belongs (the sidebar, Send, a transaction's details). The network mode
 /// is on Network & privacy (`settings_privacy.dart`).
 library;
@@ -19,7 +19,6 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import '../onboarding/depth_dial.dart' show DeskDepthPicker, showDepthHelp;
-import 'prefs.dart' show SettingsJump;
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 
@@ -51,7 +50,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   // Phone only; never on the desktop's list.
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
   AdvancedFeature.pairing => l.expPairing,
-  AdvancedFeature.invoices => l.expInvoices,
+  AdvancedFeature.invoices => l.invoicesTitle,
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
@@ -76,8 +75,6 @@ class SettingsAdvancedScreen extends ConsumerWidget {
               children: const [_ViewGroup(), _ShowsGroup()],
             ),
           ),
-          // An "experimental" dialog's Open Advanced lands here (LNX3-1).
-          const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
         ],
       ),
     );
@@ -213,43 +210,6 @@ class _ShowsGroup extends ConsumerWidget {
       rows: [for (final (r, min) in all) if (level >= min) r],
       hidden: [for (final (r, min) in all) if (level < min) r],
       revealKey: 'adv-shows',
-    );
-  }
-}
-
-/// Advanced › Experiments: Invoices, off by default, Deep end's. Linked devices shows at every
-/// view and has no switch (item 10).
-class _ExperimentalGroup extends ConsumerWidget {
-  const _ExperimentalGroup();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final s = ref.watch(deskProvider.select((s) => s.settings));
-    final deep = ref.watch(deskLevelProvider) == WalletLevel.everything;
-    final adv = s.advanced;
-    final n = ref.read(deskProvider.notifier);
-    final invoices = ESetRow(
-      key: ValueKey('adv-${AdvancedFeature.invoices.name}'),
-      anchor: SetId.xInvoices,
-      advancedBy: deep ? null : advancedByView(l, 3),
-      title: advancedFeatureName(l, AdvancedFeature.invoices),
-      badge: EBadge(l.deskSetFrameExperiment),
-      hint: l.expInvoicesHint,
-      hintTitle: advancedFeatureName(l, AdvancedFeature.invoices),
-      control: ESwitch(
-        semanticsId: TrustIds.pairAdvInvoices,
-        value: adv.invoicesOn,
-        semanticLabel: advancedFeatureName(l, AdvancedFeature.invoices),
-        onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withExperimental(AdvancedFeature.invoices, v))),
-      ),
-    );
-    return ESetGroup(
-      key: const ValueKey('adv-experimental'),
-      title: l.deskSetAdvExperiments,
-      rows: [if (deep) invoices],
-      hidden: [if (!deep) invoices],
-      revealKey: 'adv-experiments',
     );
   }
 }

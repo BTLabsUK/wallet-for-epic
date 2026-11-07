@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contacts.dart';
 import 'log.dart' show logWarn;
-import 'levels/level_providers.dart' show effectiveAdvancedProvider;
 import 'name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
 import 'pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
 import 'providers.dart';
@@ -23,16 +22,9 @@ import 'wallet_service.dart';
 
 export 'pairing_text.dart' show pairingName;
 
-/// Invoices are on (Settings › Advanced › Experimental; off by default): the invoice screens,
-/// requests, notices and Settings › Invoices.
-final invoicesOnProvider = Provider<bool>(
-  (ref) => ref.watch(effectiveAdvancedProvider).invoicesOn,
-);
-
-/// The open wallet when it handles invoices and Invoices is on, else null: every invoice
-/// provider, screen and notice reads it, so Invoices off shows and checks nothing.
+/// The open wallet when it handles invoices, else null: every invoice provider, screen and
+/// notice reads it. What arrives is each contact's Allow invoices, in LEPIC.
 final invoiceSessionProvider = Provider<WalletSession?>((ref) {
-  if (!ref.watch(invoicesOnProvider)) return null;
   final session = ref.watch(sessionProvider);
   return session != null && session.supportsInvoices ? session : null;
 });

@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../support/experimental.dart';
 
 final _l = englishStrings;
 
@@ -66,7 +65,6 @@ void main() {
       await wallet.saveContact(Contact(id: 'cz', name: 'Zoe'));
       wallet.pairing.seedPaired(id: 'pz', name: 'Zoe', contactId: 'cz', relay: 'epicbox.epiccash.com');
       await container.read(deskProvider.notifier).refresh();
-      await deskExperimentalOn(container);
       await container.read(deskPairingsProvider.future);
     });
     await tester.pumpWidget(

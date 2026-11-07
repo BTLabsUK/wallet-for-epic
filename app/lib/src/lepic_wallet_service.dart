@@ -3124,8 +3124,6 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   /// mailboxes, then the sweep.
   @override
   Future<InvoiceCollectReport> collectInvoices() => _epicboxGuard('invoice collect', () async {
-    // Invoices off (Settings › Advanced › Experimental): no mailbox is opened, nothing expires.
-    if (!NetGate.invoices) return const InvoiceCollectReport();
     _watchEvents();
     final before = (await _wallet.contactInvoices()).length;
     // What the sweep expires is news of the same run.
@@ -3917,9 +3915,6 @@ class _LepicPairing implements PairingApi {
   /// confirm to prove that address.
   final Map<String, ({String requestId, String fromAddress})> _requestLinks = {};
 
-  /// Allow invoices the user turned on before the words check; set on a match.
-  final Set<String> _wantsInvoices = {};
-
   /// Answers that did not reach the relay: they go by hand.
   final Set<String> _unposted = {};
 
@@ -3972,7 +3967,6 @@ class _LepicPairing implements PairingApi {
     sas: _sas(c.sas),
     verifiedAt: c.verifiedAtMs == null ? null : _ms(c.verifiedAtMs!.toInt()),
     allowInvoices: c.allowInvoices,
-    asksInvoices: _wantsInvoices.contains(c.contactId),
     seal: switch (c.seal) {
       lepic.SealState.on_ => SealMode.on,
       lepic.SealState.off => SealMode.off,
@@ -4220,7 +4214,6 @@ class _LepicPairing implements PairingApi {
     name: p.claimedName,
     expiresAt: _ms(p.expiresAtMs.toInt()),
     kind: lepicPairingParty(p.kind),
-    asksInvoices: p.service,
     homeRelay: p.homeRelay,
     wordsAvailable: lepicRelayMode() == lepic.ContactRelayMode.online,
     fromAddress: fromAddress,
@@ -4246,7 +4239,6 @@ class _LepicPairing implements PairingApi {
   Future<PairingRecord> acceptInvite({
     required String token,
     required String name,
-    bool allowInvoices = false,
     String? contactId,
     bool byHand = false,
   }) => _call(() async {
@@ -4270,7 +4262,6 @@ class _LepicPairing implements PairingApi {
       // The first Pair wins: a linked device hides its copy ([requestHandledOn]).
       if (!_events.isClosed) _events.add(PairingEvent(PairingEventKind.requestAnswered, requestId: request.requestId, pairingId: id));
     }
-    if (allowInvoices) _wantsInvoices.add(id);
     if (contactId != null) _attachLater[id] = contactId;
     if (!answer.posted && !byHand) _unposted.add(id);
     return (await pairing(id)) ??
@@ -4309,10 +4300,6 @@ class _LepicPairing implements PairingApi {
         rethrow;
       }
     }
-    // Allow invoices the user turned on while answering applies once the words match.
-    if (check == PairingCheck.match && _wantsInvoices.remove(id)) {
-      await _w.contactSetAllowInvoices(contactId: id, allow: true);
-    }
     if (_privateLinks.containsKey(id) || (await _w.privatePairings()).any((c) => c.contactId == id)) return _privateOf(id);
     return _record(await _w.contact(contactId: id));
   });
@@ -4332,7 +4319,7 @@ class _LepicPairing implements PairingApi {
         return 0;
       } finally {
         // Contact invoices arrive with this collect: what ran out expires on the same beat.
-        if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
+        if (!_s._wallet.isDisposed) await _s._sweep();
       }
     });
   }
@@ -4340,7 +4327,7 @@ class _LepicPairing implements PairingApi {
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
   Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) => !NetGate.pairing
-      // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
+      // Pairing off: no pairing or contact mailbox is opened.
       ? Future.value(0)
       : _s.checks.run(
     CheckSource.collect,

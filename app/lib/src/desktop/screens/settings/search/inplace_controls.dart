@@ -22,12 +22,11 @@ const Map<String, AdvancedFeature> _featureRows = {
   SetId.advHeight: AdvancedFeature.recheckFromHeight,
   SetId.advLocal: AdvancedFeature.builtInNode,
   SetId.advLogs: AdvancedFeature.logs,
-  SetId.xInvoices: AdvancedFeature.invoices,
 };
 
 /// The ids [settingsInPlaceControl] has a control for.
 const Set<String> settingsInPlaceIds = {
-  SetId.advOutputs, SetId.advTech, SetId.advSendopts, SetId.advServers, SetId.advHeight, SetId.advLocal, SetId.advLogs, SetId.xInvoices,
+  SetId.advOutputs, SetId.advTech, SetId.advSendopts, SetId.advServers, SetId.advHeight, SetId.advLocal, SetId.advLogs,
   SetId.theme, SetId.scale, SetId.language, SetId.hideAmounts,
 };
 
@@ -42,7 +41,7 @@ Widget? settingsInPlaceControl(BuildContext context, WidgetRef ref, String id) {
     return ESwitch(
       value: adv.has(f),
       semanticLabel: setFeatureName(l, f),
-      onChanged: (v) => n.saveSettings(s.copyWith(advanced: experimentalFeatures.contains(f) ? adv.withExperimental(f, v) : adv.withFeature(f, v))),
+      onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withFeature(f, v))),
     );
   }
   return switch (id) {

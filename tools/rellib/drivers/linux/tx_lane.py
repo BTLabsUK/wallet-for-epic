@@ -563,7 +563,7 @@ class TxLane(Lane):
         self.awake()
         for k in ("a", "b"):
             p = self.w[k].pair
-            p.enable(invoices=True)
+            p.enable()
             p.open_pair()
             p.seen_as(PAIR_NAME[k])
         a, b = self.w["a"].pair, self.w["b"].pair

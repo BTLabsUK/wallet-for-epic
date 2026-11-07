@@ -107,17 +107,25 @@ void main() {
     });
 
     test('the other side: the invite read, answered, and confirmed as paired', () async {
-      final link = api.inviteLinkFrom(name: 'Northwind', kind: PairingParty.exchange, asksInvoices: true);
+      final link = api.inviteLinkFrom(name: 'Northwind', kind: PairingParty.exchange);
       final preview = await api.openInvite(link);
-      expect((preview.name, preview.kind, preview.asksInvoices, preview.isRequest), ('Northwind', PairingParty.exchange, true, false));
-      final answered = await api.acceptInvite(token: preview.token, name: 'Alex', allowInvoices: true);
+      expect((preview.name, preview.kind, preview.isRequest), ('Northwind', PairingParty.exchange, false));
+      final answered = await api.acceptInvite(token: preview.token, name: 'Alex');
       expect(answered.state, PairingState.pendingReply);
       api.confirmAnswer(answered.id);
       final paired = (await api.pairing(answered.id))!;
       expect((paired.state, paired.peerHeardAt), (PairingState.paired, now));
       final verified = await api.checkWords(answered.id, PairingCheck.match);
-      expect(verified!.allowInvoices, isTrue, reason: 'the user turned it on when answering');
+      expect(verified!.allowInvoices, isFalse, reason: 'never on unless the payer turns it on after the match');
       await expectLater(api.acceptInvite(token: preview.token, name: 'Alex'), _failure(PairingFailure.invalid));
+    });
+
+    test('a newer pairing still checking keys marks the contact page: its Allow switch waits', () {
+      final old = PairingRecord(id: 'old', state: PairingState.verified, way: PairingWay.link, inviter: true, createdAt: now, contactId: 'c1');
+      PairingRecord fresh(String contact) => PairingRecord(id: 'new', state: PairingState.paired, way: PairingWay.link, inviter: false, createdAt: now, contactId: contact, checksKeys: true);
+      expect(keyCheckOpenFor([old, fresh('c1')], old), isTrue);
+      expect(keyCheckOpenFor([old], old), isFalse);
+      expect(keyCheckOpenFor([old, fresh('c2')], old), isFalse);
     });
 
     test('by hand: the answer opened here always has a confirmation to send back', () async {

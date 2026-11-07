@@ -14724,7 +14724,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Pliki płatności i faktury z $name są od teraz zapieczętowane.';
+    return 'Pliki płatności z $name są od teraz zapieczętowane.';
   }
 
   @override
@@ -14749,10 +14749,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'Sprawdź teraz';
-
-  @override
-  String get sasAllowAfterMatch =>
-      'Włącza się, gdy potwierdzisz, że słowa się zgadzają.';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -16082,31 +16078,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Jednorazowe sparowanie z kimś, z kim często są płatności: pliki transakcji i faktury między dwoma portfelami są wtedy zapieczętowane, a kontakt jest oznaczony jako sparowany. Eksperymentalne: może się jeszcze zmienić.';
 
   @override
-  String get expInvoices => 'Faktury';
-
-  @override
-  String get expInvoicesHint =>
-      'Prośba o płatność do sparowanego kontaktu i zatwierdzanie faktur od sparowanych kontaktów. Wymaga parowania. Eksperymentalne: może się jeszcze zmienić.';
-
-  @override
-  String get expNeedsPairing => 'Faktury wymagają parowania.';
-
-  @override
   String get expPairingOffTitle => 'Parowanie jest eksperymentalne';
 
   @override
   String get expPairingOffBody =>
       'Można je włączyć w Ustawienia › Zaawansowane.';
-
-  @override
-  String get expInvoicesOffTitle => 'Faktury są eksperymentalne';
-
-  @override
-  String get expInvoicesOffBody =>
-      'Można je włączyć w Ustawienia › Zaawansowane.';
-
-  @override
-  String get expOpenAdvanced => 'Otwórz Zaawansowane';
 
   @override
   String get contactNoAddressPaired => 'Brak adresu publicznego';
@@ -17544,9 +17520,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkTryAgain => 'Spróbuj ponownie';
-
-  @override
-  String get linkOffTitle => 'Połączone urządzenia są eksperymentalne';
 
   @override
   String txSentFromDevice(String device) {
@@ -20316,9 +20289,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetGrpShowsMore => 'Pokazuje więcej';
 
   @override
-  String get deskSetGrpExperiments => 'Eksperymenty';
-
-  @override
   String get deskSetGrpOnComputer => 'Na tym komputerze';
 
   @override
@@ -20701,14 +20671,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetSynAdvLogs => 'log, logi, debug, diagnostyka';
 
   @override
-  String get deskSetRowXInvoicesHint =>
-      'Proś sparowane kontakty o płatności; zatwierdzaj ich prośby.';
-
-  @override
-  String get deskSetSynXInvoices =>
-      'faktura, prośba o płatność, parowanie, rachunek';
-
-  @override
   String get deskSetRowWalletRows => 'Lista portfeli';
 
   @override
@@ -20831,9 +20793,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Dodaje wyjścia, faktury, lokalny węzeł i każdy przełącznik Zaawansowanych.';
-
-  @override
-  String get deskSetAdvExperiments => 'Eksperymenty';
 
   @override
   String get deskSetFrameBack => 'Portfel';
@@ -21603,5 +21562,18 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'Węzeł jest w tyle. Przełączono na $host.';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'Faktury od $name są wyłączone.';
+  }
+
+  @override
+  String get contactAllowFinishCheck => 'Najpierw dokończ sprawdzanie kluczy';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'Portfel $name może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela.';
   }
 }

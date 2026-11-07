@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairRequestsProvider, deskPairingsProvider, deskSeenAsProvider;
+import 'package:epic_wallet/src/desktop/screens/pairing/desk_allow_row.dart' show deskMatchedAllowKey;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -24,7 +25,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../support/experimental.dart';
 
 final _l = englishStrings;
 late ProviderContainer _c;
@@ -58,7 +58,6 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, bool 
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(_c);
   });
   final n = _c.read(deskProvider.notifier);
   if (mode != null) {
@@ -178,6 +177,14 @@ void main() {
     await tester.tap(find.byKey(deskCheckMatchKey));
     await _real(tester);
     expect((await tester.runAsync(() => _pairing.pairing(answered.id)))!.state, PairingState.verified);
+    // The result is where Allow invoices is: off, with its line, until the payer turns it on.
+    expect(find.byKey(deskMatchedAllowKey), findsOneWidget);
+    expect(tester.widget<ESwitch>(find.byKey(deskMatchedAllowKey)).value, isFalse);
+    expect(find.text(_l.sasAllowOffLine('Anna')), findsOneWidget);
+    await tester.tap(find.byKey(deskMatchedAllowKey));
+    await _real(tester);
+    expect((await tester.runAsync(() => _pairing.pairing(answered.id)))!.allowInvoices, isTrue);
+    expect(find.text(_l.sasAllowInvoicesHintDesktop('Anna')), findsOneWidget);
   });
 
   testWidgets('the wait, relay slow: Your answer with Copy and the confirmation field; the confirmation pasted opens the words', (tester) async {

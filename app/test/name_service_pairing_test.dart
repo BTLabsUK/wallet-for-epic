@@ -10,7 +10,6 @@ import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/name_service/phone_name_service.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
-import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -377,7 +376,6 @@ void main() {
           overrides: [
             walletServiceProvider.overrideWithValue(FakeWalletService(session: rig.session)),
             secretStoreProvider.overrideWithValue(rig.store),
-            invoicesOnProvider.overrideWithValue(true),
             updatePlatformProvider.overrideWithValue(null),
             priceSourceProvider.overrideWithValue(_NoPrice()),
             qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),

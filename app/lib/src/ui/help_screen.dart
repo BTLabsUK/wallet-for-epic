@@ -779,9 +779,7 @@ bool helpPlaceGoes(String place, {AdvancedPrefs? prefs}) {
   if (prefs == null) return true;
   return switch (to) {
     HelpPhonePlace.outputs => prefs.has(AdvancedFeature.outputs),
-    // Invoices off (Settings › Advanced › Experimental): its places read as terms.
-    HelpPhonePlace.invoices => prefs.invoicesOn,
-    _ => !place.endsWith('› Invoices') || prefs.invoicesOn,
+    _ => true,
   };
 }
 

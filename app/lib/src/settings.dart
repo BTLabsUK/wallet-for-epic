@@ -511,10 +511,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     NetGate.setExperimental(effectiveAdvanced(ref.read(currentLevelProvider), prefs));
   }
 
-  /// One experimental switch, with the rule between them ([AdvancedPrefs.withExperimental]).
-  Future<void> setExperimental(AdvancedFeature f, bool on) async =>
-      setAdvanced((await _current()).advanced.withExperimental(f, on));
-
   /// Settings › Transactions changed. The Epicbox switch reaches the gate before anything
   /// reads the new settings (network_gate.dart).
   Future<void> setPayments(PaymentPrefs prefs) async {

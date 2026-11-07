@@ -14338,7 +14338,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Transaktionsdateien und Rechnungen mit $name sind ab jetzt versiegelt.';
+    return 'Transaktionsdateien mit $name sind ab jetzt versiegelt.';
   }
 
   @override
@@ -14363,10 +14363,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sasCheckNow => 'Jetzt prüfen';
-
-  @override
-  String get sasAllowAfterMatch =>
-      'Gilt, sobald Sie bestätigen, dass die Wörter übereinstimmen.';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -15652,31 +15648,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Einmal mit jemandem koppeln, mit dem oft gezahlt wird: Transaktionsdateien und Rechnungen zwischen den beiden Wallets sind dann versiegelt, und der Kontakt erscheint als gekoppelt. Experimentell: Es kann sich noch ändern.';
 
   @override
-  String get expInvoices => 'Rechnungen';
-
-  @override
-  String get expInvoicesHint =>
-      'Einen gekoppelten Kontakt um eine Zahlung bitten und Rechnungen gekoppelter Kontakte freigeben. Braucht Kopplung. Experimentell: Es kann sich noch ändern.';
-
-  @override
-  String get expNeedsPairing => 'Rechnungen brauchen Kopplung.';
-
-  @override
   String get expPairingOffTitle => 'Kopplung ist experimentell';
 
   @override
   String get expPairingOffBody =>
       'Einschalten unter Einstellungen › Erweitert.';
-
-  @override
-  String get expInvoicesOffTitle => 'Rechnungen sind experimentell';
-
-  @override
-  String get expInvoicesOffBody =>
-      'Einschalten unter Einstellungen › Erweitert.';
-
-  @override
-  String get expOpenAdvanced => 'Erweitert öffnen';
 
   @override
   String get contactNoAddressPaired => 'Keine öffentliche Adresse';
@@ -17090,9 +17066,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get linkTryAgain => 'Erneut versuchen';
-
-  @override
-  String get linkOffTitle => 'Verknüpfte Geräte sind experimentell';
 
   @override
   String txSentFromDevice(String device) {
@@ -19846,9 +19819,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetGrpShowsMore => 'Zeigt mehr';
 
   @override
-  String get deskSetGrpExperiments => 'Experimente';
-
-  @override
   String get deskSetGrpOnComputer => 'Auf diesem Computer';
 
   @override
@@ -20238,14 +20208,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetSynAdvLogs => 'protokoll, log, debug, diagnose';
 
   @override
-  String get deskSetRowXInvoicesHint =>
-      'Gekoppelte Kontakte um Zahlungen bitten; ihre genehmigen.';
-
-  @override
-  String get deskSetSynXInvoices =>
-      'rechnung, zahlung anfordern, kopplung, abrechnung';
-
-  @override
   String get deskSetRowWalletRows => 'Wallet-Liste';
 
   @override
@@ -20367,9 +20329,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.';
-
-  @override
-  String get deskSetAdvExperiments => 'Experimente';
 
   @override
   String get deskSetFrameBack => 'Wallet';
@@ -21137,5 +21096,19 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return 'Node liegt zurück. Gewechselt zu $host.';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return 'Rechnungen von $name sind aus.';
+  }
+
+  @override
+  String get contactAllowFinishCheck =>
+      'Zuerst die Schlüsselprüfung abschließen';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return 'Die Wallet von $name kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt.';
   }
 }

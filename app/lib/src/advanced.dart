@@ -44,8 +44,8 @@ enum AdvancedFeature {
   /// what LEPIC stored stays and comes back.
   pairing,
 
-  /// Experimental: invoices from and to paired contacts. Needs [pairing]
-  /// ([AdvancedPrefs.withExperimental] keeps the rule).
+  /// Retired: the global Invoices switch. Whether invoices come from a contact is that
+  /// contact's Allow invoices; a stored value is read and ignored ([retiredFeatures]).
   invoices,
 
   /// Experimental: linked devices (`devices/`): this wallet on two or more devices that tell
@@ -57,14 +57,11 @@ enum AdvancedFeature {
   linkedDevices,
 }
 
-/// The features listed in Settings › Advanced › Experimental, not with the others: Hide all
-/// leaves them and the count of features on does not include them.
-const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
-
-/// Features a stored value may still name that no switch shows any more: pairing and linked
-/// devices are on for everyone, so their old switch values are read and ignored, never
-/// migrated or reused.
-const retiredFeatures = {AdvancedFeature.pairing, AdvancedFeature.linkedDevices};
+/// Features a stored value may still name that no switch shows any more: pairing, invoices and
+/// linked devices are on for everyone, so their old switch values are read, kept and ignored,
+/// never migrated or reused: an older version finds its value as it left it. Hide all leaves
+/// them and the count of features on does not include them.
+const retiredFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
 
 /// How the wallet reaches the network (Settings › Network & privacy). One choice, kept in the
 /// settings file's `[network] mode` (`network_mode_file.dart`); the Privacy page's Tor switch is
@@ -130,9 +127,6 @@ class AdvancedPrefs {
   /// ignored.
   bool get pairingOn => true;
 
-  /// Invoices are on (Settings › Advanced › Experimental; off by default).
-  bool get invoicesOn => has(AdvancedFeature.invoices);
-
   /// Linked devices are on for everyone, at every level (item 10): no switch any more, a stored
   /// "off" from an older build is ignored. Independent of [pairingOn].
   bool get linkedDevicesOn => true;
@@ -140,20 +134,13 @@ class AdvancedPrefs {
   /// The pairing engine runs: for contacts ([pairingOn]) or for linked devices.
   bool get pairingEngineOn => pairingOn || linkedDevicesOn;
 
-  /// The features on outside [experimentalFeatures]: what the Advanced page counts and Hide
+  /// The features on outside [retiredFeatures]: what the Advanced page counts and Hide
   /// all turns off.
-  Set<AdvancedFeature> get shownFeatures => features.difference(experimentalFeatures);
+  Set<AdvancedFeature> get shownFeatures => features.difference(retiredFeatures);
 
-  /// [withFeature] with the experimental rule: Invoices on turns Pairing on, Pairing off
-  /// turns Invoices off.
-  AdvancedPrefs withExperimental(AdvancedFeature f, bool on) {
-    var next = withFeature(f, on);
-    return next;
-  }
-
-  /// Hide all: every feature off but the experimental ones.
+  /// Hide all: every feature off; the retired values stay as stored.
   AdvancedPrefs withoutShown() => AdvancedPrefs(
-    features: features.intersection(experimentalFeatures),
+    features: features.intersection(retiredFeatures),
     networkMode: networkMode,
     nodeFailover: nodeFailover,
   );
@@ -161,7 +148,7 @@ class AdvancedPrefs {
   /// Whether anything is on beyond the simple app: the hub's state line and the About row
   /// read it. Node failover is on by default, so only its being off counts.
   bool get any =>
-      features.any((f) => f != AdvancedFeature.linkedDevices) || networkMode != NetworkMode.standard || !nodeFailover;
+      shownFeatures.isNotEmpty || networkMode != NetworkMode.standard || !nodeFailover;
 
   /// Tor is wanted at launch ([NetworkMode.torOnly]).
   bool get startsWithTor => networkMode == NetworkMode.torOnly;

@@ -22179,7 +22179,7 @@ abstract class AppLocalizations {
   /// Result body.
   ///
   /// In en, this message translates to:
-  /// **'Transaction files and invoices with {name} are sealed from now on.'**
+  /// **'Transaction files with {name} are sealed from now on.'**
   String sasMatchedBody(String name);
 
   /// Dialog title.
@@ -22217,12 +22217,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check now'**
   String get sasCheckNow;
-
-  /// Under the Allow invoices switch on the exchange check.
-  ///
-  /// In en, this message translates to:
-  /// **'On once you confirm the words match.'**
-  String get sasAllowAfterMatch;
 
   /// Under Allow invoices on the result screen.
   ///
@@ -24000,24 +23994,6 @@ abstract class AppLocalizations {
   /// **'Pair once with someone you pay often: transaction files and invoices between the two wallets are then sealed, and the contact shows as paired. Experimental: it can still change.'**
   String get expPairingHint;
 
-  /// Name of the experimental Invoices switch in Settings › Advanced
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices'**
-  String get expInvoices;
-
-  /// Info sheet of the Invoices switch: what it is, that it needs Pairing and is experimental
-  ///
-  /// In en, this message translates to:
-  /// **'Ask a paired contact for a payment, and approve the invoices paired contacts send. Needs Pairing. Experimental: it can still change.'**
-  String get expInvoicesHint;
-
-  /// One line under the experimental switches: the rule between them
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices need Pairing.'**
-  String get expNeedsPairing;
-
   /// Title of the sheet shown when a pairing link opens while Pairing is off
   ///
   /// In en, this message translates to:
@@ -24029,24 +24005,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn it on in Settings › Advanced.'**
   String get expPairingOffBody;
-
-  /// Title of the sheet shown when an invoice opens while Invoices is off
-  ///
-  /// In en, this message translates to:
-  /// **'Invoices are experimental'**
-  String get expInvoicesOffTitle;
-
-  /// Body of that sheet
-  ///
-  /// In en, this message translates to:
-  /// **'Turn them on in Settings › Advanced.'**
-  String get expInvoicesOffBody;
-
-  /// Button of those sheets: opens Settings › Advanced
-  ///
-  /// In en, this message translates to:
-  /// **'Open Advanced'**
-  String get expOpenAdvanced;
 
   /// Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no public address).
   ///
@@ -26165,12 +26123,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get linkTryAgain;
-
-  /// Sheet when a device link code is scanned while Linked devices is off.
-  ///
-  /// In en, this message translates to:
-  /// **'Linked devices are experimental'**
-  String get linkOffTitle;
 
   /// History row title and details heading: a payment another linked device of this wallet made.
   ///
@@ -30156,19 +30108,19 @@ abstract class AppLocalizations {
   /// **'{view} view'**
   String deskSetSearchViewGate(String view);
 
-  /// What shows a hidden setting: a switch on Settings › Advanced, e.g. "Advanced › Invoices".
+  /// What shows a hidden setting: a switch on Settings › Advanced, e.g. "Advanced › Outputs".
   ///
   /// In en, this message translates to:
   /// **'Advanced › {feature}'**
   String deskSetSearchFeatGate(String feature);
 
-  /// Joins the reasons that show hidden options: "Deep end view and Advanced › Invoices". first may itself be a comma-separated list.
+  /// Joins the reasons that show hidden options: "Deep end view and Advanced › Outputs". first may itself be a comma-separated list.
   ///
   /// In en, this message translates to:
   /// **'{first} and {last}'**
   String deskSetSearchGateJoin(String first, String last);
 
-  /// More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. "Deep end view and Advanced › Invoices".
+  /// More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. "Deep end view and Advanced › Outputs".
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}'**
@@ -30341,12 +30293,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shows more'**
   String get deskSetGrpShowsMore;
-
-  /// Settings: heading of the “Experiments” group of rows (on its page and over search results).
-  ///
-  /// In en, this message translates to:
-  /// **'Experiments'**
-  String get deskSetGrpExperiments;
 
   /// Settings: heading of the “On this computer” group of rows (on its page and over search results).
   ///
@@ -30984,18 +30930,6 @@ abstract class AppLocalizations {
   /// **'log, debug, diagnostics'**
   String get deskSetSynAdvLogs;
 
-  /// Settings row “Invoices”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
-  ///
-  /// In en, this message translates to:
-  /// **'Ask paired contacts for payments; approve theirs.'**
-  String get deskSetRowXInvoicesHint;
-
-  /// Settings search: other words that find the “Invoices” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
-  ///
-  /// In en, this message translates to:
-  /// **'invoice, request payment, pairing, bill'**
-  String get deskSetSynXInvoices;
-
   /// Settings row title: Wallet list (section wallets).
   ///
   /// In en, this message translates to:
@@ -31206,12 +31140,6 @@ abstract class AppLocalizations {
   /// **'Adds outputs, invoices, the local node and every Advanced switch.'**
   String get deskSetAdvViewLineThree;
 
-  /// Advanced: heading of the experimental features (Invoices).
-  ///
-  /// In en, this message translates to:
-  /// **'Experiments'**
-  String get deskSetAdvExperiments;
-
   /// Settings column: the button at its top that goes back to the wallet pages. Narrow.
   ///
   /// In en, this message translates to:
@@ -31242,7 +31170,7 @@ abstract class AppLocalizations {
   /// **'back to the wallet'**
   String get deskSetFrameEscHint;
 
-  /// Tag beside an experimental feature’s title (Linked devices, Invoices).
+  /// Tag beside an experimental feature’s title (Linked devices).
   ///
   /// In en, this message translates to:
   /// **'Experiment'**
@@ -32447,6 +32375,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Node behind. Switched to {host}.'**
   String deskNodeFailoverBehind(String host);
+
+  /// Under Allow invoices on the result while it is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices from {name} are off.'**
+  String sasAllowOffLine(String name);
+
+  /// Under the disabled Allow invoices switch while a key check is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the key check first'**
+  String get contactAllowFinishCheck;
+
+  /// Under Allow invoices on the desktop result while it is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet can ask you to pay. Nothing is paid without the wallet password.'**
+  String sasAllowInvoicesHintDesktop(String name);
 }
 
 class _AppLocalizationsDelegate

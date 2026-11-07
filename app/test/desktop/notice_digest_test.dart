@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../support/experimental.dart';
 
 PairingEvent _invoice(String slate) => PairingEvent(PairingEventKind.invoiceFromContact, name: 'Ola', slateId: slate, amount: BigInt.from(100000000));
 
@@ -26,7 +25,6 @@ Future<(ProviderContainer, MockDeskWallet, MessageChecks)> _shell(WidgetTester t
   addTearDown(c.dispose);
   await tester.runAsync(() async {
     await c.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(c);
   });
   c.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
   await tester.pumpWidget(

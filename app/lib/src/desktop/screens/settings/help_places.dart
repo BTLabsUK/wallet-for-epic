@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/routes.dart';
 import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import 'prefs.dart';
-import 'settings_advanced.dart' show advancedHas, advancedOf, AdvancedFeature;
+import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// The page a help place opens, and the section of it to flash (null for none).
 typedef DeskHelpPlace = ({DeskRoute route, SettingsJump? jump, Object? arg});
@@ -57,13 +57,10 @@ final Map<String, DeskHelpPlace> _places = {
 /// none: such a place must not be written as a link.
 DeskHelpPlace? deskHelpPlace(String place) => _places[place.split('›').map((p) => p.trim()).join(' › ')];
 
-/// The places that belong to a part Advanced hides: the Outputs page, the pairing and the
-/// invoice places (Experimental).
+/// The places that belong to a part Advanced hides: the Outputs page, the pairing places.
 AdvancedFeature? _placeFeature(DeskHelpPlace to) => switch (to.route) {
   DeskRoute.outputs => AdvancedFeature.outputs,
   DeskRoute.pair => AdvancedFeature.pairing,
-  DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
-    AdvancedFeature.invoices,
   _ => null,
 };
 
@@ -76,11 +73,7 @@ bool deskHelpPlaceShown(WidgetRef ref, String place) {
   if (deskLevelHides(ui, to.route)) return false;
   if (to.route == DeskRoute.outputs && !ui.outputsPage) return false;
   final f = _placeFeature(to);
-  return switch (f) {
-    null => true,
-    AdvancedFeature.invoices => advancedOf(ref).invoicesOn,
-    _ => advancedHas(ref, f),
-  };
+  return f == null || advancedHas(ref, f);
 }
 
 /// Goes to [place].

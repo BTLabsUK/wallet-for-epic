@@ -152,7 +152,7 @@ class DeskLevelFeatures {
       sendReviewStep: !shallow,
       fileTransfer: !shallow,
       outputsPage: deep && prefs.has(AdvancedFeature.outputs),
-      invoicesPage: deep && prefs.invoicesOn,
+      invoicesPage: deep,
       pairingPages: deep,
     );
   }

@@ -28,7 +28,6 @@ import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/history/domain_check_book.dart' show DomainStatus;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import '../support/experimental.dart';
 
 // The mock pairs Anna (c1, verified), Tom (c4, paired, not verified) and Marta (c9, keys
 // changed); Piotr (c6) is not paired.
@@ -42,16 +41,13 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen, {Size size = const Size(1280, 1100), bool experimental = true, WalletLevel? level}) async {
+Future<void> _open(WidgetTester tester, Widget screen, {Size size = const Size(1280, 1100), WalletLevel? level}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet()), if (level != null) deskLevelProvider.overrideWithValue(level)]);
   addTearDown(_c.dispose);
-  await tester.runAsync(() async {
-    await _c.read(deskProvider.notifier).refresh();
-    if (experimental) await deskExperimentalOn(_c);
-  });
+  await tester.runAsync(() => _c.read(deskProvider.notifier).refresh());
   _c.read(deskInvoicesProvider);
   await _real(tester);
   await tester.pumpWidget(
@@ -419,12 +415,12 @@ void main() {
     expect(find.byKey(deskPairingMoreKey(_fake.records.firstWhere((r) => r.name == 'Northwind').id)), findsOneWidget);
   });
 
-  testWidgets('Pair shows with the old pairing switch stored off; Settings › Advanced has no Pairing row', (tester) async {
-    await _open(tester, const ContactsScreen(), experimental: false);
+  testWidgets('Pair shows with no switch; Settings › Advanced has no Pairing or Invoices row', (tester) async {
+    await _open(tester, const ContactsScreen());
     expect(find.byKey(deskContactsPairKey), findsOneWidget);
-    await _open(tester, const SettingsAdvancedScreen(), experimental: false);
+    await _open(tester, const SettingsAdvancedScreen());
     expect(find.byKey(const ValueKey('adv-pairing')), findsNothing);
-    expect(find.byKey(const ValueKey('adv-invoices')), findsOneWidget);
+    expect(find.byKey(const ValueKey('adv-invoices')), findsNothing);
   });
 
   group('a contact moves to another relay', () {

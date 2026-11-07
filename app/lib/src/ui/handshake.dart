@@ -18,7 +18,6 @@ import '../l10n.dart';
 import '../tor_build.dart';
 import 'history_screen.dart' show FadingRow;
 import 'method_icons.dart';
-import 'theme/advanced.dart' show AdvancedOptions;
 import 'theme/tokens.dart';
 
 /// Which handshake the sheet shows.
@@ -370,15 +369,14 @@ class _HandshakeSheetState extends State<HandshakeSheet>
             ),
             const SizedBox(height: 16),
             // One chip per way to pay, in a row that scrolls, every label the same size
-            // (UP-009); the QR chip tells the side it was opened from. Invoice only while
-            // the Invoices switch is on. The chosen flow is a neutral fill with the text
-            // colour: gold is the brand and the primary action, never a selection.
+            // (UP-009); the QR chip tells the side it was opened from. The chosen flow is a
+            // neutral fill with the text colour: gold is the brand and the primary action,
+            // never a selection.
             FadingRow(
               children: [
                 for (final (i, (flow, label)) in [
                   (HandshakeFlow.payment, MethodIcons.shortName(l, MethodKind.epicbox)),
-                  if (AdvancedOptions.of(context).invoicesOn)
-                    (HandshakeFlow.request, l.handshakeRequest),
+                  (HandshakeFlow.request, l.handshakeRequest),
                   (HandshakeFlow.direct, MethodIcons.familyName(l, MethodFamily.link)),
                   (_qrFlow, MethodIcons.shortName(l, MethodKind.directQr)),
                   (HandshakeFlow.file, MethodIcons.shortName(l, MethodKind.directFile)),

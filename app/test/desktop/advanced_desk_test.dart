@@ -13,7 +13,6 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/net_mode_view.dart' show deskOfflinePeersProvider;
 import 'package:epic_wallet/src/desktop/screens/invoices/invoices_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart' show DeskFiles, PickedSlate, deskFilesProvider;
 import 'package:epic_wallet/src/desktop/data/history_files.dart' show MockDeskHistoryFiles, deskHistoryFilesProvider;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart' show advModeConfirmKey;
@@ -478,8 +477,7 @@ void main() {
     });
 
     testWidgets('with Advanced off every step’s targets exist on its page; the Advanced step switches nothing on', (tester) async {
-      // Invoices (Experimental) on, for the tour's Invoices step.
-      await _open(tester, DeskRoute.overview, advanced: AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
+      await _open(tester, DeskRoute.overview);
       final nav = _container.read(deskNavProvider.notifier);
       final before = _advanced;
       for (final step in tourStepsFor(invoices: true)) {
@@ -493,31 +491,17 @@ void main() {
     });
   });
 
-  group('experimental', () {
-    testWidgets('off by default: no Invoices in the sidebar, an invoice place reads as Overview', (tester) async {
+  group('invoices', () {
+    testWidgets('on for everyone: Invoices in the sidebar and its page, no switch', (tester) async {
       await _open(tester, DeskRoute.invoices);
-      expect(_advanced.invoicesOn, isFalse);
-      expect(find.byType(InvoicesScreen), findsNothing);
-      expect(find.byType(OverviewScreen), findsOneWidget);
-      expect(find.text('Invoices'), findsNothing);
-    });
-
-    testWidgets('on: Invoices in the sidebar and its page', (tester) async {
-      await _open(tester, DeskRoute.invoices, advanced: AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
       expect(find.byType(InvoicesScreen), findsOneWidget);
     });
 
-    testWidgets('Invoices has its switch; Pairing has none (always on)', (tester) async {
+    testWidgets('Settings › Advanced has no Invoices or Pairing switch and no Experiments group', (tester) async {
       await _open(tester, DeskRoute.settingsAdvanced);
-      expect(find.byKey(const ValueKey('adv-exp-rule')), findsNothing);
+      expect(find.byKey(const ValueKey('adv-invoices')), findsNothing);
       expect(find.byKey(const ValueKey('adv-pairing')), findsNothing);
-      final row = find.byKey(const ValueKey('adv-invoices'));
-      await tester.ensureVisible(row);
-      await tester.tap(find.descendant(of: row, matching: find.byType(ESwitch)));
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-      await _settle(tester);
-      expect(_advanced.invoicesOn, isTrue);
-      expect(_advanced.pairingOn, isTrue);
+      expect(find.text('Experiments'), findsNothing);
     });
   });
 }

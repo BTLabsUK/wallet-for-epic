@@ -367,8 +367,8 @@ BackupSettingsPlan _plan(
           final own = platformOnlyFeatures[here]!;
           features = {...features.difference(own).difference(platformOnlyFeatures[from]!), ...m.features.intersection(own)};
         }
-        // Linked devices is always on (item 10): no choice, so never in the file's list.
-        Set<AdvancedFeature> shown(Set<AdvancedFeature> f) => f.where((x) => x != AdvancedFeature.linkedDevices).toSet();
+        // Retired values are no choice, so never in the file's list.
+        Set<AdvancedFeature> shown(Set<AdvancedFeature> f) => f.difference(retiredFeatures);
         decide(BackupItem.features, _names(shown(m.features)), _names(shown(d.features)), _names(shown(features)));
       }
       // An older file's `offline` is Node only (networkModeNamed).
@@ -593,8 +593,10 @@ AdvancedPrefs advancedFromBackup(AdvancedPrefs current, Map<String, Object?> val
       features: {
         for (final n in features)
           for (final f in AdvancedFeature.values)
-            if (f.name == n && f != AdvancedFeature.linkedDevices) f,
-        // Always on, never from a file.
+            if (f.name == n && !retiredFeatures.contains(f)) f,
+        // Ignored here and kept for an older version; never from a file.
+        ...current.features.intersection(retiredFeatures),
+        // Always on.
         AdvancedFeature.linkedDevices,
       },
       networkMode: next.networkMode,

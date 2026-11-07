@@ -13333,7 +13333,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return '从现在起，与 $name 的交易文件和账单都会被密封。';
+    return '从现在起，与 $name 的交易文件都会被密封。';
   }
 
   @override
@@ -13357,9 +13357,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sasCheckNow => '立即核对';
-
-  @override
-  String get sasAllowAfterMatch => '确认词语一致后开启。';
 
   @override
   String sasAllowInvoicesHint(String name) {
@@ -14568,28 +14565,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '与常付款的人配对一次：之后两个钱包之间的交易文件和账单都会被密封，联系人显示为已配对。实验性：仍可能变化。';
 
   @override
-  String get expInvoices => '账单';
-
-  @override
-  String get expInvoicesHint => '向已配对的联系人请求付款，并批准已配对联系人发来的账单。需要配对。实验性：仍可能变化。';
-
-  @override
-  String get expNeedsPairing => '账单需要配对。';
-
-  @override
   String get expPairingOffTitle => '配对是实验性功能';
 
   @override
   String get expPairingOffBody => '可在 设置 › 高级 中开启。';
-
-  @override
-  String get expInvoicesOffTitle => '账单是实验性功能';
-
-  @override
-  String get expInvoicesOffBody => '可在 设置 › 高级 中开启。';
-
-  @override
-  String get expOpenAdvanced => '打开高级';
 
   @override
   String get contactNoAddressPaired => '没有公开地址';
@@ -15916,9 +15895,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get linkTryAgain => '重试';
-
-  @override
-  String get linkOffTitle => '关联设备是实验性功能';
 
   @override
   String txSentFromDevice(String device) {
@@ -18520,9 +18496,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetGrpShowsMore => '显示更多';
 
   @override
-  String get deskSetGrpExperiments => '实验功能';
-
-  @override
   String get deskSetGrpOnComputer => '这台电脑上';
 
   @override
@@ -18845,12 +18818,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSynAdvLogs => '日志, 调试, 诊断';
 
   @override
-  String get deskSetRowXInvoicesHint => '向已配对联系人请求付款；批准他们的请求。';
-
-  @override
-  String get deskSetSynXInvoices => '发票, 请求付款, 配对, 账单';
-
-  @override
   String get deskSetRowWalletRows => '钱包列表';
 
   @override
@@ -18954,9 +18921,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvViewLineThree => '增加输出、发票、本地节点和所有高级开关。';
-
-  @override
-  String get deskSetAdvExperiments => '实验功能';
 
   @override
   String get deskSetFrameBack => '钱包';
@@ -19703,5 +19667,18 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String deskNodeFailoverBehind(String host) {
     return '节点已落后。已切换到 $host。';
+  }
+
+  @override
+  String sasAllowOffLine(String name) {
+    return '来自 $name 的账单已关闭。';
+  }
+
+  @override
+  String get contactAllowFinishCheck => '请先完成密钥核对';
+
+  @override
+  String sasAllowInvoicesHintDesktop(String name) {
+    return '$name 的钱包可以请求你付款。没有钱包密码不会付款。';
   }
 }

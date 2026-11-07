@@ -5325,7 +5325,8 @@ class LepicDeskWallet implements DeskWalletApi {
     _invoiceCheck = InvoiceCheck.checking;
     try {
       await _collectInvoices(session);
-      if (_listener == null) await _drainPayments(session);
+      // Nothing issued, nothing to drain: the Epicbox listener stays the user's choice.
+      if (_paymentsWanted()) await _drainPayments(session);
       _invoiceCheck = InvoiceCheck.ok;
       _invoiceProblem = null;
     } on core.WalletError catch (e) {

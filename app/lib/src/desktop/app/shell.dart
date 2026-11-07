@@ -818,15 +818,15 @@ class _PhoneTopBar extends ConsumerWidget {
   }
 }
 
-/// Whether [route] is shown: the pairing places need Pairing, the invoice places Invoices
-/// (Settings › Advanced › Experimental), and the level may hide the page ([deskLevelHides]).
+/// Whether [route] is shown: the pairing places need Pairing, the invoice places a wallet that
+/// takes invoices, and the level may hide the page ([deskLevelHides]).
 bool deskRouteShown(WidgetRef ref, DeskRoute route) {
   if (route == DeskRoute.outputs) return outputsShown(ref);
+  if (route == DeskRoute.invoices || route == DeskRoute.invoiceReview) return invoicesShown(ref);
   if (deskLevelHides(ref.watch(deskLevelUiProvider), route)) return false;
   return switch (route) {
     DeskRoute.pair => ref.watch(deskPairsProvider),
-    DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
-      ref.watch(deskInvoicesShownProvider),
+    DeskRoute.invoiceIssue || DeskRoute.settingsInvoices => ref.watch(deskInvoicesShownProvider),
     _ => true,
   };
 }
@@ -840,8 +840,10 @@ bool outputsShown(WidgetRef ref) =>
     (ref.watch(deskLevelUiProvider).level == WalletLevel.everything && advancedHas(ref, AdvancedFeature.outputs)) ||
     (ref.watch(deskProvider).txs?.any((t) => t.notPosted) ?? false);
 
-/// Invoices on the rail: Deep end with Invoices on and a wallet that takes them.
-bool invoicesShown(WidgetRef ref) => ref.watch(deskLevelUiProvider).invoicesPage && ref.watch(deskInvoicesShownProvider);
+/// Invoices on the rail: Deep end with a wallet that takes them, or an invoice to answer at any
+/// view (never hide what is in use: a contact's Allow invoices brings them at every view).
+bool invoicesShown(WidgetRef ref) =>
+    ref.watch(deskInvoicesShownProvider) || (ref.watch(deskApiProvider).supportsInvoices && ref.watch(deskInvoiceBadgeProvider) > 0);
 
 class _PhoneNav extends ConsumerWidget {
   const _PhoneNav({required this.section});

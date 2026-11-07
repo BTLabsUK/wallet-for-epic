@@ -10,7 +10,6 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../support/experimental.dart';
 
 final _l = englishStrings;
 
@@ -22,7 +21,6 @@ Future<void> _pump(WidgetTester tester, {Object? arg, double width = 1280}) asyn
   addTearDown(container.dispose);
   await tester.runAsync(() async {
     await container.read(deskProvider.notifier).refresh();
-    await deskExperimentalOn(container);
   });
   await tester.pumpWidget(
     UncontrolledProviderScope(

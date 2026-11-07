@@ -30,7 +30,6 @@ import 'scan_screen.dart' show offersQrPayment;
 import 'theme/brand.dart' show GlyphTile;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
-import 'pairing/experimental_off.dart';
 
 /// The [SlateFile.name] of payment text pasted on Receive.
 const String pastedSlateName = 'pasted';
@@ -186,11 +185,6 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           : (l) => describeError(l, e);
     }
     if (!mounted) return;
-    if (_invoicesOff) {
-      setState(() => _reading = false);
-      unawaited(showExperimentalOffSheet(context, ref, invoices: true));
-      return;
-    }
     if (error == null && info != null && info.stage == SlateStage.request) {
       _toReview(info);
       return;
@@ -203,20 +197,12 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   }
 
   /// Why a payment request file, or the answer to one, cannot be acted on here; null when it
-  /// can (DESIGN §3.3, §3.4). With Invoices off (Settings › Advanced) it opens nothing and the
-  /// screen says Invoices are experimental ([_invoicesOff]).
+  /// can (DESIGN §3.3, §3.4).
   Future<String Function(AppLocalizations l)?> _requestProblem(SlateInfo info) async {
-    // A request scanned from a QR is paid like any send: no switch, only a core that pays
-    // requests. Its answer, scanned by whoever asked, still needs Invoices on.
+    // A request scanned from a QR is paid like any send: only a core that pays requests.
     if (widget.scanned && info.stage == SlateStage.request && _sealedText == null) {
       final session = ref.read(sessionProvider);
       return session == null || session.supportsRequestFiles ? null : (AppLocalizations l) => l.qrScanNotPayment;
-    }
-    // The settings are read first: the screen can open before they are loaded.
-    final settings = await ref.read(appSettingsProvider.future);
-    if (!settings.advanced.invoicesOn) {
-      _invoicesOff = true;
-      return null;
     }
     if (!requestFilesOn(ref, listen: false)) return (AppLocalizations l) => l.slateNotTransactionFile;
     // A sealed request is paid sealed ([PairingApi.paySealedRequest]), whether or not the
@@ -246,9 +232,6 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   /// The answer names no request this wallet has: a risk card and Close, nothing to finish.
   bool _answerUnknown = false;
-
-  /// A request file, or its answer, while Invoices is off: nothing opens.
-  bool _invoicesOff = false;
 
   /// A payment request: the Review in its file form takes over this screen (DESIGN §3.3).
   void _toReview(SlateInfo info) {

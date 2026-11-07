@@ -440,7 +440,7 @@ class _Header extends ConsumerWidget {
                       children: [
                         if (p != null && pairingVouchesFor(p, contact.epicbox)) TrustBadge(p),
                         if (noPayments) NoPaymentsBadge(key: contactPageNoPaymentsKey),
-                        if (!noPayments && p != null && p.allowInvoices && ref.watch(invoicesOnProvider))
+                        if (!noPayments && p != null && p.allowInvoices)
                           EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
                       ],
                     ),

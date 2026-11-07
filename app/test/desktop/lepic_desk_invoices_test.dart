@@ -7,13 +7,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_scheduler.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show OutputWord, Tx, TxState;
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
-import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -453,8 +451,6 @@ void main() {
         nodePoll: const Duration(hours: 1),
         paymentsEvery: const Duration(milliseconds: 40),
       );
-      // Invoices (Experimental) on: the wallet's default settings have it off.
-      NetGate.setExperimental(AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
       await wallet.createWallet(name: 'Main', password: _password);
       expect(await wallet.unlock(_password), isTrue);
       await _settle();
@@ -562,11 +558,14 @@ void main() {
       expect(row.isInvoice, isTrue);
     });
 
-    test('Invoices off: the scheduler opens no contact mailbox', () async {
-      NetGate.setExperimental(AdvancedPrefs.none);
+    test('nothing awaits a payer: neither the scheduler nor the check drains the payments address', () async {
       await wallet.sync();
       await Future<void>.delayed(const Duration(milliseconds: 150));
-      expect(lepicWallet.invoiceDrains, 0);
+      expect(lepicWallet.invoiceDrains, 0, reason: 'contact invoices come with the shell\'s collect');
+      expect(lepicWallet.paymentDrains, 0);
+      await wallet.checkInvoices();
+      expect(lepicWallet.invoiceDrains, greaterThan(0), reason: 'the check collects the contacts\' mailboxes');
+      expect(lepicWallet.paymentDrains, 0, reason: 'no issued invoice waits and the listener stays the user\'s choice');
     });
 
     test('the scheduler drains the payments address while open, stops on lock, and opens no contact mailbox', () async {

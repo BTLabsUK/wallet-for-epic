@@ -2231,7 +2231,7 @@ void main() {
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
 
-    testWidgets('the file screen waits for the core; a request while Invoices is off says they are experimental', (
+    testWidgets('the file screen waits for the core, then takes a request without a sheet', (
       tester,
     ) async {
       final h = _Harness();
@@ -2257,10 +2257,6 @@ void main() {
       gate.complete();
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(_l.slateReading), findsNothing);
-      expect(
-        find.text(_l.expInvoicesOffTitle),
-        findsOneWidget,
-      );
       expect(find.text(_l.slateAcceptPayment), findsNothing);
       expect(find.text(_l.slateFinishPayment), findsNothing);
       expect(h.session.receivedSlates, isEmpty);

@@ -19,7 +19,7 @@ import 'invoices.dart';
 import '../../cancel_final.dart' show CancelResult;
 import 'models.dart' show ReceivedFile;
 import 'state.dart';
-import 'pairing_state.dart' show deskInvoicesOnProvider, deskInvoicesShownProvider;
+import 'pairing_state.dart' show deskInvoicesShownProvider;
 
 export 'invoices.dart';
 
@@ -42,8 +42,7 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     final api = ref.watch(deskApiProvider);
     final open = ref.watch(deskProvider.select((s) => s.account != null));
     ref.onDispose(_stop);
-    // Invoices off (Settings › Advanced): no book, so nothing of invoices shows or is checked.
-    if (!api.supportsInvoices || !ref.watch(deskInvoicesOnProvider) || !open) return null;
+    if (!api.supportsInvoices || !open) return null;
     _changes = api.changes().listen((_) => unawaited(load()));
     // A relay switch moves the payments address: read again.
     ref.listen(deskProvider.select((s) => s.epicboxAddress), (before, now) {
@@ -135,15 +134,15 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
 
 final deskInvoicesProvider = NotifierProvider<DeskInvoices, InvoiceBook?>(DeskInvoices.new);
 
-/// Payment requests work as files, both ways: Invoices is on and the core handles them
-/// (DESIGN §3). Off, "Save as a file for anyone" is absent.
+/// Payment requests work as files, both ways: the core handles them (DESIGN §3). Off,
+/// "Save as a file for anyone" is absent.
 bool deskRequestFilesOn(WidgetRef ref) => ref.watch(deskInvoicesShownProvider) && ref.watch(deskApiProvider).supportsRequestFiles;
 
 /// The open wallet's invoice notices (paid, declined, expired, sent back, withdrawn); the shell
 /// shows each as a toast.
 final deskInvoiceNoticesProvider = StreamProvider<InvoiceNotice>((ref) {
   final api = ref.watch(deskApiProvider);
-  return api.supportsInvoices && ref.watch(deskInvoicesOnProvider) ? api.invoiceNotices() : const Stream.empty();
+  return api.supportsInvoices ? api.invoiceNotices() : const Stream.empty();
 });
 
 /// What the sidebar badge counts: invoices to answer and payments to settle.

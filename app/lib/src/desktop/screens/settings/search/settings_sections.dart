@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The Settings sections in navigation order, what shows each (a view, an Advanced switch),
-/// and the words for it: "Deep end view", "Advanced › Invoices". Search, the "more options"
+/// and the words for it: "Deep end view", "Advanced › Outputs". Search, the "more options"
 /// control and a deep link to a hidden page all read the gates from here, so they name the
 /// same reasons.
 library;
@@ -73,7 +73,7 @@ class SetGate {
 /// A view's name: Shallow, Deeper, Deep end.
 String setViewName(AppLocalizations l, int level) => levelStopName(l, WalletLevel.ofNumber(level) ?? WalletLevel.everything);
 
-/// The Advanced switch's name as Advanced › Shows more and Experiments list it.
+/// The Advanced switch's name as Advanced › Shows more lists it.
 String setFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
   AdvancedFeature.outputs => l.deskSetAdvOutputs,
   AdvancedFeature.technicalDetails => l.deskSetAdvTechnical,
@@ -84,11 +84,11 @@ String setFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
   AdvancedFeature.logs => l.deskSetAdvLogs,
   AdvancedFeature.transactionFiles => l.advTransactionFiles,
   AdvancedFeature.pairing => l.expPairing,
-  AdvancedFeature.invoices => l.expInvoices,
+  AdvancedFeature.invoices => l.invoicesTitle,
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
-/// Why [gate] is closed in [v], one entry per part: "Deep end view", "Advanced › Invoices".
+/// Why [gate] is closed in [v], one entry per part: "Deep end view", "Advanced › Outputs".
 /// Empty when it is open.
 List<String> setGateReasons(AppLocalizations l, SetGate gate, SetView v) => [
   if (!gate.levelOpen(v)) l.deskSetSearchViewGate(setViewName(l, gate.minLevel)),
@@ -126,7 +126,7 @@ const List<SetSection> settingsSections = [
   SetSection(DeskRoute.settingsSecurity, SetNav.wallet, EIcons.shield),
   SetSection(DeskRoute.settingsPhrase, SetNav.wallet, EIcons.key, parent: DeskRoute.settingsSecurity),
   SetSection(DeskRoute.settingsReceiving, SetNav.wallet, EIcons.antenna, gate: SetGate(minLevel: 2)),
-  SetSection(DeskRoute.settingsInvoices, SetNav.wallet, EIcons.invoice, gate: SetGate(minLevel: 3, features: [AdvancedFeature.invoices])),
+  SetSection(DeskRoute.settingsInvoices, SetNav.wallet, EIcons.invoice, gate: SetGate(minLevel: 3)),
   SetSection(DeskRoute.settingsDevices, SetNav.wallet, EIcons.devices),
   SetSection(DeskRoute.settingsAppearance, SetNav.app, EIcons.palette),
   SetSection(DeskRoute.settingsNode, SetNav.app, EIcons.node, gate: SetGate(minLevel: 2)),

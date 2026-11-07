@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../devices/device_link_code.dart';
-import '../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart' show pairingSupportedProvider;
@@ -29,7 +28,6 @@ import 'receive_screen.dart' show scanSlateQr;
 import 'scan_result_sheet.dart';
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart';
-import 'pairing/experimental_off.dart';
 
 /// The methods on in Settings › Transactions, which pick the address a code or a contact
 /// fills in.
@@ -82,12 +80,8 @@ Future<void> openScannedText(
         );
 }
 
-/// A device invite from a scan or a paste: Link a device answers it, or, with Linked devices
-/// turned off, a sheet says it is experimental and where to turn it on.
-Future<void> openDeviceLinkText(BuildContext context, WidgetRef ref, String text) async {
-  if (!ref.read(linkedDevicesOnProvider)) return showExperimentalOffSheet(context, ref, devices: true);
-  await openLinkDevice(context, ref, code: text);
-}
+/// A device invite from a scan or a paste: Link a device answers it.
+Future<void> openDeviceLinkText(BuildContext context, WidgetRef ref, String text) => openLinkDevice(context, ref, code: text);
 
 /// Opens [code], what the router made of a text.
 Future<void> openScannedCode(

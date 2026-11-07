@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'support/experimental.dart';
 
 final _l = englishStrings;
 
@@ -106,7 +105,6 @@ Future<void> _pump(
   );
   final store = MemorySecretStore()
     ..values['wallet.${config.chain.name}.backedUp'] = '1'
-    ..values[phoneAdvancedPrefsKey] = phoneExperimentalOn
     ..values[onionNoticeKey(config.chain.name, null)] = onionNoticeSeen;
   await tester.pumpWidget(
     ProviderScope(

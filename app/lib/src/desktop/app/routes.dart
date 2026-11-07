@@ -67,7 +67,7 @@ enum DeskRoute {
   settingsSecurity(section: DeskSection.settings),
   settingsRescan(section: DeskSection.settings),
 
-  /// The view, the switches that show more, the experiments (`settings_advanced.dart`).
+  /// The view and the switches that show more (`settings_advanced.dart`).
   settingsAdvanced(section: DeskSection.settings),
 
   /// The old Change view page: it opens Advanced, where the view is chosen ([DeskNav.go]).
@@ -118,8 +118,8 @@ String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
 };
 
 /// Whether the level hides [route]'s page: Shallow has no Node, Payments, Network & privacy,
-/// Wallets or Files & logs page; Invoices and the pairing places are Deep end's (with their
-/// switches, which the shell checks too). Recheck balance and Linked devices stay at every view.
+/// Wallets or Files & logs page; Invoices and the pairing places are Deep end's (the shell
+/// keeps Invoices while an invoice waits). Recheck balance and Linked devices stay at every view.
 bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
   DeskRoute.settingsNode => !ui.nodeSettings,
   DeskRoute.settingsReceiving || DeskRoute.settingsPrivacy || DeskRoute.settingsFiles => ui.shallow,

@@ -165,7 +165,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
       ),
     );
   }
-  // 6. Requests to pay (Invoices on).
+  // 6. Requests to pay.
   final requests = ref.watch(deskInvoiceBadgeProvider);
   if (requests > 0) {
     items.add(NowItem(id: 'requests', icon: EIcons.invoice, tone: ETone.warn, title: l.deskSlotRequests, detail: localInt(l, requests), stacked: true, hint: DeskRoute.invoices == here ? null : l.deskSlotOpenInvoices, onTap: to(DeskRoute.invoices)));

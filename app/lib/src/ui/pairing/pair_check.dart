@@ -32,6 +32,7 @@ import '../theme/tokens.dart';
 import 'name_service_parts.dart';
 import 'add_to_contacts_button.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
+import 'pair_allow_row.dart';
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -39,7 +40,6 @@ const Key checkMatchKey = ValueKey('check-match');
 const Key checkNoMatchKey = ValueKey('check-no-match');
 const Key checkStopKey = ValueKey('check-stop');
 const Key checkDoneKey = ValueKey('check-done');
-const Key checkAllowKey = ValueKey('check-allow');
 const Key resultAllowKey = ValueKey('result-allow');
 const Key resultSaveNewKey = ValueKey('result-save-new');
 const Key resultLabelRowKey = ValueKey('result-label-row');
@@ -130,7 +130,6 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
-  bool _allow = false;
   bool _busy = false;
   bool _left = false;
   PairingCollector? _collector;
@@ -208,9 +207,6 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         } else {
           await nameService.dismiss(widget.pairingId);
         }
-      }
-      if (record != null && check == PairingCheck.match && _allow && !record.allowInvoices) {
-        await pairingCall(ref, (api) => api.setAllowInvoices(record.id, true));
       }
       if (record != null && check == PairingCheck.match) await writeProvenAddress(ref, record);
       if (!mounted) return;
@@ -292,7 +288,6 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     // A name service confirms by itself once this side matched: nothing to confirm on its page.
     final service = statedAutomated(record.peerProfile) && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
-    final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
     return SlotScaffold(
       appBar: AppBar(title: Text(l.sasTitle)),
       body: ScreenBody(
@@ -342,21 +337,6 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
               ),
             ],
           ),
-          if (offersInvoices) ...[
-            const SizedBox(height: 16),
-            PairCard(
-              children: [
-                PairSwitchRow(
-                  switchKey: checkAllowKey,
-                  label: l.contactAllowInvoices,
-                  info: '${l.contactAllowInfo(name)}\n\n${l.contactAllowInfoMore}',
-                  hint: l.sasAllowAfterMatch,
-                  value: _allow,
-                  onChanged: _busy ? null : (v) => setState(() => _allow = v),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );
@@ -391,15 +371,25 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
     if (picked != null && mounted) setState(() => _label = picked);
   }
 
-  Future<void> _run(Future<void> Function() call) async {
+  BusyRow? _busyRow;
+
+  Future<void> _run(Future<void> Function() call, {BusyRow? row}) async {
     if (_busy) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _busyRow = row;
+    });
     try {
       await call();
     } catch (error) {
       if (mounted) ref.read(noticeProvider.notifier).show(describeError(context.l10n, error), level: NoticeLevel.error);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _busyRow = null;
+        });
+      }
     }
   }
 
@@ -509,7 +499,15 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
               style: theme.textTheme.titleLarge?.copyWith(fontFamily: t.headFamily, fontSize: 22),
             ),
           ),
-          // Verified needs no line: the badges below say it.
+          // Verified needs no line when no payments go through it: the badges below say it.
+          if (verified && !noPayments) ...[
+            const SizedBox(height: 8),
+            Text(
+              l.sasMatchedBody(name),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            ),
+          ],
           if (!verified) ...[
             const SizedBox(height: 8),
             Text(
@@ -587,23 +585,15 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           ],
           if (verified && !noPayments) ...[
             const SizedBox(height: 20),
-            PairCard(
-              children: [
-                PairSwitchRow(
-                  label: l.contactSealPayments,
-                  info: l.contactSealTip(name),
-                  value: record.seal != SealMode.off,
-                  onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v))),
-                ),
-                PairSwitchRow(
-                  switchKey: resultAllowKey,
-                  label: l.contactAllowInvoices,
-                  info: '${l.contactAllowInfo(name)}\n\n${l.contactAllowInfoMore}',
-                  hint: l.sasAllowInvoicesHint(name),
-                  value: record.allowInvoices,
-                  onChanged: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setAllowInvoices(record.id, v))),
-                ),
-              ],
+            PairMatchedCard(
+              name: name,
+              seal: record.seal != SealMode.off,
+              onSeal: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v)), row: BusyRow.seal),
+              allow: record.allowInvoices,
+              offLine: l.sasAllowOffLine(name),
+              onAllow: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setAllowInvoices(record.id, v)), row: BusyRow.allow),
+              busy: _busyRow,
+              allowKey: resultAllowKey,
             ),
           ],
         ],

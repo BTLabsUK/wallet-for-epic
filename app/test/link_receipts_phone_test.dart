@@ -26,7 +26,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'name_service_vectors_support.dart';
 import 'support/fake_receipts.dart';
-import 'support/experimental.dart';
 
 final AppLocalizations _l = englishStrings;
 final DateTime _now = DateTime(2026, 11, 1, 12);
@@ -76,7 +75,7 @@ class _Harness {
   }
 
   final session = FakeWalletSession(summary: _summary);
-  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+  final store = MemorySecretStore();
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
   final FakeReceipts receipts;
@@ -132,7 +131,6 @@ class _Harness {
         overrides: [
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
-          invoicesOnProvider.overrideWithValue(true),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
