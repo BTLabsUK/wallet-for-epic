@@ -120,8 +120,12 @@ class _Page extends StatelessWidget {
       backgroundColor: t.bg,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          // At phone width the sheet runs edge to edge, as in the app; the words keep their margin.
+          padding: EdgeInsets.fromLTRB(wide ? 16 : 0, 12, wide ? 16 : 0, 32),
           children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: wide ? 0 : 16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(
               children: [
                 Expanded(child: Text('Notices in 26.11.4', style: Theme.of(context).textTheme.titleLarge)),
@@ -144,6 +148,8 @@ class _Page extends StatelessWidget {
                   ChoiceChip(label: Text(s.label), selected: s == state, onSelected: (_) => onState(s)),
               ],
             ),
+              ]),
+            ),
             const SizedBox(height: 20),
             if (wide)
               Row(
@@ -157,7 +163,7 @@ class _Page extends StatelessWidget {
             else ...[
               phone,
               const SizedBox(height: 32),
-              desk,
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: desk),
             ],
           ],
         ),
@@ -222,10 +228,12 @@ class _PhoneColumn extends ConsumerWidget {
         ],
       ),
     );
+    // At phone width the frames run edge to edge, as the app does; the headings keep a margin.
+    final edge = MediaQuery.sizeOf(context).width < 1000 ? 16.0 : 0.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _heading(context, 'Phone · Epicbox sheet'),
+        Padding(padding: EdgeInsets.only(left: edge), child: _heading(context, 'Phone · Epicbox sheet')),
         ClipRRect(
           borderRadius: BorderRadius.circular(t.radius),
           child: Container(
@@ -235,7 +243,7 @@ class _PhoneColumn extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 28),
-        _heading(context, 'Phone · digest notice'),
+        Padding(padding: EdgeInsets.only(left: edge), child: _heading(context, 'Phone · digest notice')),
         _PhoneDigest(),
       ],
     );
