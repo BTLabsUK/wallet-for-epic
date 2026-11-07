@@ -159,7 +159,7 @@ def lanes_table(pipeline, state_root):
             if not _green(e):
                 break
             streak += 1
-        table.append({"base": base, "title": spec.get("title", base), "class": class_of(spec), "stage": stage,
+        table.append({"base": base, "title": spec.get("title", base).replace(" ({variant})", ""), "class": class_of(spec), "stage": stage,
                       "last": history[-1] if history else None, "green_streak": streak})
     return table
 
