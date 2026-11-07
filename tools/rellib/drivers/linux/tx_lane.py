@@ -365,6 +365,7 @@ class TxLane(Lane):
         self.methods = methods_for(self.part, want or list(METHODS))
         self.p_before = self.p_after = None
         self.link_answered = None  # link-pay: the install whose answer took ("a" | "a2")
+        self.link_coin_back = False  # link-end: that coin went back to P
 
     # ---- the lane
 
@@ -772,6 +773,7 @@ class TxLane(Lane):
             (self.ok if gone_a and a_free and ended else self.fail)("link_end_ok", text)
         if self.link_answered:
             tx.sweep(self, (self.link_answered,), "link-end")
+            self.link_coin_back = True
 
     def _a2_down(self):
         """A2's coin (the payment it answered, when link-end did not send it back) to P, then A2 stopped and removed."""
@@ -780,7 +782,9 @@ class TxLane(Lane):
             self.p.drop_a2()
             return
         try:
-            if w.ui is not None and w.secrets.get("password"):
+            if self.link_coin_back:  # one phrase, one coin: A2 reads A's send as its own outgoing
+                self.log("link-back: the coin went back at link-end, A2 has nothing to send")
+            elif w.ui is not None and w.secrets.get("password"):
                 d = tx.digest(self, w, "link-back")
                 if ((d.get("balance") or {}).get("total") or 0) >= tx.nano(tx.DUST):
                     tx.sweep(self, ("a2",), "link-back")

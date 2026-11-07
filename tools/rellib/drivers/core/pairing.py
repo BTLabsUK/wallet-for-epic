@@ -16,6 +16,7 @@ field."""
 import contextlib
 import re
 import time
+from dataclasses import replace
 
 from .driver import Expect, either, gone, shows
 from . import targets as tg
@@ -65,7 +66,7 @@ REMOVE_PAIRING = T("pair.contact.remove")
 REMOVE_TITLE = T("pair.contact.removetitle")
 REMOVE_CONFIRM = T("pair.contact.removeok")
 CONTACT_CHECK = T("pair.contact.check")
-CONTACT_PAIR = T("pair.contact.pair")
+CONTACT_PAIR = replace(T("pair.contact.pair"), kind="named")   # the contact page's button has no id
 # a pair request to a proven contact: "Pair with Lane A" › Send request; the other side's Pair requests · 1 › Pair
 REQUEST_SEND = T("pair.request.send")
 REQUESTS_ROW = T("pair.requests.row")
