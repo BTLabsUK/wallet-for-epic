@@ -148,6 +148,9 @@ class PairPlatform(Platform):
         try:
             p.shutdown()
         finally:
+            logs = os.path.join(p.work, "sandbox", "home", ".epic_cash_desktop", "logs")
+            if os.path.isdir(logs):  # the wallet goes, what it read and said stays for the report
+                shutil.copytree(logs, os.path.join(self.out, "a2-logs"), dirs_exist_ok=True)
             shutil.rmtree(p.work, ignore_errors=True)
             self.log("A2: removed %s" % p.work)
 
