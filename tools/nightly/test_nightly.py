@@ -325,7 +325,7 @@ class TrustTest(unittest.TestCase):
         self.assertEqual(sorted(s["platform"] for s in steps), ["android", "linux", "linux-notor", "windows"])
         self.assertEqual({s["status"] for s in steps}, {"ok"})
         s = next(s for s in steps if s["platform"] == "linux-notor")
-        self.assertEqual((s["name"], s["group"], s["duration_s"]), ("G4 trust linux-notor", "trust", 60))
+        self.assertEqual((s["name"], s["group"], s["duration_s"]), ("update pair linux-notor (published)", "trust", 60))
         self.assertEqual(nightly.trust_summary(steps)["status"], "green")
 
     def test_lanes_trust_warned_failed_and_skipped(self):
@@ -348,7 +348,7 @@ class TrustTest(unittest.TestCase):
         self.assertEqual(body["key"], "nightly-7b2cc6ce-trust")
         self.assertLessEqual(set(body), nightly.DM_FIELDS)
         line = nightly.summary_line(dict(result, ended="2026-10-31T03:00:00Z"))
-        self.assertIn("G4 trust red: android: driver exit 1", line)
+        self.assertIn("update pair red: android: driver exit 1", line)
 
     def test_lanes_trust_without_a_record_or_steps_is_empty(self):
         self.assertEqual(nightly.lanes_trust(None), [])
@@ -359,7 +359,7 @@ class TrustTest(unittest.TestCase):
     def test_not_run_names_trust_when_lanes_give_none(self):
         lanes = self.lanes(**{"flutter-test": {}})
         got = nightly.not_run(None, nightly.lanes_trust(lanes), lanes)
-        self.assertEqual(got, ["G4 trust: no leg started"])
+        self.assertEqual(got, ["update pair (published): no leg started"])
 
     def test_green_source_with_trust_green_sends_nothing(self):
         result = {"status": "green", "sha": RED["sha"], "trust": {"status": "green", "failed": []}}
@@ -597,9 +597,9 @@ class IncompleteTest(unittest.TestCase):
         got = nightly.not_run({"status": "skipped", "reason": "port"},
                         [dict(self.LEG, status="skipped", reason="driver could not run")],
                         {"status": "skipped", "reason": "a release run is active"})
-        self.assertEqual(got, ["LEPIC acceptance: port", "G4 trust linux: driver could not run",
+        self.assertEqual(got, ["LEPIC acceptance: port", "update pair linux: driver could not run",
                                "night lanes: a release run is active"])
-        self.assertEqual(nightly.not_run(None, [], None), ["G4 trust: no leg started", "night lanes: did not start"])
+        self.assertEqual(nightly.not_run(None, [], None), ["update pair (published): no leg started", "night lanes: did not start"])
 
     def result(self, **over):
         return dict({"status": "incomplete", "source_status": "green", "sha": "a" * 40, "steps": [],

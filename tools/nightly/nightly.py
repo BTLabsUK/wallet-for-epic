@@ -517,8 +517,8 @@ def not_run(acc, trust_steps, lanes):
     if acc and acc["status"] == "skipped":
         out.append(f"LEPIC acceptance: {acc['reason']}")
     if not trust_steps:
-        out.append("G4 trust: no leg started")
-    out += [f"G4 trust {s['platform']}: {s.get('reason')}" for s in trust_steps if s["status"] == "skipped"]
+        out.append("update pair (published): no leg started")
+    out += [f"update pair {s['platform']}: {s.get('reason')}" for s in trust_steps if s["status"] == "skipped"]
     if not lanes or lanes["status"] not in ("ok", "red"):
         out.append(f"night lanes: {(lanes or {}).get('reason') or 'did not start'}")
     return out
@@ -908,7 +908,7 @@ def lanes_trust(lanes):
             continue
         label = base[len("trust-pair-"):]
         status, note = e.get("status"), e.get("note") or ""
-        step = {"name": f"G4 trust {label}", "group": "trust", "platform": label,
+        step = {"name": f"update pair {label} (published)", "group": "trust", "platform": label,
                 "duration_s": e.get("duration_s") or 0}
         if status == "done" and not e.get("warned"):
             step["status"] = "ok"
@@ -1350,7 +1350,7 @@ def summary_line(r):
         line += f" error: {r.get('error')}"
     t = r.get("trust")
     if t:
-        line += f" | G4 trust {t['status']}" + (": " + "; ".join(t["failed"]) if t["failed"] else "")
+        line += f" | update pair {t['status']}" + (": " + "; ".join(t["failed"]) if t["failed"] else "")
         skipped = [s["platform"] for s in r["steps"] if s.get("group") == "trust" and s["status"] == "skipped"]
         if skipped:
             line += f" (skipped: {', '.join(skipped)})"

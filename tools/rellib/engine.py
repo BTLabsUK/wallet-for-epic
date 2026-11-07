@@ -671,6 +671,8 @@ class Engine:
         if step.driven:
             self.stamp_driver(step, stage)
             return self._check_proof(step, rc)
+        if step.env.get("REL_TRUST_PAIR"):
+            return self.pair_result(step, stage, rc)
         if rc != 0:
             return {"status": "failed", "rc": rc, "note": f"exit {rc}"}
         return self.collect(step, stage)
@@ -770,6 +772,16 @@ class Engine:
                                            + (f"; from saved state" if proof.get("start") == "state" else "") + ")"
                                            + recovered_note(proof))
             res["recovered"] = [r.get("step") for r in proof["recovered"]] if proof.get("recovered") else None
+        return res
+
+    def pair_result(self, step, stage, rc):
+        """A night's trust pair runs two published releases: it proves the update kit, never this run's
+        version. Its note says which pair, so no record reads it as the candidate's update proof."""
+        proof = read_json(os.path.join(stage, "proof.json")) or {}
+        pair = f"{proof.get('previous') or '?'} → {proof.get('candidate') or '?'}"
+        what = f"published pair {pair}: checks the update kit, not proof for {self.info['version']}"
+        res = {"status": "done" if rc == 0 else "failed", "rc": rc, "proven": False, "release_proof": False}
+        res["note"] = what if rc == 0 else f"exit {rc}; {what}"
         return res
 
     def collect(self, step, stage):
