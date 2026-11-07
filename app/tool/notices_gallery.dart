@@ -23,9 +23,13 @@ import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/web/splash.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
+  // `?slow=4` runs every animation at a quarter speed, for recording a clip of it.
+  final slow = double.tryParse(Uri.base.queryParameters['slow'] ?? '');
+  if (slow != null && slow >= 1) timeDilation = slow;
   runApp(const ProviderScope(child: _Gallery()));
   // The web page's splash (web/index.html) stays until Flutter has drawn over it.
   WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
