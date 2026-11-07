@@ -624,27 +624,23 @@ class Phone:
         return None
 
     def find_setting(self, target, pages, what):
-        """Opens the Settings page that holds `target`: the known `pages` first, then every entry the
-        Settings list shows (a setting moved to another page is found there, and the log says so)."""
+        """Opens the Settings page that holds `target`, one of `pages`. A miss fails there and then, on
+        the page that missed: the route in the fault is the way a probe comes back to it."""
         d = self.d
-        if d.seen(target):
+        step = "find-%s" % target.id
+        if d.seen(target) or any(self.section(p) and self._look(target) for p in pages):
+            d.reached(step)
             return True
-        tried = []
-        for p in pages:
-            if self.section(p):
-                tried.append(SECTION[p])
-                if self._look(target):
-                    return True
-        self.settings()
-        tree = d.tree()
-        listed = [t for t in SECTIONS if d.find_in(t, tree)]
-        for t in listed:
-            if t in tried:
-                continue
-            if self.section(t) and self._look(target):
-                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, t, ", ".join(pages)))
-                return True
-        d.harness("%s not found under Settings (tried %s)" % (what, ", ".join(str(t) for t in tried + listed)))
+        d.step = step
+        d.harness("%s not on Settings › %s" % (what, ", ".join(pages)),
+                  route={"find": target.id, "pages": list(pages), "what": what})
+
+    def find_again(self, route):
+        """Back to the step a route names (the fault's, core/lane.py): the view, then the setting."""
+        target = tg.kept(route["find"], "android")
+        if target.id != LEVEL_ROW.id:
+            self._view_deep_end()
+        self.find_setting(target, tuple(route["pages"]), route["what"])
 
     # ---- set up on the previous release
 
@@ -755,9 +751,15 @@ class Phone:
         """A release with levels opens a new install at level 1, where Home has only the Network and
         Epicbox icons and Settings hides more: Settings › Advanced › Wallet view › Deep end › Save."""
         d = self.d
-        if not self.section("advanced") or not self._look(LEVEL_ROW, 1):
+        if not d.has_control(DEEP_END):
             self.log("no Wallet view row: a build without levels")
             return
+        d.step = "find-%s" % LEVEL_ROW.id
+        if not self.section("advanced") or not self._look(LEVEL_ROW, 1):
+            d.step = "find-%s" % LEVEL_ROW.id
+            d.harness("Wallet view row not on Settings › advanced",
+                      route={"find": LEVEL_ROW.id, "pages": ["advanced"], "what": "Wallet view"})
+        d.reached("find-%s" % LEVEL_ROW.id)
         if self._level_three(d.tree()):
             return
         d.press(LEVEL_ROW, step="wallet-view", then=shows(DEEP_END), timeout=20)

@@ -136,6 +136,8 @@ def proof_cause(result, log):
         return "infra:driver-%s" % (re.sub(r"[^\w-]+", "-", str(fault.get("sub") or "rig")) or "rig")
     if fault.get("kind") == "harness":
         return "harness"
+    if fault.get("kind") == "refused":
+        return "check: refused"
     if fault.get("kind") == "product":
         return "product"
     text = "".join(_tail(log, 120))

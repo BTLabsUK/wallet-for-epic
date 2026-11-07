@@ -621,14 +621,18 @@ function Do-Cmd($c) {
     }
     'uninstall_leftover' {
       # the install a crashed earlier attempt of the same run left: only one under <runs>\<prefix>-<yyyymmdd-hhmmss>\,
-      # where <prefix> is this run's variant-previous-to-candidate; any other install is left alone
+      # where <prefix> is this run's variant-previous-to-candidate, or one in a run folder its lane marked left-up;
+      # any other install is left alone
       $e = Entry
       if (-not $e) { return @{ ok = $true; note = 'nothing installed' } }
       $prefix = [string]$c.prefix
       if ($prefix -notmatch '^[A-Za-z0-9.-]+$') { return @{ ok = $false; error = "bad run prefix $prefix" } }
       $runs = (Split-Path $Run -Parent) + '\'
       $m = [regex]::Match(([string]$e.location), '^' + [regex]::Escape($runs + $prefix) + '-\d{8}-\d{6}\\', 'IgnoreCase')
-      if (-not $m.Success) { return @{ ok = $false; error = "installed at $($e.location), not an earlier attempt of this run: left alone" } }
+      if (-not $m.Success) {
+        $m = [regex]::Match(([string]$e.location), '^' + [regex]::Escape($runs) + '[^\\]+\\', 'IgnoreCase')
+        if (-not $m.Success -or -not (Test-Path -LiteralPath ($m.Value + 'left-up'))) { return @{ ok = $false; error = "installed at $($e.location), not an earlier attempt of this run: left alone" } }
+      }
       $folder = $m.Value
       Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$folder*" } |
         ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }

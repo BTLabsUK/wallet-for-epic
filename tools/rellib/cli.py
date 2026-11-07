@@ -11,6 +11,7 @@ failed, tools/rel stopped by SIGTERM/SIGINT/SIGHUP while driving, or a new run o
 -> aborted. 10, 20, 40, 64 and 75 are not an end: the same run goes on (retry, resume, gate)."""
 import pathlib
 import argparse
+import fcntl
 import json
 import os
 import re
@@ -20,7 +21,7 @@ import subprocess
 import sys
 import tempfile
 
-from . import builtins, failures as known, flow, guards, health, hosted, retention
+from . import builtins, failures as known, flow, guards, health, hosted, repeats, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, VERSION_RE, is_night, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, STALE_BYTES, relmsg_state)
@@ -486,7 +487,7 @@ class App:
                    + (f"hint: {f['hint']}\n" if f.get("hint") else "")
                    + f"log: {os.path.join(run.step_dir(f['id']), 'log.txt')}\n"
                    + f"last lines:\n{known.tail(os.path.join(run.step_dir(f['id']), 'log.txt'), 25)}\n"
-                   + f"debug: tools/rel debug {f['id']}   retry: tools/rel retry {f['id']}")
+                   + f"debug: tools/rel debug {f['id']}   " + self.retry_line(run, eng, f))
         elif waiting:
             msg = f"{run.info['run_id']}: waiting: " + "; ".join(f"{w['id']}: {w.get('note') or w['status']}" for w in waiting)
         else:
@@ -496,6 +497,12 @@ class App:
             # an end: retry, resume and the gate carry the same run on; publish ends it.)
             eng.relmsg.done("failed", note=msg[:500])
         return self.out(code, msg, run)
+
+    @staticmethod
+    def retry_line(run, eng, row):
+        """What the end of a run tells the reader to do next about a failed step."""
+        no = repeats.verdict(eng, run.step(row["id"]), manual=True)
+        return no["line"] if no else f"retry: tools/rel retry {row['id']}"
 
     def supersede(self, new_run):
         """A new run of a version replaces the older runs of it: their live messages end aborted."""
@@ -603,6 +610,10 @@ class App:
             if unmet and s.publish:
                 return self.out(EXIT_USAGE, "a publish step never runs with --ignore-needs", run)
             unmet_of[s.id] = unmet
+            no = None if getattr(a, "gated", False) else repeats.verdict(eng, s, st, manual=True)
+            if no:
+                run.event(s.id, "repeat-refused", rule=no["rule"], line=no["line"], manual=True)
+                return self.out(EXIT_DENIED, no["line"], run)
         for s in sel:
             if unmet_of[s.id]:
                 run.taint(f"{s.id} run with unmet needs: {', '.join(unmet_of[s.id])}")
@@ -646,11 +657,49 @@ class App:
             return self.out(EXIT_USAGE, f"{s.id} is {st['status']}; retry is for a failed step (--again to re-run a done one)", run)
         if s.publish and st["status"] == "done" and not a.again:
             return self.out(EXIT_USAGE, f"{s.id} publishes and is done: --again to run it again", run)
+        fresh = None if a.fresh is None else a.fresh.strip()
+        if fresh is not None and (not fresh or not repeats.gated(s)):
+            return self.out(EXIT_USAGE, "--fresh needs a reason" if not fresh else f"{s.id} is no lane: --fresh is for lanes", run)
+        no = repeats.verdict(self.engine(run, relmsg_on=False), s, st, manual=True, fresh=fresh)
+        if no:
+            run.event(s.id, "repeat-refused", rule=no["rule"], line=no["line"], manual=True)
+            return self.out(EXIT_DENIED, no["line"], run)
+        if fresh:
+            run.set_status(s.id, fresh=fresh)
+            run.event(s.id, "fresh-forced", reason=fresh, attempt=st.get("attempts", 0) + 1)
         run.set_status(s.id, status="pending", retry=False)
         run.event(s.id, "retry-requested")
-        a.ignore_needs, a.dry_run = False, False
+        a.ignore_needs, a.dry_run, a.gated = False, False, True
         a.step = s.id
         return self.cmd_run(a)
+
+    def cmd_probe(self, a):
+        """The failing step alone: the target lane by the shortest route to it, recorded in the run. It
+        takes no run lock, so it runs while other lanes do; a step on the target's lane holds it off."""
+        run = self.load_run()
+        s = run.step(a.target)
+        if not repeats.gated(s):
+            return self.out(EXIT_USAGE, f"{s.id} is no lane", run)
+        eng = self.engine(run, relmsg_on=False)
+        if eng.dry or run.info.get("dry"):
+            return self.out(EXIT_DENIED, "a dry run has no failure to probe", run)
+        busy = [x.id for x in run.steps if x.lane == s.lane and run.status(x.id)["status"] == "running"]
+        if busy:
+            return self.out(EXIT_BUSY, f"{', '.join(busy)} is running on this lane: probe when it has ended", run)
+        fail = repeats.failing_step(run, s, a.step)
+        if not fail:
+            names = ", ".join(repeats.failing_names(run, s)) or "none"
+            return self.out(EXIT_DENIED, f"refused: {a.step} is no failing step in {run.info['run_id']}. A probe stops at "
+                                         f"a step that failed, or it would run the whole lane. Failed on {s.id}: {names}", run)
+        os.makedirs(run.step_dir(s.id), exist_ok=True)
+        with open(os.path.join(run.step_dir(s.id), ".probe"), "w") as held:
+            try:
+                fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return self.out(EXIT_BUSY, f"another probe is running on {s.id}", run)
+            rec = eng.probe(s, fail)
+        return self.out(EXIT_OK if rec["passed"] else EXIT_FAILED,
+                        f"probe {rec['n']} of {rec['step']} on {rec['platform']}: {repeats.counts(rec)}", run, probe=rec)
 
     def cmd_skip(self, a):
         run = self.load_run()
@@ -752,7 +801,7 @@ class App:
             print(f"gate watcher running: {w.get('unit') or 'pid ' + str(w.get('pid'))}, log {gatewatch.log_path(run)}")
         for r in rows:
             d = f"{r['duration_s']:.0f}s" if r.get("duration_s") is not None else ""
-            extra = r.get("note") or r.get("reason") or ""
+            extra = (repeat_note(r) + (r.get("stopped") or r.get("note") or r.get("reason") or "")).strip()
             print(f"  {r['status']:8} {r['id']:28} {d:>7}  {extra[:110]}")
         return EXIT_OK
 
@@ -797,11 +846,13 @@ class App:
                 return self.out(EXIT_USAGE, "--exec is for command steps", run)
             if s.publish:
                 return self.out(EXIT_USAGE, "never --exec a publish step", run)
+            if repeats.gated(s) and st.get("attempt_causes") and not run.info.get("dry"):
+                return self.out(EXIT_DENIED, f"refused: --exec would run the whole of {s.id} again. "
+                                             f"tools/rel probe <step> {s.id} reaches the failing step alone", run)
             print("\n(--exec: runs it here with the console attached; the log is debug-<n>.log; the step's status is not changed)")
             n = len([f for f in os.listdir(run.step_dir(s.id)) if f.startswith("debug-")]) + 1
             dlog = os.path.join(run.step_dir(s.id), f"debug-{n}.log")
-            full = dict(os.environ)
-            full.update(info["env"])
+            full = eng.spawn_env(info["env"])
             p = subprocess.run(["bash", "-c", f"set -o pipefail; ( {s.run} ) 2>&1 | tee {shlex_quote(dlog)}"],
                                cwd=info["cwd"], env=full)
             return p.returncode and EXIT_FAILED
@@ -1004,7 +1055,9 @@ class App:
             table.append({"step": base, "runs": len(rs), "failed": sum(1 for r in rs if r["status"] == "failed"),
                           "last_s": last, "avg_prev5_s": round(avg, 1) if avg else None,
                           "slower": bool(last and avg and last > 1.25 * avg),
-                          "over_median": slow.get(base)})
+                          "over_median": slow.get(base),
+                          "repeated_s": round(sum(r.get("repeated_s") or 0 for r in rs), 1),
+                          "forced": sum(r.get("forced") or 0 for r in rs)})
         if a.json:
             return self.out(EXIT_OK, "stats", stats=table)
         print(f"{'step':24} {'runs':>5} {'failed':>6} {'last':>8} {'avg(5)':>8}")
@@ -1053,9 +1106,19 @@ def tries_cell(r):
     return f"flaky ({r['attempts']} tries)" if r.get("flaky") else str(r["attempts"])
 
 
+def repeat_note(r):
+    """`repeat 2, 1115 s repeated, 1 forced; `, or nothing for a step that never ran again after a failure."""
+    if not r.get("repeats"):
+        return ""
+    forced = f", {r['repeats_forced']} forced" if r.get("repeats_forced") else ""
+    return f"repeat {r['repeats']}, {r['seconds_repeated']:.0f} s repeated{forced}; "
+
+
 def row_note(r):
     """The report's note column: the note (or skip reason), what the driver was, the known-failure hint."""
-    note = ("DRIVERS CHANGED between attempts; " if r.get("driver_changed") else "") + (r.get("note") or r.get("reason") or "")
+    note = ("DRIVERS CHANGED between attempts; " if r.get("driver_changed") else "") + repeat_note(r) + (r.get("note") or r.get("reason") or "")
+    if r.get("stopped"):
+        note += f" — {r['stopped']}"
     if r.get("hint"):
         note += f" — hint: {r['hint']}"
     return note
@@ -1202,6 +1265,9 @@ def parser():
             sp.add_argument("--again", action="store_true", help="also a step that is done (publish steps need it)")
             sp.add_argument("--stop-on-fail", action="store_true",
                             help="a failed step stops the others too (default: only the steps that need it)")
+        if name == "retry":
+            sp.add_argument("--fresh", metavar="REASON", help="a lane from the very beginning, or a failure repeated: "
+                            "counted as a repeat, the reason goes to the journal")
         if name == "run":
             sp.add_argument("more", nargs="*", metavar="step", help="more steps, run side by side across their lanes")
             sp.add_argument("--keep-going", action="store_true", help=argparse.SUPPRESS)  # the default now
@@ -1215,6 +1281,10 @@ def parser():
             sp.add_argument("--exec", action="store_true")
         if name == "skip":
             sp.add_argument("--reason", required=True)
+    sp = sub.add_parser("probe", help="the failing step alone: a retry after a driver failure needs its pass")
+    sp.add_argument("step", help="the failing step, as the failure names it (find-g4.advanced.technical)")
+    sp.add_argument("target", help="the lane to run it on")
+    sp.add_argument("--run")
     sp = sub.add_parser("sign", help="sign the Android files now (the owner's code only without the signer credential), then carry on")
     sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
     machine_args(sp)
@@ -1252,7 +1322,7 @@ def parser():
     sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
     sp.add_argument("base")
     sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
-    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "logs", "debug", "skip",
+    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "probe", "logs", "debug", "skip",
                  "stats", "runs", "cleanup", "walk"):
         sub.choices[name].add_argument("--night", action="store_true",
                                        help="the night stage: its steps and its runs (release/pipeline.toml [night])")

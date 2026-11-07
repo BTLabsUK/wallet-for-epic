@@ -206,5 +206,7 @@ class Run:
                          "duration_s": st.get("duration_s"), "note": st.get("note"), "reason": st.get("reason"),
                          "hint": st.get("hint"), "bytes": st.get("bytes"),
                          "flaky": bool(st.get("flaky")), "failed_before": st.get("failed_before"),
-                         "driver_changed": bool(st.get("driver_changed"))})
+                         "driver_changed": bool(st.get("driver_changed")), "stopped": st.get("stopped"),
+                         "repeats": st.get("repeats") or 0, "seconds_repeated": st.get("seconds_repeated") or 0,
+                         "repeats_forced": len(st.get("forced") or []), "failures": st.get("failures") or []})
         return rows

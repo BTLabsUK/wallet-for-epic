@@ -36,7 +36,7 @@ import time
 from . import freeze
 from . import record
 from . import targets as tg
-from .faults import HarnessFault, HarnessGone, ProductFault
+from .faults import HarnessFault, HarnessGone, ProductFault, StepReached
 
 SLOW = float(os.environ.get("REL_TRUST_SLOW") or "1")
 
@@ -140,6 +140,7 @@ class Driver:
         self.last_tree = []   # the newest tree read (a frozen app's screen is judged by it, not read again)
         self.checked = 0      # when alive_check last ran in full (a step's end and a wait loop share it)
         self._unfolded = set()
+        self.stop_at = (os.environ.get("REL_TRUST_PROBE") or "").strip() or None  # the step a probe ends at
 
     # ---- reading
 
@@ -207,7 +208,8 @@ class Driver:
         with open(os.path.join(self.out, "tree-%03d-%s.txt" % (self.shots, name)), "w") as f:
             f.write("\n".join(n.brief() for n in tree))
 
-    def harness(self, what):
+    def harness(self, what, route=None):
+        """The driver cannot do its step. [route]: how a probe gets back here, kept with the fault."""
         tree = []
         try:
             tree = self.s.tree()
@@ -215,7 +217,9 @@ class Driver:
             pass
         shot = self.shot("fail-" + self.step)
         self.dump("fail-" + self.step, tree)
-        raise self._tag(HarnessFault(self.step, what + " (after: %s)" % " → ".join(self.trail[-4:]), shot))
+        fault = HarnessFault(self.step, what + " (after: %s)" % " → ".join(self.trail[-4:]), shot)
+        fault.route = route
+        raise self._tag(fault)
 
     def _tag(self, fault):
         """The recoveries this step tried go with its fault (the lane's bundle lists them)."""
@@ -278,6 +282,18 @@ class Driver:
 
     def _reached(self):
         self._tick()
+        self.reached(self.step)
+
+    def reached(self, step):
+        """Step [step] passed: a probe sent to it ends here."""
+        if step == self.stop_at:
+            self.log("PROBE reached %s" % step)
+            self.shot("probe-" + step)
+            raise StepReached(step)
+
+    def has_control(self, target):
+        """False when this build's strings know none of [target]'s keys: a release from before that control."""
+        return self.labels is None or not target.keys or any(self.labels.text(k) for k in target.keys)
 
     # ---- waiting
 
@@ -326,6 +342,7 @@ class Driver:
         if goal.done(self.tree()):
             self.log("SKIP %s: already done" % goal.name)
             record.emit("step.end", step=goal.name, state="skipped")
+            self.reached(goal.name)
             return "skipped"
         goal.do()
         self.step = goal.name
@@ -518,6 +535,7 @@ class Driver:
         node = self.locate(target, timeout)
         if ("checked" in node.states) == on:
             self.log("SKIP %s: already %s" % (step, "on" if on else "off"))
+            self.reached(step)
             return node
         self._act(self.s.press, node)
         r = self.wait(Expect("%s %s" % (target, "on" if on else "off"),

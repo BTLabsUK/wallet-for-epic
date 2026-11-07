@@ -58,20 +58,35 @@ password (wallet.put, where it is created or restored), its address (wallet.addr
 balance and transactions (wallet.snapshot). The bundle's shot is taken on any screen, a phrase's too:
 they are test wallets and the bundle stays under REL_OUT. trust.log and proof.json stay clean.
 
-Resume (on unless REL_TRUST_RESUME=0): a rerun in the same REL_OUT reads the previous attempt's proof
-(proof.before-attempt-N.json, the newest, or proof.json): it names the phases done and the one that
-failed. When it failed after the previous release was installed and its wallet made (RESUMABLE) and
-the platform can take its state again (platform.resume_from: Linux, the sandbox still there and its
-stand-ins' ports free), the lane opens the previous release on that state and starts at the failed
-phase; the checks that passed are kept. A fault from the update on (FROM_POINT) reruns from the resume
-point: phase resume-point keeps the closed previous release's state before the update
-(platform.save_point), and point-load puts it back (platform.load_point); the update and all after it
-run again. Linux, Android (an emulator snapshot) and Windows (a copy of the data folder, the previous
-release installed again) keep a point; Android and Windows resume from it and no earlier; iOS keeps
-none. The funds phase is not in FROM_POINT: its coins may have gone. Else it starts fresh and logs why. What
-the resumed lane needs (the secrets, and the point's digest and checks) waits in a 0600 file in the
-platform's resume_dir() (outside REL_OUT), read once. A kept fault leaves no resume: its phase's state
-is long gone by the end of the run.
+Resume: a rerun in the same REL_OUT reads the previous attempt's proof (proof.before-attempt-N.json, the
+newest that ran, or proof.json): it names the phases done and the one that failed. When it failed after
+the previous release was installed and its wallet made (RESUMABLE) and the platform can take its state
+again (platform.resume_from), the lane opens the previous release on that state (platform.resume_install
+puts the app back where its shutdown took it) and starts at the failed phase; the checks that passed are
+kept. A fault from the update on (FROM_POINT) reruns from the resume point: phase resume-point keeps the
+closed previous release's state before the update (platform.save_point), and point-load puts it back
+(platform.load_point); the update and all after it run again. Linux, Android (an emulator snapshot) and
+Windows (a copy of the data folder, the previous release installed again) keep a point; iOS keeps none.
+The funds phase is not in FROM_POINT: its coins may have gone. What the resumed lane needs (the secrets,
+and the point's digest and checks) waits in a 0600 file in the platform's resume_dir() (outside REL_OUT)
+until a full run of the lane passes. A kept fault leaves no resume: its phase's state is long gone by the
+end of the run.
+
+No silent start from the beginning: after a failed attempt a lane that cannot resume at or before the
+failed phase refuses (RefusedStart, proof.refused, before it touches anything) and the line names the
+phase. A reason in REL_TRUST_FRESH (tools/rel retry <step> --fresh "<reason>") is the only way past;
+REL_TRUST_RESUME=0 asks for the same thing and needs it too. A start from the beginning needs no reason
+when it is the shortest route or a result stands behind it: the attempt failed before the wallet was there
+(BEFORE_WALLET), ended on a product fault or on false checks, or the machine failed (infra) and left
+nothing to take. Each is logged and kept in details.resume, and tools/rel counts it as a repeat.
+
+Probe (REL_TRUST_PROBE=<step>, from tools/rel probe, REL_PROBE_PHASE=<phase>, REL_PROBE_FROM=<out folder of
+the failed attempt>): the lane reaches that one step by the shortest route and ends there. With the failed
+attempt's state it opens the app on it and, when the fault left a route (Driver.harness), goes straight
+to the step (recipe.find_again); else it runs the failed phase. Without that state it comes from the start.
+It ends at StepReached, or at the end of the failed phase. No fault is kept: the first one is the answer.
+proof.probe says what came of it. A harness fault and a probe leave the app up where the platform can
+(platform.keep_up): the rig's agent, its stand-ins and the failing screen stay for a look and a resume.
 
 Stop (REL_TRUST_UNTIL=<phase>, --test runs only): the lane runs up to and including that phase and
 ends there, before the next: no payment to P, no update. "STOP after <phase> (REL_TRUST_UNTIL)" in the
@@ -81,6 +96,7 @@ The break-test runs use it so they move no coins (fund pays P back even with REL
 Exit: 0 every required check true, 1 a check false or a product fault, 2 could not run.
 """
 import glob
+import hashlib
 import json
 import os
 import re
@@ -96,7 +112,7 @@ from . import lane_seed as ls  # noqa: E402
 from . import record  # noqa: E402
 from . import state as st  # noqa: E402
 from .recover import Recover, phrase_screen  # noqa: E402
-from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault  # noqa: E402
+from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault, RefusedStart, StepReached  # noqa: E402
 
 def fail_closed(platform, reason, req):
     """The entry script could not start the lane: result.txt and a proof.json with every required check false
@@ -135,6 +151,10 @@ RESUMABLE = ("previous-setup", "settings-ui-before", "address", "fund")
 # The phases rerun from the resume point, the state before the update. Not funds: its sends are on the chain
 # and the point's wallet would not know them; a fault there restarts the lane.
 FROM_POINT = ("update", "candidate", "settings-ui-after", "digest-after", "live-servers", "tor-on")
+# The phases before the previous release's wallet is there: a start from the beginning is their shortest route.
+BEFORE_WALLET = ("prepare", "install", "restore", "previous", "restore-ok")
+# The phases on the way back into the kept state: a fault there leaves that state as it was.
+REENTRY = ("resume-install", "previous-open", "point-load")
 # The phases REL_TRUST_UNTIL may name (a typo would run the whole lane, payment and all).
 PHASES = ("prepare", "install", "restore", "previous", "restore-ok", "previous-open", "previous-setup",
           "settings-ui-before", "address", "fund", "digest-before", "stop-previous", "seed", "snapshot", "resume-point",
@@ -157,6 +177,15 @@ def until_phase(phases=PHASES):
     return until
 
 
+def probe_request():
+    """What tools/rel probe asks of this run, or None: {"step", "phase", "from"}."""
+    e = os.environ
+    step = (e.get("REL_TRUST_PROBE") or "").strip()
+    if not step:
+        return None
+    return {"step": step, "phase": (e.get("REL_PROBE_PHASE") or "").strip() or None, "from": (e.get("REL_PROBE_FROM") or "").strip() or None}
+
+
 class _Stop(Exception):
     """The lane ends cleanly after REL_TRUST_UNTIL's phase."""
 LOG_TAIL = 200
@@ -170,6 +199,7 @@ class Platform:
     family = "?"        # desktop | phone
     variant = "tor"
     update_method = "?"
+    keep_up = False     # set by the lane before shutdown: leave the app up where it can
 
     def prepare(self): ...                      # sandbox/emulator/rig up; nothing of the app yet
     def recover(self): ...                      # rebuild what HarnessGone said went (keeps the app's data)
@@ -198,6 +228,12 @@ class Platform:
     def resume_from(self, handle):              # -> (True, what is reused) or (False, why not); then prepare reuses it
         return False, "the %s platform cannot resume a lane" % self.name
 
+    def keep_state(self):                       # a fault at a resumable phase: keep what resume_install needs
+        pass
+
+    def resume_install(self):                   # after prepare: the app back on the failed attempt's state, closed
+        pass
+
     def save_point(self):                       # keep the closed app's state before the update; -> False when it cannot
         return False
 
@@ -212,6 +248,7 @@ class Lane:
         """recipe_for(lane, which, surface) -> the family's recipe on a Driver over that surface, with the
         build's strings (core.labels) and the lane's one Recover (lane.rec)."""
         self.until = until_phase(self.PHASES)
+        self.probe = probe_request()
         self.stopped = None
         self.attempt = time.strftime("%Y%m%d-%H%M%S", time.gmtime())   # a fresh wallet's name in the test DB
         self.p, self.recipe_for, self.checks_mod = platform, recipe_for, checks
@@ -268,10 +305,18 @@ class Lane:
                           "tried": getattr(self.fault, "tried", []) or []}
             if getattr(self.fault, "sub", None):
                 p["fault"]["sub"] = self.fault.sub
+            if self.fault.route:
+                p["fault"]["route"] = self.fault.route
+            if isinstance(self.fault, RefusedStart):
+                p["refused"] = True
         p["phases"] = {"done": list(self.done), "failed": self.phase if self.fault else None,
                        "kept": [{"phase": n, "kind": f.kind, "line": f.line()} for n, f in self.kept]}
         if self.until:
             p["until"] = {"phase": self.until, "stopped": bool(self.stopped)}
+        if self.probe:
+            p["probe"] = dict(self.probe, reached=self.stopped, passed=bool(self.stopped) and not self.fault)
+        if self.p.keep_up:
+            p["left_up"] = True
         if self.fault and self.mode != "create" and not self._fault_kept():
             p["resume"] = self._resume_point()
         p.update(extra or {})
@@ -287,6 +332,9 @@ class Lane:
         record.emit("step.start", step=name, detail="phase")
         try:
             r = self._phase(name, fn)
+        except StepReached as e:
+            record.emit("step.end", step=name, state="ok", detail="probe stopped at %s" % e.step)
+            raise
         except BaseException as e:
             record.emit("step.end", step=name, state="failed", detail=str(e)[:200])
             raise
@@ -295,6 +343,10 @@ class Lane:
         if name == self.until:
             self.stopped = name
             self.log("STOP after %s (REL_TRUST_UNTIL)" % name)
+            raise _Stop(name)
+        if self.probe and name == self.probe["phase"]:
+            self.stopped = name
+            self.log("PROBE: phase %s, where %s failed, ran to its end" % (name, self.probe["step"]))
             raise _Stop(name)
         return r
 
@@ -341,7 +393,7 @@ class Lane:
         return any(n == name for n, _ in self.kept)
 
     def _can_go_on(self, f):
-        if f.fatal or self.phase == self.until:
+        if f.fatal or self.phase == self.until or self.probe:
             return False
         alive = getattr(self.p, "alive", None)
         try:
@@ -402,6 +454,13 @@ class Lane:
             code = body()
         except _Stop:
             code = 0
+        except StepReached as r:
+            self.stopped = r.step
+            code = 0
+        except RefusedStart as f:
+            self.fault = f
+            self.log(f.line())
+            code = 2
         except Fault as f:
             if isinstance(f, InfraFault) and f.step == "wallet-read":  # the LEPIC CLI's: the phase that read
                 f.step = self.phase or f.step
@@ -416,6 +475,7 @@ class Lane:
             self._faulted()
         finally:
             try:
+                self.p.keep_up = self._leave_up()
                 self.p.shutdown()
             except Exception as e:  # noqa: BLE001
                 self.log("shutdown: %s" % e)
@@ -444,12 +504,22 @@ class Lane:
         finally:
             if self.seed:
                 self.seed.unlock()
+        if code == 0 and not self.stopped:
+            self._drop_resume_secrets()
         return code
+
+    def _leave_up(self):
+        """True when the app stays up behind this lane: a probe, or a harness fault to look at and resume from."""
+        if self.mode in (None, "create") or isinstance(self.fault, RefusedStart):
+            return False
+        return bool(self.probe) or (self.fault is not None and self.fault.kind == "harness" and not self.fault.fatal)
 
     def _result(self, code):
         """proof.json and result.txt for [code]."""
         proof = self.proof()
-        line = self.fault.line() if self.fault else ("STOP %s %s after %s (REL_TRUST_UNTIL): no fault" % (
+        line = self.fault.line() if self.fault else ("PROBE %s %s reached %s: no fault" % (
+            self.p.name, self.p.variant, self.stopped) if self.probe and self.stopped and code == 0 else None) or (
+            "STOP %s %s after %s (REL_TRUST_UNTIL): no fault" % (
             self.p.name, self.p.variant, self.stopped) if self.stopped and code == 0 else None) or (
             "PASS %s %s %s%s" % (self.p.name, self.p.variant, "create %s" % proof["candidate"] if self.mode == "create"
                                  else "flow %s (test build)" % proof["candidate"] if self.flow else "%s → %s" % (proof["previous"], proof["candidate"]),
@@ -747,9 +817,9 @@ class Lane:
         except Exception as e:  # noqa: BLE001 — evidence, never the result
             self.log("fault bundle not written: %s" % e)
         try:
-            self._save_resume_secrets()
+            self._keep_for_resume()
         except Exception as e:  # noqa: BLE001
-            self.log("resume secrets not kept: %s" % e)
+            self.log("resume state not kept: %s" % e)
 
     def _bundle(self, f):
         self.bundles += 1
@@ -814,21 +884,25 @@ class Lane:
         d = self.p.resume_dir()
         if not d:
             return None
-        d = os.path.abspath(d)
-        if (d + os.sep).startswith(os.path.abspath(self.out) + os.sep):
+        d, out = os.path.abspath(d), os.path.abspath(self.out)
+        if (d + os.sep).startswith(out + os.sep):
             return None   # never inside REL_OUT: the evidence is shared
-        return os.path.join(d, "lane-resume.json")
+        return os.path.join(d, "lane-resume-%s.json" % hashlib.sha256(out.encode()).hexdigest()[:12])   # lanes share the folder
 
     def _resume_point(self):
         h = self.p.resume_handle()
         return {"handle": h, "mode": self.mode, "secrets": self._secrets_path() if h else None, "point": bool(self.point)} if h else None
 
+    def _keep_for_resume(self):
+        """A probe keeps nothing: it leaves the failed attempt's state to the retry."""
+        if self.probe or self.mode in (None, "create") or self.phase not in RESUMABLE + FROM_POINT or self._fault_kept():
+            return
+        if self.fault.kind != "product":
+            self.p.keep_state()
+        self._save_resume_secrets()
+
     def _save_resume_secrets(self):
-        if self.mode in (None, "create") or self.phase not in RESUMABLE + FROM_POINT or self._fault_kept():
-            return
-        if not self.p.resume_handle():
-            return
-        path = self._secrets_path()
+        path = self._secrets_path() if self.p.resume_handle() else None
         if not path:
             return
         os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
@@ -837,41 +911,69 @@ class Lane:
             json.dump({"secrets": self.secrets, "point": self.point}, fh, default=str)
         os.replace(path + ".tmp", path)
 
+    def _drop_resume_secrets(self):
+        """The lane passed: nothing is left to resume."""
+        path = None if self.probe else self._secrets_path()
+        try:
+            if path:
+                os.remove(path)
+        except OSError:
+            pass
+
     def _previous_proof(self):
-        """(path, proof) of the attempt before this one: the newest proof.before-attempt-N.json, else proof.json."""
+        """(path, proof) of the attempt before this one that ran: proof.json, else the newest
+        proof.before-attempt-N.json; a probe reads the failed attempt's folder. A refused start ran nothing."""
+        out = (self.probe or {}).get("from") or self.out
+
         def n(p):
             m = re.search(r"proof\.before-attempt-(\d+)\.json$", p)
             return int(m.group(1)) if m else -1
-        paths = sorted(glob.glob(os.path.join(self.out, "proof.before-attempt-*.json")), key=n)
-        for p in ([paths[-1]] if paths else []) + [os.path.join(self.out, "proof.json")]:
+        older = sorted(glob.glob(os.path.join(out, "proof.before-attempt-*.json")), key=n, reverse=True)
+        for p in [os.path.join(out, "proof.json")] + older:
             try:
                 with open(p, encoding="utf-8") as fh:
-                    return p, json.load(fh)
+                    got = json.load(fh)
             except (OSError, ValueError):
                 continue
+            if not got.get("refused"):
+                return p, got
         return None, None
 
     def _resume_plan(self):
-        """The resume plan, or None (logged why) when the lane starts fresh."""
-        if os.environ.get("REL_TRUST_RESUME") == "0":
-            return None
+        """The resume plan, or None when the lane starts from the beginning. After a failed attempt that start
+        is a decision (Resume in the module doc): RefusedStart when nothing allows it."""
         path, prev = self._previous_proof()
-        ph = (prev or {}).get("phases") or {}
-        point = (prev or {}).get("resume") or {}
-        failed, why, kept = ph.get("failed"), None, {}
-        if not prev:
-            why = "no proof of a previous attempt in %s" % self.out
-        elif ((prev.get("fault") or {}).get("kind")) == "product":
-            why = "the previous attempt ended on a product fault (a result, not resumed)"
+        prior = (os.environ.get("REL_PRIOR_CAUSE") or "").strip()
+        if not prev and not prior:
+            self.details["resume"] = {"resumed": False, "why": "the first attempt"}
+            return None
+        prev_ = prev or {}
+        ph, point = prev_.get("phases") or {}, prev_.get("resume") or {}
+        failed, fault = ph.get("failed"), prev_.get("fault") or {}
+        if failed in REENTRY:   # the same phase as the attempt before; a first attempt had just opened the wallet
+            failed = ((prev_.get("details") or {}).get("resume") or {}).get("at") or "previous-setup"
+        infra = fault.get("kind") == "infra" or (not prev and prior.startswith("infra"))
+        free = None if self.probe else self._free_start(prev, failed, fault, prior, infra)
+        if free:
+            return self._from_start(free)
+        reason = (os.environ.get("REL_TRUST_FRESH") or "").strip()
+        if reason and not self.probe:
+            self.log("RESUME: starting from the beginning, as asked: %s" % reason)
+            self.details["resume"] = {"resumed": False, "why": "--fresh", "forced": reason, "repeat": True}
+            return None
+        kept, what, why = {}, None, None
+        if os.environ.get("REL_TRUST_RESUME") == "0" and not self.probe:
+            why = "REL_TRUST_RESUME=0 asks for a start from the beginning"
+        elif not prev:
+            why = "it left no proof (%s)" % prior
         elif failed not in RESUMABLE + FROM_POINT:
-            why = "the previous attempt failed in %s, not after the previous release's wallet was made (%s)" % (
-                failed or "no phase", ", ".join(RESUMABLE + FROM_POINT))
+            why = "a lane resumes only at %s" % ", ".join(RESUMABLE + FROM_POINT)
         elif failed in FROM_POINT and not point.get("point"):
-            why = "the previous attempt failed in %s and kept no resume point" % failed
+            why = "it kept no resume point"
         elif "previous" not in (ph.get("done") or []):
-            why = "the previous attempt never opened the previous release's wallet"
+            why = "it never opened the previous release's wallet"
         elif not point.get("handle"):
-            why = "the previous attempt left no state to resume from (%s)" % self.p.name
+            why = "it left no state to resume from (%s)" % self.p.name
         else:
             kept, why = self._read_resume_secrets(point.get("secrets"))
             if why is None and failed in FROM_POINT and not kept.get("point"):
@@ -879,13 +981,38 @@ class Lane:
             if why is None:
                 ok, what = self.p.resume_from(point["handle"])
                 why = None if ok else what
-        if why:
-            self.log("RESUME: starting fresh: %s" % why)
-            self.details["resume"] = {"resumed": False, "why": why}
+        if why is None:
+            self.log("RESUME: from %s, at phase %s (%s)" % (os.path.basename(path), failed, what))
+            return {"failed": failed, "mode": point.get("mode"), "secrets": kept.get("secrets") or {}, "point": kept.get("point"),
+                    "proof": prev, "from": os.path.basename(path), "route": fault.get("route")}
+        if self.probe:
+            self.log("PROBE: no state to resume (%s): the route to %s comes from the start" % (why, self.probe["step"]))
             return None
-        self.log("RESUME: from %s, at phase %s (%s)" % (os.path.basename(path), failed, what))
-        return {"failed": failed, "mode": point.get("mode"), "secrets": kept.get("secrets") or {}, "point": kept.get("point"),
-                "proof": prev, "from": os.path.basename(path)}
+        if infra:
+            return self._from_start("the machine failed and %s" % why)
+        step = fault.get("step")
+        self.details["resume"] = {"resumed": False, "why": why, "refused": True, "phase": failed}
+        raise RefusedStart("start", "the failed attempt stopped in phase %s%s and cannot be resumed: %s. A start from the beginning "
+                           "would repeat all of it. Only with a reason: tools/rel retry %s --fresh \"<reason>\"" % (
+                               failed or "unknown", " at step %s" % step if step else "", why,
+                               os.path.basename(os.path.dirname(os.path.abspath(self.out)))))
+
+    def _free_start(self, prev, failed, fault, prior, infra):
+        """Why a start from the beginning needs no reason after this attempt, or None."""
+        if not prev:
+            return "the machine failed and left no proof (%s)" % prior if infra else None
+        if fault.get("kind") == "product":
+            return "the previous attempt ended on a product fault (a result, not resumed)"
+        if not fault:
+            return "the previous attempt ran to its end"
+        if failed is None or failed in BEFORE_WALLET:
+            return "the previous attempt failed in %s, before the wallet was there" % (failed or "no phase")
+        return None
+
+    def _from_start(self, why):
+        self.log("RESUME: starting from the beginning: %s" % why)
+        self.details["resume"] = {"resumed": False, "why": why, "repeat": True}
+        return None
 
     def _read_resume_secrets(self, path):
         if not path or path != self._secrets_path_for(path):
@@ -896,16 +1023,12 @@ class Lane:
             got.get("secrets")
         except (OSError, ValueError, AttributeError):
             return None, "the resume secrets %s cannot be read" % path
-        try:
-            os.remove(path)   # read once
-        except OSError:
-            pass
         return got, None
 
     def _secrets_path_for(self, path):
         """The kept path, when it is a resume file outside REL_OUT (a proof's path is not trusted blindly)."""
         p = os.path.abspath(path)
-        if os.path.basename(p) != "lane-resume.json" or (p + os.sep).startswith(os.path.abspath(self.out) + os.sep):
+        if not re.fullmatch(r"lane-resume(-[0-9a-f]{12})?\.json", os.path.basename(p)) or (p + os.sep).startswith(os.path.abspath(self.out) + os.sep):
             return None
         return path
 
@@ -937,7 +1060,10 @@ class Lane:
         self.details["resume"] = {"resumed": True, "from": plan["from"], "at": plan["failed"], "checks_kept": sorted(kept)}
         for name in [p for p in (prev.get("phases") or {}).get("done", []) if p not in ("prepare",)]:
             self.skip_phase(name, "done in the previous attempt")
+        self.run_phase("resume-install", self.p.resume_install)
         self.run_phase("previous-open", lambda: self._open("previous"))
+        if self.probe and plan.get("route"):
+            self.run_phase(plan["failed"], lambda: self.ui.find_again(plan["route"]))
         if plan["failed"] == "previous-setup":
             self.run_phase("previous-setup", self._setup)
         return mode == "state"

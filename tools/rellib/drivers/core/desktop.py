@@ -501,6 +501,8 @@ class Desktop:
         d = self.d
         self.settings()
         t = SECTION.get(key_or_target, key_or_target)
+        if any(d.find_in(t, [sel]) for sel in self._section_selector(d.tree())):
+            return True   # already open: pressing the selector would fold the page away for the section list
         if not d.wait(shows(t), 4):
             if not self._open_section_list():
                 return False
@@ -544,12 +546,15 @@ class Desktop:
         self.nav(NAV_OVERVIEW)
         return True
 
-    def _open_section_list(self):
+    def _section_selector(self, tree):
         """A narrow window folds the section list into one selector: a button named like the open section,
-        holding it as its value. Pressing it lists the sections again."""
-        tree = self.d.tree()
-        sel = [n for n in tree if n.role == "button" and n.value and tg._norm(n.name.split("\n")[0]) == tg._norm(n.value)
-               and tg._norm(n.value) in self.section_names()]
+        holding it as its value."""
+        return [n for n in tree if n.role == "button" and n.value and tg._norm(n.name.split("\n")[0]) == tg._norm(n.value)
+                and tg._norm(n.value) in self.section_names()]
+
+    def _open_section_list(self):
+        """Pressing the selector lists the sections again."""
+        sel = self._section_selector(self.d.tree())
         if not sel:
             return False
         self.log("Settings: the section list is folded into %s; opening it" % sel[0].brief())
@@ -558,37 +563,35 @@ class Desktop:
         return True
 
     def find_setting(self, target, pages, what):
-        """Opens the Settings page that holds `target`: the known `pages` first, then every section
-        the list shows (a setting moved to another page is found there, and the log says so)."""
+        """Opens the Settings page that holds `target`, one of `pages`. A miss fails there and then, on
+        the page that missed: the route in the fault is the way a probe comes back to it."""
         d = self.d
         self.settings()
-        kept = pages
-        if d.seen(target):
+        step = "find-%s" % target.id
+        if d.seen(target) or self._on_pages(target, pages, step):
+            d.reached(step)
             return True
-        tried = []
+        d.step = step
+        d.harness("%s not on Settings › %s%s" % (what, ", ".join(pages), d._tried_text()),
+                  route={"find": target.id, "pages": list(pages), "what": what})
+
+    def _on_pages(self, target, pages, step):
+        d = self.d
         for p in pages:
             if self.section(p):
-                tried.append(SECTION[p])
                 if d.wait(shows(target), 3):
                     return True
-                d.step = "find-%s" % target.id
+                d.step = step
                 if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
                     return True
-        d.step = "find-%s" % target.id
-        if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
-            return True
-        tree = d.tree()
-        if self._open_section_list():   # a narrow window: the sections are listed once the selector is open
-            tree = d.tree()
-        listed = [t for t in SECTIONS if d.find_in(t, tree)]
-        for t in listed:
-            if t in tried:
-                continue
-            if self.section(t) and d.wait(shows(target), 3):
-                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, t, ", ".join(kept)))
-                d.rec.moved("find-%s" % target.id, target, t.id, kept)
-                return True
-        d.harness("%s not found under Settings (sections %s%s)" % (what, ", ".join(str(t) for t in tried + listed) or "none", d._tried_text()))
+        return False
+
+    def find_again(self, route):
+        """Back to the step a route names (the fault's, core/lane.py): the view, then the setting."""
+        target = tg.kept(route["find"], "desktop")
+        if target.id != DEEP_END.id:
+            self._view_deep_end()
+        self.find_setting(target, tuple(route["pages"]), route["what"])
 
     def leave_settings(self):
         d = self.d
@@ -628,15 +631,19 @@ class Desktop:
 
     def _view_deep_end(self):
         """A release with levels opens a new install in the basic view, where Settings hides Node and
-        more: Settings › Advanced › View › Deep end (level 3). Nothing on a build without levels."""
+        more: Settings › Advanced › View › Deep end (level 3). Nothing on a build without levels; on a
+        build with them a miss is the fault: everything after it would miss too."""
         d = self.d
-        if not self.section("advanced"):
+        if not d.has_control(DEEP_END):
+            self.log("view-deep-end: a build without levels")
             return
-        n = d.wait(shows(DEEP_END), 15) or d.untangle(DEEP_END)   # a Windows read takes seconds, the page may scroll
+        d.step = "find-%s" % DEEP_END.id
+        n = self.section("advanced") and (d.wait(shows(DEEP_END), 15) or d.untangle(DEEP_END))   # a Windows read takes seconds, the page may scroll
         if not n:
-            self.log("view-deep-end: no Deep end stop on Advanced, the view stays as it is")
-            d.dump("no-deep-end", d.tree())
-            return
+            d.step = "find-%s" % DEEP_END.id
+            d.harness("Deep end stop not on Settings › advanced%s" % d._tried_text(),
+                      route={"find": DEEP_END.id, "pages": ["advanced"], "what": "Deep end"})
+        d.reached("find-%s" % DEEP_END.id)
         if "checked" in n.states or "selected" in n.states:
             self.log("SKIP view-deep-end: already done")
             return

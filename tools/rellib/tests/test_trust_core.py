@@ -3,9 +3,9 @@
 label and after a rename by the model; obstacles pressed away; a secret screen never sent; the app
 quitting is the product's fault; a failed step's tree kept
 without a password's value and never a phrase screen's; saved states written and picked; the confirmations stepper set and read
-whichever way the build names its field; the dialog break's button found by its label; a moved setting
-found by walking the sections when a narrow window folds their list into one selector; a cached AI path
-replayed without the model."""
+whichever way the build names its field; the dialog break's button found by its label; a setting off its page
+failing there and then with the way back; a probe ending at its step; a cached AI path replayed without the model."""
+import glob
 import pathlib
 import json
 import os
@@ -22,7 +22,7 @@ from core import state as st  # noqa: E402
 from core import targets as tg  # noqa: E402
 from core.desktop import TECHNICAL, Desktop  # noqa: E402
 from core.driver import Driver, shows  # noqa: E402
-from core.faults import HarnessFault, ProductFault  # noqa: E402
+from core.faults import HarnessFault, ProductFault, StepReached  # noqa: E402
 from core.labels import ROOT, Labels  # noqa: E402
 from core.recover import Recover  # noqa: E402
 from core.surface import Node  # noqa: E402
@@ -260,7 +260,7 @@ class CoreTest(unittest.TestCase):
                 self.assertEqual(desk.set_confirmations(2), 2)
                 self.assertEqual(f.pressed[-1], "More confirmations")
 
-    def test_moved_setting_found_through_the_folded_section_list(self):
+    def test_a_setting_not_on_its_page_fails_there_and_then(self):
         search = n(9, "text_field", "Search settings")
         page = lambda name, *rest: [n(0, "button", name, value=name), search, *rest]  # noqa: E731
         f = Fake({"pay": page("Payments", n(1, "button", "Fewer confirmations")),
@@ -271,18 +271,36 @@ class CoreTest(unittest.TestCase):
                   ("list", "Payments"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
         d = self.driver(f)
         desk = Desktop(d, "previous", self.logs.append)
-        with unittest.mock.patch("core.desktop.time.sleep"):   # the recipe names Payments; the setting is under Advanced
-            self.assertTrue(desk.find_setting(TECHNICAL, ("payments",), "Technical details"))
-        self.assertEqual(f.cur, "adv")
-        self.assertTrue(any("found under Settings › g4.settings.section.advanced" in line for line in self.logs), self.logs)
-        # listed as a recovery (proof.json, recovered.json) with a drafted fix to the recipe
-        self.assertEqual([(r["kind"], r["target"], r["picked"]["name"]) for r in d.rec.used],
-                         [("moved", "g4.advanced.technical", "g4.settings.section.advanced")])
-        with open(os.path.join(self.out, "recovered.json")) as fh:
-            self.assertEqual(json.load(fh)[0]["kind"], "moved")
-        with open(os.path.join(self.out, "selector-fixes.md")) as fh:
-            self.assertIn("found under Settings › g4.settings.section.advanced", fh.read())
+        with unittest.mock.patch("core.desktop.time.sleep"), self.assertRaises(HarnessFault) as hit:
+            desk.find_setting(TECHNICAL, ("payments",), "Technical details")
+        self.assertEqual(f.cur, "pay", "stays on the page that missed: no walk of the other sections")
+        self.assertEqual(hit.exception.step, "find-g4.advanced.technical")
+        self.assertEqual(hit.exception.route, {"find": "g4.advanced.technical", "pages": ["payments"], "what": "Technical details"})
+        self.assertTrue(glob.glob(os.path.join(self.out, "tree-*-fail-find-g4.advanced.technical.txt")))
 
+    def test_a_probe_ends_at_its_step(self):
+        search = n(9, "text_field", "Search settings")
+        f = Fake({"adv": [n(0, "button", "Advanced", value="Advanced"), search, n(1, "toggle", "Technical details")]}, "adv", {})
+        d = self.driver(f)
+        d.stop_at = "find-g4.advanced.technical"
+        with self.assertRaises(StepReached) as hit:
+            Desktop(d, "previous", self.logs.append).find_setting(TECHNICAL, ("advanced",), "Technical details")
+        self.assertEqual(hit.exception.step, "find-g4.advanced.technical")
+        self.assertIsInstance(hit.exception, BaseException)
+        self.assertNotIsInstance(hit.exception, Exception)
+
+    def test_deep_end_is_a_fault_on_a_build_with_levels(self):
+        search = n(9, "text_field", "Search settings")
+        f = Fake({"adv": [n(0, "button", "Advanced", value="Advanced"), search]}, "adv", {})
+        with unittest.mock.patch("core.desktop.time.sleep"), self.assertRaises(HarnessFault) as hit:
+            Desktop(self.driver(f, {"lvPickStopThree": "Deep end"}), "previous", self.logs.append)._view_deep_end()
+        self.assertEqual(hit.exception.step, "find-g4.level.stop.3")
+        self.assertEqual(hit.exception.route["pages"], ["advanced"])
+
+    def test_deep_end_is_nothing_on_a_build_without_levels(self):
+        f = Fake({"adv": [n(0, "button", "Advanced", value="Advanced")]}, "adv", {})
+        Desktop(self.driver(f, {}), "previous", self.logs.append)._view_deep_end()
+        self.assertTrue(any("without levels" in line for line in self.logs), self.logs)
 
 
 if __name__ == "__main__":

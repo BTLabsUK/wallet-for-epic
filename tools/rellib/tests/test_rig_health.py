@@ -195,6 +195,15 @@ class OrphanTest(unittest.TestCase):
             self.stop(r, wait_s=60)
 
 
+class StopFileTest(unittest.TestCase):
+    def test_a_stop_file_left_for_an_earlier_agent_goes_before_the_next_starts(self):
+        r, seen = FakeRig(), []
+        r.pwsh = lambda script, *a, **kw: seen.append(script) or ""
+        r.put = r.lock_user = lambda *a: None
+        r.prepare()
+        self.assertIn("Remove-Item -LiteralPath '%s\\stop'" % r.run, seen[0])
+
+
 class Clock:
     def __init__(self):
         self.t = 1000.0
@@ -272,6 +281,9 @@ class DriverFallbackTest(unittest.TestCase):
 
             def stop_orphans(self):
                 pass
+
+            def attach_agent(self):
+                return False
 
             def put_secret(self, *a):
                 return "secret"
@@ -371,25 +383,109 @@ class ResumePointTest(unittest.TestCase):
     def run_(self):
         r = object.__new__(wp.WindowsPlatform)
         r.variant, r.running, r.point_saved, r.session = "tor", None, False, None
+        r.left_agent, r.agent_reused, r.keep_up = None, False, False
         r.work_root, r.name_run = "/w", "tor-26.11.1-to-26.11.2-20261107-010101"
         r.ports, r.log, r.calls = {"node": 40001}, lambda s: None, []
         r.rig = mock.Mock(run="C:\\r", session=5)
         r._call = lambda op, timeout=120, **kw: r.calls.append((op, kw)) or {"ok": True}
         return r
 
-    def test_no_handle_before_the_point(self):
+    def handle(self, r):
+        return {"session": 5, "run": r.name_run, "ports": {"node": 40001}, "agent": wp.agent_script()}
+
+    def test_the_handle_is_there_from_the_moment_the_rig_is(self):
+        """"Left no state to resume from": before, only a saved point gave one, so a failure in setup had none."""
         r = self.run_()
+        self.assertEqual(r.resume_handle(), self.handle(r))
+        r.rig = None
         self.assertIsNone(r.resume_handle())
+
+    def test_the_point_is_a_copy_of_the_data(self):
+        r = self.run_()
         self.assertTrue(r.save_point())
         self.assertEqual(r.calls, [("copy_tree", {"from": r.data, "to": "C:\\r\\point"})])
-        self.assertEqual(r.resume_handle(), {"session": 5, "run": r.name_run, "ports": {"node": 40001}})
 
     def test_a_copy_that_failed_keeps_no_point(self):
         r = self.run_()
         r._call = lambda op, timeout=120, **kw: {"ok": False, "error": "the app is running"}
         with self.assertRaises(HarnessFault):
             r.save_point()
-        self.assertIsNone(r.resume_handle())
+        self.assertFalse(r.point_saved)
+
+    def test_a_failed_lane_leaves_app_and_agent_up(self):
+        r = self.run_()
+        r.keep_up = True
+        r.rig.call = mock.Mock(return_value={"ok": True})
+        r.shutdown()
+        self.assertEqual([c.args[0] for c in r.rig.call.call_args_list], ["write_file"])
+        self.assertEqual(r.rig.call.call_args.kwargs["file"], "C:\\r\\" + wp.LEFT_UP)
+        r.rig.quit_agent.assert_not_called()
+
+    def test_a_lane_that_is_done_uninstalls(self):
+        r = self.run_()
+        r.rig.call = mock.Mock(return_value={"ok": True})
+        r.shutdown()
+        self.assertEqual([c.args[0] for c in r.rig.call.call_args_list], ["close", "stop_all", "uninstall"])
+        r.rig.quit_agent.assert_called_once()
+
+    def test_the_agent_left_up_is_reused_on_the_same_script(self):
+        r = self.run_()
+        r.session, r.left_agent = 5, wp.agent_script()
+        r.rig.attach_agent.return_value = True
+        self.assertTrue(r._agent_left_up())
+        r.rig.detach_agent.assert_not_called()
+
+    def test_an_older_agent_is_ended(self):
+        r = self.run_()
+        r.session, r.left_agent = 5, "older"
+        r.rig.attach_agent.return_value = True
+        self.assertFalse(r._agent_left_up())
+        r.rig.detach_agent.assert_called_once()
+
+    def test_a_first_attempt_starts_its_own_agent(self):
+        r = self.run_()
+        self.assertFalse(r._agent_left_up())
+        r.rig.attach_agent.assert_not_called()
+
+    def test_a_reused_agent_keeps_its_stand_ins(self):
+        r = self.run_()
+        r.agent_reused, r.ports = True, {"node": 40001, "relay": 40002}
+        r.hermetic, r.custom_node, r.custom_relay, r.node, r.relay = None, None, None, "http://n", "r"
+        r.rig.call = mock.Mock(side_effect=AssertionError("a second stand-in on the same port"))
+        r._servers()
+        r.rig.call.assert_not_called()
+
+    def test_resume_keeps_the_install_that_is_still_there(self):
+        r = self.run_()
+        r.agent_reused, seen = True, []
+        r._install = lambda which, setup: seen.append(which)
+        calls = []
+
+        def call(op, timeout=120, **kw):
+            calls.append(op)
+            return {"ok": True, "entry": {"version": "1", "location": "C:\\r\\app", "exe": "x"}} if op == "entry" else {"ok": True}
+        r._call = call
+        with mock.patch.object(wp, "installed_exe", lambda e: "app.exe"):
+            r.resume_install()
+        self.assertEqual((calls, seen, r.exe), (["close", "stop_all", "entry"], [], "app.exe"))
+
+    def test_resume_installs_again_when_the_app_went(self):
+        r = self.run_()
+        seen = []
+        r._install = lambda which, setup: seen.append((which, setup))
+        r._call = lambda op, timeout=120, **kw: {"ok": True, "entry": None}
+        r.resume_install()
+        self.assertEqual(seen, [("previous", "prev-setup.exe")])
+
+    def test_a_left_up_install_of_another_run_is_cleared(self):
+        r = self.run_()
+        r.rig.base = "C:\\base"
+        r.rig.text.return_value = "tor-x"
+        self.assertTrue(r._left_up("C:\\base\\runs\\tor-other\\app"))
+        r.rig.text.assert_called_once_with("C:\\base\\runs\\tor-other\\" + wp.LEFT_UP)
+        r.rig.text.return_value = None
+        self.assertFalse(r._left_up("C:\\base\\runs\\tor-other\\app"))
+        self.assertFalse(r._left_up("C:\\Users\\someone\\app"))
 
     def test_load_installs_the_previous_release_and_puts_the_data_back(self):
         r = self.run_()

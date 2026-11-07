@@ -95,6 +95,8 @@ class AndroidPlatform(Platform):
         self.standin_ports = {}  # {"node"|"relay": port}: in the wallet's settings, so a resume needs the same
         self.resume_ports = {}
         self.point_saved = False
+        self.state_saved = False
+        self.resume_snapshot = None
         self.standins = []
         self.lan_before = None
         self.dev = Device(self.serial)
@@ -459,23 +461,39 @@ class AndroidPlatform(Platform):
     def state_meta(self):
         return {"signer": self.certs.get("candidate"), "avd": self.avd, "snapshot": self.snapshot}
 
-    # ---- resume (core/lane.py): from the point only, as the emulator keeps no state of its own before it
+    # ---- resume (core/lane.py): from the point, or from a snapshot taken at the fault (keep_state): the
+    # emulator keeps no state of its own. The app stays up on the failing screen; the next run stops it.
 
     def _point(self):
         return "%spoint-%s" % (SNAP_PREFIX, self.variant)  # one per variant, out of _prune_snapshots' names
+
+    def _fault_state(self):
+        return "%sstate-%s" % (SNAP_PREFIX, self.variant)  # likewise
+
+    def keep_state(self):
+        if self.point_saved:
+            return
+        name = self._fault_state()
+        if name in self._snapshots():
+            self._emu_cmd("avd", "snapshot", "delete", name, timeout=120)
+        r = self._emu_cmd("avd", "snapshot", "save", name, timeout=600)
+        if name not in self._snapshots():
+            self.log("emulator snapshot %s not saved: %s" % (name, (r.stdout + r.stderr).strip()[-200:]))
+            return
+        self.state_saved = True
+        self.log("saved emulator snapshot %s at the fault" % name)
 
     def resume_dir(self):
         return os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-android", ".resume-%s" % self.variant)
 
     def resume_handle(self):
-        if not self.point_saved:
-            return None
-        return {"avd": self.avd, "snapshot": self._point(), "ports": dict(self.standin_ports)}
+        name = self._point() if self.point_saved else self._fault_state() if self.state_saved else None
+        return {"avd": self.avd, "snapshot": name, "ports": dict(self.standin_ports)} if name else None
 
     def resume_from(self, handle):
         h = handle or {}
-        if h.get("avd") != self.avd or h.get("snapshot") != self._point():
-            return False, "the failed attempt's point %s of %s is not this lane's" % (h.get("snapshot"), h.get("avd"))
+        if h.get("avd") != self.avd or h.get("snapshot") not in (self._point(), self._fault_state()):
+            return False, "the failed attempt's snapshot %s of %s is not this lane's" % (h.get("snapshot"), h.get("avd"))
         if h["snapshot"] not in self._snapshots():
             return False, "emulator snapshot %s is gone from AVD %s" % (h["snapshot"], self.avd)
         ports = {k: int(v) for k, v in (h.get("ports") or {}).items() if v}
@@ -485,8 +503,11 @@ class AndroidPlatform(Platform):
                     so.bind(("127.0.0.1", port))
             except OSError:
                 return False, "the %s stand-in's port %d (in the wallet's settings) is taken" % (kind, port)
-        self.resume_ports = ports
+        self.resume_ports, self.resume_snapshot = ports, h["snapshot"]
         return True, "emulator snapshot %s, stand-in ports %s" % (h["snapshot"], ports or "none")
+
+    def resume_install(self):
+        self._load(self.resume_snapshot)
 
     def save_point(self):
         if self.running:
@@ -503,6 +524,7 @@ class AndroidPlatform(Platform):
 
     def load_point(self):
         self._load(self._point())
+        self.point_saved = True   # still in the AVD: a resumed attempt that fails resumes from it too
 
 # the same server probes as linux/linux_platform.py (not imported: its files.py is not this folder's)
 def free_port():

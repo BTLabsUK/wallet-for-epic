@@ -16,6 +16,7 @@ on a rig yet; off unless REL_HERMETIC_WINDOWS=1, windows_env); for a server that
 agent (agent.ps1). The stand-ins' ports are fixed when the agent has to be started again, so the
 servers the wallet was given stay valid.
 """
+import hashlib
 import json
 import os
 import re
@@ -44,6 +45,7 @@ from rig import Rig, RigDead, RigError, candidate_sessions, describe, health, ta
 from uia import WinSurface  # noqa: E402
 
 AGENT_IDLE_MIN = 90
+LEFT_UP = "left-up"     # in a run folder: its lane failed and left the app up on purpose
 SSH_TRIES = 3   # the first try and two retries in place
 HEALTH_S = 60   # the rig health check's limit: a sick rig ends the run on it
 RUN_NAME = re.compile(r"^[A-Za-z0-9.?+-]+$")
@@ -112,6 +114,8 @@ class WindowsPlatform(Platform):
         self.entry = None
         self.ports = {}
         self.session = None     # the rig session a resume must use: the store opens for that user alone
+        self.left_agent = None  # a resume: the digest of the agent script the failed attempt left running
+        self.agent_reused = False   # that agent answered, so its stand-ins and the app are still up
         self.point_saved = False
         self.hermetic = None    # core/hermetic.py plan(), from prepare
         self.step = "rig"       # the rig op in hand, for an InfraFault's step
@@ -156,8 +160,11 @@ class WindowsPlatform(Platform):
             self.custom_relay = plan["relay"]
         if plan.get("node") and plan.get("relay"):
             return
-        r = self.rig.call("standins", node=self.node, relay=self.relay,
-                          node_port=self.ports.get("node", 0), relay_port=self.ports.get("relay", 0))
+        if self.agent_reused and self.ports:   # the agent holds them: asking again would bind the same ports twice
+            r = {"ok": True, "node": self.ports["node"], "relay": self.ports["relay"]}
+        else:
+            r = self.rig.call("standins", node=self.node, relay=self.relay,
+                              node_port=self.ports.get("node", 0), relay_port=self.ports.get("relay", 0))
         if not r.get("ok"):
             raise HarnessFault("recover" if again else "prepare", "stand-ins on the rig: %s" % (r.get("error") or "")[:160])
         # the agent starts both; the one for a local server is not given to the app
@@ -211,10 +218,12 @@ class WindowsPlatform(Platform):
                 if prev:
                     self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
                 self.rig.put(cand, self.rig.run + "\\cand-setup.exe")
-                waiting = self.rig.busy()
-                if waiting:
-                    self.log("the rig queue has %d job(s) before ours" % waiting)
-                self.rig.start_agent(idle_min=AGENT_IDLE_MIN, wait_s=1800 if waiting else 420, waiting=waiting)
+                self.agent_reused = self._agent_left_up()
+                if not self.agent_reused:
+                    waiting = self.rig.busy()
+                    if waiting:
+                        self.log("the rig queue has %d job(s) before ours" % waiting)
+                    self.rig.start_agent(idle_min=AGENT_IDLE_MIN, wait_s=1800 if waiting else 420, waiting=waiting)
             except RigDead as e:
                 dead.append((k, [str(e)]))
                 self.log("DEAD %s" % e)
@@ -227,6 +236,17 @@ class WindowsPlatform(Platform):
         if not self.rig:
             raise InfraFault("prepare", "no healthy Windows rig: %s" % " | ".join(describe(k, p) for k, p in dead), sub="rig")
         self.log("rig session %d (%s), run folder %s" % (self.rig.session, task_name(self.rig.session), self.rig.run))
+
+    def _agent_left_up(self):
+        """A resume in the failed attempt's folder: its agent when it still answers. One running an older
+        agent.ps1 is ended (and the app with it), so a fix to the script takes effect."""
+        if self.session is None or not self.rig.attach_agent():
+            return False
+        if self.left_agent != agent_script():
+            self.log("the agent the failed attempt left up runs an older script: ending it")
+            self.rig.detach_agent()
+            return False
+        return True
 
     def _alert_dead(self, dead, used):
         """One message to the owner naming the dead rig(s) (REL_OUT/notice.json: the release tool forwards it)."""
@@ -283,11 +303,12 @@ class WindowsPlatform(Platform):
 
     def _clear_leftover(self, e):
         """An install of this run's own earlier attempt (under <runs>\\<variant>-<prev>-to-<cand>-<time>, a crashed run's
-        folder) is uninstalled; any other install is not ours and stays: an InfraFault (leftover)."""
+        folder), or one a failed lane left up on purpose (its run folder has the left-up mark), is uninstalled;
+        any other install is not ours and stays: an InfraFault (leftover)."""
         text = "%s already has %s installed (%s at %s): left alone" % (
             self.rig.user, e.get("name") or "BT Wallet", e.get("version"), e.get("location"))
         prefix = "-".join(self.name_run.split("-")[:-2])   # variant-prev-to-cand, without the date and time
-        if not run_folder_of(e.get("location"), self.rig.base + "\\runs\\", prefix):
+        if not run_folder_of(e.get("location"), self.rig.base + "\\runs\\", prefix) and not self._left_up(e.get("location")):
             raise InfraFault("install", text, sub="leftover")
         self.log("leftover install of an earlier attempt of this run (%s at %s): uninstalling it" % (e.get("version"), e.get("location")))
         r = self._call("uninstall_leftover", timeout=300, prefix=prefix)
@@ -296,6 +317,11 @@ class WindowsPlatform(Platform):
             raise InfraFault("install", "%s; uninstalling it failed: %s" % (text, (r.get("error") or "exit %s" % r.get("exit"))[:160]), sub="leftover")
         self.log("leftover install removed")
         return None
+
+    def _left_up(self, location):
+        """`location` is in a run folder whose lane failed and left its app up for the next attempt."""
+        m = re.match(r"(?i)^%s[^\\]+\\" % re.escape(self.rig.base + "\\runs\\"), str(location or ""))
+        return bool(m) and self.rig.text(m.group(0) + LEFT_UP) is not None
 
     def _procs(self):
         return self._call("procs").get("procs") or []
@@ -362,21 +388,23 @@ class WindowsPlatform(Platform):
                 self.rig.start_agent(idle_min=AGENT_IDLE_MIN, wait_s=1800 if self.rig.busy() else 420)
             except RigError as e:
                 raise HarnessFault("recover", "the rig agent could not be started again: %s" % e)
+            self.agent_reused = False
             self._servers(again=True)
         which = self.running
         if which:
             self.start(which)
 
-    # ---- resume (core/lane.py): from the point only; the failed attempt's rig folder and rig user, its stand-in
-    # ports in the wallet's settings. Its shutdown uninstalled the app, so the previous release goes on again.
+    # ---- resume (core/lane.py): in the failed attempt's rig folder and rig user, its stand-in ports in the
+    # wallet's settings. Possible from the moment the rig has the run: a lane that failed on the driver left the
+    # app and its agent up (shutdown), one that failed another way uninstalled the app, whose data folder stays.
 
     def resume_dir(self):
         return os.path.join(self.work_root, ".resume-%s" % self.variant)
 
     def resume_handle(self):
-        if not self.point_saved:
+        if self.rig is None:
             return None
-        return {"session": self.rig.session, "run": self.name_run, "ports": dict(self.ports)}
+        return {"session": self.rig.session, "run": self.name_run, "ports": dict(self.ports), "agent": agent_script()}
 
     def resume_from(self, handle):
         h = handle or {}
@@ -388,7 +416,23 @@ class WindowsPlatform(Platform):
         self.name_run, self.session = run, h["session"]
         self.work = os.path.join(self.work_root, run)
         self.ports = {k: int(v) for k, v in (h.get("ports") or {}).items() if v}
+        self.left_agent = h.get("agent")
         return True, "rig session %d, run folder %s, stand-in ports %s" % (self.session, run, self.ports or "none")
+
+    def resume_install(self):
+        """The previous release ready to open on the failed attempt's data folder: the app left up is closed
+        and its install kept; Setup runs again when shutdown took it away. The store is the wallet's by now, so
+        never _init_store here."""
+        if self.agent_reused:
+            self._call("close", wait_s=60, timeout=90)
+            self._call("stop_all")
+        e = self._call("entry").get("entry")
+        if e and str(e.get("location") or "").lower().startswith((self.rig.run + "\\").lower()):
+            self.entry, self.exe = e, installed_exe(e)
+            self.log("the failed attempt's install is still there: %s at %s" % (e.get("version"), e.get("location")))
+        else:
+            self._install("previous", "prev-setup.exe")
+        self.running = None
 
     def _point(self):
         return self.rig.run + "\\point"
@@ -475,7 +519,8 @@ class WindowsPlatform(Platform):
     def shutdown(self):
         if self.rig is None:
             return
-        for op, kw in (("close", {"wait_s": 60}), ("stop_all", {}), ("uninstall", {})):
+        ops = () if self.keep_up else (("close", {"wait_s": 60}), ("stop_all", {}), ("uninstall", {}))
+        for op, kw in ops:
             try:
                 r = self.rig.call(op, timeout=200, **kw)
                 self.log("rig %s: %s" % (op, {k: v for k, v in r.items() if k != "entry"}))
@@ -491,9 +536,25 @@ class WindowsPlatform(Platform):
             self.rig.pwsh("Remove-Item -LiteralPath '%s\\secret' -Recurse -Force -ErrorAction SilentlyContinue" % self.rig.run, check=False)
         except Exception as e:  # noqa: BLE001
             self.log("secret folder not removed: %s" % e)
+        if self.keep_up:
+            self._leave_up()
+            return
         self.rig.quit_agent()
         self.rig.close()
         self.log("rig: app uninstalled, agent stopped; the wallet's data folder stays in %s\\home" % self.rig.run)
+
+    def _leave_up(self):
+        """The app stays on the failing page for the next attempt, a probe or a person; its agent ends after
+        AGENT_IDLE_MIN idle minutes, or at the next lane's stop_orphans, which also clears the install (LEFT_UP)."""
+        r = self.rig.call("write_file", file=self.rig.run + "\\" + LEFT_UP, text=self.name_run)
+        self.rig.close()
+        self.log("rig: app and agent left up in rig session %d for %d idle minutes%s; run folder %s" % (
+            self.rig.session, AGENT_IDLE_MIN, "" if r.get("ok") else " (no left-up mark: %s)" % r.get("error"), self.rig.run))
+
+
+def agent_script():
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "agent.ps1"), "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:16]
 
 
 def run_folder_of(location, runs, prefix):

@@ -20,13 +20,6 @@ class Recover:
         self.out, self.platform, self.build, self.log = out, platform, build, log
         self.used = []          # what proof.json lists as `recovered`
 
-    def moved(self, step, target, section, expected):
-        """A setting found by walking every Settings section, not on the pages the recipe names: listed as a
-        recovery, with a drafted fix to the recipe."""
-        from .surface import Node
-        self._record("moved", step, target, Node(i=-1, role="section", name=section),
-                     "found under Settings › %s by walking the sections" % section, list(expected))
-
     def _record(self, kind, step, target, node, why, texts):
         e = {"kind": kind, "step": step, "target": getattr(target, "id", str(target)), "platform": self.platform,
              "build": self.build, "picked": {"role": node.role, "name": node.name, "id": node.id}, "why": why,

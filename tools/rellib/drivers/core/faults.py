@@ -10,6 +10,9 @@ leftover install): a HarnessFault the engine retries as infra.
 HarnessGone: the display, emulator, rig or sandbox behind a Surface disappeared mid-step; the lane
 rebuilds the platform and resumes at the phase it was in (lane.py), once per phase.
 LaneStopped: a signal stopped the lane (a runner's timeout).
+RefusedStart: a lane that would start from the beginning after a failed attempt, with nothing to allow it;
+it touched nothing and is no failure of the app, the rig or the driver (lane.py, Resume).
+StepReached: a probe (REL_TRUST_PROBE) came to the step it was sent to: not a fault, the lane ends there.
 
 A fault in a phase the lane can go on without is recorded and the lane goes on (Lane.try_phase).
 `fatal` marks the ones that make going on impossible.
@@ -19,6 +22,7 @@ A fault in a phase the lane can go on without is recorded and the lane goes on (
 class Fault(Exception):
     kind = "fault"
     fatal = False  # True: the lane cannot go on to its next phase
+    route = None   # the shortest way back to this step (Driver.harness), for a probe
 
     def __init__(self, step, what, shot=None, check=None):
         super().__init__(what)
@@ -60,3 +64,17 @@ class InfraFault(HarnessFault):
     def __init__(self, step, what, sub="rig", shot=None, check=None):
         super().__init__(step, what, shot, check)
         self.sub = sub
+
+
+class RefusedStart(HarnessFault):
+    """The rule said no."""
+    kind = "refused"
+    fatal = True
+
+
+class StepReached(BaseException):
+    """The probe's step passed. A BaseException: no recovery and no `except Exception` may run on past it."""
+
+    def __init__(self, step):
+        super().__init__(step)
+        self.step = step

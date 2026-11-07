@@ -16,6 +16,7 @@ import queue
 from . import evidence
 from . import failures as known
 from . import guards
+from . import repeats
 from . import serverlogs
 from . import window as win
 from .load import LoadSampler
@@ -74,6 +75,7 @@ class Engine:
     def __init__(self, run, pipeline, hosts, repo, *, relmsg=None, dry=False, echo=None, failures=None, runner=None):
         self.run = run
         self.runner = runner or RUNNER
+        self._repeated = {}  # step id -> seconds of an attempt that repeated a failed one, for its metrics line
         self.pipeline = pipeline
         self.hosts = hosts
         self.repo = repo
@@ -268,7 +270,8 @@ class Engine:
     def execute(self, step, infra_try=0):
         """Runs one step to an end state; returns its status dict. A failure whose cause is the
         machine (window.cause_of: a signal, no proof.json, an ssh drop, no build slot) runs once
-        more by itself ([concurrency] infra_retries); a product or harness failure never does."""
+        more by itself ([concurrency] infra_retries), unless it is the same failure as the last
+        one (repeats.py); a product or harness failure never does."""
         from . import builtins
         st = self.run.status(step.id)
         attempt = st.get("attempts", 0) + 1
@@ -289,11 +292,13 @@ class Engine:
         started = time.time()
         log = self.attempt_log(step, attempt)
         driver, changed_from = self.pin_driver(step, st, attempt)
+        carry = repeats.attempt_env(self, step, st)
         self.run.set_status(step.id, status="running", attempts=attempt, started=now_iso(), ended=None,
                             note=None, hint=None, rc=None, cause=None, infra_try=infra_try or None, flaky=None, failed_before=None, recovered=None,
+                            stopped=None, fresh=None, **repeats.forced(st, attempt),
                             **(driver or {}), driver_changed=True if changed_from else None)
         self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None,
-                       infra_try=infra_try or None)
+                       infra_try=infra_try or None, forced=st.get("fresh"))
         self.load.step_started(step.id)
         self.tdb("attempt.start", **lane)
         if self.relmsg:
@@ -311,7 +316,7 @@ class Engine:
                 elif step.kind == "handoff":
                     result = self.exec_handoff(step, log)
                 else:
-                    result = self.exec_command(step, log)
+                    result = self.exec_command(step, log, carry)
             except Exception as e:  # a bug or an environment problem: the step failed, the run is kept
                 with open(log, "a", encoding="utf-8") as f:
                     f.write(f"\ntools/rel: {type(e).__name__}: {e}\n")
@@ -326,10 +331,15 @@ class Engine:
         if result["status"] == "failed":
             result["cause"] = win.cause_of(step, dict(result, exception=exception), log)
             result["attempt_causes"] = (st.get("attempt_causes") or []) + [result["cause"]]
+            fail = repeats.failure(self, step, attempt, result, dur, started,
+                                   (driver or {}).get("driver") or evidence.driver_record(self.runner))
+            fails = (st.get("failures") or []) + ([fail] if fail else [])
+            if fail:
+                result["failures"] = fails
             # Never a publish step: what reaches the outside world retries only where pipeline.toml
             # says so (`retries`), after a person looked.
             will_retry = (result["cause"].startswith("infra:") and infra_try < self.policy.infra_retries
-                          and not self.dry and not step.publish)
+                          and not self.dry and not step.publish and not repeats.same_twice(fails))
             hits = known.match(self.failures, step.base, log)
             if hits:
                 result["hint"] = " | ".join(h for _, h in hits)
@@ -342,6 +352,10 @@ class Engine:
         if result["status"] in ("done", "failed", "skipped"):
             result["ended"] = now_iso()
             result["duration_s"] = dur
+            counted, repeat = repeats.tally(st, result, dur)
+            result.update(counted)
+            if repeat:
+                self._repeated[step.id] = dur
         if changed_from:
             result["note"] = ((result.get("note") or "").rstrip() + "; drivers changed between attempts ("
                               f"{evidence.driver_label(changed_from)} → {evidence.driver_label(driver['driver'])})").lstrip("; ")
@@ -376,8 +390,9 @@ class Engine:
             if st["status"] == "done" and not st.get("warned") and not self.dry:
                 self.forward_messages(step)
             if st["status"] == "failed":
+                no = repeats.verdict(self, step, st, manual=True)
                 self.relmsg.alert(f"{step.id} failed", step=step.id, log=log, detail=self.server_logs(step, st, log),
-                                  expects=st.get("hint") or "retry, skip or abort? (tools/rel retry|skip|debug)",
+                                  expects=st.get("hint") or (no and no["line"]) or "retry, skip or abort? (tools/rel retry|skip|debug)",
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
 
@@ -391,7 +406,10 @@ class Engine:
         record, and a failed attempt (a warned one too) one bug with its class."""
         self.tdb_end(step, lane, st, log)
         self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
-                       note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"), warned=st.get("warned") or None)
+                       note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"), warned=st.get("warned") or None,
+                       failed_at=(st.get("failures") or [{}])[-1].get("step") if st["status"] == "failed" else None,
+                       attempts=st.get("attempts"), repeats=st.get("repeats"), seconds_repeated=st.get("seconds_repeated"),
+                       repeats_forced=len(st.get("forced") or []) or None)
         if st["status"] == "failed" or st.get("warned"):
             self.record_bug(step, lane, st, log)
         self.metric(step, st, dur, load, infra_try=infra_try)
@@ -518,7 +536,9 @@ class Engine:
                 "commit": self.info.get("commit"), "warned": st.get("warned") or None,
                 "waited_s": st.get("waited_s"), "max_heavy": self.policy.max_heavy,
                 "flaky": st.get("flaky") or None, "driver_changed": st.get("driver_changed") or None,
-                "recovered": len(st["recovered"]) if st.get("recovered") else None}
+                "recovered": len(st["recovered"]) if st.get("recovered") else None,
+                "repeated_s": self._repeated.pop(step.id, None),
+                "forced": 1 if (st.get("forced") or [{}])[-1].get("attempt") == st.get("attempts") else None}
         line.update(load or {})
         emu = read_json(os.path.join(self.run.step_dir(step.id), "out", "emulator.json"))
         if isinstance(emu, dict):
@@ -539,10 +559,12 @@ class Engine:
 
     # ---- executors ----
 
-    def command_line(self, step):
-        """-> (argv, cwd, env) exactly as the step runs (also what `rel debug` prints)."""
+    def command_line(self, step, overlay=None):
+        """-> (argv, cwd, env) exactly as the step runs (also what `rel debug` prints). overlay: what
+        this one attempt or probe adds (repeats.py)."""
         env = dict(self.base_env(step))
         env.update(step.env)
+        env.update(overlay or {})
         script = "set -euo pipefail\n" + step.run
         argv = ["bash", "-c", script]
         if step.heavy:
@@ -572,8 +594,33 @@ class Engine:
         sync_down = f"rsync -a {shlex.quote(alias + ':' + run + '/')} {shlex.quote(run + '/')}"
         return ["bash", "-c", f"set -euo pipefail; {sync_up}; ssh {shlex.quote(alias)} {shlex.quote(remote)}; {sync_down}"]
 
-    def exec_command(self, step, log):
-        argv, cwd, env = self.command_line(step)
+    @staticmethod
+    def spawn_env(env):
+        """The process environment of a step: this one's, less what only tools/rel may ask of a lane."""
+        full = {k: v for k, v in os.environ.items() if k not in repeats.PRIVATE}
+        full.update(env)
+        full["LEPIC_NO_CACHE"] = "1"  # release builds come from source, never the prebuilt cache
+        return full
+
+    @staticmethod
+    def spawn(argv, cwd, env, log, timeout):
+        """Runs argv with its output in log. -> its exit code, None when it hit timeout."""
+        with open(log, "ab") as f:
+            p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=f, stderr=subprocess.STDOUT,
+                                 stdin=subprocess.DEVNULL, start_new_session=True)
+            try:
+                return p.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                os.killpg(p.pid, signal.SIGTERM)
+                try:
+                    p.wait(timeout=30)
+                except subprocess.TimeoutExpired:
+                    os.killpg(p.pid, signal.SIGKILL)
+                    p.wait()
+                return None
+
+    def exec_command(self, step, log, carry=None):
+        argv, cwd, env = self.command_line(step, carry)
         stage = os.path.join(self.run.step_dir(step.id), "out")
         os.makedirs(stage, exist_ok=True)
         with open(log, "a", encoding="utf-8") as f:
@@ -594,23 +641,10 @@ class Engine:
             old = os.path.join(stage, "proof.json")
             if os.path.exists(old):
                 os.replace(old, os.path.join(stage, f"proof.before-{os.path.basename(log)[:-4]}.json"))
-        full_env = {k: v for k, v in os.environ.items()}
-        full_env.update(env)
-        full_env["LEPIC_NO_CACHE"] = "1"  # release builds come from source, never the prebuilt cache
-        with open(log, "ab") as f:
-            p = subprocess.Popen(argv, cwd=cwd, env=full_env, stdout=f, stderr=subprocess.STDOUT,
-                                 stdin=subprocess.DEVNULL, start_new_session=True)
-            try:
-                rc = p.wait(timeout=step.timeout)
-            except subprocess.TimeoutExpired:
-                os.killpg(p.pid, signal.SIGTERM)
-                try:
-                    p.wait(timeout=30)
-                except subprocess.TimeoutExpired:
-                    os.killpg(p.pid, signal.SIGKILL)
-                    p.wait()
-                return {"status": "failed", "rc": None, "timed_out": True,
-                        "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
+        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout)
+        if rc is None:
+            return {"status": "failed", "rc": None, "timed_out": True,
+                    "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
         if step.driven:
             self.stamp_driver(step, stage)
             return self._check_proof(step, rc)
@@ -619,9 +653,7 @@ class Engine:
         return self.collect(step, stage)
 
     def _dry_proof(self, step, cwd, env, log):
-        full_env = dict(os.environ)
-        full_env.update(env)
-        full_env["LEPIC_NO_CACHE"] = "1"
+        full_env = self.spawn_env(env)
         argv = ["bash", "-c", "set -euo pipefail\n" + step.run]
         if not os.path.isdir(cwd):
             cwd = self.repo  # no release worktree in a dry run: the driver from this checkout
@@ -836,6 +868,8 @@ class Engine:
                         continue
                     if statuses[s.id] == "failed" and not self.run.status(s.id).get("retry"):
                         continue
+                    if statuses[s.id] == "failed" and self.repeat_stopped(s):
+                        continue
                     if not self.ready(s, statuses) or s.lane in lanes_busy:
                         continue
                     if self.run.status(s.id).get("polled") == id(self):
@@ -880,6 +914,43 @@ class Engine:
             if self.run.status(s.id).get("polled"):
                 self.run.set_status(s.id, polled=None)
         return self.exit_code(selected)
+
+    def repeat_stopped(self, step):
+        """True when repeats.py refuses this failed step an automatic attempt. Only it stays behind."""
+        no = repeats.verdict(self, step)
+        if not no:
+            return False
+        self.run.set_status(step.id, retry=False, stopped=no["line"])
+        self.run.event(step.id, "repeat-refused", rule=no["rule"], line=no["line"])
+        self.echo(f"✋ {step.id}  {no['line']}")
+        if self.relmsg:
+            self.relmsg.step(step.id, "failed", note=no["line"])
+        return True
+
+    def probe(self, step, fail):
+        """tools/rel probe: step's lane in a folder of its own, up to fail's step and no further. Its
+        status changes only by the record in `probes`; its proof.json and attempts stay."""
+        probes = self.run.status(step.id).get("probes") or []
+        n = len(probes) + 1
+        folder = os.path.join(self.run.step_dir(step.id), f"probe-{n}")
+        stage = os.path.join(folder, "out")
+        os.makedirs(stage, exist_ok=True)
+        log = os.path.join(folder, "probe.log")
+        argv, cwd, env = self.command_line(step, repeats.probe_env(self.run, step, fail, stage))
+        driver = evidence.driver_record(self.runner)
+        self.run.event(step.id, "probe-start", n=n, name=fail["step"], phase=fail.get("phase"),
+                       driver=evidence.driver_label(driver))
+        self.echo(f"▶ {step.id}  probe {n}: {fail['step']} on {evidence.driver_label(driver)}; log {log}")
+        started = time.time()
+        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout)
+        proof = read_json(os.path.join(stage, "proof.json"))
+        rec = repeats.probe_record(self, step, fail, n, rc, round(time.time() - started, 1), driver,
+                                   proof if isinstance(proof, dict) else {}, log)
+        self.run.set_status(step.id, probes=probes + [rec])
+        self.run.event(step.id, "probe", **{("name" if k == "step" else k): v for k, v in rec.items()
+                                            if k not in ("log", "driver", "target")},
+                       driver=evidence.driver_label(driver))
+        return rec
 
     def _worker(self, step):
         try:

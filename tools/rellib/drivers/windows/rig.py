@@ -333,7 +333,9 @@ class Rig:
 
     def prepare(self):
         self.lock_user()
-        self.pwsh("New-Item -ItemType Directory -Force '%s\\bin','%s' | Out-Null" % (self.base, self.run))
+        # a stop file left in this run folder, for the agent stop_orphans ended, would end the next one on its first pass
+        self.pwsh("New-Item -ItemType Directory -Force '%s\\bin','%s' | Out-Null; Remove-Item -LiteralPath '%s\\stop' "
+                  "-Force -ErrorAction SilentlyContinue" % (self.base, self.run, self.run))
         for f in ("agent.ps1", "rpc.ps1"):
             self.put(os.path.join(HERE, f), self.base + "\\bin\\" + f)
 
@@ -414,6 +416,21 @@ class Rig:
             raise RigError("rig agent did not start: %s" % r.get("error"))
         self.log("rig agent up: user %s, profile %s" % (r.get("user"), r.get("profile")))
         return r
+
+    def attach_agent(self):
+        """The agent an earlier attempt left in this run folder: True when it answers."""
+        self.agent_queued = True
+        r = self.call("ping", timeout=30)
+        if not r.get("ok"):
+            self.agent_queued = False
+            return False
+        self.log("rig agent of the failed attempt still up: user %s, profile %s" % (r.get("user"), r.get("profile")))
+        return True
+
+    def detach_agent(self):
+        """Ends the agent attach_agent found; start_agent queues the next."""
+        self.quit_agent()
+        self.agent_queued = False
 
     def queued(self):
         """Our job file still waits in the queue (the task moves it to done\\ when it starts it)."""

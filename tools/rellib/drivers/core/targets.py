@@ -214,6 +214,11 @@ def T_phone(tid):
     return reg[tid]
 
 
+def kept(tid, family):
+    """The target of an id a fault's route kept: the driver named it where the fault was raised."""
+    return _registry(family)[tid]
+
+
 def under(prefix, family):
     """Every target of `family` whose id starts with `prefix`, in registry order."""
     return [t for t in _registry(family).values() if t.id.startswith(prefix) and family in t.family]
