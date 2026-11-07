@@ -946,8 +946,8 @@ class TxLane(Lane):
                 self.log("phase %s: %s; rebuilding and running the phase again" % (name, e.line()))
                 self.details.setdefault("harness_recovered", []).append("%s: %s" % (name, e.what))
                 self.p.recover()
-                for w in self.w.values():
-                    if w.ui is not None and w.secrets.get("password"):
+                for w in self.w.values():  # a wallet whose app was closed (state-save) stays closed
+                    if w.ui is not None and w.p.running and w.secrets.get("password"):
                         w.ui.open_wallet(w.secrets)
                         portal_stub.ensure(w.p.sb)
 

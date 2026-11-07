@@ -465,6 +465,26 @@ class PartsTest(unittest.TestCase):
         left = iter(totals)
         return tx_lane, lane, unittest.mock.patch.object(tx, "digest", lambda *a: {"balance": {"total": next(left)}})
 
+    def test_a_rebuild_reopens_only_the_wallets_whose_app_runs(self):
+        from linux import tx_lane
+        lane = object.__new__(tx_lane.TxLane)
+        lane.log, lane.retried, lane.details = (lambda s: None), set(), {}
+        lane.p = unittest.mock.Mock()
+        lane.w = {k: unittest.mock.Mock(secrets={"password": "pw"}, p=unittest.mock.Mock(running=r))
+                  for k, r in (("a", "candidate"), ("b", None))}
+        calls = []
+
+        def phase():
+            calls.append(1)
+            if len(calls) == 1:
+                raise tx_lane.core_lane.HarnessGone("ui", "the keyring daemon is gone")
+            return "ok"
+        with unittest.mock.patch.object(tx_lane.hold, "guard", lambda lane_, name, fn: fn), \
+                unittest.mock.patch.object(tx_lane.portal_stub, "ensure"):
+            self.assertEqual(lane._phase("reopen", phase), "ok")
+        lane.w["a"].ui.open_wallet.assert_called_once()
+        lane.w["b"].ui.open_wallet.assert_not_called()
+
     def test_the_state_is_kept_only_when_the_wallets_are_empty(self):
         tx_lane, lane, digest_ = self.state_lane([0, tx.nano(tx.DUST)])
         with digest_, unittest.mock.patch.object(tx_lane.st, "save") as save:
