@@ -67,7 +67,8 @@ Future<void> _click(Key key) async {
     e.visitChildren(visit);
   }
   WidgetsBinding.instance.rootElement!.visitChildren(visit);
-  (found?.onPressed as VoidCallback?)?.call();
+  final cb = found is EInkWell ? found.onTap : found?.onPressed as VoidCallback?;
+  cb?.call();
   await Future<void>.delayed(const Duration(milliseconds: 250));
 }
 
@@ -238,7 +239,9 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '10s-status-epicbox', title: 'Epicbox status popover', route: DeskRoute.overview, prepare: _status('epicbox')),
   DeskShot(id: '10s-status-epicbox-checking', title: 'Epicbox status popover, a message check running', route: DeskRoute.overview, before: _checkRunning, prepare: _status('epicbox')),
   DeskShot(id: '10s-status-epicbox-held', title: 'Epicbox status popover, messages held, refused and kept unread', route: DeskRoute.overview, before: _checkEnded, prepare: _status('epicbox')),
+  DeskShot(id: '10s-status-epicbox-held-open', title: 'Epicbox status popover, the check unfolded', route: DeskRoute.overview, before: _checkEnded, prepare: _status('epicbox'), after: _inPopover('desk-message-check-row')),
   DeskShot(id: '10s-notice-digest', title: 'One toast for several notices of a check', route: DeskRoute.overview, before: (c) async => _checks(c), prepare: _digest),
+  DeskShot(id: '10s-notice-digest-open', title: 'The toast unfolded: one line per kind', route: DeskRoute.overview, before: (c) async => _checks(c), prepare: _digest, after: (c, _) => _click(toastUnfoldKey)),
   DeskShot(id: '10s-status-http', title: 'Link · HTTP status popover', route: DeskRoute.overview, prepare: _status('http')),
   DeskShot(id: '10s-status-tor', title: 'Tor status popover', route: DeskRoute.overview, prepare: _status('tor')),
   const DeskShot(id: '10-overview', title: 'Overview', route: DeskRoute.overview),

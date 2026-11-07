@@ -19,7 +19,7 @@ import '../../server_list.dart' show ServerKind;
 import '../../message_checks.dart';
 import '../../providers.dart';
 import '../common.dart';
-import '../message_check_lines.dart';
+import '../message_check_panel.dart';
 import '../status.dart';
 import '../status_icons.dart';
 import '../theme/tokens.dart';
@@ -49,8 +49,8 @@ Future<void> showNetworkSheet(BuildContext context) => _sheet(context, const Net
 /// Opens the Epicbox sheet.
 Future<void> showEpicboxSheet(BuildContext context) => _sheet(context, const EpicboxSheet());
 
-/// The sheet's frame: the header, the notes under it, the facts strip, the cards and the
-/// actions, then OK.
+/// The sheet's frame: the header, the notes under it, the facts strip, the cards, the panel
+/// (the message checks) and, under a hairline, the actions, then Close.
 class _SheetBody extends StatelessWidget {
   const _SheetBody({
     super.key,
@@ -58,6 +58,7 @@ class _SheetBody extends StatelessWidget {
     this.notes = const [],
     this.facts = const [],
     this.cards = const [],
+    this.panel,
     this.actions = const [],
   });
 
@@ -65,6 +66,7 @@ class _SheetBody extends StatelessWidget {
   final List<String> notes;
   final List<SheetFact> facts;
   final List<Widget> cards;
+  final Widget? panel;
   final List<Widget> actions;
 
   @override
@@ -85,12 +87,16 @@ class _SheetBody extends StatelessWidget {
           ],
           if (facts.isNotEmpty) ...[const SizedBox(height: 14), StatusFactStrip(facts)],
           for (final c in cards) ...[const SizedBox(height: 12), c],
-          const SizedBox(height: 16),
+          if (panel case final panel?) ...[const SizedBox(height: 8), panel],
+          const SizedBox(height: 12),
+          Divider(height: 1, thickness: 1, color: t.line),
+          const SizedBox(height: 12),
           ...actions,
+          // Close is quiet: the sheet's own way out, under the action that does something.
           TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: t.dim),
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(l.commonOk),
+            child: Text(l.commonClose),
           ),
         ],
       ),
@@ -195,8 +201,8 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
         // The state in a sentence under the header; what it means for payments when down.
         if (stateText != face.word) stateText,
         if (down && !(moved != null && offer == null)) l.lvShellBoxDownBody,
-        ...messageCheckLines(l, ref.watch(messageCheckProvider).value ?? const MessageCheck()),
       ],
+      panel: MessageCheckPanel(ref.watch(messageCheckProvider).value ?? const MessageCheck()),
       cards: [
         if (moved != null && offer == null)
           StatusSheetCard(tone: BadgeTone.ok, icon: EpicGlyphs.epicbox, title: l.lvShellNowOn(moved.name), body: l.lvShellSwitchedBody)

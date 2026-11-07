@@ -559,11 +559,11 @@ void _invoiceToast(BuildContext context, InvoiceNotice n) {
   showEToast(context, text, tone: tone);
 }
 
-/// A digest as one toast. It outlives a change of screen, with its way to the place that lists
-/// what it counts.
+/// A digest as one toast that counts the updates and unfolds into one line per kind, each a
+/// way to the place that lists what it counts. It outlives a change of screen.
 void _digestToast(BuildContext context, WidgetRef ref, NoticeDigest digest) {
   final l = context.l10n;
-  final (route, arg) = switch (digest.place) {
+  (DeskRoute, Object?) routeOf(DigestPlace place) => switch (place) {
     DigestPlace.invoices => (DeskRoute.invoices, InvoicesTab.pay),
     DigestPlace.sentInvoices => (DeskRoute.invoices, InvoicesTab.issue),
     DigestPlace.activity => (DeskRoute.activity, null),
@@ -573,7 +573,16 @@ void _digestToast(BuildContext context, WidgetRef ref, NoticeDigest digest) {
     noticeDigestText(l, digest),
     tone: ETone.info,
     stay: true,
-    action: (label: l.noticeView, run: () => ref.read(deskNavProvider.notifier).go(route, arg)),
+    items: [
+      for (final item in noticeDigestItems(l, digest))
+        (
+          label: item.text,
+          run: () {
+            final (route, arg) = routeOf(item.place);
+            ref.read(deskNavProvider.notifier).go(route, arg);
+          },
+        ),
+    ],
   );
 }
 

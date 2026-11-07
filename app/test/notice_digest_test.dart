@@ -101,18 +101,27 @@ void main() {
   });
 
   group('the words', () {
-    test('counts by kind with their plurals', () {
+    test('one line counts the updates; the items count by kind with their plurals and places', () {
       final l = englishStrings;
-      expect(noticeDigestText(l, NoticeDigest({HeldKind.invoice: 2, HeldKind.withdrawal: 1})), '3 updates: 2 invoices, 1 withdrawal');
-      expect(noticeDigestText(l, NoticeDigest({HeldKind.invoice: 3})), '3 invoices');
-      expect(noticeDigestText(l, NoticeDigest({HeldKind.invoice: 1, HeldKind.paid: 2, HeldKind.expired: 1, HeldKind.withdrawn: 1})), '5 updates: 1 invoice, 2 invoices paid, 1 invoice expired, 1 invoice withdrawn');
+      expect(noticeDigestText(l, NoticeDigest({HeldKind.invoice: 2, HeldKind.withdrawal: 1})), '3 new updates');
+      expect(noticeDigestText(l, NoticeDigest({HeldKind.invoice: 1})), '1 new update');
+      final items = noticeDigestItems(l, NoticeDigest({HeldKind.invoice: 2, HeldKind.withdrawal: 1}));
+      expect(items.map((i) => i.text), ['2 invoices', '1 withdrawal']);
+      expect(items.map((i) => i.place), [DigestPlace.invoices, DigestPlace.activity]);
+      expect(
+        noticeDigestItems(l, NoticeDigest({HeldKind.invoice: 1, HeldKind.paid: 2, HeldKind.expired: 1, HeldKind.withdrawn: 1})).map((i) => i.text),
+        ['1 invoice', '2 invoices paid', '1 invoice expired', '1 invoice withdrawn'],
+      );
+      expect(noticeDigestItems(l, NoticeDigest({HeldKind.paid: 2})).single.place, DigestPlace.sentInvoices);
     });
 
     test('Polish and Russian decline the count', () {
       final pl = lookupAppLocalizations(const Locale('pl'));
-      expect(noticeDigestText(pl, NoticeDigest({HeldKind.invoice: 5, HeldKind.withdrawal: 2})), '7 aktualizacji: 5 faktur, 2 wypłaty');
+      expect(noticeDigestText(pl, NoticeDigest({HeldKind.invoice: 5, HeldKind.withdrawal: 2})), '7 nowych aktualizacji');
+      expect(noticeDigestItems(pl, NoticeDigest({HeldKind.invoice: 5, HeldKind.withdrawal: 2})).map((i) => i.text), ['5 faktur', '2 wypłaty']);
       final ru = lookupAppLocalizations(const Locale('ru'));
-      expect(noticeDigestText(ru, NoticeDigest({HeldKind.invoice: 2, HeldKind.withdrawal: 1})), '3 обновления: 2 счёта, 1 вывод');
+      expect(noticeDigestText(ru, NoticeDigest({HeldKind.invoice: 2, HeldKind.withdrawal: 1})), '3 новых обновления');
+      expect(noticeDigestItems(ru, NoticeDigest({HeldKind.invoice: 2, HeldKind.withdrawal: 1})).map((i) => i.text), ['2 счёта', '1 вывод']);
     });
   });
 

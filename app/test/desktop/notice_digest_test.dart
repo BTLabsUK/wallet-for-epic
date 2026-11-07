@@ -5,7 +5,6 @@ import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/message_checks.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show PairingEvent, PairingEventKind;
 import 'package:flutter/material.dart';
@@ -13,8 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../support/experimental.dart';
-
-final _l = englishStrings;
 
 PairingEvent _invoice(String slate) => PairingEvent(PairingEventKind.invoiceFromContact, name: 'Ola', slateId: slate, amount: BigInt.from(100000000));
 
@@ -58,7 +55,7 @@ void main() {
 
   testWidgets('several notices of a run are one toast that survives a change of screen', (tester) async {
     final (c, api, checks) = await _shell(tester);
-    const digest = '3 updates: 2 invoices, 1 withdrawal';
+    const digest = '3 new updates';
     checks.notices.begin();
     api.pairing.emit(_invoice('a'));
     api.pairing.emit(_invoice('b'));
@@ -75,7 +72,12 @@ void main() {
     await _settle(tester);
     expect(find.text(digest), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(EButton, _l.noticeView));
+    expect(find.byKey(toastItemsKey), findsNothing, reason: 'folded at first');
+    await tester.tap(find.byKey(toastUnfoldKey));
+    await _settle(tester);
+    expect(find.text('2 invoices'), findsOneWidget);
+    expect(find.text('1 withdrawal'), findsOneWidget);
+    await tester.tap(find.text('2 invoices'));
     await _settle(tester);
     expect(c.read(deskNavProvider).route, DeskRoute.invoices);
     expect(find.text(digest), findsNothing);

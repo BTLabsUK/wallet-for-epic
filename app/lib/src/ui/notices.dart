@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import 'notice_layout.dart';
+import 'settings_rows.dart' show NavChevron;
 import 'theme/tokens.dart';
 
 export 'notice_layout.dart' show NoticeLayout, RenderNoticeLayout;
@@ -78,6 +79,7 @@ class Notice {
     this.progressLabel,
     this.tag,
     this.onClose,
+    this.items = const [],
   });
 
   /// Distinct per notice, so the card animates when another one takes its place.
@@ -107,10 +109,15 @@ class Notice {
   /// out, is replaced or its action is pressed.
   final VoidCallback? onClose;
 
+  /// What [text] counts, one line each ("2 invoices", "1 withdrawal"): folded under the text,
+  /// a tap on the card or its chevron unfolds them, each a way to its own place. A digest.
+  final List<NoticeAction> items;
+
   /// Has a close button: warnings, errors, persistent notices and any with an action.
   bool get closable =>
       persistent ||
       action != null ||
+      items.isNotEmpty ||
       level == NoticeLevel.warning ||
       level == NoticeLevel.error;
 }
@@ -156,6 +163,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     String? progressLabel,
     String? tag,
     VoidCallback? onClose,
+    List<NoticeAction> items = const [],
   }) {
     Notice make(int id) => Notice(
       id,
@@ -169,6 +177,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       progressLabel: progressLabel,
       tag: tag,
       onClose: onClose,
+      items: items,
     );
     final visible = state;
     if (visible != null &&
@@ -236,7 +245,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     if (notice.persistent) return;
     _left = noticeDuration(
       notice.level,
-      action: notice.action != null,
+      action: notice.action != null || notice.items.isNotEmpty,
       accessible: accessibleNavigation,
     );
     _timer = Timer.periodic(_tick, (_) {
@@ -410,7 +419,19 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   /// Whether a mouse is over the card: then lifting a click does not restart the clock.
   bool _hovering = false;
 
+  /// Whether the notice's [Notice.items] are unfolded; the clock stops while they are.
+  bool _open = false;
+
   NoticeNotifier get _notices => ref.read(noticeProvider.notifier);
+
+  void _toggle() {
+    setState(() => _open = !_open);
+    if (_open) {
+      _notices.hold();
+    } else {
+      _releaseUnlessHovered();
+    }
+  }
 
   void _onDragEnd(DragEndDetails details) {
     final v = details.velocity.pixelsPerSecond;
@@ -430,7 +451,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   }
 
   void _releaseUnlessHovered() {
-    if (!_hovering) _notices.release();
+    if (!_hovering && !_open) _notices.release();
   }
 
   @override
@@ -470,6 +491,22 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
           )
         : null;
     final progress = notice.progress;
+    final items = notice.items;
+    final still = MediaQuery.disableAnimationsOf(context);
+    final unfold = still ? Duration.zero : noticeUnfoldDuration;
+    final chevron = items.isEmpty
+        ? null
+        : IconButton(
+            key: noticeUnfoldKey,
+            tooltip: _open ? l.msgCheckHideDetails : l.msgCheckShowDetails,
+            onPressed: _toggle,
+            icon: AnimatedRotation(
+              turns: _open ? 0.5 : 0,
+              duration: unfold,
+              curve: Curves.easeOutCubic,
+              child: Icon(Icons.expand_more, color: t.dim),
+            ),
+          );
     final body = Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
       child: NoticeParts(
@@ -480,17 +517,61 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
         maxLines: notice.persistent ? null : noticeMaxLines,
         icon: icon,
         color: color,
-        below: progress == null
-            ? null
-            : Padding(
+        onWords: items.isEmpty ? null : _toggle,
+        below: progress != null
+            ? Padding(
                 padding: const EdgeInsets.only(top: 6, bottom: 4),
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 2,
                   semanticsLabel: notice.progressLabel,
                 ),
+              )
+            : items.isEmpty
+            ? null
+            : AnimatedSize(
+                duration: unfold,
+                reverseDuration: unfold,
+                curve: _open ? Curves.easeOutCubic : Curves.easeInCubic,
+                alignment: Alignment.topCenter,
+                clipBehavior: Clip.hardEdge,
+                child: AnimatedSwitcher(
+                  duration: unfold,
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  child: _open
+                      ? Padding(
+                          key: noticeItemsKey,
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (final item in items)
+                                InkWell(
+                                  onTap: () {
+                                    _notices.dismiss(notice.id);
+                                    item.onPressed();
+                                  },
+                                  borderRadius: BorderRadius.circular(t.radiusSmall),
+                                  child: Container(
+                                    constraints: const BoxConstraints(minHeight: 44),
+                                    padding: const EdgeInsetsDirectional.only(start: 8, end: 4),
+                                    child: Row(
+                                      children: [
+                                        Expanded(child: Text(item.label, style: Theme.of(context).textTheme.bodyMedium)),
+                                        const NavChevron(size: 20),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox(width: double.infinity),
+                ),
               ),
-        actions: [?secondaryButton, ?actionButton],
+        actions: [?secondaryButton, ?actionButton, ?chevron],
         close: close,
         liveRegion: true,
       ),
@@ -526,6 +607,13 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     );
   }
 }
+
+/// How long a digest takes to unfold its items, and to fold them.
+const Duration noticeUnfoldDuration = Duration(milliseconds: 220);
+
+/// The chevron that unfolds a digest, and its items once unfolded: for tests.
+const Key noticeUnfoldKey = ValueKey('notice-unfold');
+const Key noticeItemsKey = ValueKey('notice-items');
 
 /// The most lines a passing notice shows; a persistent one shows its whole text. Three keep a
 /// sentence whole on a phone (A-10); the screen reader always hears all of it.
@@ -573,6 +661,7 @@ class NoticeParts extends StatelessWidget {
     required this.icon,
     required this.color,
     this.below,
+    this.onWords,
     this.actions = const [],
     this.actionsBelow = false,
     this.close,
@@ -586,6 +675,9 @@ class NoticeParts extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Widget? below;
+
+  /// A tap on the words (a digest unfolds); the chevron in [actions] says what it does.
+  final VoidCallback? onWords;
   final List<Widget> actions;
   final bool actionsBelow;
   final Widget? close;
@@ -619,16 +711,19 @@ class NoticeParts extends StatelessWidget {
         ),
       ),
     );
+    final wordsRow = onWords == null
+        ? words
+        : GestureDetector(behavior: HitTestBehavior.opaque, onTap: onWords, child: words);
     return NoticeLayout(
       icon: ExcludeSemantics(child: Icon(icon, color: color)),
       words: Padding(
         padding: const EdgeInsets.symmetric(vertical: wordsPad),
         child: below == null
-            ? words
+            ? wordsRow
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [words, below!],
+                children: [wordsRow, below!],
               ),
       ),
       actions: actions.isEmpty
