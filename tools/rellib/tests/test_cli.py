@@ -69,6 +69,45 @@ class CliTest(Base):
         code, out, err = rel(*self.common(), "run", "publish-downloads")
         self.assertIn(code, (40, 64))
 
+    def planned_run(self):
+        prev = os.path.join(self.tmp, "26.1.0")
+        os.makedirs(prev)
+        rel(*self.common(), "start", V, "--test", "--dry-run", "--only", "android", "--no-relmsg",
+            "--previous", prev, "--waive", "android=fake")
+        return os.path.join(self.root, V, "run-1")
+
+    def test_add_step_puts_a_new_step_into_a_planned_run(self):
+        run = self.planned_run()
+        path = os.path.join(run, "plan.json")
+        with open(path) as f:
+            plan = json.load(f)
+        with open(path, "w") as f:
+            json.dump([s for s in plan if s["id"] != "trust-manifest"], f)
+        code, out, err = rel(*self.common(), "add-step", "trust-manifest", "--run", V)
+        self.assertEqual(code, 0, err)
+        with open(path) as f:
+            self.assertIn("trust-manifest", [s["id"] for s in json.load(f)])
+        self.assertEqual(rel(*self.common(), "add-step", "no-such-step", "--run", V)[0], 64)
+
+    def test_adopt_takes_the_result_from_the_proof_alone(self):
+        run = self.planned_run()
+        out = os.path.join(self.tmp, "outside")
+        os.makedirs(out)
+        with open(os.path.join(out, "trust.log"), "w") as f:
+            f.write("a line\n")
+        self.assertEqual(rel(*self.common(), "adopt", "trust-manifest", "--out", out, "--run", V)[0], 20)
+        with open(os.path.join(run, "steps", "trust-manifest", "status.json")) as f:
+            st = json.load(f)
+        self.assertEqual((st["status"], st["rc"]), ("failed", 1))
+        self.assertIn("no proof.json", st["note"])
+        with open(os.path.join(out, "proof.json"), "w") as f:
+            json.dump({"checks": {"a": True}}, f)
+        self.assertEqual(rel(*self.common(), "adopt", "trust-manifest", "--out", out, "--run", V)[0], 0)
+        with open(os.path.join(run, "steps", "trust-manifest", "status.json")) as f:
+            self.assertEqual(json.load(f)["status"], "done")
+        with open(os.path.join(run, "steps", "trust-manifest", "log.txt")) as f:
+            self.assertEqual(f.read(), "a line\n")
+
     def test_run_several_steps_keep_going(self):
         pipe = os.path.join(self.tmp, "pipeline.toml")
         with open(pipe, "w") as f:

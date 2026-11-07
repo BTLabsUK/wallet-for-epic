@@ -51,7 +51,8 @@ REFUSED = "check: refused"
 
 def gated(step):
     """A lane: what a run reaches over a driver, and what a repeat costs the most on."""
-    return bool(step.driven or step.env.get("REL_TRUST_MODE") or step.env.get("REL_TX_PART"))
+    return bool(step.driven or step.env.get("REL_TRUST_MODE") or step.env.get("REL_TX_PART")
+                or step.env.get("REL_TRUST_PAIR"))
 
 
 def platform_of(step):

@@ -820,6 +820,72 @@ class App:
             eng.relmsg.step(s.id, "skipped", note=a.reason)
         return self.out(EXIT_OK, f"{s.id} skipped: {a.reason}", run)
 
+    def cmd_add_step(self, a):
+        """Steps of the current pipeline put into a run planned before they existed: plan.json keeps
+        what the run was planned with, so a new step would never show. Nothing runs."""
+        run = self.load_run()
+        i = run.info
+        stage = "night" if i.get("kind") == "night" else "release"
+        scope = load_scope(os.path.join(run.path, "release.toml"))
+        ctx = context(i["version"], i["commit"], run.path, i["run_id"], i["src"], scope, self.hosts, i.get("previous"))
+        known = {s.id: s for s in build_graph(self.pipeline, scope, ctx, stage=stage)}
+        have = {s.id for s in run.steps}
+        new = [x for x in a.step if x not in have]
+        for x in new:
+            if x not in known:
+                return self.out(EXIT_USAGE, f"{x}: no such step in this run's stage", run)
+            if any(n not in have for n in known[x].needs):
+                return self.out(EXIT_USAGE, f"{x} needs a step this run does not have", run)
+        with run.short("info"):
+            run.steps.extend(known[x] for x in new)
+            write_json(os.path.join(run.path, "plan.json"), [s.to_dict() for s in run.steps])
+        if stage == "night":
+            i["night_steps"] = sorted(set(i.get("night_steps") or []) | {known[x].base for x in new})
+            run.save_info()
+        for x in new:
+            run.event(x, "step-added", by="add-step")
+        return self.out(EXIT_OK, f"added: {', '.join(new) or 'nothing, all were there'}", run)
+
+    def cmd_adopt(self, a):
+        """A step's work that began outside tools/rel, on the record: a process still running stays
+        untouched and this waits for it, then the proof it wrote is the result: no proof is a failure.
+        Holds no lane: the work did not ask for one."""
+        run = self.load_run()
+        s = run.step(a.step)
+        src = os.path.abspath(a.out)
+        os.makedirs(run.step_dir(s.id), exist_ok=True)
+        stage = os.path.join(run.step_dir(s.id), "out")
+        log = os.path.join(src, "trust.log" if os.path.isfile(os.path.join(src, "trust.log")) else "driver.log")
+        for link, to in ((stage, src), (os.path.join(run.step_dir(s.id), "log.txt"), log)):
+            if not os.path.lexists(link):
+                os.symlink(to, link)
+        started = os.path.getctime(src)
+        note = f"adopted: began outside tools/rel in {src}"
+        run.set_status(s.id, status="running", attempts=1, pid=a.pid or None, log=log, note=note,
+                       started=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)))
+        run.event(s.id, "adopted", out=src, pid=a.pid or None)
+        proof_path = os.path.join(src, "proof.json")
+        while not os.path.isfile(proof_path) and a.pid and os.path.exists(f"/proc/{a.pid}"):
+            time.sleep(10)
+        proof = read_json(proof_path)
+        dur = round(time.time() - started, 1)
+        result = {"pid": None, "ended": now_iso(), "duration_s": dur, "rc": 0, "note": note, "warned": None}
+        bad = sorted(k for k, v in ((proof or {}).get("checks") or {"proof.json": False}).items() if v is not True)
+        if bad:
+            fault = (proof or {}).get("fault") or {}
+            what = fault.get("step") or ("no proof.json" if proof is None else "checks not true")
+            result.update(rc=1, failed_checks=bad, cause=f"harness: {fault['step']}" if fault.get("step") else "step")
+            fail = repeats.failure(self.engine(run, relmsg_on=False), s, 1, result, dur, started, None)
+            if s.warn_only:
+                result.update(status="done", warned=True, note=f"WARNING, not blocking: {what}; {note}", failures=[fail])
+            else:
+                result.update(status="failed", note=f"{what}; {note}", failures=[fail])
+        else:
+            result["status"] = "done"
+        run.set_status(s.id, **result)
+        run.event(s.id, "adopted-end", status=result["status"], warned=result["warned"], rc=result["rc"], note=result["note"])
+        return self.out(EXIT_OK if not bad else EXIT_FAILED, f"{s.id}: {result['note']}", run)
+
     def cmd_gate(self, a):
         run = self.load_run()
         gates = [s for s in run.steps if s.kind == "gate"]
@@ -1389,6 +1455,14 @@ def parser():
             sp.add_argument("--exec", action="store_true")
         if name == "skip":
             sp.add_argument("--reason", required=True)
+    sp = sub.add_parser("add-step", help="steps of the current pipeline into a run planned before them; runs nothing")
+    sp.add_argument("step", nargs="+")
+    sp.add_argument("--run")
+    sp = sub.add_parser("adopt", help="a step's work that began outside tools/rel, on the record; waits for it to end")
+    sp.add_argument("step")
+    sp.add_argument("--out", required=True, help="its folder: proof.json and logs")
+    sp.add_argument("--pid", type=int, default=0, help="the process doing it; 0 when it has ended")
+    sp.add_argument("--run")
     sp = sub.add_parser("continue", help="a lane parked at a harness fault: reload the committed fix, go on from that action")
     sp.add_argument("step")
     sp.add_argument("--run")
@@ -1435,7 +1509,7 @@ def parser():
     sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
     sp.add_argument("base")
     sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
-    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "continue", "probe", "logs", "debug", "skip",
+    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "continue", "probe", "logs", "debug", "skip", "add-step", "adopt",
                  "stats", "runs", "cleanup", "walk"):
         sub.choices[name].add_argument("--night", action="store_true",
                                        help="the night stage: its steps and its runs (release/pipeline.toml [night])")

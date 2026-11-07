@@ -25,6 +25,10 @@
 # night    informs  lane-pairing-linux       needs testbuild-linux@variant
 # night    informs  lane-linking-linux       needs testbuild-linux@variant
 # night    informs  create-windows           needs flow-windows@variant
+# night    informs  trust-pair-linux
+# night    informs  trust-pair-linux-notor
+# night    informs  trust-pair-android
+# night    informs  trust-pair-windows
 # release  blocks   hosted-dispatch          needs source, source-check
 # release  blocks   build-android            needs source, source-check, hosted-dispatch; outputs bt-wallet-{version}{notor}-android-arm64-v8a.apk
 # release  blocks   build-play               needs build-android
@@ -544,6 +548,57 @@ remote = true
 run = "{rel}/tools/rellib/drivers/trust-windows.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_EXTRA = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+# The last two published releases, one updating to the other (tools/nightly/trust_pair.py): a driver
+# that drifted from the published builds shows here, before a candidate needs it. Warnings only: the
+# candidate's own update test is G4.
+[step.trust-pair-linux]
+title = "Update trust on the last two published, Linux (tor)"
+when = "night"
+platform = "linux"
+host = "build"
+lane = "trust-linux-tor"
+warn_only = true
+capped = true
+run = "python3 -I {rel}/tools/nightly/trust_pair.py linux tor"
+timeout = "50m"
+env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
+
+[step.trust-pair-linux-notor]
+title = "Update trust on the last two published, Linux (notor)"
+when = "night"
+platform = "linux"
+host = "build"
+lane = "trust-linux-tor"
+warn_only = true
+capped = true
+run = "python3 -I {rel}/tools/nightly/trust_pair.py linux notor"
+timeout = "50m"
+env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
+
+[step.trust-pair-android]
+title = "Update trust on the last two published, Android (tor)"
+when = "night"
+platform = "android"
+host = "build"
+lane = "trust-android-tor"
+warn_only = true
+capped = true
+run = "python3 -I {rel}/tools/nightly/trust_pair.py android tor"
+timeout = "60m"
+env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
+
+[step.trust-pair-windows]
+title = "Update trust on the last two published, Windows (tor)"
+when = "night"
+platform = "windows"
+host = "build"
+lane = "trust-windows-tor"
+warn_only = true
+remote = true
+run = "python3 -I {rel}/tools/nightly/trust_pair.py windows tor"
+timeout = "60m"
+env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
 
 [step.hosted-dispatch]
 title = "Hosted builds dispatch"

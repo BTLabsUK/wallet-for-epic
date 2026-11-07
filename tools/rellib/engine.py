@@ -362,6 +362,7 @@ class Engine:
         if result["status"] == "done":
             earlier = st.get("attempt_causes") or []
             # Passed after a failed attempt in this run (a warn_only failure is not a pass).
+            result["warned"] = result.get("warned") or None   # a pass clears an earlier attempt's warning
             result["flaky"] = True if earlier and not result.get("warned") else None
             result["failed_before"] = list(earlier) if result["flaky"] else None
             result["input_hash"] = self.input_hash(step)

@@ -193,7 +193,8 @@ class GraphTest(unittest.TestCase):
         self.assertEqual(PIPE.proof["funds_in"], "flow")
         s, steps = graph(stage="night")
         by = {x.id: x for x in steps}
-        self.assertFalse([x.id for x in steps if x.publish or x.base.startswith(("build-", "trust-", "apple-"))])
+        self.assertFalse([x.id for x in steps if x.publish or x.base.startswith(("build-", "apple-"))
+                          or (x.base.startswith("trust-") and not x.base.startswith("trust-pair-"))])
         for plat in ("android", "linux", "windows"):
             t, f = by[f"testbuild-{plat}-tor"], by[f"flow-{plat}-tor"]
             self.assertNotIn(f"testbuild-{plat}-notor", by)
