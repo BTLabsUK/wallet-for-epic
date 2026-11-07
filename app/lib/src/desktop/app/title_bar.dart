@@ -38,6 +38,7 @@ import 'close_guard.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_window.dart';
 import 'rail.dart';
+import 'routes.dart' show deskNoLock;
 import 'shell.dart' show deskKeys, lockWallet, deskLockingProvider;
 import 'status_popover.dart';
 
@@ -635,8 +636,8 @@ class _Brand extends ConsumerWidget {
     return _BarMenu(
       f10: true,
       children: (context, m) => [
-        _menuItem(context, key: const ValueKey('bar-menu-lock'), icon: EIcons.lock, label: l.deskBarLock, keys: deskKeys('L'), onPressed: locking ? null : () => lockWallet(ref)),
-        if (canSwitch) _menuItem(context, icon: EIcons.swap, label: l.deskShellSwitchWallet, onPressed: locking ? null : () => lockWallet(ref)),
+        if (!deskNoLock) _menuItem(context, key: const ValueKey('bar-menu-lock'), icon: EIcons.lock, label: l.deskBarLock, keys: deskKeys('L'), onPressed: locking ? null : () => lockWallet(ref)),
+        if (canSwitch && !deskNoLock) _menuItem(context, icon: EIcons.swap, label: l.deskShellSwitchWallet, onPressed: locking ? null : () => lockWallet(ref)),
         _menuDivider(c),
         _menuItem(context, icon: EIcons.keyboard, label: l.deskBarShortcuts, keys: '?', onPressed: () => showDeskShortcuts()), // l10n-ok: the key
         _menuItem(context, icon: EIcons.info, label: l.deskBarAbout(appName), onPressed: () => _go(ref, DeskRoute.settingsAbout)),
@@ -934,6 +935,7 @@ class _LockButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (deskNoLock) return const SizedBox.shrink();
     final l = context.l10n;
     final c = context.dc;
     if (ref.watch(deskLockingProvider)) {
