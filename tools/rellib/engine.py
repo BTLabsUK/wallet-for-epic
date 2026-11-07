@@ -20,7 +20,7 @@ from . import repeats
 from . import serverlogs
 from . import window as win
 from .load import LoadSampler
-from .run import SETTLED, now_iso, read_json, write_json
+from .run import SETTLED, Busy, now_iso, read_json, write_json
 
 # Exit codes (stable; agents read them).
 EXIT_OK, EXIT_WAITING, EXIT_FAILED, EXIT_PREFLIGHT, EXIT_DENIED, EXIT_USAGE, EXIT_BUSY = 0, 10, 20, 30, 40, 64, 75
@@ -820,6 +820,8 @@ class Engine:
         finally:
             self.tdb("run.end", state={EXIT_OK: "ok", EXIT_WAITING: "waiting"}.get(code, "failed"),
                      note="exit %s" % code)
+            for r in list(running.values()):
+                self.run.release_lane(r[1])
             if window:
                 window.close()
             self._window = None
@@ -846,9 +848,10 @@ class Engine:
             self._status_cache = (time.time(), text)
         return self.policy.external_suite(text)
 
-    def may_start(self, s, running, now):
-        """None when s may start now, else why it waits ([concurrency], tools/rellib/window.py)."""
-        why = self.policy.why_not(s, [r[2] for r in running.values()])
+    def may_start(self, s, running, now, elsewhere=()):
+        """None when s may start now, else why it waits ([concurrency], tools/rellib/window.py).
+        elsewhere: what other tools/rel processes run, which the cap and `apart` count too."""
+        why = self.policy.why_not(s, [r[2] for r in running.values()] + list(elsewhere))
         if why is None and self.policy.guards_external(s) and not self.dry:
             ext = self.external_suite()
             if ext:
@@ -861,7 +864,7 @@ class Engine:
     def _drive(self, steps, lanes_busy, running, stop, stop_on_fail, selected):
         while True:
             statuses = {s.id: self.run.status(s.id)["status"] for s in self.run.steps}
-            deferred_external = False
+            deferred_external = False  # something outside this drive holds a step: look again by the clock
             if not stop:
                 for s in steps:
                     if s.id in running or statuses[s.id] not in ("pending", "failed", "waiting", "held", "closed"):
@@ -875,14 +878,22 @@ class Engine:
                     if self.run.status(s.id).get("polled") == id(self):
                         continue  # a waiting step is asked once per drive
                     now = time.time()
-                    why = self.may_start(s, running, now)
+                    with self.run.short("admit"):
+                        elsewhere = self.run.elsewhere()
+                        why = self.may_start(s, running, now, elsewhere)
+                        if not why:
+                            try:
+                                self.run.claim_lane(s.lane, s.id)
+                            except Busy as e:
+                                why = str(e)
                     if why:
                         prev = self._deferred.get(s.id)
                         if not prev or prev[0] != why:
                             self._deferred[s.id] = (why, prev[1] if prev else now)
                             self.run.event(s.id, "deferred", reason=why)
                             self.echo(f"… {s.id}  waits: {why}")
-                        deferred_external = deferred_external or why.startswith("a full test suite")
+                        deferred_external = (deferred_external or why.startswith("a full test suite")
+                                             or bool(elsewhere) or why.startswith("another tools/rel"))
                         continue
                     waited = self._deferred.pop(s.id, (None, now))[1]
                     self.run.set_status(s.id, retry=False, waited_s=round(now - waited, 1) or None)
@@ -892,9 +903,11 @@ class Engine:
                     if self._window:
                         self._window.beat()
                     th.start()
+            if not deferred_external and not stop:
+                deferred_external = self.running_elsewhere(steps, statuses)
             if not running:
                 if deferred_external:
-                    time.sleep(self.policy.poll)  # only a suite outside the run holds it: look again
+                    time.sleep(self.policy.poll)  # only something outside this drive holds it: look again
                     continue
                 break
             try:
@@ -906,6 +919,7 @@ class Engine:
                 self._window.beat()
             th.join()
             lanes_busy.discard(lane)
+            self.run.release_lane(lane)
             if st["status"] == "waiting" or st["status"] in ("held", "closed"):
                 self.run.set_status(sid, polled=id(self))
             if st["status"] == "failed" and stop_on_fail:
@@ -914,6 +928,14 @@ class Engine:
             if self.run.status(s.id).get("polled"):
                 self.run.set_status(s.id, polled=None)
         return self.exit_code(selected)
+
+    def running_elsewhere(self, steps, statuses):
+        """One of these steps runs in another tools/rel: this drive stays for what comes after it."""
+        waiting = [s for s in steps if statuses[s.id] == "running"]
+        if not waiting:
+            return False
+        with self.run.short("admit"):
+            return any(self.run.lane_user(s.lane) == s.id for s in waiting)
 
     def repeat_stopped(self, step):
         """True when repeats.py refuses this failed step an automatic attempt. Only it stays behind."""

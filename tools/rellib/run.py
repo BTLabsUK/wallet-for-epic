@@ -14,6 +14,8 @@
 <state_root>/metrics.jsonl gathers every step's numbers across runs; published.json lists the
 published runs (the current release and the previous one, kept for rollback).
 """
+import contextlib
+import copy
 import datetime as dt
 import fcntl
 import json
@@ -58,6 +60,8 @@ class Run:
             raise FileNotFoundError(f"{path}: not a run folder (no run.json)")
         self.steps = [Step.from_dict(d) for d in read_json(os.path.join(path, "plan.json"), [])]
         self._lock = None
+        self._lanes = {}  # lane -> [open lock file, uses]
+        self._saved = copy.deepcopy(self.info)
 
     # ---- creation and lookup ----
 
@@ -121,7 +125,10 @@ class Run:
                     out.append((v, info["run_id"], os.path.join(vdir, d), info.get("created", "")))
         return sorted(out, key=lambda r: r[3])
 
-    # ---- locking: one tools/rel process per run ----
+    # ---- locking: one whole-run drive per run, one tools/rel per lane ----
+    # A lane is one rig (trust-windows-tor runs on the Windows rig, trust-linux-tor on this machine),
+    # so a retry, a probe or a start on one lane never waits for another lane. A process holds a
+    # lane while it runs a step there; [concurrency] still reads across processes (elsewhere()).
 
     def lock(self):
         f = open(os.path.join(self.path, ".lock"), "w")
@@ -136,6 +143,82 @@ class Run:
         if self._lock:
             self._lock.close()
             self._lock = None
+
+    @contextlib.contextmanager
+    def short(self, name):
+        """A lock held for a moment: run.json writes, and the check-and-claim of a lane."""
+        with open(os.path.join(self.path, f".{name}.lock"), "w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            yield
+
+    def _lane_path(self, lane):
+        return os.path.join(self.path, f".lane-{lane.replace('/', '-')}.lock")
+
+    def claim_lane(self, lane, step):
+        """Holds lane for this process (again if it already does) and says for which step, or Busy."""
+        held = self._lanes.get(lane)
+        if held:
+            held[1] += 1
+        else:
+            f = open(self._lane_path(lane), "a+")
+            try:
+                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                f.seek(0)
+                who = f.read().strip()
+                f.close()
+                raise Busy(f"another tools/rel is working on lane {lane}" + (f" ({who})" if who else ""))
+            held = self._lanes[lane] = [f, 1]
+        f = held[0]
+        f.seek(0)
+        f.truncate()
+        f.write(step)
+        f.flush()
+
+    def release_lane(self, lane):
+        held = self._lanes.get(lane)
+        if held:
+            held[1] -= 1
+            if held[1] <= 0:
+                held[0].close()
+                del self._lanes[lane]
+
+    def claim_lanes(self, steps):
+        """All the steps' lanes, or none of them and Busy."""
+        with self.short("admit"):
+            done = []
+            try:
+                for s in steps:
+                    self.claim_lane(s.lane, s.id)
+                    done.append(s.lane)
+            except Busy:
+                for lane in done:
+                    self.release_lane(lane)
+                raise
+
+    def release_lanes(self, steps):
+        for s in steps:
+            self.release_lane(s.lane)
+
+    def lane_user(self, lane):
+        """The step another process holds lane for, else None. Ask under short("admit")."""
+        if lane in self._lanes:
+            return None
+        try:
+            f = open(self._lane_path(lane))
+        except FileNotFoundError:
+            return None
+        with f:
+            try:
+                fcntl.flock(f, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return f.read().strip() or lane
+        return None
+
+    def elsewhere(self):
+        """The steps other tools/rel processes hold a lane for. Ask under short("admit")."""
+        users = {self.lane_user(lane) for lane in {s.lane for s in self.steps}}
+        return [s for s in self.steps if s.id in users]
 
     # ---- paths ----
 
@@ -172,7 +255,24 @@ class Run:
         return st
 
     def save_info(self):
-        write_json(os.path.join(self.path, "run.json"), self.info)
+        """What this process changed goes over what is on disk, key by key: a retry beside another
+        must not write back the other's run.json as it found it."""
+        path = os.path.join(self.path, "run.json")
+        with self.short("info"):
+            disk = read_json(path) or {}
+            for k in set(self.info) | set(self._saved):
+                if k == "tainted":
+                    ours = self.info.get(k) or []
+                    disk[k] = (disk.get(k) or []) + [t for t in ours if t not in (disk.get(k) or [])]
+                elif k not in self.info:
+                    disk.pop(k, None)
+                elif self.info[k] != self._saved.get(k):
+                    disk[k] = self.info[k]
+            write_json(path, disk)
+        for k in set(self.info) - set(disk):
+            del self.info[k]
+        self.info.update(disk)
+        self._saved = copy.deepcopy(disk)
 
     def event(self, step, event, **kw):
         line = {"ts": now_iso(), "t": round(time.time(), 3), "run": self.info["run_id"], "step": step, "event": event}

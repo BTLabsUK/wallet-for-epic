@@ -439,7 +439,11 @@ class App:
             from . import evidence
             manifest = evidence.read_manifest(run)
             stale = {sid for sid, _ in evidence.stale_proofs(eng, manifest)} if manifest else set()
+            with run.short("admit"):
+                elsewhere = {s.id for s in run.elsewhere()}
             for sid in sel:
+                if sid in elsewhere:
+                    continue  # another tools/rel runs it on its lane; the drive picks up what follows
                 st = run.status(sid)
                 s = run.step(sid)
                 if sid in stale:
@@ -581,12 +585,13 @@ class App:
         return self.drive(run, eng, phase="publish" if a.publish else "build", until=a.until, retry_failed=True,
                           stop_on_fail=a.stop_on_fail)
 
-    def cmd_run(self, a):
-        """One step, and nothing after it. Several steps run side by side across their lanes under one
-        lock; a need among them is waited for, a need outside them must be met and still hold (or
+    def cmd_run(self, a, run=None):
+        """One step, and nothing after it. Several steps run side by side across their lanes. It holds
+        their lanes, not the run: another lane's retry runs beside it (a publish step holds the run). A
+        need among them is waited for, a need outside them must be met and still hold (or
         --ignore-needs): a done need whose inputs changed counts as not met. A failed step stops
         only the steps that need it (--stop-on-fail: all of them); a publish step always stops."""
-        run = self.load_run()
+        run = run or self.load_run()
         sel = [run.step(x) for x in [a.step, *(getattr(a, "more", None) or [])]]
         ids = [s.id for s in sel]
         eng = self.engine(run, dry=bool(a.dry_run))
@@ -614,13 +619,17 @@ class App:
             if no:
                 run.event(s.id, "repeat-refused", rule=no["rule"], line=no["line"], manual=True)
                 return self.out(EXIT_DENIED, no["line"], run)
+        whole = any(s.publish for s in sel)
+        try:
+            if whole:
+                run.lock()
+            run.claim_lanes(sel)
+        except Busy as e:
+            run.unlock()
+            return self.out(EXIT_BUSY, str(e), run)
         for s in sel:
             if unmet_of[s.id]:
                 run.taint(f"{s.id} run with unmet needs: {', '.join(unmet_of[s.id])}")
-        try:
-            run.lock()
-        except Busy as e:
-            return self.out(EXIT_BUSY, str(e), run)
         try:
             saved = {s.id: s.needs for s in sel}
             for s in sel:
@@ -630,6 +639,7 @@ class App:
             for s in sel:
                 s.needs = saved[s.id]
         finally:
+            run.release_lanes(sel)
             run.unlock()
         return self.finish(run, eng, code)
 
@@ -664,18 +674,25 @@ class App:
         if no:
             run.event(s.id, "repeat-refused", rule=no["rule"], line=no["line"], manual=True)
             return self.out(EXIT_DENIED, no["line"], run)
-        if fresh:
-            run.set_status(s.id, fresh=fresh)
-            run.event(s.id, "fresh-forced", reason=fresh, attempt=st.get("attempts", 0) + 1)
-        run.set_status(s.id, status="pending", retry=False)
-        run.event(s.id, "retry-requested")
-        a.ignore_needs, a.dry_run, a.gated = False, False, True
-        a.step = s.id
-        return self.cmd_run(a)
+        try:
+            run.claim_lanes([s])
+        except Busy as e:
+            return self.out(EXIT_BUSY, str(e), run)
+        try:
+            if fresh:
+                run.set_status(s.id, fresh=fresh)
+                run.event(s.id, "fresh-forced", reason=fresh, attempt=st.get("attempts", 0) + 1)
+            run.set_status(s.id, status="pending", retry=False)
+            run.event(s.id, "retry-requested")
+            a.ignore_needs, a.dry_run, a.gated = False, False, True
+            a.step = s.id
+            return self.cmd_run(a, run)
+        finally:
+            run.release_lanes([s])
 
     def cmd_probe(self, a):
         """The failing step alone: the target lane by the shortest route to it, recorded in the run. It
-        takes no run lock, so it runs while other lanes do; a step on the target's lane holds it off."""
+        holds the target's lane, so it runs while other lanes do; a step on that lane holds it off."""
         run = self.load_run()
         s = run.step(a.target)
         if not repeats.gated(s):
@@ -697,7 +714,14 @@ class App:
                 fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
                 return self.out(EXIT_BUSY, f"another probe is running on {s.id}", run)
-            rec = eng.probe(s, fail)
+            try:
+                run.claim_lanes([s])
+            except Busy as e:
+                return self.out(EXIT_BUSY, str(e), run)
+            try:
+                rec = eng.probe(s, fail)
+            finally:
+                run.release_lanes([s])
         return self.out(EXIT_OK if rec["passed"] else EXIT_FAILED,
                         f"probe {rec['n']} of {rec['step']} on {rec['platform']}: {repeats.counts(rec)}", run, probe=rec)
 
