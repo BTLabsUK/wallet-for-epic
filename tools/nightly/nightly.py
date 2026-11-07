@@ -53,7 +53,7 @@ A run:
      (tools/lepic.sh xtask, report only): latest.json `drift` {status: clean|drift|unknown, lines},
      a `group: drift` step, and the summary line names the modules with upstream changes. Drift or an
      unreachable upstream never turns the nightly red or sends a DM;
-  7b. after a green source check, one fast G4 update-trust pass per platform (linux, android,
+  7b. after a green or red source check, one fast G4 update-trust pass per platform (linux, android,
      windows) on the LAST TWO PUBLISHED releases (no builds): previous = the one before the last in
      /tmp/epic-build/rel/published.json plus published-by-hand.json (hand releases), candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
      and Epicbox first, the commit's own drivers (tools/rellib/drivers/trust-<platform>.sh). The
@@ -68,8 +68,10 @@ A run:
   7b2. the Linux trust pass has a second, no-Tor leg (platform linux-notor: the -notor AppImages,
      REL_VARIANT=notor, REL_FUNDS=0, so it sends nothing) after the Tor leg; it is skipped when a
      release has no -notor build;
-  7e. after a green source check: LEPIC acceptance (`tools/lepic.sh smoke`, step group acceptance),
-     then `tools/rel start --night --commit <sha>` (the night lanes, run by the rel engine, which
+  7e. after a green or red source check (a red one is recorded and the night carries on, so one
+     night collects every bug): LEPIC acceptance (`tools/lepic.sh smoke`, step group acceptance),
+     then `tools/rel start --night --commit <sha>`, with --skip source-check after a red check, which
+     a cut refuses (the night lanes, run by the rel engine, which
      queues its own steps on build-slot; 3 h limit). rel writes /tmp/epic-build/nightly/lanes/<sha>.json
      ({lanes: {name: {class, status, note}}}), then `tools/rel cleanup --night` applies retention
      (a failure is only a `warning`); latest.json `lanes` holds it plus `status`. A failed
@@ -558,11 +560,14 @@ def dm_body(result, test=False):
                   for b, l in blocks_failed(result.get("lanes"))]
         tests = tests[:DM_ITEMS]
     else:
-        tests = []
+        # A red source check does not stop the lanes: what they found goes in the same DM.
+        tests = [_clip(f"lane {b}: {l.get('status')} {l.get('note') or ''}".strip(), DM_TEST_CHARS)
+                 for b, l in blocks_failed(result.get("lanes"))]
         for t in (result.get("failing_tests") or [])[:DM_ITEMS]:
             tag = flaky_tag(t)
             text = f"{t['file']}: {t['name']}" if t.get("file") else t["name"]
             tests.append(_clip(text, DM_TEST_CHARS - len(tag)) + tag)
+        tests = tests[:DM_ITEMS]
     if tests:
         body["tests"] = tests
     commits = [_clip(c, DM_COMMIT_CHARS)
@@ -845,11 +850,12 @@ def acceptance_step(acc):
 
 
 def run_night_lanes(sha, run_dir, env, by_hand, catchup, worktree=None, runner=None, busy=None,
-                    lanes_dir=None, now_local=None, timeout=None):
-    """After a green source check: `tools/rel start --night --commit <sha>` runs the night lanes in
+                    lanes_dir=None, now_local=None, timeout=None, source_red=False):
+    """After the source check: `tools/rel start --night --commit <sha>` runs the night lanes in
     the rel engine (its steps queue on build-slot themselves, so it is not wrapped in it) and writes
     LANES_DIR/<sha>.json. Returns {status: ok|red|skipped|unknown, reason, record: dict|None}.
-    A timer run starts it only before NIGHT_START_BY local time; it stops after NIGHT_TIMEOUT_S."""
+    A timer run starts it only before NIGHT_START_BY local time; it stops after NIGHT_TIMEOUT_S.
+    source_red: the check failed here, so rel skips its own source-check instead of repeating it."""
     worktree = Path(worktree or WORKTREE)
     rel = worktree / "tools" / "rel"
     try:
@@ -867,6 +873,8 @@ def run_night_lanes(sha, run_dir, env, by_hand, catchup, worktree=None, runner=N
     started = time.time()
     log_path = Path(run_dir) / "lanes.log"
     argv = [str(rel), "start", "--night", "--commit", sha]
+    if source_red:
+        argv += ["--skip", "source-check=red in the nightly's own check; the lanes still run"]
     # rel's steps queue on build-slot: the timer's 120 s slot wait would fail a lane on a busy machine.
     env = dict(env, BUILD_SLOT_WAIT=str(timeout or NIGHT_TIMEOUT_S))
     try:
@@ -1300,10 +1308,10 @@ def cmd_run(by_hand, pinned_sha=None):
     trust_steps = []
     lanes = None
     acc = None
-    if status == "green":
+    if status != "error":
         acc = run_acceptance(run_dir, side_env)
         trust_steps = run_trust(run_dir, side_env)
-        lanes = run_night_lanes(sha, run_dir, side_env, by_hand, catchup)
+        lanes = run_night_lanes(sha, run_dir, side_env, by_hand, catchup, source_red=status == "red")
         record = lanes["record"] or {"sha": sha, "lanes": {}}
         if acc["status"] != "skipped":
             record = dict(record, lanes=dict(record["lanes"], acceptance=acceptance_lane(

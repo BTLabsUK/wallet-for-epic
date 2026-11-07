@@ -732,6 +732,13 @@ class LanesTest(unittest.TestCase):
         self.assertNotIn("build-slot", argv)
         self.assertEqual((timeout, cwd), (nightly.NIGHT_TIMEOUT_S, str(self.wt)))
 
+    def test_after_a_red_source_check_rel_skips_its_own(self):
+        seen = []
+        out = self.go(self.fake({"sha": self.sha, "lanes": {"x": {"class": "blocks", "status": "ok"}}}, seen=seen), source_red=True)
+        self.assertEqual(out["status"], "ok")
+        argv = seen[0][0]
+        self.assertEqual(argv[argv.index("--skip") + 1].split("=")[0], "source-check")
+
     def test_the_lanes_env_has_a_long_slot_wait(self):
         got = []
         run = self.fake({"sha": self.sha, "lanes": {}})
@@ -796,6 +803,14 @@ class LanesTest(unittest.TestCase):
         import os
         os.utime(old, (1, 1))
         self.assertEqual(self.go(self.fake(None))["status"], "unknown")
+
+    def test_dm_for_red_source_names_the_lanes_too(self):
+        rec = {"status": "red", "sha": self.sha, "lanes": {"a": {"class": "blocks", "status": "fail", "note": "boom"}}}
+        result = dict(GREEN, sha=self.sha, status="red", failing_step="flutter test (all)", lanes=rec,
+                      failing_tests=[{"file": "t.dart", "name": "one"}])
+        body = nightly.dm_body(result)
+        self.assertEqual(body["key"], f"nightly-{self.sha[:8]}-red")
+        self.assertEqual(body["tests"], ["lane a: fail boom", "t.dart: one"])
 
     def test_dm_for_green_source_with_red_lanes(self):
         rec = {"status": "red", "sha": self.sha, "lanes": {"a": {"class": "blocks", "status": "fail", "note": "boom"}}}

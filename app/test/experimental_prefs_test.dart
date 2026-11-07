@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/backup_settings.dart';
 import 'package:epic_wallet/src/levels/level_features.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network_gate.dart';
+import 'package:epic_wallet/src/tor_build.dart' show torBuilt;
 import 'package:flutter_test/flutter_test.dart';
 
 /// The shapes 26.11.3 saved: the phone's `app.advanced_prefs`.
@@ -38,7 +39,8 @@ void main() {
 
   test('a saved invoices value is kept byte for byte on the phone, so an older build reads it back', () {
     for (final stored in _phoneShapes) {
-      expect(AdvancedPrefs.decode(stored).encode(), _sorted(stored), reason: stored);
+      // A build without Tor reads Tor only as standard, as it always has.
+      expect(AdvancedPrefs.decode(stored).encode(), torBuilt ? _sorted(stored) : _sorted(stored).replaceAll('torOnly', 'standard'), reason: stored);
     }
   });
 
@@ -68,7 +70,7 @@ void main() {
     expect(p.encode(), 'invoices,outputs|standard');
     expect(p.shownFeatures, {AdvancedFeature.outputs});
     expect(p.withoutShown().encode(), 'invoices|standard');
-    expect(p.withMode(NetworkMode.torOnly).encode(), 'invoices,outputs|torOnly');
+    expect(p.withMode(NetworkMode.torOnly).encode(), 'invoices,outputs|${torBuilt ? 'torOnly' : 'standard'}');
   });
 
   test('an old backup with the value restores cleanly: no question, and nothing about invoices changes', () {
