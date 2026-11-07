@@ -113,6 +113,7 @@ from . import lane_seed as ls  # noqa: E402
 from . import record  # noqa: E402
 from . import state as st  # noqa: E402
 from .recover import Recover, phrase_screen  # noqa: E402
+from .secret import readable  # noqa: E402
 from .faults import Diverged, Fault, HarnessFault, HarnessGone, InfraFault, ProductFault, RefusedStart, StepReached  # noqa: E402
 
 def fail_closed(platform, reason, req):
@@ -857,7 +858,8 @@ class Lane:
         screen = os.path.join(d, "screen.txt")
         with open(screen, "w", encoding="utf-8") as fh:
             if tree is not None and phrase_screen(tree):
-                fh.write("(a recovery phrase screen: not kept)\n")
+                fh.write("(may be a recovery phrase screen: what could hold a word is not kept)\n")
+                fh.write("\n".join(readable(tree)) + "\n")
             elif tree is not None:
                 fh.write("\n".join(n.brief() + (" value=%r" % n.value if "password" in n.states and n.value else "")
                                     for n in tree) + "\n")

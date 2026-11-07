@@ -585,6 +585,15 @@ class PhraseScreen(unittest.TestCase):
         pasted = [Node(i=0, role="text_field", name="Recovery phrase", value=" ".join(ws), states=frozenset())]
         self.assertTrue(phrase_screen(pasted))
 
+    def test_a_refused_page_keeps_what_cannot_hold_a_phrase(self):
+        from core.secret import readable
+        hint = " ".join(["word"] * 12)
+        page = [Node(0, "tab", "Advanced"), Node(1, "text", hint), Node(2, "text", "ghost lunar apple"), Node(3, "text", "3. ghost")]
+        self.assertTrue(phrase_screen(page))
+        lines = readable(page)
+        self.assertIn("'Advanced'", lines[0])
+        self.assertEqual(lines[1:], ["(text: not kept)"] * 3)
+
 
 if __name__ == "__main__":
     unittest.main()

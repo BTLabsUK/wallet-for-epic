@@ -530,6 +530,7 @@ class Desktop:
             hits = d.find_in(t, d.tree())
             if k >= len(hits):
                 continue
+            self.log("Settings › %s: pressing %s (one of %d)" % (t, hits[k].brief(), len(hits)))
             d._act(d.s.press, hits[k])
             self._settled()
             if d.wait(Expect("still in Settings", lambda dd, tree: self.in_settings(tree)), 4, dismiss=False):

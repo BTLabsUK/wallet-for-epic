@@ -32,3 +32,13 @@ def phrase_screen(tree):
         lone += bool(LONE_WORD.fullmatch(name))
         vals += bool(LONE_WORD.fullmatch(value))
     return cells >= 3 or lone >= 6 or vals >= 6
+
+
+def readable(tree):
+    """A screen the phrase test refused, as lines a fault can keep: a node with more than two short
+    lower-case words, or a word cell, goes by its role alone. One long hint in plain words is enough to
+    refuse a whole page."""
+    def plain(n):
+        text = " ".join([n.name or "", n.value or ""]).strip()
+        return len(re.findall(r"\b[a-z]{3,8}\b", text)) <= 2 and not WORD_CELL.fullmatch(text)
+    return [n.brief() if plain(n) else "(%s: not kept)" % n.role for n in tree]
