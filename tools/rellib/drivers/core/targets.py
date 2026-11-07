@@ -16,7 +16,8 @@ the text of its keys, then `names` (regex allowed with "re:"). Never tree order,
 
 Name matching is on whitespace-normalised, case-folded text: the whole name, or its first line
 (Flutter merges a row's title and value into one name: "Node server\\nnode.btlabs.uk"), or with
-`match="starts"` the start of the name, `match="contains"` anywhere in it.
+`match="starts"` the start of the name, `match="contains"` anywhere in it, `match="last"` its last
+line (a row with one button reads as one button, the button's label at the end).
 """
 import json
 import os
@@ -36,7 +37,7 @@ class Target:
     role: str = "button"
     keys: tuple = ()              # ARB keys, newest first
     names: tuple = ()             # literal names (regex allowed with "re:") for builds without the keys
-    match: str = "line"           # line | starts | contains | exact
+    match: str = "line"           # line | last | starts | contains | exact
     screen: str = ""
     secret: bool = False          # the screen holds a phrase, password or PIN: never kept as a shot or a dump
     family: tuple = ("desktop", "android")
@@ -90,6 +91,8 @@ def _fits(name, pat, match):
         return re.match(pat, full) is not None
     if match == "contains":
         return re.search(pat, full) is not None
+    if match == "last":
+        return re.fullmatch(pat, _norm((name or "").strip().rsplit("\n", 1)[-1])) is not None
     return re.fullmatch(pat, first) is not None or re.fullmatch(pat, full) is not None
 
 

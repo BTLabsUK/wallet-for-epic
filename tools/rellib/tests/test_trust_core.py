@@ -125,6 +125,12 @@ class CoreTest(unittest.TestCase):
         d.obstacles.append((SKIP, "the tour"))
         self.assertTrue(d.wait(shows(HOME), 1))
 
+    def test_last_line_of_a_merged_row(self):
+        row = "Lane A\nNo message\n23 h 48 min left\nYou pay\n0.01\xa0EPIC\nReview"
+        self.assertTrue(tg._fits(row, "review", "last"))
+        self.assertFalse(tg._fits(row, "review", "line"))
+        self.assertFalse(tg._fits("Review invoice", "review", "last"))
+
     def test_in_place_change_counts_as_the_press_taking(self):
         """A switch that only flips its checked state, or a stepper that only changes its value, is
         pressed once: the default wait sees the change instead of timing out and pressing again."""

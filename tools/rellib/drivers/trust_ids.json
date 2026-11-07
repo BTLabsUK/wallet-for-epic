@@ -147,7 +147,7 @@
 {"id": "inv.issue.sent", "screen": "inv", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["reqSent", "deskInvIssuerWaitingText"], "names": ["re:invoice sent to .*", "re:delivered to .*epicbox server.*"], "match": "contains"},
 {"id": "inv.issue.failed", "screen": "inv", "kind": "copy", "family": ["desktop"], "role": "other", "keys": ["deskInvFailed", "deskInvIssuerNotDelivered"], "match": "contains"},
 {"id": "inv.tab.pay", "screen": "inv", "family": ["desktop"], "role": "other", "keys": ["deskInvTabPay"], "names": ["Pay"]},
-{"id": "inv.pay.review", "screen": "inv", "family": ["desktop"], "keys": ["deskInvPayerReview"], "names": ["Review"]},
+{"id": "inv.pay.review", "screen": "inv", "family": ["desktop"], "keys": ["deskInvPayerReview"], "names": ["Review"], "match": "last"},
 {"id": "inv.pay.approve", "screen": "inv", "family": ["desktop"], "keys": ["invoiceApprove"], "names": ["Approve and pay"], "match": "exact"},
 {"id": "inv.pay.password", "screen": "inv", "family": ["desktop"], "role": "text_field", "keys": ["deskInvPayerPassword"], "names": ["Wallet password"], "match": "starts", "secret": true},
 {"id": "inv.pay.pay", "screen": "inv", "family": ["desktop"], "keys": ["deskInvPayerPay"], "names": ["Pay"], "match": "exact"},
