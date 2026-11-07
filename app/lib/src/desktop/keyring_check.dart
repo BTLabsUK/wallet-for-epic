@@ -2,13 +2,14 @@
 /// Linux: the Secret Service (gnome-keyring, KWallet) holds the app's settings and the wallet's
 /// sealed password. libsecret blocks the window's thread while it waits for a keyring that is
 /// missing or must first be made, so the window never showed (linux-01). Before the first
-/// read the app asks the service itself over D-Bus, in another process and with a time limit,
-/// and starts on [KeyringScreen] when there is no keyring to use.
+/// read the app asks the service itself over D-Bus, on a connection of its own and with a time
+/// limit, and starts on [KeyringScreen] when there is no keyring to use.
 library;
 
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dbus/dbus.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
@@ -24,50 +25,65 @@ enum KeyringProblem {
   locked,
 }
 
-/// Runs a command; the result's exit code and output. Tests give their own.
-typedef KeyringRunner = Future<ProcessResult> Function(String executable, List<String> arguments);
+/// Asks the Secret Service whether the default keyring is locked. Throws when there is no
+/// session bus, no Secret Service or no default keyring. Tests give their own.
+typedef KeyringRunner = Future<bool> Function();
 
-const _query = [
-  '--session',
-  '--print-reply=literal',
-  '--reply-timeout=3000',
-  '--dest=org.freedesktop.secrets',
-  '/org/freedesktop/secrets/aliases/default',
-  'org.freedesktop.DBus.Properties.Get',
-  'string:org.freedesktop.Secret.Collection',
-  'string:Locked',
-];
+const _service = 'org.freedesktop.Secret.Service';
+const _collection = 'org.freedesktop.Secret.Collection';
+
+/// The default keyring's `Locked` flag, over one connection to the session bus.
+///
+/// gnome-keyring registers a caller as a client from an idle callback queued by its message
+/// filter, and the method that serves the call can run before it (gnome-keyring 48.0,
+/// gkd-secret-service.c). A call that needs the client then fails an assertion, and a Get on a
+/// collection ends in a GLib abort that kills the daemon. It shows when two callers talk to
+/// the daemon at the same moment. So the first call is one that never needs the client (the
+/// service's `Collections`), and its reply is the signal that the client exists; the alias and
+/// the collection are asked after it. OpenSession first does not help: it needs the client too.
+Future<bool> _askSecretService() async {
+  final bus = DBusClient.session(introspectable: false);
+  try {
+    final service = DBusRemoteObject(
+      bus,
+      name: 'org.freedesktop.secrets',
+      path: DBusObjectPath('/org/freedesktop/secrets'),
+    );
+    await service.getProperty(_service, 'Collections');
+    final alias = await service.callMethod(
+      _service,
+      'ReadAlias',
+      [DBusString('default')],
+      replySignature: DBusSignature('o'),
+    );
+    final path = alias.returnValues.first.asObjectPath();
+    if (path.value == '/') throw StateError('no default keyring');
+    final collection = DBusRemoteObject(bus, name: 'org.freedesktop.secrets', path: path);
+    return (await collection.getProperty(_collection, 'Locked', signature: DBusSignature('b'))).asBoolean();
+  } finally {
+    // The daemon forgets its client for this connection when it closes.
+    unawaited(bus.close().catchError((_) {}));
+  }
+}
 
 /// What is wrong with the default keyring, or null when it can be used or this cannot be told
-/// (not Linux, no `dbus-send`): the app then starts as before.
+/// (not Linux): the app then starts as before.
 Future<KeyringProblem?> checkLinuxKeyring({
   KeyringRunner? run,
   Duration timeout = const Duration(seconds: 5),
   bool? linux,
 }) async {
   if (!(linux ?? Platform.isLinux)) return null;
-  final ProcessResult r;
   try {
-    r = await (run ?? Process.run)('dbus-send', _query).timeout(timeout);
+    final locked = await (run ?? _askSecretService)().timeout(timeout);
+    if (!locked) return null;
+    logWarn('desk', 'keyring locked');
+    return KeyringProblem.locked;
   } on TimeoutException {
     logWarn('desk', 'keyring: the Secret Service did not answer in time');
-    return KeyringProblem.missing;
-  } on ProcessException {
-    // No dbus-send here: nothing can be told, so libsecret is asked as before.
-    return null;
+  } catch (e) {
+    logWarn('desk', 'keyring missing: $e');
   }
-  final problem = keyringProblemOf(r.exitCode, '${r.stdout}');
-  if (problem != null) {
-    logWarn('desk', 'keyring ${problem.name}: ${'${r.stderr}${r.stdout}'.trim().split('\n').first}');
-  }
-  return problem;
-}
-
-/// `dbus-send`'s answer about the default keyring's `Locked` property.
-KeyringProblem? keyringProblemOf(int exitCode, String stdout) {
-  if (exitCode != 0) return KeyringProblem.missing;
-  if (stdout.contains('boolean true')) return KeyringProblem.locked;
-  if (stdout.contains('boolean false')) return null;
   return KeyringProblem.missing;
 }
 
