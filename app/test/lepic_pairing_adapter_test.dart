@@ -109,6 +109,9 @@ class _PairingWallet implements lepic.EpicWallet {
   /// What collects report in turn; past the end, nothing more.
   final List<({int capped, int timedOut})> collectEnds = [];
 
+  /// Mailboxes each collect reports stopped at a message held for later.
+  int collectKept = 0;
+
   final List<lepic.QuarantinedMessageView> quarantine = [];
   final List<String> discarded = [];
   int retries = 0;
@@ -140,7 +143,7 @@ class _PairingWallet implements lepic.EpicWallet {
     final end = collectEnds.isEmpty ? (capped: 0, timedOut: 0) : collectEnds.removeAt(0);
     return lepic.ContactCollectReport(
       capped: end.capped,
-      kept: 0,
+      kept: collectKept,
       refused: 0,
       timedOut: end.timedOut,
       notReached: 0,
@@ -326,6 +329,14 @@ void main() {
       wallet.collectEnds.addAll([(capped: 1, timedOut: 0), (capped: 0, timedOut: 0)]);
       await session.pairing.collect(trigger: PairingCollectTrigger.pull);
       expect(session.checks.value.outcome.messages, 2);
+    });
+
+    test('a message held in a mailbox shows on the check, once over the rounds', () async {
+      wallet
+        ..collectKept = 1
+        ..collectEnds.addAll([(capped: 1, timedOut: 0), (capped: 0, timedOut: 0)]);
+      await session.pairing.collect(trigger: PairingCollectTrigger.pull);
+      expect(session.checks.value.outcome.held, 1);
     });
 
     test('tries kept messages again on open only', () async {

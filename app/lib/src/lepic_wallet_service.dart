@@ -4350,6 +4350,7 @@ class _LepicPairing implements PairingApi {
     outcomeOf: (r) => CheckOutcome(
       messages: r.messages,
       failed: r.failed,
+      held: r.held,
       dropped: r.lost,
       buffered: r.buffered,
       capped: r.capped,
@@ -4357,7 +4358,7 @@ class _LepicPairing implements PairingApi {
     ),
   ).then((r) => r.paired);
 
-  Future<({int paired, int messages, int failed, int lost, int buffered, int capped, int unreadable})> _collectCounted(
+  Future<({int paired, int messages, int failed, int held, int lost, int buffered, int capped, int unreadable})> _collectCounted(
     PairingCollectTrigger trigger, {
     List<String>? only,
   }) async {
@@ -4419,6 +4420,8 @@ class _LepicPairing implements PairingApi {
       paired: paired + ended,
       messages: messages,
       failed: failed,
+      // A message held stops its mailbox, and the same one stops it on a second look.
+      held: report.kept,
       lost: lost,
       buffered: buffered,
       capped: report.capped,
