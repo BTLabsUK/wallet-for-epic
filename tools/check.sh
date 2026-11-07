@@ -8,7 +8,7 @@
 #                            changed; the smaller release-tool tests (the nightly, sbom, test order,
 #                            check-workflow, tools/t, the incremental publisher, the screens
 #                            feedback service) only when tools/ changed; tools/rel's own suite
-#                            (tools/rellib/tests, 743 tests) only when a file it runs or reads
+#                            (tools/rellib/tests) only when a file it runs or reads
 #                            changed: tools/rel, tools/env.sh, tools/rellib/, tools/signer/,
 #                            tools/releases/, tools/release-files.py, tools/publish-update-json.sh,
 #                            tools/push-github.sh, release/, app/assets/config/app-config.toml.
@@ -19,7 +19,6 @@
 #                            (tools/rellib/green.py; tools/t full ran both passes, with and
 #                            without Tor), which G2 reuses for that content; without one G2 runs
 #                            first in the release run.
-#                            Between releases nobody else runs --full.
 #   tools/check.sh --list    print the mode, the rule and the tests the fast mode would run; run
 #                            nothing.
 # Which Flutter tests the fast mode runs is tools/t's selection (tools/tlib/select.py,
