@@ -605,13 +605,13 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           : 'Most problems are a node still syncing, a recipient who has not answered yet, or a busy port.',
       [
         if (phone)
-          const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or tap the node icon on the Wallet tab and choose another node.')
+          const HelpBlock.p('**"Node syncing" or "Cannot reach the network right now."** Sending needs a node that answers and has caught up. Press **Retry** on Send, wait a little, or tap the node icon on the Wallet tab and choose another node.')
         else
           const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or choose another node under [[Settings › Node]].'),
         if (phone)
-          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox icon on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
+          const HelpBlock.p('**"Epicbox not connected".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox icon on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
         else
-          HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under $payPlace. Meanwhile Direct · File Transfer works.'),
+          HelpBlock.p('**"Epicbox server not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under $payPlace. Meanwhile Direct · File Transfer works.'),
         const HelpBlock.p('**A send says "Waiting for recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the payment in Activity to unlock the coins.'),
         if (phone)
           const HelpBlock.p('**A payment has not arrived.** Check the status icons on the Wallet tab: the node synced, Epicbox connected. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then it waits for its confirmations.')
