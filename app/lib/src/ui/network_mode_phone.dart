@@ -17,7 +17,6 @@ import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
 import 'network_mode_text.dart';
-import '../levels/level_providers.dart' show levelFeaturesProvider;
 import '../help/help_content.dart' show HelpId;
 import 'help/network_modes_diagram.dart';
 import 'help_screen.dart' show openHelp;
@@ -264,14 +263,9 @@ class NetworkModesSheet extends StatelessWidget {
   }
 }
 
-/// Opens Settings › Network & privacy at the Network section. Where the level has no such page
-/// (level 1, whose Advanced page holds only the level row), Advanced, as before.
-Future<void> openNetworkSection(BuildContext context) {
-  final shown = ProviderScope.containerOf(context, listen: false).read(levelFeaturesProvider).serverSettings;
-  return shown
-      ? openSettingsSection(context, SettingsSection.privacyNetwork, toNetwork: true)
-      : openSettingsSection(context, SettingsSection.advanced);
-}
+/// Opens Settings › Network & privacy at the Network section.
+Future<void> openNetworkSection(BuildContext context) =>
+    openSettingsSection(context, SettingsSection.privacyNetwork, toNetwork: true);
 
 /// The mode mark: a small neutral pill (the mode's glyph and name, no state dot: a mode is a
 /// choice, not a service) at the start of Home's status strip, shown only off Normal. A tap

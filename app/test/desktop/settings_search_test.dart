@@ -76,9 +76,9 @@ void main() {
   }, skip: _withTor);
 
   test('hidden by the view or a switch: listed apart, with what shows them', () {
-    // Shallow: Payments and Network & privacy are Deeper's.
+    // Shallow: Payments is Deeper's; Network & privacy shows at every view.
     final r = find('tor', view: shallow);
-    expect(r.shown, isEmpty);
+    expect(ids(r.shown), allOf(contains(SetId.netMode), isNot(contains(SetId.torPay))));
     final pay = r.hidden.firstWhere((h) => h.entry.id == SetId.torPay);
     expect(pay.reasons, ['Deeper view']);
     expect(pay.level, 2);

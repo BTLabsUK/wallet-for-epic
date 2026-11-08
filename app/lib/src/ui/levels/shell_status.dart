@@ -16,6 +16,7 @@ import '../../levels/level_features.dart' show LevelFeatures;
 import '../../levels/level_features.dart' as lv show StatusIcon;
 import '../../levels/level_providers.dart';
 import '../../levels/relay_switch_providers.dart';
+import '../../levels/wallet_level.dart';
 import '../../providers.dart';
 import '../../trust_ids.dart';
 import '../network_status.dart' show nodeBehind;
@@ -31,9 +32,9 @@ const Key shellEpicboxIconKey = ValueKey('shell-status-epicbox');
 const Key shellBarNetworkIconKey = ValueKey('shell-bar-status-network');
 const Key shellBarEpicboxIconKey = ValueKey('shell-bar-status-epicbox');
 
-/// Whether the quiet shell's statuses show: the level hides the server settings, so a status
-/// opens its explore sheet rather than a server list.
-bool shellStatusesShown(LevelFeatures f) => !f.serverSettings;
+/// Whether the quiet shell's statuses show: level 1, where a status opens its explore sheet
+/// rather than a server list.
+bool shellStatusesShown(LevelFeatures f) => f.level == WalletLevel.justSendReceive;
 
 /// The node's state in plain words, with its dot.
 ({StatusDot dot, String word}) shellNetworkFace(BuildContext context, WidgetRef ref) {

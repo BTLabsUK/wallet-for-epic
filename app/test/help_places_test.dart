@@ -112,10 +112,10 @@ void main() {
 
     test('phone: a place the View hides is no link', () {
       LevelFeatures at(WalletLevel level) => LevelFeatures.of(level, AdvancedPrefs.none, torBuilt: true);
-      for (final place in ['Settings › Network & privacy › Node', 'Settings › Transactions', 'Outputs']) {
+      for (final place in ['Settings › Transactions', 'Outputs']) {
         expect(helpPlaceGoes(place, features: at(WalletLevel.justSendReceive)), isFalse, reason: place);
       }
-      expect(helpPlaceGoes('Settings › Network & privacy › Node', features: at(WalletLevel.casual)), isTrue);
+      expect(helpPlaceGoes('Settings › Network & privacy › Node', features: at(WalletLevel.justSendReceive)), isTrue);
       expect(helpPlaceGoes('Settings › This wallet › Recheck balance', features: at(WalletLevel.justSendReceive)), isTrue);
     });
 

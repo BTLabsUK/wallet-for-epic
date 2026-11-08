@@ -150,7 +150,7 @@ class LevelFeatures {
       methodStrip: !one,
       statusIcons: one ? const {StatusIcon.network, StatusIcon.epicbox} : StatusIcon.values.toSet(),
       serverNames: !one,
-      serverSettings: !one,
+      serverSettings: true,
       transactionsSettings: !one,
       advancedPage: one ? AdvancedPageKind.changeLevelOnly : AdvancedPageKind.full,
       pairingListener: true,
@@ -211,7 +211,7 @@ class LevelFeatures {
   /// Host names are shown anywhere.
   final bool serverNames;
 
-  /// Settings › Privacy & network (node, Epicbox, Tor, modes, kill switch).
+  /// Settings › Network & privacy (node, Epicbox, failover, modes, status site): every level.
   final bool serverSettings;
 
   /// Settings › Transactions (method switches, default method, confirmations).

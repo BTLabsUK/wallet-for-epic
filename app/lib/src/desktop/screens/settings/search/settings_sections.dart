@@ -130,7 +130,7 @@ const List<SetSection> settingsSections = [
   SetSection(DeskRoute.settingsDevices, SetNav.wallet, EIcons.devices),
   SetSection(DeskRoute.settingsAppearance, SetNav.app, EIcons.palette),
   SetSection(DeskRoute.settingsNode, SetNav.app, EIcons.node, gate: SetGate(minLevel: 2)),
-  SetSection(DeskRoute.settingsPrivacy, SetNav.app, EIcons.network, gate: SetGate(minLevel: 2)),
+  SetSection(DeskRoute.settingsPrivacy, SetNav.app, EIcons.network),
   SetSection(DeskRoute.settingsAdvanced, SetNav.app, EIcons.tune),
   SetSection(DeskRoute.settingsWallets, SetNav.computer, EIcons.coins, gate: SetGate(minLevel: 2)),
   SetSection(DeskRoute.settingsFiles, SetNav.computer, EIcons.folderOpen, gate: SetGate(minLevel: 2)),
