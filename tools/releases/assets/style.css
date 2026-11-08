@@ -330,6 +330,15 @@ h3 { margin: 0; font-family: var(--display); font-size: 19px; font-weight: 650; 
 .r-get .btn small { font-size: 12px; }
 .alt { font-size: 12.5px; color: var(--dim); }
 .alt:hover { color: var(--text); }
+/* app stores: the store's icon and name in the page's own type; a link once the listing is live */
+.store-line { display: inline-flex; align-items: center; gap: 8px; margin: 4px 0 0; }
+.store { display: inline-flex; align-items: center; gap: 9px; min-height: 40px; padding: 5px 13px 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--card-2); color: var(--text); text-decoration: none; line-height: 1.15; }
+.store svg { width: 20px; height: 20px; flex: none; }
+.st-l { display: block; font-size: 10px; font-weight: 500; letter-spacing: .03em; color: var(--mute); }
+.st-n { display: block; font-size: 14px; font-weight: 650; letter-spacing: -.01em; }
+a.store:hover { border-color: var(--mute); }
+[data-look="b"] .store { border-radius: 4px; }
+[data-look="c"] .store { border-radius: 999px; }
 .r-folds { display: flex; flex-wrap: wrap; gap: 0 22px; padding: 0 22px 6px 82px; }
 .r-folds .fold { flex: 0 0 auto; border: 0; }
 .r-folds .fold[open] { flex-basis: 100%; }
@@ -338,6 +347,7 @@ h3 { margin: 0; font-family: var(--display); font-size: 19px; font-weight: 650; 
   .r-get { grid-column: 1 / -1; align-items: stretch; }
   .r-get .btn { width: 100%; }
   .alt { text-align: center; }
+  .store-line { justify-content: center; }
   .r-folds { padding: 0 16px 6px; }
 }
 

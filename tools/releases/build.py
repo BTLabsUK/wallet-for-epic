@@ -98,10 +98,20 @@ PLATFORMS = [
     ('linux', 'Linux', 'Desktop', 'x86_64, AppImage', False),
     ('android', 'Android', 'Mobile', 'Android 7 or newer, arm64', False),
     ('macos', 'macOS', 'Desktop', 'macOS 12 or newer, Apple silicon', True),
-    ('ios', 'iOS', 'Mobile', 'iPhone and iPad, iOS 15 or newer, sideloaded', True),
+    ('ios', 'iOS', 'Mobile', 'iPhone and iPad, iOS 15 or newer', True),
 ]
 APP = 'BT Wallet'
 PLAT = {p[0]: p for p in PLATFORMS}
+
+# The app stores, on their platform's row: (the line above the store's name, its name, its icon,
+# the listing's URL). Without a URL the badge is plain text marked Coming soon; with one it links.
+STORES = {
+    'android': ('Get it on', 'Google Play', '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.609 1.814 13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893 2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198 2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658 16.802 8.99l-2.303 2.303-8.635-8.635z"/></svg>', None),
+    'ios': ('Download on the', 'App Store', None, None),
+}
+# Platforms the page offers only through their store: their files stay recorded (and on the
+# server while keep says so) but the page shows no download, version, size or install steps.
+STORE_ONLY = {'ios'}
 
 # A release mirrored on GitHub gets a Mirror link when its record says "github": true
 # (build.py add --github): the BTLabsUK Release, which tools/rel adds when release.toml
@@ -351,6 +361,18 @@ def notor_of(g):
     return None
 
 
+def store_line(key):
+    """The platform's app store badge, if it has a store."""
+    if key not in STORES:
+        return ''
+    lead, name, icon, url = STORES[key]
+    inner = (f'{icon or ICONS["macos"]}<span class="st-t"><span class="st-l">{esc(lead)}</span>'
+             f'<span class="st-n">{esc(name)}</span></span>')
+    if url:
+        return f'<p class="store-line"><a class="store" href="{esc(url)}">{inner}</a></p>'
+    return f'<p class="store-line"><span class="store">{inner}</span><span class="pill">Coming soon</span></p>'
+
+
 def platform_row(key, g, latest):
     """One platform: name and requirement, the primary download with its size, the version without
     Tor beside it, then two folds: the install guide (Before you install) and every file with its
@@ -366,7 +388,7 @@ def platform_row(key, g, latest):
     out = [f'<li class="row" data-plat="{key}" id="dl-{key}"{" data-preview" if preview else ""}'
            + (f' data-version="{esc(p["version"])}" data-date="{p["date"]}" data-when="{human_date(p["date"])}"' if own else '') + '>',
            f'<div class="r-main"><span class="ico">{icon}</span><div class="r-name"><h3>{esc(heading)}'
-           + (' <span class="pill">Preview</span>' if preview else '') + '</h3>'
+           + (' <span class="pill">Preview</span>' if preview and p else '') + '</h3>'
            f'<p class="req">{esc(req)}</p>'
            + (f'<p class="req r-ver">Version <span translate="no">{esc(p["version"])}</span> · '
               f'<time datetime="{p["date"]}">{human_date(p["date"])}</time></p>' if p else '')
@@ -377,16 +399,21 @@ def platform_row(key, g, latest):
                    f'<span>Download<span class="vh"> {APP} for {esc(heading)}</span>'
                    f'<small>{esc(p["label"])} · {esc(p["version"])} · {mb(p["size"])}&nbsp;MB</small></span></a>'
                    + (f'<a class="alt" href="downloads/{esc(nt["name"])}" download>Without Tor · {esc(nt["version"])} · {mb(nt["size"])}&nbsp;MB</a>' if nt else '')
-                   + '</div>')
-    out.append('</div><div class="r-folds">')
+                   + store_line(key) + '</div>')
+    elif key in STORES:
+        out.append(f'<div class="r-get">{store_line(key)}</div>')
+    out.append('</div>')
+    folds = []
     if key in BEFORE and p:
         text, cmd = BEFORE[key]
-        out.append(f'<details class="fold" data-before="{key}" id="before-{key}"><summary>Install guide</summary>'
+        folds.append(f'<details class="fold" data-before="{key}" id="before-{key}"><summary>Install guide</summary>'
                    f'<div class="bt">{text.format(file=esc(p["name"]), **mac_bundle(p["name"]))}</div></details>')
     if g['files']:
-        out.append(f'<details class="fold files"><summary>Files and checksums<span class="cnt">{len(g["files"])}</span></summary>'
+        folds.append(f'<details class="fold files"><summary>Files and checksums<span class="cnt">{len(g["files"])}</span></summary>'
                    '<ul class="fl-list">' + ''.join(file_row(e) for e in g['files']) + '</ul></details>')
-    out.append('</div></li>')
+    if folds:
+        out.append('<div class="r-folds">' + '\n'.join(folds) + '</div>')
+    out.append('</li>')
     return '\n'.join(out)
 
 
@@ -426,12 +453,11 @@ def verify(g, latest):
     late = [e for gg in g.values() for e in gg['files'] if e.get('unlisted')]
     late_note = ('<p>' + ' and '.join(f'<span translate="no">{esc(e["name"])}</span>' for e in late)
                  + ' came after SHA256SUMS was signed and are not in it: compare them with the SHA-256 under '
-                 'Files and checksums.</p>') if late else ''
+                 'Files and checksums.</p>\n    ') if late else ''
     return f'''<details class="fold verify-fold" id="verify"><summary>Verify a download</summary>
   <div class="bt">
     <p>Every file's SHA-256 is under Files and checksums; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Compare it with the file's own:</p>
-    {late_note}
-    {''.join(cmds)}
+    {late_note}{''.join(cmds)}
     {sig_check(latest)}
   </div>
 </details>'''
@@ -499,7 +525,8 @@ def notes(latest, log):
 
 
 def phones(g):
-    """Short install steps for the phones: no store, so the APK and the IPA."""
+    """Short install steps for the phones that have a download: the APK (and the IPA while iOS is
+    not store-only)."""
     cards = []
     if 'android' in g and g['android']['primary']:
         cards.append(f'''<div class="step-card"><h3><span class="ico sm">{ICONS['android']}</span>Android</h3>
@@ -593,8 +620,11 @@ def render(out_dir):
     assert rels, 'no release recorded: run add first'
     latest = rels[0]
     g = group(rels)
-    plat_names = [PLAT[k][1] for k in g if k in PLAT and not PLAT[k][4]]
-    previews = [PLAT[k][1] for k in g if k in PLAT and PLAT[k][4]]
+    for k in STORE_ONLY:
+        g[k] = {'primary': None, 'files': []}
+    g = {k: g[k] for k in [p[0] for p in PLATFORMS] + ['other'] if k in g}
+    plat_names = [PLAT[k][1] for k in g if k in PLAT and g[k]['primary'] and not PLAT[k][4]]
+    previews = [PLAT[k][1] for k in g if k in PLAT and g[k]['primary'] and PLAT[k][4]]
     plat_line = ', '.join(plat_names) + ('; ' + ' and '.join(previews) + ' preview' if previews else '')
     sizes = [e['size'] for gg in g.values() if gg['primary'] for e in [gg['primary']]]
 
