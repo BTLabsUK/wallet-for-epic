@@ -51,7 +51,7 @@ List<HelpTopic> _en(bool phone) {
           '**A server down delays notices.** With two servers, every notice goes to both, and the second carries it.',
           '**A third app on the same recovery phrase is not supported.** It hears nothing of the link; its payments show once the chain confirms them.',
         ]),
-        const HelpBlock.p('Notices go through the first one or two servers of the Epicbox list, shown under the device. One other device can be linked: remove it to link a different one. **Pause sync** stops the notices for a while.'),
+        const HelpBlock.p('Notices go through the first one or two servers of the Epicbox list, shown under the device. One other device can be linked: remove it to link a different one. **Pause sync** stops the notices; while paused, they wait on the servers for up to 7 days.'),
       ],
       devices: true,
       id: HelpId.linkedDevices,

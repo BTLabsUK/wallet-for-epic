@@ -8,7 +8,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Flutter 3.47.5](https://img.shields.io/badge/flutter-3.47.5-02569B.svg)](scripts/linux/flutter.version)
-[![Version 26.10](https://img.shields.io/badge/version-26.10-informational.svg)](app/pubspec.yaml)
+[![Version 26.11](https://img.shields.io/badge/version-26.11-informational.svg)](app/pubspec.yaml)
 
 [Download](https://epiccash.btlabs.uk/releases/) · [Wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki) ·
 [Build](#build-from-source) · [Documentation](https://docs.btlabs.uk) ·
@@ -26,7 +26,7 @@ engine that runs inside the app's process; the app calls it through its Flutter 
 wallets, scans the chain through an Epic node, and sends and receives with the standard
 `epic-wallet`.
 
-> **Status: released.** See the release notes for known issues. Released as calendar versions (26.10.x) for Android, Linux and
+> **Status: released.** See the release notes for known issues. Released as calendar versions (26.11.x) for Android, Linux and
 > Windows. The macOS build (Apple silicon) and the iOS build are a preview.
 
 ## Download
@@ -56,8 +56,8 @@ are in the [wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki).
 - **Its own node or a public one:** the desktop can run the Epic node it bundles; both apps can use a
   node of your own on your network, with failover between public nodes.
 - **Contacts and linked devices:** the same wallet on a phone and a computer, linked so each knows
-  what the other is paying. Pairing is on for everyone; invoices (requests from a paired shop or
-  exchange) are an experimental switch, off by default, in Settings › Advanced.
+  what the other is paying. Pairing is on for everyone; a paired contact can send invoices when its
+  Allow invoices switch is on.
 - **Moving in from older wallets:** import the seed and transaction history of the Epic Cash GUI
   wallet and `epic-wallet`, checked against a chain scan.
 - **Six languages:** English, German, Polish, Russian, Chinese and Thai, with help in each.
@@ -151,7 +151,7 @@ tools/check.sh --full          # everything: the whole suite, the integration te
 tools/testbin.sh get linux|apk # the shared debug bundle or APK of HEAD, built once per commit
 ```
 
-Test runs on this host take their Linux bundle and APK from `tools/testbin.sh`, never from a build
+Test runs take their Linux bundle and APK from `tools/testbin.sh`, never from a build
 of their own ([docs/dev-tooling.md](docs/dev-tooling.md)).
 
 Tests that need the network (`app/test/*_live_test.dart`) skip themselves unless their

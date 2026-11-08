@@ -11,7 +11,7 @@
   "@deskSetAdvOutputs": {
     "description": "Advanced switch: the Outputs page in the sidebar."
   },
-  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.",
+  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.",
   "@deskSetAdvOutputsHint": {
     "description": "Hover card of the Outputs switch."
   },
@@ -27,7 +27,7 @@
   "@deskSetAdvSendOptions": {
     "description": "Advanced switch: the Advanced fold on Send."
   },
-  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.",
+  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults are under Settings › Payments.",
   "@deskSetAdvSendOptionsHint": {
     "description": "Hover card of the Send options switch."
   },
@@ -51,7 +51,7 @@
   "@deskSetAdvBuiltInNode": {
     "description": "Advanced switch: the node on this computer."
   },
-  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.",
+  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain needs several gigabytes of disk and must sync first. A node that is running keeps its rows.",
   "@deskSetAdvBuiltInNodeHint": {
     "description": "Hover card of the Built-in node switch."
   },
