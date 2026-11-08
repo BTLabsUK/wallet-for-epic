@@ -4479,7 +4479,6 @@
   "advModeConfirmTitle": "Przełączyć na „{mode}”?",
   "advModeConfirmBody": "{count, plural, one{1 płatność czeka na odbiorcę przez Epicbox lub Link. Zostaje wstrzymana i wznawia się po wyjściu z trybu „{mode}”. Nic nie jest anulowane.} few{{count} płatności czekają na odbiorcę przez Epicbox lub Link. Zostają wstrzymane i wznawiają się po wyjściu z trybu „{mode}”. Nic nie jest anulowane.} many{{count} płatności czeka na odbiorcę przez Epicbox lub Link. Zostają wstrzymane i wznawiają się po wyjściu z trybu „{mode}”. Nic nie jest anulowane.} other{{count} płatności czeka na odbiorcę przez Epicbox lub Link. Zostają wstrzymane i wznawiają się po wyjściu z trybu „{mode}”. Nic nie jest anulowane.}}",
   "advModeConfirmSwitch": "Przełącz",
-  "netMarkSemantics": "Tryb sieci: {mode}. Otwiera sekcję Sieć.",
   "netMarkSemanticsDesk": "Tryb sieci: {mode}. Pokazuje, co robi.",
   "netMarkLineTorOnly": "Każde połączenie idzie przez Tor.",
   "netMarkLineTorWaiting": "Oczekiwanie na Tor. Nic się nie łączy, dopóki nie jest gotowy.",

@@ -4479,7 +4479,6 @@
   "advModeConfirmTitle": "Zu „{mode}“ wechseln?",
   "advModeConfirmBody": "{count, plural, one{1 Zahlung wartet über Epicbox oder Link auf den Empfänger. Sie pausiert und läuft weiter, wenn Sie „{mode}“ verlassen. Nichts wird abgebrochen.} other{{count} Zahlungen warten über Epicbox oder Link auf den Empfänger. Sie pausieren und laufen weiter, wenn Sie „{mode}“ verlassen. Nichts wird abgebrochen.}}",
   "advModeConfirmSwitch": "Wechseln",
-  "netMarkSemantics": "Netzwerkmodus: {mode}. Öffnet den Bereich Netzwerk.",
   "netMarkSemanticsDesk": "Netzwerkmodus: {mode}. Zeigt, was er bewirkt.",
   "netMarkLineTorOnly": "Jede Verbindung läuft über Tor.",
   "netMarkLineTorWaiting": "Wartet auf Tor. Nichts verbindet sich, bis es bereit ist.",

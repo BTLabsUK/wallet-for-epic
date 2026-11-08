@@ -4479,7 +4479,6 @@
   "advModeConfirmTitle": "切换到“{mode}”？",
   "advModeConfirmBody": "{count, plural, other{有 {count} 笔付款正通过 Epicbox 或链接等待接收方。离开“{mode}”后它们会暂停并继续。不会取消任何内容。}}",
   "advModeConfirmSwitch": "切换",
-  "netMarkSemantics": "网络模式：{mode}。打开“网络”部分。",
   "netMarkSemanticsDesk": "网络模式：{mode}。显示它的作用。",
   "netMarkLineTorOnly": "所有连接都经过 Tor。",
   "netMarkLineTorWaiting": "正在等待 Tor。就绪之前什么都不会连接。",

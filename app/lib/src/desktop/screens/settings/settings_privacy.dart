@@ -10,6 +10,7 @@ import '../../../ui/network_mode_text.dart';
 import '../../../ui/help/network_modes_diagram.dart';
 import '../../../help/help_content.dart' show HelpId;
 import 'help_pairing.dart' show HelpAt;
+import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
@@ -18,15 +19,18 @@ import 'prefs.dart';
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show confirmNetworkModeSwitch;
+import 'settings_node.dart' show NodeServerPicker, NodeFailoverRow;
+import 'settings_receiving.dart' show EpicboxServerPicker;
 import '../../../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyShot { torOn, torStarting, torFailed }
 
 /// Settings › Network & privacy (B-03): how the wallet reaches the network, on one page in the
-/// phone's order (Deeper and up). Connection mode (Tor only is the one whole-wallet Tor
-/// control; Link · Tor in Payments is Tor for payments alone), then Server status. Node
-/// failover is on the Node page.
+/// phone's order. Connection mode (Tor only is the one whole-wallet Tor control; Link · Tor in
+/// Payments is Tor for payments alone), then Server status. Node failover is on the Node page;
+/// at Shallow, where the Node and Payments pages are hidden, the servers come first
+/// ([ServersGroup]).
 class SettingsPrivacyScreen extends ConsumerWidget {
   const SettingsPrivacyScreen({super.key, this.arg});
 
@@ -40,6 +44,7 @@ class SettingsPrivacyScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ESetGroup owns the gap between groups.
+          if (ref.watch(deskLevelUiProvider).shallow) const ServersGroup(),
           const JumpSection(section: SettingsJump.network, child: NetworkModeGroup()),
           const PrivacyGroup(),
         ],
@@ -95,6 +100,35 @@ class PrivacyGroup extends ConsumerWidget {
             onChanged: (v) => n.saveSettings(s.copyWith(useStatusSite: v)),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Servers at Shallow, as the phone's page: the Epicbox and Node pickers of the Payments and
+/// Node pages, and Node failover. Each picker shows nothing until its list loads.
+class ServersGroup extends StatelessWidget {
+  const ServersGroup({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return ESetGroup(
+      key: const ValueKey('privacy-servers-shallow'),
+      title: l.netPageServers,
+      rows: [
+        ESetRow(
+          anchor: SetId.epicboxServer,
+          title: l.deskSetRecvEpicboxServer,
+          hint: l.deskSetRecvEpicboxServerHint,
+          stacked: true,
+          control: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ConstrainedBox(constraints: BoxConstraints(maxWidth: Ctl.narrow), child: const EpicboxServerPicker()),
+          ),
+        ),
+        const NodeServerPicker(),
+        const NodeFailoverRow(),
       ],
     );
   }

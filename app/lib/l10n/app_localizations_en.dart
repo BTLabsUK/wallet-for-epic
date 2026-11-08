@@ -17538,11 +17538,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advModeConfirmSwitch => 'Switch';
 
   @override
-  String netMarkSemantics(String mode) {
-    return 'Network mode: $mode. Opens the Network section.';
-  }
-
-  @override
   String netMarkSemanticsDesk(String mode) {
     return 'Network mode: $mode. Shows what it does.';
   }

@@ -5,15 +5,14 @@
 /// ([StatusIcon]); the tooltip reads "Network · OK", and a tap opens the connections sheet
 /// (`home_status.dart`), whose rows open the icons' explore sheets (`status_sheets.dart`)
 /// instead of a server list, which level 1 does not show. An Epicbox relay offer
-/// ([relaySwitchProvider]) turns the Epicbox mark amber. Off Normal, the network mode's mark
-/// ([NetworkModeMark]) stands before them under the figure, as at the other levels: Node only
-/// and Kill switch stop payments, and the mark says which and opens the setting.
+/// ([relaySwitchProvider]) turns the Epicbox mark amber. Off Normal, the connections sheet
+/// names the network mode on a line under its title, with a Change link to the setting: Node
+/// only and Kill switch stop payments, and the icons' words say which.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../advanced.dart' show NetworkMode;
 import '../../l10n.dart';
 import '../../levels/level_features.dart' show LevelFeatures;
 import '../../levels/level_features.dart' as lv show StatusIcon;
@@ -21,9 +20,7 @@ import '../../levels/level_providers.dart';
 import '../../levels/relay_switch_providers.dart';
 import '../../levels/wallet_level.dart';
 import '../../providers.dart';
-import '../../settings.dart' show networkModeProvider;
 import '../../trust_ids.dart';
-import '../network_mode_phone.dart' show NetworkModeMark;
 import '../network_status.dart' show nodeBehind;
 import '../status.dart';
 import '../status_icons.dart';
@@ -74,8 +71,8 @@ bool shellStatusesShown(LevelFeatures f) => f.level == WalletLevel.justSendRecei
   };
 }
 
-/// Network and Epicbox side by side, after the mode's mark off Normal: under Wallet's figure,
-/// or with [bar] in Send's and Receive's balance header (its own keys, no mark).
+/// Network and Epicbox side by side: under Wallet's figure, or with [bar] in Send's and
+/// Receive's balance header (its own keys).
 class ShellStatusIcons extends ConsumerWidget {
   const ShellStatusIcons({super.key, this.bar = false});
 
@@ -105,12 +102,9 @@ class ShellStatusIcons extends ConsumerWidget {
       );
     }
 
-    final mode = ref.watch(networkModeProvider);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // The mark belongs to Home's strip; the compact header keeps its room for the figure.
-        if (mode != NetworkMode.standard && !bar) const NetworkModeMark(),
         if (shown.contains(lv.StatusIcon.network))
           icon(bar ? shellBarNetworkIconKey : shellNetworkIconKey, EpicGlyphs.node, l.settingsAboutNetwork, net, () => showConnectionsSheet(context), pulse: syncing),
         if (shown.contains(lv.StatusIcon.epicbox))

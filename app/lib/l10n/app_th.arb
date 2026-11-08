@@ -4479,7 +4479,6 @@
   "advModeConfirmTitle": "สลับไปที่ {mode} ไหม",
   "advModeConfirmBody": "{count, plural, other{มี {count} รายการรอผู้รับผ่าน Epicbox หรือลิงก์ รายการเหล่านั้นจะหยุดชั่วคราวและดำเนินต่อเมื่อคุณออกจาก {mode} ไม่มีอะไรถูกยกเลิก}}",
   "advModeConfirmSwitch": "สลับ",
-  "netMarkSemantics": "โหมดเครือข่าย: {mode} เปิดส่วนเครือข่าย",
   "netMarkSemanticsDesk": "โหมดเครือข่าย: {mode} แสดงว่ามันทำอะไร",
   "netMarkLineTorOnly": "ทุกการเชื่อมต่อผ่าน Tor",
   "netMarkLineTorWaiting": "รอ Tor จนกว่าจะพร้อมจะไม่มีอะไรเชื่อมต่อ",

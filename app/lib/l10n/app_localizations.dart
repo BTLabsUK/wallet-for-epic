@@ -27042,12 +27042,6 @@ abstract class AppLocalizations {
   /// **'Switch'**
   String get advModeConfirmSwitch;
 
-  /// Screen reader label of the mode mark on Home (phone).
-  ///
-  /// In en, this message translates to:
-  /// **'Network mode: {mode}. Opens the Network section.'**
-  String netMarkSemantics(String mode);
-
   /// Screen reader label of the mode mark in the title bar (desktop).
   ///
   /// In en, this message translates to:
@@ -27078,7 +27072,7 @@ abstract class AppLocalizations {
   /// **'Nothing connects. Balance and history are as last known.'**
   String get netMarkLineKillSwitch;
 
-  /// Button in the mode mark popover that opens Settings › Advanced › Network.
+  /// Link on the desktop mode mark's popover and on the phone connections sheet's mode line that opens Settings › Network & privacy › Network.
   ///
   /// In en, this message translates to:
   /// **'Change'**
@@ -27450,7 +27444,7 @@ abstract class AppLocalizations {
   /// **'{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
   String deskFinNotPostedKillBody(String amount);
 
-  /// Row in the connections sheet naming the network mode.
+  /// Line under the connections sheet's title naming the network mode (phone).
   ///
   /// In en, this message translates to:
   /// **'Network mode: {mode}'**

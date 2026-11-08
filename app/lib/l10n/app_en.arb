@@ -23601,16 +23601,6 @@
   "@advModeConfirmSwitch": {
     "description": "Confirm button of that confirmation."
   },
-  "netMarkSemantics": "Network mode: {mode}. Opens the Network section.",
-  "@netMarkSemantics": {
-    "description": "Screen reader label of the mode mark on Home (phone).",
-    "placeholders": {
-      "mode": {
-        "type": "String",
-        "example": "Node only"
-      }
-    }
-  },
   "netMarkSemanticsDesk": "Network mode: {mode}. Shows what it does.",
   "@netMarkSemanticsDesk": {
     "description": "Screen reader label of the mode mark in the title bar (desktop).",
@@ -23639,7 +23629,7 @@
   },
   "netMarkChange": "Change",
   "@netMarkChange": {
-    "description": "Button in the mode mark popover that opens Settings › Advanced › Network."
+    "description": "Link on the desktop mode mark's popover and on the phone connections sheet's mode line that opens Settings › Network & privacy › Network."
   },
   "statusOffByMode": "Off ({mode})",
   "@statusOffByMode": {
@@ -23953,7 +23943,7 @@
   },
   "netMarkRowLabel": "Network mode: {mode}",
   "@netMarkRowLabel": {
-    "description": "Row in the connections sheet naming the network mode.",
+    "description": "Line under the connections sheet's title naming the network mode (phone).",
     "placeholders": {
       "mode": {
         "type": "String",

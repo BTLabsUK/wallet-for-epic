@@ -18194,11 +18194,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get advModeConfirmSwitch => 'Переключить';
 
   @override
-  String netMarkSemantics(String mode) {
-    return 'Режим сети: $mode. Открывает раздел «Сеть».';
-  }
-
-  @override
   String netMarkSemanticsDesk(String mode) {
     return 'Режим сети: $mode. Показывает, что он делает.';
   }

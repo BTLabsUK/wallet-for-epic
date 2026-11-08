@@ -133,21 +133,12 @@ class SettingsNodeScreen extends ConsumerStatefulWidget {
   ConsumerState<SettingsNodeScreen> createState() => _SettingsNodeScreenState();
 }
 
-class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
+class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> with _NodePicker<SettingsNodeScreen> {
   final _panel = GlobalKey<ServerListPanelState>();
-  bool _saving = false;
-  /// The node being switched to while [_saving] (its answer is checked first); null for the
-  /// local node.
-  String? _target;
-  String? _error;
-  // The page asks every listed node while it is on screen ([DeskController.showNodes]).
-  late final DeskController _desk;
 
   @override
   void initState() {
     super.initState();
-    _desk = ref.read(deskProvider.notifier);
-    _desk.showNodes(true);
     final arg = widget.arg;
     if (arg == NodeShot.builtin || arg == NodeShot.peers) {
       Future.microtask(() {
@@ -169,12 +160,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   }
 
   bool _pickFailedShown = false;
-
-  @override
-  void dispose() {
-    _desk.showNodes(false);
-    super.dispose();
-  }
 
   /// The tour's card states, through the mock node layer; any other start puts the mock's
   /// answer back (the shots run one after another).
@@ -253,6 +238,157 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     NodeShot.picked => ServerPanelShot(pick: shippedHostSettings.nodeServers.elementAtOrNull(1)?.url ?? shippedHostSettings.nodeUse),
     _ => null,
   };
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final st = ref.watch(deskProvider);
+    final prefs = ref.watch(settingsPrefsProvider);
+    if (st.nodes == null || st.status == null) {
+      return const SettingsFrame(route: DeskRoute.settingsNode, child: SettingsLoading());
+    }
+    final p = ref.read(settingsPrefsProvider.notifier);
+    final m = _nodePick(downShot: widget.arg == NodeShot.down, panelKey: _panel, openInitially: widget.arg == NodeShot.comboOpen, shot: _panelShot)!;
+    final (current, chosenUrl, own, switching, view) = (m.current, m.chosenUrl, m.own, m.switching, m.view);
+    final down = view.state == EState.risk && !prefs.builtin && !own;
+    // The Switch action's target: the healthy listed node with the lowest latency.
+    SwitchTarget? best;
+    if (down) {
+      for (final r in serverRows(m.listed, released: m.released)) {
+        if (r.state == EState.ok && r.value != current.url) {
+          best = SwitchTarget(host: r.host, url: r.value);
+          break;
+        }
+      }
+    }
+
+    return SettingsFrame(
+      route: DeskRoute.settingsNode,
+      // The same cap as the other sections (UD-011); only the local or own node's panel
+      // (facts, tiles, charts and peers table) takes a big screen's width.
+      width: prefs.builtin || own ? SettingsWidth.wide : SettingsWidth.form,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          JumpSection(
+            section: SettingsJump.node,
+            // The gap below the group stays outside the tour's target, so its ring ends at the box.
+            child: Padding(
+              padding: EdgeInsets.only(bottom: Sp.x8),
+              child: TourTarget(
+              id: 'node-server',
+              child: ESetGroup(
+              gap: false,
+              title: l.deskSetNodeConnection,
+              rows: [
+                m.row,
+                const NodeFailoverRow(),
+                // A listed https node the user also runs: marked as theirs, it is asked directly.
+                if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
+                  ESetRow(
+                    anchor: SetId.myNode,
+                    title: l.deskOwnMine,
+                    hint: l.deskOwnMineHint(statusSiteHost),
+                    hintHelp: localNodeHelp(ref),
+                    control: ESwitch(
+                      value: m.mine,
+                      semanticLabel: l.deskOwnMine,
+                      onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
+                    ),
+                  ),
+              ],
+            ),
+            ),
+            ),
+          ),
+          // What the node says of itself: its card, or the panel of the user's own node or of
+          // the node on this computer.
+          if (!(switching != null && !prefs.builtin && !own))
+            ESetGroup(
+              key: const ValueKey('node-status'),
+              title: l.deskSetNodeStatus,
+              rows: [
+                if (own)
+                  OwnNodePanel(
+                    key: ValueKey('own-$chosenUrl'),
+                    url: chosenUrl,
+                    health: m.nodeHealth,
+                    initialTab: widget.arg == NodeShot.ownPeers ? LocalTab.peers : LocalTab.status,
+                    openAccess: widget.arg == NodeShot.ownDialog,
+                  ),
+                // While switching, the old node's status would read as the new one's.
+                if (!prefs.builtin && !own && switching == null)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
+                    child: NodeCard(
+                      url: current.url,
+                      info: m.info,
+                      health: m.nodeHealth,
+                      torOn: m.torOn,
+                      switchTo: best,
+                      onSwitch: (t) => _useRemote(t.url),
+                    ),
+                  ),
+                if (prefs.builtin) SetAnchor(id: SetId.localNode, child: LocalNodePanel(initialTab: widget.arg == NodeShot.peers ? LocalTab.peers : LocalTab.status)),
+                if (prefs.builtin && DeskFeatures.nodeBackground)
+                  ESetRow(
+                    title: l.deskSetNodeBackground,
+                    hint: l.deskSetNodeBackgroundHint,
+                    hintHelp: localNodeHelp(ref),
+                    control: ESwitch(
+                      value: prefs.nodeBackground,
+                      semanticLabel: l.deskSetNodeBackground,
+                      onChanged: (v) => p.set(prefs.copyWith(nodeBackground: v)),
+                    ),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What the node picker shows and the Node page builds on: the node in use, the chosen one
+/// while failover stands in, the switch under way and the state of the field.
+typedef _NodePick = ({
+  NodeServer current,
+  String chosenUrl,
+  bool mine,
+  bool own,
+  NodeSwitch? switching,
+  NodeInfo? info,
+  bool torOn,
+  String? released,
+  List<NodeServer> listed,
+  ServiceHealth nodeHealth,
+  NodeView view,
+  Widget row,
+});
+
+/// The node picker's pick, test and switch, shared by Settings › Node and the Shallow
+/// Network & privacy page ([NodeServerPicker]). While on screen it asks every listed node
+/// ([DeskController.showNodes]).
+mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
+  bool _saving = false;
+  /// The node being switched to while [_saving] (its answer is checked first); null for the
+  /// local node.
+  String? _target;
+  String? _error;
+  late final DeskController _desk;
+
+  @override
+  void initState() {
+    super.initState();
+    _desk = ref.read(deskProvider.notifier);
+    _desk.showNodes(true);
+  }
+
+  @override
+  void dispose() {
+    _desk.showNodes(false);
+    super.dispose();
+  }
 
   Future<void> _pick(String value) async {
     final l = context.l10n;
@@ -348,17 +484,16 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     setState(() => _saving = false);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  /// The picker's state and its row (Node server), worked out in build; null while the node
+  /// list or the status loads. [downShot] is the tour's down node, whose mock wallet still
+  /// reaches its node.
+  _NodePick? _nodePick({bool downShot = false, Key? panelKey, bool openInitially = false, ServerPanelShot? shot}) {
     final l = context.l10n;
     final st = ref.watch(deskProvider);
     final prefs = ref.watch(settingsPrefsProvider);
     final nodes = st.nodes;
     final status = st.status;
-    if (nodes == null || status == null) {
-      return const SettingsFrame(route: DeskRoute.settingsNode, child: SettingsLoading());
-    }
-    final p = ref.read(settingsPrefsProvider.notifier);
+    if (nodes == null || status == null) return null;
     final current = prefs.typedNode ?? status.node;
     final value = prefs.builtin ? builtinNode : current.url;
     // Node failover stands in for the chosen node this session: the field says which.
@@ -391,9 +526,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final list = ref.watch(deskServerListProvider(ServerKind.node));
     final listed = list == null ? all : [for (final n in all) if (list.has(ServerKind.node, n.url)) n];
 
-    // The word and state of the head: the same the rail shows. The down shot's mock wallet
-    // still reaches its node, which would keep it Synced.
-    final nodeHealth = widget.arg == NodeShot.down ? ServiceHealth.down : status.nodeHealth;
+    // The word and state of the head: the same the rail shows.
+    final nodeHealth = downShot ? ServiceHealth.down : status.nodeHealth;
     // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
     // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin
@@ -401,159 +535,102 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         : own
         ? ownNodeView(context.l10n, chosenUrl, chosenInfo, health: nodeHealth, standIn: ref.watch(deskFailoverProvider), mine: mine)
         : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);
-    final down = view.state == EState.risk && !prefs.builtin && !own;
-    // The Switch action's target: the healthy listed node with the lowest latency.
-    SwitchTarget? best;
-    if (down) {
-      for (final r in serverRows(listed, released: released)) {
-        if (r.state == EState.ok && r.value != current.url) {
-          best = SwitchTarget(host: r.host, url: r.value);
-          break;
-        }
-      }
-    }
+    return (
+      current: current,
+      chosenUrl: chosenUrl,
+      mine: mine,
+      own: own,
+      switching: switching,
+      info: info,
+      torOn: torOn,
+      released: released,
+      listed: listed,
+      nodeHealth: nodeHealth,
+      view: view,
+      row: ESetRow(
+        anchor: SetId.nodeServer,
+        title: l.deskSetNodeServer,
+        hint: l.deskSetNodeServerHint,
+        stacked: true,
+        // The picker keeps a form's width; the panel under it takes the page's.
+        control: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: Ctl.narrow),
+          child: ServerListPanel(
+          key: panelKey,
+          kind: ServerKind.node,
+          label: l.deskSetNodeServer,
+          value: value,
+          fieldText: switching != null
+              ? (switching.url == null ? l.deskSetNodeLocalNode : hostOf(switching.url!))
+              : prefs.builtin
+              ? l.deskSetNodeLocalNode
+              : hostOf(current.url),
+          fieldSub: prefs.builtin
+              ? localNodeRowText(l, local)
+              : stopping
+              ? nodeSwitchText(l, moving!)
+              : failover != null
+              ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
+              : (prefs.nodeLabels[current.url] ?? current.operator),
+          tone: stateTone(view.state),
+          state: switching != null ? EState.active : view.state,
+          servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
+            final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
+            return c.own ? ownLabel(l, c, url) : null;
+          }),
+          source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
+          // Advanced › Built-in node; the node in use stays listed.
+          local: (ref.watch(deskLevelUiProvider).builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+          listNote: nodeListNoteText(l),
+          busy: switching != null,
+          busyLabel: switching == null ? null : nodeSwitchText(l, switching),
+          error: _error,
+          openInitially: openInitially,
+          shot: shot,
+          onChoose: _pick,
+          onTest: _test,
+        ),
+        ),
+        ),
+      ),
+    );
+  }
+}
 
-    return SettingsFrame(
-      route: DeskRoute.settingsNode,
-      // The same cap as the other sections (UD-011); only the local or own node's panel
-      // (facts, tiles, charts and peers table) takes a big screen's width.
-      width: prefs.builtin || own ? SettingsWidth.wide : SettingsWidth.form,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          JumpSection(
-            section: SettingsJump.node,
-            // The gap below the group stays outside the tour's target, so its ring ends at the box.
-            child: Padding(
-              padding: EdgeInsets.only(bottom: Sp.x8),
-              child: TourTarget(
-              id: 'node-server',
-              child: ESetGroup(
-              gap: false,
-              title: l.deskSetNodeConnection,
-              rows: [
-                ESetRow(
-                  anchor: SetId.nodeServer,
-                  title: l.deskSetNodeServer,
-                  hint: l.deskSetNodeServerHint,
-                  stacked: true,
-                  // The picker keeps a form's width; the panel under it takes the page's.
-                  control: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: Ctl.narrow),
-                    child: ServerListPanel(
-                    key: _panel,
-                    kind: ServerKind.node,
-                    label: l.deskSetNodeServer,
-                    value: value,
-                    fieldText: switching != null
-                        ? (switching.url == null ? l.deskSetNodeLocalNode : hostOf(switching.url!))
-                        : prefs.builtin
-                        ? l.deskSetNodeLocalNode
-                        : hostOf(current.url),
-                    fieldSub: prefs.builtin
-                        ? localNodeRowText(l, local)
-                        : stopping
-                        ? nodeSwitchText(l, moving!)
-                        : failover != null
-                        ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
-                        : (prefs.nodeLabels[current.url] ?? current.operator),
-                    tone: stateTone(view.state),
-                    state: switching != null ? EState.active : view.state,
-                    servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
-                      final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
-                      return c.own ? ownLabel(l, c, url) : null;
-                    }),
-                    source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
-                    // Advanced › Built-in node; the node in use stays listed.
-                    local: (ref.watch(deskLevelUiProvider).builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
-                    listNote: nodeListNoteText(l),
-                    busy: switching != null,
-                    busyLabel: switching == null ? null : nodeSwitchText(l, switching),
-                    error: _error,
-                    openInitially: widget.arg == NodeShot.comboOpen,
-                    shot: _panelShot,
-                    onChoose: _pick,
-                    onTest: _test,
-                  ),
-                  ),
-                  ),
-                ),
-                // On by default: the one switch here that keeps the simple app working.
-                ESetRow(
-                  key: const ValueKey('adv-nodeFailover'),
-                  anchor: SetId.failover,
-                  title: l.deskSetNodeFailover,
-                  hint: l.deskSetAdvNodeFailoverHint,
-                  hintTitle: l.deskSetNodeFailover,
-                  control: ESwitch(
-                    value: st.settings.advanced.nodeFailover,
-                    semanticLabel: l.deskSetNodeFailover,
-                    onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(st.settings.copyWith(advanced: st.settings.advanced.withNodeFailover(v))),
-                  ),
-                ),
-                // A listed https node the user also runs: marked as theirs, it is asked directly.
-                if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
-                  ESetRow(
-                    anchor: SetId.myNode,
-                    title: l.deskOwnMine,
-                    hint: l.deskOwnMineHint(statusSiteHost),
-                    hintHelp: localNodeHelp(ref),
-                    control: ESwitch(
-                      value: mine,
-                      semanticLabel: l.deskOwnMine,
-                      onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
-                    ),
-                  ),
-              ],
-            ),
-            ),
-            ),
-          ),
-          // What the node says of itself: its card, or the panel of the user's own node or of
-          // the node on this computer.
-          if (!(switching != null && !prefs.builtin && !own))
-            ESetGroup(
-              key: const ValueKey('node-status'),
-              title: l.deskSetNodeStatus,
-              rows: [
-                if (own)
-                  OwnNodePanel(
-                    key: ValueKey('own-$chosenUrl'),
-                    url: chosenUrl,
-                    health: nodeHealth,
-                    initialTab: widget.arg == NodeShot.ownPeers ? LocalTab.peers : LocalTab.status,
-                    openAccess: widget.arg == NodeShot.ownDialog,
-                  ),
-                // While switching, the old node's status would read as the new one's.
-                if (!prefs.builtin && !own && switching == null)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
-                    child: NodeCard(
-                      url: current.url,
-                      info: info,
-                      health: nodeHealth,
-                      torOn: torOn,
-                      switchTo: best,
-                      onSwitch: (t) => _useRemote(t.url),
-                    ),
-                  ),
-                if (prefs.builtin) SetAnchor(id: SetId.localNode, child: LocalNodePanel(initialTab: widget.arg == NodeShot.peers ? LocalTab.peers : LocalTab.status)),
-                if (prefs.builtin && DeskFeatures.nodeBackground)
-                  ESetRow(
-                    title: l.deskSetNodeBackground,
-                    hint: l.deskSetNodeBackgroundHint,
-                    hintHelp: localNodeHelp(ref),
-                    control: ESwitch(
-                      value: prefs.nodeBackground,
-                      semanticLabel: l.deskSetNodeBackground,
-                      onChanged: (v) => p.set(prefs.copyWith(nodeBackground: v)),
-                    ),
-                  ),
-              ],
-            ),
-        ],
+/// Settings › Node's server picker alone (the Node server row): the Shallow Network & privacy
+/// page's. Nothing while the node list or the status loads.
+class NodeServerPicker extends ConsumerStatefulWidget {
+  const NodeServerPicker({super.key});
+
+  @override
+  ConsumerState<NodeServerPicker> createState() => _NodeServerPickerState();
+}
+
+class _NodeServerPickerState extends ConsumerState<NodeServerPicker> with _NodePicker<NodeServerPicker> {
+  @override
+  Widget build(BuildContext context) => _nodePick()?.row ?? const SizedBox.shrink();
+}
+
+/// Node failover: on by default, the one switch that keeps the simple app working.
+class NodeFailoverRow extends ConsumerWidget {
+  const NodeFailoverRow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = ref.watch(deskProvider.select((s) => s.settings));
+    return ESetRow(
+      key: const ValueKey('adv-nodeFailover'),
+      anchor: SetId.failover,
+      title: l.deskSetNodeFailover,
+      hint: l.deskSetAdvNodeFailoverHint,
+      hintTitle: l.deskSetNodeFailover,
+      control: ESwitch(
+        value: s.advanced.nodeFailover,
+        semanticLabel: l.deskSetNodeFailover,
+        onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withNodeFailover(v))),
       ),
     );
   }

@@ -17118,11 +17118,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get advModeConfirmSwitch => 'สลับ';
 
   @override
-  String netMarkSemantics(String mode) {
-    return 'โหมดเครือข่าย: $mode เปิดส่วนเครือข่าย';
-  }
-
-  @override
   String netMarkSemanticsDesk(String mode) {
     return 'โหมดเครือข่าย: $mode แสดงว่ามันทำอะไร';
   }

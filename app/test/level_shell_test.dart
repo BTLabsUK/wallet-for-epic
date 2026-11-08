@@ -20,7 +20,7 @@ import 'package:epic_wallet/src/ui/levels/quiet_invoices.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey, connectionsSheetKey;
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
 import 'package:epic_wallet/src/ui/levels/status_sheets.dart';
-import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeMarkKey;
+import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeChangeKey, networkModeMarkKey, networkSectionKey;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
@@ -165,18 +165,34 @@ void main() {
     expect(tester.getSize(find.byType(HomeContactsEntry)).height, greaterThanOrEqualTo(48));
   });
 
-  testWidgets('level 1: Normal shows no mode mark', (tester) async {
+  testWidgets('level 1: Normal shows no mode line on Home or in the connections sheet', (tester) async {
     await _pump(tester, level: '1');
+    expect(find.byKey(networkModeMarkKey), findsNothing);
+    await tester.tap(find.byKey(shellNetworkIconKey));
+    await tester.pumpAndSettle();
+    expect(find.byKey(connectionsSheetKey), findsOneWidget);
     expect(find.byKey(networkModeMarkKey), findsNothing);
   });
 
   for (final mode in [NetworkMode.nodeOnly, NetworkMode.killSwitch]) {
-    testWidgets('level 1: ${mode.name} puts the mode mark before the icons, under the figure', (tester) async {
+    testWidgets('level 1: ${mode.name} names the mode in the connections sheet, nothing on Home; Change opens the setting', (tester) async {
       await _pump(tester, level: '1', mode: mode);
-      expect(find.byKey(networkModeMarkKey), findsOneWidget);
-      final mark = tester.getRect(find.byKey(networkModeMarkKey));
-      expect(mark.top, greaterThan(tester.getRect(find.byType(AppBar)).bottom));
-      expect(mark.right, lessThanOrEqualTo(tester.getTopLeft(find.byKey(shellNetworkIconKey)).dx));
+      // Home keeps its two icons alone: the mode is named where they lead.
+      expect(find.byKey(networkModeMarkKey), findsNothing);
+      await tester.tap(find.byKey(shellNetworkIconKey));
+      await tester.pumpAndSettle();
+      final line = find.descendant(of: find.byKey(connectionsSheetKey), matching: find.byKey(networkModeMarkKey));
+      expect(line, findsOneWidget);
+      final name = mode == NetworkMode.nodeOnly ? _l.advModeNodeOnly : _l.advModeKillSwitch;
+      expect(find.descendant(of: line, matching: find.text(_l.netMarkRowLabel(name))), findsOneWidget);
+      // Under the title, before the first service row.
+      // The Shallow sheet's first row: "Network · <state>".
+      final firstRow = find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining('${_l.settingsAboutNetwork} · ')).first;
+      expect(tester.getRect(line).bottom, lessThanOrEqualTo(tester.getTopLeft(firstRow).dy));
+      await tester.tap(find.byKey(networkModeChangeKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(connectionsSheetKey), findsNothing);
+      expect(find.byKey(networkSectionKey), findsOneWidget);
     });
   }
 

@@ -18207,11 +18207,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get advModeConfirmSwitch => 'Przełącz';
 
   @override
-  String netMarkSemantics(String mode) {
-    return 'Tryb sieci: $mode. Otwiera sekcję Sieć.';
-  }
-
-  @override
   String netMarkSemanticsDesk(String mode) {
     return 'Tryb sieci: $mode. Pokazuje, co robi.';
   }

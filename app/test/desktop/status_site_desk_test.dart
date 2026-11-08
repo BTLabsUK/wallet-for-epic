@@ -5,11 +5,15 @@
 // test value.
 import 'dart:io';
 
+import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelProvider;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_privacy.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
+import 'package:epic_wallet/src/server_list.dart' show ServerKind;
+import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -152,4 +156,43 @@ void main() {
     await tester.runAsync(w.dispose);
     await tester.pump(const Duration(seconds: 10));
   });
+
+  // Shallow hides the Node and Payments pages: the servers come first on this page, as the
+  // phone's (the pickers and Node failover). Deeper keeps them on their pages.
+  for (final shallow in [true, false]) {
+    testWidgets('Settings › Network & privacy at ${shallow ? 'Shallow' : 'Deeper'} ${shallow ? 'shows' : 'leaves out'} the server pickers', (tester) async {
+      tester.view.physicalSize = const Size(1280, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final w = make();
+      final container = ProviderContainer(overrides: [
+        deskApiProvider.overrideWithValue(w),
+        deskLevelProvider.overrideWithValue(shallow ? WalletLevel.justSendReceive : WalletLevel.casual),
+      ]);
+      addTearDown(container.dispose);
+      await tester.runAsync(() async {
+        await w.createWallet(name: 'Main', password: _password);
+        expect(await w.unlock(_password), isTrue);
+        await container.read(deskProvider.notifier).refresh();
+      });
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsPrivacyScreen())),
+      ));
+      await tester.pump(const Duration(seconds: 1));
+      final n = shallow ? findsOneWidget : findsNothing;
+      expect(find.text(_l.netPageServers), n);
+      expect(find.byWidgetPredicate((w) => w is ServerListPanel && w.kind == ServerKind.relay), n);
+      expect(find.byWidgetPredicate((w) => w is ServerListPanel && w.kind == ServerKind.node), n);
+      expect(find.byKey(const ValueKey('adv-nodeFailover')), n);
+      // The mode and the status site stay.
+      expect(find.byType(NetworkModeGroup), findsOneWidget);
+      expect(find.byType(PrivacyGroup), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.runAsync(w.dispose);
+      await tester.pump(const Duration(seconds: 10));
+    });
+  }
 }

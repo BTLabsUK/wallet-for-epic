@@ -16526,11 +16526,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeConfirmSwitch => '切换';
 
   @override
-  String netMarkSemantics(String mode) {
-    return '网络模式：$mode。打开“网络”部分。';
-  }
-
-  @override
   String netMarkSemanticsDesk(String mode) {
     return '网络模式：$mode。显示它的作用。';
   }

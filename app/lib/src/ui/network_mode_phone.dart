@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The phone's network-mode widgets: the Network section of Settings › Network & privacy (four radio rows,
-/// each with its ⓘ, the dim line for the chosen mode), the switch confirmation, and the mode
-/// mark at the start of Home's status strip. Text and glyphs: `network_mode_text.dart`; the
-/// rules: `network_gate.dart`.
+/// each with its ⓘ, the dim line for the chosen mode), the switch confirmation, and the mode's
+/// line in the connections sheet. Text and glyphs: `network_mode_text.dart`; the rules:
+/// `network_gate.dart`.
 library;
 
 import '../trust_ids.dart';
@@ -36,8 +36,11 @@ Key networkModeHintKey(NetworkMode m) => ValueKey('adv-mode-hint-${m.name}');
 const Key networkSectionKey = ValueKey('adv-network');
 
 
-/// The key of the mode mark on Home.
+/// The key of the network mode's line in the connections sheet.
 const Key networkModeMarkKey = ValueKey('net-mode-mark');
+
+/// The key of that line's Change link.
+const Key networkModeChangeKey = ValueKey('net-mode-change');
 
 /// The key of the switch confirmation sheet.
 const Key networkModeConfirmKey = ValueKey('net-mode-confirm');
@@ -267,54 +270,66 @@ class NetworkModesSheet extends StatelessWidget {
 Future<void> openNetworkSection(BuildContext context) =>
     openSettingsSection(context, SettingsSection.privacyNetwork, toNetwork: true);
 
-/// The mode mark: a small neutral pill (the mode's glyph and name, no state dot: a mode is a
-/// choice, not a service) at the start of Home's status strip, shown only off Normal. A tap
-/// opens the Network section. 24 dp high inside a 44 dp target.
-class NetworkModeMark extends ConsumerWidget {
-  const NetworkModeMark({super.key = networkModeMarkKey});
+/// The network mode's line in the connections sheet, off Normal only: the mode's glyph and
+/// "Network mode: {name}" in the dim small type, and a Change link that closes the sheet and
+/// opens the Network section. A mode is a choice, not a service: no tile, no state mark, no
+/// row of its own. One sentence on what the mode does is the screen reader's hint.
+class NetworkModeLine extends StatelessWidget {
+  const NetworkModeLine({super.key = networkModeMarkKey, required this.mode, this.waitingForTor = false});
+
+  final NetworkMode mode;
+
+  /// Tor only while Tor is not yet on: the hint says the wallet waits for it.
+  final bool waitingForTor;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(networkModeProvider);
+  Widget build(BuildContext context) {
     if (mode == NetworkMode.standard) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
+    final theme = Theme.of(context);
     final name = networkModeName(l, mode);
-    void open() => openNetworkSection(context);
-    return Semantics(
-      container: true,
-      button: true,
-      label: l.netMarkSemantics(name),
-      excludeSemantics: true,
-      onTap: open,
-      child: InkResponse(
-        onTap: open,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-          child: Center(
-            child: Container(
-              height: 24,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: t.surfaceHi,
-                border: Border.all(color: t.lineStrong),
-                borderRadius: BorderRadius.circular(12),
-              ),
+    void change() {
+      Navigator.of(context).pop();
+      openNetworkSection(context);
+    }
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 4, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              label: l.netMarkRowLabel(name),
+              hint: networkModeMarkLine(l, mode, waitingForTor: waitingForTor),
+              excludeSemantics: true,
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(networkModeGlyph(mode), size: 14, color: t.dim),
-                  const SizedBox(width: 6),
-                  Text(
-                    name,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: t.dim),
+                  Icon(networkModeGlyph(mode), size: 16, color: t.dim),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l.netMarkRowLabel(name),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
+          TextButton(
+            key: networkModeChangeKey,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(48, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              textStyle: theme.textTheme.labelMedium,
+            ),
+            onPressed: change,
+            child: Text(l.netMarkChange),
+          ),
+        ],
       ),
     );
   }

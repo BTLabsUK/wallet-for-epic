@@ -76,7 +76,6 @@ class SettingsReceivingScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScreen> {
-  bool _switching = false;
   final Set<TxMethod> _busy = {};
 
   @override
@@ -151,31 +150,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       if (mounted) showEToast(context, on ? l.deskSetRecvMethodOnFailed(methodLabel(l, m)) : l.deskSetRecvMethodOffFailed(methodLabel(l, m)), text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy.remove(m));
-    }
-  }
-
-  Future<void> _switch(String domain) async {
-    final l = context.l10n;
-    setState(() => _switching = true);
-    try {
-      await ref.read(deskProvider.notifier).useEpicbox(domain);
-    } on Object catch (e) {
-      if (mounted) showEToast(context, l.deskSetRecvServerNotChanged, text: deskErrorText(e, l), tone: ETone.risk);
-    } finally {
-      if (mounted) setState(() => _switching = false);
-    }
-  }
-
-  /// Add's test: a WebSocket handshake with the relay, through Tor while the Tor switch covers
-  /// the app's connections, as the wallet's Epicbox connection goes. Null when it answered.
-  Future<String?> _test(String value) async {
-    final l = context.l10n;
-    final relay = EpicboxRelay.parse(value);
-    if (relay == null) return l.slNotAnAddress;
-    try {
-      return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
-    } on ProbeNotRun {
-      return DeskFeatures.tor ? l.deskSlTorWait : l.slRelayNoAnswer;
     }
   }
 
@@ -572,24 +546,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine,
             anchor: SetId.epicboxRecv,
             notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
-            picker: SetAnchor(id: SetId.epicboxServer, child: ServerListPanel(
-              kind: ServerKind.relay,
-              label: l.deskSetRecvEpicboxServer,
-              value: relayLabel(box),
-              fieldText: relayLabel(box),
-              fieldSub: box.operator,
-              tone: epicboxTone(status.epicboxHealth),
-              servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? shippedHostSettings.epicboxUse),
-              source: relaySource(boxes, inUse: relayLabel(box)),
-              listNote: st.settings.useStatusSite ? l.deskSetRecvListNote(statusSiteHost) : null,
-              busy: _switching,
-              busyLabel: l.deskSetRecvSwitchingServer,
+            picker: SetAnchor(id: SetId.epicboxServer, child: EpicboxServerPicker(
+              status: status,
               openInitially: widget.arg == ReceivingShot.comboOpen,
               shot: widget.arg == ReceivingShot.picked ? ServerPanelShot(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
-              onChoose: _switch,
-              onTest: _test,
-            ),
-            ),
+            )),
           ),
           _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v)), anchor: SetId.epicboxStart),
           // While Tor is off: where the relay would not see this computer's address.
@@ -752,6 +713,76 @@ class ReceivingGroup extends ConsumerWidget {
               : null,
         ),
       ],
+    );
+  }
+}
+
+/// The Epicbox server picker: the Epicbox row's of Payments and the Shallow Network & privacy
+/// page's. [status] is the one shown (the tour lays its states over the real one); null takes
+/// the wallet's. Nothing while the server list or the status loads.
+class EpicboxServerPicker extends ConsumerStatefulWidget {
+  const EpicboxServerPicker({super.key, this.status, this.openInitially = false, this.shot});
+
+  final ServiceStatus? status;
+  final bool openInitially;
+  final ServerPanelShot? shot;
+
+  @override
+  ConsumerState<EpicboxServerPicker> createState() => _EpicboxServerPickerState();
+}
+
+class _EpicboxServerPickerState extends ConsumerState<EpicboxServerPicker> {
+  bool _switching = false;
+
+  Future<void> _switch(String domain) async {
+    final l = context.l10n;
+    setState(() => _switching = true);
+    try {
+      await ref.read(deskProvider.notifier).useEpicbox(domain);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, l.deskSetRecvServerNotChanged, text: deskErrorText(e, l), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _switching = false);
+    }
+  }
+
+  /// Add's test: a WebSocket handshake with the relay, through Tor while the Tor switch covers
+  /// the app's connections, as the wallet's Epicbox connection goes. Null when it answered.
+  Future<String?> _test(String value) async {
+    final l = context.l10n;
+    final relay = EpicboxRelay.parse(value);
+    if (relay == null) return l.slNotAnAddress;
+    try {
+      return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
+    } on ProbeNotRun {
+      return DeskFeatures.tor ? l.deskSlTorWait : l.slRelayNoAnswer;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final st = ref.watch(deskProvider);
+    final boxes = st.epicboxes;
+    final status = widget.status ?? st.status;
+    if (boxes == null || status == null) return const SizedBox.shrink();
+    final box = status.epicbox;
+    return ServerListPanel(
+      kind: ServerKind.relay,
+      label: l.deskSetRecvEpicboxServer,
+      value: relayLabel(box),
+      fieldText: relayLabel(box),
+      fieldSub: box.operator,
+      tone: epicboxTone(status.epicboxHealth),
+      servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? shippedHostSettings.epicboxUse),
+      source: relaySource(boxes, inUse: relayLabel(box)),
+      listNote: st.settings.useStatusSite ? l.deskSetRecvListNote(statusSiteHost) : null,
+      busy: _switching,
+      busyLabel: l.deskSetRecvSwitchingServer,
+      openInitially: widget.openInitially,
+      shot: widget.shot,
+      onChoose: _switch,
+      onTest: _test,
     );
   }
 }

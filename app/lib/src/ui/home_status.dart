@@ -113,9 +113,6 @@ StatusDot torDot(TorState state) => StatusDot.of(torShownState(state));
   );
 }
 
-/// The key of the mode mark in Wallet's status strip, for tests.
-const Key netModeStatusKey = networkModeMarkKey;
-
 /// The test drivers' stable name for a status icon, on Home's strip and in the sheet
 /// (`TrustIds`, lib/src/trust_ids.dart).
 String? _statusId(Key key) => switch (key) {
@@ -301,9 +298,9 @@ String statusBrief(String detail, {String? host}) {
   );
 }
 
-/// The status icons side by side: Node, Epicbox, Tor, Link, in that order ([statusEntries]),
-/// after the network mode's mark when the mode is not Normal. Under Wallet's figure and, with [bar], in Send's
-/// and Receive's balance header: the same icons, dots, labels and details. A tap (or a long
+/// The status icons side by side: Node, Epicbox, Tor, Link, in that order ([statusEntries]).
+/// Under Wallet's figure and, with [bar], in Send's and Receive's balance header: the same
+/// icons, dots, labels and details. A tap (or a long
 /// press) on any icon opens the connections sheet ([showConnectionsSheet]), the one status entry
 /// point at every View; its rows open the services.
 class StatusIcons extends ConsumerWidget {
@@ -315,12 +312,10 @@ class StatusIcons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final (:mode, :entries) = statusEntries(context, ref, bar: bar);
+    final (mode: _, :entries) = statusEntries(context, ref, bar: bar);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // The mark belongs to Home's strip; the compact header keeps its room for the figure.
-        if (mode != NetworkMode.standard && !bar) NetworkModeMark(key: netModeStatusKey),
         for (final e in entries)
           StatusIcon(
             key: e.key,
@@ -355,9 +350,10 @@ Future<void> showConnectionsSheet(BuildContext context) => showPhoneSheet<void>(
   builder: (_) => const ConnectionsSheet(),
 );
 
-/// The connections sheet's body: a header, then one row per service, its glyph with the state
-/// mark on a tile, the service and its state word, one line under them, a chevron; a hairline
-/// between rows. A row that reports a problem is tinted.
+/// The connections sheet's body: a header (off Normal, with the network mode's line under it:
+/// the mode's glyph and name and a Change link to the setting), then one row per service, its
+/// glyph with the state mark on a tile, the service and its state word, one line under them, a
+/// chevron; a hairline between rows. A row that reports a problem is tinted.
 class ConnectionsSheet extends ConsumerWidget {
   const ConnectionsSheet({super.key});
 
@@ -432,16 +428,6 @@ class ConnectionsSheet extends ConsumerWidget {
       ));
     }
     final rows = <Widget>[
-      if (mode != NetworkMode.standard)
-        row(
-          icon: networkModeGlyph(mode),
-          glyph: Icon(networkModeGlyph(mode), size: statusGlyph, color: t.dim),
-          enabled: false,
-          label: l.netMarkRowLabel(networkModeName(l, mode)),
-          detail: networkModeMarkLine(l, mode, waitingForTor: mode == NetworkMode.torOnly && ref.watch(phoneTorProvider.select(phoneTorState)) != TorState.on),
-          dot: StatusDot.off,
-          onTap: () => openNetworkSection(context),
-        ),
       // Shallow: its two statuses, each opening its own sheet (status_sheets.dart).
       if (shallow) ...[
         () {
@@ -499,6 +485,11 @@ class ConnectionsSheet extends ConsumerWidget {
               child: Text(l.connectionsSheetTitle, style: theme.textTheme.titleMedium),
             ),
           ),
+          if (mode != NetworkMode.standard)
+            NetworkModeLine(
+              mode: mode,
+              waitingForTor: mode == NetworkMode.torOnly && ref.watch(phoneTorProvider.select(phoneTorState)) != TorState.on,
+            ),
           for (final (n, r) in rows.indexed) ...[
             if (n > 0) Divider(height: 1, thickness: 1, indent: 12, endIndent: 12, color: t.line),
             r,
