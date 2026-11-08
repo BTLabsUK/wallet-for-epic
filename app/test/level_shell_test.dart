@@ -2,6 +2,7 @@
 // The level-1 shell on Home: the deeper levels' balance block with level 1's two status icons
 // under the figure, no tiles, one Contacts entry, the Epicbox sheet on a tap, and the relay offer
 // as a notice whose Switch calls through. Level 3 keeps its full row of icons and the tiles.
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
@@ -10,6 +11,7 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/onion_notice.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
@@ -18,6 +20,7 @@ import 'package:epic_wallet/src/ui/levels/quiet_invoices.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey, connectionsSheetKey;
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
 import 'package:epic_wallet/src/ui/levels/status_sheets.dart';
+import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeMarkKey;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
@@ -68,7 +71,13 @@ class _Offer extends RelaySwitchNotifier {
   }
 }
 
-Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer, bool invoice = false}) async {
+Future<void> _pump(
+  WidgetTester tester, {
+  required String level,
+  _Offer? offer,
+  bool invoice = false,
+  NetworkMode mode = NetworkMode.standard,
+}) async {
   // The test font is twice Roboto's width: a 600 dp view keeps the notice buttons on their row.
   tester.view.physicalSize = const Size(1800, 2400);
   tester.view.devicePixelRatio = 3;
@@ -116,6 +125,7 @@ Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer, b
         sessionProvider.overrideWith(() => _OpenSession(session)),
         walletConfigProvider.overrideWith(_Config.new),
         if (offer != null) relaySwitchProvider.overrideWith(() => offer),
+        networkModeProvider.overrideWithValue(mode),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -154,6 +164,21 @@ void main() {
     expect(find.text(_l.settingsContacts), findsOneWidget);
     expect(tester.getSize(find.byType(HomeContactsEntry)).height, greaterThanOrEqualTo(48));
   });
+
+  testWidgets('level 1: Normal shows no mode mark', (tester) async {
+    await _pump(tester, level: '1');
+    expect(find.byKey(networkModeMarkKey), findsNothing);
+  });
+
+  for (final mode in [NetworkMode.nodeOnly, NetworkMode.killSwitch]) {
+    testWidgets('level 1: ${mode.name} puts the mode mark before the icons, under the figure', (tester) async {
+      await _pump(tester, level: '1', mode: mode);
+      expect(find.byKey(networkModeMarkKey), findsOneWidget);
+      final mark = tester.getRect(find.byKey(networkModeMarkKey));
+      expect(mark.top, greaterThan(tester.getRect(find.byType(AppBar)).bottom));
+      expect(mark.right, lessThanOrEqualTo(tester.getTopLeft(find.byKey(shellNetworkIconKey)).dx));
+    });
+  }
 
   testWidgets('level 1: the Contacts entry opens Contacts', (tester) async {
     await _pump(tester, level: '1');

@@ -498,6 +498,12 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) async => c.read(moreOptionsRevealProvider.notifier).open('pay-sending'),
   ),
   DeskShot(id: '45d-settings-shallow', title: 'Settings in the Shallow view: the nav', route: DeskRoute.settingsAccount, before: _level(WalletLevel.justSendReceive)),
+  // Network & privacy in the Shallow view (the servers, the modes), wide and narrow, and the
+  // Overview's mode mark in the two modes that stop payments.
+  DeskShot(id: '45h-privacy-shallow', title: 'Network & privacy in the Shallow view', route: DeskRoute.settingsPrivacy, height: 1100, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '45i-privacy-shallow-narrow', title: 'Network & privacy in the Shallow view, a narrow window', route: DeskRoute.settingsPrivacy, width: 1000, height: 1100, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '45j-overview-shallow-node-only', title: 'Overview in the Shallow view, Node only: the mark', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '45k-overview-shallow-kill-switch', title: 'Overview in the Shallow view, Kill switch: the mark', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(
     id: '45e-rescan-start-open',
     title: 'Recheck balance: the scan start open (month or height, with Recheck from a height on)',

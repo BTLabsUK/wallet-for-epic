@@ -69,9 +69,10 @@ enum ActivityChips {
 /// (level 1), or the tiles with every balance that is not spendable.
 enum BalancePresentation { figure, tiles }
 
-/// [prefs] as [level] shows them. Level 1 hides every shown feature, keeps the pairing and
-/// invoices engine on (the listener runs, invoices are quiet), keeps the network mode (Tor only
-/// must survive) and forces node failover on; levels 2 and 3 are the stored prefs.
+/// [prefs] as [level] shows them. Level 1 hides every shown feature and keeps the pairing and
+/// invoices engine on (the listener runs, invoices are quiet); the network mode (Tor only must
+/// survive) and node failover stay as stored, since Network & privacy shows both at every
+/// level. Levels 2 and 3 are the stored prefs.
 AdvancedPrefs effectiveAdvanced(WalletLevel level, AdvancedPrefs prefs) {
   if (level != WalletLevel.justSendReceive) return prefs;
   return AdvancedPrefs(
@@ -80,7 +81,7 @@ AdvancedPrefs effectiveAdvanced(WalletLevel level, AdvancedPrefs prefs) {
       AdvancedFeature.linkedDevices,
     },
     networkMode: prefs.networkMode,
-    nodeFailover: true,
+    nodeFailover: prefs.nodeFailover,
   );
 }
 
@@ -271,7 +272,7 @@ class LevelFeatures {
   /// Link · HTTP / Link · Tor.
   final bool linkPayments;
 
-  /// The node is never shown and failover is forced on.
+  /// The node is never shown by name; failover follows its switch on Network & privacy.
   final bool nodeAutomatic;
 
   /// A relay down for [relaySwitchAfter] is offered a one-tap switch to the next healthy one, at
