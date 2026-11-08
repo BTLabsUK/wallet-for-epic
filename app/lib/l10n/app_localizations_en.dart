@@ -2856,7 +2856,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPricesOnNotice =>
-      'Prices come from BT Labs\' copy of CoinGecko\'s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.';
+      'Prices come from BT Labs’ copy of CoinGecko’s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.';
 
   @override
   String get settingsSectionSecurity => 'Security';
@@ -3742,7 +3742,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneNetworkText =>
-      'The network mode, the Tor switch and the servers the wallet uses. Tap a server to change it.';
+      'The network mode, including Tor only, and the servers the wallet uses. Tap a server to change it.';
 
   @override
   String get tourPhoneNetworkTextNoTor =>
@@ -12638,7 +12638,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advOutputsHint =>
-      'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      'Shows the Outputs page, under This wallet and on Home. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.';
 
   @override
   String get advTechnical => 'Technical details';
@@ -12698,7 +12698,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.';
+      'Shows the Outputs page in the sidebar. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.';
 
   @override
   String get deskSetAdvTechnical => 'Technical details';
@@ -12712,7 +12712,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.';
+      'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults are under Settings › Payments.';
 
   @override
   String get deskSetAdvServerDetails => 'Server details';
@@ -12733,7 +12733,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.';
+      'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain needs several gigabytes of disk and must sync first. A node that is running keeps its rows.';
 
   @override
   String get deskSetAdvLogs => 'Logs';
@@ -13090,11 +13090,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netOfflineNodeLine => 'Uses the node';
 
   @override
-  String get netBlockEpicboxOff => 'Epicbox is off in Settings › Transactions.';
+  String get netBlockEpicboxOff => 'Epicbox is off in the payment settings.';
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method is off in Settings › Transactions.';
+    return '$method is off in the payment settings.';
   }
 
   @override
@@ -17498,7 +17498,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advModeStandardHintHere =>
-      'Connects directly. Turn on Tor below to connect through Tor.';
+      'Connects directly. Choose Tor only to connect through Tor.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -18909,7 +18909,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'With Tor on, the connection to the Epicbox server goes through Tor.';
 
   @override
-  String get inviteLinkUnreadable => 'This link can\'t be opened.';
+  String get inviteLinkUnreadable => 'This link cannot be opened.';
 
   @override
   String inviteLinkNoHandler(String feature) {
@@ -19371,11 +19371,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHintNet =>
-      'Turn on Tor in Settings › Network & privacy for a Tor address instead.';
+      'Turn on Link · Tor in Settings › Payments for a Tor address instead.';
 
   @override
   String get deskRecvTorIntroNet =>
-      'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.';
+      'Straight from another wallet over Tor while this one is open. Link · Tor is set in Settings › Payments.';
 
   @override
   String get deskRecvTorOffTextNet =>

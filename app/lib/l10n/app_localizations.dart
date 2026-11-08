@@ -4558,7 +4558,7 @@ abstract class AppLocalizations {
   /// Short notice after prices are turned on. CoinGecko is a price service (a proper name).
   ///
   /// In en, this message translates to:
-  /// **'Prices come from BT Labs\' copy of CoinGecko\'s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.'**
+  /// **'Prices come from BT Labs’ copy of CoinGecko’s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.'**
   String get settingsPricesOnNotice;
 
   /// Section heading in settings.
@@ -6058,7 +6058,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for Settings › Network & privacy (first-unlock tour); one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'The network mode, the Tor switch and the servers the wallet uses. Tap a server to change it.'**
+  /// **'The network mode, including Tor only, and the servers the wallet uses. Tap a server to change it.'**
   String get tourPhoneNetworkText;
 
   /// tourPhoneNetworkText in the build without Tor: no Tor switch.
@@ -19869,7 +19869,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Outputs switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.'**
+  /// **'Shows the Outputs page, under This wallet and on Home. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.'**
   String get advOutputsHint;
 
   /// Advanced switch: technical rows on transactions.
@@ -19977,7 +19977,7 @@ abstract class AppLocalizations {
   /// Hover card of the Outputs switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.'**
+  /// **'Shows the Outputs page in the sidebar. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.'**
   String get deskSetAdvOutputsHint;
 
   /// Advanced switch: technical rows on transactions.
@@ -20001,7 +20001,7 @@ abstract class AppLocalizations {
   /// Hover card of the Send options switch.
   ///
   /// In en, this message translates to:
-  /// **'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.'**
+  /// **'Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults are under Settings › Payments.'**
   String get deskSetAdvSendOptionsHint;
 
   /// Advanced switch: hosts, latency, version, height.
@@ -20037,7 +20037,7 @@ abstract class AppLocalizations {
   /// Hover card of the Built-in node switch.
   ///
   /// In en, this message translates to:
-  /// **'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.'**
+  /// **'Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain needs several gigabytes of disk and must sync first. A node that is running keeps its rows.'**
   String get deskSetAdvBuiltInNodeHint;
 
   /// Advanced switch: logs and diagnostics.
@@ -20595,13 +20595,13 @@ abstract class AppLocalizations {
   /// Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox is off in Settings › Transactions.'**
+  /// **'Epicbox is off in the payment settings.'**
   String get netBlockEpicboxOff;
 
   /// Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.
   ///
   /// In en, this message translates to:
-  /// **'{method} is off in Settings › Transactions.'**
+  /// **'{method} is off in the payment settings.'**
   String netBlockMethodOff(String method);
 
   /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
@@ -26994,10 +26994,10 @@ abstract class AppLocalizations {
   /// **'Kill switch'**
   String get advModeKillSwitch;
 
-  /// Settings › Network & privacy: info text of the Normal network mode. The Tor switch is right below the modes on the same page.
+  /// Settings › Network & privacy: info text of the Normal network mode. Tor only, in the same mode list, connects through Tor.
   ///
   /// In en, this message translates to:
-  /// **'Connects directly. Turn on Tor below to connect through Tor.'**
+  /// **'Connects directly. Choose Tor only to connect through Tor.'**
   String get advModeStandardHintHere;
 
   /// Info text of the Normal row in the build without Tor.
@@ -29241,7 +29241,7 @@ abstract class AppLocalizations {
   /// Short notice: a pairing or device-link invite link the system opened could not be read, so it was ignored.
   ///
   /// In en, this message translates to:
-  /// **'This link can\'t be opened.'**
+  /// **'This link cannot be opened.'**
   String get inviteLinkUnreadable;
 
   /// Short notice: an invite link was opened but the part it needs is off or not available in this wallet; the link is dropped. {feature} is the part's switch name (Pairing, Linked devices).
@@ -29955,13 +29955,13 @@ abstract class AppLocalizations {
   /// Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy).
   ///
   /// In en, this message translates to:
-  /// **'Turn on Tor in Settings › Network & privacy for a Tor address instead.'**
+  /// **'Turn on Link · Tor in Settings › Payments for a Tor address instead.'**
   String get deskRecvHttpTorHintNet;
 
   /// Receive, Link · Tor: intro line; names where Tor is set (Settings › Network & privacy).
   ///
   /// In en, this message translates to:
-  /// **'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.'**
+  /// **'Straight from another wallet over Tor while this one is open. Link · Tor is set in Settings › Payments.'**
   String get deskRecvTorIntroNet;
 
   /// Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Network & privacy).

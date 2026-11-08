@@ -3536,7 +3536,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '钱包使用哪个节点和 Epicbox 服务器，以及 Tor 开关。点一个服务器即可更改。';
 
   @override
-  String get tourPhoneNetworkText => '网络模式、Tor 开关，以及钱包使用的服务器。点一个服务器即可更改。';
+  String get tourPhoneNetworkText => '网络模式（包括“仅 Tor”）以及钱包使用的服务器。点一个服务器即可更改。';
 
   @override
   String get tourPhoneNetworkTextNoTor => '网络模式，以及钱包使用的服务器。点一个服务器即可更改。';
@@ -11895,7 +11895,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advOutputsHint =>
-      '在“钱包”下和主页上显示“输出”页面。它列出组成余额的币，可以拆分或合并，并设置发送使用的默认值。正在进行的拆分或合并会让该页面保持可见。';
+      '在“此钱包”下和主页上显示“输出”页面。它列出组成余额的币，并可以拆分或合并。正在进行的拆分或合并会让该页面保持可见。';
 
   @override
   String get advTechnical => '技术详情';
@@ -11954,7 +11954,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      '在侧边栏显示“输出”页面。它列出组成余额的币，可以拆分或合并，并设置发送使用的默认值。正在进行的拆分或合并会让该页面保持可见。';
+      '在侧边栏显示“输出”页面。它列出组成余额的币，并可以拆分或合并。正在进行的拆分或合并会让该页面保持可见。';
 
   @override
   String get deskSetAdvTechnical => '技术详情';
@@ -11968,7 +11968,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      '在“发送”中加入一个折叠区，单笔发送可以在其中选择花掉哪些输出（“最小”或“全部”），以及是否拆分找零。默认值仍在“输出”中。';
+      '在“发送”中加入一个折叠区，单笔发送可以在其中选择花掉哪些输出（“最小”或“全部”），以及是否拆分找零。默认值在“设置 › 支付”中。';
 
   @override
   String get deskSetAdvServerDetails => '服务器详情';
@@ -11989,7 +11989,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      '让这台电脑运行自己的节点：“节点”下的“这台电脑”选项、它的同步面板，以及概览中的“启动节点”。同步整条链需要数小时和数 GB 磁盘空间。已在运行的节点会保留它的各行。';
+      '让这台电脑运行自己的节点：“节点”下的“这台电脑”选项、它的同步面板，以及概览中的“启动节点”。整条链需要数 GB 磁盘空间，并且必须先完成同步。已在运行的节点会保留它的各行。';
 
   @override
   String get deskSetAdvLogs => '日志';
@@ -12329,11 +12329,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netOfflineNodeLine => '使用节点';
 
   @override
-  String get netBlockEpicboxOff => 'Epicbox 已在 设置 › 交易 中关闭。';
+  String get netBlockEpicboxOff => 'Epicbox 已在支付设置中关闭。';
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method 已在设置 › 交易中关闭。';
+    return '$method 已在支付设置中关闭。';
   }
 
   @override
@@ -16493,7 +16493,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeKillSwitch => '紧急断网';
 
   @override
-  String get advModeStandardHintHere => '直接连接。在下方开启 Tor 可经由 Tor 连接。';
+  String get advModeStandardHintHere => '直接连接。选择“仅 Tor”可经由 Tor 连接。';
 
   @override
   String get advModeStandardHintNoTor => '直接连接到节点和你使用的服务。';
@@ -18279,11 +18279,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 钱包”中的“删除钱包”。';
 
   @override
-  String get deskRecvHttpTorHintNet => '如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。';
+  String get deskRecvHttpTorHintNet => '如需 Tor 地址，请在“设置 › 支付”中开启“链接 · Tor”。';
 
   @override
   String get deskRecvTorIntroNet =>
-      '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 网络与隐私”中设置。';
+      '本钱包打开时，经由 Tor 直接从另一个钱包接收。“链接 · Tor”在“设置 › 支付”中设置。';
 
   @override
   String get deskRecvTorOffTextNet =>
