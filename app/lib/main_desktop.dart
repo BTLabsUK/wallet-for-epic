@@ -24,7 +24,7 @@ import 'src/btlabs_onions.dart';
 import 'src/builtin_node.dart';
 import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
-import 'src/desktop/app/close_guard.dart' show deskHoldExit;
+import 'src/desktop/app/close_guard.dart' show deskHideToTray, deskHoldExit;
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/desk_window.dart';
 import 'src/desktop/app/window_placement.dart';
@@ -255,8 +255,11 @@ Future<List<Override>> deskOverrides() async {
   unawaited(wallet.resumeBuiltInNode());
   // Closing the window must not leave the node running, nor cut off a send: while one runs
   // the app stays open and asks (close_guard.dart, the rule of the title bar's close and Ctrl+Q).
+  // On Windows the system's close (Alt+F4, the taskbar) comes here, the engine taking WM_CLOSE:
+  // to the tray first, as the bar's close does. Quit in a menu closes down without passing here.
   _exitListener = AppLifecycleListener(
     onExitRequested: () async {
+      if (await deskHideToTray()) return AppExitResponse.cancel;
       if (deskHoldExit()) return AppExitResponse.cancel;
       await _closeDown(wallet);
       return AppExitResponse.exit;
