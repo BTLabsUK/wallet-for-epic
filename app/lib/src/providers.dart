@@ -255,10 +255,13 @@ class SessionNotifier extends Notifier<WalletSession?> {
     state = session;
   }
 
-  /// Disposes the open wallet, which also frees its chain for another network.
-  void lock() {
+  /// Disposes the open wallet, which also frees its chain for another network. [forSwitch]: the
+  /// user is switching to another wallet, so the shared address book's key stays for it
+  /// ([KeepsBookOnSwitch]).
+  void lock({bool forSwitch = false}) {
     final previous = state;
     state = null;
+    if (forSwitch && previous is KeepsBookOnSwitch) (previous as KeepsBookOnSwitch).keepBookForSwitch();
     // A recovery phrase copied in this session leaves the clipboard with it.
     unawaited(clearCopiedPhrase());
     if (previous != null) logInfo('session', 'wallet locked');

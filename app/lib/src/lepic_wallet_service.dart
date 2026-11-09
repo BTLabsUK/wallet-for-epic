@@ -1660,7 +1660,7 @@ class LepicAppDataSealer implements AppDataSealer {
 
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
-class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
+class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys, KeepsBookOnSwitch {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
@@ -1728,13 +1728,19 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     }
     final session = LepicWalletSession(wallet, history: history);
     if (contacts != null && contacts.sealed && sealer != null && walletId != null) {
-      session._detachBook = () => contacts.detach(walletId, sealer);
+      session._detachBook = ({bool hold = false}) => contacts.detach(walletId, sealer, hold: hold);
     }
     return session;
   }
 
-  /// Ends this wallet's use of the sealed address book.
-  Future<void> Function()? _detachBook;
+  /// Ends this wallet's use of the sealed address book; with `hold` its key stays for the next
+  /// wallet ([keepBookForSwitch]).
+  Future<void> Function({bool hold})? _detachBook;
+
+  bool _keepBook = false;
+
+  @override
+  void keepBookForSwitch() => _keepBook = true;
 
   /// How LEPIC found the records at this unlock (`storeAtRest`), read once by
   /// `LepicWalletService._session` right after the open.
@@ -1822,7 +1828,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     _history.close();
     final detach = _detachBook;
     _detachBook = null;
-    if (detach != null) unawaited(detach());
+    if (detach != null) unawaited(detach(hold: _keepBook));
     if (_wallet.isDisposed) return;
     _wallet.lock();
     _wallet.dispose();
