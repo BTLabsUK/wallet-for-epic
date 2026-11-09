@@ -272,7 +272,7 @@ class _LinkCard extends StatelessWidget {
               child: Tip.value(
                 link,
                 child: Text(
-                  shortAddress(link),
+                  shortMiddle(link, keep: 34),
                   key: epic1LinkTextKey,
                   style: TextStyle(fontFamily: t.monoFamily, color: t.dim),
                 ),

@@ -19,13 +19,6 @@ import '../in_person/in_person_entry.dart' show openDeskRequestInPerson;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/setting_ids.dart';
 
-/// [text] cut in the middle to [keep] characters: the scheme and start, then the end.
-String shortMiddle(String text, {int keep = 44}) {
-  if (text.length <= keep) return text;
-  final head = (keep * 0.6).round();
-  return '${text.substring(0, head)}…${text.substring(text.length - (keep - head - 1))}';
-}
-
 /// A server on the local network (not this computer): links on it are asked about first.
 bool _onLan(String relay) {
   final host = relay.split(':').first;

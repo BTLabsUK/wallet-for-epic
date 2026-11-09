@@ -22,7 +22,6 @@ import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPa
 import '../transfer/contact_picker.dart' show showContactPicker;
 import '../transfer/send_screen.dart' show SendArgs;
 import 'epic1_files.dart';
-import 'link_card.dart' show shortMiddle;
 
 enum _Step { form, review, waiting }
 

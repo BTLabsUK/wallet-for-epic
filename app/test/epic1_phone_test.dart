@@ -255,6 +255,9 @@ void main() {
       expect(_key(epic1CopyLinkKey), findsOneWidget);
       expect(_key(epic1RequestInPersonKey), findsOneWidget);
       expect(session.epic1Fake.calls, contains('makeLink'));
+      final shown = tester.widget<Text>(_key(epic1LinkTextKey)).data!;
+      expect(shown, startsWith('epic:epic1'));
+      expect(shown, contains('…'));
       await _tap(tester, _key(epic1QrCoverKey));
       expect(_key(epic1QrKey), findsOneWidget);
     });

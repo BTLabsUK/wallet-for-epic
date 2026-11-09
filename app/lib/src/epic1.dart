@@ -411,6 +411,13 @@ bool looksLikeEpic1Link(String text) {
   return RegExp(r'^epic:(//)?t?epic1').hasMatch(t) || RegExp(r'^t?epic1[0-9a-z]{20,}').hasMatch(t);
 }
 
+/// [text] cut in the middle to [keep] characters: the scheme and start, then the end.
+String shortMiddle(String text, {int keep = 44}) {
+  if (text.length <= keep) return text;
+  final head = (keep * 0.6).round();
+  return '${text.substring(0, head)}…${text.substring(text.length - (keep - head - 1))}';
+}
+
 /// Whether [text] is a `BEGINEPICTX.` armored envelope (an epic1 file or answer).
 bool looksLikeEpictx(String text) => text.trimLeft().startsWith('BEGINEPICTX.');
 
