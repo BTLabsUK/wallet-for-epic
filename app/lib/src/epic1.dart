@@ -437,6 +437,9 @@ class FakeEpic1 implements Epic1Wallet {
   final List<String> calls = [];
   int _next = 1;
 
+  /// Told each stored change, so a fake service keeps the setting per wallet across unlocks.
+  void Function(bool on)? onStored;
+
   /// Simulates the next unlock: the stored setting becomes the one in use.
   void reopen() => _inUse = _stored;
 
@@ -461,6 +464,7 @@ class FakeEpic1 implements Epic1Wallet {
   Future<void> setStoredOn(bool on) async {
     _call('setStoredOn');
     _stored = on;
+    onStored?.call(on);
   }
 
   @override
