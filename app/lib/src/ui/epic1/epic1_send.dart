@@ -20,6 +20,7 @@ import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart';
 import '../in_person/in_person_entry.dart';
+import '../pin.dart' show askPin, usesPassphrase;
 import '../theme/tokens.dart';
 import '../tip.dart';
 import 'epic1_common.dart';
@@ -268,10 +269,31 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     }
   }
 
+  /// Every send asks the PIN right before money moves, as Send in classic mode does.
+  Future<bool> _pinGate(BigInt amount) async {
+    final l = context.l10n;
+    final session = ref.read(sessionProvider);
+    final config = ref.read(walletConfigProvider);
+    if (session == null || config == null) return false;
+    final vault = ref.read(vaultProvider);
+    final text = epicText(l, amount);
+    final ok = await askPin<bool>(
+      context,
+      reason: usesPassphrase(ref) ? l.sendPassphraseReason(text) : l.sendPinReason(text),
+      action: (pin) async {
+        await vault.checkPin(session, config, pin);
+        return true;
+      },
+    );
+    return ok == true && mounted;
+  }
+
   Future<void> _send() async {
     final epic1 = ref.read(epic1Provider);
     final amount = _amountToPay();
     if (epic1 == null || amount == null || _busy) return;
+    final total = _info?.amount ?? amount;
+    if (!await _pinGate(total)) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -354,7 +376,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     final (title, children, bottom) = switch (_stage) {
       _Stage.reading => (l.deskE1PhReview, _reading(context), null),
       _Stage.review => (l.deskE1PhReview, _review(context), _reviewAction(context)),
-      _Stage.waiting => (l.deskE1PhWaiting, _waiting(context), _waitingAction(context)),
+      _Stage.waiting => (l.homeSendButton, _waiting(context), _waitingAction(context)),
       _Stage.sent => (l.deskE1PhSent, _end(context, sent: true), _doneAction(context)),
       _Stage.cancelled => (l.deskE1PhCancelled, _end(context, sent: false), _doneAction(context)),
     };
