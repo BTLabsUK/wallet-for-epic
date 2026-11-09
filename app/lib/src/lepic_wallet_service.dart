@@ -15,6 +15,12 @@ import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary, Uint64List;
 import 'package:lepic/lepic.dart' as lepic;
+// The binding's lepic.dart does not export these two files yet (`sealedFileExtension`, the in-person QR
+// parts): drop this import when it does.
+// ignore: implementation_imports
+import 'package:lepic/src/rust/api/contact.dart' as lepic_contact show sealedFileExtension;
+// ignore: implementation_imports
+import 'package:lepic/src/rust/api/in_person.dart' as lepic_in_person show inPersonQrParts, inPersonQrRead;
 import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'name_service/pins.dart' show LinkMemory;
@@ -24,9 +30,11 @@ import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'seed_contacts.dart';
+import 'slate_files.dart' show isSealedText, sealedExtensionHook;
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
 import 'domain_check.dart';
+import 'epic1.dart';
 import 'finished_payment.dart';
 import 'key_picture.dart' show inviteKeyOf;
 import 'legacy/gui_contacts.dart' show AddressChecks;
@@ -39,6 +47,7 @@ import 'net/tor_net.dart' show TorNet;
 import 'net/tor_switch.dart';
 import 'network_gate.dart';
 import 'pin_wrap.dart';
+import 'qr_slate.dart' show qrFragmentLen;
 import 'tor_build.dart';
 import 'trust/policy.dart' show PeerCompat, appHostFeatures, statedAutomated;
 import 'send_route.dart' show HostScope, plainHttpGoesDirect, plainHttpHeldNow, urlHostScope;
@@ -1658,11 +1667,12 @@ class LepicAppDataSealer implements AppDataSealer {
 
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
-class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
+class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys, Epic1Capable {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
   }) : _history = history ?? WalletHistory.memory() {
+    sealedExtensionHook = (text) => lepic_contact.sealedFileExtension(text: text);
     // The record as it was before this session's first refresh replaces it.
     final at = _history.lastActivity?.atUnix;
     _lastActivityAtOpen = at == null ? null : DateTime.fromMillisecondsSinceEpoch(at * 1000, isUtc: true);
@@ -1979,6 +1989,34 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     }
     _noContactAt.clear();
   }
+
+  @override
+  late final Epic1Wallet epic1Wallet = _LepicEpic1(this);
+
+  /// An answer to a payment that came to a link is posted after each collect in epic1 mode: the payer's
+  /// own link named the mailbox, so no one is asked ([Epic1Wallet.postAnswer] with `relayOk`). One
+  /// run at a time; a failure is logged and the next collect tries again.
+  Future<void> _postEpic1Answers() async {
+    if (_postingAnswers || _wallet.isDisposed || !_wallet.nativeDirectInUse()) return;
+    if (lepicRelayMode() != lepic.ContactRelayMode.online) return;
+    _postingAnswers = true;
+    try {
+      for (final a in await _wallet.epic1Answers(relayMode: lepic.ContactRelayMode.online)) {
+        if (a.posted || a.host == null) continue;
+        try {
+          await _wallet.epic1PostAnswer(slateId: a.slateId, relayOk: true, relayMode: lepic.ContactRelayMode.online);
+        } on lepic.WalletError catch (error) {
+          logWarn('epic1', 'answer not posted: ${error.kind.name}');
+        }
+      }
+    } on lepic.WalletError catch (error) {
+      logWarn('epic1', 'answers not read: ${error.kind.name}');
+    } finally {
+      _postingAnswers = false;
+    }
+  }
+
+  bool _postingAnswers = false;
 
   /// The stored row of [txId], as the history shows it. Only its own pairing is asked: the
   /// history takes a row's pairing from that row alone.
@@ -3586,6 +3624,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       // Each bounce raises `invoiceBounced` on the events, which withdraws that request.
       final report = await _wallet.drainEpicbox();
       await _sweep();
+      await _postEpic1Answers();
       return report;
     }),
     outcomeOf: (r) => CheckOutcome(
@@ -3625,6 +3664,325 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
     final report = await _wallet.drainEpicboxAt(serviceKey: serviceKeyHex, generation: generation);
     await _sweep();
     return PaymentsDrainReport(received: report.received, finalized: report.finalized, bounced: report.bounced);
+  });
+}
+
+// ---------------------------------------------------------------------------------------
+// epic1 (`epic1.dart`, ui-spec §5): the per-wallet switch, links, files and in-person codes
+// over LEPIC's calls. The relay calls take the mode from the network mode and the Epicbox
+// switch ([lepicRelayMode]); the ones that only make or read a code work in every mode (an
+// in-person code is then answered by scan).
+
+/// The slot of a relay in the contract's [Epic1Host], from LEPIC's host class.
+Epic1Host _epic1Host(lepic.Epic1Host h) => Epic1Host(
+  host: h.host,
+  port: h.port,
+  localNetwork: h.class_ == lepic.HostClassView.localNetwork,
+  inRelayList: h.inRelayList,
+);
+
+Epic1Host _inPersonHost(lepic.InPersonHost h) =>
+    Epic1Host(host: h.host, port: h.port, localNetwork: h.localNetwork, inRelayList: h.inRelayList);
+
+Epic1LinkKind _epic1Kind(lepic.Epic1LinkKind k) => switch (k) {
+  lepic.Epic1LinkKind.onScreen => Epic1LinkKind.onScreen,
+  lepic.Epic1LinkKind.printed => Epic1LinkKind.printed,
+};
+
+InPersonStage _inPersonStage(lepic.SlateStage s) => switch (s) {
+  lepic.SlateStage.i1 => InPersonStage.request,
+  _ => InPersonStage.send,
+};
+
+Epic1Payment _epic1Payment(lepic.Epic1Paid p) => Epic1Payment(
+  txId: p.txId,
+  slateId: p.slateId,
+  address: p.address,
+  attempts: [for (final a in p.attempts) Epic1Attempt(host: a.host, error: a.error)],
+  posted: p.posted,
+);
+
+InPersonCodeMade _inPersonCode(lepic.InPersonCode c) => InPersonCodeMade(
+  txId: c.txId,
+  slateId: c.slateId,
+  bytes: c.bytes,
+  ttlCutoff: c.ttlCutoff,
+  mailbox: c.mailbox,
+);
+
+InPersonAnswerMade _inPersonAnswer(lepic.InPersonReply r) => InPersonAnswerMade(
+  txId: r.txId,
+  slateId: r.slateId,
+  envelope: r.envelope,
+  armored: r.armored,
+  checkCode: r.checkCode,
+  mailbox: r.mailbox == null ? null : _inPersonHost(r.mailbox!),
+);
+
+DateTime _msAt(int ms) => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+
+/// [Epic1Wallet] on a LEPIC wallet: one per [LepicWalletSession] (`epic1Wallet`).
+class _LepicEpic1 implements Epic1Wallet {
+  _LepicEpic1(this._s);
+
+  final LepicWalletSession _s;
+
+  lepic.EpicWallet get _w => _s._wallet;
+
+  @override
+  bool get storedOn => !_w.isDisposed && _w.nativeDirect();
+
+  @override
+  bool get inUse => !_w.isDisposed && _w.nativeDirectInUse();
+
+  @override
+  Future<void> setStoredOn(bool on) => _guard(() async => _w.setNativeDirect(enabled: on));
+
+  @override
+  Future<String> address() => _guard(_w.epic1Address);
+
+  @override
+  Future<Epic1LinkMade> makeLink({
+    BigInt? amount,
+    String? message,
+    Epic1LinkKind kind = Epic1LinkKind.onScreen,
+    required List<String> relays,
+  }) => _guard(() async {
+    final l = await _w.epic1LinkMake(
+      amount: amount,
+      message: _message(message),
+      kind: switch (kind) {
+        Epic1LinkKind.onScreen => lepic.Epic1LinkKind.onScreen,
+        Epic1LinkKind.printed => lepic.Epic1LinkKind.printed,
+      },
+      relays: relays,
+      relayMode: lepicRelayMode(),
+    );
+    return Epic1LinkMade(link: l.link, address: l.address, kind: _epic1Kind(l.kind), n: l.n);
+  });
+
+  @override
+  Future<Epic1LinkInfo> readLink(String link) => _guard(() async {
+    final r = await _w.epic1LinkRead(link: link.trim(), relayMode: lepicRelayMode());
+    return Epic1LinkInfo(
+      address: r.address,
+      amount: r.amount,
+      message: r.message,
+      label: r.label,
+      hosts: [for (final h in r.hosts) _epic1Host(h)],
+    );
+  });
+
+  @override
+  Future<Epic1Payment> payLink({
+    required String link,
+    BigInt? amount,
+    required BigInt minimumConfirmations,
+    String? message,
+    SendOptions? options,
+    required bool hostsOk,
+  }) => _epicboxGuard('pay an epic1 link', () async {
+    final paid = await _s._counted(
+      () async => _w.epic1Pay(
+        link: link.trim(),
+        amount: amount,
+        minimumConfirmations: minimumConfirmations,
+        message: _message(message),
+        options: await _s._optionsFor(amount ?? BigInt.zero, minimumConfirmations, options),
+        proof: false,
+        hostsOk: hostsOk,
+        relayMode: lepicRelayMode(),
+      ),
+    );
+    return _epic1Payment(paid);
+  });
+
+  @override
+  Future<Epic1Payment> postNext({required String slateId, required bool hostsOk}) =>
+      _epicboxGuard('post an epic1 payment', () async {
+        final paid = await _s._counted(
+          () => _w.epic1PostNext(slateId: slateId, hostsOk: hostsOk, relayMode: lepicRelayMode()),
+        );
+        return _epic1Payment(paid);
+      });
+
+  @override
+  Future<List<Epic1Answer>> answers() => _guard(() async => [
+    for (final a in await _w.epic1Answers(relayMode: lepicRelayMode()))
+      Epic1Answer(
+        txId: a.txId,
+        slateId: a.slateId,
+        mailbox: a.mailbox,
+        host: a.host == null ? null : _epic1Host(a.host!),
+        posted: a.posted,
+      ),
+  ]);
+
+  @override
+  Future<void> postAnswer({required String slateId, required bool relayOk}) =>
+      _epicboxGuard('post an epic1 answer', () async {
+        await _w.epic1PostAnswer(slateId: slateId, relayOk: relayOk, relayMode: lepicRelayMode());
+      });
+
+  @override
+  Future<List<Epic1LinkSlot>> links() => _guard(() async => [
+    for (final l in await _w.epic1Links())
+      Epic1LinkSlot(
+        kind: _epic1Kind(l.kind),
+        n: l.n,
+        issuedAt: _msAt(l.issuedAtMs),
+        usedAt: l.usedAtMs == null ? null : _msAt(l.usedAtMs!),
+        relays: l.relays,
+      ),
+  ]);
+
+  @override
+  Future<void> retireLink(int n) => _guard(() => _w.epic1LinkRetire(n: n));
+
+  @override
+  Future<int> restore() => _epicboxGuard('epic1 restore', () => _w.epic1Restore(relayMode: lepicRelayMode()));
+
+  @override
+  Future<EpictxOpened> openEpictx(String text) => _guard(() async {
+    final v = await _w.epictxOpen(text: text.trim());
+    return EpictxOpened(
+      contactId: v.contactId,
+      native: v.native,
+      slateJson: v.slateJson,
+      reference: v.reference,
+      expires: v.expires == null ? null : _msAt(v.expires!.toInt() * 1000),
+    );
+  });
+
+  @override
+  Future<InPersonCodeMade> inPersonRequest({required BigInt amount, String? message, int? ttlBlocks}) =>
+      _guard(() async => _inPersonCode(
+        await _w.inPersonInvoice(
+          amount: amount,
+          message: _message(message),
+          ttlBlocks: ttlBlocks == null ? null : BigInt.from(ttlBlocks),
+          relayMode: lepicRelayMode(),
+        ),
+      ));
+
+  @override
+  Future<InPersonCodeMade> inPersonSend({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    String? message,
+    SendOptions? options,
+  }) => _s._nodeGuard('send in person', () async => _inPersonCode(
+    await _w.inPersonSend(
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      message: _message(message),
+      options: await _s._optionsFor(amount, minimumConfirmations, options),
+      relayMode: lepicRelayMode(),
+    ),
+  ));
+
+  @override
+  Future<InPersonCodeInfo> inPersonRead(List<int> code, {required BigInt minimumConfirmations, SendOptions? options}) =>
+      _guard(() async {
+        final r = await _w.inPersonRead(
+          code: code,
+          minimumConfirmations: minimumConfirmations,
+          options: await _s._optionsFor(BigInt.zero, minimumConfirmations, options),
+          relayMode: lepicRelayMode(),
+        );
+        return InPersonCodeInfo(
+          slateId: r.slateId,
+          stage: _inPersonStage(r.stage),
+          amount: r.amount,
+          fee: r.fee,
+          message: r.message,
+          ttlCutoff: r.ttlCutoff,
+          mailbox: r.mailbox == null ? null : _inPersonHost(r.mailbox!),
+        );
+      });
+
+  @override
+  Future<InPersonAnswerMade> inPersonReceive(List<int> code, {String? message}) =>
+      _s._nodeGuard('receive in person', () async => _inPersonAnswer(
+        await _w.inPersonReceive(code: code, message: _message(message), relayMode: lepicRelayMode()),
+      ));
+
+  @override
+  Future<InPersonAnswerMade> inPersonPay(
+    List<int> code, {
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    String? message,
+    SendOptions? options,
+  }) => _s._nodeGuard('pay in person', () async => _inPersonAnswer(
+    await _w.inPersonPay(
+      code: code,
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      message: _message(message),
+      options: await _s._optionsFor(amount, minimumConfirmations, options),
+      relayMode: lepicRelayMode(),
+    ),
+  ));
+
+  @override
+  Future<void> inPersonPost({required String slateId, required bool relayOk}) =>
+      _epicboxGuard('post an in-person answer', () async {
+        await _w.inPersonPost(slateId: slateId, relayOk: relayOk, relayMode: lepicRelayMode());
+      });
+
+  @override
+  Future<InPersonStatus> inPersonAnswers(String slateId) => _guard(() async {
+    final c = await _w.inPersonAnswers(slateId: slateId);
+    return InPersonStatus(
+      txId: c.txId,
+      slateId: c.slateId,
+      stage: _inPersonStage(c.stage),
+      ttlCutoff: c.ttlCutoff,
+      mailbox: c.mailbox,
+      closed: c.closed,
+      finalized: c.finalized,
+      answers: [
+        for (final a in c.answers)
+          InPersonAnswer(number: a.number, checkCode: a.checkCode, sameCode: a.sameCode, receivedAt: _msAt(a.receivedAtMs)),
+      ],
+    );
+  });
+
+  @override
+  Future<InPersonTaken> inPersonTake(List<int> answer) => _guard(() async {
+    final t = await _w.inPersonTake(answer: answer);
+    return InPersonTaken(
+      txId: t.txId,
+      slateId: t.slateId,
+      stage: _inPersonStage(t.stage),
+      answer: t.answer,
+      checkCode: t.checkCode,
+      sameCode: t.sameCode,
+      duplicate: t.duplicate,
+    );
+  });
+
+  @override
+  Future<TxEntry> inPersonFinalize({required String slateId, required int answer}) =>
+      _s._nodeGuard('finalize in person', () async {
+        final f = await _w.inPersonFinalize(slateId: slateId, answer: answer);
+        return _s._entry(f.txId);
+      });
+
+  @override
+  List<String> qrParts(List<int> bytes) =>
+      _guardSync(() => lepic_in_person.inPersonQrParts(bytes: bytes, maxFragmentLen: qrFragmentLen));
+
+  @override
+  InPersonQrProgress qrRead(List<String> parts) => _guardSync(() {
+    final p = lepic_in_person.inPersonQrRead(parts: parts);
+    return InPersonQrProgress(
+      complete: p.complete,
+      received: p.receivedFragments,
+      total: p.fragmentCount,
+      bytes: p.bytes,
+    );
   });
 }
 
@@ -4455,6 +4813,7 @@ class _LepicPairing implements PairingApi {
     _folded.retainAll(now);
     // A claimed domain is checked after the collect, not in it; what is not due is skipped.
     if (only == null) unawaited(_checkDomains());
+    await _s._postEpic1Answers();
     // Pairings that ended this cycle are kept, ended: their own events name them; the lists
     // read again.
     if ((before.difference(now).isNotEmpty || ended > 0) && !_events.isClosed) {
@@ -4906,8 +5265,9 @@ class _LepicPairing implements PairingApi {
   }
 }
 
-/// LEPIC's armored sealed text (RFC 3.5): `BEGINEPICSEALED` after optional whitespace.
-bool isSealedLepicText(String text) => text.trimLeft().startsWith('BEGINEPICSEALED');
+/// LEPIC's armored sealed text (RFC 3.5): `BEGINEPICSEALED` or, with native slates, `BEGINEPICTX.`
+/// after optional whitespace.
+bool isSealedLepicText(String text) => isSealedText(text);
 
 /// [address] with its Epicbox server: a bare key names the settings' `epicbox.default`. LEPIC
 /// refuses an address without one and has no default of its own.

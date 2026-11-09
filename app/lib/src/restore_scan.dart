@@ -21,6 +21,7 @@ import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'epic1.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network_gate.dart';
@@ -62,6 +63,10 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
   /// Screens that run the restore's own scan ([hold]).
   int _holds = 0;
 
+  /// The flag was set while this session was in epic1 mode: when it clears, the link mailboxes
+  /// are drained once ([Epic1Wallet.restore]).
+  bool _epic1Due = false;
+
   /// Failed tries in a row since the last success or unlock; sets the next wait.
   int _failures = 0;
 
@@ -81,6 +86,7 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
       _retry?.cancel();
       _retry = null;
       _failures = 0;
+      _epic1Due = false;
       state = const RestoreScanState();
       if (session != null) unawaited(check());
     });
@@ -154,8 +160,13 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
       _retry = null;
       _failures = 0;
       state = const RestoreScanState();
+      if (_epic1Due) {
+        _epic1Due = false;
+        unawaited(_restoreLinks(session));
+      }
       return;
     }
+    if (session.epic1?.inUse ?? false) _epic1Due = true;
     // The scan from the restore's start ended without an error and the flag stayed (the core skipped it,
     // or it did not count): a failure to wait out, never a scan straight after a scan.
     if (afterOwn) {
@@ -179,6 +190,19 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
     unawaited(ref.read(scanProvider.notifier).run());
     // run() marks the scan running before its first wait, or refused it.
     if (!ref.read(scanProvider).running) _own = false;
+  }
+
+  /// After a restore in epic1 mode: the 50 on-screen and 32 printed link mailboxes of the own
+  /// relay, drained once. A failure is logged; nothing waits on it.
+  Future<void> _restoreLinks(WalletSession session) async {
+    final epic1 = session.epic1;
+    if (epic1 == null) return;
+    try {
+      final found = await epic1.restore();
+      logInfo('restore', 'epic1 link mailboxes drained: $found payments found');
+    } catch (error) {
+      logWarn('restore', 'epic1 link mailboxes not drained: ${describeError(englishStrings, error)}');
+    }
   }
 
   void _failed(Object error) {
