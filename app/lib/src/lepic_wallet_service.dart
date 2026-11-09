@@ -263,6 +263,30 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.restoreScanRequired =>
       WalletErrorKind.restoreScanRequired,
+    // Another Epic wallet's saved_txs record opened as a payment file: not one to answer.
+    lepic.WalletErrorKind.savedTransaction => WalletErrorKind.invalidSlate,
+    // A native send stored and not delivered (its inputs stay locked, txId set), as notDelivered.
+    lepic.WalletErrorKind.nativeExchangeFailed ||
+    lepic.WalletErrorKind.thisComputer ||
+    lepic.WalletErrorKind.peerProbeFailed ||
+    lepic.WalletErrorKind.epic1NoMoreRelays => WalletErrorKind.transportFailed,
+    // In-person codes, epic1 links and native pins: no screen calls them yet, so the core's
+    // message stands until those screens word their own.
+    lepic.WalletErrorKind.inPersonNotFound ||
+    lepic.WalletErrorKind.relayNotConfirmed ||
+    lepic.WalletErrorKind.inPersonNoMailbox ||
+    lepic.WalletErrorKind.urCodeIncomplete ||
+    lepic.WalletErrorKind.epic1CannotPay ||
+    lepic.WalletErrorKind.printedLinksFull ||
+    lepic.WalletErrorKind.epic1NotFound ||
+    lepic.WalletErrorKind.ownRelayLocal ||
+    lepic.WalletErrorKind.epic1RelayInvalid ||
+    lepic.WalletErrorKind.epic1MessageInvalid ||
+    lepic.WalletErrorKind.epic1Finalized ||
+    lepic.WalletErrorKind.epic1WrongNetwork ||
+    lepic.WalletErrorKind.notAnEpic1Link => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.pinnedNoAdvert ||
+    lepic.WalletErrorKind.pinChanged => WalletErrorKind.other,
     // Decided on by kind, never by the core's English message.
     lepic.WalletErrorKind.unsupported => WalletErrorKind.unsupported,
     lepic.WalletErrorKind.cancelled => WalletErrorKind.cancelled,

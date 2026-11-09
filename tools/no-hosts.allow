@@ -35,13 +35,19 @@ app/lib/src/desktop/screens/invoices/shots_req.dart	:3415(?![0-9])
 app/lib/src/web/preview.dart	:3413(?![0-9])
 
 # LEPIC: the Epic node's foreign API path, its protocol (ADR 0030 keeps it in code).
-lepic/crates/lepic-foreign/src/server.rs	"/v2/foreign"
+lepic/crates/lepic-legacy-rpc/src/server.rs	"/v2/foreign"
 lepic/crates/lepic-node/src/rpc.rs	"/v2/foreign"
-lepic/crates/lepic-tor/src/transport.rs	"/v2/foreign"
+lepic/crates/lepic-methods/src/tor/mod.rs	"/v2/foreign"
 
+# LEPIC: the native endpoint's paths (ADR 0052), protocol every native wallet serves.
+lepic/crates/lepic-peer/src/lib.rs	"/v1/peer(/slates)?"
+# LEPIC CLI: its own REST API's paths and the OpenAPI document listing them (the API's
+# interface, like the node's /v2/foreign), never an address.
+lepic/crates/lepic-cli/src/api/routes.rs	"/v1/[^"]*"
+lepic/crates/lepic-cli/src/api/openapi.rs	"/v[12]/[^"]*"
 # LEPIC: 3415 is what a peer's http:// address without a port means, in every Epic wallet
 # (protocol, ADR 0030), and its documentation; the generated Dart copies the doc comments.
-lepic/crates/lepic-foreign/src/url.rs	(?<![0-9])3415(?![0-9])
+lepic/crates/lepic-legacy-rpc/src/url.rs	(?<![0-9])3415(?![0-9])
 lepic/crates/lepic-ffi/src/api/http.rs	(?<![0-9])3415(?![0-9])
 lepic/crates/lepic-cli/src/cli.rs	missing port is 3415
 lepic-flutter/lib/src/rust/api/wallet.dart	(?<![0-9])3415(?![0-9])
@@ -79,8 +85,14 @@ app/lib/src/ui/contact_label_mark.dart	xmlns="http://www\.w3\.org/2000/svg"
 # LEPIC domain-proof unit tests: the domains a claim is signed for and parsed as (test data in
 # #[cfg(test)] modules, never dialled).
 lepic/crates/lepic-cli/src/settings.rs	btlabs\.uk
-lepic/crates/lepic-contact/src/domain.rs	btlabs\.uk|[ab]\.com
+lepic/crates/lepic-seal/src/domain.rs	btlabs\.uk|[ab]\.com
 lepic/crates/lepic-wallet-contacts/src/domain.rs	integration\.btlabs\.uk
 
 # Generated from the driver registry: control ids, not hosts (`g4.send.to`).
 app/lib/src/trust_ids.g.dart	'[a-z0-9_.]+'
+# LEPIC unit-test data: addresses the host rule, the address parser and the origin parser
+# must accept or refuse, and an epic1 relay entry (test input, never dialled).
+lepic/crates/lepic-transport/src/host_rule.rs	"[0-9a-fA-F:.]+"
+lepic/crates/lepic-native-slate/src/tail.rs	epicbox\.epiccash\.com|a\.org
+lepic/crates/lepic-peer/src/origin.rs	[a-z2-7]{56}\.onion
+lepic/crates/lepic-epic1/src/link/tests.rs	:2100(?![0-9])

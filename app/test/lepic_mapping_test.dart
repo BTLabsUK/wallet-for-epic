@@ -99,6 +99,7 @@ class _SendingWallet extends _NoNativeWallet {
       slateId: 'sent-1',
       amount: amount,
       fee: BigInt.one,
+      format: lepic.SlateWire.legacy,
     );
   }
 
@@ -181,6 +182,7 @@ void main() {
           lepic: false,
           notices: false,
           fresh: false,
+          nativeSlates: false,
         ),
       )!;
       expect(c.lastMarkedAt, DateTime.utc(2026, 1, 1));
@@ -195,7 +197,7 @@ void main() {
     });
 
     test('a key nothing is known about is no row at all', () {
-      expect(lepicPeerCompat(const lepic.PeerCompat(claimed: 0, works: 0, lepic: false, notices: false, fresh: false)), isNull);
+      expect(lepicPeerCompat(const lepic.PeerCompat(claimed: 0, works: 0, lepic: false, notices: false, fresh: false, nativeSlates: false)), isNull);
     });
   });
 

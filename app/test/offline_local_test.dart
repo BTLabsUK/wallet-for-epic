@@ -50,7 +50,7 @@ class _Wallet implements lepic.EpicWallet {
     lepic.SendOptions? options,
   }) async {
     sentTo.add(url);
-    return lepic.HttpSentTx(txId: 5, slateId: 'sent-1', amount: amount, fee: BigInt.one, posted: true);
+    return lepic.HttpSentTx(txId: 5, slateId: 'sent-1', amount: amount, fee: BigInt.one, posted: true, dialect: lepic.SendDialect.legacy, format: lepic.SlateWire.legacy);
   }
 
   final List<bool> torSet = [];
