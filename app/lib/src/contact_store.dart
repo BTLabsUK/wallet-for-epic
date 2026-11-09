@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The address book every wallet on this device shares: `<app data>/contacts.json`. A contact is
+/// The address book every wallet of one network on this device shares: `<app data>/contacts.json`
+/// for mainnet, a folder of its own for another network ([contactsDirOf]). A contact is
 /// a name, at most one address of each kind (Epicbox, Link · HTTP, Link · Tor) and a note. What
 /// belongs to one wallet (a pairing, whether a contact is trusted or may send invoices, the
 /// payments made) stays in that wallet and points here by the contact's id.
@@ -117,6 +118,14 @@ String _randomHex(int bytes) {
   final r = Random.secure();
   return [for (var i = 0; i < bytes; i++) r.nextInt(256).toRadixString(16).padLeft(2, '0')].join();
 }
+
+/// The folder of [chain]'s address book under the app data folder [root]: mainnet's is [root]
+/// itself, where every earlier build kept the one book; another network's is a folder of its
+/// own. A phone opens one network's wallet at a time, so a book shared across networks stayed
+/// closed to the wallet of the network that had no wrap yet; and a test network's contacts are
+/// no use on mainnet.
+String contactsDirOf(String root, String chain) =>
+    chain == 'mainnet' ? root : '$root${Platform.pathSeparator}contacts-$chain';
 
 /// The sealed book beside the plain one, and the folder of its key's wraps.
 const String contactsSealedFileName = 'contacts.sealed';
@@ -264,6 +273,29 @@ class ContactStore {
         if (store._wallets.isEmpty) store._lock();
       }
     });
+  }
+
+  /// Earlier builds kept one book in [shared] for the wallets of every network; a wallet of
+  /// another network now has its own in [dir] ([contactsDirOf]). With a wrap of [walletId] in
+  /// [shared], the book and that wrap are copied to [dir] as they are, still sealed (no key is
+  /// opened; a book already in [dir] stays), and the wrap leaves [shared]: the wallet keeps its
+  /// contacts, and the book in [shared] stays with the mainnet wallets.
+  static Future<void> moveFromShared(String shared, String dir, String walletId) async {
+    if (!sealedWalletIdPattern.hasMatch(walletId)) throw _invalid('not a wallet id');
+    final from = ContactStore._sealed(Directory(shared).absolute.path);
+    final to = ContactStore._sealed(Directory(dir).absolute.path);
+    final wrap = await SealedFile.read(from._wrapPath(walletId));
+    if (wrap == null) return;
+    final book = await SealedFile.read(from._sealedPath);
+    if (book != null && !await File(to._sealedPath).exists()) {
+      // The wrap first: a stop before the book leaves no book in [dir], and the next open copies again.
+      await _write(to._wrapPath(walletId), wrap);
+      await _write(to._sealedPath, book);
+      logInfo('contacts', 'address book moved to its network\'s own folder');
+    } else if (!await File(to._wrapPath(walletId)).exists()) {
+      await _write(to._wrapPath(walletId), wrap);
+    }
+    await removeWalletKey(shared, walletId);
   }
 
   /// Forgets the loaded stores (tests that delete their folder).
