@@ -2,7 +2,7 @@
 /// Link · HTTP's two addresses, each with its switch: this computer
 /// (`http://127.0.0.1:<port>`, the listener itself) and the internet
 /// (`http://<the router's public IP>:<port>`, [DeskSettings.publicMode]: the listener binds
-/// 0.0.0.0 instead of 127.0.0.1). On Receive and in Settings › Payments › Link · HTTP.
+/// 0.0.0.0 instead of 127.0.0.1). On Receive and in Settings › Transactions › Link · HTTP.
 ///
 /// The public IP is asked (status server, `[status] ip` of `app-config.toml`) only while the
 /// internet switch is on and the listener runs; never the LAN address in its place.

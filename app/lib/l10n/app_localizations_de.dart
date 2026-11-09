@@ -13299,10 +13299,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Zahlungen ein.';
+      'Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Transaktionen ein.';
 
   @override
-  String get deskOutDefaultsOpen => 'Zahlungen öffnen';
+  String get deskOutDefaultsOpen => 'Transaktionen öffnen';
 
   @override
   String get deskSetFrameTransactions => 'Transaktionen';
@@ -19751,9 +19751,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSecWallet => 'Wallet';
-
-  @override
-  String get deskSetSecPayments => 'Zahlungen';
 
   @override
   String get deskSetSecDevices => 'Verknüpfte Geräte';

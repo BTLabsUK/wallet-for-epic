@@ -18,7 +18,7 @@
 {"id": "g4.nav.receive", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavReceive"], "names": ["Receive"], "match": "exact"},
 {"id": "g4.nav.settings", "screen": "shell", "family": ["desktop"], "role": "tab", "keys": ["deskShellNavSettings"], "names": ["Settings"], "match": "exact"},
 {"id": "g4.settings.section.node", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetFrameNode"], "names": ["Node"], "match": "exact"},
-{"id": "g4.settings.section.receiving", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetSecPayments", "deskSetFrameTransactions"], "names": ["Payments", "Transactions", "Receiving"]},
+{"id": "g4.settings.section.receiving", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetFrameTransactions"], "names": ["Transactions", "Payments", "Receiving"]},
 {"id": "g4.settings.section.appearance", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetFrameAppearance"], "names": ["Appearance"], "match": "exact"},
 {"id": "g4.settings.section.account", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskSetSecWallet", "deskSetFrameThisWallet"], "names": ["Wallet", "This wallet"]},
 {"id": "g4.settings.section.contacts", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskShellNavContacts"], "names": ["Contacts"], "match": "exact"},

@@ -219,7 +219,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       id: 'receive-epicbox',
       child: st.settings.payments.epicbox ? (shallow ? _shallowPanel(st, status, moved) : _epicboxPanel(st, status)) : _epicboxOffNotice(nav),
     );
-    // Settings › Payments: Link · Tor's panel while its switch is on: it starts tor for payments
+    // Settings › Transactions: Link · Tor's panel while its switch is on: it starts tor for payments
     // by itself (item 2), or the Tor switch runs it; Link · HTTP's while the Tor switch is off
     // (it stops the clearnet listener), or while its listener still runs. Off, Link · HTTP's
     // panel is one line with its switch, so it is turned on again here.

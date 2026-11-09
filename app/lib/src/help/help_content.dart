@@ -213,7 +213,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
   final nodePlace = phone ? '[[Settings › Network & privacy › Node]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Payments › Epicbox]]';
+  final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Settings › Network & privacy › Tor only]]' : '[[Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
@@ -222,7 +222,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ? '**Restore from phrase** (on the first screen, or under [[Settings › This wallet]])'
       : '**Restore from phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › Wallets]])';
   final recheckPlace = phone ? '[[Settings › This wallet › Recheck balance]]' : '[[Settings › Wallet › Recheck balance]]';
-  final payPlace = phone ? '[[Settings › Transactions]]' : '[[Settings › Payments]]';
+  final payPlace = '[[Settings › Transactions]]';
   final filesPlace = '[[Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
@@ -289,7 +289,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Payment methods and send defaults',
       'Every method is a switch; Epicbox is on by default. Send opens on the default method.',
       [
-        HelpBlock.p('The ${phone ? 'Transactions' : 'Payments'} page in $payPlace holds three things.'),
+        HelpBlock.p('The Transactions page in $payPlace holds three things.'),
         HelpBlock.ul([
           '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.${phone ? ' On a phone, **Link · HTTP** has no switch: it only sends, to any http(s) address you paste.' : ''}',
           '**Default method.** The method the Send screen opens with; another can be picked on Send.',

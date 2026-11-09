@@ -263,12 +263,12 @@ class CoreTest(unittest.TestCase):
     def test_a_setting_not_on_its_page_fails_there_and_then(self):
         search = n(9, "text_field", "Search settings")
         page = lambda name, *rest: [n(0, "button", name, value=name), search, *rest]  # noqa: E731
-        f = Fake({"pay": page("Payments", n(1, "button", "Fewer confirmations")),
-                  "list": [search, n(1, "row", "Payments"), n(2, "row", "Advanced"), n(3, "row", "Appearance")],
+        f = Fake({"pay": page("Transactions", n(1, "button", "Fewer confirmations")),
+                  "list": [search, n(1, "row", "Transactions"), n(2, "row", "Advanced"), n(3, "row", "Appearance")],
                   "adv": page("Advanced", n(1, "toggle", "Technical details")),
                   "app": page("Appearance")}, "pay",
-                 {("pay", "Payments"): "list", ("adv", "Advanced"): "list", ("app", "Appearance"): "list",
-                  ("list", "Payments"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
+                 {("pay", "Transactions"): "list", ("adv", "Advanced"): "list", ("app", "Appearance"): "list",
+                  ("list", "Transactions"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
         d = self.driver(f)
         desk = Desktop(d, "previous", self.logs.append)
         with unittest.mock.patch("core.desktop.time.sleep"), self.assertRaises(HarnessFault) as hit:

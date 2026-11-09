@@ -404,7 +404,7 @@ class ConfirmationsOnScreen(unittest.TestCase):
         self.assertTrue(lane.results["settings_kept"], d)
         self.assertNotIn("NOT read", d)
         self.assertIn("1 confirmations", d)
-        self.assertIn("Settings › Payments page before and after", d)
+        self.assertIn("Settings › Transactions page before and after", d)
         self.assertIn("set to 2 and back to 1", d)
         self.assertIsNone(before["settings"]["confirmations"], "the digest itself is left as read")
 

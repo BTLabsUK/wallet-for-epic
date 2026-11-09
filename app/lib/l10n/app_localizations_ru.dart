@@ -13642,10 +13642,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Платежи».';
+      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».';
 
   @override
-  String get deskOutDefaultsOpen => 'Открыть «Платежи»';
+  String get deskOutDefaultsOpen => 'Открыть «Транзакции»';
 
   @override
   String get deskSetFrameTransactions => 'Транзакции';
@@ -20208,9 +20208,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSecWallet => 'Кошелёк';
-
-  @override
-  String get deskSetSecPayments => 'Платежи';
 
   @override
   String get deskSetSecDevices => 'Связанные устройства';

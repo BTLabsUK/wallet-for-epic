@@ -12805,10 +12805,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › การชำระเงิน';
+      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม';
 
   @override
-  String get deskOutDefaultsOpen => 'เปิดการชำระเงิน';
+  String get deskOutDefaultsOpen => 'เปิดธุรกรรม';
 
   @override
   String get deskSetFrameTransactions => 'ธุรกรรม';
@@ -19090,9 +19090,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSecWallet => 'วอลเล็ต';
-
-  @override
-  String get deskSetSecPayments => 'การชำระเงิน';
 
   @override
   String get deskSetSecDevices => 'อุปกรณ์ที่เชื่อมโยง';

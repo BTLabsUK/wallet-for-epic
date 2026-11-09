@@ -32,7 +32,6 @@
   "deskSetSearchFallbackView": "{page}在{view}视图中显示。",
   "deskSetSearchFallbackFeat": "开启高级 › {feature} 后显示{page}。",
   "deskSetSecWallet": "钱包",
-  "deskSetSecPayments": "支付",
   "deskSetSecDevices": "关联设备",
   "deskSetSecWallets": "钱包列表",
   "deskSetSecFiles": "文件与日志",

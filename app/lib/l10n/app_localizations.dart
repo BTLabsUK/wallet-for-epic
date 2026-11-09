@@ -20667,13 +20667,13 @@ abstract class AppLocalizations {
   /// One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went.
   ///
   /// In en, this message translates to:
-  /// **'The strategy and Split change for sends are set in Settings › Payments.'**
+  /// **'The strategy and Split change for sends are set in Settings › Transactions.'**
   String get deskOutDefaultsMoved;
 
   /// Inline button after deskOutDefaultsMoved: opens Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Open Payments'**
+  /// **'Open Transactions'**
   String get deskOutDefaultsOpen;
 
   /// Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px).
@@ -30161,12 +30161,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wallet'**
   String get deskSetSecWallet;
-
-  /// Settings navigation: payment methods, sending and receiving.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments'**
-  String get deskSetSecPayments;
 
   /// Settings navigation: this wallet on other devices.
   ///

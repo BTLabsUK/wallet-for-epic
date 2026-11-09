@@ -95,7 +95,7 @@ void main() {
     testWidgets('Payment methods: one switch per method, grouped by family, Epicbox on', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       // The page's header is the nav item's name (polish #88): the nav and the header.
-      expect(find.text(_l.deskSetSecPayments), findsWidgets);
+      expect(find.text(_l.deskSetFrameTransactions), findsWidgets);
       expect(find.text(_l.deskSetTxMethods), findsOneWidget);
       expect(find.text(_l.txMethodsHeader), findsNothing);
       expect(find.text('Always on'), findsNothing);
@@ -217,14 +217,14 @@ void main() {
       expect(_container.read(deskProvider).settings.tor, isFalse, reason: 'Retry leaves the Tor switch alone');
     }, skip: !torBuilt);
 
-    testWidgets('Outputs holds one line to Payments with Send options on', (tester) async {
+    testWidgets('Outputs holds one line to Transactions with Send options on', (tester) async {
       await _open(tester, DeskRoute.outputs, advanced: AdvancedPrefs(features: {AdvancedFeature.outputs, AdvancedFeature.sendOptions}));
       await tester.ensureVisible(find.byKey(const ValueKey('out-defaults-moved')));
       expect(find.byKey(const ValueKey('out-defaults-moved')), findsOneWidget);
       expect(find.text(_l.deskOutStrategyTitle), findsNothing);
       await tester.tap(find.text(_l.deskOutDefaultsOpen));
       await _settle(tester);
-      expect(find.text(_l.deskSetSecPayments), findsWidgets);
+      expect(find.text(_l.deskSetFrameTransactions), findsWidgets);
       expect(find.byKey(const ValueKey('st-strategy')), findsOneWidget);
     });
   });

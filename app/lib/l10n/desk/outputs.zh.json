@@ -120,8 +120,8 @@
   "deskOutNothingText": "无需合并：钱包只有{what}。",
   "deskOutWhatFewer": "不到两个可用输出",
   "deskOutWhatOne": "一个可用输出",
-  "deskOutDefaultsMoved": "发送的“策略”和“拆分找零”在“设置 › 支付”中设置。",
-  "deskOutDefaultsOpen": "打开“支付”",
+  "deskOutDefaultsMoved": "发送的“策略”和“拆分找零”在“设置 › 交易”中设置。",
+  "deskOutDefaultsOpen": "打开“交易”",
   "deskOutNoteWaitingRecipient": "等待接收方",
   "deskOutFilterWaiting": "等待中"
 }
