@@ -295,6 +295,16 @@ void main() {
         await tester.pump();
         await tester.pump();
         expect(find.text(_l.workCreating), findsOneWidget);
+        // In the theme's body text, not Flutter's no-Material fallback (red monospace, double
+        // yellow underline), which 26.11.2 showed here.
+        final drawn = tester
+            .widget<RichText>(find.descendant(of: find.text(_l.workCreating), matching: find.byType(RichText)))
+            .text
+            .style!;
+        final theme = Theme.of(tester.element(find.text(_l.workCreating)));
+        expect(drawn.decoration, isNot(TextDecoration.underline));
+        expect(drawn.fontFamily, theme.textTheme.bodyMedium!.fontFamily);
+        expect(drawn.color, theme.textTheme.bodyMedium!.color);
         expect(find.byKey(balanceFigureKey), findsNothing);
 
         service.createGate!.complete();

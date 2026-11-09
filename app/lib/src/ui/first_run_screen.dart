@@ -245,7 +245,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                     const SizedBox(height: 16),
                     WorkStatus(
                       lines: [l.workCreating, l.firstRunSecuring, l.workOpening],
-                      style: DefaultTextStyle.of(context).style,
+                      // The body text the plain line had. Not DefaultTextStyle.of(context): this
+                      // context is above the Scaffold, so it gave the no-Material fallback (red,
+                      // yellow underline).
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ] else ...[
                     ErrorText(_error!),
