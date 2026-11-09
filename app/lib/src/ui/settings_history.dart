@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../contacts.dart' show contactsProvider, favouriteContactsProvider;
 import '../errors.dart';
 import '../l10n.dart';
+import '../network.dart' show chainFileTag;
 import '../pairing_providers.dart' show pairingsProvider;
 import '../providers.dart';
 import '../settings.dart';
@@ -121,7 +122,7 @@ final historyFilesProvider = Provider<HistoryFiles>(
 /// the extension and the content.
 String historyFileName(Chain chain, DateTime day, String extension) {
   String two(int v) => v.toString().padLeft(2, '0');
-  final tag = chain == Chain.mainnet ? '' : '${chain.name}-';
+  final tag = chainFileTag(chain);
   return 'epic-wallet-data-$tag${day.year}${two(day.month)}'
       '${two(day.day)}.$extension';
 }
@@ -129,7 +130,7 @@ String historyFileName(Chain chain, DateTime day, String extension) {
 /// `epic-payments-<yyyyMMdd>.csv`, the name offered for a new payments export.
 String paymentsFileName(Chain chain, DateTime day) {
   String two(int v) => v.toString().padLeft(2, '0');
-  final tag = chain == Chain.mainnet ? '' : '${chain.name}-';
+  final tag = chainFileTag(chain);
   return 'epic-payments-$tag${day.year}${two(day.month)}${two(day.day)}.csv';
 }
 

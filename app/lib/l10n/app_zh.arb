@@ -1644,7 +1644,7 @@
   "deskOnbCreateStageSave": "正在保存钱包",
   "deskOnbCreateNotCreated": "钱包未创建",
   "deskOnbCreateCreating": "正在创建钱包",
-  "deskOnbCreateTestLead": "{network} 上的钱包，这是一个测试网络。",
+  "deskOnbCreateTestLead": "{network}上的钱包。",
   "deskOnbCreateDiskFull": "未保存钱包：磁盘已满。请释放一些空间后重试。",
   "deskOnbCreateWait": "请保持应用打开。",
   "deskOnbCreateLocking": "正在锁定已打开的钱包",
@@ -5298,8 +5298,8 @@
   "pairDefaultLabel": "联系人 {n}",
   "pairVerifiedService": "已验证的 BT Labs 服务",
   "linkNotALink": "不是付款链接",
-  "linkMadeForMainnet": "为 mainnet 创建",
-  "linkMadeForFloonet": "为 floonet 创建",
+  "linkMadeForMainnet": "为主网络创建",
+  "linkMadeForFloonet": "为测试网络创建",
   "linkChanged": "此链接在创建后被更改过。",
   "linkExpired": "此链接已于 {date} 过期",
   "linkForOther": "为其他人创建",
@@ -5557,5 +5557,9 @@
   "deskE1Back": "返回",
   "deskSendFileFor": "给",
   "deskSendFileForHelp": "发给已配对联系人的文件会被密封：只有对方的钱包能打开。",
-  "deskImpFrom": "来自"
+  "deskImpFrom": "来自",
+  "deskE1TourPhSendText": "粘贴 epic1 链接，或选择联系人。“面对面付款”用于身边的手机。发出前会先确认。",
+  "deskE1TourPhReceiveText": "你的 epic1 链接。分享它即可收款。“面对面收款”用于身边的手机。",
+  "deskE1TourSendText": "粘贴 epic1 链接，或选择联系人。“当面付款”用于身边的手机。发出前会先确认。",
+  "deskE1TourReceiveText": "这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。"
 }

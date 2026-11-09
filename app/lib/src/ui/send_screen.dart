@@ -2489,11 +2489,14 @@ class _SendViewState extends ConsumerState<SendView> {
     if (_stage == SendStage.recipient && _pairingTo == null && ref.watch(paymentModeProvider) == PaymentMode.epic1) {
       return ScreenBody(
         children: [
-          Epic1SendStart(
-            header: _header(context, context.l10n.homeSendButton, step: 1),
-            classicCode: _classicCode,
-            onContact: _useEpic1Contact,
-            onDone: () {},
+          PhoneTourTarget(
+            id: 'tour-send-recipient',
+            child: Epic1SendStart(
+              header: _header(context, context.l10n.homeSendButton, step: 1),
+              classicCode: _classicCode,
+              onContact: _useEpic1Contact,
+              onDone: () {},
+            ),
           ),
         ],
       );

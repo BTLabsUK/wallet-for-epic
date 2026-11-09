@@ -13612,7 +13612,7 @@ abstract class AppLocalizations {
   /// Line under the progress title when a test network is selected (development builds only). {network} is the network's name.
   ///
   /// In en, this message translates to:
-  /// **'A wallet on {network}, a test network.'**
+  /// **'A wallet on the {network}.'**
   String deskOnbCreateTestLead(String network);
 
   /// Failure text on the new-wallet progress page when the disk is full.
@@ -32073,13 +32073,13 @@ abstract class AppLocalizations {
   /// Refusal of a payment link made for the main network.
   ///
   /// In en, this message translates to:
-  /// **'Made for mainnet'**
+  /// **'Made for the main network'**
   String get linkMadeForMainnet;
 
   /// Refusal of a payment link made for the test network.
   ///
   /// In en, this message translates to:
-  /// **'Made for floonet'**
+  /// **'Made for the test network'**
   String get linkMadeForFloonet;
 
   /// Refusal of a payment link whose signature does not hold.
@@ -33371,6 +33371,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From'**
   String get deskImpFrom;
+
+  /// Phone tour, Send step, in epic1 mode: one field for an epic1 link or a contact, and the Pay in person button. Names the button 'Pay in person' as on the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes first.'**
+  String get deskE1TourPhSendText;
+
+  /// Phone tour, Receive step, in epic1 mode: the epic1 link card and the Request in person button below it. Names the button 'Request in person' as on the screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your epic1 link. Share it to get paid. Request in person is for a phone next to you.'**
+  String get deskE1TourPhReceiveText;
+
+  /// Desktop tour, Send step, in epic1 mode: the epic1 link field and the Pay in person button.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes before anything leaves.'**
+  String get deskE1TourSendText;
+
+  /// Desktop tour, Receive step, in epic1 mode: the epic1 link card and the In person panel.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet\'s epic1 link: share it to get paid. Request in person is for a phone next to you.'**
+  String get deskE1TourReceiveText;
 }
 
 class _AppLocalizationsDelegate

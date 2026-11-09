@@ -220,7 +220,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           constraints: BoxConstraints(maxWidth: 1600.u),
           child: LayoutBuilder(
             builder: (context, size) {
-              final card = Epic1LinkCard(relay: box == null ? null : relayLabel(box), showQr: _args?.qr == RxQr.epicbox);
+              final card = TourTarget(id: 'e1-receive-link', child: Epic1LinkCard(relay: box == null ? null : relayLabel(box), showQr: _args?.qr == RxQr.epicbox));
               const others = Epic1OtherWays();
               if (size.maxWidth >= Lay.wide) {
                 return Row(

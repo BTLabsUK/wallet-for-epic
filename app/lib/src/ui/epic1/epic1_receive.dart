@@ -24,6 +24,7 @@ import '../theme/brand.dart' show MarkedQr;
 import '../theme/protocol.dart' show CornerTicksPainter;
 import '../theme/tokens.dart';
 import '../tip.dart';
+import '../tour/tour_target.dart';
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
@@ -153,7 +154,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
-        card,
+        PhoneTourTarget(id: 'tour-receive-address', child: card),
         const SizedBox(height: 8),
         SettingsHeader(l.deskE1PhOtherWays),
         ListTile(

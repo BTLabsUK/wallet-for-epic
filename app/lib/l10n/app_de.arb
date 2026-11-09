@@ -2233,7 +2233,7 @@
   "deskOnbCreateStageSave": "Wallet wird gespeichert",
   "deskOnbCreateNotCreated": "Wallet nicht erstellt",
   "deskOnbCreateCreating": "Wallet wird erstellt",
-  "deskOnbCreateTestLead": "Eine Wallet im {network}, einem Testnetzwerk.",
+  "deskOnbCreateTestLead": "Eine Wallet im {network}.",
   "deskOnbCreateDiskFull": "Wallet nicht gespeichert: Der Datenträger ist voll. Geben Sie Speicherplatz frei und versuchen Sie es erneut.",
   "deskOnbCreateWait": "Lassen Sie die App geöffnet.",
   "deskOnbCreateLocking": "Die geöffnete Wallet wird gesperrt",
@@ -5298,8 +5298,8 @@
   "pairDefaultLabel": "Kontakt {n}",
   "pairVerifiedService": "Verifizierter BT-Labs-Dienst",
   "linkNotALink": "Kein Zahlungslink",
-  "linkMadeForMainnet": "Für Mainnet erstellt",
-  "linkMadeForFloonet": "Für Floonet erstellt",
+  "linkMadeForMainnet": "Für das Hauptnetzwerk erstellt",
+  "linkMadeForFloonet": "Für das Testnetzwerk erstellt",
   "linkChanged": "Dieser Link wurde nach der Erstellung geändert.",
   "linkExpired": "Dieser Link ist am {date} abgelaufen",
   "linkForOther": "Für jemand anderen erstellt",
@@ -5557,5 +5557,9 @@
   "deskE1Back": "Zurück",
   "deskSendFileFor": "Für",
   "deskSendFileForHelp": "Die Datei für einen gekoppelten Kontakt wird versiegelt: nur seine Wallet öffnet sie.",
-  "deskImpFrom": "Von"
+  "deskImpFrom": "Von",
+  "deskE1TourPhSendText": "Fügen Sie einen epic1-Link ein oder wählen Sie einen Kontakt. „Persönlich bezahlen“ ist für ein Smartphone neben Ihnen. Zuerst kommt eine Prüfung.",
+  "deskE1TourPhReceiveText": "Ihr epic1-Link. Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen.",
+  "deskE1TourSendText": "Einen epic1-Link einfügen oder einen Kontakt wählen. „Persönlich bezahlen“ ist für ein Smartphone neben Ihnen. Vor dem Abschicken kommt eine Prüfung.",
+  "deskE1TourReceiveText": "Der epic1-Link dieser Wallet: Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen."
 }

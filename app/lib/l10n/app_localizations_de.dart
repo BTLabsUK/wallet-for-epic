@@ -8758,7 +8758,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'Eine Wallet im $network, einem Testnetzwerk.';
+    return 'Eine Wallet im $network.';
   }
 
   @override
@@ -20874,10 +20874,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkNotALink => 'Kein Zahlungslink';
 
   @override
-  String get linkMadeForMainnet => 'Für Mainnet erstellt';
+  String get linkMadeForMainnet => 'Für das Hauptnetzwerk erstellt';
 
   @override
-  String get linkMadeForFloonet => 'Für Floonet erstellt';
+  String get linkMadeForFloonet => 'Für das Testnetzwerk erstellt';
 
   @override
   String get linkChanged => 'Dieser Link wurde nach der Erstellung geändert.';
@@ -21675,4 +21675,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'Von';
+
+  @override
+  String get deskE1TourPhSendText =>
+      'Fügen Sie einen epic1-Link ein oder wählen Sie einen Kontakt. „Persönlich bezahlen“ ist für ein Smartphone neben Ihnen. Zuerst kommt eine Prüfung.';
+
+  @override
+  String get deskE1TourPhReceiveText =>
+      'Ihr epic1-Link. Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen.';
+
+  @override
+  String get deskE1TourSendText =>
+      'Einen epic1-Link einfügen oder einen Kontakt wählen. „Persönlich bezahlen“ ist für ein Smartphone neben Ihnen. Vor dem Abschicken kommt eine Prüfung.';
+
+  @override
+  String get deskE1TourReceiveText =>
+      'Der epic1-Link dieser Wallet: Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen.';
 }

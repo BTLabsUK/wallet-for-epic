@@ -12,7 +12,7 @@ import 'package:intl/date_symbol_data_local.dart' show initializeDateFormatting;
 import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
-import 'network.dart' show chainLabel;
+import 'network.dart' show chainShownName;
 import 'wallet_service.dart' show Chain;
 
 export '../l10n/app_localizations.dart';
@@ -143,7 +143,7 @@ String localClock(AppLocalizations l, DateTime t) =>
 /// A chain's name, for the development builds only (`devNetworksBuild`): release builds show
 /// no network name anywhere, so these are English literals and not in the l10n tables.
 /// [l] is kept so the callers need no change.
-String chainName(AppLocalizations l, Chain chain) => chainLabel(chain);
+String chainName(AppLocalizations l, Chain chain) => chainShownName(chain);
 
 /// One sentence on what a chain is, for the development network picker (English only).
 String chainDescription(AppLocalizations l, Chain chain) => switch (chain) {
@@ -152,11 +152,11 @@ String chainDescription(AppLocalizations l, Chain chain) => switch (chain) {
   Chain.usernet => 'A test network running on this computer.',
 };
 
-/// ` (Floonet, test coins)` to put after a title on a test network, empty for Mainnet. The
+/// ` (Test network)` to put after a title on a test network, empty for Mainnet. The
 /// callers show it only when `devNetworksProvider` is on.
 String networkSuffix(AppLocalizations l, Chain chain) => switch (chain) {
   Chain.mainnet => '',
-  Chain.floonet || Chain.usernet => ' (${chainLabel(chain)}, test coins)',
+  Chain.floonet || Chain.usernet => ' (${chainShownName(chain)})',
 };
 
 /// Plain words for an auto-lock choice: `Never`, `Immediately`, `After 5 minutes`.

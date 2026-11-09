@@ -8377,7 +8377,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'กระเป๋าเงินบน $network ซึ่งเป็นเครือข่ายทดสอบ';
+    return 'กระเป๋าเงินบน$network';
   }
 
   @override
@@ -20187,10 +20187,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get linkNotALink => 'ไม่ใช่ลิงก์ชำระเงิน';
 
   @override
-  String get linkMadeForMainnet => 'สร้างไว้สำหรับ mainnet';
+  String get linkMadeForMainnet => 'สร้างไว้สำหรับเครือข่ายหลัก';
 
   @override
-  String get linkMadeForFloonet => 'สร้างไว้สำหรับ floonet';
+  String get linkMadeForFloonet => 'สร้างไว้สำหรับเครือข่ายทดสอบ';
 
   @override
   String get linkChanged => 'ลิงก์นี้ถูกแก้ไขหลังสร้าง';
@@ -20975,4 +20975,20 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'จาก';
+
+  @override
+  String get deskE1TourPhSendText =>
+      'วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนเสมอ';
+
+  @override
+  String get deskE1TourPhReceiveText =>
+      'ลิงก์ epic1 ของคุณ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ';
+
+  @override
+  String get deskE1TourSendText =>
+      'วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายต่อหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนส่งทุกครั้ง';
+
+  @override
+  String get deskE1TourReceiveText =>
+      'ลิงก์ epic1 ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ';
 }

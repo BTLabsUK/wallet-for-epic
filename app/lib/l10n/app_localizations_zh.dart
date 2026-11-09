@@ -8101,7 +8101,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return '$network 上的钱包，这是一个测试网络。';
+    return '$network上的钱包。';
   }
 
   @override
@@ -19449,10 +19449,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkNotALink => '不是付款链接';
 
   @override
-  String get linkMadeForMainnet => '为 mainnet 创建';
+  String get linkMadeForMainnet => '为主网络创建';
 
   @override
-  String get linkMadeForFloonet => '为 floonet 创建';
+  String get linkMadeForFloonet => '为测试网络创建';
 
   @override
   String get linkChanged => '此链接在创建后被更改过。';
@@ -20218,4 +20218,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskImpFrom => '来自';
+
+  @override
+  String get deskE1TourPhSendText =>
+      '粘贴 epic1 链接，或选择联系人。“面对面付款”用于身边的手机。发出前会先确认。';
+
+  @override
+  String get deskE1TourPhReceiveText => '你的 epic1 链接。分享它即可收款。“面对面收款”用于身边的手机。';
+
+  @override
+  String get deskE1TourSendText => '粘贴 epic1 链接，或选择联系人。“当面付款”用于身边的手机。发出前会先确认。';
+
+  @override
+  String get deskE1TourReceiveText => '这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。';
 }

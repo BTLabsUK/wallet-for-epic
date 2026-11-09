@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -144,6 +145,10 @@ Future<void> _tapFrames(WidgetTester tester, Finder finder) async {
   await _frames(tester);
 }
 
+/// The [PhoneTourTarget] [id] around [inner].
+Finder _tourTarget(String id, Finder inner) =>
+    find.ancestor(of: inner, matching: find.byWidgetPredicate((w) => w is PhoneTourTarget && w.id == id));
+
 void main() {
   group('Settings › Transactions', () {
     testWidgets('classic: the methods, then Experimental; turning on asks, then Applies at next unlock', (tester) async {
@@ -254,6 +259,8 @@ void main() {
       expect(_key(epic1QrKey), findsNothing);
       expect(_key(epic1CopyLinkKey), findsOneWidget);
       expect(_key(epic1RequestInPersonKey), findsOneWidget);
+      // The tour's Receive step lights the link card.
+      expect(_tourTarget('tour-receive-address', _key(epic1LinkCardKey)), findsOneWidget);
       expect(session.epic1Fake.calls, contains('makeLink'));
       final shown = tester.widget<Text>(_key(epic1LinkTextKey)).data!;
       expect(shown, startsWith('epic:epic1'));
@@ -283,6 +290,8 @@ void main() {
       await _pump(tester, _session(on: true), send());
       expect(_key(epic1SendFieldKey), findsOneWidget);
       expect(_key(sendRecipientFieldKey), findsNothing);
+      // The tour's Send step lights the link field.
+      expect(_tourTarget('tour-send-recipient', _key(epic1SendFieldKey)), findsOneWidget);
       await tester.enterText(_key(epic1SendFieldKey), _classic);
       await _tap(tester, _key(epic1SendContinueKey));
       expect(find.text(_l.deskE1ModeClassicAddress), findsOneWidget);

@@ -9025,7 +9025,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'Кошелёк в $network, тестовой сети.';
+    return 'Кошелёк в сети: $network.';
   }
 
   @override
@@ -21330,10 +21330,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkNotALink => 'Это не платёжная ссылка';
 
   @override
-  String get linkMadeForMainnet => 'Ссылка создана для mainnet';
+  String get linkMadeForMainnet => 'Ссылка создана для основной сети';
 
   @override
-  String get linkMadeForFloonet => 'Ссылка создана для floonet';
+  String get linkMadeForFloonet => 'Ссылка создана для тестовой сети';
 
   @override
   String get linkChanged => 'Эту ссылку изменили после создания.';
@@ -22127,4 +22127,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'От';
+
+  @override
+  String get deskE1TourPhSendText =>
+      'Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Сначала — проверка.';
+
+  @override
+  String get deskE1TourPhReceiveText =>
+      'Ваша ссылка epic1. Поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
+
+  @override
+  String get deskE1TourSendText =>
+      'Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Перед отправкой — проверка.';
+
+  @override
+  String get deskE1TourReceiveText =>
+      'Ссылка epic1 этого кошелька: поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
 }

@@ -215,6 +215,20 @@ void main() {
       expect(noDevices.any((s) => s.place == TourPlace.devices), isFalse);
     });
 
+    test('epic1 mode: Send and Receive speak of links and in person, not Epicbox or files', () {
+      final steps = phoneTourSteps(invoices: true, epic1: true);
+      expect(steps.length, phoneTourSteps(invoices: true).length);
+      final send = steps.firstWhere((s) => s.place == TourPlace.send);
+      final receive = steps.firstWhere((s) => s.place == TourPlace.receive);
+      expect(send.textOf(_en), _en.deskE1TourPhSendText);
+      expect(receive.textOf(_en), _en.deskE1TourPhReceiveText);
+      for (final s in [send, receive]) {
+        expect(s.textOf(_en), contains('epic1 link'));
+        expect(s.textOf(_en), isNot(contains('Epicbox')));
+        expect(s.textOf(_en).length, lessThan(175));
+      }
+    });
+
     test('copy: short, no "we", the Advanced step says it switches nothing on by asking to switch on what you need', () {
       for (final s in phoneTourSteps(invoices: true)) {
         final text = s.textOf(_en);

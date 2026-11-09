@@ -168,6 +168,21 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'Done leaves the person on Overview');
   });
 
+  test('epic1 mode: Send and Receive light the link pages and say so, at Shallow too', () {
+    final steps = deskTourStepsFor(supportsInvoices: false, epic1: true);
+    final send = steps.firstWhere((s) => s.route == DeskRoute.send);
+    final receive = steps.firstWhere((s) => s.route == DeskRoute.receive);
+    expect(send.targets, ['e1-send-form']);
+    expect(send.text, englishStrings.deskE1TourSendText);
+    expect(receive.targets, ['e1-receive-link']);
+    expect(receive.text, englishStrings.deskE1TourReceiveText);
+    expect(steps.any((s) => s.title == 'Invoices'), isFalse);
+    // Shallow keeps epic1's Send: its form shows at every view.
+    final shallow = deskTourStepsFor(supportsInvoices: false, shallow: true, epic1: true);
+    expect(shallow.any((s) => s.route == DeskRoute.send), isTrue);
+    expect(deskTourStepsFor(supportsInvoices: false, shallow: true).any((s) => s.route == DeskRoute.send), isFalse);
+  });
+
   testWidgets('a wallet without invoices: no Invoices step even when the page is in the app', (tester) async {
     expect(deskTourStepsFor(supportsInvoices: false).any((s) => s.title == 'Invoices'), isFalse);
     expect(deskTourStepsFor(supportsInvoices: true), same(deskTourSteps));

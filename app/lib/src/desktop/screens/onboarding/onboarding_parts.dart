@@ -3,6 +3,8 @@ import 'dart:async';
 
 import '../../../app_info.dart';
 import '../../../l10n.dart' show appLanguages;
+import '../../../models.dart' show Chain;
+import '../../../network.dart' show chainShownName;
 import '../../../trust_ids.dart';
 import '../../../ui/language_flag.dart';
 import 'package:flutter/material.dart';
@@ -282,11 +284,12 @@ class OnbFlowNotifier extends Notifier<OnbFlow> {
 
 final onbFlowProvider = NotifierProvider<OnbFlowNotifier, OnbFlow>(OnbFlowNotifier.new);
 
-String networkName(String n) => switch (n) {
-  'floonet' => 'Floonet', // l10n-ok: network names
-  'usernet' => 'Usernet', // l10n-ok
-  _ => 'Mainnet', // l10n-ok
-};
+/// A network's name on screen ([chainShownName]), from its id (`mainnet`, `floonet`, `usernet`).
+String networkName(String n) => chainShownName(switch (n) {
+  'floonet' => Chain.floonet,
+  'usernet' => Chain.usernet,
+  _ => Chain.mainnet,
+});
 
 /// A warn tag with the test network's name and a line after it.
 class NetNote extends StatelessWidget {

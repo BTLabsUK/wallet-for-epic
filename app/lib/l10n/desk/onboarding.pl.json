@@ -29,7 +29,7 @@
   "deskOnbCreateStageSave": "Zapisywanie portfela",
   "deskOnbCreateNotCreated": "Nie utworzono portfela",
   "deskOnbCreateCreating": "Tworzenie portfela",
-  "deskOnbCreateTestLead": "Portfel w sieci {network}, sieci testowej.",
+  "deskOnbCreateTestLead": "Portfel w sieci: {network}.",
   "deskOnbCreateDiskFull": "Nie zapisano portfela: dysk jest pełny. Zwolnij trochę miejsca i spróbuj ponownie.",
   "deskOnbCreateWait": "Nie zamykaj aplikacji.",
   "deskOnbCreateLocking": "Blokowanie otwartego portfela",

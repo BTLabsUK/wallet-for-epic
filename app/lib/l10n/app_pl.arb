@@ -1644,7 +1644,7 @@
   "deskOnbCreateStageSave": "Zapisywanie portfela",
   "deskOnbCreateNotCreated": "Nie utworzono portfela",
   "deskOnbCreateCreating": "Tworzenie portfela",
-  "deskOnbCreateTestLead": "Portfel w sieci {network}, sieci testowej.",
+  "deskOnbCreateTestLead": "Portfel w sieci: {network}.",
   "deskOnbCreateDiskFull": "Nie zapisano portfela: dysk jest pełny. Zwolnij trochę miejsca i spróbuj ponownie.",
   "deskOnbCreateWait": "Nie zamykaj aplikacji.",
   "deskOnbCreateLocking": "Blokowanie otwartego portfela",
@@ -5298,8 +5298,8 @@
   "pairDefaultLabel": "Kontakt {n}",
   "pairVerifiedService": "Zweryfikowana usługa BT Labs",
   "linkNotALink": "To nie jest link płatności",
-  "linkMadeForMainnet": "Utworzono dla mainnet",
-  "linkMadeForFloonet": "Utworzono dla floonet",
+  "linkMadeForMainnet": "Utworzono dla sieci głównej",
+  "linkMadeForFloonet": "Utworzono dla sieci testowej",
   "linkChanged": "Ten link zmieniono po utworzeniu.",
   "linkExpired": "Ten link wygasł {date}",
   "linkForOther": "Utworzono dla kogoś innego",
@@ -5557,5 +5557,9 @@
   "deskE1Back": "Wstecz",
   "deskSendFileFor": "Dla",
   "deskSendFileForHelp": "Plik dla sparowanego kontaktu jest zapieczętowany: otworzy go tylko jego portfel.",
-  "deskImpFrom": "Od"
+  "deskImpFrom": "Od",
+  "deskE1TourPhSendText": "Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Najpierw jest podgląd.",
+  "deskE1TourPhReceiveText": "Twój link epic1. Udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.",
+  "deskE1TourSendText": "Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Przed wysłaniem jest podgląd.",
+  "deskE1TourReceiveText": "Link epic1 tego portfela: udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie."
 }

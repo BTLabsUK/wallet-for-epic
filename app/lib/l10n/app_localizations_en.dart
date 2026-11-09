@@ -8645,7 +8645,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'A wallet on $network, a test network.';
+    return 'A wallet on the $network.';
   }
 
   @override
@@ -20623,10 +20623,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkNotALink => 'Not a payment link';
 
   @override
-  String get linkMadeForMainnet => 'Made for mainnet';
+  String get linkMadeForMainnet => 'Made for the main network';
 
   @override
-  String get linkMadeForFloonet => 'Made for floonet';
+  String get linkMadeForFloonet => 'Made for the test network';
 
   @override
   String get linkChanged => 'This link was changed after it was made.';
@@ -21414,4 +21414,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'From';
+
+  @override
+  String get deskE1TourPhSendText =>
+      'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes first.';
+
+  @override
+  String get deskE1TourPhReceiveText =>
+      'Your epic1 link. Share it to get paid. Request in person is for a phone next to you.';
+
+  @override
+  String get deskE1TourSendText =>
+      'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes before anything leaves.';
+
+  @override
+  String get deskE1TourReceiveText =>
+      'This wallet\'s epic1 link: share it to get paid. Request in person is for a phone next to you.';
 }

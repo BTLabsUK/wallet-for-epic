@@ -9051,7 +9051,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'Portfel w sieci $network, sieci testowej.';
+    return 'Portfel w sieci: $network.';
   }
 
   @override
@@ -21342,10 +21342,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkNotALink => 'To nie jest link płatności';
 
   @override
-  String get linkMadeForMainnet => 'Utworzono dla mainnet';
+  String get linkMadeForMainnet => 'Utworzono dla sieci głównej';
 
   @override
-  String get linkMadeForFloonet => 'Utworzono dla floonet';
+  String get linkMadeForFloonet => 'Utworzono dla sieci testowej';
 
   @override
   String get linkChanged => 'Ten link zmieniono po utworzeniu.';
@@ -22138,4 +22138,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'Od';
+
+  @override
+  String get deskE1TourPhSendText =>
+      'Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Najpierw jest podgląd.';
+
+  @override
+  String get deskE1TourPhReceiveText =>
+      'Twój link epic1. Udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.';
+
+  @override
+  String get deskE1TourSendText =>
+      'Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Przed wysłaniem jest podgląd.';
+
+  @override
+  String get deskE1TourReceiveText =>
+      'Link epic1 tego portfela: udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.';
 }

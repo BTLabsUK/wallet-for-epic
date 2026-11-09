@@ -1644,7 +1644,7 @@
   "deskOnbCreateStageSave": "กำลังบันทึกกระเป๋าเงิน",
   "deskOnbCreateNotCreated": "ไม่ได้สร้างกระเป๋าเงิน",
   "deskOnbCreateCreating": "กำลังสร้างกระเป๋าเงิน",
-  "deskOnbCreateTestLead": "กระเป๋าเงินบน {network} ซึ่งเป็นเครือข่ายทดสอบ",
+  "deskOnbCreateTestLead": "กระเป๋าเงินบน{network}",
   "deskOnbCreateDiskFull": "บันทึกกระเป๋าเงินไม่ได้: ดิสก์เต็ม เพิ่มพื้นที่ว่างแล้วลองอีกครั้ง",
   "deskOnbCreateWait": "เปิดแอปไว้",
   "deskOnbCreateLocking": "กำลังล็อกกระเป๋าเงินที่เปิดอยู่",
@@ -5298,8 +5298,8 @@
   "pairDefaultLabel": "ผู้ติดต่อ {n}",
   "pairVerifiedService": "บริการของ BT Labs ที่ตรวจสอบแล้ว",
   "linkNotALink": "ไม่ใช่ลิงก์ชำระเงิน",
-  "linkMadeForMainnet": "สร้างไว้สำหรับ mainnet",
-  "linkMadeForFloonet": "สร้างไว้สำหรับ floonet",
+  "linkMadeForMainnet": "สร้างไว้สำหรับเครือข่ายหลัก",
+  "linkMadeForFloonet": "สร้างไว้สำหรับเครือข่ายทดสอบ",
   "linkChanged": "ลิงก์นี้ถูกแก้ไขหลังสร้าง",
   "linkExpired": "ลิงก์นี้หมดอายุเมื่อ {date}",
   "linkForOther": "สร้างไว้สำหรับคนอื่น",
@@ -5557,5 +5557,9 @@
   "deskE1Back": "ย้อนกลับ",
   "deskSendFileFor": "สำหรับ",
   "deskSendFileForHelp": "ไฟล์สำหรับผู้ติดต่อที่จับคู่แล้วจะถูกผนึก: เปิดได้เฉพาะวอลเล็ตของผู้ติดต่อนั้น",
-  "deskImpFrom": "จาก"
+  "deskImpFrom": "จาก",
+  "deskE1TourPhSendText": "วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนเสมอ",
+  "deskE1TourPhReceiveText": "ลิงก์ epic1 ของคุณ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ",
+  "deskE1TourSendText": "วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายต่อหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนส่งทุกครั้ง",
+  "deskE1TourReceiveText": "ลิงก์ epic1 ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ"
 }

@@ -1644,7 +1644,7 @@
   "deskOnbCreateStageSave": "Сохранение кошелька",
   "deskOnbCreateNotCreated": "Кошелёк не создан",
   "deskOnbCreateCreating": "Создание кошелька",
-  "deskOnbCreateTestLead": "Кошелёк в {network}, тестовой сети.",
+  "deskOnbCreateTestLead": "Кошелёк в сети: {network}.",
   "deskOnbCreateDiskFull": "Кошелёк не сохранён: диск заполнен. Освободите место и попробуйте снова.",
   "deskOnbCreateWait": "Не закрывайте приложение.",
   "deskOnbCreateLocking": "Блокировка открытого кошелька",
@@ -5298,8 +5298,8 @@
   "pairDefaultLabel": "Контакт {n}",
   "pairVerifiedService": "Проверенный сервис BT Labs",
   "linkNotALink": "Это не платёжная ссылка",
-  "linkMadeForMainnet": "Ссылка создана для mainnet",
-  "linkMadeForFloonet": "Ссылка создана для floonet",
+  "linkMadeForMainnet": "Ссылка создана для основной сети",
+  "linkMadeForFloonet": "Ссылка создана для тестовой сети",
   "linkChanged": "Эту ссылку изменили после создания.",
   "linkExpired": "Срок действия ссылки истёк {date}",
   "linkForOther": "Ссылка создана для другого человека",
@@ -5557,5 +5557,9 @@
   "deskE1Back": "Назад",
   "deskSendFileFor": "Для",
   "deskSendFileForHelp": "Файл для связанного контакта запечатывается: открыть его может только его кошелёк.",
-  "deskImpFrom": "От"
+  "deskImpFrom": "От",
+  "deskE1TourPhSendText": "Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Сначала — проверка.",
+  "deskE1TourPhReceiveText": "Ваша ссылка epic1. Поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.",
+  "deskE1TourSendText": "Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Перед отправкой — проверка.",
+  "deskE1TourReceiveText": "Ссылка epic1 этого кошелька: поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами."
 }

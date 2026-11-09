@@ -29,7 +29,7 @@
   "deskOnbCreateStageSave": "正在保存钱包",
   "deskOnbCreateNotCreated": "钱包未创建",
   "deskOnbCreateCreating": "正在创建钱包",
-  "deskOnbCreateTestLead": "{network} 上的钱包，这是一个测试网络。",
+  "deskOnbCreateTestLead": "{network}上的钱包。",
   "deskOnbCreateDiskFull": "未保存钱包：磁盘已满。请释放一些空间后重试。",
   "deskOnbCreateWait": "请保持应用打开。",
   "deskOnbCreateLocking": "正在锁定已打开的钱包",

@@ -16,6 +16,7 @@ import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../scan/scan_router.dart';
 import '../../../trust_ids.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPayInPerson;
@@ -341,92 +342,95 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EPanel(
-          key: const ValueKey('e1-send-form'),
-          padding: EdgeInsets.all(Sp.panel),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              EField(
-                label: l.deskE1SendField,
-                error: error,
-                child: EInput(
-                  key: const ValueKey('e1-send-to'),
-                  semanticsId: TrustIds.e1SendTo,
-                  controller: _to,
-                  mono: true,
-                  fadeEnd: true,
-                  autofocus: true,
-                  invalid: error != null,
-                  hint: l.deskE1SendFieldHint,
-                  semanticLabel: l.deskE1SendFieldSem,
-                  onChanged: _changed,
-                  onSubmitted: (t) => unawaited(_open(t)),
-                  trailingTabStop: true,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_reading)
-                        Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x2), child: ESpinner(size: 16.u))
-                      else if (empty)
-                        EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
-                      else
-                        EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _reset),
-                      SizedBox(width: Sp.x1),
-                      EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
-                    ],
-                  ),
-                ),
-              ),
-              if (_errorSettings) ...[
-                SizedBox(height: Sp.x2),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: EButton.ghost(
-                    key: const ValueKey('e1-send-settings'),
-                    label: l.deskRecvSettings,
-                    icon: EIcons.settings,
-                    size: EBtnSize.inline,
-                    onPressed: () => jumpToEpic1Switch(ref),
-                  ),
-                ),
-              ],
-              if (info != null) ...[
-                SizedBox(height: Sp.x5),
-                if (info.message case final m? when m.isNotEmpty) ...[
-                  Text('"$m"', key: const ValueKey('e1-link-message'), style: context.ts.body.copyWith(fontStyle: FontStyle.italic)),
-                  SizedBox(height: Sp.x4),
-                ],
+        TourTarget(
+          id: 'e1-send-form',
+          child: EPanel(
+            key: const ValueKey('e1-send-form'),
+            padding: EdgeInsets.all(Sp.panel),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 EField(
-                  label: l.deskSendAmount,
-                  error: _amountError,
-                  child: info.amount != null
-                      ? Text(epicTextL(l, info.amount!.toInt()), key: const ValueKey('e1-amount-fixed'), style: context.ts.mono(size: Fs.sm))
-                      : EInput(
-                          key: const ValueKey('e1-amount'),
-                          semanticsId: TrustIds.e1Amount,
-                          controller: _amount,
-                          mono: true,
-                          hint: '0',
-                          invalid: _amountError != null,
-                          semanticLabel: l.deskSendAmountSem,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          onChanged: (_) => setState(() => _amountError = null),
-                          onSubmitted: (_) => _review(),
-                        ),
+                  label: l.deskE1SendField,
+                  error: error,
+                  child: EInput(
+                    key: const ValueKey('e1-send-to'),
+                    semanticsId: TrustIds.e1SendTo,
+                    controller: _to,
+                    mono: true,
+                    fadeEnd: true,
+                    autofocus: true,
+                    invalid: error != null,
+                    hint: l.deskE1SendFieldHint,
+                    semanticLabel: l.deskE1SendFieldSem,
+                    onChanged: _changed,
+                    onSubmitted: (t) => unawaited(_open(t)),
+                    trailingTabStop: true,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_reading)
+                          Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x2), child: ESpinner(size: 16.u))
+                        else if (empty)
+                          EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
+                        else
+                          EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _reset),
+                        SizedBox(width: Sp.x1),
+                        EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
+                      ],
+                    ),
+                  ),
+                ),
+                if (_errorSettings) ...[
+                  SizedBox(height: Sp.x2),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: EButton.ghost(
+                      key: const ValueKey('e1-send-settings'),
+                      label: l.deskRecvSettings,
+                      icon: EIcons.settings,
+                      size: EBtnSize.inline,
+                      onPressed: () => jumpToEpic1Switch(ref),
+                    ),
+                  ),
+                ],
+                if (info != null) ...[
+                  SizedBox(height: Sp.x5),
+                  if (info.message case final m? when m.isNotEmpty) ...[
+                    Text('"$m"', key: const ValueKey('e1-link-message'), style: context.ts.body.copyWith(fontStyle: FontStyle.italic)),
+                    SizedBox(height: Sp.x4),
+                  ],
+                  EField(
+                    label: l.deskSendAmount,
+                    error: _amountError,
+                    child: info.amount != null
+                        ? Text(epicTextL(l, info.amount!.toInt()), key: const ValueKey('e1-amount-fixed'), style: context.ts.mono(size: Fs.sm))
+                        : EInput(
+                            key: const ValueKey('e1-amount'),
+                            semanticsId: TrustIds.e1Amount,
+                            controller: _amount,
+                            mono: true,
+                            hint: '0',
+                            invalid: _amountError != null,
+                            semanticLabel: l.deskSendAmountSem,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: (_) => setState(() => _amountError = null),
+                            onSubmitted: (_) => _review(),
+                          ),
+                  ),
+                ],
+                SizedBox(height: Sp.x5),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: EButton.primary(
+                    key: const ValueKey('e1-review'),
+                    semanticsId: TrustIds.e1Review,
+                    label: l.deskE1Review,
+                    onPressed: empty || _reading ? null : _review,
+                  ),
                 ),
               ],
-              SizedBox(height: Sp.x5),
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: EButton.primary(
-                  key: const ValueKey('e1-review'),
-                  semanticsId: TrustIds.e1Review,
-                  label: l.deskE1Review,
-                  onPressed: empty || _reading ? null : _review,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         SizedBox(height: Sp.x4),

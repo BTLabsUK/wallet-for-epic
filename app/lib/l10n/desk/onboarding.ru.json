@@ -29,7 +29,7 @@
   "deskOnbCreateStageSave": "Сохранение кошелька",
   "deskOnbCreateNotCreated": "Кошелёк не создан",
   "deskOnbCreateCreating": "Создание кошелька",
-  "deskOnbCreateTestLead": "Кошелёк в {network}, тестовой сети.",
+  "deskOnbCreateTestLead": "Кошелёк в сети: {network}.",
   "deskOnbCreateDiskFull": "Кошелёк не сохранён: диск заполнен. Освободите место и попробуйте снова.",
   "deskOnbCreateWait": "Не закрывайте приложение.",
   "deskOnbCreateLocking": "Блокировка открытого кошелька",

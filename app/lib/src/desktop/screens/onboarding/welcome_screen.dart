@@ -212,15 +212,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         if (DeskFeatures.testNetworks) ...[
         EField(
           label: l.deskOnbWelcomeNetwork,
-          help: 'Mainnet holds real EPIC. Floonet and Usernet are test networks.', // l10n-ok: development builds only
+          help: 'The main network holds real EPIC. The test networks hold coins of no value.', // l10n-ok: development builds only
           child: ESelect<String>(
             semanticLabel: l.deskOnbWelcomeNetwork,
             value: flow.network,
             onChanged: ref.read(onbFlowProvider.notifier).setNetwork,
-            items: const [
-              ESelectItem('mainnet', 'Mainnet'), // l10n-ok: network names
-              ESelectItem('floonet', 'Floonet'), // l10n-ok
-              ESelectItem('usernet', 'Usernet'), // l10n-ok
+            items: [
+              for (final n in const ['mainnet', 'floonet', 'usernet']) ESelectItem(n, networkName(n)),
             ],
           ),
         ),
