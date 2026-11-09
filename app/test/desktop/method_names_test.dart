@@ -6,9 +6,11 @@ import 'package:epic_wallet/src/desktop/data/history_files.dart';
 import 'package:epic_wallet/src/desktop/data/method_names.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show AppLocalizations, englishStrings, lookupAppLocalizations;
+import 'package:epic_wallet/src/models.dart' show Epic1Via;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -117,5 +119,52 @@ void main() {
     expect(find.byIcon(EIcons.tor), findsOneWidget);
     expect(find.byTooltip(_l.methodDirectTor), findsOneWidget);
     expect(find.bySemanticsLabel(_l.methodDirectTor), findsOneWidget);
+  });
+
+  group('an epic1 exchange, which LEPIC lists as a file send', () {
+    Tx row({Epic1Via? via, TxDirection direction = TxDirection.sent, String? contactName}) => Tx(
+      id: 7,
+      slateId: 's-7',
+      direction: direction,
+      state: TxState.confirmed,
+      method: TxMethod.file,
+      amount: 100000000,
+      fee: 0,
+      created: DateTime.utc(2026, 11, 9),
+      contactName: contactName,
+      epic1Via: via,
+    );
+
+    test('a paid link is an epic1 link: name, tag, details and the link glyph', () {
+      final t = row(via: Epic1Via.link);
+      expect(whoOf(_l, t), 'epic1 link');
+      expect(methodOf(_l, t), 'epic1 link');
+      expect(methodLabelOf(_l, t), 'epic1 link');
+      expect(iconOf(t), EIcons.link);
+      expect(t.byFile, isFalse);
+    });
+
+    test('an in-person code is In person, with the QR glyph, sent or received', () {
+      for (final d in TxDirection.values) {
+        final t = row(via: Epic1Via.inPerson, direction: d);
+        expect(whoOf(_l, t), 'In person');
+        expect(methodOf(_l, t), 'In person');
+        expect(iconOf(t), EIcons.qr);
+      }
+    });
+
+    test('a known contact keeps its name; the method still says epic1 link', () {
+      final t = row(via: Epic1Via.link, contactName: 'Ana');
+      expect(whoOf(_l, t), 'Ana');
+      expect(methodOf(_l, t), 'epic1 link');
+    });
+
+    test('a plain file send keeps the file words and glyph', () {
+      final t = row();
+      expect(whoOf(_l, t), _l.deskTxUnknownRecipient);
+      expect(methodOf(_l, t), _l.methodShortFile);
+      expect(iconOf(t), EIcons.fileUp);
+      expect(t.byFile, isTrue);
+    });
   });
 }

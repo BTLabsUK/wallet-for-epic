@@ -8,7 +8,7 @@ import '../../advanced.dart';
 import '../../amount.dart' show AmountFormatException, AmountProblem, AmountSurface, cutEpic, displayDecimals, epicFor, exactDecimals, exactEpic, normalizeAmountText;
 import '../../amount.dart' as shared show parseEpic;
 import '../../contact_label.dart';
-import '../../models.dart' show DeviceEnding;
+import '../../models.dart' show DeviceEnding, Epic1Via;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
 import '../../settings_file/host_settings.dart' show appConfig;
@@ -288,6 +288,7 @@ class Tx {
     this.lockHeight,
     this.otherWallet = false,
     this.unverified = false,
+    this.epic1Via,
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
@@ -414,6 +415,13 @@ class Tx {
   /// its blocks yet); LEPIC clears it after the next one.
   final bool unverified;
 
+  /// How an epic1 exchange carried it (a link or an in-person code); null for any other row.
+  /// [method] is then [TxMethod.file], as LEPIC lists it.
+  final Epic1Via? epic1Via;
+
+  /// Sent or received as a slate file: [TxMethod.file] and no epic1 exchange.
+  bool get byFile => method == TxMethod.file && epic1Via == null;
+
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
 
@@ -532,6 +540,7 @@ class Tx {
       coinbase: coinbase,
       otherWallet: otherWallet,
       unverified: unverified,
+      epic1Via: epic1Via,
       foundByScan: foundByScan,
       foundDuring: foundDuring,
       datedByBlock: datedByBlock,
@@ -595,6 +604,7 @@ class Tx {
     lockHeight: lockHeight,
     otherWallet: otherWallet,
     unverified: unverified,
+    epic1Via: epic1Via,
     foundByScan: foundByScan,
     foundDuring: foundDuring,
     datedByBlock: datedByBlock,

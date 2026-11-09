@@ -732,7 +732,11 @@ String? _specialTitle(
   return null;
 }
 
-String _directionNoun(AppLocalizations l, TxEntry tx) => _outgoingKind(tx)
+/// What a row with no one to name is: an epic1 exchange by its method (epic1 link, In person),
+/// as the desktop's rows; else its direction.
+String _directionNoun(AppLocalizations l, TxEntry tx) => tx.epic1Via != null
+    ? MethodIcons.epic1Name(l, tx.epic1Via!)
+    : _outgoingKind(tx)
     ? l.txOutgoingPayment
     : tx.isRequest
     ? l.txPaymentRequest
@@ -912,8 +916,8 @@ String txStatusLabel(
 }
 
 /// The short method name a finished row shows after its status (UP-032), as the desktop's
-/// Activity rows do: Epicbox, Link · HTTP, Link · Tor, Direct · File; a payment through a
-/// paired contact's [mailbox] went by Epicbox. Null for a reward, another wallet's or a
+/// Activity rows do: Epicbox, Link · HTTP, Link · Tor, Direct · File, or epic1 link and In person
+/// for an epic1 exchange; a payment through a paired contact's [mailbox] went by Epicbox. Null for a reward, another wallet's or a
 /// restored payment, and for a transport the app does not name.
 String? txRowMethod(AppLocalizations l, TxEntry tx, {String? mailbox}) {
   if (tx.kind == TxKind.coinbase ||
@@ -922,6 +926,7 @@ String? txRowMethod(AppLocalizations l, TxEntry tx, {String? mailbox}) {
     return null;
   }
   if (mailbox != null) return MethodIcons.shortName(l, MethodKind.epicbox);
+  if (tx.epic1Via case final via?) return MethodIcons.epic1Name(l, via);
   final kind = methodKindOfTransport(tx.transport);
   return kind == null ? null : MethodIcons.shortName(l, kind);
 }

@@ -12,6 +12,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import '../models.dart' show Epic1Via;
 import '../payment_method.dart';
 import 'status_icons.dart';
 
@@ -39,6 +40,20 @@ abstract final class MethodIcons {
     MethodKind.linkTor => tor,
     MethodKind.directQr => qr,
     MethodKind.directFile => file,
+  };
+
+  /// An epic1 exchange's glyph: the link glyph for a link, the QR code for an in-person code.
+  /// LEPIC carries both as file sends; the file glyph never shows for them.
+  static IconData epic1(Epic1Via v) => switch (v) {
+    Epic1Via.link => link,
+    Epic1Via.inPerson => qr,
+  };
+
+  /// An epic1 exchange's name, the same on phone and desktop in rows, tags and details:
+  /// epic1 link, In person.
+  static String epic1Name(AppLocalizations l, Epic1Via v) => switch (v) {
+    Epic1Via.link => l.deskE1LinkTitle,
+    Epic1Via.inPerson => l.deskE1InPerson,
   };
 
   static IconData family(MethodFamily f) => switch (f) {

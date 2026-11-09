@@ -450,6 +450,18 @@ class WalletHistory {
   Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
       _store.update((m) => m.recordLinkPayment(request, paidAt, txId: txId));
 
+  /// Saves how the epic1 exchanges of [slateIds] went ([Meta.epic1Payments]); keeps a mark
+  /// already there.
+  Future<void> recordEpic1(Iterable<String> slateIds, Epic1Via via) async {
+    final add = {for (final id in slateIds) if (!meta.epic1Payments.containsKey(id)) id};
+    if (add.isEmpty) return;
+    await _store.update((m) {
+      for (final id in add) {
+        m.epic1Payments.putIfAbsent(id, () => via.stored);
+      }
+    });
+  }
+
   /// The records of payments made from links, over this wallet's meta file; [onChange] runs
   /// after a change.
   LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MetaLinkPayments(_store, onChange: onChange);

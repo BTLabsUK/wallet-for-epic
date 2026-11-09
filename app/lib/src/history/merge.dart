@@ -135,7 +135,8 @@ class MergedTx {
       pairingId = e.pairingId,
       origin = e.origin,
       spentCommits = e.spentCommits,
-      unverified = e.unverified;
+      unverified = e.unverified,
+      epic1Via = e.epic1Via;
 
   String key;
   int? id;
@@ -188,6 +189,9 @@ class MergedTx {
   TxOrigin origin;
   List<String> spentCommits;
   bool unverified;
+
+  /// From the live row, else [Meta.epic1Payments]: never exported.
+  Epic1Via? epic1Via;
 
   /// LEPIC's link to a pairing, from the live row, else the record's: exported, so a restored
   /// wallet still knows which paired contact a payment was with.
@@ -244,12 +248,14 @@ class MergedTx {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
   );
 }
 
 /// A LEPIC row with what the old core recorded about the same slate, if anything.
 MergedTx _fromLive(TxEntry e, Meta meta) {
   final m = MergedTx._from(e);
+  if (e.slateId != null) m.epic1Via ??= Epic1Via.fromStored(meta.epic1Payments[e.slateId]);
   final ann = e.slateId == null ? null : meta.annotations[e.slateId];
   if (ann != null) {
     m.counterparty = _someStr(m.counterparty) ?? _someStr(ann.counterparty);

@@ -695,6 +695,7 @@ class Meta {
     Map<String, ListingPin>? nameServicePins,
     Map<String, int>? paidRequests,
     Map<String, LinkPaymentRec>? linkPayments,
+    Map<String, String>? epic1Payments,
     RelayMoveBook? relayMoves,
     DomainCheckBook? domainChecks,
   }) : relayMoves = relayMoves ?? RelayMoveBook(),
@@ -706,6 +707,7 @@ class Meta {
        nameServicePins = SplayTreeMap.of(nameServicePins ?? const {}),
        paidRequests = SplayTreeMap.of(paidRequests ?? const {}),
        linkPayments = SplayTreeMap.of(linkPayments ?? const {}),
+       epic1Payments = SplayTreeMap.of(epic1Payments ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -791,6 +793,7 @@ class Meta {
           ),
         );
       }),
+      epic1Payments: map('epic1_payments').map((k, v) => MapEntry(k, _str(v, 'epic1 payment'))),
       relayMoves: _relayMoves(m['relay_moves']),
       domainChecks: _domainChecks(m['domain_checks']),
     );
@@ -879,6 +882,11 @@ class Meta {
   /// history file.
   final SplayTreeMap<String, LinkPaymentRec> linkPayments;
 
+  /// epic1 exchanges by slate id: how each went (`Epic1Via.stored`: a link or an in-person
+  /// code), which LEPIC lists as file sends. Written only when not empty, and not part of a
+  /// history file.
+  final SplayTreeMap<String, String> epic1Payments;
+
   /// Contacts' relay moves this wallet made, showed or refused (`relay_moves.dart`), under one
   /// versioned key. Written only when not empty, and not part of a history file.
   final RelayMoveBook relayMoves;
@@ -937,6 +945,7 @@ class Meta {
     if (linkPayments.isNotEmpty) {
       out['link_payments'] = {for (final e in linkPayments.entries) e.key: e.value.toJson()};
     }
+    if (epic1Payments.isNotEmpty) out['epic1_payments'] = {...epic1Payments};
     if (!relayMoves.isEmpty) out['relay_moves'] = relayMoves.toJson();
     if (!domainChecks.isEmpty) out['domain_checks'] = domainChecks.toJson();
     return out;
@@ -969,6 +978,7 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.nameServicePins, plain.nameServicePins);
   maps(into.paidRequests, plain.paidRequests);
   maps(into.linkPayments, plain.linkPayments);
+  maps(into.epic1Payments, plain.epic1Payments);
   into.relayMoves.addAll(plain.relayMoves);
   into.domainChecks.addAll(plain.domainChecks);
   into.lastActivity ??= plain.lastActivity;
