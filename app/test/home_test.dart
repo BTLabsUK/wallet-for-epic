@@ -4305,7 +4305,7 @@ void main() {
           expect(
             find.descendant(
               of: find.byType(AppBar),
-              matching: find.textContaining(RegExp('Mainnet|Floonet|Usernet')),
+              matching: find.textContaining(RegExp('Main network|Test network|Mainnet|Floonet|Usernet')),
             ),
             findsNothing,
             reason: tab,
@@ -4345,7 +4345,7 @@ void main() {
         // The bar's logo is the mark alone, no text.
         expect(find.byType(BrandWordmark), findsNothing);
         final tip = _statusTip(tester, nodeStatusKey).split('\n');
-        expect(tip.first, 'Floonet, test coins');
+        expect(tip.first, 'Test network');
         expect(tip[1], 'Up to date.');
         // A screen reader hears it too.
         expect(
@@ -4362,7 +4362,7 @@ void main() {
               )
               .properties
               .hint,
-          startsWith('Floonet, test coins\n'),
+          startsWith('Test network\n'),
         );
       },
     );
