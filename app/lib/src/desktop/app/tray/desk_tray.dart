@@ -13,6 +13,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -110,7 +111,12 @@ class _DeskTrayState extends ConsumerState<DeskTray> {
       await _host.show(view);
       _shown = view;
     } on Object catch (e, stack) {
-      logError('tray', 'icon not shown: ${e.runtimeType}', stack);
+      // Windows' runner says so when no notification area took the icon (no Explorer).
+      if (e is PlatformException && e.code == 'no_tray') {
+        logInfo('tray', 'no tray on this desktop; closing');
+      } else {
+        logError('tray', 'icon not shown: ${e.runtimeType}', stack);
+      }
       _hidden = false;
       _shown = null;
       unawaited(_host.remove());
