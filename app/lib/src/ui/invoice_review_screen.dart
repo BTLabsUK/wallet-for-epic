@@ -644,7 +644,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
     }
     if (paid != null) {
       final sealed = _sealedAnswer;
-      final name = sealed != null ? sealedFileName(paid.slateId) : responseFileName(paid.slateId);
+      final name = sealed != null ? sealedFileName(paid.slateId, text: sealed) : responseFileName(paid.slateId);
       return SlotScaffold(
         appBar: AppBar(title: Text(l.reqTitle)),
         body: ScreenBody(

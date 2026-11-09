@@ -28383,5 +28383,256 @@
   "deskE1Keep": "Keep",
   "@deskE1Keep": {
     "description": "Button: keep the printed payment code (cancel retiring)."
+  },
+  "deskE1PhExperimental": "Experimental",
+  "@deskE1PhExperimental": {
+    "description": "Settings › Transactions: header of the last section, for features that can still change."
+  },
+  "deskE1PhSwitch": "epic1 payments",
+  "@deskE1PhSwitch": {
+    "description": "Settings switch that turns on the epic1 payment format. \"epic1\" is a name; keep it as is."
+  },
+  "deskE1PhSwitchHint": "Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.",
+  "@deskE1PhSwitchHint": {
+    "description": "Explanation behind the info icon of the epic1 payments switch."
+  },
+  "deskE1PhConfirmTitle": "Use epic1 payments?",
+  "@deskE1PhConfirmTitle": {
+    "description": "Title of the dialog shown when turning on epic1 payments."
+  },
+  "deskE1PhConfirmBody": "This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.",
+  "@deskE1PhConfirmBody": {
+    "description": "Body of the dialog shown when turning on epic1 payments."
+  },
+  "deskE1PhTurnOn": "Turn on",
+  "@deskE1PhTurnOn": {
+    "description": "Confirm button of the \"Use epic1 payments?\" dialog."
+  },
+  "deskE1PhAppliesNext": "Applies at next unlock",
+  "@deskE1PhAppliesNext": {
+    "description": "Under the epic1 payments switch while the stored setting differs from the one in use."
+  },
+  "deskE1PhLockNow": "Lock now",
+  "@deskE1PhLockNow": {
+    "description": "Button that locks the wallet so the epic1 setting applies at the next unlock."
+  },
+  "deskE1PhSection": "epic1",
+  "@deskE1PhSection": {
+    "description": "Settings › Transactions: header of the epic1 section. A name; keep it as is."
+  },
+  "deskE1PhReceiving": "Receiving",
+  "@deskE1PhReceiving": {
+    "description": "Settings › Transactions in epic1 mode: header above Confirmations."
+  },
+  "deskE1PhPrinted": "Printed codes",
+  "@deskE1PhPrinted": {
+    "description": "Settings row: the payment link codes made for printing."
+  },
+  "deskE1PhPrintedCount": "{n} of {max}",
+  "@deskE1PhPrintedCount": {
+    "description": "How many printed codes are in use, of the most there can be.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskE1PhPrintedEmpty": "No printed codes.",
+  "@deskE1PhPrintedEmpty": {
+    "description": "Printed codes page with none made."
+  },
+  "deskE1PhPrintedCode": "Code {n}",
+  "@deskE1PhPrintedCode": {
+    "description": "A printed payment code in the list, numbered from 1.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskE1PhPrintedMade": "Made {date}",
+  "@deskE1PhPrintedMade": {
+    "description": "When a printed code was made.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deskE1PhPrintedUsed": "Paid",
+  "@deskE1PhPrintedUsed": {
+    "description": "Badge on a printed code that has received a payment."
+  },
+  "deskE1PhRetired": "Code {n} retired.",
+  "@deskE1PhRetired": {
+    "description": "Notice after retiring a printed code.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskE1PhLinkTitle": "epic1 link",
+  "@deskE1PhLinkTitle": {
+    "description": "Receive: title of the card with the wallet's payment link."
+  },
+  "deskE1PhLinkQrLabel": "QR code of the epic1 link",
+  "@deskE1PhLinkQrLabel": {
+    "description": "Screen reader label of the link's QR code."
+  },
+  "deskE1PhCopyLink": "Copy link",
+  "@deskE1PhCopyLink": {
+    "description": "Button that copies the epic1 link."
+  },
+  "deskE1PhLinkCopied": "Link copied.",
+  "@deskE1PhLinkCopied": {
+    "description": "Notice after copying the epic1 link."
+  },
+  "deskE1PhAskAmount": "Ask an amount",
+  "@deskE1PhAskAmount": {
+    "description": "Button and sheet title: make a link that asks a set amount."
+  },
+  "deskE1PhAmount": "Amount",
+  "@deskE1PhAmount": {
+    "description": "Field label: the amount the link asks."
+  },
+  "deskE1PhMessage": "Message (optional)",
+  "@deskE1PhMessage": {
+    "description": "Field label: a message the link carries."
+  },
+  "deskE1PhMakeLink": "Make link",
+  "@deskE1PhMakeLink": {
+    "description": "Button that makes a link with the amount and message."
+  },
+  "deskE1PhLinkAsks": "Asks {amount}",
+  "@deskE1PhLinkAsks": {
+    "description": "Under the link: the amount it asks, with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deskE1PhAnyAmount": "Any amount",
+  "@deskE1PhAnyAmount": {
+    "description": "Button that goes back to a link without a set amount."
+  },
+  "deskE1PhOtherWays": "Other ways to receive",
+  "@deskE1PhOtherWays": {
+    "description": "Receive: header above the in-person way."
+  },
+  "deskE1PhInPerson": "In person",
+  "@deskE1PhInPerson": {
+    "description": "Receive: a payment from a phone next to this one."
+  },
+  "deskE1PhRequestInPerson": "Request in person",
+  "@deskE1PhRequestInPerson": {
+    "description": "Button that starts an in-person request."
+  },
+  "deskE1PhSettings": "Settings",
+  "@deskE1PhSettings": {
+    "description": "Button that opens Settings › Transactions."
+  },
+  "deskE1PhLanTitle": "Use a local network server?",
+  "@deskE1PhLanTitle": {
+    "description": "Dialog before making a link on an Epicbox server on the local network."
+  },
+  "deskE1PhLanBody": "{host} is on the local network. Only wallets on this network can pay links made with it.",
+  "@deskE1PhLanBody": {
+    "description": "Body of the local network server dialog.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskE1PhField": "epic1 link or contact",
+  "@deskE1PhField": {
+    "description": "Send: label of the one recipient field in epic1 mode."
+  },
+  "deskE1PhPayInPerson": "Pay in person",
+  "@deskE1PhPayInPerson": {
+    "description": "Send: button under the field that pays a phone next to this one."
+  },
+  "deskE1PhContacts": "Contacts",
+  "@deskE1PhContacts": {
+    "description": "Tooltip of the button that picks a contact."
+  },
+  "deskE1PhUnknownTitle": "Send through this server?",
+  "@deskE1PhUnknownTitle": {
+    "description": "Dialog when the link's server is not in the server list."
+  },
+  "deskE1PhUnknownBody": "{host} is not in your server list.",
+  "@deskE1PhUnknownBody": {
+    "description": "Body of the unknown server dialog.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskE1PhUseServer": "Use server",
+  "@deskE1PhUseServer": {
+    "description": "Confirm button of the unknown server dialog."
+  },
+  "deskE1PhReview": "Review",
+  "@deskE1PhReview": {
+    "description": "Title of the send review step."
+  },
+  "deskE1PhTo": "To",
+  "@deskE1PhTo": {
+    "description": "Review row: the epic1 address paid."
+  },
+  "deskE1PhServer": "Server",
+  "@deskE1PhServer": {
+    "description": "Review row: the server the payment goes through."
+  },
+  "deskE1PhNote": "Message",
+  "@deskE1PhNote": {
+    "description": "Review row: the payee's message."
+  },
+  "deskE1PhSend": "Send",
+  "@deskE1PhSend": {
+    "description": "Button that sends the reviewed payment."
+  },
+  "deskE1PhWaiting": "Waiting for the recipient",
+  "@deskE1PhWaiting": {
+    "description": "Send: the payment is on the server and waits for the recipient's wallet."
+  },
+  "deskE1PhNotTaken": "{host} did not take the payment.",
+  "@deskE1PhNotTaken": {
+    "description": "Send: the server refused the payment; another can be tried.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskE1PhTryNext": "Try next server",
+  "@deskE1PhTryNext": {
+    "description": "Button that posts the payment to the link's next server."
+  },
+  "deskE1PhCancelUnlock": "Cancel and unlock",
+  "@deskE1PhCancelUnlock": {
+    "description": "Button that cancels the payment and frees its coins."
+  },
+  "deskE1PhCancelled": "Payment cancelled. The coins are free again.",
+  "@deskE1PhCancelled": {
+    "description": "Notice after cancelling an epic1 payment."
+  },
+  "deskE1PhSent": "Sent",
+  "@deskE1PhSent": {
+    "description": "Send: the recipient answered and the payment is complete."
+  },
+  "deskE1PhDone": "Done",
+  "@deskE1PhDone": {
+    "description": "Button that closes the finished send."
+  },
+  "deskE1PhClassicOnlyTip": "Turn off epic1 payments to pay this contact",
+  "@deskE1PhClassicOnlyTip": {
+    "description": "Tooltip on a contact that only takes classic payments."
   }
 }

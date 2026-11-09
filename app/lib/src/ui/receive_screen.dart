@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../connection_state.dart';
 import '../dev_networks.dart';
+import '../epic1.dart' show PaymentMode;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
@@ -28,6 +29,7 @@ import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'address_view.dart';
 import 'common.dart';
+import 'epic1/epic1_receive.dart';
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
@@ -144,6 +146,8 @@ class ReceiveView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // epic1 mode (spec P4): the link card in place of the methods.
+    if (ref.watch(paymentModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
     final l = context.l10n;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     var tab = ref.watch(receiveTabProvider);

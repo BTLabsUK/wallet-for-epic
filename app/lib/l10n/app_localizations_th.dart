@@ -20502,4 +20502,179 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'เก็บไว้';
+
+  @override
+  String get deskE1PhExperimental => 'ทดลอง';
+
+  @override
+  String get deskE1PhSwitch => 'การชำระเงิน epic1';
+
+  @override
+  String get deskE1PhSwitchHint =>
+      'การชำระเงินไปยังวอลเล็ตที่มี epic1 จะถูกปิดผนึกแบบต้นทางถึงปลายทางและมีขนาดเล็กลง และจะมีรหัสสำหรับชำระแบบพบหน้ากับลิงก์ epic1 วอลเล็ต Epic อื่นจะได้รับรูปแบบคลาสสิก การชำระเงินจากวอลเล็ต Epic ใดก็ตามยังเข้ามาเหมือนเดิม ตั้งค่าแยกตามวอลเล็ต ทดลอง: อาจยังเปลี่ยนแปลงได้';
+
+  @override
+  String get deskE1PhConfirmTitle => 'ใช้การชำระเงิน epic1 หรือไม่';
+
+  @override
+  String get deskE1PhConfirmBody =>
+      'วอลเล็ตนี้จะจ่ายและรับเงินกับวอลเล็ตที่มี epic1 เท่านั้น ปิดเพื่อจ่ายให้วอลเล็ต Epic อื่น';
+
+  @override
+  String get deskE1PhTurnOn => 'เปิด';
+
+  @override
+  String get deskE1PhAppliesNext => 'มีผลเมื่อปลดล็อกครั้งถัดไป';
+
+  @override
+  String get deskE1PhLockNow => 'ล็อกตอนนี้';
+
+  @override
+  String get deskE1PhSection => 'epic1';
+
+  @override
+  String get deskE1PhReceiving => 'การรับ';
+
+  @override
+  String get deskE1PhPrinted => 'รหัสสำหรับพิมพ์';
+
+  @override
+  String deskE1PhPrintedCount(int n, int max) {
+    return '$n จาก $max';
+  }
+
+  @override
+  String get deskE1PhPrintedEmpty => 'ไม่มีรหัสสำหรับพิมพ์';
+
+  @override
+  String deskE1PhPrintedCode(int n) {
+    return 'รหัส $n';
+  }
+
+  @override
+  String deskE1PhPrintedMade(String date) {
+    return 'สร้างเมื่อ $date';
+  }
+
+  @override
+  String get deskE1PhPrintedUsed => 'มีการชำระ';
+
+  @override
+  String deskE1PhRetired(int n) {
+    return 'ยกเลิกรหัส $n แล้ว';
+  }
+
+  @override
+  String get deskE1PhLinkTitle => 'ลิงก์ epic1';
+
+  @override
+  String get deskE1PhLinkQrLabel => 'คิวอาร์โค้ดของลิงก์ epic1';
+
+  @override
+  String get deskE1PhCopyLink => 'คัดลอกลิงก์';
+
+  @override
+  String get deskE1PhLinkCopied => 'คัดลอกลิงก์แล้ว';
+
+  @override
+  String get deskE1PhAskAmount => 'ขอจำนวนเงิน';
+
+  @override
+  String get deskE1PhAmount => 'จำนวนเงิน';
+
+  @override
+  String get deskE1PhMessage => 'ข้อความ (ไม่บังคับ)';
+
+  @override
+  String get deskE1PhMakeLink => 'สร้างลิงก์';
+
+  @override
+  String deskE1PhLinkAsks(String amount) {
+    return 'ขอ $amount';
+  }
+
+  @override
+  String get deskE1PhAnyAmount => 'จำนวนใดก็ได้';
+
+  @override
+  String get deskE1PhOtherWays => 'วิธีรับเงินอื่น';
+
+  @override
+  String get deskE1PhInPerson => 'แบบพบหน้า';
+
+  @override
+  String get deskE1PhRequestInPerson => 'ขอเงินแบบพบหน้า';
+
+  @override
+  String get deskE1PhSettings => 'การตั้งค่า';
+
+  @override
+  String get deskE1PhLanTitle => 'ใช้เซิร์ฟเวอร์ในเครือข่ายท้องถิ่นหรือไม่';
+
+  @override
+  String deskE1PhLanBody(String host) {
+    return '$host อยู่ในเครือข่ายท้องถิ่น เฉพาะวอลเล็ตในเครือข่ายนี้เท่านั้นที่จ่ายลิงก์ที่สร้างด้วยเซิร์ฟเวอร์นี้ได้';
+  }
+
+  @override
+  String get deskE1PhField => 'ลิงก์ epic1 หรือผู้ติดต่อ';
+
+  @override
+  String get deskE1PhPayInPerson => 'จ่ายแบบพบหน้า';
+
+  @override
+  String get deskE1PhContacts => 'ผู้ติดต่อ';
+
+  @override
+  String get deskE1PhUnknownTitle => 'ส่งผ่านเซิร์ฟเวอร์นี้หรือไม่';
+
+  @override
+  String deskE1PhUnknownBody(String host) {
+    return '$host ไม่อยู่ในรายการเซิร์ฟเวอร์ของคุณ';
+  }
+
+  @override
+  String get deskE1PhUseServer => 'ใช้เซิร์ฟเวอร์';
+
+  @override
+  String get deskE1PhReview => 'ตรวจสอบ';
+
+  @override
+  String get deskE1PhTo => 'ถึง';
+
+  @override
+  String get deskE1PhServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get deskE1PhNote => 'ข้อความ';
+
+  @override
+  String get deskE1PhSend => 'ส่ง';
+
+  @override
+  String get deskE1PhWaiting => 'กำลังรอผู้รับ';
+
+  @override
+  String deskE1PhNotTaken(String host) {
+    return '$host ไม่รับการชำระเงิน';
+  }
+
+  @override
+  String get deskE1PhTryNext => 'ลองเซิร์ฟเวอร์ถัดไป';
+
+  @override
+  String get deskE1PhCancelUnlock => 'ยกเลิกและปลดล็อก';
+
+  @override
+  String get deskE1PhCancelled => 'ยกเลิกการชำระเงินแล้ว เหรียญกลับมาใช้ได้';
+
+  @override
+  String get deskE1PhSent => 'ส่งแล้ว';
+
+  @override
+  String get deskE1PhDone => 'เสร็จสิ้น';
+
+  @override
+  String get deskE1PhClassicOnlyTip =>
+      'ปิดการชำระเงิน epic1 เพื่อจ่ายให้ผู้ติดต่อนี้';
 }

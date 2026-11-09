@@ -20,6 +20,9 @@ import '../tor_build.dart';
 import '../updater.dart' show updateProvider;
 import '../wallet_service.dart';
 import 'common.dart';
+import '../epic1.dart' show PaymentMode, looksLikeEpictx;
+import 'epic1/epic1_common.dart' show epic1ModeSettingsKey, openEpic1Settings;
+import 'in_person/in_person_entry.dart' show openInPersonText;
 import 'finished_not_posted.dart' show FinishedNotPosted, isPostElsewhere;
 import 'invoice_request_screen.dart' show requestFilesOn;
 import 'invoice_review_screen.dart' show RequestFileReviewScreen, requestFileRefusal;
@@ -162,9 +165,51 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
   }
 
+  /// The payment mode's say on the file (epic1 spec, Files): a file of the other mode is not
+  /// read, its line shown instead.
+  String Function(AppLocalizations l)? _modeLine;
+
+  /// True when the file is not read here: a file of the other mode, or an in-person code
+  /// taken by its own flow. An epic1 file is opened with [Epic1Wallet.openEpictx] first.
+  Future<bool> _epic1Gate() async {
+    final epictx = looksLikeEpictx(_file.json) || _file.name.toLowerCase().endsWith('.epictx');
+    final epic1 = ref.read(paymentModeProvider) == PaymentMode.epic1;
+    if (epictx != epic1) {
+      // Still in initState: the first build shows it.
+      _modeLine = epic1 ? (l) => l.deskE1ModeClassicFile : (l) => l.deskE1ModeEpic1File;
+      _reading = false;
+      return true;
+    }
+    if (!epic1) return false;
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return true;
+    final navigator = Navigator.of(context);
+    if (await openInPersonText(context, _file.json)) {
+      if (mounted) navigator.pop(true);
+      return true;
+    }
+    final epic1Wallet = ref.read(epic1Provider);
+    if (epic1Wallet == null || !mounted) return false;
+    try {
+      final opened = await epic1Wallet.openEpictx(_file.json);
+      // Not from a paired contact: the slate inside goes on as a plain file.
+      if (opened.contactId == null && mounted) _file = SlateFile(name: _file.name, json: opened.slateJson);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = (l) => describeError(l, e);
+          _reading = false;
+        });
+      }
+      return true;
+    }
+    return !mounted;
+  }
+
   Future<void> _read() async {
     SlateInfo? info;
     String Function(AppLocalizations l)? error;
+    if (await _epic1Gate()) return;
     if (!await _open()) {
       if (mounted) setState(() => _reading = false);
       return;
@@ -382,7 +427,28 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             .directFile;
     final List<Widget> body;
     Widget? foot;
-    if (_posted case final posted? when posted.repostable) {
+    if (_modeLine case final line?) {
+      // A file of the other payment mode: why it is not read, with Settings.
+      body = [
+        _Headline(icon: Icons.info_outline, text: line(l)),
+        const SizedBox(height: 24),
+        FilledButton(
+          key: epic1ModeSettingsKey,
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () {
+            Navigator.pop(context, false);
+            unawaited(openEpic1Settings(context));
+          },
+          child: Text(l.deskE1PhSettings),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(l.commonClose),
+        ),
+      ];
+    } else if (_posted case final posted? when posted.repostable) {
       body = [
         NotPostedNotice(tx: posted),
         const SizedBox(height: 8),
@@ -408,7 +474,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     } else if (_response case final response?) {
       // A sealed answer is its own file type (RFC 3.5).
       final name = _sealedAnswer != null
-          ? sealedFileName(info!.slateId)
+          ? sealedFileName(info!.slateId, text: _sealedAnswer)
           : replyFileName(info!.slateId, loaded: _file.name == pastedSlateName || _file.name == scannedSlateName ? null : _file.name);
       body = [
         _Headline(
