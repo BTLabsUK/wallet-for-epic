@@ -751,6 +751,13 @@ abstract interface class WalletSession {
   Stream<IssuerEvent> issuerEvents();
 }
 
+/// A session whose wallet shares the sealed address book: a wallet switch on a phone keeps the
+/// book's key for the next wallet (`ContactStore.detach` with `hold`).
+abstract interface class KeepsBookOnSwitch {
+  /// Makes this session's dispose keep the address book's key for the next wallet to open.
+  void keepBookForSwitch();
+}
+
 /// A session that can read this wallet's address on a relay other than its own: after the
 /// user moved the wallet to another relay, payments sent to the old address wait there
 /// (`levels/relay_switch.dart`). Optional, so the fakes need nothing: [DrainEpicboxAt.drainEpicboxAt] answers null for a session without it.

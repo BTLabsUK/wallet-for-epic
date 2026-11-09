@@ -123,7 +123,10 @@ class _NetworkChooserState extends ConsumerState<_NetworkChooser> {
     }
     if (!mounted) return;
     Navigator.of(context).pop();
-    if (outer.mounted) relaunchAfterSwitch(outer);
+    if (!outer.mounted) return;
+    // The other network's wallet opens next: it takes the shared address book's key over.
+    ref.read(sessionProvider.notifier).lock(forSwitch: true);
+    relaunchAfterSwitch(outer);
   }
 
   @override
