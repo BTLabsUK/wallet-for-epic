@@ -329,6 +329,21 @@ void main() {
       expect(_key(epic1SendFieldKey), findsOneWidget);
     });
 
+    testWidgets('epic1: a link on a listed server reviews with no question and pays', (tester) async {
+      final session = _session(on: true);
+      await _pump(tester, session, send());
+      await tester.enterText(_key(epic1SendFieldKey), _link);
+      await _tapFrames(tester, _key(epic1SendContinueKey));
+      expect(find.text(_l.deskE1PhUnknownTitle), findsNothing);
+      expect(_key(epic1ReviewServerKey), findsOneWidget);
+
+      await _tapFrames(tester, _key(epic1SendButtonKey));
+      await answerPin(tester, settle: false);
+      await _frames(tester);
+      expect(session.epic1Fake.calls, contains('payLink'));
+      expect(_key(epic1WaitingKey), findsOneWidget);
+    });
+
     testWidgets('classic: an epic1 link says so, with Settings', (tester) async {
       await _pump(tester, _session(), send());
       expect(_key(epic1SendFieldKey), findsNothing);

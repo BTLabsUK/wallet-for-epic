@@ -218,6 +218,21 @@ void main() {
       expect(find.byKey(const ValueKey('e1-sent')), findsOneWidget);
     });
 
+    testWidgets('epic1: a link on a listed server reviews with no question and pays', (tester) async {
+      await _open(tester, DeskRoute.send, epic1: true);
+      await _enter(tester, 'e1-send-to', _link);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsNothing);
+      await _tap(tester, 'e1-review');
+      expect(find.byKey(const ValueKey('e1-review-server')), findsOneWidget);
+
+      _wallet.e1State = TxState.waitingRecipient;
+      await _tap(tester, 'e1-send');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(_wallet.epic1Fake.calls, contains('payLink'));
+      expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
+    });
+
     testWidgets('epic1: Cancel in the server question leaves the form', (tester) async {
       await _open(tester, DeskRoute.send, epic1: true);
       _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];

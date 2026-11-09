@@ -205,7 +205,8 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
   Object? _error;
   bool _busy = false;
 
-  /// "Use server" was pressed for the link's hosts not in the server list.
+  /// The review showed the link's server, and "Use server" was pressed for one not in the
+  /// server list: LEPIC pays only with this true.
   bool _hostsOk = false;
   final _amount = TextEditingController();
   String? _amountError;
@@ -245,9 +246,9 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
           Navigator.pop(context, false);
           return;
         }
-        _hostsOk = true;
       }
       setState(() {
+        _hostsOk = true;
         _info = info;
         _stage = _Stage.review;
       });

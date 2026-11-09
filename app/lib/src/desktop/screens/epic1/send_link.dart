@@ -158,10 +158,9 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       return;
     }
     if (!mounted) return;
-    var ok = false;
     final unknown = info.hosts.where((h) => !h.inRelayList).firstOrNull;
     if (unknown != null) {
-      ok = await _askServer(unknown.label);
+      final ok = await _askServer(unknown.label);
       if (!mounted) return;
       if (!ok) {
         setState(() => _reading = false);
@@ -172,7 +171,8 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       _reading = false;
       _link = link;
       _info = info;
-      _hostsOk = ok;
+      // The review shows the server and an unknown one was confirmed: LEPIC pays only with this.
+      _hostsOk = true;
       _amount.clear();
       _amountError = null;
     });

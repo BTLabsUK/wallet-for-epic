@@ -313,8 +313,8 @@ abstract interface class Epic1Wallet {
   /// Reads a pasted or scanned link. Throws notAnEpic1Link, epic1WrongNetwork, epic1CannotPay.
   Future<Epic1LinkInfo> readLink(String link);
 
-  /// Pays [link]. [hostsOk] is true once the user pressed "Use server" for a host not in the
-  /// relay list. A payment no relay took comes back with [Epic1Payment.posted] null, or as
+  /// Pays [link]. [hostsOk] is true once the review showed the link's relays and "Use server"
+  /// was pressed for any not in the relay list; LEPIC refuses false. A payment no relay took comes back with [Epic1Payment.posted] null, or as
   /// epic1NoMoreRelays.
   Future<Epic1Payment> payLink({
     required String link,
@@ -518,9 +518,8 @@ class FakeEpic1 implements Epic1Wallet {
   @override
   Future<Epic1Payment> payLink({required String link, BigInt? amount, required BigInt minimumConfirmations, String? message, SendOptions? options, required bool hostsOk}) async {
     _call('payLink');
-    if (!hostsOk && linkHosts.any((h) => !h.inRelayList)) {
-      throw const WalletError(kind: WalletErrorKind.relayNotConfirmed, message: 'relay not confirmed');
-    }
+    // As LEPIC: no payment without the relays confirmed, listed or not.
+    if (!hostsOk) throw const WalletError(kind: WalletErrorKind.relayNotConfirmed, message: 'relay not confirmed');
     final info = await readLink(link);
     final p = _post(_next, _slate(), info.address, const []);
     return _payments[p.slateId] = p;
@@ -530,6 +529,7 @@ class FakeEpic1 implements Epic1Wallet {
   Future<Epic1Payment> postNext({required String slateId, required bool hostsOk}) async {
     _call('postNext');
     final was = _payments[slateId];
+    if (!hostsOk) throw const WalletError(kind: WalletErrorKind.relayNotConfirmed, message: 'relay not confirmed');
     if (was == null) throw const WalletError(kind: WalletErrorKind.codeExpired, message: 'no such payment');
     return _payments[slateId] = _post(was.txId, slateId, was.address, was.attempts);
   }
