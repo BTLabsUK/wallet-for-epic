@@ -975,7 +975,7 @@ class _WindowControls extends ConsumerWidget {
     final closeAfter = ref.watch(deskCloseAfterSendProvider);
     final maxLabel = state.maximized ? l.deskBarRestore : l.deskBarMaximise;
     final closeLabel = closeAfter ? l.deskBarClosesAfterSend : l.deskBarClose;
-    void close() => unawaited(deskClose(ref));
+    void close() => unawaited(deskCloseWindow(ref));
     switch (style) {
       case DeskWindowStyle.mac:
         return const SizedBox.shrink();

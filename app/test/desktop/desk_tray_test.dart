@@ -23,6 +23,10 @@ class _Window extends DeskWindow {
   final shown = ValueNotifier(true);
   Future<void> Function()? close;
 
+  // The bar draws its own ✕, as on Linux and Windows.
+  @override
+  bool get frameless => true;
+
   @override
   ValueListenable<bool> get visible => shown;
 
@@ -154,6 +158,22 @@ void main() {
     await rig.activate(tester, TrayIds.open);
     expect(rig.window.shown.value, isTrue);
     expect(rig.tray.inTray, isFalse);
+  });
+
+  testWidgets('the bar\'s ✕ goes to the tray as the system\'s close does, and quits with nothing running', (tester) async {
+    final rig = await _open(tester);
+    await tester.tap(find.byKey(const ValueKey('bar-close')));
+    await _settle(tester);
+    expect(rig.quits, 0);
+    expect(rig.window.shown.value, isFalse);
+    expect(rig.tray.inTray, isTrue);
+    await rig.activate(tester, TrayIds.open);
+    rig.nodes.add(_node(LocalNodePhase.stopped));
+    await _settle(tester);
+    await tester.tap(find.byKey(const ValueKey('bar-close')));
+    await _settle(tester);
+    expect(rig.quits, 1);
+    expect(rig.window.shown.value, isTrue);
   });
 
   testWidgets('Quit in the tray closes down as the window\'s close does', (tester) async {

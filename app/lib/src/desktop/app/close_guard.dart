@@ -50,6 +50,14 @@ Future<bool> Function() deskHideToTray = () async => false;
 
 bool _asking = false;
 
+/// The window's close (the bar's ✕ and the system's: Alt+F4, the taskbar): to the tray when
+/// Sync in background keeps the node running, else [deskClose]. Quit in a menu calls
+/// [deskClose] itself.
+Future<void> deskCloseWindow(WidgetRef ref) async {
+  if (await deskHideToTray()) return;
+  if (ref.context.mounted) await deskClose(ref);
+}
+
 /// Close the app, by the rule above.
 Future<void> deskClose(WidgetRef ref) async {
   if (ref.read(deskSendingProvider) > 0) {
@@ -135,10 +143,7 @@ class _DeskCloseGuardState extends ConsumerState<DeskCloseGuard> {
   @override
   void initState() {
     super.initState();
-    _window.onCloseRequested = () async {
-      if (await deskHideToTray()) return;
-      if (mounted) await deskClose(ref);
-    };
+    _window.onCloseRequested = () => deskCloseWindow(ref);
     deskHoldExit = () {
       if (!mounted || ref.read(deskSendingProvider) == 0) return false;
       unawaited(_askAboutSend(ref));
