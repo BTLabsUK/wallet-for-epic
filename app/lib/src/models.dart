@@ -2322,6 +2322,51 @@ enum WalletErrorKind {
   /// beside the database does not match). Nothing was changed or set aside; Recover with the
   /// phrase stays open.
   wrongKey,
+
+  /// epic1 (`epic1.dart`). The link names no relay this wallet can reach. Nothing was stored.
+  epic1CannotPay,
+
+  /// Every relay of the link was tried and none took the payment. It is stored with its inputs
+  /// locked; the screen offers "Cancel and unlock".
+  epic1NoMoreRelays,
+
+  /// All 32 printed links are in use: one must be retired before another is made.
+  printedLinksFull,
+
+  /// The wallet's own Epicbox server is on this device (loopback): no link can name it.
+  ownRelayLocal,
+
+  /// A link or payment message that is too long or holds unsupported characters.
+  epic1MessageInvalid,
+
+  /// The payment or answer was completed already.
+  epic1Finalized,
+
+  /// The link or code is for another network.
+  epic1WrongNetwork,
+
+  /// No such epic1 payment or in-person code: it expired or never was (LEPIC's epic1NotFound
+  /// and inPersonNotFound).
+  codeExpired,
+
+  /// The text is not an epic1 link.
+  notAnEpic1Link,
+
+  /// A relay given for a link is not `host` or `host:port`.
+  epic1RelayInvalid,
+
+  /// Another Epic wallet's saved transaction record opened as a payment file.
+  savedTransaction,
+
+  /// A newer build of the app wrote the wallet's records: this one opens none of it.
+  walletTooNew,
+
+  /// Flow kinds, never shown: a post to a relay the user has not confirmed, an in-person code
+  /// that names no reply mailbox (the answer is shown back), an animated QR code still missing
+  /// parts (keep scanning).
+  relayNotConfirmed,
+  inPersonNoMailbox,
+  urCodeIncomplete,
   io,
   other,
 }
@@ -3189,6 +3234,7 @@ class PairingRecord {
     this.peerHeardAt,
     this.peerVerifiedAt,
     this.peerFeatures = 0,
+    this.nativeSlates = false,
     this.peerProfile = 0,
     this.endedReason,
     this.endedAt,
@@ -3269,6 +3315,11 @@ class PairingRecord {
   /// The other wallet's feature bits as this pairing holds them (0: none received). The app
   /// reads them through the trust policy only.
   final int peerFeatures;
+
+  /// New payments to this contact go as epic1 slates: the epic1 switch is in use, the contact
+  /// said it takes them, and the pairing is not private. False: in epic1 mode the contact is
+  /// "Classic only".
+  final bool nativeSlates;
 
   /// The profile word of the contact's card (tag `0x80`, 0 when absent): what the contact says
   /// about itself. Decoded from the stored card on every read, never stored by the app. Read
@@ -3379,6 +3430,7 @@ class PairingRecord {
     DateTime? peerVerifiedAt,
     bool clearPeerVerified = false,
     int? peerFeatures,
+    bool? nativeSlates,
     int? peerProfile,
     PairingEndReason? endedReason,
     DateTime? endedAt,
@@ -3414,6 +3466,7 @@ class PairingRecord {
     peerHeardAt: peerHeardAt ?? this.peerHeardAt,
     peerVerifiedAt: clearPeerVerified ? null : peerVerifiedAt ?? this.peerVerifiedAt,
     peerFeatures: peerFeatures ?? this.peerFeatures,
+    nativeSlates: nativeSlates ?? this.nativeSlates,
     peerProfile: peerProfile ?? this.peerProfile,
     endedReason: endedReason ?? this.endedReason,
     endedAt: endedAt ?? this.endedAt,

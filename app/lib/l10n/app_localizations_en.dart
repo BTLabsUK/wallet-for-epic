@@ -20854,4 +20854,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return '$name’s wallet can ask you to pay. Nothing is paid without the wallet password.';
   }
+
+  @override
+  String get deskE1ErrCannotPay =>
+      'This link names no server this wallet can reach.';
+
+  @override
+  String get deskE1ErrNoMoreRelays => 'Every server in the link was tried.';
+
+  @override
+  String get deskE1ErrPrintedFull =>
+      'All 32 printed codes are in use. Retire one first.';
+
+  @override
+  String get deskE1ErrOwnRelayLocal =>
+      'Your Epicbox server is on this device. Pick another server to make links.';
+
+  @override
+  String get deskE1ErrMessageInvalid =>
+      'Message too long or has unsupported characters.';
+
+  @override
+  String get deskE1ErrFinalized => 'Already completed.';
+
+  @override
+  String get deskE1ErrWrongNetwork => 'This link is for another network.';
+
+  @override
+  String get deskE1ErrCodeExpired => 'This code has expired.';
+
+  @override
+  String get deskE1ErrNotLink => 'Not an epic1 link.';
+
+  @override
+  String get deskE1ErrRelayInvalid =>
+      'Not a server address. Use host or host:port.';
+
+  @override
+  String get deskE1ErrSavedTx => 'Not a payment file.';
+
+  @override
+  String get deskE1ErrWalletTooNew =>
+      'Made by a newer version of the app. Update to open this wallet.';
+
+  @override
+  String get deskE1ModeClassicAddress =>
+      'Classic address. Turn off epic1 payments to pay it.';
+
+  @override
+  String get deskE1ModeClassicCode =>
+      'Classic code. Turn off epic1 payments to use it.';
+
+  @override
+  String get deskE1ModeClassicFile =>
+      'Classic file. Turn off epic1 payments to open it.';
+
+  @override
+  String get deskE1ModeEpic1Link =>
+      'epic1 link. Turn on epic1 payments to pay it.';
+
+  @override
+  String get deskE1ModeEpic1File =>
+      'epic1 file. Turn on epic1 payments to open it.';
+
+  @override
+  String get deskE1ClassicOnly => 'Classic only';
+
+  @override
+  String get deskE1PaymentStopped => 'Payment stopped. Nothing was posted.';
+
+  @override
+  String get deskE1SameCodeTwice => 'Two phones answered with the same code.';
+
+  @override
+  String get deskE1ShowNewCode => 'Show a new code';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return 'Retire code $n? Payments to it stop arriving.';
+  }
+
+  @override
+  String get deskE1Retire => 'Retire';
+
+  @override
+  String get deskE1Keep => 'Keep';
 }

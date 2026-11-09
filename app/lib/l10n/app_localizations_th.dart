@@ -20417,4 +20417,89 @@ class AppLocalizationsTh extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ';
   }
+
+  @override
+  String get deskE1ErrCannotPay =>
+      'ลิงก์นี้ไม่มีเซิร์ฟเวอร์ที่กระเป๋าเงินนี้เชื่อมต่อได้';
+
+  @override
+  String get deskE1ErrNoMoreRelays => 'ลองทุกเซิร์ฟเวอร์ในลิงก์แล้ว';
+
+  @override
+  String get deskE1ErrPrintedFull =>
+      'รหัสพิมพ์ทั้ง 32 รหัสถูกใช้อยู่ ยกเลิกหนึ่งรหัสก่อน';
+
+  @override
+  String get deskE1ErrOwnRelayLocal =>
+      'เซิร์ฟเวอร์ Epicbox ของคุณอยู่บนอุปกรณ์นี้ เลือกเซิร์ฟเวอร์อื่นเพื่อสร้างลิงก์';
+
+  @override
+  String get deskE1ErrMessageInvalid =>
+      'ข้อความยาวเกินไปหรือมีอักขระที่ไม่รองรับ';
+
+  @override
+  String get deskE1ErrFinalized => 'เสร็จสิ้นแล้ว';
+
+  @override
+  String get deskE1ErrWrongNetwork => 'ลิงก์นี้เป็นของเครือข่ายอื่น';
+
+  @override
+  String get deskE1ErrCodeExpired => 'รหัสนี้หมดอายุแล้ว';
+
+  @override
+  String get deskE1ErrNotLink => 'ไม่ใช่ลิงก์ epic1';
+
+  @override
+  String get deskE1ErrRelayInvalid =>
+      'ไม่ใช่ที่อยู่เซิร์ฟเวอร์ ใช้ host หรือ host:port';
+
+  @override
+  String get deskE1ErrSavedTx => 'ไม่ใช่ไฟล์การชำระเงิน';
+
+  @override
+  String get deskE1ErrWalletTooNew =>
+      'สร้างโดยแอปเวอร์ชันใหม่กว่า อัปเดตเพื่อเปิดกระเป๋าเงินนี้';
+
+  @override
+  String get deskE1ModeClassicAddress =>
+      'ที่อยู่แบบคลาสสิก ปิดการชำระเงิน epic1 เพื่อจ่าย';
+
+  @override
+  String get deskE1ModeClassicCode =>
+      'รหัสแบบคลาสสิก ปิดการชำระเงิน epic1 เพื่อใช้';
+
+  @override
+  String get deskE1ModeClassicFile =>
+      'ไฟล์แบบคลาสสิก ปิดการชำระเงิน epic1 เพื่อเปิด';
+
+  @override
+  String get deskE1ModeEpic1Link =>
+      'ลิงก์ epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย';
+
+  @override
+  String get deskE1ModeEpic1File =>
+      'ไฟล์ epic1 เปิดการชำระเงิน epic1 เพื่อเปิด';
+
+  @override
+  String get deskE1ClassicOnly => 'คลาสสิกเท่านั้น';
+
+  @override
+  String get deskE1PaymentStopped => 'หยุดการชำระเงินแล้ว ไม่มีสิ่งใดถูกส่ง';
+
+  @override
+  String get deskE1SameCodeTwice => 'โทรศัพท์สองเครื่องตอบด้วยรหัสเดียวกัน';
+
+  @override
+  String get deskE1ShowNewCode => 'แสดงรหัสใหม่';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return 'ยกเลิกรหัส $n หรือไม่ การชำระเงินไปยังรหัสนี้จะไม่มาถึงอีก';
+  }
+
+  @override
+  String get deskE1Retire => 'ยกเลิกรหัส';
+
+  @override
+  String get deskE1Keep => 'เก็บไว้';
 }

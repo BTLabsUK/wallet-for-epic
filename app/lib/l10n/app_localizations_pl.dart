@@ -21573,4 +21573,91 @@ class AppLocalizationsPl extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Portfel $name może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela.';
   }
+
+  @override
+  String get deskE1ErrCannotPay =>
+      'Ten link nie wskazuje serwera, z którym ten portfel może się połączyć.';
+
+  @override
+  String get deskE1ErrNoMoreRelays => 'Wypróbowano każdy serwer z linku.';
+
+  @override
+  String get deskE1ErrPrintedFull =>
+      'Wszystkie 32 drukowane kody są w użyciu. Najpierw wycofaj jeden.';
+
+  @override
+  String get deskE1ErrOwnRelayLocal =>
+      'Twój serwer Epicbox działa na tym urządzeniu. Wybierz inny serwer, aby tworzyć linki.';
+
+  @override
+  String get deskE1ErrMessageInvalid =>
+      'Wiadomość jest za długa lub ma nieobsługiwane znaki.';
+
+  @override
+  String get deskE1ErrFinalized => 'Już zakończono.';
+
+  @override
+  String get deskE1ErrWrongNetwork => 'Ten link jest dla innej sieci.';
+
+  @override
+  String get deskE1ErrCodeExpired => 'Ten kod wygasł.';
+
+  @override
+  String get deskE1ErrNotLink => 'To nie jest link epic1.';
+
+  @override
+  String get deskE1ErrRelayInvalid =>
+      'To nie jest adres serwera. Użyj host lub host:port.';
+
+  @override
+  String get deskE1ErrSavedTx => 'To nie jest plik płatności.';
+
+  @override
+  String get deskE1ErrWalletTooNew =>
+      'Utworzono w nowszej wersji aplikacji. Zaktualizuj, aby otworzyć ten portfel.';
+
+  @override
+  String get deskE1ModeClassicAddress =>
+      'Adres klasyczny. Wyłącz płatności epic1, aby go opłacić.';
+
+  @override
+  String get deskE1ModeClassicCode =>
+      'Kod klasyczny. Wyłącz płatności epic1, aby go użyć.';
+
+  @override
+  String get deskE1ModeClassicFile =>
+      'Plik klasyczny. Wyłącz płatności epic1, aby go otworzyć.';
+
+  @override
+  String get deskE1ModeEpic1Link =>
+      'Link epic1. Włącz płatności epic1, aby go opłacić.';
+
+  @override
+  String get deskE1ModeEpic1File =>
+      'Plik epic1. Włącz płatności epic1, aby go otworzyć.';
+
+  @override
+  String get deskE1ClassicOnly => 'Tylko klasyczne';
+
+  @override
+  String get deskE1PaymentStopped =>
+      'Płatność zatrzymana. Nic nie zostało wysłane.';
+
+  @override
+  String get deskE1SameCodeTwice =>
+      'Dwa telefony odpowiedziały tym samym kodem.';
+
+  @override
+  String get deskE1ShowNewCode => 'Pokaż nowy kod';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return 'Wycofać kod $n? Płatności na niego przestaną docierać.';
+  }
+
+  @override
+  String get deskE1Retire => 'Wycofaj';
+
+  @override
+  String get deskE1Keep => 'Zachowaj';
 }

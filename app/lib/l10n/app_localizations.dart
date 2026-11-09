@@ -32387,6 +32387,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}’s wallet can ask you to pay. Nothing is paid without the wallet password.'**
   String sasAllowInvoicesHintDesktop(String name);
+
+  /// An epic1 payment link lists no message server this wallet can reach.
+  ///
+  /// In en, this message translates to:
+  /// **'This link names no server this wallet can reach.'**
+  String get deskE1ErrCannotPay;
+
+  /// An epic1 payment: every message server listed in the link was tried and none worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Every server in the link was tried.'**
+  String get deskE1ErrNoMoreRelays;
+
+  /// The wallet has made its 32 printed payment codes; one must be retired before making another.
+  ///
+  /// In en, this message translates to:
+  /// **'All 32 printed codes are in use. Retire one first.'**
+  String get deskE1ErrPrintedFull;
+
+  /// Payment links need a message server others can reach; the user's server runs on this device only.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox server is on this device. Pick another server to make links.'**
+  String get deskE1ErrOwnRelayLocal;
+
+  /// Inline error under the payment message field.
+  ///
+  /// In en, this message translates to:
+  /// **'Message too long or has unsupported characters.'**
+  String get deskE1ErrMessageInvalid;
+
+  /// The payment was already completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Already completed.'**
+  String get deskE1ErrFinalized;
+
+  /// The payment link belongs to another Epic Cash network.
+  ///
+  /// In en, this message translates to:
+  /// **'This link is for another network.'**
+  String get deskE1ErrWrongNetwork;
+
+  /// An epic1 or in-person payment code is no longer valid.
+  ///
+  /// In en, this message translates to:
+  /// **'This code has expired.'**
+  String get deskE1ErrCodeExpired;
+
+  /// Inline error: the pasted text is not an epic1 payment link. 'epic1' is a product name; keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an epic1 link.'**
+  String get deskE1ErrNotLink;
+
+  /// Inline error under a server address field. 'host' and 'host:port' show the expected form; translate 'host' and 'port' if your language has usual words.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a server address. Use host or host:port.'**
+  String get deskE1ErrRelayInvalid;
+
+  /// The opened file is not a payment file this wallet can use.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a payment file.'**
+  String get deskE1ErrSavedTx;
+
+  /// The wallet's data was written by a newer app version.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by a newer version of the app. Update to open this wallet.'**
+  String get deskE1ErrWalletTooNew;
+
+  /// epic1 payments are on and the user entered a classic wallet address. 'epic1 payments' is the setting's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic address. Turn off epic1 payments to pay it.'**
+  String get deskE1ModeClassicAddress;
+
+  /// epic1 payments are on and the user scanned a classic payment code.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic code. Turn off epic1 payments to use it.'**
+  String get deskE1ModeClassicCode;
+
+  /// epic1 payments are on and the user opened a classic payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic file. Turn off epic1 payments to open it.'**
+  String get deskE1ModeClassicFile;
+
+  /// epic1 payments are off and the user entered an epic1 payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 link. Turn on epic1 payments to pay it.'**
+  String get deskE1ModeEpic1Link;
+
+  /// epic1 payments are off and the user opened an epic1 payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 file. Turn on epic1 payments to open it.'**
+  String get deskE1ModeEpic1File;
+
+  /// Badge on a contact that cannot receive epic1 payments, only classic ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic only'**
+  String get deskE1ClassicOnly;
+
+  /// The user stopped a payment before it was sent to the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment stopped. Nothing was posted.'**
+  String get deskE1PaymentStopped;
+
+  /// Two devices answered one in-person payment code; it is not safe to go on with it.
+  ///
+  /// In en, this message translates to:
+  /// **'Two phones answered with the same code.'**
+  String get deskE1SameCodeTwice;
+
+  /// Button: make and show a fresh in-person payment code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a new code'**
+  String get deskE1ShowNewCode;
+
+  /// Confirm dialog for retiring printed payment code number {n}.
+  ///
+  /// In en, this message translates to:
+  /// **'Retire code {n}? Payments to it stop arriving.'**
+  String deskE1RetireAsk(int n);
+
+  /// Button: retire a printed payment code.
+  ///
+  /// In en, this message translates to:
+  /// **'Retire'**
+  String get deskE1Retire;
+
+  /// Button: keep the printed payment code (cancel retiring).
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get deskE1Keep;
 }
 
 class _AppLocalizationsDelegate

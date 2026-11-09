@@ -19678,4 +19678,78 @@ class AppLocalizationsZh extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return '$name 的钱包可以请求你付款。没有钱包密码不会付款。';
   }
+
+  @override
+  String get deskE1ErrCannotPay => '此链接中没有本钱包可连接的服务器。';
+
+  @override
+  String get deskE1ErrNoMoreRelays => '链接中的每个服务器都已尝试。';
+
+  @override
+  String get deskE1ErrPrintedFull => '32 个打印码都在使用中。请先停用一个。';
+
+  @override
+  String get deskE1ErrOwnRelayLocal => '你的 Epicbox 服务器在本设备上。请选择其他服务器来创建链接。';
+
+  @override
+  String get deskE1ErrMessageInvalid => '留言过长或含有不支持的字符。';
+
+  @override
+  String get deskE1ErrFinalized => '已完成。';
+
+  @override
+  String get deskE1ErrWrongNetwork => '此链接属于其他网络。';
+
+  @override
+  String get deskE1ErrCodeExpired => '此码已过期。';
+
+  @override
+  String get deskE1ErrNotLink => '不是 epic1 链接。';
+
+  @override
+  String get deskE1ErrRelayInvalid => '不是服务器地址。请使用 host 或 host:port。';
+
+  @override
+  String get deskE1ErrSavedTx => '不是付款文件。';
+
+  @override
+  String get deskE1ErrWalletTooNew => '由更新版本的应用创建。请更新后打开此钱包。';
+
+  @override
+  String get deskE1ModeClassicAddress => '经典地址。关闭 epic1 付款后才能支付。';
+
+  @override
+  String get deskE1ModeClassicCode => '经典码。关闭 epic1 付款后才能使用。';
+
+  @override
+  String get deskE1ModeClassicFile => '经典文件。关闭 epic1 付款后才能打开。';
+
+  @override
+  String get deskE1ModeEpic1Link => 'epic1 链接。开启 epic1 付款后才能支付。';
+
+  @override
+  String get deskE1ModeEpic1File => 'epic1 文件。开启 epic1 付款后才能打开。';
+
+  @override
+  String get deskE1ClassicOnly => '仅经典';
+
+  @override
+  String get deskE1PaymentStopped => '付款已停止。未发送任何内容。';
+
+  @override
+  String get deskE1SameCodeTwice => '两部手机用同一个码作了回复。';
+
+  @override
+  String get deskE1ShowNewCode => '显示新码';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return '停用码 $n？发往它的付款将不再到达。';
+  }
+
+  @override
+  String get deskE1Retire => '停用';
+
+  @override
+  String get deskE1Keep => '保留';
 }

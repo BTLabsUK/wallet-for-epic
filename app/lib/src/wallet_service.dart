@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'contact_label.dart';
+import 'epic1.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'name_service/base58.dart' show epicboxKeyText, netMainnet;
 import 'name_service/pins.dart' show LinkMemory;
@@ -1349,7 +1350,7 @@ String fakeAddressSignature(String key, List<int> message) =>
     '${sha512.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
-class FakeWalletSession implements WalletSession, ListingKeys {
+class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
   FakeWalletSession({
     WalletSummary? summary,
     List<TxEntry>? transactions,
@@ -1360,6 +1361,12 @@ class FakeWalletSession implements WalletSession, ListingKeys {
 
   @override
   final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace);
+
+  /// epic1 calls (`epic1.dart`); classic mode unless a test puts one made with `on: true`.
+  FakeEpic1 epic1Fake = FakeEpic1();
+
+  @override
+  Epic1Wallet? get epic1Wallet => epic1Fake;
 
   static final WalletSummary emptySummary = WalletSummary(
     lastConfirmedHeight: BigInt.zero,

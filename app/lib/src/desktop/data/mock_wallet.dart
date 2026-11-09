@@ -26,6 +26,7 @@ import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
+import '../../epic1.dart';
 import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -435,6 +436,7 @@ class MockDeskWallet implements DeskWalletApi {
     notRemembered = false;
     if (ok) {
       _fails = 0;
+      epic1Fake.reopen();
       openedRemembered = false;
       notRemembered = remember && storeRefuses;
       remember && !storeRefuses ? _remembered.add(_selected) : _remembered.remove(_selected);
@@ -447,6 +449,7 @@ class MockDeskWallet implements DeskWalletApi {
     if (!_remembered.contains(_selected)) return false;
     await _wait(2);
     await _copyStore();
+    epic1Fake.reopen();
     openedRemembered = true;
     return true;
   }
@@ -1384,6 +1387,12 @@ class MockDeskWallet implements DeskWalletApi {
     // unless the user chose to only stop waiting.
     return spendBack ? CancelResult.spentBack : CancelResult.stoppedWaiting;
   }
+
+  /// The epic1 payments of the selected wallet: the switch's stored value applies at unlock.
+  final FakeEpic1 epic1Fake = FakeEpic1();
+
+  @override
+  Epic1Wallet? get epic1 => epic1Fake;
 
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
   /// pairings. The Prototype panel and the tour drive its other side.

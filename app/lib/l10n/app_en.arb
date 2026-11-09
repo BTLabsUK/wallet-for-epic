@@ -28282,5 +28282,106 @@
         "example": "Anna"
       }
     }
+  },
+  "deskE1ErrCannotPay": "This link names no server this wallet can reach.",
+  "@deskE1ErrCannotPay": {
+    "description": "An epic1 payment link lists no message server this wallet can reach."
+  },
+  "deskE1ErrNoMoreRelays": "Every server in the link was tried.",
+  "@deskE1ErrNoMoreRelays": {
+    "description": "An epic1 payment: every message server listed in the link was tried and none worked."
+  },
+  "deskE1ErrPrintedFull": "All 32 printed codes are in use. Retire one first.",
+  "@deskE1ErrPrintedFull": {
+    "description": "The wallet has made its 32 printed payment codes; one must be retired before making another."
+  },
+  "deskE1ErrOwnRelayLocal": "Your Epicbox server is on this device. Pick another server to make links.",
+  "@deskE1ErrOwnRelayLocal": {
+    "description": "Payment links need a message server others can reach; the user's server runs on this device only."
+  },
+  "deskE1ErrMessageInvalid": "Message too long or has unsupported characters.",
+  "@deskE1ErrMessageInvalid": {
+    "description": "Inline error under the payment message field."
+  },
+  "deskE1ErrFinalized": "Already completed.",
+  "@deskE1ErrFinalized": {
+    "description": "The payment was already completed."
+  },
+  "deskE1ErrWrongNetwork": "This link is for another network.",
+  "@deskE1ErrWrongNetwork": {
+    "description": "The payment link belongs to another Epic Cash network."
+  },
+  "deskE1ErrCodeExpired": "This code has expired.",
+  "@deskE1ErrCodeExpired": {
+    "description": "An epic1 or in-person payment code is no longer valid."
+  },
+  "deskE1ErrNotLink": "Not an epic1 link.",
+  "@deskE1ErrNotLink": {
+    "description": "Inline error: the pasted text is not an epic1 payment link. 'epic1' is a product name; keep it."
+  },
+  "deskE1ErrRelayInvalid": "Not a server address. Use host or host:port.",
+  "@deskE1ErrRelayInvalid": {
+    "description": "Inline error under a server address field. 'host' and 'host:port' show the expected form; translate 'host' and 'port' if your language has usual words."
+  },
+  "deskE1ErrSavedTx": "Not a payment file.",
+  "@deskE1ErrSavedTx": {
+    "description": "The opened file is not a payment file this wallet can use."
+  },
+  "deskE1ErrWalletTooNew": "Made by a newer version of the app. Update to open this wallet.",
+  "@deskE1ErrWalletTooNew": {
+    "description": "The wallet's data was written by a newer app version."
+  },
+  "deskE1ModeClassicAddress": "Classic address. Turn off epic1 payments to pay it.",
+  "@deskE1ModeClassicAddress": {
+    "description": "epic1 payments are on and the user entered a classic wallet address. 'epic1 payments' is the setting's name."
+  },
+  "deskE1ModeClassicCode": "Classic code. Turn off epic1 payments to use it.",
+  "@deskE1ModeClassicCode": {
+    "description": "epic1 payments are on and the user scanned a classic payment code."
+  },
+  "deskE1ModeClassicFile": "Classic file. Turn off epic1 payments to open it.",
+  "@deskE1ModeClassicFile": {
+    "description": "epic1 payments are on and the user opened a classic payment file."
+  },
+  "deskE1ModeEpic1Link": "epic1 link. Turn on epic1 payments to pay it.",
+  "@deskE1ModeEpic1Link": {
+    "description": "epic1 payments are off and the user entered an epic1 payment link."
+  },
+  "deskE1ModeEpic1File": "epic1 file. Turn on epic1 payments to open it.",
+  "@deskE1ModeEpic1File": {
+    "description": "epic1 payments are off and the user opened an epic1 payment file."
+  },
+  "deskE1ClassicOnly": "Classic only",
+  "@deskE1ClassicOnly": {
+    "description": "Badge on a contact that cannot receive epic1 payments, only classic ones."
+  },
+  "deskE1PaymentStopped": "Payment stopped. Nothing was posted.",
+  "@deskE1PaymentStopped": {
+    "description": "The user stopped a payment before it was sent to the network."
+  },
+  "deskE1SameCodeTwice": "Two phones answered with the same code.",
+  "@deskE1SameCodeTwice": {
+    "description": "Two devices answered one in-person payment code; it is not safe to go on with it."
+  },
+  "deskE1ShowNewCode": "Show a new code",
+  "@deskE1ShowNewCode": {
+    "description": "Button: make and show a fresh in-person payment code."
+  },
+  "deskE1RetireAsk": "Retire code {n}? Payments to it stop arriving.",
+  "@deskE1RetireAsk": {
+    "description": "Confirm dialog for retiring printed payment code number {n}.",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deskE1Retire": "Retire",
+  "@deskE1Retire": {
+    "description": "Button: retire a printed payment code."
+  },
+  "deskE1Keep": "Keep",
+  "@deskE1Keep": {
+    "description": "Button: keep the printed payment code (cancel retiring)."
   }
 }

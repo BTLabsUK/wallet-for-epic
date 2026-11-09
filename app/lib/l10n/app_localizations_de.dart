@@ -21108,4 +21108,91 @@ class AppLocalizationsDe extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Die Wallet von $name kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt.';
   }
+
+  @override
+  String get deskE1ErrCannotPay =>
+      'Dieser Link nennt keinen Server, den diese Wallet erreicht.';
+
+  @override
+  String get deskE1ErrNoMoreRelays => 'Jeder Server im Link wurde versucht.';
+
+  @override
+  String get deskE1ErrPrintedFull =>
+      'Alle 32 gedruckten Codes sind in Gebrauch. Zuerst einen stilllegen.';
+
+  @override
+  String get deskE1ErrOwnRelayLocal =>
+      'Dein Epicbox-Server läuft auf diesem Gerät. Wähle einen anderen Server, um Links zu erstellen.';
+
+  @override
+  String get deskE1ErrMessageInvalid =>
+      'Nachricht zu lang oder mit nicht unterstützten Zeichen.';
+
+  @override
+  String get deskE1ErrFinalized => 'Bereits abgeschlossen.';
+
+  @override
+  String get deskE1ErrWrongNetwork =>
+      'Dieser Link ist für ein anderes Netzwerk.';
+
+  @override
+  String get deskE1ErrCodeExpired => 'Dieser Code ist abgelaufen.';
+
+  @override
+  String get deskE1ErrNotLink => 'Kein epic1-Link.';
+
+  @override
+  String get deskE1ErrRelayInvalid =>
+      'Keine Serveradresse. Verwende host oder host:port.';
+
+  @override
+  String get deskE1ErrSavedTx => 'Keine Zahlungsdatei.';
+
+  @override
+  String get deskE1ErrWalletTooNew =>
+      'Mit einer neueren App-Version erstellt. Aktualisiere, um diese Wallet zu öffnen.';
+
+  @override
+  String get deskE1ModeClassicAddress =>
+      'Klassische Adresse. Schalte epic1-Zahlungen aus, um sie zu bezahlen.';
+
+  @override
+  String get deskE1ModeClassicCode =>
+      'Klassischer Code. Schalte epic1-Zahlungen aus, um ihn zu verwenden.';
+
+  @override
+  String get deskE1ModeClassicFile =>
+      'Klassische Datei. Schalte epic1-Zahlungen aus, um sie zu öffnen.';
+
+  @override
+  String get deskE1ModeEpic1Link =>
+      'epic1-Link. Schalte epic1-Zahlungen ein, um ihn zu bezahlen.';
+
+  @override
+  String get deskE1ModeEpic1File =>
+      'epic1-Datei. Schalte epic1-Zahlungen ein, um sie zu öffnen.';
+
+  @override
+  String get deskE1ClassicOnly => 'Nur klassisch';
+
+  @override
+  String get deskE1PaymentStopped => 'Zahlung gestoppt. Nichts wurde gesendet.';
+
+  @override
+  String get deskE1SameCodeTwice =>
+      'Zwei Telefone haben mit demselben Code geantwortet.';
+
+  @override
+  String get deskE1ShowNewCode => 'Neuen Code zeigen';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return 'Code $n stilllegen? Zahlungen an ihn kommen nicht mehr an.';
+  }
+
+  @override
+  String get deskE1Retire => 'Stilllegen';
+
+  @override
+  String get deskE1Keep => 'Behalten';
 }

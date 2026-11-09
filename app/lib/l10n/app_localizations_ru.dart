@@ -21562,4 +21562,90 @@ class AppLocalizationsRu extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Кошелёк $name сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается.';
   }
+
+  @override
+  String get deskE1ErrCannotPay =>
+      'В этой ссылке нет сервера, доступного этому кошельку.';
+
+  @override
+  String get deskE1ErrNoMoreRelays => 'Испробованы все серверы из ссылки.';
+
+  @override
+  String get deskE1ErrPrintedFull =>
+      'Все 32 печатных кода заняты. Сначала выведите один из них.';
+
+  @override
+  String get deskE1ErrOwnRelayLocal =>
+      'Ваш сервер Epicbox работает на этом устройстве. Выберите другой сервер, чтобы создавать ссылки.';
+
+  @override
+  String get deskE1ErrMessageInvalid =>
+      'Сообщение слишком длинное или содержит неподдерживаемые символы.';
+
+  @override
+  String get deskE1ErrFinalized => 'Уже завершено.';
+
+  @override
+  String get deskE1ErrWrongNetwork => 'Эта ссылка для другой сети.';
+
+  @override
+  String get deskE1ErrCodeExpired => 'Срок действия кода истёк.';
+
+  @override
+  String get deskE1ErrNotLink => 'Это не ссылка epic1.';
+
+  @override
+  String get deskE1ErrRelayInvalid =>
+      'Это не адрес сервера. Укажите host или host:port.';
+
+  @override
+  String get deskE1ErrSavedTx => 'Это не файл платежа.';
+
+  @override
+  String get deskE1ErrWalletTooNew =>
+      'Создано более новой версией приложения. Обновите его, чтобы открыть этот кошелёк.';
+
+  @override
+  String get deskE1ModeClassicAddress =>
+      'Классический адрес. Выключите платежи epic1, чтобы оплатить его.';
+
+  @override
+  String get deskE1ModeClassicCode =>
+      'Классический код. Выключите платежи epic1, чтобы использовать его.';
+
+  @override
+  String get deskE1ModeClassicFile =>
+      'Классический файл. Выключите платежи epic1, чтобы открыть его.';
+
+  @override
+  String get deskE1ModeEpic1Link =>
+      'Ссылка epic1. Включите платежи epic1, чтобы оплатить её.';
+
+  @override
+  String get deskE1ModeEpic1File =>
+      'Файл epic1. Включите платежи epic1, чтобы открыть его.';
+
+  @override
+  String get deskE1ClassicOnly => 'Только классические';
+
+  @override
+  String get deskE1PaymentStopped => 'Платёж остановлен. Ничего не отправлено.';
+
+  @override
+  String get deskE1SameCodeTwice =>
+      'Два телефона ответили одним и тем же кодом.';
+
+  @override
+  String get deskE1ShowNewCode => 'Показать новый код';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return 'Вывести код $n? Платежи на него перестанут приходить.';
+  }
+
+  @override
+  String get deskE1Retire => 'Вывести';
+
+  @override
+  String get deskE1Keep => 'Оставить';
 }

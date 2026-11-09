@@ -91,6 +91,7 @@ import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../trust/contact_trust.dart' show peerCompatRetention;
 import '../../trust/policy.dart' show PeerCompat;
+import '../../epic1.dart' show Epic1Wallet, Epic1Of;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -5502,6 +5503,9 @@ class LepicDeskWallet implements DeskWalletApi {
   // The open wallet's pairing; nothing while locked.
   @override
   core.PairingApi get pairing => _session?.pairing ?? const core.NoPairing();
+
+  @override
+  Epic1Wallet? get epic1 => _session?.epic1;
 
   @override
   Future<PeerCompat?> peerCompat(String address) => _service.peerCompat(address);

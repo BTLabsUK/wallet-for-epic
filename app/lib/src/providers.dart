@@ -10,6 +10,7 @@ import 'wallet/upkeep.dart' show releaseSenderCancelled, resendUndelivered, retr
 import 'dev_networks.dart';
 import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
+import 'epic1.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
@@ -221,6 +222,16 @@ class WalletConfigNotifier extends Notifier<WalletConfig?> {
 /// The open wallet, or null while locked.
 final sessionProvider = NotifierProvider<SessionNotifier, WalletSession?>(
   SessionNotifier.new,
+);
+
+/// The open wallet's epic1 payments (`epic1.dart`), or null while locked or on a core without
+/// them.
+final epic1Provider = Provider<Epic1Wallet?>((ref) => ref.watch(sessionProvider)?.epic1);
+
+/// Which transaction UI the open wallet shows: epic1 when its switch was on at unlock. Turning
+/// the switch changes this only at the next unlock (a new session).
+final paymentModeProvider = Provider<PaymentMode>(
+  (ref) => ref.watch(sessionProvider)?.paymentMode ?? PaymentMode.classic,
 );
 
 class SessionNotifier extends Notifier<WalletSession?> {

@@ -264,34 +264,32 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.restoreScanRequired =>
       WalletErrorKind.restoreScanRequired,
     // Another Epic wallet's saved_txs record opened as a payment file: not one to answer.
-    lepic.WalletErrorKind.savedTransaction => WalletErrorKind.invalidSlate,
+    lepic.WalletErrorKind.savedTransaction => WalletErrorKind.savedTransaction,
     // A native send stored and not delivered (its inputs stay locked, txId set), as notDelivered.
-    // Epic1NoMoreRelays is the same for a payment: it is stored, and every relay was tried.
-    lepic.WalletErrorKind.nativeExchangeFailed ||
-    lepic.WalletErrorKind.epic1NoMoreRelays => WalletErrorKind.transportFailed,
+    lepic.WalletErrorKind.nativeExchangeFailed => WalletErrorKind.transportFailed,
+    // An epic1 payment stored, and every relay of its link was tried.
+    lepic.WalletErrorKind.epic1NoMoreRelays => WalletErrorKind.epic1NoMoreRelays,
     // The probe of a native peer failed before the send was made: nothing was stored and no
     // input is locked, so there is nothing to cancel or resend. A send to this computer is
     // refused before it is stored as well; ThisComputer may come with no txId.
     lepic.WalletErrorKind.peerProbeFailed ||
     lepic.WalletErrorKind.thisComputer => WalletErrorKind.transportFailed,
     // A wallet newer than this build wrote the store: this build opens none of it, and nothing
-    // changed. No screen words it yet; the core's message stands, as io.
-    lepic.WalletErrorKind.walletTooNew => WalletErrorKind.io,
-    // In-person codes, epic1 links and native pins: no screen calls them yet, so the core's
-    // message stands until those screens word their own.
-    lepic.WalletErrorKind.inPersonNotFound ||
-    lepic.WalletErrorKind.relayNotConfirmed ||
-    lepic.WalletErrorKind.inPersonNoMailbox ||
-    lepic.WalletErrorKind.urCodeIncomplete ||
-    lepic.WalletErrorKind.epic1CannotPay ||
-    lepic.WalletErrorKind.printedLinksFull ||
-    lepic.WalletErrorKind.epic1NotFound ||
-    lepic.WalletErrorKind.ownRelayLocal ||
-    lepic.WalletErrorKind.epic1RelayInvalid ||
-    lepic.WalletErrorKind.epic1MessageInvalid ||
-    lepic.WalletErrorKind.epic1Finalized ||
-    lepic.WalletErrorKind.epic1WrongNetwork ||
-    lepic.WalletErrorKind.notAnEpic1Link => WalletErrorKind.invalidArgument,
+    // changed.
+    lepic.WalletErrorKind.walletTooNew => WalletErrorKind.walletTooNew,
+    // In-person codes and epic1 links (`epic1.dart`): each has its own line on screen.
+    lepic.WalletErrorKind.inPersonNotFound || lepic.WalletErrorKind.epic1NotFound => WalletErrorKind.codeExpired,
+    lepic.WalletErrorKind.relayNotConfirmed => WalletErrorKind.relayNotConfirmed,
+    lepic.WalletErrorKind.inPersonNoMailbox => WalletErrorKind.inPersonNoMailbox,
+    lepic.WalletErrorKind.urCodeIncomplete => WalletErrorKind.urCodeIncomplete,
+    lepic.WalletErrorKind.epic1CannotPay => WalletErrorKind.epic1CannotPay,
+    lepic.WalletErrorKind.printedLinksFull => WalletErrorKind.printedLinksFull,
+    lepic.WalletErrorKind.ownRelayLocal => WalletErrorKind.ownRelayLocal,
+    lepic.WalletErrorKind.epic1RelayInvalid => WalletErrorKind.epic1RelayInvalid,
+    lepic.WalletErrorKind.epic1MessageInvalid => WalletErrorKind.epic1MessageInvalid,
+    lepic.WalletErrorKind.epic1Finalized => WalletErrorKind.epic1Finalized,
+    lepic.WalletErrorKind.epic1WrongNetwork => WalletErrorKind.epic1WrongNetwork,
+    lepic.WalletErrorKind.notAnEpic1Link => WalletErrorKind.notAnEpic1Link,
     lepic.WalletErrorKind.pinnedNoAdvert ||
     lepic.WalletErrorKind.pinChanged => WalletErrorKind.other,
     // Decided on by kind, never by the core's English message.
@@ -4028,6 +4026,7 @@ class _LepicPairing implements PairingApi {
     peerHeardAt: c.peerHeardAtMs == null ? null : _ms(c.peerHeardAtMs!.toInt()),
     peerVerifiedAt: c.peerVerifiedAtMs == null ? null : _ms(c.peerVerifiedAtMs!.toInt()),
     peerFeatures: c.peerFeatures,
+    nativeSlates: c.nativeSlates,
     peerProfile: c.peerProfile,
     endedReason: c.endedReason == null ? null : lepicPairingEndReason(c.endedReason!),
     endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),
