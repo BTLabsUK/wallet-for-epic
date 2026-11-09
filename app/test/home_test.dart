@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show AppConfig, hostSettings;
 import 'package:epic_wallet/src/dev_networks.dart' show devNetworksProvider;
+import 'package:epic_wallet/src/epic1.dart' show FakeEpic1;
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/onion_notice.dart';
@@ -2124,6 +2125,14 @@ void main() {
       await h.pump(tester);
       expect(find.text(_l.torAddressChangedTitle), findsNothing);
       expect(find.text(_l.homeBackupCardText), findsOneWidget);
+    });
+
+    testWidgets('epic1 mode: not shown and not spent, the classic mode still has it', (tester) async {
+      final session = FakeWalletSession(summary: _summary(), transactions: _backlog())..epic1Fake = FakeEpic1(on: true);
+      final h = _Harness(session: session, fromBeforeOnionKey: true);
+      await h.pump(tester);
+      expect(find.text(_l.torAddressChangedTitle), findsNothing);
+      expect(h.store.values[onionNoticeKey('mainnet', null)], isNull);
     });
   });
 

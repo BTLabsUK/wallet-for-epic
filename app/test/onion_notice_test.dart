@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
+import 'package:epic_wallet/src/epic1.dart' show PaymentMode;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
@@ -116,6 +117,26 @@ void main() {
       await c.read(deskOnionNoticeProvider.notifier).dismiss();
       c.invalidate(deskOnionNoticeProvider);
       expect(await c.read(deskOnionNoticeProvider.future), isFalse);
+      await w.dispose();
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
+
+    test('epic1 mode: not shown, and still due for the classic mode', () async {
+      final w = wallet();
+      await w.createWallet(password: _password);
+      expect(await w.unlock(_password), isTrue);
+      secrets.values.remove(onionNoticeKey('mainnet', null));
+      final c = ProviderContainer(
+        overrides: [
+          deskApiProvider.overrideWithValue(w),
+          deskStoreProvider.overrideWithValue(DeskStore(secrets)),
+          secretStoreProvider.overrideWithValue(secrets),
+          deskPaymentModeProvider.overrideWithValue(PaymentMode.epic1),
+        ],
+      );
+      addTearDown(c.dispose);
+      await c.read(deskProvider.notifier).refresh();
+      expect(await c.read(deskOnionNoticeProvider.future), isFalse);
+      expect(await onionNoticeDue(secrets, chain: 'mainnet', walletId: null, torBuilt: true), isTrue);
       await w.dispose();
     }, skip: !torBuilt ? 'no Tor in this build' : null);
 
