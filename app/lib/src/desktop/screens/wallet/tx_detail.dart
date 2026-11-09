@@ -150,7 +150,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
-                : t.method == TxMethod.file
+                : t.byFile
                 ? l.deskTxNowWaitingResponseFile
                 : l.deskTxNowWaitingRecipient,
           TxState.posted when t.notPosted && NetGate.killSwitch => l.txPostElsewhereKill,
@@ -748,7 +748,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               l.deskTxFactMethod,
               t.foundByScan
                   ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
-                  : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
+                  : Text(methodLabelOf(l, t, mailbox: mailboxName != null)),
             ),
           (l.deskTxFactAmount, EMoney(t.amount, surface: AmountSurface.exact)),
           // The other wallet paid the fee: this wallet only saw the coins leave.

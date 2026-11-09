@@ -23,7 +23,7 @@ import 'tx_label.dart';
 export '../../data/method_names.dart' show methodLabel;
 
 /// Who the other side is: the contact's name, else a shortened address or the file name, else
-/// what kind of transaction it was.
+/// what kind of transaction it was (an epic1 exchange by its method: epic1 link, In person).
 String whoOf(AppLocalizations l, Tx t) {
   // A payment another linked device made: the row says where it came from.
   if (t.deviceName != null) return l.txSentFromDevice(t.deviceName!);
@@ -37,6 +37,8 @@ String whoOf(AppLocalizations l, Tx t) {
   final cp = t.counterparty;
   // An invoice from a backup with no address (asked by file) is named as the live one is.
   if (cp == null && t.fromBackup && !t.isInvoice) return t.incoming ? l.deskTxReceived : l.deskTxSent;
+  // A link or an in-person code names no one: the row says how it went.
+  if (cp == null && t.epic1Via != null) return MethodIcons.epic1Name(l, t.epic1Via!);
   if (cp == null) return t.incoming ? l.deskTxUnknownSender : l.deskTxUnknownRecipient;
   // A file is named by its file name ([fileNameOf]), as a contact is by name.
   if (t.method == TxMethod.file) return fileNameOf(t) ?? l.slateFileTitle;
@@ -172,7 +174,11 @@ bool whoIsAddress(Tx t) => t.deviceName == null && t.contactName == null && !t.t
 
 /// How it travelled, in the short tier of a row's tag, or null when that is not known (mining
 /// rewards, scan finds).
-String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan ? null : methodShortLabel(l, t.method);
+String? methodOf(AppLocalizations l, Tx t) => t.coinbase || t.otherWallet || t.foundByScan
+    ? null
+    : t.epic1Via != null
+    ? MethodIcons.epic1Name(l, t.epic1Via!)
+    : methodShortLabel(l, t.method);
 
 /// How a scan find came, in the words of the details dialog; null until the user says. [short]
 /// for a row's tag.
@@ -181,7 +187,16 @@ String? restoredMethodOf(AppLocalizations l, Tx t, {bool short = false}) {
   return short ? methodShortLabel(l, t.method) : methodLabel(l, t.method);
 }
 
+/// How it travelled, in the details' words: through a pairing's [mailbox] Epicbox, an epic1
+/// exchange by its name, else the transport's method.
+String methodLabelOf(AppLocalizations l, Tx t, {bool mailbox = false}) => mailbox
+    ? methodLabel(l, TxMethod.epicbox)
+    : t.epic1Via != null
+    ? MethodIcons.epic1Name(l, t.epic1Via!)
+    : methodLabel(l, t.method);
+
 IconData iconOf(Tx t) => switch (t.method) {
+  _ when t.epic1Via != null => MethodIcons.epic1(t.epic1Via!),
   TxMethod.file => t.incoming ? EIcons.fileDown : EIcons.fileUp,
   _ => t.incoming ? EIcons.receive : EIcons.send,
 };
@@ -212,7 +227,7 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
         // The sender's word, not the chain's: in progress, never Received before a block.
         TxState.waitingRecipient when t.incoming && t.senderPosted => (l.deskTxStatusSenderPosted, ETone.info),
         TxState.waitingRecipient => (
-          t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
+          t.incoming ? l.deskTxStatusWaitingSender : (t.byFile ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
           // Waiting is in progress (blue); amber only for a wait that went wrong.
           ETone.info,
         ),
@@ -738,7 +753,8 @@ extension on _TxRowState {
 
 /// "Requested from Piotr", "Paid invoice — Coffee Roasters"; null for a plain payment.
 String? invoiceTitleOf(BuildContext context, Tx t) {
-  if (!t.isInvoice) return null;
+  // An in-person request names no one: [whoOf]'s method name alone.
+  if (!t.isInvoice || (t.epic1Via != null && t.counterparty == null)) return null;
   final l = context.l10n;
   return t.incoming ? l.deskInvIssuerTo(whoOf(l, t)) : l.deskInvActFrom(whoOf(l, t));
 }

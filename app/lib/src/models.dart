@@ -1444,6 +1444,19 @@ enum DeviceEnding {
   return (amount: sent.isNegative ? BigInt.zero : sent, outgoing: true);
 }
 
+/// The epic1 way a transaction went: a link paid, or an in-person code.
+enum Epic1Via {
+  link('link'),
+  inPerson('in_person');
+
+  const Epic1Via(this.stored);
+
+  /// The value kept in the history archive.
+  final String stored;
+
+  static Epic1Via? fromStored(String? s) => values.where((v) => v.stored == s).firstOrNull;
+}
+
 /// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
   /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
@@ -1587,6 +1600,10 @@ class TxEntry {
   /// has covered its blocks yet (LEPIC clears it after the next one). False for every other row.
   final bool unverified;
 
+  /// How an epic1 exchange carried this row (a link or an in-person code), when the app
+  /// recorded one; null for every other row. LEPIC lists these as file sends.
+  final Epic1Via? epic1Via;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1636,6 +1653,7 @@ class TxEntry {
     this.origin = TxOrigin.thisWallet,
     this.spentCommits = const [],
     this.unverified = false,
+    this.epic1Via,
   });
 
   /// This row as one the linked device [name] received (Linked devices).
@@ -1688,6 +1706,7 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
   );
 
   /// This row as one sent through the pairing [pairing] (the fakes mark their mailbox sends so).
@@ -1740,6 +1759,7 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
   );
 
   /// This mining reward with its output's lock [height] known.
@@ -1792,6 +1812,7 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
   );
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1857,7 +1878,8 @@ class TxEntry {
       pairingId.hashCode ^
       origin.hashCode ^
       Object.hashAll(spentCommits) ^
-      unverified.hashCode;
+      unverified.hashCode ^
+      epic1Via.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1912,7 +1934,8 @@ class TxEntry {
           pairingId == other.pairingId &&
           origin == other.origin &&
           _listEquals(spentCommits, other.spentCommits) &&
-          unverified == other.unverified;
+          unverified == other.unverified &&
+          epic1Via == other.epic1Via;
 }
 
 /// [tx] is "to be posted elsewhere": a send finalized and not posted ([TxEntry.repostable]:

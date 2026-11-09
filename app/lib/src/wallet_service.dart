@@ -3676,6 +3676,7 @@ TxEntry fakeTx({
   TxOrigin origin = TxOrigin.thisWallet,
   List<String> spentCommits = const [],
   bool unverified = false,
+  Epic1Via? epic1Via,
 }) {
   final resolvedStatus =
       status ??
@@ -3731,6 +3732,7 @@ TxEntry fakeTx({
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
   );
 }
 
@@ -3794,4 +3796,5 @@ TxEntry copyTx(
   origin: tx.origin,
   spentCommits: tx.spentCommits,
   unverified: tx.unverified,
+  epic1Via: tx.epic1Via,
 );

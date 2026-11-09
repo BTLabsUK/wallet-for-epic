@@ -121,7 +121,7 @@ List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String
     recipientSub = null;
   } else if (t.undelivered) {
     recipientSub = l.deskTxStatusUndelivered;
-  } else if (t.method == TxMethod.file) {
+  } else if (t.byFile) {
     recipientSub = l.deskTxStepWaitingFile;
   } else if (t.method != TxMethod.epicbox) {
     recipientSub = null;

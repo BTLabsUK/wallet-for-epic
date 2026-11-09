@@ -2810,7 +2810,9 @@ class LepicWalletSession
           NetGate.checkNode('refresh');
           await _wallet.summary(refresh: true);
         }
-        final txs = _history.transactions(await _live());
+        final live = await _live();
+        await _markEpic1Received(live);
+        final txs = _history.transactions(live);
         if (!refresh) return txs;
         // Listener payments waiting too long, or too many (listener_receives.dart).
         final expired = listenerReceivesToCancel(txs, DateTime.now());
@@ -2827,6 +2829,39 @@ class LepicWalletSession
         logInfo('history', 'listener payments cancelled: $cancelled');
         return cancelled == 0 ? txs : _history.transactions(await _live());
       });
+
+  /// Slate ids of received file rows already looked up in LEPIC's epic1 answers.
+  final Set<String> _epic1Looked = {};
+
+  /// Marks the received rows of [live] that answered an epic1 link ([Meta.epic1Payments]):
+  /// LEPIC lists them as file receives. Looks up each new row once a session; never fails
+  /// the listing.
+  Future<void> _markEpic1Received(List<TxEntry> live) async {
+    final marks = _history.meta.epic1Payments;
+    final fresh = {
+      for (final t in live)
+        if (t.kind == TxKind.received && t.transport == 'file' && t.slateId != null &&
+            !marks.containsKey(t.slateId) && !_epic1Looked.contains(t.slateId))
+          t.slateId!,
+    };
+    if (fresh.isEmpty) return;
+    try {
+      final answered = {for (final a in await _wallet.epic1Answers(relayMode: lepicRelayMode())) a.slateId};
+      _epic1Looked.addAll(fresh);
+      await _history.recordEpic1(fresh.where(answered.contains), Epic1Via.link);
+    } on Object catch (e) {
+      logWarn('history', 'epic1 answers not read (${e.runtimeType})');
+    }
+  }
+
+  /// Saves how the epic1 exchange [slateId] went; a failed write is logged, never thrown.
+  Future<void> _markEpic1(String slateId, Epic1Via via) async {
+    try {
+      await _history.recordEpic1([slateId], via);
+    } on Object catch (e) {
+      logWarn('history', 'epic1 mark not saved (${e.runtimeType})');
+    }
+  }
 
   /// LEPIC stores heights and times as it confirms, so nothing is left to fill in.
   @override
@@ -3802,6 +3837,7 @@ class _LepicEpic1 implements Epic1Wallet {
         relayMode: lepicRelayMode(),
       ),
     );
+    await _s._markEpic1(paid.slateId, Epic1Via.link);
     return _epic1Payment(paid);
   });
 
@@ -3811,6 +3847,7 @@ class _LepicEpic1 implements Epic1Wallet {
         final paid = await _s._counted(
           () => _w.epic1PostNext(slateId: slateId, hostsOk: hostsOk, relayMode: lepicRelayMode()),
         );
+        await _s._markEpic1(paid.slateId, Epic1Via.link);
         return _epic1Payment(paid);
       });
 
@@ -3864,14 +3901,14 @@ class _LepicEpic1 implements Epic1Wallet {
 
   @override
   Future<InPersonCodeMade> inPersonRequest({required BigInt amount, String? message, int? ttlBlocks}) =>
-      _guard(() async => _inPersonCode(
+      _guard(() async => _inPersonMarked(_inPersonCode(
         await _w.inPersonInvoice(
           amount: amount,
           message: _message(message),
           ttlBlocks: ttlBlocks == null ? null : BigInt.from(ttlBlocks),
           relayMode: lepicRelayMode(),
         ),
-      ));
+      )));
 
   @override
   Future<InPersonCodeMade> inPersonSend({
@@ -3879,7 +3916,7 @@ class _LepicEpic1 implements Epic1Wallet {
     required BigInt minimumConfirmations,
     String? message,
     SendOptions? options,
-  }) => _s._nodeGuard('send in person', () async => _inPersonCode(
+  }) => _s._nodeGuard('send in person', () async => _inPersonMarked(_inPersonCode(
     await _w.inPersonSend(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
@@ -3887,7 +3924,7 @@ class _LepicEpic1 implements Epic1Wallet {
       options: await _s._optionsFor(amount, minimumConfirmations, options),
       relayMode: lepicRelayMode(),
     ),
-  ));
+  )));
 
   @override
   Future<InPersonCodeInfo> inPersonRead(List<int> code, {required BigInt minimumConfirmations, SendOptions? options}) =>
@@ -3911,9 +3948,9 @@ class _LepicEpic1 implements Epic1Wallet {
 
   @override
   Future<InPersonAnswerMade> inPersonReceive(List<int> code, {String? message}) =>
-      _s._nodeGuard('receive in person', () async => _inPersonAnswer(
+      _s._nodeGuard('receive in person', () async => _inPersonMarked(_inPersonAnswer(
         await _w.inPersonReceive(code: code, message: _message(message), relayMode: lepicRelayMode()),
-      ));
+      )));
 
   @override
   Future<InPersonAnswerMade> inPersonPay(
@@ -3922,7 +3959,7 @@ class _LepicEpic1 implements Epic1Wallet {
     required BigInt minimumConfirmations,
     String? message,
     SendOptions? options,
-  }) => _s._nodeGuard('pay in person', () async => _inPersonAnswer(
+  }) => _s._nodeGuard('pay in person', () async => _inPersonMarked(_inPersonAnswer(
     await _w.inPersonPay(
       code: code,
       amount: amount,
@@ -3931,7 +3968,7 @@ class _LepicEpic1 implements Epic1Wallet {
       options: await _s._optionsFor(amount, minimumConfirmations, options),
       relayMode: lepicRelayMode(),
     ),
-  ));
+  )));
 
   @override
   Future<void> inPersonPost({required String slateId, required bool relayOk}) =>
@@ -3977,6 +4014,17 @@ class _LepicEpic1 implements Epic1Wallet {
         final f = await _w.inPersonFinalize(slateId: slateId, answer: answer);
         return _s._entry(f.txId);
       });
+
+  /// [made] after its slate is marked as an in-person exchange.
+  Future<T> _inPersonMarked<T extends Object>(T made) async {
+    final slateId = switch (made) {
+      InPersonCodeMade c => c.slateId,
+      InPersonAnswerMade a => a.slateId,
+      _ => null,
+    };
+    if (slateId != null) await _s._markEpic1(slateId, Epic1Via.inPerson);
+    return made;
+  }
 
   @override
   List<String> qrParts(List<int> bytes) =>
