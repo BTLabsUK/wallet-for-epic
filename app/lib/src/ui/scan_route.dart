@@ -20,11 +20,12 @@ import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
 import '../settings.dart';
 import '../slate_files.dart';
-import '../epic1.dart' show PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
+import '../epic1.dart' show Epic1Wallet, PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
 import 'devices/device_parts.dart' show openLinkDevice;
 import 'epic1/epic1_common.dart' show showEpic1ModeSheet;
 import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 import 'in_person/in_person_entry.dart' show openInPersonText;
+import 'in_person/in_person_logic.dart' show InPersonBytes, readInPersonText;
 import 'link_send.dart' show openPaymentLink;
 import 'notices.dart';
 import 'pairing/pair_incoming.dart' show openPairingLink;
@@ -94,8 +95,12 @@ Future<bool> openEpic1Text(BuildContext context, WidgetRef ref, String text) asy
   final l = context.l10n;
   final epic1 = ref.read(paymentModeProvider) == PaymentMode.epic1;
   if (!epic1) {
-    if (!looksLikeEpic1Link(text) && !looksLikeEpictx(text)) return false;
-    await showEpic1ModeSheet(context, looksLikeEpic1Link(text) ? l.deskE1ModeEpic1Link : l.deskE1ModeEpic1File);
+    if (looksLikeEpic1Link(text) || _isInPersonQr(ref.read(epic1Provider), text)) {
+      await showEpic1ModeSheet(context, l.deskE1ModeEpic1Link);
+      return true;
+    }
+    if (!looksLikeEpictx(text)) return false;
+    await showEpic1ModeSheet(context, l.deskE1ModeEpic1File);
     return true;
   }
   if (looksLikeEpic1Link(text)) {
@@ -113,6 +118,17 @@ Future<bool> openEpic1Text(BuildContext context, WidgetRef ref, String text) asy
   if (!classic) return false;
   await showEpic1ModeSheet(context, code is SlateText ? l.deskE1ModeClassicFile : l.deskE1ModeClassicCode);
   return true;
+}
+
+/// Whether [text] is a whole in-person QR code. Its parts share the animated payment QR's
+/// type; [Epic1Wallet.qrRead] refuses a payment's parts, so only a complete in-person code is
+/// taken and a classic animated QR still reaches the QR Payment reader.
+bool _isInPersonQr(Epic1Wallet? wallet, String text) {
+  if (wallet == null || !text.trim().toLowerCase().startsWith('ur:')) return false;
+  return switch (readInPersonText(wallet, text)) {
+    InPersonBytes(fromQr: true) => true,
+    _ => false,
+  };
 }
 
 /// A device invite from a scan or a paste: Link a device answers it.

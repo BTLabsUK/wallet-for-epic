@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_settings.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
+import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
@@ -325,6 +326,33 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.deskE1ModeEpic1Link), findsOneWidget);
       expect(_key(epic1FieldSettingsKey), findsOneWidget);
+    });
+  });
+
+  group('Scan', () {
+    /// A button that hands [text] to the scan's epic1 check, keeping what it answered.
+    Widget scanOf(String text, List<bool> taken) => Scaffold(
+      body: Consumer(
+        builder: (context, ref, _) => TextButton(
+          onPressed: () async => taken.add(await openEpic1Text(context, ref, text)),
+          child: const Text('scan'),
+        ),
+      ),
+    );
+
+    testWidgets('classic: an in-person code says so, with Settings', (tester) async {
+      final taken = <bool>[];
+      await _pump(tester, _session(), scanOf('ur:epic1/${'A' * 24}', taken));
+      await _tap(tester, find.text('scan'));
+      expect(find.text(_l.deskE1ModeEpic1Link), findsOneWidget);
+    });
+
+    testWidgets('classic: an animated payment QR is left to the QR Payment reader', (tester) async {
+      final taken = <bool>[];
+      await _pump(tester, _session(), scanOf('ur:epic-slate/1-3/lpadaxcfaxhl', taken));
+      await _tap(tester, find.text('scan'));
+      expect(taken, [false]);
+      expect(find.text(_l.deskE1ModeEpic1Link), findsNothing);
     });
   });
 
