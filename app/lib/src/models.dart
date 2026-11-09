@@ -1193,6 +1193,9 @@ class ScanResult {
   final int deleted;
 }
 
+/// How a slate travelled or was written: JSON, or a sealed native `lepic.v1` slate.
+enum SlateFormat { legacy, native }
+
 /// A transaction slate travelling between two wallets as JSON.
 class Slate {
   final String slateId;
@@ -1218,18 +1221,25 @@ class ReceivedSlate extends Slate {
   /// nothing changed in the wallet. Show it as already answered, not as a second payment.
   final bool repeated;
 
+  /// How the answer was written: `native` when the slate came as a native one.
+  final SlateFormat format;
+
   const ReceivedSlate({
     required super.slateId,
     required super.json,
     this.repeated = false,
+    this.format = SlateFormat.legacy,
   });
 
   @override
-  int get hashCode => super.hashCode ^ repeated.hashCode;
+  int get hashCode => super.hashCode ^ repeated.hashCode ^ format.hashCode;
 
   @override
   bool operator ==(Object other) =>
-      super == other && other is ReceivedSlate && repeated == other.repeated;
+      super == other &&
+      other is ReceivedSlate &&
+      repeated == other.repeated &&
+      format == other.format;
 }
 
 /// Which side of the money a slate message's author is on.
@@ -2484,6 +2494,9 @@ class PaidInvoice {
   /// From the `posted` receipt.
   final String? kernelExcess;
 
+  /// How the reply to the invoice was sealed for the contact; `legacy` where it is not known.
+  final SlateFormat format;
+
   const PaidInvoice({
     required this.slateId,
     required this.senderAddress,
@@ -2494,6 +2507,7 @@ class PaidInvoice {
     this.kernelExcess,
     this.pairingId,
     this.reference,
+    this.format = SlateFormat.legacy,
   });
 
   PaidInvoice withStatus(InvoiceStatus status, {String? kernelExcess}) =>
@@ -2507,6 +2521,7 @@ class PaidInvoice {
         status: status,
         txId: txId,
         kernelExcess: kernelExcess ?? this.kernelExcess,
+        format: format,
       );
 
   @override
@@ -2517,7 +2532,8 @@ class PaidInvoice {
       message.hashCode ^
       status.hashCode ^
       txId.hashCode ^
-      kernelExcess.hashCode;
+      kernelExcess.hashCode ^
+      format.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2529,7 +2545,8 @@ class PaidInvoice {
           message == other.message &&
           status == other.status &&
           txId == other.txId &&
-          kernelExcess == other.kernelExcess;
+          kernelExcess == other.kernelExcess &&
+          format == other.format;
 }
 
 /// What happened to an invoice. `posted`, `declined` and `withdrawn` are the notices; they

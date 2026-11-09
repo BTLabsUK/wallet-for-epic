@@ -266,10 +266,17 @@ WalletError mapLepicError(lepic.WalletError error) {
     // Another Epic wallet's saved_txs record opened as a payment file: not one to answer.
     lepic.WalletErrorKind.savedTransaction => WalletErrorKind.invalidSlate,
     // A native send stored and not delivered (its inputs stay locked, txId set), as notDelivered.
+    // Epic1NoMoreRelays is the same for a payment: it is stored, and every relay was tried.
     lepic.WalletErrorKind.nativeExchangeFailed ||
-    lepic.WalletErrorKind.thisComputer ||
-    lepic.WalletErrorKind.peerProbeFailed ||
     lepic.WalletErrorKind.epic1NoMoreRelays => WalletErrorKind.transportFailed,
+    // The probe of a native peer failed before the send was made: nothing was stored and no
+    // input is locked, so there is nothing to cancel or resend. A send to this computer is
+    // refused before it is stored as well; ThisComputer may come with no txId.
+    lepic.WalletErrorKind.peerProbeFailed ||
+    lepic.WalletErrorKind.thisComputer => WalletErrorKind.transportFailed,
+    // A wallet newer than this build wrote the store: this build opens none of it, and nothing
+    // changed. No screen words it yet; the core's message stands, as io.
+    lepic.WalletErrorKind.walletTooNew => WalletErrorKind.io,
     // In-person codes, epic1 links and native pins: no screen calls them yet, so the core's
     // message stands until those screens word their own.
     lepic.WalletErrorKind.inPersonNotFound ||
@@ -614,8 +621,18 @@ SelfSentTx lepicSelfSentTx(lepic.SelfSentTx t) => SelfSentTx(
 );
 
 /// LEPIC's answer to a received slate as the app's, keeping whether it was a repeat.
-ReceivedSlate lepicReceivedSlate(lepic.ReceivedSlate s) =>
-    ReceivedSlate(slateId: s.slateId, json: s.json, repeated: s.repeated);
+ReceivedSlate lepicReceivedSlate(lepic.ReceivedSlate s) => ReceivedSlate(
+  slateId: s.slateId,
+  json: s.json,
+  repeated: s.repeated,
+  format: lepicSlateFormat(s.format),
+);
+
+/// LEPIC's slate format as the app's.
+SlateFormat lepicSlateFormat(lepic.SlateWire f) => switch (f) {
+  lepic.SlateWire.legacy => SlateFormat.legacy,
+  lepic.SlateWire.native => SlateFormat.native,
+};
 
 /// LEPIC's slate messages as the app's.
 List<SlateMessage> lepicMessages(List<lepic.SlateMessage> messages) => [
@@ -3214,6 +3231,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       status: InvoiceStatus.replied,
       txId: paid.txId,
       pairingId: pending.contactId,
+      format: lepicSlateFormat(paid.format),
     );
     _waitingSlates.remove(slateId);
     try {

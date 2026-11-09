@@ -92,7 +92,9 @@ lepic/crates/lepic-wallet-contacts/src/domain.rs	integration\.btlabs\.uk
 app/lib/src/trust_ids.g.dart	'[a-z0-9_.]+'
 # LEPIC unit-test data: addresses the host rule, the address parser and the origin parser
 # must accept or refuse, and an epic1 relay entry (test input, never dialled).
-lepic/crates/lepic-transport/src/host_rule.rs	"[0-9a-fA-F:.]+"
-lepic/crates/lepic-native-slate/src/tail.rs	epicbox\.epiccash\.com|a\.org
-lepic/crates/lepic-peer/src/origin.rs	[a-z2-7]{56}\.onion
+lepic/crates/lepic-transport/src/host_rule/tests.rs	"[0-9a-fA-F:.]+"
+lepic/crates/lepic-native-slate/src/tail/tests.rs	epicbox\.epiccash\.com|a\.org
+lepic/crates/lepic-peer/src/origin/tests.rs	[a-z2-7]{56}\.onion
+lepic/crates/lepic-peer/src/origin/tests.rs	(?<![0-9])3415(?![0-9])|/v1/peer
+lepic/crates/lepic-native-slate/src/tail/tests.rs	:65535(?![0-9])
 lepic/crates/lepic-epic1/src/link/tests.rs	:2100(?![0-9])

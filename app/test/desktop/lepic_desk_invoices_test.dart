@@ -237,7 +237,7 @@ class _Wallet implements lepic.EpicWallet {
       ),
     );
     contactOf[9] = invoice.contactId;
-    return lepic.PaidInvoice(txId: 9, slateId: slateId, amount: amount, fee: BigInt.from(100));
+    return lepic.PaidInvoice(txId: 9, slateId: slateId, amount: amount, fee: BigInt.from(100), format: lepic.SlateWire.native);
   }
 
   /// Outputs: [lockedBy] coins locked by the payment with that tx id.
