@@ -2495,6 +2495,8 @@ class PaidInvoice {
   final String? kernelExcess;
 
   /// How the reply to the invoice was sealed for the contact; `legacy` where it is not known.
+  /// Only the payment itself reports it: it is not stored, so a reopened record says `legacy`,
+  /// and it is left out of `==`.
   final SlateFormat format;
 
   const PaidInvoice({
@@ -2532,8 +2534,7 @@ class PaidInvoice {
       message.hashCode ^
       status.hashCode ^
       txId.hashCode ^
-      kernelExcess.hashCode ^
-      format.hashCode;
+      kernelExcess.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2545,8 +2546,7 @@ class PaidInvoice {
           message == other.message &&
           status == other.status &&
           txId == other.txId &&
-          kernelExcess == other.kernelExcess &&
-          format == other.format;
+          kernelExcess == other.kernelExcess;
 }
 
 /// What happened to an invoice. `posted`, `declined` and `withdrawn` are the notices; they

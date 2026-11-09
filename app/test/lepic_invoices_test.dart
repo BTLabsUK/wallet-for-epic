@@ -635,6 +635,7 @@ void main() {
         slateId: 'inv-1',
         amount: BigInt.from(500),
       );
+      expect(paid.format, SlateFormat.native);
       s.dispose();
       // LEPIC's store outlives the app; the archive adds the reply's state.
       final reopened = LepicWalletSession(
