@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "tray.h"
 #include "win32_window.h"
 
 // A window that does nothing but host a Flutter view.
@@ -42,6 +43,9 @@ class FlutterWindow : public Win32Window {
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> link_channel_;
   std::string pending_link_;
   void DeliverLink(const std::string& link);
+
+  // epic_wallet/tray: the notification-area icon.
+  Tray tray_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

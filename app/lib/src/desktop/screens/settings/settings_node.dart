@@ -18,6 +18,7 @@ import '../../data/node_switch.dart';
 import '../../data/tor_view.dart';
 import '../../app/desk_failover.dart';
 import '../../app/tour.dart';
+import '../../app/tray/tray_host.dart' show deskTrayHostProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
 import '../../widgets/server_list_panel.dart';
@@ -541,14 +542,18 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   ),
                 if (prefs.builtin) SetAnchor(id: SetId.localNode, child: LocalNodePanel(initialTab: widget.arg == NodeShot.peers ? LocalTab.peers : LocalTab.status)),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
-                  ESetRow(
-                    title: l.deskSetNodeBackground,
-                    hint: l.deskSetNodeBackgroundHint,
-                    hintHelp: localNodeHelp(ref),
-                    control: ESwitch(
-                      value: prefs.nodeBackground,
-                      semanticLabel: l.deskSetNodeBackground,
-                      onChanged: (v) => p.set(prefs.copyWith(nodeBackground: v)),
+                  // The tray is the way back to a hidden window: without one, off and disabled.
+                  ValueListenableBuilder<bool>(
+                    valueListenable: ref.watch(deskTrayHostProvider).available,
+                    builder: (context, tray, _) => ESetRow(
+                      title: l.deskSetNodeBackground,
+                      hint: tray ? l.deskSetNodeBackgroundHint : l.deskSetNodeBackgroundNoTray,
+                      hintHelp: localNodeHelp(ref),
+                      control: ESwitch(
+                        value: tray && prefs.nodeBackground,
+                        semanticLabel: l.deskSetNodeBackground,
+                        onChanged: tray ? (v) => p.set(prefs.copyWith(nodeBackground: v)) : null,
+                      ),
                     ),
                   ),
               ],

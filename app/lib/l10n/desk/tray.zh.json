@@ -1,0 +1,7 @@
+{
+  "deskTrayOpen": "打开钱包",
+  "deskTrayNode": "节点：{state}",
+  "deskTrayHeight": "高度 {height}",
+  "deskTrayEpicbox": "Epicbox：{state}",
+  "deskSetNodeBackgroundNoTray": "此桌面没有系统托盘，因此关闭窗口会退出应用。"
+}

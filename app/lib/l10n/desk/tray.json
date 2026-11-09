@@ -1,0 +1,40 @@
+{
+  "deskTrayOpen": "Open wallet",
+  "@deskTrayOpen": {
+    "description": "Tray menu item that shows the app's window again. The app sits in the system tray (Windows notification area, Linux panel) while the window is closed and the built-in node syncs."
+  },
+  "deskTrayNode": "Node: {state}",
+  "@deskTrayNode": {
+    "description": "Tray menu status line and tooltip of the built-in node. {state} is the node's state as Settings › Node says it (Off, Syncing 42%, Synced), possibly followed by its height.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "Synced · height 3,104,220"
+      }
+    }
+  },
+  "deskTrayHeight": "height {height}",
+  "@deskTrayHeight": {
+    "description": "Tray menu: the node's block height after its state, joined by a middle dot (Synced · height 3,104,220). Lower case.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "3,104,220"
+      }
+    }
+  },
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "@deskTrayEpicbox": {
+    "description": "Tray menu status line of the open wallet's Epicbox receiving. {state} is the state as Settings › Transactions says it (Connected · epicbox.epiccash.com, Off, Wallet locked). 'Epicbox' is a name, never translated.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "Connected · epicbox.epiccash.com"
+      }
+    }
+  },
+  "deskSetNodeBackgroundNoTray": "This desktop has no system tray, so closing the window quits the app.",
+  "@deskSetNodeBackgroundNoTray": {
+    "description": "Settings › Node: hint under Sync in background when the desktop has no system tray (GNOME without the AppIndicator extension); the switch is disabled then."
+  }
+}

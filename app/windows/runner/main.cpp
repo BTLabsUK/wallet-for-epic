@@ -58,6 +58,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
           break;
         }
       }
+      // Hidden to the tray: shown again.
+      if (!::IsWindowVisible(first)) ::ShowWindow(first, SW_SHOW);
       if (::IsIconic(first)) ::ShowWindow(first, SW_RESTORE);
       ::SetForegroundWindow(first);
     }

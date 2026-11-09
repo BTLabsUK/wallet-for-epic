@@ -2522,7 +2522,7 @@
   "deskSetNodeServerHint": "โหนดที่กระเป๋าเงินใช้อ่านบล็อกเชนและส่งธุรกรรม",
   "deskSetNodeChecking": "กำลังตรวจโหนด…",
   "deskSetNodeBackground": "ซิงก์เบื้องหลัง",
-  "deskSetNodeBackgroundHint": "ซิงก์ต่อขณะแอปปิดอยู่",
+  "deskSetNodeBackgroundHint": "เมื่อปิดหน้าต่าง โหนดยังซิงก์ต่อ และแอปจะอยู่ในถาดระบบ",
   "deskSetPhraseNotCopied": "ไม่ได้คัดลอก",
   "deskSetPhraseClipboardRefused": "คลิปบอร์ดไม่รับข้อความ",
   "deskSetPhraseCopied": "คัดลอกวลีแล้ว",
@@ -5394,5 +5394,10 @@
   "noticeDigestNew": "{count, plural, other{อัปเดตใหม่ {count} รายการ}}",
   "sasAllowOffLine": "ใบแจ้งหนี้จาก {name} ปิดอยู่",
   "contactAllowFinishCheck": "ตรวจสอบกุญแจให้เสร็จก่อน",
-  "sasAllowInvoicesHintDesktop": "กระเป๋าเงินของ {name} ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ"
+  "sasAllowInvoicesHintDesktop": "กระเป๋าเงินของ {name} ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ",
+  "deskTrayOpen": "เปิดกระเป๋าเงิน",
+  "deskTrayNode": "โหนด: {state}",
+  "deskTrayHeight": "ความสูง {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "เดสก์ท็อปนี้ไม่มีถาดระบบ การปิดหน้าต่างจึงเป็นการออกจากแอป"
 }

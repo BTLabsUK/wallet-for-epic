@@ -162,6 +162,12 @@ flutter:
     - assets/config/app-config.toml
     # Service files, one per service (docs/services.md). The folder stays when it holds none.
     - assets/services/
+    # The app's icon, drawn into the tray's icon with its status mark (lib/src/desktop/app/tray/).
+    - linux/icons/hicolor/16x16/apps/epic-cash-desktop.png
+    - linux/icons/hicolor/24x24/apps/epic-cash-desktop.png
+    - linux/icons/hicolor/32x32/apps/epic-cash-desktop.png
+    - linux/icons/hicolor/48x48/apps/epic-cash-desktop.png
+    - linux/icons/hicolor/64x64/apps/epic-cash-desktop.png
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat

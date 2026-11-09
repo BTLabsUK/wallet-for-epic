@@ -11041,7 +11041,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetNodeBackground => 'ซิงก์เบื้องหลัง';
 
   @override
-  String get deskSetNodeBackgroundHint => 'ซิงก์ต่อขณะแอปปิดอยู่';
+  String get deskSetNodeBackgroundHint =>
+      'เมื่อปิดหน้าต่าง โหนดยังซิงก์ต่อ และแอปจะอยู่ในถาดระบบ';
 
   @override
   String get deskSetPhraseNotCopied => 'ไม่ได้คัดลอก';
@@ -20420,4 +20421,26 @@ class AppLocalizationsTh extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ';
   }
+
+  @override
+  String get deskTrayOpen => 'เปิดกระเป๋าเงิน';
+
+  @override
+  String deskTrayNode(String state) {
+    return 'โหนด: $state';
+  }
+
+  @override
+  String deskTrayHeight(String height) {
+    return 'ความสูง $height';
+  }
+
+  @override
+  String deskTrayEpicbox(String state) {
+    return 'Epicbox: $state';
+  }
+
+  @override
+  String get deskSetNodeBackgroundNoTray =>
+      'เดสก์ท็อปนี้ไม่มีถาดระบบ การปิดหน้าต่างจึงเป็นการออกจากแอป';
 }

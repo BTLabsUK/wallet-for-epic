@@ -1,0 +1,7 @@
+{
+  "deskTrayOpen": "Wallet öffnen",
+  "deskTrayNode": "Node: {state}",
+  "deskTrayHeight": "Höhe {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "Dieser Desktop hat keinen Infobereich, daher beendet das Schließen des Fensters die App."
+}

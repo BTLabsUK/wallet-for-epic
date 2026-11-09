@@ -2928,7 +2928,7 @@
   "deskSetNodeServerHint": "Węzeł, przez który portfel czyta łańcuch i wysyła płatności.",
   "deskSetNodeChecking": "Sprawdzanie węzła…",
   "deskSetNodeBackground": "Synchronizuj w tle",
-  "deskSetNodeBackgroundHint": "Synchronizuje dalej, gdy aplikacja jest zamknięta.",
+  "deskSetNodeBackgroundHint": "Po zamknięciu okna węzeł dalej się synchronizuje. Aplikacja zostaje w zasobniku systemowym.",
   "deskSetPhraseNotCopied": "Nie skopiowano",
   "deskSetPhraseClipboardRefused": "Schowek odrzucił tekst.",
   "deskSetPhraseCopied": "Skopiowano frazę",
@@ -5394,5 +5394,10 @@
   "noticeDigestNew": "{count, plural, one{{count} nowa aktualizacja} few{{count} nowe aktualizacje} many{{count} nowych aktualizacji} other{{count} nowej aktualizacji}}",
   "sasAllowOffLine": "Faktury od {name} są wyłączone.",
   "contactAllowFinishCheck": "Najpierw dokończ sprawdzanie kluczy",
-  "sasAllowInvoicesHintDesktop": "Portfel {name} może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela."
+  "sasAllowInvoicesHintDesktop": "Portfel {name} może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela.",
+  "deskTrayOpen": "Otwórz portfel",
+  "deskTrayNode": "Węzeł: {state}",
+  "deskTrayHeight": "wysokość {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "Ten pulpit nie ma zasobnika systemowego, więc zamknięcie okna zamyka aplikację."
 }

@@ -11356,7 +11356,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetNodeBackgroundHint =>
-      'Keeps syncing while the app is closed.';
+      'Closing the window keeps the node syncing. The app stays in the tray.';
 
   @override
   String get deskSetPhraseNotCopied => 'Not copied';
@@ -20857,4 +20857,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return '$name’s wallet can ask you to pay. Nothing is paid without the wallet password.';
   }
+
+  @override
+  String get deskTrayOpen => 'Open wallet';
+
+  @override
+  String deskTrayNode(String state) {
+    return 'Node: $state';
+  }
+
+  @override
+  String deskTrayHeight(String height) {
+    return 'height $height';
+  }
+
+  @override
+  String deskTrayEpicbox(String state) {
+    return 'Epicbox: $state';
+  }
+
+  @override
+  String get deskSetNodeBackgroundNoTray =>
+      'This desktop has no system tray, so closing the window quits the app.';
 }

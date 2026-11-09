@@ -15,7 +15,7 @@
   "deskSetNodeServerHint": "Węzeł, przez który portfel czyta łańcuch i wysyła płatności.",
   "deskSetNodeChecking": "Sprawdzanie węzła…",
   "deskSetNodeBackground": "Synchronizuj w tle",
-  "deskSetNodeBackgroundHint": "Synchronizuje dalej, gdy aplikacja jest zamknięta.",
+  "deskSetNodeBackgroundHint": "Po zamknięciu okna węzeł dalej się synchronizuje. Aplikacja zostaje w zasobniku systemowym.",
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",

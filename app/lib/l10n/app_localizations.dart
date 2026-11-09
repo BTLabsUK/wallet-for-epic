@@ -17787,7 +17787,7 @@ abstract class AppLocalizations {
   /// Settings > Node: hint under Sync in background.
   ///
   /// In en, this message translates to:
-  /// **'Keeps syncing while the app is closed.'**
+  /// **'Closing the window keeps the node syncing. The app stays in the tray.'**
   String get deskSetNodeBackgroundHint;
 
   /// Toast title when the recovery phrase could not be copied.
@@ -32393,6 +32393,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}’s wallet can ask you to pay. Nothing is paid without the wallet password.'**
   String sasAllowInvoicesHintDesktop(String name);
+
+  /// Tray menu item that shows the app's window again. The app sits in the system tray (Windows notification area, Linux panel) while the window is closed and the built-in node syncs.
+  ///
+  /// In en, this message translates to:
+  /// **'Open wallet'**
+  String get deskTrayOpen;
+
+  /// Tray menu status line and tooltip of the built-in node. {state} is the node's state as Settings › Node says it (Off, Syncing 42%, Synced), possibly followed by its height.
+  ///
+  /// In en, this message translates to:
+  /// **'Node: {state}'**
+  String deskTrayNode(String state);
+
+  /// Tray menu: the node's block height after its state, joined by a middle dot (Synced · height 3,104,220). Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'height {height}'**
+  String deskTrayHeight(String height);
+
+  /// Tray menu status line of the open wallet's Epicbox receiving. {state} is the state as Settings › Transactions says it (Connected · epicbox.epiccash.com, Off, Wallet locked). 'Epicbox' is a name, never translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox: {state}'**
+  String deskTrayEpicbox(String state);
+
+  /// Settings › Node: hint under Sync in background when the desktop has no system tray (GNOME without the AppIndicator extension); the switch is disabled then.
+  ///
+  /// In en, this message translates to:
+  /// **'This desktop has no system tray, so closing the window quits the app.'**
+  String get deskSetNodeBackgroundNoTray;
 }
 
 class _AppLocalizationsDelegate

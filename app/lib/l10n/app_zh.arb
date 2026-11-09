@@ -2578,7 +2578,7 @@
   "deskSetNodeServerHint": "钱包通过这个节点读取区块链并发送交易。",
   "deskSetNodeChecking": "正在检查节点…",
   "deskSetNodeBackground": "后台同步",
-  "deskSetNodeBackgroundHint": "应用关闭时继续同步。",
+  "deskSetNodeBackgroundHint": "关闭窗口后节点继续同步，应用留在系统托盘中。",
   "deskSetPhraseNotCopied": "未复制",
   "deskSetPhraseClipboardRefused": "剪贴板拒绝了这段文本。",
   "deskSetPhraseCopied": "助记词已复制",
@@ -5394,5 +5394,10 @@
   "noticeDigestNew": "{count, plural, other{{count} 条新更新}}",
   "sasAllowOffLine": "来自 {name} 的账单已关闭。",
   "contactAllowFinishCheck": "请先完成密钥核对",
-  "sasAllowInvoicesHintDesktop": "{name} 的钱包可以请求你付款。没有钱包密码不会付款。"
+  "sasAllowInvoicesHintDesktop": "{name} 的钱包可以请求你付款。没有钱包密码不会付款。",
+  "deskTrayOpen": "打开钱包",
+  "deskTrayNode": "节点：{state}",
+  "deskTrayHeight": "高度 {height}",
+  "deskTrayEpicbox": "Epicbox：{state}",
+  "deskSetNodeBackgroundNoTray": "此桌面没有系统托盘，因此关闭窗口会退出应用。"
 }
