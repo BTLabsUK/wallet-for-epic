@@ -177,6 +177,12 @@ void Tray::HandleCall(const flutter::MethodCall<EncodableValue>& call,
       result->Error("bad_args", "set needs an icon, a tooltip and items");
       return;
     }
+    // No notification area took the icon (no Explorer in this session): the window must not
+    // hide without a way back.
+    if (!shown_) {
+      result->Error("no_tray", "the notification area did not take the icon");
+      return;
+    }
     result->Success();
   } else if (method == "remove") {
     Remove();
@@ -376,9 +382,11 @@ void Tray::EndSession() {
 std::optional<LRESULT> Tray::HandleMessage(HWND window, UINT message, WPARAM wparam,
                                            LPARAM lparam) {
   if (taskbar_created_ != 0 && message == taskbar_created_) {
-    // Explorer restarted: its icons are gone.
-    shown_ = false;
-    AddIcon();
+    // Explorer restarted: its icons are gone. An icon removed (the window shown) stays gone.
+    if (shown_) {
+      shown_ = false;
+      AddIcon();
+    }
     return 0;
   }
   switch (message) {
