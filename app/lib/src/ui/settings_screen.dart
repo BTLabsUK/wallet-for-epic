@@ -108,7 +108,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 // The shared sections in the desktop's order (GP2-021): Transactions ·
                 // Privacy · Appearance · This wallet; Security keeps its place first.
-                if (walletOpen && features.transactionsSettings)
+                // Transactions at every view: it holds the epic1 switch.
+                if (walletOpen)
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.transactions),
                     section: SettingsSection.transactions,

@@ -110,7 +110,6 @@ class LevelFeatures {
     required this.statusIcons,
     required this.serverNames,
     required this.serverSettings,
-    required this.transactionsSettings,
     required this.advancedPage,
     required this.pairingListener,
     required this.pairingSetupScreens,
@@ -151,7 +150,6 @@ class LevelFeatures {
       statusIcons: one ? const {StatusIcon.network, StatusIcon.epicbox} : StatusIcon.values.toSet(),
       serverNames: !one,
       serverSettings: !one,
-      transactionsSettings: !one,
       advancedPage: one ? AdvancedPageKind.changeLevelOnly : AdvancedPageKind.full,
       pairingListener: true,
       pairingSetupScreens: !one,
@@ -213,9 +211,6 @@ class LevelFeatures {
 
   /// Settings › Privacy & network (node, Epicbox, Tor, modes, kill switch).
   final bool serverSettings;
-
-  /// Settings › Transactions (method switches, default method, confirmations).
-  final bool transactionsSettings;
 
   /// What Settings › Advanced holds.
   final AdvancedPageKind advancedPage;
@@ -297,7 +292,6 @@ class LevelFeatures {
       other.statusIcons.containsAll(statusIcons) &&
       other.serverNames == serverNames &&
       other.serverSettings == serverSettings &&
-      other.transactionsSettings == transactionsSettings &&
       other.advancedPage == advancedPage &&
       other.pairingListener == pairingListener &&
       other.pairingSetupScreens == pairingSetupScreens &&
@@ -330,7 +324,6 @@ class LevelFeatures {
     methodStrip,
     serverNames,
     serverSettings,
-    transactionsSettings,
     advancedPage,
     pairingListener,
     pairingSetupScreens,

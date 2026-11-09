@@ -172,12 +172,12 @@ void main() {
   testWidgets('a hidden-here result names the view that shows it', (tester) async {
     final c = await _pump(tester, level: WalletLevel.justSendReceive);
     final field = find.descendant(of: find.byKey(SettingsSearchSlot.fieldKey), matching: find.byType(EditableText));
-    await tester.enterText(field, 'epicbox server');
+    await tester.enterText(field, 'node server');
     await tester.pumpAndSettle();
     expect(find.text(_l.deskSetSearchHidden), findsOneWidget);
     expect(find.text('Deeper view'), findsWidgets);
     expect(find.widgetWithText(EButton, 'Show in Deeper'), findsWidgets);
-    expect(c.read(settingsSearchRoutesProvider), contains(DeskRoute.settingsReceiving));
+    expect(c.read(settingsSearchRoutesProvider), contains(DeskRoute.settingsNode));
     expect(find.text('0 results'), findsNothing);
   });
 

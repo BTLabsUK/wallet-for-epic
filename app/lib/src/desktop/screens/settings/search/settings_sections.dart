@@ -125,7 +125,7 @@ const List<SetSection> settingsSections = [
   SetSection(DeskRoute.settingsRescan, SetNav.wallet, EIcons.scan, parent: DeskRoute.settingsAccount),
   SetSection(DeskRoute.settingsSecurity, SetNav.wallet, EIcons.shield),
   SetSection(DeskRoute.settingsPhrase, SetNav.wallet, EIcons.key, parent: DeskRoute.settingsSecurity),
-  SetSection(DeskRoute.settingsReceiving, SetNav.wallet, EIcons.antenna, gate: SetGate(minLevel: 2)),
+  SetSection(DeskRoute.settingsReceiving, SetNav.wallet, EIcons.antenna),
   SetSection(DeskRoute.settingsInvoices, SetNav.wallet, EIcons.invoice, gate: SetGate(minLevel: 3)),
   SetSection(DeskRoute.settingsDevices, SetNav.wallet, EIcons.devices),
   SetSection(DeskRoute.settingsAppearance, SetNav.app, EIcons.palette),
