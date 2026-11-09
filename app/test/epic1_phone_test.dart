@@ -269,6 +269,13 @@ void main() {
   group('Send', () {
     Widget send() => SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {}));
 
+    test('an epic1 link is recognised on both networks', () {
+      expect(looksLikeEpic1Link('epic:epic1qlink0000000000000000000000000000'), isTrue);
+      expect(looksLikeEpic1Link('epic:tepic1qlink0000000000000000000000000000?epicbox=a%40b'), isTrue);
+      expect(looksLikeEpic1Link('tepic1qlink0000000000000000000000000000'), isTrue);
+      expect(looksLikeEpic1Link('zzQGPvjAfqxm9VhHSdsTPFQznkQmdKMTiAMEka5d5eQBUXkWivgC'), isFalse);
+    });
+
     testWidgets('epic1: a classic address says so, with Settings', (tester) async {
       await _pump(tester, _session(on: true), send());
       expect(_key(epic1SendFieldKey), findsOneWidget);

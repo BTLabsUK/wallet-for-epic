@@ -403,12 +403,12 @@ extension Epic1Of on WalletSession {
   PaymentMode get paymentMode => (epic1?.inUse ?? false) ? PaymentMode.epic1 : PaymentMode.classic;
 }
 
-/// Whether [text] looks like an epic1 link (`epic:epic1…` or a bare `epic1…` address), for
-/// the mode lines ("epic1 link. Turn on epic1 payments to pay it."). LEPIC's
-/// [Epic1Wallet.readLink] is the real check.
+/// Whether [text] looks like an epic1 link (`epic:epic1…` or a bare `epic1…` address; `tepic1`
+/// on the test network), for the mode lines ("epic1 link. Turn on epic1 payments to pay it.").
+/// LEPIC's [Epic1Wallet.readLink] is the real check.
 bool looksLikeEpic1Link(String text) {
   final t = text.trim().toLowerCase();
-  return t.startsWith('epic:epic1') || t.startsWith('epic://epic1') || RegExp(r'^epic1[0-9a-z]{20,}').hasMatch(t);
+  return RegExp(r'^epic:(//)?t?epic1').hasMatch(t) || RegExp(r'^t?epic1[0-9a-z]{20,}').hasMatch(t);
 }
 
 /// Whether [text] is a `BEGINEPICTX.` armored envelope (an epic1 file or answer).
