@@ -298,6 +298,23 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.localNode,
       ),
+    if (!phone)
+      HelpTopic(
+        'network',
+        'Czy ten komputer powinien uruchamiać węzeł?',
+        'Węzeł lokalny pasuje do portfela otwartego przez godziny. Węzeł publiczny pasuje do krótkich wizyt.',
+        [
+          HelpBlock.p('Węzeł lokalny jest zsynchronizowany tylko wtedy, gdy aplikacja jest otwarta. Po przerwie najpierw nadrabia pominięte bloki, więc im dłużej portfel pozostaje otwarty, tym większa część tego czasu przypada na stan, w którym węzeł jest zsynchronizowany, utrzymuje prywatność zapytań i przekazuje bloki innym węzłom.'),
+          HelpBlock.ul([
+            '**Większość dnia.** Dobry wybór: węzeł jest zsynchronizowany prawie cały czas.',
+            '**Godzina lub dwie.** Działa, z nadrabianiem na początku każdej wizyty.',
+            '**Kilka minut.** Większość każdej wizyty schodzi na nadrabianie. Węzeł publiczny jest szybszy.',
+            '**Połączenie z limitem danych.** Pierwsza synchronizacja pobiera cały łańcuch, około 5 GB. Uruchom ją na połączeniu bez limitu danych.',
+          ]),
+          HelpBlock.p('Sprawdzenie zadaje te dwa pytania, gdy w $nodePlace wybrano węzeł lokalny. Podpowiada odpowiedź na podstawie tego, jak długo portfel był otwarty w ostatnich dniach; czas liczony jest tylko na tym komputerze i nigdzie nie jest wysyłany. W Windows sprawdza też, czy połączenie ma limit danych.'),
+        ],
+        id: HelpId.nodeFit,
+      ),
     HelpTopic(
       'network',
       'Epicbox',

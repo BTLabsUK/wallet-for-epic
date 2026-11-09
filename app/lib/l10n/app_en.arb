@@ -28286,5 +28286,251 @@
         "example": "Anna"
       }
     }
+  },
+  "deskNodeFitTitle": "Should this computer run a node?",
+  "@deskNodeFitTitle": {
+    "description": "Title of the local node fit check: a dialog shown when the user picks the local node (the node program on this computer) in Settings > Node, and from Help."
+  },
+  "deskNodeFitDescription": "Two questions. This can be changed any time in Settings › Node.",
+  "@deskNodeFitDescription": {
+    "description": "Local node fit check: line under the title. 'Settings › Node' names the settings page; keep the › sign."
+  },
+  "deskNodeFitOpenQ": "How long is the wallet usually open?",
+  "@deskNodeFitOpenQ": {
+    "description": "Local node fit check: first question, above three choices."
+  },
+  "deskNodeFitOpenDay": "Most of the day",
+  "@deskNodeFitOpenDay": {
+    "description": "Local node fit check: answer to 'How long is the wallet usually open?'. Short, it sits in a segmented control."
+  },
+  "deskNodeFitOpenHours": "An hour or two",
+  "@deskNodeFitOpenHours": {
+    "description": "Local node fit check: answer to 'How long is the wallet usually open?'. Short, it sits in a segmented control."
+  },
+  "deskNodeFitOpenMinutes": "A few minutes",
+  "@deskNodeFitOpenMinutes": {
+    "description": "Local node fit check: answer to 'How long is the wallet usually open?'. Short, it sits in a segmented control."
+  },
+  "deskNodeFitOpenHint": "Recently: about {hours} h a day",
+  "@deskNodeFitOpenHint": {
+    "description": "Local node fit check: hint beside the first question, from the time the wallet was open over the last days, counted on this computer only. {hours} is a whole number of hours. 'h' is the short form of hours.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskNodeFitOpenHintUnder": "Recently: under an hour a day",
+  "@deskNodeFitOpenHintUnder": {
+    "description": "Local node fit check: hint beside the first question when the wallet was open less than an hour a day over the last days."
+  },
+  "deskNodeFitNetQ": "Your connection",
+  "@deskNodeFitNetQ": {
+    "description": "Local node fit check: second question, about the internet connection, above two choices."
+  },
+  "deskNodeFitNetFree": "No data limit",
+  "@deskNodeFitNetFree": {
+    "description": "Local node fit check: answer to 'Your connection': unlimited data."
+  },
+  "deskNodeFitNetMetered": "Metered or mobile",
+  "@deskNodeFitNetMetered": {
+    "description": "Local node fit check: answer to 'Your connection': a plan with a data limit or a phone hotspot."
+  },
+  "deskNodeFitNetHintFree": "Windows says: not metered",
+  "@deskNodeFitNetHintFree": {
+    "description": "Local node fit check, Windows only: hint beside 'Your connection' when Windows reports the connection is not metered."
+  },
+  "deskNodeFitNetHintMetered": "Windows says: metered",
+  "@deskNodeFitNetHintMetered": {
+    "description": "Local node fit check, Windows only: hint beside 'Your connection' when Windows reports a metered connection."
+  },
+  "deskNodeFitDisk": "Disk space",
+  "@deskNodeFitDisk": {
+    "description": "Local node fit check: label of the disk space line."
+  },
+  "deskNodeFitDiskFree": "{free} free, the chain takes about {chain}",
+  "@deskNodeFitDiskFree": {
+    "description": "Local node fit check: disk space line. {free} is the free space on the drive (e.g. '212 GB'), {chain} the size of the blockchain on disk (e.g. '5 GB').",
+    "placeholders": {
+      "free": {
+        "type": "String"
+      },
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitDiskUnknown": "The chain takes about {chain}",
+  "@deskNodeFitDiskUnknown": {
+    "description": "Local node fit check: disk space line when the free space cannot be read. {chain} is the size of the blockchain on disk (e.g. '5 GB').",
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitFound": "Found {size} of chain data on this computer. It can be reused.",
+  "@deskNodeFitFound": {
+    "description": "Local node fit check: line under the disk space when blockchain data from another Epic node or wallet is on this computer. {size} e.g. '4.2 GB'.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitGood": "Good fit",
+  "@deskNodeFitGood": {
+    "description": "Local node fit check: verdict title when the wallet is open most of the day."
+  },
+  "deskNodeFitGoodText": "The node stays in sync while the wallet is open, keeps lookups private and helps the network.",
+  "@deskNodeFitGoodText": {
+    "description": "Local node fit check: verdict text under 'Good fit'. The node runs only while the app is open; do not suggest it runs when the app is closed."
+  },
+  "deskNodeFitWait": "Works, with a wait each time",
+  "@deskNodeFitWait": {
+    "description": "Local node fit check: verdict title when the wallet is open an hour or two."
+  },
+  "deskNodeFitWaitText": "Each time the wallet opens, the node first catches up on the blocks it missed.",
+  "@deskNodeFitWaitText": {
+    "description": "Local node fit check: verdict text under 'Works, with a wait each time'."
+  },
+  "deskNodeFitPublic": "A public node fits better",
+  "@deskNodeFitPublic": {
+    "description": "Local node fit check: verdict title when the wallet is open only a few minutes at a time."
+  },
+  "deskNodeFitPublicText": "Short visits go to catching up: the wallet feels slower and the network gains little.",
+  "@deskNodeFitPublicText": {
+    "description": "Local node fit check: verdict text under 'A public node fits better'."
+  },
+  "deskNodeFitMetered": "Mind the first download",
+  "@deskNodeFitMetered": {
+    "description": "Local node fit check: verdict title when the connection is metered."
+  },
+  "deskNodeFitMeteredText": "The first sync downloads about {size}. Start it on a connection without a data limit.",
+  "@deskNodeFitMeteredText": {
+    "description": "Local node fit check: verdict text under 'Mind the first download'. {size} e.g. '5 GB'.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitNoSpace": "Not enough free space",
+  "@deskNodeFitNoSpace": {
+    "description": "Local node fit check: verdict title when the drive has too little free space for the blockchain."
+  },
+  "deskNodeFitNoSpaceText": "The chain takes about {chain}, and {floor} more must stay free on this drive.",
+  "@deskNodeFitNoSpaceText": {
+    "description": "Local node fit check: verdict text under 'Not enough free space'. {chain} and {floor} are sizes, e.g. '5 GB'.",
+    "placeholders": {
+      "chain": {
+        "type": "String"
+      },
+      "floor": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitCapDay": "In sync almost all the time",
+  "@deskNodeFitCapDay": {
+    "description": "Local node fit check: caption beside the picture of the node and its peers, when the wallet is open most of the day."
+  },
+  "deskNodeFitCapDaySub": "And passing blocks on to others",
+  "@deskNodeFitCapDaySub": {
+    "description": "Local node fit check: second line of the caption 'In sync almost all the time'."
+  },
+  "deskNodeFitCapHours": "Catches up at each visit",
+  "@deskNodeFitCapHours": {
+    "description": "Local node fit check: caption beside the picture of the node, when the wallet is open an hour or two."
+  },
+  "deskNodeFitCapHoursSub": "Then stays in sync while open",
+  "@deskNodeFitCapHoursSub": {
+    "description": "Local node fit check: second line of the caption 'Catches up at each visit'."
+  },
+  "deskNodeFitCapMinutes": "Mostly catching up",
+  "@deskNodeFitCapMinutes": {
+    "description": "Local node fit check: caption beside the picture of the node, when the wallet is open a few minutes."
+  },
+  "deskNodeFitCapMinutesSub": "The wallet closes before the node is in sync",
+  "@deskNodeFitCapMinutesSub": {
+    "description": "Local node fit check: second line of the caption 'Mostly catching up'."
+  },
+  "deskNodeFitInSync": "in sync",
+  "@deskNodeFitInSync": {
+    "description": "Local node fit check: legend of the green part of the ring in the picture. Lowercase."
+  },
+  "deskNodeFitCatchingUp": "catching up",
+  "@deskNodeFitCatchingUp": {
+    "description": "Local node fit check: legend of the striped amber part of the ring in the picture. Lowercase."
+  },
+  "deskNodeFitThisComputer": "this computer",
+  "@deskNodeFitThisComputer": {
+    "description": "Local node fit check: label in the middle of the picture, under the computer icon. Lowercase."
+  },
+  "deskNodeFitChipPrivate": "Private lookups",
+  "@deskNodeFitChipPrivate": {
+    "description": "Local node fit check: small tag in the picture, lit when it applies: the wallet asks its own node, not a public one."
+  },
+  "deskNodeFitChipNetwork": "Helps the network",
+  "@deskNodeFitChipNetwork": {
+    "description": "Local node fit check: small tag in the picture, lit when it applies: the node passes blocks on to other nodes."
+  },
+  "deskNodeFitChipInSync": "In sync while open",
+  "@deskNodeFitChipInSync": {
+    "description": "Local node fit check: small tag in the picture, lit when it applies: the node is in sync for most of the time the wallet is open."
+  },
+  "deskNodeFitDownload": "About {size} first download",
+  "@deskNodeFitDownload": {
+    "description": "Local node fit check: small tag in the picture when the connection is metered. {size} e.g. '5 GB'.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitDontShow": "Don’t show this again",
+  "@deskNodeFitDontShow": {
+    "description": "Local node fit check: checkbox above the buttons. When ticked, picking the local node skips this check; it stays in Help."
+  },
+  "deskNodeFitStart": "Start local node",
+  "@deskNodeFitStart": {
+    "description": "Local node fit check: button that starts the node program on this computer."
+  },
+  "deskNodeFitStartAnyway": "Start it anyway",
+  "@deskNodeFitStartAnyway": {
+    "description": "Local node fit check: secondary button when the verdict advises against the local node; starts it all the same."
+  },
+  "deskNodeFitKeepPublic": "Keep public node",
+  "@deskNodeFitKeepPublic": {
+    "description": "Local node fit check: main button when the verdict advises against the local node; closes and keeps the current node."
+  },
+  "deskNodeFitNotNow": "Not now",
+  "@deskNodeFitNotNow": {
+    "description": "Local node fit check: button that closes it and keeps the current node."
+  },
+  "deskNodeFitInUse": "The local node is in use. Its settings are in Settings › Node.",
+  "@deskNodeFitInUse": {
+    "description": "Local node fit check opened from Help while the local node already runs: line above the Close button. Keep the › sign."
+  },
+  "deskNodeFitOpenCheck": "Open the fit check",
+  "@deskNodeFitOpenCheck": {
+    "description": "Help, topic 'Should this computer run a node?': button that opens the local node fit check."
+  },
+  "deskNodeFitStarted": "Local node started",
+  "@deskNodeFitStarted": {
+    "description": "Toast title after the local node is started."
+  },
+  "deskNodeFitStartedText": "The wallet works through {host} until the node is in sync.",
+  "@deskNodeFitStartedText": {
+    "description": "Toast text after the local node is started, when another node is used while it syncs. {host} is a node address, e.g. node.example.com.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskNodeFitStartedAlone": "Balances and sending wait until the node is in sync.",
+  "@deskNodeFitStartedAlone": {
+    "description": "Toast text after the local node is started, when no other node is used while it syncs."
   }
 }

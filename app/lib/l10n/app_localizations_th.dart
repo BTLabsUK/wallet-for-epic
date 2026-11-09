@@ -20420,4 +20420,177 @@ class AppLocalizationsTh extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ';
   }
+
+  @override
+  String get deskNodeFitTitle => 'คอมพิวเตอร์เครื่องนี้ควรรันโหนดหรือไม่';
+
+  @override
+  String get deskNodeFitDescription =>
+      'มี 2 คำถาม เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › โหนด';
+
+  @override
+  String get deskNodeFitOpenQ => 'ปกติเปิดกระเป๋าเงินนานแค่ไหน';
+
+  @override
+  String get deskNodeFitOpenDay => 'เกือบทั้งวัน';
+
+  @override
+  String get deskNodeFitOpenHours => 'ชั่วโมงหรือสองชั่วโมง';
+
+  @override
+  String get deskNodeFitOpenMinutes => 'ไม่กี่นาที';
+
+  @override
+  String deskNodeFitOpenHint(int hours) {
+    return 'ช่วงนี้: ประมาณ $hours ชม. ต่อวัน';
+  }
+
+  @override
+  String get deskNodeFitOpenHintUnder => 'ช่วงนี้: น้อยกว่าหนึ่งชั่วโมงต่อวัน';
+
+  @override
+  String get deskNodeFitNetQ => 'การเชื่อมต่ออินเทอร์เน็ต';
+
+  @override
+  String get deskNodeFitNetFree => 'ไม่จำกัดข้อมูล';
+
+  @override
+  String get deskNodeFitNetMetered => 'จำกัดข้อมูลหรือมือถือ';
+
+  @override
+  String get deskNodeFitNetHintFree => 'Windows แจ้งว่า: ไม่จำกัดข้อมูล';
+
+  @override
+  String get deskNodeFitNetHintMetered => 'Windows แจ้งว่า: จำกัดข้อมูล';
+
+  @override
+  String get deskNodeFitDisk => 'พื้นที่ดิสก์';
+
+  @override
+  String deskNodeFitDiskFree(String free, String chain) {
+    return 'ว่าง $free บล็อกเชนใช้ประมาณ $chain';
+  }
+
+  @override
+  String deskNodeFitDiskUnknown(String chain) {
+    return 'บล็อกเชนใช้ประมาณ $chain';
+  }
+
+  @override
+  String deskNodeFitFound(String size) {
+    return 'พบข้อมูลบล็อกเชน $size ในคอมพิวเตอร์เครื่องนี้ ใช้ซ้ำได้';
+  }
+
+  @override
+  String get deskNodeFitGood => 'เหมาะสม';
+
+  @override
+  String get deskNodeFitGoodText =>
+      'โหนดซิงก์อยู่ตลอดที่เปิดกระเป๋าเงิน การค้นหาข้อมูลเป็นส่วนตัว และช่วยเครือข่าย';
+
+  @override
+  String get deskNodeFitWait => 'ใช้ได้ แต่ต้องรอทุกครั้ง';
+
+  @override
+  String get deskNodeFitWaitText =>
+      'ทุกครั้งที่เปิดกระเป๋าเงิน โหนดจะตามบล็อกที่ขาดไปก่อน';
+
+  @override
+  String get deskNodeFitPublic => 'โหนดสาธารณะเหมาะกว่า';
+
+  @override
+  String get deskNodeFitPublicText =>
+      'การเปิดสั้น ๆ หมดไปกับการตามให้ทัน กระเป๋าเงินจึงช้าลงและเครือข่ายได้ประโยชน์น้อย';
+
+  @override
+  String get deskNodeFitMetered => 'ระวังการดาวน์โหลดครั้งแรก';
+
+  @override
+  String deskNodeFitMeteredText(String size) {
+    return 'การซิงก์ครั้งแรกดาวน์โหลดประมาณ $size ควรเริ่มบนการเชื่อมต่อที่ไม่จำกัดข้อมูล';
+  }
+
+  @override
+  String get deskNodeFitNoSpace => 'พื้นที่ว่างไม่พอ';
+
+  @override
+  String deskNodeFitNoSpaceText(String chain, String floor) {
+    return 'บล็อกเชนใช้ประมาณ $chain และต้องเหลือพื้นที่ว่างในไดรฟ์นี้อีก $floor';
+  }
+
+  @override
+  String get deskNodeFitCapDay => 'ซิงก์อยู่เกือบตลอดเวลา';
+
+  @override
+  String get deskNodeFitCapDaySub => 'และส่งต่อบล็อกให้โหนดอื่น';
+
+  @override
+  String get deskNodeFitCapHours => 'ตามให้ทันทุกครั้งที่เปิด';
+
+  @override
+  String get deskNodeFitCapHoursSub => 'จากนั้นซิงก์อยู่ตลอดที่เปิดแอป';
+
+  @override
+  String get deskNodeFitCapMinutes => 'ส่วนใหญ่ใช้ไปกับการตามให้ทัน';
+
+  @override
+  String get deskNodeFitCapMinutesSub =>
+      'กระเป๋าเงินปิดก่อนที่โหนดจะซิงก์เสร็จ';
+
+  @override
+  String get deskNodeFitInSync => 'ซิงก์แล้ว';
+
+  @override
+  String get deskNodeFitCatchingUp => 'กำลังตามให้ทัน';
+
+  @override
+  String get deskNodeFitThisComputer => 'คอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskNodeFitChipPrivate => 'ค้นหาแบบส่วนตัว';
+
+  @override
+  String get deskNodeFitChipNetwork => 'ช่วยเครือข่าย';
+
+  @override
+  String get deskNodeFitChipInSync => 'ซิงก์ขณะเปิดอยู่';
+
+  @override
+  String deskNodeFitDownload(String size) {
+    return 'ดาวน์โหลดครั้งแรกประมาณ $size';
+  }
+
+  @override
+  String get deskNodeFitDontShow => 'ไม่ต้องแสดงอีก';
+
+  @override
+  String get deskNodeFitStart => 'เริ่มโหนดในเครื่อง';
+
+  @override
+  String get deskNodeFitStartAnyway => 'เริ่มต่อไป';
+
+  @override
+  String get deskNodeFitKeepPublic => 'ใช้โหนดสาธารณะต่อ';
+
+  @override
+  String get deskNodeFitNotNow => 'ไว้ก่อน';
+
+  @override
+  String get deskNodeFitInUse =>
+      'กำลังใช้โหนดในเครื่อง ดูการตั้งค่าได้ที่ การตั้งค่า › โหนด';
+
+  @override
+  String get deskNodeFitOpenCheck => 'เปิดการตรวจความเหมาะสม';
+
+  @override
+  String get deskNodeFitStarted => 'เริ่มโหนดในเครื่องแล้ว';
+
+  @override
+  String deskNodeFitStartedText(String host) {
+    return 'กระเป๋าเงินใช้งานผ่าน $host จนกว่าโหนดจะซิงก์เสร็จ';
+  }
+
+  @override
+  String get deskNodeFitStartedAlone =>
+      'ยอดคงเหลือและการส่งต้องรอจนกว่าโหนดจะซิงก์เสร็จ';
 }

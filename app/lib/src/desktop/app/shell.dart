@@ -40,6 +40,7 @@ import '../../models.dart' show PairingEvent, epicboxKey;
 import '../data/desk_errors.dart' show deskErrorText;
 import '../../levels/wallet_level.dart' show WalletLevel;
 import '../data/desk_levels.dart';
+import '../data/node_fit_facts.dart' show NodeFitFacts, nodeFitFactsProvider;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../screens/settings/settings_frame.dart' show SettingsColumn, settingsTakeover;
@@ -108,6 +109,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   Timer? _collectTimer;
 
   Timer? _linkRetry;
+
+  /// Adds the open time to the local count the node's fit check reads (this computer only).
+  Timer? _openCount;
 
   /// A payment link or code a browser opened (`epiccash://pay/1/…`): Send opens with it, read as
   /// a paste from a link. Over a dialog or the tour it waits, so nothing in progress is closed.
@@ -209,6 +213,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       }
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
+    _openCount = Timer.periodic(NodeFitFacts.tick, (_) {
+      if (mounted) unawaited(ref.read(nodeFitFactsProvider).addOpen(NodeFitFacts.tick).catchError((Object _) {}));
+    });
     _maybeTour();
     // A paired contact that starts or stops taking payments, said once a day per direction.
     ref.listenManual(deskPairingsProvider, (_, next) {
@@ -345,6 +352,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _behindAsk?.cancel();
     _linkRetry?.cancel();
     _collectTimer?.cancel();
+    _openCount?.cancel();
     _focus?.dispose();
     _settingsFocus.dispose();
     super.dispose();

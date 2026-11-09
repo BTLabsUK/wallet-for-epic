@@ -20857,4 +20857,177 @@ class AppLocalizationsEn extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return '$name’s wallet can ask you to pay. Nothing is paid without the wallet password.';
   }
+
+  @override
+  String get deskNodeFitTitle => 'Should this computer run a node?';
+
+  @override
+  String get deskNodeFitDescription =>
+      'Two questions. This can be changed any time in Settings › Node.';
+
+  @override
+  String get deskNodeFitOpenQ => 'How long is the wallet usually open?';
+
+  @override
+  String get deskNodeFitOpenDay => 'Most of the day';
+
+  @override
+  String get deskNodeFitOpenHours => 'An hour or two';
+
+  @override
+  String get deskNodeFitOpenMinutes => 'A few minutes';
+
+  @override
+  String deskNodeFitOpenHint(int hours) {
+    return 'Recently: about $hours h a day';
+  }
+
+  @override
+  String get deskNodeFitOpenHintUnder => 'Recently: under an hour a day';
+
+  @override
+  String get deskNodeFitNetQ => 'Your connection';
+
+  @override
+  String get deskNodeFitNetFree => 'No data limit';
+
+  @override
+  String get deskNodeFitNetMetered => 'Metered or mobile';
+
+  @override
+  String get deskNodeFitNetHintFree => 'Windows says: not metered';
+
+  @override
+  String get deskNodeFitNetHintMetered => 'Windows says: metered';
+
+  @override
+  String get deskNodeFitDisk => 'Disk space';
+
+  @override
+  String deskNodeFitDiskFree(String free, String chain) {
+    return '$free free, the chain takes about $chain';
+  }
+
+  @override
+  String deskNodeFitDiskUnknown(String chain) {
+    return 'The chain takes about $chain';
+  }
+
+  @override
+  String deskNodeFitFound(String size) {
+    return 'Found $size of chain data on this computer. It can be reused.';
+  }
+
+  @override
+  String get deskNodeFitGood => 'Good fit';
+
+  @override
+  String get deskNodeFitGoodText =>
+      'The node stays in sync while the wallet is open, keeps lookups private and helps the network.';
+
+  @override
+  String get deskNodeFitWait => 'Works, with a wait each time';
+
+  @override
+  String get deskNodeFitWaitText =>
+      'Each time the wallet opens, the node first catches up on the blocks it missed.';
+
+  @override
+  String get deskNodeFitPublic => 'A public node fits better';
+
+  @override
+  String get deskNodeFitPublicText =>
+      'Short visits go to catching up: the wallet feels slower and the network gains little.';
+
+  @override
+  String get deskNodeFitMetered => 'Mind the first download';
+
+  @override
+  String deskNodeFitMeteredText(String size) {
+    return 'The first sync downloads about $size. Start it on a connection without a data limit.';
+  }
+
+  @override
+  String get deskNodeFitNoSpace => 'Not enough free space';
+
+  @override
+  String deskNodeFitNoSpaceText(String chain, String floor) {
+    return 'The chain takes about $chain, and $floor more must stay free on this drive.';
+  }
+
+  @override
+  String get deskNodeFitCapDay => 'In sync almost all the time';
+
+  @override
+  String get deskNodeFitCapDaySub => 'And passing blocks on to others';
+
+  @override
+  String get deskNodeFitCapHours => 'Catches up at each visit';
+
+  @override
+  String get deskNodeFitCapHoursSub => 'Then stays in sync while open';
+
+  @override
+  String get deskNodeFitCapMinutes => 'Mostly catching up';
+
+  @override
+  String get deskNodeFitCapMinutesSub =>
+      'The wallet closes before the node is in sync';
+
+  @override
+  String get deskNodeFitInSync => 'in sync';
+
+  @override
+  String get deskNodeFitCatchingUp => 'catching up';
+
+  @override
+  String get deskNodeFitThisComputer => 'this computer';
+
+  @override
+  String get deskNodeFitChipPrivate => 'Private lookups';
+
+  @override
+  String get deskNodeFitChipNetwork => 'Helps the network';
+
+  @override
+  String get deskNodeFitChipInSync => 'In sync while open';
+
+  @override
+  String deskNodeFitDownload(String size) {
+    return 'About $size first download';
+  }
+
+  @override
+  String get deskNodeFitDontShow => 'Don’t show this again';
+
+  @override
+  String get deskNodeFitStart => 'Start local node';
+
+  @override
+  String get deskNodeFitStartAnyway => 'Start it anyway';
+
+  @override
+  String get deskNodeFitKeepPublic => 'Keep public node';
+
+  @override
+  String get deskNodeFitNotNow => 'Not now';
+
+  @override
+  String get deskNodeFitInUse =>
+      'The local node is in use. Its settings are in Settings › Node.';
+
+  @override
+  String get deskNodeFitOpenCheck => 'Open the fit check';
+
+  @override
+  String get deskNodeFitStarted => 'Local node started';
+
+  @override
+  String deskNodeFitStartedText(String host) {
+    return 'The wallet works through $host until the node is in sync.';
+  }
+
+  @override
+  String get deskNodeFitStartedAlone =>
+      'Balances and sending wait until the node is in sync.';
 }

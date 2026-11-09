@@ -44,6 +44,8 @@ import '../transfer/send_screen.dart' show SendArgs;
 import '../../../wallet_service.dart' show FakeWalletSession;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
+import 'node_fit_check.dart' show NodeFitDialog;
+import '../../data/node_fit_facts.dart';
 import 'settings_about.dart' show AboutShot;
 import 'settings_help.dart' show HelpShot;
 import 'settings_security.dart' show SecurityShot;
@@ -203,6 +205,17 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12), FallbackConsent.accepted),
     dialog: (ctx) => showFallbackPickerDialog(ctx, current: defaultFallbackNodeUrl),
   ),
+  // The local node's fit check: one shot per verdict, the hours and disk set for the shot; 900 high
+  // so the whole dialog shows (at 800 the second question is under the fold).
+  for (final (id, title, hours, metered, free) in [
+    ('22c-node-fit-good', 'Local node fit check: good fit', 6.0, false, 118),
+    ('22d-node-fit-wait', 'Local node fit check: a wait each time', 1.5, false, 118),
+    ('22e-node-fit-public', 'Local node fit check: a public node fits better', 0.1, false, 118),
+    ('22f-node-fit-metered', 'Local node fit check: metered connection', 6.0, true, 118),
+    ('22g-node-fit-no-space', 'Local node fit check: not enough free space', 6.0, false, 6),
+  ])
+    DeskShot(id: id, title: title, route: DeskRoute.settingsNode, dialog: (c) => _fitCheck(c, hours: hours, metered: metered, freeGb: free), height: 900),
+  DeskShot(id: '22h-node-fit-help', title: 'Help: the fit check topic and its button', route: DeskRoute.settingsHelp, arg: const HelpAt.topic(HelpId.nodeFit), height: 1000),
   DeskShot(id: '22-node-local-dialog', title: 'Local node: the dialog from Settings', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c)),
   DeskShot(id: '22b-node-local-dialog-ports', title: 'Local node: the dialog with Advanced open (the ports)', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c, portsOpen: true)),
   DeskShot(
@@ -608,3 +621,36 @@ final List<ImportConflict> _conflicts = [
   ImportConflict(key: 's:e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', field: ManualField.label, mine: 'Rent, October', theirs: 'Tom, rent', timeUnix: DateTime(2026, 10, 19, 8, 30).millisecondsSinceEpoch ~/ 1000, amount: BigInt.from(-4000000000)),
 ];
 
+/// The fit check with [hours] a day open lately, Windows' [metered] answer and [freeGb] free.
+Future<void> _fitCheck(BuildContext context, {required double hours, required bool metered, required int freeGb}) => showEDialog<bool>(
+  context,
+  builder: (_) => ProviderScope(
+    overrides: [nodeFitFactsProvider.overrideWithValue(_ShotFit(hours, metered)), deskNodeProvider.overrideWithValue(_ShotDisk(freeGb))],
+    child: const NodeFitDialog(),
+  ),
+);
+
+class _ShotFit extends NodeFitFacts {
+  const _ShotFit(this.hours, this.meter) : super(null);
+
+  final double hours;
+  final bool meter;
+
+  @override
+  Future<double?> hoursPerDay({DateTime? now}) async => hours;
+
+  @override
+  Future<bool?> metered() async => meter;
+}
+
+class _ShotDisk extends MockDeskNode {
+  _ShotDisk(this.freeGb);
+
+  final int freeGb;
+
+  @override
+  Future<LocalNodeFacts> facts() async {
+    final f = await super.facts();
+    return LocalNodeFacts(chainBytes: f.chainBytes, chainBytesMeasured: f.chainBytesMeasured, freeBytes: freeGb * 1000 * 1000 * 1000, minFreeBytes: f.minFreeBytes, firewallPrompt: f.firewallPrompt);
+  }
+}

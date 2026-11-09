@@ -21111,4 +21111,178 @@ class AppLocalizationsDe extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Die Wallet von $name kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt.';
   }
+
+  @override
+  String get deskNodeFitTitle => 'Soll dieser Computer einen Node betreiben?';
+
+  @override
+  String get deskNodeFitDescription =>
+      'Zwei Fragen. Das lässt sich jederzeit unter Einstellungen › Node ändern.';
+
+  @override
+  String get deskNodeFitOpenQ => 'Wie lange ist die Wallet meist geöffnet?';
+
+  @override
+  String get deskNodeFitOpenDay => 'Den Großteil des Tages';
+
+  @override
+  String get deskNodeFitOpenHours => 'Ein bis zwei Stunden';
+
+  @override
+  String get deskNodeFitOpenMinutes => 'Wenige Minuten';
+
+  @override
+  String deskNodeFitOpenHint(int hours) {
+    return 'Zuletzt: etwa $hours Std. am Tag';
+  }
+
+  @override
+  String get deskNodeFitOpenHintUnder => 'Zuletzt: unter einer Stunde am Tag';
+
+  @override
+  String get deskNodeFitNetQ => 'Ihre Verbindung';
+
+  @override
+  String get deskNodeFitNetFree => 'Ohne Datenlimit';
+
+  @override
+  String get deskNodeFitNetMetered => 'Getaktet oder mobil';
+
+  @override
+  String get deskNodeFitNetHintFree => 'Windows meldet: nicht getaktet';
+
+  @override
+  String get deskNodeFitNetHintMetered => 'Windows meldet: getaktet';
+
+  @override
+  String get deskNodeFitDisk => 'Speicherplatz';
+
+  @override
+  String deskNodeFitDiskFree(String free, String chain) {
+    return '$free frei, die Chain belegt etwa $chain';
+  }
+
+  @override
+  String deskNodeFitDiskUnknown(String chain) {
+    return 'Die Chain belegt etwa $chain';
+  }
+
+  @override
+  String deskNodeFitFound(String size) {
+    return '$size Chain-Daten auf diesem Computer gefunden. Sie lassen sich weiterverwenden.';
+  }
+
+  @override
+  String get deskNodeFitGood => 'Gut geeignet';
+
+  @override
+  String get deskNodeFitGoodText =>
+      'Der Node bleibt synchron, solange die Wallet geöffnet ist, hält Abfragen privat und unterstützt das Netzwerk.';
+
+  @override
+  String get deskNodeFitWait => 'Funktioniert, mit Wartezeit bei jedem Start';
+
+  @override
+  String get deskNodeFitWaitText =>
+      'Bei jedem Öffnen der Wallet holt der Node zuerst die verpassten Blöcke nach.';
+
+  @override
+  String get deskNodeFitPublic => 'Ein öffentlicher Node passt besser';
+
+  @override
+  String get deskNodeFitPublicText =>
+      'Kurze Besuche gehen für das Aufholen drauf: Die Wallet wirkt langsamer, und das Netzwerk gewinnt wenig.';
+
+  @override
+  String get deskNodeFitMetered => 'Auf den ersten Download achten';
+
+  @override
+  String deskNodeFitMeteredText(String size) {
+    return 'Der erste Sync lädt etwa $size herunter. Starten Sie ihn mit einer Verbindung ohne Datenlimit.';
+  }
+
+  @override
+  String get deskNodeFitNoSpace => 'Nicht genug freier Speicher';
+
+  @override
+  String deskNodeFitNoSpaceText(String chain, String floor) {
+    return 'Die Chain belegt etwa $chain, und auf diesem Laufwerk müssen weitere $floor frei bleiben.';
+  }
+
+  @override
+  String get deskNodeFitCapDay => 'Fast immer synchron';
+
+  @override
+  String get deskNodeFitCapDaySub => 'Und gibt Blöcke an andere weiter';
+
+  @override
+  String get deskNodeFitCapHours => 'Holt bei jedem Besuch auf';
+
+  @override
+  String get deskNodeFitCapHoursSub =>
+      'Danach synchron, solange die App offen ist';
+
+  @override
+  String get deskNodeFitCapMinutes => 'Meist am Aufholen';
+
+  @override
+  String get deskNodeFitCapMinutesSub =>
+      'Die Wallet schließt, bevor der Node synchron ist';
+
+  @override
+  String get deskNodeFitInSync => 'synchron';
+
+  @override
+  String get deskNodeFitCatchingUp => 'holt auf';
+
+  @override
+  String get deskNodeFitThisComputer => 'dieser Computer';
+
+  @override
+  String get deskNodeFitChipPrivate => 'Private Abfragen';
+
+  @override
+  String get deskNodeFitChipNetwork => 'Unterstützt das Netzwerk';
+
+  @override
+  String get deskNodeFitChipInSync => 'Synchron, solange offen';
+
+  @override
+  String deskNodeFitDownload(String size) {
+    return 'Erster Download etwa $size';
+  }
+
+  @override
+  String get deskNodeFitDontShow => 'Nicht mehr anzeigen';
+
+  @override
+  String get deskNodeFitStart => 'Lokalen Node starten';
+
+  @override
+  String get deskNodeFitStartAnyway => 'Trotzdem starten';
+
+  @override
+  String get deskNodeFitKeepPublic => 'Öffentlichen Node behalten';
+
+  @override
+  String get deskNodeFitNotNow => 'Nicht jetzt';
+
+  @override
+  String get deskNodeFitInUse =>
+      'Der lokale Node ist in Verwendung. Seine Einstellungen stehen unter Einstellungen › Node.';
+
+  @override
+  String get deskNodeFitOpenCheck => 'Eignungsprüfung öffnen';
+
+  @override
+  String get deskNodeFitStarted => 'Lokaler Node gestartet';
+
+  @override
+  String deskNodeFitStartedText(String host) {
+    return 'Die Wallet arbeitet über $host, bis der Node synchron ist.';
+  }
+
+  @override
+  String get deskNodeFitStartedAlone =>
+      'Kontostand und Senden warten, bis der Node synchron ist.';
 }

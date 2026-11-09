@@ -21565,4 +21565,178 @@ class AppLocalizationsRu extends AppLocalizations {
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Кошелёк $name сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается.';
   }
+
+  @override
+  String get deskNodeFitTitle => 'Должен ли этот компьютер запускать узел?';
+
+  @override
+  String get deskNodeFitDescription =>
+      'Два вопроса. Это можно изменить в любой момент в Настройки › Узел.';
+
+  @override
+  String get deskNodeFitOpenQ => 'Как долго кошелёк обычно открыт?';
+
+  @override
+  String get deskNodeFitOpenDay => 'Большую часть дня';
+
+  @override
+  String get deskNodeFitOpenHours => 'Час или два';
+
+  @override
+  String get deskNodeFitOpenMinutes => 'Несколько минут';
+
+  @override
+  String deskNodeFitOpenHint(int hours) {
+    return 'Недавно: около $hours ч в день';
+  }
+
+  @override
+  String get deskNodeFitOpenHintUnder => 'Недавно: меньше часа в день';
+
+  @override
+  String get deskNodeFitNetQ => 'Ваше подключение';
+
+  @override
+  String get deskNodeFitNetFree => 'Без лимита трафика';
+
+  @override
+  String get deskNodeFitNetMetered => 'С лимитом или мобильное';
+
+  @override
+  String get deskNodeFitNetHintFree => 'Windows сообщает: без лимита';
+
+  @override
+  String get deskNodeFitNetHintMetered => 'Windows сообщает: с лимитом';
+
+  @override
+  String get deskNodeFitDisk => 'Место на диске';
+
+  @override
+  String deskNodeFitDiskFree(String free, String chain) {
+    return 'свободно $free, блокчейн занимает около $chain';
+  }
+
+  @override
+  String deskNodeFitDiskUnknown(String chain) {
+    return 'Блокчейн занимает около $chain';
+  }
+
+  @override
+  String deskNodeFitFound(String size) {
+    return 'На этом компьютере найдено $size данных блокчейна. Их можно использовать повторно.';
+  }
+
+  @override
+  String get deskNodeFitGood => 'Подходит хорошо';
+
+  @override
+  String get deskNodeFitGoodText =>
+      'Узел остаётся синхронизированным, пока кошелёк открыт, запросы остаются приватными, сеть получает поддержку.';
+
+  @override
+  String get deskNodeFitWait => 'Работает, но с ожиданием каждый раз';
+
+  @override
+  String get deskNodeFitWaitText =>
+      'При каждом открытии кошелька узел сначала догоняет пропущенные блоки.';
+
+  @override
+  String get deskNodeFitPublic => 'Лучше подойдёт публичный узел';
+
+  @override
+  String get deskNodeFitPublicText =>
+      'Короткие сеансы уходят на синхронизацию: кошелёк работает медленнее, а сеть почти ничего не получает.';
+
+  @override
+  String get deskNodeFitMetered => 'Учтите первую загрузку';
+
+  @override
+  String deskNodeFitMeteredText(String size) {
+    return 'Первая синхронизация загружает около $size. Запускайте её на подключении без лимита трафика.';
+  }
+
+  @override
+  String get deskNodeFitNoSpace => 'Недостаточно свободного места';
+
+  @override
+  String deskNodeFitNoSpaceText(String chain, String floor) {
+    return 'Блокчейн занимает около $chain, и на этом диске должно остаться свободным ещё $floor.';
+  }
+
+  @override
+  String get deskNodeFitCapDay => 'Почти всегда синхронизирован';
+
+  @override
+  String get deskNodeFitCapDaySub => 'И передаёт блоки другим';
+
+  @override
+  String get deskNodeFitCapHours => 'Догоняет при каждом запуске';
+
+  @override
+  String get deskNodeFitCapHoursSub =>
+      'Затем остаётся синхронизированным, пока приложение открыто';
+
+  @override
+  String get deskNodeFitCapMinutes => 'В основном догоняет';
+
+  @override
+  String get deskNodeFitCapMinutesSub =>
+      'Кошелёк закрывается раньше, чем узел синхронизируется';
+
+  @override
+  String get deskNodeFitInSync => 'синхронизирован';
+
+  @override
+  String get deskNodeFitCatchingUp => 'догоняет';
+
+  @override
+  String get deskNodeFitThisComputer => 'этот компьютер';
+
+  @override
+  String get deskNodeFitChipPrivate => 'Приватные запросы';
+
+  @override
+  String get deskNodeFitChipNetwork => 'Помогает сети';
+
+  @override
+  String get deskNodeFitChipInSync => 'Синхронизирован, пока открыт';
+
+  @override
+  String deskNodeFitDownload(String size) {
+    return 'Первая загрузка около $size';
+  }
+
+  @override
+  String get deskNodeFitDontShow => 'Больше не показывать';
+
+  @override
+  String get deskNodeFitStart => 'Запустить локальный узел';
+
+  @override
+  String get deskNodeFitStartAnyway => 'Всё равно запустить';
+
+  @override
+  String get deskNodeFitKeepPublic => 'Оставить публичный узел';
+
+  @override
+  String get deskNodeFitNotNow => 'Не сейчас';
+
+  @override
+  String get deskNodeFitInUse =>
+      'Локальный узел используется. Его настройки — в Настройки › Узел.';
+
+  @override
+  String get deskNodeFitOpenCheck => 'Открыть проверку';
+
+  @override
+  String get deskNodeFitStarted => 'Локальный узел запущен';
+
+  @override
+  String deskNodeFitStartedText(String host) {
+    return 'Кошелёк работает через $host, пока узел не синхронизирован.';
+  }
+
+  @override
+  String get deskNodeFitStartedAlone =>
+      'Баланс и отправка ждут, пока узел не синхронизируется.';
 }

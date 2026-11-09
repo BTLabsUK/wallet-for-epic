@@ -16,6 +16,8 @@ import 'help_places.dart';
 import 'help_sync.dart';
 import '../../../ui/help/network_modes_diagram.dart';
 import 'help_topics.dart';
+import 'node_fit_check.dart' show NodeFitStart, showNodeFitCheck;
+import 'prefs.dart' show settingsPrefsProvider;
 import 'report_problem.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedOf;
@@ -554,6 +556,24 @@ class _TopicState extends ConsumerState<_Topic> {
                       for (final b in t.body) _Block(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? widget.anchorKey : null, block: b, words: widget.words, style: answer),
                       if (t.devices) ...[SizedBox(height: Sp.x2), const DeskSyncStatus()],
                       if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],
+                      // The local node's fit check, as Settings › Node shows it on picking the node.
+                      if (t.id == HelpId.nodeFit) ...[
+                        SizedBox(height: Sp.x2),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Consumer(
+                            builder: (context, ref, _) => EButton(
+                              label: context.l10n.deskNodeFitOpenCheck,
+                              icon: EIcons.node,
+                              onPressed: () async {
+                                final inUse = ref.read(settingsPrefsProvider).builtin;
+                                final start = await showNodeFitCheck(context, inUse: inUse);
+                                if (start == true && !inUse && context.mounted) ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode, const NodeFitStart());
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

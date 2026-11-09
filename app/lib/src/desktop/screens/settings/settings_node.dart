@@ -23,9 +23,11 @@ import '../../widgets/node_card.dart';
 import '../../widgets/server_list_panel.dart';
 import '../../widgets/server_row.dart';
 import '../../data/server_lists.dart';
-import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, LocalNodeHow;
+import '../../data/node_fit_facts.dart';
+import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, findTakenPorts, LocalNodeChoice, LocalNodeHow, LocalNodePorts;
 import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
+import 'node_fit_check.dart' show NodeFitStart, showNodeFitCheck;
 import 'own_node_panel.dart';
 import 'prefs.dart';
 import 'setting_ids.dart';
@@ -155,6 +157,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
       });
     }
+    // From Help's fit check; the page met again (Back) finds the node started already.
+    if (arg is NodeFitStart) {
+      Future.microtask(() {
+        if (mounted && !ref.read(settingsPrefsProvider).builtin) _pick(builtinNode, fitChecked: true);
+      });
+    }
     if (_ownShot(arg)) Future.microtask(_shotOwn);
     Future.microtask(_shotCard);
   }
@@ -254,15 +262,29 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     _ => null,
   };
 
-  Future<void> _pick(String value) async {
+  /// [fitChecked]: Help's fit check already ran (its Start brought the page here).
+  Future<void> _pick(String value, {bool fitChecked = false}) async {
     final l = context.l10n;
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final p = ref.read(settingsPrefsProvider);
     if (value == builtinNode) {
+      final started = !p.builtin;
       if (!p.builtin) {
-        // The same content as the first run's Local node step (§21): nothing starts before
-        // the primary action; the fallback checkbox answers the fallback question for good.
-        final choice = await showLocalNodeSetupDialog(context);
+        // The fit check first, unless the person turned it off; nothing starts before its
+        // Start. Then the first run's Local node step (§21) only where it has something to
+        // settle: another node answering here, or a port taken. Otherwise the bundled node on
+        // the settings' ports, with the public node meanwhile as the step itself suggests
+        // (kept off when it was turned down before); the toast names it.
+        final fit = ref.read(nodeFitFactsProvider);
+        if (!fitChecked && !await fit.skip()) {
+          if (!mounted || await showNodeFitCheck(context) != true) return;
+        }
+        final api = ref.read(deskNodeProvider);
+        final (probe, taken, before) = await (api.probe(), findTakenPorts(api, LocalNodePorts()), api.fallbackChoice()).wait;
+        if (!mounted) return;
+        final choice = probe.otherNode || taken.isNotEmpty
+            ? await showLocalNodeSetupDialog(context)
+            : LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: '', useFallback: hasFallbackNode && before.consent != FallbackConsent.declined, ports: LocalNodePorts());
         if (choice == null || !mounted) return;
         if (choice.how == LocalNodeHow.existing) return _useRemote(choice.existingUrl);
         final node = ref.read(deskNodeProvider);
@@ -297,7 +319,13 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       if (!mounted) return;
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
-      showEToast(context, l.deskSetNodeLocalInUse, text: l.deskSetNodeLocalInUseText, tone: ETone.info);
+      if (started) {
+        final fb = ref.read(deskFallbackProvider).value;
+        final meanwhile = fb?.consent == FallbackConsent.accepted;
+        showEToast(context, l.deskNodeFitStarted, text: meanwhile ? l.deskNodeFitStartedText(fallbackHost(fb)) : l.deskNodeFitStartedAlone, tone: ETone.ok);
+      } else {
+        showEToast(context, l.deskSetNodeLocalInUse, text: l.deskSetNodeLocalInUseText, tone: ETone.info);
+      }
       return;
     }
     await _useRemote(value);
