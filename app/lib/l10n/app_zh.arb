@@ -5468,5 +5468,8 @@
   "deskE1Done": "完成",
   "deskE1ClassicTip": "关闭 epic1 付款以向此联系人付款",
   "deskE1PayInPerson": "当面付款",
-  "deskE1Back": "返回"
+  "deskE1Back": "返回",
+  "deskSendFileFor": "给",
+  "deskSendFileForHelp": "发给已配对联系人的文件会被密封：只有对方的钱包能打开。",
+  "deskImpFrom": "来自"
 }

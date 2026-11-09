@@ -21109,4 +21109,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1Back => 'Back';
+
+  @override
+  String get deskSendFileFor => 'For';
+
+  @override
+  String get deskSendFileForHelp =>
+      'A paired contact\'s file is sealed: only their wallet opens it.';
+
+  @override
+  String get deskImpFrom => 'From';
 }

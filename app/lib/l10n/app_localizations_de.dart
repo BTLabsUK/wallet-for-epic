@@ -21367,4 +21367,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1Back => 'Zurück';
+
+  @override
+  String get deskSendFileFor => 'Für';
+
+  @override
+  String get deskSendFileForHelp =>
+      'Die Datei für einen gekoppelten Kontakt wird versiegelt: nur seine Wallet öffnet sie.';
+
+  @override
+  String get deskImpFrom => 'Von';
 }

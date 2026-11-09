@@ -5468,5 +5468,8 @@
   "deskE1Done": "Fertig",
   "deskE1ClassicTip": "Schalte epic1-Zahlungen aus, um diesen Kontakt zu bezahlen",
   "deskE1PayInPerson": "Persönlich bezahlen",
-  "deskE1Back": "Zurück"
+  "deskE1Back": "Zurück",
+  "deskSendFileFor": "Für",
+  "deskSendFileForHelp": "Die Datei für einen gekoppelten Kontakt wird versiegelt: nur seine Wallet öffnet sie.",
+  "deskImpFrom": "Von"
 }

@@ -1485,7 +1485,7 @@ class DeskSettings {
 /// What Send hands over.
 @immutable
 class SendRequest {
-  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options, this.pairingId});
+  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options, this.pairingId, this.sealFor});
 
   final TxMethod method;
   final int amount;
@@ -1493,6 +1493,9 @@ class SendRequest {
   /// An Epicbox send through the mailbox of this pairing (RFC 9.1): a contact with no
   /// address, [to] null.
   final String? pairingId;
+
+  /// A file send sealed for this pairing (RFC 9.2): only that contact's wallet opens it.
+  final String? sealFor;
 
   /// Address or URL; null for a file send.
   final String? to;
@@ -1524,9 +1527,12 @@ final class SendDone extends SendResult {
 
 /// A file send: the slate to give the recipient.
 final class SendFileReady extends SendResult {
-  const SendFileReady(this.tx, this.fileName);
+  const SendFileReady(this.tx, this.fileName, {this.sealedFor});
   final Tx tx;
   final String fileName;
+
+  /// The pairing the file is sealed for; null for a plain file.
+  final String? sealedFor;
 }
 
 final class SendFailed extends SendResult {
@@ -1549,9 +1555,13 @@ final class SendFailed extends SendResult {
 /// A signed transaction file: the payment and where its response was written.
 @immutable
 class ReceivedFile {
-  const ReceivedFile(this.tx, this.response);
+  const ReceivedFile(this.tx, this.response, {this.sender});
 
   final Tx tx;
+
+  /// The paired contact a sealed file came from, by name; null for a plain file, whatever
+  /// address it claims.
+  final String? sender;
 
   /// Beside the picked file, or in the app's files folder when that folder is read-only.
   final String response;

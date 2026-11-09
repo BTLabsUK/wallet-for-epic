@@ -1,0 +1,14 @@
+{
+  "deskSendFileFor": "For",
+  "@deskSendFileFor": {
+    "description": "Send › Pay with a file: label of the optional field naming the contact the file is for."
+  },
+  "deskSendFileForHelp": "A paired contact's file is sealed: only their wallet opens it.",
+  "@deskSendFileForHelp": {
+    "description": "Send › Pay with a file: help under the For field."
+  },
+  "deskImpFrom": "From",
+  "@deskImpFrom": {
+    "description": "Receive a file › result: label before the sender (a paired contact's name, or Unknown sender for a plain file)."
+  }
+}

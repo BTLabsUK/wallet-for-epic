@@ -23,7 +23,8 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
-import '../../../models.dart' show PairingRecord, PairingState, epicboxKey, slateMessageMaxBytes;
+import '../../../models.dart' show PairingRecord, PairingState, SealMode, epicboxKey, slateMessageMaxBytes;
+import '../../../pairing_file_seal.dart' show fileSealTarget, sealQuiet;
 import '../../../trust/policy.dart' show MailboxDefault;
 import '../../data/trust_state.dart' show deskMailboxDefaultFor;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
@@ -45,7 +46,7 @@ import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
 import '../pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords;
 import '../../widgets/tor_chip.dart';
-import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
+import '../../../ui/pairing/pairing_parts.dart' show SealedBadge, TrustBadge;
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
@@ -148,6 +149,7 @@ class _Draft {
     this.unknownRelay,
     this.code,
     this.pairingId,
+    this.sealFor,
     this.queued = false,
     this.confirmations = defaultMinimumConfirmations,
     this.route,
@@ -167,6 +169,9 @@ class _Draft {
 
   /// Through the mailbox of this pairing: a contact with no address, [to] null.
   final String? pairingId;
+
+  /// A file sealed for this pairing (RFC 9.2): only that contact's wallet opens it.
+  final String? sealFor;
 
   /// Epicbox is off: the payment waits in the outbox until it is on again.
   final bool queued;
@@ -290,6 +295,13 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   late final SendArgs _args;
   // The file form (Pay with a file); otherwise the address in To decides the method.
   bool _file = false;
+  // The file form's optional recipient (a contact id): a paired contact's file is sealed.
+  String? _fileFor;
+  // Plain chosen for a contact the file would be sealed for.
+  bool _filePlain = false;
+  // The plain copy of a sealed file, once Send as plain instead wrote it.
+  String? _plainFile;
+  bool _plainBusy = false;
   bool _submitted = false;
   // To's error shows once the field is left, Enter pressed, an address pasted or Review
   // pressed; typing hides it again.
@@ -443,6 +455,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     final st0 = ref.read(deskProvider);
     _file = args.method == TxMethod.file;
     _pairingTo = args.pairingTo ?? (contact == null ? null : _pairingOf(contact));
+    // Pay with a file for a contact: the file form's For.
+    if (_file) _fileFor = contact?.id;
     if (contact != null && _pairingTo == null) {
       _contactId = contact.id;
       _to.text = _bestAddress(contact, st0);
@@ -885,6 +899,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   /// Pay with a file: the file form, the recipient kept for the way back.
   void _openFile() => setState(() {
     _file = true;
+    _fileFor = _contactId;
+    _filePlain = false;
     _failure = null;
     _submitted = false;
   });
@@ -897,6 +913,21 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       _submitted = false;
     });
     if (_pairingTo == null && _contactId == null) _focusTo();
+  }
+
+  /// The pairing the file form's file is sealed for, or null: no contact, not paired, or a
+  /// wallet that does not open sealed files (as the phone's Send).
+  PairingRecord? get _fileSeal => !_file || _fileFor == null ? null : fileSealTarget(ref.read(deskContactPairingProvider(_fileFor!)));
+
+  String? get _sealFor => _filePlain ? null : _fileSeal?.id;
+
+  Future<void> _pickFileFor() async {
+    final c = await showContactPicker(context);
+    if (c == null || !mounted) return;
+    setState(() {
+      _fileFor = c.id;
+      _filePlain = false;
+    });
   }
 
   bool _torBusy = false;
@@ -1528,8 +1559,11 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         method: _method,
         // The clean form: the field keeps the text as given, the send goes to the method line's.
         to: _method == TxMethod.file || viaPairing ? null : (_read.isAddress ? _read.address : _to.text.trim()),
-        contactName: pairingId != null ? ref.read(deskPairingNameProvider(pairingId)) : _contactOf(contacts)?.name,
+        contactName: pairingId != null
+            ? ref.read(deskPairingNameProvider(pairingId))
+            : (_file && _fileFor != null ? contacts?.where((c) => c.id == _fileFor).firstOrNull?.name : _contactOf(contacts)?.name),
         pairingId: pairingId,
+        sealFor: _method == TxMethod.file ? _sealFor : null,
         queued: _queues(),
         amount: n,
         fee: plan?.estimate.fee ?? _fee ?? 0,
@@ -1595,6 +1629,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
             // As estimated: the strategy, the change outputs; a send-all spends every output.
             options: draft.options ?? (draft.sendAll ? const SendOptions(strategy: SelectionStrategy.all) : null),
             pairingId: draft.pairingId,
+            sealFor: draft.sealFor,
           ),
         ),
       ),
@@ -1611,6 +1646,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         default:
           _failure = null;
           _result = res;
+          _plainFile = null;
           if (res is SendDone) {
             if (link != null) {
               _paidLink = link;
@@ -1678,6 +1714,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     _viaMailboxChoice = null;
     _failedViaPairing = false;
     _file = false;
+    _fileFor = null;
+    _filePlain = false;
+    _plainFile = null;
     _to.clear();
     _amount.clear();
     _message.clear();
@@ -1872,18 +1911,120 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   /// The name of whom the last send went to, for the page after it; null for an address.
   String? _sentTo;
 
+  /// The file written: "Sealed for Anna" for a sealed one, with Send as plain instead, which
+  /// asks first and writes the plain copy of the same payment (RFC 9.3).
   Widget _fileReady(SendFileReady r, DeskNav nav) {
     final l = context.l10n;
+    final sealedFor = _plainFile == null ? r.sealedFor : null;
+    final name = sealedFor == null ? null : ref.watch(deskPairingNameProvider(sealedFor));
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: Max.form),
       child: ResultPanel(
-        title: l.deskSendFileReadyTitle,
-        text: l.deskSendFileReadyText,
-        body: FileChip(r.fileName),
+        key: ValueKey(name == null ? 'send-file-ready' : 'send-file-sealed'),
+        title: name == null ? l.deskSendFileReadyTitle : l.sendSealedTitle(name),
+        text: name == null ? l.deskSendFileReadyText : l.sendSealedBody(name),
+        body: FileChip(_plainFile ?? r.fileName),
         actions: [
           EButton.primary(label: l.deskSendFinalize, icon: EIcons.fileUp, onPressed: () => nav.go(DeskRoute.finalize)),
           EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
           EButton(label: l.deskSendNewSend, onPressed: _reset),
+          if (name != null) EButton.ghost(key: const ValueKey('send-file-as-plain'), label: l.sendAsPlain, busy: _plainBusy, onPressed: _plainBusy ? null : () => _asPlain(r)),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _asPlain(SendFileReady r) async {
+    final l = context.l10n;
+    final ok = await showEDialog<bool>(
+      context,
+      builder: (ctx) => EDialog(
+        title: l.sendAsPlainTitle,
+        description: l.sendAsPlainBody,
+        icon: EIcons.file,
+        actions: [
+          EButton(label: l.sendKeepSealed, onPressed: () => Navigator.of(ctx).pop(false)),
+          EButton.primary(key: const ValueKey('send-file-plain-confirm'), label: l.sendPlain, onPressed: () => Navigator.of(ctx).pop(true)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _plainBusy = true);
+    try {
+      final path = await ref.read(deskApiProvider).plainFile(r.tx.slateId);
+      if (mounted) setState(() => _plainFile = path);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _plainBusy = false);
+    }
+  }
+
+  /// The file form's optional For: a contact; for a paired one whose wallet opens sealed files,
+  /// whether the file is sealed for them, as the phone's Send (RFC 9.2).
+  Widget _fileRecipient(DeskState st) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final contact = _fileFor == null ? null : st.contacts?.where((c) => c.id == _fileFor).firstOrNull;
+    if (contact == null) {
+      return EField(
+        label: l.deskSendFileFor,
+        optional: true,
+        help: l.deskSendFileForHelp,
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: EButton(key: const ValueKey('send-file-for'), label: l.deskSendPickTitle, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pickFileFor),
+        ),
+      );
+    }
+    final target = fileSealTarget(ref.watch(deskContactPairingProvider(contact.id)));
+    final degraded = target?.seal == SealMode.degraded;
+    final quiet = target != null && sealQuiet(target, DateTime.now());
+    return EField(
+      label: l.deskSendFileFor,
+      optional: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Flexible(child: Text(contact.name, key: const ValueKey('send-file-for-name'), style: ts.strong, overflow: TextOverflow.ellipsis)),
+              SizedBox(width: Sp.x2),
+              if (!degraded) target != null && !_filePlain ? const SealedBadge(key: ValueKey('send-file-sealed-badge')) : EBadge(key: const ValueKey('send-file-plain-badge'), l.sendPlainOption),
+              const Spacer(),
+              EButton.ghost(
+                key: const ValueKey('send-file-for-clear'),
+                label: l.deskSendClear,
+                size: EBtnSize.inline,
+                onPressed: () => setState(() {
+                  _fileFor = null;
+                  _filePlain = false;
+                }),
+              ),
+            ],
+          ),
+          if (degraded) ...[
+            SizedBox(height: Sp.x3),
+            Text(l.sendSealOrPlainBody(contact.name), style: ts.small),
+            SizedBox(height: Sp.x2),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: ESegmented<bool>(
+                key: const ValueKey('send-file-seal-choice'),
+                segments: [ESegment(false, l.sendSealedOption), ESegment(true, l.sendPlainOption)],
+                value: _filePlain,
+                onChanged: (v) => setState(() => _filePlain = v),
+              ),
+            ),
+          ] else if (quiet && !_filePlain) ...[
+            SizedBox(height: Sp.x3),
+            ENotice(
+              key: const ValueKey('send-file-quiet'),
+              title: l.sendNotHeardTitle(contact.name),
+              text: l.sendNotHeardBody(contact.name),
+              actions: [EButton(key: const ValueKey('send-file-plain'), label: l.sendPlainShort, size: EBtnSize.inline, onPressed: () => setState(() => _filePlain = true))],
+            ),
+          ],
         ],
       ),
     );
@@ -2138,6 +2279,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       children: [
         if (file) ...[
           _FileLine(onBack: _leaveFile),
+          SizedBox(height: Sp.x5),
+          _fileRecipient(st),
           SizedBox(height: Sp.x5),
         ] else if (pairing != null) ...[
           EField(

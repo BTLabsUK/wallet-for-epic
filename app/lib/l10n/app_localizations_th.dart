@@ -20673,4 +20673,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1Back => 'ย้อนกลับ';
+
+  @override
+  String get deskSendFileFor => 'สำหรับ';
+
+  @override
+  String get deskSendFileForHelp =>
+      'ไฟล์สำหรับผู้ติดต่อที่จับคู่แล้วจะถูกผนึก: เปิดได้เฉพาะวอลเล็ตของผู้ติดต่อนั้น';
+
+  @override
+  String get deskImpFrom => 'จาก';
 }

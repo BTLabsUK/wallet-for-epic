@@ -21821,4 +21821,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1Back => 'Назад';
+
+  @override
+  String get deskSendFileFor => 'Для';
+
+  @override
+  String get deskSendFileForHelp =>
+      'Файл для связанного контакта запечатывается: открыть его может только его кошелёк.';
+
+  @override
+  String get deskImpFrom => 'От';
 }

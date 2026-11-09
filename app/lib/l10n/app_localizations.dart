@@ -32837,6 +32837,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get deskE1Back;
+
+  /// Send › Pay with a file: label of the optional field naming the contact the file is for.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get deskSendFileFor;
+
+  /// Send › Pay with a file: help under the For field.
+  ///
+  /// In en, this message translates to:
+  /// **'A paired contact\'s file is sealed: only their wallet opens it.'**
+  String get deskSendFileForHelp;
+
+  /// Receive a file › result: label before the sender (a paired contact's name, or Unknown sender for a plain file).
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskImpFrom;
 }
 
 class _AppLocalizationsDelegate

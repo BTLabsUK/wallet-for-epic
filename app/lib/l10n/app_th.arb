@@ -5468,5 +5468,8 @@
   "deskE1Done": "เสร็จ",
   "deskE1ClassicTip": "ปิดการชำระเงิน epic1 เพื่อจ่ายให้ผู้ติดต่อนี้",
   "deskE1PayInPerson": "จ่ายต่อหน้า",
-  "deskE1Back": "ย้อนกลับ"
+  "deskE1Back": "ย้อนกลับ",
+  "deskSendFileFor": "สำหรับ",
+  "deskSendFileForHelp": "ไฟล์สำหรับผู้ติดต่อที่จับคู่แล้วจะถูกผนึก: เปิดได้เฉพาะวอลเล็ตของผู้ติดต่อนั้น",
+  "deskImpFrom": "จาก"
 }

@@ -5468,5 +5468,8 @@
   "deskE1Done": "Готово",
   "deskE1ClassicTip": "Выключите платежи epic1, чтобы заплатить этому контакту",
   "deskE1PayInPerson": "Оплатить лично",
-  "deskE1Back": "Назад"
+  "deskE1Back": "Назад",
+  "deskSendFileFor": "Для",
+  "deskSendFileForHelp": "Файл для связанного контакта запечатывается: открыть его может только его кошелёк.",
+  "deskImpFrom": "От"
 }

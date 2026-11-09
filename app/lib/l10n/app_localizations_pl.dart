@@ -21832,4 +21832,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1Back => 'Wstecz';
+
+  @override
+  String get deskSendFileFor => 'Dla';
+
+  @override
+  String get deskSendFileForHelp =>
+      'Plik dla sparowanego kontaktu jest zapieczętowany: otworzy go tylko jego portfel.';
+
+  @override
+  String get deskImpFrom => 'Od';
 }

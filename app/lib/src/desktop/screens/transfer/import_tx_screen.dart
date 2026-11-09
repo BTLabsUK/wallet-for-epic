@@ -70,6 +70,8 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   /// The wallet's own reason, under a failed signing.
   DeskError? _detail;
   Tx? _tx;
+  // The paired contact a sealed file came from; a plain file names none, whatever it claims.
+  String? _sender;
 
   /// A payment request read from the file, under review (DESIGN §3.3).
   RequestFile? _request;
@@ -167,6 +169,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
       if (!mounted) return;
       setState(() {
         _tx = r.tx;
+        _sender = r.sender;
         _response = mock ? 'f0e1d2c3.response' : r.response;
       });
     } on DeskError catch (e) {
@@ -186,6 +189,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   void _again() => setState(() {
     _response = null;
     _tx = null;
+    _sender = null;
     _request = null;
     _answered = false;
   });
@@ -256,6 +260,16 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
                   if (_tx != null) ...[
                     SizedBox(height: Sp.x3),
                     Row(children: [Text(l.deskImpAmount, style: ts.small), EMoney(_tx!.amount)]),
+                  ],
+                  if (_tx != null && !_answered) ...[
+                    SizedBox(height: Sp.x2),
+                    Row(
+                      children: [
+                        Text(l.deskImpFrom, style: ts.small),
+                        SizedBox(width: Sp.x2),
+                        Flexible(child: Text(_sender ?? l.deskTxUnknownSender, key: const ValueKey('imp-sender'), style: _sender == null ? ts.bodyDim : ts.strong, overflow: TextOverflow.ellipsis)),
+                      ],
+                    ),
                   ],
                 ],
               ),

@@ -19920,4 +19920,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1Back => '返回';
+
+  @override
+  String get deskSendFileFor => '给';
+
+  @override
+  String get deskSendFileForHelp => '发给已配对联系人的文件会被密封：只有对方的钱包能打开。';
+
+  @override
+  String get deskImpFrom => '来自';
 }

@@ -5468,5 +5468,8 @@
   "deskE1Done": "Gotowe",
   "deskE1ClassicTip": "Wyłącz płatności epic1, aby zapłacić temu kontaktowi",
   "deskE1PayInPerson": "Zapłać osobiście",
-  "deskE1Back": "Wstecz"
+  "deskE1Back": "Wstecz",
+  "deskSendFileFor": "Dla",
+  "deskSendFileForHelp": "Plik dla sparowanego kontaktu jest zapieczętowany: otworzy go tylko jego portfel.",
+  "deskImpFrom": "Od"
 }
