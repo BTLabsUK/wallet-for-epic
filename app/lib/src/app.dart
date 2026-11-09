@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'connection_grace.dart';
-import 'contact_store.dart' show ContactStore;
 import 'connection_state.dart';
 import 'l10n.dart';
 import 'node_failover.dart' show NodeFailover;
@@ -127,8 +126,6 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     }
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
-        // The address book key a wallet switch kept never waits in the background.
-        unawaited(ContactStore.dropHeldKeys());
         // A download Android's network cut stops meanwhile carries on at the return, and so
         // does a scan.
         ref.read(updateProvider.notifier).paused();

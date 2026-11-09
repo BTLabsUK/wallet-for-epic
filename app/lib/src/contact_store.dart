@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The address book every wallet on this device shares: `<app data>/contacts.json`. A contact is
+/// The address book every wallet of one network on this device shares: `<app data>/contacts.json`
+/// for mainnet, a folder of its own for another network ([contactsDirOf]). A contact is
 /// a name, at most one address of each kind (Epicbox, Link · HTTP, Link · Tor) and a note. What
 /// belongs to one wallet (a pairing, whether a contact is trusted or may send invoices, the
 /// payments made) stays in that wallet and points here by the contact's id.
@@ -14,7 +15,6 @@
 /// aside, never overwritten; a file of a newer version is read but never rewritten.
 library;
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -119,6 +119,14 @@ String _randomHex(int bytes) {
   return [for (var i = 0; i < bytes; i++) r.nextInt(256).toRadixString(16).padLeft(2, '0')].join();
 }
 
+/// The folder of [chain]'s address book under the app data folder [root]: mainnet's is [root]
+/// itself, where every earlier build kept the one book; another network's is a folder of its
+/// own. A phone opens one network's wallet at a time, so a book shared across networks stayed
+/// closed to the wallet of the network that had no wrap yet; and a test network's contacts are
+/// no use on mainnet.
+String contactsDirOf(String root, String chain) =>
+    chain == 'mainnet' ? root : '$root${Platform.pathSeparator}contacts-$chain';
+
 /// The sealed book beside the plain one, and the folder of its key's wraps.
 const String contactsSealedFileName = 'contacts.sealed';
 const String contactsKeysDirName = 'contacts.keys';
@@ -198,9 +206,7 @@ bool mergePlainContacts(List<ContactFields> into, Iterable<ContactFields> plain)
 /// the book, and then every open wallet without a wrap gets one. A wallet that opens none while
 /// a book exists finds the book closed ([available] false): it reads no contacts and writes
 /// nothing until a wallet with a wrap opens. The key is held in memory only while a wallet
-/// that is attached is open, and across a wallet switch on a phone ([detach] with `hold`),
-/// where one wallet closes before the next opens: the next wallet to attach then gets its wrap
-/// from it. `contacts.json` is only read: sealed on the first unlock, left
+/// that is attached is open. `contacts.json` is only read: sealed on the first unlock, left
 /// where it is, and merged in again (adding only) when its size or hash changed since.
 class ContactStore {
   ContactStore._(this.path, this._contacts, {required this._readOnly}) : _dir = null;
@@ -269,12 +275,34 @@ class ContactStore {
     });
   }
 
+  /// Earlier builds kept one book in [shared] for the wallets of every network; a wallet of
+  /// another network now has its own in [dir] ([contactsDirOf]). With a wrap of [walletId] in
+  /// [shared], the book and that wrap are copied to [dir] as they are, still sealed (no key is
+  /// opened; a book already in [dir] stays), and the wrap leaves [shared]: the wallet keeps its
+  /// contacts, and the book in [shared] stays with the mainnet wallets.
+  static Future<void> moveFromShared(String shared, String dir, String walletId) async {
+    if (!sealedWalletIdPattern.hasMatch(walletId)) throw _invalid('not a wallet id');
+    final from = ContactStore._sealed(Directory(shared).absolute.path);
+    final to = ContactStore._sealed(Directory(dir).absolute.path);
+    final wrap = await SealedFile.read(from._wrapPath(walletId));
+    if (wrap == null) return;
+    final book = await SealedFile.read(from._sealedPath);
+    if (book != null && !await File(to._sealedPath).exists()) {
+      // The wrap first: a stop before the book leaves no book in [dir], and the next open copies again.
+      await _write(to._wrapPath(walletId), wrap);
+      await _write(to._sealedPath, book);
+      logInfo('contacts', 'address book moved to its network\'s own folder');
+    } else if (!await File(to._wrapPath(walletId)).exists()) {
+      await _write(to._wrapPath(walletId), wrap);
+    }
+    await removeWalletKey(shared, walletId);
+  }
+
   /// Forgets the loaded stores (tests that delete their folder).
   static void forgetAll() {
     _open.clear();
     for (final s in _sealedOpen.values) {
       s._release();
-      s._dropHeld();
     }
     _sealedOpen.clear();
   }
@@ -338,27 +366,6 @@ class ContactStore {
   /// The content key of an open sealed book, in memory only while a wallet is attached.
   Uint8List? _key;
   bool _loaded = false;
-
-  /// The content key kept by a wallet switch ([detach] with `hold`) for the next wallet to
-  /// attach, and the timer that wipes it after [heldKeyFor].
-  Uint8List? _held;
-  Timer? _heldTimer;
-
-  /// How long a key kept by a wallet switch waits for the next wallet; then it is wiped.
-  @visibleForTesting
-  static Duration heldKeyFor = const Duration(minutes: 10);
-
-  /// Whether a wallet switch keeps the key of this book now.
-  @visibleForTesting
-  bool get holdsKey => _held != null;
-
-  /// Wipes the key a wallet switch kept, in every book of this process: the next wallet did not
-  /// open (a wrong PIN, the unlock left) or the app went to the background.
-  static Future<void> dropHeldKeys() async {
-    for (final s in _sealedOpen.values) {
-      await s._queue(() async => s._dropHeld());
-    }
-  }
 
   /// The plain file as it was when last sealed or merged.
   PlainRecord? _plain;
@@ -433,39 +440,24 @@ class ContactStore {
   }
 
   /// Ends [walletId]'s use of the book. With no wallet left attached the key and the contacts
-  /// leave memory; with [hold] (a wallet switch on a phone) the key stays, for the next wallet
-  /// to attach, until [dropHeldKeys] or [heldKeyFor].
+  /// leave memory.
   /// A wallet opened again (a server switch) attaches its new session first: the old one's
   /// [sealer] then no longer counts and its detach changes nothing.
-  Future<void> detach(String walletId, AppDataSealer sealer, {bool hold = false}) => _queue(() async {
+  Future<void> detach(String walletId, AppDataSealer sealer) => _queue(() async {
     if (!identical(_wallets[walletId], sealer)) return;
     _wallets.remove(walletId);
-    if (_wallets.isEmpty) _lock(hold: hold && _loaded);
+    if (_wallets.isEmpty) _lock();
   });
 
-  void _lock({bool hold = false}) {
+  void _lock() {
     _release();
-    _dropHeld();
     final k = _key;
+    if (k != null) k.fillRange(0, k.length, 0);
     _key = null;
-    if (hold && k != null) {
-      _held = k;
-      _heldTimer = Timer(heldKeyFor, () => unawaited(_queue(() async => _dropHeld())));
-    } else if (k != null) {
-      k.fillRange(0, k.length, 0);
-    }
     _loaded = false;
     _contacts = [];
     _plain = null;
     _readOnly = false;
-  }
-
-  void _dropHeld() {
-    _heldTimer?.cancel();
-    _heldTimer = null;
-    final k = _held;
-    _held = null;
-    if (k != null && !identical(k, _key)) k.fillRange(0, k.length, 0);
   }
 
   /// The wrap files on disk, by wallet id.
@@ -526,8 +518,7 @@ class ContactStore {
   /// 3. none opens and there are no wraps at all (a first unlock, or a book whose last wrap
   ///    went): a book left without wraps is deleted (no one can open it), a new key is made and
   ///    this wallet's wrap written before anything is sealed under it;
-  /// 4. none opens but other wallets have wraps: the key a wallet switch kept opens it, else the
-  ///    book stays closed for now;
+  /// 4. none opens but other wallets have wraps: the book stays closed for now;
   /// 5. with the key, the book is opened or, when there is none, sealed from `contacts.json`
   ///    copy-then-switch; a `contacts.json` changed since is merged in (adding only);
   /// 6. every attached wallet without a wrap gets one.
@@ -538,7 +529,6 @@ class ContactStore {
       logWarn('contacts', 'the address book is open in another instance of the app; closed here');
       return;
     }
-    var kept = false;
     if (_key == null) {
       try {
         await SealedFile.dropTmp(_sealedPath);
@@ -552,13 +542,6 @@ class ContactStore {
         key = await _openWrap(id, sealer);
         if (key != null) break;
       }
-      if (key == null && wraps.isNotEmpty && _held != null) {
-        key = _held;
-        _held = null;
-        kept = true;
-        logInfo('contacts', 'address book opened with the key kept from the last wallet');
-      }
-      _dropHeld();
       if (key == null && wraps.isEmpty) {
         await _deleteIfThere(_sealedPath);
         final r = Random.secure();
@@ -573,14 +556,7 @@ class ContactStore {
       _key = key;
     }
     if (!_loaded) await _loadBook();
-    if (!_loaded) {
-      // A kept key that does not open this book is no key to it: the next unlock tries the wraps.
-      if (kept) {
-        _key!.fillRange(0, _key!.length, 0);
-        _key = null;
-      }
-      return;
-    }
+    if (!_loaded) return;
     final wraps = (await _wraps()).toSet();
     for (final e in _wallets.entries) {
       if (wraps.contains(e.key)) continue;

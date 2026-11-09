@@ -14,13 +14,11 @@ import 'package:epic_wallet/src/contact_store.dart' show ContactStore;
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/pin_wrap.dart';
-import 'package:epic_wallet/src/providers.dart' show sessionProvider;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:fake_async/fake_async.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/test_settings.dart';
@@ -473,75 +471,37 @@ void main() {
       expect(bio.prompts, prompts + 1, reason: 'read behind its own prompt');
     }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
 
-    group('a phone switching wallets (one per network, one open at a time)', () {
-      late WalletVault v;
-      late WalletConfig first;
-      late WalletConfig second;
-      late ProviderContainer container;
-
-      setUp(() {
-        if (_lib == null) return;
-        final book = Directory('${root.path}/app')..createSync();
-        v = WalletVault(
-          store: secrets,
-          biometrics: bio,
-          service: LepicWalletService(secrets: secrets, oneWalletPerChain: true, keyWrap: wrap, contactsDir: () async => book.path),
-          legacyFiles: (_) async => false,
-        );
-        first = floonetPreset.config(dataDir: '${root.path}/floonet', nodeUrl: 'http://127.0.0.1:1');
-        second = mainnetPreset.config(dataDir: '${root.path}/mainnet', nodeUrl: 'http://127.0.0.1:1');
-        container = ProviderContainer();
-      });
-
-      tearDown(() {
-        if (_lib == null) return;
-        container.read(sessionProvider.notifier).lock();
-        container.dispose();
-        ContactStore.forgetAll();
-      });
-
-      /// The first wallet, open, with Anna in the shared address book.
-      Future<void> firstWithAnna() async {
-        final a = (await v.create(first, pin: '123456')).session;
-        container.read(sessionProvider.notifier).unlocked(a);
-        await a.saveContact(contact: Contact(id: '', name: 'Anna'));
-      }
-
-      test('a switch hands the address book to the next wallet, which keeps it after a lock', () async {
-        await firstWithAnna();
-        container.read(sessionProvider.notifier).lock(forSwitch: true);
-        final b = (await v.create(second, pin: '654321')).session;
-        container.read(sessionProvider.notifier).unlocked(b);
-        expect(b.contactsAvailable, isTrue);
-        // A mainnet wallet also adds the BT Labs contact to the book on its first open.
-        expect([for (final c in await b.contacts()) c.name], contains('Anna'));
-        // Its own copy of the key opens the book from now on, with nothing kept.
-        container.read(sessionProvider.notifier).lock();
-        await ContactStore.dropHeldKeys();
-        final again = await v.unlock(second, '654321');
-        container.read(sessionProvider.notifier).unlocked(again);
-        expect(again.contactsAvailable, isTrue);
-        expect([for (final c in await again.contacts()) c.name], contains('Anna'));
-      }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
-
-      test('a lock that is no switch, or a wrong PIN on the next wallet, keeps nothing: the book stays closed to it', () async {
-        await firstWithAnna();
-        container.read(sessionProvider.notifier).lock();
-        final b = (await v.create(second, pin: '654321')).session;
-        container.read(sessionProvider.notifier).unlocked(b);
-        expect(b.contactsAvailable, isFalse);
-        // A switch back to the first wallet, then a wrong PIN on the second (the PIN screen
-        // wipes the kept key on a rejection).
-        container.read(sessionProvider.notifier).lock();
-        container.read(sessionProvider.notifier).unlocked(await v.unlock(first, '123456'));
-        container.read(sessionProvider.notifier).lock(forSwitch: true);
-        await expectLater(v.unlock(second, '000000'), throwsA(isA<PinRejected>()));
-        await ContactStore.dropHeldKeys();
-        final again = await v.unlock(second, '654321');
-        container.read(sessionProvider.notifier).unlocked(again);
-        expect(again.contactsAvailable, isFalse);
-      }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
-    });
+    test('a phone (one wallet open at a time): the test-network wallet opening after the mainnet one closed has its address book open', () async {
+      final book = Directory('${root.path}/app')..createSync();
+      addTearDown(ContactStore.forgetAll);
+      final v = WalletVault(
+        store: secrets,
+        biometrics: bio,
+        service: LepicWalletService(secrets: secrets, oneWalletPerChain: true, keyWrap: wrap, contactsDir: () async => book.path),
+        legacyFiles: (_) async => false,
+      );
+      final main = mainnetPreset.config(dataDir: '${root.path}/mainnet', nodeUrl: 'http://127.0.0.1:1');
+      final test = floonetPreset.config(dataDir: '${root.path}/floonet', nodeUrl: 'http://127.0.0.1:1');
+      final m = (await v.create(main, pin: '123456')).session;
+      await m.saveContact(contact: Contact(id: '', name: 'Anna'));
+      m.dispose();
+      // A cold start straight into the test network, then its created wallet, then a relock.
+      ContactStore.forgetAll();
+      final t = (await v.create(test, pin: '654321')).session;
+      expect(t.contactsAvailable, isTrue);
+      expect([for (final c in await t.contacts()) c.name], isNot(contains('Anna')));
+      await t.saveContact(contact: Contact(id: '', name: 'Ben'));
+      t.dispose();
+      ContactStore.forgetAll();
+      final again = await keep(v.unlock(test, '654321'));
+      expect(again.contactsAvailable, isTrue);
+      expect([for (final c in await again.contacts()) c.name], contains('Ben'));
+      again.dispose();
+      sessions.remove(again);
+      final m2 = await keep(v.unlock(main, '123456'));
+      expect(m2.contactsAvailable, isTrue);
+      expect([for (final c in await m2.contacts()) c.name], allOf(contains('Anna'), isNot(contains('Ben'))));
+    }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
   });
 }
 

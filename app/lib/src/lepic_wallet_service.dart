@@ -998,8 +998,9 @@ class LepicWalletService implements WalletService {
   /// ([HardwarePinStore]); null keeps them plain in [_secrets] (desktop, tests).
   final KeyWrap? keyWrap;
 
-  /// The folder of the address book every wallet shares (`contact_store.dart`); null keeps
-  /// each wallet's contacts in its own archive (tests).
+  /// The app data folder holding the address book every wallet of a network shares
+  /// (`contact_store.dart`, [contactsDirOf]); null keeps each wallet's contacts in its own
+  /// archive (tests).
   final Future<String> Function()? contactsDir;
 
   /// The prefix pinned for each chain, once read.
@@ -1473,7 +1474,7 @@ class LepicWalletService implements WalletService {
     final walletId = sealedWalletId(config.walletId, config.chain.name);
     ContactStore? contacts;
     try {
-      contacts = await _sharedContacts(walletId, sealer);
+      contacts = await _sharedContacts(config.chain, walletId, sealer);
       final session = (await LepicWalletSession.openOn(
         wallet,
         config.dataDir,
@@ -1502,14 +1503,17 @@ class LepicWalletService implements WalletService {
   /// The session opened last and not disposed yet, whose store [peerCompat] reads.
   LepicWalletSession? _open;
 
-  /// The shared address book, sealed, with this wallet attached; null without [contactsDir]. A
-  /// book that cannot be read (its folder unreadable) never keeps a wallet from opening: the
-  /// wallet then keeps its own list.
-  Future<ContactStore?> _sharedContacts(String walletId, AppDataSealer sealer) async {
+  /// The address book of [chain]'s wallets, sealed, with this wallet attached; null without
+  /// [contactsDir]. A book that cannot be read (its folder unreadable) never keeps a wallet from
+  /// opening: the wallet then keeps its own list.
+  Future<ContactStore?> _sharedContacts(Chain chain, String walletId, AppDataSealer sealer) async {
     final dir = contactsDir;
     if (dir == null) return null;
     try {
-      return await ContactStore.openSealed(await dir(), walletId, sealer);
+      final root = await dir();
+      final own = contactsDirOf(root, chain.name);
+      if (own != root) await ContactStore.moveFromShared(root, own, walletId);
+      return await ContactStore.openSealed(own, walletId, sealer);
     } on Object catch (e) {
       logWarn('contacts', 'the shared address book could not be opened (${e.runtimeType})');
       return null;
@@ -1599,7 +1603,10 @@ class LepicWalletService implements WalletService {
     // Only this wallet's key to the shared book; the book goes with the last one.
     final dir = contactsDir;
     if (dir != null) {
-      await ContactStore.removeWalletKey(await dir(), sealedWalletId(config.walletId, config.chain.name));
+      final id = sealedWalletId(config.walletId, config.chain.name);
+      await ContactStore.removeWalletKey(contactsDirOf(await dir(), config.chain.name), id);
+      // Earlier builds kept one book for every network: a wrap of this wallet there goes too.
+      if (config.chain != Chain.mainnet) await ContactStore.removeWalletKey(await dir(), id);
     }
   });
 
@@ -1668,7 +1675,7 @@ class LepicAppDataSealer implements AppDataSealer {
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
 class LepicWalletSession
-    implements WalletSession, EpicboxDrainAt, ListingKeys, Epic1Capable, KeepsBookOnSwitch {
+    implements WalletSession, EpicboxDrainAt, ListingKeys, Epic1Capable {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
@@ -1737,19 +1744,13 @@ class LepicWalletSession
     }
     final session = LepicWalletSession(wallet, history: history);
     if (contacts != null && contacts.sealed && sealer != null && walletId != null) {
-      session._detachBook = ({bool hold = false}) => contacts.detach(walletId, sealer, hold: hold);
+      session._detachBook = () => contacts.detach(walletId, sealer);
     }
     return session;
   }
 
-  /// Ends this wallet's use of the sealed address book; with `hold` its key stays for the next
-  /// wallet ([keepBookForSwitch]).
-  Future<void> Function({bool hold})? _detachBook;
-
-  bool _keepBook = false;
-
-  @override
-  void keepBookForSwitch() => _keepBook = true;
+  /// Ends this wallet's use of the sealed address book.
+  Future<void> Function()? _detachBook;
 
   /// How LEPIC found the records at this unlock (`storeAtRest`), read once by
   /// `LepicWalletService._session` right after the open.
@@ -1837,7 +1838,7 @@ class LepicWalletSession
     _history.close();
     final detach = _detachBook;
     _detachBook = null;
-    if (detach != null) unawaited(detach(hold: _keepBook));
+    if (detach != null) unawaited(detach());
     if (_wallet.isDisposed) return;
     _wallet.lock();
     _wallet.dispose();

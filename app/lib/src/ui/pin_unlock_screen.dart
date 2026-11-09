@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
-import '../contact_store.dart' show ContactStore;
 import '../dev_networks.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -75,9 +74,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   void dispose() {
     _pin.clear();
     _pin.dispose();
-    // An unlock left without opening a wallet: the address book key a wallet switch kept goes
-    // (after an unlock the next wallet took it over, and nothing is kept).
-    unawaited(ContactStore.dropHeldKeys());
     super.dispose();
   }
 
@@ -196,8 +192,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();
-      // A failed unlock wipes the address book key a wallet switch kept.
-      unawaited(ContactStore.dropHeldKeys());
       final still = await vault.biometricsEnabled(config.chain);
       if (!mounted) return;
       setState(() {
@@ -206,7 +200,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       });
     } on KeyWrapUnavailable catch (error) {
       // The PIN typed stays, for Try again.
-      unawaited(ContactStore.dropHeldKeys());
       logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
       if (mounted) {
         setState(() {
@@ -216,7 +209,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       }
     } catch (error) {
       logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
-      unawaited(ContactStore.dropHeldKeys());
       _pin.clear();
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
