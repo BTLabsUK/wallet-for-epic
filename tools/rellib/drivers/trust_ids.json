@@ -226,5 +226,15 @@
 {"id": "g4.server.use", "screen": "server", "kind": "group", "ids": ["g4.server.node.row", "g4.server.epicbox.row", "g4.server.node.add", "g4.server.epicbox.add"], "role": "row", "match": "exact"},
 {"id": "g4.restore.word.*", "screen": "restore", "kind": "template", "family": ["desktop"], "role": "text_field", "match": "exact", "secret": true},
 {"id": "g4.restore.month.*", "screen": "restore", "kind": "template", "family": ["android"], "match": "exact", "secret": true},
-{"id": "pair.contact.row", "screen": "contacts", "family": ["desktop"]}
+{"id": "pair.contact.row", "screen": "contacts", "family": ["desktop"]},
+{"id": "g4.e1.copy_link", "screen": "receive", "family": ["desktop"], "keys": ["deskE1CopyLink"], "driver": false},
+{"id": "g4.e1.ask_amount", "screen": "receive", "family": ["desktop"], "keys": ["deskE1AskAmount"], "driver": false},
+{"id": "g4.e1.request_in_person", "screen": "receive", "family": ["desktop"], "keys": ["deskE1RequestInPerson"], "driver": false},
+{"id": "g4.e1.send_to", "screen": "send", "family": ["desktop"], "role": "text_field", "keys": ["deskE1SendField"], "driver": false},
+{"id": "g4.e1.amount", "screen": "send", "family": ["desktop"], "role": "text_field", "keys": ["deskSendAmount"], "driver": false},
+{"id": "g4.e1.review", "screen": "send", "family": ["desktop"], "keys": ["deskE1Review"], "driver": false},
+{"id": "g4.e1.pay_in_person", "screen": "send", "family": ["desktop"], "keys": ["deskE1PayInPerson"], "driver": false},
+{"id": "g4.e1.send", "screen": "send_review", "family": ["desktop"], "keys": ["deskE1Send"], "driver": false},
+{"id": "g4.e1.cancel_unlock", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1CancelUnlock"], "driver": false},
+{"id": "g4.e1.try_next", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1TryNext"], "driver": false}
 ]}

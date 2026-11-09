@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatf
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../epic1.dart' show looksLikeEpictx;
 import '../../../models.dart' show FinishedPayment;
 import '../../../network_gate.dart' show NetGate;
 import '../../../slate_files.dart' show decodeSlateFile, maxSlateFileBytes;
@@ -24,6 +25,7 @@ import '../../data/files.dart';
 import '../../data/invoice_state.dart' show RequestFile;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../epic1/epic1_files.dart' show jumpToEpic1Switch;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'send_screen.dart' show SendArgs;
 
@@ -127,6 +129,10 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
       if (f.bytes == null && !kIsWeb && await file.length() > maxSlateFileBytes) return say(_bare(l.slateFileTooLarge), _Tone.risk);
       final bytes = f.bytes ?? (kIsWeb ? null : await file.readAsBytes());
       if (bytes == null) return say(l.deskErrFileNotReadable, _Tone.risk);
+      // An epic1 file opens in epic1 mode only: the line says so, with the switch.
+      if (f.name.toLowerCase().endsWith('.epictx') || looksLikeEpictx(utf8.decode(bytes, allowMalformed: true))) {
+        return say(l.deskE1ModeEpic1File, _Tone.wait, action: l.deskRecvSettings, onAction: () => jumpToEpic1Switch(ref));
+      }
       text = decodeSlateFile(bytes);
     } on FormatException {
       return say(l.deskErrNotTxFile2, _Tone.risk);

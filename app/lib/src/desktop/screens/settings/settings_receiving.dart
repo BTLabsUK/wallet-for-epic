@@ -29,6 +29,8 @@ import 'prefs.dart';
 import 'search/settings_sections.dart' show setJoinReasons;
 import 'setting_ids.dart';
 import 'settings_frame.dart';
+import '../epic1/epic1_settings.dart';
+import '../../../epic1.dart' show PaymentMode;
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
 import '../../../settings_file/status_site.dart' show statusSiteHost;
@@ -559,6 +561,24 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final httpLine = methodStateLine(l, TxMethod.http, status, s, reachClosed: ref.watch(deskHttpReachClosedProvider));
     final torPay = _torPay(s);
 
+    // Today's Epicbox server picker: under the Epicbox method, or the epic1 group's server.
+    final serverPanel = ServerListPanel(
+      kind: ServerKind.relay,
+      label: l.deskSetRecvEpicboxServer,
+      value: relayLabel(box),
+      fieldText: relayLabel(box),
+      fieldSub: box.operator,
+      tone: epicboxTone(status.epicboxHealth),
+      servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? shippedHostSettings.epicboxUse),
+      source: relaySource(boxes, inUse: relayLabel(box)),
+      listNote: st.settings.useStatusSite ? l.deskSetRecvListNote(statusSiteHost) : null,
+      busy: _switching,
+      busyLabel: l.deskSetRecvSwitchingServer,
+      openInitially: widget.arg == ReceivingShot.comboOpen,
+      shot: widget.arg == ReceivingShot.picked ? ServerPanelShot(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
+      onChoose: _switch,
+      onTest: _test,
+    );
     // Each method's receiving rows, under its switch while it is on.
     final details = <MethodKind, (SettingsJump, List<Widget>)>{
       MethodKind.epicbox: (SettingsJump.epicbox, [
@@ -572,24 +592,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine,
             anchor: SetId.epicboxRecv,
             notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
-            picker: SetAnchor(id: SetId.epicboxServer, child: ServerListPanel(
-              kind: ServerKind.relay,
-              label: l.deskSetRecvEpicboxServer,
-              value: relayLabel(box),
-              fieldText: relayLabel(box),
-              fieldSub: box.operator,
-              tone: epicboxTone(status.epicboxHealth),
-              servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? shippedHostSettings.epicboxUse),
-              source: relaySource(boxes, inUse: relayLabel(box)),
-              listNote: st.settings.useStatusSite ? l.deskSetRecvListNote(statusSiteHost) : null,
-              busy: _switching,
-              busyLabel: l.deskSetRecvSwitchingServer,
-              openInitially: widget.arg == ReceivingShot.comboOpen,
-              shot: widget.arg == ReceivingShot.picked ? ServerPanelShot(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
-              onChoose: _switch,
-              onTest: _test,
-            ),
-            ),
+            picker: SetAnchor(id: SetId.epicboxServer, child: serverPanel),
           ),
           _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v)), anchor: SetId.epicboxStart),
           // While Tor is off: where the relay would not see this computer's address.
@@ -635,9 +638,22 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _methodsGroup(s.payments, s, details, torPay),
-          _sendGroup(s.payments),
+          // epic1 mode: the epic1 group (its server and printed codes) in place of the methods
+          // and the default send method.
+          if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1)
+            Epic1SettingsGroup(
+              server: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [serverPanel, SizedBox(height: Sp.x2), EStateLine(ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine)],
+              ),
+              serverHint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
+            )
+          else ...[
+            _methodsGroup(s.payments, s, details, torPay),
+            _sendGroup(s.payments),
+          ],
           const JumpSection(section: SettingsJump.confirmations, child: ReceivingGroup()),
+          const Epic1ExperimentalGroup(),
         ],
       ),
     );

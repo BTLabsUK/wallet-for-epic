@@ -65,6 +65,9 @@ import '../wallet/tx_display.dart' show statusOf;
 import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
+import '../../../epic1.dart' show PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
+import '../epic1/epic1_files.dart' show jumpToEpic1Switch, showEpic1ModeDialog;
+import '../epic1/send_link.dart' show Epic1SendPage;
 import 'send_summary_rows.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
@@ -253,16 +256,34 @@ final _sendKeeperProvider = Provider<_SendKeeper>((ref) {
   return _SendKeeper();
 });
 
-class SendScreen extends ConsumerStatefulWidget {
+/// Send: in epic1 mode the epic1 page, unless a contact was picked (the paired send goes
+/// native by itself); otherwise today's form.
+class SendScreen extends ConsumerWidget {
   const SendScreen({super.key, this.arg});
 
   final Object? arg;
 
   @override
-  ConsumerState<SendScreen> createState() => _SendScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final a = arg;
+    final contact = a is Contact || (a is SendArgs && (a.contact != null || a.pairingTo != null));
+    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 && !contact) {
+      return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null);
+    }
+    return _ClassicSend(arg: arg);
+  }
 }
 
-class _SendScreenState extends ConsumerState<SendScreen> {
+class _ClassicSend extends ConsumerStatefulWidget {
+  const _ClassicSend({this.arg});
+
+  final Object? arg;
+
+  @override
+  ConsumerState<_ClassicSend> createState() => _SendScreenState();
+}
+
+class _SendScreenState extends ConsumerState<_ClassicSend> {
   final _to = AddressFieldController();
   final _amount = TextEditingController();
   final _message = TextEditingController();
@@ -1043,6 +1064,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     });
     void dialog(IconData icon, String title, String body, String shown) =>
         showCodeDialog(context, icon: icon, title: title, text: body, code: shown);
+    // epic1 payments are off: their links and files say how to turn them on.
+    if (looksLikeEpic1Link(text)) {
+      fieldError((l) => l.deskE1ModeEpic1Link);
+      return true;
+    }
+    if (looksLikeEpictx(text)) {
+      setState(() => _to.text = _lastTo);
+      unawaited(showEpic1ModeDialog(context, ref, l.deskE1ModeEpic1File));
+      return true;
+    }
     switch (code) {
       // A recovery phrase never stays in To, nor shows anywhere: To empties, the note says why.
       case RecoveryPhraseCode():
@@ -2162,6 +2193,19 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => _bestAddress(x, st), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
           ..._underTo(st, picked),
+          if (_codeError != null && looksLikeEpic1Link(_to.text)) ...[
+            SizedBox(height: Sp.x2),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: EButton.ghost(
+                key: const ValueKey('e1-classic-settings'),
+                label: l.deskRecvSettings,
+                icon: EIcons.settings,
+                size: EBtnSize.inline,
+                onPressed: () => jumpToEpic1Switch(ref),
+              ),
+            ),
+          ],
           // A payment request's banner: it keeps the last code's words while it closes.
           ExpandFade(
             open: code != null && code.problems.isNotEmpty && _codeBanner,

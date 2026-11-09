@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../epic1.dart' show PaymentMode;
 import '../../../models.dart' show PairingRecord;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsMark, TrustBadge;
@@ -25,6 +26,11 @@ PairingRecord? contactPairingOnly(WidgetRef ref, Contact c) =>
 bool contactRefusesPayments(WidgetRef ref, Contact c) => ref
     .watch(paymentRefusalsProvider)
     .refusesPayments(pairingId: ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id))?.id : null, address: c.epicbox);
+
+/// epic1 mode and [c] has no pairing that takes epic1 payments: "Classic only", not payable.
+bool contactClassicOnly(WidgetRef ref, Contact c) =>
+    ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 &&
+    !(ref.watch(deskPairsProvider) && (ref.watch(deskContactPairingProvider(c.id))?.nativeSlates ?? false));
 
 /// "Through Anna's pairing" with the trust badge, where a contact with no address shows its
 /// address in a list.
@@ -118,6 +124,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
             contact: shown[i],
             pairing: contactPairingOnly(ref, shown[i]),
             noPayments: contactRefusesPayments(ref, shown[i]),
+            classicOnly: contactClassicOnly(ref, shown[i]),
             onTap: () => Navigator.of(context).pop(shown[i]),
           ),
         ),
@@ -151,7 +158,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
                 autofocus: true,
                 onChanged: (_) => setState(() {}),
                 onSubmitted: (_) {
-                  final open = shown.where((x) => !contactRefusesPayments(ref, x));
+                  final open = shown.where((x) => !contactRefusesPayments(ref, x) && !contactClassicOnly(ref, x));
                   if (open.isNotEmpty) Navigator.of(context).pop(open.first);
                 },
               ),
@@ -170,13 +177,16 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
 }
 
 class _PickRow extends StatefulWidget {
-  const _PickRow({required this.contact, required this.onTap, this.pairing, this.noPayments = false});
+  const _PickRow({required this.contact, required this.onTap, this.pairing, this.noPayments = false, this.classicOnly = false});
 
   final Contact contact;
   final VoidCallback onTap;
 
   /// The contact takes no payments: the row stays, dimmed and not pressable, with the reason.
   final bool noPayments;
+
+  /// epic1 mode and the contact has no epic1: dimmed, "Classic only", not pressable.
+  final bool classicOnly;
 
   /// The pairing of a contact with no address: its row says payments go through it.
   final PairingRecord? pairing;
@@ -192,11 +202,14 @@ class _PickRowState extends State<_PickRow> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final pairing = widget.pairing;
-    final noPayments = widget.noPayments;
+    final classicOnly = widget.classicOnly && !widget.noPayments;
+    final noPayments = widget.noPayments || classicOnly;
     final row = Semantics(
       button: true,
       enabled: !noPayments,
-      label: noPayments
+      label: classicOnly
+          ? '${widget.contact.name}, ${context.l10n.deskE1ClassicOnly}'
+          : noPayments
           ? '${widget.contact.name}, ${context.l10n.contactTakesNoPayments}'
           : pairing == null ? '${widget.contact.name}, ${widget.contact.address}' : '${widget.contact.name}, ${context.l10n.sendRecipientPairing(widget.contact.name, context.l10n.sendRoutePairedInline)}',
       excludeSemantics: true,
@@ -214,7 +227,16 @@ class _PickRowState extends State<_PickRow> {
                 EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label),
                 SizedBox(width: 14.u),
                 Expanded(
-                  child: noPayments
+                  child: classicOnly
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.contact.name, style: context.ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            SizedBox(height: Sp.x1),
+                            Text(context.l10n.deskE1ClassicOnly, key: const ValueKey('e1-classic-only'), style: context.ts.small.copyWith(color: c.dim)),
+                          ],
+                        )
+                      : noPayments
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -256,6 +278,7 @@ class _PickRowState extends State<_PickRow> {
         ),
       ),
     );
+    if (classicOnly) return ETip(context.l10n.deskE1ClassicTip, child: Opacity(opacity: 0.5, child: row));
     return noPayments ? Opacity(opacity: 0.5, child: row) : row;
   }
 }

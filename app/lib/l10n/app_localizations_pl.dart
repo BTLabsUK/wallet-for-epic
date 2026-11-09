@@ -21660,4 +21660,176 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'Zachowaj';
+
+  @override
+  String get deskE1SetGroup => 'epic1';
+
+  @override
+  String get deskE1SetSwitch => 'Płatności epic1';
+
+  @override
+  String get deskE1SetInfo =>
+      'Płatności do portfeli z epic1 są zaszyfrowane od końca do końca i mniejsze, a pojawiają się kody płatności osobistych i linki epic1. Inne portfele Epic dostają format klasyczny. Płatności z każdego portfela Epic docierają jak dotąd. Dla każdego portfela osobno. Eksperymentalne: może się jeszcze zmienić.';
+
+  @override
+  String get deskE1SetSyn =>
+      'epic1, natywne, zaszyfrowane, eksperymentalne, linki';
+
+  @override
+  String get deskE1TurnOnTitle => 'Używać płatności epic1?';
+
+  @override
+  String get deskE1TurnOnBody =>
+      'Ten portfel płaci wtedy i otrzymuje płatności tylko od portfeli z epic1. Wyłącz to, aby zapłacić innemu portfelowi Epic.';
+
+  @override
+  String get deskE1TurnOn => 'Włącz';
+
+  @override
+  String get deskE1AppliesNext => 'Obowiązuje od następnego odblokowania';
+
+  @override
+  String get deskE1LockNow => 'Zablokuj teraz';
+
+  @override
+  String get deskE1PrintedCodes => 'Wydrukowane kody';
+
+  @override
+  String get deskE1PrintedHint =>
+      'Linki płatności do wydruku lub zachowania. Wycofaj kod, gdy nie jest już używany.';
+
+  @override
+  String deskE1PrintedCount(int n) {
+    return '$n z 32';
+  }
+
+  @override
+  String get deskE1PrintedNone => 'Brak wydrukowanych kodów.';
+
+  @override
+  String deskE1CodeN(int n) {
+    return 'Kod $n';
+  }
+
+  @override
+  String deskE1CodeIssued(String date) {
+    return 'Utworzono $date';
+  }
+
+  @override
+  String deskE1CodeUsed(String date) {
+    return 'Ostatnia płatność $date';
+  }
+
+  @override
+  String get deskE1LinkTitle => 'Link epic1';
+
+  @override
+  String get deskE1LinkSub => 'Każdy z epic1 może zapłacić przez ten link.';
+
+  @override
+  String get deskE1CopyLink => 'Kopiuj link';
+
+  @override
+  String get deskE1LinkCopied => 'Skopiowano link';
+
+  @override
+  String get deskE1AskAmount => 'Poproś o kwotę';
+
+  @override
+  String get deskE1MakeLink => 'Utwórz link';
+
+  @override
+  String deskE1LinkAsks(String amount) {
+    return 'Prosi o $amount';
+  }
+
+  @override
+  String get deskE1AnyAmount => 'Dowolna kwota';
+
+  @override
+  String get deskE1LanTitle => 'Użyć serwera w sieci lokalnej?';
+
+  @override
+  String deskE1LanBody(String host) {
+    return '$host jest w Twojej sieci lokalnej. Tylko płacący w tej samej sieci mogą zapłacić przez ten link.';
+  }
+
+  @override
+  String get deskE1UseServer => 'Użyj serwera';
+
+  @override
+  String get deskE1OtherWays => 'Inne sposoby odbioru';
+
+  @override
+  String get deskE1InPerson => 'Osobiście';
+
+  @override
+  String get deskE1InPersonSub => 'Kod, który płacący odczytuje z tego ekranu.';
+
+  @override
+  String get deskE1RequestInPerson => 'Poproś osobiście';
+
+  @override
+  String get deskE1SendField => 'Link epic1 lub kontakt';
+
+  @override
+  String get deskE1SendFieldHint => 'Wklej link epic1';
+
+  @override
+  String get deskE1SendFieldSem => 'Link epic1';
+
+  @override
+  String get deskE1Review => 'Sprawdź';
+
+  @override
+  String get deskE1ReviewTitle => 'Sprawdź płatność';
+
+  @override
+  String get deskE1To => 'Do';
+
+  @override
+  String get deskE1Server => 'Serwer';
+
+  @override
+  String get deskE1Send => 'Wyślij';
+
+  @override
+  String get deskE1UnknownServerTitle => 'Wysłać przez ten serwer?';
+
+  @override
+  String deskE1UnknownServerBody(String host) {
+    return '$host nie ma na Twojej liście serwerów.';
+  }
+
+  @override
+  String get deskE1Waiting => 'Czekam na odbiorcę';
+
+  @override
+  String get deskE1NotPosted => 'Żaden serwer nie przyjął jeszcze płatności.';
+
+  @override
+  String get deskE1TryNext => 'Spróbuj następnego serwera';
+
+  @override
+  String get deskE1CancelUnlock => 'Anuluj i odblokuj';
+
+  @override
+  String get deskE1Sent => 'Wysłano';
+
+  @override
+  String get deskE1Cancelled => 'Płatność anulowana';
+
+  @override
+  String get deskE1Done => 'Gotowe';
+
+  @override
+  String get deskE1ClassicTip =>
+      'Wyłącz płatności epic1, aby zapłacić temu kontaktowi';
+
+  @override
+  String get deskE1PayInPerson => 'Zapłać osobiście';
+
+  @override
+  String get deskE1Back => 'Wstecz';
 }

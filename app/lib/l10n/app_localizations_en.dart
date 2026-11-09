@@ -20939,4 +20939,174 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'Keep';
+
+  @override
+  String get deskE1SetGroup => 'epic1';
+
+  @override
+  String get deskE1SetSwitch => 'epic1 payments';
+
+  @override
+  String get deskE1SetInfo =>
+      'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.';
+
+  @override
+  String get deskE1SetSyn => 'epic1, native, sealed, experimental, links';
+
+  @override
+  String get deskE1TurnOnTitle => 'Use epic1 payments?';
+
+  @override
+  String get deskE1TurnOnBody =>
+      'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.';
+
+  @override
+  String get deskE1TurnOn => 'Turn on';
+
+  @override
+  String get deskE1AppliesNext => 'Applies at next unlock';
+
+  @override
+  String get deskE1LockNow => 'Lock now';
+
+  @override
+  String get deskE1PrintedCodes => 'Printed codes';
+
+  @override
+  String get deskE1PrintedHint =>
+      'Payment links made to print or keep. Retire one when it is no longer used.';
+
+  @override
+  String deskE1PrintedCount(int n) {
+    return '$n of 32';
+  }
+
+  @override
+  String get deskE1PrintedNone => 'No printed codes.';
+
+  @override
+  String deskE1CodeN(int n) {
+    return 'Code $n';
+  }
+
+  @override
+  String deskE1CodeIssued(String date) {
+    return 'Made $date';
+  }
+
+  @override
+  String deskE1CodeUsed(String date) {
+    return 'Last paid $date';
+  }
+
+  @override
+  String get deskE1LinkTitle => 'epic1 link';
+
+  @override
+  String get deskE1LinkSub => 'Anyone with epic1 can pay this link.';
+
+  @override
+  String get deskE1CopyLink => 'Copy link';
+
+  @override
+  String get deskE1LinkCopied => 'Link copied';
+
+  @override
+  String get deskE1AskAmount => 'Ask an amount';
+
+  @override
+  String get deskE1MakeLink => 'Make link';
+
+  @override
+  String deskE1LinkAsks(String amount) {
+    return 'Asks $amount';
+  }
+
+  @override
+  String get deskE1AnyAmount => 'Any amount';
+
+  @override
+  String get deskE1LanTitle => 'Use a server on your local network?';
+
+  @override
+  String deskE1LanBody(String host) {
+    return '$host is on your local network. Only payers on the same network can pay this link.';
+  }
+
+  @override
+  String get deskE1UseServer => 'Use server';
+
+  @override
+  String get deskE1OtherWays => 'Other ways to receive';
+
+  @override
+  String get deskE1InPerson => 'In person';
+
+  @override
+  String get deskE1InPersonSub => 'A code the payer reads from this screen.';
+
+  @override
+  String get deskE1RequestInPerson => 'Request in person';
+
+  @override
+  String get deskE1SendField => 'epic1 link or contact';
+
+  @override
+  String get deskE1SendFieldHint => 'Paste an epic1 link';
+
+  @override
+  String get deskE1SendFieldSem => 'epic1 link';
+
+  @override
+  String get deskE1Review => 'Review';
+
+  @override
+  String get deskE1ReviewTitle => 'Review payment';
+
+  @override
+  String get deskE1To => 'To';
+
+  @override
+  String get deskE1Server => 'Server';
+
+  @override
+  String get deskE1Send => 'Send';
+
+  @override
+  String get deskE1UnknownServerTitle => 'Send through this server?';
+
+  @override
+  String deskE1UnknownServerBody(String host) {
+    return '$host is not in your server list.';
+  }
+
+  @override
+  String get deskE1Waiting => 'Waiting for the recipient';
+
+  @override
+  String get deskE1NotPosted => 'No server took the payment yet.';
+
+  @override
+  String get deskE1TryNext => 'Try next server';
+
+  @override
+  String get deskE1CancelUnlock => 'Cancel and unlock';
+
+  @override
+  String get deskE1Sent => 'Sent';
+
+  @override
+  String get deskE1Cancelled => 'Payment cancelled';
+
+  @override
+  String get deskE1Done => 'Done';
+
+  @override
+  String get deskE1ClassicTip => 'Turn off epic1 payments to pay this contact';
+
+  @override
+  String get deskE1PayInPerson => 'Pay in person';
+
+  @override
+  String get deskE1Back => 'Back';
 }
