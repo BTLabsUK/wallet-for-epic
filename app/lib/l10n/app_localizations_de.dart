@@ -21195,4 +21195,126 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'Behalten';
+
+  @override
+  String get deskIpRequestTitle => 'Persönlich anfordern';
+
+  @override
+  String get deskIpPayTitle => 'Persönlich bezahlen';
+
+  @override
+  String get deskIpReceiveTitle => 'Persönlich empfangen';
+
+  @override
+  String get deskIpPayRequestTitle => 'Anforderung bezahlen';
+
+  @override
+  String get deskIpMakeCode => 'Code zeigen';
+
+  @override
+  String get deskIpCodeLeadRequest =>
+      'Der Zahlende scannt diesen Code oder fügt seinen Text ein.';
+
+  @override
+  String get deskIpCodeLeadPay =>
+      'Das andere Telefon scannt diesen Code oder fügt seinen Text ein.';
+
+  @override
+  String get deskIpCodeText => 'Code als Text';
+
+  @override
+  String get deskIpCodeOf => 'Persönlich-Code';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Läuft in etwa $count Min. ab.',
+      one: 'Läuft in etwa $count Min. ab.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => 'Warten auf die Antwort…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return 'Zeigt das Telefon des Zahlenden $code?';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return 'Zeigt das andere Telefon $code?';
+  }
+
+  @override
+  String get deskIpMatches => 'Stimmt überein';
+
+  @override
+  String get deskIpDifferent => 'Anders';
+
+  @override
+  String get deskIpSent => 'Gesendet';
+
+  @override
+  String get deskIpReceived => 'Empfangen';
+
+  @override
+  String get deskIpPasteAnswer => 'Antwort einfügen';
+
+  @override
+  String get deskIpScanAnswer => 'Antwort scannen';
+
+  @override
+  String get deskIpAnswerLabel => 'Antwort';
+
+  @override
+  String get deskIpNotAnswer => 'Keine Antwort auf diesen Code.';
+
+  @override
+  String get deskIpReceiveButton => 'Empfangen';
+
+  @override
+  String get deskIpPayButton => 'Bezahlen';
+
+  @override
+  String get deskIpCheckTitle => 'Prüfcode';
+
+  @override
+  String get deskIpCheckLead =>
+      'Das andere Telefon muss denselben Code zeigen.';
+
+  @override
+  String get deskIpAnswerLead =>
+      'Das andere Telefon scannt diese Antwort oder fügt ihren Text ein.';
+
+  @override
+  String get deskIpAnswerOf => 'Persönlich-Antwort';
+
+  @override
+  String get deskIpUseServerAsk => 'Über diesen Server senden?';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host ist nicht in Ihrer Serverliste.';
+  }
+
+  @override
+  String get deskIpUseServer => 'Server verwenden';
+
+  @override
+  String get deskIpScanTitle => 'Code scannen';
+
+  @override
+  String get deskIpScanAim =>
+      'Richten Sie die Kamera auf den Code des anderen Telefons.';
+
+  @override
+  String get deskIpCopied => 'Kopiert';
+
+  @override
+  String get deskIpPostFailed =>
+      'Die Antwort ist nicht angekommen. Erneut versuchen.';
 }

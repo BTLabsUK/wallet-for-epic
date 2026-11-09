@@ -184,6 +184,19 @@ abstract final class TrustIds {
   static const settingsSectionPrivacyNetwork = 'g4.settings.section.privacyNetwork';
   static const settingsSectionTransactions = 'g4.settings.section.transactions';
   static const pairContactRow = 'pair.contact.row';
+  static const txIpMake = 'tx.ip.make';
+  static const txIpReveal = 'tx.ip.reveal';
+  static const txIpCopy = 'tx.ip.copy';
+  static const txIpPaste = 'tx.ip.paste';
+  static const txIpScanpaste = 'tx.ip.scanpaste';
+  static const txIpScan = 'tx.ip.scan';
+  static const txIpMatches = 'tx.ip.matches';
+  static const txIpDifferent = 'tx.ip.different';
+  static const txIpNewcode = 'tx.ip.newcode';
+  static const txIpReceive = 'tx.ip.receive';
+  static const txIpPay = 'tx.ip.pay';
+  static const txIpUseserver = 'tx.ip.useserver';
+  static const txIpDone = 'tx.ip.done';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -378,5 +391,18 @@ abstract final class TrustIds {
     'g4.settings.section.privacyNetwork',
     'g4.settings.section.transactions',
     'pair.contact.row',
+    'tx.ip.make',
+    'tx.ip.reveal',
+    'tx.ip.copy',
+    'tx.ip.paste',
+    'tx.ip.scanpaste',
+    'tx.ip.scan',
+    'tx.ip.matches',
+    'tx.ip.different',
+    'tx.ip.newcode',
+    'tx.ip.receive',
+    'tx.ip.pay',
+    'tx.ip.useserver',
+    'tx.ip.done',
   ];
 }

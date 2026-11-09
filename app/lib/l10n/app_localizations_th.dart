@@ -20502,4 +20502,121 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'เก็บไว้';
+
+  @override
+  String get deskIpRequestTitle => 'ขอรับเงินแบบพบตัว';
+
+  @override
+  String get deskIpPayTitle => 'จ่ายเงินแบบพบตัว';
+
+  @override
+  String get deskIpReceiveTitle => 'รับเงินแบบพบตัว';
+
+  @override
+  String get deskIpPayRequestTitle => 'จ่ายตามคำขอ';
+
+  @override
+  String get deskIpMakeCode => 'แสดงโค้ด';
+
+  @override
+  String get deskIpCodeLeadRequest => 'ผู้จ่ายสแกนโค้ดนี้หรือวางข้อความของโค้ด';
+
+  @override
+  String get deskIpCodeLeadPay =>
+      'โทรศัพท์อีกเครื่องสแกนโค้ดนี้หรือวางข้อความของโค้ด';
+
+  @override
+  String get deskIpCodeText => 'โค้ดแบบข้อความ';
+
+  @override
+  String get deskIpCodeOf => 'โค้ดแบบพบตัว';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'หมดอายุในอีกประมาณ $count นาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => 'กำลังรอคำตอบ…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return 'โทรศัพท์ของผู้จ่ายแสดง $code หรือไม่';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return 'โทรศัพท์อีกเครื่องแสดง $code หรือไม่';
+  }
+
+  @override
+  String get deskIpMatches => 'ตรงกัน';
+
+  @override
+  String get deskIpDifferent => 'ไม่ตรงกัน';
+
+  @override
+  String get deskIpSent => 'ส่งแล้ว';
+
+  @override
+  String get deskIpReceived => 'ได้รับแล้ว';
+
+  @override
+  String get deskIpPasteAnswer => 'วางคำตอบ';
+
+  @override
+  String get deskIpScanAnswer => 'สแกนคำตอบ';
+
+  @override
+  String get deskIpAnswerLabel => 'คำตอบ';
+
+  @override
+  String get deskIpNotAnswer => 'ไม่ใช่คำตอบของโค้ดนี้';
+
+  @override
+  String get deskIpReceiveButton => 'รับ';
+
+  @override
+  String get deskIpPayButton => 'จ่าย';
+
+  @override
+  String get deskIpCheckTitle => 'รหัสตรวจสอบ';
+
+  @override
+  String get deskIpCheckLead => 'โทรศัพท์อีกเครื่องต้องแสดงรหัสเดียวกัน';
+
+  @override
+  String get deskIpAnswerLead =>
+      'โทรศัพท์อีกเครื่องสแกนคำตอบนี้หรือวางข้อความของคำตอบ';
+
+  @override
+  String get deskIpAnswerOf => 'คำตอบแบบพบตัว';
+
+  @override
+  String get deskIpUseServerAsk => 'ส่งผ่านเซิร์ฟเวอร์นี้หรือไม่';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host ไม่อยู่ในรายการเซิร์ฟเวอร์ของคุณ';
+  }
+
+  @override
+  String get deskIpUseServer => 'ใช้เซิร์ฟเวอร์';
+
+  @override
+  String get deskIpScanTitle => 'สแกนโค้ด';
+
+  @override
+  String get deskIpScanAim => 'เล็งกล้องไปที่โค้ดบนโทรศัพท์อีกเครื่อง';
+
+  @override
+  String get deskIpCopied => 'คัดลอกแล้ว';
+
+  @override
+  String get deskIpPostFailed => 'ส่งคำตอบไม่สำเร็จ ลองอีกครั้ง';
 }

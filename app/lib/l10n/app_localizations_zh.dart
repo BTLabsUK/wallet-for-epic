@@ -19752,4 +19752,119 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1Keep => '保留';
+
+  @override
+  String get deskIpRequestTitle => '当面收款';
+
+  @override
+  String get deskIpPayTitle => '当面付款';
+
+  @override
+  String get deskIpReceiveTitle => '当面收款确认';
+
+  @override
+  String get deskIpPayRequestTitle => '支付收款请求';
+
+  @override
+  String get deskIpMakeCode => '显示代码';
+
+  @override
+  String get deskIpCodeLeadRequest => '付款方扫描此代码或粘贴其文本。';
+
+  @override
+  String get deskIpCodeLeadPay => '另一部手机扫描此代码或粘贴其文本。';
+
+  @override
+  String get deskIpCodeText => '代码文本';
+
+  @override
+  String get deskIpCodeOf => '当面代码';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '约 $count 分钟后过期。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => '正在等待回应…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return '付款方的手机显示 $code 吗？';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return '另一部手机显示 $code 吗？';
+  }
+
+  @override
+  String get deskIpMatches => '一致';
+
+  @override
+  String get deskIpDifferent => '不一致';
+
+  @override
+  String get deskIpSent => '已发送';
+
+  @override
+  String get deskIpReceived => '已收到';
+
+  @override
+  String get deskIpPasteAnswer => '粘贴回应';
+
+  @override
+  String get deskIpScanAnswer => '扫描回应';
+
+  @override
+  String get deskIpAnswerLabel => '回应';
+
+  @override
+  String get deskIpNotAnswer => '不是对此代码的回应。';
+
+  @override
+  String get deskIpReceiveButton => '收款';
+
+  @override
+  String get deskIpPayButton => '付款';
+
+  @override
+  String get deskIpCheckTitle => '核对码';
+
+  @override
+  String get deskIpCheckLead => '另一部手机必须显示相同的代码。';
+
+  @override
+  String get deskIpAnswerLead => '另一部手机扫描此回应或粘贴其文本。';
+
+  @override
+  String get deskIpAnswerOf => '当面回应';
+
+  @override
+  String get deskIpUseServerAsk => '通过此服务器发送？';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host 不在您的服务器列表中。';
+  }
+
+  @override
+  String get deskIpUseServer => '使用服务器';
+
+  @override
+  String get deskIpScanTitle => '扫描代码';
+
+  @override
+  String get deskIpScanAim => '将相机对准另一部手机上的代码。';
+
+  @override
+  String get deskIpCopied => '已复制';
+
+  @override
+  String get deskIpPostFailed => '回应未送达。请重试。';
 }

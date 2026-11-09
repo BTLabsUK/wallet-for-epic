@@ -226,5 +226,18 @@
 {"id": "g4.server.use", "screen": "server", "kind": "group", "ids": ["g4.server.node.row", "g4.server.epicbox.row", "g4.server.node.add", "g4.server.epicbox.add"], "role": "row", "match": "exact"},
 {"id": "g4.restore.word.*", "screen": "restore", "kind": "template", "family": ["desktop"], "role": "text_field", "match": "exact", "secret": true},
 {"id": "g4.restore.month.*", "screen": "restore", "kind": "template", "family": ["android"], "match": "exact", "secret": true},
-{"id": "pair.contact.row", "screen": "contacts", "family": ["desktop"]}
+{"id": "pair.contact.row", "screen": "contacts", "family": ["desktop"]},
+{"id": "tx.ip.make", "screen": "tx", "keys": ["deskIpMakeCode"], "driver": false},
+{"id": "tx.ip.reveal", "screen": "tx", "keys": ["qrShow"], "driver": false},
+{"id": "tx.ip.copy", "screen": "tx", "keys": ["commonCopy"], "driver": false},
+{"id": "tx.ip.paste", "screen": "tx", "keys": ["deskIpPasteAnswer"], "driver": false},
+{"id": "tx.ip.scanpaste", "screen": "tx", "keys": ["commonPaste"], "driver": false},
+{"id": "tx.ip.scan", "screen": "tx", "keys": ["deskIpScanAnswer"], "driver": false},
+{"id": "tx.ip.matches", "screen": "tx", "keys": ["deskIpMatches"], "driver": false},
+{"id": "tx.ip.different", "screen": "tx", "keys": ["deskIpDifferent"], "driver": false},
+{"id": "tx.ip.newcode", "screen": "tx", "keys": ["deskE1ShowNewCode"], "driver": false},
+{"id": "tx.ip.receive", "screen": "tx", "keys": ["deskIpReceiveButton"], "driver": false},
+{"id": "tx.ip.pay", "screen": "tx", "keys": ["deskIpPayButton"], "driver": false},
+{"id": "tx.ip.useserver", "screen": "tx", "keys": ["deskIpUseServer"], "driver": false},
+{"id": "tx.ip.done", "screen": "tx", "keys": ["commonDone"], "driver": false}
 ]}
