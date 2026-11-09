@@ -262,6 +262,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<SendResult> send(SendRequest request) => _r('send', () => _m.send(request));
   @override
+  Future<String> plainFile(String slateId) => _r('plainFile', () => _m.plainFile(slateId));
+  @override
   Future<ReceivedFile> receiveFile(String fileName) => _r('receiveFile', () => _m.receiveFile(fileName));
   @override
   Future<ReceivedFile> receiveText(String text) => _r('receiveText', () => _m.receiveText(text));

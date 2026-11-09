@@ -274,6 +274,11 @@ abstract interface class DeskWalletApi {
   /// Epicbox address, URL or onion. Throws a [DeskError] when it fails again.
   Future<void> resendTx(int id);
   Future<SendResult> send(SendRequest request);
+
+  /// The plain copy of the sealed file send [slateId] ("Send as plain instead", RFC 9.3): the
+  /// same payment, unsealed, written to the files folder. Returns its path. The contact's seal
+  /// becomes degraded.
+  Future<String> plainFile(String slateId);
   Future<ReceivedFile> receiveFile(String fileName);
 
   /// Signs a transaction file's [text] pasted into Send (slate JSON or a slatepack), as

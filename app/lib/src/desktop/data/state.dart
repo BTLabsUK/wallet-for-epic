@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../../cancel_final.dart' show CancelResult;
+import '../../epic1.dart' show PaymentMode;
 import 'api.dart';
 import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
@@ -681,6 +682,13 @@ class DeskController extends Notifier<DeskState> {
 }
 
 final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.new);
+
+/// The open wallet's payment UI: epic1 only when its session runs epic1 payments. Read again at
+/// each unlock, as the switch applies then.
+final deskPaymentModeProvider = Provider<PaymentMode>((ref) {
+  ref.watch(deskProvider.select((s) => (s.account, s.session)));
+  return ref.read(deskApiProvider).epic1?.inUse == true ? PaymentMode.epic1 : PaymentMode.classic;
+});
 
 /// The confirmations the open wallet's balance counts a coin spendable with (LEPIC's), or the
 /// app's default before there is a balance.

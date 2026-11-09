@@ -197,6 +197,16 @@ abstract final class TrustIds {
   static const txIpPay = 'tx.ip.pay';
   static const txIpUseserver = 'tx.ip.useserver';
   static const txIpDone = 'tx.ip.done';
+  static const e1CopyLink = 'g4.e1.copy_link';
+  static const e1AskAmount = 'g4.e1.ask_amount';
+  static const e1RequestInPerson = 'g4.e1.request_in_person';
+  static const e1SendTo = 'g4.e1.send_to';
+  static const e1Amount = 'g4.e1.amount';
+  static const e1Review = 'g4.e1.review';
+  static const e1PayInPerson = 'g4.e1.pay_in_person';
+  static const e1Send = 'g4.e1.send';
+  static const e1CancelUnlock = 'g4.e1.cancel_unlock';
+  static const e1TryNext = 'g4.e1.try_next';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -404,5 +414,15 @@ abstract final class TrustIds {
     'tx.ip.pay',
     'tx.ip.useserver',
     'tx.ip.done',
+    'g4.e1.copy_link',
+    'g4.e1.ask_amount',
+    'g4.e1.request_in_person',
+    'g4.e1.send_to',
+    'g4.e1.amount',
+    'g4.e1.review',
+    'g4.e1.pay_in_person',
+    'g4.e1.send',
+    'g4.e1.cancel_unlock',
+    'g4.e1.try_next',
   ];
 }

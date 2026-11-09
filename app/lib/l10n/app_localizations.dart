@@ -33047,6 +33047,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn off epic1 payments to pay this contact'**
   String get deskE1PhClassicOnlyTip;
+
+  /// Settings › Transactions: title of the section for epic1 payments (a payment format name, kept lowercase).
+  ///
+  /// In en, this message translates to:
+  /// **'epic1'**
+  String get deskE1SetGroup;
+
+  /// Settings › Transactions › Experimental: the switch that turns epic1 payments on for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 payments'**
+  String get deskE1SetSwitch;
+
+  /// The ⓘ text of the epic1 payments switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.'**
+  String get deskE1SetInfo;
+
+  /// Settings search: other words that find the epic1 payments switch, comma-separated.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1, native, sealed, experimental, links'**
+  String get deskE1SetSyn;
+
+  /// Confirm dialog title when turning epic1 payments on.
+  ///
+  /// In en, this message translates to:
+  /// **'Use epic1 payments?'**
+  String get deskE1TurnOnTitle;
+
+  /// Confirm dialog body when turning epic1 payments on.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.'**
+  String get deskE1TurnOnBody;
+
+  /// Confirm button that turns epic1 payments on.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get deskE1TurnOn;
+
+  /// Under the epic1 payments switch: the change takes effect after the wallet is locked and unlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies at next unlock'**
+  String get deskE1AppliesNext;
+
+  /// Button that locks the wallet now so a changed setting applies at the next unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock now'**
+  String get deskE1LockNow;
+
+  /// Settings › Transactions › epic1: the row that opens the list of printed payment link codes.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed codes'**
+  String get deskE1PrintedCodes;
+
+  /// ⓘ text of the Printed codes row.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment links made to print or keep. Retire one when it is no longer used.'**
+  String get deskE1PrintedHint;
+
+  /// How many of the 32 printed codes are in use.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of 32'**
+  String deskE1PrintedCount(int n);
+
+  /// The printed codes panel when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'No printed codes.'**
+  String get deskE1PrintedNone;
+
+  /// A printed payment code in the list, numbered from 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Code {n}'**
+  String deskE1CodeN(int n);
+
+  /// When a printed code was made.
+  ///
+  /// In en, this message translates to:
+  /// **'Made {date}'**
+  String deskE1CodeIssued(String date);
+
+  /// When a payment last came to a printed code.
+  ///
+  /// In en, this message translates to:
+  /// **'Last paid {date}'**
+  String deskE1CodeUsed(String date);
+
+  /// Receive: title of the card with this wallet's epic1 payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 link'**
+  String get deskE1LinkTitle;
+
+  /// Receive: line under the epic1 link card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with epic1 can pay this link.'**
+  String get deskE1LinkSub;
+
+  /// Receive: copies the epic1 payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get deskE1CopyLink;
+
+  /// Toast after the epic1 link is copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get deskE1LinkCopied;
+
+  /// Receive: opens a form to make a link that asks an amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask an amount'**
+  String get deskE1AskAmount;
+
+  /// Ask an amount dialog: makes the new link.
+  ///
+  /// In en, this message translates to:
+  /// **'Make link'**
+  String get deskE1MakeLink;
+
+  /// Receive: the amount the shown link asks.
+  ///
+  /// In en, this message translates to:
+  /// **'Asks {amount}'**
+  String deskE1LinkAsks(String amount);
+
+  /// Receive: the link lets the payer choose the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Any amount'**
+  String get deskE1AnyAmount;
+
+  /// Prompt before making a link that names an Epicbox server on the local network.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a server on your local network?'**
+  String get deskE1LanTitle;
+
+  /// Body of the local network server prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} is on your local network. Only payers on the same network can pay this link.'**
+  String deskE1LanBody(String host);
+
+  /// Confirm button: use the named Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Use server'**
+  String get deskE1UseServer;
+
+  /// Receive (epic1 mode): heading over the other ways to receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ways to receive'**
+  String get deskE1OtherWays;
+
+  /// Receive (epic1 mode): row for receiving from someone in the same place.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get deskE1InPerson;
+
+  /// Receive (epic1 mode): line under In person.
+  ///
+  /// In en, this message translates to:
+  /// **'A code the payer reads from this screen.'**
+  String get deskE1InPersonSub;
+
+  /// Receive (epic1 mode): button that starts an in-person request.
+  ///
+  /// In en, this message translates to:
+  /// **'Request in person'**
+  String get deskE1RequestInPerson;
+
+  /// Send (epic1 mode): label of the one recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 link or contact'**
+  String get deskE1SendField;
+
+  /// Send (epic1 mode): placeholder of the recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an epic1 link'**
+  String get deskE1SendFieldHint;
+
+  /// Send (epic1 mode): screen reader label of the recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 link'**
+  String get deskE1SendFieldSem;
+
+  /// Send (epic1 mode): button that opens the review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get deskE1Review;
+
+  /// Send (epic1 mode): title of the review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review payment'**
+  String get deskE1ReviewTitle;
+
+  /// Send review row: the epic1 address paid.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get deskE1To;
+
+  /// Send review row: the Epicbox server the payment goes through.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get deskE1Server;
+
+  /// Send (epic1 mode): button that sends the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskE1Send;
+
+  /// Asked before paying a link whose Epicbox server is not in the wallet's list.
+  ///
+  /// In en, this message translates to:
+  /// **'Send through this server?'**
+  String get deskE1UnknownServerTitle;
+
+  /// Body of the unknown server prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} is not in your server list.'**
+  String deskE1UnknownServerBody(String host);
+
+  /// Send (epic1 mode): the payment was posted and waits for the recipient's wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient'**
+  String get deskE1Waiting;
+
+  /// Send (epic1 mode): no server accepted the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'No server took the payment yet.'**
+  String get deskE1NotPosted;
+
+  /// Send (epic1 mode): posts the payment to the link's next server.
+  ///
+  /// In en, this message translates to:
+  /// **'Try next server'**
+  String get deskE1TryNext;
+
+  /// Send (epic1 mode): cancels the payment and frees the coins it held.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and unlock'**
+  String get deskE1CancelUnlock;
+
+  /// Send (epic1 mode): the payment is done.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deskE1Sent;
+
+  /// Send (epic1 mode): the payment was cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cancelled'**
+  String get deskE1Cancelled;
+
+  /// Send (epic1 mode): closes the result.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get deskE1Done;
+
+  /// Tooltip on a contact without epic1 in epic1 mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off epic1 payments to pay this contact'**
+  String get deskE1ClassicTip;
+
+  /// Send (epic1 mode): opens the in-person payment, a code shown on this screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in person'**
+  String get deskE1PayInPerson;
+
+  /// Send (epic1 mode): back from the review to the form.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get deskE1Back;
+
+  /// Send › Pay with a file: label of the optional field naming the contact the file is for.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get deskSendFileFor;
+
+  /// Send › Pay with a file: help under the For field.
+  ///
+  /// In en, this message translates to:
+  /// **'A paired contact\'s file is sealed: only their wallet opens it.'**
+  String get deskSendFileForHelp;
+
+  /// Receive a file › result: label before the sender (a paired contact's name, or Unknown sender for a plain file).
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskImpFrom;
 }
 
 class _AppLocalizationsDelegate

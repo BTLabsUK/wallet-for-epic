@@ -31,7 +31,8 @@ import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
-import '../../slate_files.dart' show responseFileName, sendFileName;
+import '../../slate_files.dart' show isSealedText, responseFileName, sealedFileName, sendFileName;
+import '../../pairing_text.dart' show pairingName;
 import '../../finished_payment.dart' show readFinishedPayment;
 import '../../wallet_service.dart' show FakeListingKeys, FakeWalletSession, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
 import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
@@ -979,6 +980,12 @@ class MockDeskWallet implements DeskWalletApi {
       message: r.message,
     );
     _txs.insert(0, tx);
+    if (r.method == TxMethod.file && r.sealFor != null) {
+      // Sealed as the phone seals it (RFC 9.2); the text is kept by file name for the tour and tests.
+      final name = sealedFileName(tx.slateId);
+      fileTexts[name] = await pairing.sealSlate(id: r.sealFor!, slateJson: jsonEncode({'id': tx.slateId, 'amt': r.amount}));
+      return SendFileReady(tx, name, sealedFor: r.sealFor);
+    }
     if (r.method == TxMethod.file) return SendFileReady(tx, sendFileName(tx.slateId));
     // Through a pairing's mailbox: the prototype's pairing engine knows whom it went to.
     if (r.pairingId case final id?) pairing.slates[tx.slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
@@ -994,7 +1001,29 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<ReceivedFile> receiveText(String text) => receiveFile('pasted');
+  Future<ReceivedFile> receiveText(String text) async {
+    if (!isSealedText(text.trim())) return receiveFile('pasted');
+    await _wait(2);
+    // Only a sealed file names its sender: the pairing it opens with.
+    final opened = await pairing.openSlate(text);
+    final record = (await pairing.pairings()).where((p) => p.id == opened.pairingId).firstOrNull;
+    final name = record == null ? null : (_contacts.where((c) => c.id == record.contactId).firstOrNull?.name ?? pairingName(record, const []));
+    const slateId = '9a8b7c6d-5e4f-4321-8765-0fedcba98765';
+    final tx = Tx(id: _nextId++, slateId: slateId, direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, cancellable: true, created: DateTime.now(), pairingId: opened.pairingId, contactName: name);
+    return ReceivedFile(tx, sealedFileName(slateId), sender: name);
+  }
+
+  /// The text of each file a send wrote, by file name (only sealed sends keep theirs).
+  final Map<String, String> fileTexts = {};
+
+  @override
+  Future<String> plainFile(String slateId) async {
+    await _wait(0.4);
+    final plain = await pairing.plainSlate('s:$slateId');
+    final name = sendFileName(slateId);
+    fileTexts[name] = plain;
+    return name;
+  }
 
   @override
   String network = 'mainnet';

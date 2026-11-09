@@ -76,6 +76,7 @@ import 'method_strip.dart';
 import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_parts.dart';
 import 'pairing/send_pairing.dart';
+import '../pairing_file_seal.dart' show fileSealTarget, sealQuiet;
 import 'status_icons.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
@@ -2351,7 +2352,7 @@ class _SendViewState extends ConsumerState<SendView> {
   PairingRecord? _fileSealTarget({bool watch = true}) {
     if (_viaQr) return null;
     final r = _pairingTo != null ? _toPairing(watch: watch) : sendPairingFor(ref, _read.isAddress ? _read.address : _recipient.text.trim(), watch: watch);
-    return r != null && r.seals ? r : null;
+    return fileSealTarget(r);
   }
 
   /// The payment method the form sends by now: Epicbox, or for a Link send the Link method
@@ -4457,8 +4458,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (target == null) return const [];
     final l = context.l10n;
     final name = pairingName(target, ref.watch(contactsProvider).value ?? const <Contact>[]);
-    final quiet = target.lastSealedIn == null ||
-        DateTime.now().difference(target.lastSealedIn!) > sealQuietFor;
+    final quiet = sealQuiet(target, DateTime.now());
     final degraded = target.seal == SealMode.degraded;
     return [
       if (degraded)
