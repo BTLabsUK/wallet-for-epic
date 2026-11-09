@@ -25,7 +25,6 @@ import '../desk_l10n.dart';
 import '../widgets/kit.dart';
 import '../data/desk_levels.dart' show deskLevelUiProvider;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider;
-import '../data/state.dart' show deskPaymentModeProvider;
 import '../../epic1.dart' show PaymentMode;
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
