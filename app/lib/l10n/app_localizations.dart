@@ -32531,6 +32531,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep'**
   String get deskE1Keep;
+
+  /// Title of the screen that makes an in-person payment request (a code the payer's phone scans).
+  ///
+  /// In en, this message translates to:
+  /// **'Request in person'**
+  String get deskIpRequestTitle;
+
+  /// Title of the screen that makes an in-person send code (the other phone scans it to receive).
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in person'**
+  String get deskIpPayTitle;
+
+  /// Title of the review of a scanned or pasted in-person send code.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive in person'**
+  String get deskIpReceiveTitle;
+
+  /// Title of the review of a scanned or pasted in-person request code.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay a request'**
+  String get deskIpPayRequestTitle;
+
+  /// Button: make the in-person code and show it.
+  ///
+  /// In en, this message translates to:
+  /// **'Show code'**
+  String get deskIpMakeCode;
+
+  /// Line under an in-person request code.
+  ///
+  /// In en, this message translates to:
+  /// **'The payer scans this code or pastes its text.'**
+  String get deskIpCodeLeadRequest;
+
+  /// Line under an in-person send code.
+  ///
+  /// In en, this message translates to:
+  /// **'The other phone scans this code or pastes its text.'**
+  String get deskIpCodeLeadPay;
+
+  /// Label of the in-person code's text, which can be copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code as text'**
+  String get deskIpCodeText;
+
+  /// What the QR code shows, lower case; used inside 'Show QR code of the {title}'.
+  ///
+  /// In en, this message translates to:
+  /// **'in-person code'**
+  String get deskIpCodeOf;
+
+  /// How long the in-person code works; count is minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Expires in about {count} min.} other{Expires in about {count} min.}}'**
+  String deskIpExpiresIn(int count);
+
+  /// Status while an in-person code waits for the other phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the answer…'**
+  String get deskIpWaiting;
+
+  /// Check question after the payer answered a request code; code is four digits.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the payer\'s phone show {code}?'**
+  String deskIpCheckPayer(String code);
+
+  /// Check question after the other phone answered a send code; code is four digits.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the other phone show {code}?'**
+  String deskIpCheckOther(String code);
+
+  /// Button: the other phone shows the same check code.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get deskIpMatches;
+
+  /// Button: the other phone shows another check code; the payment stops.
+  ///
+  /// In en, this message translates to:
+  /// **'Different'**
+  String get deskIpDifferent;
+
+  /// Done screen of an in-person payment this wallet sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get deskIpSent;
+
+  /// Done screen of an in-person request that was paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get deskIpReceived;
+
+  /// Button: paste the other phone's answer from the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste answer'**
+  String get deskIpPasteAnswer;
+
+  /// Button: scan the other phone's answer with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan answer'**
+  String get deskIpScanAnswer;
+
+  /// Label of the field where the other phone's answer text is pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get deskIpAnswerLabel;
+
+  /// Inline error: the pasted or scanned text is not an answer to the code on screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an answer to this code.'**
+  String get deskIpNotAnswer;
+
+  /// Button: receive the in-person payment shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get deskIpReceiveButton;
+
+  /// Button: pay the in-person request shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get deskIpPayButton;
+
+  /// Title over the four-digit check code this phone shows after answering.
+  ///
+  /// In en, this message translates to:
+  /// **'Check code'**
+  String get deskIpCheckTitle;
+
+  /// Line under the check code: the other side compares it before it finishes.
+  ///
+  /// In en, this message translates to:
+  /// **'The other phone must show the same code.'**
+  String get deskIpCheckLead;
+
+  /// Line over the answer shown as a QR code when it cannot go through a server.
+  ///
+  /// In en, this message translates to:
+  /// **'The other phone scans this answer or pastes its text.'**
+  String get deskIpAnswerLead;
+
+  /// What the QR code shows, lower case; used inside 'Show QR code of the {title}'.
+  ///
+  /// In en, this message translates to:
+  /// **'in-person answer'**
+  String get deskIpAnswerOf;
+
+  /// Title: the code names a message server that is not in the wallet's server list.
+  ///
+  /// In en, this message translates to:
+  /// **'Send through this server?'**
+  String get deskIpUseServerAsk;
+
+  /// Text under 'Send through this server?'; host is a server address.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} is not in your server list.'**
+  String deskIpNotInList(String host);
+
+  /// Button: send through the server named by the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Use server'**
+  String get deskIpUseServer;
+
+  /// Title of the camera screen that reads an in-person code or answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan code'**
+  String get deskIpScanTitle;
+
+  /// Line on the camera screen before anything is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the other phone\'s code.'**
+  String get deskIpScanAim;
+
+  /// Notice after the code or answer text was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get deskIpCopied;
+
+  /// The answer could not be posted to the server; the user can retry.
+  ///
+  /// In en, this message translates to:
+  /// **'The answer did not go through. Try again.'**
+  String get deskIpPostFailed;
 }
 
 class _AppLocalizationsDelegate

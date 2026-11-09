@@ -21648,4 +21648,125 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'Оставить';
+
+  @override
+  String get deskIpRequestTitle => 'Запросить лично';
+
+  @override
+  String get deskIpPayTitle => 'Оплатить лично';
+
+  @override
+  String get deskIpReceiveTitle => 'Получить лично';
+
+  @override
+  String get deskIpPayRequestTitle => 'Оплатить запрос';
+
+  @override
+  String get deskIpMakeCode => 'Показать код';
+
+  @override
+  String get deskIpCodeLeadRequest =>
+      'Плательщик сканирует этот код или вставляет его текст.';
+
+  @override
+  String get deskIpCodeLeadPay =>
+      'Другой телефон сканирует этот код или вставляет его текст.';
+
+  @override
+  String get deskIpCodeText => 'Код текстом';
+
+  @override
+  String get deskIpCodeOf => 'код для личной оплаты';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Истекает примерно через $count мин.',
+      many: 'Истекает примерно через $count мин.',
+      few: 'Истекает примерно через $count мин.',
+      one: 'Истекает примерно через $count мин.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => 'Ожидание ответа…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return 'Телефон плательщика показывает $code?';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return 'Другой телефон показывает $code?';
+  }
+
+  @override
+  String get deskIpMatches => 'Совпадает';
+
+  @override
+  String get deskIpDifferent => 'Отличается';
+
+  @override
+  String get deskIpSent => 'Отправлено';
+
+  @override
+  String get deskIpReceived => 'Получено';
+
+  @override
+  String get deskIpPasteAnswer => 'Вставить ответ';
+
+  @override
+  String get deskIpScanAnswer => 'Сканировать ответ';
+
+  @override
+  String get deskIpAnswerLabel => 'Ответ';
+
+  @override
+  String get deskIpNotAnswer => 'Это не ответ на этот код.';
+
+  @override
+  String get deskIpReceiveButton => 'Получить';
+
+  @override
+  String get deskIpPayButton => 'Оплатить';
+
+  @override
+  String get deskIpCheckTitle => 'Проверочный код';
+
+  @override
+  String get deskIpCheckLead => 'Другой телефон должен показать тот же код.';
+
+  @override
+  String get deskIpAnswerLead =>
+      'Другой телефон сканирует этот ответ или вставляет его текст.';
+
+  @override
+  String get deskIpAnswerOf => 'ответ для личной оплаты';
+
+  @override
+  String get deskIpUseServerAsk => 'Отправить через этот сервер?';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host нет в вашем списке серверов.';
+  }
+
+  @override
+  String get deskIpUseServer => 'Использовать сервер';
+
+  @override
+  String get deskIpScanTitle => 'Сканировать код';
+
+  @override
+  String get deskIpScanAim => 'Наведите камеру на код другого телефона.';
+
+  @override
+  String get deskIpCopied => 'Скопировано';
+
+  @override
+  String get deskIpPostFailed => 'Ответ не доставлен. Повторите попытку.';
 }

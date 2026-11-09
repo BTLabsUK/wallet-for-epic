@@ -1,0 +1,158 @@
+{
+  "deskIpRequestTitle": "Request in person",
+  "@deskIpRequestTitle": {
+    "description": "Title of the screen that makes an in-person payment request (a code the payer's phone scans)."
+  },
+  "deskIpPayTitle": "Pay in person",
+  "@deskIpPayTitle": {
+    "description": "Title of the screen that makes an in-person send code (the other phone scans it to receive)."
+  },
+  "deskIpReceiveTitle": "Receive in person",
+  "@deskIpReceiveTitle": {
+    "description": "Title of the review of a scanned or pasted in-person send code."
+  },
+  "deskIpPayRequestTitle": "Pay a request",
+  "@deskIpPayRequestTitle": {
+    "description": "Title of the review of a scanned or pasted in-person request code."
+  },
+  "deskIpMakeCode": "Show code",
+  "@deskIpMakeCode": {
+    "description": "Button: make the in-person code and show it."
+  },
+  "deskIpCodeLeadRequest": "The payer scans this code or pastes its text.",
+  "@deskIpCodeLeadRequest": {
+    "description": "Line under an in-person request code."
+  },
+  "deskIpCodeLeadPay": "The other phone scans this code or pastes its text.",
+  "@deskIpCodeLeadPay": {
+    "description": "Line under an in-person send code."
+  },
+  "deskIpCodeText": "Code as text",
+  "@deskIpCodeText": {
+    "description": "Label of the in-person code's text, which can be copied."
+  },
+  "deskIpCodeOf": "in-person code",
+  "@deskIpCodeOf": {
+    "description": "What the QR code shows, lower case; used inside 'Show QR code of the {title}'."
+  },
+  "deskIpExpiresIn": "{count, plural, one{Expires in about {count} min.} other{Expires in about {count} min.}}",
+  "@deskIpExpiresIn": {
+    "description": "How long the in-person code works; count is minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskIpWaiting": "Waiting for the answer…",
+  "@deskIpWaiting": {
+    "description": "Status while an in-person code waits for the other phone's answer."
+  },
+  "deskIpCheckPayer": "Does the payer's phone show {code}?",
+  "@deskIpCheckPayer": {
+    "description": "Check question after the payer answered a request code; code is four digits.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "deskIpCheckOther": "Does the other phone show {code}?",
+  "@deskIpCheckOther": {
+    "description": "Check question after the other phone answered a send code; code is four digits.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "deskIpMatches": "Matches",
+  "@deskIpMatches": {
+    "description": "Button: the other phone shows the same check code."
+  },
+  "deskIpDifferent": "Different",
+  "@deskIpDifferent": {
+    "description": "Button: the other phone shows another check code; the payment stops."
+  },
+  "deskIpSent": "Sent",
+  "@deskIpSent": {
+    "description": "Done screen of an in-person payment this wallet sent."
+  },
+  "deskIpReceived": "Received",
+  "@deskIpReceived": {
+    "description": "Done screen of an in-person request that was paid."
+  },
+  "deskIpPasteAnswer": "Paste answer",
+  "@deskIpPasteAnswer": {
+    "description": "Button: paste the other phone's answer from the clipboard."
+  },
+  "deskIpScanAnswer": "Scan answer",
+  "@deskIpScanAnswer": {
+    "description": "Button: scan the other phone's answer with the camera."
+  },
+  "deskIpAnswerLabel": "Answer",
+  "@deskIpAnswerLabel": {
+    "description": "Label of the field where the other phone's answer text is pasted."
+  },
+  "deskIpNotAnswer": "Not an answer to this code.",
+  "@deskIpNotAnswer": {
+    "description": "Inline error: the pasted or scanned text is not an answer to the code on screen."
+  },
+  "deskIpReceiveButton": "Receive",
+  "@deskIpReceiveButton": {
+    "description": "Button: receive the in-person payment shown."
+  },
+  "deskIpPayButton": "Pay",
+  "@deskIpPayButton": {
+    "description": "Button: pay the in-person request shown."
+  },
+  "deskIpCheckTitle": "Check code",
+  "@deskIpCheckTitle": {
+    "description": "Title over the four-digit check code this phone shows after answering."
+  },
+  "deskIpCheckLead": "The other phone must show the same code.",
+  "@deskIpCheckLead": {
+    "description": "Line under the check code: the other side compares it before it finishes."
+  },
+  "deskIpAnswerLead": "The other phone scans this answer or pastes its text.",
+  "@deskIpAnswerLead": {
+    "description": "Line over the answer shown as a QR code when it cannot go through a server."
+  },
+  "deskIpAnswerOf": "in-person answer",
+  "@deskIpAnswerOf": {
+    "description": "What the QR code shows, lower case; used inside 'Show QR code of the {title}'."
+  },
+  "deskIpUseServerAsk": "Send through this server?",
+  "@deskIpUseServerAsk": {
+    "description": "Title: the code names a message server that is not in the wallet's server list."
+  },
+  "deskIpNotInList": "{host} is not in your server list.",
+  "@deskIpNotInList": {
+    "description": "Text under 'Send through this server?'; host is a server address.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskIpUseServer": "Use server",
+  "@deskIpUseServer": {
+    "description": "Button: send through the server named by the code."
+  },
+  "deskIpScanTitle": "Scan code",
+  "@deskIpScanTitle": {
+    "description": "Title of the camera screen that reads an in-person code or answer."
+  },
+  "deskIpScanAim": "Point the camera at the other phone's code.",
+  "@deskIpScanAim": {
+    "description": "Line on the camera screen before anything is read."
+  },
+  "deskIpCopied": "Copied",
+  "@deskIpCopied": {
+    "description": "Notice after the code or answer text was copied."
+  },
+  "deskIpPostFailed": "The answer did not go through. Try again.",
+  "@deskIpPostFailed": {
+    "description": "The answer could not be posted to the server; the user can retry."
+  }
+}

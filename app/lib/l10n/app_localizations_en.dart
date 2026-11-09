@@ -20939,4 +20939,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1Keep => 'Keep';
+
+  @override
+  String get deskIpRequestTitle => 'Request in person';
+
+  @override
+  String get deskIpPayTitle => 'Pay in person';
+
+  @override
+  String get deskIpReceiveTitle => 'Receive in person';
+
+  @override
+  String get deskIpPayRequestTitle => 'Pay a request';
+
+  @override
+  String get deskIpMakeCode => 'Show code';
+
+  @override
+  String get deskIpCodeLeadRequest =>
+      'The payer scans this code or pastes its text.';
+
+  @override
+  String get deskIpCodeLeadPay =>
+      'The other phone scans this code or pastes its text.';
+
+  @override
+  String get deskIpCodeText => 'Code as text';
+
+  @override
+  String get deskIpCodeOf => 'in-person code';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Expires in about $count min.',
+      one: 'Expires in about $count min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => 'Waiting for the answer…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return 'Does the payer\'s phone show $code?';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return 'Does the other phone show $code?';
+  }
+
+  @override
+  String get deskIpMatches => 'Matches';
+
+  @override
+  String get deskIpDifferent => 'Different';
+
+  @override
+  String get deskIpSent => 'Sent';
+
+  @override
+  String get deskIpReceived => 'Received';
+
+  @override
+  String get deskIpPasteAnswer => 'Paste answer';
+
+  @override
+  String get deskIpScanAnswer => 'Scan answer';
+
+  @override
+  String get deskIpAnswerLabel => 'Answer';
+
+  @override
+  String get deskIpNotAnswer => 'Not an answer to this code.';
+
+  @override
+  String get deskIpReceiveButton => 'Receive';
+
+  @override
+  String get deskIpPayButton => 'Pay';
+
+  @override
+  String get deskIpCheckTitle => 'Check code';
+
+  @override
+  String get deskIpCheckLead => 'The other phone must show the same code.';
+
+  @override
+  String get deskIpAnswerLead =>
+      'The other phone scans this answer or pastes its text.';
+
+  @override
+  String get deskIpAnswerOf => 'in-person answer';
+
+  @override
+  String get deskIpUseServerAsk => 'Send through this server?';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host is not in your server list.';
+  }
+
+  @override
+  String get deskIpUseServer => 'Use server';
+
+  @override
+  String get deskIpScanTitle => 'Scan code';
+
+  @override
+  String get deskIpScanAim => 'Point the camera at the other phone\'s code.';
+
+  @override
+  String get deskIpCopied => 'Copied';
+
+  @override
+  String get deskIpPostFailed => 'The answer did not go through. Try again.';
 }
