@@ -21058,4 +21058,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskIpPostFailed => 'The answer did not go through. Try again.';
+
+  @override
+  String get deskE1PhExperimental => 'Experimental';
+
+  @override
+  String get deskE1PhSwitch => 'epic1 payments';
+
+  @override
+  String get deskE1PhSwitchHint =>
+      'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.';
+
+  @override
+  String get deskE1PhConfirmTitle => 'Use epic1 payments?';
+
+  @override
+  String get deskE1PhConfirmBody =>
+      'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.';
+
+  @override
+  String get deskE1PhTurnOn => 'Turn on';
+
+  @override
+  String get deskE1PhAppliesNext => 'Applies at next unlock';
+
+  @override
+  String get deskE1PhLockNow => 'Lock now';
+
+  @override
+  String get deskE1PhSection => 'epic1';
+
+  @override
+  String get deskE1PhReceiving => 'Receiving';
+
+  @override
+  String get deskE1PhPrinted => 'Printed codes';
+
+  @override
+  String deskE1PhPrintedCount(int n, int max) {
+    return '$n of $max';
+  }
+
+  @override
+  String get deskE1PhPrintedEmpty => 'No printed codes.';
+
+  @override
+  String deskE1PhPrintedCode(int n) {
+    return 'Code $n';
+  }
+
+  @override
+  String deskE1PhPrintedMade(String date) {
+    return 'Made $date';
+  }
+
+  @override
+  String get deskE1PhPrintedUsed => 'Paid';
+
+  @override
+  String deskE1PhRetired(int n) {
+    return 'Code $n retired.';
+  }
+
+  @override
+  String get deskE1PhLinkTitle => 'epic1 link';
+
+  @override
+  String get deskE1PhLinkQrLabel => 'QR code of the epic1 link';
+
+  @override
+  String get deskE1PhCopyLink => 'Copy link';
+
+  @override
+  String get deskE1PhLinkCopied => 'Link copied.';
+
+  @override
+  String get deskE1PhAskAmount => 'Ask an amount';
+
+  @override
+  String get deskE1PhAmount => 'Amount';
+
+  @override
+  String get deskE1PhMessage => 'Message (optional)';
+
+  @override
+  String get deskE1PhMakeLink => 'Make link';
+
+  @override
+  String deskE1PhLinkAsks(String amount) {
+    return 'Asks $amount';
+  }
+
+  @override
+  String get deskE1PhAnyAmount => 'Any amount';
+
+  @override
+  String get deskE1PhOtherWays => 'Other ways to receive';
+
+  @override
+  String get deskE1PhInPerson => 'In person';
+
+  @override
+  String get deskE1PhRequestInPerson => 'Request in person';
+
+  @override
+  String get deskE1PhSettings => 'Settings';
+
+  @override
+  String get deskE1PhLanTitle => 'Use a local network server?';
+
+  @override
+  String deskE1PhLanBody(String host) {
+    return '$host is on the local network. Only wallets on this network can pay links made with it.';
+  }
+
+  @override
+  String get deskE1PhField => 'epic1 link or contact';
+
+  @override
+  String get deskE1PhPayInPerson => 'Pay in person';
+
+  @override
+  String get deskE1PhContacts => 'Contacts';
+
+  @override
+  String get deskE1PhUnknownTitle => 'Send through this server?';
+
+  @override
+  String deskE1PhUnknownBody(String host) {
+    return '$host is not in your server list.';
+  }
+
+  @override
+  String get deskE1PhUseServer => 'Use server';
+
+  @override
+  String get deskE1PhReview => 'Review';
+
+  @override
+  String get deskE1PhTo => 'To';
+
+  @override
+  String get deskE1PhServer => 'Server';
+
+  @override
+  String get deskE1PhNote => 'Message';
+
+  @override
+  String get deskE1PhSend => 'Send';
+
+  @override
+  String get deskE1PhWaiting => 'Waiting for the recipient';
+
+  @override
+  String deskE1PhNotTaken(String host) {
+    return '$host did not take the payment.';
+  }
+
+  @override
+  String get deskE1PhTryNext => 'Try next server';
+
+  @override
+  String get deskE1PhCancelUnlock => 'Cancel and unlock';
+
+  @override
+  String get deskE1PhCancelled =>
+      'Payment cancelled. The coins are free again.';
+
+  @override
+  String get deskE1PhSent => 'Sent';
+
+  @override
+  String get deskE1PhDone => 'Done';
+
+  @override
+  String get deskE1PhClassicOnlyTip =>
+      'Turn off epic1 payments to pay this contact';
 }

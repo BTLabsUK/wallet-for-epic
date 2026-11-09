@@ -21769,4 +21769,179 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskIpPostFailed => 'Ответ не доставлен. Повторите попытку.';
+
+  @override
+  String get deskE1PhExperimental => 'Экспериментальное';
+
+  @override
+  String get deskE1PhSwitch => 'Платежи epic1';
+
+  @override
+  String get deskE1PhSwitchHint =>
+      'Платежи на кошельки с epic1 защищены сквозным шифрованием и меньше по размеру, а также появляются коды для личной оплаты и ссылки epic1. Другие кошельки Epic получают классический формат. Платежи с любого кошелька Epic приходят как раньше. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
+
+  @override
+  String get deskE1PhConfirmTitle => 'Использовать платежи epic1?';
+
+  @override
+  String get deskE1PhConfirmBody =>
+      'Тогда этот кошелёк платит и получает платежи только от кошельков с epic1. Выключите, чтобы платить любому другому кошельку Epic.';
+
+  @override
+  String get deskE1PhTurnOn => 'Включить';
+
+  @override
+  String get deskE1PhAppliesNext => 'Применится при следующей разблокировке';
+
+  @override
+  String get deskE1PhLockNow => 'Заблокировать';
+
+  @override
+  String get deskE1PhSection => 'epic1';
+
+  @override
+  String get deskE1PhReceiving => 'Получение';
+
+  @override
+  String get deskE1PhPrinted => 'Печатные коды';
+
+  @override
+  String deskE1PhPrintedCount(int n, int max) {
+    return '$n из $max';
+  }
+
+  @override
+  String get deskE1PhPrintedEmpty => 'Печатных кодов нет.';
+
+  @override
+  String deskE1PhPrintedCode(int n) {
+    return 'Код $n';
+  }
+
+  @override
+  String deskE1PhPrintedMade(String date) {
+    return 'Создан $date';
+  }
+
+  @override
+  String get deskE1PhPrintedUsed => 'Оплачен';
+
+  @override
+  String deskE1PhRetired(int n) {
+    return 'Код $n выведен.';
+  }
+
+  @override
+  String get deskE1PhLinkTitle => 'Ссылка epic1';
+
+  @override
+  String get deskE1PhLinkQrLabel => 'QR-код ссылки epic1';
+
+  @override
+  String get deskE1PhCopyLink => 'Копировать ссылку';
+
+  @override
+  String get deskE1PhLinkCopied => 'Ссылка скопирована.';
+
+  @override
+  String get deskE1PhAskAmount => 'Запросить сумму';
+
+  @override
+  String get deskE1PhAmount => 'Сумма';
+
+  @override
+  String get deskE1PhMessage => 'Сообщение (необязательно)';
+
+  @override
+  String get deskE1PhMakeLink => 'Создать ссылку';
+
+  @override
+  String deskE1PhLinkAsks(String amount) {
+    return 'Запрашивает $amount';
+  }
+
+  @override
+  String get deskE1PhAnyAmount => 'Любая сумма';
+
+  @override
+  String get deskE1PhOtherWays => 'Другие способы получения';
+
+  @override
+  String get deskE1PhInPerson => 'Лично';
+
+  @override
+  String get deskE1PhRequestInPerson => 'Запросить лично';
+
+  @override
+  String get deskE1PhSettings => 'Настройки';
+
+  @override
+  String get deskE1PhLanTitle => 'Использовать сервер локальной сети?';
+
+  @override
+  String deskE1PhLanBody(String host) {
+    return '$host находится в локальной сети. Оплатить созданные с ним ссылки могут только кошельки в этой сети.';
+  }
+
+  @override
+  String get deskE1PhField => 'Ссылка epic1 или контакт';
+
+  @override
+  String get deskE1PhPayInPerson => 'Оплатить лично';
+
+  @override
+  String get deskE1PhContacts => 'Контакты';
+
+  @override
+  String get deskE1PhUnknownTitle => 'Отправить через этот сервер?';
+
+  @override
+  String deskE1PhUnknownBody(String host) {
+    return '$host нет в вашем списке серверов.';
+  }
+
+  @override
+  String get deskE1PhUseServer => 'Использовать сервер';
+
+  @override
+  String get deskE1PhReview => 'Проверка';
+
+  @override
+  String get deskE1PhTo => 'Кому';
+
+  @override
+  String get deskE1PhServer => 'Сервер';
+
+  @override
+  String get deskE1PhNote => 'Сообщение';
+
+  @override
+  String get deskE1PhSend => 'Отправить';
+
+  @override
+  String get deskE1PhWaiting => 'Ожидание получателя';
+
+  @override
+  String deskE1PhNotTaken(String host) {
+    return '$host не принял платёж.';
+  }
+
+  @override
+  String get deskE1PhTryNext => 'Попробовать следующий сервер';
+
+  @override
+  String get deskE1PhCancelUnlock => 'Отменить и разблокировать';
+
+  @override
+  String get deskE1PhCancelled => 'Платёж отменён. Монеты снова свободны.';
+
+  @override
+  String get deskE1PhSent => 'Отправлено';
+
+  @override
+  String get deskE1PhDone => 'Готово';
+
+  @override
+  String get deskE1PhClassicOnlyTip =>
+      'Выключите платежи epic1, чтобы заплатить этому контакту';
 }

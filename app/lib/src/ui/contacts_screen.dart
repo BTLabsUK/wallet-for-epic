@@ -21,6 +21,8 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
+import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyProvider;
+import 'tip.dart';
 import 'inline_button.dart';
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show attachPairingTo, confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
@@ -545,9 +547,13 @@ class _ContactRow extends ConsumerWidget {
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
-    final disabled = forPayment && noPayments;
+    // epic1 mode: a contact without epic1 cannot be picked to pay.
+    final classicOnly = forPayment && ref.watch(classicOnlyProvider(contact.id));
+    final disabled = forPayment && noPayments || classicOnly;
     final Widget reach;
-    if (disabled) {
+    if (classicOnly) {
+      reach = const ClassicOnlyText();
+    } else if (disabled) {
       reach = Text(l.contactTakesNoPayments, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
     } else if (pairing != null && pairing.allowInvoices) {
       reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
@@ -618,6 +624,7 @@ class _ContactRow extends ConsumerWidget {
         ),
       ),
     );
+    if (classicOnly) return Tip(l.deskE1PhClassicOnlyTip, child: Semantics(enabled: false, child: row));
     return disabled ? Opacity(opacity: 0.5, child: Semantics(enabled: false, child: row)) : row;
   }
 }
