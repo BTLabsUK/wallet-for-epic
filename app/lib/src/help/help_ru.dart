@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'этом телефоне' : 'этом компьютере';
   final secret = phone ? 'PIN-код или пароль' : 'пароль кошелька';
   final nodePlace = phone ? '[[Настройки › Сеть и приватность › Узел|Settings › Network & privacy › Node]]' : '[[Настройки › Узел|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Настройки › Сеть и приватность › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Настройки › Платежи › Epicbox|Settings › Payments › Epicbox]]';
+  final epicboxPlace = phone ? '[[Настройки › Сеть и приватность › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Настройки › Транзакции › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Настройки › Сеть и приватность › Только Tor|Settings › Network & privacy › Tor only]]' : '[[Настройки › Сеть и приватность › Только Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Настройки › Сеть и приватность|Settings › Network & privacy]]';
   final cancelPlace = phone
@@ -36,7 +36,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
       ? '**Восстановить по фразе** (на первом экране или в [[Настройки › Этот кошелёк|Settings › This wallet]])'
       : '**Восстановить по фразе** (на первом экране, в «Разблокировка › Добавить кошелёк» или в [[Настройки › Кошельки|Settings › Wallets]])';
   final recheckPlace = phone ? '[[Настройки › Этот кошелёк › Сверка баланса|Settings › This wallet › Recheck balance]]' : '[[Настройки › Кошелёк › Сверка баланса|Settings › Wallet › Recheck balance]]';
-  final payPlace = phone ? '[[Настройки › Транзакции|Settings › Transactions]]' : '[[Настройки › Платежи|Settings › Payments]]';
+  final payPlace = '[[Настройки › Транзакции|Settings › Transactions]]';
   final filesPlace = '[[Настройки › Файлы и журналы|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Настройки › Безопасность › Сохранить фразу восстановления|Settings › Security › Back up recovery phrase]]' : '[[Настройки › Безопасность › Сид-фраза|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
@@ -103,7 +103,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
       'Способы оплаты и настройки отправки',
       'Каждый способ — переключатель; Epicbox включён по умолчанию. Отправка открывается на способе по умолчанию.',
       [
-        HelpBlock.p('На странице «${phone ? 'Транзакции' : 'Платежи'}» в $payPlace три раздела.'),
+        HelpBlock.p('На странице «Транзакции» в $payPlace три раздела.'),
         HelpBlock.ul([
           '**Способы оплаты.** По одному переключателю. **Epicbox** включён по умолчанию; если он выключен, кошелёк не подключается ни к одному релею, поэтому нет платежей Epicbox и счетов, а «Получить» не показывает адрес Epicbox (платежи на него ждут на релее). ${tor ? "**Ссылка · HTTP** (на веб-адреса), **Ссылка · Tor** (на адреса .onion${phone ? ', а также адрес Tor этого телефона, на который вам могут платить' : ''}) и ${phone ? '**Напрямую · Оплата по QR** и ' : ''}**Напрямую · Передача файла**" : "**Ссылка · HTTP** (на веб-адреса)${phone ? ', **Напрямую · Оплата по QR**' : ''} и **Напрямую · Передача файла**"} сервер Epicbox не требуют. Выключенный способ не появляется в «Отправить» и «Получить».${phone ? ' На телефоне у **Ссылка · HTTP** нет переключателя: она только отправляет, на любой вставленный адрес http(s).' : ''}',
           '**Способ по умолчанию.** Способ, с которого открывается экран «Отправить»; в «Отправить» можно выбрать другой.',

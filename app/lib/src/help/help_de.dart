@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN oder Passphrase' : 'das Wallet-Passwort';
   final nodePlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Node|Settings › Network & privacy › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Einstellungen › Zahlungen › Epicbox|Settings › Payments › Epicbox]]';
+  final epicboxPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Einstellungen › Transaktionen › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Nur Tor|Settings › Network & privacy › Tor only]]' : '[[Einstellungen › Netzwerk & Datenschutz › Nur Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]]';
   final cancelPlace = phone
@@ -36,7 +36,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ? '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm oder unter [[Einstellungen › Diese Wallet|Settings › This wallet]])'
       : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Wallets|Settings › Wallets]])';
   final recheckPlace = phone ? '[[Einstellungen › Diese Wallet › Guthaben neu prüfen|Settings › This wallet › Recheck balance]]' : '[[Einstellungen › Wallet › Guthaben neu prüfen|Settings › Wallet › Recheck balance]]';
-  final payPlace = phone ? '[[Einstellungen › Transaktionen|Settings › Transactions]]' : '[[Einstellungen › Zahlungen|Settings › Payments]]';
+  final payPlace = '[[Einstellungen › Transaktionen|Settings › Transactions]]';
   final filesPlace = '[[Einstellungen › Dateien & Protokolle|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Sicherheit › Seed-Phrase|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
@@ -103,7 +103,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Zahlungsmethoden und Vorgaben fürs Senden',
       'Jede Methode ist ein Schalter; Epicbox ist standardmäßig an. Senden öffnet sich mit der Standardmethode.',
       [
-        HelpBlock.p('Die Seite ${phone ? 'Transaktionen' : 'Zahlungen'} unter $payPlace enthält drei Dinge.'),
+        HelpBlock.p('Die Seite Transaktionen unter $payPlace enthält drei Dinge.'),
         HelpBlock.ul([
           '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen oder Rechnungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.${phone ? ' Auf einem Smartphone hat **Link · HTTP** keinen Schalter: es sendet nur, an jede eingefügte http(s)-Adresse.' : ''}',
           '**Standardmethode.** Die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.',

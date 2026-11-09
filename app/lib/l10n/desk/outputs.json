@@ -689,8 +689,8 @@
   "@deskOutWhatOne": {
     "description": "Bold part of the 'nothing to consolidate' text."
   },
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Payments.",
-  "deskOutDefaultsOpen": "Open Payments",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions",
   "@deskOutDefaultsMoved": {
     "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
   },

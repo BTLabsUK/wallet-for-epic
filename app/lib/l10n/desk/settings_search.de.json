@@ -32,7 +32,6 @@
   "deskSetSearchFallbackView": "{page} gibt es in der Ansicht {view}.",
   "deskSetSearchFallbackFeat": "{page} erscheint mit Erweitert › {feature}.",
   "deskSetSecWallet": "Wallet",
-  "deskSetSecPayments": "Zahlungen",
   "deskSetSecDevices": "Verknüpfte Geräte",
   "deskSetSecWallets": "Wallets",
   "deskSetSecFiles": "Dateien & Protokolle",

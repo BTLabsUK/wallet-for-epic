@@ -943,7 +943,7 @@ class Desktop:
         return v
 
     def read_confirmations(self):
-        """The count on Settings › Payments (the wallet's own minimum confirmations, read back by the app)."""
+        """The count on Settings › Transactions (the wallet's own minimum confirmations, read back by the app)."""
         self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
         return self.d.wait(Expect("the confirmations count", lambda dd, tree: self._confirmations(tree)), 10)
 

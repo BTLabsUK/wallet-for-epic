@@ -13665,10 +13665,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Płatności.';
+      'Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.';
 
   @override
-  String get deskOutDefaultsOpen => 'Otwórz Płatności';
+  String get deskOutDefaultsOpen => 'Otwórz Transakcje';
 
   @override
   String get deskSetFrameTransactions => 'Transakcje';
@@ -20221,9 +20221,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSecWallet => 'Portfel';
-
-  @override
-  String get deskSetSecPayments => 'Płatności';
 
   @override
   String get deskSetSecDevices => 'Połączone urządzenia';

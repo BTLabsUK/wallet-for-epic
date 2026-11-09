@@ -12378,10 +12378,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNetOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
-  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 支付”中设置。';
+  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 交易”中设置。';
 
   @override
-  String get deskOutDefaultsOpen => '打开“支付”';
+  String get deskOutDefaultsOpen => '打开“交易”';
 
   @override
   String get deskSetFrameTransactions => '交易';
@@ -18428,9 +18428,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSecWallet => '钱包';
-
-  @override
-  String get deskSetSecPayments => '支付';
 
   @override
   String get deskSetSecDevices => '关联设备';

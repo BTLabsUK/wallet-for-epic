@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'tym telefonie' : 'tym komputerze';
   final secret = phone ? 'swój PIN lub hasło' : 'hasło portfela';
   final nodePlace = phone ? '[[Ustawienia › Sieć i prywatność › Węzeł|Settings › Network & privacy › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Ustawienia › Sieć i prywatność › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Ustawienia › Płatności › Epicbox|Settings › Payments › Epicbox]]';
+  final epicboxPlace = phone ? '[[Ustawienia › Sieć i prywatność › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Ustawienia › Transakcje › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Ustawienia › Sieć i prywatność › Tylko Tor|Settings › Network & privacy › Tor only]]' : '[[Ustawienia › Sieć i prywatność › Tylko Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Ustawienia › Sieć i prywatność|Settings › Network & privacy]]';
   final cancelPlace = phone
@@ -36,7 +36,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Ten portfel|Settings › This wallet]])'
       : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Portfele|Settings › Wallets]])';
   final recheckPlace = phone ? '[[Ustawienia › Ten portfel › Sprawdź saldo|Settings › This wallet › Recheck balance]]' : '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]]';
-  final payPlace = phone ? '[[Ustawienia › Transakcje|Settings › Transactions]]' : '[[Ustawienia › Płatności|Settings › Payments]]';
+  final payPlace = '[[Ustawienia › Transakcje|Settings › Transactions]]';
   final filesPlace = '[[Ustawienia › Pliki i logi|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Bezpieczeństwo › Fraza odzyskiwania|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
@@ -103,7 +103,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Metody płatności i zasady wysyłki',
       'Każda metoda to przełącznik; Epicbox jest domyślnie włączony. Wysyłanie otwiera się na metodzie domyślnej.',
       [
-        HelpBlock.p('Strona ${phone ? 'Transakcje' : 'Płatności'} w $payPlace zawiera trzy rzeczy.'),
+        HelpBlock.p('Strona Transakcje w $payPlace zawiera trzy rzeczy.'),
         HelpBlock.ul([
           '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym serwerem, więc nie ma płatności Epicbox ani faktur, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na serwerze). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują serwera Epicbox. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.${phone ? ' Na telefonie **Link · HTTP** nie ma przełącznika: tylko wysyła, na każdy wklejony adres http(s).' : ''}',
           '**Domyślna metoda.** Metoda, z którą otwiera się ekran Wyślij; na ekranie Wyślij można wybrać inną.',

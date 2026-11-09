@@ -557,7 +557,7 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: status);
   }
 
-  /// The Link · Tor switch (Settings › Payments): saved as `payments.linkTor`, and with it tor
+  /// The Link · Tor switch (Settings › Transactions): saved as `payments.linkTor`, and with it tor
   /// for payments starts or stops (the adapter's rule, `torPayWantedIn`). The Tor switch of
   /// Network & privacy is untouched.
   Future<void> setLinkTor(bool on) async {

@@ -38,9 +38,9 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › Wallet › Recheck balance': _page(DeskRoute.settingsRescan),
   'Settings › Security': _page(DeskRoute.settingsSecurity),
   'Settings › Security › Recovery phrase': _page(DeskRoute.settingsPhrase),
-  'Settings › Payments': _page(DeskRoute.settingsReceiving),
-  'Settings › Payments › Epicbox': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
-  'Settings › Payments › Confirmations': _page(DeskRoute.settingsReceiving, jump: SettingsJump.confirmations),
+  'Settings › Transactions': _page(DeskRoute.settingsReceiving),
+  'Settings › Transactions › Epicbox': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
+  'Settings › Transactions › Confirmations': _page(DeskRoute.settingsReceiving, jump: SettingsJump.confirmations),
   'Settings › Invoices': _page(DeskRoute.settingsInvoices),
   'Settings › Linked devices': _page(DeskRoute.settingsDevices),
   // Network & privacy (B-03): the mode and the status site on one page.

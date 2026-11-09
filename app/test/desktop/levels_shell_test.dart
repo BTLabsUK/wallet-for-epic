@@ -81,7 +81,7 @@ void main() {
       for (final l in ['Wallet', 'Security', 'Linked devices', 'Appearance', 'Advanced', 'Help', 'About']) {
         expect(side(l), findsWidgets, reason: l);
       }
-      for (final l in ['Node', 'Payments', 'Network & privacy', 'Wallets', 'Files & logs', 'Recheck balance', 'This computer']) {
+      for (final l in ['Node', 'Transactions', 'Network & privacy', 'Wallets', 'Files & logs', 'Recheck balance', 'This computer']) {
         expect(side(l), findsNothing, reason: l);
       }
       expect(find.byKey(const ValueKey('account-recheck')), findsOneWidget);
@@ -115,7 +115,7 @@ void main() {
     testWidgets('Settings: the four groups, every entry; Recheck balance a row of Wallet', (tester) async {
       await _pump(tester, WalletLevel.everything, start: DeskRoute.settingsAccount);
       Finder side(String l) => find.descendant(of: find.byType(ESubnav), matching: find.text(l));
-      for (final l in ['Wallet', 'Security', 'Payments', 'Linked devices', 'Appearance', 'Node', 'Network & privacy', 'Advanced', 'Wallets', 'Files & logs', 'Help', 'About', 'APP', 'THIS COMPUTER', 'HELP']) {
+      for (final l in ['Wallet', 'Security', 'Transactions', 'Linked devices', 'Appearance', 'Node', 'Network & privacy', 'Advanced', 'Wallets', 'Files & logs', 'Help', 'About', 'APP', 'THIS COMPUTER', 'HELP']) {
         expect(side(l), findsWidgets, reason: l);
       }
       expect(side('Recheck balance'), findsNothing);

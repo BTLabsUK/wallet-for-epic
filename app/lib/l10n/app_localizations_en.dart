@@ -13144,10 +13144,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'The strategy and Split change for sends are set in Settings › Payments.';
+      'The strategy and Split change for sends are set in Settings › Transactions.';
 
   @override
-  String get deskOutDefaultsOpen => 'Open Payments';
+  String get deskOutDefaultsOpen => 'Open Transactions';
 
   @override
   String get deskSetFrameTransactions => 'Transactions';
@@ -19523,9 +19523,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSecWallet => 'Wallet';
-
-  @override
-  String get deskSetSecPayments => 'Payments';
 
   @override
   String get deskSetSecDevices => 'Linked devices';

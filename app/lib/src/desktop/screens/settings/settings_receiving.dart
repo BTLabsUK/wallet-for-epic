@@ -45,7 +45,7 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Payments (once Transactions; one switch per method 26.10.16): how payments
+/// Settings › Transactions (once Payments; one switch per method 26.10.16): how payments
 /// are made, then Sending and Receiving (Confirmations). Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
 /// Transfer), each one switch, at least one on; what Send starts on and, with Advanced › Send
 /// options, its defaults. Each method's receiving details sit under its own switch, shown

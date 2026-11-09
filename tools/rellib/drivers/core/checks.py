@@ -527,11 +527,11 @@ def _ui_read(lane, s0, s1):
             used.append(when)
     st, wrong = ui.get("set"), None
     if st and (st["read"] != st["to"] or st["back"] != st["from"] or st["refused"]):
-        wrong = "confirmations set in the candidate's Settings › Payments did not keep: %d → %d read back %s, back to %d read back %s%s" % (
+        wrong = "confirmations set in the candidate's Settings › Transactions did not keep: %d → %d read back %s, back to %d read back %s%s" % (
             st["from"], st["to"], st["read"], st["from"], st["back"], "; the app said it was not saved" if st["refused"] else "")
     note = ""
     if used:
-        note = "; confirmations read on the app's Settings › Payments page %s the update (the encrypted store's value is not in the LEPIC CLI's reports)" % " and ".join(used)
+        note = "; confirmations read on the app's Settings › Transactions page %s the update (the encrypted store's value is not in the LEPIC CLI's reports)" % " and ".join(used)
     if st and not wrong:
         note += "; in the candidate set to %d and back to %d through the stepper, each read back on the page opened again" % (st["to"], st["from"])
     return note, wrong

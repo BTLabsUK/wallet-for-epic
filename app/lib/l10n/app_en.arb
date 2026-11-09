@@ -17456,8 +17456,8 @@
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Payments.",
-  "deskOutDefaultsOpen": "Open Payments",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsOpen": "Open Transactions",
   "@deskOutDefaultsMoved": {
     "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
   },
@@ -26503,10 +26503,6 @@
   "deskSetSecWallet": "Wallet",
   "@deskSetSecWallet": {
     "description": "Settings navigation: the open wallet's page (name, backup, balance, remove)."
-  },
-  "deskSetSecPayments": "Payments",
-  "@deskSetSecPayments": {
-    "description": "Settings navigation: payment methods, sending and receiving."
   },
   "deskSetSecDevices": "Linked devices",
   "@deskSetSecDevices": {

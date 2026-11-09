@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Payments › Link · HTTP (HTTP receiving): the two addresses with their switches
+/// Settings › Transactions › Link · HTTP (HTTP receiving): the two addresses with their switches
 /// (this computer; the internet, which binds 0.0.0.0) and the port. The guide is behind the
 /// internet address's (?).
 library;
@@ -34,7 +34,7 @@ int? parsePort(String text) {
   return n != null && n >= 1024 && n <= 65535 ? n : null;
 }
 
-/// The indent of a method's detail rows in Settings › Payments: to the method's title
+/// The indent of a method's detail rows in Settings › Transactions: to the method's title
 /// (ESetRow's leading, 18 px and a gap). Their dividers span the card.
 EdgeInsetsDirectional get methodDetailsIndent => EdgeInsetsDirectional.only(start: 18.u + Sp.x3);
 
