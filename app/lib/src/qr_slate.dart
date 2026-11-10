@@ -10,8 +10,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import 'wallet_service.dart';
 
-/// Bytes of a payment one QR part carries. 200 fits a part into a version 11 code at level L.
-const int qrFragmentLen = 200;
+export 'wallet_service.dart' show qrFragmentLen;
 
 /// Frames a second the show screen cycles the parts at.
 const int qrFramesPerSecond = 6;

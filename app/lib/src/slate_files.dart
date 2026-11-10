@@ -17,9 +17,11 @@ import 'package:share_plus/share_plus.dart';
 
 import 'app_log.dart';
 import 'l10n.dart' show LocalizedFormatException;
+import 'sealed_text.dart';
 import 'slate_files_io.dart'
     if (dart.library.js_interop) 'slate_files_web.dart';
 
+export 'sealed_text.dart';
 export 'slate_files_io.dart'
     if (dart.library.js_interop) 'slate_files_web.dart'
     show saveBytesToDevice, shareBytes, clearSharedFiles;
@@ -43,35 +45,9 @@ String shortSlateId(String slateId) =>
 /// The file name for a new send, `<first 8 of the slate id>.tx`.
 String sendFileName(String slateId) => '${shortSlateId(slateId)}.tx';
 
-/// The file extension, without the dot, LEPIC gives sealed [text] (`sealedFileExtension`): set by
-/// the LEPIC service, which this file cannot import. Unset (fakes), [sealedExtensionOf] reads the
-/// armor line itself.
-String Function(String text)? sealedExtensionHook;
-
-/// The extension to save sealed [text] under: `epictx` for a native slate (`BEGINEPICTX.`),
-/// `epicsealed` for any other, or when the text is not at hand.
-String sealedExtensionOf(String? text) {
-  if (text == null) return 'epicsealed';
-  final hook = sealedExtensionHook;
-  if (hook != null) {
-    try {
-      return hook(text);
-    } catch (_) {
-      // Over the limit the core takes: the armor line decides.
-    }
-  }
-  return text.trimLeft().startsWith('BEGINEPICTX.') ? 'epictx' : 'epicsealed';
-}
-
 /// A payment file sealed for a paired contact (RFC 3.5), `<first 8 of the slate id>.epicsealed`, or
 /// `.epictx` for the native text of [text] (the sealed text to save under the name).
 String sealedFileName(String slateId, {String? text}) => '${shortSlateId(slateId)}.${sealedExtensionOf(text)}';
-
-/// Sealed text (RFC 3.5): armored, `BEGINEPICSEALED` or `BEGINEPICTX.` after optional whitespace.
-bool isSealedText(String text) {
-  final t = text.trimLeft();
-  return t.startsWith('BEGINEPICSEALED') || t.startsWith('BEGINEPICTX.');
-}
 
 /// The recipient's answer, `<first 8 of the slate id>.response`.
 String responseFileName(String slateId) =>

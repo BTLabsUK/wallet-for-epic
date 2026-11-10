@@ -5,7 +5,6 @@
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/qr_slate.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';

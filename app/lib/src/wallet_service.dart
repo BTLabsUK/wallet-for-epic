@@ -32,6 +32,9 @@ import 'message_checks.dart';
 export 'models.dart';
 export 'pairing_api.dart';
 
+/// Bytes of a payment one QR part carries. 200 fits a part into a version 11 code at level L.
+const int qrFragmentLen = 200;
+
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 /// Whether the wallet core takes [WalletConfig.offline] (Kill switch sessions that refuse their
 /// node and relay at once, LEPIC's ADR 0031): entering or leaving Kill switch opens the session
