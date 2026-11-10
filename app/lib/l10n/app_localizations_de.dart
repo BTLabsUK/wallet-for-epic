@@ -1202,10 +1202,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeHistoryExportButton => 'Wallet-Daten exportieren';
 
   @override
-  String get homeBalanceSpendable => 'Verfügbar';
+  String get balanceHelpLabel => 'Was diese Guthaben bedeuten';
 
   @override
-  String get balanceHelpLabel => 'Was diese Guthaben bedeuten';
+  String get homeBalanceSpendableNow => 'Jetzt verfügbar';
+
+  @override
+  String get balanceWalletHelp =>
+      'Jetzt verfügbar, dazu Zahlungen und Ihr eigenes Wechselgeld, die noch bestätigt werden.';
+
+  @override
+  String get balanceSpendableNowHelp =>
+      'Was Sie jetzt senden können. Der Rest wird verfügbar, sobald er bestätigt ist.';
 
   @override
   String get balanceTotal => 'Gesamt';
@@ -3716,7 +3724,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendCancelPayment => 'Zahlung stornieren';
 
   @override
-  String get homeAvailableToSpend => 'Verfügbar';
+  String get homeWalletBalance => 'Guthaben';
 
   @override
   String get homeTileWaitingSender => 'Wartet auf Absender';
@@ -8220,9 +8228,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOvSendWaits =>
       'Senden ist wieder möglich, sobald der Node synchronisiert ist.';
-
-  @override
-  String get deskOvAvailable => 'Verfügbar';
 
   @override
   String deskOvAsOfBlock(String block) {
@@ -21110,5 +21115,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Die Wallet von $name kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt.';
+  }
+
+  @override
+  String get deskOvBalance => 'Guthaben';
+
+  @override
+  String deskOvSpendableNow(String amount) {
+    return '$amount jetzt verfügbar';
   }
 }

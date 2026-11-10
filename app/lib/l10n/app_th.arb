@@ -307,8 +307,10 @@
   "homeHistoryChangedSinceBackup": "{count, plural, other{{count} รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังส่งออกข้อมูลกระเป๋าเงินครั้งล่าสุด}}",
   "homeHistoryReminderNotNow": "ไว้ทีหลัง",
   "homeHistoryExportButton": "ส่งออกข้อมูลกระเป๋าเงิน",
-  "homeBalanceSpendable": "ใช้ได้",
   "balanceHelpLabel": "ความหมายของยอดแต่ละแบบ",
+  "homeBalanceSpendableNow": "ใช้ได้ตอนนี้",
+  "balanceWalletHelp": "ยอดที่ใช้ได้ตอนนี้ รวมกับการชำระเงินและเงินทอนของคุณที่ยังรอการยืนยัน",
+  "balanceSpendableNowHelp": "จำนวนที่ส่งได้ตอนนี้ ส่วนที่เหลือจะใช้ได้เมื่อยืนยันแล้ว",
   "balanceTotal": "ทั้งหมด",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "ทุกอย่างในกระเป๋าเงินนี้ ทั้งที่ใช้ได้และยังใช้ไม่ได้",
@@ -966,7 +968,7 @@
   "sendTorNothingSent": "{reason} ไม่มีสิ่งใดถูกส่งออกไป",
   "sendTryAgain": "ลองอีกครั้ง",
   "sendCancelPayment": "ยกเลิกรายการ",
-  "homeAvailableToSpend": "ยอดที่ใช้ได้",
+  "homeWalletBalance": "ยอดคงเหลือ",
   "homeTileWaitingSender": "รอผู้ส่ง",
   "homeTileLocked": "ล็อกในการส่ง",
   "homeTileTotal": "รวม",
@@ -1948,7 +1950,6 @@
   "deskOvSend": "ส่ง",
   "deskOvReceive": "รับ",
   "deskOvSendWaits": "การส่งจะกลับมาเมื่อโหนดซิงก์เสร็จ",
-  "deskOvAvailable": "ยอดที่ใช้ได้",
   "deskOvAsOfBlock": "ณ บล็อก {block}",
   "deskOvEmptyHint": "แชร์ที่อยู่ Epicbox เพื่อรับ EPIC ครั้งแรก",
   "deskOvFiatNote": "  ยอดทั้งหมด",
@@ -5394,5 +5395,7 @@
   "noticeDigestNew": "{count, plural, other{อัปเดตใหม่ {count} รายการ}}",
   "sasAllowOffLine": "ใบแจ้งหนี้จาก {name} ปิดอยู่",
   "contactAllowFinishCheck": "ตรวจสอบกุญแจให้เสร็จก่อน",
-  "sasAllowInvoicesHintDesktop": "กระเป๋าเงินของ {name} ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ"
+  "sasAllowInvoicesHintDesktop": "กระเป๋าเงินของ {name} ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ",
+  "deskOvBalance": "ยอดคงเหลือ",
+  "deskOvSpendableNow": "ใช้ได้ตอนนี้ {amount}"
 }

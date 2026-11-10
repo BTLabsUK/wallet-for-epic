@@ -12,6 +12,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'tip.dart';
 import 'common.dart';
+import 'home_parts.dart' show ownChangeOffChain;
 import 'home_status.dart' show StatusIcons, statusEntries;
 import 'levels/shell_status.dart' show ShellStatusIcons, shellStatusesShown;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
@@ -145,20 +146,40 @@ List<PendingToken> pendingTokens(
   ];
 }
 
-/// What a screen reader says for the spendable balance: the exact amount.
-String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
-    l.balanceHelpRow(
-      l.homeBalanceSpendable,
-      hidden ? l.homeBalanceHiddenLabel : epicExact(l, spendable),
-    );
+/// The wallet's balance, Wallet's big figure and the header's (as the desktop's Overview,
+/// `Balance.figure`): what can be spent, plus what is confirming (payments and the wallet's own
+/// change in a block), plus [ownChange], the change of its own sends not in a block yet
+/// ([ownChangeOffChain]), never more than what awaits finalization. A send takes it down by
+/// what it pays and its fee, never by the coins it holds until its change confirms. Send
+/// spends [WalletSummary.spendable] only.
+BigInt walletFigure(WalletSummary summary, BigInt ownChange) {
+  final own = ownChange < BigInt.zero
+      ? BigInt.zero
+      : ownChange > summary.awaitingFinalization
+      ? summary.awaitingFinalization
+      : ownChange;
+  return summary.spendable + summary.awaitingConfirmation + own;
+}
+
+/// What a screen reader says for the figure: the balance's exact amount, and what can be
+/// spent now when that differs.
+String _figureLabel(AppLocalizations l, WalletSummary summary, BigInt figure, bool hidden) {
+  String amount(BigInt v) => hidden ? l.homeBalanceHiddenLabel : epicExact(l, v);
+  return [
+    l.balanceHelpRow(l.homeWalletBalance, amount(figure)),
+    if (summary.spendable != figure) l.balanceHelpRow(l.homeBalanceSpendableNow, amount(summary.spendable)),
+  ].join('\n');
+}
 
 /// Wallet's balance area, with no panel around it, centred as one column: the caption
-/// "Available to spend", the spendable figure in Montserrat 60 with the gold EPIC at its top
+/// "Balance", the balance ([walletFigure]) in Montserrat 60 with the gold EPIC at its top
 /// right, the two centred as a unit; under it one row, [statusTarget] high: the status icons
 /// at its start, the fiat value and the eye at its end. The same at every level: level 1 has
 /// its two icons ([ShellStatusIcons], Network and Epicbox), the others the full row
 /// ([StatusIcons]). The pending balances are in the tiles under it (`home_parts.dart`) at
-/// levels 2 and 3; level 1 has them in the balance sheet a tap on the figure opens.
+/// levels 2 and 3; level 1 has them in the balance sheet a tap on the figure opens. What can
+/// be spent now, when it differs from the figure, is in the balance sheet too: a line for it
+/// under the figure would move the row under it.
 ///
 /// Every part has a fixed height for the text scale, so nothing here moves when amounts
 /// change, a payment lands, amounts are hidden or nothing is pending. A figure too wide shrinks
@@ -173,13 +194,15 @@ class WalletBalance extends ConsumerWidget {
     final scaler = MediaQuery.textScalerOf(context);
     final data = ref.watch(homeProvider).value;
     final summary = data?.summary;
+    final own = ownChangeOffChain(data?.transactions ?? const <TxEntry>[]);
+    final figure = summary == null ? null : walletFigure(summary, own);
     // Kill switch keeps the last known balance and marks it so on the caption.
     final lastKnown = ref.watch(balanceLastKnownProvider);
     final display = amountDisplay(ref);
     final hidden = display.hidden;
-    final fiat = summary == null
+    final fiat = figure == null
         ? null
-        : approxFiat(l, summary.spendable, display, short: true);
+        : approxFiat(l, figure, display, short: true);
     final fiatStyle = TextStyle(
       fontFamily: t.monoFamily,
       fontSize: 13,
@@ -234,10 +257,10 @@ class WalletBalance extends ConsumerWidget {
                 child: Text(
                   lastKnown
                       ? l.settingsStateJoin(
-                          l.homeAvailableToSpend,
+                          l.homeWalletBalance,
                           l.lastKnownCaption.toLowerCase(),
                         )
-                      : l.homeAvailableToSpend,
+                      : l.homeWalletBalance,
                   key: balanceCaptionKey,
                   maxLines: 1,
                   textAlign: TextAlign.center,
@@ -257,7 +280,7 @@ class WalletBalance extends ConsumerWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : _Figure(summary: summary, hidden: hidden),
+                    : _Figure(summary: summary, balance: figure!, ownChange: own, hidden: hidden),
               ),
             ),
             const SizedBox(height: 2),
@@ -344,17 +367,21 @@ double _textWidth(
   return width;
 }
 
-/// Wallet's figure (four decimals, [displayEpic]) and its gold EPIC, in a box [figureSize]
+/// Wallet's figure, the balance ([walletFigure], four decimals, [displayEpic]) and its gold EPIC, in a box [figureSize]
 /// high. The figure takes the largest whole size from [figureSize] down to [figureMinSize] at
 /// which it fits beside the unit. It does not follow the text scale, which would only shrink
 /// it back; the unit does, up to 1.3x. A tap opens the balance sheet ([showBalanceSheet]).
 class _Figure extends StatelessWidget {
-  const _Figure({required this.summary, required this.hidden});
+  const _Figure({required this.summary, required this.balance, required this.ownChange, required this.hidden});
 
   final WalletSummary summary;
-  final bool hidden;
 
-  BigInt get spendable => summary.spendable;
+  /// The balance shown ([walletFigure]).
+  final BigInt balance;
+
+  /// The change of the wallet's own sends not in a block yet, for the balance sheet.
+  final BigInt ownChange;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -362,7 +389,7 @@ class _Figure extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final direction = Directionality.of(context);
-    final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(spendable, AmountSurface.hero));
+    final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(balance, AmountSurface.hero));
     TextStyle figure(double size) =>
         (theme.textTheme.displaySmall ?? const TextStyle()).copyWith(
           fontFamily: t.headFamily,
@@ -385,7 +412,7 @@ class _Figure extends StatelessWidget {
         .clamp(maxScaleFactor: 1.3);
     return Semantics(
       container: true,
-      label: _spendableLabel(l, spendable, hidden),
+      label: _figureLabel(l, summary, balance, hidden),
       excludeSemantics: true,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -427,6 +454,7 @@ class _Figure extends StatelessWidget {
           if (balanced) size = balancedSize;
           return BalanceTap(
             summary: summary,
+            ownChange: ownChange,
             hidden: hidden,
             child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -470,7 +498,7 @@ class _Figure extends StatelessWidget {
 }
 
 /// The balance header at the top of Send and Receive, under the app bar, [statusTarget]
-/// high: at its start the spendable figure at [titleFigureSize] with a small gold EPIC, and
+/// high: at its start the balance ([walletFigure], as Wallet's figure) at [titleFigureSize] with a small gold EPIC, and
 /// under it the detail line (the [pendingTokens], or their count when they do not fit); at its
 /// end the status icons, the same row as under Wallet's figure ([StatusIcons], or level 1's
 /// [ShellStatusIcons]). A balance is
@@ -485,7 +513,9 @@ class BalanceHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = context.l10n;
-    final summary = ref.watch(homeProvider).value?.summary;
+    final data = ref.watch(homeProvider).value;
+    final summary = data?.summary;
+    final own = ownChangeOffChain(data?.transactions ?? const <TxEntry>[]);
     final hidden = amountDisplay(ref).hidden;
     // Level 1 has its two icons ([ShellStatusIcons]), the other levels the full row. The
     // icons are [statusTarget] wide each: their row's width without laying it out.
@@ -513,7 +543,8 @@ class BalanceHeader extends ConsumerWidget {
                 return Row(children: [const Spacer(), icons]);
               }
               final tokens = pendingTokens(l, summary, hidden: hidden);
-              final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(summary.spendable, AmountSurface.hero));
+              final figureValue = walletFigure(summary, own);
+              final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(figureValue, AmountSurface.hero));
               final full = box.maxWidth;
               final beside = full - 4 - iconsWidth;
               double figureWidth(double size, {bool unit = true}) =>
@@ -522,11 +553,12 @@ class BalanceHeader extends ConsumerWidget {
               final figureBeside = figureWidth(titleFigureSize) <= beside;
               final detailBeside = tokens.isEmpty || detailWidth <= beside;
               final label = [
-                _spendableLabel(l, summary.spendable, hidden),
+                _figureLabel(l, summary, figureValue, hidden),
                 for (final item in tokens) item.label,
               ].join('\n');
               Widget figure(double size, {bool unit = true}) => BalanceTap(
                 summary: summary,
+                ownChange: own,
                 hidden: hidden,
                 label: label,
                 child: _FigureText(text: text, size: size, unit: unit),
@@ -534,6 +566,7 @@ class BalanceHeader extends ConsumerWidget {
               Widget detail() => ExcludeSemantics(
                 child: BalanceTap(
                   summary: summary,
+                  ownChange: own,
                   hidden: hidden,
                   child: _DetailLine(tokens: tokens),
                 ),
@@ -545,6 +578,7 @@ class BalanceHeader extends ConsumerWidget {
                     Expanded(
                       child: BalanceTap(
                         summary: summary,
+                        ownChange: own,
                         hidden: hidden,
                         label: label,
                         child: Column(
@@ -771,9 +805,13 @@ class BalanceTap extends StatelessWidget {
     required this.hidden,
     required this.child,
     this.label,
+    this.ownChange,
   });
 
   final WalletSummary summary;
+
+  /// The change of the wallet's own sends not in a block yet ([walletFigure]).
+  final BigInt? ownChange;
   final bool hidden;
   final Widget child;
   final String? label;
@@ -781,7 +819,7 @@ class BalanceTap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    void open() => showBalanceSheet(context, summary: summary, hidden: hidden);
+    void open() => showBalanceSheet(context, summary: summary, ownChange: ownChange, hidden: hidden);
     return Semantics(
       container: true,
       button: true,
@@ -806,26 +844,30 @@ class BalanceTap extends StatelessWidget {
   }
 }
 
-/// Opens the balance sheet: every balance of [summary] that is not zero (the total always)
-/// with its exact amount ([epicExact]) and a short explanation, from [BalanceHelp.rows].
+/// Opens the balance sheet: the balance ([walletFigure]) and every other balance of [summary]
+/// that is not zero, or not the same as the balance, with its exact amount ([epicExact]) and a short explanation, from [BalanceHelp.rows].
 /// With [hidden] the amounts are dots and the sheet says nothing more.
 Future<void> showBalanceSheet(
   BuildContext context, {
   required WalletSummary summary,
   required bool hidden,
+  BigInt? ownChange,
 }) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
   useSafeArea: true,
-  builder: (_) => BalanceSheet(summary: summary, hidden: hidden),
+  builder: (_) => BalanceSheet(summary: summary, ownChange: ownChange, hidden: hidden),
 );
 
 /// The balance sheet's body: a title and one row per balance, the label and its explanation
 /// at the start, the exact amount in the mono face at the end, so every digit is readable.
 class BalanceSheet extends StatelessWidget {
-  const BalanceSheet({super.key, required this.summary, required this.hidden});
+  const BalanceSheet({super.key, required this.summary, required this.hidden, this.ownChange});
 
   final WalletSummary summary;
+
+  /// The change of the wallet's own sends not in a block yet ([walletFigure]).
+  final BigInt? ownChange;
   final bool hidden;
 
   @override
@@ -852,7 +894,7 @@ class BalanceSheet extends StatelessWidget {
             child: Text(l.balanceSheetTitle, style: theme.textTheme.titleMedium),
           ),
           const SizedBox(height: 8),
-          for (final (label, amount, help) in BalanceHelp.rows(l, summary))
+          for (final (label, amount, help) in BalanceHelp.rows(l, summary, ownChange: ownChange))
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Row(
@@ -952,21 +994,31 @@ class _ShellEdgeState extends ConsumerState<ShellEdge>
 }
 
 /// The ? beside a balance: a tap opens the balance sheet ([showBalanceSheet]), every balance
-/// that is not zero with a few words on what it is. Spendable needs none.
+/// that is not zero with a few words on what it is.
 class BalanceHelp extends StatefulWidget {
-  const BalanceHelp({super.key, required this.summary, required this.hidden});
+  const BalanceHelp({super.key, required this.summary, required this.hidden, this.ownChange});
 
   final WalletSummary summary;
+
+  /// The change of the wallet's own sends not in a block yet ([walletFigure]).
+  final BigInt? ownChange;
   final bool hidden;
 
-  /// Label, amount and explanation of each balance, zero ones left out except the total.
+  /// Label, amount and explanation of each balance: first the balance, the big figure
+  /// ([walletFigure] with [ownChange]); what can be spent now and the total when they differ
+  /// from it; then the parts that are not zero.
   static List<(String, BigInt, String?)> rows(
     AppLocalizations l,
-    WalletSummary summary,
-  ) => [
-    (l.balanceTotal, summary.total, l.balanceTotalHelp),
-    if (summary.spendable > BigInt.zero)
-      (l.homeBalanceSpendable, summary.spendable, null),
+    WalletSummary summary, {
+    BigInt? ownChange,
+  }) {
+    final figure = walletFigure(summary, ownChange ?? BigInt.zero);
+    return [
+    (l.homeWalletBalance, figure, l.balanceWalletHelp),
+    if (summary.spendable != figure)
+      (l.homeBalanceSpendableNow, summary.spendable, l.balanceSpendableNowHelp),
+    if (summary.total != figure)
+      (l.balanceTotal, summary.total, l.balanceTotalHelp),
     if (summary.awaitingConfirmation > BigInt.zero)
       (
         l.homeBalanceConfirming,
@@ -984,15 +1036,17 @@ class BalanceHelp extends StatefulWidget {
     if (summary.immature > BigInt.zero)
       (l.homeBalanceImmature, summary.immature, l.balanceImmatureHelp),
   ];
+  }
 
   /// The help's text: each of [rows] in bold, with its explanation under it.
   static TextSpan message(
     AppLocalizations l,
     WalletSummary summary,
-    bool hidden,
-  ) {
+    bool hidden, {
+    BigInt? ownChange,
+  }) {
     final spans = <InlineSpan>[];
-    for (final (i, (label, amount, help)) in rows(l, summary).indexed) {
+    for (final (i, (label, amount, help)) in rows(l, summary, ownChange: ownChange).indexed) {
       if (i > 0) spans.add(const TextSpan(text: '\n\n'));
       spans.add(
         TextSpan(
@@ -1027,6 +1081,7 @@ class _BalanceHelpState extends State<BalanceHelp> {
       onPressed: () => showBalanceSheet(
         context,
         summary: widget.summary,
+        ownChange: widget.ownChange,
         hidden: widget.hidden,
       ),
     );

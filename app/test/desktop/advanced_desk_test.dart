@@ -166,7 +166,7 @@ void main() {
       await _settle(tester);
       expect(find.text(_l.lastKnownCaption), findsWidgets);
       expect(find.byKey(const ValueKey('overview-offline')), findsOneWidget);
-      expect(find.text(_l.deskOvAvailable), findsOneWidget, reason: 'the last known balance stays');
+      expect(find.text(_l.deskOvBalance), findsOneWidget, reason: 'the last known balance stays');
     });
 
     testWidgets('Tor only without Tor: Node and Epicbox read Waiting for Tor', (tester) async {

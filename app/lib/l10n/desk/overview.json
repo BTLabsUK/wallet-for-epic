@@ -183,9 +183,19 @@
   "@deskOvSendWaitsNode": {
     "description": "Small text under the buttons on Overview while Send is disabled because the node does not answer."
   },
-  "deskOvAvailable": "Available to spend",
-  "@deskOvAvailable": {
-    "description": "Label above the big balance amount on Overview."
+  "deskOvBalance": "Balance",
+  "@deskOvBalance": {
+    "description": "Label above the big balance amount on Overview: the wallet's balance (what can be spent, plus payments and the wallet's own change still confirming). Same word as the phone's homeWalletBalance."
+  },
+  "deskOvSpendableNow": "{amount} spendable now",
+  "@deskOvSpendableNow": {
+    "description": "Line under Overview's big balance while part of it is still confirming (the change of a send, a payment in a block): what Send can use now. amount is the EPIC amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.0 EPIC"
+      }
+    }
   },
   "deskOvAsOfBlock": "As of block {block}",
   "@deskOvAsOfBlock": {

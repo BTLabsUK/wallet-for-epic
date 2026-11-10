@@ -95,7 +95,7 @@ Future<void> _pump(WidgetTester tester, Widget screen, WalletLevel level, List<T
 void main() {
   testWidgets('Shallow Overview: one number, one sentence, no tiles, no eye; the payment card has live steps', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.justSendReceive, [_sendToAlice, _fromBob]);
-    expect(find.text(_l.deskOvAvailable), findsOneWidget);
+    expect(find.text(_l.deskOvBalance), findsOneWidget);
     expect(find.text('+12.5 arriving from Bob'), findsOneWidget);
     expect(find.text('25.0 on hold until Alice signs'), findsOneWidget);
     for (final tile in ['Total', 'Locked in sends', 'Set aside for sends']) {

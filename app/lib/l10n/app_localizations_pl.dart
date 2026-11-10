@@ -1237,10 +1237,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeHistoryExportButton => 'Eksportuj dane portfela';
 
   @override
-  String get homeBalanceSpendable => 'Dostępne';
+  String get balanceHelpLabel => 'Co oznaczają te salda';
 
   @override
-  String get balanceHelpLabel => 'Co oznaczają te salda';
+  String get homeBalanceSpendableNow => 'Do wydania teraz';
+
+  @override
+  String get balanceWalletHelp =>
+      'Do wydania teraz oraz płatności i Twoja reszta, które wciąż czekają na potwierdzenia.';
+
+  @override
+  String get balanceSpendableNowHelp =>
+      'Tyle możesz teraz wysłać. Reszta będzie dostępna po potwierdzeniu.';
 
   @override
   String get balanceTotal => 'Łącznie';
@@ -3778,7 +3786,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendCancelPayment => 'Anuluj płatność';
 
   @override
-  String get homeAvailableToSpend => 'Do wydania';
+  String get homeWalletBalance => 'Saldo';
 
   @override
   String get homeTileWaitingSender => 'Czeka na nadawcę';
@@ -8499,9 +8507,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvSendWaits => 'Wysyłanie wróci po synchronizacji węzła.';
-
-  @override
-  String get deskOvAvailable => 'Do wydania';
 
   @override
   String deskOvAsOfBlock(String block) {
@@ -21575,5 +21580,13 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Portfel $name może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela.';
+  }
+
+  @override
+  String get deskOvBalance => 'Saldo';
+
+  @override
+  String deskOvSpendableNow(String amount) {
+    return '$amount do wydania teraz';
   }
 }

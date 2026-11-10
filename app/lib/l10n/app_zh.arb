@@ -307,8 +307,10 @@
   "homeHistoryChangedSinceBackup": "{count, plural, other{自上次导出钱包数据以来，有 {count} 笔付款是新的或有改动。}}",
   "homeHistoryReminderNotNow": "以后再说",
   "homeHistoryExportButton": "导出钱包数据",
-  "homeBalanceSpendable": "可用余额",
   "balanceHelpLabel": "这些余额的含义",
+  "homeBalanceSpendableNow": "现在可用",
+  "balanceWalletHelp": "现在可用的金额，加上仍在确认中的付款和您自己的找零。",
+  "balanceSpendableNowHelp": "现在可以发送的金额。其余部分确认后即可使用。",
   "balanceTotal": "总额",
   "balanceHelpRow": "{label}：{amount}",
   "balanceTotalHelp": "此钱包中的全部金额，无论能否使用。",
@@ -966,7 +968,7 @@
   "sendTorNothingSent": "{reason}未发送任何内容。",
   "sendTryAgain": "重试",
   "sendCancelPayment": "取消付款",
-  "homeAvailableToSpend": "可用余额",
+  "homeWalletBalance": "余额",
   "homeTileWaitingSender": "等待付款方",
   "homeTileLocked": "发送中锁定",
   "homeTileTotal": "总计",
@@ -1948,7 +1950,6 @@
   "deskOvSend": "发送",
   "deskOvReceive": "接收",
   "deskOvSendWaits": "节点同步完成后即可恢复发送。",
-  "deskOvAvailable": "可用余额",
   "deskOvAsOfBlock": "截至区块 {block}",
   "deskOvEmptyHint": "分享 Epicbox 地址，接收你的第一笔 EPIC。",
   "deskOvFiatNote": "  全部余额",
@@ -5394,5 +5395,7 @@
   "noticeDigestNew": "{count, plural, other{{count} 条新更新}}",
   "sasAllowOffLine": "来自 {name} 的账单已关闭。",
   "contactAllowFinishCheck": "请先完成密钥核对",
-  "sasAllowInvoicesHintDesktop": "{name} 的钱包可以请求你付款。没有钱包密码不会付款。"
+  "sasAllowInvoicesHintDesktop": "{name} 的钱包可以请求你付款。没有钱包密码不会付款。",
+  "deskOvBalance": "余额",
+  "deskOvSpendableNow": "现在可用 {amount}"
 }

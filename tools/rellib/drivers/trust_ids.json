@@ -54,7 +54,7 @@
 {"id": "g4.send.route.paired", "screen": "send", "keys": ["sendRoutePaired"], "names": ["Paired address"], "match": "exact"},
 {"id": "g4.send.route.public", "screen": "send", "keys": ["sendRoutePublic"], "names": ["Public address"], "match": "exact", "many": true},
 {"id": "g4.overview.refresh", "screen": "overview", "family": ["desktop"], "keys": ["deskOvRefresh"], "driver": false},
-{"id": "g4.overview.available", "screen": "overview", "family": ["desktop"], "role": "text", "keys": ["deskOvAvailable"], "driver": false},
+{"id": "g4.overview.available", "screen": "overview", "family": ["desktop"], "role": "text", "keys": ["deskOvBalance"], "driver": false},
 {"id": "g4.home.lock", "screen": "home", "family": ["android"], "keys": ["homeLockTooltip"], "names": ["Lock wallet"], "match": "exact"},
 {"id": "g4.home.settings", "screen": "home", "family": ["android"], "keys": ["homeSettingsTooltip"], "names": ["Settings"], "match": "exact"},
 {"id": "g4.home.contacts", "screen": "home", "family": ["android"], "keys": ["settingsContacts"], "names": ["Contacts"], "match": "exact"},

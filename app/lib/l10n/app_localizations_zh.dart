@@ -1132,10 +1132,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeHistoryExportButton => '导出钱包数据';
 
   @override
-  String get homeBalanceSpendable => '可用余额';
+  String get balanceHelpLabel => '这些余额的含义';
 
   @override
-  String get balanceHelpLabel => '这些余额的含义';
+  String get homeBalanceSpendableNow => '现在可用';
+
+  @override
+  String get balanceWalletHelp => '现在可用的金额，加上仍在确认中的付款和您自己的找零。';
+
+  @override
+  String get balanceSpendableNowHelp => '现在可以发送的金额。其余部分确认后即可使用。';
 
   @override
   String get balanceTotal => '总额';
@@ -3459,7 +3465,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendCancelPayment => '取消付款';
 
   @override
-  String get homeAvailableToSpend => '可用余额';
+  String get homeWalletBalance => '余额';
 
   @override
   String get homeTileWaitingSender => '等待付款方';
@@ -7594,9 +7600,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvSendWaits => '节点同步完成后即可恢复发送。';
-
-  @override
-  String get deskOvAvailable => '可用余额';
 
   @override
   String deskOvAsOfBlock(String block) {
@@ -19680,5 +19683,13 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String sasAllowInvoicesHintDesktop(String name) {
     return '$name 的钱包可以请求你付款。没有钱包密码不会付款。';
+  }
+
+  @override
+  String get deskOvBalance => '余额';
+
+  @override
+  String deskOvSpendableNow(String amount) {
+    return '现在可用 $amount';
   }
 }

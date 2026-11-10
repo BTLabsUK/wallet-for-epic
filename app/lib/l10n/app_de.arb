@@ -307,8 +307,10 @@
   "homeHistoryChangedSinceBackup": "{count, plural, one{1 Zahlung ist seit dem letzten Export der Wallet-Daten neu oder geändert.} other{{count} Zahlungen sind seit dem letzten Export der Wallet-Daten neu oder geändert.}}",
   "homeHistoryReminderNotNow": "Nicht jetzt",
   "homeHistoryExportButton": "Wallet-Daten exportieren",
-  "homeBalanceSpendable": "Verfügbar",
   "balanceHelpLabel": "Was diese Guthaben bedeuten",
+  "homeBalanceSpendableNow": "Jetzt verfügbar",
+  "balanceWalletHelp": "Jetzt verfügbar, dazu Zahlungen und Ihr eigenes Wechselgeld, die noch bestätigt werden.",
+  "balanceSpendableNowHelp": "Was Sie jetzt senden können. Der Rest wird verfügbar, sobald er bestätigt ist.",
   "balanceTotal": "Gesamt",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Alles in dieser Wallet, verfügbar oder nicht.",
@@ -966,7 +968,7 @@
   "sendTorNothingSent": "{reason} Es wurde nichts gesendet.",
   "sendTryAgain": "Erneut versuchen",
   "sendCancelPayment": "Zahlung stornieren",
-  "homeAvailableToSpend": "Verfügbar",
+  "homeWalletBalance": "Guthaben",
   "homeTileWaitingSender": "Wartet auf Absender",
   "homeTileLocked": "In Zahlungen gesperrt",
   "homeTileTotal": "Gesamt",
@@ -1768,7 +1770,6 @@
   "deskOvSend": "Senden",
   "deskOvReceive": "Empfangen",
   "deskOvSendWaits": "Senden ist wieder möglich, sobald der Node synchronisiert ist.",
-  "deskOvAvailable": "Verfügbar",
   "deskOvAsOfBlock": "Stand Block {block}",
   "deskOvEmptyHint": "Teilen Sie die Epicbox-Adresse, um die ersten EPIC zu empfangen.",
   "deskOvFiatNote": "  gesamtes Guthaben",
@@ -5394,5 +5395,7 @@
   "noticeDigestNew": "{count, plural, one{{count} neue Aktualisierung} other{{count} neue Aktualisierungen}}",
   "sasAllowOffLine": "Rechnungen von {name} sind aus.",
   "contactAllowFinishCheck": "Zuerst die Schlüsselprüfung abschließen",
-  "sasAllowInvoicesHintDesktop": "Die Wallet von {name} kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt."
+  "sasAllowInvoicesHintDesktop": "Die Wallet von {name} kann Sie um Zahlung bitten. Ohne Ihr Wallet-Passwort wird nichts bezahlt.",
+  "deskOvBalance": "Guthaben",
+  "deskOvSpendableNow": "{amount} jetzt verfügbar"
 }

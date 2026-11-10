@@ -652,7 +652,7 @@ class DeskOverviewPreview extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l.deskOvAvailable, style: s(8, color: c.dim)),
+                            Text(l.deskOvBalance, style: s(8, color: c.dim)),
                             SizedBox(height: 3 * k),
                             Text.rich(
                               TextSpan(

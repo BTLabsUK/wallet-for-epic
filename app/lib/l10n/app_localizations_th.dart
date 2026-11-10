@@ -1175,10 +1175,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeHistoryExportButton => 'ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
-  String get homeBalanceSpendable => 'ใช้ได้';
+  String get balanceHelpLabel => 'ความหมายของยอดแต่ละแบบ';
 
   @override
-  String get balanceHelpLabel => 'ความหมายของยอดแต่ละแบบ';
+  String get homeBalanceSpendableNow => 'ใช้ได้ตอนนี้';
+
+  @override
+  String get balanceWalletHelp =>
+      'ยอดที่ใช้ได้ตอนนี้ รวมกับการชำระเงินและเงินทอนของคุณที่ยังรอการยืนยัน';
+
+  @override
+  String get balanceSpendableNowHelp =>
+      'จำนวนที่ส่งได้ตอนนี้ ส่วนที่เหลือจะใช้ได้เมื่อยืนยันแล้ว';
 
   @override
   String get balanceTotal => 'ทั้งหมด';
@@ -3600,7 +3608,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendCancelPayment => 'ยกเลิกรายการ';
 
   @override
-  String get homeAvailableToSpend => 'ยอดที่ใช้ได้';
+  String get homeWalletBalance => 'ยอดคงเหลือ';
 
   @override
   String get homeTileWaitingSender => 'รอผู้ส่ง';
@@ -7858,9 +7866,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvSendWaits => 'การส่งจะกลับมาเมื่อโหนดซิงก์เสร็จ';
-
-  @override
-  String get deskOvAvailable => 'ยอดที่ใช้ได้';
 
   @override
   String deskOvAsOfBlock(String block) {
@@ -20419,5 +20424,13 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String sasAllowInvoicesHintDesktop(String name) {
     return 'กระเป๋าเงินของ $name ขอให้คุณชำระเงินได้ ไม่มีการชำระใดๆ หากไม่มีรหัสผ่านกระเป๋าเงินของคุณ';
+  }
+
+  @override
+  String get deskOvBalance => 'ยอดคงเหลือ';
+
+  @override
+  String deskOvSpendableNow(String amount) {
+    return 'ใช้ได้ตอนนี้ $amount';
   }
 }

@@ -1232,10 +1232,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeHistoryExportButton => 'Экспорт данных кошелька';
 
   @override
-  String get homeBalanceSpendable => 'Доступно';
+  String get balanceHelpLabel => 'Что означают эти балансы';
 
   @override
-  String get balanceHelpLabel => 'Что означают эти балансы';
+  String get homeBalanceSpendableNow => 'Доступно сейчас';
+
+  @override
+  String get balanceWalletHelp =>
+      'Доступно сейчас, плюс платежи и ваша сдача, которые ещё подтверждаются.';
+
+  @override
+  String get balanceSpendableNowHelp =>
+      'Столько можно отправить сейчас. Остальное станет доступно после подтверждения.';
 
   @override
   String get balanceTotal => 'Всего';
@@ -3758,7 +3766,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendCancelPayment => 'Отменить платёж';
 
   @override
-  String get homeAvailableToSpend => 'Доступно';
+  String get homeWalletBalance => 'Баланс';
 
   @override
   String get homeTileWaitingSender => 'Ожидает отправителя';
@@ -8474,9 +8482,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOvSendWaits =>
       'Отправка возобновится, когда узел синхронизируется.';
-
-  @override
-  String get deskOvAvailable => 'Доступно';
 
   @override
   String deskOvAsOfBlock(String block) {
@@ -21564,5 +21569,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String sasAllowInvoicesHintDesktop(String name) {
     return 'Кошелёк $name сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается.';
+  }
+
+  @override
+  String get deskOvBalance => 'Баланс';
+
+  @override
+  String deskOvSpendableNow(String amount) {
+    return '$amount доступно сейчас';
   }
 }

@@ -424,7 +424,7 @@ class _BalancePanel extends ConsumerWidget {
     final posted = b == null ? 0 : reported.clamp(0, b.awaitingFinalization - own);
     final amount = b == null
         ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_Skeleton(width: 260.u, height: 40.u), SizedBox(height: Sp.x4), _Trace(width: 260.u)])
-        : _BigAmount(nano: b.spendable, hidden: hidden, dim: updating);
+        : _BigAmount(nano: b.figure(own), hidden: hidden, dim: updating);
     final actions = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -465,7 +465,7 @@ class _BalancePanel extends ConsumerWidget {
                       runSpacing: Sp.x1,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        trustId(TrustIds.overviewAvailable, Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500))),
+                        trustId(TrustIds.overviewAvailable, Text(l.deskOvBalance, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500))),
                         if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
                         if (offline) EBadge(l.lastKnownCaption, key: const ValueKey('overview-offline')),
@@ -473,6 +473,15 @@ class _BalancePanel extends ConsumerWidget {
                     ),
                     SizedBox(height: 6.u),
                     amount,
+                    // What Send can use, when a send's change or a payment is still confirming.
+                    if (b != null && b.spendable != b.figure(own)) ...[
+                      Text(
+                        l.deskOvSpendableNow(hidden ? '••••••' : epicTextL(l, b.spendable)),
+                        key: const ValueKey('overview-spendable-now'),
+                        style: ts.bodyDim,
+                      ),
+                      SizedBox(height: Sp.x1),
+                    ],
                     SizedBox(height: 6.u),
                     if (empty)
                       Text(shallow ? l.deskLvPayHeroNothing : l.deskOvEmptyHint, style: ts.bodyDim)
@@ -519,7 +528,7 @@ class _BalancePanel extends ConsumerWidget {
           if (!shallow)
           LayoutBuilder(
             builder: (context, box) {
-              // The phone's order (GP-007); Available to spend is the big figure above.
+              // The phone's order (GP-007); the balance is the big figure above, Spendable under it.
               final items = <(String, int?, Widget?)>[
                 (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
                 // Loading draws the tiles most wallets have: no Immature (a miner's tile).

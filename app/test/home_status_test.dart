@@ -702,7 +702,7 @@ void main() {
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(
         tester.widget<Text>(find.byKey(balanceCaptionKey)).data,
-        'Available to spend · last known',
+        'Balance · last known',
       );
       expect(find.byKey(fiatValueKey), findsNothing);
       await tester.pumpWidget(const SizedBox());
@@ -710,7 +710,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         tester.widget<Text>(find.byKey(balanceCaptionKey)).data,
-        'Available to spend',
+        'Balance',
       );
     });
   });

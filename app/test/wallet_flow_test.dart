@@ -743,14 +743,15 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.5');
+      // The balance: 12.5 spendable and 1 confirming.
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '13.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider).
       await tester.pump(statusSettle);
       expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
       handle.dispose();
-      // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
+      // Total 16, balance 13.5: the parts are in the tiles under the figure; the row scrolls.
       for (final (kind, label, value) in [
         // One precision across the tiles.
         (BalanceKind.confirming, 'Confirming', '1.0'),

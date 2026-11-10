@@ -226,8 +226,8 @@ void main() {
       await tester.tap(find.byKey(balanceFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
-      // Total and Spendable are the same here: both rows say it in full.
-      expect(find.text('1,234.56781234\u00a0EPIC'), findsNWidgets(2));
+      // Balance, spendable now and Total are the same here: one row says it in full.
+      expect(find.text('1,234.56781234\u00a0EPIC'), findsOneWidget);
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsNothing);
@@ -244,7 +244,7 @@ void main() {
       await tester.tap(find.byKey(titleFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
-      expect(find.text('1,234.56781234\u00a0EPIC'), findsNWidgets(2));
+      expect(find.text('1,234.56781234\u00a0EPIC'), findsOneWidget);
     });
 
     testWidgets('hidden balances show dots and tell nothing on a tap', (tester) async {
@@ -272,7 +272,8 @@ void main() {
         summary: _summary(locked: 10, confirming: 7.492),
       );
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0');
+      // The figure is the wallet's balance: nothing spendable now, the 7.492 confirming.
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '7.492');
       // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
       for (final (kind, text) in [
         (BalanceKind.locked, '10.0'),
@@ -286,12 +287,12 @@ void main() {
       expect(tester.getRect(_inTile(BalanceKind.locked, '10.0')), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
-      // The header on Send and Receive agrees: the same 0, and the same amounts as tokens
+      // The header on Send and Receive agrees: the same 7.492, and the same amounts as tokens
       // (the test font is wide, so the line may be collapsed; a screen reader hears each).
       final handle = tester.ensureSemantics();
       for (final tab in [l.homeSendButton, l.homeReceiveButton]) {
         await _tab(tester, tab);
-        expect(_titleText(tester), startsWith('0'), reason: tab);
+        expect(_titleText(tester), startsWith('7.492'), reason: tab);
         for (final text in ['10.0 locked', '+7.492 coming in']) {
           expect(
             find.bySemanticsLabel(RegExp(RegExp.escape(text))),
@@ -301,6 +302,41 @@ void main() {
         }
       }
       handle.dispose();
+    });
+
+    testWidgets('a send from the only coin: the figure keeps the change coming back', (
+      tester,
+    ) async {
+      // 1 sent from one coin of 100 with a 0.008 fee, posted, not in a block yet: LEPIC
+      // locks the 100 and holds the 98.992 change outside Total until it is mined. A
+      // tester saw the balance "way off" here, so the figure must not fall to 0.
+      final session = FakeWalletSession(
+        summary: _summary(locked: 100, waiting: 98.992),
+        transactions: [
+          fakeTx(
+            id: 10,
+            slateId: 'to-alice',
+            kind: TxKind.sent,
+            status: TxStatus.awaitingConfirmation,
+            confirmed: false,
+            amountCredited: _epic(98.992),
+            amountDebited: _epic(100),
+            numInputs: 1,
+          ),
+        ],
+      );
+      await _pump(tester, session, width: 360);
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '98.992');
+      // What can be sent now is in the sheet, next to the balance.
+      final rows = BalanceHelp.rows(l, session.summaryValue, ownChange: _epic(98.992));
+      expect(rows.take(2).map((r) => (r.$1, r.$2)), [
+        (l.homeWalletBalance, _epic(98.992)),
+        (l.homeBalanceSpendableNow, BigInt.zero),
+      ]);
+      await tester.tap(find.byKey(balanceFigureKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceSheetKey), findsOneWidget);
+      expect(find.text(l.homeBalanceSpendableNow), findsOneWidget);
     });
 
     testWidgets(
@@ -341,9 +377,12 @@ void main() {
         handle.dispose();
         // The ? still lists each balance with its own words.
         final rows = BalanceHelp.rows(l, session.summaryValue);
+        // The wallet's balance (3.25 spendable + 2 confirming), what is spendable now, then
+        // the total, since all three differ.
         expect(rows.map((r) => r.$1), [
+          l.homeWalletBalance,
+          l.homeBalanceSpendableNow,
           l.balanceTotal,
-          l.homeBalanceSpendable,
           l.homeBalanceConfirming,
           l.homeBalanceNotOnChain,
           l.homeBalanceLocked,
@@ -375,9 +414,9 @@ void main() {
       );
       handle.dispose();
       final rows = BalanceHelp.rows(l, session.summaryValue);
+      // Balance, spendable now and total are all 1: one row says it.
       expect(rows.map((r) => r.$1), [
-        l.balanceTotal,
-        l.homeBalanceSpendable,
+        l.homeWalletBalance,
         l.homeBalanceNotOnChain,
       ]);
       expect(rows.first.$2, _epic(1));

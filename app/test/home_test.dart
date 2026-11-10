@@ -2652,7 +2652,7 @@ void main() {
       await h.pump(tester);
       // Wallet's figure reads its caption too.
       expect(
-        find.bySemanticsLabel('Spendable: Balance hidden'),
+        find.bySemanticsLabel('Balance: Balance hidden'),
         findsOneWidget,
       );
       expect(
@@ -3530,7 +3530,7 @@ void main() {
           );
           // No figure, fiat, caption or pending line in the body.
           expect(find.byKey(balanceFigureKey).hitTestable(), findsNothing);
-          expect(find.text(_l.homeBalanceSpendable), findsNothing);
+          expect(find.text(_l.homeBalanceSpendableNow), findsNothing);
         }
         // Nothing pending: no line, the figure alone.
         h.session.summaryValue = WalletSummary(
@@ -3629,7 +3629,7 @@ void main() {
       expect(unit.left, closeTo(figure.right + 8, 0.5));
       expect(unit.top, closeTo(figure.top + 7, 0.5));
       // The caption says what the figure is, above it.
-      expect(find.text(_l.homeAvailableToSpend), findsOneWidget);
+      expect(find.text(_l.homeWalletBalance), findsOneWidget);
       expect(caption.bottom, lessThanOrEqualTo(figure.top));
       // No panel, dots, breakdown, life line or status words.
       expect(
@@ -3646,7 +3646,7 @@ void main() {
       );
       // The figure itself in the area's middle, its EPIC beside it.
       expect(figure.center.dx, closeTo(area.center.dx, 1));
-      expect(find.text(_l.homeBalanceSpendable), findsNothing);
+      expect(find.text(_l.homeBalanceSpendableNow), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
       expect(find.byKey(walletStatusesKey), findsOneWidget);
       expect(find.byType(BalanceHelp), findsNothing);
@@ -3674,7 +3674,7 @@ void main() {
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('Spendable: 12.5\u00a0EPIC'), findsOneWidget);
+      expect(find.bySemanticsLabel('Balance: 12.5\u00a0EPIC'), findsOneWidget);
       handle.dispose();
     });
 
@@ -4368,8 +4368,9 @@ void main() {
       ).toPlainText();
       expect(
         tip,
+        'Balance: 12.5\u00a0EPIC\n'
+        'Spendable now, plus payments and your own change still confirming.\n\n'
         'Total: 14.5\u00a0EPIC\nEverything in this wallet, spendable or not.\n\n'
-        'Spendable: 12.5\u00a0EPIC\n\n'
         'Locked by a payment in progress: 2.0\u00a0EPIC\n'
         'Held for a payment you started; the change comes back when it '
         'completes.',

@@ -103,6 +103,13 @@ class Balance {
   /// inputs spent confirms it, so nothing counts twice. Without the core's figure, the same
   /// sum of the parts.
   int get total => reportedTotal ?? spendable + awaitingConfirmation + locked + immature;
+
+  /// The wallet's balance, Overview's big figure (as the phone's Wallet figure): [spendable],
+  /// plus [awaitingConfirmation] (payments and this wallet's own change in a block, confirming),
+  /// plus [ownChange], the change of its own sends not in a block yet ([ownChangeOffChain]),
+  /// never more than [awaitingFinalization]. A send takes it down by what it pays and its fee,
+  /// never by the coins it holds until its change confirms. Send spends [spendable] only.
+  int figure(int ownChange) => spendable + awaitingConfirmation + ownChange.clamp(0, awaitingFinalization);
 }
 
 enum TxDirection { received, sent }

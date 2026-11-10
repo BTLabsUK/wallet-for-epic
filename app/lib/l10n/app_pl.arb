@@ -307,8 +307,10 @@
   "homeHistoryChangedSinceBackup": "{count, plural, one{{count} płatność jest nowa lub zmieniona od ostatniego eksportu danych portfela.} few{{count} płatności są nowe lub zmienione od ostatniego eksportu danych portfela.} many{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.} other{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.}}",
   "homeHistoryReminderNotNow": "Nie teraz",
   "homeHistoryExportButton": "Eksportuj dane portfela",
-  "homeBalanceSpendable": "Dostępne",
   "balanceHelpLabel": "Co oznaczają te salda",
+  "homeBalanceSpendableNow": "Do wydania teraz",
+  "balanceWalletHelp": "Do wydania teraz oraz płatności i Twoja reszta, które wciąż czekają na potwierdzenia.",
+  "balanceSpendableNowHelp": "Tyle możesz teraz wysłać. Reszta będzie dostępna po potwierdzeniu.",
   "balanceTotal": "Łącznie",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Wszystko w tym portfelu, dostępne lub nie.",
@@ -966,7 +968,7 @@
   "sendTorNothingSent": "{reason} Nic nie zostało wysłane.",
   "sendTryAgain": "Spróbuj ponownie",
   "sendCancelPayment": "Anuluj płatność",
-  "homeAvailableToSpend": "Do wydania",
+  "homeWalletBalance": "Saldo",
   "homeTileWaitingSender": "Czeka na nadawcę",
   "homeTileLocked": "Zablokowane w wysyłkach",
   "homeTileTotal": "Razem",
@@ -1948,7 +1950,6 @@
   "deskOvSend": "Wyślij",
   "deskOvReceive": "Odbierz",
   "deskOvSendWaits": "Wysyłanie wróci po synchronizacji węzła.",
-  "deskOvAvailable": "Do wydania",
   "deskOvAsOfBlock": "Stan na blok {block}",
   "deskOvEmptyHint": "Udostępnij adres Epicbox, aby odebrać pierwsze EPIC.",
   "deskOvFiatNote": "  całe saldo",
@@ -5394,5 +5395,7 @@
   "noticeDigestNew": "{count, plural, one{{count} nowa aktualizacja} few{{count} nowe aktualizacje} many{{count} nowych aktualizacji} other{{count} nowej aktualizacji}}",
   "sasAllowOffLine": "Faktury od {name} są wyłączone.",
   "contactAllowFinishCheck": "Najpierw dokończ sprawdzanie kluczy",
-  "sasAllowInvoicesHintDesktop": "Portfel {name} może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela."
+  "sasAllowInvoicesHintDesktop": "Portfel {name} może prosić cię o zapłatę. Nic nie zostanie zapłacone bez hasła do portfela.",
+  "deskOvBalance": "Saldo",
+  "deskOvSpendableNow": "{amount} do wydania teraz"
 }

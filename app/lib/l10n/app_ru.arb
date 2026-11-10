@@ -307,8 +307,10 @@
   "homeHistoryChangedSinceBackup": "{count, plural, one{{count} платёж добавлен или изменён после последнего экспорта данных кошелька.} few{{count} платежа добавлены или изменены после последнего экспорта данных кошелька.} many{{count} платежей добавлены или изменены после последнего экспорта данных кошелька.} other{{count} платежа добавлены или изменены после последнего экспорта данных кошелька.}}",
   "homeHistoryReminderNotNow": "Не сейчас",
   "homeHistoryExportButton": "Экспорт данных кошелька",
-  "homeBalanceSpendable": "Доступно",
   "balanceHelpLabel": "Что означают эти балансы",
+  "homeBalanceSpendableNow": "Доступно сейчас",
+  "balanceWalletHelp": "Доступно сейчас, плюс платежи и ваша сдача, которые ещё подтверждаются.",
+  "balanceSpendableNowHelp": "Столько можно отправить сейчас. Остальное станет доступно после подтверждения.",
   "balanceTotal": "Всего",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Всё в этом кошельке, доступное и нет.",
@@ -966,7 +968,7 @@
   "sendTorNothingSent": "{reason} Ничего не отправлено.",
   "sendTryAgain": "Повторить",
   "sendCancelPayment": "Отменить платёж",
-  "homeAvailableToSpend": "Доступно",
+  "homeWalletBalance": "Баланс",
   "homeTileWaitingSender": "Ожидает отправителя",
   "homeTileLocked": "Заблокировано в отправках",
   "homeTileTotal": "Всего",
@@ -1948,7 +1950,6 @@
   "deskOvSend": "Отправить",
   "deskOvReceive": "Получить",
   "deskOvSendWaits": "Отправка возобновится, когда узел синхронизируется.",
-  "deskOvAvailable": "Доступно",
   "deskOvAsOfBlock": "На блоке {block}",
   "deskOvEmptyHint": "Поделитесь адресом Epicbox, чтобы получить первые EPIC.",
   "deskOvFiatNote": "  весь баланс",
@@ -5394,5 +5395,7 @@
   "noticeDigestNew": "{count, plural, one{{count} новое обновление} few{{count} новых обновления} many{{count} новых обновлений} other{{count} нового обновления}}",
   "sasAllowOffLine": "Счета от {name} выключены.",
   "contactAllowFinishCheck": "Сначала завершите проверку ключей",
-  "sasAllowInvoicesHintDesktop": "Кошелёк {name} сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается."
+  "sasAllowInvoicesHintDesktop": "Кошелёк {name} сможет просить вас об оплате. Без пароля кошелька ничего не оплачивается.",
+  "deskOvBalance": "Баланс",
+  "deskOvSpendableNow": "{amount} доступно сейчас"
 }

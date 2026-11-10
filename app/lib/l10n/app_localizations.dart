@@ -1963,17 +1963,29 @@ abstract class AppLocalizations {
   /// **'Export wallet data'**
   String get homeHistoryExportButton;
 
-  /// Label above the large balance on home: the funds that can be sent now.
-  ///
-  /// In en, this message translates to:
-  /// **'Spendable'**
-  String get homeBalanceSpendable;
-
   /// Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation.
   ///
   /// In en, this message translates to:
   /// **'What these balances mean'**
   String get balanceHelpLabel;
+
+  /// Row of the balance sheet, shown when it differs from the balance: what Send can use now.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable now'**
+  String get homeBalanceSpendableNow;
+
+  /// Explanation under Balance in the balance sheet: what the big figure counts.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable now, plus payments and your own change still confirming.'**
+  String get balanceWalletHelp;
+
+  /// Explanation under Spendable now in the balance sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'What you can send now. The rest becomes spendable once it confirms.'**
+  String get balanceSpendableNowHelp;
 
   /// Label in the balance explanation: everything in the wallet. Followed by a colon and the amount.
   ///
@@ -5917,11 +5929,11 @@ abstract class AppLocalizations {
   /// **'Cancel payment'**
   String get sendCancelPayment;
 
-  /// Caption above Wallet's big figure: the spendable balance.
+  /// Caption above Wallet's big figure, and the first row of the balance sheet: the wallet's balance (what can be spent, plus payments and the wallet's own change still confirming). Same word as the desktop's deskOvBalance.
   ///
   /// In en, this message translates to:
-  /// **'Available to spend'**
-  String get homeAvailableToSpend;
+  /// **'Balance'**
+  String get homeWalletBalance;
 
   /// Balance tile label: payments offered to this wallet that are not in a block yet (awaiting finalization). 1 to 3 words.
   ///
@@ -12780,12 +12792,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sending resumes when the node is synced.'**
   String get deskOvSendWaits;
-
-  /// Label above the big balance amount on Overview.
-  ///
-  /// In en, this message translates to:
-  /// **'Available to spend'**
-  String get deskOvAvailable;
 
   /// Small tag next to the balance: the balance is as of this block height.
   ///
@@ -32393,6 +32399,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}’s wallet can ask you to pay. Nothing is paid without the wallet password.'**
   String sasAllowInvoicesHintDesktop(String name);
+
+  /// Label above the big balance amount on Overview: the wallet's balance (what can be spent, plus payments and the wallet's own change still confirming). Same word as the phone's homeWalletBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get deskOvBalance;
+
+  /// Line under Overview's big balance while part of it is still confirming (the change of a send, a payment in a block): what Send can use now. amount is the EPIC amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} spendable now'**
+  String deskOvSpendableNow(String amount);
 }
 
 class _AppLocalizationsDelegate

@@ -1422,13 +1422,21 @@
   "@homeHistoryExportButton": {
     "description": "Button on the history backup card that saves the backup file."
   },
-  "homeBalanceSpendable": "Spendable",
-  "@homeBalanceSpendable": {
-    "description": "Label above the large balance on home: the funds that can be sent now."
-  },
   "balanceHelpLabel": "What these balances mean",
   "@balanceHelpLabel": {
     "description": "Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation."
+  },
+  "homeBalanceSpendableNow": "Spendable now",
+  "@homeBalanceSpendableNow": {
+    "description": "Row of the balance sheet, shown when it differs from the balance: what Send can use now."
+  },
+  "balanceWalletHelp": "Spendable now, plus payments and your own change still confirming.",
+  "@balanceWalletHelp": {
+    "description": "Explanation under Balance in the balance sheet: what the big figure counts."
+  },
+  "balanceSpendableNowHelp": "What you can send now. The rest becomes spendable once it confirms.",
+  "@balanceSpendableNowHelp": {
+    "description": "Explanation under Spendable now in the balance sheet."
   },
   "balanceTotal": "Total",
   "@balanceTotal": {
@@ -4677,9 +4685,9 @@
   "@sendCancelPayment": {
     "description": "Button: cancel the waiting payment, freeing its coins."
   },
-  "homeAvailableToSpend": "Available to spend",
-  "@homeAvailableToSpend": {
-    "description": "Caption above Wallet's big figure: the spendable balance."
+  "homeWalletBalance": "Balance",
+  "@homeWalletBalance": {
+    "description": "Caption above Wallet's big figure, and the first row of the balance sheet: the wallet's balance (what can be spent, plus payments and the wallet's own change still confirming). Same word as the desktop's deskOvBalance."
   },
   "homeTileWaitingSender": "Waiting for sender",
   "@homeTileWaitingSender": {
@@ -10612,10 +10620,6 @@
   "deskOvSendWaits": "Sending resumes when the node is synced.",
   "@deskOvSendWaits": {
     "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."
-  },
-  "deskOvAvailable": "Available to spend",
-  "@deskOvAvailable": {
-    "description": "Label above the big balance amount on Overview."
   },
   "deskOvAsOfBlock": "As of block {block}",
   "@deskOvAsOfBlock": {
@@ -28284,6 +28288,20 @@
       "name": {
         "type": "String",
         "example": "Anna"
+      }
+    }
+  },
+  "deskOvBalance": "Balance",
+  "@deskOvBalance": {
+    "description": "Label above the big balance amount on Overview: the wallet's balance (what can be spent, plus payments and the wallet's own change still confirming). Same word as the phone's homeWalletBalance."
+  },
+  "deskOvSpendableNow": "{amount} spendable now",
+  "@deskOvSpendableNow": {
+    "description": "Line under Overview's big balance while part of it is still confirming (the change of a send, a payment in a block): what Send can use now. amount is the EPIC amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.0 EPIC"
       }
     }
   }
