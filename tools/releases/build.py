@@ -8,7 +8,7 @@
         replaces the files of every slot it has a file for (see keep); a slot it leaves out
         (a platform out of its scope) keeps the earlier record's files. --github adds
         the Mirror link (only once the GitHub Release exists and is public);
-        a SHA256SUMS.sig in <dir> adds the signature check to every Before you install.
+        a SHA256SUMS.sig in <dir> adds the signature check to Verify downloads.
     tools/releases/build.py keep <version> < names
         Of the file names on stdin (the server's downloads/), print the ones the folder keeps
         once <version> is live: per slot, <version>'s files when it has any, else the newest
@@ -449,60 +449,79 @@ def platforms(g, latest):
     return '\n'.join(out)
 
 
-def sig_check(r):
-    """The signature check of SHA256SUMS, for a release published with SHA256SUMS.sig."""
-    if not r.get('sig'):
-        return ''
-    cmd = f'minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P {MINISIGN_PUBKEY}'
-    return ('<p>Check the checksums themselves: download <a href="downloads/SHA256SUMS.sig" download>SHA256SUMS.sig</a> '
-            'too and check its signature with BT LABS\' release key.</p>'
-            f'<div class="verify"><span>Signature</span><code data-copy="command" translate="no">{esc(cmd)}</code></div>')
+# Verify downloads: what each platform's primary file is called in its one plain line, and the
+# shell its command runs in (the label of the command inside For advanced users).
+VERIFY_WORDS = {
+    'windows': ('installer', 'tool', 'Command Prompt'),
+    'macos': ('disk image', 'tool', 'Terminal'),
+    'linux': ('AppImage', 'tool', 'Terminal'),
+    'android': ('APK', 'app', 'Termux'),
+}
 
 
-def cmd_block(label, cmd, key):
-    return (f'<div class="verify" id="verify-{key}"><span>{esc(label)}</span>'
-            f'<code data-copy="command" translate="no">{esc(cmd)}</code></div>')
+def cmd_block(label, cmd, what='command'):
+    return (f'<div class="verify"><span>{esc(label)}</span>'
+            f'<code data-copy="{what}" translate="no">{esc(cmd)}</code></div>')
 
 
-def android_verify(p):
-    """Phone-usable steps first (no terminal on a phone), then the computer's. The fingerprint is
-    ANDROID_CERT_SHA256, the only copy in this file."""
-    f = esc(p['name'])
-    return f'''<div class="v-android" id="verify-android">
-      <h3>Android</h3>
-      <p>Installs from Google Play are verified by Play. For the APK downloaded here, check that its signing certificate has this SHA-256:</p>
-      <div class="verify"><span>Certificate SHA-256</span><code data-copy="fingerprint" translate="no">{ANDROID_CERT_SHA256}</code></div>
-      <ol class="v-steps">
-        <li><b>On the phone:</b> install AppVerifier (open source; on F-Droid and Google Play), choose the downloaded APK in it and compare the certificate SHA-256 it shows with the one above.</li>
-        <li><b>Or in Termux:</b> run <code>termux-setup-storage</code> once, then the command below. The browser's downloads are in <code>~/storage/downloads/</code>. Compare the result with the SHA-256 shown with the download.
-          <div class="verify"><span>Termux</span><code data-copy="command" translate="no">sha256sum ~/storage/downloads/{f}</code></div></li>
-        <li><b>On a computer:</b> <code>apksigner</code> prints the certificate; compare its SHA-256 digest with the one above.
-          <div class="verify"><span>Computer</span><code data-copy="command" translate="no">apksigner verify --print-certs {f}</code></div></li>
-      </ol>
-    </div>'''
+def sums_check(r, late):
+    """The end of every For advanced users fold: SHA256SUMS, and the check of its signature for a
+    release published with SHA256SUMS.sig."""
+    out = [f'<p><a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists the SHA-256 of '
+           f'{"the other files" if late else "every file"}.'
+           + (' Its signature, <a href="downloads/SHA256SUMS.sig" download translate="no">SHA256SUMS.sig</a>, '
+              'is checked with BT LABS\' release key:' if r.get('sig') else '') + '</p>']
+    if r.get('sig'):
+        out.append(cmd_block('Signature', f'minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P {MINISIGN_PUBKEY}'))
+    if late:
+        out.append('<p>' + ' and '.join(f'<span translate="no">{esc(e["name"])}</span>' for e in late)
+                   + ' came after SHA256SUMS was signed and are not in it: compare them with the SHA-256 '
+                     'shown with each file.</p>')
+    return ''.join(out)
+
+
+def verify_advanced(key, p):
+    """What a platform's For advanced users fold holds before the SHA256SUMS part: the command
+    that prints the file's SHA-256; for Android the Termux command, apksigner and the signing
+    certificate's fingerprint (ANDROID_CERT_SHA256, the only copy in this file)."""
+    thing, _, shell = VERIFY_WORDS[key]
+    if key == 'android':
+        return ('<p>On the phone, in Termux: run <code>termux-setup-storage</code> once, then the command. It prints '
+                'the APK\'s SHA-256; the browser\'s downloads are in <code>~/storage/downloads/</code>.</p>'
+                + cmd_block(shell, f'sha256sum ~/storage/downloads/{p["name"]}')
+                + '<p>Installs from Google Play are verified by Play. The APK here is signed with BT LABS\' release key: '
+                  'on a computer, <code>apksigner</code> prints the signing certificate, and its SHA-256 digest is '
+                  'the one below.</p>'
+                + cmd_block('Computer', f'apksigner verify --print-certs {p["name"]}')
+                + cmd_block('Certificate SHA-256', ANDROID_CERT_SHA256, 'fingerprint'))
+    return (f'<p>The command prints the {thing}\'s SHA-256. Run it in the folder with the download.</p>'
+            + cmd_block(shell, BEFORE[key][1].format(file=p['name'])))
+
+
+def verify_card(key, p, tail):
+    """One platform: its name, one plain step (the file into a checksum tool, the result against
+    the value on the platform's card, which the step links to), and everything else folded under
+    For advanced users. The card's own Verify link leads here (#verify-<key>)."""
+    heading = PLAT[key][1]
+    thing, tool, _ = VERIFY_WORDS[key]
+    return (f'<div class="step-card v-card" id="verify-{key}"><h3><span class="ico sm">{ICONS[key]}</span>{esc(heading)}</h3>'
+            f'<p class="v-step">Open the {thing} in any SHA-256 checksum {tool} and compare the result with '
+            f'<a href="#dl-{key}">the value above<span class="vh">, on the {esc(heading)} download</span></a>.</p>'
+            f'<details class="fold v-adv"><summary>For advanced users<span class="vh">: {esc(heading)}</span></summary>'
+            f'<div class="bt">{verify_advanced(key, p)}{tail}</div></details></div>')
 
 
 def verify(g, latest):
-    """How to check a download: one command per system for its primary file, the phone steps for
-    Android, the signature when the release has one. Always open, under its own heading."""
-    blocks = []
-    for key in VERIFY_KEYS:
-        if key in g and g[key]['primary'] and key in BEFORE:
-            p = g[key]['primary']
-            if key == 'android':
-                blocks.append(android_verify(p))
-            else:
-                blocks.append(cmd_block(PLAT[key][1], BEFORE[key][1].format(file=p['name']), key))
+    """How to check a download: per platform one plain step, then a closed For advanced users
+    fold with the commands, the Android certificate and the signed SHA256SUMS."""
     late = [e for gg in g.values() for e in gg['files'] if e.get('unlisted')]
-    late_note = ('<p>' + ' and '.join(f'<span translate="no">{esc(e["name"])}</span>' for e in late)
-                 + ' came after SHA256SUMS was signed and are not in it: compare them with the SHA-256 shown with each file.</p>\n    ') if late else ''
+    tail = sums_check(latest, late)
+    cards = [verify_card(key, g[key]['primary'], tail) for key in VERIFY_KEYS
+             if key in g and g[key]['primary'] and key in BEFORE]
     return f'''<section class="wrap verify-sec" id="verify" aria-labelledby="verify-h">
   <div class="sh"><h2 id="verify-h"><span class="k-n" aria-hidden="true">[02]</span>Verify downloads</h2></div>
-  <div class="bt">
-    <p>Each card under All platforms shows its download's SHA-256 in short: selecting it copies the full value, and Files and checksums lists it for every file. To check a file, compute its SHA-256 and compare it with that value; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Commands for the primary download of each system:</p>
-    {late_note}{''.join(blocks)}
-    {sig_check(latest)}
-  </div>
+  <p class="v-intro">Each download above shows its SHA-256 in short; selecting it shows the whole value and copies it. A downloaded file that gives the same value arrived unchanged.</p>
+  <div class="step-cards v-cards">{''.join(cards)}</div>
 </section>'''
 
 

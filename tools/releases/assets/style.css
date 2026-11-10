@@ -400,9 +400,6 @@ a.store:hover { border-color: var(--mute); }
 .small-print { margin-top: 28px; font-size: 14px; color: var(--mute); max-width: 82ch; }
 .small-print > p { margin: 0 0 6px; }
 .small-print b { color: var(--dim); }
-.verify-fold { scroll-margin-top: 84px; }
-.verify-fold .bt { display: grid; gap: 8px; }
-.verify-fold .bt p { margin: 0; }
 
 /* ---------- what's new ---------- */
 .notes { padding-bottom: clamp(56px, 8vw, 104px); scroll-margin-top: 72px; }
@@ -503,10 +500,24 @@ a.store:hover { border-color: var(--mute); }
   .sum-copy, .sum-verify { min-height: 44px; }
 }
 .verify-sec { padding-bottom: clamp(40px, 6vw, 72px); scroll-margin-top: 72px; }
-.verify-sec .bt { display: grid; gap: 12px; max-width: 78ch; padding-bottom: 0; }
-.verify-sec .bt p { margin: 0; }
-.verify-sec .verify { scroll-margin-top: 84px; }
-.v-android { display: grid; gap: 10px; scroll-margin-top: 84px; }
-.v-android h3 { font-size: 16px; color: var(--text); }
-.v-steps { margin: 0; padding-left: 20px; display: grid; gap: 12px; }
-.v-steps .verify { margin-top: 8px; }
+/* One card per platform: its name, one plain step, everything else under For advanced users.
+   Each card keeps its own height, so an open fold does not stretch its neighbour; the card a
+   Verify link leads to is outlined. */
+.v-intro { margin: -8px 0 20px; max-width: 78ch; font-size: 14.5px; color: var(--dim); }
+.v-cards { align-items: start; }
+.v-card { min-width: 0; padding-bottom: 8px; scroll-margin-top: 84px; }
+.v-card:target { border-color: var(--accent); }
+.v-step { margin: 0; font-size: 15px; color: var(--text); }
+.v-adv { margin-top: 4px; }
+.v-adv summary { min-height: 44px; padding: 0; }
+.v-adv .bt { display: grid; gap: 10px; max-width: none; padding: 2px 0 14px; }
+.v-adv .bt p { margin: 0; }
+/* A command in the fold: its label and the copy button on one line, the command on its own
+   line below at the card's full width. The button's hit area reaches 44px on touch screens. */
+.v-adv .verify { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; }
+.v-adv .verify > span { width: auto; line-height: 1.3; }
+.v-adv .verify code { grid-column: 1 / -1; grid-row: 2; word-break: normal; }
+.v-adv .copy { grid-column: 2; grid-row: 1; position: relative; }
+@media (pointer: coarse) {
+  .v-adv .copy::after { content: ""; position: absolute; inset: -10px -6px; }
+}

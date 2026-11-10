@@ -8,8 +8,9 @@ dark and light, from the release screen catalog), a row of facts (version, date,
 every platform in one list (Desktop, then Mobile: the primary download, the one without Tor, the
 primary file's SHA-256 as one short line that copies the whole value, with the platform's Verify
 link, an Install guide fold and a Files and checksums fold), short phone install steps, Verify
-downloads (a command per platform, the Android certificate fingerprint and phone steps; the hero
-links to it once), and What's new: the first points of this version's changelog entry (read from
+downloads (a card per platform: one plain step, then a closed For advanced users fold with the
+command, the Android certificate fingerprint and the signed SHA256SUMS; the hero links to it
+once), and What's new: the first points of this version's changelog entry (read from
 changelog/index.html in the output folder; its old app names read as the app) with the earlier
 versions folded, each linking to its changelog entry. Served from the
 release folder on the server, today at https://examples.btlabs.uk/epic-cash-wallets/ and
@@ -37,7 +38,7 @@ their files stay in `downloads/` and in the signed `SHA256SUMS`. By hand:
 1. `tools/releases/build.py add 26.10.24 /srv/wfe-release/26.10.24` (the folder with
    the files and SHA256SUMS; `--date` if not today). Checksums are recomputed and must agree.
    When the folder holds `SHA256SUMS.sig` (written by `tools/release-files.py publish`), every
-   Before you install fold also shows the minisign check: then `SHA256SUMS` and
+   For advanced users fold under Verify downloads also shows the minisign check: then `SHA256SUMS` and
    `SHA256SUMS.sig` must be in `downloads/` on the server too. `--github` adds the Mirror
    link, only once the GitHub Release exists and logged-out visitors can open it.
 2. `tools/releases/build.py render` writes the page into the page repo's `site/epic-cash/`
@@ -68,6 +69,8 @@ platform's primary download. A file no pattern knows still appears, under Other 
   platform instead. Without JavaScript the hero's button leads to the platform list.
 - The Android certificate fingerprint in `ANDROID_CERT_SHA256` is the release key's
   (`apksigner verify --print-certs`); change it only if the key changes.
+- Verify downloads speaks to a beginner first: each platform's one visible line has no command
+  and names no checksum app. Commands, the certificate and the signature stay inside the fold.
 - The app is BT Wallet; the coin is Epic Cash. Platforms say Desktop or Mobile, never "Epic Cash
   Desktop/Mobile". BT LABS in caps. The footer keeps the independence line and "Use it within
   the law where you live." No store names, no tester group.
