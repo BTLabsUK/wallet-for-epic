@@ -149,16 +149,17 @@ List<PendingToken> pendingTokens(
 /// The wallet's balance, Wallet's big figure and the header's (as the desktop's Overview,
 /// `Balance.figure`): what can be spent, plus what is confirming (payments and the wallet's own
 /// change in a block), plus [ownChange], the change of its own sends not in a block yet
-/// ([ownChangeOffChain]), never more than what awaits finalization. A send takes it down by
-/// what it pays and its fee, never by the coins it holds until its change confirms. Send
-/// spends [WalletSummary.spendable] only.
+/// ([ownChangeOffChain]), never more than what awaits finalization, plus the coins held for a
+/// linked device ([WalletSummary.held]). A send takes it down by what it pays and its fee,
+/// never by the coins it holds until its change confirms, and holding coins never takes it
+/// down. Send spends [WalletSummary.spendable] only.
 BigInt walletFigure(WalletSummary summary, BigInt ownChange) {
   final own = ownChange < BigInt.zero
       ? BigInt.zero
       : ownChange > summary.awaitingFinalization
       ? summary.awaitingFinalization
       : ownChange;
-  return summary.spendable + summary.awaitingConfirmation + own;
+  return summary.spendable + summary.awaitingConfirmation + (summary.held ?? BigInt.zero) + own;
 }
 
 /// What a screen reader says for the figure: the balance's exact amount, and what can be

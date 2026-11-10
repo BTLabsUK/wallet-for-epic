@@ -78,6 +78,7 @@ class Balance {
     this.immature = 0,
     this.minConfirmations = defaultMinimumConfirmations,
     this.reportedTotal,
+    this.held = 0,
   });
 
   final int spendable;
@@ -89,6 +90,10 @@ class Balance {
 
   /// Mining rewards below their lock height.
   final int immature;
+
+  /// Of [locked], the coins this wallet holds back for a linked device's payment: spendable to
+  /// the core, so in the balance ([figure]), not in [spendable].
+  final int held;
 
   /// Confirmations a coin needs to count as [spendable]: the count LEPIC worked this balance
   /// out with. Sends ask for the same, so they can spend exactly [spendable].
@@ -106,10 +111,11 @@ class Balance {
 
   /// The wallet's balance, Overview's big figure (as the phone's Wallet figure): [spendable],
   /// plus [awaitingConfirmation] (payments and this wallet's own change in a block, confirming),
-  /// plus [ownChange], the change of its own sends not in a block yet ([ownChangeOffChain]),
-  /// never more than [awaitingFinalization]. A send takes it down by what it pays and its fee,
-  /// never by the coins it holds until its change confirms. Send spends [spendable] only.
-  int figure(int ownChange) => spendable + awaitingConfirmation + ownChange.clamp(0, awaitingFinalization);
+  /// plus [held] for a linked device, plus [ownChange], the change of its own sends not in a
+  /// block yet ([ownChangeOffChain]), never more than [awaitingFinalization]. A send takes it
+  /// down by what it pays and its fee, never by the coins it holds until its change confirms,
+  /// and holding coins for a linked device never takes it down. Send spends [spendable] only.
+  int figure(int ownChange) => spendable + awaitingConfirmation + held + ownChange.clamp(0, awaitingFinalization);
 }
 
 enum TxDirection { received, sent }

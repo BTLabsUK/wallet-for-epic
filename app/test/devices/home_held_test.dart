@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-// Coins a linked device is spending count as locked on Home, not as available (the core can
-// still spend them; this wallet holds them back).
+// Coins a linked device is spending count as locked on Home, not as spendable now (the core can
+// still spend them; this wallet holds them back). They stay in the balance figure.
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/ui/shell_header.dart' show walletFigure;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -53,5 +54,8 @@ void main() {
     expect(home.summary.spendable, BigInt.from(200000000));
     expect(home.summary.locked, BigInt.from(100000000));
     expect(home.summary.total, BigInt.from(300000000));
+    // Holding never drops the balance figure: the held coin stays in it.
+    expect(home.summary.held, BigInt.from(100000000));
+    expect(walletFigure(home.summary, BigInt.zero), BigInt.from(300000000));
   });
 }

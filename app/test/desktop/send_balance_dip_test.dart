@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/price.dart' show PriceNotifier, fiatChoiceProvider, priceProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as w;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,11 +53,19 @@ class _Wallet extends MockDeskWallet {
   Future<List<Tx>> transactions() async => [tx];
 }
 
-Future<void> _pump(WidgetTester tester, Balance b, Tx tx) async {
+/// 2 USD an EPIC.
+class _Price extends PriceNotifier {
+  @override
+  Future<double?> build() async => 2;
+}
+
+Future<void> _pump(WidgetTester tester, Balance b, Tx tx, {WalletLevel level = WalletLevel.justSendReceive}) async {
   final container = ProviderContainer(
     overrides: [
       deskApiProvider.overrideWithValue(_Wallet(b, tx)),
-      deskLevelProvider.overrideWithValue(WalletLevel.justSendReceive),
+      deskLevelProvider.overrideWithValue(level),
+      priceProvider.overrideWith(_Price.new),
+      fiatChoiceProvider.overrideWith((ref) async => (show: true, currency: 'usd')),
     ],
   );
   addTearDown(container.dispose);
@@ -108,6 +117,33 @@ void main() {
       _send(TxState.confirming, height: 3792470, confirmations: 2),
     );
     _expectBalanceKept(tester);
+  });
+
+  testWidgets('deeper levels: the money line converts the figure, not the total', (tester) async {
+    await _pump(
+      tester,
+      const Balance(spendable: 0, awaitingConfirmation: 0, locked: 100 * _epic, awaitingFinalization: _change, reportedTotal: 100 * _epic),
+      _send(TxState.posted),
+      level: WalletLevel.everything,
+    );
+    final shown = _shown(tester);
+    expect(shown, contains('98.99'));
+    // 98.992 at 2 USD, not the 100 of the total.
+    expect(shown, contains('197.98'));
+    expect(shown, isNot(contains('200.00')));
+  });
+
+  testWidgets('coins held for a linked device stay in the figure, not in spendable now', (tester) async {
+    // 300 in three coins, 100 of them held for a linked device's payment: spendable to the
+    // core, held back here as locked.
+    await _pump(
+      tester,
+      const Balance(spendable: 200 * _epic, awaitingConfirmation: 0, locked: 100 * _epic, awaitingFinalization: 0, reportedTotal: 300 * _epic, held: 100 * _epic),
+      _send(TxState.confirmed, height: 3792470, confirmations: 10),
+    );
+    final shown = _shown(tester);
+    expect(shown, contains('300.0'));
+    expect(shown, contains('200.0\u00a0EPIC spendable now'));
   });
 
   testWidgets('nothing pending: one figure, no spendable-now line', (tester) async {

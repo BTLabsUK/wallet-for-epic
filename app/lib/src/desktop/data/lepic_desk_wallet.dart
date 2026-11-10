@@ -2325,6 +2325,7 @@ class LepicDeskWallet implements DeskWalletApi {
       immature: s.immature.toInt(),
       minConfirmations: _minConf.toInt(),
       reportedTotal: s.total.toInt(),
+      held: held,
     );
   }
 

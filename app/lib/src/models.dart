@@ -2940,6 +2940,10 @@ class WalletSummary {
   /// False when the refresh against the node failed and the numbers come from the local DB.
   final bool validatedWithNode;
 
+  /// Of [locked], the coins this wallet holds back for a linked device's payment: spendable to
+  /// the core, so in the balance (`walletFigure`), not in [spendable]. Null: none held.
+  final BigInt? held;
+
   const WalletSummary({
     required this.lastConfirmedHeight,
     required this.minimumConfirmations,
@@ -2950,6 +2954,7 @@ class WalletSummary {
     required this.immature,
     required this.locked,
     required this.validatedWithNode,
+    this.held,
   });
 
   WalletSummary copyWith({BigInt? minimumConfirmations}) => WalletSummary(
@@ -2962,6 +2967,7 @@ class WalletSummary {
     immature: immature,
     locked: locked,
     validatedWithNode: validatedWithNode,
+    held: held,
   );
 
   @override
@@ -2974,7 +2980,8 @@ class WalletSummary {
       awaitingFinalization.hashCode ^
       immature.hashCode ^
       locked.hashCode ^
-      validatedWithNode.hashCode;
+      validatedWithNode.hashCode ^
+      held.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2989,7 +2996,8 @@ class WalletSummary {
           awaitingFinalization == other.awaitingFinalization &&
           immature == other.immature &&
           locked == other.locked &&
-          validatedWithNode == other.validatedWithNode;
+          validatedWithNode == other.validatedWithNode &&
+          held == other.held;
 }
 
 /// Confirmations before an output counts as spendable, until a balance says otherwise: the

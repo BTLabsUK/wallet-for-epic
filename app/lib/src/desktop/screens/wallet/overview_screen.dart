@@ -491,7 +491,7 @@ class _BalancePanel extends ConsumerWidget {
                       Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: hidden ? '≈ ••• ${currency.toUpperCase()}' : '≈ ${localDigits(l, fiatText(BigInt.from(b.total), price, currency))}'), // l10n-ok: digits and the currency code
+                            TextSpan(text: hidden ? '≈ ••• ${currency.toUpperCase()}' : '≈ ${localDigits(l, fiatText(BigInt.from(b.figure(own)), price, currency))}'), // l10n-ok: digits and the currency code
                             TextSpan(
                               text: l.deskOvFiatNote,
                               style: TextStyle(color: c.faint),

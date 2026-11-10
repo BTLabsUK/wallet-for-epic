@@ -427,7 +427,8 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   }
 
   /// [summary] with the coins a linked device is spending ([WalletSession.heldOutputs]) moved
-  /// from spendable to locked: the core can spend them, but this wallet holds them back.
+  /// from spendable to locked: the core can spend them, but this wallet holds them back. They
+  /// stay in the balance figure ([WalletSummary.held]).
   Future<WalletSummary> _withHeld(WalletSession session, WalletSummary summary) async {
     final held = session.heldOutputs;
     if (held.isEmpty) return summary;
@@ -449,6 +450,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       immature: summary.immature,
       locked: summary.locked + value,
       validatedWithNode: summary.validatedWithNode,
+      held: value,
     );
   }
 

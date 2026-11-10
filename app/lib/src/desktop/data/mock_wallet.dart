@@ -598,6 +598,7 @@ class MockDeskWallet implements DeskWalletApi {
       awaitingFinalization: _epic(12.5),
       immature: _epic(2),
       minConfirmations: _minConf,
+      held: held,
     );
   }
 
