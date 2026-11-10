@@ -28563,11 +28563,11 @@
   },
   "deskTrayEpicbox": "Epicbox: {state}",
   "@deskTrayEpicbox": {
-    "description": "Tray menu status line of the open wallet's Epicbox receiving. {state} is the state as Settings › Transactions says it (Connected · epicbox.epiccash.com, Off, Wallet locked). 'Epicbox' is a name, never translated.",
+    "description": "Tray menu status line of the open wallet's Epicbox receiving. {state} is the state as Settings › Transactions says it (Connected · relay.example, Off, Wallet locked). 'Epicbox' is a name, never translated.",
     "placeholders": {
       "state": {
         "type": "String",
-        "example": "Connected · epicbox.epiccash.com"
+        "example": "Connected · relay.example"
       }
     }
   },

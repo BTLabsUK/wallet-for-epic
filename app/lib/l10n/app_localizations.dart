@@ -32718,7 +32718,7 @@ abstract class AppLocalizations {
   /// **'height {height}'**
   String deskTrayHeight(String height);
 
-  /// Tray menu status line of the open wallet's Epicbox receiving. {state} is the state as Settings › Transactions says it (Connected · epicbox.epiccash.com, Off, Wallet locked). 'Epicbox' is a name, never translated.
+  /// Tray menu status line of the open wallet's Epicbox receiving. {state} is the state as Settings › Transactions says it (Connected · relay.example, Off, Wallet locked). 'Epicbox' is a name, never translated.
   ///
   /// In en, this message translates to:
   /// **'Epicbox: {state}'**
