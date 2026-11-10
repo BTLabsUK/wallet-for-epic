@@ -25,10 +25,10 @@
 # night    informs  lane-pairing-linux       needs testbuild-linux@variant
 # night    informs  lane-linking-linux       needs testbuild-linux@variant
 # night    informs  create-windows           needs flow-windows@variant
-# night    informs  trust-pair-linux
-# night    informs  trust-pair-linux-notor
-# night    informs  trust-pair-android
-# night    informs  trust-pair-windows
+# night    informs  trust-pair-linux         needs -
+# night    informs  trust-pair-linux-notor   needs -
+# night    informs  trust-pair-android       needs -
+# night    informs  trust-pair-windows       needs -
 # release  blocks   hosted-dispatch          needs source, source-check
 # release  blocks   build-android            needs source, source-check, hosted-dispatch; outputs bt-wallet-{version}{notor}-android-arm64-v8a.apk
 # release  blocks   build-play               needs build-android

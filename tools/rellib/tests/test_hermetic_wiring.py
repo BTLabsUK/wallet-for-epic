@@ -188,6 +188,7 @@ class WindowsServersTest(unittest.TestCase):
     def platform(self, plan, rig=None):
         p = object.__new__(wp.WindowsPlatform)
         p.rig, p.hermetic, p.ports, p.log = rig or FakeRig(), plan, {}, lambda line: None
+        p.agent_reused = False  # a fresh run: no agent left up by a failed attempt
         p.node, p.relay = (plan.get("node") or "https://node.pub"), (plan.get("relay") or "box.pub")
         return p
 
