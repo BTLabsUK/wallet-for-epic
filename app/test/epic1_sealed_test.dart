@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_pin.dart';
@@ -100,27 +101,48 @@ void main() {
   });
 
   group('Epic1Mark', () {
-    testWidgets('takes the x-height of its text and says epic1 once', (tester) async {
+    testWidgets('sets its letters at the text size on the baseline and says epic1 once', (tester) async {
       final semantics = tester.ensureSemantics();
       await tester.pumpWidget(_app(const Epic1Mark(fontSize: 16, scaleText: false)));
       await tester.pumpAndSettle();
       final size = tester.getSize(find.byType(Epic1Mark));
-      expect(size.width, moreOrLessEquals(Epic1Mark.sizeFor(16).width, epsilon: 0.01));
+      // The pack's box: four letters at 0.58 em, a 0.1 em gap, the 0.73 em mark.
+      expect(size.width, moreOrLessEquals(16 * (4 * 0.58 + 0.1 + 69 / 49 * 0.73), epsilon: 0.01));
       expect(size.height, moreOrLessEquals(Epic1Mark.sizeFor(16).height, epsilon: 0.01));
-      // The x-height of "epic" is the text's: 0.53 of the font size.
-      expect(Epic1Mark.sizeFor(16).height * Epic1Art.xHeight / Epic1Art.height, moreOrLessEquals(16 * 0.53, epsilon: 0.01));
+      expect(find.byType(SvgPicture), findsOneWidget);
       expect(find.bySemanticsLabel('epic1'), findsOneWidget);
       semantics.dispose();
     });
 
-    testWidgets('Epic1Text: the mark at 13 px and up, the plain token below or in a link', (tester) async {
+    testWidgets('below the 14 px minimum it is the 1 alone, 0.73 em high on the baseline', (tester) async {
+      await tester.pumpWidget(_app(const Epic1Mark(fontSize: 12, scaleText: false)));
+      await tester.pumpAndSettle();
+      expect(find.byType(SvgPicture), findsNothing);
+      expect(tester.getSize(find.byType(Epic1Mark)), Size(12 * 0.73 * 29 / 49, 12 * 0.73));
+    });
+
+    testWidgets('Epic1Glyph: columns 0 to 4 from 24 px, the 1 alone below', (tester) async {
+      for (final (size, columns) in [(24.0, 5), (20.0, 3)]) {
+        await tester.pumpWidget(_app(Epic1Glyph(size: size)));
+        await tester.pumpAndSettle();
+        final paint = tester.getSize(find.descendant(of: find.byType(Epic1Glyph), matching: find.byType(CustomPaint)).last);
+        expect(paint.height, moreOrLessEquals(size * 0.8, epsilon: 0.01));
+        expect(paint.width / paint.height, moreOrLessEquals((columns * 10 - 1) / 49, epsilon: 0.001), reason: '$size');
+      }
+    });
+
+    testWidgets('Epic1Text: the wordmark at 14 px and up with clear space, the plain token below or in a link', (tester) async {
       final semantics = tester.ensureSemantics();
-      await tester.pumpWidget(_app(const Epic1Text('epic1 payments', style: TextStyle(fontSize: 16))));
+      await tester.pumpWidget(_app(const Epic1Text('Use epic1 payments', style: TextStyle(fontSize: 16))));
       await tester.pumpAndSettle();
       expect(find.byType(Epic1Mark), findsOneWidget);
-      expect(find.bySemanticsLabel('epic1 payments'), findsOneWidget);
+      expect(find.bySemanticsLabel('Use epic1 payments'), findsOneWidget);
+      final mark = tester.widget<Epic1Mark>(find.byType(Epic1Mark));
+      expect(mark.clearStart, greaterThanOrEqualTo(0));
+      expect(mark.clearStart, mark.clearEnd);
+      expect(Epic1Art.clearSpace, moreOrLessEquals(20 * 0.73 / 49, epsilon: 1e-9));
 
-      for (final (text, size) in [('epic1 payments', 12.0), ('epic:epic1qabc', 16.0), ('epic1-Links', 16.0), ('Payments', 16.0)]) {
+      for (final (text, size) in [('epic1 payments', 13.0), ('epic:epic1qabc', 16.0), ('epic1-Links', 16.0), ('Payments', 16.0)]) {
         await tester.pumpWidget(_app(Epic1Text(text, style: TextStyle(fontSize: size))));
         await tester.pumpAndSettle();
         expect(find.byType(Epic1Mark), findsNothing, reason: '$text at $size');
