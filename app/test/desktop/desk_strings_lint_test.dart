@@ -23,12 +23,14 @@ const _skipped = <String>{
   'data/mock_invoices.dart',
   'screens/invoices/proto_panel.dart', // the mock wallet's prototype panel: never ships
   'app/shots.dart',
+  'app/tray/tray_linux.dart', // D-Bus StatusNotifierItem names and values: never shown
   'screens/invoices/shots.dart',
   'screens/invoices/shots_core.dart',
   'screens/invoices/shots_help.dart',
   'screens/invoices/shots_pay.dart',
   'screens/invoices/shots_req.dart',
   'screens/devices/shots.dart',
+  'screens/epic1/shots.dart',
   'screens/onboarding/shots.dart',
   'screens/settings/shots.dart',
   'data/desk_link_handler.dart', // the Linux link entry's file text

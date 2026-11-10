@@ -93,8 +93,8 @@ Future<bool?> windowsMetered() async {
           'if (\$p) { \$p.GetConnectionCost().NetworkCostType }',
     ]).timeout(const Duration(seconds: 8));
     return switch ((r.stdout as String).trim()) {
-      'Unrestricted' => false,
-      'Fixed' || 'Variable' => true,
+      'Unrestricted' => false, // l10n-ok
+      'Fixed' || 'Variable' => true, // l10n-ok
       _ => null,
     };
   } on Object {
