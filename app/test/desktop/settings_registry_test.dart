@@ -36,6 +36,11 @@ Map<String, List<String>> _anchors(Map<String, String> names) {
   return out;
 }
 
+/// Rows a page shows again on purpose: the Epicbox server picker is under the Epicbox method,
+/// or in the epic1 group in epic1 mode, on Payments, and at Shallow also in Network & privacy's
+/// Servers group. Search jumps to the registry's page.
+const _placedByView = {'epicboxServer'};
+
 void main() {
   final names = _idNames();
 
@@ -74,7 +79,7 @@ void main() {
     }
     final missing = [for (final e in settingsRegistry) if (!anchors.containsKey(e.id)) e.id];
     expect(missing, isEmpty, reason: 'registry rows no page anchors: $missing');
-    final twice = [for (final MapEntry(:key, :value) in anchors.entries) if (value.length > 1) '$key (${value.join(', ')})'];
+    final twice = [for (final MapEntry(:key, :value) in anchors.entries) if (value.length > 1 && !_placedByView.contains(key)) '$key (${value.join(', ')})'];
     expect(twice, isEmpty, reason: 'anchored more than once: $twice');
   });
 }

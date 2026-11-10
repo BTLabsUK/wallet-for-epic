@@ -76,13 +76,15 @@ void main() {
   }, skip: _withTor);
 
   test('hidden by the view or a switch: listed apart, with what shows them', () {
-    // Shallow: Payments is Deeper's; Network & privacy shows at every view.
+    // Shallow: Transactions and Network & privacy show at every view; Advanced's Outputs row is Deeper's.
     final r = find('tor', view: shallow);
-    expect(ids(r.shown), allOf(contains(SetId.netMode), isNot(contains(SetId.torPay))));
-    final pay = r.hidden.firstWhere((h) => h.entry.id == SetId.torPay);
-    expect(pay.reasons, ['Deeper view']);
-    expect(pay.level, 2);
-    expect(pay.features, isEmpty);
+    expect(ids(r.shown), containsAll([SetId.netMode, SetId.torPay]));
+    final out = find('outputs', view: shallow);
+    expect(ids(out.shown), isNot(contains(SetId.advOutputs)));
+    final adv = out.hidden.firstWhere((h) => h.entry.id == SetId.advOutputs);
+    expect(adv.reasons, ['Deeper view']);
+    expect(adv.level, 2);
+    expect(adv.features, isEmpty);
     // Deeper without the Logs switch: the logs rows want Advanced › Logs.
     final logs = find('log level', view: const SetView(2, {})).hidden.single;
     expect(logs.entry.id, SetId.logLevel);

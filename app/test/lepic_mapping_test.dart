@@ -208,7 +208,7 @@ void main() {
       expect(mapped.txId, 42);
       expect(mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.other, code: 1, message: 'm')).txId, isNull);
       final tooNew = mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.walletTooNew, code: 113, message: 'newer'));
-      expect(tooNew.kind, WalletErrorKind.io);
+      expect(tooNew.kind, WalletErrorKind.walletTooNew);
       expect(tooNew.message, 'newer');
       // The probe failed before anything was stored: no txId to cancel or resend.
       expect(mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.peerProbeFailed, code: 1, message: 'm')).txId, isNull);

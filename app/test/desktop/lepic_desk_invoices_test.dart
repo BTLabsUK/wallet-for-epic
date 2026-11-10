@@ -138,6 +138,8 @@ class _Wallet implements lepic.EpicWallet {
   @override
   void dispose() {}
   @override
+  bool nativeDirectInUse() => false;
+  @override
   dynamic noSuchMethod(Invocation invocation) => throw StateError('reached LEPIC: ${invocation.memberName}');
 
   @override
