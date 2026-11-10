@@ -297,6 +297,23 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.localNode,
       ),
+    if (!phone)
+      HelpTopic(
+        'network',
+        '这台电脑要运行节点吗？',
+        '本地节点适合长时间保持打开的钱包。公共节点适合短时间使用。',
+        [
+          HelpBlock.p('本地节点只在应用打开期间保持同步。中断之后，它会先追上错过的区块，所以钱包打开得越久，节点处于同步、保持查询私密并向其他节点转发区块的时间占比就越大。'),
+          HelpBlock.ul([
+            '**大部分时间。** 很合适：节点几乎始终同步。',
+            '**一两个小时。** 可用，每次打开时先追赶一段。',
+            '**几分钟。** 每次使用的大部分时间花在追赶上。公共节点更快。',
+            '**计量连接。** 首次同步会下载整条区块链，约 5 GB。请在不限流量的连接上启动。',
+          ]),
+          HelpBlock.p('在$nodePlace中选择本地节点时，适用性检查会问这两个问题。它会根据钱包最近几天的打开时长给出建议答案；时长只在这台电脑上统计，不会发送到任何地方。在 Windows 上，它还会读取连接是否为计量连接。'),
+        ],
+        id: HelpId.nodeFit,
+      ),
     HelpTopic(
       'network',
       'Epicbox',

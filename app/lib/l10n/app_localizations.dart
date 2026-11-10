@@ -32405,6 +32405,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} spendable now'**
   String deskOvSpendableNow(String amount);
+
+  /// Title of the local node fit check: a dialog shown when the user picks the local node (the node program on this computer) in Settings > Node, and from Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Should this computer run a node?'**
+  String get deskNodeFitTitle;
+
+  /// Local node fit check: line under the title. 'Settings › Node' names the settings page; keep the › sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Two questions. This can be changed any time in Settings › Node.'**
+  String get deskNodeFitDescription;
+
+  /// Local node fit check: first question, above three choices.
+  ///
+  /// In en, this message translates to:
+  /// **'How long is the wallet usually open?'**
+  String get deskNodeFitOpenQ;
+
+  /// Local node fit check: answer to 'How long is the wallet usually open?'. Short, it sits in a segmented control.
+  ///
+  /// In en, this message translates to:
+  /// **'Most of the day'**
+  String get deskNodeFitOpenDay;
+
+  /// Local node fit check: answer to 'How long is the wallet usually open?'. Short, it sits in a segmented control.
+  ///
+  /// In en, this message translates to:
+  /// **'An hour or two'**
+  String get deskNodeFitOpenHours;
+
+  /// Local node fit check: answer to 'How long is the wallet usually open?'. Short, it sits in a segmented control.
+  ///
+  /// In en, this message translates to:
+  /// **'A few minutes'**
+  String get deskNodeFitOpenMinutes;
+
+  /// Local node fit check: hint beside the first question, from the time the wallet was open over the last days, counted on this computer only. {hours} is a whole number of hours. 'h' is the short form of hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently: about {hours} h a day'**
+  String deskNodeFitOpenHint(int hours);
+
+  /// Local node fit check: hint beside the first question when the wallet was open less than an hour a day over the last days.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently: under an hour a day'**
+  String get deskNodeFitOpenHintUnder;
+
+  /// Local node fit check: second question, about the internet connection, above two choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Your connection'**
+  String get deskNodeFitNetQ;
+
+  /// Local node fit check: answer to 'Your connection': unlimited data.
+  ///
+  /// In en, this message translates to:
+  /// **'No data limit'**
+  String get deskNodeFitNetFree;
+
+  /// Local node fit check: answer to 'Your connection': a plan with a data limit or a phone hotspot.
+  ///
+  /// In en, this message translates to:
+  /// **'Metered or mobile'**
+  String get deskNodeFitNetMetered;
+
+  /// Local node fit check, Windows only: hint beside 'Your connection' when Windows reports the connection is not metered.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows says: not metered'**
+  String get deskNodeFitNetHintFree;
+
+  /// Local node fit check, Windows only: hint beside 'Your connection' when Windows reports a metered connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows says: metered'**
+  String get deskNodeFitNetHintMetered;
+
+  /// Local node fit check: label of the disk space line.
+  ///
+  /// In en, this message translates to:
+  /// **'Disk space'**
+  String get deskNodeFitDisk;
+
+  /// Local node fit check: disk space line. {free} is the free space on the drive (e.g. '212 GB'), {chain} the size of the blockchain on disk (e.g. '5 GB').
+  ///
+  /// In en, this message translates to:
+  /// **'{free} free, the chain takes about {chain}'**
+  String deskNodeFitDiskFree(String free, String chain);
+
+  /// Local node fit check: disk space line when the free space cannot be read. {chain} is the size of the blockchain on disk (e.g. '5 GB').
+  ///
+  /// In en, this message translates to:
+  /// **'The chain takes about {chain}'**
+  String deskNodeFitDiskUnknown(String chain);
+
+  /// Local node fit check: line under the disk space when blockchain data from another Epic node or wallet is on this computer. {size} e.g. '4.2 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {size} of chain data on this computer. It can be reused.'**
+  String deskNodeFitFound(String size);
+
+  /// Local node fit check: verdict title when the wallet is open most of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Good fit'**
+  String get deskNodeFitGood;
+
+  /// Local node fit check: verdict text under 'Good fit'. The node runs only while the app is open; do not suggest it runs when the app is closed.
+  ///
+  /// In en, this message translates to:
+  /// **'The node stays in sync while the wallet is open, keeps lookups private and helps the network.'**
+  String get deskNodeFitGoodText;
+
+  /// Local node fit check: verdict title when the wallet is open an hour or two.
+  ///
+  /// In en, this message translates to:
+  /// **'Works, with a wait each time'**
+  String get deskNodeFitWait;
+
+  /// Local node fit check: verdict text under 'Works, with a wait each time'.
+  ///
+  /// In en, this message translates to:
+  /// **'Each time the wallet opens, the node first catches up on the blocks it missed.'**
+  String get deskNodeFitWaitText;
+
+  /// Local node fit check: verdict title when the wallet is open only a few minutes at a time.
+  ///
+  /// In en, this message translates to:
+  /// **'A public node fits better'**
+  String get deskNodeFitPublic;
+
+  /// Local node fit check: verdict text under 'A public node fits better'.
+  ///
+  /// In en, this message translates to:
+  /// **'Short visits go to catching up: the wallet feels slower and the network gains little.'**
+  String get deskNodeFitPublicText;
+
+  /// Local node fit check: verdict title when the connection is metered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mind the first download'**
+  String get deskNodeFitMetered;
+
+  /// Local node fit check: verdict text under 'Mind the first download'. {size} e.g. '5 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'The first sync downloads about {size}. Start it on a connection without a data limit.'**
+  String deskNodeFitMeteredText(String size);
+
+  /// Local node fit check: verdict title when the drive has too little free space for the blockchain.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough free space'**
+  String get deskNodeFitNoSpace;
+
+  /// Local node fit check: verdict text under 'Not enough free space'. {chain} and {floor} are sizes, e.g. '5 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'The chain takes about {chain}, and {floor} more must stay free on this drive.'**
+  String deskNodeFitNoSpaceText(String chain, String floor);
+
+  /// Local node fit check: caption beside the picture of the node and its peers, when the wallet is open most of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'In sync almost all the time'**
+  String get deskNodeFitCapDay;
+
+  /// Local node fit check: second line of the caption 'In sync almost all the time'.
+  ///
+  /// In en, this message translates to:
+  /// **'And passing blocks on to others'**
+  String get deskNodeFitCapDaySub;
+
+  /// Local node fit check: caption beside the picture of the node, when the wallet is open an hour or two.
+  ///
+  /// In en, this message translates to:
+  /// **'Catches up at each visit'**
+  String get deskNodeFitCapHours;
+
+  /// Local node fit check: second line of the caption 'Catches up at each visit'.
+  ///
+  /// In en, this message translates to:
+  /// **'Then stays in sync while open'**
+  String get deskNodeFitCapHoursSub;
+
+  /// Local node fit check: caption beside the picture of the node, when the wallet is open a few minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mostly catching up'**
+  String get deskNodeFitCapMinutes;
+
+  /// Local node fit check: second line of the caption 'Mostly catching up'.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet closes before the node is in sync'**
+  String get deskNodeFitCapMinutesSub;
+
+  /// Local node fit check: legend of the green part of the ring in the picture. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'in sync'**
+  String get deskNodeFitInSync;
+
+  /// Local node fit check: legend of the striped amber part of the ring in the picture. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'catching up'**
+  String get deskNodeFitCatchingUp;
+
+  /// Local node fit check: label in the middle of the picture, under the computer icon. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'this computer'**
+  String get deskNodeFitThisComputer;
+
+  /// Local node fit check: small tag in the picture, lit when it applies: the wallet asks its own node, not a public one.
+  ///
+  /// In en, this message translates to:
+  /// **'Private lookups'**
+  String get deskNodeFitChipPrivate;
+
+  /// Local node fit check: small tag in the picture, lit when it applies: the node passes blocks on to other nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Helps the network'**
+  String get deskNodeFitChipNetwork;
+
+  /// Local node fit check: small tag in the picture, lit when it applies: the node is in sync for most of the time the wallet is open.
+  ///
+  /// In en, this message translates to:
+  /// **'In sync while open'**
+  String get deskNodeFitChipInSync;
+
+  /// Local node fit check: small tag in the picture when the connection is metered. {size} e.g. '5 GB'.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size} first download'**
+  String deskNodeFitDownload(String size);
+
+  /// Local node fit check: checkbox above the buttons. When ticked, picking the local node skips this check; it stays in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t show this again'**
+  String get deskNodeFitDontShow;
+
+  /// Local node fit check: button that starts the node program on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start local node'**
+  String get deskNodeFitStart;
+
+  /// Local node fit check: secondary button when the verdict advises against the local node; starts it all the same.
+  ///
+  /// In en, this message translates to:
+  /// **'Start it anyway'**
+  String get deskNodeFitStartAnyway;
+
+  /// Local node fit check: main button when the verdict advises against the local node; closes and keeps the current node.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep public node'**
+  String get deskNodeFitKeepPublic;
+
+  /// Local node fit check: button that closes it and keeps the current node.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get deskNodeFitNotNow;
+
+  /// Local node fit check opened from Help while the local node already runs: line above the Close button. Keep the › sign.
+  ///
+  /// In en, this message translates to:
+  /// **'The local node is in use. Its settings are in Settings › Node.'**
+  String get deskNodeFitInUse;
+
+  /// Help, topic 'Should this computer run a node?': button that opens the local node fit check.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the fit check'**
+  String get deskNodeFitOpenCheck;
+
+  /// Toast title after the local node is started.
+  ///
+  /// In en, this message translates to:
+  /// **'Local node started'**
+  String get deskNodeFitStarted;
+
+  /// Toast text after the local node is started, when another node is used while it syncs. {host} is a node address, e.g. node.example.com.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet works through {host} until the node is in sync.'**
+  String deskNodeFitStartedText(String host);
+
+  /// Toast text after the local node is started, when no other node is used while it syncs.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances and sending wait until the node is in sync.'**
+  String get deskNodeFitStartedAlone;
 }
 
 class _AppLocalizationsDelegate

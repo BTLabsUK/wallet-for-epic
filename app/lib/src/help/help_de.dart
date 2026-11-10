@@ -299,6 +299,23 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.localNode,
       ),
+    if (!phone)
+      HelpTopic(
+        'network',
+        'Soll dieser Computer einen Node betreiben?',
+        'Ein lokaler Node passt zu einer Wallet, die stundenlang offen bleibt. Ein öffentlicher Node passt zu kurzen Besuchen.',
+        [
+          HelpBlock.p('Der lokale Node ist nur synchron, solange die App geöffnet ist. Nach einer Pause holt er zuerst die verpassten Blöcke nach. Je länger die Wallet offen bleibt, desto größer ist der Anteil dieser Zeit, in dem der Node synchron ist, Abfragen privat hält und Blöcke an andere Nodes weitergibt.'),
+          HelpBlock.ul([
+            '**Den Großteil des Tages.** Gut geeignet: Der Node ist fast immer synchron.',
+            '**Ein bis zwei Stunden.** Funktioniert, mit einem Aufholen zu Beginn jedes Besuchs.',
+            '**Wenige Minuten.** Der größte Teil jedes Besuchs geht für das Aufholen drauf. Ein öffentlicher Node ist schneller.',
+            '**Getaktete Verbindung.** Der erste Sync lädt die ganze Chain herunter, etwa 5 GB. Starten Sie ihn mit einer Verbindung ohne Datenlimit.',
+          ]),
+          HelpBlock.p('Die Eignungsprüfung stellt diese zwei Fragen, wenn in $nodePlace der lokale Node gewählt wird. Sie schlägt eine Antwort vor, aus der Zeit, die die Wallet in den letzten Tagen offen war, nur auf diesem Computer gezählt und nirgendwohin gesendet. Unter Windows liest sie außerdem, ob die Verbindung getaktet ist.'),
+        ],
+        id: HelpId.nodeFit,
+      ),
     HelpTopic(
       'network',
       'Epicbox',

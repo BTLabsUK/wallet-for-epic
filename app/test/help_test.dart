@@ -59,10 +59,10 @@ void main() {
     test('the phone and the desktop share the structure and most of the words', () {
       final phone = helpTopics(3, platform: HelpPlatform.phone);
       final desk = helpTopics(3, platform: HelpPlatform.desktop);
-      expect(desk, hasLength(35));
+      expect(desk, hasLength(36));
       // The phone adds "What an address looks like" (and its own QR and passphrase topics)
-      // and keeps every desktop id but the desktop-only folder cleanup and local node.
-      const deskOnly = {HelpId.cleanup, HelpId.localNode};
+      // and keeps every desktop id but the desktop-only folder cleanup, local node and its fit check.
+      const deskOnly = {HelpId.cleanup, HelpId.localNode, HelpId.nodeFit};
       expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id).where((id) => !deskOnly.contains(id))));
       for (final id in deskOnly) {
         expect(phone.map((t) => t.id), isNot(contains(id)));

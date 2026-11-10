@@ -173,6 +173,7 @@ abstract final class HelpId {
   static const lostDevice = 'lost-device';
   static const heldCoins = 'held-coins';
   static const localNode = 'local-node';
+  static const nodeFit = 'node-fit';
   static const passphrase = 'passphrase';
   static const paymentLinks = 'payment-links';
   static const linkLine = 'link-line';
@@ -486,6 +487,23 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           ]),
         ],
         id: HelpId.localNode,
+      ),
+    if (!phone)
+      HelpTopic(
+        'network',
+        'Should this computer run a node?',
+        'A local node suits a wallet that stays open for hours. A public node suits short visits.',
+        [
+          HelpBlock.p('The local node is in sync only while the app is open. After a break it first catches up on the blocks it missed, so the longer the wallet stays open, the more of that time the node is in sync, keeps lookups private and passes blocks on to other nodes.'),
+          HelpBlock.ul([
+            '**Most of the day.** A good fit: the node is in sync almost all the time.',
+            '**An hour or two.** It works, with a catch-up at the start of each visit.',
+            '**A few minutes.** Most of each visit goes to catching up. A public node is faster.',
+            '**Metered connection.** The first sync downloads the whole chain, about 5 GB. Start it on a connection without a data limit.',
+          ]),
+          HelpBlock.p('The fit check asks these two questions when the local node is picked in $nodePlace. It suggests an answer from how long the wallet was open over the last days, counted on this computer only and never sent anywhere. On Windows it also reads whether the connection is metered.'),
+        ],
+        id: HelpId.nodeFit,
       ),
     HelpTopic(
       'network',

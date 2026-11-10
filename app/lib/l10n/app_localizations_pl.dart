@@ -21584,4 +21584,178 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOvSpendableNow(String amount) {
     return '$amount do wydania teraz';
   }
+
+  @override
+  String get deskNodeFitTitle => 'Czy ten komputer powinien uruchamiać węzeł?';
+
+  @override
+  String get deskNodeFitDescription =>
+      'Dwa pytania. Można to zmienić w każdej chwili w Ustawienia › Węzeł.';
+
+  @override
+  String get deskNodeFitOpenQ => 'Jak długo portfel jest zwykle otwarty?';
+
+  @override
+  String get deskNodeFitOpenDay => 'Większość dnia';
+
+  @override
+  String get deskNodeFitOpenHours => 'Godzinę lub dwie';
+
+  @override
+  String get deskNodeFitOpenMinutes => 'Kilka minut';
+
+  @override
+  String deskNodeFitOpenHint(int hours) {
+    return 'Ostatnio: około $hours godz. dziennie';
+  }
+
+  @override
+  String get deskNodeFitOpenHintUnder => 'Ostatnio: poniżej godziny dziennie';
+
+  @override
+  String get deskNodeFitNetQ => 'Twoje połączenie';
+
+  @override
+  String get deskNodeFitNetFree => 'Bez limitu danych';
+
+  @override
+  String get deskNodeFitNetMetered => 'Z limitem lub mobilne';
+
+  @override
+  String get deskNodeFitNetHintFree => 'Windows podaje: bez limitu';
+
+  @override
+  String get deskNodeFitNetHintMetered => 'Windows podaje: z limitem';
+
+  @override
+  String get deskNodeFitDisk => 'Miejsce na dysku';
+
+  @override
+  String deskNodeFitDiskFree(String free, String chain) {
+    return 'Wolne: $free, łańcuch zajmuje około $chain';
+  }
+
+  @override
+  String deskNodeFitDiskUnknown(String chain) {
+    return 'Łańcuch zajmuje około $chain';
+  }
+
+  @override
+  String deskNodeFitFound(String size) {
+    return 'Znaleziono $size danych łańcucha na tym komputerze. Można ich użyć ponownie.';
+  }
+
+  @override
+  String get deskNodeFitGood => 'Dobry wybór';
+
+  @override
+  String get deskNodeFitGoodText =>
+      'Węzeł pozostaje zsynchronizowany, dopóki portfel jest otwarty, zapytania pozostają prywatne, a sieć zyskuje wsparcie.';
+
+  @override
+  String get deskNodeFitWait => 'Działa, z czekaniem za każdym razem';
+
+  @override
+  String get deskNodeFitWaitText =>
+      'Przy każdym otwarciu portfela węzeł najpierw nadrabia pominięte bloki.';
+
+  @override
+  String get deskNodeFitPublic => 'Lepiej pasuje węzeł publiczny';
+
+  @override
+  String get deskNodeFitPublicText =>
+      'Krótkie wizyty schodzą na nadrabianie: portfel działa wolniej, a sieć zyskuje niewiele.';
+
+  @override
+  String get deskNodeFitMetered => 'Uwaga na pierwsze pobieranie';
+
+  @override
+  String deskNodeFitMeteredText(String size) {
+    return 'Pierwsza synchronizacja pobiera około $size. Uruchom ją na połączeniu bez limitu danych.';
+  }
+
+  @override
+  String get deskNodeFitNoSpace => 'Za mało wolnego miejsca';
+
+  @override
+  String deskNodeFitNoSpaceText(String chain, String floor) {
+    return 'Łańcuch zajmuje około $chain, a na tym dysku musi zostać jeszcze $floor wolnego miejsca.';
+  }
+
+  @override
+  String get deskNodeFitCapDay => 'Prawie zawsze zsynchronizowany';
+
+  @override
+  String get deskNodeFitCapDaySub => 'I przekazuje bloki innym';
+
+  @override
+  String get deskNodeFitCapHours => 'Nadrabia przy każdej wizycie';
+
+  @override
+  String get deskNodeFitCapHoursSub =>
+      'Potem jest zsynchronizowany, dopóki aplikacja jest otwarta';
+
+  @override
+  String get deskNodeFitCapMinutes => 'Głównie nadrabia';
+
+  @override
+  String get deskNodeFitCapMinutesSub =>
+      'Portfel zamyka się, zanim węzeł się zsynchronizuje';
+
+  @override
+  String get deskNodeFitInSync => 'zsynchronizowany';
+
+  @override
+  String get deskNodeFitCatchingUp => 'nadrabia';
+
+  @override
+  String get deskNodeFitThisComputer => 'ten komputer';
+
+  @override
+  String get deskNodeFitChipPrivate => 'Prywatne zapytania';
+
+  @override
+  String get deskNodeFitChipNetwork => 'Wspiera sieć';
+
+  @override
+  String get deskNodeFitChipInSync => 'Zsynchronizowany, gdy otwarty';
+
+  @override
+  String deskNodeFitDownload(String size) {
+    return 'Pierwsze pobieranie: około $size';
+  }
+
+  @override
+  String get deskNodeFitDontShow => 'Nie pokazuj ponownie';
+
+  @override
+  String get deskNodeFitStart => 'Uruchom węzeł lokalny';
+
+  @override
+  String get deskNodeFitStartAnyway => 'Uruchom mimo to';
+
+  @override
+  String get deskNodeFitKeepPublic => 'Zostaw węzeł publiczny';
+
+  @override
+  String get deskNodeFitNotNow => 'Nie teraz';
+
+  @override
+  String get deskNodeFitInUse =>
+      'Węzeł lokalny jest używany. Jego ustawienia są w Ustawienia › Węzeł.';
+
+  @override
+  String get deskNodeFitOpenCheck => 'Otwórz sprawdzenie';
+
+  @override
+  String get deskNodeFitStarted => 'Węzeł lokalny uruchomiony';
+
+  @override
+  String deskNodeFitStartedText(String host) {
+    return 'Portfel korzysta z $host, dopóki węzeł się nie zsynchronizuje.';
+  }
+
+  @override
+  String get deskNodeFitStartedAlone =>
+      'Saldo i wysyłanie czekają, aż węzeł się zsynchronizuje.';
 }

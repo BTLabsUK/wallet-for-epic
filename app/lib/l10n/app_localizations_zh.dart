@@ -19687,4 +19687,170 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOvSpendableNow(String amount) {
     return '现在可用 $amount';
   }
+
+  @override
+  String get deskNodeFitTitle => '这台电脑要运行节点吗？';
+
+  @override
+  String get deskNodeFitDescription => '两个问题。可随时在 设置 › 节点 中更改。';
+
+  @override
+  String get deskNodeFitOpenQ => '钱包通常打开多久？';
+
+  @override
+  String get deskNodeFitOpenDay => '大部分时间';
+
+  @override
+  String get deskNodeFitOpenHours => '一两个小时';
+
+  @override
+  String get deskNodeFitOpenMinutes => '几分钟';
+
+  @override
+  String deskNodeFitOpenHint(int hours) {
+    return '最近：每天约 $hours 小时';
+  }
+
+  @override
+  String get deskNodeFitOpenHintUnder => '最近：每天不到一小时';
+
+  @override
+  String get deskNodeFitNetQ => '网络连接';
+
+  @override
+  String get deskNodeFitNetFree => '不限流量';
+
+  @override
+  String get deskNodeFitNetMetered => '计量或移动网络';
+
+  @override
+  String get deskNodeFitNetHintFree => 'Windows 显示：非计量';
+
+  @override
+  String get deskNodeFitNetHintMetered => 'Windows 显示：计量';
+
+  @override
+  String get deskNodeFitDisk => '磁盘空间';
+
+  @override
+  String deskNodeFitDiskFree(String free, String chain) {
+    return '可用 $free，区块链约占 $chain';
+  }
+
+  @override
+  String deskNodeFitDiskUnknown(String chain) {
+    return '区块链约占 $chain';
+  }
+
+  @override
+  String deskNodeFitFound(String size) {
+    return '在这台电脑上找到 $size 链数据，可以重复使用。';
+  }
+
+  @override
+  String get deskNodeFitGood => '很合适';
+
+  @override
+  String get deskNodeFitGoodText => '钱包打开期间节点保持同步，查询保持私密，并为网络提供支持。';
+
+  @override
+  String get deskNodeFitWait => '可用，但每次都要等待';
+
+  @override
+  String get deskNodeFitWaitText => '每次打开钱包，节点会先追上错过的区块。';
+
+  @override
+  String get deskNodeFitPublic => '公共节点更合适';
+
+  @override
+  String get deskNodeFitPublicText => '短时间使用大多花在追赶上：钱包会显得更慢，对网络帮助也很小。';
+
+  @override
+  String get deskNodeFitMetered => '注意首次下载';
+
+  @override
+  String deskNodeFitMeteredText(String size) {
+    return '首次同步会下载约 $size。请在不限流量的连接上启动。';
+  }
+
+  @override
+  String get deskNodeFitNoSpace => '可用空间不足';
+
+  @override
+  String deskNodeFitNoSpaceText(String chain, String floor) {
+    return '区块链约占 $chain，此磁盘上还需保留 $floor 可用空间。';
+  }
+
+  @override
+  String get deskNodeFitCapDay => '几乎始终同步';
+
+  @override
+  String get deskNodeFitCapDaySub => '并向其他节点转发区块';
+
+  @override
+  String get deskNodeFitCapHours => '每次打开都要追赶';
+
+  @override
+  String get deskNodeFitCapHoursSub => '之后在应用打开期间保持同步';
+
+  @override
+  String get deskNodeFitCapMinutes => '主要在追赶';
+
+  @override
+  String get deskNodeFitCapMinutesSub => '节点还没同步完，钱包就关闭了';
+
+  @override
+  String get deskNodeFitInSync => '已同步';
+
+  @override
+  String get deskNodeFitCatchingUp => '追赶中';
+
+  @override
+  String get deskNodeFitThisComputer => '这台电脑';
+
+  @override
+  String get deskNodeFitChipPrivate => '私密查询';
+
+  @override
+  String get deskNodeFitChipNetwork => '支持网络';
+
+  @override
+  String get deskNodeFitChipInSync => '打开期间保持同步';
+
+  @override
+  String deskNodeFitDownload(String size) {
+    return '首次下载约 $size';
+  }
+
+  @override
+  String get deskNodeFitDontShow => '不再显示';
+
+  @override
+  String get deskNodeFitStart => '启动本地节点';
+
+  @override
+  String get deskNodeFitStartAnyway => '仍然启动';
+
+  @override
+  String get deskNodeFitKeepPublic => '保留公共节点';
+
+  @override
+  String get deskNodeFitNotNow => '暂不';
+
+  @override
+  String get deskNodeFitInUse => '正在使用本地节点。其设置在 设置 › 节点 中。';
+
+  @override
+  String get deskNodeFitOpenCheck => '打开适用性检查';
+
+  @override
+  String get deskNodeFitStarted => '本地节点已启动';
+
+  @override
+  String deskNodeFitStartedText(String host) {
+    return '节点同步完成前，钱包通过 $host 工作。';
+  }
+
+  @override
+  String get deskNodeFitStartedAlone => '节点同步完成前，余额和发送需要等待。';
 }
