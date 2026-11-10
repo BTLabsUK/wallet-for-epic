@@ -1244,7 +1244,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get balanceWalletHelp =>
-      'Do wydania teraz oraz płatności i Twoja reszta, które wciąż czekają na potwierdzenia.';
+      'Do wydania teraz oraz płatności i Twoja reszta, które wciąż czekają na potwierdzenia, a także monety zarezerwowane dla połączonego urządzenia.';
 
   @override
   String get balanceSpendableNowHelp =>

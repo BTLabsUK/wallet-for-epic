@@ -309,7 +309,7 @@
   "homeHistoryExportButton": "Eksportuj dane portfela",
   "balanceHelpLabel": "Co oznaczają te salda",
   "homeBalanceSpendableNow": "Do wydania teraz",
-  "balanceWalletHelp": "Do wydania teraz oraz płatności i Twoja reszta, które wciąż czekają na potwierdzenia.",
+  "balanceWalletHelp": "Do wydania teraz oraz płatności i Twoja reszta, które wciąż czekają na potwierdzenia, a także monety zarezerwowane dla połączonego urządzenia.",
   "balanceSpendableNowHelp": "Tyle możesz teraz wysłać. Reszta będzie dostępna po potwierdzeniu.",
   "balanceTotal": "Łącznie",
   "balanceHelpRow": "{label}: {amount}",

@@ -1239,7 +1239,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get balanceWalletHelp =>
-      'Доступно сейчас, плюс платежи и ваша сдача, которые ещё подтверждаются.';
+      'Доступно сейчас, плюс платежи и ваша сдача, которые ещё подтверждаются, и монеты, зарезервированные для связанного устройства.';
 
   @override
   String get balanceSpendableNowHelp =>

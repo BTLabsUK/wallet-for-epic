@@ -1978,7 +1978,7 @@ abstract class AppLocalizations {
   /// Explanation under Balance in the balance sheet: what the big figure counts.
   ///
   /// In en, this message translates to:
-  /// **'Spendable now, plus payments and your own change still confirming.'**
+  /// **'Spendable now, plus payments and your own change still confirming, and coins held for a linked device.'**
   String get balanceWalletHelp;
 
   /// Explanation under Spendable now in the balance sheet.

@@ -1209,7 +1209,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get balanceWalletHelp =>
-      'Jetzt verfügbar, dazu Zahlungen und Ihr eigenes Wechselgeld, die noch bestätigt werden.';
+      'Jetzt verfügbar, dazu Zahlungen und Ihr eigenes Wechselgeld, die noch bestätigt werden, und Coins, die für ein verknüpftes Gerät reserviert sind.';
 
   @override
   String get balanceSpendableNowHelp =>

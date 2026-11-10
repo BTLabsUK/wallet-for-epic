@@ -1182,7 +1182,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get balanceWalletHelp =>
-      'ยอดที่ใช้ได้ตอนนี้ รวมกับการชำระเงินและเงินทอนของคุณที่ยังรอการยืนยัน';
+      'ยอดที่ใช้ได้ตอนนี้ รวมกับการชำระเงินและเงินทอนของคุณที่ยังรอการยืนยัน และเหรียญที่กันไว้ให้อุปกรณ์ที่เชื่อมโยง';
 
   @override
   String get balanceSpendableNowHelp =>

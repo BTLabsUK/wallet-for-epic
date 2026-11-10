@@ -309,7 +309,7 @@
   "homeHistoryExportButton": "Wallet-Daten exportieren",
   "balanceHelpLabel": "Was diese Guthaben bedeuten",
   "homeBalanceSpendableNow": "Jetzt verfügbar",
-  "balanceWalletHelp": "Jetzt verfügbar, dazu Zahlungen und Ihr eigenes Wechselgeld, die noch bestätigt werden.",
+  "balanceWalletHelp": "Jetzt verfügbar, dazu Zahlungen und Ihr eigenes Wechselgeld, die noch bestätigt werden, und Coins, die für ein verknüpftes Gerät reserviert sind.",
   "balanceSpendableNowHelp": "Was Sie jetzt senden können. Der Rest wird verfügbar, sobald er bestätigt ist.",
   "balanceTotal": "Gesamt",
   "balanceHelpRow": "{label}: {amount}",

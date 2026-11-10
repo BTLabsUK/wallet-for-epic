@@ -1197,7 +1197,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balanceWalletHelp =>
-      'Spendable now, plus payments and your own change still confirming.';
+      'Spendable now, plus payments and your own change still confirming, and coins held for a linked device.';
 
   @override
   String get balanceSpendableNowHelp =>

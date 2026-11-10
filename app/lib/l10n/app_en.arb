@@ -1430,7 +1430,7 @@
   "@homeBalanceSpendableNow": {
     "description": "Row of the balance sheet, shown when it differs from the balance: what Send can use now."
   },
-  "balanceWalletHelp": "Spendable now, plus payments and your own change still confirming.",
+  "balanceWalletHelp": "Spendable now, plus payments and your own change still confirming, and coins held for a linked device.",
   "@balanceWalletHelp": {
     "description": "Explanation under Balance in the balance sheet: what the big figure counts."
   },

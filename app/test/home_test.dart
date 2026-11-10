@@ -4369,7 +4369,7 @@ void main() {
       expect(
         tip,
         'Balance: 12.5\u00a0EPIC\n'
-        'Spendable now, plus payments and your own change still confirming.\n\n'
+        'Spendable now, plus payments and your own change still confirming, and coins held for a linked device.\n\n'
         'Total: 14.5\u00a0EPIC\nEverything in this wallet, spendable or not.\n\n'
         'Locked by a payment in progress: 2.0\u00a0EPIC\n'
         'Held for a payment you started; the change comes back when it '

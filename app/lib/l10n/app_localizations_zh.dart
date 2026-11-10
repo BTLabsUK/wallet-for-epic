@@ -1138,7 +1138,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeBalanceSpendableNow => '现在可用';
 
   @override
-  String get balanceWalletHelp => '现在可用的金额，加上仍在确认中的付款和您自己的找零。';
+  String get balanceWalletHelp => '现在可用的金额，加上仍在确认中的付款和您自己的找零，以及为关联设备保留的币。';
 
   @override
   String get balanceSpendableNowHelp => '现在可以发送的金额。其余部分确认后即可使用。';
