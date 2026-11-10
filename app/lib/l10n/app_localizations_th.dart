@@ -13403,7 +13403,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'ไม่ว่าวิธีใด ตอนท้ายให้ยืนยันด้วยกัน: เทียบรูปสี่รูปและชื่อ ทั้งหมดนี้แสดงว่าไม่มีใครแก้ไขข้อความระหว่างทาง';
+      'ไม่ว่าวิธีใด ตอนท้ายให้ยืนยันด้วยกัน: เทียบรูปสี่รูปและชื่อ จะตรงกันก็ต่อเมื่อวอลเล็ตทั้งสองเห็นกุญแจชุดเดียวกัน';
 
   @override
   String get helpPairClipP =>
@@ -13512,7 +13512,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return 'คำตอบถูกปิดผนึกสำหรับคำเชิญของ $name ไม่มีใครอื่นอ่านได้ และใช้ได้ครั้งเดียว';
+    return 'คำตอบถูกปิดผนึกสำหรับคำเชิญของ $name มีเพียงวอลเล็ตของ $name ที่อ่านได้ และใช้ได้ครั้งเดียว';
   }
 
   @override
@@ -20427,7 +20427,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1ErrPrintedFull =>
-      'รหัสพิมพ์ทั้ง 32 รหัสถูกใช้อยู่ ยกเลิกหนึ่งรหัสก่อน';
+      'ลิงก์พิมพ์ทั้ง 32 ลิงก์ถูกใช้อยู่ ยกเลิกหนึ่งลิงก์ก่อน';
 
   @override
   String get deskE1ErrOwnRelayLocal =>
@@ -20494,7 +20494,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskE1RetireAsk(int n) {
-    return 'ยกเลิกรหัส $n หรือไม่ การชำระเงินไปยังรหัสนี้จะไม่มาถึงอีก';
+    return 'ยกเลิกลิงก์ $n หรือไม่ การชำระเงินไปยังลิงก์นี้จะไม่มาถึงอีก';
   }
 
   @override
@@ -20628,14 +20628,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1PhSwitchHint =>
-      'การชำระเงินไปยังวอลเล็ตที่มี epic1 จะถูกปิดผนึกแบบต้นทางถึงปลายทางและมีขนาดเล็กลง และจะมีรหัสสำหรับชำระแบบพบหน้ากับลิงก์ epic1 วอลเล็ต Epic อื่นจะได้รับรูปแบบคลาสสิก การชำระเงินจากวอลเล็ต Epic ใดก็ตามยังเข้ามาเหมือนเดิม ตั้งค่าแยกตามวอลเล็ต ทดลอง: อาจยังเปลี่ยนแปลงได้';
+      'การชำระเงินใช้ epic1 เท่านั้น: ลิงก์ epic1 รหัสชำระแบบพบหน้า และผู้ติดต่อที่มี epic1 การชำระเงินแบบคลาสสิกยังเข้ามาได้ ปิดเพื่อจ่ายให้วอลเล็ต Epic อื่น ตั้งค่าแยกตามวอลเล็ต ทดลอง: อาจยังเปลี่ยนแปลงได้';
 
   @override
   String get deskE1PhConfirmTitle => 'ใช้การชำระเงิน epic1 หรือไม่';
 
   @override
   String get deskE1PhConfirmBody =>
-      'วอลเล็ตนี้จะจ่ายและรับเงินกับวอลเล็ตที่มี epic1 เท่านั้น ปิดเพื่อจ่ายให้วอลเล็ต Epic อื่น';
+      'จากนั้นจะจ่ายเงินให้วอลเล็ตที่มี epic1 เท่านั้น การชำระเงินแบบคลาสสิกยังเข้ามาได้ ปิดเพื่อจ่ายให้วอลเล็ต Epic อื่น';
 
   @override
   String get deskE1PhTurnOn => 'เปิด';
@@ -20653,7 +20653,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1PhReceiving => 'การรับ';
 
   @override
-  String get deskE1PhPrinted => 'รหัสสำหรับพิมพ์';
+  String get deskE1PhPrinted => 'ลิงก์สำหรับพิมพ์';
 
   @override
   String deskE1PhPrintedCount(int n, int max) {
@@ -20661,11 +20661,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhPrintedEmpty => 'ไม่มีรหัสสำหรับพิมพ์';
+  String get deskE1PhPrintedEmpty => 'ไม่มีลิงก์สำหรับพิมพ์';
 
   @override
   String deskE1PhPrintedCode(int n) {
-    return 'รหัส $n';
+    return 'ลิงก์ $n';
   }
 
   @override
@@ -20678,7 +20678,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskE1PhRetired(int n) {
-    return 'ยกเลิกรหัส $n แล้ว';
+    return 'ยกเลิกลิงก์ $n แล้ว';
   }
 
   @override
@@ -20803,17 +20803,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1SetInfo =>
-      'การชำระเงินไปยังกระเป๋าที่มี epic1 จะถูกปิดผนึกตั้งแต่ต้นทางถึงปลายทางและมีขนาดเล็กลง และจะมีรหัสชำระแบบพบหน้าและลิงก์ epic1 กระเป๋า Epic อื่นจะได้รับรูปแบบดั้งเดิม การชำระเงินจากกระเป๋า Epic ใดก็ตามยังเข้ามาเหมือนเดิม ตั้งค่าแยกตามกระเป๋า ทดลอง: อาจยังเปลี่ยนแปลงได้';
+      'การชำระเงินใช้ epic1 เท่านั้น: ลิงก์ epic1 รหัสชำระแบบพบหน้า และผู้ติดต่อที่มี epic1 การชำระเงินแบบดั้งเดิมยังเข้ามาได้ ปิดเพื่อจ่ายให้กระเป๋า Epic อื่น ตั้งค่าแยกตามกระเป๋า ทดลอง: อาจยังเปลี่ยนแปลงได้';
 
   @override
-  String get deskE1SetSyn => 'epic1, เนทีฟ, ปิดผนึก, ทดลอง, ลิงก์';
+  String get deskE1SetSyn => 'epic1, ปิดผนึก, ทดลอง, ลิงก์, พบหน้า, รหัส';
 
   @override
   String get deskE1TurnOnTitle => 'ใช้การชำระเงิน epic1 หรือไม่';
 
   @override
   String get deskE1TurnOnBody =>
-      'จากนั้นกระเป๋านี้จะจ่ายและรับเงินกับกระเป๋าที่มี epic1 เท่านั้น ปิดเพื่อจ่ายให้กระเป๋า Epic อื่น';
+      'จากนั้นจะจ่ายเงินให้กระเป๋าที่มี epic1 เท่านั้น การชำระเงินแบบดั้งเดิมยังเข้ามาได้ ปิดเพื่อจ่ายให้กระเป๋า Epic อื่น';
 
   @override
   String get deskE1TurnOn => 'เปิด';
@@ -20825,11 +20825,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1LockNow => 'ล็อกเลย';
 
   @override
-  String get deskE1PrintedCodes => 'รหัสที่พิมพ์';
+  String get deskE1PrintedCodes => 'ลิงก์ที่พิมพ์';
 
   @override
   String get deskE1PrintedHint =>
-      'ลิงก์ชำระเงินสำหรับพิมพ์หรือเก็บไว้ เลิกใช้เมื่อไม่ต้องการแล้ว';
+      'ลิงก์ epic1 สำหรับพิมพ์หรือเก็บไว้ เลิกใช้เมื่อไม่ต้องการแล้ว';
 
   @override
   String deskE1PrintedCount(int n) {
@@ -20837,11 +20837,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskE1PrintedNone => 'ไม่มีรหัสที่พิมพ์';
+  String get deskE1PrintedNone => 'ไม่มีลิงก์ที่พิมพ์';
 
   @override
   String deskE1CodeN(int n) {
-    return 'รหัส $n';
+    return 'ลิงก์ $n';
   }
 
   @override
@@ -20991,4 +20991,12 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskE1TourReceiveText =>
       'ลิงก์ epic1 ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ';
+
+  @override
+  String get deskE1Sealed => 'ปิดผนึกด้วย epic1';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row ปิดผนึกด้วย epic1';
+  }
 }

@@ -1457,6 +1457,13 @@ enum Epic1Via {
   static Epic1Via? fromStored(String? s) => values.where((v) => v.stored == s).firstOrNull;
 }
 
+/// Whether a payment was sealed, so that only the two wallets in it could read its slates: it
+/// went through an epic1 link ([Epic1Via.link]), or LEPIC links it to a pairing ([pairingId],
+/// written only where LEPIC sealed the slate) and its slate was never handed over plain
+/// ([sentPlain]). An in-person code is not sealed.
+bool txSealed({Epic1Via? epic1Via, String? pairingId, bool sentPlain = false}) =>
+    !sentPlain && (epic1Via == Epic1Via.link || (pairingId != null && epic1Via != Epic1Via.inPerson));
+
 /// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
   /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
@@ -1604,6 +1611,13 @@ class TxEntry {
   /// recorded one; null for every other row. LEPIC lists these as file sends.
   final Epic1Via? epic1Via;
 
+  /// The slate of this sealed payment was also handed over plain, to a contact that could not
+  /// open sealed text (`PairingApi.plainSlate`, recorded in [Meta.plainResends]).
+  final bool sentPlain;
+
+  /// Sealed between the two wallets in it: [txSealed].
+  bool get sealed => txSealed(epic1Via: epic1Via, pairingId: pairingId, sentPlain: sentPlain);
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1654,6 +1668,7 @@ class TxEntry {
     this.spentCommits = const [],
     this.unverified = false,
     this.epic1Via,
+    this.sentPlain = false,
   });
 
   /// This row as one the linked device [name] received (Linked devices).
@@ -1707,6 +1722,7 @@ class TxEntry {
     spentCommits: spentCommits,
     unverified: unverified,
     epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 
   /// This row as one sent through the pairing [pairing] (the fakes mark their mailbox sends so).
@@ -1760,6 +1776,7 @@ class TxEntry {
     spentCommits: spentCommits,
     unverified: unverified,
     epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 
   /// This mining reward with its output's lock [height] known.
@@ -1813,6 +1830,7 @@ class TxEntry {
     spentCommits: spentCommits,
     unverified: unverified,
     epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1879,7 +1897,8 @@ class TxEntry {
       origin.hashCode ^
       Object.hashAll(spentCommits) ^
       unverified.hashCode ^
-      epic1Via.hashCode;
+      epic1Via.hashCode ^
+      sentPlain.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1935,7 +1954,8 @@ class TxEntry {
           origin == other.origin &&
           _listEquals(spentCommits, other.spentCommits) &&
           unverified == other.unverified &&
-          epic1Via == other.epic1Via;
+          epic1Via == other.epic1Via &&
+          sentPlain == other.sentPlain;
 }
 
 /// [tx] is "to be posted elsewhere": a send finalized and not posted ([TxEntry.repostable]:

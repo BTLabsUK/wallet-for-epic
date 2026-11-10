@@ -14290,7 +14290,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Niezależnie od sposobu, na końcu zweryfikujcie razem: porównajcie cztery obrazki i nazwy. Pokazują, że nikt nie zmienił wiadomości po drodze.';
+      'Niezależnie od sposobu, na końcu zweryfikujcie razem: porównajcie cztery obrazki i nazwy. Zgadzają się tylko wtedy, gdy oba portfele widzą te same klucze.';
 
   @override
   String get helpPairClipP =>
@@ -14399,7 +14399,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return 'Odpowiedź jest zapieczętowana dla zaproszenia od $name. Nikt inny jej nie odczyta i działa tylko raz.';
+    return 'Odpowiedź jest zapieczętowana dla zaproszenia od $name: odczyta ją tylko portfel $name. Działa raz.';
   }
 
   @override
@@ -21583,7 +21583,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1ErrPrintedFull =>
-      'Wszystkie 32 drukowane kody są w użyciu. Najpierw wycofaj jeden.';
+      'Wszystkie 32 drukowane linki są w użyciu. Najpierw wycofaj jeden.';
 
   @override
   String get deskE1ErrOwnRelayLocal =>
@@ -21652,7 +21652,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskE1RetireAsk(int n) {
-    return 'Wycofać kod $n? Płatności na niego przestaną docierać.';
+    return 'Wycofać link $n? Płatności na niego przestaną docierać.';
   }
 
   @override
@@ -21790,14 +21790,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1PhSwitchHint =>
-      'Płatności do portfeli z epic1 są szyfrowane od końca do końca i mniejsze, a pojawiają się kody do płatności osobistych i linki epic1. Inne portfele Epic dostają format klasyczny. Płatności z każdego portfela Epic przychodzą jak dotąd. Dla każdego portfela osobno. Eksperymentalne: może się jeszcze zmienić.';
+      'Płatności idą tylko przez epic1: linki epic1, kody do płatności osobistych i kontakty z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby płacić innym portfelom Epic. Dla każdego portfela osobno. Eksperymentalne: może się jeszcze zmienić.';
 
   @override
   String get deskE1PhConfirmTitle => 'Używać płatności epic1?';
 
   @override
   String get deskE1PhConfirmBody =>
-      'Ten portfel płaci wtedy i dostaje płatności tylko od portfeli z epic1. Wyłącz, aby zapłacić innemu portfelowi Epic.';
+      'Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.';
 
   @override
   String get deskE1PhTurnOn => 'Włącz';
@@ -21815,7 +21815,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskE1PhReceiving => 'Odbieranie';
 
   @override
-  String get deskE1PhPrinted => 'Kody drukowane';
+  String get deskE1PhPrinted => 'Linki drukowane';
 
   @override
   String deskE1PhPrintedCount(int n, int max) {
@@ -21823,11 +21823,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhPrintedEmpty => 'Brak kodów drukowanych.';
+  String get deskE1PhPrintedEmpty => 'Brak linków drukowanych.';
 
   @override
   String deskE1PhPrintedCode(int n) {
-    return 'Kod $n';
+    return 'Link $n';
   }
 
   @override
@@ -21840,7 +21840,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskE1PhRetired(int n) {
-    return 'Kod $n wycofany.';
+    return 'Link $n wycofany.';
   }
 
   @override
@@ -21965,18 +21965,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1SetInfo =>
-      'Płatności do portfeli z epic1 są zaszyfrowane od końca do końca i mniejsze, a pojawiają się kody płatności osobistych i linki epic1. Inne portfele Epic dostają format klasyczny. Płatności z każdego portfela Epic docierają jak dotąd. Dla każdego portfela osobno. Eksperymentalne: może się jeszcze zmienić.';
+      'Płatności idą tylko przez epic1: linki epic1, kody do płatności osobistych i kontakty z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby płacić innym portfelom Epic. Dla każdego portfela osobno. Eksperymentalne: może się jeszcze zmienić.';
 
   @override
   String get deskE1SetSyn =>
-      'epic1, natywne, zaszyfrowane, eksperymentalne, linki';
+      'epic1, zapieczętowane, eksperymentalne, linki, osobiście, kody';
 
   @override
   String get deskE1TurnOnTitle => 'Używać płatności epic1?';
 
   @override
   String get deskE1TurnOnBody =>
-      'Ten portfel płaci wtedy i otrzymuje płatności tylko od portfeli z epic1. Wyłącz to, aby zapłacić innemu portfelowi Epic.';
+      'Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.';
 
   @override
   String get deskE1TurnOn => 'Włącz';
@@ -21988,11 +21988,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskE1LockNow => 'Zablokuj teraz';
 
   @override
-  String get deskE1PrintedCodes => 'Wydrukowane kody';
+  String get deskE1PrintedCodes => 'Linki drukowane';
 
   @override
   String get deskE1PrintedHint =>
-      'Linki płatności do wydruku lub zachowania. Wycofaj kod, gdy nie jest już używany.';
+      'Linki epic1 do wydruku lub zachowania. Wycofaj link, gdy nie jest już używany.';
 
   @override
   String deskE1PrintedCount(int n) {
@@ -22000,11 +22000,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskE1PrintedNone => 'Brak wydrukowanych kodów.';
+  String get deskE1PrintedNone => 'Brak linków drukowanych.';
 
   @override
   String deskE1CodeN(int n) {
-    return 'Kod $n';
+    return 'Link $n';
   }
 
   @override
@@ -22154,4 +22154,12 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskE1TourReceiveText =>
       'Link epic1 tego portfela: udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.';
+
+  @override
+  String get deskE1Sealed => 'Zapieczętowane przez epic1';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row, zapieczętowane przez epic1';
+  }
 }

@@ -21657,7 +21657,7 @@ abstract class AppLocalizations {
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'Whichever way, verify together at the end: compare the four pictures and names. They show that nobody changed the messages on the way.'**
+  /// **'Whichever way, verify together at the end: compare the four pictures and names. They match only when both wallets see the same keys.'**
   String get helpPairWaysP4;
 
   /// Paragraph (privacy)
@@ -21825,7 +21825,7 @@ abstract class AppLocalizations {
   /// Small print.
   ///
   /// In en, this message translates to:
-  /// **'The answer is sealed to {name}’s invite. Nobody else can read it, and it works once.'**
+  /// **'The answer is sealed to {name}’s invite: only {name}’s wallet can read it. It works once.'**
   String pairByHandFooter(String name);
 
   /// The inviter’s by-hand confirm screen, same layout.
@@ -32403,7 +32403,7 @@ abstract class AppLocalizations {
   /// The wallet has made its 32 printed payment codes; one must be retired before making another.
   ///
   /// In en, this message translates to:
-  /// **'All 32 printed codes are in use. Retire one first.'**
+  /// **'All 32 printed links are in use. Retire one first.'**
   String get deskE1ErrPrintedFull;
 
   /// Payment links need a message server others can reach; the user's server runs on this device only.
@@ -32517,7 +32517,7 @@ abstract class AppLocalizations {
   /// Confirm dialog for retiring printed payment code number {n}.
   ///
   /// In en, this message translates to:
-  /// **'Retire code {n}? Payments to it stop arriving.'**
+  /// **'Retire link {n}? Payments to it stop arriving.'**
   String deskE1RetireAsk(int n);
 
   /// Button: retire a printed payment code.
@@ -32751,7 +32751,7 @@ abstract class AppLocalizations {
   /// Explanation behind the info icon of the epic1 payments switch.
   ///
   /// In en, this message translates to:
-  /// **'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.'**
+  /// **'Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.'**
   String get deskE1PhSwitchHint;
 
   /// Title of the dialog shown when turning on epic1 payments.
@@ -32763,7 +32763,7 @@ abstract class AppLocalizations {
   /// Body of the dialog shown when turning on epic1 payments.
   ///
   /// In en, this message translates to:
-  /// **'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.'**
+  /// **'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.'**
   String get deskE1PhConfirmBody;
 
   /// Confirm button of the "Use epic1 payments?" dialog.
@@ -32799,7 +32799,7 @@ abstract class AppLocalizations {
   /// Settings row: the payment link codes made for printing.
   ///
   /// In en, this message translates to:
-  /// **'Printed codes'**
+  /// **'Printed links'**
   String get deskE1PhPrinted;
 
   /// How many printed codes are in use, of the most there can be.
@@ -32811,13 +32811,13 @@ abstract class AppLocalizations {
   /// Printed codes page with none made.
   ///
   /// In en, this message translates to:
-  /// **'No printed codes.'**
+  /// **'No printed links.'**
   String get deskE1PhPrintedEmpty;
 
   /// A printed payment code in the list, numbered from 1.
   ///
   /// In en, this message translates to:
-  /// **'Code {n}'**
+  /// **'Link {n}'**
   String deskE1PhPrintedCode(int n);
 
   /// When a printed code was made.
@@ -32835,7 +32835,7 @@ abstract class AppLocalizations {
   /// Notice after retiring a printed code.
   ///
   /// In en, this message translates to:
-  /// **'Code {n} retired.'**
+  /// **'Link {n} retired.'**
   String deskE1PhRetired(int n);
 
   /// Receive: title of the card with the wallet's payment link.
@@ -33063,13 +33063,13 @@ abstract class AppLocalizations {
   /// The ⓘ text of the epic1 payments switch.
   ///
   /// In en, this message translates to:
-  /// **'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.'**
+  /// **'Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.'**
   String get deskE1SetInfo;
 
   /// Settings search: other words that find the epic1 payments switch, comma-separated.
   ///
   /// In en, this message translates to:
-  /// **'epic1, native, sealed, experimental, links'**
+  /// **'epic1, sealed, experimental, links, in person, codes'**
   String get deskE1SetSyn;
 
   /// Confirm dialog title when turning epic1 payments on.
@@ -33081,7 +33081,7 @@ abstract class AppLocalizations {
   /// Confirm dialog body when turning epic1 payments on.
   ///
   /// In en, this message translates to:
-  /// **'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.'**
+  /// **'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.'**
   String get deskE1TurnOnBody;
 
   /// Confirm button that turns epic1 payments on.
@@ -33105,13 +33105,13 @@ abstract class AppLocalizations {
   /// Settings › Transactions › epic1: the row that opens the list of printed payment link codes.
   ///
   /// In en, this message translates to:
-  /// **'Printed codes'**
+  /// **'Printed links'**
   String get deskE1PrintedCodes;
 
   /// ⓘ text of the Printed codes row.
   ///
   /// In en, this message translates to:
-  /// **'Payment links made to print or keep. Retire one when it is no longer used.'**
+  /// **'epic1 links to print or keep. Retire one when it is no longer used.'**
   String get deskE1PrintedHint;
 
   /// How many of the 32 printed codes are in use.
@@ -33123,13 +33123,13 @@ abstract class AppLocalizations {
   /// The printed codes panel when there are none.
   ///
   /// In en, this message translates to:
-  /// **'No printed codes.'**
+  /// **'No printed links.'**
   String get deskE1PrintedNone;
 
   /// A printed payment code in the list, numbered from 1.
   ///
   /// In en, this message translates to:
-  /// **'Code {n}'**
+  /// **'Link {n}'**
   String deskE1CodeN(int n);
 
   /// When a printed code was made.
@@ -33395,6 +33395,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This wallet\'s epic1 link: share it to get paid. Request in person is for a phone next to you.'**
   String get deskE1TourReceiveText;
+
+  /// Badge on a payment that was sealed (only the two wallets in it can read it): to or from a paired contact, or through an epic1 link. "epic1" is a name: keep it as is, never translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed with epic1'**
+  String get deskE1Sealed;
+
+  /// A screen reader's sentence for a history row whose payment was sealed: {row} is the rest of the row's sentence ("Sent 5 EPIC to Anna, completed, today"). "epic1" is a name: keep it as is, never translate.
+  ///
+  /// In en, this message translates to:
+  /// **'{row}, sealed with epic1'**
+  String deskE1SpokenSealed(String row);
 }
 
 class _AppLocalizationsDelegate

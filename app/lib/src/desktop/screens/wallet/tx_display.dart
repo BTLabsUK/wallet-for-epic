@@ -7,7 +7,9 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
 import '../../../levels/level_features.dart' show LevelWording;
+import '../../../epic1.dart' show PaymentMode;
 import '../../../models.dart' show DeviceEnding;
+import '../../../ui/epic1/epic1_sealed.dart' show Epic1SealedBadge;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
@@ -463,6 +465,9 @@ double get txRowFullWidth => 560.u;
 
 /// One transaction row. [compact] (Overview) puts the state under the name and the time
 /// under the amount; the full row (Activity) has state, time and amount columns.
+/// Whether the desktop shows [t] as sealed ([Tx.sealed]): only in epic1 mode.
+bool deskShowsSealed(WidgetRef ref, Tx t) => t.sealed && ref.watch(deskPaymentModeProvider) == PaymentMode.epic1;
+
 class TxRow extends ConsumerStatefulWidget {
   const TxRow({super.key, required this.tx, required this.onTap, this.compact = false, this.selected = false, this.onFinalize, this.title, this.labelEditable = false});
 
@@ -551,6 +556,8 @@ class _TxRowState extends ConsumerState<TxRow> {
     final meta = metaSpans([for (final p in parts) TextSpan(text: p)], dot: TextStyle(color: c.lineField));
     // The sender, method or note the user typed on a scan find carries the tag.
     final typed = t.manualFields.any((f) => f != ManualField.label);
+    // Shallow names no method, so no seal either.
+    final sealed = !shallow && deskShowsSealed(ref, t);
     final TextStyle titleStyle = ts.strong;
     final Widget name;
     if (labelled) {
@@ -611,11 +618,12 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: toneColor),
                   ),
                 ),
+                if (sealed) ...[SizedBox(width: 6.u), const Epic1SealedBadge(compact: true)],
                 if (fromDevice) deskDeviceStatusInfo(l, t),
               ],
             ),
           )
-        else if (meta.isNotEmpty || typed)
+        else if (meta.isNotEmpty || typed || sealed)
           ExcludeSemantics(
             child: Row(
               children: [
@@ -627,6 +635,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: c.faint),
                   ),
                 ),
+                if (sealed) ...[SizedBox(width: 6.u), const Epic1SealedBadge(compact: true)],
                 if (typed) ...[SizedBox(width: Sp.x2), Flexible(child: ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label)))],
               ],
             ),
@@ -705,7 +714,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       // A request is never read out as money received;
       // it reads Unpaid only while it is, then its state word says what became of it. The pen
       // keeps its own node.
-      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : epicTextL(l, t.amount), word),
+      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : epicTextL(l, t.amount), word, sealed: sealed),
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,
@@ -728,10 +737,16 @@ class _TxRowState extends ConsumerState<TxRow> {
 }
 
 extension on _TxRowState {
-  String _semantics(AppLocalizations l, Tx t, String amount, String status) {
+  String _semantics(AppLocalizations l, Tx t, String amount, String status, {bool sealed = false}) {
     final who = titleOf(l, t);
-    if (t.isInvoice) return l.deskTxSemKind(txAsked(t) ? l.deskInvUnpaid : l.deskInvActBlock, amount, who, status);
-    return t.incoming ? l.deskTxSemReceived(amount, who, status) : l.deskTxSemSent(amount, who, status);
+    final String said;
+    if (t.isInvoice) {
+      said = l.deskTxSemKind(txAsked(t) ? l.deskInvUnpaid : l.deskInvActBlock, amount, who, status);
+    } else {
+      said = t.incoming ? l.deskTxSemReceived(amount, who, status) : l.deskTxSemSent(amount, who, status);
+    }
+    // The row's lock, said once after the rest.
+    return sealed ? l.deskE1SpokenSealed(said) : said;
   }
 }
 

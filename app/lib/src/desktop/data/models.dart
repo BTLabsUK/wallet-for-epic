@@ -289,6 +289,7 @@ class Tx {
     this.otherWallet = false,
     this.unverified = false,
     this.epic1Via,
+    this.sealed = false,
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
@@ -419,6 +420,10 @@ class Tx {
   /// [method] is then [TxMethod.file], as LEPIC lists it.
   final Epic1Via? epic1Via;
 
+  /// Sealed so that only the two wallets in it could read its slates (the core's
+  /// `TxEntry.sealed`): the "Sealed with epic1" mark in epic1 mode.
+  final bool sealed;
+
   /// Sent or received as a slate file: [TxMethod.file] and no epic1 exchange.
   bool get byFile => method == TxMethod.file && epic1Via == null;
 
@@ -541,6 +546,7 @@ class Tx {
       otherWallet: otherWallet,
       unverified: unverified,
       epic1Via: epic1Via,
+      sealed: sealed,
       foundByScan: foundByScan,
       foundDuring: foundDuring,
       datedByBlock: datedByBlock,
@@ -605,6 +611,7 @@ class Tx {
     otherWallet: otherWallet,
     unverified: unverified,
     epic1Via: epic1Via,
+    sealed: sealed,
     foundByScan: foundByScan,
     foundDuring: foundDuring,
     datedByBlock: datedByBlock,

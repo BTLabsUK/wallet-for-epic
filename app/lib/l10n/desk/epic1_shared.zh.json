@@ -1,7 +1,7 @@
 {
   "deskE1ErrCannotPay": "此链接中没有本钱包可连接的服务器。",
   "deskE1ErrNoMoreRelays": "链接中的每个服务器都已尝试。",
-  "deskE1ErrPrintedFull": "32 个打印码都在使用中。请先停用一个。",
+  "deskE1ErrPrintedFull": "32 个打印链接都在使用中。请先停用一个。",
   "deskE1ErrOwnRelayLocal": "你的 Epicbox 服务器在本设备上。请选择其他服务器来创建链接。",
   "deskE1ErrMessageInvalid": "留言过长或含有不支持的字符。",
   "deskE1ErrFinalized": "已完成。",
@@ -20,7 +20,9 @@
   "deskE1PaymentStopped": "付款已停止。未发送任何内容。",
   "deskE1SameCodeTwice": "两部手机用同一个码作了回复。",
   "deskE1ShowNewCode": "显示新码",
-  "deskE1RetireAsk": "停用码 {n}？发往它的付款将不再到达。",
+  "deskE1RetireAsk": "停用链接 {n}？发往它的付款将不再到达。",
   "deskE1Retire": "停用",
-  "deskE1Keep": "保留"
+  "deskE1Keep": "保留",
+  "deskE1Sealed": "已用 epic1 密封",
+  "deskE1SpokenSealed": "{row}，已用 epic1 密封"
 }

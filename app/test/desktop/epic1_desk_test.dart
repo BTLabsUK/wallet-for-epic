@@ -9,6 +9,8 @@ import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' sho
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
+import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,13 +26,16 @@ class _Wallet extends MockDeskWallet {
 
   TxState? e1State;
 
+  /// That payment was sealed ([Tx.sealed]).
+  bool e1Sealed = false;
+
   @override
   Future<List<Tx>> transactions() async {
     final all = await super.transactions();
     final s = e1State;
     return [
       if (s != null)
-        Tx(id: 1, slateId: '00000000-0000-4000-8000-000000000002', direction: TxDirection.sent, state: s, method: TxMethod.epicbox, amount: 150000000, fee: 7000000, cancellable: s == TxState.waitingRecipient, created: DateTime(2026, 11, 9)),
+        Tx(id: 1, slateId: '00000000-0000-4000-8000-000000000002', direction: TxDirection.sent, state: s, method: TxMethod.epicbox, amount: 150000000, fee: 7000000, cancellable: s == TxState.waitingRecipient, created: DateTime(2026, 11, 9), sealed: e1Sealed),
       ...all,
     ];
   }
@@ -156,7 +161,7 @@ void main() {
       expect(find.byKey(const ValueKey('e1-applies')), findsNothing);
     });
 
-    testWidgets('epic1: Printed codes opens the panel', (tester) async {
+    testWidgets('epic1: Printed links opens the panel', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving, epic1: true);
       await _tap(tester, 'e1-printed-open');
       expect(find.byKey(const ValueKey('e1-printed-panel')), findsOneWidget);
@@ -188,7 +193,7 @@ void main() {
       await _open(tester, DeskRoute.send, epic1: true);
       _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
       expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
-      expect(find.text(_l.deskE1SendField), findsWidgets);
+      expect(find.byWidgetPredicate((w) => w is Epic1Text && w.text == _l.deskE1SendField), findsWidgets);
 
       await _enter(tester, 'e1-send-to', _link);
       expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
@@ -294,6 +299,46 @@ void main() {
       await _open(tester, DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'));
       expect(find.byKey(const ValueKey('e1-contact-classic-only')), findsNothing);
       expect(tester.widget<EButton>(find.byKey(const ValueKey('contact-send'))).onPressed, isNotNull);
+    });
+  });
+
+  group('Sealed with epic1', () {
+    Future<void> activity(WidgetTester tester, {required bool epic1, required bool sealed}) async {
+      tester.view.physicalSize = const Size(1280, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      _wallet = _Wallet()
+        ..e1State = TxState.confirmed
+        ..e1Sealed = sealed;
+      if (epic1) {
+        await _wallet.epic1Fake.setStoredOn(true);
+        _wallet.epic1Fake.reopen();
+      }
+      _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_wallet)], retry: (_, _) => null);
+      addTearDown(_container.dispose);
+      await tester.runAsync(() async {
+        final n = _container.read(deskProvider.notifier);
+        await n.refresh();
+        await n.saveSettings(_container.read(deskProvider).settings.copyWith(tourSeen: true));
+      });
+      _container.read(deskNavProvider.notifier).reset(DeskRoute.activity);
+      await tester.pumpWidget(UncontrolledProviderScope(container: _container, child: const DeskApp()));
+      await _settle(tester);
+    }
+
+    testWidgets('epic1: a sealed payment shows the lock on its row', (tester) async {
+      await activity(tester, epic1: true, sealed: true);
+      expect(find.byKey(epic1SealedKey), findsWidgets);
+    });
+
+    testWidgets('epic1: an unsealed payment shows none', (tester) async {
+      await activity(tester, epic1: true, sealed: false);
+      expect(find.byKey(epic1SealedKey), findsNothing);
+    });
+
+    testWidgets('classic: a sealed payment shows none', (tester) async {
+      await activity(tester, epic1: false, sealed: true);
+      expect(find.byKey(epic1SealedKey), findsNothing);
     });
   });
 }

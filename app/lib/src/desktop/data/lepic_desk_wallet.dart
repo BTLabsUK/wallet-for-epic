@@ -5870,6 +5870,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     otherWallet: e.origin == core.TxOrigin.otherWallet,
     unverified: e.unverified,
     epic1Via: e.epic1Via,
+    sealed: e.sealed,
     foundByScan: e.source == core.TxSource.restored,
     foundDuring: switch (e.foundDuring) {
       core.TxFoundDuring.restore => FoundDuring.restore,

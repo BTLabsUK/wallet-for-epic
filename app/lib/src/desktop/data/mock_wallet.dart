@@ -13,6 +13,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
@@ -159,7 +161,7 @@ class MockDeskWallet implements DeskWalletApi {
       Tx(id: 107, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(35.4), fee: 0, created: _ago(hours: 20), confirmations: 14, height: 3767681, otherWallet: true, confirmedAt: _ago(hours: 20)),
       Tx(id: 108, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(6.2), fee: 0, created: _ago(days: 2, hours: 3), confirmations: 410, height: 3767141, otherWallet: true, confirmedAt: _ago(days: 2, hours: 3)),
     ],
-    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 3764971),
+    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 3764971, sealed: _previewEpic1),
     Tx(id: 38, slateId: 'a1f9e8d7-6c5b-4a39-8271-605f4e3d2c1b', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(12.5), fee: _epic(0.007), cancellable: true, created: _ago(hours: 3), counterparty: 'a1f9e8d7.tx'),
     Tx(id: 37, slateId: 'c3d4e5f6-0718-4293-a4b5-c6d7e8f90a1b', direction: TxDirection.sent, state: TxState.posted, method: TxMethod.epicbox, amount: _epic(3.2), fee: _epic(0.006), created: _ago(hours: 5), counterparty: _contacts[4].address, contactName: 'Merchant: Coffee'),
     Tx(id: 36, slateId: 'd4e5f607-1829-43a4-b5c6-d7e8f90a1b2c', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(148.73215), fee: 0, created: _ago(days: 1, hours: 2), confirmations: 1440, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 3763581, kernel: '09a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3', outputCommits: const ['08c7e1a4b2d9f3e6a0c5b8d1f4e7a2c9b6d3f0e8a5c1b7d4f2e9a6c3b0d8f5e1a7'], hasProof: true, proofSender: 'esMockSender1KeyForTestProofOnly0123456789abcdefghijklmn', proofSignature: '304402200011c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011'),
@@ -1418,7 +1420,7 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   /// The epic1 payments of the selected wallet: the switch's stored value applies at unlock.
-  final FakeEpic1 epic1Fake = FakeEpic1();
+  final FakeEpic1 epic1Fake = FakeEpic1(on: _previewEpic1);
 
   @override
   Epic1Wallet? get epic1 => epic1Fake;
@@ -1758,3 +1760,7 @@ class _MockDeviceHost implements DeviceHost {
   @override
   set heldOutputs(Set<String> commitments) {}
 }
+
+/// `?epic1` on the web prototype's URL: the wallet opens in epic1 mode and Anna's payment went
+/// sealed, for reviews of the epic1 screens. Tests and release builds never see it.
+bool get _previewEpic1 => kIsWeb && Uri.base.queryParameters.containsKey('epic1');

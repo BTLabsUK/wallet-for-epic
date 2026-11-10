@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -121,6 +122,9 @@ const _settings = SettingsSectionScreen(section: SettingsSection.transactions);
 
 Finder _key(Key key) => find.byKey(key);
 
+/// A title that names epic1: drawn with the mark, so found by its whole text.
+Finder _e1(String text) => find.byWidgetPredicate((w) => w is Epic1Text && w.text == text);
+
 bool _switchOn(WidgetTester tester) =>
     tester.widget<Switch>(find.descendant(of: _key(epic1SwitchKey), matching: find.byType(Switch))).value;
 
@@ -162,7 +166,7 @@ void main() {
 
       // Cancel on the confirm keeps it off.
       await _tap(tester, _key(epic1SwitchKey));
-      expect(find.text(_l.deskE1PhConfirmTitle), findsOneWidget);
+      expect(_e1(_l.deskE1PhConfirmTitle), findsOneWidget);
       await _tap(tester, find.text(_l.commonCancel));
       expect(_switchOn(tester), isFalse);
       expect(session.epic1Fake.storedOn, isFalse);
@@ -188,7 +192,7 @@ void main() {
       final session = _session(on: true);
       await _pump(tester, session, _settings);
       expect(_key(const ValueKey('tx-epicbox')), findsNothing);
-      expect(find.text(_l.deskE1PhSection), findsOneWidget);
+      expect(_e1(_l.deskE1PhSection), findsOneWidget);
       expect(_key(epic1EpicboxKey), findsOneWidget);
       expect(find.descendant(of: _key(epic1EpicboxKey), matching: find.textContaining('relay.example.invalid')), findsOneWidget);
       expect(_key(epic1PrintedKey), findsOneWidget);
@@ -197,13 +201,13 @@ void main() {
 
       // Turning off asks nothing; it applies at the next unlock.
       await _tap(tester, _key(epic1SwitchKey));
-      expect(find.text(_l.deskE1PhConfirmTitle), findsNothing);
+      expect(_e1(_l.deskE1PhConfirmTitle), findsNothing);
       expect(session.epic1Fake.storedOn, isFalse);
       expect(_key(epic1AppliesKey), findsOneWidget);
       expect(_key(epic1EpicboxKey), findsOneWidget);
     });
 
-    testWidgets('Printed codes: each with Retire, which asks first', (tester) async {
+    testWidgets('Printed links: each with Retire, which asks first', (tester) async {
       final session = _session(on: true);
       await session.epic1Fake.makeLink(kind: Epic1LinkKind.printed, relays: const ['relay.example.invalid']);
       await session.epic1Fake.makeLink(kind: Epic1LinkKind.printed, relays: const ['relay.example.invalid']);

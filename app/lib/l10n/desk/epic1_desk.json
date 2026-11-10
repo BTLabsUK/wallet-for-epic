@@ -7,11 +7,11 @@
   "@deskE1SetSwitch": {
     "description": "Settings › Transactions › Experimental: the switch that turns epic1 payments on for this wallet."
   },
-  "deskE1SetInfo": "Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.",
+  "deskE1SetInfo": "Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.",
   "@deskE1SetInfo": {
     "description": "The ⓘ text of the epic1 payments switch."
   },
-  "deskE1SetSyn": "epic1, native, sealed, experimental, links",
+  "deskE1SetSyn": "epic1, sealed, experimental, links, in person, codes",
   "@deskE1SetSyn": {
     "description": "Settings search: other words that find the epic1 payments switch, comma-separated."
   },
@@ -19,7 +19,7 @@
   "@deskE1TurnOnTitle": {
     "description": "Confirm dialog title when turning epic1 payments on."
   },
-  "deskE1TurnOnBody": "This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.",
+  "deskE1TurnOnBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
   "@deskE1TurnOnBody": {
     "description": "Confirm dialog body when turning epic1 payments on."
   },
@@ -35,11 +35,11 @@
   "@deskE1LockNow": {
     "description": "Button that locks the wallet now so a changed setting applies at the next unlock."
   },
-  "deskE1PrintedCodes": "Printed codes",
+  "deskE1PrintedCodes": "Printed links",
   "@deskE1PrintedCodes": {
     "description": "Settings › Transactions › epic1: the row that opens the list of printed payment link codes."
   },
-  "deskE1PrintedHint": "Payment links made to print or keep. Retire one when it is no longer used.",
+  "deskE1PrintedHint": "epic1 links to print or keep. Retire one when it is no longer used.",
   "@deskE1PrintedHint": {
     "description": "ⓘ text of the Printed codes row."
   },
@@ -52,11 +52,11 @@
       }
     }
   },
-  "deskE1PrintedNone": "No printed codes.",
+  "deskE1PrintedNone": "No printed links.",
   "@deskE1PrintedNone": {
     "description": "The printed codes panel when there are none."
   },
-  "deskE1CodeN": "Code {n}",
+  "deskE1CodeN": "Link {n}",
   "@deskE1CodeN": {
     "description": "A printed payment code in the list, numbered from 1.",
     "placeholders": {

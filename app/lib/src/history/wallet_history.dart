@@ -462,6 +462,13 @@ class WalletHistory {
     });
   }
 
+  /// Records that the slate of the sealed payment [slateId] was handed over plain
+  /// ([Meta.plainResends]).
+  Future<void> recordPlainResend(String slateId) async {
+    if (meta.plainResends.contains(slateId)) return;
+    await _store.update((m) => m.plainResends.add(slateId));
+  }
+
   /// The records of payments made from links, over this wallet's meta file; [onChange] runs
   /// after a change.
   LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MetaLinkPayments(_store, onChange: onChange);

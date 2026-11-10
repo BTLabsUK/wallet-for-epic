@@ -23,6 +23,7 @@ import '../settings_sections.dart';
 import '../theme/brand.dart' show MarkedQr;
 import '../theme/protocol.dart' show CornerTicksPainter;
 import '../theme/tokens.dart';
+import '../theme/epic1_mark.dart';
 import '../tip.dart';
 import '../tour/tour_target.dart';
 import 'epic1_common.dart';
@@ -255,7 +256,7 @@ class _LinkCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l.deskE1PhLinkTitle, style: theme.textTheme.titleMedium),
+            Epic1Text(l.deskE1PhLinkTitle, style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
               amount == null ? l.deskE1PhAnyAmount : l.deskE1PhLinkAsks(epicFor(l, amount!)),

@@ -12945,7 +12945,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairWaysP3 => '**当面。**两部手机互相扫描对方的码。不使用网络。';
 
   @override
-  String get helpPairWaysP4 => '无论哪种方式，最后都要一起验证：比较四张图片和名称。它们表明消息在途中没有被人改动。';
+  String get helpPairWaysP4 =>
+      '无论哪种方式，最后都要一起验证：比较四张图片和名称。只有两个钱包看到相同的密钥时，它们才会一致。';
 
   @override
   String get helpPairClipP =>
@@ -13047,7 +13048,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return '回复已针对 $name 的邀请密封。其他人无法读取，且只能使用一次。';
+    return '回复已针对 $name 的邀请密封：只有 $name 的钱包能读取。只能使用一次。';
   }
 
   @override
@@ -19686,7 +19687,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1ErrNoMoreRelays => '链接中的每个服务器都已尝试。';
 
   @override
-  String get deskE1ErrPrintedFull => '32 个打印码都在使用中。请先停用一个。';
+  String get deskE1ErrPrintedFull => '32 个打印链接都在使用中。请先停用一个。';
 
   @override
   String get deskE1ErrOwnRelayLocal => '你的 Epicbox 服务器在本设备上。请选择其他服务器来创建链接。';
@@ -19744,7 +19745,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskE1RetireAsk(int n) {
-    return '停用码 $n？发往它的付款将不再到达。';
+    return '停用链接 $n？发往它的付款将不再到达。';
   }
 
   @override
@@ -19876,14 +19877,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1PhSwitchHint =>
-      '发往支持 epic1 的钱包的付款端到端密封且更小，并会出现面对面付款码和 epic1 链接。其他 Epic 钱包收到经典格式。来自任何 Epic 钱包的付款照常到达。按钱包设置。实验性：仍可能变化。';
+      '付款只通过 epic1：epic1 链接、面对面付款码和支持 epic1 的联系人。经典付款仍会到达。关闭后可向其他 Epic 钱包付款。按钱包设置。实验性：仍可能变化。';
 
   @override
   String get deskE1PhConfirmTitle => '使用 epic1 付款？';
 
   @override
   String get deskE1PhConfirmBody =>
-      '此钱包之后只与支持 epic1 的钱包互相付款。关闭后可向其他任何 Epic 钱包付款。';
+      '之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。';
 
   @override
   String get deskE1PhTurnOn => '开启';
@@ -19901,7 +19902,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1PhReceiving => '收款';
 
   @override
-  String get deskE1PhPrinted => '打印码';
+  String get deskE1PhPrinted => '打印的链接';
 
   @override
   String deskE1PhPrintedCount(int n, int max) {
@@ -19909,11 +19910,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhPrintedEmpty => '没有打印码。';
+  String get deskE1PhPrintedEmpty => '没有打印的链接。';
 
   @override
   String deskE1PhPrintedCode(int n) {
-    return '码 $n';
+    return '链接 $n';
   }
 
   @override
@@ -19926,7 +19927,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskE1PhRetired(int n) {
-    return '码 $n 已停用。';
+    return '链接 $n 已停用。';
   }
 
   @override
@@ -20050,16 +20051,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1SetInfo =>
-      '发往支持 epic1 的钱包的付款端到端密封且更小，并会出现当面付款码和 epic1 链接。其他 Epic 钱包收到经典格式。来自任何 Epic 钱包的付款照常到达。按钱包设置。实验性：仍可能变化。';
+      '付款只通过 epic1：epic1 链接、面对面付款码和支持 epic1 的联系人。经典付款仍会到达。关闭后可向其他 Epic 钱包付款。按钱包设置。实验性：仍可能变化。';
 
   @override
-  String get deskE1SetSyn => 'epic1, 原生, 密封, 实验, 链接';
+  String get deskE1SetSyn => 'epic1, 密封, 实验, 链接, 面对面, 码';
 
   @override
   String get deskE1TurnOnTitle => '使用 epic1 付款？';
 
   @override
-  String get deskE1TurnOnBody => '此后该钱包只与支持 epic1 的钱包付款和收款。关闭它即可向其他 Epic 钱包付款。';
+  String get deskE1TurnOnBody =>
+      '之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。';
 
   @override
   String get deskE1TurnOn => '开启';
@@ -20071,10 +20073,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1LockNow => '立即锁定';
 
   @override
-  String get deskE1PrintedCodes => '打印的码';
+  String get deskE1PrintedCodes => '打印的链接';
 
   @override
-  String get deskE1PrintedHint => '用于打印或保存的付款链接。不再使用时将其停用。';
+  String get deskE1PrintedHint => '用于打印或保存的 epic1 链接。不再使用时将其停用。';
 
   @override
   String deskE1PrintedCount(int n) {
@@ -20082,11 +20084,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskE1PrintedNone => '没有打印的码。';
+  String get deskE1PrintedNone => '没有打印的链接。';
 
   @override
   String deskE1CodeN(int n) {
-    return '码 $n';
+    return '链接 $n';
   }
 
   @override
@@ -20231,4 +20233,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1TourReceiveText => '这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。';
+
+  @override
+  String get deskE1Sealed => '已用 epic1 密封';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row，已用 epic1 密封';
+  }
 }

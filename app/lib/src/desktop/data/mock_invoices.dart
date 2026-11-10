@@ -466,6 +466,8 @@ class InvoiceProto {
           message: r.message,
           height: conf > 0 ? mockTip - conf + 1 : null,
           flow: TxFlow.invoice,
+          // A payment that came sealed stays sealed when its request is synced.
+          sealed: _w._txs.any((x) => x.id == r.txId && x.sealed),
         ),
       );
     }

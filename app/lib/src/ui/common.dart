@@ -35,6 +35,7 @@ import 'method_names.dart' show methodKindOfTransport;
 import 'motion_switches.dart';
 import 'notices.dart';
 import 'badge.dart';
+import 'epic1/epic1_sealed.dart' show Epic1SealedBadge, phoneShowsSealed;
 import 'finished_not_posted.dart' show isPostElsewhere;
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -1022,6 +1023,10 @@ class TxStatusLine extends ConsumerWidget {
             style: base,
           ),
         ),
+        if (phoneShowsSealed(ref, tx)) ...[
+          const SizedBox(width: 6),
+          const Epic1SealedBadge(compact: true),
+        ],
         if (tx.manualFields.isNotEmpty) ...[
           const SizedBox(width: 6),
           ManualTag(editedAtUnix: tx.manualEditedAtUnix, compact: true),
@@ -1787,6 +1792,7 @@ String txSpokenLabel(
   required String status,
   required bool hidden,
   String? label,
+  bool sealed = false,
 }) {
   final amount = hidden
       ? l.txSpokenHiddenAmount
@@ -1833,7 +1839,9 @@ String txSpokenLabel(
   // nouns stay capitalised and Chinese has no case.
   // Only the first letter: a name in it keeps its case ("waiting for Anna").
   final spokenStatus = l.localeName == 'en' && status.isNotEmpty ? status[0].toLowerCase() + status.substring(1) : status;
-  final sentence = l.txSpokenRow(what, spokenStatus, date);
+  final row = l.txSpokenRow(what, spokenStatus, date);
+  // The row's lock, said once after the rest.
+  final sentence = sealed ? l.deskE1SpokenSealed(row) : row;
   final named = label?.trim() ?? '';
   return named.isEmpty ? sentence : l.txSpokenLabelled(named, sentence);
 }
@@ -1920,6 +1928,7 @@ class TxTile extends ConsumerWidget {
               ),
               hidden: display.hidden,
               label: tx.label,
+              sealed: phoneShowsSealed(ref, tx),
             ),
             onTap: open,
             // A long press labels the payment in place; the pen left the row. Screen

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import '../trust_ids.dart';
 import 'info_hint.dart';
 import 'theme/tokens.dart';
+import 'theme/epic1_mark.dart';
 
 export 'info_hint.dart' show HintSwitchTile, TitleWithHint;
 
@@ -136,7 +137,7 @@ class SettingsHeader extends StatelessWidget {
     // action only.
     final text = Semantics(
       header: true,
-      child: Text(
+      child: Epic1Text(
         title,
         style: theme.textTheme.titleSmall?.copyWith(color: context.tokens.dim, fontWeight: FontWeight.w600),
       ),

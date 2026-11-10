@@ -14267,7 +14267,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Каким бы способом вы ни воспользовались, в конце проверьте вместе: сравните четыре картинки и имена. Они показывают, что никто не изменил сообщения по пути.';
+      'Каким бы способом вы ни воспользовались, в конце проверьте вместе: сравните четыре картинки и имена. Они совпадают, только если оба кошелька видят одни и те же ключи.';
 
   @override
   String get helpPairClipP =>
@@ -14376,7 +14376,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return 'Ответ запечатан для приглашения $name. Никто другой не сможет его прочитать, и он срабатывает один раз.';
+    return 'Ответ запечатан для приглашения $name: прочитать его может только кошелёк $name. Он срабатывает один раз.';
   }
 
   @override
@@ -21572,7 +21572,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1ErrPrintedFull =>
-      'Все 32 печатных кода заняты. Сначала выведите один из них.';
+      'Все 32 печатные ссылки заняты. Сначала выведите одну из них.';
 
   @override
   String get deskE1ErrOwnRelayLocal =>
@@ -21640,7 +21640,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskE1RetireAsk(int n) {
-    return 'Вывести код $n? Платежи на него перестанут приходить.';
+    return 'Вывести ссылку $n? Платежи на неё перестанут приходить.';
   }
 
   @override
@@ -21778,14 +21778,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1PhSwitchHint =>
-      'Платежи на кошельки с epic1 защищены сквозным шифрованием и меньше по размеру, а также появляются коды для личной оплаты и ссылки epic1. Другие кошельки Epic получают классический формат. Платежи с любого кошелька Epic приходят как раньше. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
+      'Платежи идут только через epic1: ссылки epic1, коды для личной оплаты и контакты с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы платить другим кошелькам Epic. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
 
   @override
   String get deskE1PhConfirmTitle => 'Использовать платежи epic1?';
 
   @override
   String get deskE1PhConfirmBody =>
-      'Тогда этот кошелёк платит и получает платежи только от кошельков с epic1. Выключите, чтобы платить любому другому кошельку Epic.';
+      'Тогда платежи уходят только на кошельки с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы заплатить любому другому кошельку Epic.';
 
   @override
   String get deskE1PhTurnOn => 'Включить';
@@ -21803,7 +21803,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1PhReceiving => 'Получение';
 
   @override
-  String get deskE1PhPrinted => 'Печатные коды';
+  String get deskE1PhPrinted => 'Печатные ссылки';
 
   @override
   String deskE1PhPrintedCount(int n, int max) {
@@ -21811,11 +21811,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhPrintedEmpty => 'Печатных кодов нет.';
+  String get deskE1PhPrintedEmpty => 'Печатных ссылок нет.';
 
   @override
   String deskE1PhPrintedCode(int n) {
-    return 'Код $n';
+    return 'Ссылка $n';
   }
 
   @override
@@ -21828,7 +21828,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskE1PhRetired(int n) {
-    return 'Код $n выведен.';
+    return 'Ссылка $n выведена.';
   }
 
   @override
@@ -21953,18 +21953,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1SetInfo =>
-      'Платежи на кошельки с epic1 запечатаны от начала до конца и меньше по размеру, и появляются коды для личных платежей и ссылки epic1. Другие кошельки Epic получают классический формат. Платежи с любого кошелька Epic приходят как раньше. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
+      'Платежи идут только через epic1: ссылки epic1, коды для личной оплаты и контакты с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы платить другим кошелькам Epic. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
 
   @override
   String get deskE1SetSyn =>
-      'epic1, нативные, запечатанные, экспериментальные, ссылки';
+      'epic1, запечатанные, экспериментальные, ссылки, лично, коды';
 
   @override
   String get deskE1TurnOnTitle => 'Использовать платежи epic1?';
 
   @override
   String get deskE1TurnOnBody =>
-      'Тогда этот кошелёк платит и получает платежи только с кошельками с epic1. Выключите, чтобы заплатить любому другому кошельку Epic.';
+      'Тогда платежи уходят только на кошельки с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы заплатить любому другому кошельку Epic.';
 
   @override
   String get deskE1TurnOn => 'Включить';
@@ -21976,11 +21976,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1LockNow => 'Заблокировать сейчас';
 
   @override
-  String get deskE1PrintedCodes => 'Напечатанные коды';
+  String get deskE1PrintedCodes => 'Печатные ссылки';
 
   @override
   String get deskE1PrintedHint =>
-      'Платёжные ссылки для печати или хранения. Выведите код из оборота, когда он больше не нужен.';
+      'Ссылки epic1 для печати или хранения. Выведите ссылку из оборота, когда она больше не нужна.';
 
   @override
   String deskE1PrintedCount(int n) {
@@ -21988,11 +21988,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskE1PrintedNone => 'Нет напечатанных кодов.';
+  String get deskE1PrintedNone => 'Печатных ссылок нет.';
 
   @override
   String deskE1CodeN(int n) {
-    return 'Код $n';
+    return 'Ссылка $n';
   }
 
   @override
@@ -22143,4 +22143,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskE1TourReceiveText =>
       'Ссылка epic1 этого кошелька: поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
+
+  @override
+  String get deskE1Sealed => 'Запечатано epic1';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row, запечатано epic1';
+  }
 }

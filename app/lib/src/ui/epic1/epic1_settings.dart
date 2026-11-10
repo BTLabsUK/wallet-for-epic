@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Settings › Transactions in epic1 (spec P1): the Experimental switch, the epic1 section
-/// (Epicbox server, Printed codes) and the Printed codes page.
+/// (Epicbox server, Printed links) and the Printed links page.
 library;
 
 import 'package:flutter/material.dart';
@@ -22,6 +22,7 @@ import '../settings_rows.dart';
 import '../status.dart';
 import '../status_icons.dart';
 import '../theme/tokens.dart';
+import '../theme/epic1_mark.dart';
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
@@ -32,7 +33,7 @@ const Key epic1LockNowKey = ValueKey('epic1-lock-now');
 const Key epic1EpicboxKey = ValueKey('epic1-epicbox');
 const Key epic1PrintedKey = ValueKey('epic1-printed');
 
-/// How many printed codes a wallet holds.
+/// How many printed links a wallet holds.
 const int epic1PrintedMax = 32;
 
 /// The Experimental section: the "epic1 payments" switch and, while what is stored differs
@@ -104,6 +105,7 @@ class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
         HintSwitchTile(
           key: epic1SwitchKey,
           icon: Icons.science_outlined,
+          leading: const Epic1Glyph(size: 24),
           title: l.deskE1PhSwitch,
           hint: l.deskE1PhSwitchHint,
           value: stored,
@@ -168,7 +170,7 @@ class Epic1EpicboxRow extends ConsumerWidget {
   }
 }
 
-/// The printed codes of this wallet; the links are read once per build of the page.
+/// The printed links of this wallet; the links are read once per build of the page.
 final epic1PrintedProvider = FutureProvider.autoDispose<List<Epic1LinkSlot>>((ref) async {
   final epic1 = ref.watch(epic1Provider);
   if (epic1 == null) return const [];
@@ -176,7 +178,7 @@ final epic1PrintedProvider = FutureProvider.autoDispose<List<Epic1LinkSlot>>((re
   return [for (final s in all) if (s.kind == Epic1LinkKind.printed) s]..sort((a, b) => a.n.compareTo(b.n));
 });
 
-/// "Printed codes" with "n of 32"; opens [PrintedCodesScreen].
+/// "Printed links" with "n of 32"; opens [PrintedCodesScreen].
 class Epic1PrintedRow extends ConsumerWidget {
   const Epic1PrintedRow({super.key});
 
@@ -200,7 +202,7 @@ class Epic1PrintedRow extends ConsumerWidget {
   }
 }
 
-/// The printed codes, each with Retire.
+/// The printed links, each with Retire.
 class PrintedCodesScreen extends ConsumerWidget {
   const PrintedCodesScreen({super.key});
 

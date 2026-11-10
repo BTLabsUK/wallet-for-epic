@@ -3677,6 +3677,7 @@ TxEntry fakeTx({
   List<String> spentCommits = const [],
   bool unverified = false,
   Epic1Via? epic1Via,
+  bool sentPlain = false,
 }) {
   final resolvedStatus =
       status ??
@@ -3733,6 +3734,7 @@ TxEntry fakeTx({
     spentCommits: spentCommits,
     unverified: unverified,
     epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 }
 
@@ -3751,6 +3753,7 @@ TxEntry copyTx(
   String? transport,
   Set<ManualField>? manualFields,
   int? manualEditedAtUnix,
+  String? pairingId,
 }) => TxEntry(
   key: tx.key,
   id: tx.id,
@@ -3797,4 +3800,6 @@ TxEntry copyTx(
   spentCommits: tx.spentCommits,
   unverified: tx.unverified,
   epic1Via: tx.epic1Via,
+  sentPlain: tx.sentPlain,
+  pairingId: pairingId,
 );

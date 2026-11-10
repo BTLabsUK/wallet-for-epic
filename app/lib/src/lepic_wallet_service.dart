@@ -5086,7 +5086,15 @@ class _LepicPairing implements PairingApi {
   Future<String> plainSlate(String txKey) => _call(() async {
     final int? txId = txKey.startsWith('s:') ? await _txOfSlate(txKey.substring(2)) : await _s._txIdOf(txKey);
     if (txId == null) throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'not a sealed send');
-    return _w.contactPlainFallback(txId: txId);
+    final plain = await _w.contactPlainFallback(txId: txId);
+    // The payment no longer counts as sealed ([TxEntry.sentPlain]); a failed write is logged.
+    try {
+      final slateId = txKey.startsWith('s:') ? txKey.substring(2) : (await _s._entry(txId)).slateId;
+      if (slateId != null) await _s._history.recordPlainResend(slateId);
+    } on Object catch (e) {
+      logWarn('history', 'plain resend not saved (${e.runtimeType})');
+    }
+    return plain;
   });
 
   @override

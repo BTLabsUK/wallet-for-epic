@@ -18,6 +18,7 @@ import '../../ui/info_action.dart';
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../../ui/badge.dart';
+import '../../ui/theme/epic1_mark.dart';
 import '../../ui/notice_layout.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
@@ -107,7 +108,7 @@ class EPanel extends StatelessWidget {
               child: head ??
                   Row(
                     children: [
-                      Expanded(child: Text(title!, style: context.ts.label)),
+                      Expanded(child: Epic1Text(title!, style: context.ts.label)),
                       ?headTrailing,
                     ],
                   ),
@@ -243,7 +244,7 @@ class ESectionHead extends StatelessWidget {
           Container(width: 14.u, height: 2, color: c.accent),
           SizedBox(width: 10.u),
           Expanded(
-            child: Semantics(header: true, child: Text(title, style: context.ts.h3)),
+            child: Semantics(header: true, child: Epic1Text(title, style: context.ts.h3)),
           ),
           ?trailing,
         ],
@@ -1001,12 +1002,12 @@ class ESetRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (title != null && hint == null && advancedBy == null) Text(title!, style: ts.strong),
+        if (title != null && hint == null && advancedBy == null) Epic1Text(title!, style: ts.strong),
         if (title != null && (hint != null || advancedBy != null))
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(child: Text(title!, style: ts.strong)),
+              Flexible(child: Epic1Text(title!, style: ts.strong)),
               if (hint != null) ...[
                 SizedBox(width: Sp.x1),
                 // 20 u to see, 44 px to hit (review 8).

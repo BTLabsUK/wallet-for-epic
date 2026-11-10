@@ -7,7 +7,7 @@
   "@deskE1PhSwitch": {
     "description": "Settings switch that turns on the epic1 payment format. \"epic1\" is a name; keep it as is."
   },
-  "deskE1PhSwitchHint": "Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.",
+  "deskE1PhSwitchHint": "Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.",
   "@deskE1PhSwitchHint": {
     "description": "Explanation behind the info icon of the epic1 payments switch."
   },
@@ -15,7 +15,7 @@
   "@deskE1PhConfirmTitle": {
     "description": "Title of the dialog shown when turning on epic1 payments."
   },
-  "deskE1PhConfirmBody": "This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.",
+  "deskE1PhConfirmBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
   "@deskE1PhConfirmBody": {
     "description": "Body of the dialog shown when turning on epic1 payments."
   },
@@ -39,7 +39,7 @@
   "@deskE1PhReceiving": {
     "description": "Settings › Transactions in epic1 mode: header above Confirmations."
   },
-  "deskE1PhPrinted": "Printed codes",
+  "deskE1PhPrinted": "Printed links",
   "@deskE1PhPrinted": {
     "description": "Settings row: the payment link codes made for printing."
   },
@@ -55,11 +55,11 @@
       }
     }
   },
-  "deskE1PhPrintedEmpty": "No printed codes.",
+  "deskE1PhPrintedEmpty": "No printed links.",
   "@deskE1PhPrintedEmpty": {
     "description": "Printed codes page with none made."
   },
-  "deskE1PhPrintedCode": "Code {n}",
+  "deskE1PhPrintedCode": "Link {n}",
   "@deskE1PhPrintedCode": {
     "description": "A printed payment code in the list, numbered from 1.",
     "placeholders": {
@@ -81,7 +81,7 @@
   "@deskE1PhPrintedUsed": {
     "description": "Badge on a printed code that has received a payment."
   },
-  "deskE1PhRetired": "Code {n} retired.",
+  "deskE1PhRetired": "Link {n} retired.",
   "@deskE1PhRetired": {
     "description": "Notice after retiring a printed code.",
     "placeholders": {

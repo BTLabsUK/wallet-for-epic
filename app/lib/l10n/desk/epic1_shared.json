@@ -7,7 +7,7 @@
   "@deskE1ErrNoMoreRelays": {
     "description": "An epic1 payment: every message server listed in the link was tried and none worked."
   },
-  "deskE1ErrPrintedFull": "All 32 printed codes are in use. Retire one first.",
+  "deskE1ErrPrintedFull": "All 32 printed links are in use. Retire one first.",
   "@deskE1ErrPrintedFull": {
     "description": "The wallet has made its 32 printed payment codes; one must be retired before making another."
   },
@@ -83,7 +83,7 @@
   "@deskE1ShowNewCode": {
     "description": "Button: make and show a fresh in-person payment code."
   },
-  "deskE1RetireAsk": "Retire code {n}? Payments to it stop arriving.",
+  "deskE1RetireAsk": "Retire link {n}? Payments to it stop arriving.",
   "@deskE1RetireAsk": {
     "description": "Confirm dialog for retiring printed payment code number {n}.",
     "placeholders": {
@@ -99,5 +99,18 @@
   "deskE1Keep": "Keep",
   "@deskE1Keep": {
     "description": "Button: keep the printed payment code (cancel retiring)."
+  },
+  "deskE1Sealed": "Sealed with epic1",
+  "@deskE1Sealed": {
+    "description": "Badge on a payment that was sealed (only the two wallets in it can read it): to or from a paired contact, or through an epic1 link. \"epic1\" is a name: keep it as is, never translate."
+  },
+  "deskE1SpokenSealed": "{row}, sealed with epic1",
+  "@deskE1SpokenSealed": {
+    "description": "A screen reader's sentence for a history row whose payment was sealed: {row} is the rest of the row's sentence (\"Sent 5 EPIC to Anna, completed, today\"). \"epic1\" is a name: keep it as is, never translate.",
+    "placeholders": {
+      "row": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import '../epic1.dart' show FakeEpic1;
 import '../mock_fixtures.dart';
 import '../levels/first_start.dart' show firstStartProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
@@ -482,6 +483,15 @@ PreviewSession _previewSession() {
     );
   // `?relaymove`: Tom moved to another relay (followed without a word, "Moved here on"), and
   // the BT Labs Faucet asks to move (the Accept/Refuse sheet).
+  if (previewEpic1) {
+    final annaPairing = session.pairing.records.firstWhere((r) => r.contactId == 'c1').id;
+    session
+      ..epic1Fake = FakeEpic1(on: true)
+      ..transactionsValue = [
+        for (final t in session.transactionsValue)
+          t.counterparty == anna ? copyTx(t, note: t.note, pairingId: annaPairing) : t,
+      ];
+  }
   if (previewRelayMove) {
     session.pairing.seedPaired(name: 'BT Labs Faucet', contactId: 'c7', peerEncKey: FakePairing.serviceKey, requestedRelay: 'relay.faucet.example');
     final tom = session.pairing.records.firstWhere((r) => r.contactId == 'c6');

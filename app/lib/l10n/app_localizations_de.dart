@@ -13924,7 +13924,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Verifizieren Sie auf jedem Weg am Ende gemeinsam: Vergleichen Sie die vier Bilder und Namen. Sie zeigen, dass niemand die Nachrichten unterwegs verändert hat.';
+      'Verifizieren Sie auf jedem Weg am Ende gemeinsam: Vergleichen Sie die vier Bilder und Namen. Sie stimmen nur überein, wenn beide Wallets dieselben Schlüssel sehen.';
 
   @override
   String get helpPairClipP =>
@@ -14033,7 +14033,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return 'Die Antwort ist für die Einladung von $name versiegelt. Niemand sonst kann sie lesen, und sie funktioniert nur einmal.';
+    return 'Die Antwort ist für die Einladung von $name versiegelt: Nur die Wallet von $name kann sie lesen. Sie funktioniert einmal.';
   }
 
   @override
@@ -21118,7 +21118,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1ErrPrintedFull =>
-      'Alle 32 gedruckten Codes sind in Gebrauch. Zuerst einen stilllegen.';
+      'Alle 32 gedruckten Links sind in Gebrauch. Legen Sie zuerst einen still.';
 
   @override
   String get deskE1ErrOwnRelayLocal =>
@@ -21187,7 +21187,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskE1RetireAsk(int n) {
-    return 'Code $n stilllegen? Zahlungen an ihn kommen nicht mehr an.';
+    return 'Link $n stilllegen? Zahlungen an ihn kommen nicht mehr an.';
   }
 
   @override
@@ -21326,14 +21326,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1PhSwitchHint =>
-      'Zahlungen an Wallets mit epic1 sind Ende-zu-Ende versiegelt und kleiner, und Codes für persönliche Zahlungen sowie epic1-Links erscheinen. Andere Epic-Wallets erhalten das klassische Format. Zahlungen von jeder Epic-Wallet kommen wie bisher an. Pro Wallet. Experimentell: Es kann sich noch ändern.';
+      'Zahlungen laufen nur über epic1: epic1-Links, Codes für persönliche Zahlungen und Kontakte mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um andere Epic-Wallets zu bezahlen. Pro Wallet. Experimentell: Es kann sich noch ändern.';
 
   @override
   String get deskE1PhConfirmTitle => 'epic1-Zahlungen verwenden?';
 
   @override
   String get deskE1PhConfirmBody =>
-      'Diese Wallet zahlt und empfängt dann nur noch mit Wallets mit epic1. Schalte es aus, um eine andere Epic-Wallet zu bezahlen.';
+      'Zahlungen gehen dann nur an Wallets mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um eine andere Epic-Wallet zu bezahlen.';
 
   @override
   String get deskE1PhTurnOn => 'Einschalten';
@@ -21351,7 +21351,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskE1PhReceiving => 'Empfangen';
 
   @override
-  String get deskE1PhPrinted => 'Gedruckte Codes';
+  String get deskE1PhPrinted => 'Gedruckte Links';
 
   @override
   String deskE1PhPrintedCount(int n, int max) {
@@ -21359,11 +21359,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhPrintedEmpty => 'Keine gedruckten Codes.';
+  String get deskE1PhPrintedEmpty => 'Keine gedruckten Links.';
 
   @override
   String deskE1PhPrintedCode(int n) {
-    return 'Code $n';
+    return 'Link $n';
   }
 
   @override
@@ -21376,7 +21376,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskE1PhRetired(int n) {
-    return 'Code $n stillgelegt.';
+    return 'Link $n stillgelegt.';
   }
 
   @override
@@ -21502,17 +21502,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1SetInfo =>
-      'Zahlungen an Wallets mit epic1 sind Ende-zu-Ende versiegelt und kleiner, und Codes für persönliche Zahlungen und epic1-Links erscheinen. Andere Epic-Wallets erhalten das klassische Format. Zahlungen von jeder Epic-Wallet kommen wie bisher an. Pro Wallet. Experimentell: kann sich noch ändern.';
+      'Zahlungen laufen nur über epic1: epic1-Links, Codes für persönliche Zahlungen und Kontakte mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um andere Epic-Wallets zu bezahlen. Pro Wallet. Experimentell: Es kann sich noch ändern.';
 
   @override
-  String get deskE1SetSyn => 'epic1, nativ, versiegelt, experimentell, Links';
+  String get deskE1SetSyn =>
+      'epic1, versiegelt, experimentell, Links, persönlich, Codes';
 
   @override
   String get deskE1TurnOnTitle => 'epic1-Zahlungen verwenden?';
 
   @override
   String get deskE1TurnOnBody =>
-      'Diese Wallet zahlt dann nur an Wallets mit epic1 und wird nur von ihnen bezahlt. Schalte es aus, um eine andere Epic-Wallet zu bezahlen.';
+      'Zahlungen gehen dann nur an Wallets mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um eine andere Epic-Wallet zu bezahlen.';
 
   @override
   String get deskE1TurnOn => 'Einschalten';
@@ -21524,11 +21525,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskE1LockNow => 'Jetzt sperren';
 
   @override
-  String get deskE1PrintedCodes => 'Gedruckte Codes';
+  String get deskE1PrintedCodes => 'Gedruckte Links';
 
   @override
   String get deskE1PrintedHint =>
-      'Zahlungslinks zum Drucken oder Aufbewahren. Lege einen still, wenn er nicht mehr gebraucht wird.';
+      'epic1-Links zum Drucken oder Aufbewahren. Legen Sie einen still, wenn er nicht mehr gebraucht wird.';
 
   @override
   String deskE1PrintedCount(int n) {
@@ -21536,11 +21537,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskE1PrintedNone => 'Keine gedruckten Codes.';
+  String get deskE1PrintedNone => 'Keine gedruckten Links.';
 
   @override
   String deskE1CodeN(int n) {
-    return 'Code $n';
+    return 'Link $n';
   }
 
   @override
@@ -21691,4 +21692,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskE1TourReceiveText =>
       'Der epic1-Link dieser Wallet: Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen.';
+
+  @override
+  String get deskE1Sealed => 'Mit epic1 versiegelt';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row, mit epic1 versiegelt';
+  }
 }

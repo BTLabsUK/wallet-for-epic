@@ -18246,7 +18246,7 @@
   "@helpPairWaysP3": {
     "description": "Paragraph"
   },
-  "helpPairWaysP4": "Whichever way, verify together at the end: compare the four pictures and names. They show that nobody changed the messages on the way.",
+  "helpPairWaysP4": "Whichever way, verify together at the end: compare the four pictures and names. They match only when both wallets see the same keys.",
   "@helpPairWaysP4": {
     "description": "Paragraph"
   },
@@ -18406,7 +18406,7 @@
   "@pairByHandYourAnswer": {
     "description": "Label above the reply link."
   },
-  "pairByHandFooter": "The answer is sealed to {name}’s invite. Nobody else can read it, and it works once.",
+  "pairByHandFooter": "The answer is sealed to {name}’s invite: only {name}’s wallet can read it. It works once.",
   "@pairByHandFooter": {
     "description": "Small print.",
     "placeholders": {
@@ -28291,7 +28291,7 @@
   "@deskE1ErrNoMoreRelays": {
     "description": "An epic1 payment: every message server listed in the link was tried and none worked."
   },
-  "deskE1ErrPrintedFull": "All 32 printed codes are in use. Retire one first.",
+  "deskE1ErrPrintedFull": "All 32 printed links are in use. Retire one first.",
   "@deskE1ErrPrintedFull": {
     "description": "The wallet has made its 32 printed payment codes; one must be retired before making another."
   },
@@ -28367,7 +28367,7 @@
   "@deskE1ShowNewCode": {
     "description": "Button: make and show a fresh in-person payment code."
   },
-  "deskE1RetireAsk": "Retire code {n}? Payments to it stop arriving.",
+  "deskE1RetireAsk": "Retire link {n}? Payments to it stop arriving.",
   "@deskE1RetireAsk": {
     "description": "Confirm dialog for retiring printed payment code number {n}.",
     "placeholders": {
@@ -28548,7 +28548,7 @@
   "@deskE1PhSwitch": {
     "description": "Settings switch that turns on the epic1 payment format. \"epic1\" is a name; keep it as is."
   },
-  "deskE1PhSwitchHint": "Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.",
+  "deskE1PhSwitchHint": "Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.",
   "@deskE1PhSwitchHint": {
     "description": "Explanation behind the info icon of the epic1 payments switch."
   },
@@ -28556,7 +28556,7 @@
   "@deskE1PhConfirmTitle": {
     "description": "Title of the dialog shown when turning on epic1 payments."
   },
-  "deskE1PhConfirmBody": "This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.",
+  "deskE1PhConfirmBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
   "@deskE1PhConfirmBody": {
     "description": "Body of the dialog shown when turning on epic1 payments."
   },
@@ -28580,7 +28580,7 @@
   "@deskE1PhReceiving": {
     "description": "Settings › Transactions in epic1 mode: header above Confirmations."
   },
-  "deskE1PhPrinted": "Printed codes",
+  "deskE1PhPrinted": "Printed links",
   "@deskE1PhPrinted": {
     "description": "Settings row: the payment link codes made for printing."
   },
@@ -28596,11 +28596,11 @@
       }
     }
   },
-  "deskE1PhPrintedEmpty": "No printed codes.",
+  "deskE1PhPrintedEmpty": "No printed links.",
   "@deskE1PhPrintedEmpty": {
     "description": "Printed codes page with none made."
   },
-  "deskE1PhPrintedCode": "Code {n}",
+  "deskE1PhPrintedCode": "Link {n}",
   "@deskE1PhPrintedCode": {
     "description": "A printed payment code in the list, numbered from 1.",
     "placeholders": {
@@ -28622,7 +28622,7 @@
   "@deskE1PhPrintedUsed": {
     "description": "Badge on a printed code that has received a payment."
   },
-  "deskE1PhRetired": "Code {n} retired.",
+  "deskE1PhRetired": "Link {n} retired.",
   "@deskE1PhRetired": {
     "description": "Notice after retiring a printed code.",
     "placeholders": {
@@ -28799,11 +28799,11 @@
   "@deskE1SetSwitch": {
     "description": "Settings › Transactions › Experimental: the switch that turns epic1 payments on for this wallet."
   },
-  "deskE1SetInfo": "Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.",
+  "deskE1SetInfo": "Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.",
   "@deskE1SetInfo": {
     "description": "The ⓘ text of the epic1 payments switch."
   },
-  "deskE1SetSyn": "epic1, native, sealed, experimental, links",
+  "deskE1SetSyn": "epic1, sealed, experimental, links, in person, codes",
   "@deskE1SetSyn": {
     "description": "Settings search: other words that find the epic1 payments switch, comma-separated."
   },
@@ -28811,7 +28811,7 @@
   "@deskE1TurnOnTitle": {
     "description": "Confirm dialog title when turning epic1 payments on."
   },
-  "deskE1TurnOnBody": "This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.",
+  "deskE1TurnOnBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
   "@deskE1TurnOnBody": {
     "description": "Confirm dialog body when turning epic1 payments on."
   },
@@ -28827,11 +28827,11 @@
   "@deskE1LockNow": {
     "description": "Button that locks the wallet now so a changed setting applies at the next unlock."
   },
-  "deskE1PrintedCodes": "Printed codes",
+  "deskE1PrintedCodes": "Printed links",
   "@deskE1PrintedCodes": {
     "description": "Settings › Transactions › epic1: the row that opens the list of printed payment link codes."
   },
-  "deskE1PrintedHint": "Payment links made to print or keep. Retire one when it is no longer used.",
+  "deskE1PrintedHint": "epic1 links to print or keep. Retire one when it is no longer used.",
   "@deskE1PrintedHint": {
     "description": "ⓘ text of the Printed codes row."
   },
@@ -28844,11 +28844,11 @@
       }
     }
   },
-  "deskE1PrintedNone": "No printed codes.",
+  "deskE1PrintedNone": "No printed links.",
   "@deskE1PrintedNone": {
     "description": "The printed codes panel when there are none."
   },
-  "deskE1CodeN": "Code {n}",
+  "deskE1CodeN": "Link {n}",
   "@deskE1CodeN": {
     "description": "A printed payment code in the list, numbered from 1.",
     "placeholders": {
@@ -29057,5 +29057,18 @@
   "deskE1TourReceiveText": "This wallet's epic1 link: share it to get paid. Request in person is for a phone next to you.",
   "@deskE1TourReceiveText": {
     "description": "Desktop tour, Receive step, in epic1 mode: the epic1 link card and the In person panel."
+  },
+  "deskE1Sealed": "Sealed with epic1",
+  "@deskE1Sealed": {
+    "description": "Badge on a payment that was sealed (only the two wallets in it can read it): to or from a paired contact, or through an epic1 link. \"epic1\" is a name: keep it as is, never translate."
+  },
+  "deskE1SpokenSealed": "{row}, sealed with epic1",
+  "@deskE1SpokenSealed": {
+    "description": "A screen reader's sentence for a history row whose payment was sealed: {row} is the rest of the row's sentence (\"Sent 5 EPIC to Anna, completed, today\"). \"epic1\" is a name: keep it as is, never translate.",
+    "placeholders": {
+      "row": {
+        "type": "String"
+      }
+    }
   }
 }

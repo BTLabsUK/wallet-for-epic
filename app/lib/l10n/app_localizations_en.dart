@@ -13759,7 +13759,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Whichever way, verify together at the end: compare the four pictures and names. They show that nobody changed the messages on the way.';
+      'Whichever way, verify together at the end: compare the four pictures and names. They match only when both wallets see the same keys.';
 
   @override
   String get helpPairClipP =>
@@ -13868,7 +13868,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return 'The answer is sealed to $name’s invite. Nobody else can read it, and it works once.';
+    return 'The answer is sealed to $name’s invite: only $name’s wallet can read it. It works once.';
   }
 
   @override
@@ -20864,7 +20864,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1ErrPrintedFull =>
-      'All 32 printed codes are in use. Retire one first.';
+      'All 32 printed links are in use. Retire one first.';
 
   @override
   String get deskE1ErrOwnRelayLocal =>
@@ -20931,7 +20931,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskE1RetireAsk(int n) {
-    return 'Retire code $n? Payments to it stop arriving.';
+    return 'Retire link $n? Payments to it stop arriving.';
   }
 
   @override
@@ -21067,14 +21067,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1PhSwitchHint =>
-      'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.';
+      'Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.';
 
   @override
   String get deskE1PhConfirmTitle => 'Use epic1 payments?';
 
   @override
   String get deskE1PhConfirmBody =>
-      'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.';
+      'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.';
 
   @override
   String get deskE1PhTurnOn => 'Turn on';
@@ -21092,7 +21092,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskE1PhReceiving => 'Receiving';
 
   @override
-  String get deskE1PhPrinted => 'Printed codes';
+  String get deskE1PhPrinted => 'Printed links';
 
   @override
   String deskE1PhPrintedCount(int n, int max) {
@@ -21100,11 +21100,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhPrintedEmpty => 'No printed codes.';
+  String get deskE1PhPrintedEmpty => 'No printed links.';
 
   @override
   String deskE1PhPrintedCode(int n) {
-    return 'Code $n';
+    return 'Link $n';
   }
 
   @override
@@ -21117,7 +21117,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskE1PhRetired(int n) {
-    return 'Code $n retired.';
+    return 'Link $n retired.';
   }
 
   @override
@@ -21243,17 +21243,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1SetInfo =>
-      'Payments to wallets with epic1 are sealed end to end and smaller, and in-person codes and epic1 links appear. Other Epic wallets get the classic format. Payments from any Epic wallet arrive as before. Per wallet. Experimental: it can still change.';
+      'Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.';
 
   @override
-  String get deskE1SetSyn => 'epic1, native, sealed, experimental, links';
+  String get deskE1SetSyn =>
+      'epic1, sealed, experimental, links, in person, codes';
 
   @override
   String get deskE1TurnOnTitle => 'Use epic1 payments?';
 
   @override
   String get deskE1TurnOnBody =>
-      'This wallet then pays and is paid only by wallets with epic1. Turn it off to pay any other Epic wallet.';
+      'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.';
 
   @override
   String get deskE1TurnOn => 'Turn on';
@@ -21265,11 +21266,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskE1LockNow => 'Lock now';
 
   @override
-  String get deskE1PrintedCodes => 'Printed codes';
+  String get deskE1PrintedCodes => 'Printed links';
 
   @override
   String get deskE1PrintedHint =>
-      'Payment links made to print or keep. Retire one when it is no longer used.';
+      'epic1 links to print or keep. Retire one when it is no longer used.';
 
   @override
   String deskE1PrintedCount(int n) {
@@ -21277,11 +21278,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskE1PrintedNone => 'No printed codes.';
+  String get deskE1PrintedNone => 'No printed links.';
 
   @override
   String deskE1CodeN(int n) {
-    return 'Code $n';
+    return 'Link $n';
   }
 
   @override
@@ -21430,4 +21431,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskE1TourReceiveText =>
       'This wallet\'s epic1 link: share it to get paid. Request in person is for a phone next to you.';
+
+  @override
+  String get deskE1Sealed => 'Sealed with epic1';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row, sealed with epic1';
+  }
 }
