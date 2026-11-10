@@ -5,7 +5,7 @@
   "deskNodeFitOpenDay": "เกือบทั้งวัน",
   "deskNodeFitOpenHours": "ชั่วโมงหรือสองชั่วโมง",
   "deskNodeFitOpenMinutes": "ไม่กี่นาที",
-  "deskNodeFitOpenHint": "ช่วงนี้: ประมาณ {hours} ชม. ต่อวัน",
+  "deskNodeFitOpenHint": "ช่วงนี้: ประมาณ {hours} ชั่วโมงต่อวัน",
   "deskNodeFitOpenHintUnder": "ช่วงนี้: น้อยกว่าหนึ่งชั่วโมงต่อวัน",
   "deskNodeFitNetQ": "การเชื่อมต่ออินเทอร์เน็ต",
   "deskNodeFitNetFree": "ไม่จำกัดข้อมูล",

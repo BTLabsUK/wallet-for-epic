@@ -20448,7 +20448,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskNodeFitOpenHint(int hours) {
-    return 'ช่วงนี้: ประมาณ $hours ชม. ต่อวัน';
+    return 'ช่วงนี้: ประมาณ $hours ชั่วโมงต่อวัน';
   }
 
   @override
