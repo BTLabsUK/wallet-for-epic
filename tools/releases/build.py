@@ -129,6 +129,7 @@ ANDROID_CERT_SHA256 = '59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e823863
 VERIFY_KEYS = ('windows', 'macos', 'linux', 'android')
 
 ICONS = {
+    'shield': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8 7.5 9.5 4.4-1.5 7.5-5 7.5-9.5V6z"/><path d="m8.8 12 2.4 2.4 4.2-4.6"/></svg>',
     'windows': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.3 10.4 4.3v7.2H3zm0 13.4 7.4 1V12.5H3zM11.2 4.2 21 2.8v8.7h-9.8zm0 8.3H21v8.7l-9.8-1.4z"/></svg>',
     'linux': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M12 2.6c-2.3 0-3.6 1.8-3.6 4 0 1 .2 1.7.5 2.4-1 1.3-2.4 3.4-2.8 5.5-.1.7-.1 1.4 0 2-.8.4-1.6.9-1.6 1.8 0 .8 1.2 1.1 2.6 1.4.8.2 1.8.9 2.7.9.7 0 1.2-.3 1.5-.6h1.4c.3.3.8.6 1.5.6.9 0 1.9-.7 2.7-.9 1.4-.3 2.6-.6 2.6-1.4 0-.9-.8-1.4-1.6-1.8.1-.6.1-1.3 0-2-.4-2.1-1.8-4.2-2.8-5.5.3-.7.5-1.4.5-2.4 0-2.2-1.3-4-3.6-4Z"/><path fill="currentColor" d="M10.6 7.4a.8.9 0 1 0 0 1.8.8.9 0 1 0 0-1.8Zm2.8 0a.8.9 0 1 0 0 1.8.8.9 0 1 0 0-1.8Z"/><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M10.3 10.2 12 11.2l1.7-1"/></svg>',
     'android': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M4 17a8 8 0 0 1 16 0zM6.9 9.9 5 6.7M17.1 9.9 19 6.7"/><circle cx="9" cy="13.8" r="1" fill="currentColor"/><circle cx="15" cy="13.8" r="1" fill="currentColor"/></svg>',
@@ -374,10 +375,24 @@ def store_line(key):
     return f'<p class="store-line"><span class="store">{inner}</span><span class="pill">Coming soon</span></p>'
 
 
+def checksum_line(key, heading, p):
+    """The primary file's SHA-256 as one line under the platform's version: the first and last
+    eight characters, the whole value (with the file's name) in a small panel on hover and focus,
+    and the platform's Verify link. page.js turns the short value into a copy button that copies
+    data-value; without it the line is plain text and Files and checksums has the whole value."""
+    sha = p['sha256']
+    return (f'<p class="sum"><span class="sha-k">SHA-256</span><span class="sum-h">'
+            f'<code class="sum-v" data-copy="SHA-256" data-value="{sha}" data-name="{esc(p["name"])}" translate="no">{sha[:8]}…{sha[-8:]}</code>'
+            f'<span class="sum-full"><span class="sum-fn" translate="no">{esc(p["name"])}</span>'
+            f'<span class="sum-fv" translate="no">{sha[:32]}<wbr>{sha[32:]}</span></span></span>'
+            f'<a class="sum-verify" href="#verify{"-" + key if key in VERIFY_KEYS else ""}">Verify<span class="vh"> the {esc(heading)} download</span></a></p>')
+
+
 def platform_row(key, g, latest):
-    """One platform: name and requirement, the primary download with its size, the version without
-    Tor beside it, then two folds: the install guide (Before you install) and every file with its
-    checksum. The visitor's own platform is marked by page.js, never moved."""
+    """One platform: name, requirement, version and the primary file's checksum line; the primary
+    download with its size, the version without Tor beside it; then two folds: the install guide
+    (Before you install) and every file with its checksum. The visitor's own platform is marked by
+    page.js, never moved."""
     _, heading, kind, req, preview = PLAT.get(key, (key, 'Other files', '', '', False))
     p = g['primary']
     nt = notor_of(g)
@@ -393,6 +408,7 @@ def platform_row(key, g, latest):
            f'<p class="req">{esc(req)}</p>'
            + (f'<p class="req r-ver">Version <span translate="no">{esc(p["version"])}</span> · '
               f'<time datetime="{p["date"]}">{human_date(p["date"])}</time></p>' if p else '')
+           + (checksum_line(key, heading, p) if p else '')
            + '</div>']
     if p:
         out.append(f'<div class="r-get"><a class="btn primary" href="downloads/{esc(p["name"])}" download '
@@ -400,9 +416,7 @@ def platform_row(key, g, latest):
                    f'<span>Download<span class="vh"> {APP} for {esc(heading)}</span>'
                    f'<small>{esc(p["label"])} · {esc(p["version"])} · {mb(p["size"])}&nbsp;MB</small></span></a>'
                    + (f'<a class="alt" href="downloads/{esc(nt["name"])}" download>Without Tor · {esc(nt["version"])} · {mb(nt["size"])}&nbsp;MB</a>' if nt else '')
-                   + store_line(key)
-                   + f'<p class="sha sha-main"><span class="sha-k">SHA-256</span><code data-copy="SHA-256" translate="no">{p["sha256"]}</code></p>'
-                   + f'<a class="alt verify-link" href="#verify-{key if key in VERIFY_KEYS else "all"}">Verify download</a></div>')
+                   + store_line(key) + '</div>')
     elif key in STORES:
         out.append(f'<div class="r-get">{store_line(key)}</div>')
     out.append('</div>')
@@ -485,7 +499,7 @@ def verify(g, latest):
     return f'''<section class="wrap verify-sec" id="verify" aria-labelledby="verify-h">
   <div class="sh"><h2 id="verify-h"><span class="k-n" aria-hidden="true">[02]</span>Verify downloads</h2></div>
   <div class="bt">
-    <p>Each download's SHA-256 is shown under its Download button and in Files and checksums. To check a file, compute its SHA-256 and compare it with that value; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Commands for the primary download of each system:</p>
+    <p>Each download's SHA-256 is on its card under All platforms (the short value copies whole) and in Files and checksums. To check a file, compute its SHA-256 and compare it with that value; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Commands for the primary download of each system:</p>
     {late_note}{''.join(blocks)}
     {sig_check(latest)}
   </div>
@@ -610,8 +624,10 @@ def footer(up=''):
 def hero(latest, g, plat_line):
     """One download: page.js points the big button at the primary file of the platform the browser
     reports and fills its name, size and requirement; without it (or on an unknown system) the
-    button leads to the platform list. Under it the version and date, the other platforms as
-    small links, and the app itself: the desktop Overview and the phone's Home from the release
+    button leads to the platform list. Under it the version and date, a row of links (the
+    platform's Install guide and build without Tor once page.js knows it, and Verify downloads:
+    the page's one entry to the Verify section besides each card's own link), the other platforms
+    as small links, and the app itself: the desktop Overview and the phone's Home from the release
     screen catalog, dark and light (the Day look shows the light pair)."""
     shot = ('<img class="on-dark-img" src="img/{d}.webp" width="{w}" height="{h}" alt="{alt}" decoding="async"{eager}>'
             '<img class="on-light-img" src="img/{d}-light.webp" width="{w}" height="{h}" alt="{alt}" decoding="async" loading="lazy">')
@@ -630,8 +646,7 @@ def hero(latest, g, plat_line):
     <div class="get">
       <a class="btn primary big" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose your platform</span><small id="hero-dl-sub">{esc(plat_line)}</small></span></a>
       <p class="get-meta"><span id="hero-req"></span><span id="hero-ver" translate="no">{esc(latest['version'])}</span> · <time id="hero-date" datetime="{latest['date']}">{human_date(latest['date'])}</time> · <a href="#notes">What's new</a></p>
-      <p class="get-verify"><a class="btn ghost" href="#verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8 7.5 9.5 4.4-1.5 7.5-5 7.5-9.5V6z"/><path d="m8.8 12 2.4 2.4 4.2-4.6"/></svg>Verify downloads</a></p>
-      <p class="get-alt" id="hero-alt" hidden><a id="hero-before" href="#latest">Install guide</a><a id="hero-notor" href="#latest" hidden download>Without Tor</a></p>
+      <p class="get-alt" id="hero-alt"><a id="hero-before" href="#latest" hidden>Install guide</a><a id="hero-notor" href="#latest" hidden download>Without Tor</a><a class="get-verify" href="#verify">{ICONS['shield']}Verify downloads</a></p>
     </div>
     <div class="also"><p id="also-h">All platforms</p><ul aria-labelledby="also-h">{chips}</ul></div>
   </div>
@@ -690,7 +705,7 @@ def render(out_dir):
 </dl>
 
 <section class="wrap latest" id="latest" aria-labelledby="latest-h">
-  <div class="sh"><h2 id="latest-h"><span class="k-n" aria-hidden="true">[01]</span>All platforms</h2><p class="sl"><a class="verify-cta" href="#verify">Verify downloads</a></p></div>
+  <div class="sh"><h2 id="latest-h"><span class="k-n" aria-hidden="true">[01]</span>All platforms</h2></div>
 {platforms(g, latest)}
 {phones(g)}
   <div class="small-print">

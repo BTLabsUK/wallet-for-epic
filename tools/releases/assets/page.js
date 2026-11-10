@@ -40,8 +40,68 @@
   }
 
   // ---- copy buttons ------------------------------------------------------------------
-  if (navigator.clipboard && window.isSecureContext) {
-    var codes = document.querySelectorAll('code[data-copy]');
+  var canCopy = !!(navigator.clipboard && window.isSecureContext);
+
+  // A card's checksum line: the short value becomes a button that copies the whole value
+  // (data-value) and keeps the panel with the file's name and the whole value open: after a tap,
+  // where nothing hovers. Esc closes the panel, a click elsewhere and Tab too. Where the clipboard is
+  // out of reach the button only shows the panel, and the value in it selects whole.
+  var ICON_COPY = '<svg class="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>' +
+    '<svg class="i-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+  var sums = document.querySelectorAll('code.sum-v');
+  var holds = [];
+  for (var s = 0; s < sums.length; s++) {
+    (function (code) {
+      var hold = code.parentNode, panel = hold.querySelector('.sum-full');
+      var value = code.getAttribute('data-value'), timer = 0;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sum-copy';
+      b.setAttribute('aria-label', (canCopy ? 'Copy SHA-256 of ' : 'Show SHA-256 of ') + code.getAttribute('data-name'));
+      hold.insertBefore(b, code);
+      b.appendChild(code);
+      if (canCopy) b.insertAdjacentHTML('beforeend', ICON_COPY);
+      var note = document.createElement('span');
+      note.className = 'sum-note';
+      note.setAttribute('role', 'status');
+      panel.insertBefore(note, panel.lastElementChild);
+      function say(text, done) {
+        note.textContent = text;
+        note.className = done ? 'sum-note ok' : 'sum-note';
+        if (done) b.setAttribute('data-done', '');
+        clearTimeout(timer);
+        timer = setTimeout(function () { note.textContent = ''; b.removeAttribute('data-done'); }, done ? 1600 : 4000);
+      }
+      b.addEventListener('click', function () {
+        hold.removeAttribute('data-shut');
+        hold.setAttribute('data-open', '');
+        if (!canCopy) return;
+        navigator.clipboard.writeText(value).then(function () { say('Copied', true); },
+          function () { say('Select it to copy', false); });
+      });
+      b.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        hold.setAttribute('data-shut', '');
+        hold.removeAttribute('data-open');
+      });
+      b.addEventListener('blur', function (e) {
+        hold.removeAttribute('data-shut');
+        // Focus moved on to another control (Tab): the panel goes with it.
+        if (e.relatedTarget && !hold.contains(e.relatedTarget)) hold.removeAttribute('data-open');
+      });
+      hold.addEventListener('mouseleave', function () { hold.removeAttribute('data-shut'); });
+      holds.push(hold);
+    })(sums[s]);
+  }
+  if (holds.length) {
+    document.addEventListener('click', function (e) {
+      for (var i = 0; i < holds.length; i++) if (!holds[i].contains(e.target)) holds[i].removeAttribute('data-open');
+    });
+  }
+
+  // Everywhere else (Files and checksums, the Verify section): a labelled button after the value.
+  if (canCopy) {
+    var codes = document.querySelectorAll('code[data-copy]:not(.sum-v)');
     for (var c = 0; c < codes.length; c++) {
       (function (code) {
         var b = document.createElement('button');

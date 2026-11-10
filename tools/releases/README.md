@@ -5,9 +5,11 @@ three looks (Night, Grid, Day; see below):
 one big download for the browser's platform (its size, requirement, version and date beside
 it, the other platforms as small links, the app itself: the desktop Overview and the phone's Home,
 dark and light, from the release screen catalog), a row of facts (version, date, sizes, status),
-every platform in one list (Desktop, then Mobile: the primary download, the one without Tor, an
-Install guide fold and a Files and checksums fold), short phone install steps, a folded Verify a
-download, and What's new: the first points of this version's changelog entry (read from
+every platform in one list (Desktop, then Mobile: the primary download, the one without Tor, the
+primary file's SHA-256 as one short line that copies the whole value, with the platform's Verify
+link, an Install guide fold and a Files and checksums fold), short phone install steps, Verify
+downloads (a command per platform, the Android certificate fingerprint and phone steps; the hero
+links to it once), and What's new: the first points of this version's changelog entry (read from
 changelog/index.html in the output folder; its old app names read as the app) with the earlier
 versions folded, each linking to its changelog entry. Served from the
 release folder on the server, today at https://examples.btlabs.uk/epic-cash-wallets/ and
