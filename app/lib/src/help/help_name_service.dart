@@ -20,7 +20,7 @@ List<HelpTopic> nameServiceHelpTopics(String lang, {required bool phone}) => swi
 };
 
 List<HelpTopic> _en(bool phone) {
-  final secret = phone ? 'your PIN' : 'the wallet password';
+  final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
   return [
     HelpTopic(
       'start',

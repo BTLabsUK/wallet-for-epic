@@ -3805,7 +3805,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tourPhoneNetworkText =>
-      'Der Netzwerkmodus, der Tor-Schalter und die Server, die die Wallet nutzt. Tippen Sie auf einen Server, um ihn zu ändern.';
+      'Der Netzwerkmodus, auch Nur Tor, und die Server, die die Wallet nutzt. Tippen Sie auf einen Server, um ihn zu ändern.';
 
   @override
   String get tourPhoneNetworkTextNoTor =>
@@ -12786,7 +12786,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advOutputsHint =>
-      'Zeigt die Seite Outputs unter Wallet und auf der Startseite. Sie listet die Coins, aus denen das Guthaben besteht, lässt Sie sie aufteilen oder zusammenführen und legt die Vorgaben für Zahlungen fest. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.';
+      'Zeigt die Seite Outputs unter Diese Wallet und auf der Startseite. Sie listet die Coins, aus denen das Guthaben besteht und lässt Sie sie aufteilen oder zusammenführen. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.';
 
   @override
   String get advTechnical => 'Technische Details';
@@ -12846,7 +12846,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Zeigt die Seite Outputs in der Seitenleiste. Sie listet die Coins, aus denen das Guthaben besteht, lässt Sie sie aufteilen oder zusammenführen und legt die Vorgaben für Zahlungen fest. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.';
+      'Zeigt die Seite Outputs in der Seitenleiste. Sie listet die Coins, aus denen das Guthaben besteht und lässt Sie sie aufteilen oder zusammenführen. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.';
 
   @override
   String get deskSetAdvTechnical => 'Technische Details';
@@ -12860,7 +12860,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Fügt Senden einen Bereich hinzu, in dem eine Zahlung wählen kann, welche Outputs sie verbraucht, Kleinste oder Alle, und ob das Wechselgeld aufgeteilt wird. Die Vorgaben bleiben unter Outputs.';
+      'Fügt Senden einen Bereich hinzu, in dem eine Zahlung wählen kann, welche Outputs sie verbraucht, Kleinste oder Alle, und ob das Wechselgeld aufgeteilt wird. Die Vorgaben stehen unter Einstellungen › Zahlungen.';
 
   @override
   String get deskSetAdvServerDetails => 'Server-Details';
@@ -12881,7 +12881,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node, deren Synchronisierungsbereich und Node starten auf der Übersicht. Die Synchronisierung dauert Stunden und braucht mehrere Gigabyte Speicher. Ein laufender Node behält seine Zeilen.';
+      'Lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node, deren Synchronisierungsbereich und Node starten auf der Übersicht. Die Chain braucht mehrere Gigabyte Speicher und muss zuerst synchronisiert werden. Ein laufender Node behält seine Zeilen.';
 
   @override
   String get deskSetAdvLogs => 'Protokolle';
@@ -13249,11 +13249,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netBlockEpicboxOff =>
-      'Epicbox ist unter Einstellungen › Transaktionen aus.';
+      'Epicbox ist in den Zahlungseinstellungen aus.';
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method ist in Einstellungen › Transaktionen ausgeschaltet.';
+    return '$method ist in den Zahlungseinstellungen ausgeschaltet.';
   }
 
   @override
@@ -17703,7 +17703,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advModeStandardHintHere =>
-      'Verbindet sich direkt. Schalten Sie Tor weiter unten ein, um über Tor zu verbinden.';
+      'Verbindet sich direkt. Wählen Sie Nur Tor, um über Tor zu verbinden.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -17741,11 +17741,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advModeConfirmSwitch => 'Wechseln';
-
-  @override
-  String netMarkSemantics(String mode) {
-    return 'Netzwerkmodus: $mode. Öffnet den Bereich Netzwerk.';
-  }
 
   @override
   String netMarkSemanticsDesk(String mode) {
@@ -19603,11 +19598,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHintNet =>
-      'Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.';
+      'Schalten Sie Link · Tor unter Einstellungen › Zahlungen ein, um stattdessen eine Tor-Adresse zu erhalten.';
 
   @override
   String get deskRecvTorIntroNet =>
-      'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Netzwerk & Datenschutz eingestellt.';
+      'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Link · Tor wird unter Einstellungen › Zahlungen eingestellt.';
 
   @override
   String get deskRecvTorOffTextNet =>

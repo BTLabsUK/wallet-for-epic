@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_places.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/help/help_content.dart';
 import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/levels/level_features.dart';
+import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:flutter/material.dart';
@@ -105,6 +108,15 @@ void main() {
       ]) {
         expect(helpPlaceDestination(place), isNull, reason: place);
       }
+    });
+
+    test('phone: a place the View hides is no link', () {
+      LevelFeatures at(WalletLevel level) => LevelFeatures.of(level, AdvancedPrefs.none, torBuilt: true);
+      for (final place in ['Settings › Transactions', 'Outputs']) {
+        expect(helpPlaceGoes(place, features: at(WalletLevel.justSendReceive)), isFalse, reason: place);
+      }
+      expect(helpPlaceGoes('Settings › Network & privacy › Node', features: at(WalletLevel.justSendReceive)), isTrue);
+      expect(helpPlaceGoes('Settings › This wallet › Recheck balance', features: at(WalletLevel.justSendReceive)), isTrue);
     });
 
     test('desktop: each place has its page, and a jump where it names a section', () {

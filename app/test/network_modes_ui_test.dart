@@ -223,20 +223,6 @@ void main() {
     });
   });
 
-  group('the mode mark', () {
-    testWidgets('shown off Normal only, with the mode name', (tester) async {
-      final container = await _pump(tester, const NetworkModeMark());
-      // Normal: the widget is there and draws nothing.
-      expect(find.descendant(of: find.byKey(networkModeMarkKey), matching: find.byType(Icon)), findsNothing);
-      expect(find.text('Normal'), findsNothing);
-      await container.read(appSettingsProvider.future);
-      await container.read(appSettingsProvider.notifier).setNetworkMode(NetworkMode.killSwitch);
-      await tester.pumpAndSettle();
-      expect(find.byKey(networkModeMarkKey), findsOneWidget);
-      expect(find.descendant(of: find.byKey(networkModeMarkKey), matching: find.text(_l.advModeKillSwitch)), findsOneWidget);
-    });
-  });
-
   group('Finished, not posted', () {
     final stuck = fakeTx(key: 's:fin', id: 7, slateId: 'abcdef0123456789', kind: TxKind.sent, status: TxStatus.awaitingConfirmation, repostable: true, amountDebited: BigInt.from(1000000000), amountCredited: BigInt.zero);
 

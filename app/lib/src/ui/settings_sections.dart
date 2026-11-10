@@ -633,8 +633,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
-    // Level 2 and up (the levels that had Advanced's Network section): the mode and failover.
-    final networkShown = ref.watch(levelFeaturesProvider).serverSettings;
     final adv = s.advanced;
     // One page for how the wallet reaches the network (B-03): the servers (Epicbox and Node
     // with their host and health, each opening its picker; with no wallet open, plain rows
@@ -676,20 +674,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
       ],
       // On by default: the one switch here that keeps the simple app working.
-      if (networkShown)
-        HintSwitchTile(
-          key: advNodeFailoverKey,
-          icon: Icons.alt_route,
-          title: l.advNodeFailover,
-          hint: l.advNodeFailoverHint,
-          value: adv.nodeFailover,
-          onChanged: _settings.setNodeFailover,
-        ),
-      if (networkShown)
-        NetworkModeSection(
-          headerKey: _networkKey,
-          tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
-        ),
+      HintSwitchTile(
+        key: advNodeFailoverKey,
+        icon: Icons.alt_route,
+        title: l.advNodeFailover,
+        hint: l.advNodeFailoverHint,
+        value: adv.nodeFailover,
+        onChanged: _settings.setNodeFailover,
+      ),
+      NetworkModeSection(
+        headerKey: _networkKey,
+        tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
+      ),
       // No status site in app-config.toml: no switch.
       if (statusSiteConfigured)
       HintSwitchTile(

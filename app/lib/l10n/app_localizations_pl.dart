@@ -3867,7 +3867,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tourPhoneNetworkText =>
-      'Tryb sieci, przełącznik Tora i serwery, z których korzysta portfel. Dotknij serwera, aby go zmienić.';
+      'Tryb sieci, także Tylko Tor, i serwery, z których korzysta portfel. Dotknij serwera, aby go zmienić.';
 
   @override
   String get tourPhoneNetworkTextNoTor =>
@@ -13151,7 +13151,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advOutputsHint =>
-      'Pokazuje stronę Wyjścia pod Portfelem i na ekranie głównym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.';
+      'Pokazuje stronę Wyjścia pod Ten portfel i na ekranie głównym. Wymienia monety, z których składa się saldo i pozwala je dzielić lub scalać. Trwający podział lub scalanie utrzymuje stronę widoczną.';
 
   @override
   String get advTechnical => 'Szczegóły techniczne';
@@ -13211,7 +13211,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Pokazuje stronę Wyjścia na pasku bocznym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.';
+      'Pokazuje stronę Wyjścia na pasku bocznym. Wymienia monety, z których składa się saldo i pozwala je dzielić lub scalać. Trwający podział lub scalanie utrzymuje stronę widoczną.';
 
   @override
   String get deskSetAdvTechnical => 'Szczegóły techniczne';
@@ -13225,7 +13225,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Dodaje do Wyślij sekcję, w której jedna wysyłka może wybrać, które wyjścia wydaje, Najmniejsze lub Wszystkie, i czy dzielić resztę. Wartości domyślne zostają w Wyjściach.';
+      'Dodaje do Wyślij sekcję, w której jedna wysyłka może wybrać, które wyjścia wydaje, Najmniejsze lub Wszystkie, i czy dzielić resztę. Wartości domyślne są w Ustawienia › Płatności.';
 
   @override
   String get deskSetAdvServerDetails => 'Szczegóły serwerów';
@@ -13246,7 +13246,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle, jej panel synchronizacji i Uruchom węzeł na Przeglądzie. Synchronizacja łańcucha trwa godziny i zajmuje kilka gigabajtów dysku. Działający węzeł zachowuje swoje wiersze.';
+      'Pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle, jej panel synchronizacji i Uruchom węzeł na Przeglądzie. Łańcuch zajmuje kilka gigabajtów dysku i musi się najpierw zsynchronizować. Działający węzeł zachowuje swoje wiersze.';
 
   @override
   String get deskSetAdvLogs => 'Logi';
@@ -13612,11 +13612,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netBlockEpicboxOff =>
-      'Epicbox jest wyłączony w Ustawienia › Transakcje.';
+      'Epicbox jest wyłączony w ustawieniach płatności.';
 
   @override
   String netBlockMethodOff(String method) {
-    return 'Metoda $method jest wyłączona w Ustawienia › Transakcje.';
+    return 'Metoda $method jest wyłączona w ustawieniach płatności.';
   }
 
   @override
@@ -18168,7 +18168,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeStandardHintHere =>
-      'Łączy się bezpośrednio. Włącz Tor poniżej, aby łączyć się przez Tor.';
+      'Łączy się bezpośrednio. Wybierz Tylko Tor, aby łączyć się przez Tor.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -18210,11 +18210,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeConfirmSwitch => 'Przełącz';
-
-  @override
-  String netMarkSemantics(String mode) {
-    return 'Tryb sieci: $mode. Otwiera sekcję Sieć.';
-  }
 
   @override
   String netMarkSemanticsDesk(String mode) {
@@ -20067,11 +20062,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHintNet =>
-      'Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Sieć i prywatność.';
+      'Aby zamiast tego mieć adres Tor, włącz Link · Tor w Ustawienia › Płatności.';
 
   @override
   String get deskRecvTorIntroNet =>
-      'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Sieć i prywatność.';
+      'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Link · Tor ustawisz w Ustawienia › Płatności.';
 
   @override
   String get deskRecvTorOffTextNet =>

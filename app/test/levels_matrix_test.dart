@@ -50,7 +50,8 @@ void main() {
     expect(one.pairingOn, isTrue);
     // A build without Tor reads a stored Tor only as Standard.
     expect(one.networkMode, torBuilt ? NetworkMode.torOnly : NetworkMode.standard);
-    expect(one.nodeFailover, isTrue);
+    // The switch is on Network & privacy at every level: level 1 keeps what is stored.
+    expect(one.nodeFailover, isFalse);
     expect(effectiveAdvanced(WalletLevel.everything, stored), stored);
     expect(effectiveAdvanced(WalletLevel.casual, stored), stored);
   });

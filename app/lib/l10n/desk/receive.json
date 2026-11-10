@@ -189,7 +189,7 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
-  "deskRecvHttpTorHintNet": "Turn on Tor in Settings › Network & privacy for a Tor address instead.",
+  "deskRecvHttpTorHintNet": "Turn on Link · Tor in Settings › Payments for a Tor address instead.",
   "@deskRecvHttpTorHintNet": {
     "description": "Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy)."
   },
@@ -201,7 +201,7 @@
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
-  "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.",
+  "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Link · Tor is set in Settings › Payments.",
   "@deskRecvTorIntroNet": {
     "description": "Receive, Link · Tor: intro line; names where Tor is set (Settings › Network & privacy)."
   },

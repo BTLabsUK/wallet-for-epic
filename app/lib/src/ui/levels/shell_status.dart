@@ -5,7 +5,9 @@
 /// ([StatusIcon]); the tooltip reads "Network · OK", and a tap opens the connections sheet
 /// (`home_status.dart`), whose rows open the icons' explore sheets (`status_sheets.dart`)
 /// instead of a server list, which level 1 does not show. An Epicbox relay offer
-/// ([relaySwitchProvider]) turns the Epicbox mark amber.
+/// ([relaySwitchProvider]) turns the Epicbox mark amber. Off Normal, the connections sheet
+/// names the network mode on a line under its title, with a Change link to the setting: Node
+/// only and Kill switch stop payments, and the icons' words say which.
 library;
 
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ import '../../levels/level_features.dart' show LevelFeatures;
 import '../../levels/level_features.dart' as lv show StatusIcon;
 import '../../levels/level_providers.dart';
 import '../../levels/relay_switch_providers.dart';
+import '../../levels/wallet_level.dart';
 import '../../providers.dart';
 import '../../trust_ids.dart';
 import '../network_status.dart' show nodeBehind;
@@ -31,9 +34,9 @@ const Key shellEpicboxIconKey = ValueKey('shell-status-epicbox');
 const Key shellBarNetworkIconKey = ValueKey('shell-bar-status-network');
 const Key shellBarEpicboxIconKey = ValueKey('shell-bar-status-epicbox');
 
-/// Whether the quiet shell's statuses show: the level hides the server settings, so a status
-/// opens its explore sheet rather than a server list.
-bool shellStatusesShown(LevelFeatures f) => !f.serverSettings;
+/// Whether the quiet shell's statuses show: level 1, where a status opens its explore sheet
+/// rather than a server list.
+bool shellStatusesShown(LevelFeatures f) => f.level == WalletLevel.justSendReceive;
 
 /// The node's state in plain words, with its dot.
 ({StatusDot dot, String word}) shellNetworkFace(BuildContext context, WidgetRef ref) {

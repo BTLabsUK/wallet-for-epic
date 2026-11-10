@@ -3689,7 +3689,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneNetworkText =>
-      'โหมดเครือข่าย สวิตช์ Tor และเซิร์ฟเวอร์ที่กระเป๋าเงินใช้ แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
+      'โหมดเครือข่าย รวมถึง Tor เท่านั้น และเซิร์ฟเวอร์ที่กระเป๋าเงินใช้ แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
 
   @override
   String get tourPhoneNetworkTextNoTor =>
@@ -12308,7 +12308,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advOutputsHint =>
-      'แสดงหน้าเอาต์พุตใต้ กระเป๋าเงิน และที่หน้าแรก แสดงเหรียญที่ประกอบเป็นยอดคงเหลือ ให้คุณแยกหรือรวมเหรียญ และตั้งค่าเริ่มต้นที่การส่งใช้ หากกำลังแยกหรือรวมอยู่ หน้านี้จะแสดงต่อไป';
+      'แสดงหน้าเอาต์พุตใต้ กระเป๋าเงินนี้ และที่หน้าแรก แสดงเหรียญที่ประกอบเป็นยอดคงเหลือ และให้คุณแยกหรือรวมเหรียญ หากกำลังแยกหรือรวมอยู่ หน้านี้จะแสดงต่อไป';
 
   @override
   String get advTechnical => 'รายละเอียดทางเทคนิค';
@@ -12368,7 +12368,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      'แสดงหน้าเอาต์พุตในแถบด้านข้าง แสดงเหรียญที่ประกอบเป็นยอดคงเหลือ ให้คุณแยกหรือรวมเหรียญ และตั้งค่าเริ่มต้นที่การส่งใช้ หากกำลังแยกหรือรวมอยู่ หน้านี้จะแสดงต่อไป';
+      'แสดงหน้าเอาต์พุตในแถบด้านข้าง แสดงเหรียญที่ประกอบเป็นยอดคงเหลือ และให้คุณแยกหรือรวมเหรียญ หากกำลังแยกหรือรวมอยู่ หน้านี้จะแสดงต่อไป';
 
   @override
   String get deskSetAdvTechnical => 'รายละเอียดทางเทคนิค';
@@ -12382,7 +12382,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'เพิ่มส่วนที่พับได้ใน ส่ง ซึ่งการส่งครั้งเดียวเลือกได้ว่าจะใช้เอาต์พุตไหน เล็กสุด หรือ ทั้งหมด และจะแยกเงินทอนหรือไม่ ค่าเริ่มต้นยังอยู่ที่ เอาต์พุต';
+      'เพิ่มส่วนที่พับได้ใน ส่ง ซึ่งการส่งครั้งเดียวเลือกได้ว่าจะใช้เอาต์พุตไหน เล็กสุด หรือ ทั้งหมด และจะแยกเงินทอนหรือไม่ ค่าเริ่มต้นอยู่ที่ การตั้งค่า › การชำระเงิน';
 
   @override
   String get deskSetAdvServerDetails => 'รายละเอียดเซิร์ฟเวอร์';
@@ -12403,7 +12403,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'ให้คอมพิวเตอร์เครื่องนี้รันโหนดของตัวเอง ได้แก่ตัวเลือก คอมพิวเตอร์เครื่องนี้ ใต้ โหนด แผงซิงก์ และ เริ่มโหนด ในภาพรวม การซิงก์เชนใช้เวลาหลายชั่วโมงและพื้นที่ดิสก์หลายกิกะไบต์ โหนดที่กำลังทำงานอยู่จะคงแถวของมันไว้';
+      'ให้คอมพิวเตอร์เครื่องนี้รันโหนดของตัวเอง ได้แก่ตัวเลือก คอมพิวเตอร์เครื่องนี้ ใต้ โหนด แผงซิงก์ และ เริ่มโหนด ในภาพรวม เชนต้องใช้พื้นที่ดิสก์หลายกิกะไบต์และต้องซิงก์ก่อน โหนดที่กำลังทำงานอยู่จะคงแถวของมันไว้';
 
   @override
   String get deskSetAdvLogs => 'บันทึก';
@@ -12757,11 +12757,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get netOfflineNodeLine => 'ใช้โหนด';
 
   @override
-  String get netBlockEpicboxOff => 'Epicbox ปิดอยู่ใน การตั้งค่า › ธุรกรรม';
+  String get netBlockEpicboxOff => 'Epicbox ปิดอยู่ในการตั้งค่าการชำระเงิน';
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method ปิดอยู่ใน ตั้งค่า › ธุรกรรม';
+    return '$method ปิดอยู่ในการตั้งค่าการชำระเงิน';
   }
 
   @override
@@ -17085,7 +17085,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advModeStandardHintHere =>
-      'เชื่อมต่อโดยตรง เปิด Tor ด้านล่างเพื่อเชื่อมต่อผ่าน Tor';
+      'เชื่อมต่อโดยตรง เลือก Tor เท่านั้น เพื่อเชื่อมต่อผ่าน Tor';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -17121,11 +17121,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advModeConfirmSwitch => 'สลับ';
-
-  @override
-  String netMarkSemantics(String mode) {
-    return 'โหมดเครือข่าย: $mode เปิดส่วนเครือข่าย';
-  }
 
   @override
   String netMarkSemanticsDesk(String mode) {
@@ -18944,11 +18939,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHintNet =>
-      'เปิด Tor ที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
+      'เปิด ลิงก์ · Tor ที่ การตั้งค่า › การชำระเงิน เพื่อใช้ที่อยู่ Tor แทน';
 
   @override
   String get deskRecvTorIntroNet =>
-      'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
+      'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า ลิงก์ · Tor ได้ที่ การตั้งค่า › การชำระเงิน';
 
   @override
   String get deskRecvTorOffTextNet =>

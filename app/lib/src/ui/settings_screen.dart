@@ -80,7 +80,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final scan = ref.watch(scanProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final backedUp = ref.watch(backedUpProvider).value ?? true;
-    // Level 1 hides Network & privacy and Transactions.
+    // Level 1 hides Transactions.
     final features = ref.watch(levelFeaturesProvider);
 
     return SlotScaffold(

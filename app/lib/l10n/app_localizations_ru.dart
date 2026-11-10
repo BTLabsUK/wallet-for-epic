@@ -3847,7 +3847,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneNetworkText =>
-      'Режим сети, переключатель Tor и серверы, которые использует кошелёк. Нажмите на сервер, чтобы изменить его.';
+      'Режим сети, включая «Только Tor» и серверы, которые использует кошелёк. Нажмите на сервер, чтобы изменить его.';
 
   @override
   String get tourPhoneNetworkTextNoTor =>
@@ -13122,7 +13122,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advOutputsHint =>
-      'Показывает страницу «Выходы» в разделе «Кошелёк» и на главном экране. Она перечисляет монеты, из которых состоит баланс, позволяет разделять и объединять их и задаёт настройки по умолчанию для отправки. Пока идёт разделение или объединение, страница остаётся видимой.';
+      'Показывает страницу «Выходы» в разделе «Этот кошелёк» и на главном экране. Она перечисляет монеты, из которых состоит баланс и позволяет разделять и объединять их. Пока идёт разделение или объединение, страница остаётся видимой.';
 
   @override
   String get advTechnical => 'Технические сведения';
@@ -13182,7 +13182,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvOutputsHint =>
-      'Показывает страницу «Выходы» в боковой панели. Она перечисляет монеты, из которых состоит баланс, позволяет разделять и объединять их и задаёт настройки по умолчанию для отправки. Пока идёт разделение или объединение, страница остаётся видимой.';
+      'Показывает страницу «Выходы» в боковой панели. Она перечисляет монеты, из которых состоит баланс и позволяет разделять и объединять их. Пока идёт разделение или объединение, страница остаётся видимой.';
 
   @override
   String get deskSetAdvTechnical => 'Технические сведения';
@@ -13196,7 +13196,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvSendOptionsHint =>
-      'Добавляет в «Отправить» раздел, где отдельная отправка может выбрать, какие выходы тратить, «Наименьшие» или «Все», и делить ли сдачу. Значения по умолчанию остаются в «Выходах».';
+      'Добавляет в «Отправить» раздел, где отдельная отправка может выбрать, какие выходы тратить, «Наименьшие» или «Все», и делить ли сдачу. Значения по умолчанию — в «Настройки › Платежи».';
 
   @override
   String get deskSetAdvServerDetails => 'Сведения о серверах';
@@ -13217,7 +13217,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
-      'Позволяет этому компьютеру запускать собственный узел: пункт «Этот компьютер» в разделе «Узел», его панель синхронизации и «Запустить узел» на обзоре. Синхронизация цепочки занимает часы и несколько гигабайт на диске. Работающий узел сохраняет свои строки.';
+      'Позволяет этому компьютеру запускать собственный узел: пункт «Этот компьютер» в разделе «Узел», его панель синхронизации и «Запустить узел» на обзоре. Цепочке нужно несколько гигабайт на диске, и сначала она должна синхронизироваться. Работающий узел сохраняет свои строки.';
 
   @override
   String get deskSetAdvLogs => 'Журналы';
@@ -13586,12 +13586,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netOfflineNodeLine => 'Использует узел';
 
   @override
-  String get netBlockEpicboxOff =>
-      'Epicbox выключен в разделе Настройки › Транзакции.';
+  String get netBlockEpicboxOff => 'Epicbox выключен в настройках платежей.';
 
   @override
   String netBlockMethodOff(String method) {
-    return 'Способ «$method» выключен в Настройки › Транзакции.';
+    return 'Способ «$method» выключен в настройках платежей.';
   }
 
   @override
@@ -18156,7 +18155,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advModeStandardHintHere =>
-      'Подключается напрямую. Включите Tor ниже, чтобы подключаться через Tor.';
+      'Подключается напрямую. Выберите «Только Tor», чтобы подключаться через Tor.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -18198,11 +18197,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advModeConfirmSwitch => 'Переключить';
-
-  @override
-  String netMarkSemantics(String mode) {
-    return 'Режим сети: $mode. Открывает раздел «Сеть».';
-  }
 
   @override
   String netMarkSemanticsDesk(String mode) {
@@ -20054,11 +20048,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHintNet =>
-      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Сеть и приватность».';
+      'Чтобы получить адрес Tor, включите «Ссылка · Tor» в разделе «Настройки › Платежи».';
 
   @override
   String get deskRecvTorIntroNet =>
-      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Сеть и приватность».';
+      'Напрямую из другого кошелька через Tor, пока этот открыт. «Ссылка · Tor» настраивается в разделе «Настройки › Платежи».';
 
   @override
   String get deskRecvTorOffTextNet =>

@@ -6,6 +6,7 @@ library;
 import 'help_content.dart';
 import 'help_devices.dart';
 import 'help_name_service.dart';
+import '../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 const List<HelpSection> helpSectionsDe = [
@@ -60,11 +61,11 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'An jemanden senden',
       'Öffnen Sie Senden, fügen Sie die Epicbox-Adresse ein, geben Sie den Betrag ein, prüfen Sie die Gebühr und senden Sie.',
       [
-        HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', phone ? 'Tippen Sie auf **Weiter**, kontrollieren Sie alles und tippen Sie dann auf **… EPIC senden**.' : 'Drücken Sie **Prüfen**, kontrollieren Sie alles und drücken Sie dann **… EPIC senden**.']),
+        HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', phone ? 'Tippen Sie auf **Weiter**, kontrollieren Sie alles und tippen Sie dann auf **… EPIC senden**.' : 'Drücken Sie **Prüfen**, kontrollieren Sie alles und drücken Sie dann **… EPIC senden**. Die Ansicht Flach hat kein Prüfen: ihre Schaltfläche ist **… EPIC senden**.']),
         const HelpBlock.p('Ein gekoppelter Kontakt hat unter Senden zwei Optionen, erklärt unter „Zahlungen nach dem Koppeln“; eine Zahlung mit der gekoppelten Option wird versiegelt. Jeder andere Kontakt erhält die Zahlung an seiner öffentlichen Epicbox-Adresse.'),
         const HelpBlock.p('Jetzt muss die Wallet des Empfängers antworten (siehe „Warum braucht eine Transaktion beide Seiten?“). Über Epicbox muss der Empfänger nicht gerade online sein: Die Zahlung wartet, bis seine Wallet geöffnet wird. Bis dahin sind die verwendeten Coins gesperrt, damit sie nicht doppelt ausgegeben werden.'),
         HelpBlock.p('Kommt die Antwort zurück, schließt die Wallet die Zahlung ab und stellt sie von selbst ins Netzwerk. Ab der $confirmations. Bestätigung ist sie endgültig.'),
-        HelpBlock.p('**Keine Antwort?** Nach einigen Minuten zeigt der Status „Wartet auf Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Coins freizugeben. Eine Zahlung, die niemand beantwortet, wird nach etwa einem Tag von selbst storniert.'),
+        HelpBlock.p('**Keine Antwort?** Der Status zeigt „Wartet auf Empfänger“. Bitten Sie den Empfänger, seine Wallet zu öffnen. Kommt die Antwort nie, stornieren Sie die Zahlung unter $cancelPlace, um die Coins freizugeben. Eine Zahlung, die niemand beantwortet, wird nach etwa einem Tag von selbst storniert.'),
         if (phone)
           HelpBlock.p('Zum Senden braucht es einen synchronisierten Node. Eine Epicbox-Adresse braucht außerdem einen antwortenden Epicbox-Server; eine direkte Adresse (${tor ? 'http oder .onion' : 'http'}) braucht die Wallet des Empfängers, geöffnet und in diesem Moment erreichbar.')
         else
@@ -81,7 +82,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.ol(['**Absender:** wählt unter Senden **Direkt · Dateiübertragung**, gibt den Betrag ein und teilt die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Direkt · Datei|Receive › Direct · File]]. Seine Wallet signiert sie und teilt eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Direkt · Datei|Receive › Direct · File]]. Die Wallet schließt die Zahlung ab und sendet sie.'])
         else
-          const HelpBlock.ol(['**Absender:** wählt unter Senden **Direkt · Dateiübertragung**, gibt den Betrag ein und speichert die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Transaktionsdateien › Transaktionsdatei signieren|Receive › Transaction files › Sign a transaction file]]. Seine Wallet signiert sie und speichert eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Transaktionsdateien › Antwortdatei abschließen|Receive › Transaction files › Finalize a response file]]. Die Wallet schließt die Zahlung ab und sendet sie.']),
+          const HelpBlock.ol(['**Absender:** wählt unter Senden **Direkt · Dateiübertragung**, gibt den Betrag ein und speichert die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** öffnet die Datei mit **Öffnen** unter Transaktionsdateien auf [[Empfangen|Receive]] oder unter [[Empfangen › Transaktionsdateien › Transaktionsdatei signieren|Receive › Transaction files › Sign a transaction file]]. Seine Wallet signiert sie und speichert eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei auf dieselbe Weise oder unter [[Empfangen › Transaktionsdateien › Antwortdatei abschließen|Receive › Transaction files › Finalize a response file]]. Die Wallet schließt die Zahlung ab und sendet sie.']),
         const HelpBlock.p('Andere Epic-Cash-Wallets nennen diese Schritte anders. Kommt die Antwortdatei nie, stornieren Sie die Zahlung unter Aktivität, um die Coins freizugeben.'),
       ],
       id: HelpId.file,
@@ -105,9 +106,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         HelpBlock.p('Die Seite ${phone ? 'Transaktionen' : 'Zahlungen'} unter $payPlace enthält drei Dinge.'),
         HelpBlock.ul([
-          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen oder Rechnungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.${phone ? ' Auf einem Smartphone hat **Link · HTTP** keinen Schalter: es sendet nur, an jede eingefügte http(s)-Adresse.' : ''}',
-          '**Standardmethode.** Die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.',
-          '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
+          '${phone ? '**Zahlungsmethoden.**' : '**Methoden.**'} Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen oder Rechnungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen und mit einer Tor-Adresse ${phone ? 'dieses Smartphones' : 'dieses Computers'}, unter der Sie bezahlt werden) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.${phone ? ' Auf einem Smartphone hat **Link · HTTP** keinen Schalter: es sendet nur, an jede eingefügte http(s)-Adresse.' : ''}',
+          if (phone) '**Standardmethode.** Die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.' else '**Standardmethode**, unter **Senden**: die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.',
+          if (phone) '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.' else '**Strategie für Zahlungen** und **Wechselgeld aufteilen**, unter **Senden**: welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen in der Ansicht Ganz tief, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
       ],
       id: HelpId.methods,
@@ -146,7 +147,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Eine Zahlung ist ab der $confirmations. Bestätigung endgültig.',
       [
         const HelpBlock.p('Nimmt das Netzwerk eine Transaktion an, legt ein Miner sie in einen Block. Der Block mit der Transaktion ist die erste Bestätigung; jeder weitere Block fügt eine hinzu und macht die Transaktion schwerer rückgängig zu machen.'),
-        HelpBlock.p('Diese Wallet betrachtet eine Transaktion ab der **$confirmations. Bestätigung** als endgültig. Bis dahin wird sie als **Wird bestätigt** angezeigt, und empfangene Outputs sind noch nicht verfügbar. Die Zahl ist eine Einstellung: standardmäßig 6, jeder Wert von 1 bis 30. Weniger Bestätigungen sind schneller, sind aber weniger sicher: Hin und wieder ersetzt die Chain ihre neuesten Blöcke (eine Reorganisation), und eine Zahlung mit wenigen Bestätigungen kann dadurch rückgängig gemacht werden.'),
+        HelpBlock.p('Diese Wallet betrachtet eine Transaktion ab der **$confirmations. Bestätigung** als endgültig. Bis dahin wird sie als **Wird bestätigt** angezeigt, und empfangene Outputs sind noch nicht verfügbar. Die Zahl ist eine Einstellung: standardmäßig $defaultMinimumConfirmations, jeder Wert von $minMinimumConfirmations bis $maxMinimumConfirmations. Weniger Bestätigungen sind schneller, sind aber weniger sicher: Hin und wieder ersetzt die Chain ihre neuesten Blöcke (eine Reorganisation), und eine Zahlung mit wenigen Bestätigungen kann dadurch rückgängig gemacht werden.'),
         const HelpBlock.ul(['**Wartet**: Beide Wallets müssen die Zahlung signieren. Über Epicbox geschieht das von selbst.', '**Wird bestätigt**: Die Zahlung ist in der Chain und sammelt Bestätigungen.', '**Verfügbar**: Die Bestätigungen sind da, und die Coins können ausgegeben werden.']),
         const HelpBlock.p('Dauert es länger als üblich? Die Wallet sieht neue Blöcke nur über ihren Node: Prüfen Sie, ob der Node synchronisiert ist.'),
       ],
@@ -169,7 +170,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Das Guthaben besteht aus einzelnen Outputs. Eine Zahlung gibt ganze Outputs aus und gibt den Rest als Wechselgeld zurück.',
       [
         const HelpBlock.p('Das Guthaben ist eine Menge von Outputs. Um 3 EPIC aus einem Output von 5 EPIC zu senden, gibt die Wallet den ganzen Output aus: 3 EPIC gehen an den Empfänger, eine kleine Gebühr an die Miner, und der Rest kommt als neuer Output zurück, das **Wechselgeld**.'),
-        const HelpBlock.p('Deshalb kann ein Teil des Guthabens nach einer Zahlung einige Minuten lang nicht verfügbar sein:'),
+        const HelpBlock.p('Deshalb kann ein Teil des Guthabens nach einer Zahlung nicht verfügbar sein:'),
         HelpBlock.ul(['**Gesperrt**: Outputs in einer Zahlung, die noch nicht abgeschlossen ist. Sie werden freigegeben, wenn die Zahlung storniert wird.', '**Wartet auf Abschluss**: eine Transaktion, die noch auf die andere Wallet wartet.', '**Wird bestätigt**: Outputs in einem Block, der die $confirmations. Bestätigung noch nicht erreicht hat, einschließlich des Wechselgelds.']),
         const HelpBlock.p('Die Outputs sind unter [[Outputs|Outputs]] aufgelistet.'),
       ],
@@ -182,7 +183,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**Kleinste** sortiert die verfügbaren Outputs nach Wert und nimmt die kleinsten, bis Betrag und Gebühr gedeckt sind. Nur diese sind gesperrt, solange die Zahlung bestätigt wird; der Rest kann sofort gesendet werden.'),
         HelpBlock.p('**Alle** gibt jeden verfügbaren Output aus und gibt einen einzigen Wechselgeld-Output zurück. Alles ist bis zur $confirmations. Bestätigung gesperrt, die Wallet hat danach weniger, größere Outputs, und die Gebühr ist etwas höher, weil jeder Input kostet. Wird das ganze Guthaben gesendet, gilt immer Alle.'),
-        HelpBlock.p('Die Standardeinstellung legen Sie unter $payPlace fest, mit eingeschalteten Zahlungsoptionen unter Erweitert.'),
+        HelpBlock.p('Die Standardeinstellung legen Sie unter $payPlace fest, mit eingeschalteten Zahlungsoptionen unter Erweitert${phone ? '' : ', in der Ansicht Ganz tief'}.'),
       ],
       id: HelpId.strategy,
     ),
@@ -273,9 +274,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           HelpBlock.p('Ein **öffentlicher Node** ist einer der Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt${tor ? '; mit **Nur Tor** erreicht die Wallet ihn über Tor' : ''}.')
         else
-          const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer als eigenes Programm, das mit der App startet und stoppt. Er lädt zuerst die ganze Chain herunter (beim ersten Mal etwa 4 GB, danach täglich ein wenig), was eine Weile dauert; auf der Festplatte belegt er etwa 5 GB und wächst langsam. Während er synchronisiert, zeigt die Wallet seinen Fortschritt und nutzt einen öffentlichen Node. Siehe „Den lokalen Node betreiben“.']),
+          const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer als eigenes Programm, das mit der App startet und stoppt. Er lädt zuerst die ganze Chain herunter, danach täglich ein wenig; auf der Festplatte belegt er etwa 5 GB und wächst langsam. Während er synchronisiert, zeigt die Wallet seinen Fortschritt und nutzt einen öffentlichen Node. Siehe „Den lokalen Node betreiben“.']),
         if (phone)
-          HelpBlock.p('Ändern Sie ihn mit einem Tipp auf das Node-Symbol im Tab Wallet oder unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Tippen Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; **{n} zurück** oder **Antwortet nicht** heißt: einen anderen wählen.')
+          HelpBlock.p('Tippen Sie im Tab Wallet auf das Node-Symbol, um den Zustand des Nodes zu sehen und zu einem anderen zu wechseln. Zum Senden braucht es einen synchronisierten Node; ein Zustand wie **12 zurück** oder **Antwortet nicht** heißt: einen anderen wählen. Um einen Node mit seiner Adresse hinzuzufügen, öffnen Sie $nodePlace und geben Sie die Adresse in das Feld über der Liste ein.')
         else
           HelpBlock.p('Ändern Sie ihn unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Klicken Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; fällt der Node zurück, bietet die Wallet einen anderen an.'),
       ],
@@ -287,7 +288,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         'Den lokalen Node betreiben',
         'Ports, Peers, Chain-Daten und Besitzerzugang des Nodes, der auf diesem Computer läuft.',
         [
-          HelpBlock.p('Der lokale Node ist ein eigenes Programm, das mit der App kommt. Er hat seine eigene Kopie der Chain, die Wallet fragt also niemand anderen. Er belegt etwa 5 GB auf der Festplatte und wächst langsam; der erste Download ist etwa 4 GB, danach kommt täglich ein wenig dazu. Solange er nicht synchronisiert ist, lässt sich über ihn nichts senden oder empfangen, und die Wallet kann in der Zwischenzeit einen öffentlichen Node nutzen.'),
+          HelpBlock.p('Der lokale Node ist ein eigenes Programm, das mit der App kommt. Er hat seine eigene Kopie der Chain, die Wallet fragt also niemand anderen. Er belegt etwa 5 GB auf der Festplatte und wächst langsam; er lädt zuerst die ganze Chain herunter, danach täglich ein wenig. Solange er nicht synchronisiert ist, lässt sich über ihn nichts senden oder empfangen, und die Wallet kann in der Zwischenzeit einen öffentlichen Node nutzen.'),
           HelpBlock.ul([
             '**Mit der App starten** startet den Node beim Start und hält ihn synchron, solange die App offen ist. Er stoppt, wenn die App schließt.',
             '**Ports.** Der API-Port (3413) ist der, mit dem die Wallet spricht; der P2P-Port (3414) ist der, über den andere Nodes diesen erreichen. Ändern Sie sie nur, wenn ein anderer Node auf diesem Computer oder in diesem Netzwerk sie schon nutzt. Der Node startet mit den neuen Ports neu.',
@@ -325,7 +326,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             'Langsamer als ohne Tor. In manchen Ländern ist Tor blockiert; dort verbindet es sich nicht.',
             'Empfangen an der .onion-Adresse funktioniert, solange die App geöffnet ist; Epicbox arbeitet daneben weiter.',
           ]),
-          const HelpBlock.p('**Startet…** heißt, Tor verbindet sich; die abgedeckten Verbindungen warten und weichen nie aus. **Nicht verbunden** heißt, es ist fehlgeschlagen: Wiederholen oder Tor ausschalten. Manche Wallets zeigen eine Tor-Adresse ohne .onion; beides ist dieselbe Adresse.'),
+          const HelpBlock.p('**Startet…** heißt, Tor verbindet sich; die abgedeckten Verbindungen warten und weichen nie aus. **Nicht verbunden** heißt, es ist fehlgeschlagen: Wiederholen oder einen anderen Modus wählen. Manche Wallets zeigen eine Tor-Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
         id: HelpId.tor,
       )
@@ -338,7 +339,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           HelpBlock.p('Mit Tor läuft die Verbindung zum Epicbox-Server über Tor, und die Wallet hat eine Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können, von überall, ohne Weiterleitung am Router. Tor ändert die Adressen nicht, die Sie weitergeben.'),
           HelpBlock.ul([
             'Schalten Sie es mit [[Einstellungen › Netzwerk & Datenschutz › Nur Tor|Settings › Network & privacy › Tor only]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
-            'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder Tor ausschalten.',
+            'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder einen anderen Netzwerkmodus wählen.',
             'Link · HTTP an eine http(s)-Adresse läuft nicht über Tor; Senden weist darauf hin.',
             'Link · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Link · Tor-Adresse an.',
             'In manchen Ländern ist Tor blockiert oder nicht erlaubt; dort verbindet es sich nicht.',
@@ -354,7 +355,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           ? 'Normal, Nur Tor, Nur Node oder Notaus: womit sich jeder verbindet und wie man von einer Wallet zahlt, die nie online geht.'
           : 'Normal, Nur Node oder Notaus: womit sich jeder verbindet und wie man von einer Wallet zahlt, die nie online geht.',
       [
-        HelpBlock.p('Wie viel vom Internet die Wallet nutzt, ist eine einzige Wahl unter $netPlace, und die Wallet merkt sie sich. Außerhalb von **Normal** nennt eine Markierung ${phone ? 'auf dem Startbildschirm' : 'in der Titelleiste'} den Modus; tippen Sie darauf, um ihn zu ändern.'),
+        HelpBlock.p('Wie viel vom Internet die Wallet nutzt, ist eine einzige Wahl unter $netPlace, und die Wallet merkt sie sich. Außerhalb von **Normal** nennt eine Markierung ${phone ? 'im Tab Wallet' : 'in der Titelleiste'} den Modus; ${phone ? 'tippen' : 'klicken'} Sie darauf, um ihn zu ändern.'),
         HelpBlock.ul([
           tor
               ? '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.'
@@ -371,7 +372,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           'Erstellen Sie die Zahlung wie gewohnt per ${phone ? '**Direkt · Dateiübertragung** oder **Direkt · QR-Zahlung**' : '**Direkt · Dateiübertragung**'} und schließen Sie sie ab, wenn die Antwort zurück ist.',
           'Die Wallet meldet **Abgeschlossen, nicht gesendet**: Sie ist vollständig, aber nur ein Gerät, das online ist, kann sie senden.',
           '**Datei speichern** und ${phone ? '**QR zeigen**' : 'den Text **kopieren**'}, dann zu einem Gerät bringen, das online ist.',
-          'Dort ${phone ? 'im Menü von „Aktivität“ **Fertige Zahlung senden** wählen' : 'unter „Empfangen“ bei „Transaktionsdateien“ **Fertige Zahlung senden** wählen'}, die Datei laden${phone ? ' oder den Code scannen' : ' oder den Text einfügen'} und **Senden** drücken. Jede Epic-Cash-Wallet kann das; es ist kein Schlüssel nötig.',
+          phone
+              ? 'Dort im Menü von „Aktivität“ **Fertige Zahlung senden** wählen, die Datei laden oder den Code scannen und **Senden** drücken. Jede Epic-Cash-Wallet kann das; es ist kein Schlüssel nötig.'
+              : 'Dort unter „Empfangen“ bei „Transaktionsdateien“ **Öffnen** drücken und die Datei wählen: die Wallet stellt sie ins Netzwerk. Jede Epic-Cash-Wallet kann das; es ist kein Schlüssel nötig.',
           'Zurück hier steht bei der Zahlung **Wird anderswo gesendet**, danach **Bestätigung**, sobald die Wallet sie in der Chain sieht, nachdem Sie „Notaus“ verlassen haben.',
         ]),
         HelpBlock.p('Dienste, die ein Modus abschaltet, erscheinen grau als **Aus (Nur Node)**: Das ist der Modus, kein Fehler. Beim Wechsel wird nichts abgebrochen; eine Zahlung, die über Epicbox auf den Empfänger wartet, läuft weiter, wenn Sie den Modus verlassen${tor ? ' (oder zu „Nur Tor“ wechseln)' : ''}.'),
@@ -397,10 +400,11 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ bei einer Blockhöhe oder einem Datum beginnen statt beim ersten Block. Beim Wiederherstellen steht die Wahl immer offen.'
           else
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ auch unbestätigte Transaktionen verwerfen. Beim Wiederherstellen steht allen ein Startblock zur Wahl.',
+          if (phone) '**Direkt · Dateiübertragung**: Dateiübertragung unter $payPlace, um mit einer Datei zu bezahlen oder bezahlt zu werden, die Sie selbst weitergeben.',
           if (!phone) '**Lokaler Node**: lässt diesen Computer einen eigenen Node betreiben, unter $nodePlace.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter $filesPlace, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
-        HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig 6, jeder Wert von 1 bis 30. Weniger Bestätigungen sind schneller, sind aber weniger sicher.${phone ? '' : ' Sie werden unter $payPlace eingestellt.'}'),
+        HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig $defaultMinimumConfirmations, jeder Wert von $minMinimumConfirmations bis $maxMinimumConfirmations. Weniger Bestätigungen sind schneller, sind aber weniger sicher.${phone ? '' : ' Sie werden unter $payPlace eingestellt.'}'),
         HelpBlock.p(phone ? 'Netzwerkmodus und **automatischer Node-Wechsel** stehen unter $netPlace: siehe „Netzwerkmodi“.' : 'Der Netzwerkmodus steht unter $netPlace: siehe „Netzwerkmodi“. **Node automatisch wechseln** steht unter $nodePlace.'),
       ],
       id: HelpId.advanced,
@@ -413,20 +417,20 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           : 'Meist ist ein Node noch nicht synchronisiert, ein Empfänger hat noch nicht geantwortet, oder ein Port ist belegt.',
       [
         if (phone)
-          const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder tippen Sie im Tab Wallet auf das Node-Symbol und wählen Sie einen anderen Node.')
+          const HelpBlock.p('**„Node: Synchronisierung“ oder „Das Netzwerk ist gerade nicht erreichbar.“** Senden braucht einen Node, der antwortet und aufgeholt hat. Drücken Sie bei Senden auf **Wiederholen**, warten Sie kurz oder tippen Sie im Tab Wallet auf das Node-Symbol und wählen Sie einen anderen Node.')
         else
           const HelpBlock.p('**„Node nicht synchronisiert“: Senden nicht möglich.** Senden ist möglich, sobald der Node aufgeholt hat. Warten Sie kurz oder wählen Sie unter [[Einstellungen › Node|Settings › Node]] einen anderen Node.'),
         if (phone)
-          const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf das Epicbox-Symbol und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.')
+          const HelpBlock.p('**„Epicbox nicht verbunden“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf das Epicbox-Symbol und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.')
         else
-          HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter $payPlace einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.'),
+          HelpBlock.p('**„Epicbox-Server antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter $payPlace einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.'),
         const HelpBlock.p('**Eine Zahlung zeigt „Wartet auf Empfänger“.** Die Wallet des Empfängers hat noch nicht geantwortet. Bitten Sie ihn, sie zu öffnen. Wird er das nie tun, stornieren Sie die Zahlung unter Aktivität, um die Coins freizugeben.'),
         if (phone)
-          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie die Statussymbole im Tab Wallet: Node synchronisiert, Epicbox verbunden. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
+          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie die Statussymbole im Tab Wallet: Node synchronisiert, Epicbox verbunden. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach wartet sie auf ihre Bestätigungen.')
         else
-          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchronisiert ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.'),
+          const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchronisiert ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach wartet sie auf ihre Bestätigungen.'),
         if (phone && tor)
-          const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter [[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]] auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
+          const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie bei Empfangen oder Senden auf **Wiederholen** oder wählen Sie einen anderen Modus unter [[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]]; in der Zwischenzeit geht nichts hinaus.'),
         if (!phone) ...[
           HelpBlock.p('**„Port ${appConfig.httpListenPort} wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. ${tor ? 'Epicbox, Link · Tor und Direkt · Dateiübertragung funktionieren' : 'Epicbox und Direkt · Dateiübertragung funktionieren'} in der Zwischenzeit weiter.'),
           const HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
@@ -469,7 +473,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('**Eine Zahlung scheint festzuhängen.** Meist ist die andere Wallet offline. Warten, oder die Zahlung unter $cancelPlace stornieren und neu senden. Eine stornierte Zahlung kann später nicht mehr durchgehen.'),
         const HelpBlock.p('**Vom Empfänger abgelehnt**: Die Wallet des Empfängers hat die Zahlung abgelehnt. Der Versand ist storniert, und seine Coins sind wieder frei verfügbar.'),
         const HelpBlock.h('Empfangen', anchor: HelpAnchor.receiving),
-        const HelpBlock.p('Kommt eine Zahlung an, antwortet diese Wallet sofort, und keine ihrer Coins werden gesperrt. Von da an schließt die Wallet des Absenders die Zahlung ab und stellt sie ins Netzwerk, meist innerhalb von Minuten. Stornieren ist 15 Minuten lang nicht verfügbar, und länger, solange der Absender meldet, dass er sie ins Netzwerk gestellt hat.'),
+        const HelpBlock.p('Kommt eine Zahlung an, antwortet diese Wallet sofort, und keine ihrer Coins werden gesperrt. Von da an schließt die Wallet des Absenders die Zahlung ab und stellt sie ins Netzwerk. Stornieren ist 15 Minuten lang nicht verfügbar, und länger, solange der Absender meldet, dass er sie ins Netzwerk gestellt hat.'),
         const HelpBlock.p('Danach räumt Stornieren eine Zahlung ab, die der Absender nie ins Netzwerk gestellt hat. Es ist nicht sicher: Die Wallet prüft zuerst das Netzwerk und lehnt ab, wenn die Zahlung schon dort ist. Eine stornierte Zahlung bleibt im Blick. Stellt der Absender sie später doch ins Netzwerk, kommt sie trotzdem an und erscheint als empfangen.'),
         const HelpBlock.h('Rechnungen', anchor: HelpAnchor.requests),
         const HelpBlock.p('Eine von dieser Wallet gesendete Rechnung hält keine Coins, bis sie bezahlt ist. Bis dahin lässt sie sich jederzeit zurückziehen: Der Zahler kann sie dann nicht mehr bezahlen, und keine Coins bewegen sich. Eine Rechnung, die niemand bezahlt, läuft nach 24 Stunden ab. Eine als QR-Code gezeigte Rechnung kann einmal bezahlt werden; ein zweiter Scan wird abgelehnt, es wird also nichts doppelt bezahlt.'),

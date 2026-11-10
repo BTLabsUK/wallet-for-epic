@@ -43,8 +43,8 @@ IconData networkModeGlyph(NetworkMode m) => switch (m) {
   NetworkMode.killSwitch => EpicGlyphs.unplugged,
 };
 
-/// The info text behind a mode's ⓘ. Normal names the Tor switch (right below the modes on
-/// Network & privacy, on both apps), so the build without Tor gets its own line. [desktop] is
+/// The info text behind a mode's ⓘ. Normal names Tor only, the mode that connects through Tor,
+/// so the build without Tor gets its own line. [desktop] is
 /// kept for callers; both apps read the same words.
 String networkModeHint(AppLocalizations l, NetworkMode m, {bool desktop = false, bool? tor}) {
   final withTor = tor ?? torBuilt;

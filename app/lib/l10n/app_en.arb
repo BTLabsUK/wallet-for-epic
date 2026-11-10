@@ -3623,7 +3623,7 @@
   "@settingsThemeDark": {
     "description": "Theme choice."
   },
-  "settingsPricesOnNotice": "Prices come from BT Labs' copy of CoinGecko's price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.",
+  "settingsPricesOnNotice": "Prices come from BT Labs’ copy of CoinGecko’s price on status.btlabs.uk, which sees your IP address. With Tor off, CoinGecko is asked when that copy has no price, and then CoinGecko sees your IP address.",
   "@settingsPricesOnNotice": {
     "description": "Short notice after prices are turned on. CoinGecko is a price service (a proper name)."
   },
@@ -4793,7 +4793,7 @@
   "@tourPhonePrivacyText": {
     "description": "Text of the tour card for Privacy & network; one or two short sentences."
   },
-  "tourPhoneNetworkText": "The network mode, the Tor switch and the servers the wallet uses. Tap a server to change it.",
+  "tourPhoneNetworkText": "The network mode, including Tor only, and the servers the wallet uses. Tap a server to change it.",
   "@tourPhoneNetworkText": {
     "description": "Text of the tour card for Settings › Network & privacy (first-unlock tour); one or two short sentences."
   },
@@ -16792,7 +16792,7 @@
   "@advOutputs": {
     "description": "Advanced switch: the Outputs page."
   },
-  "advOutputsHint": "Shows the Outputs page, under Wallet and on Home. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.",
+  "advOutputsHint": "Shows the Outputs page, under This wallet and on Home. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.",
   "@advOutputsHint": {
     "description": "Info sheet of the Outputs switch."
   },
@@ -16864,7 +16864,7 @@
   "@deskSetAdvOutputs": {
     "description": "Advanced switch: the Outputs page in the sidebar."
   },
-  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of, lets you split or consolidate them, and sets the defaults a send uses. A split or consolidation in progress keeps the page visible.",
+  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.",
   "@deskSetAdvOutputsHint": {
     "description": "Hover card of the Outputs switch."
   },
@@ -16880,7 +16880,7 @@
   "@deskSetAdvSendOptions": {
     "description": "Advanced switch: the Advanced fold on Send."
   },
-  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults stay on Outputs.",
+  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults are under Settings › Payments.",
   "@deskSetAdvSendOptionsHint": {
     "description": "Hover card of the Send options switch."
   },
@@ -16904,7 +16904,7 @@
   "@deskSetAdvBuiltInNode": {
     "description": "Advanced switch: the node on this computer."
   },
-  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain takes hours to sync and several gigabytes of disk. A node that is running keeps its rows.",
+  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain needs several gigabytes of disk and must sync first. A node that is running keeps its rows.",
   "@deskSetAdvBuiltInNodeHint": {
     "description": "Hover card of the Built-in node switch."
   },
@@ -17389,11 +17389,11 @@
   "@netOfflineNodeLine": {
     "description": "Phone: the short line beside the info icon that opens netOfflineNodeHint, under a file or QR Payment action while Offline. 1-3 words."
   },
-  "netBlockEpicboxOff": "Epicbox is off in Settings › Transactions.",
+  "netBlockEpicboxOff": "Epicbox is off in the payment settings.",
   "@netBlockEpicboxOff": {
     "description": "Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop."
   },
-  "netBlockMethodOff": "{method} is off in Settings › Transactions.",
+  "netBlockMethodOff": "{method} is off in the payment settings.",
   "@netBlockMethodOff": {
     "description": "Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.",
     "placeholders": {
@@ -23557,9 +23557,9 @@
   "@advModeKillSwitch": {
     "description": "Network mode name: nothing connects, cold storage."
   },
-  "advModeStandardHintHere": "Connects directly. Turn on Tor below to connect through Tor.",
+  "advModeStandardHintHere": "Connects directly. Choose Tor only to connect through Tor.",
   "@advModeStandardHintHere": {
-    "description": "Settings › Network & privacy: info text of the Normal network mode. The Tor switch is right below the modes on the same page."
+    "description": "Settings › Network & privacy: info text of the Normal network mode. Tor only, in the same mode list, connects through Tor."
   },
   "advModeStandardHintNoTor": "Connects directly to the node and the services you use.",
   "@advModeStandardHintNoTor": {
@@ -23605,16 +23605,6 @@
   "@advModeConfirmSwitch": {
     "description": "Confirm button of that confirmation."
   },
-  "netMarkSemantics": "Network mode: {mode}. Opens the Network section.",
-  "@netMarkSemantics": {
-    "description": "Screen reader label of the mode mark on Home (phone).",
-    "placeholders": {
-      "mode": {
-        "type": "String",
-        "example": "Node only"
-      }
-    }
-  },
   "netMarkSemanticsDesk": "Network mode: {mode}. Shows what it does.",
   "@netMarkSemanticsDesk": {
     "description": "Screen reader label of the mode mark in the title bar (desktop).",
@@ -23643,7 +23633,7 @@
   },
   "netMarkChange": "Change",
   "@netMarkChange": {
-    "description": "Button in the mode mark popover that opens Settings › Advanced › Network."
+    "description": "Link on the desktop mode mark's popover and on the phone connections sheet's mode line that opens Settings › Network & privacy › Network."
   },
   "statusOffByMode": "Off ({mode})",
   "@statusOffByMode": {
@@ -23957,7 +23947,7 @@
   },
   "netMarkRowLabel": "Network mode: {mode}",
   "@netMarkRowLabel": {
-    "description": "Row in the connections sheet naming the network mode.",
+    "description": "Line under the connections sheet's title naming the network mode (phone).",
     "placeholders": {
       "mode": {
         "type": "String",
@@ -25585,7 +25575,7 @@
   "@torRelayCaption": {
     "description": "Caption under the Epicbox row in Settings while Tor is off: what Tor does for Epicbox."
   },
-  "inviteLinkUnreadable": "This link can't be opened.",
+  "inviteLinkUnreadable": "This link cannot be opened.",
   "@inviteLinkUnreadable": {
     "description": "Short notice: a pairing or device-link invite link the system opened could not be read, so it was ignored."
   },
@@ -26280,11 +26270,11 @@
   "@deskSetDlgRemoveUnlockHintSecurity": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › Security\" is a menu path (the Security page, where Delete wallet is)."
   },
-  "deskRecvHttpTorHintNet": "Turn on Tor in Settings › Network & privacy for a Tor address instead.",
+  "deskRecvHttpTorHintNet": "Turn on Link · Tor in Settings › Payments for a Tor address instead.",
   "@deskRecvHttpTorHintNet": {
     "description": "Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy)."
   },
-  "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.",
+  "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Link · Tor is set in Settings › Payments.",
   "@deskRecvTorIntroNet": {
     "description": "Receive, Link · Tor: intro line; names where Tor is set (Settings › Network & privacy)."
   },
