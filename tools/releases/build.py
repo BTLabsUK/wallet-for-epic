@@ -499,7 +499,7 @@ def verify(g, latest):
     return f'''<section class="wrap verify-sec" id="verify" aria-labelledby="verify-h">
   <div class="sh"><h2 id="verify-h"><span class="k-n" aria-hidden="true">[02]</span>Verify downloads</h2></div>
   <div class="bt">
-    <p>Each download's SHA-256 is on its card under All platforms (the short value copies whole) and in Files and checksums. To check a file, compute its SHA-256 and compare it with that value; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Commands for the primary download of each system:</p>
+    <p>Each card under All platforms shows its download's SHA-256 in short: selecting it copies the full value, and Files and checksums lists it for every file. To check a file, compute its SHA-256 and compare it with that value; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Commands for the primary download of each system:</p>
     {late_note}{''.join(blocks)}
     {sig_check(latest)}
   </div>
