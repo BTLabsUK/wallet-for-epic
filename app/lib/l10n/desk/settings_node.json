@@ -80,7 +80,7 @@
   "@deskSetNodeBackground": {
     "description": "Settings > Node: switch title and screen reader name."
   },
-  "deskSetNodeBackgroundHint": "Keeps syncing while the app is closed.",
+  "deskSetNodeBackgroundHint": "Closing the window keeps the node syncing. The app stays in the tray.",
   "@deskSetNodeBackgroundHint": {
     "description": "Settings > Node: hint under Sync in background."
   },

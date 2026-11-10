@@ -11813,7 +11813,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetNodeBackgroundHint =>
-      'Продолжает синхронизацию, когда приложение закрыто.';
+      'После закрытия окна узел продолжает синхронизацию. Приложение остаётся в области уведомлений.';
 
   @override
   String get deskSetPhraseNotCopied => 'Не скопировано';
@@ -21746,4 +21746,26 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskNodeFitStartedAlone =>
       'Баланс и отправка ждут, пока узел не синхронизируется.';
+
+  @override
+  String get deskTrayOpen => 'Открыть кошелёк';
+
+  @override
+  String deskTrayNode(String state) {
+    return 'Узел: $state';
+  }
+
+  @override
+  String deskTrayHeight(String height) {
+    return 'высота $height';
+  }
+
+  @override
+  String deskTrayEpicbox(String state) {
+    return 'Epicbox: $state';
+  }
+
+  @override
+  String get deskSetNodeBackgroundNoTray =>
+      'На этом рабочем столе нет области уведомлений, поэтому закрытие окна завершает приложение.';
 }

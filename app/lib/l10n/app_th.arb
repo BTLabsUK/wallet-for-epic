@@ -2523,7 +2523,7 @@
   "deskSetNodeServerHint": "โหนดที่กระเป๋าเงินใช้อ่านบล็อกเชนและส่งธุรกรรม",
   "deskSetNodeChecking": "กำลังตรวจโหนด…",
   "deskSetNodeBackground": "ซิงก์เบื้องหลัง",
-  "deskSetNodeBackgroundHint": "ซิงก์ต่อขณะแอปปิดอยู่",
+  "deskSetNodeBackgroundHint": "เมื่อปิดหน้าต่าง โหนดยังซิงก์ต่อ และแอปจะอยู่ในถาดระบบ",
   "deskSetPhraseNotCopied": "ไม่ได้คัดลอก",
   "deskSetPhraseClipboardRefused": "คลิปบอร์ดไม่รับข้อความ",
   "deskSetPhraseCopied": "คัดลอกวลีแล้ว",
@@ -5446,5 +5446,10 @@
   "deskNodeFitOpenCheck": "เปิดการตรวจความเหมาะสม",
   "deskNodeFitStarted": "เริ่มโหนดในเครื่องแล้ว",
   "deskNodeFitStartedText": "กระเป๋าเงินใช้งานผ่าน {host} จนกว่าโหนดจะซิงก์เสร็จ",
-  "deskNodeFitStartedAlone": "ยอดคงเหลือและการส่งต้องรอจนกว่าโหนดจะซิงก์เสร็จ"
+  "deskNodeFitStartedAlone": "ยอดคงเหลือและการส่งต้องรอจนกว่าโหนดจะซิงก์เสร็จ",
+  "deskTrayOpen": "เปิดกระเป๋าเงิน",
+  "deskTrayNode": "โหนด: {state}",
+  "deskTrayHeight": "ความสูง {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "เดสก์ท็อปนี้ไม่มีถาดระบบ การปิดหน้าต่างจึงเป็นการออกจากแอป"
 }

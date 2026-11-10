@@ -86,6 +86,16 @@ class DeskWindow {
 
   /// Ends the process's window for good, after the app said yes.
   Future<void> destroy() async {}
+
+  /// Hides the window, the process going on: the node syncs on in the tray (desk_tray.dart).
+  Future<void> hide() async {}
+
+  /// Shows the window again, in front.
+  Future<void> show() async {}
+
+  /// False while the window is hidden; a second start of the app shows it too.
+  ValueListenable<bool> get visible => _shown;
+  static final _shown = ValueNotifier(true);
 }
 
 /// The screenshot tour's window: the bar draws the window controls as on a real window, and
@@ -123,6 +133,7 @@ class SystemDeskWindow extends DeskWindow with WindowListener, SnapLayoutsListen
 
   final _state = ValueNotifier(const DeskWindowState());
   final _hover = ValueNotifier(false);
+  final _visible = ValueNotifier(true);
   Future<void> Function()? _onClose;
 
   @override
@@ -183,6 +194,29 @@ class SystemDeskWindow extends DeskWindow with WindowListener, SnapLayoutsListen
   Future<void> destroy() async {
     await windowManager.setPreventClose(false);
     await windowManager.destroy();
+  }
+
+  @override
+  ValueListenable<bool> get visible => _visible;
+
+  @override
+  Future<void> hide() async {
+    await windowManager.hide();
+    _visible.value = false;
+  }
+
+  @override
+  Future<void> show() async {
+    await windowManager.show();
+    await windowManager.focus();
+    _visible.value = true;
+  }
+
+  // GTK's and Windows' own show and hide: the runner shows the window for a second start.
+  @override
+  void onWindowEvent(String eventName) {
+    if (eventName == 'show') _visible.value = true;
+    if (eventName == 'hide') _visible.value = false;
   }
 
   @override

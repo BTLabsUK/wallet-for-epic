@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The one close rule. The title bar's ✕, Alt+F4, the taskbar's and the window menu's Close,
 /// Ctrl+Q and the app menu's Quit all come here: with no send running the wallet locks, the
-/// built-in node stops and the app ends; while a send runs the app stays open and asks (Keep
+/// built-in node stops and the app ends; the window's own close first hides it to the tray
+/// instead while the node syncs in the background (desk_tray.dart); while a send runs the app stays open and asks (Keep
 /// open, or Close when it finishes). There is no "close now anyway": closing mid-send would
 /// leave the payment's outcome unknown.
 library;
@@ -43,7 +44,19 @@ final deskClosingProvider = NotifierProvider<DeskClosing, bool>(DeskClosing.new)
 /// send runs, after asking. Set by [DeskCloseGuard].
 bool Function() deskHoldExit = () => false;
 
+/// For the window's close: true when the window went to the tray instead (desk_tray.dart's rule,
+/// `hidesOnClose`). Set by DeskTray.
+Future<bool> Function() deskHideToTray = () async => false;
+
 bool _asking = false;
+
+/// The window's close (the bar's ✕ and the system's: Alt+F4, the taskbar): to the tray when
+/// Sync in background keeps the node running, else [deskClose]. Quit in a menu calls
+/// [deskClose] itself.
+Future<void> deskCloseWindow(WidgetRef ref) async {
+  if (await deskHideToTray()) return;
+  if (ref.context.mounted) await deskClose(ref);
+}
 
 /// Close the app, by the rule above.
 Future<void> deskClose(WidgetRef ref) async {
@@ -130,7 +143,7 @@ class _DeskCloseGuardState extends ConsumerState<DeskCloseGuard> {
   @override
   void initState() {
     super.initState();
-    _window.onCloseRequested = () => deskClose(ref);
+    _window.onCloseRequested = () => deskCloseWindow(ref);
     deskHoldExit = () {
       if (!mounted || ref.read(deskSendingProvider) == 0) return false;
       unawaited(_askAboutSend(ref));

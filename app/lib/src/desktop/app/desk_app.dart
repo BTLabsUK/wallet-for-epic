@@ -13,6 +13,7 @@ import '../widgets/kit.dart';
 import 'screens.dart';
 import 'auto_lock.dart';
 import 'close_guard.dart';
+import 'tray/desk_tray.dart';
 import 'title_bar.dart';
 import 'shell.dart';
 import 'tour.dart';
@@ -58,10 +59,10 @@ class DeskApp extends ConsumerWidget {
         final mq = MediaQuery.of(context);
         return MediaQuery(
           data: mq.copyWith(textScaler: DeskTextScaler(mq.textScaler, deskScale)),
-          // The window's own title bar above the navigator (title_bar.dart), and the close rule.
+          // The window's own title bar above the navigator (title_bar.dart), the close rule and the tray.
           child: KeyedSubtree(
             key: ValueKey(deskScale),
-            child: DeskSettingsFileWatch(child: DeskCloseGuard(child: DeskWindowFrame(child: child!))),
+            child: DeskSettingsFileWatch(child: DeskCloseGuard(child: DeskTray(child: DeskWindowFrame(child: child!)))),
           ),
         );
       },

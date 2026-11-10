@@ -15,7 +15,9 @@
 ///   Needs the bundled tor (bin/tor-bundle beside the app, tools/fetch-tor.sh); without it
 ///   the row says "Not in this build" and its switch is disabled. The build without Tor
 ///   (`WFE_TOR=false`, [torBuilt]) turns the flag off.
-/// nodeBackground: Settings › Node's "Sync in background" for the built-in node.
+/// nodeBackground: Settings › Node's "Sync in background" for the built-in node: the window's
+///   close hides it to the tray while the node runs (app/tray/). Disabled, with its reason, on a
+///   desktop without a tray.
 /// dandelion: Send's Dandelion++ switch and the review's Privacy line.
 /// paymentProofs: nothing on screen (the old proof dialog is gone, GP2-026); the API's
 ///   exportProof stays unsupported.
@@ -32,7 +34,7 @@ abstract final class DeskFeatures {
   static const bool testNetworks = devNetworksBuild;
   /// Off in the build without Tor ([torBuilt]).
   static const bool tor = torBuilt;
-  static const bool nodeBackground = false;
+  static const bool nodeBackground = true;
   static const bool dandelion = false;
   static const bool paymentProofs = false;
   static const bool contactPictures = false;

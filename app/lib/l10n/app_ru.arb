@@ -2523,7 +2523,7 @@
   "deskSetNodeServerHint": "Узел, через который кошелёк читает блокчейн и отправляет платежи.",
   "deskSetNodeChecking": "Проверка узла…",
   "deskSetNodeBackground": "Синхронизация в фоне",
-  "deskSetNodeBackgroundHint": "Продолжает синхронизацию, когда приложение закрыто.",
+  "deskSetNodeBackgroundHint": "После закрытия окна узел продолжает синхронизацию. Приложение остаётся в области уведомлений.",
   "deskSetPhraseNotCopied": "Не скопировано",
   "deskSetPhraseClipboardRefused": "Буфер обмена не принял текст.",
   "deskSetPhraseCopied": "Фраза скопирована",
@@ -5446,5 +5446,10 @@
   "deskNodeFitOpenCheck": "Открыть проверку",
   "deskNodeFitStarted": "Локальный узел запущен",
   "deskNodeFitStartedText": "Кошелёк работает через {host}, пока узел не синхронизирован.",
-  "deskNodeFitStartedAlone": "Баланс и отправка ждут, пока узел не синхронизируется."
+  "deskNodeFitStartedAlone": "Баланс и отправка ждут, пока узел не синхронизируется.",
+  "deskTrayOpen": "Открыть кошелёк",
+  "deskTrayNode": "Узел: {state}",
+  "deskTrayHeight": "высота {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "На этом рабочем столе нет области уведомлений, поэтому закрытие окна завершает приложение."
 }

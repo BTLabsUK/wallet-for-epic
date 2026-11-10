@@ -15,7 +15,7 @@
   "deskSetNodeServerHint": "Der Node, über den die Wallet die Blockchain liest und sendet.",
   "deskSetNodeChecking": "Node wird geprüft…",
   "deskSetNodeBackground": "Im Hintergrund synchronisieren",
-  "deskSetNodeBackgroundHint": "Synchronisiert weiter, während die App geschlossen ist.",
+  "deskSetNodeBackgroundHint": "Beim Schließen des Fensters synchronisiert der Node weiter. Die App bleibt im Infobereich.",
   "deskNodeSwitchConnecting": "Verbindung zu {host}…",
   "deskNodeSwitchStarting": "Lokaler Node startet…",
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",

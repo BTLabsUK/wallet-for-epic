@@ -1,0 +1,7 @@
+{
+  "deskTrayOpen": "Otwórz portfel",
+  "deskTrayNode": "Węzeł: {state}",
+  "deskTrayHeight": "wysokość {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "Ten pulpit nie ma zasobnika systemowego, więc zamknięcie okna zamyka aplikację."
+}

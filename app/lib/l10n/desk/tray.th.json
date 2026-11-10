@@ -1,0 +1,7 @@
+{
+  "deskTrayOpen": "เปิดกระเป๋าเงิน",
+  "deskTrayNode": "โหนด: {state}",
+  "deskTrayHeight": "ความสูง {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "เดสก์ท็อปนี้ไม่มีถาดระบบ การปิดหน้าต่างจึงเป็นการออกจากแอป"
+}

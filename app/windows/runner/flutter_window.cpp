@@ -45,6 +45,7 @@ bool FlutterWindow::OnCreate() {
           pending_link_.clear();
         }
       });
+  tray_.Init(GetHandle(), flutter_controller_->engine()->messenger());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -73,6 +74,7 @@ void FlutterWindow::DeliverLink(const std::string& link) {
 }
 
 void FlutterWindow::OnDestroy() {
+  tray_.Shutdown();
   link_channel_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
@@ -93,6 +95,11 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     if (result) {
       return *result;
     }
+  }
+
+  // The tray icon, its menu and the session end.
+  if (std::optional<LRESULT> result = tray_.HandleMessage(hwnd, message, wparam, lparam)) {
+    return *result;
   }
 
   switch (message) {

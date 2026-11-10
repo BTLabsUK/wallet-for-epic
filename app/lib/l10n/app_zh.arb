@@ -2579,7 +2579,7 @@
   "deskSetNodeServerHint": "钱包通过这个节点读取区块链并发送交易。",
   "deskSetNodeChecking": "正在检查节点…",
   "deskSetNodeBackground": "后台同步",
-  "deskSetNodeBackgroundHint": "应用关闭时继续同步。",
+  "deskSetNodeBackgroundHint": "关闭窗口后节点继续同步，应用留在系统托盘中。",
   "deskSetPhraseNotCopied": "未复制",
   "deskSetPhraseClipboardRefused": "剪贴板拒绝了这段文本。",
   "deskSetPhraseCopied": "助记词已复制",
@@ -5446,5 +5446,10 @@
   "deskNodeFitOpenCheck": "打开适用性检查",
   "deskNodeFitStarted": "本地节点已启动",
   "deskNodeFitStartedText": "节点同步完成前，钱包通过 {host} 工作。",
-  "deskNodeFitStartedAlone": "节点同步完成前，余额和发送需要等待。"
+  "deskNodeFitStartedAlone": "节点同步完成前，余额和发送需要等待。",
+  "deskTrayOpen": "打开钱包",
+  "deskTrayNode": "节点：{state}",
+  "deskTrayHeight": "高度 {height}",
+  "deskTrayEpicbox": "Epicbox：{state}",
+  "deskSetNodeBackgroundNoTray": "此桌面没有系统托盘，因此关闭窗口会退出应用。"
 }

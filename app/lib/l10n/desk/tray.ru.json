@@ -1,0 +1,7 @@
+{
+  "deskTrayOpen": "Открыть кошелёк",
+  "deskTrayNode": "Узел: {state}",
+  "deskTrayHeight": "высота {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "На этом рабочем столе нет области уведомлений, поэтому закрытие окна завершает приложение."
+}

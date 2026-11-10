@@ -11842,7 +11842,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetNodeBackgroundHint =>
-      'Synchronizuje dalej, gdy aplikacja jest zamknięta.';
+      'Po zamknięciu okna węzeł dalej się synchronizuje. Aplikacja zostaje w zasobniku systemowym.';
 
   @override
   String get deskSetPhraseNotCopied => 'Nie skopiowano';
@@ -21758,4 +21758,26 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskNodeFitStartedAlone =>
       'Saldo i wysyłanie czekają, aż węzeł się zsynchronizuje.';
+
+  @override
+  String get deskTrayOpen => 'Otwórz portfel';
+
+  @override
+  String deskTrayNode(String state) {
+    return 'Węzeł: $state';
+  }
+
+  @override
+  String deskTrayHeight(String height) {
+    return 'wysokość $height';
+  }
+
+  @override
+  String deskTrayEpicbox(String state) {
+    return 'Epicbox: $state';
+  }
+
+  @override
+  String get deskSetNodeBackgroundNoTray =>
+      'Ten pulpit nie ma zasobnika systemowego, więc zamknięcie okna zamyka aplikację.';
 }

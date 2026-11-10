@@ -2929,7 +2929,7 @@
   "deskSetNodeServerHint": "Węzeł, przez który portfel czyta łańcuch i wysyła płatności.",
   "deskSetNodeChecking": "Sprawdzanie węzła…",
   "deskSetNodeBackground": "Synchronizuj w tle",
-  "deskSetNodeBackgroundHint": "Synchronizuje dalej, gdy aplikacja jest zamknięta.",
+  "deskSetNodeBackgroundHint": "Po zamknięciu okna węzeł dalej się synchronizuje. Aplikacja zostaje w zasobniku systemowym.",
   "deskSetPhraseNotCopied": "Nie skopiowano",
   "deskSetPhraseClipboardRefused": "Schowek odrzucił tekst.",
   "deskSetPhraseCopied": "Skopiowano frazę",
@@ -5446,5 +5446,10 @@
   "deskNodeFitOpenCheck": "Otwórz sprawdzenie",
   "deskNodeFitStarted": "Węzeł lokalny uruchomiony",
   "deskNodeFitStartedText": "Portfel korzysta z {host}, dopóki węzeł się nie zsynchronizuje.",
-  "deskNodeFitStartedAlone": "Saldo i wysyłanie czekają, aż węzeł się zsynchronizuje."
+  "deskNodeFitStartedAlone": "Saldo i wysyłanie czekają, aż węzeł się zsynchronizuje.",
+  "deskTrayOpen": "Otwórz portfel",
+  "deskTrayNode": "Węzeł: {state}",
+  "deskTrayHeight": "wysokość {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "Ten pulpit nie ma zasobnika systemowego, więc zamknięcie okna zamyka aplikację."
 }

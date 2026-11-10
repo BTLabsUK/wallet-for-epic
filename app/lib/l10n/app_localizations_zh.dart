@@ -10685,7 +10685,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetNodeBackground => '后台同步';
 
   @override
-  String get deskSetNodeBackgroundHint => '应用关闭时继续同步。';
+  String get deskSetNodeBackgroundHint => '关闭窗口后节点继续同步，应用留在系统托盘中。';
 
   @override
   String get deskSetPhraseNotCopied => '未复制';
@@ -19853,4 +19853,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeFitStartedAlone => '节点同步完成前，余额和发送需要等待。';
+
+  @override
+  String get deskTrayOpen => '打开钱包';
+
+  @override
+  String deskTrayNode(String state) {
+    return '节点：$state';
+  }
+
+  @override
+  String deskTrayHeight(String height) {
+    return '高度 $height';
+  }
+
+  @override
+  String deskTrayEpicbox(String state) {
+    return 'Epicbox：$state';
+  }
+
+  @override
+  String get deskSetNodeBackgroundNoTray => '此桌面没有系统托盘，因此关闭窗口会退出应用。';
 }

@@ -2929,7 +2929,7 @@
   "deskSetNodeServerHint": "Der Node, über den die Wallet die Blockchain liest und sendet.",
   "deskSetNodeChecking": "Node wird geprüft…",
   "deskSetNodeBackground": "Im Hintergrund synchronisieren",
-  "deskSetNodeBackgroundHint": "Synchronisiert weiter, während die App geschlossen ist.",
+  "deskSetNodeBackgroundHint": "Beim Schließen des Fensters synchronisiert der Node weiter. Die App bleibt im Infobereich.",
   "deskSetPhraseNotCopied": "Nicht kopiert",
   "deskSetPhraseClipboardRefused": "Die Zwischenablage hat den Text abgelehnt.",
   "deskSetPhraseCopied": "Phrase kopiert",
@@ -5446,5 +5446,10 @@
   "deskNodeFitOpenCheck": "Eignungsprüfung öffnen",
   "deskNodeFitStarted": "Lokaler Node gestartet",
   "deskNodeFitStartedText": "Die Wallet arbeitet über {host}, bis der Node synchron ist.",
-  "deskNodeFitStartedAlone": "Kontostand und Senden warten, bis der Node synchron ist."
+  "deskNodeFitStartedAlone": "Kontostand und Senden warten, bis der Node synchron ist.",
+  "deskTrayOpen": "Wallet öffnen",
+  "deskTrayNode": "Node: {state}",
+  "deskTrayHeight": "Höhe {height}",
+  "deskTrayEpicbox": "Epicbox: {state}",
+  "deskSetNodeBackgroundNoTray": "Dieser Desktop hat keinen Infobereich, daher beendet das Schließen des Fensters die App."
 }

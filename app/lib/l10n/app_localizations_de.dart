@@ -11489,7 +11489,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetNodeBackgroundHint =>
-      'Synchronisiert weiter, während die App geschlossen ist.';
+      'Beim Schließen des Fensters synchronisiert der Node weiter. Die App bleibt im Infobereich.';
 
   @override
   String get deskSetPhraseNotCopied => 'Nicht kopiert';
@@ -21293,4 +21293,26 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskNodeFitStartedAlone =>
       'Kontostand und Senden warten, bis der Node synchron ist.';
+
+  @override
+  String get deskTrayOpen => 'Wallet öffnen';
+
+  @override
+  String deskTrayNode(String state) {
+    return 'Node: $state';
+  }
+
+  @override
+  String deskTrayHeight(String height) {
+    return 'Höhe $height';
+  }
+
+  @override
+  String deskTrayEpicbox(String state) {
+    return 'Epicbox: $state';
+  }
+
+  @override
+  String get deskSetNodeBackgroundNoTray =>
+      'Dieser Desktop hat keinen Infobereich, daher beendet das Schließen des Fensters die App.';
 }

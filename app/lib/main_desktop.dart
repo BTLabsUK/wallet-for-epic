@@ -24,10 +24,13 @@ import 'src/btlabs_onions.dart';
 import 'src/builtin_node.dart';
 import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
-import 'src/desktop/app/close_guard.dart' show deskHoldExit;
+import 'src/desktop/app/close_guard.dart' show deskHideToTray, deskHoldExit;
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/desk_window.dart';
 import 'src/desktop/app/window_placement.dart';
+import 'src/desktop/app/tray/tray_host.dart';
+import 'src/desktop/app/tray/tray_linux.dart';
+import 'src/desktop/app/tray/tray_windows.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/close_down.dart';
 import 'src/desktop/data/desk_link_handler.dart';
@@ -71,6 +74,29 @@ AppLifecycleListener? _exitListener;
 
 /// Keeps the window's size and place (Linux, macOS); saved once more on the way out.
 DeskWindowKeeper? _windowKeeper;
+
+/// The tray, for Sync in background (tray/desk_tray.dart); none on macOS for now.
+TrayHost _tray = NoTray();
+
+Future<void>? _closing;
+
+/// Every way out (Quit, the window's close, a signal, Windows' end of session) closes down once:
+/// the tray's icon goes, the window's place is kept, the wallet locks and the node stops.
+/// [hurry]: the system is ending the session and waits only so long.
+Future<void> _closeDown(LepicDeskWallet wallet, {bool hurry = false}) => _closing ??= () async {
+  try {
+    await _tray.remove().timeout(const Duration(seconds: 2));
+  } on Object catch (e) {
+    logWarn('tray', 'icon not removed (${e.runtimeType})');
+  }
+  await _windowKeeper?.save();
+  await deskCloseDown(
+    disposeWallet: wallet.dispose,
+    stopNodes: stopAllBuiltInNodes,
+    walletLimit: hurry ? const Duration(seconds: 6) : const Duration(seconds: 40),
+    nodeLimit: hurry ? const Duration(seconds: 12) : const Duration(seconds: 25),
+  );
+}();
 
 /// [args]: the runner's command line; a browser passes an `epic:` or `epiccash:` link there.
 Future<void> main(List<String> args) async {
@@ -229,19 +255,28 @@ Future<List<Override>> deskOverrides() async {
   unawaited(wallet.resumeBuiltInNode());
   // Closing the window must not leave the node running, nor cut off a send: while one runs
   // the app stays open and asks (close_guard.dart, the rule of the title bar's close and Ctrl+Q).
+  // On Windows the system's close (Alt+F4, the taskbar) comes here, the engine taking WM_CLOSE:
+  // to the tray first, as the bar's close does. Quit in a menu closes down without passing here.
   _exitListener = AppLifecycleListener(
     onExitRequested: () async {
+      if (await deskHideToTray()) return AppExitResponse.cancel;
       if (deskHoldExit()) return AppExitResponse.cancel;
-      await _windowKeeper?.save();
-      await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
+      await _closeDown(wallet);
       return AppExitResponse.exit;
     },
   );
   deskCloseOnSignals(() async {
-    await _windowKeeper?.save();
-    await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
+    await _closeDown(wallet);
     exit(0);
   });
+  // Sync in background's tray. Linux: a StatusNotifierItem host, when the desktop has one
+  // (GNOME needs the AppIndicator extension); none answers, the setting says it is unavailable.
+  if (Platform.isLinux) {
+    _tray = await LinuxTray.start() ?? NoTray();
+  } else if (Platform.isWindows) {
+    // Windows sends no signal at shutdown or sign-out: the runner passes it on, and waits.
+    _tray = WindowsTray()..onEndSession = () => _closeDown(wallet, hurry: true);
+  }
   // Unreadable wallet list: open Unlock, which reads it again and shows why; never Welcome,
   // which would offer to make a new wallet over an existing one.
   bool hasWallet;
@@ -277,10 +312,10 @@ Future<List<Override>> deskOverrides() async {
     deskHistoryFilesProvider.overrideWithValue(const SystemDeskHistoryFiles()),
     deskUpdateAutoProvider.overrideWithValue(true),
     deskQuitProvider.overrideWithValue(() async {
-      await _windowKeeper?.save();
-      await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
+      await _closeDown(wallet);
       exit(0);
     }),
+    deskTrayHostProvider.overrideWithValue(_tray),
     if (!deskStartGiven) deskStartProvider.overrideWithValue(hasWallet ? DeskRoute.unlock : DeskRoute.welcome),
   ];
 }
