@@ -516,13 +516,14 @@ void main() {
         _check('read shows the invoice amount', read.amount == _pay);
         await _funds(aw);
         final reply = await aw.inPersonPay(code: ttl30.bytes, amount: read.amount, minimumConfirmations: conf, message: 'epictx paid', relayMode: lepic.ContactRelayMode.online);
-        _say('A inPersonPay: tx ${reply.txId} check code ${reply.checkCode} armored ${reply.armored.substring(0, 14)}… ${reply.armored.length} chars envelope ${reply.envelope.length} bytes');
+        _say('A inPersonPay: tx ${reply.txId} armored ${reply.armored.substring(0, 14)}… ${reply.armored.length} chars envelope ${reply.envelope.length} bytes');
         final view = await bw.epictxOpen(text: reply.armored);
         _say('B epictxOpen(answer): native ${view.native} contactId ${view.contactId} purpose ${view.purpose?.name} reference ${view.reference} expires ${view.expires} json ${view.slateJson.length} chars');
         _check('epictxOpen on the in-person answer opens it as native', view.native && view.slateJson.isNotEmpty);
         final taken = await bw.inPersonTake(answer: reply.envelope);
         _say('B inPersonTake: stage ${taken.stage.name} answer ${taken.answer} check ${taken.checkCode} duplicate ${taken.duplicate} sameCode ${taken.sameCode}');
-        _check('check codes agree', taken.checkCode == reply.checkCode && !taken.duplicate);
+        // A shown-back answer has no check code on the payer's side: LEPIC gives it only with a post.
+        _check('answer taken, not a duplicate', taken.checkCode.isNotEmpty && !taken.duplicate);
         final again = await bw.inPersonTake(answer: utf8.encode(reply.armored));
         _check('same answer as text is a duplicate', again.duplicate, 'duplicate ${again.duplicate}');
         final cv = await bw.inPersonAnswers(slateId: ttl30.slateId);
@@ -542,15 +543,15 @@ void main() {
         final sRead = await bw.inPersonRead(code: send.bytes, minimumConfirmations: conf, relayMode: lepic.ContactRelayMode.online);
         _say('B inPersonRead: stage ${sRead.stage.name} amount ${sRead.amount} mailbox ${sRead.mailbox?.host}');
         final sReply = await bw.inPersonReceive(code: send.bytes, message: 'epictx got it', relayMode: lepic.ContactRelayMode.online);
-        _say('B inPersonReceive: tx ${sReply.txId} check ${sReply.checkCode}');
-        await bw.inPersonPost(slateId: send.slateId, relayOk: true, relayMode: lepic.ContactRelayMode.online);
-        _say('B inPersonPost done');
+        _say('B inPersonReceive: tx ${sReply.txId}');
+        final sPosted = await bw.inPersonPost(slateId: send.slateId, relayOk: true, relayMode: lepic.ContactRelayMode.online);
+        _say('B inPersonPost: check ${sPosted.checkCode} format ${sPosted.format.name}');
         final collected = await _until([a], () async => (await aw.inPersonAnswers(slateId: send.slateId)).answers.isNotEmpty);
         _check('A collected the answer from the mailbox', collected);
         final sView = await aw.inPersonAnswers(slateId: send.slateId);
         final inPersonEvents = events.where((k) => k == lepic.WalletEventKind.inPersonAnswer).length;
         _say('A inPersonAnswers: ${sView.answers.length} answer(s) check ${sView.answers.first.checkCode}; InPersonAnswer events seen $inPersonEvents');
-        _check('check codes agree (send)', sView.answers.first.checkCode == sReply.checkCode);
+        _check('check codes agree (send)', sView.answers.first.checkCode == sPosted.checkCode);
         _check('InPersonAnswer event raised', inPersonEvents >= 1, 'events $inPersonEvents');
         final sFin = await aw.inPersonFinalize(slateId: send.slateId, answer: sView.answers.first.number);
         _say('A inPersonFinalize: tx ${sFin.txId} posted ${sFin.posted}');

@@ -727,7 +727,7 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
               minimumConfirmations: ref.read(countedConfirmationsProvider),
             );
       if (!mounted) return;
-      final posted = await postInPersonAnswer(context, wallet, made.slateId, made.mailbox ?? info.mailbox);
+      final (posted, checkCode) = await postInPersonAnswer(context, wallet, made.slateId, made.mailbox ?? info.mailbox);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
@@ -735,6 +735,7 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
             title: inPersonReviewTitle(context, info.stage),
             answer: made,
             posted: posted,
+            checkCode: checkCode,
             mailbox: made.mailbox ?? info.mailbox,
           ),
         ),
@@ -802,8 +803,9 @@ enum InPersonPosted {
 }
 
 /// Posts the answer [slateId] to [mailbox]: a server not in the list is asked about first.
-Future<InPersonPosted> postInPersonAnswer(BuildContext context, Epic1Wallet wallet, String slateId, Epic1Host? mailbox) async {
-  if (mailbox == null) return InPersonPosted.none;
+/// Returns how it went and, once posted, the answer's check code.
+Future<(InPersonPosted, String?)> postInPersonAnswer(BuildContext context, Epic1Wallet wallet, String slateId, Epic1Host? mailbox) async {
+  if (mailbox == null) return (InPersonPosted.none, null);
   if (!mailbox.inRelayList) {
     final l = context.l10n;
     final use = await showAppDialog<bool>(
@@ -821,24 +823,26 @@ Future<InPersonPosted> postInPersonAnswer(BuildContext context, Epic1Wallet wall
         ],
       ),
     );
-    if (use != true) return InPersonPosted.none;
+    if (use != true) return (InPersonPosted.none, null);
   }
   try {
-    await wallet.inPersonPost(slateId: slateId, relayOk: true);
-    return InPersonPosted.posted;
+    return (InPersonPosted.posted, await wallet.inPersonPost(slateId: slateId, relayOk: true));
   } on Object {
-    return InPersonPosted.failed;
+    return (InPersonPosted.failed, null);
   }
 }
 
-/// After answering a code: the check code for the other phone to compare, and the answer as a
-/// QR and text when it did not go through a server.
+/// After answering a code: the check code for the other phone to compare once the answer is
+/// posted, and the answer as a QR and text when it did not go through a server.
 class InPersonAnsweredScreen extends ConsumerStatefulWidget {
-  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, required this.posted, this.mailbox});
+  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, required this.posted, this.checkCode, this.mailbox});
 
   final String title;
   final InPersonAnswerMade answer;
   final InPersonPosted posted;
+
+  /// From the post; null until the answer is posted.
+  final String? checkCode;
 
   /// The server Retry posts to.
   final Epic1Host? mailbox;
@@ -850,17 +854,19 @@ class InPersonAnsweredScreen extends ConsumerStatefulWidget {
 class _InPersonAnsweredScreenState extends ConsumerState<InPersonAnsweredScreen> {
   late final List<String> _parts = ref.read(epic1Provider)?.qrParts(widget.answer.envelope) ?? const [];
   late InPersonPosted _posted = widget.posted;
+  late String? _checkCode = widget.checkCode;
   bool _busy = false;
 
   Future<void> _retry() async {
     final wallet = ref.read(epic1Provider);
     if (wallet == null) return;
     setState(() => _busy = true);
-    final posted = await postInPersonAnswer(context, wallet, widget.answer.slateId, widget.mailbox);
+    final (posted, checkCode) = await postInPersonAnswer(context, wallet, widget.answer.slateId, widget.mailbox);
     if (mounted) {
       setState(() {
         _busy = false;
         _posted = posted;
+        _checkCode = checkCode;
       });
     }
   }
@@ -871,17 +877,20 @@ class _InPersonAnsweredScreenState extends ConsumerState<InPersonAnsweredScreen>
     final theme = Theme.of(context);
     final answer = widget.answer;
     final failed = _posted == InPersonPosted.failed;
+    final checkCode = _checkCode;
     return SlotScaffold(
       appBar: AppBar(title: Text(widget.title)),
       idle: _busy ? SlotProgress(label: l.commonRetry) : null,
       body: ScreenBody(
         bottom: BusyButton(label: l.commonDone, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.txIpDone),
         children: [
-          Semantics(header: true, child: Text(l.deskIpCheckTitle, style: theme.textTheme.titleLarge)),
-          const SizedBox(height: 8),
-          Text(l.deskIpCheckLead, style: theme.textTheme.bodyLarge),
-          const SizedBox(height: 16),
-          InPersonCheck(key: inPersonCheckKey, code: answer.checkCode),
+          if (checkCode != null) ...[
+            Semantics(header: true, child: Text(l.deskIpCheckTitle, style: theme.textTheme.titleLarge)),
+            const SizedBox(height: 8),
+            Text(l.deskIpCheckLead, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: 16),
+            InPersonCheck(key: inPersonCheckKey, code: checkCode),
+          ],
           if (failed) ...[
             const SizedBox(height: 16),
             InlineNotice(

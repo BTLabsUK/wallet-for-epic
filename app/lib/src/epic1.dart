@@ -211,7 +211,7 @@ class InPersonCodeInfo {
 /// The answer to a scanned code, from [Epic1Wallet.inPersonReceive] or [Epic1Wallet.inPersonPay].
 /// It is stored.
 class InPersonAnswerMade {
-  const InPersonAnswerMade({required this.txId, required this.slateId, required this.envelope, required this.armored, required this.checkCode, this.mailbox});
+  const InPersonAnswerMade({required this.txId, required this.slateId, required this.envelope, required this.armored, this.mailbox});
 
   final int txId;
   final String slateId;
@@ -222,8 +222,6 @@ class InPersonAnswerMade {
   /// [envelope] as `BEGINEPICTX.` text, to copy.
   final String armored;
 
-  /// Four digits shown to the user: the other side finalizes the answer showing the same.
-  final String checkCode;
   final Epic1Host? mailbox;
 }
 
@@ -366,8 +364,10 @@ abstract interface class Epic1Wallet {
   /// Pays a request code for exactly [amount], the amount shown.
   Future<InPersonAnswerMade> inPersonPay(List<int> code, {required BigInt amount, required BigInt minimumConfirmations, String? message, SendOptions? options});
 
-  /// Posts a stored answer to the mailbox its code named.
-  Future<void> inPersonPost({required String slateId, required bool relayOk});
+  /// Posts a stored answer to the mailbox its code named. Returns its check code: four digits
+  /// shown to the user only now, after posting; the other side finalizes the answer showing
+  /// the same. An answer shown back has none.
+  Future<String> inPersonPost({required String slateId, required bool relayOk});
 
   /// The answers taken so far for a code this wallet showed (the pairing collect fetches
   /// them from the reply mailbox).
@@ -612,7 +612,7 @@ class FakeEpic1 implements Epic1Wallet {
   InPersonAnswerMade _answer() {
     final slateId = _slate();
     final envelope = Uint8List.fromList(utf8.encode('BEGINEPICTX. fake $slateId. ENDEPICTX.'));
-    return InPersonAnswerMade(txId: _next, slateId: slateId, envelope: envelope, armored: utf8.decode(envelope), checkCode: '4821', mailbox: const Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true));
+    return InPersonAnswerMade(txId: _next, slateId: slateId, envelope: envelope, armored: utf8.decode(envelope), mailbox: const Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true));
   }
 
   @override
@@ -628,9 +628,10 @@ class FakeEpic1 implements Epic1Wallet {
   }
 
   @override
-  Future<void> inPersonPost({required String slateId, required bool relayOk}) async {
+  Future<String> inPersonPost({required String slateId, required bool relayOk}) async {
     _call('inPersonPost');
     if (!relayOk) throw const WalletError(kind: WalletErrorKind.relayNotConfirmed, message: 'relay not confirmed');
+    return '4821';
   }
 
   /// Adds an answer to code [slateId], as the collect would.

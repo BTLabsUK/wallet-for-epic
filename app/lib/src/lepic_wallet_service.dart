@@ -299,6 +299,9 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.epic1Finalized => WalletErrorKind.epic1Finalized,
     lepic.WalletErrorKind.epic1WrongNetwork => WalletErrorKind.epic1WrongNetwork,
     lepic.WalletErrorKind.notAnEpic1Link => WalletErrorKind.notAnEpic1Link,
+    // A payment to the link waits for its answer (finalize, cancel or post it to the next
+    // relay first). No screen offers that yet, so it reads as the generic error.
+    lepic.WalletErrorKind.epic1PaymentPending => WalletErrorKind.other,
     lepic.WalletErrorKind.pinnedNoAdvert ||
     lepic.WalletErrorKind.pinChanged => WalletErrorKind.other,
     // Decided on by kind, never by the core's English message.
@@ -3758,7 +3761,6 @@ InPersonAnswerMade _inPersonAnswer(lepic.InPersonReply r) => InPersonAnswerMade(
   slateId: r.slateId,
   envelope: r.envelope,
   armored: r.armored,
-  checkCode: r.checkCode,
   mailbox: r.mailbox == null ? null : _inPersonHost(r.mailbox!),
 );
 
@@ -3971,9 +3973,10 @@ class _LepicEpic1 implements Epic1Wallet {
   )));
 
   @override
-  Future<void> inPersonPost({required String slateId, required bool relayOk}) =>
+  Future<String> inPersonPost({required String slateId, required bool relayOk}) =>
       _epicboxGuard('post an in-person answer', () async {
-        await _w.inPersonPost(slateId: slateId, relayOk: relayOk, relayMode: lepicRelayMode());
+        final posted = await _w.inPersonPost(slateId: slateId, relayOk: relayOk, relayMode: lepicRelayMode());
+        return posted.checkCode;
       });
 
   @override

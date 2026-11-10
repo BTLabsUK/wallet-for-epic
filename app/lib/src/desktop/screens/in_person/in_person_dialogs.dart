@@ -508,6 +508,9 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
   InPersonAnswerMade? _answer;
   DeskInPersonPosted? _posted;
 
+  /// The answer's check code, from the post; null until it is posted.
+  String? _checkCode;
+
   /// The server is not in the list: asks before posting.
   bool _ask = false;
   List<String> _parts = const [];
@@ -570,8 +573,9 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
       _ask = false;
     });
     DeskInPersonPosted posted;
+    String? checkCode;
     try {
-      await wallet.inPersonPost(slateId: answer.slateId, relayOk: true);
+      checkCode = await wallet.inPersonPost(slateId: answer.slateId, relayOk: true);
       posted = DeskInPersonPosted.posted;
     } on Object {
       posted = DeskInPersonPosted.failed;
@@ -580,6 +584,7 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
       setState(() {
         _busy = false;
         _posted = posted;
+        _checkCode = checkCode;
       });
     }
   }
@@ -606,7 +611,7 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
       );
     }
     final posted = _posted;
-    if (answer != null && posted != null) return _answered(context, answer, posted);
+    if (answer != null && posted != null) return _answered(context, title, answer, posted);
     return _review(context, title);
   }
 
@@ -664,18 +669,20 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
     );
   }
 
-  Widget _answered(BuildContext context, InPersonAnswerMade answer, DeskInPersonPosted posted) {
+  /// The check code once the answer is posted; until then [title], the review's.
+  Widget _answered(BuildContext context, String title, InPersonAnswerMade answer, DeskInPersonPosted posted) {
     final l = context.l10n;
+    final checkCode = _checkCode;
     return EDialog(
-      title: l.deskIpCheckTitle,
+      title: checkCode != null ? l.deskIpCheckTitle : title,
       icon: EIcons.shield,
-      description: l.deskIpCheckLead,
+      description: checkCode != null ? l.deskIpCheckLead : null,
       dismissible: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          DeskInPersonCheck(key: deskInPersonCheckKey, code: answer.checkCode),
+          if (checkCode != null) DeskInPersonCheck(key: deskInPersonCheckKey, code: checkCode),
           if (posted == DeskInPersonPosted.failed) ...[
             SizedBox(height: Sp.x4),
             ENotice(
