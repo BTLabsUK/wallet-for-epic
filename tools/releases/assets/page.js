@@ -47,13 +47,16 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'copy';
-        b.textContent = 'Copy';
-        b.setAttribute('aria-label', 'Copy ' + (code.closest('.verify') ? 'the command' : 'the checksum'));
+        // data-copy names what is copied: "SHA-256", "fingerprint" or "command".
+        var what = code.getAttribute('data-copy') || 'command';
+        var text = what === 'command' ? 'Copy command' : what === 'SHA-256' ? 'Copy SHA-256' : 'Copy ' + what;
+        b.textContent = text;
+        b.setAttribute('aria-label', text);
         b.addEventListener('click', function () {
           navigator.clipboard.writeText(code.textContent.trim()).then(function () {
             b.textContent = 'Copied';
             b.setAttribute('data-done', '');
-            setTimeout(function () { b.textContent = 'Copy'; b.removeAttribute('data-done'); }, 1600);
+            setTimeout(function () { b.textContent = text; b.removeAttribute('data-done'); }, 1600);
           }, function () { b.textContent = 'Select it'; });
         });
         code.parentNode.insertBefore(b, code.nextSibling);

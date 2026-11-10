@@ -126,6 +126,8 @@ MINISIGN_PUBKEY = 'RWQ+swweZiIFJfbre/aOhYqQ1+82BHFnw8gF6ETbhCp5b7RB6RuMEVtP'
 # --print-certs). Signer certificate SHA-256, CN=BT Labs Epic Wallet, O=BT Labs.
 ANDROID_CERT_SHA256 = '59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa'
 
+VERIFY_KEYS = ('windows', 'macos', 'linux', 'android')
+
 ICONS = {
     'windows': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.3 10.4 4.3v7.2H3zm0 13.4 7.4 1V12.5H3zM11.2 4.2 21 2.8v8.7h-9.8zm0 8.3H21v8.7l-9.8-1.4z"/></svg>',
     'linux': '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M12 2.6c-2.3 0-3.6 1.8-3.6 4 0 1 .2 1.7.5 2.4-1 1.3-2.4 3.4-2.8 5.5-.1.7-.1 1.4 0 2-.8.4-1.6.9-1.6 1.8 0 .8 1.2 1.1 2.6 1.4.8.2 1.8.9 2.7.9.7 0 1.2-.3 1.5-.6h1.4c.3.3.8.6 1.5.6.9 0 1.9-.7 2.7-.9 1.4-.3 2.6-.6 2.6-1.4 0-.9-.8-1.4-1.6-1.8.1-.6.1-1.3 0-2-.4-2.1-1.8-4.2-2.8-5.5.3-.7.5-1.4.5-2.4 0-2.2-1.3-4-3.6-4Z"/><path fill="currentColor" d="M10.6 7.4a.8.9 0 1 0 0 1.8.8.9 0 1 0 0-1.8Zm2.8 0a.8.9 0 1 0 0 1.8.8.9 0 1 0 0-1.8Z"/><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M10.3 10.2 12 11.2l1.7-1"/></svg>',
@@ -160,9 +162,8 @@ BEFORE = {
         '<code>--appimage-extract-and-run</code>.</p>',
         'sha256sum {file}'),
     'android': (
-        '<p>The APK is signed with BT LABS\' release key. Certificate SHA-256: '
-        '<code class="fp" translate="no">' + ANDROID_CERT_SHA256 + '</code>. '
-        '<code>apksigner verify --print-certs {file}</code> prints it; Android itself refuses an update whose key differs.</p>'
+        '<p>The APK is signed with BT LABS\' release key; Android refuses an update signed with a different key. '
+        'To check the download, see <a href="#verify-android">Verify downloads</a>.</p>'
         '<p>Android asks to allow installs from this source (the browser or the file manager) the first time.</p>',
         'sha256sum {file}'),
     'ios': (
@@ -344,7 +345,7 @@ def file_row(e):
         f'<span class="fn" translate="no">{esc(e["name"])}</span>'
         f'<span class="fs">{esc(e["version"])} · {mb(e["size"])}&nbsp;MB</span></a>'
         f'<span class="sha"><span class="sha-k">SHA-256</span>'
-        f'<code data-copy translate="no">{e["sha256"]}</code></span>'
+        f'<code data-copy="SHA-256" translate="no">{e["sha256"]}</code></span>'
         + ('<span class="sha-n">Not in the signed SHA256SUMS: added after it was signed.</span>' if e.get('unlisted') else '')
         + '</li>'
     )
@@ -399,7 +400,9 @@ def platform_row(key, g, latest):
                    f'<span>Download<span class="vh"> {APP} for {esc(heading)}</span>'
                    f'<small>{esc(p["label"])} · {esc(p["version"])} · {mb(p["size"])}&nbsp;MB</small></span></a>'
                    + (f'<a class="alt" href="downloads/{esc(nt["name"])}" download>Without Tor · {esc(nt["version"])} · {mb(nt["size"])}&nbsp;MB</a>' if nt else '')
-                   + store_line(key) + '</div>')
+                   + store_line(key)
+                   + f'<p class="sha sha-main"><span class="sha-k">SHA-256</span><code data-copy="SHA-256" translate="no">{p["sha256"]}</code></p>'
+                   + f'<a class="alt verify-link" href="#verify-{key if key in VERIFY_KEYS else "all"}">Verify download</a></div>')
     elif key in STORES:
         out.append(f'<div class="r-get">{store_line(key)}</div>')
     out.append('</div>')
@@ -439,28 +442,54 @@ def sig_check(r):
     cmd = f'minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P {MINISIGN_PUBKEY}'
     return ('<p>Check the checksums themselves: download <a href="downloads/SHA256SUMS.sig" download>SHA256SUMS.sig</a> '
             'too and check its signature with BT LABS\' release key.</p>'
-            f'<p class="verify"><span>Signature</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+            f'<div class="verify"><span>Signature</span><code data-copy="command" translate="no">{esc(cmd)}</code></div>')
+
+
+def cmd_block(label, cmd, key):
+    return (f'<div class="verify" id="verify-{key}"><span>{esc(label)}</span>'
+            f'<code data-copy="command" translate="no">{esc(cmd)}</code></div>')
+
+
+def android_verify(p):
+    """Phone-usable steps first (no terminal on a phone), then the computer's. The fingerprint is
+    ANDROID_CERT_SHA256, the only copy in this file."""
+    f = esc(p['name'])
+    return f'''<div class="v-android" id="verify-android">
+      <h3>Android</h3>
+      <p>Installs from Google Play are verified by Play. For the APK downloaded here, check that its signing certificate has this SHA-256:</p>
+      <div class="verify"><span>Certificate SHA-256</span><code data-copy="fingerprint" translate="no">{ANDROID_CERT_SHA256}</code></div>
+      <ol class="v-steps">
+        <li><b>On the phone:</b> install AppVerifier (open source; on F-Droid and Google Play), choose the downloaded APK in it and compare the certificate SHA-256 it shows with the one above.</li>
+        <li><b>Or in Termux:</b> run <code>termux-setup-storage</code> once, then the command below. The browser's downloads are in <code>~/storage/downloads/</code>. Compare the result with the SHA-256 shown with the download.
+          <div class="verify"><span>Termux</span><code data-copy="command" translate="no">sha256sum ~/storage/downloads/{f}</code></div></li>
+        <li><b>On a computer:</b> <code>apksigner</code> prints the certificate; compare its SHA-256 digest with the one above.
+          <div class="verify"><span>Computer</span><code data-copy="command" translate="no">apksigner verify --print-certs {f}</code></div></li>
+      </ol>
+    </div>'''
 
 
 def verify(g, latest):
-    """How to check a download: SHA256SUMS, one command per system for its primary file, the
-    signature when the release has one. Folded: there for whoever wants it, out of everyone's way."""
-    cmds = []
-    for key in ('windows', 'macos', 'linux', 'android'):
+    """How to check a download: one command per system for its primary file, the phone steps for
+    Android, the signature when the release has one. Always open, under its own heading."""
+    blocks = []
+    for key in VERIFY_KEYS:
         if key in g and g[key]['primary'] and key in BEFORE:
-            cmd = BEFORE[key][1].format(file=g[key]['primary']['name'])
-            cmds.append(f'<p class="verify"><span>{esc(PLAT[key][1])}</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+            p = g[key]['primary']
+            if key == 'android':
+                blocks.append(android_verify(p))
+            else:
+                blocks.append(cmd_block(PLAT[key][1], BEFORE[key][1].format(file=p['name']), key))
     late = [e for gg in g.values() for e in gg['files'] if e.get('unlisted')]
     late_note = ('<p>' + ' and '.join(f'<span translate="no">{esc(e["name"])}</span>' for e in late)
-                 + ' came after SHA256SUMS was signed and are not in it: compare them with the SHA-256 under '
-                 'Files and checksums.</p>\n    ') if late else ''
-    return f'''<details class="fold verify-fold" id="verify"><summary>Verify a download</summary>
+                 + ' came after SHA256SUMS was signed and are not in it: compare them with the SHA-256 shown with each file.</p>\n    ') if late else ''
+    return f'''<section class="wrap verify-sec" id="verify" aria-labelledby="verify-h">
+  <div class="sh"><h2 id="verify-h"><span class="k-n" aria-hidden="true">[02]</span>Verify downloads</h2></div>
   <div class="bt">
-    <p>Every file's SHA-256 is under Files and checksums; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Compare it with the file's own:</p>
-    {late_note}{''.join(cmds)}
+    <p>Each download's SHA-256 is shown under its Download button and in Files and checksums. To check a file, compute its SHA-256 and compare it with that value; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Commands for the primary download of each system:</p>
+    {late_note}{''.join(blocks)}
     {sig_check(latest)}
   </div>
-</details>'''
+</section>'''
 
 
 def mirror(r):
@@ -510,7 +539,7 @@ def notes(latest, log):
                       + '</ul></details>')
     full = f'<a href="changelog/#v{esc(ver)}">All {len(items)} changes</a>' if more > 0 else f'<a href="changelog/#v{esc(ver)}">The full entry</a>'
     return f'''<section class="wrap notes" id="notes" aria-labelledby="notes-h">
-  <div class="sh"><h2 id="notes-h"><span class="k-n" aria-hidden="true">[02]</span>What's new in <span translate="no">{esc(ver)}</span></h2><p class="sl"><time datetime="{latest['date']}">{human_date(latest['date'])}</time></p></div>
+  <div class="sh"><h2 id="notes-h"><span class="k-n" aria-hidden="true">[03]</span>What's new in <span translate="no">{esc(ver)}</span></h2><p class="sl"><time datetime="{latest['date']}">{human_date(latest['date'])}</time></p></div>
   <div class="notes-in">
     <div class="n-main">
       {'<ul class="n-list">' + lis + '</ul>' if lis else ''}
@@ -531,7 +560,7 @@ def phones(g):
     if 'android' in g and g['android']['primary']:
         cards.append(f'''<div class="step-card"><h3><span class="ico sm">{ICONS['android']}</span>Android</h3>
       <ol class="steps"><li>Download the APK on the phone.</li><li>Open it. Android asks once to allow installs from the browser or the file manager.</li><li>Updates install from inside the app.</li></ol>
-      <p class="s-note">Signed with BT LABS' release key; the install guide has its fingerprint.</p></div>''')
+      <p class="s-note">Signed with BT LABS' release key; the certificate fingerprint is under <a href="#verify-android">Verify downloads</a>.</p></div>''')
     if 'ios' in g and g['ios']['primary']:
         cards.append(f'''<div class="step-card"><h3><span class="ico sm">{ICONS['ios']}</span>iPhone and iPad <span class="pill">Preview</span></h3>
       <ol class="steps"><li>Download the IPA on a computer.</li><li>Sign and install it with an Apple ID through AltStore or Sideloadly.</li><li>With a free Apple ID, install it again every 7 days. The wallet stays on the phone.</li></ol>
@@ -601,7 +630,8 @@ def hero(latest, g, plat_line):
     <div class="get">
       <a class="btn primary big" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose your platform</span><small id="hero-dl-sub">{esc(plat_line)}</small></span></a>
       <p class="get-meta"><span id="hero-req"></span><span id="hero-ver" translate="no">{esc(latest['version'])}</span> · <time id="hero-date" datetime="{latest['date']}">{human_date(latest['date'])}</time> · <a href="#notes">What's new</a></p>
-      <p class="get-alt" id="hero-alt" hidden><a id="hero-before" href="#latest">Install guide</a><a id="hero-notor" href="#latest" hidden download>Without Tor</a><a href="#verify">Verify</a></p>
+      <p class="get-verify"><a class="btn ghost" href="#verify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8 7.5 9.5 4.4-1.5 7.5-5 7.5-9.5V6z"/><path d="m8.8 12 2.4 2.4 4.2-4.6"/></svg>Verify downloads</a></p>
+      <p class="get-alt" id="hero-alt" hidden><a id="hero-before" href="#latest">Install guide</a><a id="hero-notor" href="#latest" hidden download>Without Tor</a></p>
     </div>
     <div class="also"><p id="also-h">All platforms</p><ul aria-labelledby="also-h">{chips}</ul></div>
   </div>
@@ -660,14 +690,15 @@ def render(out_dir):
 </dl>
 
 <section class="wrap latest" id="latest" aria-labelledby="latest-h">
-  <div class="sh"><h2 id="latest-h"><span class="k-n" aria-hidden="true">[01]</span>All platforms</h2><p class="sl"><a href="#verify">Verify a download</a></p></div>
+  <div class="sh"><h2 id="latest-h"><span class="k-n" aria-hidden="true">[01]</span>All platforms</h2><p class="sl"><a class="verify-cta" href="#verify">Verify downloads</a></p></div>
 {platforms(g, latest)}
 {phones(g)}
   <div class="small-print">
     <p><b>Without Tor</b>: the same app with Tor left out, for places where Tor is unwanted or blocked. It cannot send to Tor addresses and updates itself like the normal app. Installing either over the other keeps the wallets.</p>
-    {verify(g, latest)}
   </div>
 </section>
+
+{verify(g, latest)}
 
 {notes(latest, changelog(out_dir))}
 </main>
