@@ -104,7 +104,7 @@ void main() {
     expect(deskWalletFileLabel('abcdefghijk lm'), 'abcdefghijk');
     expect(deskWalletFileLabel('钱包'), '');
     expect(deskWalletFileLabel('  '), '');
-    expect(deskHistoryFileName('floonet', DateTime(2026, 10, 22), 'wfeh', wallet: 'ฉัน'), 'epic-wallet-data-floonet-20261022.wfeh');
+    expect(deskHistoryFileName('floonet', DateTime(2026, 10, 22), 'wfeh', wallet: 'ฉัน'), 'epic-wallet-data-test-20261022.wfeh');
   });
 
   test('CSV ranges: local days, inclusive; a custom day that is not a date gives none', () {

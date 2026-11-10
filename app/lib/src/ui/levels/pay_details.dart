@@ -189,7 +189,7 @@ class _DetailsSheet extends ConsumerWidget {
     final confirmations = txConfirmations(tx, tip);
     final rows = <(String, String)>[
       if (tx.slateId case final id?) (l.lvPayPaymentId, id),
-      if (tx.transport != null) (l.sendMethodLabel, txMethodWord(l, tx.transport)),
+      if (tx.transport != null) (l.sendMethodLabel, txMethodName(l, tx)),
       (l.lvPayStarted, formatDateTime(l, localTime(tx.createdAtUnix))),
       if (tx.finalizedAtUnix case final at?) (l.lvPayPosted, formatDateTime(l, localTime(at))),
       if (tx.blockTimeUnix case final at?) (l.txDetailsDate, formatDateTime(l, localTime(at))),

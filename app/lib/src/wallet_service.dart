@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'contact_label.dart';
+import 'epic1.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'name_service/base58.dart' show epicboxKeyText, netMainnet;
 import 'name_service/pins.dart' show LinkMemory;
@@ -1086,6 +1087,8 @@ class FakeWalletService implements WalletService {
     _restored(mnemonic, restoreFromHeight);
     phraseOf[config.dataDir] = mnemonic ?? phrase;
     openWallets.add(config.dataDir);
+    epic1Stored.remove(config.dataDir);
+    _bindEpic1(config);
     session.openedConfig = config;
     return session..owner = this;
   }
@@ -1100,6 +1103,22 @@ class FakeWalletService implements WalletService {
     session
       ..restoreScanPending = true
       ..restoreFrom = from ?? BigInt.zero;
+  }
+
+  /// The epic1 setting each wallet stores, by data directory, kept across lock and unlock as the core does.
+  final Map<String, bool> epic1Stored = {};
+  String? _epic1Dir;
+
+  /// Gives the session the epic1 state of this wallet: the first open keeps the fake the test set up and
+  /// records its setting; later opens start from what the wallet stored, in use as at an unlock.
+  void _bindEpic1(WalletConfig config) {
+    final dir = config.dataDir;
+    // A fake the session took from another wallet is not this wallet's.
+    final stored = epic1Stored[dir] ?? (_epic1Dir != null && _epic1Dir != dir ? false : null);
+    if (stored != null) session.epic1Fake = FakeEpic1(on: stored);
+    _epic1Dir = dir;
+    epic1Stored[dir] = session.epic1Fake.storedOn;
+    session.epic1Fake.onStored = (on) => epic1Stored[dir] = on;
   }
 
   /// The recovery phrase of each wallet [create] made, by data directory; [phrase] otherwise.
@@ -1200,6 +1219,7 @@ class FakeWalletService implements WalletService {
     }
     await _openStore();
     openWallets.add(config.dataDir);
+    _bindEpic1(config);
     session.openedConfig = config;
     return session..owner = this;
   }
@@ -1261,6 +1281,8 @@ class FakeWalletService implements WalletService {
     _restored(mnemonic, restoreFromHeight);
     createdPin = pin;
     pinFailureCount = 0;
+    epic1Stored.remove(config.dataDir);
+    _bindEpic1(config);
     session.owner = this;
     session.openedConfig = config;
     return (session: session, sealedPassword: fakeSealedPassword(pin));
@@ -1292,6 +1314,7 @@ class FakeWalletService implements WalletService {
         ..restoreFrom = BigInt.zero;
       throw const WalletError(kind: WalletErrorKind.damagedDatabase, message: 'database damaged');
     }
+    _bindEpic1(config);
     session.owner = this;
     session.openedConfig = config;
     return session;
@@ -1349,7 +1372,7 @@ String fakeAddressSignature(String key, List<int> message) =>
     '${sha512.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
-class FakeWalletSession implements WalletSession, ListingKeys {
+class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
   FakeWalletSession({
     WalletSummary? summary,
     List<TxEntry>? transactions,
@@ -1360,6 +1383,12 @@ class FakeWalletSession implements WalletSession, ListingKeys {
 
   @override
   final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace);
+
+  /// epic1 calls (`epic1.dart`); classic mode unless a test puts one made with `on: true`.
+  FakeEpic1 epic1Fake = FakeEpic1();
+
+  @override
+  Epic1Wallet? get epic1Wallet => epic1Fake;
 
   static final WalletSummary emptySummary = WalletSummary(
     lastConfirmedHeight: BigInt.zero,
@@ -3647,6 +3676,8 @@ TxEntry fakeTx({
   TxOrigin origin = TxOrigin.thisWallet,
   List<String> spentCommits = const [],
   bool unverified = false,
+  Epic1Via? epic1Via,
+  bool sentPlain = false,
 }) {
   final resolvedStatus =
       status ??
@@ -3702,6 +3733,8 @@ TxEntry fakeTx({
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 }
 
@@ -3720,6 +3753,7 @@ TxEntry copyTx(
   String? transport,
   Set<ManualField>? manualFields,
   int? manualEditedAtUnix,
+  String? pairingId,
 }) => TxEntry(
   key: tx.key,
   id: tx.id,
@@ -3765,4 +3799,7 @@ TxEntry copyTx(
   origin: tx.origin,
   spentCommits: tx.spentCommits,
   unverified: tx.unverified,
+  epic1Via: tx.epic1Via,
+  sentPlain: tx.sentPlain,
+  pairingId: pairingId,
 );

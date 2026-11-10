@@ -9030,7 +9030,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return 'Кошелёк в $network, тестовой сети.';
+    return 'Кошелёк в сети: $network.';
   }
 
   @override
@@ -13646,10 +13646,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Платежи».';
+      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».';
 
   @override
-  String get deskOutDefaultsOpen => 'Открыть «Платежи»';
+  String get deskOutDefaultsOpen => 'Открыть «Транзакции»';
 
   @override
   String get deskSetFrameTransactions => 'Транзакции';
@@ -14271,7 +14271,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWaysP4 =>
-      'Каким бы способом вы ни воспользовались, в конце проверьте вместе: сравните четыре картинки и имена. Они показывают, что никто не изменил сообщения по пути.';
+      'Каким бы способом вы ни воспользовались, в конце проверьте вместе: сравните четыре картинки и имена. Они совпадают, только если оба кошелька видят одни и те же ключи.';
 
   @override
   String get helpPairClipP =>
@@ -14380,7 +14380,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return 'Ответ запечатан для приглашения $name. Никто другой не сможет его прочитать, и он срабатывает один раз.';
+    return 'Ответ запечатан для приглашения $name: прочитать его может только кошелёк $name. Он срабатывает один раз.';
   }
 
   @override
@@ -20209,9 +20209,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetSecWallet => 'Кошелёк';
 
   @override
-  String get deskSetSecPayments => 'Платежи';
-
-  @override
   String get deskSetSecDevices => 'Связанные устройства';
 
   @override
@@ -21332,10 +21329,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkNotALink => 'Это не платёжная ссылка';
 
   @override
-  String get linkMadeForMainnet => 'Ссылка создана для mainnet';
+  String get linkMadeForMainnet => 'Ссылка создана для основной сети';
 
   @override
-  String get linkMadeForFloonet => 'Ссылка создана для floonet';
+  String get linkMadeForFloonet => 'Ссылка создана для тестовой сети';
 
   @override
   String get linkChanged => 'Эту ссылку изменили после создания.';
@@ -21768,4 +21765,593 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetNodeBackgroundNoTray =>
       'На этом рабочем столе нет области уведомлений, поэтому закрытие окна завершает приложение.';
+
+  @override
+  String get deskE1ErrCannotPay =>
+      'В этой ссылке нет сервера, доступного этому кошельку.';
+
+  @override
+  String get deskE1ErrNoMoreRelays => 'Испробованы все серверы из ссылки.';
+
+  @override
+  String get deskE1ErrPrintedFull =>
+      'Все 32 печатные ссылки заняты. Сначала выведите одну из них.';
+
+  @override
+  String get deskE1ErrOwnRelayLocal =>
+      'Ваш сервер Epicbox работает на этом устройстве. Выберите другой сервер, чтобы создавать ссылки.';
+
+  @override
+  String get deskE1ErrMessageInvalid =>
+      'Сообщение слишком длинное или содержит неподдерживаемые символы.';
+
+  @override
+  String get deskE1ErrFinalized => 'Уже завершено.';
+
+  @override
+  String get deskE1ErrWrongNetwork => 'Эта ссылка для другой сети.';
+
+  @override
+  String get deskE1ErrCodeExpired => 'Срок действия кода истёк.';
+
+  @override
+  String get deskE1ErrNotLink => 'Это не ссылка epic1.';
+
+  @override
+  String get deskE1ErrRelayInvalid =>
+      'Это не адрес сервера. Укажите host или host:port.';
+
+  @override
+  String get deskE1ErrSavedTx => 'Это не файл платежа.';
+
+  @override
+  String get deskE1ErrWalletTooNew =>
+      'Создано более новой версией приложения. Обновите его, чтобы открыть этот кошелёк.';
+
+  @override
+  String get deskE1ModeClassicAddress =>
+      'Классический адрес. Выключите платежи epic1, чтобы оплатить его.';
+
+  @override
+  String get deskE1ModeClassicCode =>
+      'Классический код. Выключите платежи epic1, чтобы использовать его.';
+
+  @override
+  String get deskE1ModeClassicFile =>
+      'Классический файл. Выключите платежи epic1, чтобы открыть его.';
+
+  @override
+  String get deskE1ModeEpic1Link =>
+      'Ссылка epic1. Включите платежи epic1, чтобы оплатить её.';
+
+  @override
+  String get deskE1ModeEpic1File =>
+      'Файл epic1. Включите платежи epic1, чтобы открыть его.';
+
+  @override
+  String get deskE1ClassicOnly => 'Только классические';
+
+  @override
+  String get deskE1PaymentStopped => 'Платёж остановлен. Ничего не отправлено.';
+
+  @override
+  String get deskE1SameCodeTwice =>
+      'Два телефона ответили одним и тем же кодом.';
+
+  @override
+  String get deskE1ShowNewCode => 'Показать новый код';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return 'Вывести ссылку $n? Платежи на неё перестанут приходить.';
+  }
+
+  @override
+  String get deskE1Retire => 'Вывести';
+
+  @override
+  String get deskE1Keep => 'Оставить';
+
+  @override
+  String get deskIpRequestTitle => 'Запросить лично';
+
+  @override
+  String get deskIpPayTitle => 'Оплатить лично';
+
+  @override
+  String get deskIpReceiveTitle => 'Получить лично';
+
+  @override
+  String get deskIpPayRequestTitle => 'Оплатить запрос';
+
+  @override
+  String get deskIpMakeCode => 'Показать код';
+
+  @override
+  String get deskIpCodeLeadRequest =>
+      'Плательщик сканирует этот код или вставляет его текст.';
+
+  @override
+  String get deskIpCodeLeadPay =>
+      'Другой телефон сканирует этот код или вставляет его текст.';
+
+  @override
+  String get deskIpCodeText => 'Код текстом';
+
+  @override
+  String get deskIpCodeOf => 'код для личной оплаты';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Истекает примерно через $count мин.',
+      many: 'Истекает примерно через $count мин.',
+      few: 'Истекает примерно через $count мин.',
+      one: 'Истекает примерно через $count мин.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => 'Ожидание ответа…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return 'Телефон плательщика показывает $code?';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return 'Другой телефон показывает $code?';
+  }
+
+  @override
+  String get deskIpMatches => 'Совпадает';
+
+  @override
+  String get deskIpDifferent => 'Отличается';
+
+  @override
+  String get deskIpSent => 'Отправлено';
+
+  @override
+  String get deskIpReceived => 'Получено';
+
+  @override
+  String get deskIpPasteAnswer => 'Вставить ответ';
+
+  @override
+  String get deskIpScanAnswer => 'Сканировать ответ';
+
+  @override
+  String get deskIpAnswerLabel => 'Ответ';
+
+  @override
+  String get deskIpNotAnswer => 'Это не ответ на этот код.';
+
+  @override
+  String get deskIpReceiveButton => 'Получить';
+
+  @override
+  String get deskIpPayButton => 'Оплатить';
+
+  @override
+  String get deskIpCheckTitle => 'Проверочный код';
+
+  @override
+  String get deskIpCheckLead => 'Другой телефон должен показать тот же код.';
+
+  @override
+  String get deskIpAnswerLead =>
+      'Другой телефон сканирует этот ответ или вставляет его текст.';
+
+  @override
+  String get deskIpAnswerOf => 'ответ для личной оплаты';
+
+  @override
+  String get deskIpUseServerAsk => 'Отправить через этот сервер?';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host нет в вашем списке серверов.';
+  }
+
+  @override
+  String get deskIpUseServer => 'Использовать сервер';
+
+  @override
+  String get deskIpScanTitle => 'Сканировать код';
+
+  @override
+  String get deskIpScanAim => 'Наведите камеру на код другого телефона.';
+
+  @override
+  String get deskIpCopied => 'Скопировано';
+
+  @override
+  String get deskIpPostFailed => 'Ответ не доставлен. Повторите попытку.';
+
+  @override
+  String get deskE1PhExperimental => 'Экспериментальное';
+
+  @override
+  String get deskE1PhSwitch => 'Платежи epic1';
+
+  @override
+  String get deskE1PhSwitchHint =>
+      'Платежи идут только через epic1: ссылки epic1, коды для личной оплаты и контакты с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы платить другим кошелькам Epic. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
+
+  @override
+  String get deskE1PhConfirmTitle => 'Использовать платежи epic1?';
+
+  @override
+  String get deskE1PhConfirmBody =>
+      'Тогда платежи уходят только на кошельки с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы заплатить любому другому кошельку Epic.';
+
+  @override
+  String get deskE1PhTurnOn => 'Включить';
+
+  @override
+  String get deskE1PhAppliesNext => 'Применится при следующей разблокировке';
+
+  @override
+  String get deskE1PhLockNow => 'Заблокировать';
+
+  @override
+  String get deskE1PhSection => 'epic1';
+
+  @override
+  String get deskE1PhReceiving => 'Получение';
+
+  @override
+  String get deskE1PhPrinted => 'Печатные ссылки';
+
+  @override
+  String deskE1PhPrintedCount(int n, int max) {
+    return '$n из $max';
+  }
+
+  @override
+  String get deskE1PhPrintedEmpty => 'Печатных ссылок нет.';
+
+  @override
+  String deskE1PhPrintedCode(int n) {
+    return 'Ссылка $n';
+  }
+
+  @override
+  String deskE1PhPrintedMade(String date) {
+    return 'Создан $date';
+  }
+
+  @override
+  String get deskE1PhPrintedUsed => 'Оплачен';
+
+  @override
+  String deskE1PhRetired(int n) {
+    return 'Ссылка $n выведена.';
+  }
+
+  @override
+  String get deskE1PhLinkTitle => 'Ссылка epic1';
+
+  @override
+  String get deskE1PhLinkQrLabel => 'QR-код ссылки epic1';
+
+  @override
+  String get deskE1PhCopyLink => 'Копировать ссылку';
+
+  @override
+  String get deskE1PhLinkCopied => 'Ссылка скопирована.';
+
+  @override
+  String get deskE1PhAskAmount => 'Запросить сумму';
+
+  @override
+  String get deskE1PhAmount => 'Сумма';
+
+  @override
+  String get deskE1PhMessage => 'Сообщение (необязательно)';
+
+  @override
+  String get deskE1PhMakeLink => 'Создать ссылку';
+
+  @override
+  String deskE1PhLinkAsks(String amount) {
+    return 'Запрашивает $amount';
+  }
+
+  @override
+  String get deskE1PhAnyAmount => 'Любая сумма';
+
+  @override
+  String get deskE1PhOtherWays => 'Другие способы получения';
+
+  @override
+  String get deskE1PhInPerson => 'Лично';
+
+  @override
+  String get deskE1PhRequestInPerson => 'Запросить лично';
+
+  @override
+  String get deskE1PhSettings => 'Настройки';
+
+  @override
+  String get deskE1PhLanTitle => 'Использовать сервер локальной сети?';
+
+  @override
+  String deskE1PhLanBody(String host) {
+    return '$host находится в локальной сети. Оплатить созданные с ним ссылки могут только кошельки в этой сети.';
+  }
+
+  @override
+  String get deskE1PhField => 'Ссылка epic1 или контакт';
+
+  @override
+  String get deskE1PhPayInPerson => 'Оплатить лично';
+
+  @override
+  String get deskE1PhContacts => 'Контакты';
+
+  @override
+  String get deskE1PhUnknownTitle => 'Отправить через этот сервер?';
+
+  @override
+  String deskE1PhUnknownBody(String host) {
+    return '$host нет в вашем списке серверов.';
+  }
+
+  @override
+  String get deskE1PhUseServer => 'Использовать сервер';
+
+  @override
+  String get deskE1PhReview => 'Проверка';
+
+  @override
+  String get deskE1PhTo => 'Кому';
+
+  @override
+  String get deskE1PhServer => 'Сервер';
+
+  @override
+  String get deskE1PhNote => 'Сообщение';
+
+  @override
+  String get deskE1PhSend => 'Отправить';
+
+  @override
+  String get deskE1PhWaiting => 'Ожидание получателя';
+
+  @override
+  String deskE1PhNotTaken(String host) {
+    return '$host не принял платёж.';
+  }
+
+  @override
+  String get deskE1PhTryNext => 'Попробовать следующий сервер';
+
+  @override
+  String get deskE1PhCancelUnlock => 'Отменить и разблокировать';
+
+  @override
+  String get deskE1PhCancelled => 'Платёж отменён. Монеты снова свободны.';
+
+  @override
+  String get deskE1PhSent => 'Отправлено';
+
+  @override
+  String get deskE1PhDone => 'Готово';
+
+  @override
+  String get deskE1PhClassicOnlyTip =>
+      'Выключите платежи epic1, чтобы заплатить этому контакту';
+
+  @override
+  String get deskE1SetGroup => 'epic1';
+
+  @override
+  String get deskE1SetSwitch => 'Платежи epic1';
+
+  @override
+  String get deskE1SetInfo =>
+      'Платежи идут только через epic1: ссылки epic1, коды для личной оплаты и контакты с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы платить другим кошелькам Epic. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
+
+  @override
+  String get deskE1SetSyn =>
+      'epic1, запечатанные, экспериментальные, ссылки, лично, коды';
+
+  @override
+  String get deskE1TurnOnTitle => 'Использовать платежи epic1?';
+
+  @override
+  String get deskE1TurnOnBody =>
+      'Тогда платежи уходят только на кошельки с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы заплатить любому другому кошельку Epic.';
+
+  @override
+  String get deskE1TurnOn => 'Включить';
+
+  @override
+  String get deskE1AppliesNext => 'Применится при следующей разблокировке';
+
+  @override
+  String get deskE1LockNow => 'Заблокировать сейчас';
+
+  @override
+  String get deskE1PrintedCodes => 'Печатные ссылки';
+
+  @override
+  String get deskE1PrintedHint =>
+      'Ссылки epic1 для печати или хранения. Выведите ссылку из оборота, когда она больше не нужна.';
+
+  @override
+  String deskE1PrintedCount(int n) {
+    return '$n из 32';
+  }
+
+  @override
+  String get deskE1PrintedNone => 'Печатных ссылок нет.';
+
+  @override
+  String deskE1CodeN(int n) {
+    return 'Ссылка $n';
+  }
+
+  @override
+  String deskE1CodeIssued(String date) {
+    return 'Создан $date';
+  }
+
+  @override
+  String deskE1CodeUsed(String date) {
+    return 'Последний платёж $date';
+  }
+
+  @override
+  String get deskE1LinkTitle => 'Ссылка epic1';
+
+  @override
+  String get deskE1LinkSub => 'Любой с epic1 может оплатить по этой ссылке.';
+
+  @override
+  String get deskE1CopyLink => 'Копировать ссылку';
+
+  @override
+  String get deskE1LinkCopied => 'Ссылка скопирована';
+
+  @override
+  String get deskE1AskAmount => 'Запросить сумму';
+
+  @override
+  String get deskE1MakeLink => 'Создать ссылку';
+
+  @override
+  String deskE1LinkAsks(String amount) {
+    return 'Запрашивает $amount';
+  }
+
+  @override
+  String get deskE1AnyAmount => 'Любая сумма';
+
+  @override
+  String get deskE1LanTitle => 'Использовать сервер в локальной сети?';
+
+  @override
+  String deskE1LanBody(String host) {
+    return '$host находится в вашей локальной сети. Оплатить по этой ссылке смогут только плательщики в той же сети.';
+  }
+
+  @override
+  String get deskE1UseServer => 'Использовать сервер';
+
+  @override
+  String get deskE1OtherWays => 'Другие способы получения';
+
+  @override
+  String get deskE1InPerson => 'Лично';
+
+  @override
+  String get deskE1InPersonSub =>
+      'Код, который плательщик считывает с этого экрана.';
+
+  @override
+  String get deskE1RequestInPerson => 'Запросить лично';
+
+  @override
+  String get deskE1SendField => 'Ссылка epic1 или контакт';
+
+  @override
+  String get deskE1SendFieldHint => 'Вставьте ссылку epic1';
+
+  @override
+  String get deskE1SendFieldSem => 'Ссылка epic1';
+
+  @override
+  String get deskE1Review => 'Проверить';
+
+  @override
+  String get deskE1ReviewTitle => 'Проверка платежа';
+
+  @override
+  String get deskE1To => 'Кому';
+
+  @override
+  String get deskE1Server => 'Сервер';
+
+  @override
+  String get deskE1Send => 'Отправить';
+
+  @override
+  String get deskE1UnknownServerTitle => 'Отправить через этот сервер?';
+
+  @override
+  String deskE1UnknownServerBody(String host) {
+    return '$host нет в вашем списке серверов.';
+  }
+
+  @override
+  String get deskE1Waiting => 'Ожидание получателя';
+
+  @override
+  String get deskE1NotPosted => 'Ни один сервер ещё не принял платёж.';
+
+  @override
+  String get deskE1TryNext => 'Попробовать следующий сервер';
+
+  @override
+  String get deskE1CancelUnlock => 'Отменить и разблокировать';
+
+  @override
+  String get deskE1Sent => 'Отправлено';
+
+  @override
+  String get deskE1Cancelled => 'Платёж отменён';
+
+  @override
+  String get deskE1Done => 'Готово';
+
+  @override
+  String get deskE1ClassicTip =>
+      'Выключите платежи epic1, чтобы заплатить этому контакту';
+
+  @override
+  String get deskE1PayInPerson => 'Оплатить лично';
+
+  @override
+  String get deskE1Back => 'Назад';
+
+  @override
+  String get deskSendFileFor => 'Для';
+
+  @override
+  String get deskSendFileForHelp =>
+      'Файл для связанного контакта запечатывается: открыть его может только его кошелёк.';
+
+  @override
+  String get deskImpFrom => 'От';
+
+  @override
+  String get deskE1TourPhSendText =>
+      'Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Сначала — проверка.';
+
+  @override
+  String get deskE1TourPhReceiveText =>
+      'Ваша ссылка epic1. Поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
+
+  @override
+  String get deskE1TourSendText =>
+      'Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Перед отправкой — проверка.';
+
+  @override
+  String get deskE1TourReceiveText =>
+      'Ссылка epic1 этого кошелька: поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
+
+  @override
+  String get deskE1Sealed => 'Запечатано epic1';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row, запечатано epic1';
+  }
 }

@@ -13,6 +13,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
@@ -26,11 +28,13 @@ import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
+import '../../epic1.dart';
 import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
-import '../../slate_files.dart' show responseFileName, sendFileName;
+import '../../slate_files.dart' show isSealedText, responseFileName, sealedFileName, sendFileName;
+import '../../pairing_text.dart' show pairingName;
 import '../../finished_payment.dart' show readFinishedPayment;
 import '../../wallet_service.dart' show FakeListingKeys, FakeWalletSession, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
 import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
@@ -157,7 +161,7 @@ class MockDeskWallet implements DeskWalletApi {
       Tx(id: 107, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(35.4), fee: 0, created: _ago(hours: 20), confirmations: 14, height: 3767681, otherWallet: true, confirmedAt: _ago(hours: 20)),
       Tx(id: 108, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(6.2), fee: 0, created: _ago(days: 2, hours: 3), confirmations: 410, height: 3767141, otherWallet: true, confirmedAt: _ago(days: 2, hours: 3)),
     ],
-    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 3764971),
+    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 3764971, sealed: _previewEpic1),
     Tx(id: 38, slateId: 'a1f9e8d7-6c5b-4a39-8271-605f4e3d2c1b', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(12.5), fee: _epic(0.007), cancellable: true, created: _ago(hours: 3), counterparty: 'a1f9e8d7.tx'),
     Tx(id: 37, slateId: 'c3d4e5f6-0718-4293-a4b5-c6d7e8f90a1b', direction: TxDirection.sent, state: TxState.posted, method: TxMethod.epicbox, amount: _epic(3.2), fee: _epic(0.006), created: _ago(hours: 5), counterparty: _contacts[4].address, contactName: 'Merchant: Coffee'),
     Tx(id: 36, slateId: 'd4e5f607-1829-43a4-b5c6-d7e8f90a1b2c', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(148.73215), fee: 0, created: _ago(days: 1, hours: 2), confirmations: 1440, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 3763581, kernel: '09a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3', outputCommits: const ['08c7e1a4b2d9f3e6a0c5b8d1f4e7a2c9b6d3f0e8a5c1b7d4f2e9a6c3b0d8f5e1a7'], hasProof: true, proofSender: 'esMockSender1KeyForTestProofOnly0123456789abcdefghijklmn', proofSignature: '304402200011c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011'),
@@ -435,6 +439,7 @@ class MockDeskWallet implements DeskWalletApi {
     notRemembered = false;
     if (ok) {
       _fails = 0;
+      epic1Fake.reopen();
       openedRemembered = false;
       notRemembered = remember && storeRefuses;
       remember && !storeRefuses ? _remembered.add(_selected) : _remembered.remove(_selected);
@@ -447,6 +452,7 @@ class MockDeskWallet implements DeskWalletApi {
     if (!_remembered.contains(_selected)) return false;
     await _wait(2);
     await _copyStore();
+    epic1Fake.reopen();
     openedRemembered = true;
     return true;
   }
@@ -977,6 +983,12 @@ class MockDeskWallet implements DeskWalletApi {
       message: r.message,
     );
     _txs.insert(0, tx);
+    if (r.method == TxMethod.file && r.sealFor != null) {
+      // Sealed as the phone seals it (RFC 9.2); the text is kept by file name for the tour and tests.
+      final name = sealedFileName(tx.slateId);
+      fileTexts[name] = await pairing.sealSlate(id: r.sealFor!, slateJson: jsonEncode({'id': tx.slateId, 'amt': r.amount}));
+      return SendFileReady(tx, name, sealedFor: r.sealFor);
+    }
     if (r.method == TxMethod.file) return SendFileReady(tx, sendFileName(tx.slateId));
     // Through a pairing's mailbox: the prototype's pairing engine knows whom it went to.
     if (r.pairingId case final id?) pairing.slates[tx.slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
@@ -992,7 +1004,29 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<ReceivedFile> receiveText(String text) => receiveFile('pasted');
+  Future<ReceivedFile> receiveText(String text) async {
+    if (!isSealedText(text.trim())) return receiveFile('pasted');
+    await _wait(2);
+    // Only a sealed file names its sender: the pairing it opens with.
+    final opened = await pairing.openSlate(text);
+    final record = (await pairing.pairings()).where((p) => p.id == opened.pairingId).firstOrNull;
+    final name = record == null ? null : (_contacts.where((c) => c.id == record.contactId).firstOrNull?.name ?? pairingName(record, const []));
+    const slateId = '9a8b7c6d-5e4f-4321-8765-0fedcba98765';
+    final tx = Tx(id: _nextId++, slateId: slateId, direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, cancellable: true, created: DateTime.now(), pairingId: opened.pairingId, contactName: name);
+    return ReceivedFile(tx, sealedFileName(slateId), sender: name);
+  }
+
+  /// The text of each file a send wrote, by file name (only sealed sends keep theirs).
+  final Map<String, String> fileTexts = {};
+
+  @override
+  Future<String> plainFile(String slateId) async {
+    await _wait(0.4);
+    final plain = await pairing.plainSlate('s:$slateId');
+    final name = sendFileName(slateId);
+    fileTexts[name] = plain;
+    return name;
+  }
 
   @override
   String network = 'mainnet';
@@ -1386,6 +1420,12 @@ class MockDeskWallet implements DeskWalletApi {
     return spendBack ? CancelResult.spentBack : CancelResult.stoppedWaiting;
   }
 
+  /// The epic1 payments of the selected wallet: the switch's stored value applies at unlock.
+  final FakeEpic1 epic1Fake = FakeEpic1(on: _previewEpic1);
+
+  @override
+  Epic1Wallet? get epic1 => epic1Fake;
+
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
   /// pairings. The Prototype panel and the tour drive its other side.
   @override
@@ -1721,3 +1761,7 @@ class _MockDeviceHost implements DeviceHost {
   @override
   set heldOutputs(Set<String> commitments) {}
 }
+
+/// `?epic1` on the web prototype's URL: the wallet opens in epic1 mode and Anna's payment went
+/// sealed, for reviews of the epic1 screens. Tests and release builds never see it.
+bool get _previewEpic1 => kIsWeb && Uri.base.queryParameters.containsKey('epic1');

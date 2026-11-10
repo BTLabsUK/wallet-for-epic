@@ -44,7 +44,6 @@ void main() {
     'Tor only': {l.advModeTorOnly},
     'Wallet': {l.settingsSectionWallet, l.deskSetSecWallet},
     'Wallets': {l.deskSetSecWallets},
-    'Payments': {l.deskSetSecPayments},
     'Files & logs': {l.deskSetSecFiles},
     'Confirmations': {l.deskSetAdvConfirmations},
     'Transactions': {l.settingsSectionTransactions, l.deskSetFrameTransactions},
@@ -112,9 +111,9 @@ void main() {
 
     test('phone: a place the View hides is no link', () {
       LevelFeatures at(WalletLevel level) => LevelFeatures.of(level, AdvancedPrefs.none, torBuilt: true);
-      for (final place in ['Settings › Transactions', 'Outputs']) {
-        expect(helpPlaceGoes(place, features: at(WalletLevel.justSendReceive)), isFalse, reason: place);
-      }
+      expect(helpPlaceGoes('Outputs', features: at(WalletLevel.justSendReceive)), isFalse);
+      // Transactions stays at every View: it holds the epic1 switch.
+      expect(helpPlaceGoes('Settings › Transactions', features: at(WalletLevel.justSendReceive)), isTrue);
       expect(helpPlaceGoes('Settings › Network & privacy › Node', features: at(WalletLevel.justSendReceive)), isTrue);
       expect(helpPlaceGoes('Settings › This wallet › Recheck balance', features: at(WalletLevel.justSendReceive)), isTrue);
     });
@@ -124,16 +123,16 @@ void main() {
       expect(deskHelpPlace('Settings › Security')!.route, DeskRoute.settingsSecurity);
       expect(deskHelpPlace('Settings › Wallet › Recheck balance')!.route, DeskRoute.settingsRescan);
       expect(deskHelpPlace('Settings › Wallets')!.route, DeskRoute.settingsWallets);
-      expect(deskHelpPlace('Settings › Payments')!.route, DeskRoute.settingsReceiving);
+      expect(deskHelpPlace('Settings › Transactions')!.route, DeskRoute.settingsReceiving);
       expect(deskHelpPlace('Settings › Files & logs › App files')!.route, DeskRoute.settingsFiles);
       expect(deskHelpPlace('Settings › Linked devices')!.route, DeskRoute.settingsDevices);
       expect(deskHelpPlace('Settings › Network & privacy › Tor only')!.route, DeskRoute.settingsPrivacy);
       expect(deskHelpPlace('Settings › Network & privacy › Tor only')!.jump, SettingsJump.network);
       expect(deskHelpPlace('Settings › Network & privacy')!.jump, SettingsJump.network);
       expect(deskHelpPlace('Settings › Privacy › Tor'), isNull, reason: 'one page now (B-03)');
-      expect(deskHelpPlace('Settings › Payments › Epicbox')!.jump, SettingsJump.epicbox);
+      expect(deskHelpPlace('Settings › Transactions › Epicbox')!.jump, SettingsJump.epicbox);
       // The places of the Settings before 26.10.25 are gone: Help names the new ones.
-      for (final old in ['Settings › Transactions', 'Settings › This wallet', 'Settings › All wallets', 'Settings › Recheck balance', 'Settings › This wallet › App files', 'Settings › Advanced › Confirmations']) {
+      for (final old in ['Settings › This wallet', 'Settings › All wallets', 'Settings › Recheck balance', 'Settings › This wallet › App files', 'Settings › Advanced › Confirmations']) {
         expect(deskHelpPlace(old), isNull, reason: old);
       }
       expect(deskHelpPlace('Receive › Transaction files › Finalize a response file')!.route, DeskRoute.finalize);

@@ -26,6 +26,9 @@ import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 import 'tx_files_card.dart' show TxFilesCard;
+import '../../../epic1.dart' show PaymentMode;
+import '../../data/server_lists.dart' show relayLabel;
+import '../epic1/link_card.dart';
 import '../../../ui/network_mode_text.dart' show networkModeName, statusOffByModeWord;
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
@@ -207,6 +210,34 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     if (status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
+    // epic1 mode: the link card and In person; no Epicbox address, Link or file rows.
+    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
+      final box = status?.epicbox;
+      return EPage(
+        title: l.deskRecvTitle,
+        width: EPageWidth.full,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 1600.u),
+          child: LayoutBuilder(
+            builder: (context, size) {
+              final card = TourTarget(id: 'e1-receive-link', child: Epic1LinkCard(relay: box == null ? null : relayLabel(box), showQr: _args?.qr == RxQr.epicbox));
+              const others = Epic1OtherWays();
+              if (size.maxWidth >= Lay.wide) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 7, child: card),
+                    SizedBox(width: Sp.x6),
+                    const Expanded(flex: 5, child: others),
+                  ],
+                );
+              }
+              return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [card, SizedBox(height: Sp.x8), others]);
+            },
+          ),
+        ),
+      );
+    }
     // Wallet levels: Shallow has the address card alone (no host, no switch, no files, no Link
     // tabs); Deeper adds the host, the switch and the payment files; Deep end is the full page.
     final feat = ref.watch(deskLevelFeaturesProvider);
@@ -219,7 +250,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       id: 'receive-epicbox',
       child: st.settings.payments.epicbox ? (shallow ? _shallowPanel(st, status, moved) : _epicboxPanel(st, status)) : _epicboxOffNotice(nav),
     );
-    // Settings › Payments: Link · Tor's panel while its switch is on: it starts tor for payments
+    // Settings › Transactions: Link · Tor's panel while its switch is on: it starts tor for payments
     // by itself (item 2), or the Tor switch runs it; Link · HTTP's while the Tor switch is off
     // (it stops the clearnet listener), or while its listener still runs. Off, Link · HTTP's
     // panel is one line with its switch, so it is turned on again here.

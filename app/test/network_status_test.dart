@@ -247,7 +247,7 @@ void main() {
         nodeUrl: 'https://floo-node.lab.invalid',
       );
       expect(
-        _in(netStatusNodeKey, 'Floonet\u00A0· floo-node.lab.invalid'),
+        _in(netStatusNodeKey, 'Test network\u00A0· floo-node.lab.invalid'),
         findsOneWidget,
       );
     });

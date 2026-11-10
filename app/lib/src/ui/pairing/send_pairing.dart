@@ -6,6 +6,8 @@
 /// its public one.
 library;
 
+export '../../pairing_file_seal.dart' show sealQuietFor;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,9 +53,6 @@ PairingRecord? sendPairingFor(WidgetRef ref, String address, {bool watch = true}
   if (paired != null && epicboxKey(paired) != epicboxKey(address)) return null;
   return p;
 }
-
-/// How long without a sealed message from a contact before Send says so.
-const Duration sealQuietFor = Duration(days: 90);
 
 class SendPairingLine extends ConsumerWidget {
   const SendPairingLine({

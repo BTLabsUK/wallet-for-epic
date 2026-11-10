@@ -1193,6 +1193,9 @@ class ScanResult {
   final int deleted;
 }
 
+/// How a slate travelled or was written: JSON, or a sealed native `lepic.v1` slate.
+enum SlateFormat { legacy, native }
+
 /// A transaction slate travelling between two wallets as JSON.
 class Slate {
   final String slateId;
@@ -1218,18 +1221,25 @@ class ReceivedSlate extends Slate {
   /// nothing changed in the wallet. Show it as already answered, not as a second payment.
   final bool repeated;
 
+  /// How the answer was written: `native` when the slate came as a native one.
+  final SlateFormat format;
+
   const ReceivedSlate({
     required super.slateId,
     required super.json,
     this.repeated = false,
+    this.format = SlateFormat.legacy,
   });
 
   @override
-  int get hashCode => super.hashCode ^ repeated.hashCode;
+  int get hashCode => super.hashCode ^ repeated.hashCode ^ format.hashCode;
 
   @override
   bool operator ==(Object other) =>
-      super == other && other is ReceivedSlate && repeated == other.repeated;
+      super == other &&
+      other is ReceivedSlate &&
+      repeated == other.repeated &&
+      format == other.format;
 }
 
 /// Which side of the money a slate message's author is on.
@@ -1434,6 +1444,26 @@ enum DeviceEnding {
   return (amount: sent.isNegative ? BigInt.zero : sent, outgoing: true);
 }
 
+/// The epic1 way a transaction went: a link paid, or an in-person code.
+enum Epic1Via {
+  link('link'),
+  inPerson('in_person');
+
+  const Epic1Via(this.stored);
+
+  /// The value kept in the history archive.
+  final String stored;
+
+  static Epic1Via? fromStored(String? s) => values.where((v) => v.stored == s).firstOrNull;
+}
+
+/// Whether a payment was sealed, so that only the two wallets in it could read its slates: it
+/// went through an epic1 link ([Epic1Via.link]), or LEPIC links it to a pairing ([pairingId],
+/// written only where LEPIC sealed the slate) and its slate was never handed over plain
+/// ([sentPlain]). An in-person code is not sealed.
+bool txSealed({Epic1Via? epic1Via, String? pairingId, bool sentPlain = false}) =>
+    !sentPlain && (epic1Via == Epic1Via.link || (pairingId != null && epic1Via != Epic1Via.inPerson));
+
 /// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
   /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
@@ -1577,6 +1607,17 @@ class TxEntry {
   /// has covered its blocks yet (LEPIC clears it after the next one). False for every other row.
   final bool unverified;
 
+  /// How an epic1 exchange carried this row (a link or an in-person code), when the app
+  /// recorded one; null for every other row. LEPIC lists these as file sends.
+  final Epic1Via? epic1Via;
+
+  /// The slate of this sealed payment was also handed over plain, to a contact that could not
+  /// open sealed text (`PairingApi.plainSlate`, recorded in [Meta.plainResends]).
+  final bool sentPlain;
+
+  /// Sealed between the two wallets in it: [txSealed].
+  bool get sealed => txSealed(epic1Via: epic1Via, pairingId: pairingId, sentPlain: sentPlain);
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1626,6 +1667,8 @@ class TxEntry {
     this.origin = TxOrigin.thisWallet,
     this.spentCommits = const [],
     this.unverified = false,
+    this.epic1Via,
+    this.sentPlain = false,
   });
 
   /// This row as one the linked device [name] received (Linked devices).
@@ -1678,6 +1721,8 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 
   /// This row as one sent through the pairing [pairing] (the fakes mark their mailbox sends so).
@@ -1730,6 +1775,8 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 
   /// This mining reward with its output's lock [height] known.
@@ -1782,6 +1829,8 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    epic1Via: epic1Via,
+    sentPlain: sentPlain,
   );
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1847,7 +1896,9 @@ class TxEntry {
       pairingId.hashCode ^
       origin.hashCode ^
       Object.hashAll(spentCommits) ^
-      unverified.hashCode;
+      unverified.hashCode ^
+      epic1Via.hashCode ^
+      sentPlain.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1902,7 +1953,9 @@ class TxEntry {
           pairingId == other.pairingId &&
           origin == other.origin &&
           _listEquals(spentCommits, other.spentCommits) &&
-          unverified == other.unverified;
+          unverified == other.unverified &&
+          epic1Via == other.epic1Via &&
+          sentPlain == other.sentPlain;
 }
 
 /// [tx] is "to be posted elsewhere": a send finalized and not posted ([TxEntry.repostable]:
@@ -2312,6 +2365,51 @@ enum WalletErrorKind {
   /// beside the database does not match). Nothing was changed or set aside; Recover with the
   /// phrase stays open.
   wrongKey,
+
+  /// epic1 (`epic1.dart`). The link names no relay this wallet can reach. Nothing was stored.
+  epic1CannotPay,
+
+  /// Every relay of the link was tried and none took the payment. It is stored with its inputs
+  /// locked; the screen offers "Cancel and unlock".
+  epic1NoMoreRelays,
+
+  /// All 32 printed links are in use: one must be retired before another is made.
+  printedLinksFull,
+
+  /// The wallet's own Epicbox server is on this device (loopback): no link can name it.
+  ownRelayLocal,
+
+  /// A link or payment message that is too long or holds unsupported characters.
+  epic1MessageInvalid,
+
+  /// The payment or answer was completed already.
+  epic1Finalized,
+
+  /// The link or code is for another network.
+  epic1WrongNetwork,
+
+  /// No such epic1 payment or in-person code: it expired or never was (LEPIC's epic1NotFound
+  /// and inPersonNotFound).
+  codeExpired,
+
+  /// The text is not an epic1 link.
+  notAnEpic1Link,
+
+  /// A relay given for a link is not `host` or `host:port`.
+  epic1RelayInvalid,
+
+  /// Another Epic wallet's saved transaction record opened as a payment file.
+  savedTransaction,
+
+  /// A newer build of the app wrote the wallet's records: this one opens none of it.
+  walletTooNew,
+
+  /// Flow kinds, never shown: a post to a relay the user has not confirmed, an in-person code
+  /// that names no reply mailbox (the answer is shown back), an animated QR code still missing
+  /// parts (keep scanning).
+  relayNotConfirmed,
+  inPersonNoMailbox,
+  urCodeIncomplete,
   io,
   other,
 }
@@ -2484,6 +2582,11 @@ class PaidInvoice {
   /// From the `posted` receipt.
   final String? kernelExcess;
 
+  /// How the reply to the invoice was sealed for the contact; `legacy` where it is not known.
+  /// Only the payment itself reports it: it is not stored, so a reopened record says `legacy`,
+  /// and it is left out of `==`.
+  final SlateFormat format;
+
   const PaidInvoice({
     required this.slateId,
     required this.senderAddress,
@@ -2494,6 +2597,7 @@ class PaidInvoice {
     this.kernelExcess,
     this.pairingId,
     this.reference,
+    this.format = SlateFormat.legacy,
   });
 
   PaidInvoice withStatus(InvoiceStatus status, {String? kernelExcess}) =>
@@ -2507,6 +2611,7 @@ class PaidInvoice {
         status: status,
         txId: txId,
         kernelExcess: kernelExcess ?? this.kernelExcess,
+        format: format,
       );
 
   @override
@@ -3180,6 +3285,7 @@ class PairingRecord {
     this.peerHeardAt,
     this.peerVerifiedAt,
     this.peerFeatures = 0,
+    this.nativeSlates = false,
     this.peerProfile = 0,
     this.endedReason,
     this.endedAt,
@@ -3260,6 +3366,11 @@ class PairingRecord {
   /// The other wallet's feature bits as this pairing holds them (0: none received). The app
   /// reads them through the trust policy only.
   final int peerFeatures;
+
+  /// New payments to this contact go as epic1 slates: the epic1 switch is in use, the contact
+  /// said it takes them, and the pairing is not private. False: in epic1 mode the contact is
+  /// "Classic only".
+  final bool nativeSlates;
 
   /// The profile word of the contact's card (tag `0x80`, 0 when absent): what the contact says
   /// about itself. Decoded from the stored card on every read, never stored by the app. Read
@@ -3370,6 +3481,7 @@ class PairingRecord {
     DateTime? peerVerifiedAt,
     bool clearPeerVerified = false,
     int? peerFeatures,
+    bool? nativeSlates,
     int? peerProfile,
     PairingEndReason? endedReason,
     DateTime? endedAt,
@@ -3405,6 +3517,7 @@ class PairingRecord {
     peerHeardAt: peerHeardAt ?? this.peerHeardAt,
     peerVerifiedAt: clearPeerVerified ? null : peerVerifiedAt ?? this.peerVerifiedAt,
     peerFeatures: peerFeatures ?? this.peerFeatures,
+    nativeSlates: nativeSlates ?? this.nativeSlates,
     peerProfile: peerProfile ?? this.peerProfile,
     endedReason: endedReason ?? this.endedReason,
     endedAt: endedAt ?? this.endedAt,

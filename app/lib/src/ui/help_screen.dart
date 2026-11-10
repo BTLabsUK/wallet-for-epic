@@ -781,7 +781,7 @@ HelpPhonePlace? helpPlaceDestination(String place) {
 
 /// Whether the phone can go to [place] from Help: it has the screen, Advanced ([prefs]) shows
 /// it (Outputs needs the Outputs switch) and the View ([features]) shows it (Just send and
-/// receive has no Transactions or Outputs); either one not given allows
+/// receive has no Outputs); either one not given allows
 /// everything. A place of a hidden part reads as a term instead of a link.
 bool helpPlaceGoes(String place, {AdvancedPrefs? prefs, LevelFeatures? features}) {
   final to = helpPlaceDestination(place);
@@ -789,7 +789,6 @@ bool helpPlaceGoes(String place, {AdvancedPrefs? prefs, LevelFeatures? features}
   if (to == HelpPhonePlace.outputs && prefs != null && !prefs.has(AdvancedFeature.outputs)) return false;
   if (features == null) return true;
   return switch (to) {
-    HelpPhonePlace.transactions => features.transactionsSettings,
     HelpPhonePlace.outputs => features.outputs,
     _ => true,
   };

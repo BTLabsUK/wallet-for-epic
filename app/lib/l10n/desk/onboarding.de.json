@@ -29,7 +29,7 @@
   "deskOnbCreateStageSave": "Wallet wird gespeichert",
   "deskOnbCreateNotCreated": "Wallet nicht erstellt",
   "deskOnbCreateCreating": "Wallet wird erstellt",
-  "deskOnbCreateTestLead": "Eine Wallet im {network}, einem Testnetzwerk.",
+  "deskOnbCreateTestLead": "Eine Wallet im {network}.",
   "deskOnbCreateDiskFull": "Wallet nicht gespeichert: Der Datenträger ist voll. Geben Sie Speicherplatz frei und versuchen Sie es erneut.",
   "deskOnbCreateWait": "Lassen Sie die App geöffnet.",
   "deskOnbCreateLocking": "Die geöffnete Wallet wird gesperrt",

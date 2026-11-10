@@ -495,10 +495,10 @@ void main() {
       await _tap(tester, find.bySemanticsLabel(_l.setupNetworkSettingsTooltip));
       // Development builds only: the menu's Network item, then the network.
       await _tap(tester, find.byKey(networkMenuNetworkKey));
-      await _tapText(tester, 'Usernet');
+      await _tapText(tester, 'Local test network');
       await tester.pumpAndSettle();
 
-      expect(find.text('Welcome (Usernet, test coins)'), findsOneWidget);
+      expect(find.text('Welcome (Local test network)'), findsOneWidget);
       await _tapText(tester, 'Create a new wallet');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);

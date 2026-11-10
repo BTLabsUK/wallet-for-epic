@@ -124,7 +124,7 @@
   "@deskOnbCreateCreating": {
     "description": "Title of the new-wallet progress page while it works."
   },
-  "deskOnbCreateTestLead": "A wallet on {network}, a test network.",
+  "deskOnbCreateTestLead": "A wallet on the {network}.",
   "@deskOnbCreateTestLead": {
     "description": "Line under the progress title when a test network is selected (development builds only). {network} is the network's name.",
     "placeholders": {

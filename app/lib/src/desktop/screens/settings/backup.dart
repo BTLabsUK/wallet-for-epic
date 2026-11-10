@@ -14,6 +14,8 @@ import 'package:intl/intl.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localClock, localDay;
 import '../../../log.dart';
+import '../../../models.dart' show Chain;
+import '../../../network.dart' show chainFileTag;
 import 'prefs.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
@@ -77,15 +79,22 @@ String deskWalletFileLabel(String name) {
 /// wallet's name ([deskWalletFileLabel]) after `data`, left out when [wallet] cleans to nothing.
 String deskHistoryFileName(String network, DateTime day, String extension, {String wallet = ''}) {
   final label = deskWalletFileLabel(wallet);
-  // Mainnet, the only network a user sees, is never named; a dev chain is.
-  final tag = network.isEmpty || network == 'mainnet' ? '' : '$network-';
+  // The main network, the only one a user sees, is never named; a dev chain is.
+  final tag = _networkTag(network);
   return 'epic-wallet-data-${label.isEmpty ? '' : '$label-'}$tag${DateFormat('yyyyMMdd').format(day)}.$extension';
 }
+
+/// [chainFileTag] of the network [id] (`mainnet`, `floonet`, `usernet`).
+String _networkTag(String id) => switch (id) {
+  'floonet' => chainFileTag(Chain.floonet),
+  'usernet' => chainFileTag(Chain.usernet),
+  _ => '',
+};
 
 /// `epic-payments-<wallet>-<yyyymmdd>.csv`: the name offered for a new payments export.
 String deskPaymentsFileName(String network, DateTime day, {String wallet = ''}) {
   final label = deskWalletFileLabel(wallet);
-  final tag = network.isEmpty || network == 'mainnet' ? '' : '$network-';
+  final tag = _networkTag(network);
   return 'epic-payments-${label.isEmpty ? '' : '$label-'}$tag${DateFormat('yyyyMMdd').format(day)}.csv';
 }
 

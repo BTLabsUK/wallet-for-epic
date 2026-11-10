@@ -219,10 +219,6 @@
   "@deskSetSecWallet": {
     "description": "Settings navigation: the open wallet's page (name, backup, balance, remove)."
   },
-  "deskSetSecPayments": "Payments",
-  "@deskSetSecPayments": {
-    "description": "Settings navigation: payment methods, sending and receiving."
-  },
   "deskSetSecDevices": "Linked devices",
   "@deskSetSecDevices": {
     "description": "Settings navigation: this wallet on other devices."

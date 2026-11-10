@@ -41,6 +41,7 @@ import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import '../settings/help_pairing.dart' show HelpAt;
 import 'tx_details_dialog.dart';
 import 'tx_display.dart';
+import '../../../ui/epic1/epic1_sealed.dart' show Epic1SealedBadge;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../settings/settings_frame.dart' show groupDigits;
 import 'other_wallet_offer.dart';
@@ -150,7 +151,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
-                : t.method == TxMethod.file
+                : t.byFile
                 ? l.deskTxNowWaitingResponseFile
                 : l.deskTxNowWaitingRecipient,
           TxState.posted when t.notPosted && NetGate.killSwitch => l.txPostElsewhereKill,
@@ -595,6 +596,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
                       SizedBox(height: Sp.x1),
                     ],
+                    if (!shallow && deskShowsSealed(ref, t)) ...[const Epic1SealedBadge(), SizedBox(height: Sp.x1)],
                     Text(
                       resendOffer != null
                           ? (resendOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
@@ -656,6 +658,11 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
+        // An invoice has no status card, so its seal goes under the invoice.
+        if (t.isInvoice && !shallow && deskShowsSealed(ref, t)) ...[
+          SizedBox(height: Sp.x2),
+          const Align(alignment: AlignmentDirectional.centerStart, child: Epic1SealedBadge()),
+        ],
         if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         if (t.state != TxState.cancelled && !t.senderCancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[
           _Sub(l.deskTxSubProgress),
@@ -748,7 +755,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               l.deskTxFactMethod,
               t.foundByScan
                   ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
-                  : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
+                  : Text(methodLabelOf(l, t, mailbox: mailboxName != null)),
             ),
           (l.deskTxFactAmount, EMoney(t.amount, surface: AmountSurface.exact)),
           // The other wallet paid the fee: this wallet only saw the coins leave.

@@ -25,6 +25,7 @@ import '../desk_l10n.dart';
 import '../widgets/kit.dart';
 import '../data/desk_levels.dart' show deskLevelUiProvider;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider;
+import '../../epic1.dart' show PaymentMode;
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
 /// screen; the card sits in the middle when none is), the sidebar entry and, on a Settings page,
@@ -58,7 +59,8 @@ class TourStep {
 final DeskRoute? deskInvoicesRoute = DeskRoute.values.where((r) => r.name == 'invoices').firstOrNull;
 
 /// The steps, in order; the Invoices step after Receive when [invoices] (the page exists).
-List<TourStep> tourStepsFor({required bool invoices}) => [
+/// [epic1]: the wallet is in epic1 mode, so Send and Receive light the link pages and say so.
+List<TourStep> tourStepsFor({required bool invoices, bool epic1 = false}) => [
   TourStep(
     route: DeskRoute.overview,
     targets: ['balance'],
@@ -67,15 +69,15 @@ List<TourStep> tourStepsFor({required bool invoices}) => [
   ),
   TourStep(
     route: DeskRoute.send,
-    targets: ['send-methods'],
+    targets: [epic1 ? 'e1-send-form' : 'send-methods'],
     titleOf: (l) => l.deskTourSendTitle,
-    textOf: (l) => l.deskTourSendText,
+    textOf: (l) => epic1 ? l.deskE1TourSendText : l.deskTourSendText,
   ),
   TourStep(
     route: DeskRoute.receive,
-    targets: ['receive-epicbox', 'receive-files'],
+    targets: epic1 ? ['e1-receive-link'] : ['receive-epicbox', 'receive-files'],
     titleOf: (l) => l.deskTourReceiveTitle,
-    textOf: (l) => l.deskTourReceiveText,
+    textOf: (l) => epic1 ? l.deskE1TourReceiveText : l.deskTourReceiveText,
   ),
   if (invoices)
     TourStep(
@@ -126,11 +128,15 @@ final List<TourStep> deskTourSteps = tourStepsFor(invoices: deskInvoicesRoute !=
 /// The steps for the open wallet: with Invoices only when the page is in the app and the
 /// wallet takes invoices (the sidebar hides the page otherwise).
 /// At Shallow ([shallow]) it skips the stops whose targets the level hides: the tiles, Send's
-/// methods, the Node page and Advanced.
-List<TourStep> deskTourStepsFor({required bool supportsInvoices, bool shallow = false}) {
-  final steps = supportsInvoices ? deskTourSteps : tourStepsFor(invoices: false);
+/// methods (epic1's link form shows at every level), the Node page and Advanced.
+List<TourStep> deskTourStepsFor({required bool supportsInvoices, bool shallow = false, bool epic1 = false}) {
+  final steps = epic1
+      ? tourStepsFor(invoices: supportsInvoices && deskInvoicesRoute != null, epic1: true)
+      : supportsInvoices
+      ? deskTourSteps
+      : tourStepsFor(invoices: false);
   if (!shallow) return steps;
-  const hidden = {DeskRoute.overview, DeskRoute.send, DeskRoute.settingsNode, DeskRoute.settingsAdvanced};
+  final hidden = {DeskRoute.overview, if (!epic1) DeskRoute.send, DeskRoute.settingsNode, DeskRoute.settingsAdvanced};
   return [for (final s in steps) if (!hidden.contains(s.route) && s.route.section != DeskSection.invoices) s];
 }
 
@@ -277,6 +283,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
       deskTourStepsFor(
         supportsInvoices: ref.read(deskInvoicesShownProvider) && ref.read(deskLevelUiProvider).invoicesPage,
         shallow: ref.read(deskLevelUiProvider).shallow,
+        epic1: ref.read(deskPaymentModeProvider) == PaymentMode.epic1,
       );
   late int _i = widget.startAt.clamp(0, _steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');

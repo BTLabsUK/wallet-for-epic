@@ -29,7 +29,7 @@
   "deskOnbCreateStageSave": "กำลังบันทึกกระเป๋าเงิน",
   "deskOnbCreateNotCreated": "ไม่ได้สร้างกระเป๋าเงิน",
   "deskOnbCreateCreating": "กำลังสร้างกระเป๋าเงิน",
-  "deskOnbCreateTestLead": "กระเป๋าเงินบน {network} ซึ่งเป็นเครือข่ายทดสอบ",
+  "deskOnbCreateTestLead": "กระเป๋าเงินบน{network}",
   "deskOnbCreateDiskFull": "บันทึกกระเป๋าเงินไม่ได้: ดิสก์เต็ม เพิ่มพื้นที่ว่างแล้วลองอีกครั้ง",
   "deskOnbCreateWait": "เปิดแอปไว้",
   "deskOnbCreateLocking": "กำลังล็อกกระเป๋าเงินที่เปิดอยู่",

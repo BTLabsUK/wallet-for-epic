@@ -14,6 +14,7 @@ import 'selectable.dart';
 import 'tip.dart';
 import '../../text_join.dart';
 import '../../trust_ids.dart' show TrustId;
+import '../../ui/theme/epic1_mark.dart';
 
 /// Label, control, then help or error. [aside] sits at the label's right (e.g. "Available …").
 class EField extends StatelessWidget {
@@ -64,7 +65,7 @@ class EField extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(label, style: ts.label),
+                Epic1Text(label, style: ts.label),
                 if (optional) ...[
                   SizedBox(width: Sp.x2),
                   Text(context.l10n.deskKitOptional, style: ts.small.copyWith(color: c.faint)),

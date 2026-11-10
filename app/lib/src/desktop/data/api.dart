@@ -7,6 +7,7 @@ library;
 import 'dart:typed_data';
 
 import '../../devices/device_model.dart' show DeviceBook;
+import '../../epic1.dart' show Epic1Wallet;
 import '../../cancel_final.dart' show CancelResult;
 import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
@@ -273,6 +274,11 @@ abstract interface class DeskWalletApi {
   /// Epicbox address, URL or onion. Throws a [DeskError] when it fails again.
   Future<void> resendTx(int id);
   Future<SendResult> send(SendRequest request);
+
+  /// The plain copy of the sealed file send [slateId] ("Send as plain instead", RFC 9.3): the
+  /// same payment, unsealed, written to the files folder. Returns its path. The contact's seal
+  /// becomes degraded.
+  Future<String> plainFile(String slateId);
   Future<ReceivedFile> receiveFile(String fileName);
 
   /// Signs a transaction file's [text] pasted into Send (slate JSON or a slatepack), as
@@ -506,6 +512,10 @@ abstract interface class DeskWalletApi {
   /// Pairing (RFC 0002) of the open wallet: [PairingApi.supported] false while locked or on a
   /// core without it. The types are the core's (`models.dart`), shared with the phone.
   PairingApi get pairing;
+
+  /// epic1 payments of the open wallet (`epic1.dart`), shared with the phone: the switch, links,
+  /// in-person codes. Null while locked or on a core without them.
+  Epic1Wallet? get epic1;
 
   /// What the wallet has learned about the software behind [address] (an Epicbox address), or
   /// null when it knows nothing. Feeds the trust policy (`trust/policy.dart`).

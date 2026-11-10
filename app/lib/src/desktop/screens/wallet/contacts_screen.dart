@@ -30,6 +30,7 @@ import '../pairing/name_service_dialogs.dart' show DeskNameServiceBlock;
 import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
 import '../pairing/relay_move_dialog.dart' show deskAcceptRelayMove, deskRefuseRelayMove;
+import '../transfer/contact_picker.dart' show contactClassicOnly;
 import 'contact_label_menu.dart';
 import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
@@ -704,6 +705,8 @@ class _ContactDetail extends ConsumerWidget {
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final pairing = pairs ? ref.watch(deskContactPairingProvider(x.id)) : null;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: x.epicbox);
+    // epic1 mode: a contact whose pairing takes no epic1 payments is paid in classic mode only.
+    final classicOnly = contactClassicOnly(ref, x);
     // The service's entry, when the user took a name from it: shown beside the header badges.
     final service = pairing == null ? null : ref.watch(deskNameServices.nameServiceOfPairing(pairing.id));
     // The addresses card: last for a contact that takes no payments, else above Pairing.
@@ -774,6 +777,7 @@ class _ContactDetail extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Semantics(header: true, child: Text(x.name, style: ts.h2)),
+                  if (classicOnly) Text(l.deskE1ClassicOnly, key: const ValueKey('e1-contact-classic-only'), style: ts.small.copyWith(color: c.dim)),
                   SizedBox(height: Sp.x1),
                   Wrap(
                     spacing: Sp.x2,
@@ -859,7 +863,19 @@ class _ContactDetail extends ConsumerWidget {
             children: [
               // A contact with no address is paid through its pairing, while it can take one.
               // The primary of a row of peers: soft gold, not a filled block (Pairing UX plan 4.2).
-              if (!noPayments)
+              if (!noPayments && classicOnly)
+                ETip(
+                  l.deskE1ClassicTip,
+                  child: EButton(
+                    key: const ValueKey('contact-send'),
+                    kind: EBtnKind.primarySoft,
+                    label: l.deskConSend,
+                    icon: EIcons.send,
+                    size: EBtnSize.sm,
+                    onPressed: null,
+                  ),
+                )
+              else if (!noPayments)
               EButton(
                 key: const ValueKey('contact-send'),
                 kind: EBtnKind.primarySoft,

@@ -195,13 +195,14 @@ class _PairingWallet implements lepic.EpicWallet {
   Future<String?> contactOfTransaction({required int txId}) async => txId == 42 ? 'bob' : null;
 
   @override
-  Future<void> contactPostSlate({
+  Future<lepic.SlateWire> contactPostSlate({
     required String contactId,
     required int txId,
     lepic.SlatePurpose? purpose,
     required lepic.ContactRelayMode relayMode,
   }) async {
     reposted.add('$contactId $txId ${purpose?.name}');
+    return lepic.SlateWire.native;
   }
 
   /// As LEPIC's `check_attach_address`: with an address, the pairing must prove that key.

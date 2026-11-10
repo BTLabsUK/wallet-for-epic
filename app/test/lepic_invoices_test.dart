@@ -214,6 +214,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
       slateId: slateId,
       amount: amount,
       fee: BigInt.one,
+      format: lepic.SlateWire.native,
     );
   }
 
@@ -226,12 +227,13 @@ class _InvoiceWallet implements lepic.EpicWallet {
   }) async => [...outbox.where((o) => o.contactId == contactId)];
 
   @override
-  Future<void> contactOutboxResend({
+  Future<lepic.SlateWire> contactOutboxResend({
     required BigInt id,
     required lepic.ContactRelayMode relayMode,
   }) async {
     resent.add(id);
     if (resendError != null) throw _lepicError(resendError!);
+    return lepic.SlateWire.native;
   }
 
   @override
@@ -633,6 +635,7 @@ void main() {
         slateId: 'inv-1',
         amount: BigInt.from(500),
       );
+      expect(paid.format, SlateFormat.native);
       s.dispose();
       // LEPIC's store outlives the app; the archive adds the reply's state.
       final reopened = LepicWalletSession(

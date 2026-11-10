@@ -42,6 +42,8 @@ import 'status_icons.dart' show EpicGlyphs;
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'tip.dart';
+import '../epic1.dart' show PaymentMode;
+import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyProvider;
 
 /// Keys of the contact page, for tests.
 const Key contactPageSendKey = ValueKey('contact-page-send');
@@ -178,7 +180,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   /// Send with the contact's address whose method is on (Epicbox, Tor, HTTP), as Send picks it;
   /// a contact with no address, through its pairing's mailbox.
-  void _send(Contact contact, PairingRecord? pairing) => contact.addresses.isEmpty && pairing != null
+  /// In epic1 mode, always through the pairing (the header offers Send only with one that takes
+  /// epic1).
+  void _send(Contact contact, PairingRecord? pairing) =>
+      pairing != null && (contact.addresses.isEmpty || ref.read(paymentModeProvider) == PaymentMode.epic1)
       ? showShellTab(context, ShellTab.send, pairingTo: pairing.id)
       : showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
 
@@ -397,6 +402,7 @@ class _Header extends ConsumerWidget {
     final p = pairing;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p?.id, address: contact.epicbox);
     final claimed = p?.name?.trim();
+    final classicOnly = ref.watch(classicOnlyProvider(contact.id));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -431,6 +437,7 @@ class _Header extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (classicOnly) ...[const SizedBox(height: 4), const ClassicOnlyText()],
                   // Verified is about the Epicbox address: none beside one the pairing did not bring.
                   if ((p != null && pairingVouchesFor(p, contact.epicbox)) || noPayments) ...[
                     const SizedBox(height: 6),
@@ -489,7 +496,18 @@ class _Header extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            if (!noPayments)
+            if (!noPayments && classicOnly)
+              Tip(
+                l.deskE1PhClassicOnlyTip,
+                child: FilledButton.tonalIcon(
+                  key: contactPageSendKey,
+                  style: _headerStyle(context, soft: true),
+                  icon: const Icon(Icons.north_east, size: 18),
+                  label: Text(l.contactsSendAction),
+                  onPressed: null,
+                ),
+              )
+            else if (!noPayments)
             FilledButton.tonalIcon(
               key: contactPageSendKey,
               style: _headerStyle(context, soft: true),
@@ -532,7 +550,7 @@ class _Header extends ConsumerWidget {
           ],
         ),
         // A contact with only a pairing that cannot take a payment now: why Send is off.
-        if (!noPayments && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
+        if (!noPayments && !classicOnly && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
           const SizedBox(height: 4),
           Text(
             p.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(contact.name),

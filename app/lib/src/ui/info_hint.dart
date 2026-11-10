@@ -15,6 +15,7 @@ import '../l10n.dart';
 import '../trust_ids.dart' show TrustId;
 import 'info_action.dart';
 import 'theme/tokens.dart';
+import 'theme/epic1_mark.dart';
 
 export 'info_action.dart';
 
@@ -216,7 +217,7 @@ class TitleWithHint extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Flexible(child: Text(title)),
+      Flexible(child: Epic1Text(title)),
       const SizedBox(width: 4),
       InfoHint(hint, key: hintKey, size: InfoHint.inRow, title: sheetTitle ?? title, icon: icon, labelled: labelled, onHelp: onHelp, onOpen: onOpen),
     ],
@@ -232,6 +233,7 @@ class HintSwitchTile extends StatelessWidget {
   const HintSwitchTile({
     super.key,
     required this.icon,
+    this.leading,
     required this.title,
     this.hint,
     required this.value,
@@ -243,6 +245,10 @@ class HintSwitchTile extends StatelessWidget {
   });
 
   final IconData icon;
+
+  /// Shown in place of [icon] at the row's start (the epic1 switch's mark); [icon] still heads
+  /// the hint's sheet.
+  final Widget? leading;
   final String title;
 
   /// The explanation behind the title's info icon; a plain title without one (the settings
@@ -261,9 +267,9 @@ class HintSwitchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final onChanged = this.onChanged;
     final tile = ListTile(
-      leading: Icon(icon),
+      leading: leading ?? Icon(icon),
       title: hint == null
-          ? Text(title)
+          ? Epic1Text(title)
           : TitleWithHint(
               title,
               hint: hint!,

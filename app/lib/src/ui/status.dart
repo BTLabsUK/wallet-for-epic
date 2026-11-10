@@ -188,7 +188,7 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
   final detail = [
     // A development build on a test network says so first: the app bar names no network.
     if (chain != null && chain != Chain.mainnet && devNetworksOf(context))
-      '${chainName(l, chain)}, test coins',
+      chainName(l, chain),
     sentence,
     if (host != null && host.isNotEmpty) l.statusNodeHost(host),
     if (height != null && height > BigInt.zero)

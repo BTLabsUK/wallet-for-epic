@@ -117,12 +117,13 @@ String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
   DeskSection.settings => l.deskShellNavSettings,
 };
 
-/// Whether the level hides [route]'s page: Shallow has no Node, Payments, Wallets or Files &
-/// logs page; Invoices and the pairing places are Deep end's (the shell
-/// keeps Invoices while an invoice waits). Recheck balance and Linked devices stay at every view.
+/// Whether the level hides [route]'s page: Shallow has no Node, Wallets or Files & logs page;
+/// Invoices and the pairing places are Deep end's (the shell keeps Invoices while an invoice
+/// waits). Recheck balance, Linked devices, Network & privacy and Transactions (it holds the
+/// epic1 switch) stay at every view.
 bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
   DeskRoute.settingsNode => !ui.nodeSettings,
-  DeskRoute.settingsReceiving || DeskRoute.settingsFiles => ui.shallow,
+  DeskRoute.settingsFiles => ui.shallow,
   DeskRoute.settingsWallets => !ui.addWallet,
   DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices => !ui.invoicesPage,
   DeskRoute.pair => !ui.pairingPages,

@@ -15,6 +15,7 @@ import 'package:flutter/rendering.dart';
 import '../trust_ids.dart';
 import 'common.dart' show DangerButton;
 import 'theme/dialog_metrics.dart';
+import 'theme/epic1_mark.dart';
 import 'theme/tokens.dart';
 
 export 'theme/dialog_metrics.dart' show DialogWidth;
@@ -211,7 +212,7 @@ class AppDialog extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: description == null ? DialogMetrics.iconTile : 0),
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Semantics(header: true, child: Text(title, style: titleStyle)),
+                  child: Semantics(header: true, child: Epic1Text(title, style: titleStyle)),
                 ),
               ),
               if (description != null) ...[

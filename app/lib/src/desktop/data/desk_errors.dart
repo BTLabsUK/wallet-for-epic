@@ -77,6 +77,22 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     WalletErrorKind.inputsSpentElsewhere => l.deskErrInputsSpentElsewhere,
     WalletErrorKind.inputsSpentByOwnPayment || WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
     WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),
+    WalletErrorKind.epic1CannotPay => l.deskE1ErrCannotPay,
+    WalletErrorKind.epic1NoMoreRelays => l.deskE1ErrNoMoreRelays,
+    WalletErrorKind.printedLinksFull => l.deskE1ErrPrintedFull,
+    WalletErrorKind.ownRelayLocal => l.deskE1ErrOwnRelayLocal,
+    WalletErrorKind.epic1MessageInvalid => l.deskE1ErrMessageInvalid,
+    WalletErrorKind.epic1Finalized => l.deskE1ErrFinalized,
+    WalletErrorKind.epic1WrongNetwork => l.deskE1ErrWrongNetwork,
+    WalletErrorKind.codeExpired => l.deskE1ErrCodeExpired,
+    WalletErrorKind.notAnEpic1Link => l.deskE1ErrNotLink,
+    WalletErrorKind.epic1RelayInvalid => l.deskE1ErrRelayInvalid,
+    WalletErrorKind.savedTransaction => l.deskE1ErrSavedTx,
+    WalletErrorKind.walletTooNew => l.deskE1ErrWalletTooNew,
+    // Flow kinds: the epic1 screens handle them (unknown-server confirm, keep scanning).
+    WalletErrorKind.relayNotConfirmed ||
+    WalletErrorKind.inPersonNoMailbox ||
+    WalletErrorKind.urCodeIncomplete ||
     WalletErrorKind.unsupported ||
     WalletErrorKind.cancelled ||
     WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,

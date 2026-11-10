@@ -92,8 +92,24 @@ const List<NetworkPreset> networkPresets = [
   usernetPreset,
 ];
 
+/// A chain's name on screen. Only the development builds name a network, in English; users
+/// never see the protocol's names (mainnet, floonet, usernet).
+String chainShownName(Chain chain) => switch (chain) {
+  Chain.mainnet => 'Main network', // l10n-ok: development builds only
+  Chain.floonet => 'Test network', // l10n-ok
+  Chain.usernet => 'Local test network', // l10n-ok
+};
+
+/// A test chain's word in the names of files the app offers (`test-`, `local-test-`), empty
+/// for the main network.
+String chainFileTag(Chain chain) => switch (chain) {
+  Chain.mainnet => '',
+  Chain.floonet => 'test-',
+  Chain.usernet => 'local-test-',
+};
+
 /// The fixed English name of a chain, for logs and the feedback report. The screen uses
-/// `chainName` in l10n.dart.
+/// [chainShownName].
 String chainLabel(Chain chain) => switch (chain) {
   Chain.mainnet => 'Mainnet',
   Chain.floonet => 'Floonet',

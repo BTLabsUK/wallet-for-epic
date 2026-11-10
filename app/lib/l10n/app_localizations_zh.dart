@@ -8104,7 +8104,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskOnbCreateTestLead(String network) {
-    return '$network 上的钱包，这是一个测试网络。';
+    return '$network上的钱包。';
   }
 
   @override
@@ -12381,10 +12381,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNetOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
-  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 支付”中设置。';
+  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 交易”中设置。';
 
   @override
-  String get deskOutDefaultsOpen => '打开“支付”';
+  String get deskOutDefaultsOpen => '打开“交易”';
 
   @override
   String get deskSetFrameTransactions => '交易';
@@ -12948,7 +12948,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairWaysP3 => '**当面。**两部手机互相扫描对方的码。不使用网络。';
 
   @override
-  String get helpPairWaysP4 => '无论哪种方式，最后都要一起验证：比较四张图片和名称。它们表明消息在途中没有被人改动。';
+  String get helpPairWaysP4 =>
+      '无论哪种方式，最后都要一起验证：比较四张图片和名称。只有两个钱包看到相同的密钥时，它们才会一致。';
 
   @override
   String get helpPairClipP =>
@@ -13050,7 +13051,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairByHandFooter(String name) {
-    return '回复已针对 $name 的邀请密封。其他人无法读取，且只能使用一次。';
+    return '回复已针对 $name 的邀请密封：只有 $name 的钱包能读取。只能使用一次。';
   }
 
   @override
@@ -18428,9 +18429,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSecWallet => '钱包';
 
   @override
-  String get deskSetSecPayments => '支付';
-
-  @override
   String get deskSetSecDevices => '关联设备';
 
   @override
@@ -19450,10 +19448,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkNotALink => '不是付款链接';
 
   @override
-  String get linkMadeForMainnet => '为 mainnet 创建';
+  String get linkMadeForMainnet => '为主网络创建';
 
   @override
-  String get linkMadeForFloonet => '为 floonet 创建';
+  String get linkMadeForFloonet => '为测试网络创建';
 
   @override
   String get linkChanged => '此链接在创建后被更改过。';
@@ -19874,4 +19872,566 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetNodeBackgroundNoTray => '此桌面没有系统托盘，因此关闭窗口会退出应用。';
+
+  @override
+  String get deskE1ErrCannotPay => '此链接中没有本钱包可连接的服务器。';
+
+  @override
+  String get deskE1ErrNoMoreRelays => '链接中的每个服务器都已尝试。';
+
+  @override
+  String get deskE1ErrPrintedFull => '32 个打印链接都在使用中。请先停用一个。';
+
+  @override
+  String get deskE1ErrOwnRelayLocal => '你的 Epicbox 服务器在本设备上。请选择其他服务器来创建链接。';
+
+  @override
+  String get deskE1ErrMessageInvalid => '留言过长或含有不支持的字符。';
+
+  @override
+  String get deskE1ErrFinalized => '已完成。';
+
+  @override
+  String get deskE1ErrWrongNetwork => '此链接属于其他网络。';
+
+  @override
+  String get deskE1ErrCodeExpired => '此码已过期。';
+
+  @override
+  String get deskE1ErrNotLink => '不是 epic1 链接。';
+
+  @override
+  String get deskE1ErrRelayInvalid => '不是服务器地址。请使用 host 或 host:port。';
+
+  @override
+  String get deskE1ErrSavedTx => '不是付款文件。';
+
+  @override
+  String get deskE1ErrWalletTooNew => '由更新版本的应用创建。请更新后打开此钱包。';
+
+  @override
+  String get deskE1ModeClassicAddress => '经典地址。关闭 epic1 付款后才能支付。';
+
+  @override
+  String get deskE1ModeClassicCode => '经典码。关闭 epic1 付款后才能使用。';
+
+  @override
+  String get deskE1ModeClassicFile => '经典文件。关闭 epic1 付款后才能打开。';
+
+  @override
+  String get deskE1ModeEpic1Link => 'epic1 链接。开启 epic1 付款后才能支付。';
+
+  @override
+  String get deskE1ModeEpic1File => 'epic1 文件。开启 epic1 付款后才能打开。';
+
+  @override
+  String get deskE1ClassicOnly => '仅经典';
+
+  @override
+  String get deskE1PaymentStopped => '付款已停止。未发送任何内容。';
+
+  @override
+  String get deskE1SameCodeTwice => '两部手机用同一个码作了回复。';
+
+  @override
+  String get deskE1ShowNewCode => '显示新码';
+
+  @override
+  String deskE1RetireAsk(int n) {
+    return '停用链接 $n？发往它的付款将不再到达。';
+  }
+
+  @override
+  String get deskE1Retire => '停用';
+
+  @override
+  String get deskE1Keep => '保留';
+
+  @override
+  String get deskIpRequestTitle => '当面收款';
+
+  @override
+  String get deskIpPayTitle => '当面付款';
+
+  @override
+  String get deskIpReceiveTitle => '当面收款确认';
+
+  @override
+  String get deskIpPayRequestTitle => '支付收款请求';
+
+  @override
+  String get deskIpMakeCode => '显示代码';
+
+  @override
+  String get deskIpCodeLeadRequest => '付款方扫描此代码或粘贴其文本。';
+
+  @override
+  String get deskIpCodeLeadPay => '另一部手机扫描此代码或粘贴其文本。';
+
+  @override
+  String get deskIpCodeText => '代码文本';
+
+  @override
+  String get deskIpCodeOf => '当面代码';
+
+  @override
+  String deskIpExpiresIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '约 $count 分钟后过期。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpWaiting => '正在等待回应…';
+
+  @override
+  String deskIpCheckPayer(String code) {
+    return '付款方的手机显示 $code 吗？';
+  }
+
+  @override
+  String deskIpCheckOther(String code) {
+    return '另一部手机显示 $code 吗？';
+  }
+
+  @override
+  String get deskIpMatches => '一致';
+
+  @override
+  String get deskIpDifferent => '不一致';
+
+  @override
+  String get deskIpSent => '已发送';
+
+  @override
+  String get deskIpReceived => '已收到';
+
+  @override
+  String get deskIpPasteAnswer => '粘贴回应';
+
+  @override
+  String get deskIpScanAnswer => '扫描回应';
+
+  @override
+  String get deskIpAnswerLabel => '回应';
+
+  @override
+  String get deskIpNotAnswer => '不是对此代码的回应。';
+
+  @override
+  String get deskIpReceiveButton => '收款';
+
+  @override
+  String get deskIpPayButton => '付款';
+
+  @override
+  String get deskIpCheckTitle => '核对码';
+
+  @override
+  String get deskIpCheckLead => '另一部手机必须显示相同的代码。';
+
+  @override
+  String get deskIpAnswerLead => '另一部手机扫描此回应或粘贴其文本。';
+
+  @override
+  String get deskIpAnswerOf => '当面回应';
+
+  @override
+  String get deskIpUseServerAsk => '通过此服务器发送？';
+
+  @override
+  String deskIpNotInList(String host) {
+    return '$host 不在您的服务器列表中。';
+  }
+
+  @override
+  String get deskIpUseServer => '使用服务器';
+
+  @override
+  String get deskIpScanTitle => '扫描代码';
+
+  @override
+  String get deskIpScanAim => '将相机对准另一部手机上的代码。';
+
+  @override
+  String get deskIpCopied => '已复制';
+
+  @override
+  String get deskIpPostFailed => '回应未送达。请重试。';
+
+  @override
+  String get deskE1PhExperimental => '实验性';
+
+  @override
+  String get deskE1PhSwitch => 'epic1 付款';
+
+  @override
+  String get deskE1PhSwitchHint =>
+      '付款只通过 epic1：epic1 链接、面对面付款码和支持 epic1 的联系人。经典付款仍会到达。关闭后可向其他 Epic 钱包付款。按钱包设置。实验性：仍可能变化。';
+
+  @override
+  String get deskE1PhConfirmTitle => '使用 epic1 付款？';
+
+  @override
+  String get deskE1PhConfirmBody =>
+      '之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。';
+
+  @override
+  String get deskE1PhTurnOn => '开启';
+
+  @override
+  String get deskE1PhAppliesNext => '下次解锁时生效';
+
+  @override
+  String get deskE1PhLockNow => '立即锁定';
+
+  @override
+  String get deskE1PhSection => 'epic1';
+
+  @override
+  String get deskE1PhReceiving => '收款';
+
+  @override
+  String get deskE1PhPrinted => '打印的链接';
+
+  @override
+  String deskE1PhPrintedCount(int n, int max) {
+    return '$n / $max';
+  }
+
+  @override
+  String get deskE1PhPrintedEmpty => '没有打印的链接。';
+
+  @override
+  String deskE1PhPrintedCode(int n) {
+    return '链接 $n';
+  }
+
+  @override
+  String deskE1PhPrintedMade(String date) {
+    return '创建于 $date';
+  }
+
+  @override
+  String get deskE1PhPrintedUsed => '已收款';
+
+  @override
+  String deskE1PhRetired(int n) {
+    return '链接 $n 已停用。';
+  }
+
+  @override
+  String get deskE1PhLinkTitle => 'epic1 链接';
+
+  @override
+  String get deskE1PhLinkQrLabel => 'epic1 链接的二维码';
+
+  @override
+  String get deskE1PhCopyLink => '复制链接';
+
+  @override
+  String get deskE1PhLinkCopied => '链接已复制。';
+
+  @override
+  String get deskE1PhAskAmount => '指定金额';
+
+  @override
+  String get deskE1PhAmount => '金额';
+
+  @override
+  String get deskE1PhMessage => '留言（可选）';
+
+  @override
+  String get deskE1PhMakeLink => '生成链接';
+
+  @override
+  String deskE1PhLinkAsks(String amount) {
+    return '金额 $amount';
+  }
+
+  @override
+  String get deskE1PhAnyAmount => '任意金额';
+
+  @override
+  String get deskE1PhOtherWays => '其他收款方式';
+
+  @override
+  String get deskE1PhInPerson => '面对面';
+
+  @override
+  String get deskE1PhRequestInPerson => '面对面收款';
+
+  @override
+  String get deskE1PhSettings => '设置';
+
+  @override
+  String get deskE1PhLanTitle => '使用本地网络服务器？';
+
+  @override
+  String deskE1PhLanBody(String host) {
+    return '$host 位于本地网络。只有该网络中的钱包能支付用它生成的链接。';
+  }
+
+  @override
+  String get deskE1PhField => 'epic1 链接或联系人';
+
+  @override
+  String get deskE1PhPayInPerson => '面对面付款';
+
+  @override
+  String get deskE1PhContacts => '联系人';
+
+  @override
+  String get deskE1PhUnknownTitle => '通过此服务器发送？';
+
+  @override
+  String deskE1PhUnknownBody(String host) {
+    return '$host 不在你的服务器列表中。';
+  }
+
+  @override
+  String get deskE1PhUseServer => '使用服务器';
+
+  @override
+  String get deskE1PhReview => '确认';
+
+  @override
+  String get deskE1PhTo => '收款方';
+
+  @override
+  String get deskE1PhServer => '服务器';
+
+  @override
+  String get deskE1PhNote => '留言';
+
+  @override
+  String get deskE1PhSend => '发送';
+
+  @override
+  String get deskE1PhWaiting => '等待收款方';
+
+  @override
+  String deskE1PhNotTaken(String host) {
+    return '$host 未接收此付款。';
+  }
+
+  @override
+  String get deskE1PhTryNext => '尝试下一个服务器';
+
+  @override
+  String get deskE1PhCancelUnlock => '取消并解锁';
+
+  @override
+  String get deskE1PhCancelled => '付款已取消。币已解锁。';
+
+  @override
+  String get deskE1PhSent => '已发送';
+
+  @override
+  String get deskE1PhDone => '完成';
+
+  @override
+  String get deskE1PhClassicOnlyTip => '关闭 epic1 付款以向此联系人付款';
+
+  @override
+  String get deskE1SetGroup => 'epic1';
+
+  @override
+  String get deskE1SetSwitch => 'epic1 付款';
+
+  @override
+  String get deskE1SetInfo =>
+      '付款只通过 epic1：epic1 链接、面对面付款码和支持 epic1 的联系人。经典付款仍会到达。关闭后可向其他 Epic 钱包付款。按钱包设置。实验性：仍可能变化。';
+
+  @override
+  String get deskE1SetSyn => 'epic1, 密封, 实验, 链接, 面对面, 码';
+
+  @override
+  String get deskE1TurnOnTitle => '使用 epic1 付款？';
+
+  @override
+  String get deskE1TurnOnBody =>
+      '之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。';
+
+  @override
+  String get deskE1TurnOn => '开启';
+
+  @override
+  String get deskE1AppliesNext => '下次解锁时生效';
+
+  @override
+  String get deskE1LockNow => '立即锁定';
+
+  @override
+  String get deskE1PrintedCodes => '打印的链接';
+
+  @override
+  String get deskE1PrintedHint => '用于打印或保存的 epic1 链接。不再使用时将其停用。';
+
+  @override
+  String deskE1PrintedCount(int n) {
+    return '$n / 32';
+  }
+
+  @override
+  String get deskE1PrintedNone => '没有打印的链接。';
+
+  @override
+  String deskE1CodeN(int n) {
+    return '链接 $n';
+  }
+
+  @override
+  String deskE1CodeIssued(String date) {
+    return '创建于 $date';
+  }
+
+  @override
+  String deskE1CodeUsed(String date) {
+    return '最近付款 $date';
+  }
+
+  @override
+  String get deskE1LinkTitle => 'epic1 链接';
+
+  @override
+  String get deskE1LinkSub => '任何支持 epic1 的人都可通过此链接付款。';
+
+  @override
+  String get deskE1CopyLink => '复制链接';
+
+  @override
+  String get deskE1LinkCopied => '已复制链接';
+
+  @override
+  String get deskE1AskAmount => '请求金额';
+
+  @override
+  String get deskE1MakeLink => '生成链接';
+
+  @override
+  String deskE1LinkAsks(String amount) {
+    return '请求 $amount';
+  }
+
+  @override
+  String get deskE1AnyAmount => '任意金额';
+
+  @override
+  String get deskE1LanTitle => '使用本地网络上的服务器？';
+
+  @override
+  String deskE1LanBody(String host) {
+    return '$host 在你的本地网络上。只有同一网络中的付款人能通过此链接付款。';
+  }
+
+  @override
+  String get deskE1UseServer => '使用服务器';
+
+  @override
+  String get deskE1OtherWays => '其他收款方式';
+
+  @override
+  String get deskE1InPerson => '当面';
+
+  @override
+  String get deskE1InPersonSub => '付款人从此屏幕读取的码。';
+
+  @override
+  String get deskE1RequestInPerson => '当面请求';
+
+  @override
+  String get deskE1SendField => 'epic1 链接或联系人';
+
+  @override
+  String get deskE1SendFieldHint => '粘贴 epic1 链接';
+
+  @override
+  String get deskE1SendFieldSem => 'epic1 链接';
+
+  @override
+  String get deskE1Review => '核对';
+
+  @override
+  String get deskE1ReviewTitle => '核对付款';
+
+  @override
+  String get deskE1To => '收款方';
+
+  @override
+  String get deskE1Server => '服务器';
+
+  @override
+  String get deskE1Send => '发送';
+
+  @override
+  String get deskE1UnknownServerTitle => '通过此服务器发送？';
+
+  @override
+  String deskE1UnknownServerBody(String host) {
+    return '$host 不在你的服务器列表中。';
+  }
+
+  @override
+  String get deskE1Waiting => '等待收款方';
+
+  @override
+  String get deskE1NotPosted => '还没有服务器接收这笔付款。';
+
+  @override
+  String get deskE1TryNext => '尝试下一个服务器';
+
+  @override
+  String get deskE1CancelUnlock => '取消并解锁';
+
+  @override
+  String get deskE1Sent => '已发送';
+
+  @override
+  String get deskE1Cancelled => '付款已取消';
+
+  @override
+  String get deskE1Done => '完成';
+
+  @override
+  String get deskE1ClassicTip => '关闭 epic1 付款以向此联系人付款';
+
+  @override
+  String get deskE1PayInPerson => '当面付款';
+
+  @override
+  String get deskE1Back => '返回';
+
+  @override
+  String get deskSendFileFor => '给';
+
+  @override
+  String get deskSendFileForHelp => '发给已配对联系人的文件会被密封：只有对方的钱包能打开。';
+
+  @override
+  String get deskImpFrom => '来自';
+
+  @override
+  String get deskE1TourPhSendText =>
+      '粘贴 epic1 链接，或选择联系人。“面对面付款”用于身边的手机。发出前会先确认。';
+
+  @override
+  String get deskE1TourPhReceiveText => '你的 epic1 链接。分享它即可收款。“面对面收款”用于身边的手机。';
+
+  @override
+  String get deskE1TourSendText => '粘贴 epic1 链接，或选择联系人。“当面付款”用于身边的手机。发出前会先确认。';
+
+  @override
+  String get deskE1TourReceiveText => '这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。';
+
+  @override
+  String get deskE1Sealed => '已用 epic1 密封';
+
+  @override
+  String deskE1SpokenSealed(String row) {
+    return '$row，已用 epic1 密封';
+  }
 }

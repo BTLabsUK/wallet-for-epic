@@ -24,7 +24,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final device = phone ? '这部手机' : '这台电脑';
   final secret = phone ? '你的 PIN 码或密码短语' : '钱包密码';
   final nodePlace = phone ? '[[设置 › 网络与隐私 › 节点|Settings › Network & privacy › Node]]' : '[[设置 › 节点|Settings › Node]]';
-  final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 支付 › Epicbox|Settings › Payments › Epicbox]]';
+  final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 交易 › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]' : '[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[设置 › 网络与隐私|Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
@@ -35,7 +35,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ? '**用助记词恢复**（在首屏或[[设置 › 此钱包|Settings › This wallet]]中）'
       : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 钱包列表|Settings › Wallets]]中）';
   final recheckPlace = phone ? '[[设置 › 此钱包 › 重新核对余额|Settings › This wallet › Recheck balance]]' : '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]]';
-  final payPlace = phone ? '[[设置 › 交易|Settings › Transactions]]' : '[[设置 › 支付|Settings › Payments]]';
+  final payPlace = '[[设置 › 交易|Settings › Transactions]]';
   final filesPlace = '[[设置 › 文件与日志|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 安全 › 助记词|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[

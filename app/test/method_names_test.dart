@@ -4,8 +4,10 @@
 // The CSV's `method` column names them in English; the desktop's mapper is in
 // test/desktop/method_names_test.dart.
 import 'package:epic_wallet/src/history/export.dart';
+import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/recipient.dart';
+import 'package:epic_wallet/src/ui/common.dart' show txRowMethod, txTitle;
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/method_names.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -90,6 +92,57 @@ void main() {
       expect(methods, ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer', '']);
       expect(lines.join('\n'), isNot(contains(',http,')));
       expect(lines.join('\n'), isNot(contains(',tor,')));
+    });
+  });
+
+  group('an epic1 exchange, which LEPIC lists as a file send', () {
+    TxEntry row({Epic1Via? via, TxKind kind = TxKind.received, String slate = 's-1'}) => fakeTx(
+      key: 's:$slate',
+      id: 1,
+      slateId: slate,
+      kind: kind,
+      status: TxStatus.confirmed,
+      createdAtUnix: 1790000000,
+      blockHeight: BigInt.from(12),
+      amountCredited: kind == TxKind.received ? BigInt.from(100000000) : BigInt.zero,
+      amountDebited: kind == TxKind.sent ? BigInt.from(100000000) : BigInt.zero,
+      transport: 'file',
+      epic1Via: via,
+    );
+
+    test('a link payment reads epic1 link in the row and the details, never Direct · File', () {
+      for (final kind in [TxKind.received, TxKind.sent]) {
+        final t = row(via: Epic1Via.link, kind: kind);
+        expect(txRowMethod(_l, t), 'epic1 link');
+        expect(txTitle(_l, t), 'epic1 link');
+        expect(txMethodName(_l, t), 'epic1 link');
+      }
+    });
+
+    test('an in-person code reads In person', () {
+      final t = row(via: Epic1Via.inPerson);
+      expect(txRowMethod(_l, t), 'In person');
+      expect(txTitle(_l, t), 'In person');
+      expect(txMethodName(_l, t), 'In person');
+    });
+
+    test('a contact keeps its name as the title', () {
+      expect(txTitle(_l, row(via: Epic1Via.link), contactName: 'Ana'), 'Ana');
+    });
+
+    test('a plain file receive keeps Direct · File', () {
+      final t = row();
+      expect(txRowMethod(_l, t), _l.methodShortFile);
+      expect(txTitle(_l, t), _l.txIncomingPayment);
+    });
+
+    test('the archive keeps the mark by slate and puts it on the live row', () async {
+      final history = WalletHistory.memory();
+      await history.recordEpic1(['s-1'], Epic1Via.link);
+      await history.recordEpic1(['s-1', 's-2'], Epic1Via.inPerson);
+      final rows = history.transactions([row(), row(slate: 's-2'), row(slate: 's-3')]);
+      expect({for (final t in rows) t.slateId: t.epic1Via}, {'s-1': Epic1Via.link, 's-2': Epic1Via.inPerson, 's-3': null});
+      expect(history.meta.toJson()['epic1_payments'], {'s-1': 'link', 's-2': 'in_person'});
     });
   });
 }

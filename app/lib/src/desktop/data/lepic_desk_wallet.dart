@@ -82,7 +82,7 @@ import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
 import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
-import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileName, uniqueFileName;
+import '../../slate_files.dart' show decodeSlateFile, isSealedText, replyFileName, sealedFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
@@ -91,6 +91,7 @@ import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../trust/contact_trust.dart' show peerCompatRetention;
 import '../../trust/policy.dart' show PeerCompat;
+import '../../epic1.dart' show Epic1Wallet, Epic1Of;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -2919,12 +2920,11 @@ class LepicDeskWallet implements DeskWalletApi {
           return SendDone(_txFor(e));
         case TxMethod.file:
           final slate = await session.createSendSlate(amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message, options: r.options);
+          // Sealed for a paired contact (RFC 9.2): only its wallet opens the file.
+          final sealed = r.sealFor == null ? null : await session.pairing.sealSlate(id: r.sealFor!, slateJson: slate.json);
           final File file;
           try {
-            final dir = await _filesDir();
-            await dir.create(recursive: true);
-            file = File('${dir.path}${Platform.pathSeparator}${uniqueFileName(sendFileName(slate.slateId), (n) => File('${dir.path}${Platform.pathSeparator}$n').existsSync())}');
-            await file.writeAsString(slate.json, flush: true);
+            file = await _writeSendFile(sealed == null ? sendFileName(slate.slateId) : sealedFileName(slate.slateId), sealed ?? slate.json);
           } on FileSystemException catch (e) {
             // The payment exists in the wallet; only its file is missing.
             logWarn('desk', 'slate file not written: ${e.osError?.errorCode ?? '?'}');
@@ -2934,7 +2934,7 @@ class LepicDeskWallet implements DeskWalletApi {
           await _reload();
           final tx = _txs().where((t) => t.slateId == slate.slateId).firstOrNull ??
               Tx(id: -1, slateId: slate.slateId, direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: amount, fee: 0, created: DateTime.now(), counterparty: file.path);
-          return SendFileReady(tx, file.path);
+          return SendFileReady(tx, file.path, sealedFor: sealed == null ? null : r.sealFor);
         case TxMethod.http:
           final to = (r.to ?? '').trim();
           if (httpAddressProblem(to) != null) return SendFailed.l10n((l) => httpAddressProblem(to, l)!);
@@ -3035,6 +3035,31 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Writes a file send's [text] as [name] in the app's files folder, never over another file.
+  Future<File> _writeSendFile(String name, String text) async {
+    final dir = await _filesDir();
+    await dir.create(recursive: true);
+    final file = File('${dir.path}${Platform.pathSeparator}${uniqueFileName(name, (n) => File('${dir.path}${Platform.pathSeparator}$n').existsSync())}');
+    await file.writeAsString(text, flush: true);
+    return file;
+  }
+
+  @override
+  Future<String> plainFile(String slateId) => _running(() async {
+    final String plain;
+    try {
+      plain = await _open.pairing.plainSlate('s:$slateId');
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    try {
+      return (await _writeSendFile(sendFileName(slateId), plain)).path;
+    } on FileSystemException catch (e) {
+      logWarn('desk', 'plain slate file not written: ${e.osError?.errorCode ?? '?'}');
+      throw DeskError.l10n((l) => l.deskErrFileNotSaved);
+    }
+  });
+
   /// Signs the slate in [fileName] (a path) and writes the answer beside it, named after it
   /// ([replyFileName]); in the app's files folder when that folder cannot be written.
   @override
@@ -3056,6 +3081,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Signs [json], read from [fileName], and writes the answer beside it.
   Future<ReceivedFile> _receiveJson(String json, String fileName, {bool pasted = false}) async {
+    if (isSealedText(json)) return _receiveSealed(json, fileName);
     try {
       final answer = await _open.receiveSlate(slateJson: json);
       final response = await _writeResponse(fileName, answer.slateId, answer.json, named: !pasted);
@@ -3068,12 +3094,32 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Signs the sealed [text] read from [fileName] through the pairing it came from (RFC 9.2):
+  /// the answer is sealed back to that contact when it can be, and the sender is the
+  /// pairing's name. Only a sealed file names its sender.
+  Future<ReceivedFile> _receiveSealed(String text, String fileName) async {
+    final session = _open;
+    try {
+      final opened = await session.pairing.openSlate(text);
+      final reply = await session.pairing.receiveSealed(text);
+      final response = await _writeResponse(fileName, reply.slateId, reply.answer, named: false, sealed: reply.sealed);
+      await _reload();
+      final sender = _pairedName(await session.pairing.pairings(), await _contactsOr(), opened.pairingId);
+      final tx = _txs().where((t) => t.slateId == reply.slateId).firstOrNull ??
+          Tx(id: -1, slateId: reply.slateId, direction: TxDirection.received, state: TxState.posted, method: TxMethod.file, amount: 0, fee: 0, created: DateTime.now(), pairingId: opened.pairingId, contactName: sender);
+      return ReceivedFile(tx, response, sender: sender);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
   /// Writes the response beside [fileName], or in the app's files folder when that fails;
   /// [named]: called after [fileName] ([replyFileName]). Returns the path written.
-  Future<String> _writeResponse(String fileName, String slateId, String json, {bool named = true}) async {
+  Future<String> _writeResponse(String fileName, String slateId, String json, {bool named = true, bool sealed = false}) async {
     final sep = Platform.pathSeparator;
     final dirOf = File(fileName).parent.path;
-    final name = replyFileName(slateId, loaded: named ? fileName.split(RegExp(r'[\\/]')).last : null);
+    // A sealed answer is its own file type (RFC 3.5).
+    final name = sealed ? sealedFileName(slateId) : replyFileName(slateId, loaded: named ? fileName.split(RegExp(r'[\\/]')).last : null);
     final beside = '$dirOf$sep${uniqueFileName(name, (n) => File('$dirOf$sep$n').existsSync())}';
     try {
       await File(beside).writeAsString(json, flush: true);
@@ -3095,6 +3141,10 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<bool> isResponseText(String text) async {
     try {
+      if (isSealedText(text.trim())) {
+        final stage = (await _open.pairing.openSlate(text)).stage;
+        return stage == core.SlateStage.response || stage == core.SlateStage.requestAnswer;
+      }
       final info = await _service.inspectSlate(json: decodeSlateFile(utf8.encode(text)));
       return info.stage == core.SlateStage.response || info.stage == core.SlateStage.requestAnswer;
     } on Object {
@@ -3179,9 +3229,11 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<Tx> finalizeFile(String fileName) => _running(() async => _finalizeJson(await _readSlate(fileName)));
 
   Future<Tx> _finalizeJson(String json) async {
-    await _checkRequestAnswer(json);
+    // The sealed answer to a sealed send (RFC 9.2) finalizes through its pairing.
+    final sealed = isSealedText(json);
+    if (!sealed) await _checkRequestAnswer(json);
     try {
-      final e = await _open.finalizeAndPost(slateJson: json);
+      final e = sealed ? await _open.pairing.finalizeSealed(json) : await _open.finalizeAndPost(slateJson: json);
       await _reload();
       return _txFor(e);
     } on core.WalletError catch (e) {
@@ -5505,6 +5557,9 @@ class LepicDeskWallet implements DeskWalletApi {
   core.PairingApi get pairing => _session?.pairing ?? const core.NoPairing();
 
   @override
+  Epic1Wallet? get epic1 => _session?.epic1;
+
+  @override
   Future<PeerCompat?> peerCompat(String address) => _service.peerCompat(address);
 
   @override
@@ -5815,6 +5870,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     lockHeight: e.kind == core.TxKind.coinbase ? lockHeight : null,
     otherWallet: e.origin == core.TxOrigin.otherWallet,
     unverified: e.unverified,
+    epic1Via: e.epic1Via,
+    sealed: e.sealed,
     foundByScan: e.source == core.TxSource.restored,
     foundDuring: switch (e.foundDuring) {
       core.TxFoundDuring.restore => FoundDuring.restore,

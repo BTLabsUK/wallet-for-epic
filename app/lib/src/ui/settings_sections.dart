@@ -20,6 +20,7 @@ import '../app_log.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../dev_networks.dart';
 import '../dist_build.dart';
+import '../epic1.dart' show PaymentMode;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
@@ -44,6 +45,7 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'confirmations_row.dart';
 import 'contacts_screen.dart';
+import 'epic1/epic1_settings.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'level_step_screen.dart';
@@ -855,6 +857,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   /// Send starts on, and, with Advanced › Send options, the defaults a send uses (which outputs
   /// it spends and whether its change is split).
   List<Widget> _transactions(AppLocalizations l) {
+    // epic1 (spec P1): its own sections in place of the methods, and the switch last.
+    final epic1Rows = ref.watch(epic1Provider) == null ? const <Widget>[] : epic1ExperimentalRows(l);
+    if (ref.watch(paymentModeProvider) == PaymentMode.epic1) {
+      return [...epic1ModeRows(l, confirmations: const ConfirmationsRow()), ...epic1Rows];
+    }
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final payments = s.payments;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
@@ -1001,6 +1008,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           onChanged: _settings.setSplitChange,
         ),
       ],
+      ...epic1Rows,
     ];
   }
 

@@ -32,7 +32,6 @@
   "deskSetSearchFallbackView": "{page} есть в виде «{view}».",
   "deskSetSearchFallbackFeat": "{page} появляется с Дополнительно › {feature}.",
   "deskSetSecWallet": "Кошелёк",
-  "deskSetSecPayments": "Платежи",
   "deskSetSecDevices": "Связанные устройства",
   "deskSetSecWallets": "Кошельки",
   "deskSetSecFiles": "Файлы и журналы",

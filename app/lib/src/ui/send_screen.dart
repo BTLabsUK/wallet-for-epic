@@ -18,6 +18,9 @@ import '../name_service/pins.dart' show NameServiceTrust;
 import '../scan/incoming_link.dart' show linkClockProvider;
 import '../trust/trust_providers.dart' show mailboxDefaultFor;
 import 'link_send.dart';
+import '../epic1.dart' show PaymentMode, looksLikeEpic1Link;
+import 'epic1/epic1_common.dart' show classicOnlyPairing, openEpic1Settings;
+import 'epic1/epic1_send.dart';
 import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
 import '../errors.dart';
@@ -73,6 +76,7 @@ import 'method_strip.dart';
 import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_parts.dart';
 import 'pairing/send_pairing.dart';
+import '../pairing_file_seal.dart' show fileSealTarget, sealQuiet;
 import 'status_icons.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
@@ -679,6 +683,8 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient has no address to check: its card says whether it can be paid.
     if (_pairingTo != null) return _noPaymentsProblem(pairingId: _pairingTo);
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
+    // An epic1 link in classic mode: the switch is in Settings (button under the field).
+    if (looksLikeEpic1Link(text)) return l.deskE1ModeEpic1Link;
     final read = _readOf(text);
     switch (read.kind) {
       case RecipientInputKind.empty:
@@ -762,6 +768,10 @@ class _SendViewState extends ConsumerState<SendView> {
     // Home's scan reads it.
     final invite = parseInvite(text);
     if (invite != null) text = invite.invite;
+    if (looksLikeEpic1Link(text)) {
+      _pastedWithError(text, l.deskE1ModeEpic1Link);
+      return;
+    }
     final code = classifyFor(ref.read(walletServiceProvider), text);
     final read = _readOf(text);
     switch (code) {
@@ -1017,6 +1027,19 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The index in [contact]'s addresses Send uses first ([bestAddressIndex]).
   int _bestIndex(Contact contact, {bool watch = true}) =>
       bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
+
+  /// A classic address, request or file text, refused in epic1 mode's field.
+  bool _classicCode(String text) {
+    final code = classifyFor(ref.read(walletServiceProvider), parseInvite(text)?.invite ?? text);
+    return code is PaymentRequest || code is ScannedAddress || code is PaymentLink || code is SlateText || _readOf(text).isAddress;
+  }
+
+  /// A contact picked in epic1 mode: its pairing that takes epic1 payments (the picker offers
+  /// no other).
+  void _useEpic1Contact(Contact contact) {
+    final pairing = ref.read(contactPairingProvider(contact.id));
+    if (!classicOnlyPairing(pairing)) _setPairing(pairing!.id);
+  }
 
   /// [contact] as the recipient: its chip in To and its first address that can be paid now,
   /// or its pairing. [address], one of its addresses, is used instead when given (Recent).
@@ -2329,7 +2352,7 @@ class _SendViewState extends ConsumerState<SendView> {
   PairingRecord? _fileSealTarget({bool watch = true}) {
     if (_viaQr) return null;
     final r = _pairingTo != null ? _toPairing(watch: watch) : sendPairingFor(ref, _read.isAddress ? _read.address : _recipient.text.trim(), watch: watch);
-    return r != null && r.seals ? r : null;
+    return fileSealTarget(r);
   }
 
   /// The payment method the form sends by now: Epicbox, or for a Link send the Link method
@@ -2460,6 +2483,23 @@ class _SendViewState extends ConsumerState<SendView> {
         summary.spendable == BigInt.zero &&
         _pending(summary) == BigInt.zero) {
       return _emptyState(context);
+    }
+
+    // epic1 mode: one field for an epic1 link or a contact; a contact paid goes on as a pairing.
+    if (_stage == SendStage.recipient && _pairingTo == null && ref.watch(paymentModeProvider) == PaymentMode.epic1) {
+      return ScreenBody(
+        children: [
+          PhoneTourTarget(
+            id: 'tour-send-recipient',
+            child: Epic1SendStart(
+              header: _header(context, context.l10n.homeSendButton, step: 1),
+              classicCode: _classicCode,
+              onContact: _useEpic1Contact,
+              onDone: () {},
+            ),
+          ),
+        ],
+      );
     }
 
     final (children, bottom) = switch (_stage) {
@@ -2831,6 +2871,11 @@ class _SendViewState extends ConsumerState<SendView> {
               error: _recipientError == null ? null : LiveFieldError(_recipientError!),
             ),
           )),
+        ),
+      if (_recipientError != null && _recipientError == l.deskE1ModeEpic1Link)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(key: epic1FieldSettingsKey, onPressed: () => openEpic1Settings(context), child: Text(l.deskE1PhSettings)),
         ),
       // A transaction text: open it where it belongs, no error.
       if (read.kind == RecipientInputKind.slate) ...[
@@ -4416,8 +4461,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (target == null) return const [];
     final l = context.l10n;
     final name = pairingName(target, ref.watch(contactsProvider).value ?? const <Contact>[]);
-    final quiet = target.lastSealedIn == null ||
-        DateTime.now().difference(target.lastSealedIn!) > sealQuietFor;
+    final quiet = sealQuiet(target, DateTime.now());
     final degraded = target.seal == SealMode.degraded;
     return [
       if (degraded)
@@ -4489,7 +4533,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final t = context.tokens;
     final theme = Theme.of(context);
     final name = pairingName(r, ref.watch(contactsProvider).value ?? const <Contact>[]);
-    final file = sealedFileName(slate.slateId);
+    final file = sealedFileName(slate.slateId, text: sealed);
     return [
       _header(context, l.sendFileTitle),
       _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),

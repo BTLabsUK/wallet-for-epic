@@ -3,6 +3,8 @@
 // list of what is inside. Security's backup warning is a mark beside the chevron; Linked
 // devices carries its Experiment tag on the same line.
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/levels/level_providers.dart' show currentLevelProvider;
+import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -40,6 +42,7 @@ Future<void> _pump(
   WidgetTester tester, {
   bool backedUp = true,
   AdvancedPrefs advanced = AdvancedPrefs.none,
+  WalletLevel? level,
 }) async {
   // Tall enough that every page builds all of its rows.
   tester.view.physicalSize = const Size(1080, 7200);
@@ -62,6 +65,7 @@ Future<void> _pump(
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
         sessionProvider.overrideWith(_OpenSession.new),
+        if (level != null) currentLevelProvider.overrideWithValue(level),
         phoneTorProvider.overrideWith(_Tor.new),
         backedUpProvider.overrideWith((ref) async => backedUp),
         biometricsProvider.overrideWith(
@@ -120,6 +124,12 @@ void main() {
       tester.getTopLeft(tx).dy - tester.getTopLeft(wallet).dy,
       moreOrLessEquals(tester.getSize(wallet).height, epsilon: 1),
     );
+  });
+
+  testWidgets('Transactions is a hub row at Shallow too: it holds the epic1 switch', (tester) async {
+    await _pump(tester, level: WalletLevel.justSendReceive);
+    expect(find.byKey(settingsGroupKey(SettingsSection.transactions)), findsOneWidget);
+    expect(find.byKey(settingsGroupKey(SettingsSection.privacyNetwork)), findsNothing, reason: 'Shallow still hides Privacy & network');
   });
 
   testWidgets('the Advanced row is last but one: below Help, directly above About', (

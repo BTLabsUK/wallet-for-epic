@@ -8,7 +8,7 @@ import '../../advanced.dart';
 import '../../amount.dart' show AmountFormatException, AmountProblem, AmountSurface, cutEpic, displayDecimals, epicFor, exactDecimals, exactEpic, normalizeAmountText;
 import '../../amount.dart' as shared show parseEpic;
 import '../../contact_label.dart';
-import '../../models.dart' show DeviceEnding;
+import '../../models.dart' show DeviceEnding, Epic1Via;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
 import '../../settings_file/host_settings.dart' show appConfig;
@@ -301,6 +301,8 @@ class Tx {
     this.lockHeight,
     this.otherWallet = false,
     this.unverified = false,
+    this.epic1Via,
+    this.sealed = false,
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
@@ -427,6 +429,17 @@ class Tx {
   /// its blocks yet); LEPIC clears it after the next one.
   final bool unverified;
 
+  /// How an epic1 exchange carried it (a link or an in-person code); null for any other row.
+  /// [method] is then [TxMethod.file], as LEPIC lists it.
+  final Epic1Via? epic1Via;
+
+  /// Sealed so that only the two wallets in it could read its slates (the core's
+  /// `TxEntry.sealed`): the "Sealed with epic1" mark in epic1 mode.
+  final bool sealed;
+
+  /// Sent or received as a slate file: [TxMethod.file] and no epic1 exchange.
+  bool get byFile => method == TxMethod.file && epic1Via == null;
+
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
 
@@ -545,6 +558,8 @@ class Tx {
       coinbase: coinbase,
       otherWallet: otherWallet,
       unverified: unverified,
+      epic1Via: epic1Via,
+      sealed: sealed,
       foundByScan: foundByScan,
       foundDuring: foundDuring,
       datedByBlock: datedByBlock,
@@ -608,6 +623,8 @@ class Tx {
     lockHeight: lockHeight,
     otherWallet: otherWallet,
     unverified: unverified,
+    epic1Via: epic1Via,
+    sealed: sealed,
     foundByScan: foundByScan,
     foundDuring: foundDuring,
     datedByBlock: datedByBlock,
@@ -1498,7 +1515,7 @@ class DeskSettings {
 /// What Send hands over.
 @immutable
 class SendRequest {
-  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options, this.pairingId});
+  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options, this.pairingId, this.sealFor});
 
   final TxMethod method;
   final int amount;
@@ -1506,6 +1523,9 @@ class SendRequest {
   /// An Epicbox send through the mailbox of this pairing (RFC 9.1): a contact with no
   /// address, [to] null.
   final String? pairingId;
+
+  /// A file send sealed for this pairing (RFC 9.2): only that contact's wallet opens it.
+  final String? sealFor;
 
   /// Address or URL; null for a file send.
   final String? to;
@@ -1537,9 +1557,12 @@ final class SendDone extends SendResult {
 
 /// A file send: the slate to give the recipient.
 final class SendFileReady extends SendResult {
-  const SendFileReady(this.tx, this.fileName);
+  const SendFileReady(this.tx, this.fileName, {this.sealedFor});
   final Tx tx;
   final String fileName;
+
+  /// The pairing the file is sealed for; null for a plain file.
+  final String? sealedFor;
 }
 
 final class SendFailed extends SendResult {
@@ -1562,9 +1585,13 @@ final class SendFailed extends SendResult {
 /// A signed transaction file: the payment and where its response was written.
 @immutable
 class ReceivedFile {
-  const ReceivedFile(this.tx, this.response);
+  const ReceivedFile(this.tx, this.response, {this.sender});
 
   final Tx tx;
+
+  /// The paired contact a sealed file came from, by name; null for a plain file, whatever
+  /// address it claims.
+  final String? sender;
 
   /// Beside the picked file, or in the app's files folder when that folder is read-only.
   final String response;

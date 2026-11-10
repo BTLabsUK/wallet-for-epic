@@ -29,7 +29,7 @@ from .targets import T
 
 METHODS = ("epicbox", "http", "tor", "file")
 
-# Settings › Payments › Methods: the switches (a button of the same name opens each one's details)
+# Settings › Transactions › Methods: the switches (a button of the same name opens each one's details)
 PAY_SWITCH = {
     "http": T("tx.pay.http"),
     "tor": T("tx.pay.tor"),
@@ -64,7 +64,7 @@ class Payments:
     # ---- receiving
 
     def enable_receive(self, method):
-        """Turns [method] on for receiving (Settings › Payments) and returns its address as a sender
+        """Turns [method] on for receiving (Settings › Transactions) and returns its address as a sender
         types it: the Epicbox address, http://127.0.0.1:<port>, the onion; None for file."""
         if method not in METHODS:
             raise ValueError("unknown method %s" % method)

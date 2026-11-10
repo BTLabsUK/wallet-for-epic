@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/message_checks.dart' show MessageChecks;
 import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
+import 'package:epic_wallet/src/epic1.dart' show Epic1Wallet;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
 import 'package:epic_wallet/src/name_service/name_service.dart' show NameServiceHost;
 import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost, ForwardedNotice;
@@ -261,6 +262,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<SendResult> send(SendRequest request) => _r('send', () => _m.send(request));
   @override
+  Future<String> plainFile(String slateId) => _r('plainFile', () => _m.plainFile(slateId));
+  @override
   Future<ReceivedFile> receiveFile(String fileName) => _r('receiveFile', () => _m.receiveFile(fileName));
   @override
   Future<ReceivedFile> receiveText(String text) => _r('receiveText', () => _m.receiveText(text));
@@ -396,6 +399,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   // Pairing calls go to the pairing API, not through the recorder.
   @override
   PairingApi get pairing => _m.pairing;
+  @override
+  Epic1Wallet? get epic1 => _m.epic1;
   @override
   NameServiceHost? nameServiceHost({required bool Function() online}) => _m.nameServiceHost(online: online);
 

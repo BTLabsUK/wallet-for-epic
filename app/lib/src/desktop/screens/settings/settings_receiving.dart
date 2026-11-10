@@ -29,6 +29,8 @@ import 'prefs.dart';
 import 'search/settings_sections.dart' show setJoinReasons;
 import 'setting_ids.dart';
 import 'settings_frame.dart';
+import '../epic1/epic1_settings.dart';
+import '../../../epic1.dart' show PaymentMode;
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
 import '../../../settings_file/status_site.dart' show statusSiteHost;
@@ -45,7 +47,7 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Payments (once Transactions; one switch per method 26.10.16): how payments
+/// Settings › Transactions (once Payments; one switch per method 26.10.16): how payments
 /// are made, then Sending and Receiving (Confirmations). Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
 /// Transfer), each one switch, at least one on; what Send starts on and, with Advanced › Send
 /// options, its defaults. Each method's receiving details sit under its own switch, shown
@@ -533,6 +535,12 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final httpLine = methodStateLine(l, TxMethod.http, status, s, reachClosed: ref.watch(deskHttpReachClosedProvider));
     final torPay = _torPay(s);
 
+    // Today's Epicbox server picker: under the Epicbox method, or the epic1 group's server.
+    final serverPanel = EpicboxServerPicker(
+      status: status,
+      openInitially: widget.arg == ReceivingShot.comboOpen,
+      shot: widget.arg == ReceivingShot.picked ? ServerPanelShot(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
+    );
     // Each method's receiving rows, under its switch while it is on.
     final details = <MethodKind, (SettingsJump, List<Widget>)>{
       MethodKind.epicbox: (SettingsJump.epicbox, [
@@ -546,11 +554,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine,
             anchor: SetId.epicboxRecv,
             notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
-            picker: SetAnchor(id: SetId.epicboxServer, child: EpicboxServerPicker(
-              status: status,
-              openInitially: widget.arg == ReceivingShot.comboOpen,
-              shot: widget.arg == ReceivingShot.picked ? ServerPanelShot(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
-            )),
+            picker: SetAnchor(id: SetId.epicboxServer, child: serverPanel),
           ),
           _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v)), anchor: SetId.epicboxStart),
           // While Tor is off: where the relay would not see this computer's address.
@@ -596,9 +600,22 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _methodsGroup(s.payments, s, details, torPay),
-          _sendGroup(s.payments),
+          // epic1 mode: the epic1 group (its server and printed codes) in place of the methods
+          // and the default send method.
+          if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1)
+            Epic1SettingsGroup(
+              server: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [serverPanel, SizedBox(height: Sp.x2), EStateLine(ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine)],
+              ),
+              serverHint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
+            )
+          else ...[
+            _methodsGroup(s.payments, s, details, torPay),
+            _sendGroup(s.payments),
+          ],
           const JumpSection(section: SettingsJump.confirmations, child: ReceivingGroup()),
+          const Epic1ExperimentalGroup(),
         ],
       ),
     );
@@ -717,8 +734,8 @@ class ReceivingGroup extends ConsumerWidget {
   }
 }
 
-/// The Epicbox server picker: the Epicbox row's of Payments and the Shallow Network & privacy
-/// page's. [status] is the one shown (the tour lays its states over the real one); null takes
+/// The Epicbox server picker: the Epicbox row's of Transactions, the epic1 group's server and
+/// the Shallow Network & privacy page's. [status] is the one shown (the tour lays its states over the real one); null takes
 /// the wallet's. Nothing while the server list or the status loads.
 class EpicboxServerPicker extends ConsumerStatefulWidget {
   const EpicboxServerPicker({super.key, this.status, this.openInitially = false, this.shot});

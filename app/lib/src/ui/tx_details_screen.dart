@@ -22,6 +22,7 @@ import '../cancel_final.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import 'epic1/epic1_sealed.dart' show Epic1SealedBadge, phoneShowsSealed;
 import '../network.dart' show EpicboxRelay;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingByIdProvider, pairingSlateProvider;
 import '../send_preflight.dart' show recipientRelay;
@@ -871,6 +872,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             ),
             if (fiat != null)
               Text(fiat, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            if (phoneShowsSealed(ref, tx)) ...[
+              const SizedBox(height: 12),
+              const Align(alignment: AlignmentDirectional.centerStart, child: Epic1SealedBadge()),
+            ],
             const SizedBox(height: 16),
             PlainTxDetails(
               tx: tx,
@@ -942,7 +947,15 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (!ownSteps) ...[
-                    TxStatusChip(tx: tx, tip: tip),
+                    if (phoneShowsSealed(ref, tx))
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [TxStatusChip(tx: tx, tip: tip), const Epic1SealedBadge()],
+                      )
+                    else
+                      TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
                     Text(
                       device

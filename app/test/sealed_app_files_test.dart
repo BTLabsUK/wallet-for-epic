@@ -265,6 +265,69 @@ void main() {
       expect([for (final c in byB.list()) c.name], ['Anna']);
     });
 
+    group('a book per network (a phone opens one network\'s wallet at a time)', () {
+      const testId = 'legacy-floonet';
+      String own() => contactsDirOf(tmp.path, 'floonet');
+      File ownWrap(String id) => File('${own()}/$contactsKeysDirName/$id.key');
+
+      test('mainnet keeps the app folder; another network gets a folder of its own', () {
+        expect(contactsDirOf(tmp.path, 'mainnet'), tmp.path);
+        expect(contactsDirOf(tmp.path, 'floonet'), isNot(tmp.path));
+        expect(contactsDirOf(tmp.path, 'floonet'), startsWith(tmp.path));
+      });
+
+      test('a test-network wallet opening after a mainnet wallet closed finds its own book open', () async {
+        at(contactsFileName).writeAsStringSync(plainBook);
+        await (await openAs(_idA, seedA)).detach(_idA, seedA);
+        ContactStore.forgetAll();
+        // The bug: in the one shared book a wallet without a wrap found it closed.
+        expect((await openAs(testId, seedB)).available, isFalse);
+        await ContactStore.moveFromShared(tmp.path, own(), testId);
+        final s = await ContactStore.openSealed(own(), testId, seedB);
+        expect(s.available, isTrue);
+        expect(s.list(), isEmpty, reason: 'mainnet contacts stay in the mainnet book');
+        expect(ownWrap(testId).existsSync(), isTrue);
+        await s.save(const ContactFields(name: 'Ben', epicbox: _b));
+        await s.detach(testId, seedB);
+        ContactStore.forgetAll();
+        expect([for (final c in (await openAs(_idA, seedA)).list()) c.name], ['Anna']);
+      });
+
+      test('a test-network wallet with a wrap in the shared book takes the book along, sealed, and leaves it to mainnet', () async {
+        at(contactsFileName).writeAsStringSync(plainBook);
+        final s = await openAs(_idA, seedA);
+        await openAs(testId, seedB);
+        await s.detach(_idA, seedA);
+        await s.detach(testId, seedB);
+        ContactStore.forgetAll();
+        final sealedBook = book().readAsBytesSync();
+        await ContactStore.moveFromShared(tmp.path, own(), testId);
+        expect(File('${own()}/$contactsSealedFileName').readAsBytesSync(), sealedBook);
+        expect(wrap(testId).existsSync(), isFalse);
+        expect(File('${own()}/$contactsFileName').existsSync(), isFalse);
+        final t = await ContactStore.openSealed(own(), testId, seedB);
+        expect([for (final c in t.list()) c.name], ['Anna']);
+        await t.save(const ContactFields(name: 'Ben', epicbox: _b));
+        // Again: the book in its folder stays as it is.
+        await ContactStore.moveFromShared(tmp.path, own(), testId);
+        expect([for (final c in t.list()) c.name], ['Anna', 'Ben']);
+        final m = await openAs(_idA, seedA);
+        expect([for (final c in m.list()) c.name], ['Anna']);
+      });
+
+      test('a shared book only a test-network wallet could open goes with its last wrap, so a mainnet wallet starts one', () async {
+        at(contactsFileName).writeAsStringSync(plainBook);
+        await (await openAs(testId, seedB)).detach(testId, seedB);
+        ContactStore.forgetAll();
+        await ContactStore.moveFromShared(tmp.path, own(), testId);
+        expect(book().existsSync(), isFalse);
+        expect((await ContactStore.openSealed(own(), testId, seedB)).list().single.name, 'Anna');
+        final m = await openAs(_idA, seedA);
+        expect(m.available, isTrue);
+        expect(m.list().single.name, 'Anna', reason: 'sealed again from contacts.json');
+      });
+    });
+
     test('a restored wallet of the same phrase opens another id\'s wrap and gets its own', () async {
       at(contactsFileName).writeAsStringSync(plainBook);
       await (await openAs(_idA, seedA)).detach(_idA, seedA);

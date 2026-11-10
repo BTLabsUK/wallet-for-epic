@@ -28,7 +28,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'โทรศัพท์เครื่องนี้' : 'คอมพิวเตอร์เครื่องนี้';
   final secret = phone ? 'PIN หรือวลีรหัสผ่าน' : 'รหัสผ่านกระเป๋าเงิน';
   final nodePlace = phone ? '[[การตั้งค่า › เครือข่ายและความเป็นส่วนตัว › โหนด|Settings › Network & privacy › Node]]' : '[[การตั้งค่า › โหนด|Settings › Node]]';
-  final epicboxPlace = phone ? '[[การตั้งค่า › เครือข่ายและความเป็นส่วนตัว › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[การตั้งค่า › การชำระเงิน › Epicbox|Settings › Payments › Epicbox]]';
+  final epicboxPlace = phone ? '[[การตั้งค่า › เครือข่ายและความเป็นส่วนตัว › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[การตั้งค่า › ธุรกรรม › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[การตั้งค่า › เครือข่ายและความเป็นส่วนตัว › Tor เท่านั้น|Settings › Network & privacy › Tor only]]' : '[[การตั้งค่า › เครือข่ายและความเป็นส่วนตัว › Tor เท่านั้น|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[การตั้งค่า › เครือข่ายและความเป็นส่วนตัว|Settings › Network & privacy]]';
   final cancelPlace = phone
@@ -41,7 +41,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
       ? '**กู้คืนจากวลีกู้คืน** (ที่หน้าจอแรก หรือที่ [[การตั้งค่า › กระเป๋าเงินนี้|Settings › This wallet]])'
       : '**กู้คืนจากวลีกู้คืน** (ที่หน้าจอแรก ที่ ปลดล็อก › เพิ่มกระเป๋าเงิน หรือที่ [[การตั้งค่า › วอลเล็ตทั้งหมด|Settings › Wallets]])';
   final recheckPlace = phone ? '[[การตั้งค่า › กระเป๋าเงินนี้ › ตรวจยอดใหม่|Settings › This wallet › Recheck balance]]' : '[[การตั้งค่า › วอลเล็ต › ตรวจยอดใหม่|Settings › Wallet › Recheck balance]]';
-  final payPlace = phone ? '[[การตั้งค่า › ธุรกรรม|Settings › Transactions]]' : '[[การตั้งค่า › การชำระเงิน|Settings › Payments]]';
+  final payPlace = '[[การตั้งค่า › ธุรกรรม|Settings › Transactions]]';
   final filesPlace = '[[การตั้งค่า › ไฟล์และบันทึก|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[การตั้งค่า › ความปลอดภัย › สำรองวลีกู้คืน|Settings › Security › Back up recovery phrase]]' : '[[การตั้งค่า › ความปลอดภัย › วลีกู้คืน|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
@@ -108,7 +108,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
       'วิธีชำระเงินและค่าเริ่มต้นการส่ง',
       'ทุกวิธีเป็นสวิตช์ Epicbox เปิดเป็นค่าเริ่มต้น การส่งเปิดขึ้นด้วยวิธีเริ่มต้น',
       [
-        HelpBlock.p('หน้า${phone ? 'ธุรกรรม' : 'การชำระเงิน'}ที่ $payPlace มีสามอย่าง'),
+        HelpBlock.p('หน้าธุรกรรมที่ $payPlace มีสามอย่าง'),
         HelpBlock.ul([
           '${phone ? '**วิธีชำระเงิน**' : '**วิธีการ**'} วิธีละหนึ่งสวิตช์ **Epicbox** เปิดเป็นค่าเริ่มต้น ถ้าปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ใดเลย จึงไม่มีการจ่ายผ่าน Epicbox หรือใบแจ้งหนี้ และหน้า รับ จะไม่แสดงที่อยู่ Epicbox (เงินที่ส่งมายังที่อยู่นั้นจะรออยู่ที่เซิร์ฟเวอร์) ${tor ? "**ลิงก์ · HTTP** (ไปยังที่อยู่เว็บ) **ลิงก์ · Tor** (ไปยังที่อยู่ .onion และที่อยู่ Tor ของ${phone ? 'โทรศัพท์' : 'คอมพิวเตอร์'}เครื่องนี้สำหรับรับเงิน) และ ${phone ? '**โดยตรง · ชำระด้วย QR** และ ' : ''}**โดยตรง · โอนไฟล์**" : "**ลิงก์ · HTTP** (ไปยังที่อยู่เว็บ)${phone ? ' **โดยตรง · ชำระด้วย QR**' : ''} และ **โดยตรง · โอนไฟล์**"} ไม่ต้องใช้เซิร์ฟเวอร์ Epicbox วิธีที่ปิดอยู่จะไม่ปรากฏใน ส่ง และ รับ${phone ? ' บนโทรศัพท์ **ลิงก์ · HTTP** ไม่มีสวิตช์: ใช้ส่งเท่านั้น ไปยังที่อยู่ http(s) ใดก็ได้ที่คุณวาง' : ''}',
           if (phone) '**วิธีเริ่มต้น** วิธีที่หน้า ส่ง เปิดขึ้นมา เลือกวิธีอื่นได้ใน ส่ง' else '**วิธีเริ่มต้น** ใต้ **การส่ง** วิธีที่หน้า ส่ง เปิดขึ้นมา เลือกวิธีอื่นได้ใน ส่ง',

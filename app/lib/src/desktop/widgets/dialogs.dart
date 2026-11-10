@@ -10,6 +10,7 @@ import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import '../../ui/theme/dialog_metrics.dart';
+import '../../ui/theme/epic1_mark.dart';
 import 'buttons.dart';
 import 'motion.dart';
 import 'selectable.dart';
@@ -195,7 +196,7 @@ class EDialog extends StatelessWidget {
                                   child: Semantics(
                                     header: true,
                                     child: titleTrailing == null
-                                        ? Text(title, style: ts.h3)
+                                        ? Epic1Text(title, style: ts.h3)
                                         : Text.rich(
                                             TextSpan(
                                               text: title,

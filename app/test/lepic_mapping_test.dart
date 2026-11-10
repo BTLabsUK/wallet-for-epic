@@ -99,6 +99,7 @@ class _SendingWallet extends _NoNativeWallet {
       slateId: 'sent-1',
       amount: amount,
       fee: BigInt.one,
+      format: lepic.SlateWire.legacy,
     );
   }
 
@@ -181,6 +182,7 @@ void main() {
           lepic: false,
           notices: false,
           fresh: false,
+          nativeSlates: false,
         ),
       )!;
       expect(c.lastMarkedAt, DateTime.utc(2026, 1, 1));
@@ -195,7 +197,7 @@ void main() {
     });
 
     test('a key nothing is known about is no row at all', () {
-      expect(lepicPeerCompat(const lepic.PeerCompat(claimed: 0, works: 0, lepic: false, notices: false, fresh: false)), isNull);
+      expect(lepicPeerCompat(const lepic.PeerCompat(claimed: 0, works: 0, lepic: false, notices: false, fresh: false, nativeSlates: false)), isNull);
     });
   });
 
@@ -205,6 +207,12 @@ void main() {
       expect(mapped.kind, WalletErrorKind.other);
       expect(mapped.txId, 42);
       expect(mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.other, code: 1, message: 'm')).txId, isNull);
+      final tooNew = mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.walletTooNew, code: 113, message: 'newer'));
+      expect(tooNew.kind, WalletErrorKind.io);
+      expect(tooNew.message, 'newer');
+      // The probe failed before anything was stored: no txId to cancel or resend.
+      expect(mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.peerProbeFailed, code: 1, message: 'm')).txId, isNull);
+      expect(mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.thisComputer, code: 101, message: 'm')).kind, WalletErrorKind.transportFailed);
     });
   });
 
@@ -671,10 +679,17 @@ void main() {
           slateId: 'abc',
           json: '{"r":1}',
           repeated: repeated,
+          format: lepic.SlateWire.legacy,
         );
     expect(
       lepicReceivedSlate(received(repeated: true)),
       const ReceivedSlate(slateId: 'abc', json: '{"r":1}', repeated: true),
+    );
+    expect(
+      lepicReceivedSlate(
+        lepic.ReceivedSlate(txId: 4, slateId: 'abc', json: '{}', repeated: false, format: lepic.SlateWire.native),
+      ).format,
+      SlateFormat.native,
     );
     expect(
       lepicReceivedSlate(received(repeated: false)),
