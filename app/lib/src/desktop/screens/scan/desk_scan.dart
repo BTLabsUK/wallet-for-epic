@@ -11,6 +11,8 @@
 /// - [DeskNoCameraLine]: the one quiet line beside paste when there is none.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,9 +65,11 @@ final class DeskPartRefused<T> extends DeskPartStep<T> {
   final String Function(AppLocalizations l) message;
 }
 
-/// Reads the texts of one scan, repeats included, into a [T].
+/// Reads the texts of one scan, repeats included, into a [T]. A read may be async (a code checked
+/// against the wallet): the dialog awaits each one before the next, in the order the camera read
+/// them.
 abstract class DeskPartReader<T> {
-  DeskPartStep<T> read(String text);
+  FutureOr<DeskPartStep<T>> read(String text);
 }
 
 /// A reader done on the first text it takes. A recovery phrase is refused unless [phrase].
@@ -114,19 +118,49 @@ class _DeskScanDialogState<T> extends ConsumerState<DeskScanDialog<T>> {
     _camera.start();
   }
 
+  // The texts waiting while a read runs, each once; the one being read is [_reading].
+  final List<String> _queue = [];
+  String? _reading;
+  bool _done = false;
+
   void _onCode(String text) {
-    if (!mounted) return;
-    if (widget.reader.read(text) case DeskPartDone<T>(:final value)) Navigator.of(context).pop(DeskScanned<T>(value));
+    if (_done || !mounted || text == _reading || _queue.contains(text)) return;
+    _queue.add(text);
+    if (_reading == null) _drain();
+  }
+
+  Future<void> _drain() async {
+    while (_queue.isNotEmpty && !_done && mounted) {
+      final text = _reading = _queue.removeAt(0);
+      DeskPartStep<T>? step;
+      try {
+        step = await widget.reader.read(text);
+      } catch (_) {
+        // A reader that throws refuses that text; the scan goes on.
+      } finally {
+        _reading = null;
+      }
+      if (_done || !mounted) return;
+      if (step case DeskPartDone<T>(:final value)) _finish(DeskScanned<T>(value));
+    }
+  }
+
+  void _finish(DeskScanResult<T>? result) {
+    if (_done || !mounted) return;
+    _done = true;
+    Navigator.of(context).pop(result);
   }
 
   Future<void> _paste() async {
     final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim();
-    if (text == null || text.isEmpty || !mounted) return;
-    Navigator.of(context).pop(DeskPasted<T>(text));
+    if (text == null || text.isEmpty) return;
+    _finish(DeskPasted<T>(text));
   }
 
   @override
   void dispose() {
+    _done = true;
+    _queue.clear();
     _camera.close();
     super.dispose();
   }
@@ -141,7 +175,7 @@ class _DeskScanDialogState<T> extends ConsumerState<DeskScanDialog<T>> {
       body: SizedBox(height: 240, child: _camera.preview(context)),
       actions: [
         EButton(label: l.commonPaste, onPressed: _paste),
-        EButton(label: l.commonClose, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonClose, onPressed: () => _finish(null)),
       ],
     );
   }
