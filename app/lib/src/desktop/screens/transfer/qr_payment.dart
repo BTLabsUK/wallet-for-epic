@@ -16,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../camera/camera_presence.dart';
 import '../../../sealed_text.dart' show isSealedText;
-import '../../../qr_slate.dart' show looksLikeQrSlate, partCountOf, partNumberOf, qrCountdownSeconds, qrFrameMs, qrLowSeconds, qrShowSeconds;
+import '../../../qr_slate.dart' show QrFrames, looksLikeQrSlate, partCountOf, partNumberOf, qrCountdownSeconds, qrFrameMs, qrLowSeconds, qrShowSeconds;
 import '../../../wallet_service.dart' show WalletError, WalletErrorKind;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -254,6 +254,9 @@ class DeskSlateQr extends ConsumerStatefulWidget {
 class _DeskSlateQrState extends ConsumerState<DeskSlateQr> with WidgetsBindingObserver {
   _Phase _phase = _Phase.hidden;
   List<String>? _parts;
+
+  /// [_parts] drawn once, at level H with the mark.
+  QrFrames? _frames;
   String? _error;
   int _numeral = qrCountdownSeconds;
   int _secondsLeft = qrShowSeconds;
@@ -275,6 +278,7 @@ class _DeskSlateQrState extends ConsumerState<DeskSlateQr> with WidgetsBindingOb
       _stopTimers();
       _phase = _Phase.hidden;
       _parts = null;
+      _frames = null;
       _error = null;
     }
   }
@@ -321,6 +325,7 @@ class _DeskSlateQrState extends ConsumerState<DeskSlateQr> with WidgetsBindingOb
         final parts = await api.encodeQrSlate(json);
         if (parts.isEmpty) throw StateError('no parts');
         _parts = parts;
+        _frames = QrFrames.of(parts);
       } on Object catch (e) {
         if (mounted) {
           final l = context.l10n;
@@ -428,7 +433,7 @@ class _DeskSlateQrState extends ConsumerState<DeskSlateQr> with WidgetsBindingOb
       child: child,
     );
     final Widget code = switch (_phase) {
-      _Phase.showing when parts != null => ExcludeSemantics(child: EQr(parts[_frame % parts.length], key: const ValueKey('desk-qr-image'), size: size)),
+      _Phase.showing when parts != null => ExcludeSemantics(child: EQr.frame(_frames!.images[_frame % parts.length], key: const ValueKey('desk-qr-image'), size: size)),
       _Phase.countdown => box(
         Semantics(
           liveRegion: true,

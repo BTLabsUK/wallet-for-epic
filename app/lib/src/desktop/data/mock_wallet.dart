@@ -36,7 +36,7 @@ import '../../seed_contacts.dart';
 import '../../slate_files.dart' show isSealedText, responseFileName, sealedFileName, sendFileName;
 import '../../pairing_text.dart' show pairingName;
 import '../../finished_payment.dart' show readFinishedPayment;
-import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, qrSingleCodeMaxLen, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
 import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
 import '../../history/name_service_pins.dart';
 import '../../history/meta_store.dart' show Meta;
@@ -810,7 +810,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<List<String>> encodeQrSlate(String json) async {
     try {
-      return await _qr.encodeQrSlate(json: json, maxFragmentLen: qrFragmentLen);
+      return await _qr.encodeQrSlate(json: json, maxFragmentLen: qrFragmentLen, singleCodeMaxLen: qrSingleCodeMaxLen);
     } on WalletError {
       throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
     }

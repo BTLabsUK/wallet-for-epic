@@ -2795,7 +2795,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<List<String>> encodeQrSlate(String json) async {
     try {
-      return await _service.encodeQrSlate(json: json, maxFragmentLen: core.qrFragmentLen);
+      return await _service.encodeQrSlate(json: json, maxFragmentLen: core.qrFragmentLen, singleCodeMaxLen: core.qrSingleCodeMaxLen);
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
