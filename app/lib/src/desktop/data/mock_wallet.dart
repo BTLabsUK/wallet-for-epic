@@ -25,7 +25,7 @@ import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPay
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../message_checks.dart' show MessageChecks;
-import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
+import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, QrSlateProgress, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../epic1.dart';
@@ -36,7 +36,7 @@ import '../../seed_contacts.dart';
 import '../../slate_files.dart' show isSealedText, responseFileName, sealedFileName, sendFileName;
 import '../../pairing_text.dart' show pairingName;
 import '../../finished_payment.dart' show readFinishedPayment;
-import '../../wallet_service.dart' show FakeListingKeys, FakeWalletSession, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, qrSingleCodeMaxLen, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
 import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
 import '../../history/name_service_pins.dart';
 import '../../history/meta_store.dart' show Meta;
@@ -802,6 +802,32 @@ class MockDeskWallet implements DeskWalletApi {
   Future<String> finishedPayment(int id) async {
     await _wait(0.2);
     return FakeWalletSession.fakeFinishedText(id);
+  }
+
+  /// The fake core's animated code: `UR:EPIC-SLATE/<part>-<count>/<digest>/<hex>`.
+  final FakeWalletService _qr = FakeWalletService();
+
+  @override
+  Future<List<String>> encodeQrSlate(String json) async {
+    try {
+      return await _qr.encodeQrSlate(json: json, maxFragmentLen: qrFragmentLen, singleCodeMaxLen: qrSingleCodeMaxLen);
+    } on WalletError {
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
+    }
+  }
+
+  @override
+  Future<QrSlateProgress> decodeQrSlate(List<String> parts) => _qr.decodeQrSlate(parts: parts);
+
+  /// A file a send kept ([fileTexts]), else a canned slate of its kind: a response by its name,
+  /// a payment otherwise.
+  @override
+  Future<String> slateFileText(String path) async {
+    await _wait(0.1);
+    final kept = fileTexts[path];
+    if (kept != null) return kept;
+    final reply = path.contains('response');
+    return '{"version_info":{"version":3,"block_header_version":2},"id":"${reply ? '9a8b7c6d-5e4f-4321-8765-0fedcba98765' : 'f0e1d2c3-b4a5-4697-8879-6a5b4c3d2e1f'}","sta":"${reply ? 'S2' : 'S1'}","amt":"42000000000","fee":"700000"}';
   }
 
   @override

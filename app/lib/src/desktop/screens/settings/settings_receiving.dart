@@ -291,7 +291,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       MethodKind.epicbox => l.deskSetTxEpicboxHint,
       MethodKind.linkHttp => DeskFeatures.tor ? l.deskSetTxDirectHint('${s.httpPort}') : l.deskNoTorSetTxDirectHint('${s.httpPort}'),
       MethodKind.linkTor => l.deskSetTxTorPayHint,
-      MethodKind.directQr => '',
+      // Not listed here: on this computer QR rides on File Transfer's Show QR and Scan QR.
+      MethodKind.directQr => l.deskSetTxQrHint,
       MethodKind.directFile => l.deskSetTxFileHint,
     };
     final busy = (m == MethodKind.linkHttp && _busy.contains(TxMethod.http)) || (m == MethodKind.linkTor && _busy.contains(TxMethod.tor));

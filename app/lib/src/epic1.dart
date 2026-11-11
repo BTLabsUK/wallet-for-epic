@@ -8,6 +8,7 @@
 /// and the desktop mock.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -435,6 +436,22 @@ class FakeEpic1 implements Epic1Wallet {
   /// Relays that refuse posts (payLink, postNext).
   final Set<String> failPosts = {};
 
+  /// In-person codes and answers name no Epicbox server: the answer goes by scan or paste.
+  bool inPersonNoMailbox = false;
+
+  /// Holds [inPersonPost] until a test completes it (or completes it with an error).
+  Completer<void>? inPersonPostHold;
+
+  /// [inPersonAnswers] and [inPersonPost] fail as a server that does not answer.
+  bool inPersonServerDown = false;
+
+  /// [inPersonTake] gets an answer the mailbox already brought: like LEPIC it returns the
+  /// earlier record, adding none.
+  bool inPersonTakeKnown = false;
+
+  /// The height a new in-person code expires at.
+  BigInt inPersonCutoff = BigInt.from(1030);
+
   /// What [readLink] reports as the link's hosts; default one relay in the list.
   List<Epic1Host> linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true)];
 
@@ -578,8 +595,9 @@ class FakeEpic1 implements Epic1Wallet {
   InPersonCodeMade _code(InPersonStage stage, BigInt amount) {
     final slateId = _slate();
     final bytes = Uint8List.fromList([stage.index, ...sha256.convert(utf8.encode('$slateId $amount')).bytes]);
-    _codes[slateId] = InPersonStatus(txId: _next, slateId: slateId, stage: stage, ttlCutoff: BigInt.from(1030), mailbox: 'relay.example.invalid:443');
-    return InPersonCodeMade(txId: _next, slateId: slateId, bytes: bytes, ttlCutoff: BigInt.from(1030), mailbox: 'relay.example.invalid:443');
+    final mailbox = inPersonNoMailbox ? null : 'relay.example.invalid:443';
+    _codes[slateId] = InPersonStatus(txId: _next, slateId: slateId, stage: stage, ttlCutoff: inPersonCutoff, mailbox: mailbox);
+    return InPersonCodeMade(txId: _next, slateId: slateId, bytes: bytes, ttlCutoff: inPersonCutoff, mailbox: mailbox);
   }
 
   @override
@@ -604,15 +622,15 @@ class FakeEpic1 implements Epic1Wallet {
       stage: InPersonStage.values[code.first],
       amount: BigInt.from(100000000),
       fee: BigInt.from(700000),
-      ttlCutoff: BigInt.from(1030),
-      mailbox: const Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true),
+      ttlCutoff: inPersonCutoff,
+      mailbox: inPersonNoMailbox ? null : const Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true),
     );
   }
 
   InPersonAnswerMade _answer() {
     final slateId = _slate();
     final envelope = Uint8List.fromList(utf8.encode('BEGINEPICTX. fake $slateId. ENDEPICTX.'));
-    return InPersonAnswerMade(txId: _next, slateId: slateId, envelope: envelope, armored: utf8.decode(envelope), mailbox: const Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true));
+    return InPersonAnswerMade(txId: _next, slateId: slateId, envelope: envelope, armored: utf8.decode(envelope), mailbox: inPersonNoMailbox ? null : const Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true));
   }
 
   @override
@@ -631,6 +649,8 @@ class FakeEpic1 implements Epic1Wallet {
   Future<String> inPersonPost({required String slateId, required bool relayOk}) async {
     _call('inPersonPost');
     if (!relayOk) throw const WalletError(kind: WalletErrorKind.relayNotConfirmed, message: 'relay not confirmed');
+    await inPersonPostHold?.future;
+    if (inPersonServerDown) throw const WalletError(kind: WalletErrorKind.transportFailed, message: 'server down');
     return '4821';
   }
 
@@ -651,6 +671,7 @@ class FakeEpic1 implements Epic1Wallet {
   @override
   Future<InPersonStatus> inPersonAnswers(String slateId) async {
     _call('inPersonAnswers');
+    if (inPersonServerDown) throw const WalletError(kind: WalletErrorKind.transportFailed, message: 'server down');
     final s = _codes[slateId];
     if (s == null) throw const WalletError(kind: WalletErrorKind.codeExpired, message: 'no such code');
     return s;
@@ -662,7 +683,7 @@ class FakeEpic1 implements Epic1Wallet {
     final open = _codes.values.where((c) => !c.closed).toList();
     if (open.isEmpty) throw const WalletError(kind: WalletErrorKind.invalidSlate, message: 'answers no open code');
     final c = open.last;
-    answerCode(c.slateId);
+    if (!inPersonTakeKnown || c.answers.isEmpty) answerCode(c.slateId);
     final a = _codes[c.slateId]!.answers.last;
     return InPersonTaken(txId: c.txId, slateId: c.slateId, stage: c.stage, answer: a.number, checkCode: a.checkCode, sameCode: a.sameCode);
   }

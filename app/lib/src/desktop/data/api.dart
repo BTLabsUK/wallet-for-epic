@@ -10,7 +10,7 @@ import '../../devices/device_model.dart' show DeviceBook;
 import '../../epic1.dart' show Epic1Wallet;
 import '../../cancel_final.dart' show CancelResult;
 import '../../message_checks.dart' show MessageChecks;
-import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
+import '../../models.dart' show FinishedPayment, InvoiceEvent, QrSlateProgress, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../name_service/name_service_service.dart' show NameServiceHost;
 import '../../name_service/receipts.dart' show LinkPaymentRecords;
@@ -18,6 +18,7 @@ import '../../name_service/name_service.dart' show NameServiceMembership, LinkOu
 import '../../pairing_api.dart';
 import '../../scan/scan_router.dart' show PaymentLink;
 import '../../trust/policy.dart' show PeerCompat;
+import '../../wallet_service.dart' show WalletError;
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
 import 'http_address.dart';
@@ -263,6 +264,20 @@ abstract interface class DeskWalletApi {
   /// The finished payment [id] (finalized, not posted: [Tx.notPosted] in Kill switch) as text
   /// to post from a device that is online (a file's or a QR's contents).
   Future<String> finishedPayment(int id);
+
+  /// The transaction file [json] as the parts of an animated QR code (QR Payment), shown in
+  /// turn. Needs no open wallet. Throws a [DeskError] for text that is not a slate or one too
+  /// large for the code.
+  Future<List<String>> encodeQrSlate(String json);
+
+  /// Reads the distinct animated-code [parts] scanned so far, as the core's decoder does. Needs
+  /// no open wallet. Throws the core's [WalletError] (its kind says whether a part is not a
+  /// payment's, belongs to another payment, or is damaged), for the reader to act on.
+  Future<QrSlateProgress> decodeQrSlate(List<String> parts);
+
+  /// The text of the transaction file this wallet wrote at [path] (a send's file, a response),
+  /// to show as a QR code. Throws a [DeskError] when it cannot be read.
+  Future<String> slateFileText(String path);
 
   /// Reads a finished payment's [text] without posting it. Throws a [DeskError] when it is not one.
   Future<FinishedPayment> inspectFinished(String text);

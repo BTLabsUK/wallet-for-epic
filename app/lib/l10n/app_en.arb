@@ -17670,9 +17670,9 @@
   "@linkFinishCurrentFirst": {
     "description": "Notice when a payment link arrives while Send asks for the PIN or sends; the link is dropped."
   },
-  "deskSendToQrPayment": "A QR Payment code. Scan it with BT Wallet on a phone.",
+  "deskSendToQrPayment": "That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.",
   "@deskSendToQrPayment": {
-    "description": "Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (BT Wallet on a phone) reads. 'QR Payment' is the method's name."
+    "description": "Error under To on desktop Send when the pasted text is one part of an animated QR Payment code (ur:epic-slate/…). Scanned by the camera, the code opens its scan; pasted, it cannot be read from one part."
   },
   "deskSetRecvTorText": "Straight from another wallet at this wallet’s Tor address, while it is open.",
   "@deskSetRecvTorText": {
@@ -29362,5 +29362,215 @@
         "type": "String"
       }
     }
+  },
+  "deskLvPaySendingInPerson": "Sending in person",
+  "@deskLvPaySendingInPerson": {
+    "description": "Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end)."
+  },
+  "deskInvIssuerWaitingInPerson": "Waiting for the other wallet’s answer. Nothing is paid until it approves.",
+  "@deskInvIssuerWaitingInPerson": {
+    "description": "Detail text of a waiting request that was issued in person (no payer name)."
+  },
+  "deskIpOnlineLine": "Answer comes back online · {host}",
+  "@deskIpOnlineLine": {
+    "description": "Quiet status line under an in-person code while its answer comes back through an Epicbox server; host is the server's name. Tapping it opens the details.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskIpOnlineSending": "Sending the answer online…",
+  "@deskIpOnlineSending": {
+    "description": "Status line in place of the answer QR code while the answer goes to the code's Epicbox server."
+  },
+  "deskIpOnlineDown": "Epicbox server not reachable · trying again",
+  "@deskIpOnlineDown": {
+    "description": "Status line under an in-person code when the Epicbox server did not answer; the wallet keeps asking."
+  },
+  "deskIpOnlineTitle": "Online answer",
+  "@deskIpOnlineTitle": {
+    "description": "Title of the details of an in-person answer going through an Epicbox server."
+  },
+  "deskIpOnlineServer": "Epicbox server",
+  "@deskIpOnlineServer": {
+    "description": "Label of the row naming the Epicbox server the answer goes through."
+  },
+  "deskIpOnlineStatus": "Status",
+  "@deskIpOnlineStatus": {
+    "description": "Label of the row with the online answer's current step."
+  },
+  "deskIpOnlineTimeLeft": "Time left",
+  "@deskIpOnlineTimeLeft": {
+    "description": "Label of the row with how long the in-person code still works."
+  },
+  "deskIpOnlineMinutes": "{count, plural, one{About {count} min} other{About {count} min}}",
+  "@deskIpOnlineMinutes": {
+    "description": "Value of the Time left row; count is minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskIpStepPosting": "Sending the answer…",
+  "@deskIpStepPosting": {
+    "description": "Online answer step: this wallet sends its answer to the Epicbox server."
+  },
+  "deskIpStepSent": "Answer sent",
+  "@deskIpStepSent": {
+    "description": "Online answer step: the answer reached the Epicbox server."
+  },
+  "deskIpStepReceived": "Answer received",
+  "@deskIpStepReceived": {
+    "description": "Online answer step: the other phone's answer came in."
+  },
+  "deskIpStepDown": "Not reachable. Trying again.",
+  "@deskIpStepDown": {
+    "description": "Online answer step: the Epicbox server did not answer; the wallet keeps asking."
+  },
+  "deskIpStepFailed": "Did not go through",
+  "@deskIpStepFailed": {
+    "description": "Online answer step: the answer could not be sent to the Epicbox server."
+  },
+  "deskIpStepCancelled": "Cancelled",
+  "@deskIpStepCancelled": {
+    "description": "Online answer step: the user cancelled the online reply."
+  },
+  "deskIpOnlineCancel": "Cancel online reply",
+  "@deskIpOnlineCancel": {
+    "description": "Button: stop sending or waiting online; the answer then goes by scan or paste."
+  },
+  "deskIpOnlineCancelCode": "Then scan or paste the other phone's answer.",
+  "@deskIpOnlineCancelCode": {
+    "description": "Line under Cancel online reply on the side that shows the code."
+  },
+  "deskIpOnlineCancelAnswer": "Then the other phone scans your answer.",
+  "@deskIpOnlineCancelAnswer": {
+    "description": "Line under Cancel online reply on the side that answered the code."
+  },
+  "deskIpOnlineDetails": "Details",
+  "@deskIpOnlineDetails": {
+    "description": "Screen reader hint of the online answer status line: tapping it opens its details."
+  },
+  "deskQrHiddenReply": "Show it to the sender’s wallet. Only their wallet can use it.",
+  "@deskQrHiddenReply": {
+    "description": "Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer."
+  },
+  "deskQrHiddenPaid": "Show it to the wallet that asked for the payment. Only that wallet can use it.",
+  "@deskQrHiddenPaid": {
+    "description": "Under the covered QR of an answer to an invoice on desktop, shown back to whoever asked for the payment."
+  },
+  "deskQrTimedOutBody": "Show it again when the other device is ready.",
+  "@deskQrTimedOutBody": {
+    "description": "Under 'Hidden after N seconds' on desktop's payment QR. The other device is a phone or another computer."
+  },
+  "deskQrCannotShow": "This file cannot be shown as a QR code.",
+  "@deskQrCannotShow": {
+    "description": "Shown in place of the QR on desktop when the transaction file could not be read or cut into QR parts."
+  },
+  "deskQrAimPayment": "Point the camera at the payment QR on the other device.",
+  "@deskQrAimPayment": {
+    "description": "Hint in desktop's scan dialog when scanning a sender's animated payment QR."
+  },
+  "deskQrAimReply": "Point the camera at the reply QR on the other device.",
+  "@deskQrAimReply": {
+    "description": "Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice."
+  },
+  "deskQrAimAny": "Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.",
+  "@deskQrAimAny": {
+    "description": "Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds."
+  },
+  "deskQrNotTx": "That is not a payment QR code.",
+  "@deskQrNotTx": {
+    "description": "Shown in desktop's scan dialog when the code in view is not an animated QR Payment code at all."
+  },
+  "deskQrScannedName": "Scanned QR code",
+  "@deskQrScannedName": {
+    "description": "Name of a result line in Transaction files on desktop for a transaction that came in by the camera, in place of a file name."
+  },
+  "deskQrPastedName": "Pasted text",
+  "@deskQrPastedName": {
+    "description": "Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name."
+  },
+  "deskQrScanFinalize": "Or scan their reply as a QR code.",
+  "@deskQrScanFinalize": {
+    "description": "Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file."
+  },
+  "deskSetTxQrHint": "Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.",
+  "@deskSetTxQrHint": {
+    "description": "Hint of the QR Payment method in desktop Settings › Payment methods."
+  },
+  "deskQrScanImport": "Or scan the payment or invoice as a QR code.",
+  "@deskQrScanImport": {
+    "description": "Line beside Scan QR on desktop's Sign a payment step, under the box that takes the sender's file or an invoice."
+  },
+  "deskScanStarting": "Starting the camera…",
+  "@deskScanStarting": {
+    "description": "Scan dialog: shown in the camera area until the camera's picture appears."
+  },
+  "deskScanAim": "Hold the code in front of the camera.",
+  "@deskScanAim": {
+    "description": "Scan dialog: the line under the camera picture while scanning."
+  },
+  "deskScanTryAgain": "Try again",
+  "@deskScanTryAgain": {
+    "description": "Scan dialog: button that starts the camera again after it stopped. Never pressed by the app itself."
+  },
+  "deskScanDeniedWindows": "Camera access is off in Windows Settings › Privacy & security › Camera.",
+  "@deskScanDeniedWindows": {
+    "description": "Scan dialog, Windows: the system does not let the app open the camera. Use the Windows settings page names of the language."
+  },
+  "deskScanDeniedMac": "Camera access is off in System Settings › Privacy & Security › Camera.",
+  "@deskScanDeniedMac": {
+    "description": "Scan dialog, macOS: the system does not let the app open the camera. Use the macOS settings names of the language."
+  },
+  "deskScanDeniedLinux": "This app is not allowed to open the camera.",
+  "@deskScanDeniedLinux": {
+    "description": "Scan dialog, Linux: the system refused to open the camera (permissions, a sandbox portal)."
+  },
+  "deskScanUnsupportedLinux": "Camera support (GStreamer) is missing on this system.",
+  "@deskScanUnsupportedLinux": {
+    "description": "Scan dialog and the line beside paste, Linux: the GStreamer libraries the camera needs are not installed. Keep 'GStreamer' as is."
+  },
+  "deskScanUnsupportedWindows": "The Windows media features are missing.",
+  "@deskScanUnsupportedWindows": {
+    "description": "Scan dialog and the line beside paste, Windows: Windows N editions without the Media Feature Pack."
+  },
+  "deskScanUnsupportedOther": "Camera support is missing on this system.",
+  "@deskScanUnsupportedOther": {
+    "description": "Scan dialog and the line beside paste, other systems: what the camera needs is not there."
+  },
+  "deskScanBusy": "Another app is using the camera.",
+  "@deskScanBusy": {
+    "description": "Scan dialog: the camera is held by another app."
+  },
+  "deskScanFailed": "The camera did not start.",
+  "@deskScanFailed": {
+    "description": "Scan dialog: the camera failed to start for another reason (a driver error)."
+  },
+  "deskScanNoPicture": "The camera sends no picture.",
+  "@deskScanNoPicture": {
+    "description": "Scan dialog: the camera opened but sends no picture, or a frozen one."
+  },
+  "deskScanDark": "The camera picture is black. Its cover may be closed.",
+  "@deskScanDark": {
+    "description": "Scan dialog: shown over a black picture (a closed lens cover or shutter); it goes away when the picture comes back."
+  },
+  "deskScanUnplugged": "The camera was disconnected.",
+  "@deskScanUnplugged": {
+    "description": "Scan dialog: the camera went away during the scan (unplugged)."
+  },
+  "deskScanReaderFailed": "The QR reader did not start.",
+  "@deskScanReaderFailed": {
+    "description": "Scan dialog: the part that reads QR codes from the picture failed to load."
+  },
+  "deskScanNoCamera": "No camera found. Paste the code instead.",
+  "@deskScanNoCamera": {
+    "description": "The quiet line under a paste field when this computer has no camera; Scan is greyed out."
+  },
+  "deskOvScan": "Scan",
+  "@deskOvScan": {
+    "description": "Button on Overview beside Send and Receive that reads any code with the camera."
   }
 }

@@ -13807,7 +13807,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'Код «Оплата по QR». Отсканируйте его в BT Wallet на телефоне.';
+      'Это одна часть анимированного QR-кода. Отсканируйте код камерой или вставьте весь текст транзакции.';
 
   @override
   String get deskSetRecvTorText =>
@@ -22354,4 +22354,183 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, запечатано epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Отправка лично';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Ждём ответ другого кошелька. Ничего не оплачивается, пока он не одобрит.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Ответ придёт онлайн · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Отправка ответа онлайн…';
+
+  @override
+  String get deskIpOnlineDown => 'Сервер Epicbox недоступен · пробуем снова';
+
+  @override
+  String get deskIpOnlineTitle => 'Ответ онлайн';
+
+  @override
+  String get deskIpOnlineServer => 'Сервер Epicbox';
+
+  @override
+  String get deskIpOnlineStatus => 'Статус';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Осталось времени';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Около $count мин.',
+      many: 'Около $count мин.',
+      few: 'Около $count мин.',
+      one: 'Около $count мин.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Отправка ответа…';
+
+  @override
+  String get deskIpStepSent => 'Ответ отправлен';
+
+  @override
+  String get deskIpStepReceived => 'Ответ получен';
+
+  @override
+  String get deskIpStepDown => 'Недоступен. Пробуем снова.';
+
+  @override
+  String get deskIpStepFailed => 'Не удалось отправить';
+
+  @override
+  String get deskIpStepCancelled => 'Отменено';
+
+  @override
+  String get deskIpOnlineCancel => 'Отменить ответ онлайн';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Затем отсканируйте или вставьте ответ другого телефона.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Затем другой телефон сканирует ваш ответ.';
+
+  @override
+  String get deskIpOnlineDetails => 'Подробности';
+
+  @override
+  String get deskQrHiddenReply =>
+      'Покажите его кошельку отправителя. Использовать его сможет только его кошелёк.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Покажите его кошельку, который запросил платёж. Использовать его сможет только тот кошелёк.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Покажите его снова, когда другое устройство будет готово.';
+
+  @override
+  String get deskQrCannotShow => 'Этот файл нельзя показать как QR-код.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Наведите камеру на QR платежа на другом устройстве.';
+
+  @override
+  String get deskQrAimReply =>
+      'Наведите камеру на QR ответа на другом устройстве.';
+
+  @override
+  String get deskQrAimAny =>
+      'Наведите камеру на QR-код платежа, ответа, счёта или готового платежа.';
+
+  @override
+  String get deskQrNotTx => 'Это не QR-код платежа.';
+
+  @override
+  String get deskQrScannedName => 'Отсканированный QR-код';
+
+  @override
+  String get deskQrPastedName => 'Вставленный текст';
+
+  @override
+  String get deskQrScanFinalize => 'Или отсканируйте их ответ как QR-код.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Платите и получайте платежи, показывая и сканируя транзакцию как анимированный QR-код, сеть не нужна. На этом компьютере это часть «Передачи файла»: «Показать QR» и «Сканировать QR» стоят рядом с кнопками файлов.';
+
+  @override
+  String get deskQrScanImport => 'Или отсканируйте платёж или счёт как QR-код.';
+
+  @override
+  String get deskScanStarting => 'Запуск камеры…';
+
+  @override
+  String get deskScanAim => 'Держите код перед камерой.';
+
+  @override
+  String get deskScanTryAgain => 'Повторить';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'Доступ к камере выключен в разделе Параметры Windows › Конфиденциальность и защита › Камера.';
+
+  @override
+  String get deskScanDeniedMac =>
+      'Доступ к камере выключен в разделе Системные настройки › Конфиденциальность и безопасность › Камера.';
+
+  @override
+  String get deskScanDeniedLinux =>
+      'Этому приложению не разрешено открывать камеру.';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'В системе нет поддержки камеры (GStreamer).';
+
+  @override
+  String get deskScanUnsupportedWindows =>
+      'Нет компонентов мультимедиа Windows.';
+
+  @override
+  String get deskScanUnsupportedOther => 'В системе нет поддержки камеры.';
+
+  @override
+  String get deskScanBusy => 'Камеру использует другое приложение.';
+
+  @override
+  String get deskScanFailed => 'Камера не запустилась.';
+
+  @override
+  String get deskScanNoPicture => 'Камера не передаёт изображение.';
+
+  @override
+  String get deskScanDark =>
+      'Изображение с камеры чёрное. Возможно, закрыта шторка.';
+
+  @override
+  String get deskScanUnplugged => 'Камера отключена.';
+
+  @override
+  String get deskScanReaderFailed => 'Сканер QR-кодов не запустился.';
+
+  @override
+  String get deskScanNoCamera =>
+      'Камера не найдена. Вставьте код вместо этого.';
+
+  @override
+  String get deskOvScan => 'Сканировать';
 }

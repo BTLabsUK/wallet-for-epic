@@ -12968,7 +12968,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'โค้ดชำระด้วย QR ให้สแกนด้วย BT Wallet บนโทรศัพท์';
+      'นี่เป็นเพียงส่วนหนึ่งของ QR Code แบบเคลื่อนไหว สแกนโค้ดด้วยกล้อง หรือวางข้อความทั้งหมดของธุรกรรม';
 
   @override
   String get deskSetRecvTorText =>
@@ -21203,4 +21203,175 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row ปิดผนึกด้วย epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'กำลังส่งด้วยตนเอง';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'รอคำตอบจากกระเป๋าอีกฝั่ง ไม่มีการชำระใดๆ จนกว่าจะอนุมัติ';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'คำตอบจะกลับมาทางออนไลน์ · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'กำลังส่งคำตอบทางออนไลน์…';
+
+  @override
+  String get deskIpOnlineDown =>
+      'เข้าถึงเซิร์ฟเวอร์ Epicbox ไม่ได้ · กำลังลองใหม่';
+
+  @override
+  String get deskIpOnlineTitle => 'คำตอบออนไลน์';
+
+  @override
+  String get deskIpOnlineServer => 'เซิร์ฟเวอร์ Epicbox';
+
+  @override
+  String get deskIpOnlineStatus => 'สถานะ';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'เวลาที่เหลือ';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ประมาณ $count นาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'กำลังส่งคำตอบ…';
+
+  @override
+  String get deskIpStepSent => 'ส่งคำตอบแล้ว';
+
+  @override
+  String get deskIpStepReceived => 'ได้รับคำตอบแล้ว';
+
+  @override
+  String get deskIpStepDown => 'เข้าถึงไม่ได้ กำลังลองใหม่';
+
+  @override
+  String get deskIpStepFailed => 'ส่งไม่สำเร็จ';
+
+  @override
+  String get deskIpStepCancelled => 'ยกเลิกแล้ว';
+
+  @override
+  String get deskIpOnlineCancel => 'ยกเลิกการตอบออนไลน์';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'จากนั้นสแกนหรือวางคำตอบของโทรศัพท์อีกเครื่อง';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'จากนั้นโทรศัพท์อีกเครื่องจะสแกนคำตอบของคุณ';
+
+  @override
+  String get deskIpOnlineDetails => 'รายละเอียด';
+
+  @override
+  String get deskQrHiddenReply =>
+      'แสดงให้กระเป๋าของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'แสดงให้กระเป๋าที่ขอชำระเงิน เฉพาะกระเป๋านั้นเท่านั้นที่ใช้ได้';
+
+  @override
+  String get deskQrTimedOutBody => 'แสดงอีกครั้งเมื่ออุปกรณ์อีกเครื่องพร้อม';
+
+  @override
+  String get deskQrCannotShow => 'ไม่สามารถแสดงไฟล์นี้เป็น QR Code ได้';
+
+  @override
+  String get deskQrAimPayment =>
+      'หันกล้องไปที่ QR ของรายการบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get deskQrAimReply => 'หันกล้องไปที่ QR ของคำตอบบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get deskQrAimAny =>
+      'หันกล้องไปที่ QR Code ของรายการ คำตอบ ใบแจ้งหนี้ หรือรายการที่เสร็จแล้ว';
+
+  @override
+  String get deskQrNotTx => 'นี่ไม่ใช่ QR Code ของรายการ';
+
+  @override
+  String get deskQrScannedName => 'QR Code ที่สแกน';
+
+  @override
+  String get deskQrPastedName => 'ข้อความที่วาง';
+
+  @override
+  String get deskQrScanFinalize => 'หรือสแกนคำตอบของเขาเป็น QR Code';
+
+  @override
+  String get deskSetTxQrHint =>
+      'จ่ายและรับเงินโดยแสดงและสแกนธุรกรรมเป็น QR Code แบบเคลื่อนไหว ไม่ต้องใช้เครือข่าย บนคอมพิวเตอร์นี้มาพร้อมกับโอนไฟล์: แสดง QR และ สแกน QR อยู่ข้างปุ่มไฟล์';
+
+  @override
+  String get deskQrScanImport => 'หรือสแกนรายการหรือใบแจ้งหนี้เป็น QR Code';
+
+  @override
+  String get deskScanStarting => 'กำลังเปิดกล้อง…';
+
+  @override
+  String get deskScanAim => 'ถือโค้ดไว้หน้ากล้อง';
+
+  @override
+  String get deskScanTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'การเข้าถึงกล้องปิดอยู่ใน การตั้งค่า Windows › ความเป็นส่วนตัวและความปลอดภัย › กล้อง';
+
+  @override
+  String get deskScanDeniedMac =>
+      'การเข้าถึงกล้องปิดอยู่ใน การตั้งค่าระบบ › ความเป็นส่วนตัวและความปลอดภัย › กล้อง';
+
+  @override
+  String get deskScanDeniedLinux => 'แอปนี้ไม่ได้รับอนุญาตให้เปิดกล้อง';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'ระบบนี้ไม่มีส่วนรองรับกล้อง (GStreamer)';
+
+  @override
+  String get deskScanUnsupportedWindows => 'ไม่มีฟีเจอร์สื่อของ Windows';
+
+  @override
+  String get deskScanUnsupportedOther => 'ระบบนี้ไม่มีส่วนรองรับกล้อง';
+
+  @override
+  String get deskScanBusy => 'แอปอื่นกำลังใช้กล้องอยู่';
+
+  @override
+  String get deskScanFailed => 'กล้องไม่เริ่มทำงาน';
+
+  @override
+  String get deskScanNoPicture => 'กล้องไม่ส่งภาพมา';
+
+  @override
+  String get deskScanDark => 'ภาพจากกล้องเป็นสีดำ ฝาปิดกล้องอาจปิดอยู่';
+
+  @override
+  String get deskScanUnplugged => 'กล้องถูกถอดออก';
+
+  @override
+  String get deskScanReaderFailed => 'ตัวอ่าน QR ไม่เริ่มทำงาน';
+
+  @override
+  String get deskScanNoCamera => 'ไม่พบกล้อง วางโค้ดแทน';
+
+  @override
+  String get deskOvScan => 'สแกน';
 }

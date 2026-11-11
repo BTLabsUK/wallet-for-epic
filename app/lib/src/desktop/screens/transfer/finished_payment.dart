@@ -2,10 +2,10 @@
 /// The desktop's two ends of a Kill switch payment. [FinishedNotPostedPanel] is what Finalize
 /// shows when it finished a payment without a node: "Finished, not posted", with the finished
 /// payment as a file (`<first 8 of the id>.finished.tx`, LEPIC's final slate) or as text to copy.
-/// [PostFinishedDialog] is Receive › Transaction files › Post a finished payment: open the file
-/// or paste its text, read the amount, fee and kernel, and post it to the node in use. No PIN:
-/// posting needs no key. The desktop shows no QR codes of payments, so a finished payment
-/// leaves it as a file or text; the phone's Post a finished payment also scans one.
+/// [PostFinishedDialog] is Receive › Transaction files › Post a finished payment: open the file,
+/// paste its text or scan its QR code, read the amount, fee and kernel, and post it to the node
+/// in use. No PIN: posting needs no key. A finished payment leaves this computer as a file, as
+/// text, or as an animated QR code (Show QR) for a phone or computer that is online.
 library;
 
 import 'dart:convert';
@@ -22,12 +22,14 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'file_panels.dart' show ResultGlyph, ResultPanel;
+import 'qr_payment.dart';
 
 /// The file a finished payment is saved as.
 String finishedFileName(String slateId) => '${shortSlateId(slateId)}.finished.tx';
 
-/// Save file and Copy for the finished payment [tx], two small buttons: in a payment's details
+/// Save file, Copy and Show QR for the finished payment [tx], small buttons: in a payment's details
 /// while Kill switch holds it ([Tx.notPosted]).
 class FinishedPaymentActions extends ConsumerWidget {
   const FinishedPaymentActions({super.key, required this.tx});
@@ -72,6 +74,17 @@ class FinishedPaymentActions extends ConsumerWidget {
             if (t == null || !context.mounted) return;
             await Clipboard.setData(ClipboardData(text: t));
             if (context.mounted) showEToast(context, l.slateCopied, tone: ETone.ok);
+          },
+        ),
+        EButton(
+          key: const ValueKey('tx-finished-qr'),
+          label: l.qrShow,
+          icon: EIcons.qr,
+          size: EBtnSize.sm,
+          onPressed: () async {
+            final t = await text();
+            if (t == null || !context.mounted) return;
+            await showDeskSlateQr(context, kind: DeskQrKind.finished, json: t);
           },
         ),
       ],
@@ -134,6 +147,12 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
     if (mounted) showEToast(context, l.slateCopied, tone: ETone.ok);
   }
 
+  Future<void> _showQr() async {
+    final text = await _text();
+    if (text == null || !mounted) return;
+    await showDeskSlateQr(context, kind: DeskQrKind.finished, json: text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -146,6 +165,7 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
       actions: [
         EButton.primary(key: const ValueKey('finished-save'), label: l.finishedSaveFile, icon: EIcons.fileDown, busy: _busy, onPressed: _busy ? null : _save),
         EButton(key: const ValueKey('finished-copy'), label: l.commonCopy, icon: EIcons.copy, onPressed: _busy ? null : _copy),
+        EButton(key: const ValueKey('finished-qr'), label: l.qrShow, icon: EIcons.qr, onPressed: _busy ? null : _showQr),
         ...widget.actions,
       ],
     );
@@ -225,6 +245,17 @@ class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
     await _read(text);
   }
 
+  /// Scan QR: the finished payment's animated code, or the text pasted in its place.
+  Future<void> _scan() async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.qrScanFinished, hint: l.qrScanAimFinished, notSlate: (l) => l.qrScanNotFinished);
+    if (got == null || !mounted) return;
+    await _read(switch (got) {
+      DeskScanned(:final value) => value,
+      DeskPasted(:final text) => text,
+    });
+  }
+
   Future<void> _post() async {
     final l = context.l10n;
     final text = _text;
@@ -281,6 +312,7 @@ class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
                   children: [
                     EButton(key: const ValueKey('post-finished-choose'), label: l.postFinishedChooseFile, icon: EIcons.fileDown, onPressed: blocked || _busy ? null : _choose),
                     EButton(key: const ValueKey('post-finished-paste'), label: l.postFinishedPaste, icon: EIcons.copy, onPressed: blocked || _busy ? null : _paste),
+                    DeskQrScanButton(key: const ValueKey('post-finished-scan'), size: EBtnSize.md, enabled: !blocked && !_busy, onScan: _scan),
                   ],
                 ),
                 if (blocked) ...[

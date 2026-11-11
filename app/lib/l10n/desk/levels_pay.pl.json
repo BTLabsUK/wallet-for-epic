@@ -11,6 +11,7 @@
   "deskLvPayDone": "Gotowe",
   "deskLvPayOnItsWayTo": "W drodze do {name}",
   "deskLvPaySendingTo": "Wysyłanie do {name}",
+  "deskLvPaySendingInPerson": "Wysyłanie osobiście",
   "deskLvPayArrivingFrom": "Nadchodzi od {name}",
   "deskLvPayStartedAt": "{amount} EPIC · rozpoczęto {time}",
   "deskLvPayHeroArriving": "+{amount} nadchodzi od {name}",

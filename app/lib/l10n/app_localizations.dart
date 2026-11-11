@@ -20952,10 +20952,10 @@ abstract class AppLocalizations {
   /// **'Finish the current payment first.'**
   String get linkFinishCurrentFirst;
 
-  /// Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (BT Wallet on a phone) reads. 'QR Payment' is the method's name.
+  /// Error under To on desktop Send when the pasted text is one part of an animated QR Payment code (ur:epic-slate/…). Scanned by the camera, the code opens its scan; pasted, it cannot be read from one part.
   ///
   /// In en, this message translates to:
-  /// **'A QR Payment code. Scan it with BT Wallet on a phone.'**
+  /// **'That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.'**
   String get deskSendToQrPayment;
 
   /// Description row of the Link · Tor group on Settings › Transactions.
@@ -33749,6 +33749,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{row}, sealed with epic1'**
   String deskE1SpokenSealed(String row);
+
+  /// Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending in person'**
+  String get deskLvPaySendingInPerson;
+
+  /// Detail text of a waiting request that was issued in person (no payer name).
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other wallet’s answer. Nothing is paid until it approves.'**
+  String get deskInvIssuerWaitingInPerson;
+
+  /// Quiet status line under an in-person code while its answer comes back through an Epicbox server; host is the server's name. Tapping it opens the details.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer comes back online · {host}'**
+  String deskIpOnlineLine(String host);
+
+  /// Status line in place of the answer QR code while the answer goes to the code's Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer online…'**
+  String get deskIpOnlineSending;
+
+  /// Status line under an in-person code when the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server not reachable · trying again'**
+  String get deskIpOnlineDown;
+
+  /// Title of the details of an in-person answer going through an Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Online answer'**
+  String get deskIpOnlineTitle;
+
+  /// Label of the row naming the Epicbox server the answer goes through.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server'**
+  String get deskIpOnlineServer;
+
+  /// Label of the row with the online answer's current step.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskIpOnlineStatus;
+
+  /// Label of the row with how long the in-person code still works.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get deskIpOnlineTimeLeft;
+
+  /// Value of the Time left row; count is minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{About {count} min} other{About {count} min}}'**
+  String deskIpOnlineMinutes(int count);
+
+  /// Online answer step: this wallet sends its answer to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer…'**
+  String get deskIpStepPosting;
+
+  /// Online answer step: the answer reached the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer sent'**
+  String get deskIpStepSent;
+
+  /// Online answer step: the other phone's answer came in.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer received'**
+  String get deskIpStepReceived;
+
+  /// Online answer step: the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable. Trying again.'**
+  String get deskIpStepDown;
+
+  /// Online answer step: the answer could not be sent to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Did not go through'**
+  String get deskIpStepFailed;
+
+  /// Online answer step: the user cancelled the online reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deskIpStepCancelled;
+
+  /// Button: stop sending or waiting online; the answer then goes by scan or paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel online reply'**
+  String get deskIpOnlineCancel;
+
+  /// Line under Cancel online reply on the side that shows the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then scan or paste the other phone\'s answer.'**
+  String get deskIpOnlineCancelCode;
+
+  /// Line under Cancel online reply on the side that answered the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the other phone scans your answer.'**
+  String get deskIpOnlineCancelAnswer;
+
+  /// Screen reader hint of the online answer status line: tapping it opens its details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get deskIpOnlineDetails;
+
+  /// Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the sender’s wallet. Only their wallet can use it.'**
+  String get deskQrHiddenReply;
+
+  /// Under the covered QR of an answer to an invoice on desktop, shown back to whoever asked for the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the wallet that asked for the payment. Only that wallet can use it.'**
+  String get deskQrHiddenPaid;
+
+  /// Under 'Hidden after N seconds' on desktop's payment QR. The other device is a phone or another computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it again when the other device is ready.'**
+  String get deskQrTimedOutBody;
+
+  /// Shown in place of the QR on desktop when the transaction file could not be read or cut into QR parts.
+  ///
+  /// In en, this message translates to:
+  /// **'This file cannot be shown as a QR code.'**
+  String get deskQrCannotShow;
+
+  /// Hint in desktop's scan dialog when scanning a sender's animated payment QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the payment QR on the other device.'**
+  String get deskQrAimPayment;
+
+  /// Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the reply QR on the other device.'**
+  String get deskQrAimReply;
+
+  /// Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.'**
+  String get deskQrAimAny;
+
+  /// Shown in desktop's scan dialog when the code in view is not an animated QR Payment code at all.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a payment QR code.'**
+  String get deskQrNotTx;
+
+  /// Name of a result line in Transaction files on desktop for a transaction that came in by the camera, in place of a file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned QR code'**
+  String get deskQrScannedName;
+
+  /// Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted text'**
+  String get deskQrPastedName;
+
+  /// Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan their reply as a QR code.'**
+  String get deskQrScanFinalize;
+
+  /// Hint of the QR Payment method in desktop Settings › Payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.'**
+  String get deskSetTxQrHint;
+
+  /// Line beside Scan QR on desktop's Sign a payment step, under the box that takes the sender's file or an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan the payment or invoice as a QR code.'**
+  String get deskQrScanImport;
+
+  /// Scan dialog: shown in the camera area until the camera's picture appears.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the camera…'**
+  String get deskScanStarting;
+
+  /// Scan dialog: the line under the camera picture while scanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the code in front of the camera.'**
+  String get deskScanAim;
+
+  /// Scan dialog: button that starts the camera again after it stopped. Never pressed by the app itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskScanTryAgain;
+
+  /// Scan dialog, Windows: the system does not let the app open the camera. Use the Windows settings page names of the language.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off in Windows Settings › Privacy & security › Camera.'**
+  String get deskScanDeniedWindows;
+
+  /// Scan dialog, macOS: the system does not let the app open the camera. Use the macOS settings names of the language.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off in System Settings › Privacy & Security › Camera.'**
+  String get deskScanDeniedMac;
+
+  /// Scan dialog, Linux: the system refused to open the camera (permissions, a sandbox portal).
+  ///
+  /// In en, this message translates to:
+  /// **'This app is not allowed to open the camera.'**
+  String get deskScanDeniedLinux;
+
+  /// Scan dialog and the line beside paste, Linux: the GStreamer libraries the camera needs are not installed. Keep 'GStreamer' as is.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera support (GStreamer) is missing on this system.'**
+  String get deskScanUnsupportedLinux;
+
+  /// Scan dialog and the line beside paste, Windows: Windows N editions without the Media Feature Pack.
+  ///
+  /// In en, this message translates to:
+  /// **'The Windows media features are missing.'**
+  String get deskScanUnsupportedWindows;
+
+  /// Scan dialog and the line beside paste, other systems: what the camera needs is not there.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera support is missing on this system.'**
+  String get deskScanUnsupportedOther;
+
+  /// Scan dialog: the camera is held by another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Another app is using the camera.'**
+  String get deskScanBusy;
+
+  /// Scan dialog: the camera failed to start for another reason (a driver error).
+  ///
+  /// In en, this message translates to:
+  /// **'The camera did not start.'**
+  String get deskScanFailed;
+
+  /// Scan dialog: the camera opened but sends no picture, or a frozen one.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera sends no picture.'**
+  String get deskScanNoPicture;
+
+  /// Scan dialog: shown over a black picture (a closed lens cover or shutter); it goes away when the picture comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera picture is black. Its cover may be closed.'**
+  String get deskScanDark;
+
+  /// Scan dialog: the camera went away during the scan (unplugged).
+  ///
+  /// In en, this message translates to:
+  /// **'The camera was disconnected.'**
+  String get deskScanUnplugged;
+
+  /// Scan dialog: the part that reads QR codes from the picture failed to load.
+  ///
+  /// In en, this message translates to:
+  /// **'The QR reader did not start.'**
+  String get deskScanReaderFailed;
+
+  /// The quiet line under a paste field when this computer has no camera; Scan is greyed out.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera found. Paste the code instead.'**
+  String get deskScanNoCamera;
+
+  /// Button on Overview beside Send and Receive that reads any code with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get deskOvScan;
 }
 
 class _AppLocalizationsDelegate

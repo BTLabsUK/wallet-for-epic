@@ -56,7 +56,7 @@ import '../../name_service/base58.dart' show netFloonet, netMainnet;
 import '../../scan/scan_router.dart' show PaymentLink;
 import '../../message_checks.dart' show MessageChecks;
 import '../../notice_digest.dart' show HeldKind, HeldNotice, raiseNotice;
-import '../../models.dart' show Chain;
+import '../../models.dart' show Chain, Epic1Via;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../ui/network_mode_text.dart' show networkModeName;
@@ -2793,6 +2793,29 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<List<String>> encodeQrSlate(String json) async {
+    try {
+      return await _service.encodeQrSlate(json: json, maxFragmentLen: core.qrFragmentLen, singleCodeMaxLen: core.qrSingleCodeMaxLen);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<core.QrSlateProgress> decodeQrSlate(List<String> parts) => _service.decodeQrSlate(parts: parts);
+
+  @override
+  Future<String> slateFileText(String path) async {
+    try {
+      return decodeSlateFile(await File(path).readAsBytes());
+    } on FormatException {
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
+    } on FileSystemException {
+      throw DeskError.l10n((l) => l.deskErrFileNotReadable);
+    }
+  }
+
+  @override
   Future<core.FinishedPayment> inspectFinished(String text) => _open.inspectFinished(text);
 
   @override
@@ -5368,6 +5391,7 @@ class LepicDeskWallet implements DeskWalletApi {
       state: requestState(r.state, e, tip: _tip, minConf: minConf),
       confirmations: tx?.confirmations ?? 0,
       byFile: r.byFile,
+      inPerson: e?.epic1Via == Epic1Via.inPerson,
     );
   }
 

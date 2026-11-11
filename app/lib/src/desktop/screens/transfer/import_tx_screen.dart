@@ -14,7 +14,9 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../epic1/epic1_files.dart' show openDeskEpictx, showEpic1ModeDialog;
 import '../invoices/review_screen.dart' show RequestFileReview;
+import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'file_panels.dart';
+import 'qr_payment.dart';
 
 /// Argument of the Import route: [done] opens on the saved response file, [error] on a
 /// refused file.
@@ -186,6 +188,25 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     }
   }
 
+  /// Scan QR: a sender's payment or an invoice as an animated code, or the text pasted in its
+  /// place, read as pasted text. A scanned payment's reply is shown as a QR code at once.
+  Future<void> _scan() async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.qrScanPayment, hint: l.deskQrAimPayment, notSlate: (l) => l.qrScanNotPayment);
+    if (got == null || !mounted) return;
+    final (text, scanned) = switch (got) {
+      DeskScanned(:final value) => (value, true),
+      DeskPasted(:final text) => (text, false),
+    };
+    final api = ref.read(deskApiProvider);
+    if (await _isRequest(() => api.readRequestText(text), pasted: true)) return;
+    await _receive(() => api.receiveText(text), pasted: true);
+    final response = _response;
+    if (scanned && response != null && deskQrShowsFile(response) && mounted) {
+      await showDeskSlateQr(context, kind: DeskQrKind.reply, path: response);
+    }
+  }
+
   void _again() => setState(() {
     _response = null;
     _tx = null;
@@ -275,6 +296,8 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
               ),
               actions: [
                 EButton.primary(label: paid ? l.deskImpOpenAnother : l.deskImpAnother, icon: EIcons.fileUp, onPressed: _again),
+                if (deskQrShowsFile(_response!))
+                  DeskShowQrButton(key: const ValueKey('imp-show-qr'), kind: _answered ? DeskQrKind.paid : DeskQrKind.reply, path: _response),
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _tx?.id)),
               ],
             )
@@ -290,13 +313,16 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
                 ],
               ),
             )
-          else
+          else ...[
             EDropZone(
               title: l.deskImpChoose,
               text: l.deskImpChooseText,
               buttonLabel: l.deskFinChooseFile,
               onPick: _pick,
             ),
+            SizedBox(height: Sp.x3),
+            DeskScanRow(text: l.deskQrScanImport, button: DeskQrScanButton(key: const ValueKey('imp-scan'), onScan: _scan)),
+          ],
         ],
       ),
     );

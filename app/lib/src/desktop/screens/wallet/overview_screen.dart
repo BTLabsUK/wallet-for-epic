@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
+import '../../../models.dart' show Epic1Via;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../../trust_ids.dart';
 import '../../app/relay_offer.dart' show DeskRelayNotice;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
+import '../../data/invoice_state.dart' show deskInvoicesProvider;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../../levels/level_features.dart' show LevelWording;
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -120,6 +122,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final recent = _Recent(txs: txs, shallow: shallow, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
+    final book = ref.watch(deskInvoicesProvider);
+    final invoicesWait = book != null && (book.waiting.isNotEmpty || book.openRequests.isNotEmpty || book.needsAction.isNotEmpty);
 
     // A restored wallet's first unlock asks once about its history backup, after the
     // first-run tour, never over it.
@@ -275,9 +279,11 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           SizedBox(height: Sp.x2),
           // While the restore scan runs, Recent activity shows what it finds, never "No
           // transactions yet" (copy D1).
+          // Something to act on goes above Recent activity; a quiet card stays below it.
+          if (invoicesWait) ...[const OverviewInvoicesCard(), SizedBox(height: Sp.x4)],
           if (restore == null || (s.txs?.isNotEmpty ?? false)) recent,
           if (pending > 0) _PendingFiles(count: pending),
-          const OverviewInvoicesCard(),
+          if (!invoicesWait) const OverviewInvoicesCard(),
         ],
       ),
     ),
@@ -441,7 +447,7 @@ class _BalancePanel extends ConsumerWidget {
                   EButton(label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
                   EButton(label: l.deskOvReceive, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
                   // Scan reads any code and opens it like a link; greyed out with no camera.
-                  DeskScanButton(key: const ValueKey('home-scan'), onScan: () => unawaited(openDeskScan(context, ref)), size: EBtnSize.md),
+                  DeskScanButton(key: const ValueKey('home-scan'), label: l.deskOvScan, onScan: () => unawaited(openDeskScan(context, ref)), size: EBtnSize.md),
                 ],
         ),
         if (sendBlocked && !empty) ...[
@@ -1176,7 +1182,10 @@ class _InFlightRow extends ConsumerWidget {
 /// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
 /// from Bob". The Deep end names an address when no contact does.
 String _inFlightTitle(AppLocalizations l, Tx t, bool technical) {
-  final name = t.contactName ?? (technical ? whoOf(l, t) : null);
+  // A payment handed over in person or by link has no name to give: the title says how.
+  final nameless = t.contactName == null && t.counterparty == null && t.epic1Via != null;
+  if (nameless && technical && !t.incoming && t.epic1Via == Epic1Via.inPerson) return l.deskLvPaySendingInPerson;
+  final name = t.contactName ?? (technical && !nameless ? whoOf(l, t) : null);
   if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
   if (name == null) return l.lvPayOnItsWay;
   return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);

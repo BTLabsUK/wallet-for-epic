@@ -21,7 +21,7 @@ import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/message_checks.dart' show MessageChecks;
-import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
+import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, QrSlateProgress, StoreMigrationProgress;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/epic1.dart' show Epic1Wallet;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
@@ -42,7 +42,7 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Transactions|settingsPrivacy\|Network & privacy.*|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsSecurity\|Security|settingsRescan\|Recheck balance|settingsAdvanced\|Advanced|settingsAbout\|About|settingsHelp\|Help)$'):
       'The place already shown: going there again adds nothing to the history.',
   // The Settings column (26.10.25) is the shell's while a Settings page is open.
-  RegExp(r'^(shell|settings\w+)\|(Wallet|Security|Payments|Invoices|Linked devices|Appearance|Node|Network & privacy|Advanced|Wallets|Files & logs|Help|About)$'):
+  RegExp(r'^(shell|settings\w+)\|(Wallet|Security|Transactions|Invoices|Linked devices|Appearance|Node|Network & privacy|Advanced|Wallets|Files & logs|Help|About)$'):
       'The Settings page already shown: going there again adds nothing to the history.',
   RegExp(r'^settingsAccount\|Name$'): 'The pencil beside the name field puts the caret in it (UD-032): only the focus moves.',
   RegExp(r'^settings(Account|Files)\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
@@ -246,6 +246,12 @@ class _Recorder implements DeskWalletApi, MockBacked {
   Future<void> resendTx(int id) => _r('resendTx', () => _m.resendTx(id));
   @override
   Future<String> finishedPayment(int id) => _r('finishedPayment', () => _m.finishedPayment(id));
+  @override
+  Future<List<String>> encodeQrSlate(String json) => _r('encodeQrSlate', () => _m.encodeQrSlate(json));
+  @override
+  Future<QrSlateProgress> decodeQrSlate(List<String> parts) => _m.decodeQrSlate(parts);
+  @override
+  Future<String> slateFileText(String path) => _r('slateFileText', () => _m.slateFileText(path));
   @override
   Future<FinishedPayment> inspectFinished(String text) => _r('inspectFinished', () => _m.inspectFinished(text));
   @override

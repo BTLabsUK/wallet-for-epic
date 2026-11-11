@@ -13312,7 +13312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'A QR Payment code. Scan it with BT Wallet on a phone.';
+      'That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.';
 
   @override
   String get deskSetRecvTorText =>
@@ -21642,4 +21642,181 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, sealed with epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Sending in person';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Waiting for the other wallet’s answer. Nothing is paid until it approves.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Answer comes back online · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Sending the answer online…';
+
+  @override
+  String get deskIpOnlineDown => 'Epicbox server not reachable · trying again';
+
+  @override
+  String get deskIpOnlineTitle => 'Online answer';
+
+  @override
+  String get deskIpOnlineServer => 'Epicbox server';
+
+  @override
+  String get deskIpOnlineStatus => 'Status';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Time left';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'About $count min',
+      one: 'About $count min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Sending the answer…';
+
+  @override
+  String get deskIpStepSent => 'Answer sent';
+
+  @override
+  String get deskIpStepReceived => 'Answer received';
+
+  @override
+  String get deskIpStepDown => 'Not reachable. Trying again.';
+
+  @override
+  String get deskIpStepFailed => 'Did not go through';
+
+  @override
+  String get deskIpStepCancelled => 'Cancelled';
+
+  @override
+  String get deskIpOnlineCancel => 'Cancel online reply';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Then scan or paste the other phone\'s answer.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Then the other phone scans your answer.';
+
+  @override
+  String get deskIpOnlineDetails => 'Details';
+
+  @override
+  String get deskQrHiddenReply =>
+      'Show it to the sender’s wallet. Only their wallet can use it.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Show it to the wallet that asked for the payment. Only that wallet can use it.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Show it again when the other device is ready.';
+
+  @override
+  String get deskQrCannotShow => 'This file cannot be shown as a QR code.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Point the camera at the payment QR on the other device.';
+
+  @override
+  String get deskQrAimReply =>
+      'Point the camera at the reply QR on the other device.';
+
+  @override
+  String get deskQrAimAny =>
+      'Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.';
+
+  @override
+  String get deskQrNotTx => 'That is not a payment QR code.';
+
+  @override
+  String get deskQrScannedName => 'Scanned QR code';
+
+  @override
+  String get deskQrPastedName => 'Pasted text';
+
+  @override
+  String get deskQrScanFinalize => 'Or scan their reply as a QR code.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.';
+
+  @override
+  String get deskQrScanImport => 'Or scan the payment or invoice as a QR code.';
+
+  @override
+  String get deskScanStarting => 'Starting the camera…';
+
+  @override
+  String get deskScanAim => 'Hold the code in front of the camera.';
+
+  @override
+  String get deskScanTryAgain => 'Try again';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'Camera access is off in Windows Settings › Privacy & security › Camera.';
+
+  @override
+  String get deskScanDeniedMac =>
+      'Camera access is off in System Settings › Privacy & Security › Camera.';
+
+  @override
+  String get deskScanDeniedLinux =>
+      'This app is not allowed to open the camera.';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'Camera support (GStreamer) is missing on this system.';
+
+  @override
+  String get deskScanUnsupportedWindows =>
+      'The Windows media features are missing.';
+
+  @override
+  String get deskScanUnsupportedOther =>
+      'Camera support is missing on this system.';
+
+  @override
+  String get deskScanBusy => 'Another app is using the camera.';
+
+  @override
+  String get deskScanFailed => 'The camera did not start.';
+
+  @override
+  String get deskScanNoPicture => 'The camera sends no picture.';
+
+  @override
+  String get deskScanDark =>
+      'The camera picture is black. Its cover may be closed.';
+
+  @override
+  String get deskScanUnplugged => 'The camera was disconnected.';
+
+  @override
+  String get deskScanReaderFailed => 'The QR reader did not start.';
+
+  @override
+  String get deskScanNoCamera => 'No camera found. Paste the code instead.';
+
+  @override
+  String get deskOvScan => 'Scan';
 }

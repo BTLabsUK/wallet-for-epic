@@ -207,6 +207,10 @@
     }
   },
   "deskInvIssuerWaitingText": "Delivered over Epicbox. Nothing is paid until {payer} approves it.",
+  "deskInvIssuerWaitingInPerson": "Waiting for the other wallet’s answer. Nothing is paid until it approves.",
+  "@deskInvIssuerWaitingInPerson": {
+    "description": "Detail text of a waiting request that was issued in person (no payer name)."
+  },
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {

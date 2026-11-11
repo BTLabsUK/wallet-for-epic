@@ -175,6 +175,10 @@
   "@deskOvReceive": {
     "description": "Button on Overview: opens Receive. Short."
   },
+  "deskOvScan": "Scan",
+  "@deskOvScan": {
+    "description": "Button on Overview beside Send and Receive that reads any code with the camera."
+  },
   "deskOvSendWaits": "Sending resumes when the node is synced.",
   "@deskOvSendWaits": {
     "description": "Small text under the buttons on Overview while Send is disabled until the node is synced."

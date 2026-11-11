@@ -33,6 +33,7 @@
   "deskOvReceiveEpic": "接收 EPIC",
   "deskOvSend": "发送",
   "deskOvReceive": "接收",
+  "deskOvScan": "扫描",
   "deskOvSendWaits": "节点同步完成后即可恢复发送。",
   "deskOvSendWaitsNode": "节点响应后即可继续发送。",
   "deskOvBalance": "余额",

@@ -41,6 +41,7 @@
   "deskInvIssuerLate": "После завершения этого счёта пришёл платёж. Он отклонён; ничего не изменилось.",
   "deskInvIssuerPaidText": "{payer} оплатил. Ваш кошелёк завершил платёж и отправил его в сеть.",
   "deskInvIssuerWaitingText": "Доставлено через Epicbox. Ничего не оплачено, пока {payer} не одобрит.",
+  "deskInvIssuerWaitingInPerson": "Ждём ответ другого кошелька. Ничего не оплачивается, пока он не одобрит.",
   "deskInvIssuerCopySlate": "Копировать ID слейта",
   "deskInvIssuerStepIssued": "Выставлен",
   "deskInvIssuerAnother": "Ещё один счёт"

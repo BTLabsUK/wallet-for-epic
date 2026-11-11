@@ -33,6 +33,7 @@
   "deskOvReceiveEpic": "EPIC empfangen",
   "deskOvSend": "Senden",
   "deskOvReceive": "Empfangen",
+  "deskOvScan": "Scannen",
   "deskOvSendWaits": "Senden ist wieder möglich, sobald der Node synchronisiert ist.",
   "deskOvSendWaitsNode": "Senden ist wieder möglich, sobald der Node antwortet.",
   "deskOvBalance": "Guthaben",
