@@ -2,6 +2,7 @@
 import 'settings_file_watch.dart';
 import '../../invite_links.dart' show inviteInboxProvider;
 import '../../app_info.dart';
+import '../../camera/camera_presence.dart' show cameraPresenceProvider;
 import '../../l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,9 @@ class DeskApp extends ConsumerWidget {
     // Before anything reads a token: the theme below and every screen size from it. The BT Labs
     // Theme's 100 % is a 17 px root (6.1.6's MODERN_BASE), the tokens are written for 16.
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
+    // The camera check at app start (camera_presence.dart): it lists the cameras without opening
+    // one, so Scan is right by the time a screen shows it.
+    ref.read(cameraPresenceProvider);
     return MaterialApp(
       scrollBehavior: const MoreBelowScrollBehavior(),
       navigatorKey: deskNavigatorKey,
