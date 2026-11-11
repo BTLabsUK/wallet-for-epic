@@ -162,6 +162,27 @@ class MainActivity : FlutterFragmentActivity() {
                 }
             }
         // --- end tor binary ---
+        // --- system browser (epic_wallet/browser) ---
+        // An announcement's link: https only, started on a tap in the app, never by itself.
+        MethodChannel(messenger, "epic_wallet/browser")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "open") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                val uri = (call.arguments as? String)?.let { Uri.parse(it) }
+                if (uri == null || uri.scheme != "https" || uri.host.isNullOrEmpty()) {
+                    result.success(false)
+                    return@setMethodCallHandler
+                }
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    result.success(true)
+                } catch (e: android.content.ActivityNotFoundException) {
+                    result.success(false)
+                }
+            }
+        // --- end system browser ---
         // How the last process ended, for the "stopped responding last time" offer.
         ExitReasons.register(applicationContext, messenger)
         val channel = MethodChannel(messenger, "epic_wallet/updater")

@@ -18,6 +18,33 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "IncomingLink") {
       IncomingLink.register(with: registrar)
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "OpenBrowser") {
+      OpenBrowser.register(with: registrar)
+    }
+  }
+}
+
+/// An announcement's link (`epic_wallet/browser`, method `open`): https only, opened in the
+/// system browser on a tap in the app.
+final class OpenBrowser: NSObject, FlutterPlugin {
+  static func register(with registrar: FlutterPluginRegistrar) {
+    let channel = FlutterMethodChannel(
+      name: "epic_wallet/browser", binaryMessenger: registrar.messenger())
+    registrar.addMethodCallDelegate(OpenBrowser(), channel: channel)
+  }
+
+  func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard call.method == "open" else {
+      result(FlutterMethodNotImplemented)
+      return
+    }
+    guard let text = call.arguments as? String, let url = URL(string: text),
+      url.scheme == "https", let host = url.host, !host.isEmpty
+    else {
+      result(false)
+      return
+    }
+    UIApplication.shared.open(url, options: [:]) { opened in result(opened) }
   }
 }
 
