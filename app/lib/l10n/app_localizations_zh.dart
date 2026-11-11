@@ -20807,4 +20807,44 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => '未找到摄像头。请改为粘贴代码。';
+
+  @override
+  String get phoneKitReady => '就绪';
+
+  @override
+  String get phoneKitReconnecting => '正在重新连接';
+
+  @override
+  String get phoneKitAvailable => '可用';
+
+  @override
+  String phoneKitLeaves(String amount, String fee) {
+    return '扣除 $fee 手续费后剩余 $amount';
+  }
+
+  @override
+  String get phoneKitBack => '返回';
+
+  @override
+  String get phoneKitDeleteDigit => '删除最后一位数字';
+
+  @override
+  String phoneKitPinDigits(int count, int total) {
+    return '已输入 $count / $total 位';
+  }
+
+  @override
+  String get phoneKitSwapCurrency => '切换货币';
+
+  @override
+  String get phoneKitStepDone => '已完成';
+
+  @override
+  String get phoneKitStepNow => '进行中';
+
+  @override
+  String get phoneKitStepLater => '未开始';
+
+  @override
+  String get phoneKitDismiss => '关闭';
 }

@@ -22308,4 +22308,44 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.';
+
+  @override
+  String get phoneKitReady => 'Bereit';
+
+  @override
+  String get phoneKitReconnecting => 'Verbindet neu';
+
+  @override
+  String get phoneKitAvailable => 'Verfügbar';
+
+  @override
+  String phoneKitLeaves(String amount, String fee) {
+    return 'Es bleiben $amount nach der Gebühr von $fee';
+  }
+
+  @override
+  String get phoneKitBack => 'Zurück';
+
+  @override
+  String get phoneKitDeleteDigit => 'Letzte Ziffer löschen';
+
+  @override
+  String phoneKitPinDigits(int count, int total) {
+    return '$count von $total Ziffern eingegeben';
+  }
+
+  @override
+  String get phoneKitSwapCurrency => 'Währung wechseln';
+
+  @override
+  String get phoneKitStepDone => 'Erledigt';
+
+  @override
+  String get phoneKitStepNow => 'In Arbeit';
+
+  @override
+  String get phoneKitStepLater => 'Noch nicht begonnen';
+
+  @override
+  String get phoneKitDismiss => 'Schließen';
 }

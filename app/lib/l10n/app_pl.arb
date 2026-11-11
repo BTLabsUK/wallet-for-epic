@@ -5727,5 +5727,17 @@
   "deskScanDark": "Obraz z kamery jest czarny. Może jej osłona jest zamknięta.",
   "deskScanUnplugged": "Kamera została odłączona.",
   "deskScanReaderFailed": "Czytnik QR się nie uruchomił.",
-  "deskScanNoCamera": "Nie znaleziono kamery. Wklej kod zamiast tego."
+  "deskScanNoCamera": "Nie znaleziono kamery. Wklej kod zamiast tego.",
+  "phoneKitReady": "Gotowy",
+  "phoneKitReconnecting": "Łączenie ponownie",
+  "phoneKitAvailable": "Dostępne",
+  "phoneKitLeaves": "Zostaje {amount} po opłacie {fee}",
+  "phoneKitBack": "Wstecz",
+  "phoneKitDeleteDigit": "Usuń ostatnią cyfrę",
+  "phoneKitPinDigits": "Wpisano {count} z {total} cyfr",
+  "phoneKitSwapCurrency": "Zmień walutę",
+  "phoneKitStepDone": "Gotowe",
+  "phoneKitStepNow": "W toku",
+  "phoneKitStepLater": "Jeszcze nie rozpoczęte",
+  "phoneKitDismiss": "Zamknij"
 }

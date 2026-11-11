@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: Apache-2.0
+library;
+
+import 'package:flutter/material.dart';
+
+import '../../l10n.dart';
+import '../theme/tokens.dart';
+import 'kit_support.dart';
+import 'kit_tokens.dart';
+
+/// The state of the wallet's connection as a word with a dot (HANDOFF 7.1): [ok] "Ready",
+/// [warn] "Reconnecting". Built for Home but not shown there until the design is settled. The
+/// dot has a soft halo of its colour. Pass [label] to name another state.
+class KitStatusPill extends StatelessWidget {
+  const KitStatusPill({super.key, required this.ready, this.label, this.onTap, this.semanticsId});
+
+  final bool ready;
+  final String? label;
+  final VoidCallback? onTap;
+  final String? semanticsId;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final color = ready ? t.ok : t.warn;
+    final word = label ?? (ready ? context.l10n.phoneKitReady : context.l10n.phoneKitReconnecting);
+    final pill = Container(
+      height: Kit.pill,
+      padding: const EdgeInsetsDirectional.only(start: 11, end: 13),
+      decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rPill)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.18), spreadRadius: 3)],
+            ),
+          ),
+          const SizedBox(width: 11),
+          Flexible(child: Text(word, style: KitType.pill.copyWith(color: t.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
+    final id = semanticsId;
+    Widget out = Semantics(label: word, button: onTap != null, excludeSemantics: true, onTap: onTap, child: pill);
+    if (onTap != null) out = GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: out);
+    return id == null ? out : kitId(id, out);
+  }
+}

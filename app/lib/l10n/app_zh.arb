@@ -5727,5 +5727,17 @@
   "deskScanDark": "摄像头画面全黑。镜头盖可能已关闭。",
   "deskScanUnplugged": "摄像头已断开。",
   "deskScanReaderFailed": "二维码识别未能启动。",
-  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。"
+  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。",
+  "phoneKitReady": "就绪",
+  "phoneKitReconnecting": "正在重新连接",
+  "phoneKitAvailable": "可用",
+  "phoneKitLeaves": "扣除 {fee} 手续费后剩余 {amount}",
+  "phoneKitBack": "返回",
+  "phoneKitDeleteDigit": "删除最后一位数字",
+  "phoneKitPinDigits": "已输入 {count} / {total} 位",
+  "phoneKitSwapCurrency": "切换货币",
+  "phoneKitStepDone": "已完成",
+  "phoneKitStepNow": "进行中",
+  "phoneKitStepLater": "未开始",
+  "phoneKitDismiss": "关闭"
 }

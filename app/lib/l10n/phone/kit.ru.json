@@ -1,0 +1,14 @@
+{
+  "phoneKitReady": "Готов",
+  "phoneKitReconnecting": "Переподключение",
+  "phoneKitAvailable": "Доступно",
+  "phoneKitLeaves": "Останется {amount} после комиссии {fee}",
+  "phoneKitBack": "Назад",
+  "phoneKitDeleteDigit": "Удалить последнюю цифру",
+  "phoneKitPinDigits": "Введено цифр: {count} из {total}",
+  "phoneKitSwapCurrency": "Сменить валюту",
+  "phoneKitStepDone": "Готово",
+  "phoneKitStepNow": "В процессе",
+  "phoneKitStepLater": "Ещё не начато",
+  "phoneKitDismiss": "Закрыть"
+}

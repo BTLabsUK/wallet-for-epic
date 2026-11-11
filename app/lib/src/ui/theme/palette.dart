@@ -66,6 +66,18 @@ abstract final class PaletteDark {
   static const hero = Color(0x00000000);
   static const tint = Color(0x00000000);
   static const dots = Color(0x00000000);
+
+  /// Phone redesign roles (HANDOFF 5.1). The desktop does not read these.
+  /// [group] the grouped list's panel, [sheet] a bottom sheet, [fill] a field, chip or quiet
+  /// button over any ground, [hair] and [hair2] the hairline and the stronger one, [goldSoft]
+  /// and [goldLine] the needs-you card's ground and edge.
+  static const group = Color(0xEB111115);
+  static const sheet = Color(0xFF15151A);
+  static const fill = Color(0x11FFF9F9);
+  static const hair = Color(0x12FFF9F9);
+  static const hair2 = Color(0x1FFFF9F9);
+  static const goldSoft = Color(0x17F6D471);
+  static const goldLine = Color(0x42F6D471);
 }
 
 /// The light set. Gold becomes an AA brown, amber a burnt orange well apart from it in hue
@@ -129,6 +141,16 @@ abstract final class PaletteLight {
   static const hero = Color(0xFFFFF4DE);
   static const tint = Color(0x1FC98A3E);
   static const dots = Color(0x00000000);
+
+  /// Phone redesign roles, the light twins of the dark set: a white panel and sheet, warm
+  /// ink at low alpha for [fill], the warm lines for the hairlines, the AA brown for gold.
+  static const group = Color(0xEBFFFFFF);
+  static const sheet = Color(0xFFFFFFFF);
+  static const fill = Color(0x0F211A11);
+  static const hair = Color(0xFFEAE0CE);
+  static const hair2 = Color(0xFFDACBB0);
+  static const goldSoft = Color(0x178F5E1F);
+  static const goldLine = Color(0x4D8F5E1F);
 }
 
 /// The epic1 brand pack's ink and amber (`~/epic1-branding`, tokens.json): the epic1 QR code's

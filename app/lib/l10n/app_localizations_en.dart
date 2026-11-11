@@ -22044,4 +22044,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => 'No camera found. Paste the code instead.';
+
+  @override
+  String get phoneKitReady => 'Ready';
+
+  @override
+  String get phoneKitReconnecting => 'Reconnecting';
+
+  @override
+  String get phoneKitAvailable => 'Available';
+
+  @override
+  String phoneKitLeaves(String amount, String fee) {
+    return 'Leaves $amount after the $fee fee';
+  }
+
+  @override
+  String get phoneKitBack => 'Back';
+
+  @override
+  String get phoneKitDeleteDigit => 'Delete last digit';
+
+  @override
+  String phoneKitPinDigits(int count, int total) {
+    return '$count of $total digits entered';
+  }
+
+  @override
+  String get phoneKitSwapCurrency => 'Switch currency';
+
+  @override
+  String get phoneKitStepDone => 'Done';
+
+  @override
+  String get phoneKitStepNow => 'In progress';
+
+  @override
+  String get phoneKitStepLater => 'Not started';
+
+  @override
+  String get phoneKitDismiss => 'Dismiss';
 }

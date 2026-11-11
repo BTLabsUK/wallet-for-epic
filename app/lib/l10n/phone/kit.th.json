@@ -1,0 +1,14 @@
+{
+  "phoneKitReady": "พร้อม",
+  "phoneKitReconnecting": "กำลังเชื่อมต่อใหม่",
+  "phoneKitAvailable": "ใช้ได้",
+  "phoneKitLeaves": "จะเหลือ {amount} หลังหักค่าธรรมเนียม {fee}",
+  "phoneKitBack": "กลับ",
+  "phoneKitDeleteDigit": "ลบตัวเลขล่าสุด",
+  "phoneKitPinDigits": "ป้อนแล้ว {count} จาก {total} หลัก",
+  "phoneKitSwapCurrency": "สลับสกุลเงิน",
+  "phoneKitStepDone": "เสร็จแล้ว",
+  "phoneKitStepNow": "กำลังดำเนินการ",
+  "phoneKitStepLater": "ยังไม่เริ่ม",
+  "phoneKitDismiss": "ปิด"
+}

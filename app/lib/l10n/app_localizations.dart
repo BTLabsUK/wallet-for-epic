@@ -34391,6 +34391,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No camera found. Paste the code instead.'**
   String get deskScanNoCamera;
+
+  /// Home status pill: the wallet is connected and up to date. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get phoneKitReady;
+
+  /// Home status pill: the wallet is trying to reach the network again. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting'**
+  String get phoneKitReconnecting;
+
+  /// Label on the bar above the keypad on an amount screen; the amount the wallet can spend follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get phoneKitAvailable;
+
+  /// Line under the amount while sending: what stays in the wallet after the network fee. {amount} is like '7.49 EPIC', {fee} is like '0.008 EPIC'.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaves {amount} after the {fee} fee'**
+  String phoneKitLeaves(String amount, String fee);
+
+  /// Screen reader label of the back arrow in a flow header.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get phoneKitBack;
+
+  /// Screen reader label of the backspace key on the keypad.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get phoneKitDeleteDigit;
+
+  /// Screen reader label of the PIN dots: how many digits are entered so far. Numbers only, never the digits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} digits entered'**
+  String phoneKitPinDigits(int count, int total);
+
+  /// Screen reader label of the button that swaps the amount between EPIC and the fiat currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch currency'**
+  String get phoneKitSwapCurrency;
+
+  /// Screen reader label added to a finished step in a list of steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get phoneKitStepDone;
+
+  /// Screen reader label added to the current step in a list of steps.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get phoneKitStepNow;
+
+  /// Screen reader label added to an upcoming step in a list of steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get phoneKitStepLater;
+
+  /// Screen reader label of the × on a floating notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get phoneKitDismiss;
 }
 
 class _AppLocalizationsDelegate

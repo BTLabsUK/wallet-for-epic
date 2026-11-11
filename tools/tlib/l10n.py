@@ -7,6 +7,7 @@ Where strings live (app/README.md, "Languages"):
   app/lib/l10n/desk/<part>.json                the desktop's English (`desk*` keys), and
   app/lib/l10n/desk/<part>.<lang>.json         its translations (key: text only)
   app/lib/l10n/desk_invoices/<part>[.<lang>].json   the same for the invoice screens (`deskInv*`)
+  app/lib/l10n/phone/<part>[.<lang>].json      the same for the phone redesign (`phone*` keys)
   app/lib/l10n/untranslated.json               {lang: [keys]} still in English, to translate
 
 sync:
@@ -15,7 +16,7 @@ sync:
      gone is deleted;
   2. the fragments are merged into the ARB files in place (a key keeps its place, a new one is
      appended; a `desk*` key with no fragment is dropped, a `deskInv*` key without one stays:
-     a few were added to the ARB files directly);
+     a few were added to the ARB files directly; a `phone*` key with no fragment is dropped);
   3. every app_<lang>.arb gets the template's missing keys (as the English text) and loses keys
      the template does not have;
   4. untranslated.json lists every key filled with English that is still the English text;
@@ -40,8 +41,12 @@ def owns_inv(key):
     return key.startswith("deskInv")
 
 
+def owns_phone(key):
+    return key.startswith("phone")
+
+
 # (folder, owns a key, drops an owned key no fragment has)
-GROUPS = (("desk", owns_desk, True), ("desk_invoices", owns_inv, False))
+GROUPS = (("desk", owns_desk, True), ("desk_invoices", owns_inv, False), ("phone", owns_phone, True))
 
 
 def load(path):

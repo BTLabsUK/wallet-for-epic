@@ -22771,4 +22771,44 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Nie znaleziono kamery. Wklej kod zamiast tego.';
+
+  @override
+  String get phoneKitReady => 'Gotowy';
+
+  @override
+  String get phoneKitReconnecting => 'Łączenie ponownie';
+
+  @override
+  String get phoneKitAvailable => 'Dostępne';
+
+  @override
+  String phoneKitLeaves(String amount, String fee) {
+    return 'Zostaje $amount po opłacie $fee';
+  }
+
+  @override
+  String get phoneKitBack => 'Wstecz';
+
+  @override
+  String get phoneKitDeleteDigit => 'Usuń ostatnią cyfrę';
+
+  @override
+  String phoneKitPinDigits(int count, int total) {
+    return 'Wpisano $count z $total cyfr';
+  }
+
+  @override
+  String get phoneKitSwapCurrency => 'Zmień walutę';
+
+  @override
+  String get phoneKitStepDone => 'Gotowe';
+
+  @override
+  String get phoneKitStepNow => 'W toku';
+
+  @override
+  String get phoneKitStepLater => 'Jeszcze nie rozpoczęte';
+
+  @override
+  String get phoneKitDismiss => 'Zamknij';
 }

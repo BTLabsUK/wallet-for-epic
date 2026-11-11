@@ -1,0 +1,70 @@
+{
+  "phoneKitReady": "Ready",
+  "@phoneKitReady": {
+    "description": "Home status pill: the wallet is connected and up to date. One short word."
+  },
+  "phoneKitReconnecting": "Reconnecting",
+  "@phoneKitReconnecting": {
+    "description": "Home status pill: the wallet is trying to reach the network again. One short word."
+  },
+  "phoneKitAvailable": "Available",
+  "@phoneKitAvailable": {
+    "description": "Label on the bar above the keypad on an amount screen; the amount the wallet can spend follows it."
+  },
+  "phoneKitLeaves": "Leaves {amount} after the {fee} fee",
+  "@phoneKitLeaves": {
+    "description": "Line under the amount while sending: what stays in the wallet after the network fee. {amount} is like '7.49 EPIC', {fee} is like '0.008 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "7.49 EPIC"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.008 EPIC"
+      }
+    }
+  },
+  "phoneKitBack": "Back",
+  "@phoneKitBack": {
+    "description": "Screen reader label of the back arrow in a flow header."
+  },
+  "phoneKitDeleteDigit": "Delete last digit",
+  "@phoneKitDeleteDigit": {
+    "description": "Screen reader label of the backspace key on the keypad."
+  },
+  "phoneKitPinDigits": "{count} of {total} digits entered",
+  "@phoneKitPinDigits": {
+    "description": "Screen reader label of the PIN dots: how many digits are entered so far. Numbers only, never the digits.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "phoneKitSwapCurrency": "Switch currency",
+  "@phoneKitSwapCurrency": {
+    "description": "Screen reader label of the button that swaps the amount between EPIC and the fiat currency."
+  },
+  "phoneKitStepDone": "Done",
+  "@phoneKitStepDone": {
+    "description": "Screen reader label added to a finished step in a list of steps."
+  },
+  "phoneKitStepNow": "In progress",
+  "@phoneKitStepNow": {
+    "description": "Screen reader label added to the current step in a list of steps."
+  },
+  "phoneKitStepLater": "Not started",
+  "@phoneKitStepLater": {
+    "description": "Screen reader label added to an upcoming step in a list of steps."
+  },
+  "phoneKitDismiss": "Dismiss",
+  "@phoneKitDismiss": {
+    "description": "Screen reader label of the × on a floating notice."
+  }
+}

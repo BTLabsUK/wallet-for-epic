@@ -21597,4 +21597,44 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => 'ไม่พบกล้อง วางโค้ดแทน';
+
+  @override
+  String get phoneKitReady => 'พร้อม';
+
+  @override
+  String get phoneKitReconnecting => 'กำลังเชื่อมต่อใหม่';
+
+  @override
+  String get phoneKitAvailable => 'ใช้ได้';
+
+  @override
+  String phoneKitLeaves(String amount, String fee) {
+    return 'จะเหลือ $amount หลังหักค่าธรรมเนียม $fee';
+  }
+
+  @override
+  String get phoneKitBack => 'กลับ';
+
+  @override
+  String get phoneKitDeleteDigit => 'ลบตัวเลขล่าสุด';
+
+  @override
+  String phoneKitPinDigits(int count, int total) {
+    return 'ป้อนแล้ว $count จาก $total หลัก';
+  }
+
+  @override
+  String get phoneKitSwapCurrency => 'สลับสกุลเงิน';
+
+  @override
+  String get phoneKitStepDone => 'เสร็จแล้ว';
+
+  @override
+  String get phoneKitStepNow => 'กำลังดำเนินการ';
+
+  @override
+  String get phoneKitStepLater => 'ยังไม่เริ่ม';
+
+  @override
+  String get phoneKitDismiss => 'ปิด';
 }

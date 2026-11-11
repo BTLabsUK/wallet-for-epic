@@ -22757,4 +22757,44 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Камера не найдена. Вставьте код вместо этого.';
+
+  @override
+  String get phoneKitReady => 'Готов';
+
+  @override
+  String get phoneKitReconnecting => 'Переподключение';
+
+  @override
+  String get phoneKitAvailable => 'Доступно';
+
+  @override
+  String phoneKitLeaves(String amount, String fee) {
+    return 'Останется $amount после комиссии $fee';
+  }
+
+  @override
+  String get phoneKitBack => 'Назад';
+
+  @override
+  String get phoneKitDeleteDigit => 'Удалить последнюю цифру';
+
+  @override
+  String phoneKitPinDigits(int count, int total) {
+    return 'Введено цифр: $count из $total';
+  }
+
+  @override
+  String get phoneKitSwapCurrency => 'Сменить валюту';
+
+  @override
+  String get phoneKitStepDone => 'Готово';
+
+  @override
+  String get phoneKitStepNow => 'В процессе';
+
+  @override
+  String get phoneKitStepLater => 'Ещё не начато';
+
+  @override
+  String get phoneKitDismiss => 'Закрыть';
 }
