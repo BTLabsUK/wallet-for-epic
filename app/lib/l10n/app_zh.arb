@@ -5648,7 +5648,17 @@
   "deskIpOnlineCancelCode": "之后扫描或粘贴另一部手机的回应。",
   "deskIpOnlineCancelAnswer": "之后由另一部手机扫描你的回应。",
   "deskIpOnlineDetails": "详情",
-  "deskLvPaySendingVia": "正在通过{method}发送",
-  "deskLvPayArrivingVia": "正在通过{method}收取",
-  "deskLvPayViaFile": "文件"
+  "deskLvPaySendingVia": "正在{via}发送",
+  "deskLvPayArrivingVia": "正在{via}收取",
+  "txSpokenSendingVia": "正在{via}发送 {amount}",
+  "txSpokenReceivingVia": "正在{via}接收 {amount}",
+  "txSpokenSentVia": "已{via}发送 {amount}",
+  "txSpokenReceivedVia": "已{via}收到 {amount}",
+  "txSpokenCancelledSendVia": "已取消{via}发送 {amount}",
+  "txSpokenCancelledReceiveVia": "已取消{via}接收 {amount}",
+  "txViaPhrase": "{via, select, file{通过文件} link{通过 epic1 链接} inPerson{当面} epicbox{通过 Epicbox} http{通过 HTTP} tor{通过 Tor} qr{通过二维码} other{通过其他方式}}",
+  "deskLvSendLiveVia": "正在{via}发送",
+  "deskLvSendLiveAmountVia": "{amount} EPIC（{via}）",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC，{via}。尚未支付任何款项：取消免费且一定成功。",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC，{via}。这笔付款之后仍可能完成。"
 }

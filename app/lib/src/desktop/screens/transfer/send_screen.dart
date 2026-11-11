@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../ui/via.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -62,7 +63,7 @@ import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
 import '../../../ui/link_send.dart' show amountEdited, linkRefusalText;
 import '../wallet/contacts_screen.dart' show ContactsArgs;
-import '../wallet/tx_display.dart' show statusOf;
+import '../wallet/tx_display.dart' show statusOf, viaOf;
 import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
@@ -1870,6 +1871,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     // The payment as the wallet lists it now, so the steps move on their own.
     final live = ref.watch(deskProvider.select((s) => s.txs))?.where((t) => r.tx.slateId.isNotEmpty ? t.slateId == r.tx.slateId : t.id == r.tx.id).firstOrNull ?? r.tx;
     final name = _sentTo ?? live.contactName;
+    // No name: the path it took ("via file"), when that is known.
+    final via = name == null ? viaOf(live) : null;
     final amount = formatEpicL(l, r.tx.amount);
     // Over before it finished: its receiver declined it, or it was cancelled under Activity.
     // The row's words for the title; a declined send says the balance is unchanged.
@@ -1881,7 +1884,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           key: const ValueKey('send-cancelled'),
           glyph: const ResultGlyph(icon: EIcons.cancel, tone: ETone.neutral),
           title: word,
-          text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
+          text: name != null ? l.deskLvSendLiveAmountTo(amount, name) : (via != null ? l.deskLvSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskLvSendLiveAmount(amount)),
           body: live.receiverDeclined ? Text(l.txDetailsReceiverDeclined, style: context.ts.body) : null,
           actions: actions,
         ),
@@ -1893,8 +1896,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         key: const ValueKey('send-done'),
         // On its way: the steps under it say how far; the tile says it is under way.
         glyph: const ResultGlyph(icon: EIcons.send, tone: ETone.info),
-        title: name == null ? l.lvPayOnItsWay : l.deskLvSendLiveTo(name),
-        text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
+        title: name != null ? l.deskLvSendLiveTo(name) : (via != null ? l.deskLvSendLiveVia(viaPhrase(l, via)) : l.lvPayOnItsWay),
+        text: name != null ? l.deskLvSendLiveAmountTo(amount, name) : (via != null ? l.deskLvSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskLvSendLiveAmount(amount)),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -599,5 +599,33 @@
         "type": "String"
       }
     }
+  },
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Nothing has been paid yet: cancelling is free and certain.",
+  "@deskTxCancelOutgoingViaBody": {
+    "description": "Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. This payment could still go through later.",
+  "@deskTxCancelNotPostedViaBody": {
+    "description": "Cancel dialog body for an outgoing payment not yet posted that has no contact name or address; via is how it travels.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
   }
 }

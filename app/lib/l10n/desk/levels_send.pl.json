@@ -18,5 +18,7 @@
   "deskLvSendFinishFile": "Dokończ plik odpowiedzi",
   "deskLvSendFinishFileText": "Otwórz otrzymaną odpowiedź, aby opublikować płatność.",
   "deskLvSendPrevAddress": "Poprzedni adres",
-  "deskLvSendPrevText": "Stary adres był na {server}. Każdy, kto go ma, potrzebuje nowego."
+  "deskLvSendPrevText": "Stary adres był na {server}. Każdy, kto go ma, potrzebuje nowego.",
+  "deskLvSendLiveVia": "W drodze {via}",
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}"
 }

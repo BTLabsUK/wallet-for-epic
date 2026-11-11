@@ -104,5 +104,7 @@
   "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
   "deskTxMore": "Więcej",
   "deskTxLess": "Mniej",
-  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Potwierdzona, {confirmations} potwierdzenie · blok {block}.} few{Potwierdzona, {confirmations} potwierdzenia · blok {block}.} many{Potwierdzona, {confirmations} potwierdzeń · blok {block}.} other{Potwierdzona, {confirmations} potwierdzenia · blok {block}.}}"
+  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Potwierdzona, {confirmations} potwierdzenie · blok {block}.} few{Potwierdzona, {confirmations} potwierdzenia · blok {block}.} many{Potwierdzona, {confirmations} potwierdzeń · blok {block}.} other{Potwierdzona, {confirmations} potwierdzenia · blok {block}.}}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Nic jeszcze nie zapłacono: anulowanie jest bez opłaty i pewne.",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. Ta płatność wciąż może przejść później."
 }

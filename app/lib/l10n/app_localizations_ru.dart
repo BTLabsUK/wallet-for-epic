@@ -22454,15 +22454,77 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskIpOnlineDetails => 'Подробности';
 
   @override
-  String deskLvPaySendingVia(String method) {
-    return 'Отправка через $method';
+  String deskLvPaySendingVia(String via) {
+    return 'Отправка $via';
   }
 
   @override
-  String deskLvPayArrivingVia(String method) {
-    return 'Поступает через $method';
+  String deskLvPayArrivingVia(String via) {
+    return 'Поступает $via';
   }
 
   @override
-  String get deskLvPayViaFile => 'файл';
+  String txSpokenSendingVia(String amount, String via) {
+    return 'Отправка $via: $amount';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return 'Получение $via: $amount';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return 'Отправлено $via: $amount';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return 'Получено $via: $amount';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return 'Отменённая отправка $via: $amount';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return 'Отменённое получение $via: $amount';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': 'через файл',
+      'link': 'по ссылке epic1',
+      'inPerson': 'лично',
+      'epicbox': 'через Epicbox',
+      'http': 'по HTTP',
+      'tor': 'через Tor',
+      'qr': 'по QR-коду',
+      'other': 'другим способом',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return 'Идёт $via';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC $via';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC $via. Пока ничего не оплачено: отмена бесплатна и надёжна.';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC $via. Этот платёж ещё может пройти позже.';
+  }
 }

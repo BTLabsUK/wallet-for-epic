@@ -5648,7 +5648,17 @@
   "deskIpOnlineCancelCode": "Затем отсканируйте или вставьте ответ другого телефона.",
   "deskIpOnlineCancelAnswer": "Затем другой телефон сканирует ваш ответ.",
   "deskIpOnlineDetails": "Подробности",
-  "deskLvPaySendingVia": "Отправка через {method}",
-  "deskLvPayArrivingVia": "Поступает через {method}",
-  "deskLvPayViaFile": "файл"
+  "deskLvPaySendingVia": "Отправка {via}",
+  "deskLvPayArrivingVia": "Поступает {via}",
+  "txSpokenSendingVia": "Отправка {via}: {amount}",
+  "txSpokenReceivingVia": "Получение {via}: {amount}",
+  "txSpokenSentVia": "Отправлено {via}: {amount}",
+  "txSpokenReceivedVia": "Получено {via}: {amount}",
+  "txSpokenCancelledSendVia": "Отменённая отправка {via}: {amount}",
+  "txSpokenCancelledReceiveVia": "Отменённое получение {via}: {amount}",
+  "txViaPhrase": "{via, select, file{через файл} link{по ссылке epic1} inPerson{лично} epicbox{через Epicbox} http{по HTTP} tor{через Tor} qr{по QR-коду} other{другим способом}}",
+  "deskLvSendLiveVia": "Идёт {via}",
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Пока ничего не оплачено: отмена бесплатна и надёжна.",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. Этот платёж ещё может пройти позже."
 }

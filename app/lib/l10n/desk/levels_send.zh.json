@@ -18,5 +18,7 @@
   "deskLvSendFinishFile": "完成回复文件",
   "deskLvSendFinishFileText": "打开收到的回复，以发布这笔付款。",
   "deskLvSendPrevAddress": "旧地址",
-  "deskLvSendPrevText": "旧地址在 {server} 上。拥有旧地址的人需要新地址。"
+  "deskLvSendPrevText": "旧地址在 {server} 上。拥有旧地址的人需要新地址。",
+  "deskLvSendLiveVia": "正在{via}发送",
+  "deskLvSendLiveAmountVia": "{amount} EPIC（{via}）"
 }

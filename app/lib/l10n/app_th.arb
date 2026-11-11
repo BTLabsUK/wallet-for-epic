@@ -5648,7 +5648,17 @@
   "deskIpOnlineCancelCode": "จากนั้นสแกนหรือวางคำตอบของโทรศัพท์อีกเครื่อง",
   "deskIpOnlineCancelAnswer": "จากนั้นโทรศัพท์อีกเครื่องจะสแกนคำตอบของคุณ",
   "deskIpOnlineDetails": "รายละเอียด",
-  "deskLvPaySendingVia": "กำลังส่งผ่าน {method}",
-  "deskLvPayArrivingVia": "กำลังเข้ามาผ่าน {method}",
-  "deskLvPayViaFile": "ไฟล์"
+  "deskLvPaySendingVia": "กำลังส่ง {via}",
+  "deskLvPayArrivingVia": "กำลังเข้ามา {via}",
+  "txSpokenSendingVia": "กำลังส่ง {amount} {via}",
+  "txSpokenReceivingVia": "กำลังรับ {amount} {via}",
+  "txSpokenSentVia": "ส่ง {amount} {via} แล้ว",
+  "txSpokenReceivedVia": "ได้รับ {amount} {via}",
+  "txSpokenCancelledSendVia": "ยกเลิกการส่ง {amount} {via}",
+  "txSpokenCancelledReceiveVia": "ยกเลิกการรับ {amount} {via}",
+  "txViaPhrase": "{via, select, file{ผ่านไฟล์} link{ผ่านลิงก์ epic1} inPerson{ด้วยตนเอง} epicbox{ผ่าน Epicbox} http{ผ่าน HTTP} tor{ผ่าน Tor} qr{ผ่าน QR} other{ด้วยวิธีอื่น}}",
+  "deskLvSendLiveVia": "กำลังไป {via}",
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via} ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via} รายการนี้ยังอาจสำเร็จได้ในภายหลัง"
 }

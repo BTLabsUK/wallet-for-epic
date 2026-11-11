@@ -122,5 +122,29 @@
         "example": "epicbox.example.com"
       }
     }
+  },
+  "deskLvSendLiveVia": "On its way {via}",
+  "@deskLvSendLiveVia": {
+    "description": "Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
+  "@deskLvSendLiveAmountVia": {
+    "description": "Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
   }
 }
