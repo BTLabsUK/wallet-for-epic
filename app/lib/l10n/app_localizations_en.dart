@@ -21649,4 +21649,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskInvIssuerWaitingInPerson =>
       'Waiting for the other wallet’s answer. Nothing is paid until it approves.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Answer comes back online · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Sending the answer online…';
+
+  @override
+  String get deskIpOnlineDown => 'Epicbox server not reachable · trying again';
+
+  @override
+  String get deskIpOnlineTitle => 'Online answer';
+
+  @override
+  String get deskIpOnlineServer => 'Epicbox server';
+
+  @override
+  String get deskIpOnlineStatus => 'Status';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Time left';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'About $count min',
+      one: 'About $count min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Sending the answer…';
+
+  @override
+  String get deskIpStepSent => 'Answer sent';
+
+  @override
+  String get deskIpStepReceived => 'Answer received';
+
+  @override
+  String get deskIpStepDown => 'Not reachable. Trying again.';
+
+  @override
+  String get deskIpStepFailed => 'Did not go through';
+
+  @override
+  String get deskIpStepCancelled => 'Cancelled';
+
+  @override
+  String get deskIpOnlineCancel => 'Cancel online reply';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Then scan or paste the other phone\'s answer.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Then the other phone scans your answer.';
+
+  @override
+  String get deskIpOnlineDetails => 'Details';
 }

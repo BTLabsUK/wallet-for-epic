@@ -33761,6 +33761,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for the other wallet’s answer. Nothing is paid until it approves.'**
   String get deskInvIssuerWaitingInPerson;
+
+  /// Quiet status line under an in-person code while its answer comes back through an Epicbox server; host is the server's name. Tapping it opens the details.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer comes back online · {host}'**
+  String deskIpOnlineLine(String host);
+
+  /// Status line in place of the answer QR code while the answer goes to the code's Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer online…'**
+  String get deskIpOnlineSending;
+
+  /// Status line under an in-person code when the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server not reachable · trying again'**
+  String get deskIpOnlineDown;
+
+  /// Title of the details of an in-person answer going through an Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Online answer'**
+  String get deskIpOnlineTitle;
+
+  /// Label of the row naming the Epicbox server the answer goes through.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server'**
+  String get deskIpOnlineServer;
+
+  /// Label of the row with the online answer's current step.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskIpOnlineStatus;
+
+  /// Label of the row with how long the in-person code still works.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get deskIpOnlineTimeLeft;
+
+  /// Value of the Time left row; count is minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{About {count} min} other{About {count} min}}'**
+  String deskIpOnlineMinutes(int count);
+
+  /// Online answer step: this wallet sends its answer to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer…'**
+  String get deskIpStepPosting;
+
+  /// Online answer step: the answer reached the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer sent'**
+  String get deskIpStepSent;
+
+  /// Online answer step: the other phone's answer came in.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer received'**
+  String get deskIpStepReceived;
+
+  /// Online answer step: the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable. Trying again.'**
+  String get deskIpStepDown;
+
+  /// Online answer step: the answer could not be sent to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Did not go through'**
+  String get deskIpStepFailed;
+
+  /// Online answer step: the user cancelled the online reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deskIpStepCancelled;
+
+  /// Button: stop sending or waiting online; the answer then goes by scan or paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel online reply'**
+  String get deskIpOnlineCancel;
+
+  /// Line under Cancel online reply on the side that shows the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then scan or paste the other phone\'s answer.'**
+  String get deskIpOnlineCancelCode;
+
+  /// Line under Cancel online reply on the side that answered the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the other phone scans your answer.'**
+  String get deskIpOnlineCancelAnswer;
+
+  /// Screen reader hint of the online answer status line: tapping it opens its details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get deskIpOnlineDetails;
 }
 
 class _AppLocalizationsDelegate

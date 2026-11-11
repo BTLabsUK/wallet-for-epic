@@ -22361,4 +22361,72 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskInvIssuerWaitingInPerson =>
       'Ждём ответ другого кошелька. Ничего не оплачивается, пока он не одобрит.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Ответ придёт онлайн · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Отправка ответа онлайн…';
+
+  @override
+  String get deskIpOnlineDown => 'Сервер Epicbox недоступен · пробуем снова';
+
+  @override
+  String get deskIpOnlineTitle => 'Ответ онлайн';
+
+  @override
+  String get deskIpOnlineServer => 'Сервер Epicbox';
+
+  @override
+  String get deskIpOnlineStatus => 'Статус';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Осталось времени';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Около $count мин.',
+      many: 'Около $count мин.',
+      few: 'Около $count мин.',
+      one: 'Около $count мин.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Отправка ответа…';
+
+  @override
+  String get deskIpStepSent => 'Ответ отправлен';
+
+  @override
+  String get deskIpStepReceived => 'Ответ получен';
+
+  @override
+  String get deskIpStepDown => 'Недоступен. Пробуем снова.';
+
+  @override
+  String get deskIpStepFailed => 'Не удалось отправить';
+
+  @override
+  String get deskIpStepCancelled => 'Отменено';
+
+  @override
+  String get deskIpOnlineCancel => 'Отменить ответ онлайн';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Затем отсканируйте или вставьте ответ другого телефона.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Затем другой телефон сканирует ваш ответ.';
+
+  @override
+  String get deskIpOnlineDetails => 'Подробности';
 }
