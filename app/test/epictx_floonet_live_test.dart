@@ -577,11 +577,11 @@ void main() {
         final conf = (await aw.summary(refresh: false)).minimumConfirmations;
         _say(await _summaryLine('A', aw));
         _say('B epic1Address ${_short(await bw.epic1Address())}');
-        for (final (kind, proof, asked) in [
-          (lepic.Epic1LinkKind.printed, false, true),
-          (lepic.Epic1LinkKind.onScreen, true, false),
+        for (final (kind, asked) in [
+          (lepic.Epic1LinkKind.printed, true),
+          (lepic.Epic1LinkKind.onScreen, false),
         ]) {
-          final tag = '${kind.name}${proof ? '+proof' : ''}';
+          final tag = kind.name;
           final link = await bw.epic1LinkMake(amount: asked ? _pay : null, message: 'epictx $tag', kind: kind, relays: const [], relayMode: lepic.ContactRelayMode.online);
           _say('B epic1LinkMake $tag: n ${link.n} address ${_short(link.address)} link ${_short(link.link)} (${link.link.length} chars)');
           final links = await bw.epic1Links();
@@ -592,13 +592,13 @@ void main() {
           _check('read shows what the link asks', read.address == link.address && (asked ? read.amount == _pay : read.amount == null));
           try {
             await _funds(aw);
-            await aw.epic1Pay(link: link.link, amount: asked ? null : _pay, minimumConfirmations: conf, proof: proof, hostsOk: false, relayMode: lepic.ContactRelayMode.online);
+            await aw.epic1Pay(link: link.link, amount: asked ? null : _pay, minimumConfirmations: conf, hostsOk: false, relayMode: lepic.ContactRelayMode.online);
             _check('epic1Pay without hostsOk refused', false, 'no error');
           } on lepic.WalletError catch (e) {
             _check('epic1Pay hostsOk:false -> relayNotConfirmed', e.kind == lepic.WalletErrorKind.relayNotConfirmed, '${e.kind.name}; mapLepicError ${mapLepicError(e).kind.name}');
           }
           await _funds(aw);
-          final paid = await aw.epic1Pay(link: link.link, amount: asked ? null : _pay, minimumConfirmations: conf, message: 'epictx pay $tag', proof: proof, hostsOk: true, relayMode: lepic.ContactRelayMode.online);
+          final paid = await aw.epic1Pay(link: link.link, amount: asked ? null : _pay, minimumConfirmations: conf, message: 'epictx pay $tag', hostsOk: true, relayMode: lepic.ContactRelayMode.online);
           _say('A epic1Pay $tag: tx ${paid.txId} slate ${_short(paid.slateId)} attempts ${paid.attempts.length} posted transport ${paid.posted}');
           _check('payment posted to a relay', paid.posted != null);
           // B takes it at the link mailbox, answers; A collects the answer and finalizes.
