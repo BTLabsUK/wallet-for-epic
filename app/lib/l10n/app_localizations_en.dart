@@ -14435,11 +14435,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addrField => 'Address';
 
   @override
-  String addrFieldTyped(String type) {
-    return '$type address';
-  }
-
-  @override
   String get addrAddAnother => 'Add another address';
 
   @override
@@ -14457,11 +14452,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addrReplace => 'Replace it';
-
-  @override
-  String addrDesktopThird(String type) {
-    return 'Paste a $type address, or leave empty';
-  }
 
   @override
   String get epic1AddressAlone =>

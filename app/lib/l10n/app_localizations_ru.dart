@@ -14968,11 +14968,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addrField => 'Адрес';
 
   @override
-  String addrFieldTyped(String type) {
-    return 'Адрес ($type)';
-  }
-
-  @override
   String get addrAddAnother => 'Добавить ещё адрес';
 
   @override
@@ -14990,11 +14985,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get addrReplace => 'Заменить';
-
-  @override
-  String addrDesktopThird(String type) {
-    return 'Вставьте адрес ($type) или оставьте пустым';
-  }
 
   @override
   String get epic1AddressAlone =>

@@ -23,21 +23,23 @@ const int guiContactNameMax = 64;
 /// A contact note: at most this many characters (code points).
 const int guiContactNoteMax = 1000;
 
-/// One GUI contact as read: its fields as typed, untrusted.
+/// One GUI contact as read: its fields as typed, untrusted. [epic1] is a contacts file's or a
+/// backup's epic1 link; the old GUI kept none.
 class GuiContactRow {
-  const GuiContactRow({required this.name, this.externalOne, this.externalTwo, this.onion, this.note, this.label = ContactLabel.wallet});
+  const GuiContactRow({required this.name, this.externalOne, this.externalTwo, this.onion, this.epic1, this.note, this.label = ContactLabel.wallet});
 
   final String name;
   final String? externalOne;
   final String? externalTwo;
   final String? onion;
+  final String? epic1;
   final String? note;
   final ContactLabel label;
 }
 
 /// The address checks of the wallet (LEPIC's checksums), passed in so this file stays pure.
 class AddressChecks {
-  const AddressChecks({required this.epicbox, required this.onion, this.http = httpAddressComplete});
+  const AddressChecks({required this.epicbox, required this.onion, this.http = httpAddressComplete, this.epic1 = _epic1Link});
 
   /// A whole `<key>@<relay>` Epicbox address.
   final bool Function(String address) epicbox;
@@ -45,7 +47,12 @@ class AddressChecks {
   /// A `<56 characters>.onion` address.
   final bool Function(String address) onion;
   final bool Function(String url) http;
+
+  /// An `epic:epic1…` link, as a contact holds it.
+  final bool Function(String link) epic1;
 }
+
+bool _epic1Link(String link) => epic1LinkShaped(link);
 
 /// What the import does: [add] new contacts, [update] saved ones (by id) with the addresses or
 /// note they lacked, and the counts the wizard shows.
@@ -87,7 +94,7 @@ class GuiContactPlan {
 }) {
   final byKind = <RecipientKind, String>{};
   var extra = 0;
-  for (final raw in [row.externalOne, row.externalTwo, row.onion]) {
+  for (final raw in [row.externalOne, row.externalTwo, row.onion, row.epic1]) {
     final text = raw?.trim() ?? '';
     if (text.isEmpty) continue;
     final a = _address(text, checks, epicboxDomain: epicboxDomain, epicboxPort: epicboxPort);
@@ -112,8 +119,8 @@ Recipient? _address(String text, AddressChecks checks, {String? epicboxDomain, i
     case RecipientKind.http:
       return checks.http(r.address) ? r : null;
     case RecipientKind.epic1:
-      // The old GUI kept no epic1 links.
-      return null;
+      // A bare epic1 address is not a contact's: contacts hold links.
+      return checks.epic1(r.address) ? r : null;
     case RecipientKind.epicbox:
       var a = r.address;
       if (!a.contains('@')) {
@@ -163,6 +170,8 @@ String _cut(String s, int max) {
 /// relay. A match gains the kinds it lacks and a note or label when it had none; its name, its addresses
 /// and its note are never changed. An address already saved on another contact is left out, so
 /// no address ends up on two contacts. A contact with no name is named by its first address.
+/// An epic1 link that differs from the match's own is kept too, as a contact of its own with the
+/// row's name: a merge never drops a link.
 GuiContactPlan planGuiContacts(
   Iterable<GuiContactRow> rows,
   Iterable<ContactFields> saved,
@@ -194,12 +203,13 @@ GuiContactPlan planGuiContacts(
     if (match < 0) {
       final byKind = found.byKind;
       final name = cleanContactName(row.name);
-      final first = byKind[RecipientKind.epicbox] ?? byKind[RecipientKind.http] ?? byKind[RecipientKind.tor]!;
+      final first = byKind[RecipientKind.epicbox] ?? byKind[RecipientKind.http] ?? byKind[RecipientKind.tor] ?? byKind[RecipientKind.epic1]!;
       final c = ContactFields(
         name: name.isEmpty ? _cut(first, guiContactNameMax) : name,
         epicbox: byKind[RecipientKind.epicbox],
         http: byKind[RecipientKind.http],
         tor: byKind[RecipientKind.tor],
+        epic1: byKind[RecipientKind.epic1],
         note: note.isEmpty ? null : note,
         label: row.label,
       );
@@ -211,10 +221,17 @@ GuiContactPlan planGuiContacts(
     final entry = book[match];
     var c = entry.c;
     var changed = false;
+    ContactFields? alsoLink;
     for (final e in found.byKind.entries) {
       final have = c.of(e.key);
       if (have != null) {
-        if (!_same(e.key, have, e.value)) plan.addressesLeftOut++;
+        if (_same(e.key, have, e.value)) continue;
+        if (e.key == RecipientKind.epic1 && owner(e.key, e.value) < 0) {
+          final name = cleanContactName(row.name);
+          alsoLink = ContactFields(name: name.isEmpty ? c.name : name, epic1: e.value, label: row.label);
+        } else {
+          plan.addressesLeftOut++;
+        }
         continue;
       }
       final elsewhere = owner(e.key, e.value);
@@ -239,8 +256,12 @@ GuiContactPlan planGuiContacts(
       c = c.copyWith(label: row.label);
       changed = true;
     }
+    if (alsoLink != null) {
+      book.add(_Entry(alsoLink, added: plan.add.length));
+      plan.add.add(alsoLink);
+    }
     if (!changed) {
-      plan.alreadySaved++;
+      if (alsoLink == null) plan.alreadySaved++;
       continue;
     }
     plan.merged++;

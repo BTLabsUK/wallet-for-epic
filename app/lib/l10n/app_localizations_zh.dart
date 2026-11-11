@@ -13597,11 +13597,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addrField => '地址';
 
   @override
-  String addrFieldTyped(String type) {
-    return '$type 地址';
-  }
-
-  @override
   String get addrAddAnother => '添加另一个地址';
 
   @override
@@ -13619,11 +13614,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addrReplace => '替换';
-
-  @override
-  String addrDesktopThird(String type) {
-    return '粘贴 $type 地址，或留空';
-  }
 
   @override
   String get epic1AddressAlone => '仅凭 epic1 地址无法付款。请粘贴 epic1 链接。';

@@ -22602,12 +22602,6 @@ abstract class AppLocalizations {
   /// **'Address'**
   String get addrField;
 
-  /// Field label once the type is detected, e.g. Epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'{type} address'**
-  String addrFieldTyped(String type);
-
   /// Text button under the last filled field, only while a type is free.
   ///
   /// In en, this message translates to:
@@ -22637,12 +22631,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Replace it'**
   String get addrReplace;
-
-  /// Desktop: placeholder of the free third field.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste a {type} address, or leave empty'**
-  String addrDesktopThird(String type);
 
   /// Contact editor and epic1 Send: a bare epic1 address was pasted. Only an epic:epic1… link with a server can be paid.
   ///

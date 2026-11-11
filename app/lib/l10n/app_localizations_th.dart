@@ -14070,11 +14070,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get addrField => 'ที่อยู่';
 
   @override
-  String addrFieldTyped(String type) {
-    return 'ที่อยู่ $type';
-  }
-
-  @override
   String get addrAddAnother => 'เพิ่มที่อยู่อื่น';
 
   @override
@@ -14092,11 +14087,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get addrReplace => 'แทนที่';
-
-  @override
-  String addrDesktopThird(String type) {
-    return 'วางที่อยู่ $type หรือเว้นว่างไว้';
-  }
 
   @override
   String get epic1AddressAlone =>

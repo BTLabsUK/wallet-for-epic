@@ -14994,11 +14994,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get addrField => 'Adres';
 
   @override
-  String addrFieldTyped(String type) {
-    return 'Adres ($type)';
-  }
-
-  @override
   String get addrAddAnother => 'Dodaj kolejny adres';
 
   @override
@@ -15016,11 +15011,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get addrReplace => 'Zastąp';
-
-  @override
-  String addrDesktopThird(String type) {
-    return 'Wklej adres ($type) lub zostaw puste';
-  }
 
   @override
   String get epic1AddressAlone =>
