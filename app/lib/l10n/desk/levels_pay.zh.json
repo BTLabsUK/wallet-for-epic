@@ -11,6 +11,7 @@
   "deskLvPayDone": "完成",
   "deskLvPayOnItsWayTo": "正在发往 {name}",
   "deskLvPaySendingTo": "正在发送给 {name}",
+  "deskLvPaySendingInPerson": "正在当面发送",
   "deskLvPayArrivingFrom": "正在收取来自 {name} 的付款",
   "deskLvPayStartedAt": "{amount} EPIC · 开始于 {time}",
   "deskLvPayHeroArriving": "+{amount} 来自 {name}，即将到账",

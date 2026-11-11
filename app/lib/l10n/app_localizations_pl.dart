@@ -22366,4 +22366,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, zapieczętowane przez epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Wysyłanie osobiście';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Czekamy na odpowiedź drugiego portfela. Nic nie zostanie zapłacone, dopóki go nie zatwierdzi.';
 }

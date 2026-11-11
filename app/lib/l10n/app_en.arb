@@ -29362,5 +29362,13 @@
         "type": "String"
       }
     }
+  },
+  "deskLvPaySendingInPerson": "Sending in person",
+  "@deskLvPaySendingInPerson": {
+    "description": "Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end)."
+  },
+  "deskInvIssuerWaitingInPerson": "Waiting for the other wallet’s answer. Nothing is paid until it approves.",
+  "@deskInvIssuerWaitingInPerson": {
+    "description": "Detail text of a waiting request that was issued in person (no payer name)."
   }
 }

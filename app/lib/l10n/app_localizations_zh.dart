@@ -20434,4 +20434,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row，已用 epic1 密封';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => '正在当面发送';
+
+  @override
+  String get deskInvIssuerWaitingInPerson => '正在等待对方钱包的回复。在对方批准之前不会付款。';
 }

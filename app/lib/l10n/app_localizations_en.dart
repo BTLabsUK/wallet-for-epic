@@ -21642,4 +21642,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, sealed with epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Sending in person';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Waiting for the other wallet’s answer. Nothing is paid until it approves.';
 }

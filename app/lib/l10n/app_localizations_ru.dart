@@ -22354,4 +22354,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, запечатано epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Отправка лично';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Ждём ответ другого кошелька. Ничего не оплачивается, пока он не одобрит.';
 }

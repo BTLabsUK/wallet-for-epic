@@ -11,6 +11,7 @@
   "deskLvPayDone": "เสร็จแล้ว",
   "deskLvPayOnItsWayTo": "กำลังไปหา {name}",
   "deskLvPaySendingTo": "กำลังส่งให้ {name}",
+  "deskLvPaySendingInPerson": "กำลังส่งด้วยตนเอง",
   "deskLvPayArrivingFrom": "กำลังเข้ามาจาก {name}",
   "deskLvPayStartedAt": "{amount} EPIC · เริ่มเมื่อ {time}",
   "deskLvPayHeroArriving": "+{amount} กำลังเข้ามาจาก {name}",

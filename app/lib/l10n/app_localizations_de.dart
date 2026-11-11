@@ -21904,4 +21904,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, mit epic1 versiegelt';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Persönlich senden';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Warten auf die Antwort der anderen Wallet. Es wird nichts bezahlt, bis sie zustimmt.';
 }

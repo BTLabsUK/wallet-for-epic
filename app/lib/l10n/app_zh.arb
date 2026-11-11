@@ -5620,5 +5620,7 @@
   "deskE1TourSendText": "粘贴 epic1 链接，或选择联系人。“当面付款”用于身边的手机。发出前会先确认。",
   "deskE1TourReceiveText": "这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。",
   "deskE1Sealed": "已用 epic1 密封",
-  "deskE1SpokenSealed": "{row}，已用 epic1 密封"
+  "deskE1SpokenSealed": "{row}，已用 epic1 密封",
+  "deskLvPaySendingInPerson": "正在当面发送",
+  "deskInvIssuerWaitingInPerson": "正在等待对方钱包的回复。在对方批准之前不会付款。"
 }

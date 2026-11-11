@@ -5620,5 +5620,7 @@
   "deskE1TourSendText": "Einen epic1-Link einfügen oder einen Kontakt wählen. „Persönlich bezahlen“ ist für ein Smartphone neben Ihnen. Vor dem Abschicken kommt eine Prüfung.",
   "deskE1TourReceiveText": "Der epic1-Link dieser Wallet: Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen.",
   "deskE1Sealed": "Mit epic1 versiegelt",
-  "deskE1SpokenSealed": "{row}, mit epic1 versiegelt"
+  "deskE1SpokenSealed": "{row}, mit epic1 versiegelt",
+  "deskLvPaySendingInPerson": "Persönlich senden",
+  "deskInvIssuerWaitingInPerson": "Warten auf die Antwort der anderen Wallet. Es wird nichts bezahlt, bis sie zustimmt."
 }

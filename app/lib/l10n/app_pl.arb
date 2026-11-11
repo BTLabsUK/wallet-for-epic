@@ -5620,5 +5620,7 @@
   "deskE1TourSendText": "Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Przed wysłaniem jest podgląd.",
   "deskE1TourReceiveText": "Link epic1 tego portfela: udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.",
   "deskE1Sealed": "Zapieczętowane przez epic1",
-  "deskE1SpokenSealed": "{row}, zapieczętowane przez epic1"
+  "deskE1SpokenSealed": "{row}, zapieczętowane przez epic1",
+  "deskLvPaySendingInPerson": "Wysyłanie osobiście",
+  "deskInvIssuerWaitingInPerson": "Czekamy na odpowiedź drugiego portfela. Nic nie zostanie zapłacone, dopóki go nie zatwierdzi."
 }

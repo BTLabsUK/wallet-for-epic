@@ -21203,4 +21203,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row ปิดผนึกด้วย epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'กำลังส่งด้วยตนเอง';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'รอคำตอบจากกระเป๋าอีกฝั่ง ไม่มีการชำระใดๆ จนกว่าจะอนุมัติ';
 }

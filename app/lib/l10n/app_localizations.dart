@@ -33749,6 +33749,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{row}, sealed with epic1'**
   String deskE1SpokenSealed(String row);
+
+  /// Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending in person'**
+  String get deskLvPaySendingInPerson;
+
+  /// Detail text of a waiting request that was issued in person (no payer name).
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other wallet’s answer. Nothing is paid until it approves.'**
+  String get deskInvIssuerWaitingInPerson;
 }
 
 class _AppLocalizationsDelegate

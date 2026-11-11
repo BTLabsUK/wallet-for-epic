@@ -27,6 +27,22 @@ class IssueTab extends ConsumerStatefulWidget {
 /// Who a request went to: the contact's name, else the short address.
 String payerOf(IssuedRequest r) => r.payerName ?? shortAddress(r.payerAddress, compact: true);
 
+/// The request's payer in words: the in-person exchange, "Anyone with the file", or the payer.
+String payerWordOf(AppLocalizations l, IssuedRequest r) => r.inPerson ? l.deskE1InPerson : (r.byFile ? l.reqToAnyone : payerOf(r));
+
+/// The detail line of a request: never a payer's name when there is none to name.
+(String, ETone) requestStateText(AppLocalizations l, IssuedRequest r) {
+  final who = payerWordOf(l, r);
+  final nameless = r.byFile || r.inPerson;
+  return switch (r.state) {
+    RequestState.waiting => (r.inPerson ? l.deskInvIssuerWaitingInPerson : (r.byFile ? l.reqFileLead : l.deskInvIssuerWaitingText(who)), ETone.neutral),
+    RequestState.paid || RequestState.confirming || RequestState.completed => (nameless ? l.deskFinPostedText : l.deskInvIssuerPaidText(who), ETone.ok),
+    RequestState.notPosted => (l.deskInvIssuerNotPostedText, ETone.risk),
+    RequestState.bounced => (l.deskInvIssuerBounced(who), ETone.warn),
+    _ => (l.deskInvIssuerEnded, ETone.neutral),
+  };
+}
+
 class _IssueTabState extends ConsumerState<IssueTab> {
   String? _sel;
 
@@ -211,7 +227,7 @@ class _Row extends StatelessWidget {
                             // A bare address: the full one on hover.
                             child: Builder(
                               builder: (context) {
-                                final name = Text(r.byFile ? l.reqByFile : payerOf(r), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.body.copyWith(fontWeight: FontWeight.w600));
+                                final name = Text(r.inPerson ? l.deskE1InPerson : (r.byFile ? l.reqByFile : payerOf(r)), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.body.copyWith(fontWeight: FontWeight.w600));
                                 return r.payerName == null && r.payerAddress.isNotEmpty ? ETip.value(r.payerAddress, mono: true, child: name) : name;
                               },
                             ),
@@ -265,14 +281,8 @@ class RequestDetail extends ConsumerWidget {
     final r = request;
     final technical = advancedHas(ref, AdvancedFeature.technicalDetails);
     // A request file has no payer: "Anyone with the file", and the file's own texts.
-    final who = r.byFile ? l.reqToAnyone : payerOf(r);
-    final (text, tone) = switch (r.state) {
-      RequestState.waiting => (r.byFile ? l.reqFileLead : l.deskInvIssuerWaitingText(who), ETone.neutral),
-      RequestState.paid || RequestState.confirming || RequestState.completed => (r.byFile ? l.deskFinPostedText : l.deskInvIssuerPaidText(who), ETone.ok),
-      RequestState.notPosted => (l.deskInvIssuerNotPostedText, ETone.risk),
-      RequestState.bounced => (l.deskInvIssuerBounced(who), ETone.warn),
-      _ => (l.deskInvIssuerEnded, ETone.neutral),
-    };
+    final who = payerWordOf(l, r);
+    final (text, tone) = requestStateText(l, r);
     final step = switch (r.state) {
       RequestState.waiting => 0,
       RequestState.paid || RequestState.notPosted => 1,
@@ -286,7 +296,7 @@ class RequestDetail extends ConsumerWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Text(r.byFile ? l.deskInvIssuerToAnyone : l.deskInvIssuerTo(who), style: ts.h3)),
+            Expanded(child: Text(r.inPerson ? l.deskE1RequestInPerson : (r.byFile ? l.deskInvIssuerToAnyone : l.deskInvIssuerTo(who)), style: ts.h3)),
             SizedBox(width: Sp.x3),
             RequestStateTag(r),
           ],
@@ -318,7 +328,7 @@ class RequestDetail extends ConsumerWidget {
         if (step >= 0) ...[SizedBox(height: Sp.x5), _Steps(step: step, confirmations: r.confirmations, needed: deskMinConfirmations(ref))],
         SizedBox(height: Sp.x5),
         EFacts(labelWidth: 96.u, [
-          (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.byFile) Text(l.reqToAnyone), if (r.payerName != null) Text(r.payerName!), if (r.payerAddress.isNotEmpty) EMonoText(shortAddress(r.payerAddress, compact: true))])),
+          (l.deskInvIssuerPayerFact, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (r.inPerson) Text(l.deskE1InPerson) else if (r.byFile) Text(l.reqToAnyone), if (r.payerName != null) Text(r.payerName!), if (r.payerAddress.isNotEmpty) EMonoText(shortAddress(r.payerAddress, compact: true))])),
           if ((r.message ?? '').isNotEmpty) (l.deskInvIssuerMessageFact, Text(cleanInvoiceText(r.message))),
           (l.deskInvIssuerSentFact, Text(invWhen(context, r.issuedAt))),
           if (r.state == RequestState.waiting)

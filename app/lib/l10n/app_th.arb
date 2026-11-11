@@ -5620,5 +5620,7 @@
   "deskE1TourSendText": "วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายต่อหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนส่งทุกครั้ง",
   "deskE1TourReceiveText": "ลิงก์ epic1 ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ",
   "deskE1Sealed": "ปิดผนึกด้วย epic1",
-  "deskE1SpokenSealed": "{row} ปิดผนึกด้วย epic1"
+  "deskE1SpokenSealed": "{row} ปิดผนึกด้วย epic1",
+  "deskLvPaySendingInPerson": "กำลังส่งด้วยตนเอง",
+  "deskInvIssuerWaitingInPerson": "รอคำตอบจากกระเป๋าอีกฝั่ง ไม่มีการชำระใดๆ จนกว่าจะอนุมัติ"
 }
