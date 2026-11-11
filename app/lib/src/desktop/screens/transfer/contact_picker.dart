@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../contact_label.dart' show ContactLabelListMark;
 import '../../../epic1.dart' show PaymentMode;
 import '../../../models.dart' show PairingRecord;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
@@ -233,7 +234,7 @@ class _PickRowState extends State<_PickRow> {
             padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x2),
             child: Row(
               children: [
-                EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label),
+                EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label.listMark),
                 SizedBox(width: 14.u),
                 Expanded(
                   child: classicOnly
