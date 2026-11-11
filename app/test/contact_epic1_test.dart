@@ -20,6 +20,8 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_common.dart' show classicOnlyProvider;
+import 'package:epic_wallet/src/ui/address_view.dart' show ShortAddressText;
+import 'package:epic_wallet/src/ui/badge.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -267,6 +269,14 @@ void main() {
       await tester.tap(find.text(_l.contactsSave));
       await tester.pumpAndSettle();
       expect((await h.session.contacts()).singleWhere((c) => c.name == 'Eve').epic1, _link);
+    });
+
+    testWidgets('the list row of a contact with only a link shows the epic1 badge and the link', (tester) async {
+      final h = _Harness();
+      await h.session.saveContact(contact: Contact(id: '', name: 'Eve', epic1: _link));
+      await h.pump(tester, const ContactsScreen());
+      expect(find.byWidgetPredicate((w) => w is EBadge && w.icon == MethodIcons.ofRecipient(RecipientKind.epic1)), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is ShortAddressText && w.address == _link), findsOneWidget);
     });
 
     testWidgets('a bare epic1 address gets its line and is not saved', (tester) async {

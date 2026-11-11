@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
-import '../../recipient.dart' show RecipientKind;
+import '../../recipient.dart' show RecipientKind, epic1Shaped;
 
 import '../desk_l10n.dart';
 import '../../address_format.dart';
@@ -149,9 +149,17 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
 /// The kind badge of an address row: Epicbox, Link · HTTP or Link · Tor, each
 /// with its glyph.
 class EKindTag extends StatelessWidget {
-  const EKindTag(this.kind, {super.key, this.compact = false});
+  const EKindTag(this.kind, {super.key, this.compact = false}) : epic1 = false;
+
+  /// The tag of [address] as written: an epic1 link gets its own badge.
+  EKindTag.of(String address, {super.key, this.compact = false})
+      : epic1 = epic1Shaped(address.trim()),
+        kind = addressKindOf(address);
 
   final AddressKind kind;
+
+  /// An epic1 link: not an [AddressKind], tagged with its own badge.
+  final bool epic1;
 
   /// The glyph alone, its name in the tooltip: list rows.
   final bool compact;
@@ -159,6 +167,7 @@ class EKindTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    if (epic1) return EBadge.kind(RecipientKind.epic1, l: l, compact: compact);
     return switch (kind) {
       AddressKind.epicbox => EBadge.kind(RecipientKind.epicbox, l: l, compact: compact),
       AddressKind.http => EBadge.kind(RecipientKind.http, l: l, compact: compact),
@@ -212,7 +221,7 @@ class EAddressLines extends StatelessWidget {
             // A contact with no address (paired only) has no kind to tag.
             if (address.trim().isNotEmpty && !several) ...[
               SizedBox(width: Sp.x2),
-              EKindTag(addressKindOf(address), compact: !full),
+              EKindTag.of(address, compact: !full),
             ],
           ],
         ),
@@ -226,7 +235,7 @@ class EAddressLines extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (several)
-                    Row(children: [for (final a in addresses!) ...[Flexible(child: EKindTag(addressKindOf(a))), SizedBox(width: Sp.x1)]])
+                    Row(children: [for (final a in addresses!) ...[Flexible(child: EKindTag.of(a)), SizedBox(width: Sp.x1)]])
                   else if (address.trim().isNotEmpty)
                     EShortAddress(address, style: aStyle),
                   if (n.isNotEmpty) ...[const SizedBox(height: 2), Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)],
@@ -242,7 +251,7 @@ class EAddressLines extends StatelessWidget {
               return Row(
                 children: [
                   if (withAddress) ...[Flexible(child: EShortAddress(address, style: aStyle)), SizedBox(width: Sp.x2)],
-                  for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: true), SizedBox(width: Sp.x1)],
+                  for (final a in addresses!) ...[EKindTag.of(a, compact: true), SizedBox(width: Sp.x1)],
                   if (n.isNotEmpty) Flexible(child: Text('$metaSeparator$n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
                 ],
               );

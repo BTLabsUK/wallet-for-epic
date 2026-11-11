@@ -645,7 +645,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                   child: EAddressLines(
                     full: true,
                     name: x.name,
-                    address: x.address,
+                    address: x.address.isEmpty ? (x.epic1 ?? '') : x.address,
                     addresses: x.addresses,
                     note: x.note,
                     nameTrailing: Row(

@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show 
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/recipient.dart' show RecipientKind;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/models.dart' show WalletError, WalletErrorKind;
 import 'package:epic_wallet/src/tor_build.dart';
@@ -84,6 +85,14 @@ void main() {
       expect(api.saved.single.epic1, _link);
       expect(api.saved.single.epicbox, isNull);
       expect(api.saved.single.address, isEmpty, reason: 'an epic1 link is never the classic address');
+    });
+
+    testWidgets('the list row of a contact with only a link tags it epic1, never Unknown', (tester) async {
+      await _editor(tester);
+      await _fill(tester, _link);
+      await _save(tester);
+      expect(find.byWidgetPredicate((w) => w is EBadge && w.icon == MethodIcons.ofRecipient(RecipientKind.epic1)), findsWidgets);
+      expect(find.text(_l.deskKitUnknown), findsNothing);
     });
 
     testWidgets('a bare epic1 address gets its line at once and is not saved', (tester) async {

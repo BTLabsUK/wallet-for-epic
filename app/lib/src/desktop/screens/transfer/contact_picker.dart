@@ -271,7 +271,7 @@ class _PickRowState extends State<_PickRow> {
                         )
                       : EAddressLines(
                     name: widget.contact.name,
-                    address: widget.contact.address,
+                    address: widget.contact.address.isEmpty ? (widget.contact.epic1 ?? '') : widget.contact.address,
                     note: widget.contact.note,
                     nameTrailing: widget.contact.favourite
                         ? Padding(

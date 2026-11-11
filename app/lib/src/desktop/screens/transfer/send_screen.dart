@@ -3259,7 +3259,7 @@ class _Suggestions extends StatelessWidget {
                         if (pairingOf(x) case final p?)
                           Flexible(child: PairingOnlyLine(name: x.name, pairing: p))
                         else ...[
-                          EKindTag(addressKindOf(addressOf(x)), compact: true),
+                          EKindTag.of(addressOf(x), compact: true),
                           SizedBox(width: Sp.x3),
                           Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
                         ],

@@ -563,7 +563,7 @@ class _ContactRow extends ConsumerWidget {
     } else if (contact.addresses.isEmpty) {
       reach = const SizedBox.shrink();
     } else {
-      reach = ShortAddressText(contact.address, style: const TextStyle(fontSize: 13));
+      reach = ShortAddressText(contact.addresses.first, style: const TextStyle(fontSize: 13));
     }
     final row = InkWell(
       onTap: disabled ? null : onTap,
@@ -599,7 +599,7 @@ class _ContactRow extends ConsumerWidget {
                         else if (inFlight)
                           const Flexible(child: PairPendingBadge())
                         else if (!several && contact.addresses.isNotEmpty)
-                          Flexible(child: EBadge.kind(parseRecipient(contact.address).kind, l: l)),
+                          Flexible(child: EBadge.kind(contact.kinds.first, l: l)),
                         if (noPayments) ...[
                           const SizedBox(width: 6),
                           const NoPaymentsMark(),
