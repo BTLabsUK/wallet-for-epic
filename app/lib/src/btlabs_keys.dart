@@ -35,22 +35,23 @@ final Keyring btlabsKeyring = Keyring.parse(btlabsKeyringJson);
 /// so a stolen announcement key signs no release and the release key signs no announcement.
 /// Rank 1 signs; rank 2 only revokes rank 1.
 ///
-/// TEST KEYS (made 2026-11-11, public halves only). Replace with the production pair before
-/// any release (announcements spec §9): the test keys must not ship.
+/// Production pair (made 2026-11-11): btlabs-ann-2026-a signs and lives beside the release key;
+/// btlabs-ann-2026-b is kept offline. The Pages repository serves the same keys as
+/// `announcements-keyring.json`. Tests use their own test pair (test/fixtures/announcements).
 const String announcementsKeyringJson = '''
 {
   "keys": [
     {
-      "keyid": "9df7615cea67d189",
+      "keyid": "8d85230d01812375",
       "rank": 1,
-      "public_key": "F4Zl8uMhjZWuzdpd9Cl18MBzjUcPQ5Y6dhc+KD2jnxU=",
-      "label": "ann-test-a"
+      "public_key": "ZPoz4rvBgr7/TJOeHEND7z9AvSMGZ5xnmj9YOEG4t3w=",
+      "label": "btlabs-ann-2026-a"
     },
     {
-      "keyid": "4795449464419841",
+      "keyid": "5536e619d3a69009",
       "rank": 2,
-      "public_key": "Gjh/UyKnBypVh1ACE/kRIVXyP05daI8xckRYkBD10wM=",
-      "label": "ann-test-b"
+      "public_key": "+f8YUYMYDNFiTgXWi2LTry9eZLg7x+IjXb73OzhW8uQ=",
+      "label": "btlabs-ann-2026-b"
     }
   ]
 }

@@ -102,8 +102,20 @@ void main() {
   group('the publisher\'s fixtures', () {
     final fixtureRing = Keyring.parse(File('$_fixtures/keyring.json').readAsStringSync());
 
-    test('the bundled keyring is the fixtures\' keyring', () {
-      expect(announcementsKeyring.keys.map((k) => k.keyid), fixtureRing.keys.map((k) => k.keyid));
+    test('the bundled keyring is the production pair, never the test keys', () {
+      expect(announcementsKeyring.keys.map((k) => k.keyid), ['8d85230d01812375', '5536e619d3a69009']);
+      for (final k in fixtureRing.keys) {
+        expect(announcementsKeyring.keys.map((b) => b.keyid), isNot(contains(k.keyid)));
+      }
+    });
+
+    test('the first production feed verifies with the bundled keyring', () async {
+      final text = File('$_fixtures/production.json').readAsStringSync();
+      final payloadJson = jsonDecode(utf8.decode(base64.decode((jsonDecode(text) as Map)['payload'] as String))) as Map;
+      final issued = DateTime.parse(payloadJson['issued_at'] as String);
+      final r = await verifyAnnouncements(text, keyring: announcementsKeyring, now: issued.add(const Duration(hours: 1)));
+      expect(r, isA<Accepted<AnnouncementsFeed>>());
+      expect((r as Accepted<AnnouncementsFeed>).signer, '8d85230d01812375');
     });
 
     test('announcements.json verifies', () async {
@@ -656,7 +668,7 @@ void main() {
   });
 
   group('the setting and the config', () {
-    test('the bundled keyring has the test pair; the type name is the spec\'s', () {
+    test('the bundled keyring has a rank-1 and a rank-2 key; the type name is the spec\'s', () {
       expect(announcementsKeyring.keys.map((k) => k.rank), [1, 2]);
       expect(announcementsType, 'application/vnd.btlabs.wallet-for-epic.announcements+json');
     });

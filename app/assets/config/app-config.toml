@@ -131,8 +131,9 @@ signed_file = "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/
 
 [announcements]
 # Signed messages from BT Labs (announcements.json, a DSSE file like btlabs.json, own keyring).
-# Leave `feed` out to turn the feature off with no switch in Settings. TEST feed: replace before release.
-feed = "https://examples.btlabs.uk/epic/announcements-test/announcements.json"
+# Leave `feed` out to turn the feature off with no switch in Settings. Beside btlabs.json in the
+# Pages repository (raw.githubusercontent.com: reachable through Tor exits).
+feed = "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/announcements.json"
 first_check_s = 45
 check_every_h = 6
 timeout_s = 30
