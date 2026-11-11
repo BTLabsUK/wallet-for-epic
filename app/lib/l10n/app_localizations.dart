@@ -34511,6 +34511,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.'**
   String get phoneStartPinHelpLost;
+
+  /// Title of the help sheet on the Restore screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring a wallet'**
+  String get phoneRestoreHelpTitle;
+
+  /// First line of the Restore help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The recovery phrase brings back the balance. Type its words, paste them or scan its QR code.'**
+  String get phoneRestoreHelpPhrase;
+
+  /// Second line of the Restore help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the month you made the wallet. Not sure? An earlier month finds more and takes longer.'**
+  String get phoneRestoreHelpStart;
+
+  /// Button at the foot of the phrase box that scans the phrase from a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get phoneRestoreScan;
+
+  /// Label above the row that picks where the restore search starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to start looking'**
+  String get phoneRestoreStartGroup;
+
+  /// Row that shows the month the wallet was made; it opens the month choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet created'**
+  String get phoneRestoreCreated;
+
+  /// Title of the Restore screen while the search runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring'**
+  String get phoneRestoreRestoring;
+
+  /// Heading under the progress ring while the restore searches the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for your coins'**
+  String get phoneRestoreScanTitle;
+
+  /// Line under the heading while the restore searches the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the app open until this finishes. The screen stays on while it runs.'**
+  String get phoneRestoreScanBody;
+
+  /// Row that shows where the restore search started.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking from'**
+  String get phoneRestoreLookingFrom;
+
+  /// Dim note under the restore progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending and receiving open when the search ends. If you stop, it carries on from Home.'**
+  String get phoneRestoreScanNote;
+
+  /// Heading when the restore search stopped before the end.
+  ///
+  /// In en, this message translates to:
+  /// **'The search stopped'**
+  String get phoneRestoreStoppedTitle;
+
+  /// Text under the Your wallet is restored heading.
+  ///
+  /// In en, this message translates to:
+  /// **'The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.'**
+  String get phoneRestoreDoneBody;
 }
 
 class _AppLocalizationsDelegate

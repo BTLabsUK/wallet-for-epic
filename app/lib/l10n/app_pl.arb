@@ -5747,5 +5747,18 @@
   "phoneWelcomeTorLine": "Łącz się przez Tor od pierwszej sekundy",
   "phoneStartPinHelpTitle": "O kodzie PIN",
   "phoneStartPinHelpUnlock": "PIN odblokowuje portfel na tym telefonie i zatwierdza każdą płatność. Nigdy nie opuszcza telefonu.",
-  "phoneStartPinHelpLost": "PIN-u nie można odzyskać. Przechowuj frazę odzyskiwania w bezpiecznym miejscu: z nią przywrócisz portfel i ustawisz nowy PIN."
+  "phoneStartPinHelpLost": "PIN-u nie można odzyskać. Przechowuj frazę odzyskiwania w bezpiecznym miejscu: z nią przywrócisz portfel i ustawisz nowy PIN.",
+  "phoneRestoreHelpTitle": "Przywracanie portfela",
+  "phoneRestoreHelpPhrase": "Fraza odzyskiwania przywraca saldo. Wpisz jej słowa, wklej je lub zeskanuj jej kod QR.",
+  "phoneRestoreHelpStart": "Wybierz miesiąc utworzenia portfela. Nie wiesz? Wcześniejszy miesiąc znajdzie więcej i potrwa dłużej.",
+  "phoneRestoreScan": "Skanuj",
+  "phoneRestoreStartGroup": "Od kiedy szukać",
+  "phoneRestoreCreated": "Portfel utworzony",
+  "phoneRestoreRestoring": "Przywracanie",
+  "phoneRestoreScanTitle": "Szukamy Twoich monet",
+  "phoneRestoreScanBody": "Nie zamykaj aplikacji, dopóki wyszukiwanie się nie skończy. Ekran pozostaje włączony.",
+  "phoneRestoreLookingFrom": "Szukamy od",
+  "phoneRestoreScanNote": "Wysyłanie i odbieranie włączą się po zakończeniu wyszukiwania. Jeśli zatrzymasz, będzie trwać na ekranie głównym.",
+  "phoneRestoreStoppedTitle": "Wyszukiwanie zatrzymane",
+  "phoneRestoreDoneBody": "Fraza odzyskiwania przywróciła saldo. Historia, kontakty i ustawienia wracają z pliku danych portfela, jeśli go wyeksportowano."
 }

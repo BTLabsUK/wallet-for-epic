@@ -30032,5 +30032,57 @@
   "phoneStartPinHelpLost": "The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.",
   "@phoneStartPinHelpLost": {
     "description": "Second line of the PIN help sheet."
+  },
+  "phoneRestoreHelpTitle": "Restoring a wallet",
+  "@phoneRestoreHelpTitle": {
+    "description": "Title of the help sheet on the Restore screen."
+  },
+  "phoneRestoreHelpPhrase": "The recovery phrase brings back the balance. Type its words, paste them or scan its QR code.",
+  "@phoneRestoreHelpPhrase": {
+    "description": "First line of the Restore help sheet."
+  },
+  "phoneRestoreHelpStart": "Pick the month you made the wallet. Not sure? An earlier month finds more and takes longer.",
+  "@phoneRestoreHelpStart": {
+    "description": "Second line of the Restore help sheet."
+  },
+  "phoneRestoreScan": "Scan",
+  "@phoneRestoreScan": {
+    "description": "Button at the foot of the phrase box that scans the phrase from a QR code."
+  },
+  "phoneRestoreStartGroup": "Where to start looking",
+  "@phoneRestoreStartGroup": {
+    "description": "Label above the row that picks where the restore search starts."
+  },
+  "phoneRestoreCreated": "Wallet created",
+  "@phoneRestoreCreated": {
+    "description": "Row that shows the month the wallet was made; it opens the month choice."
+  },
+  "phoneRestoreRestoring": "Restoring",
+  "@phoneRestoreRestoring": {
+    "description": "Title of the Restore screen while the search runs."
+  },
+  "phoneRestoreScanTitle": "Looking for your coins",
+  "@phoneRestoreScanTitle": {
+    "description": "Heading under the progress ring while the restore searches the chain."
+  },
+  "phoneRestoreScanBody": "Keep the app open until this finishes. The screen stays on while it runs.",
+  "@phoneRestoreScanBody": {
+    "description": "Line under the heading while the restore searches the chain."
+  },
+  "phoneRestoreLookingFrom": "Looking from",
+  "@phoneRestoreLookingFrom": {
+    "description": "Row that shows where the restore search started."
+  },
+  "phoneRestoreScanNote": "Sending and receiving open when the search ends. If you stop, it carries on from Home.",
+  "@phoneRestoreScanNote": {
+    "description": "Dim note under the restore progress."
+  },
+  "phoneRestoreStoppedTitle": "The search stopped",
+  "@phoneRestoreStoppedTitle": {
+    "description": "Heading when the restore search stopped before the end."
+  },
+  "phoneRestoreDoneBody": "The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.",
+  "@phoneRestoreDoneBody": {
+    "description": "Text under the Your wallet is restored heading."
   }
 }

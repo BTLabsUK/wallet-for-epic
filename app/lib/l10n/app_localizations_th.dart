@@ -21666,4 +21666,48 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneStartPinHelpLost =>
       'ไม่สามารถกู้ PIN ได้ เก็บวลีกู้คืนไว้ให้ปลอดภัย เพราะใช้กู้กระเป๋าและตั้ง PIN ใหม่ได้';
+
+  @override
+  String get phoneRestoreHelpTitle => 'การกู้คืนกระเป๋า';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'วลีกู้คืนช่วยนำยอดเงินกลับมา พิมพ์คำ วางคำ หรือสแกน QR ของวลี';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'เลือกเดือนที่สร้างกระเป๋า ไม่แน่ใจ? เดือนที่เก่ากว่าจะพบมากกว่าแต่ใช้เวลานานกว่า';
+
+  @override
+  String get phoneRestoreScan => 'สแกน';
+
+  @override
+  String get phoneRestoreStartGroup => 'จุดเริ่มค้นหา';
+
+  @override
+  String get phoneRestoreCreated => 'สร้างกระเป๋าเมื่อ';
+
+  @override
+  String get phoneRestoreRestoring => 'กำลังกู้คืน';
+
+  @override
+  String get phoneRestoreScanTitle => 'กำลังค้นหาเหรียญของคุณ';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'เปิดแอปค้างไว้จนกว่าจะเสร็จ หน้าจอจะติดอยู่ระหว่างทำงาน';
+
+  @override
+  String get phoneRestoreLookingFrom => 'ค้นหาตั้งแต่';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'การส่งและรับจะเปิดเมื่อการค้นหาจบ หากหยุด ระบบจะทำต่อที่หน้าหลัก';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'การค้นหาหยุดลง';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'วลีกู้คืนนำยอดเงินกลับมาแล้ว ประวัติ รายชื่อติดต่อ และการตั้งค่าจะกลับมาจากไฟล์ข้อมูลกระเป๋า หากคุณเคยส่งออกไว้';
 }

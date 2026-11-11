@@ -5747,5 +5747,18 @@
   "phoneWelcomeTorLine": "เชื่อมต่อผ่าน Tor ตั้งแต่วินาทีแรก",
   "phoneStartPinHelpTitle": "เกี่ยวกับ PIN",
   "phoneStartPinHelpUnlock": "PIN ใช้ปลดล็อกกระเป๋าบนโทรศัพท์เครื่องนี้และอนุมัติทุกการชำระเงิน PIN จะไม่ออกจากโทรศัพท์",
-  "phoneStartPinHelpLost": "ไม่สามารถกู้ PIN ได้ เก็บวลีกู้คืนไว้ให้ปลอดภัย เพราะใช้กู้กระเป๋าและตั้ง PIN ใหม่ได้"
+  "phoneStartPinHelpLost": "ไม่สามารถกู้ PIN ได้ เก็บวลีกู้คืนไว้ให้ปลอดภัย เพราะใช้กู้กระเป๋าและตั้ง PIN ใหม่ได้",
+  "phoneRestoreHelpTitle": "การกู้คืนกระเป๋า",
+  "phoneRestoreHelpPhrase": "วลีกู้คืนช่วยนำยอดเงินกลับมา พิมพ์คำ วางคำ หรือสแกน QR ของวลี",
+  "phoneRestoreHelpStart": "เลือกเดือนที่สร้างกระเป๋า ไม่แน่ใจ? เดือนที่เก่ากว่าจะพบมากกว่าแต่ใช้เวลานานกว่า",
+  "phoneRestoreScan": "สแกน",
+  "phoneRestoreStartGroup": "จุดเริ่มค้นหา",
+  "phoneRestoreCreated": "สร้างกระเป๋าเมื่อ",
+  "phoneRestoreRestoring": "กำลังกู้คืน",
+  "phoneRestoreScanTitle": "กำลังค้นหาเหรียญของคุณ",
+  "phoneRestoreScanBody": "เปิดแอปค้างไว้จนกว่าจะเสร็จ หน้าจอจะติดอยู่ระหว่างทำงาน",
+  "phoneRestoreLookingFrom": "ค้นหาตั้งแต่",
+  "phoneRestoreScanNote": "การส่งและรับจะเปิดเมื่อการค้นหาจบ หากหยุด ระบบจะทำต่อที่หน้าหลัก",
+  "phoneRestoreStoppedTitle": "การค้นหาหยุดลง",
+  "phoneRestoreDoneBody": "วลีกู้คืนนำยอดเงินกลับมาแล้ว ประวัติ รายชื่อติดต่อ และการตั้งค่าจะกลับมาจากไฟล์ข้อมูลกระเป๋า หากคุณเคยส่งออกไว้"
 }

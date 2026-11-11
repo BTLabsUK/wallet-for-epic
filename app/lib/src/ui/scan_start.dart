@@ -21,6 +21,10 @@ import '../l10n.dart' hide L10nContext;
 import '../start_month.dart';
 import '../trust_ids.dart';
 import 'info_hint.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_tokens.dart';
+import 'theme/tokens.dart' show WalletTokensOf;
 import 'month_picker.dart' show StartMonthChoice;
 
 /// By month (mainnet) or by block height.
@@ -121,9 +125,14 @@ class ScanStartIds {
 /// [heights] false offers months only (Recheck balance without Advanced › Recheck from a
 /// height); with neither months nor heights the calendar button is left out.
 class ScanStart extends StatelessWidget {
-  const ScanStart({super.key, required this.controller, this.heights = true, this.ids = const ScanStartIds()});
+  const ScanStart({super.key, required this.controller, this.heights = true, this.ids = const ScanStartIds(), this.rowTitle});
 
   final ScanStartController controller;
+
+  /// The phone redesign's layout (the restore screen): the start as a settings row with this
+  /// title, its value and a chevron, the choice under it and the explanation as help text.
+  /// Null keeps the plain line with its calendar and info buttons.
+  final String? rowTitle;
   final bool heights;
   final ScanStartIds ids;
 
@@ -171,6 +180,7 @@ class ScanStart extends StatelessWidget {
     final l = context.l10n;
     final c = controller;
     final theme = Theme.of(context);
+    if (rowTitle != null) return _row(context, l, c);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -240,6 +250,94 @@ class ScanStart extends StatelessWidget {
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  /// The start without its words: the month, the block or "Scan from the start".
+  static String value(AppLocalizations l, ScanStartController c) {
+    final start = c.start;
+    if (start == null) return l.restoreScanFromStart;
+    if (c.by == ScanStartBy.month && c.dates) return localMonthYear(l, c.month.firstDay);
+    return localInt(l, start);
+  }
+
+  /// The choice under the start: By month / By height, the month or the typed height.
+  Widget _choice(AppLocalizations l, ScanStartController c) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      if (both) ...[
+        SegmentedButton<ScanStartBy>(
+          key: byKey,
+          segments: [
+            ButtonSegment(value: ScanStartBy.month, label: TrustId(ids.byMonth, child: Text(l.restoreStartByMonth))),
+            ButtonSegment(value: ScanStartBy.height, label: TrustId(ids.byHeight, child: Text(l.restoreStartByHeight))),
+          ],
+          selected: {c.by},
+          showSelectedIcon: false,
+          style: const ButtonStyle(minimumSize: WidgetStatePropertyAll(Size(0, Kit.hitMin))),
+          onSelectionChanged: (s) => c.pickBy(s.first),
+        ),
+        const SizedBox(height: 12),
+      ],
+      if (byMonth)
+        StartMonthChoice(
+          date: c.month.firstDay,
+          semanticsId: ids.month,
+          onChanged: (d) => c.pickMonth(d == null ? defaultStartMonth : StartMonth.of(d)),
+        )
+      else
+        TrustId(
+          ids.height,
+          child: TextField(
+            key: heightKey,
+            controller: c.height,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onChanged: (_) => c.heightChanged(),
+            decoration: InputDecoration(labelText: l.restoreStartHeightLabel, helperText: l.restoreStartHeightHelper),
+          ),
+        ),
+    ],
+  );
+
+  Widget _row(BuildContext context, AppLocalizations l, ScanStartController c) {
+    final t = context.tokens;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        KitGroup(
+          children: [
+            KitRow(
+              key: changeKey,
+              title: rowTitle!,
+              value: value(l, c),
+              chevron: picks,
+              size: KitRowSize.settings,
+              onTap: picks ? c.toggle : null,
+              semanticsId: ids.start,
+            ),
+          ],
+        ),
+        if (picks)
+          ExpandFade(
+            open: c.open,
+            child: Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, 0), child: _choice(l, c)),
+          ),
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: Kit.gutter + 4, end: 4, top: 8),
+          child: Row(
+            children: [
+              Expanded(child: Text(l.scanStartInfo, key: lineKey, style: KitType.rowSub.copyWith(color: t.dim))),
+              TrustId(
+                ids.info,
+                child: InfoHint(l.scanStartInfo, key: infoKey, title: l.scanStartInfoTitle, action: fromStartAction(l)),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

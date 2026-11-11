@@ -22379,4 +22379,48 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneStartPinHelpLost =>
       'Die PIN lässt sich nicht wiederherstellen. Bewahre die Wiederherstellungsphrase sicher auf: Mit ihr stellst du die Wallet wieder her und wählst eine neue PIN.';
+
+  @override
+  String get phoneRestoreHelpTitle => 'Eine Wallet wiederherstellen';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'Die Wiederherstellungsphrase holt das Guthaben zurück. Tippe die Wörter ein, füge sie ein oder scanne ihren QR-Code.';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'Wähle den Monat, in dem du die Wallet erstellt hast. Unsicher? Ein früherer Monat findet mehr und dauert länger.';
+
+  @override
+  String get phoneRestoreScan => 'Scannen';
+
+  @override
+  String get phoneRestoreStartGroup => 'Wo die Suche beginnt';
+
+  @override
+  String get phoneRestoreCreated => 'Wallet erstellt';
+
+  @override
+  String get phoneRestoreRestoring => 'Wird wiederhergestellt';
+
+  @override
+  String get phoneRestoreScanTitle => 'Deine Coins werden gesucht';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'Lass die App offen, bis die Suche fertig ist. Der Bildschirm bleibt dabei an.';
+
+  @override
+  String get phoneRestoreLookingFrom => 'Suche ab';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'Senden und Empfangen öffnen sich, wenn die Suche endet. Wenn du stoppst, läuft sie auf Home weiter.';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'Die Suche wurde gestoppt';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'Die Wiederherstellungsphrase hat das Guthaben zurückgebracht. Verlauf, Kontakte und Einstellungen kommen aus einer Wallet-Datendatei zurück, falls du eine exportiert hast.';
 }

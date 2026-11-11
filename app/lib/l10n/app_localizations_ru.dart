@@ -22827,4 +22827,48 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneStartPinHelpLost =>
       'PIN нельзя восстановить. Храните фразу восстановления в надёжном месте: по ней можно вернуть кошелёк и задать новый PIN.';
+
+  @override
+  String get phoneRestoreHelpTitle => 'Восстановление кошелька';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'Фраза восстановления возвращает баланс. Введите её слова, вставьте их или отсканируйте QR-код.';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'Выберите месяц, когда вы создали кошелёк. Не уверены? Более ранний месяц найдёт больше, но займёт больше времени.';
+
+  @override
+  String get phoneRestoreScan => 'Сканировать';
+
+  @override
+  String get phoneRestoreStartGroup => 'С чего начать поиск';
+
+  @override
+  String get phoneRestoreCreated => 'Кошелёк создан';
+
+  @override
+  String get phoneRestoreRestoring => 'Восстановление';
+
+  @override
+  String get phoneRestoreScanTitle => 'Ищем ваши монеты';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'Не закрывайте приложение, пока поиск не закончится. Экран остаётся включённым.';
+
+  @override
+  String get phoneRestoreLookingFrom => 'Ищем с';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'Отправка и получение откроются, когда поиск закончится. Если остановить, он продолжится на главной.';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'Поиск остановлен';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'Фраза восстановления вернула баланс. История, контакты и настройки возвращаются из файла данных кошелька, если вы его экспортировали.';
 }

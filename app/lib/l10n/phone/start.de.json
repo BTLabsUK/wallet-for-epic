@@ -6,5 +6,18 @@
   "phoneWelcomeTorLine": "Von der ersten Sekunde an über Tor verbinden",
   "phoneStartPinHelpTitle": "Zur PIN",
   "phoneStartPinHelpUnlock": "Die PIN entsperrt die Wallet auf diesem Telefon und gibt jede Zahlung frei. Sie verlässt das Telefon nie.",
-  "phoneStartPinHelpLost": "Die PIN lässt sich nicht wiederherstellen. Bewahre die Wiederherstellungsphrase sicher auf: Mit ihr stellst du die Wallet wieder her und wählst eine neue PIN."
+  "phoneStartPinHelpLost": "Die PIN lässt sich nicht wiederherstellen. Bewahre die Wiederherstellungsphrase sicher auf: Mit ihr stellst du die Wallet wieder her und wählst eine neue PIN.",
+  "phoneRestoreHelpTitle": "Eine Wallet wiederherstellen",
+  "phoneRestoreHelpPhrase": "Die Wiederherstellungsphrase holt das Guthaben zurück. Tippe die Wörter ein, füge sie ein oder scanne ihren QR-Code.",
+  "phoneRestoreHelpStart": "Wähle den Monat, in dem du die Wallet erstellt hast. Unsicher? Ein früherer Monat findet mehr und dauert länger.",
+  "phoneRestoreScan": "Scannen",
+  "phoneRestoreStartGroup": "Wo die Suche beginnt",
+  "phoneRestoreCreated": "Wallet erstellt",
+  "phoneRestoreRestoring": "Wird wiederhergestellt",
+  "phoneRestoreScanTitle": "Deine Coins werden gesucht",
+  "phoneRestoreScanBody": "Lass die App offen, bis die Suche fertig ist. Der Bildschirm bleibt dabei an.",
+  "phoneRestoreLookingFrom": "Suche ab",
+  "phoneRestoreScanNote": "Senden und Empfangen öffnen sich, wenn die Suche endet. Wenn du stoppst, läuft sie auf Home weiter.",
+  "phoneRestoreStoppedTitle": "Die Suche wurde gestoppt",
+  "phoneRestoreDoneBody": "Die Wiederherstellungsphrase hat das Guthaben zurückgebracht. Verlauf, Kontakte und Einstellungen kommen aus einer Wallet-Datendatei zurück, falls du eine exportiert hast."
 }

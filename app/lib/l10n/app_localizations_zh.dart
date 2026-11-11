@@ -20872,4 +20872,43 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneStartPinHelpLost => 'PIN 无法找回。请妥善保管恢复短语，用它可以恢复钱包并设置新的 PIN。';
+
+  @override
+  String get phoneRestoreHelpTitle => '恢复钱包';
+
+  @override
+  String get phoneRestoreHelpPhrase => '恢复短语可找回余额。输入其中的单词、粘贴，或扫描它的二维码。';
+
+  @override
+  String get phoneRestoreHelpStart => '选择创建钱包的月份。不确定？更早的月份能找到更多，但耗时更长。';
+
+  @override
+  String get phoneRestoreScan => '扫描';
+
+  @override
+  String get phoneRestoreStartGroup => '从哪里开始查找';
+
+  @override
+  String get phoneRestoreCreated => '钱包创建于';
+
+  @override
+  String get phoneRestoreRestoring => '正在恢复';
+
+  @override
+  String get phoneRestoreScanTitle => '正在查找你的币';
+
+  @override
+  String get phoneRestoreScanBody => '请在完成前保持应用打开。运行期间屏幕会保持常亮。';
+
+  @override
+  String get phoneRestoreLookingFrom => '查找起点';
+
+  @override
+  String get phoneRestoreScanNote => '搜索结束后才能发送和接收。如果停止，会在主页继续。';
+
+  @override
+  String get phoneRestoreStoppedTitle => '搜索已停止';
+
+  @override
+  String get phoneRestoreDoneBody => '恢复短语已找回余额。历史、联系人和设置可从钱包数据文件恢复（如果你导出过）。';
 }

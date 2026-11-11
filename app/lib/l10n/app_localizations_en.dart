@@ -22114,4 +22114,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneStartPinHelpLost =>
       'The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.';
+
+  @override
+  String get phoneRestoreHelpTitle => 'Restoring a wallet';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'The recovery phrase brings back the balance. Type its words, paste them or scan its QR code.';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'Pick the month you made the wallet. Not sure? An earlier month finds more and takes longer.';
+
+  @override
+  String get phoneRestoreScan => 'Scan';
+
+  @override
+  String get phoneRestoreStartGroup => 'Where to start looking';
+
+  @override
+  String get phoneRestoreCreated => 'Wallet created';
+
+  @override
+  String get phoneRestoreRestoring => 'Restoring';
+
+  @override
+  String get phoneRestoreScanTitle => 'Looking for your coins';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'Keep the app open until this finishes. The screen stays on while it runs.';
+
+  @override
+  String get phoneRestoreLookingFrom => 'Looking from';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'Sending and receiving open when the search ends. If you stop, it carries on from Home.';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'The search stopped';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.';
 }

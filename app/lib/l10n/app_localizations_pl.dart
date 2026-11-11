@@ -22841,4 +22841,48 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneStartPinHelpLost =>
       'PIN-u nie można odzyskać. Przechowuj frazę odzyskiwania w bezpiecznym miejscu: z nią przywrócisz portfel i ustawisz nowy PIN.';
+
+  @override
+  String get phoneRestoreHelpTitle => 'Przywracanie portfela';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'Fraza odzyskiwania przywraca saldo. Wpisz jej słowa, wklej je lub zeskanuj jej kod QR.';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'Wybierz miesiąc utworzenia portfela. Nie wiesz? Wcześniejszy miesiąc znajdzie więcej i potrwa dłużej.';
+
+  @override
+  String get phoneRestoreScan => 'Skanuj';
+
+  @override
+  String get phoneRestoreStartGroup => 'Od kiedy szukać';
+
+  @override
+  String get phoneRestoreCreated => 'Portfel utworzony';
+
+  @override
+  String get phoneRestoreRestoring => 'Przywracanie';
+
+  @override
+  String get phoneRestoreScanTitle => 'Szukamy Twoich monet';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'Nie zamykaj aplikacji, dopóki wyszukiwanie się nie skończy. Ekran pozostaje włączony.';
+
+  @override
+  String get phoneRestoreLookingFrom => 'Szukamy od';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'Wysyłanie i odbieranie włączą się po zakończeniu wyszukiwania. Jeśli zatrzymasz, będzie trwać na ekranie głównym.';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'Wyszukiwanie zatrzymane';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'Fraza odzyskiwania przywróciła saldo. Historia, kontakty i ustawienia wracają z pliku danych portfela, jeśli go wyeksportowano.';
 }
