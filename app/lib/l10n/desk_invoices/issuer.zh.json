@@ -41,6 +41,7 @@
   "deskInvIssuerLate": "此账单结束后收到一笔付款。已被拒绝；没有任何变化。",
   "deskInvIssuerPaidText": "{payer} 已付款。你的钱包已完成并广播该付款。",
   "deskInvIssuerWaitingText": "已通过 Epicbox 送达。在 {payer} 批准之前不会付款。",
+  "deskInvIssuerWaitingInPerson": "正在等待对方钱包的回复。在对方批准之前不会付款。",
   "deskInvIssuerCopySlate": "复制 Slate ID",
   "deskInvIssuerStepIssued": "已开具",
   "deskInvIssuerAnother": "再发一个账单"

@@ -21714,6 +21714,48 @@ abstract class AppLocalizations {
   /// **'Pair request from {name}'**
   String pairIncomingTitle(String name);
 
+  /// Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.
+  ///
+  /// In en, this message translates to:
+  /// **'Once paired, transaction files and invoices between you and {name} are sealed.'**
+  String pairIncomingBodyRequest(String name);
+
+  /// Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get pairIncomingServer;
+
+  /// Pair request dialog: fact label for how the invite reached this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get pairIncomingSource;
+
+  /// Pair request dialog, Source value: the invite was scanned with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned QR'**
+  String get pairIncomingSourceScanned;
+
+  /// Pair request dialog, Source value: the invite was pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted invite'**
+  String get pairIncomingSourcePasted;
+
+  /// Pair request dialog, Source value: a browser or another app opened the invite in the wallet (an epiccash:// or invite page link).
+  ///
+  /// In en, this message translates to:
+  /// **'Opened from another app'**
+  String get pairIncomingSourceOpened;
+
+  /// Pair request dialog, Source value: the request came as a message to the user's Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to your Epicbox address'**
+  String get pairIncomingSourceRequest;
+
   /// Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services.
   ///
   /// In en, this message translates to:
@@ -33761,6 +33803,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{row}, sealed with epic1'**
   String deskE1SpokenSealed(String row);
+
+  /// Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending in person'**
+  String get deskLvPaySendingInPerson;
+
+  /// Detail text of a waiting request that was issued in person (no payer name).
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other wallet’s answer. Nothing is paid until it approves.'**
+  String get deskInvIssuerWaitingInPerson;
+
+  /// Quiet status line under an in-person code while its answer comes back through an Epicbox server; host is the server's name. Tapping it opens the details.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer comes back online · {host}'**
+  String deskIpOnlineLine(String host);
+
+  /// Status line in place of the answer QR code while the answer goes to the code's Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer online…'**
+  String get deskIpOnlineSending;
+
+  /// Status line under an in-person code when the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server not reachable · trying again'**
+  String get deskIpOnlineDown;
+
+  /// Title of the details of an in-person answer going through an Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Online answer'**
+  String get deskIpOnlineTitle;
+
+  /// Label of the row naming the Epicbox server the answer goes through.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server'**
+  String get deskIpOnlineServer;
+
+  /// Label of the row with the online answer's current step.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskIpOnlineStatus;
+
+  /// Label of the row with how long the in-person code still works.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get deskIpOnlineTimeLeft;
+
+  /// Value of the Time left row; count is minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{About {count} min} other{About {count} min}}'**
+  String deskIpOnlineMinutes(int count);
+
+  /// Online answer step: this wallet sends its answer to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer…'**
+  String get deskIpStepPosting;
+
+  /// Online answer step: the answer reached the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer sent'**
+  String get deskIpStepSent;
+
+  /// Online answer step: the other phone's answer came in.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer received'**
+  String get deskIpStepReceived;
+
+  /// Online answer step: the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable. Trying again.'**
+  String get deskIpStepDown;
+
+  /// Online answer step: the answer could not be sent to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Did not go through'**
+  String get deskIpStepFailed;
+
+  /// Online answer step: the user cancelled the online reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deskIpStepCancelled;
+
+  /// Button: stop sending or waiting online; the answer then goes by scan or paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel online reply'**
+  String get deskIpOnlineCancel;
+
+  /// Line under Cancel online reply on the side that shows the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then scan or paste the other phone\'s answer.'**
+  String get deskIpOnlineCancelCode;
+
+  /// Line under Cancel online reply on the side that answered the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the other phone scans your answer.'**
+  String get deskIpOnlineCancelAnswer;
+
+  /// Screen reader hint of the online answer status line: tapping it opens its details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get deskIpOnlineDetails;
+
+  /// Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; method is how it travels (file, epic1 link, Epicbox).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending via {method}'**
+  String deskLvPaySendingVia(String method);
+
+  /// Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; method is how it travels.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving via {method}'**
+  String deskLvPayArrivingVia(String method);
+
+  /// The word for a transaction file after 'via' in 'Sending via file'. Lower case in English.
+  ///
+  /// In en, this message translates to:
+  /// **'file'**
+  String get deskLvPayViaFile;
 }
 
 class _AppLocalizationsDelegate

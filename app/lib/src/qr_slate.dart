@@ -10,7 +10,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import 'wallet_service.dart';
 
-export 'wallet_service.dart' show qrFragmentLen;
+export 'wallet_service.dart' show qrFragmentLen, qrSingleCodeMaxLen;
 
 /// Frames a second the show screen cycles the parts at.
 const int qrFramesPerSecond = 6;
@@ -35,20 +35,22 @@ const int qrQuietModules = 4;
 
 /// The parts of one code as drawable modules, all in the same QR version and mask, so the
 /// finder and alignment patterns never move between frames. Level H, as every code the wallet
-/// shows: the BT Wallet mark covers the centre (`LogoQr`).
+/// shows: a logo covers the centre (`LogoQr`). Payment files and in-person codes and answers
+/// draw this way.
 class QrFrames {
   QrFrames._(this.texts, this.images, this.partCount);
 
-  /// Draws [texts], the parts of one animated code, uppercase so each is alphanumeric.
+  /// Draws [texts], the parts of one animated code. A `ur:` text is case-insensitive, so it is
+  /// drawn uppercase in the alphanumeric mode, the smallest code; any other text in byte mode.
   factory QrFrames.of(List<String> texts) {
     assert(texts.isNotEmpty);
+    final alpha = texts.every(_alphanumeric);
     var version = 1;
     for (final text in texts) {
-      version = _versionOf(text, version);
+      version = _versionOf(text, version, alpha);
     }
     QrImage image(String text, [int? mask]) {
-      final code = QrCode(version, QrErrorCorrectLevel.H)
-        ..addAlphaNumeric(text);
+      final code = _code(version, text, alpha);
       return mask == null ? QrImage(code) : QrImage.withMaskPattern(code, mask);
     }
 
@@ -60,14 +62,24 @@ class QrFrames {
     return QrFrames._(texts, images, partCountOf(texts.first) ?? texts.length);
   }
 
+  /// Whether [text] is a UR text whose uppercase form is all QR alphanumeric characters.
+  static bool _alphanumeric(String text) =>
+      text.length > 3 &&
+      text.substring(0, 3).toUpperCase() == 'UR:' &&
+      _alphanumericText.hasMatch(text.toUpperCase());
+
+  static final RegExp _alphanumericText = RegExp(r'^[0-9A-Z $%*+\-./:]*$');
+
+  static QrCode _code(int version, String text, bool alpha) {
+    final code = QrCode(version, QrErrorCorrectLevel.H);
+    return alpha ? (code..addAlphaNumeric(text.toUpperCase())) : (code..addData(text));
+  }
+
   /// The smallest version at least [from] that holds [text].
-  static int _versionOf(String text, int from) {
+  static int _versionOf(String text, int from, bool alpha) {
     for (var version = from; version <= 40; version++) {
       try {
-        QrImage.withMaskPattern(
-          QrCode(version, QrErrorCorrectLevel.H)..addAlphaNumeric(text),
-          0,
-        );
+        QrImage.withMaskPattern(_code(version, text, alpha), 0);
         return version;
       } on InputTooLongException {
         continue;

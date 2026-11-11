@@ -100,6 +100,7 @@ class IssuedRequest {
     this.answeredAt,
     this.lateReplyRefused = false,
     this.byFile = false,
+    this.inPerson = false,
   });
 
   final String slateId;
@@ -126,6 +127,10 @@ class IssuedRequest {
   /// Saved as a payment file for anyone (DESIGN §3.2): no payer, the answer comes as a file.
   final bool byFile;
 
+  /// Made as an in-person code (the core files it as a request for anyone, so [byFile] is
+  /// also set); the exchange's own record tells which it was.
+  final bool inPerson;
+
   bool get withdrawable => state == RequestState.waiting;
 
   IssuedRequest copyWith({RequestState? state, int? confirmations, DateTime? answeredAt, bool? lateReplyRefused}) => IssuedRequest(
@@ -142,6 +147,7 @@ class IssuedRequest {
     answeredAt: answeredAt ?? this.answeredAt,
     lateReplyRefused: lateReplyRefused ?? this.lateReplyRefused,
     byFile: byFile,
+    inPerson: inPerson,
   );
 }
 

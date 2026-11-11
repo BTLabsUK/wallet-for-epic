@@ -56,7 +56,7 @@ import '../../name_service/base58.dart' show netFloonet, netMainnet;
 import '../../scan/scan_router.dart' show PaymentLink;
 import '../../message_checks.dart' show MessageChecks;
 import '../../notice_digest.dart' show HeldKind, HeldNotice, raiseNotice;
-import '../../models.dart' show Chain;
+import '../../models.dart' show Chain, Epic1Via;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../ui/network_mode_text.dart' show networkModeName;
@@ -5370,6 +5370,7 @@ class LepicDeskWallet implements DeskWalletApi {
       state: requestState(r.state, e, tip: _tip, minConf: minConf),
       confirmations: tx?.confirmations ?? 0,
       byFile: r.byFile,
+      inPerson: e?.epic1Via == Epic1Via.inPerson,
     );
   }
 

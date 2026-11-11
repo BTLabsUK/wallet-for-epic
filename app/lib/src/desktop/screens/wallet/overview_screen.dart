@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
+import '../../../models.dart' show Epic1Via;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../../trust_ids.dart';
 import '../../app/relay_offer.dart' show DeskRelayNotice;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
+import '../../data/invoice_state.dart' show deskInvoicesProvider;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../../levels/level_features.dart' show LevelWording;
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -28,6 +30,8 @@ import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'activity_screen.dart' show ActivityArgs;
 import 'restore_scan_panel.dart';
+import '../../../ui/method_icons.dart' show MethodIcons;
+import '../../data/models.dart' show TxMethod;
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../settings_file/host_settings.dart' show hostSettings;
@@ -118,6 +122,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final recent = _Recent(txs: txs, shallow: shallow, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
+    final book = ref.watch(deskInvoicesProvider);
+    final invoicesWait = book != null && (book.waiting.isNotEmpty || book.openRequests.isNotEmpty || book.needsAction.isNotEmpty);
 
     // A restored wallet's first unlock asks once about its history backup, after the
     // first-run tour, never over it.
@@ -273,9 +279,11 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           SizedBox(height: Sp.x2),
           // While the restore scan runs, Recent activity shows what it finds, never "No
           // transactions yet" (copy D1).
+          // Something to act on goes above Recent activity; a quiet card stays below it.
+          if (invoicesWait) ...[const OverviewInvoicesCard(), SizedBox(height: Sp.x4)],
           if (restore == null || (s.txs?.isNotEmpty ?? false)) recent,
           if (pending > 0) _PendingFiles(count: pending),
-          const OverviewInvoicesCard(),
+          if (!invoicesWait) const OverviewInvoicesCard(),
         ],
       ),
     ),
@@ -1172,10 +1180,27 @@ class _InFlightRow extends ConsumerWidget {
 /// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
 /// from Bob". The Deep end names an address when no contact does.
 String _inFlightTitle(AppLocalizations l, Tx t, bool technical) {
-  final name = t.contactName ?? (technical ? whoOf(l, t) : null);
+  // A payment handed over in person or by link has no name to give: the title says how.
+  final nameless = t.contactName == null && t.counterparty == null && t.epic1Via != null;
+  if (nameless && technical && !t.incoming && t.epic1Via == Epic1Via.inPerson) return l.deskLvPaySendingInPerson;
+  // The Deep end says "via <method>" when only the way is known (a file, an epic1 link): the
+  // method is the path, not the recipient.
+  if (technical && t.contactName == null && !(nameless && t.incoming && t.epic1Via == Epic1Via.inPerson)) {
+    final via = _inFlightVia(l, t);
+    if (via != null) return t.incoming ? l.deskLvPayArrivingVia(via) : l.deskLvPaySendingVia(via);
+  }
+  final name = t.contactName ?? (technical && !nameless ? whoOf(l, t) : null);
   if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
   if (name == null) return l.lvPayOnItsWay;
   return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);
+}
+
+/// The method a nameless in-flight payment travels by, when that is all there is to say: an
+/// epic1 link, a transaction file. Null when a contact or an address can be named.
+String? _inFlightVia(AppLocalizations l, Tx t) {
+  if (t.epic1Via != null && t.counterparty == null) return MethodIcons.epic1Name(l, t.epic1Via!);
+  if (t.method == TxMethod.file && !t.toSelf && !t.coinbase && !t.otherWallet && t.deviceName == null) return l.deskLvPayViaFile;
+  return null;
 }
 
 class _PendingFiles extends ConsumerWidget {

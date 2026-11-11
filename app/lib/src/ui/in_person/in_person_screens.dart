@@ -17,6 +17,7 @@ import '../../errors.dart';
 import '../../l10n.dart';
 import '../../models.dart';
 import '../../providers.dart';
+import '../../qr_slate.dart' show QrFrames;
 import '../../trust_ids.dart';
 import '../../utf8_limit.dart';
 import '../app_dialog.dart';
@@ -29,12 +30,14 @@ import '../theme/logo_qr.dart';
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 import 'in_person_logic.dart';
+import 'in_person_online.dart';
 import 'in_person_scan.dart';
 
 /// The keys of the in-person screens, for tests.
 const Key inPersonAmountKey = ValueKey('in-person-amount');
 const Key inPersonMessageKey = ValueKey('in-person-message');
 const Key inPersonQrKey = ValueKey('in-person-qr');
+const Key inPersonAnswerQrKey = ValueKey('in-person-answer-qr');
 const Key inPersonCodeTextKey = ValueKey('in-person-code-text');
 const Key inPersonCheckKey = ValueKey('in-person-check');
 
@@ -326,7 +329,9 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
       appBar: AppBar(title: Text(title)),
       idle: SlotProgress(label: l.deskIpWaiting),
       body: ScreenBody(
-        bottom: Row(
+        // While the answer comes back online, no paste or scan: they show again once the
+        // server failed or the online reply was cancelled.
+        bottom: !_watch.manual ? null : Row(
           children: [
             Expanded(
               child: TrustId(
@@ -374,10 +379,13 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
             Text(l.deskIpExpiresIn(left), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
           ],
           const SizedBox(height: 16),
-          Semantics(
-            liveRegion: true,
-            child: Text(l.deskIpWaiting, style: theme.textTheme.bodyMedium?.copyWith(color: t.info)),
-          ),
+          if (_watch.online)
+            InPersonOnlineLine(online: _watch)
+          else
+            Semantics(
+              liveRegion: true,
+              child: Text(l.deskIpWaiting, style: theme.textTheme.bodyMedium?.copyWith(color: t.info)),
+            ),
           if (takeError != null) ...[
             const SizedBox(height: 12),
             InlineNotice(level: NoticeLevel.error, text: takeError, liveRegion: true),
@@ -553,6 +561,14 @@ class _InPersonQrState extends State<InPersonQr> {
   bool _shown = false;
   int _frame = 0;
   Timer? _timer;
+  QrFrames? _frames;
+
+  /// The parts drawn once, in one version and mask.
+  QrFrames _framesOf(List<String> parts) {
+    final drawn = _frames;
+    if (drawn != null && identical(drawn.texts, parts)) return drawn;
+    return _frames = QrFrames.of(parts);
+  }
 
   @override
   void didUpdateWidget(InPersonQr old) {
@@ -618,6 +634,7 @@ class _InPersonQrState extends State<InPersonQr> {
         ),
       );
     } else {
+      final frames = _framesOf(parts);
       inner = GestureDetector(
         onTap: () => _set(false),
         child: Container(
@@ -631,7 +648,7 @@ class _InPersonQrState extends State<InPersonQr> {
           child: Semantics(
             label: widget.label,
             image: true,
-            child: LogoQr(data: parts[_frame % parts.length], size: side, logo: QrLogo.epic1),
+            child: LogoQrImage(image: frames.images[_frame % frames.length], size: side, logo: QrLogo.epic1),
           ),
         ),
       );
@@ -728,16 +745,16 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
               minimumConfirmations: ref.read(countedConfirmationsProvider),
             );
       if (!mounted) return;
-      final (posted, checkCode) = await postInPersonAnswer(context, wallet, made.slateId, made.mailbox ?? info.mailbox);
+      final mailbox = made.mailbox ?? info.mailbox;
+      final online = mailbox != null && await askInPersonServer(context, mailbox);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => InPersonAnsweredScreen(
             title: inPersonReviewTitle(context, info.stage),
             answer: made,
-            posted: posted,
-            checkCode: checkCode,
-            mailbox: made.mailbox ?? info.mailbox,
+            mailbox: online ? mailbox : null,
+            cutoff: info.ttlCutoff,
           ),
         ),
       );
@@ -791,62 +808,43 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
 String inPersonReviewTitle(BuildContext context, InPersonStage stage) =>
     stage == InPersonStage.send ? context.l10n.deskIpReceiveTitle : context.l10n.deskIpPayRequestTitle;
 
-/// How an answer's post went.
-enum InPersonPosted {
-  /// Through the code's server.
-  posted,
-
-  /// Not sent: the code names no server, or the user said Cancel. The other phone scans it.
-  none,
-
-  /// The server did not take it.
-  failed,
+/// Whether the answer may go through [mailbox]: a server not in the list is asked about first.
+Future<bool> askInPersonServer(BuildContext context, Epic1Host mailbox) async {
+  if (mailbox.inRelayList) return true;
+  final l = context.l10n;
+  final use = await showAppDialog<bool>(
+    context,
+    builder: (context) => AppDialog(
+      title: l.deskIpUseServerAsk,
+      description: l.deskIpNotInList(mailbox.host),
+      icon: Icons.dns_outlined,
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
+        TrustId(
+          TrustIds.txIpUseserver,
+          child: FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.deskIpUseServer)),
+        ),
+      ],
+    ),
+  );
+  return use == true;
 }
 
-/// Posts the answer [slateId] to [mailbox]: a server not in the list is asked about first.
-/// Returns how it went and, once posted, the answer's check code.
-Future<(InPersonPosted, String?)> postInPersonAnswer(BuildContext context, Epic1Wallet wallet, String slateId, Epic1Host? mailbox) async {
-  if (mailbox == null) return (InPersonPosted.none, null);
-  if (!mailbox.inRelayList) {
-    final l = context.l10n;
-    final use = await showAppDialog<bool>(
-      context,
-      builder: (context) => AppDialog(
-        title: l.deskIpUseServerAsk,
-        description: l.deskIpNotInList(mailbox.host),
-        icon: Icons.dns_outlined,
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-          TrustId(
-            TrustIds.txIpUseserver,
-            child: FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.deskIpUseServer)),
-          ),
-        ],
-      ),
-    );
-    if (use != true) return (InPersonPosted.none, null);
-  }
-  try {
-    return (InPersonPosted.posted, await wallet.inPersonPost(slateId: slateId, relayOk: true));
-  } on Object {
-    return (InPersonPosted.failed, null);
-  }
-}
-
-/// After answering a code: the check code for the other phone to compare once the answer is
-/// posted, and the answer as a QR and text when it did not go through a server.
+/// After answering a code: the answer goes to the code's Epicbox server [mailbox] (the line
+/// "Sending the answer online…" meanwhile, no QR code), then the check code for the other phone
+/// to compare. Without a server, after a failed post or "Cancel online reply", the answer as a
+/// QR code and text for the other phone to scan or paste.
 class InPersonAnsweredScreen extends ConsumerStatefulWidget {
-  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, required this.posted, this.checkCode, this.mailbox});
+  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, this.mailbox, required this.cutoff});
 
   final String title;
   final InPersonAnswerMade answer;
-  final InPersonPosted posted;
 
-  /// From the post; null until the answer is posted.
-  final String? checkCode;
-
-  /// The server Retry posts to.
+  /// The server the answer goes to, agreed; null: shown to scan only.
   final Epic1Host? mailbox;
+
+  /// The block height the code stops working at.
+  final BigInt cutoff;
 
   @override
   ConsumerState<InPersonAnsweredScreen> createState() => _InPersonAnsweredScreenState();
@@ -854,34 +852,41 @@ class InPersonAnsweredScreen extends ConsumerStatefulWidget {
 
 class _InPersonAnsweredScreenState extends ConsumerState<InPersonAnsweredScreen> {
   late final List<String> _parts = ref.read(epic1Provider)?.qrParts(widget.answer.envelope) ?? const [];
-  late InPersonPosted _posted = widget.posted;
-  late String? _checkCode = widget.checkCode;
-  bool _busy = false;
+  InPersonAnswerPost? _post;
 
-  Future<void> _retry() async {
+  @override
+  void initState() {
+    super.initState();
     final wallet = ref.read(epic1Provider);
-    if (wallet == null) return;
-    setState(() => _busy = true);
-    final (posted, checkCode) = await postInPersonAnswer(context, wallet, widget.answer.slateId, widget.mailbox);
-    if (mounted) {
-      setState(() {
-        _busy = false;
-        _posted = posted;
-        _checkCode = checkCode;
-      });
+    final mailbox = widget.mailbox;
+    if (wallet != null && mailbox != null) {
+      _post = InPersonAnswerPost(wallet: wallet, slateId: widget.answer.slateId, mailbox: mailbox, cutoff: widget.cutoff);
+      unawaited(_post!.post());
     }
   }
 
   @override
+  void dispose() {
+    _post?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final post = _post;
+    return post == null ? _build(context) : ListenableBuilder(listenable: post, builder: (context, _) => _build(context));
+  }
+
+  Widget _build(BuildContext context) {
     final l = context.l10n;
     final theme = Theme.of(context);
     final answer = widget.answer;
-    final failed = _posted == InPersonPosted.failed;
-    final checkCode = _checkCode;
+    final post = _post;
+    final step = post?.step;
+    final failed = step == InPersonOnlineStep.failed;
+    final checkCode = post?.checkCode;
     return SlotScaffold(
       appBar: AppBar(title: Text(widget.title)),
-      idle: _busy ? SlotProgress(label: l.commonRetry) : null,
       body: ScreenBody(
         bottom: BusyButton(label: l.commonDone, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.txIpDone),
         children: [
@@ -892,20 +897,21 @@ class _InPersonAnsweredScreenState extends ConsumerState<InPersonAnsweredScreen>
             const SizedBox(height: 16),
             InPersonCheck(key: inPersonCheckKey, code: checkCode),
           ],
+          if (post != null && step == InPersonOnlineStep.posting) InPersonOnlineLine(online: post),
           if (failed) ...[
             const SizedBox(height: 16),
             InlineNotice(
               level: NoticeLevel.warning,
               text: l.deskIpPostFailed,
               liveRegion: true,
-              actions: [TextButton(onPressed: _busy ? null : _retry, child: Text(l.commonRetry))],
+              actions: [TextButton(onPressed: post?.post, child: Text(l.commonRetry))],
             ),
           ],
-          if (_posted != InPersonPosted.posted) ...[
+          if (post == null || post.showAnswer) ...[
             const SizedBox(height: 24),
             Text(l.deskIpAnswerLead, style: theme.textTheme.bodyLarge),
             const SizedBox(height: 12),
-            InPersonQr(parts: _parts, label: l.deskKitQrOf(l.deskIpAnswerOf)),
+            InPersonQr(key: inPersonAnswerQrKey, parts: _parts, label: l.deskKitQrOf(l.deskIpAnswerOf)),
             const SizedBox(height: 16),
             InPersonCodeText(label: l.deskIpAnswerLabel, text: answer.armored),
           ],

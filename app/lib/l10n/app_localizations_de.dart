@@ -13964,6 +13964,29 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'Nach dem Koppeln sind Transaktionsdateien und Rechnungen zwischen Ihnen und $name versiegelt.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Server';
+
+  @override
+  String get pairIncomingSource => 'Quelle';
+
+  @override
+  String get pairIncomingSourceScanned => 'QR gescannt';
+
+  @override
+  String get pairIncomingSourcePasted => 'Einladung eingefügt';
+
+  @override
+  String get pairIncomingSourceOpened => 'Aus einer anderen App geöffnet';
+
+  @override
+  String get pairIncomingSourceRequest => 'An Ihre Epicbox-Adresse gesendet';
+
+  @override
   String get pairVerifiedService => 'Verifizierter BT-Labs-Dienst';
 
   @override
@@ -21911,4 +21934,91 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, mit epic1 versiegelt';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'Persönlich senden';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Warten auf die Antwort der anderen Wallet. Es wird nichts bezahlt, bis sie zustimmt.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Antwort kommt online · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Antwort wird online gesendet…';
+
+  @override
+  String get deskIpOnlineDown =>
+      'Epicbox-Server nicht erreichbar · neuer Versuch';
+
+  @override
+  String get deskIpOnlineTitle => 'Online-Antwort';
+
+  @override
+  String get deskIpOnlineServer => 'Epicbox-Server';
+
+  @override
+  String get deskIpOnlineStatus => 'Status';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Verbleibende Zeit';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Etwa $count Min.',
+      one: 'Etwa $count Min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Antwort wird gesendet…';
+
+  @override
+  String get deskIpStepSent => 'Antwort gesendet';
+
+  @override
+  String get deskIpStepReceived => 'Antwort empfangen';
+
+  @override
+  String get deskIpStepDown => 'Nicht erreichbar. Neuer Versuch.';
+
+  @override
+  String get deskIpStepFailed => 'Nicht zugestellt';
+
+  @override
+  String get deskIpStepCancelled => 'Storniert';
+
+  @override
+  String get deskIpOnlineCancel => 'Online-Antwort abbrechen';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Danach die Antwort des anderen Telefons scannen oder einfügen.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Danach scannt das andere Telefon Ihre Antwort.';
+
+  @override
+  String get deskIpOnlineDetails => 'Details';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return 'Senden per $method';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return 'Kommt per $method';
+  }
+
+  @override
+  String get deskLvPayViaFile => 'Datei';
 }

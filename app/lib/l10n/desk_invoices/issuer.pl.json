@@ -41,6 +41,7 @@
   "deskInvIssuerLate": "Po zakończeniu tej faktury dotarła płatność. Została odrzucona; nic się nie zmieniło.",
   "deskInvIssuerPaidText": "Zapłacono ({payer}). Twój portfel sfinalizował płatność i opublikował ją.",
   "deskInvIssuerWaitingText": "Dostarczono przez Epicbox. Nic nie jest zapłacone, dopóki {payer} tego nie zatwierdzi.",
+  "deskInvIssuerWaitingInPerson": "Czekamy na odpowiedź drugiego portfela. Nic nie zostanie zapłacone, dopóki go nie zatwierdzi.",
   "deskInvIssuerCopySlate": "Kopiuj ID slate",
   "deskInvIssuerStepIssued": "Wystawiono",
   "deskInvIssuerAnother": "Kolejna faktura"

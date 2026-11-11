@@ -32,8 +32,14 @@ import 'message_checks.dart';
 export 'models.dart';
 export 'pairing_api.dart';
 
-/// Bytes of a payment one QR part carries. 200 fits a part into a version 11 code at level L.
-const int qrFragmentLen = 200;
+/// Bytes one part of an animated QR code carries, for payments and in-person codes alike.
+/// Every code the wallet shows is level H with a logo in its centre; 64 keeps each part within
+/// a version 11 code (61 modules, alphanumeric), the size a 200-byte part had at level L.
+const int qrFragmentLen = 64;
+
+/// The longest payload, in bytes, that shows as one QR code rather than an animated one. 80
+/// keeps a single code within version 11 at level H as well (LEPIC's own default is 360).
+const int qrSingleCodeMaxLen = 80;
 
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 /// Whether the wallet core takes [WalletConfig.offline] (Kill switch sessions that refuse their
@@ -56,12 +62,14 @@ abstract interface class WalletService {
   Future<SlateInfo> inspectSlate({required String json});
 
   /// The payment text [json] as the QR texts of an animated code: show them in a loop, in
-  /// order, all with the same fragment size. [maxFragmentLen] is the bytes one part carries.
-  /// Nothing is encrypted. Throws [WalletError] with [WalletErrorKind.invalidSlate] for text
+  /// order, all with the same fragment size. [maxFragmentLen] is the bytes one part carries;
+  /// a payment of at most [singleCodeMaxLen] bytes is one code (without it, one that fits one
+  /// part). Nothing is encrypted. Throws [WalletError] with [WalletErrorKind.invalidSlate] for text
   /// that is not JSON and [WalletErrorKind.qrCodeTooLarge] for a payment past the limits.
   Future<List<String>> encodeQrSlate({
     required String json,
     required int maxFragmentLen,
+    int? singleCodeMaxLen,
   });
 
   /// Reads the distinct texts scanned so far (any order and case; pass all of them each
@@ -947,6 +955,7 @@ class FakeWalletService implements WalletService {
   Future<List<String>> encodeQrSlate({
     required String json,
     required int maxFragmentLen,
+    int? singleCodeMaxLen,
   }) async {
     if (json.trim().isEmpty || !json.trimLeft().startsWith('{')) {
       throw const WalletError(
@@ -955,14 +964,17 @@ class FakeWalletService implements WalletService {
       );
     }
     final bytes = utf8.encode(json);
-    final count = (bytes.length / maxFragmentLen).ceil();
+    final count = bytes.length <= (singleCodeMaxLen ?? maxFragmentLen)
+        ? 1
+        : (bytes.length / maxFragmentLen).ceil();
     final digest = bytes.fold<int>(7, (h, b) => (h * 31 + b) & 0xffffffff);
     final tag = digest.toRadixString(16).padLeft(8, '0');
     String part(int index) {
-      final from = (index % count) * maxFragmentLen;
+      final len = count == 1 ? bytes.length : maxFragmentLen;
+      final from = (index % count) * len;
       final chunk = bytes.sublist(
         from,
-        from + maxFragmentLen > bytes.length ? bytes.length : from + maxFragmentLen,
+        from + len > bytes.length ? bytes.length : from + len,
       );
       final hex = chunk.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
       return 'UR:EPIC-SLATE/${index + 1}-$count/$tag/$hex'.toUpperCase();

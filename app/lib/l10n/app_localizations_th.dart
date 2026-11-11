@@ -13444,6 +13444,29 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'เมื่อจับคู่แล้ว ไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก';
+  }
+
+  @override
+  String get pairIncomingServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get pairIncomingSource => 'ที่มา';
+
+  @override
+  String get pairIncomingSourceScanned => 'สแกน QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'วางคำเชิญ';
+
+  @override
+  String get pairIncomingSourceOpened => 'เปิดจากแอปอื่น';
+
+  @override
+  String get pairIncomingSourceRequest => 'ส่งมาที่ที่อยู่ Epicbox ของคุณ';
+
+  @override
   String get pairVerifiedService => 'บริการของ BT Labs ที่ตรวจสอบแล้ว';
 
   @override
@@ -21210,4 +21233,90 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row ปิดผนึกด้วย epic1';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => 'กำลังส่งด้วยตนเอง';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'รอคำตอบจากกระเป๋าอีกฝั่ง ไม่มีการชำระใดๆ จนกว่าจะอนุมัติ';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'คำตอบจะกลับมาทางออนไลน์ · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'กำลังส่งคำตอบทางออนไลน์…';
+
+  @override
+  String get deskIpOnlineDown =>
+      'เข้าถึงเซิร์ฟเวอร์ Epicbox ไม่ได้ · กำลังลองใหม่';
+
+  @override
+  String get deskIpOnlineTitle => 'คำตอบออนไลน์';
+
+  @override
+  String get deskIpOnlineServer => 'เซิร์ฟเวอร์ Epicbox';
+
+  @override
+  String get deskIpOnlineStatus => 'สถานะ';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'เวลาที่เหลือ';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ประมาณ $count นาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'กำลังส่งคำตอบ…';
+
+  @override
+  String get deskIpStepSent => 'ส่งคำตอบแล้ว';
+
+  @override
+  String get deskIpStepReceived => 'ได้รับคำตอบแล้ว';
+
+  @override
+  String get deskIpStepDown => 'เข้าถึงไม่ได้ กำลังลองใหม่';
+
+  @override
+  String get deskIpStepFailed => 'ส่งไม่สำเร็จ';
+
+  @override
+  String get deskIpStepCancelled => 'ยกเลิกแล้ว';
+
+  @override
+  String get deskIpOnlineCancel => 'ยกเลิกการตอบออนไลน์';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'จากนั้นสแกนหรือวางคำตอบของโทรศัพท์อีกเครื่อง';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'จากนั้นโทรศัพท์อีกเครื่องจะสแกนคำตอบของคุณ';
+
+  @override
+  String get deskIpOnlineDetails => 'รายละเอียด';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return 'กำลังส่งผ่าน $method';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return 'กำลังเข้ามาผ่าน $method';
+  }
+
+  @override
+  String get deskLvPayViaFile => 'ไฟล์';
 }

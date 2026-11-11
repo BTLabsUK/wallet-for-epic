@@ -12983,6 +12983,29 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return '配对后，你与 $name 之间的交易文件和账单都会被密封。';
+  }
+
+  @override
+  String get pairIncomingServer => '服务器';
+
+  @override
+  String get pairIncomingSource => '来源';
+
+  @override
+  String get pairIncomingSourceScanned => '扫描二维码';
+
+  @override
+  String get pairIncomingSourcePasted => '粘贴的邀请';
+
+  @override
+  String get pairIncomingSourceOpened => '从其他应用打开';
+
+  @override
+  String get pairIncomingSourceRequest => '发送到你的 Epicbox 地址';
+
+  @override
   String get pairVerifiedService => '已验证的 BT Labs 服务';
 
   @override
@@ -20440,4 +20463,86 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row，已用 epic1 密封';
   }
+
+  @override
+  String get deskLvPaySendingInPerson => '正在当面发送';
+
+  @override
+  String get deskInvIssuerWaitingInPerson => '正在等待对方钱包的回复。在对方批准之前不会付款。';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return '回应将在线返回 · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => '正在在线发送回应…';
+
+  @override
+  String get deskIpOnlineDown => '无法连接 Epicbox 服务器 · 正在重试';
+
+  @override
+  String get deskIpOnlineTitle => '在线回应';
+
+  @override
+  String get deskIpOnlineServer => 'Epicbox 服务器';
+
+  @override
+  String get deskIpOnlineStatus => '状态';
+
+  @override
+  String get deskIpOnlineTimeLeft => '剩余时间';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '约 $count 分钟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => '正在发送回应…';
+
+  @override
+  String get deskIpStepSent => '回应已发送';
+
+  @override
+  String get deskIpStepReceived => '已收到回应';
+
+  @override
+  String get deskIpStepDown => '无法连接，正在重试。';
+
+  @override
+  String get deskIpStepFailed => '未能送达';
+
+  @override
+  String get deskIpStepCancelled => '已取消';
+
+  @override
+  String get deskIpOnlineCancel => '取消在线回应';
+
+  @override
+  String get deskIpOnlineCancelCode => '之后扫描或粘贴另一部手机的回应。';
+
+  @override
+  String get deskIpOnlineCancelAnswer => '之后由另一部手机扫描你的回应。';
+
+  @override
+  String get deskIpOnlineDetails => '详情';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return '正在通过$method发送';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return '正在通过$method收取';
+  }
+
+  @override
+  String get deskLvPayViaFile => '文件';
 }

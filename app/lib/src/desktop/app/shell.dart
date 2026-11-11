@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../pairing_text.dart' show InviteSource;
 import '../../settings.dart' show clockProvider;
 import '../../stale_open.dart';
 import '../../trust_ids.dart';
@@ -151,7 +152,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       showEToast(context, context.l10n.scanPairingUnavailable, tone: ETone.warn);
       return;
     }
-    await deskOpenPairingText(context, ref, link.invite);
+    await deskOpenPairingText(context, ref, link.invite, source: InviteSource.opened);
   }
 
   /// A request to pair: the list reads it again (and dismisses a stranger's once the address

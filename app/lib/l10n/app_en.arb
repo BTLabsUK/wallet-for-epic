@@ -18304,6 +18304,40 @@
       }
     }
   },
+  "pairIncomingBodyRequest": "Once paired, transaction files and invoices between you and {name} are sealed.",
+  "@pairIncomingBodyRequest": {
+    "description": "Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pairing Demo Shop"
+      }
+    }
+  },
+  "pairIncomingServer": "Server",
+  "@pairIncomingServer": {
+    "description": "Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com."
+  },
+  "pairIncomingSource": "Source",
+  "@pairIncomingSource": {
+    "description": "Pair request dialog: fact label for how the invite reached this wallet."
+  },
+  "pairIncomingSourceScanned": "Scanned QR",
+  "@pairIncomingSourceScanned": {
+    "description": "Pair request dialog, Source value: the invite was scanned with the camera."
+  },
+  "pairIncomingSourcePasted": "Pasted invite",
+  "@pairIncomingSourcePasted": {
+    "description": "Pair request dialog, Source value: the invite was pasted."
+  },
+  "pairIncomingSourceOpened": "Opened from another app",
+  "@pairIncomingSourceOpened": {
+    "description": "Pair request dialog, Source value: a browser or another app opened the invite in the wallet (an epiccash:// or invite page link)."
+  },
+  "pairIncomingSourceRequest": "Sent to your Epicbox address",
+  "@pairIncomingSourceRequest": {
+    "description": "Pair request dialog, Source value: the request came as a message to the user's Epicbox address."
+  },
   "pairVerifiedService": "Verified BT Labs service",
   "@pairVerifiedService": {
     "description": "Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services."
@@ -29370,5 +29404,119 @@
         "type": "String"
       }
     }
+  },
+  "deskLvPaySendingInPerson": "Sending in person",
+  "@deskLvPaySendingInPerson": {
+    "description": "Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end)."
+  },
+  "deskInvIssuerWaitingInPerson": "Waiting for the other wallet’s answer. Nothing is paid until it approves.",
+  "@deskInvIssuerWaitingInPerson": {
+    "description": "Detail text of a waiting request that was issued in person (no payer name)."
+  },
+  "deskIpOnlineLine": "Answer comes back online · {host}",
+  "@deskIpOnlineLine": {
+    "description": "Quiet status line under an in-person code while its answer comes back through an Epicbox server; host is the server's name. Tapping it opens the details.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deskIpOnlineSending": "Sending the answer online…",
+  "@deskIpOnlineSending": {
+    "description": "Status line in place of the answer QR code while the answer goes to the code's Epicbox server."
+  },
+  "deskIpOnlineDown": "Epicbox server not reachable · trying again",
+  "@deskIpOnlineDown": {
+    "description": "Status line under an in-person code when the Epicbox server did not answer; the wallet keeps asking."
+  },
+  "deskIpOnlineTitle": "Online answer",
+  "@deskIpOnlineTitle": {
+    "description": "Title of the details of an in-person answer going through an Epicbox server."
+  },
+  "deskIpOnlineServer": "Epicbox server",
+  "@deskIpOnlineServer": {
+    "description": "Label of the row naming the Epicbox server the answer goes through."
+  },
+  "deskIpOnlineStatus": "Status",
+  "@deskIpOnlineStatus": {
+    "description": "Label of the row with the online answer's current step."
+  },
+  "deskIpOnlineTimeLeft": "Time left",
+  "@deskIpOnlineTimeLeft": {
+    "description": "Label of the row with how long the in-person code still works."
+  },
+  "deskIpOnlineMinutes": "{count, plural, one{About {count} min} other{About {count} min}}",
+  "@deskIpOnlineMinutes": {
+    "description": "Value of the Time left row; count is minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskIpStepPosting": "Sending the answer…",
+  "@deskIpStepPosting": {
+    "description": "Online answer step: this wallet sends its answer to the Epicbox server."
+  },
+  "deskIpStepSent": "Answer sent",
+  "@deskIpStepSent": {
+    "description": "Online answer step: the answer reached the Epicbox server."
+  },
+  "deskIpStepReceived": "Answer received",
+  "@deskIpStepReceived": {
+    "description": "Online answer step: the other phone's answer came in."
+  },
+  "deskIpStepDown": "Not reachable. Trying again.",
+  "@deskIpStepDown": {
+    "description": "Online answer step: the Epicbox server did not answer; the wallet keeps asking."
+  },
+  "deskIpStepFailed": "Did not go through",
+  "@deskIpStepFailed": {
+    "description": "Online answer step: the answer could not be sent to the Epicbox server."
+  },
+  "deskIpStepCancelled": "Cancelled",
+  "@deskIpStepCancelled": {
+    "description": "Online answer step: the user cancelled the online reply."
+  },
+  "deskIpOnlineCancel": "Cancel online reply",
+  "@deskIpOnlineCancel": {
+    "description": "Button: stop sending or waiting online; the answer then goes by scan or paste."
+  },
+  "deskIpOnlineCancelCode": "Then scan or paste the other phone's answer.",
+  "@deskIpOnlineCancelCode": {
+    "description": "Line under Cancel online reply on the side that shows the code."
+  },
+  "deskIpOnlineCancelAnswer": "Then the other phone scans your answer.",
+  "@deskIpOnlineCancelAnswer": {
+    "description": "Line under Cancel online reply on the side that answered the code."
+  },
+  "deskIpOnlineDetails": "Details",
+  "@deskIpOnlineDetails": {
+    "description": "Screen reader hint of the online answer status line: tapping it opens its details."
+  },
+  "deskLvPaySendingVia": "Sending via {method}",
+  "@deskLvPaySendingVia": {
+    "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; method is how it travels (file, epic1 link, Epicbox).",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "epic1 link"
+      }
+    }
+  },
+  "deskLvPayArrivingVia": "Arriving via {method}",
+  "@deskLvPayArrivingVia": {
+    "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; method is how it travels.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "epic1 link"
+      }
+    }
+  },
+  "deskLvPayViaFile": "file",
+  "@deskLvPayViaFile": {
+    "description": "The word for a transaction file after 'via' in 'Sending via file'. Lower case in English."
   }
 }
