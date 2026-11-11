@@ -18676,10 +18676,6 @@
       }
     }
   },
-  "msgCheckWhyRefused": "Not for this wallet, too large or damaged.",
-  "@msgCheckWhyRefused": {
-    "description": "Quiet line under msgCheckItemRefused: why a message is turned away."
-  },
   "msgCheckItemPairingFailed": "{count, plural, one{{count} pairing did not complete} other{{count} pairings did not complete}}",
   "@msgCheckItemPairingFailed": {
     "description": "Detail of the last message check: pairings in progress that ended without pairing.",
@@ -18700,9 +18696,185 @@
       }
     }
   },
-  "msgCheckWhyUnreadable": "Kept on this device.",
-  "@msgCheckWhyUnreadable": {
-    "description": "Quiet line under msgCheckItemUnreadable: where such a message is."
+  "msgCheckWhyRefusedNothing": "Not for this wallet, too large or damaged. Nothing to do.",
+  "@msgCheckWhyRefusedNothing": {
+    "description": "Quiet line under msgCheckItemRefused: why messages were turned away, and that the user need not act."
+  },
+  "msgCheckWhyPairingFailed": "It ran out of time or was not accepted. You can pair again.",
+  "@msgCheckWhyPairingFailed": {
+    "description": "Quiet line under msgCheckItemPairingFailed: why a pairing ended unfinished and what the user can do."
+  },
+  "msgCheckWhyUnreadableOpen": "Kept on this device. Open it to try again or remove it.",
+  "@msgCheckWhyUnreadableOpen": {
+    "description": "Quiet line under msgCheckItemUnreadable: where such a message is; the row opens the list of these messages."
+  },
+  "msgCheckOpenKept": "Show the messages not read",
+  "@msgCheckOpenKept": {
+    "description": "Screen-reader hint and tooltip of the row \"1 message could not be read\": it opens the list of those messages."
+  },
+  "msgKeptTitle": "Messages not read",
+  "@msgKeptTitle": {
+    "description": "Title of the dialog or sheet listing the contact messages the wallet keeps because it could not read them."
+  },
+  "msgKeptIntro": "A paired contact sent these, but your wallet could not read them. They stay on this device for {days} days, then they are removed.",
+  "@msgKeptIntro": {
+    "description": "Intro of the Messages not read dialog. days is how long they are kept (30 by default).",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "msgKeptEmpty": "No messages are waiting here now.",
+  "@msgKeptEmpty": {
+    "description": "Messages not read dialog when the list is empty (all were read or removed)."
+  },
+  "msgKeptLoadFailed": "Could not load the messages. Close this and try again.",
+  "@msgKeptLoadFailed": {
+    "description": "Messages not read dialog when the list could not be read."
+  },
+  "msgKeptArrived": "Arrived {when}",
+  "@msgKeptArrived": {
+    "description": "Line of a message not read: when it first arrived. when is a date and time like \"21 Sep 2026, 14:05\".",
+    "placeholders": {
+      "when": {
+        "type": "String",
+        "example": "21 Sep 2026, 14:05"
+      }
+    }
+  },
+  "msgKeptFrom": "From {name}",
+  "@msgKeptFrom": {
+    "description": "Line of a message not read: the paired contact who sent it.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "msgKeptFromUnknown": "From a paired contact",
+  "@msgKeptFromUnknown": {
+    "description": "Line of a message not read whose contact is no longer known."
+  },
+  "msgKeptKindPayment": "Payment",
+  "@msgKeptKindPayment": {
+    "description": "Kind of a message not read: a payment."
+  },
+  "msgKeptKindSlate": "Payment or invoice",
+  "@msgKeptKindSlate": {
+    "description": "Kind of a message not read: a payment or invoice file the wallet could not tell apart."
+  },
+  "msgKeptKindNotice": "Contact message",
+  "@msgKeptKindNotice": {
+    "description": "Kind of a message not read: a notice from a paired contact (not a payment)."
+  },
+  "msgKeptKindUnknown": "Message",
+  "@msgKeptKindUnknown": {
+    "description": "Kind of a message not read when the wallet cannot tell what it is."
+  },
+  "msgKeptWhyHold": "Your wallet tried several times and could not finish it.",
+  "@msgKeptWhyHold": {
+    "description": "Why a message was not read: handling it kept failing."
+  },
+  "msgKeptWhySlate": "This app version cannot read it. The sender may use a newer or older version, or it was damaged on the way.",
+  "@msgKeptWhySlate": {
+    "description": "Why a message was not read: a payment or invoice file this version cannot decode."
+  },
+  "msgKeptWhyNotice": "This app version does not know this kind of message. An update may read it.",
+  "@msgKeptWhyNotice": {
+    "description": "Why a message was not read: a contact notice of an unknown kind."
+  },
+  "msgKeptWhyCap": "Too many incoming payments are still unfinished. Try again when some have finished.",
+  "@msgKeptWhyCap": {
+    "description": "Why a message was not read: over the limit of unfinished incoming payments."
+  },
+  "msgKeptWhyRefused": "Your wallet turned this payment down, for example because it had expired or was already received.",
+  "@msgKeptWhyRefused": {
+    "description": "Why a message was not read: the wallet refused to receive the payment."
+  },
+  "msgKeptWhyOther": "Your wallet did not record why.",
+  "@msgKeptWhyOther": {
+    "description": "Why a message was not read, when the reason is not one this version knows."
+  },
+  "msgKeptAdvanced": "For advanced users",
+  "@msgKeptAdvanced": {
+    "description": "Title of the fold with the technical facts of a message not read."
+  },
+  "msgKeptReasonCode": "Reason code",
+  "@msgKeptReasonCode": {
+    "description": "Label in the advanced facts: the reason as the wallet core records it."
+  },
+  "msgKeptTries": "Tries",
+  "@msgKeptTries": {
+    "description": "Label in the advanced facts: how many times the wallet tried to read it."
+  },
+  "msgKeptSize": "Size",
+  "@msgKeptSize": {
+    "description": "Label in the advanced facts: the message size."
+  },
+  "msgKeptSizeBytes": "{count} bytes",
+  "@msgKeptSizeBytes": {
+    "description": "Value of Size in the advanced facts.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2048"
+      }
+    }
+  },
+  "msgKeptMessageId": "Message ID",
+  "@msgKeptMessageId": {
+    "description": "Label in the advanced facts: the kept message's identifier."
+  },
+  "msgKeptContactId": "Contact ID",
+  "@msgKeptContactId": {
+    "description": "Label in the advanced facts: the paired contact's identifier."
+  },
+  "msgKeptAddress": "Address",
+  "@msgKeptAddress": {
+    "description": "Label in the advanced facts: the contact's Epicbox address, shortened."
+  },
+  "msgKeptRetry": "Try again",
+  "@msgKeptRetry": {
+    "description": "Button: read a kept message again."
+  },
+  "msgKeptRemove": "Remove from this device",
+  "@msgKeptRemove": {
+    "description": "Button: delete a kept message from this device."
+  },
+  "msgKeptCopy": "Copy details",
+  "@msgKeptCopy": {
+    "description": "Button: copy the facts of the kept messages, for support."
+  },
+  "msgKeptCopied": "Details copied",
+  "@msgKeptCopied": {
+    "description": "Notice after Copy details on the phone."
+  },
+  "msgKeptRetried": "Read. It is no longer kept.",
+  "@msgKeptRetried": {
+    "description": "Result after Try again when the message was read."
+  },
+  "msgKeptStillKept": "Still not read. It stays here.",
+  "@msgKeptStillKept": {
+    "description": "Result after Try again when the message still could not be read."
+  },
+  "msgKeptActionFailed": "That did not work. Nothing changed; try again.",
+  "@msgKeptActionFailed": {
+    "description": "Result when Try again or Remove failed."
+  },
+  "msgKeptRemoveTitle": "Remove this message?",
+  "@msgKeptRemoveTitle": {
+    "description": "Title of the confirm before deleting a kept message."
+  },
+  "msgKeptRemoveBody": "It is deleted from this device and cannot be read later. The sender is not told.",
+  "@msgKeptRemoveBody": {
+    "description": "Text of the confirm before deleting a kept message."
+  },
+  "msgKeptRemoveConfirm": "Remove",
+  "@msgKeptRemoveConfirm": {
+    "description": "Confirm button: delete the kept message."
   },
   "noticeSealedUnopenable": "A message from {name} could not be opened.",
   "@noticeSealedUnopenable": {
@@ -19242,16 +19414,6 @@
   "@addrField": {
     "description": "Empty address field label."
   },
-  "addrFieldTyped": "{type} address",
-  "@addrFieldTyped": {
-    "description": "Field label once the type is detected, e.g. Epicbox address.",
-    "placeholders": {
-      "type": {
-        "type": "String",
-        "example": "Epicbox"
-      }
-    }
-  },
   "addrAddAnother": "Add another address",
   "@addrAddAnother": {
     "description": "Text button under the last filled field, only while a type is free."
@@ -19287,16 +19449,6 @@
   "addrReplace": "Replace it",
   "@addrReplace": {
     "description": "Button under the duplicate-type error."
-  },
-  "addrDesktopThird": "Paste a {type} address, or leave empty",
-  "@addrDesktopThird": {
-    "description": "Desktop: placeholder of the free third field.",
-    "placeholders": {
-      "type": {
-        "type": "String",
-        "example": "Epicbox"
-      }
-    }
   },
   "epic1AddressAlone": "An epic1 address alone cannot be paid. Paste the epic1 link.",
   "@epic1AddressAlone": {

@@ -465,9 +465,12 @@ class _BarButtonState extends State<_BarButton> {
 }
 
 /// The title bar's menus: the app's menu look (the theme's menuTheme: s4, lineStrong, the soft
-/// shadow), a little tighter and at least [minWidth] wide.
+/// shadow), a little tighter and at least [minWidth] wide, with the plain cursor between rows.
 MenuStyle _menuStyle({double? minWidth}) => MenuStyle(
   padding: WidgetStatePropertyAll(EdgeInsets.all(6.u)),
+  // The panel itself is no button (Flutter's default is the click cursor over all of it): the
+  // rows and buttons inside show their own.
+  mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
   minimumSize: WidgetStatePropertyAll(Size(minWidth ?? 240.u, 0)),
 );
 

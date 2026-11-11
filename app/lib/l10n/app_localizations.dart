@@ -22074,12 +22074,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} message turned away} other{{count} messages turned away}}'**
   String msgCheckItemRefused(int count);
 
-  /// Quiet line under msgCheckItemRefused: why a message is turned away.
-  ///
-  /// In en, this message translates to:
-  /// **'Not for this wallet, too large or damaged.'**
-  String get msgCheckWhyRefused;
-
   /// Detail of the last message check: pairings in progress that ended without pairing.
   ///
   /// In en, this message translates to:
@@ -22092,11 +22086,239 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} message could not be read} other{{count} messages could not be read}}'**
   String msgCheckItemUnreadable(int count);
 
-  /// Quiet line under msgCheckItemUnreadable: where such a message is.
+  /// Quiet line under msgCheckItemRefused: why messages were turned away, and that the user need not act.
   ///
   /// In en, this message translates to:
-  /// **'Kept on this device.'**
-  String get msgCheckWhyUnreadable;
+  /// **'Not for this wallet, too large or damaged. Nothing to do.'**
+  String get msgCheckWhyRefusedNothing;
+
+  /// Quiet line under msgCheckItemPairingFailed: why a pairing ended unfinished and what the user can do.
+  ///
+  /// In en, this message translates to:
+  /// **'It ran out of time or was not accepted. You can pair again.'**
+  String get msgCheckWhyPairingFailed;
+
+  /// Quiet line under msgCheckItemUnreadable: where such a message is; the row opens the list of these messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept on this device. Open it to try again or remove it.'**
+  String get msgCheckWhyUnreadableOpen;
+
+  /// Screen-reader hint and tooltip of the row "1 message could not be read": it opens the list of those messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the messages not read'**
+  String get msgCheckOpenKept;
+
+  /// Title of the dialog or sheet listing the contact messages the wallet keeps because it could not read them.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages not read'**
+  String get msgKeptTitle;
+
+  /// Intro of the Messages not read dialog. days is how long they are kept (30 by default).
+  ///
+  /// In en, this message translates to:
+  /// **'A paired contact sent these, but your wallet could not read them. They stay on this device for {days} days, then they are removed.'**
+  String msgKeptIntro(int days);
+
+  /// Messages not read dialog when the list is empty (all were read or removed).
+  ///
+  /// In en, this message translates to:
+  /// **'No messages are waiting here now.'**
+  String get msgKeptEmpty;
+
+  /// Messages not read dialog when the list could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the messages. Close this and try again.'**
+  String get msgKeptLoadFailed;
+
+  /// Line of a message not read: when it first arrived. when is a date and time like "21 Sep 2026, 14:05".
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived {when}'**
+  String msgKeptArrived(String when);
+
+  /// Line of a message not read: the paired contact who sent it.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String msgKeptFrom(String name);
+
+  /// Line of a message not read whose contact is no longer known.
+  ///
+  /// In en, this message translates to:
+  /// **'From a paired contact'**
+  String get msgKeptFromUnknown;
+
+  /// Kind of a message not read: a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get msgKeptKindPayment;
+
+  /// Kind of a message not read: a payment or invoice file the wallet could not tell apart.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment or invoice'**
+  String get msgKeptKindSlate;
+
+  /// Kind of a message not read: a notice from a paired contact (not a payment).
+  ///
+  /// In en, this message translates to:
+  /// **'Contact message'**
+  String get msgKeptKindNotice;
+
+  /// Kind of a message not read when the wallet cannot tell what it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get msgKeptKindUnknown;
+
+  /// Why a message was not read: handling it kept failing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet tried several times and could not finish it.'**
+  String get msgKeptWhyHold;
+
+  /// Why a message was not read: a payment or invoice file this version cannot decode.
+  ///
+  /// In en, this message translates to:
+  /// **'This app version cannot read it. The sender may use a newer or older version, or it was damaged on the way.'**
+  String get msgKeptWhySlate;
+
+  /// Why a message was not read: a contact notice of an unknown kind.
+  ///
+  /// In en, this message translates to:
+  /// **'This app version does not know this kind of message. An update may read it.'**
+  String get msgKeptWhyNotice;
+
+  /// Why a message was not read: over the limit of unfinished incoming payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many incoming payments are still unfinished. Try again when some have finished.'**
+  String get msgKeptWhyCap;
+
+  /// Why a message was not read: the wallet refused to receive the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet turned this payment down, for example because it had expired or was already received.'**
+  String get msgKeptWhyRefused;
+
+  /// Why a message was not read, when the reason is not one this version knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet did not record why.'**
+  String get msgKeptWhyOther;
+
+  /// Title of the fold with the technical facts of a message not read.
+  ///
+  /// In en, this message translates to:
+  /// **'For advanced users'**
+  String get msgKeptAdvanced;
+
+  /// Label in the advanced facts: the reason as the wallet core records it.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason code'**
+  String get msgKeptReasonCode;
+
+  /// Label in the advanced facts: how many times the wallet tried to read it.
+  ///
+  /// In en, this message translates to:
+  /// **'Tries'**
+  String get msgKeptTries;
+
+  /// Label in the advanced facts: the message size.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get msgKeptSize;
+
+  /// Value of Size in the advanced facts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} bytes'**
+  String msgKeptSizeBytes(int count);
+
+  /// Label in the advanced facts: the kept message's identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Message ID'**
+  String get msgKeptMessageId;
+
+  /// Label in the advanced facts: the paired contact's identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact ID'**
+  String get msgKeptContactId;
+
+  /// Label in the advanced facts: the contact's Epicbox address, shortened.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get msgKeptAddress;
+
+  /// Button: read a kept message again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get msgKeptRetry;
+
+  /// Button: delete a kept message from this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from this device'**
+  String get msgKeptRemove;
+
+  /// Button: copy the facts of the kept messages, for support.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get msgKeptCopy;
+
+  /// Notice after Copy details on the phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Details copied'**
+  String get msgKeptCopied;
+
+  /// Result after Try again when the message was read.
+  ///
+  /// In en, this message translates to:
+  /// **'Read. It is no longer kept.'**
+  String get msgKeptRetried;
+
+  /// Result after Try again when the message still could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Still not read. It stays here.'**
+  String get msgKeptStillKept;
+
+  /// Result when Try again or Remove failed.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not work. Nothing changed; try again.'**
+  String get msgKeptActionFailed;
+
+  /// Title of the confirm before deleting a kept message.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this message?'**
+  String get msgKeptRemoveTitle;
+
+  /// Text of the confirm before deleting a kept message.
+  ///
+  /// In en, this message translates to:
+  /// **'It is deleted from this device and cannot be read later. The sender is not told.'**
+  String get msgKeptRemoveBody;
+
+  /// Confirm button: delete the kept message.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get msgKeptRemoveConfirm;
 
   /// Notice when something in a paired contact's mailbox did not open with this wallet's keys and was dropped.
   ///
@@ -22602,12 +22824,6 @@ abstract class AppLocalizations {
   /// **'Address'**
   String get addrField;
 
-  /// Field label once the type is detected, e.g. Epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'{type} address'**
-  String addrFieldTyped(String type);
-
   /// Text button under the last filled field, only while a type is free.
   ///
   /// In en, this message translates to:
@@ -22637,12 +22853,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Replace it'**
   String get addrReplace;
-
-  /// Desktop: placeholder of the free third field.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste a {type} address, or leave empty'**
-  String addrDesktopThird(String type);
 
   /// Contact editor and epic1 Send: a bare epic1 address was pasted. Only an epic:epic1… link with a server can be paid.
   ///

@@ -74,9 +74,9 @@ MessageCheckView messageCheckView(AppLocalizations l, MessageCheck check) {
       if (o.messages > 0) (kind: CheckItemKind.read, count: o.messages, text: l.msgCheckItemRead(o.messages), why: null),
       if (o.held > 0) (kind: CheckItemKind.held, count: o.held, text: l.msgCheckItemHeld(o.held), why: null),
       if (o.capped > 0) (kind: CheckItemKind.more, count: 1, text: l.msgCheckItemMore, why: null),
-      if (o.refused > 0) (kind: CheckItemKind.refused, count: o.refused, text: l.msgCheckItemRefused(o.refused), why: l.msgCheckWhyRefused),
-      if (o.failed > 0) (kind: CheckItemKind.pairingFailed, count: o.failed, text: l.msgCheckItemPairingFailed(o.failed), why: null),
-      if (o.unreadable > 0) (kind: CheckItemKind.unreadable, count: o.unreadable, text: l.msgCheckItemUnreadable(o.unreadable), why: l.msgCheckWhyUnreadable),
+      if (o.refused > 0) (kind: CheckItemKind.refused, count: o.refused, text: l.msgCheckItemRefused(o.refused), why: l.msgCheckWhyRefusedNothing),
+      if (o.failed > 0) (kind: CheckItemKind.pairingFailed, count: o.failed, text: l.msgCheckItemPairingFailed(o.failed), why: l.msgCheckWhyPairingFailed),
+      if (o.unreadable > 0) (kind: CheckItemKind.unreadable, count: o.unreadable, text: l.msgCheckItemUnreadable(o.unreadable), why: l.msgCheckWhyUnreadableOpen),
     ],
   );
 }

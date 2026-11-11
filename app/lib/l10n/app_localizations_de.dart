@@ -14252,10 +14252,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyRefused =>
-      'Nicht für diese Wallet, zu groß oder beschädigt.';
-
-  @override
   String msgCheckItemPairingFailed(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14278,7 +14274,140 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyUnreadable => 'Auf diesem Gerät aufbewahrt.';
+  String get msgCheckWhyRefusedNothing =>
+      'Nicht für diese Wallet, zu groß oder beschädigt. Nichts zu tun.';
+
+  @override
+  String get msgCheckWhyPairingFailed =>
+      'Die Zeit ist abgelaufen oder die Kopplung wurde nicht angenommen. Sie können erneut koppeln.';
+
+  @override
+  String get msgCheckWhyUnreadableOpen =>
+      'Auf diesem Gerät behalten. Öffnen Sie sie, um es erneut zu versuchen oder sie zu entfernen.';
+
+  @override
+  String get msgCheckOpenKept => 'Nicht gelesene Nachrichten anzeigen';
+
+  @override
+  String get msgKeptTitle => 'Nicht gelesene Nachrichten';
+
+  @override
+  String msgKeptIntro(int days) {
+    return 'Ein gekoppelter Kontakt hat diese gesendet, aber Ihre Wallet konnte sie nicht lesen. Sie bleiben $days Tage auf diesem Gerät und werden dann entfernt.';
+  }
+
+  @override
+  String get msgKeptEmpty => 'Im Moment warten hier keine Nachrichten.';
+
+  @override
+  String get msgKeptLoadFailed =>
+      'Die Nachrichten konnten nicht geladen werden. Schließen Sie dies und versuchen Sie es erneut.';
+
+  @override
+  String msgKeptArrived(String when) {
+    return 'Eingegangen $when';
+  }
+
+  @override
+  String msgKeptFrom(String name) {
+    return 'Von $name';
+  }
+
+  @override
+  String get msgKeptFromUnknown => 'Von einem gekoppelten Kontakt';
+
+  @override
+  String get msgKeptKindPayment => 'Zahlung';
+
+  @override
+  String get msgKeptKindSlate => 'Zahlung oder Rechnung';
+
+  @override
+  String get msgKeptKindNotice => 'Kontaktnachricht';
+
+  @override
+  String get msgKeptKindUnknown => 'Nachricht';
+
+  @override
+  String get msgKeptWhyHold =>
+      'Ihre Wallet hat es mehrmals versucht und konnte es nicht abschließen.';
+
+  @override
+  String get msgKeptWhySlate =>
+      'Diese App-Version kann sie nicht lesen. Der Absender nutzt vielleicht eine neuere oder ältere Version, oder sie wurde unterwegs beschädigt.';
+
+  @override
+  String get msgKeptWhyNotice =>
+      'Diese App-Version kennt diese Art von Nachricht nicht. Ein Update kann sie vielleicht lesen.';
+
+  @override
+  String get msgKeptWhyCap =>
+      'Zu viele eingehende Zahlungen sind noch nicht abgeschlossen. Versuchen Sie es erneut, wenn einige abgeschlossen sind.';
+
+  @override
+  String get msgKeptWhyRefused =>
+      'Ihre Wallet hat diese Zahlung abgelehnt, zum Beispiel weil sie abgelaufen war oder schon empfangen wurde.';
+
+  @override
+  String get msgKeptWhyOther => 'Ihre Wallet hat den Grund nicht festgehalten.';
+
+  @override
+  String get msgKeptAdvanced => 'Für Fortgeschrittene';
+
+  @override
+  String get msgKeptReasonCode => 'Ursachencode';
+
+  @override
+  String get msgKeptTries => 'Versuche';
+
+  @override
+  String get msgKeptSize => 'Größe';
+
+  @override
+  String msgKeptSizeBytes(int count) {
+    return '$count Bytes';
+  }
+
+  @override
+  String get msgKeptMessageId => 'Nachrichten-ID';
+
+  @override
+  String get msgKeptContactId => 'Kontakt-ID';
+
+  @override
+  String get msgKeptAddress => 'Adresse';
+
+  @override
+  String get msgKeptRetry => 'Erneut versuchen';
+
+  @override
+  String get msgKeptRemove => 'Von diesem Gerät entfernen';
+
+  @override
+  String get msgKeptCopy => 'Details kopieren';
+
+  @override
+  String get msgKeptCopied => 'Details kopiert';
+
+  @override
+  String get msgKeptRetried => 'Gelesen. Sie wird nicht mehr behalten.';
+
+  @override
+  String get msgKeptStillKept => 'Weiterhin nicht gelesen. Sie bleibt hier.';
+
+  @override
+  String get msgKeptActionFailed =>
+      'Das hat nicht geklappt. Nichts wurde geändert; versuchen Sie es erneut.';
+
+  @override
+  String get msgKeptRemoveTitle => 'Diese Nachricht entfernen?';
+
+  @override
+  String get msgKeptRemoveBody =>
+      'Sie wird von diesem Gerät gelöscht und kann später nicht mehr gelesen werden. Der Absender erfährt es nicht.';
+
+  @override
+  String get msgKeptRemoveConfirm => 'Entfernen';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -14607,11 +14736,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get addrField => 'Adresse';
 
   @override
-  String addrFieldTyped(String type) {
-    return 'Adresse ($type)';
-  }
-
-  @override
   String get addrAddAnother => 'Weitere Adresse hinzufügen';
 
   @override
@@ -14629,11 +14753,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get addrReplace => 'Ersetzen';
-
-  @override
-  String addrDesktopThird(String type) {
-    return 'Eine Adresse ($type) einfügen oder leer lassen';
-  }
 
   @override
   String get epic1AddressAlone =>

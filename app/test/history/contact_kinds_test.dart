@@ -15,6 +15,8 @@ import 'package:flutter_test/flutter_test.dart';
 const _box = 'esKJdaBi1W1eHJFeV6HAPCM63Us2983Gqa5gFSXNsE3ascRpFxfc@epicbox.epiccash.com';
 const _http = 'https://pay.example.net:3415';
 const _onion = 'mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd.onion';
+final _link = 'epic:epic1${'q' * 58}?epicbox=epicbox.epiccash.com';
+final _otherLink = 'epic:epic1${'r' * 58}?epicbox=epicbox.epiccash.com';
 
 void main() {
   test('an address goes into the field of its kind', () {
@@ -98,6 +100,48 @@ void main() {
       expect(after.id, known.id);
       expect(after.name, 'Anna here', reason: 'nothing saved is changed');
       expect([after.epicbox, after.tor], [_box, _onion]);
+      // A second import changes nothing.
+      expect((await here.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
+    });
+
+    // A restore or merge never drops a contact's epic1 link (contacts have no edit time, so a
+    // link that differs from the one saved here is kept beside it).
+    test('a backup carries epic1 links: restored, gained, or kept beside a different one ($where)', () async {
+      HistoryPayload export(WalletHistory h) => HistoryPayload.fromJson(
+        jsonDecode(utf8.decode(h.exportPayload(const [], walletFp: 'fp', appVersion: 't').encode())),
+      );
+      final mine = _link.replaceFirst('q', 'z');
+      final pairedLink = _link.replaceFirst('q', 'w');
+      final from = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
+      await from.saveContact(Contact(id: '', name: 'Anna', epicbox: _box, epic1: _link));
+      final onlyLink = await from.saveContact(Contact(id: '', name: 'Link only', epic1: mine));
+      final paired = await from.saveContact(Contact(id: '', name: 'Northwind'));
+      final before = export(from);
+      // Later, on the other install: the link-only contact holds another link, the paired one gains one.
+      await from.saveContact(Contact(id: onlyLink.id, name: 'Link only', epic1: _otherLink));
+      await from.saveContact(Contact(id: paired.id, name: 'Northwind', epic1: pairedLink));
+      final payload = export(from);
+
+      final empty = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
+      await empty.importPayload(payload, const [], walletFp: 'fp');
+      expect({for (final c in empty.contacts()) c.name: (c.epicbox, c.epic1)}, {
+        'Anna': (_box, _link),
+        'Link only': (null, _otherLink),
+        'Northwind': (null, pairedLink),
+      });
+      expect({for (final c in empty.contacts()) c.id}, containsAll([onlyLink.id, paired.id]));
+
+      final here = WalletHistory.memory(contacts: shared ? ContactStore.memory() : null);
+      final anna = await here.saveContact(Contact(id: '', name: 'Anna here', epicbox: _box));
+      await here.importPayload(before, const [], walletFp: 'fp');
+      await here.importPayload(payload, const [], walletFp: 'fp');
+      final after = {for (final c in here.contacts()) c.epic1: c};
+      expect(after[_link]?.id, anna.id, reason: 'the matched contact gained the link');
+      expect(after[_link]?.name, 'Anna here', reason: 'nothing saved is changed');
+      expect(after[mine]?.id, onlyLink.id, reason: 'the link saved here stays');
+      expect(after[_otherLink]?.name, 'Link only', reason: "the backup's other link is kept beside it");
+      expect(after[pairedLink]?.id, paired.id, reason: 'the paired contact gained its link by id');
+      expect(here.contacts(), hasLength(4));
       // A second import changes nothing.
       expect((await here.importPayload(payload, const [], walletFp: 'fp')).contactsAdded, 0);
     });

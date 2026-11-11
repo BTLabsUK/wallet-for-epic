@@ -10,6 +10,7 @@ import 'support/test_settings.dart';
 const _a = 'esWNvLomAJ2SHT6CU1F4ok2URGQnmUmCAp9XNwEP4N8JS4Ve8qcx';
 const _b = 'es7jHnbVkZzE2UGWUkzWrc4y4VoKZbg7FBaPUo2vXhJpe4jgXAA7';
 const _onion = '2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid';
+final _link = 'epic:epic1${'q' * 58}?epicbox=epicbox.epiccash.com';
 
 final _checks = AddressChecks(
   epicbox: (a) => RegExp(r'^es[1-9A-HJ-NP-Za-km-z]{50}@[a-z0-9.-]+(:\d+)?$').hasMatch(a),
@@ -128,6 +129,21 @@ void main() {
       expect(q.addressesLeftOut, 1);
       expect(q.update, isEmpty);
       expect(q.alreadySaved, 1);
+    });
+
+    test('an epic1 link: gained when missing, kept as its own contact when it differs', () {
+      final saved = [ContactFields(id: 's', name: 'Shop', epicbox: '$_a@epicbox.epiccash.com')];
+      final gain = plan([GuiContactRow(name: 'Shop', externalOne: _a, epic1: _link)], saved);
+      expect(gain.update.single.epic1, _link);
+      final other = _link.replaceFirst('q', 'z');
+      final keep = plan([GuiContactRow(name: 'Shop 2', externalOne: _a, epic1: other)], [gain.update.single]);
+      expect(keep.update, isEmpty);
+      expect(keep.add.map((c) => (c.name, c.epicbox, c.epic1)), [('Shop 2', null, other)]);
+      expect(keep.addressesLeftOut, 0);
+      // The same rows again add nothing.
+      final again = plan([GuiContactRow(name: 'Shop 2', externalOne: _a, epic1: other)], [gain.update.single, keep.add.single.copyWith(id: 'k')]);
+      expect(again.add, isEmpty);
+      expect(again.update, isEmpty);
     });
 
     test('two old rows for one person: the second merges into the first one added', () {
