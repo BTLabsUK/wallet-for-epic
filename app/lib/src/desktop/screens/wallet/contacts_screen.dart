@@ -641,7 +641,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
             decoration: BoxDecoration(color: widget.selected ? c.s3 : (_hover ? c.hover : null), borderRadius: BorderRadius.circular(Rad.sm)),
             child: Row(
               children: [
-                _Pic(name: x.name, picture: x.hasPicture, size: 40.u, label: x.label),
+                _Pic(name: x.name, picture: x.hasPicture, size: 40.u, label: x.label.listMark),
                 SizedBox(width: 14.u),
                 Expanded(
                   child: EAddressLines(
