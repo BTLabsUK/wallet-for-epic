@@ -44,6 +44,12 @@ const int qrFragmentLen = 107;
 /// own default is 360).
 const int qrSingleCodeMaxLen = 124;
 
+/// Whether payment QR codes carry the slate's native bytes (payload version 2, about half the
+/// parts) rather than its deflated text (version 1). Releases up to 26.11.3 read only version
+/// 1, so codes stay text until those apps are gone; the wallet reads both. In-person codes are
+/// always native.
+const bool qrPaymentNative = false;
+
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 /// Whether the wallet core takes [WalletConfig.offline] (Kill switch sessions that refuse their
 /// node and relay at once, LEPIC's ADR 0031): entering or leaving Kill switch opens the session

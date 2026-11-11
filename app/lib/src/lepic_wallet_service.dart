@@ -1328,6 +1328,7 @@ class LepicWalletService implements WalletService {
     () => lepic.encodeUrSlate(
       json: json,
       chain: _lepicChain(_chain),
+      native: qrPaymentNative,
       maxFragmentLen: maxFragmentLen,
       singleCodeMaxLen: singleCodeMaxLen,
     ),

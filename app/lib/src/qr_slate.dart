@@ -10,7 +10,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import 'wallet_service.dart';
 
-export 'wallet_service.dart' show qrFragmentLen, qrSingleCodeMaxLen;
+export 'wallet_service.dart' show qrFragmentLen, qrPaymentNative, qrSingleCodeMaxLen;
 
 /// Frames a second the show screen cycles the parts at.
 const int qrFramesPerSecond = 6;

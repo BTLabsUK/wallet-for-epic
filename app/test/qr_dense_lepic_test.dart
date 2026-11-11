@@ -3,8 +3,9 @@
 // in-person codes and answers, encoded with the app's limits (qrFragmentLen, qrSingleCodeMaxLen),
 // every part read back, and every frame drawn at level H no larger than version 14 (73 modules).
 // The payment slates in test/fixtures/qr_slates come from a floonet send and invoice of LEPIC's
-// test wallets, with a message; s1.v1-64.parts is that S1 as an app before native payment codes
-// showed it (deflated text, 64-byte parts). Needs a LEPIC Linux library, the release one or
+// test wallets, with a message. The wallet writes payment codes as deflated text (version 1),
+// which every release reads, and reads native codes (version 2) too; s1.v1-64.parts is that S1
+// as an app up to 26.11.3 showed it (deflated text, 64-byte parts). Needs a LEPIC Linux library, the release one or
 // LEPIC's mock build (lepic-flutter's `tool/lepic.sh test` makes it in test_native/):
 //
 //   WFE_LEPIC_LIB=<path to liblepic_ffi.so> flutter test test/qr_dense_lepic_test.dart
@@ -90,34 +91,44 @@ void main() {
   }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : null);
 
   group('payment files', () {
-    Future<List<String>> encode(String json) => lepic.encodeUrSlate(
+    Future<List<String>> encode(String json, {bool native = qrPaymentNative}) => lepic.encodeUrSlate(
       json: json,
       chain: lepic.Chain.floonet,
+      native: native,
       maxFragmentLen: qrFragmentLen,
       singleCodeMaxLen: qrSingleCodeMaxLen,
     );
 
-    // The parts each stage takes as lepic.v1 bytes, and the stage the text read back has.
-    for (final (name, partCount, stage) in [
-      ('s1', 3, lepic.SlateStage.s1),
-      ('s2', 17, lepic.SlateStage.s2),
-      ('s3', 19, lepic.SlateStage.s3),
-      ('i1', 3, lepic.SlateStage.i1),
-      ('i2', 18, lepic.SlateStage.i2),
+    test('the wallet writes payment codes as deflated text, which older apps read', () {
+      expect(qrPaymentNative, isFalse);
+    });
+
+    // The parts each stage takes as deflated text (what the wallet writes) and as lepic.v1
+    // bytes (what it reads as well), and the stage the text read back has.
+    for (final (name, textParts, nativeParts, stage) in [
+      ('s1', 14, 3, lepic.SlateStage.s1),
+      ('s2', 23, 17, lepic.SlateStage.s2),
+      ('s3', 25, 19, lepic.SlateStage.s3),
+      ('i1', 14, 3, lepic.SlateStage.i1),
+      ('i2', 24, 18, lepic.SlateStage.i2),
     ]) {
-      test('a real $name reads back as the same slate and every frame fits version 14', () async {
-        final json = File('$_slates/$name.json').readAsStringSync();
-        final parts = await encode(json);
-        expectFrames(parts, partCount);
-        final read = await lepic.decodeUrSlate(parts: parts);
-        expect(read.complete, isTrue);
-        final (got, shown) = (
-          await lepic.inspectSlate(json: read.json!, chain: lepic.Chain.floonet),
-          await lepic.inspectSlate(json: json, chain: lepic.Chain.floonet),
-        );
-        expect(got.stage, stage);
-        expect((got.slateId, got.amount, got.fee), (shown.slateId, shown.amount, shown.fee));
-      });
+      for (final (form, native, partCount) in [('text', false, textParts), ('native', true, nativeParts)]) {
+        test('a real $name as $form reads back as the same slate and every frame fits version 14', () async {
+          final json = File('$_slates/$name.json').readAsStringSync();
+          final parts = await encode(json, native: native);
+          expectFrames(parts, partCount);
+          final read = await lepic.decodeUrSlate(parts: parts);
+          expect(read.complete, isTrue);
+          final (got, shown) = (
+            await lepic.inspectSlate(json: read.json!, chain: lepic.Chain.floonet),
+            await lepic.inspectSlate(json: json, chain: lepic.Chain.floonet),
+          );
+          expect(got.stage, stage);
+          expect((got.slateId, got.amount, got.fee), (shown.slateId, shown.amount, shown.fee));
+          // Text reads back as the very text written.
+          if (!native) expect(read.json, json);
+        });
+      }
     }
 
     test('a code an older app showed, deflated text in 64-byte parts, still reads', () async {
