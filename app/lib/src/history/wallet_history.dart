@@ -79,6 +79,8 @@ ContactRec _recOf(ContactFields c) => ContactRec(
   label: c.label.stored,
 );
 
+bool _sameLink(String a, String b) => a.trim().toLowerCase() == b.trim().toLowerCase();
+
 String? _trimmed(String? s) {
   final t = s?.trim();
   return t == null || t.isEmpty ? null : t;
@@ -92,22 +94,24 @@ final AddressChecks shapeAddressChecks = AddressChecks(
 );
 
 /// [c]'s addresses, trimmed.
-List<String> _addressesOf(String? epicbox, String? http, String? tor) => [
-  for (final a in [epicbox, http, tor]) ?_trimmed(a),
+List<String> _addressesOf(String? epicbox, String? http, String? tor, [String? epic1]) => [
+  for (final a in [epicbox, http, tor, epic1]) ?_trimmed(a),
 ];
 
 /// The same wallet's address: an Epicbox key at any relay, anything else in any case.
 String _addressKey(String a) => a.trim().toLowerCase().split('@').first;
 
 bool _sharesAddress(ContactRec c, ContactFields e) {
-  final theirs = {for (final a in _addressesOf(c.epicbox, c.http, c.tor)) _addressKey(a)};
-  return _addressesOf(e.epicbox, e.http, e.tor).any((a) => theirs.contains(_addressKey(a)));
+  final theirs = {for (final a in _addressesOf(c.epicbox, c.http, c.tor, c.epic1)) _addressKey(a)};
+  return _addressesOf(e.epicbox, e.http, e.tor, e.epic1).any((a) => theirs.contains(_addressKey(a)));
 }
 
 /// Brings a backup's [theirs] into [book] by the contacts file's rules ([planGuiContacts]):
 /// nothing saved is changed, a contact holding one of the addresses gains the kinds and the
 /// note it lacks, a new one keeps the backup's id when it is free. A contact without an address
-/// (a pairing's) comes in by its id, which the pairing names. An entry the app put in from
+/// (a pairing's) comes in by its id, which the pairing names; one with an epic1 link gives it
+/// to the contact of that id when that one has none, and otherwise comes in as the contacts
+/// file's rows do, so a different link is kept beside the saved one. An entry the app put in from
 /// [stock] and the user never edited holds nothing of theirs: the backup's copy of that
 /// contact (its name, note and label) replaces it. Returns the contacts added or given something.
 int mergeBackupContacts(
@@ -120,7 +124,7 @@ int mergeBackupContacts(
   for (var i = 0; i < book.length; i++) {
     final e = book[i];
     final box = e.epicbox;
-    if (box == null || e.http != null || e.tor != null) continue;
+    if (box == null || e.http != null || e.tor != null || e.epic1 != null) continue;
     if (!stock.any((s) => s.name == e.name && s.note == e.note && _addressKey(s.address) == _addressKey(box))) continue;
     final from = theirs.where((c) => c.name.trim().isNotEmpty && _sharesAddress(c, e)).firstOrNull;
     if (from == null) continue;
@@ -136,14 +140,28 @@ int mergeBackupContacts(
       withAddress.add(c);
       continue;
     }
-    if (c.id.isEmpty || book.any((e) => e.id == c.id)) continue;
-    book.add(ContactFields(id: c.id, name: c.name.trim(), epic1: _trimmed(c.epic1), note: _trimmed(c.note), label: ContactLabel.fromStored(c.label)));
+    final link = _trimmed(c.epic1);
+    final i = c.id.isEmpty ? -1 : book.indexWhere((e) => e.id == c.id);
+    if (link != null && checks.epic1(link)) {
+      // A pairing's contact that gained a link: the link joins it, or, for another link, comes
+      // in beside it.
+      final have = i < 0 ? null : book[i].epic1;
+      if (i >= 0 && have == null) {
+        book[i] = book[i].copyWith(epic1: link);
+        n++;
+      } else if (have == null || !_sameLink(have, link)) {
+        withAddress.add(c);
+      }
+      continue;
+    }
+    if (c.id.isEmpty || i >= 0) continue;
+    book.add(ContactFields(id: c.id, name: c.name.trim(), note: _trimmed(c.note), label: ContactLabel.fromStored(c.label)));
     n++;
   }
   final plan = planGuiContacts(
     [
       for (final c in withAddress)
-        GuiContactRow(name: c.name, externalOne: c.epicbox, externalTwo: c.http, onion: c.tor, note: c.note, label: ContactLabel.fromStored(c.label)),
+        GuiContactRow(name: c.name, externalOne: c.epicbox, externalTwo: c.http, onion: c.tor, epic1: c.epic1, note: c.note, label: ContactLabel.fromStored(c.label)),
     ],
     book,
     checks,
@@ -157,7 +175,7 @@ int mergeBackupContacts(
   for (final a in plan.add) {
     final from = withAddress.where((c) => _sharesAddress(c, a)).firstOrNull;
     final id = from == null || from.id.isEmpty || book.any((e) => e.id == from.id) ? _randomHex(16) : from.id;
-    book.add(a.copyWith(id: id, epic1: _trimmed(from?.epic1)));
+    book.add(a.copyWith(id: id));
     n++;
   }
   return n;

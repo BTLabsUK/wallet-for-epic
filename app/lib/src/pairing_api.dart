@@ -207,6 +207,16 @@ abstract interface class PairingApi {
   /// Removes the pairing [id] (C-19). Its contact stays.
   Future<void> removePairing(String id);
 
+  /// The contact messages this wallet keeps unread (LEPIC's quarantine, ADR 0049): each opened
+  /// under a paired contact's key and could not be taken. Oldest first.
+  Future<List<KeptMessage>> keptMessages();
+
+  /// Handles the kept message [id] again, or every one when null. Returns how many stay kept.
+  Future<int> retryKept({String? id});
+
+  /// Deletes the kept message [id] from this device. False when it was already gone.
+  Future<bool> removeKept(String id);
+
   /// Seal payments for [id] on or off.
   Future<PairingRecord> setSeal(String id, bool on);
 
@@ -444,6 +454,15 @@ class NoPairing implements PairingApi {
   Future<void> removePairing(String id) async => throw pairingUnsupported('removePairing');
 
   @override
+  Future<List<KeptMessage>> keptMessages() async => const [];
+
+  @override
+  Future<int> retryKept({String? id}) async => 0;
+
+  @override
+  Future<bool> removeKept(String id) async => false;
+
+  @override
   Future<PairingRecord> setSeal(String id, bool on) async => throw pairingUnsupported('setSeal');
 
   @override
@@ -569,3 +588,69 @@ List<PairingRecord> pairingsInContacts(Iterable<PairingRecord> all) => [
   for (final r in all)
     if (r.state.isRecord || r.state == PairingState.pendingReply || (r.state == PairingState.pendingInvite && r.expectAddress != null)) r,
 ];
+
+/// Why LEPIC keeps a contact message unread (its quarantine reasons).
+enum KeptReason {
+  /// Taking it kept failing past the hold's patience. The error itself is not recorded.
+  holdBound,
+
+  /// A payment or invoice file this build cannot read.
+  undecodableSlate,
+
+  /// A contact notice of a kind this build does not know.
+  unknownNotice,
+
+  /// A payment over the limit of unfinished incoming payments.
+  receiptCap,
+
+  /// A payment the wallet refused to receive.
+  receiveRefused,
+
+  /// A reason this build does not know.
+  other;
+
+  /// The reason LEPIC names [code].
+  static KeptReason of(String code) => switch (code) {
+    'hold_bound' => holdBound,
+    'undecodable_slate' => undecodableSlate,
+    'unknown_notice' => unknownNotice,
+    'receipt_cap' => receiptCap,
+    'receive_refused' => receiveRefused,
+    _ => other,
+  };
+}
+
+/// One message the wallet keeps unread: from the paired contact [contactId], first seen at
+/// [firstSeen], tried [attempts] times, [size] bytes. [code] is LEPIC's reason as recorded.
+class KeptMessage {
+  const KeptMessage({
+    required this.id,
+    required this.contactId,
+    required this.code,
+    required this.firstSeen,
+    this.attempts = 0,
+    this.size = 0,
+  });
+
+  final String id;
+  final String contactId;
+  final String code;
+  final DateTime firstSeen;
+  final int attempts;
+  final int size;
+
+  KeptReason get reason => KeptReason.of(code);
+
+  @override
+  bool operator ==(Object other) =>
+      other is KeptMessage &&
+      id == other.id &&
+      contactId == other.contactId &&
+      code == other.code &&
+      firstSeen == other.firstSeen &&
+      attempts == other.attempts &&
+      size == other.size;
+
+  @override
+  int get hashCode => Object.hash(id, contactId, code, firstSeen, attempts, size);
+}

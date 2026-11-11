@@ -4,6 +4,8 @@
 /// one row: a quiet icon, the headline ("Checked 2 min ago", live) and what the last check
 /// found in a few words; a click, or the chevron, unfolds the findings in three groups, Read,
 /// Waiting and Needs a look. Zero counts never show; without findings the row has no chevron.
+/// Only a finding with something to do is a button: the messages not read open their list
+/// ([onOpenKept]); the others say what happened and show no click cursor.
 library;
 
 import 'dart:async';
@@ -19,11 +21,15 @@ import '../widgets/kit.dart';
 const Key deskMessageCheckPanelKey = ValueKey('desk-message-check-panel');
 const Key deskMessageCheckRowKey = ValueKey('desk-message-check-row');
 const Key deskMessageCheckDetailsKey = ValueKey('desk-message-check-details');
+const Key deskMessageCheckKeptKey = ValueKey('desk-message-check-kept');
 
 class DeskMessageCheckPanel extends StatefulWidget {
-  const DeskMessageCheckPanel(this.check, {super.key, this.open = false});
+  const DeskMessageCheckPanel(this.check, {super.key, this.open = false, this.onOpenKept});
 
   final MessageCheck check;
+
+  /// Opens the messages not read; without it their line is plain text.
+  final VoidCallback? onOpenKept;
 
   /// Unfolded at first.
   final bool open;
@@ -143,35 +149,58 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
                     ),
                   ),
                   for (final i in view.of(g))
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 3.u),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: 2.u),
-                            child: Icon(_icon(i.kind), size: Ctl.iconSm, color: g == CheckGroup.problems ? c.warn : c.dim),
-                          ),
-                          SizedBox(width: Sp.x2),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(i.text, style: ts.body),
-                                if (i.why case final why?) Text(why, style: ts.small),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _item(context, i, g),
                 ],
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _item(BuildContext context, CheckItem i, CheckGroup g) {
+    final c = context.dc;
+    final ts = context.ts;
+    final open = i.kind == CheckItemKind.unreadable ? widget.onOpenKept : null;
+    final line = Padding(
+      padding: EdgeInsets.symmetric(vertical: 3.u),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 2.u),
+            child: Icon(_icon(i.kind), size: Ctl.iconSm, color: g == CheckGroup.problems ? c.warn : c.dim),
+          ),
+          SizedBox(width: Sp.x2),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(i.text, style: ts.body),
+                if (i.why case final why?) Text(why, style: ts.small),
+              ],
+            ),
+          ),
+          if (open != null) ...[
+            SizedBox(width: Sp.x2),
+            Padding(
+              padding: EdgeInsets.only(top: 2.u),
+              child: Icon(EIcons.chevronRight, size: Ctl.iconSm, color: c.dim),
+            ),
+          ],
+        ],
+      ),
+    );
+    if (open == null) return line;
+    return Semantics(
+      button: true,
+      label: [i.text, ?i.why].join('. '),
+      hint: context.l10n.msgCheckOpenKept,
+      excludeSemantics: true,
+      onTap: open,
+      child: EInkWell(key: deskMessageCheckKeptKey, onTap: open, borderRadius: BorderRadius.circular(Rad.sm), child: line),
     );
   }
 }

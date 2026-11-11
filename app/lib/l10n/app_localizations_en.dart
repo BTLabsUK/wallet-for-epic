@@ -14085,9 +14085,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyRefused => 'Not for this wallet, too large or damaged.';
-
-  @override
   String msgCheckItemPairingFailed(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14110,7 +14107,140 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyUnreadable => 'Kept on this device.';
+  String get msgCheckWhyRefusedNothing =>
+      'Not for this wallet, too large or damaged. Nothing to do.';
+
+  @override
+  String get msgCheckWhyPairingFailed =>
+      'It ran out of time or was not accepted. You can pair again.';
+
+  @override
+  String get msgCheckWhyUnreadableOpen =>
+      'Kept on this device. Open it to try again or remove it.';
+
+  @override
+  String get msgCheckOpenKept => 'Show the messages not read';
+
+  @override
+  String get msgKeptTitle => 'Messages not read';
+
+  @override
+  String msgKeptIntro(int days) {
+    return 'A paired contact sent these, but your wallet could not read them. They stay on this device for $days days, then they are removed.';
+  }
+
+  @override
+  String get msgKeptEmpty => 'No messages are waiting here now.';
+
+  @override
+  String get msgKeptLoadFailed =>
+      'Could not load the messages. Close this and try again.';
+
+  @override
+  String msgKeptArrived(String when) {
+    return 'Arrived $when';
+  }
+
+  @override
+  String msgKeptFrom(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String get msgKeptFromUnknown => 'From a paired contact';
+
+  @override
+  String get msgKeptKindPayment => 'Payment';
+
+  @override
+  String get msgKeptKindSlate => 'Payment or invoice';
+
+  @override
+  String get msgKeptKindNotice => 'Contact message';
+
+  @override
+  String get msgKeptKindUnknown => 'Message';
+
+  @override
+  String get msgKeptWhyHold =>
+      'Your wallet tried several times and could not finish it.';
+
+  @override
+  String get msgKeptWhySlate =>
+      'This app version cannot read it. The sender may use a newer or older version, or it was damaged on the way.';
+
+  @override
+  String get msgKeptWhyNotice =>
+      'This app version does not know this kind of message. An update may read it.';
+
+  @override
+  String get msgKeptWhyCap =>
+      'Too many incoming payments are still unfinished. Try again when some have finished.';
+
+  @override
+  String get msgKeptWhyRefused =>
+      'Your wallet turned this payment down, for example because it had expired or was already received.';
+
+  @override
+  String get msgKeptWhyOther => 'Your wallet did not record why.';
+
+  @override
+  String get msgKeptAdvanced => 'For advanced users';
+
+  @override
+  String get msgKeptReasonCode => 'Reason code';
+
+  @override
+  String get msgKeptTries => 'Tries';
+
+  @override
+  String get msgKeptSize => 'Size';
+
+  @override
+  String msgKeptSizeBytes(int count) {
+    return '$count bytes';
+  }
+
+  @override
+  String get msgKeptMessageId => 'Message ID';
+
+  @override
+  String get msgKeptContactId => 'Contact ID';
+
+  @override
+  String get msgKeptAddress => 'Address';
+
+  @override
+  String get msgKeptRetry => 'Try again';
+
+  @override
+  String get msgKeptRemove => 'Remove from this device';
+
+  @override
+  String get msgKeptCopy => 'Copy details';
+
+  @override
+  String get msgKeptCopied => 'Details copied';
+
+  @override
+  String get msgKeptRetried => 'Read. It is no longer kept.';
+
+  @override
+  String get msgKeptStillKept => 'Still not read. It stays here.';
+
+  @override
+  String get msgKeptActionFailed =>
+      'That did not work. Nothing changed; try again.';
+
+  @override
+  String get msgKeptRemoveTitle => 'Remove this message?';
+
+  @override
+  String get msgKeptRemoveBody =>
+      'It is deleted from this device and cannot be read later. The sender is not told.';
+
+  @override
+  String get msgKeptRemoveConfirm => 'Remove';
 
   @override
   String noticeSealedUnopenable(String name) {
@@ -14435,11 +14565,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addrField => 'Address';
 
   @override
-  String addrFieldTyped(String type) {
-    return '$type address';
-  }
-
-  @override
   String get addrAddAnother => 'Add another address';
 
   @override
@@ -14457,11 +14582,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addrReplace => 'Replace it';
-
-  @override
-  String addrDesktopThird(String type) {
-    return 'Paste a $type address, or leave empty';
-  }
 
   @override
   String get epic1AddressAlone =>

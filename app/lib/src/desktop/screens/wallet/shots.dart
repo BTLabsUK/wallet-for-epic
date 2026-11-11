@@ -26,6 +26,7 @@ import '../../../contact_label.dart';
 import '../../../ui/contact_label_mark.dart' show contactLabelMarkKey;
 import '../pairing/add_to_contacts_button.dart' show deskAddToContactsKey, deskAddToContactsNewKey;
 import '../pairing/relay_move_dialog.dart' show DeskRelayMoveDialog;
+import '../../../pairing_api.dart' show KeptMessage;
 import '../../../pairing_fake.dart' show FakePairing;
 import 'contacts_screen.dart';
 import 'contacts_transfer.dart' show deskExportContacts, deskImportContacts;
@@ -111,6 +112,20 @@ Future<void> _checkRunning(ProviderContainer c) async {
 /// A check that read three messages and held, refused or could not read others.
 Future<void> _checkEnded(ProviderContainer c) async {
   await _checks(c).run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome(messages: 3, held: 2, rejected: 1, unreadable: 1, capped: 1));
+}
+
+/// [_checkEnded] with the unread message kept: a payment file from Anna this wallet's version
+/// could not read.
+Future<void> _checkKept(ProviderContainer c) async {
+  final api = mockBehind(c.read(deskApiProvider));
+  if (api != null) {
+    api.pairing.seedPaired(id: 'p-kept-anna', name: 'Anna', paymentsAddress: 'esAnnaKey4XbP2qWnR7tLmV9cJs3dF8hK1gZoE6yUiN5aTrB0wCe@$mockBox');
+    api.pairing.keptList
+      ..clear()
+      ..add(KeptMessage(id: 'q-7f3a9c2e', contactId: 'p-kept-anna', code: 'undecodable_slate', firstSeen: DateTime(2026, 11, 10, 18, 42), attempts: 3, size: 1184));
+    c.invalidate(deskPairingsProvider);
+  }
+  await _checkEnded(c);
 }
 
 /// Several notices of one check: the toast that counts them.
@@ -239,7 +254,19 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '10s-status-epicbox', title: 'Epicbox status popover', route: DeskRoute.overview, prepare: _status('epicbox')),
   DeskShot(id: '10s-status-epicbox-checking', title: 'Epicbox status popover, a message check running', route: DeskRoute.overview, before: _checkRunning, prepare: _status('epicbox')),
   DeskShot(id: '10s-status-epicbox-held', title: 'Epicbox status popover, messages held, refused and kept unread', route: DeskRoute.overview, before: _checkEnded, prepare: _status('epicbox')),
-  DeskShot(id: '10s-status-epicbox-held-open', title: 'Epicbox status popover, the check unfolded', route: DeskRoute.overview, before: _checkEnded, prepare: _status('epicbox'), after: _inPopover('desk-message-check-row')),
+  DeskShot(id: '10s-status-epicbox-held-open', title: 'Epicbox status popover, the check unfolded', route: DeskRoute.overview, before: _checkKept, prepare: _status('epicbox'), after: _inPopover('desk-message-check-row')),
+  DeskShot(
+    id: '10s-status-epicbox-kept',
+    title: 'Messages not read: what each is, why, Try again and Remove',
+    route: DeskRoute.overview,
+    before: _checkKept,
+    prepare: _status('epicbox'),
+    after: (c, ctx) async {
+      await _click(const ValueKey('desk-message-check-row'));
+      await _tapKey(const ValueKey('desk-message-check-kept'));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    },
+  ),
   DeskShot(id: '10s-notice-digest', title: 'One toast for several notices of a check', route: DeskRoute.overview, before: (c) async => _checks(c), prepare: _digest),
   DeskShot(id: '10s-notice-digest-open', title: 'The toast unfolded: one line per kind', route: DeskRoute.overview, before: (c) async => _checks(c), prepare: _digest, after: (c, _) => _click(toastUnfoldKey)),
   DeskShot(id: '10s-status-http', title: 'Link · HTTP status popover', route: DeskRoute.overview, prepare: _status('http')),

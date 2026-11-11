@@ -41,6 +41,9 @@ const int maxContactsFileBytes = 1 << 20;
 /// An address longer than this is none the wallet sends to (an onion URL is under 100).
 const int _addressMax = 512;
 
+/// An epic1 link carries its servers, so it may be longer than an address.
+const int _epic1Max = 2048;
+
 /// `epic-cash-contacts-<yyyy-mm-dd>.json`, dated [day] in local time.
 String contactsExportFileName(DateTime day) {
   String two(int v) => v.toString().padLeft(2, '0');
@@ -69,6 +72,7 @@ String encodeContactsFile(Iterable<ContactFields> contacts, {required String net
           if (c.epicbox != null) 'epicbox': c.epicbox,
           if (c.http != null) 'http': c.http,
           if (c.tor != null) 'tor': c.tor,
+          if (c.epic1 != null) 'epic1': c.epic1,
           if (c.note != null) 'note': c.note,
           'label': ?c.label.stored,
         },
@@ -171,11 +175,12 @@ ContactsFile readContactsFile(List<int> bytes) {
         externalOne: field(row, 'epicbox', _addressMax),
         externalTwo: field(row, 'http', _addressMax),
         onion: field(row, 'tor', _addressMax),
+        epic1: field(row, 'epic1', _epic1Max),
         note: field(row, 'note', 8 * guiContactNoteMax),
         label: ContactLabel.fromStored(row['label']),
       ),
     );
-    if (!row.containsKey('epicbox') && !row.containsKey('http') && !row.containsKey('tor')) nameOnly.add(rows.length - 1);
+    if (!const ['epicbox', 'http', 'tor', 'epic1'].any(row.containsKey)) nameOnly.add(rows.length - 1);
   }
   final network = j['network'];
   return ContactsFile(
@@ -230,18 +235,25 @@ ContactsImportPlan planContactsFile(
   required bool Function(String epicbox) otherChain,
 }) {
   if (file.network != null && file.network != network) throw const ContactsFileError(ContactsFileProblem.otherNetwork);
+  // A contacts.json names no network: an epic1 link of another one is left out.
+  final onNetwork = AddressChecks(
+    epicbox: checks.epicbox,
+    onion: checks.onion,
+    http: checks.http,
+    epic1: (a) => checks.epic1(a) && epic1LinkShaped(a, network: network),
+  );
   // The shared book holds every network's contacts, so a row this wallet cannot send to may
   // already be saved exactly as it is: that one is already here, not left out.
   final savedAddresses = {
     for (final c in saved)
-      for (final a in [c.epicbox, c.http, c.tor])
+      for (final a in [c.epicbox, c.http, c.tor, c.epic1])
         if (a != null) a.trim().toLowerCase(),
   };
   var otherNetwork = 0;
   var savedAsIs = 0;
   for (final row in file.rows) {
-    if (guiContactAddresses(row, checks).byKind.isNotEmpty) continue;
-    final raw = [row.externalOne, row.externalTwo, row.onion].whereType<String>().map((a) => a.trim().toLowerCase());
+    if (guiContactAddresses(row, onNetwork).byKind.isNotEmpty) continue;
+    final raw = [row.externalOne, row.externalTwo, row.onion, row.epic1].whereType<String>().map((a) => a.trim().toLowerCase());
     if (raw.isNotEmpty && raw.every(savedAddresses.contains)) {
       savedAsIs++;
       continue;
@@ -265,7 +277,7 @@ ContactsImportPlan planContactsFile(
     final note = cleanContactNote(row.note);
     named.add(ContactFields(name: name, note: note.isEmpty ? null : note, label: row.label));
   }
-  final plan = planGuiContacts([for (var i = 0; i < file.rows.length; i++) if (!file.nameOnly.contains(i)) file.rows[i]], saved, checks);
+  final plan = planGuiContacts([for (var i = 0; i < file.rows.length; i++) if (!file.nameOnly.contains(i)) file.rows[i]], saved, onNetwork);
   plan.add.addAll(named);
   return ContactsImportPlan(
     plan,

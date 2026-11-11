@@ -3,7 +3,8 @@
 /// row with a quiet icon, the headline ("Checked 2 min ago", live) and, under it, what the
 /// last check found in a few words. A tap unfolds the findings in three groups, Read, Waiting
 /// and Needs a look, each line with its own quiet icon; a tap folds them again. Nothing with a
-/// zero count shows; without findings the row has no chevron and does not open.
+/// zero count shows; without findings the row has no chevron and does not open. The
+/// "could not be read" line opens the kept messages; the other lines are plain text.
 library;
 
 import 'dart:async';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n.dart';
 import '../message_checks.dart';
+import 'kept_messages_sheet.dart';
 import 'message_check_lines.dart';
 import 'theme/tokens.dart';
 
@@ -19,6 +21,7 @@ import 'theme/tokens.dart';
 const Key messageCheckPanelKey = ValueKey('message-check-panel');
 const Key messageCheckRowKey = ValueKey('message-check-row');
 const Key messageCheckDetailsKey = ValueKey('message-check-details');
+const Key messageCheckKeptKey = ValueKey('message-check-kept');
 
 /// How long the unfold takes; the fold takes the same.
 const Duration messageCheckUnfold = Duration(milliseconds: 220);
@@ -168,6 +171,57 @@ class _Details extends StatelessWidget {
     CheckItemKind.unreadable => Icons.visibility_off_outlined,
   };
 
+  /// One finding. The unreadable line opens the kept messages (what each is, why, Try again,
+  /// Remove); the other lines have nothing to do and are plain text.
+  Widget _item(BuildContext context, CheckItem i, CheckGroup g) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final text = Theme.of(context).textTheme;
+    final opens = i.kind == CheckItemKind.unreadable;
+    final line = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(_icon(i.kind), size: 18, color: g == CheckGroup.problems ? t.warn : t.dim),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(i.text, style: text.bodyMedium),
+                if (i.why case final why?) Text(why, style: text.bodySmall?.copyWith(color: t.dim)),
+              ],
+            ),
+          ),
+          if (opens) ...[
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right, size: 20, color: t.dim),
+          ],
+        ],
+      ),
+    );
+    if (!opens) return line;
+    void open() => unawaited(showKeptMessagesSheet(context));
+    return Semantics(
+      key: messageCheckKeptKey,
+      button: true,
+      label: [i.text, ?i.why].join('. '),
+      hint: l.msgCheckOpenKept,
+      excludeSemantics: true,
+      onTap: open,
+      child: InkWell(
+        onTap: open,
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 48), child: line),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -189,30 +243,7 @@ class _Details extends StatelessWidget {
                 style: text.labelSmall?.copyWith(color: g == CheckGroup.problems ? t.warn : t.dim, letterSpacing: 0.8),
               ),
             ),
-            for (final i in view.of(g))
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 1),
-                      child: Icon(_icon(i.kind), size: 18, color: g == CheckGroup.problems ? t.warn : t.dim),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(i.text, style: text.bodyMedium),
-                          if (i.why case final why?) Text(why, style: text.bodySmall?.copyWith(color: t.dim)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            for (final i in view.of(g)) _item(context, i, g),
           ],
         ],
       ),

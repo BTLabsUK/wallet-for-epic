@@ -171,6 +171,27 @@ class MessageChecks {
     }
   }
 
+  /// Sets how many messages the wallet keeps unread, after the user tried them again or
+  /// removed one, without a new check.
+  void setUnreadable(int count) {
+    final o = _outcomes[CheckSource.collect] ?? const CheckOutcome();
+    if (o.unreadable == count) return;
+    _outcomes[CheckSource.collect] = CheckOutcome(
+      received: o.received,
+      finalized: o.finalized,
+      bounced: o.bounced,
+      held: o.held,
+      rejected: o.rejected,
+      dropped: o.dropped,
+      messages: o.messages,
+      failed: o.failed,
+      unreadable: count,
+      buffered: o.buffered,
+      capped: o.capped,
+    );
+    _publish();
+  }
+
   void _begin() {
     _active++;
     if (_active == 1) {

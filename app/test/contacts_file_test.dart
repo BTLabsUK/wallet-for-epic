@@ -16,6 +16,9 @@ final String _tom = 'es${'b' * 50}@epicbox.epicnet.us';
 final String _floonet = 'zz${'c' * 50}@epicbox.btlabs.uk';
 final String _onion = '${'t' * 55}d.onion';
 const String _http = 'https://pay.example.net:3415';
+final String _link = 'epic:epic1${'q' * 58}?epicbox=epicbox.epiccash.com';
+final String _otherLink = 'epic:epic1${'r' * 58}?epicbox=epicbox.epiccash.com';
+final String _testLink = 'epic:tepic1${'s' * 58}?epicbox=epicbox.btlabs.uk';
 
 final _checks = AddressChecks(
   epicbox: (a) => RegExp(r'^es[1-9A-HJ-NP-Za-km-z]{50}@[a-z0-9.]+(:\d+)?$').hasMatch(a),
@@ -185,6 +188,53 @@ void main() {
     expect(c.name.runes.length, lessThanOrEqualTo(guiContactNameMax));
     expect(c.name, startsWith('Anna '));
     expect(c.note!.length, guiContactNoteMax);
+  });
+
+  group('epic1 links', () {
+    test('travel in the export and come back on import', () {
+      final file = utf8.encode(encodeContactsFile([
+        ContactFields(id: 'a', name: 'Anna', epicbox: _anna, epic1: _link),
+        ContactFields(id: 'b', name: 'Link only', epic1: _otherLink),
+      ], network: 'mainnet', now: DateTime.utc(2026, 11, 11)));
+      final rows = (jsonDecode(utf8.decode(file)) as Map<String, dynamic>)['contacts'] as List;
+      expect(rows, [
+        {'name': 'Anna', 'epicbox': _anna, 'epic1': _link},
+        {'name': 'Link only', 'epic1': _otherLink},
+      ]);
+      final plan = _plan(file, const []);
+      expect(plan.add.map((c) => (c.name, c.epicbox, c.epic1)), [('Anna', _anna, _link), ('Link only', null, _otherLink)]);
+      expect(_plan(file, [for (final c in plan.add) c.copyWith(id: c.name)]).hasChanges, isFalse);
+    });
+
+    test('a saved contact gains the link it lacks; a different link is kept as its own contact', () {
+      final file = _file({
+        'version': 1,
+        'contacts': [
+          {'name': 'Anna', 'epicbox': _anna, 'epic1': _link},
+          {'name': 'Tom', 'epicbox': _tom, 'epic1': _otherLink},
+        ],
+      });
+      final plan = _plan(file, [
+        ContactFields(id: 'a', name: 'Anna', epicbox: _anna),
+        ContactFields(id: 't', name: 'Tom', epicbox: _tom, epic1: _link.replaceFirst('q', 'z')),
+      ]);
+      expect(plan.update.single, ContactFields(id: 'a', name: 'Anna', epicbox: _anna, epic1: _link));
+      // Tom's saved link stays; the file's link is not dropped.
+      expect(plan.add.map((c) => (c.name, c.epicbox, c.epic1)), [('Tom', null, _otherLink)]);
+    });
+
+    test("another network's link, or one that is no link, is left out", () {
+      final file = _file({
+        'version': 1,
+        'contacts': [
+          {'name': 'Floonet', 'epic1': _testLink},
+          {'name': 'Bare', 'epic1': 'epic1${'q' * 58}'},
+        ],
+      });
+      final plan = _plan(file, const []);
+      expect(plan.add, isEmpty);
+      expect(plan.leftOut, 2);
+    });
   });
 
   group('refusals', () {

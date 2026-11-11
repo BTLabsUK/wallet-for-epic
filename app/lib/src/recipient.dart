@@ -62,6 +62,17 @@ bool epic1AddressOnly(String text) {
 
 bool epic1Bare(String text) => _epic1Bare.hasMatch(text.trim().toLowerCase());
 
+/// Whether [text] has the shape of an epic1 link a contact holds (`epic:epic1…`), with no
+/// whitespace; of [network] when one is named (`tepic1` off mainnet). A contacts file and a
+/// backup are read with it: the editor checked the link with LEPIC when it was saved.
+bool epic1LinkShaped(String text, {String? network}) {
+  final t = text.trim().toLowerCase();
+  if (t.length > 2048 || t.contains(RegExp(r'\s')) || !_epic1Link.hasMatch(t)) return false;
+  if (network == null) return true;
+  final test = t.startsWith(RegExp(r'epic:(//)?tepic1'));
+  return network == 'mainnet' ? !test : test;
+}
+
 final RegExp _epicboxShape = RegExp(
   r'^[1-9A-HJ-NP-Za-km-z]{40,}(?:@[^@\s]+)?$',
 );
