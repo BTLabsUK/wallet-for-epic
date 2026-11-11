@@ -7,15 +7,13 @@ library;
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart' show logInfo;
 import '../wallet_backend.dart' show hostIsPhone;
+import '../ui/qr_camera.dart' show fakeCameraMode;
 import 'desktop_camera.dart' show createDesktopCameraProbe;
-
-/// `--dart-define=WFE_FAKE_CAMERA=<value>` in a debug build (qr_camera.dart's `fakeCameraMode`):
-/// `none` and `unsupported` are this probe's answer, every other value is present.
-const String _fakeCameraMode = kDebugMode ? String.fromEnvironment('WFE_FAKE_CAMERA') : '';
 
 /// What the probe found.
 enum CameraPresence {
@@ -45,6 +43,12 @@ abstract class CameraProbe {
   Future<CameraPresence> probe();
 }
 
+/// A probe that says why its last answer is what it is, for the log: the support library that
+/// did not load, a missing media feature, an error code. Never a device name or path.
+abstract interface class CameraProbeReason {
+  String? get lastReason;
+}
+
 /// A probe that answers [presence], counting its calls.
 class FakeCameraProbe implements CameraProbe {
   FakeCameraProbe([this.presence = CameraPresence.present]);
@@ -70,8 +74,10 @@ class NoCameraProbe implements CameraProbe {
 /// The probe of this host: the desktops list their cameras (desktop_qr_camera.dart), the
 /// phones keep their own scanner and the web has none.
 final cameraProbeProvider = Provider<CameraProbe>((ref) {
-  if (_fakeCameraMode.isNotEmpty) {
-    return FakeCameraProbe(switch (_fakeCameraMode) {
+  // `WFE_FAKE_CAMERA` in a debug build: `none` and `unsupported` are this probe's answer, every
+  // other value is present.
+  if (fakeCameraMode.isNotEmpty) {
+    return FakeCameraProbe(switch (fakeCameraMode) {
       'none' => CameraPresence.none,
       'unsupported' => CameraPresence.unsupported,
       _ => CameraPresence.present,
@@ -105,13 +111,21 @@ class CameraPresenceNotifier extends Notifier<CameraPresence> {
 
   Future<CameraPresence> _probe() async {
     CameraPresence found;
+    String? reason;
     try {
-      found = await ref.read(cameraProbeProvider).probe();
-    } on Object {
+      final probe = ref.read(cameraProbeProvider);
+      found = await probe.probe();
+      if (probe case final CameraProbeReason said) reason = said.lastReason;
+    } on Object catch (e) {
       found = CameraPresence.none;
+      reason = e.runtimeType.toString();
     }
     _running = null;
-    if (ref.mounted) state = found;
+    if (ref.mounted) {
+      // The first answer too: it replaces `unknown`, which no probe answers.
+      if (found != state) logInfo('camera', 'presence: ${found.name}${reason == null ? '' : ' ($reason)'}');
+      state = found;
+    }
     return found;
   }
 }

@@ -545,5 +545,41 @@ void main() {
       expect(await probeWith((p) => p.listError = MissingPluginException()), CameraPresence.none);
       expect(plugin.opened, isEmpty);
     });
+
+    test('says why, without paths', () async {
+      final probe = DesktopCameraProbe(plugin);
+      plugin.listError = CameraDesktopException(
+        CameraDesktopErrorCode.unsupported,
+        'camera support library did not load: /home/someone/app/lib/libcamera_desktop_impl.so: cannot open shared object file',
+      );
+      expect(await probe.probe(), CameraPresence.unsupported);
+      expect(probe.lastReason, 'camera support library did not load: libcamera_desktop_impl.so: cannot open shared object file');
+      plugin.listError = CameraDesktopException('failed', 'open', {'errno': 5});
+      expect(await probe.probe(), CameraPresence.none);
+      expect(probe.lastReason, 'code failed, EIO');
+      plugin.listError = null;
+      expect(await probe.probe(), CameraPresence.present);
+      expect(probe.lastReason, isNull);
+    });
+  });
+
+  group('the log line', () {
+    test('names the problem, the errno, the HRESULT or the check', () {
+      expect(scanProblemLine(QrCameraProblem.busy, code: 'busy', details: {'errno': 16}), 'scan problem: busy (EBUSY)');
+      expect(scanProblemLine(QrCameraProblem.denied, code: 'denied', details: {'hresult': 0x80070005}), 'scan problem: denied (HRESULT 0x80070005)');
+      expect(scanProblemLine(QrCameraProblem.failed, code: 'failed', details: {'hresult': -2147024891}), 'scan problem: failed (HRESULT 0x80070005)');
+      expect(
+        scanProblemLine(QrCameraProblem.failed, code: 'odd', details: {'domain': 'gst-resource-error-quark', 'code': 3, 'errno': 71}),
+        'scan problem: failed (code odd, errno 71, gst-resource-error-quark 3)',
+      );
+      expect(scanProblemLine(QrCameraProblem.noPicture, why: 'same picture'), 'scan problem: noPicture (same picture)');
+      expect(scanProblemLine(QrCameraProblem.dark), 'scan problem: dark');
+    });
+
+    test('drops device paths and directories', () {
+      expect(scrubbed('cannot open /dev/video0 for USB Cam'), 'cannot open device for USB Cam');
+      expect(scrubbed(r'missing C:\Windows\System32\mf.dll'), 'missing mf.dll');
+      expect(scrubbed('x' * 200).length, 160);
+    });
   });
 }

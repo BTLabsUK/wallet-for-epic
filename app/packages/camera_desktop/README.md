@@ -15,7 +15,8 @@ Epic Wallet's desktop QR scanner. `example/`, `android/`, `ios/` and `linux/test
 - **Error codes.** Method errors and `cameraError` carry a code: `denied`, `busy`, `unplugged`, `no_device`,
   `no_picture` (no frames in time), `unsupported`, or `failed` with the errno, GError or HRESULT in the details. They
   come from the platform's error codes and the device's state, never from message text. In Dart the event is
-  `CameraDesktopErrorEvent` (with `code` and `details`); the codes are in `CameraDesktopErrorCode`.
+  `CameraDesktopErrorEvent` (with `code` and `details`); the codes are in `CameraDesktopErrorCode`. Method errors throw
+  `CameraDesktopException`, a `CameraException` that keeps the `details`.
 - **Enumeration.** `listDevices()` returns `CameraDesktopDevice`s with `denied` (Linux: a `/dev/video*` node that
   cannot be opened, named from sysfs; macOS: access denied or restricted; Windows: the privacy consent store) and
   `builtIn` (macOS built-in wide-angle camera; Windows front panel). Enumeration never streams.

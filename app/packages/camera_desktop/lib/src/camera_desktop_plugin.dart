@@ -46,6 +46,16 @@ class CameraDesktopErrorEvent extends CameraErrorEvent {
   final Object? details;
 }
 
+/// A [CameraException] from a native method error, keeping its [details]
+/// (errno, HRESULT, error domain) for logs.
+class CameraDesktopException extends CameraException {
+  /// Creates the exception for the native [code].
+  CameraDesktopException(super.code, super.description, [this.details]);
+
+  /// The native specifics, as [CameraDesktopErrorEvent.details].
+  final Object? details;
+}
+
 /// A camera as the native side lists it, with what [CameraDescription] has no
 /// room for.
 class CameraDesktopDevice {
@@ -228,7 +238,7 @@ class CameraDesktopPlugin extends CameraPlatform {
     try {
       result = await _channel.invokeListMethod<Map<dynamic, dynamic>>('availableCameras');
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
     if (result == null) return const <CameraDesktopDevice>[];
     return result.map((Map<dynamic, dynamic> m) {
@@ -306,7 +316,7 @@ class CameraDesktopPlugin extends CameraPlatform {
       _textureIds[cameraId] = textureId;
       return cameraId;
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -335,7 +345,7 @@ class CameraDesktopPlugin extends CameraPlatform {
       _eventStreamController.add(
         CameraDesktopErrorEvent(cameraId, e.message ?? 'Initialization failed', code: e.code, details: e.details),
       );
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -421,7 +431,7 @@ class CameraDesktopPlugin extends CameraPlatform {
     try {
       await _channel.invokeMethod<void>('pausePreview', {'cameraId': cameraId});
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -432,7 +442,7 @@ class CameraDesktopPlugin extends CameraPlatform {
         'cameraId': cameraId,
       });
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -453,7 +463,7 @@ class CameraDesktopPlugin extends CameraPlatform {
       });
     } on MissingPluginException catch (_) {
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -523,7 +533,7 @@ class CameraDesktopPlugin extends CameraPlatform {
           );
         } on PlatformException catch (e) {
           if (identical(_activeImageStreams[cameraId], current)) _activeImageStreams.remove(cameraId);
-          if (!controller.isClosed) controller.addError(CameraException(e.code, e.message));
+          if (!controller.isClosed) controller.addError(CameraDesktopException(e.code, e.message, e.details));
           return;
         }
         final handle = extractStreamHandle(value);
@@ -594,7 +604,7 @@ class CameraDesktopPlugin extends CameraPlatform {
       });
       return XFile(path!);
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -625,7 +635,7 @@ class CameraDesktopPlugin extends CameraPlatform {
           'maxVideoDuration': maxVideoDuration.inMilliseconds,
       });
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 
@@ -649,7 +659,7 @@ class CameraDesktopPlugin extends CameraPlatform {
       }
       return XFile(path);
     } on PlatformException catch (e) {
-      throw CameraException(e.code, e.message);
+      throw CameraDesktopException(e.code, e.message, e.details);
     }
   }
 

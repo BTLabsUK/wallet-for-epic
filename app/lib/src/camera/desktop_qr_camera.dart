@@ -20,6 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_zxing/flutter_zxing.dart' as zxing show zx;
 
+import '../app_log.dart' show logWarn;
 import '../ui/qr_camera.dart';
 import '../ui/scanner_backend.dart' show CameraHolder, CameraTurns, ScannerLifecycle, readFrame;
 import 'camera_presence.dart';
@@ -47,6 +48,56 @@ QrCameraProblem problemOfCode(String code) => switch (code) {
   CameraDesktopErrorCode.unsupported => QrCameraProblem.unsupported,
   _ => QrCameraProblem.failed,
 };
+
+const Map<int, String> _errnoNames = {
+  1: 'EPERM',
+  2: 'ENOENT',
+  5: 'EIO',
+  6: 'ENXIO',
+  13: 'EACCES',
+  16: 'EBUSY',
+  19: 'ENODEV',
+  22: 'EINVAL',
+  110: 'ETIMEDOUT',
+};
+
+/// The native specifics of a plugin error, for the log: the errno by name (`EBUSY`), the
+/// HRESULT (`HRESULT 0x80070005`), the GError or NSError domain and code. Null when [details]
+/// carries none of them.
+String? nativeDetail(Object? details) {
+  if (details is! Map) return null;
+  final parts = <String>[];
+  if (details['errno'] case final int errno when errno != 0) parts.add(_errnoNames[errno] ?? 'errno $errno');
+  if (details['hresult'] case final int hr) parts.add('HRESULT 0x${(hr & 0xFFFFFFFF).toRadixString(16).toUpperCase().padLeft(8, '0')}');
+  if (details['domain'] case final String domain when domain.isNotEmpty) {
+    parts.add(details['code'] is int ? '${scrubbed(domain)} ${details['code']}' : scrubbed(domain));
+  }
+  return parts.isEmpty ? null : parts.join(', ');
+}
+
+/// [text] fit for the log: device paths dropped, every other path cut to its last part (a
+/// library's file name), at most 160 characters.
+String scrubbed(String text) {
+  var out = text
+      .replaceAll(RegExp(r'/dev/\S+'), 'device')
+      .replaceAll(RegExp(r'(?:/[^\s:/]+)+/'), '')
+      .replaceAll(RegExp(r'[A-Za-z]:\\(?:[^\s:\\]+\\)*'), '')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+  if (out.length > 160) out = '${out.substring(0, 157)}...';
+  return out;
+}
+
+/// The log line of a scan that stopped on [problem]: `scan problem: busy (EBUSY)`, the native
+/// [code] when it says more than the problem, its [details], and the check that saw it ([why]).
+String scanProblemLine(QrCameraProblem problem, {String? code, Object? details, String? why}) {
+  final parts = [
+    ?why,
+    if (code != null && code != problem.name && problemOfCode(code) == QrCameraProblem.failed) 'code ${scrubbed(code)}',
+    ?nativeDetail(details),
+  ];
+  return 'scan problem: ${problem.name}${parts.isEmpty ? '' : ' (${parts.join(', ')})'}';
+}
 
 /// The node number of a Linux camera, from the name the plugin gives it ("Name (/dev/video2)").
 int? videoNode(String name) {
@@ -229,15 +280,15 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
     CameraTurns.take(this);
     _lifecycle.watch();
     _set(_state.copyWith(clearProblem: true));
-    run.firstFrame = Timer(timings.firstFrame, () => _fail(run, QrCameraProblem.noPicture));
+    run.firstFrame = Timer(timings.firstFrame, () => _fail(run, QrCameraProblem.noPicture, why: 'no first frame'));
     await CameraTurns.free;
     if (run.over) return;
     try {
       final devices = await _plugin.listDevices();
       if (run.over) return;
-      if (devices.isEmpty) return _fail(run, QrCameraProblem.unplugged);
+      if (devices.isEmpty) return _fail(run, QrCameraProblem.unplugged, why: 'no camera listed');
       final device = chooseCamera(devices);
-      if (device == null) return _fail(run, QrCameraProblem.denied);
+      if (device == null) return _fail(run, QrCameraProblem.denied, why: 'every camera denied');
       run.node = videoNode(device.description.name);
       final id = await _plugin.createCameraWithSettings(
         device.description,
@@ -247,10 +298,16 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
       if (run.over) return _releaseLate(run);
       run.subscriptions
         ..add(
-          _plugin.onCameraError(id).listen((e) => _fail(run, e is CameraDesktopErrorEvent ? problemOfCode(e.code) : QrCameraProblem.failed)),
+          _plugin
+              .onCameraError(id)
+              .listen(
+                (e) => e is CameraDesktopErrorEvent
+                    ? _fail(run, problemOfCode(e.code), code: e.code, details: e.details)
+                    : _fail(run, QrCameraProblem.failed, why: 'camera error'),
+              ),
         )
         // The plugin sends this when the native side lets the camera go by itself.
-        ..add(_plugin.onCameraClosing(id).listen((_) => _fail(run, QrCameraProblem.unplugged)))
+        ..add(_plugin.onCameraClosing(id).listen((_) => _fail(run, QrCameraProblem.unplugged, why: 'camera closed')))
         ..add(
           _plugin.onCameraInitialized(id).listen((e) {
             if (!run.over) _picture.value = _Picture(id, Size(e.previewWidth, e.previewHeight));
@@ -260,15 +317,15 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
       if (run.over) return;
       _picture.value ??= _Picture(id, null);
     } on CameraException catch (e) {
-      return _fail(run, problemOfCode(e.code));
-    } on Object {
+      return _fail(run, problemOfCode(e.code), code: e.code, details: e is CameraDesktopException ? e.details : null);
+    } on Object catch (e) {
       // No plugin on this host (MissingPluginException), or a reply it should not give.
-      return _fail(run, QrCameraProblem.failed);
+      return _fail(run, QrCameraProblem.failed, why: e.runtimeType.toString());
     }
     try {
       await reader.start();
-    } on Object {
-      return _fail(run, QrCameraProblem.readerFailed);
+    } on Object catch (e) {
+      return _fail(run, QrCameraProblem.readerFailed, why: 'reader start ${e.runtimeType}');
     }
     run.reading = true;
     if (run.over) return _releaseLate(run);
@@ -278,7 +335,9 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
           .onStreamedFrameAvailable(run.cameraId!)
           .listen(
             (frame) => _onFrame(run, frame),
-            onError: (Object e) => _fail(run, e is CameraException ? problemOfCode(e.code) : QrCameraProblem.failed),
+            onError: (Object e) => e is CameraException
+                ? _fail(run, problemOfCode(e.code), code: e.code, details: e is CameraDesktopException ? e.details : null)
+                : _fail(run, QrCameraProblem.failed, why: 'frame stream ${e.runtimeType}'),
           ),
     );
   }
@@ -295,7 +354,10 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
       run.frozen = null;
       run.last = null;
       run.dark ??= Timer(timings.dark, () {
-        if (!run.over && _state.problem == null) _set(_state.copyWith(problem: QrCameraProblem.dark));
+        if (run.over || _state.problem != null) return;
+        // Once per dark spell: the timer runs again only after a picture came back.
+        logWarn('camera', scanProblemLine(QrCameraProblem.dark));
+        _set(_state.copyWith(problem: QrCameraProblem.dark));
       });
       return;
     }
@@ -306,7 +368,7 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
     if (last == null || !look.same(last)) {
       run.last = look;
       run.frozen?.cancel();
-      run.frozen = Timer(timings.frozen, () => _fail(run, QrCameraProblem.noPicture));
+      run.frozen = Timer(timings.frozen, () => _fail(run, QrCameraProblem.noPicture, why: 'same picture'));
     }
     if (run.decodeDue && !run.decoding) _decode(run, frame);
   }
@@ -325,7 +387,7 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
         run.decoding = false;
         if (run.over) return;
         // One bad frame is not a broken reader; three in a row are.
-        if (++run.readerErrors >= 3) _fail(run, QrCameraProblem.readerFailed);
+        if (++run.readerErrors >= 3) _fail(run, QrCameraProblem.readerFailed, why: 'three read errors');
       },
     );
   }
@@ -334,12 +396,14 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
   void _onStall(_Run run) {
     final node = run.node;
     final gone = node != null && !_nodeExists('/dev/video$node');
-    _fail(run, gone ? QrCameraProblem.unplugged : QrCameraProblem.noPicture);
+    _fail(run, gone ? QrCameraProblem.unplugged : QrCameraProblem.noPicture, why: gone ? 'node gone' : 'frames stopped');
   }
 
-  /// The first final problem of [run] wins: the camera is given back and stays off.
-  void _fail(_Run run, QrCameraProblem problem) {
+  /// The first final problem of [run] wins: the camera is given back and stays off. One log
+  /// line says why: the plugin's [code] and [details], or the check that saw it ([why]).
+  void _fail(_Run run, QrCameraProblem problem, {String? code, Object? details, String? why}) {
     if (run.over || _closed) return;
+    logWarn('camera', scanProblemLine(problem, code: code, details: details, why: why));
     unawaited(_release(run));
     _lifecycle.stop();
     _set(_state.copyWith(problem: problem));
@@ -453,21 +517,30 @@ class DesktopQrCamera extends ChangeNotifier implements QrCamera, CameraHolder {
   }
 }
 
-/// Lists the cameras, never opens one: no camera light.
-class DesktopCameraProbe implements CameraProbe {
+/// Lists the cameras, never opens one: no camera light. [lastReason] says why the answer is
+/// unsupported or none after an error: the library or media feature that is missing, the code.
+class DesktopCameraProbe implements CameraProbe, CameraProbeReason {
   DesktopCameraProbe([CameraDesktopPlugin? plugin]) : _plugin = plugin;
 
   final CameraDesktopPlugin? _plugin;
 
   @override
+  String? lastReason;
+
+  @override
   Future<CameraPresence> probe() async {
+    lastReason = null;
     try {
       final devices = await (_plugin ?? desktopCameraPlugin()).listDevices();
       if (devices.isEmpty) return CameraPresence.none;
       return devices.any((d) => !d.denied) ? CameraPresence.present : CameraPresence.denied;
     } on CameraException catch (e) {
-      return e.code == CameraDesktopErrorCode.unsupported ? CameraPresence.unsupported : CameraPresence.none;
-    } on Object {
+      final unsupported = e.code == CameraDesktopErrorCode.unsupported;
+      final detail = e is CameraDesktopException ? nativeDetail(e.details) : null;
+      lastReason = unsupported ? scrubbed(e.description ?? e.code) : ['code ${scrubbed(e.code)}', ?detail].join(', ');
+      return unsupported ? CameraPresence.unsupported : CameraPresence.none;
+    } on Object catch (e) {
+      lastReason = e.runtimeType.toString();
       return CameraPresence.none;
     }
   }
