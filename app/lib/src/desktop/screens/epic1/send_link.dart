@@ -393,6 +393,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
                     ),
                   ),
                 ),
+                if (empty && !_reading) const DeskNoCameraLine(),
                 if (_errorSettings) ...[
                   SizedBox(height: Sp.x2),
                   Align(

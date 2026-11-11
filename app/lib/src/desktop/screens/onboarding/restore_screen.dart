@@ -352,6 +352,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           SizedBox(height: Sp.x3),
           PhraseGrid(entry: e, autofocus: true, onSubmit: _toAccount, firstId: TrustIds.restorePhrase),
           SizedBox(height: Sp.x3),
+          const DeskNoCameraLine(),
           // One line, always there, so the grid never moves when the verdict changes.
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),

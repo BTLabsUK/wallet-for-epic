@@ -348,6 +348,7 @@ class _DeskInPersonCodeDialogState extends ConsumerState<DeskInPersonCodeDialog>
             DeskInPersonOnlineLine(online: watch)
           else
             Semantics(liveRegion: true, child: Text(l.deskIpWaiting, style: ts.bodyDim)),
+          if (watch.manual) const DeskNoCameraLine(),
           if (paste != null) ...[
             SizedBox(height: Sp.x3),
             ENotice(tone: ETone.risk, icon: EIcons.error, title: paste),

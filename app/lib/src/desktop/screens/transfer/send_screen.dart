@@ -55,7 +55,6 @@ import 'file_panels.dart';
 import 'finalize_screen.dart' show FinalizeArgs;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'qr_payment.dart';
-import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
@@ -2385,6 +2384,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
                     ),
             ),
           ),
+          if (picked == null && _to.text.isEmpty) const DeskNoCameraLine(),
           if (matches.isNotEmpty) ...[
             SizedBox(height: Sp.x2),
             _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => _bestAddress(x, st), pairingOf: (x) => contactPairingOnly(ref, x)),

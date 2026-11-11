@@ -4,6 +4,7 @@
 import 'package:epic_wallet/src/camera/camera_presence.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -56,6 +57,15 @@ void main() {
   testWidgets('Send: Scan is greyed out with no camera', (tester) async {
     await _show(tester, SendScreen(arg: const SendArgs()), presence: CameraPresence.none);
     expect(_enabled(tester), isFalse);
+    expect(find.text(_l.deskScanNoCamera), findsOneWidget);
+  });
+
+  testWidgets('Home: the labelled Scan is greyed out with no camera and enabled with one', (tester) async {
+    await _show(tester, const OverviewScreen(), presence: CameraPresence.none);
+    final off = find.byKey(const ValueKey('home-scan'));
+    expect(off, findsOneWidget);
+    expect(find.descendant(of: off, matching: find.text(_l.deskOvScan)), findsOneWidget);
+    expect(tester.widget<EButton>(find.descendant(of: off, matching: find.byType(EButton))).onPressed, isNull);
   });
 
   testWidgets('Restore: a scanned phrase fills the grid like a paste', (tester) async {

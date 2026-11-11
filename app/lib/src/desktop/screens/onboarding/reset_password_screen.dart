@@ -319,6 +319,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         children: [
           PhraseGrid(entry: e, autofocus: true, onSubmit: complete && !_checking ? _toPassword : null),
           SizedBox(height: Sp.x3),
+          const DeskNoCameraLine(),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),
             child: status == null ? null : Semantics(

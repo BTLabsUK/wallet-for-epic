@@ -168,7 +168,7 @@ void main() {
 
   group('in person', () {
     Future<_TwoParts> waiting(WidgetTester tester) async {
-      final fake = _TwoParts(on: true);
+      final fake = _TwoParts(on: true)..inPersonNoMailbox = true;
       await _show(tester, Builder(builder: (c) => TextButton(onPressed: () => openDeskPayInPerson(c), child: const Text('pay'))), api: _Mock(fake));
       await tester.tap(find.text('pay'));
       await _settle(tester);

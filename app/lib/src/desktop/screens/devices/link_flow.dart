@@ -390,6 +390,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
             ),
           ),
         ),
+        const DeskNoCameraLine(),
       ],
     );
   }

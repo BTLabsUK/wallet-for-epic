@@ -1311,6 +1311,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                   ),
           ),
         ),
+        if (kind == null && empty) const DeskNoCameraLine(),
         if (f.clash != null) ...[
           SizedBox(height: Sp.x2),
           Wrap(
