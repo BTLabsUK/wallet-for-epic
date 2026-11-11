@@ -2871,7 +2871,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…), eine Onion-Adresse (….onion) oder einen epic1-Link (epic:epic1…).';
 
   @override
   String get settingsTitle => 'Einstellungen';
@@ -7549,7 +7549,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…), eine Onion-Adresse (….onion) oder einen epic1-Link (epic:epic1…).';
 
   @override
   String get deskConAddPicture => 'Bild hinzufügen';
@@ -14613,6 +14613,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get epic1AddressAlone =>
+      'Eine epic1-Adresse allein kann nicht bezahlt werden. Fügen Sie den epic1-Link ein.';
+
+  @override
+  String get addrPasteAnother => 'Weitere Adresse einfügen oder leer lassen';
+
+  @override
   String get pendingTitle => 'Offene Einladungen';
 
   @override
@@ -16698,7 +16705,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server) oder eine Link-Adresse (https://…).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder einen epic1-Link (epic:epic1…).';
 
   @override
   String get handshakeLink1NoTor =>

@@ -19,6 +19,7 @@ AddressVerdict _check(Recipient to) => switch (to.kind) {
   RecipientKind.epicbox => fakeEpicboxAddress(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
   RecipientKind.tor => onionAddressFormat(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
   RecipientKind.http => httpAddressComplete(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
+  RecipientKind.epic1 => AddressVerdict.invalid,
 };
 
 ScannedCode _scan(String text) => classifyScan(text, check: _check);

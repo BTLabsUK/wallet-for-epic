@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/recipient.dart';
 import 'package:epic_wallet/src/ui/common.dart' show txRowMethod, txTitle;
 import 'package:epic_wallet/src/ui/contact_page.dart';
+import 'package:epic_wallet/src/ui/method_icons.dart';
 import 'package:epic_wallet/src/ui/method_names.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
@@ -36,7 +37,7 @@ void main() {
         ], names);
         expect([
           for (final k in RecipientKind.values) recipientMethodWord(l, k),
-        ], [names[0], names[2], names[1]], reason: 'enum order: epicbox, tor, http');
+        ], [names[0], names[2], names[1], MethodIcons.epic1Name(l, Epic1Via.link)], reason: 'enum order: epicbox, tor, http, epic1');
       });
     }
 

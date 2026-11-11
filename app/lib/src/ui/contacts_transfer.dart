@@ -30,7 +30,7 @@ import 'method_names.dart' show recipientMethodWord;
 const Key contactsImportDoKey = ValueKey('contacts-import-do');
 
 ContactFields _fields(Contact c) =>
-    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: c.label);
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, epic1: c.epic1, note: c.note, label: c.label);
 
 /// Writes the address book to a file and hands it over. Returns true once saved or shared.
 Future<bool> exportContacts(BuildContext context, WidgetRef ref) async {

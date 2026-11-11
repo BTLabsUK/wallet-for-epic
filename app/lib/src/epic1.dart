@@ -14,6 +14,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'models.dart';
+import 'recipient.dart' show epic1AddressOnly, epic1Shaped;
 import 'wallet_service.dart' show WalletSession, fakeTx;
 
 /// Which payment UI a wallet shows: today's ([classic]) or epic1 only ([epic1]).
@@ -406,10 +407,7 @@ extension Epic1Of on WalletSession {
 /// Whether [text] looks like an epic1 link (`epic:epic1…` or a bare `epic1…` address; `tepic1`
 /// on the test network), for the mode lines ("epic1 link. Turn on epic1 payments to pay it.").
 /// LEPIC's [Epic1Wallet.readLink] is the real check.
-bool looksLikeEpic1Link(String text) {
-  final t = text.trim().toLowerCase();
-  return RegExp(r'^epic:(//)?t?epic1').hasMatch(t) || RegExp(r'^t?epic1[0-9a-z]{20,}').hasMatch(t);
-}
+bool looksLikeEpic1Link(String text) => epic1Shaped(text);
 
 /// [text] cut in the middle to [keep] characters: the scheme and start, then the end.
 String shortMiddle(String text, {int keep = 44}) {
@@ -495,7 +493,14 @@ class FakeEpic1 implements Epic1Wallet {
   @override
   Future<Epic1LinkInfo> readLink(String link) async {
     _call('readLink');
-    if (!looksLikeEpic1Link(link)) throw const WalletError(kind: WalletErrorKind.notAnEpic1Link, message: 'not an epic1 link');
+    // As LEPIC: only an `epic:` link parses; one with no query names no server, so cannot be
+    // paid. A link with a query reaches [linkHosts].
+    if (!looksLikeEpic1Link(link) || !link.trim().toLowerCase().startsWith('epic:')) {
+      throw const WalletError(kind: WalletErrorKind.notAnEpic1Link, message: 'not an epic1 link');
+    }
+    if (epic1AddressOnly(link)) {
+      throw const WalletError(kind: WalletErrorKind.epic1CannotPay, message: 'the link names no server');
+    }
     final amount = RegExp(r'amount=(\d+)').firstMatch(link)?[1];
     return Epic1LinkInfo(address: link.split('?').first.replaceFirst('epic:', ''), amount: amount == null ? null : BigInt.parse(amount), hosts: linkHosts);
   }

@@ -697,6 +697,7 @@ class Contact {
     String? epicbox,
     String? http,
     String? tor,
+    String? epic1,
     this.note,
     this.label = ContactLabel.wallet,
     this.favourite = false,
@@ -704,7 +705,8 @@ class Contact {
     this.hasPicture = false,
   }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
        http = _blank(http) ?? _ofKind(address, RecipientKind.http),
-       tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
+       tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor),
+       epic1 = _blank(epic1) ?? _ofKind(address, RecipientKind.epic1);
 
   static String? _blank(String? s) => s == null || s.trim().isEmpty ? null : s;
 
@@ -734,23 +736,32 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
+  /// An epic1 link, `epic:epic1…?epicbox=…`, paid in epic1 mode only.
+  final String? epic1;
 
-  /// The address Send uses when nothing else says: Epicbox, else Tor, else HTTP.
+  /// The address classic Send uses when nothing else says: Epicbox, else Tor, else HTTP.
   String get address => epicbox ?? tor ?? http ?? '';
 
-  /// Every address, Epicbox, HTTP, Tor.
-  List<String> get addresses => [?epicbox, ?http, ?tor];
+  /// Every address, Epicbox, HTTP, Tor, the epic1 link last.
+  List<String> get addresses => [?epicbox, ?http, ?tor, ?epic1];
 
   String? addressOf(RecipientKind kind) => switch (kind) {
     RecipientKind.epicbox => epicbox,
     RecipientKind.http => http,
     RecipientKind.tor => tor,
+    RecipientKind.epic1 => epic1,
   };
 
-  /// The kinds this contact has an address of, Epicbox, HTTP, Tor.
+  /// The kinds this contact has an address of, Epicbox, HTTP, Tor, epic1.
   List<RecipientKind> get kinds => [
-    for (final k in const [RecipientKind.epicbox, RecipientKind.http, RecipientKind.tor])
+    for (final k in const [RecipientKind.epicbox, RecipientKind.http, RecipientKind.tor, RecipientKind.epic1])
       if (addressOf(k) != null) k,
+  ];
+
+  /// [kinds] without the epic1 link: the addresses a method pays (Send outside epic1 mode).
+  List<RecipientKind> get methodKinds => [
+    for (final k in kinds)
+      if (k != RecipientKind.epic1) k,
   ];
 
   Contact copyWith({bool? favourite, DateTime? lastUsed, ContactLabel? label}) => Contact(
@@ -759,6 +770,7 @@ class Contact {
     epicbox: epicbox,
     http: http,
     tor: tor,
+    epic1: epic1,
     note: note,
     label: label ?? this.label,
     favourite: favourite ?? this.favourite,

@@ -30,7 +30,7 @@ const Key deskContactsImportDoKey = ValueKey('desk-contacts-import-do');
 const Key deskContactsExportDoKey = ValueKey('desk-contacts-export-do');
 
 ContactFields _fields(Contact c) =>
-    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: c.label);
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, epic1: c.epic1, note: c.note, label: c.label);
 
 /// The header's More button: Import contacts, Export contacts (off with nothing to export).
 class ContactsMoreButton extends ConsumerWidget {

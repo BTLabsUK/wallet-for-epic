@@ -186,16 +186,18 @@ String? sendAddressShape(AppLocalizations l, TransferMethod method) =>
       TransferMethod.qr || TransferMethod.file => null,
     };
 
-/// The method a recipient of [kind] is paid by: an http(s) or onion address is Direct.
+/// The method a recipient of [kind] is paid by: an http(s) or onion address is Direct. An
+/// epic1 link has none (epic1 Send pays it); Send keeps Epicbox and says so under To.
 TransferMethod methodForRecipient(RecipientKind kind) => switch (kind) {
-  RecipientKind.epicbox => TransferMethod.epicbox,
+  RecipientKind.epicbox || RecipientKind.epic1 => TransferMethod.epicbox,
   RecipientKind.http || RecipientKind.tor => TransferMethod.direct,
 };
 
 /// The connection a payment to [to] takes, for the Tor switch ([torWay]). Plain `http://` to
 /// another device is a route of its own: it never goes through a Tor exit.
 TorRoute sendRoute(Recipient to) => switch (to.kind) {
-  RecipientKind.epicbox => TorRoute.epicbox,
+  // An epic1 link is paid through the Epicbox servers it names.
+  RecipientKind.epicbox || RecipientKind.epic1 => TorRoute.epicbox,
   RecipientKind.http when plainHttpToOtherDevice(to.address) => TorRoute.plainHttpDirect,
   RecipientKind.http => TorRoute.httpDirect,
   RecipientKind.tor => TorRoute.onionDirect,
@@ -683,7 +685,9 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient has no address to check: its card says whether it can be paid.
     if (_pairingTo != null) return _noPaymentsProblem(pairingId: _pairingTo);
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
-    // An epic1 link in classic mode: the switch is in Settings (button under the field).
+    // An epic1 link in classic mode: the switch is in Settings (button under the field). An
+    // epic1 address alone is paid in neither mode.
+    if (epic1AddressOnly(text)) return l.epic1AddressAlone;
     if (looksLikeEpic1Link(text)) return l.deskE1ModeEpic1Link;
     final read = _readOf(text);
     switch (read.kind) {
@@ -769,7 +773,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final invite = parseInvite(text);
     if (invite != null) text = invite.invite;
     if (looksLikeEpic1Link(text)) {
-      _pastedWithError(text, l.deskE1ModeEpic1Link);
+      _pastedWithError(text, epic1AddressOnly(text) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link);
       return;
     }
     final code = classifyFor(ref.read(walletServiceProvider), text);
@@ -2400,7 +2404,7 @@ class _SendViewState extends ConsumerState<SendView> {
     );
     // A contact with another address is not "only" this way: pick it again for the address
     // whose method is on. One of another kind is not either: the address in To decides.
-    if (contact == null || contact.kinds.length != 1 || MethodKind.ofRecipient(contact.kinds.single) != m) return reason;
+    if (contact == null || contact.methodKinds.length != 1 || MethodKind.ofRecipient(contact.methodKinds.single) != m) return reason;
     final name = contact.name;
     final only = m == MethodKind.epicbox
         ? l.sendContactOnlyEpicbox(name)

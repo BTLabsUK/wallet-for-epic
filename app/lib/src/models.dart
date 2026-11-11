@@ -60,6 +60,10 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
+  /// An epic1 link, `epic:epic1…?epicbox=…` (`tepic1` on the test network), paid in epic1 mode
+  /// only. Never a bare epic1 address: that alone cannot be paid.
+  final String? epic1;
+
   // No pairing here: the address book is shared by every wallet on the device, a pairing is
   // one wallet's. The wallet's pairing record names its contact ([PairingRecord.contactId]).
 
@@ -70,11 +74,13 @@ class Contact {
     String? epicbox,
     String? http,
     String? tor,
+    String? epic1,
     this.note,
     this.label = ContactLabel.wallet,
   }) : epicbox = _blank(epicbox) ?? _ofKind(address, RecipientKind.epicbox),
        http = _blank(http) ?? _ofKind(address, RecipientKind.http),
-       tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor);
+       tor = _blank(tor) ?? _ofKind(address, RecipientKind.tor),
+       epic1 = _blank(epic1) ?? _ofKind(address, RecipientKind.epic1);
 
   static String? _blank(String? s) => s == null || s.trim().isEmpty ? null : s;
 
@@ -83,24 +89,31 @@ class Contact {
     return parseRecipient(address!).kind == kind ? address : null;
   }
 
-  /// The address Send uses when nothing else says: Epicbox, else Tor, else HTTP; empty when
-  /// the contact has none.
+  /// The address classic Send uses when nothing else says: Epicbox, else Tor, else HTTP; empty
+  /// when the contact has none of them (the epic1 link is epic1 mode's).
   String get address => epicbox ?? tor ?? http ?? '';
 
-  /// Every address, in [contactKinds] order.
-  List<String> get addresses => [?epicbox, ?http, ?tor];
+  /// Every address, in [contactKinds] order, the epic1 link last.
+  List<String> get addresses => [?epicbox, ?http, ?tor, ?epic1];
 
   /// The address of [kind], or null.
   String? addressOf(RecipientKind kind) => switch (kind) {
     RecipientKind.epicbox => epicbox,
     RecipientKind.http => http,
     RecipientKind.tor => tor,
+    RecipientKind.epic1 => epic1,
   };
 
   /// The kinds this contact has an address of, in [contactKinds] order.
   List<RecipientKind> get kinds => [
     for (final k in contactKinds)
       if (addressOf(k) != null) k,
+  ];
+
+  /// [kinds] without the epic1 link: the addresses a method pays (Send outside epic1 mode).
+  List<RecipientKind> get methodKinds => [
+    for (final k in kinds)
+      if (k != RecipientKind.epic1) k,
   ];
 
   /// This contact with the address of [kind] set to [value]; null removes it.
@@ -112,6 +125,7 @@ class Contact {
     epicbox: kind == RecipientKind.epicbox ? value : epicbox,
     http: kind == RecipientKind.http ? value : http,
     tor: kind == RecipientKind.tor ? value : tor,
+    epic1: kind == RecipientKind.epic1 ? value : epic1,
   );
 
   /// This contact with another id, name or note; [clearNote] removes the note.
@@ -129,10 +143,11 @@ class Contact {
     epicbox: epicbox,
     http: http,
     tor: tor,
+    epic1: epic1,
   );
 
   @override
-  int get hashCode => Object.hash(id, name, note, label, epicbox, http, tor);
+  int get hashCode => Object.hash(id, name, note, label, epicbox, http, tor, epic1);
 
   @override
   bool operator ==(Object other) =>
@@ -145,15 +160,17 @@ class Contact {
           label == other.label &&
           epicbox == other.epicbox &&
           http == other.http &&
-          tor == other.tor;
+          tor == other.tor &&
+          epic1 == other.epic1;
 }
 
 /// The kinds of contact address in the order a contact lists them: Epicbox, Link · HTTP,
-/// Link · Tor.
+/// Link · Tor, epic1 link.
 const List<RecipientKind> contactKinds = [
   RecipientKind.epicbox,
   RecipientKind.http,
   RecipientKind.tor,
+  RecipientKind.epic1,
 ];
 
 /// `amount` is the amount to send, as requested; `fee` comes on top of it.

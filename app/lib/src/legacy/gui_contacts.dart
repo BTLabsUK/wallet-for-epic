@@ -111,6 +111,9 @@ Recipient? _address(String text, AddressChecks checks, {String? epicboxDomain, i
       return checks.onion(r.address) ? r : null;
     case RecipientKind.http:
       return checks.http(r.address) ? r : null;
+    case RecipientKind.epic1:
+      // The old GUI kept no epic1 links.
+      return null;
     case RecipientKind.epicbox:
       var a = r.address;
       if (!a.contains('@')) {
@@ -130,6 +133,7 @@ String _key(RecipientKind kind, String a) => switch (kind) {
   RecipientKind.epicbox => a.trim().split('@').first,
   RecipientKind.tor => a.trim().toLowerCase(),
   RecipientKind.http => a.trim().replaceFirst(RegExp(r'/+$'), '').toLowerCase(),
+  RecipientKind.epic1 => a.trim().toLowerCase(),
 };
 
 /// A contact name from another app: control, zero-width, line-separator and bidi characters
@@ -222,6 +226,7 @@ GuiContactPlan planGuiContacts(
         RecipientKind.epicbox => c.copyWith(epicbox: e.value),
         RecipientKind.http => c.copyWith(http: e.value),
         RecipientKind.tor => c.copyWith(tor: e.value),
+        RecipientKind.epic1 => c.copyWith(epic1: e.value),
       };
       if (entry.added == null) plan.addedToSaved.add((name: c.name, kind: e.key, address: e.value));
       changed = true;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contact_epic1.dart';
 import '../contact_label.dart';
 import '../contacts.dart';
 import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
@@ -640,6 +641,13 @@ class _AddressField {
   /// asks Keep the old one or Replace it.
   RecipientKind? clash;
 
+  /// LEPIC's verdict on an epic1 text, and the text it was for.
+  String? epic1Text;
+  Epic1Check? epic1;
+
+  /// [epic1] when it is for [text], else null (not checked yet).
+  Epic1Check? epic1For(String text) => epic1Text == text ? epic1 : null;
+
   void dispose() => text.dispose();
 
   /// Disposes after the frame that drops the field's row, which still holds the text until then.
@@ -689,23 +697,44 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     super.dispose();
   }
 
-  /// The kind [f] holds when its text is a valid address, else null.
+  /// The kind [f] holds when its text is a valid address, else null. An epic1 link counts once
+  /// LEPIC has read it.
   RecipientKind? _kindOf(_AddressField f) {
     final text = f.text.text.trim();
     if (text.isEmpty) return null;
+    final kind = parseRecipient(text).kind;
+    if (kind == RecipientKind.epic1) return f.epic1For(text) == Epic1Check.link ? kind : null;
     final l = context.l10n;
     if (_problem(l, ref.read(walletServiceProvider), text) != null) return null;
-    return parseRecipient(text).kind;
+    return kind;
   }
 
   /// [checkContactAddress], except that the onion this contact already has stays in the build
-  /// without Tor: it is kept and shown, only a new one is refused.
-  String? _problem(AppLocalizations l, WalletService service, String text) {
+  /// without Tor: it is kept and shown, only a new one is refused. An epic1 text gets LEPIC's
+  /// verdict once [f] has it.
+  String? _problem(AppLocalizations l, WalletService service, String text, [_AddressField? f]) {
+    final to = parseRecipient(text);
     if (!torBuilt) {
-      final to = parseRecipient(text);
       if (to.kind == RecipientKind.tor && to.address == widget.contact?.tor) return null;
     }
+    final epic1 = to.kind == RecipientKind.epic1 ? f?.epic1For(text) : null;
+    if (epic1 != null) return epic1CheckText(l, epic1, invalid: torBuilt ? l.contactsAddressInvalidAny : l.contactsAddressInvalidAnyNoTor);
     return checkContactAddress(l, service, text);
+  }
+
+  /// Has LEPIC read [f]'s epic1 text, unless it has already; then shows its line under the field
+  /// (an address alone, another network, not a link), or nothing for a link it can pay.
+  Future<void> _checkEpic1(_AddressField f) async {
+    final text = f.text.text.trim();
+    if (parseRecipient(text).kind != RecipientKind.epic1) return;
+    final verdict = f.epic1For(text) ?? await checkEpic1(ref.read(epic1Provider), text);
+    if (!mounted || f.text.text.trim() != text) return;
+    f.epic1Text = text;
+    f.epic1 = verdict;
+    final kind = _kindOf(f);
+    f.error = _problem(context.l10n, ref.read(walletServiceProvider), text, f);
+    f.clash = kind != null && _fields.any((o) => o != f && _kindOf(o) == kind) ? kind : null;
+    setState(() {});
   }
 
   Set<RecipientKind> get _taken => {for (final f in _fields) ?_kindOf(f)};
@@ -719,6 +748,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     f.clash = null;
     if (kind != null && _fields.any((o) => o != f && _kindOf(o) == kind)) f.clash = kind;
     setState(() {});
+    _checkEpic1(f);
   }
 
   void _keepOld(_AddressField f) => setState(() {
@@ -761,9 +791,10 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   Future<void> _scan(_AddressField f) async {
     final text = await ref.read(qrScannerProvider).scanCode(context);
     if (text == null || !mounted) return;
-    f.text.text = parseRecipient(
-      addressOfScan(ref.read(walletServiceProvider), text),
-    ).address;
+    // An epic1 link is kept whole: its servers are in the query.
+    f.text.text = epic1Shaped(text)
+        ? parseRecipient(text).address
+        : parseRecipient(addressOfScan(ref.read(walletServiceProvider), text)).address;
     _check(f);
   }
 
@@ -779,11 +810,15 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final l = context.l10n;
     final name = _name.text.trim();
     final service = ref.read(walletServiceProvider);
+    setState(() => _busy = true);
+    await Future.wait([for (final f in _fields) _checkEpic1(f)]);
+    if (!mounted) return;
     setState(() {
+      _busy = false;
       _nameError = name.isEmpty ? l.contactsNameMissing : null;
       for (final f in _fields) {
         final text = f.text.text.trim();
-        f.error = text.isEmpty ? null : _problem(l, service, text);
+        f.error = text.isEmpty ? null : _problem(l, service, text, f);
       }
       // A contact saved without one (from a pairing) may stay so: only a new plain contact
       // needs an address.
@@ -812,6 +847,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
               epicbox: of(RecipientKind.epicbox),
               http: of(RecipientKind.http),
               tor: of(RecipientKind.tor),
+              epic1: of(RecipientKind.epic1),
               note: note.isEmpty ? null : note,
               label: widget.contact?.label ?? ContactLabel.wallet,
             ),
@@ -943,7 +979,8 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           maxLines: null,
           onChanged: (_) => _check(f),
           decoration: InputDecoration(
-            labelText: kind == null ? l.addrField : l.addrFieldTyped(recipientMethodWord(l, kind)),
+            // Any kind fits: the badge names the one it holds.
+            labelText: l.addrField,
             error: error == null ? null : LiveFieldError(error),
             border: const OutlineInputBorder(),
             suffixIcon: kind != null

@@ -129,7 +129,8 @@ void _put(Map<String, Object?> out, String key, Object? value) {
 
 /// A contact as the file keeps it. [address] is the first of its addresses (Epicbox, Tor,
 /// HTTP), as the old core wrote it; a contact with several also writes [epicbox], [http] and
-/// [tor]. A record with none of them reads [address] by its shape.
+/// [tor]. A record with none of them reads [address] by its shape. An epic1 link is never
+/// [address] (older builds would take it for an Epicbox one): it has its own key, `epic1`.
 class ContactRec {
   /// [address] goes into the field of its kind, as for [Contact].
   ContactRec({
@@ -139,6 +140,7 @@ class ContactRec {
     String? epicbox,
     String? http,
     String? tor,
+    this.epic1,
     this.note,
     this.label,
   }) : epicbox = epicbox ?? _kindOf(address, RecipientKind.epicbox),
@@ -162,6 +164,7 @@ class ContactRec {
       epicbox: byKind ? epicbox : (kind == RecipientKind.epicbox ? address : null),
       http: byKind ? http : (kind == RecipientKind.http ? address : null),
       tor: byKind ? tor : (kind == RecipientKind.tor ? address : null),
+      epic1: _optStr(m['epic1'], 'contact epic1 link'),
       note: _optStr(m['note'], 'contact note'),
       label: ContactLabel.fromStored(m['label']).stored,
     );
@@ -172,6 +175,9 @@ class ContactRec {
   String? epicbox;
   String? http;
   String? tor;
+
+  /// An epic1 link, `epic:epic1…?epicbox=…`.
+  String? epic1;
   String? note;
 
   /// `exchange`, `vendor` or `service`; null for the default (a wallet).
@@ -187,6 +193,7 @@ class ContactRec {
       _put(out, 'http', http);
       _put(out, 'tor', tor);
     }
+    _put(out, 'epic1', epic1);
     _put(out, 'note', note);
     _put(out, 'label', label);
     return out;

@@ -161,9 +161,10 @@ String _comparable(String address) {
 String contactSendAddress(Contact contact, bool Function(MethodKind) offered) {
   for (final kind in const [RecipientKind.epicbox, RecipientKind.tor, RecipientKind.http]) {
     final address = contact.addressOf(kind);
-    if (address != null && offered(MethodKind.ofRecipient(kind))) return address;
+    if (address != null && offered(MethodKind.ofRecipient(kind)!)) return address;
   }
-  return contact.address;
+  // Only an epic1 link: Send names it and says how to turn epic1 payments on.
+  return contact.address.isEmpty ? contact.epic1 ?? '' : contact.address;
 }
 
 /// The name of the contact saved under [address], if any.
@@ -189,6 +190,9 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
         return l.contactsUrlIncomplete('http://203.0.113.5:${appConfig.httpListenPort}');
       }
       return null;
+    case RecipientKind.epic1:
+      // The shape only: LEPIC's readLink is the real check (the editors and epic1 Send run it).
+      return epic1AddressOnly(recipient.address) ? l.epic1AddressAlone : null;
     case RecipientKind.epicbox:
       return service.validateEpicboxAddress(address: recipient.address)
           ? null

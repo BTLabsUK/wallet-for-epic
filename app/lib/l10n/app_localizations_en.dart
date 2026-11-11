@@ -2828,7 +2828,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).';
+      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).';
 
   @override
   String get settingsTitle => 'Settings';
@@ -7445,7 +7445,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).';
+      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).';
 
   @override
   String get deskConAddPicture => 'Add picture';
@@ -14441,6 +14441,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get epic1AddressAlone =>
+      'An epic1 address alone cannot be paid. Paste the epic1 link.';
+
+  @override
+  String get addrPasteAnother => 'Paste another address, or leave empty';
+
+  @override
   String get pendingTitle => 'Pending invites';
 
   @override
@@ -16508,7 +16515,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).';
+      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an epic1 link (epic:epic1…).';
 
   @override
   String get handshakeLink1NoTor =>

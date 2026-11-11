@@ -2911,7 +2911,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…), onion-адрес (….onion) или ссылку epic1 (epic:epic1…).';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -7756,7 +7756,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…), onion-адрес (….onion) или ссылку epic1 (epic:epic1…).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -14974,6 +14974,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get epic1AddressAlone =>
+      'Оплатить только по адресу epic1 нельзя. Вставьте ссылку epic1.';
+
+  @override
+  String get addrPasteAnother => 'Вставьте ещё один адрес или оставьте пустым';
+
+  @override
   String get pendingTitle => 'Ожидающие приглашения';
 
   @override
@@ -17127,7 +17134,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер) или адрес ссылки (https://…).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или ссылку epic1 (epic:epic1…).';
 
   @override
   String get handshakeLink1NoTor =>

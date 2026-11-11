@@ -10,9 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../contact_epic1.dart';
 import '../../../epic1.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../providers.dart' show defaultMinimumConfirmations;
+import '../../../recipient.dart' show epic1AddressOnly;
 import '../../../scan/scan_router.dart';
 import '../../../trust_ids.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -20,7 +22,7 @@ import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPayInPerson;
-import '../transfer/contact_picker.dart' show showContactPicker;
+import '../transfer/contact_picker.dart' show contactEpic1Link, showContactPicker;
 import '../transfer/send_screen.dart' show SendArgs;
 import 'epic1_files.dart';
 
@@ -126,6 +128,12 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       await openDeskEpictx(context, ref, t);
       return;
     }
+    // An epic1 address alone names no server, so it cannot be paid: the line says so.
+    if (epic1AddressOnly(t)) {
+      final verdict = await checkEpic1(_e1, t);
+      if (mounted) _fail((l) => epic1CheckText(l, verdict, invalid: l.deskE1ErrNotLink) ?? l.deskE1ErrNotLink);
+      return;
+    }
     if (looksLikeEpic1Link(t)) return _read(t);
     if (await openDeskInPersonText(context, t)) {
       if (mounted) setState(() => _to.clear());
@@ -201,6 +209,12 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   Future<void> _pick() async {
     final c = await showContactPicker(context);
     if (c == null || !mounted) return;
+    // No pairing that takes epic1: the contact's epic1 link is paid, as if pasted.
+    if (contactEpic1Link(ref, c, watch: false) case final link?) {
+      _to.text = link;
+      _last = link;
+      return _open(link);
+    }
     // The paired send: it goes native by itself for a contact with epic1.
     ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(contact: c));
   }

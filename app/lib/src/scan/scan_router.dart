@@ -175,8 +175,12 @@ final class PaymentRequest extends ScannedCode {
         method == MethodHint.direct && recipient.kind == RecipientKind.epicbox;
     final (first, other) =
         wantsDirect ? (second, recipient) : (recipient, second);
-    if (offered(MethodKind.ofRecipient(first.kind))) return first;
-    if (offered(MethodKind.ofRecipient(other.kind))) return other;
+    bool on(Recipient r) {
+      final m = MethodKind.ofRecipient(r.kind);
+      return m != null && offered(m);
+    }
+    if (on(first)) return first;
+    if (on(other)) return other;
     return first;
   }
 }

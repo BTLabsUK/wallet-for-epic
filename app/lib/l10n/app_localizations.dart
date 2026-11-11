@@ -4504,7 +4504,7 @@ abstract class AppLocalizations {
   /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).'**
   String get contactsAddressInvalidAny;
 
   /// Title of the settings screen.
@@ -11794,7 +11794,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -22602,6 +22602,18 @@ abstract class AppLocalizations {
   /// **'Paste a {type} address, or leave empty'**
   String addrDesktopThird(String type);
 
+  /// Contact editor and epic1 Send: a bare epic1 address was pasted. Only an epic:epic1… link with a server can be paid.
+  ///
+  /// In en, this message translates to:
+  /// **'An epic1 address alone cannot be paid. Paste the epic1 link.'**
+  String get epic1AddressAlone;
+
+  /// Contact editor: placeholder of an empty extra address field. Any address type fits.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste another address, or leave empty'**
+  String get addrPasteAnother;
+
   /// Screen title and the Contacts row.
   ///
   /// In en, this message translates to:
@@ -25587,7 +25599,7 @@ abstract class AppLocalizations {
   /// contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an epic1 link (epic:epic1…).'**
   String get contactsAddressInvalidAnyNoTor;
 
   /// handshakeLink1 in the build without Tor: the same caption without Tor.

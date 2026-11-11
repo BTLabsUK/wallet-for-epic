@@ -31,4 +31,4 @@ String txMethodName(AppLocalizations l, TxEntry tx) =>
     tx.epic1Via == null ? txMethodWord(l, tx.transport) : MethodIcons.epic1Name(l, tx.epic1Via!);
 
 /// The name of the method an address is reached by.
-String recipientMethodWord(AppLocalizations l, RecipientKind kind) => MethodIcons.fullName(l, MethodKind.ofRecipient(kind));
+String recipientMethodWord(AppLocalizations l, RecipientKind kind) => MethodIcons.recipientFullName(l, kind);

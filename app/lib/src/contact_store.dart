@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The address book every wallet of one network on this device shares: `<app data>/contacts.json`
 /// for mainnet, a folder of its own for another network ([contactsDirOf]). A contact is
-/// a name, at most one address of each kind (Epicbox, Link · HTTP, Link · Tor) and a note. What
+/// a name, at most one address of each kind (Epicbox, Link · HTTP, Link · Tor, an epic1 link) and
+/// a note. The `epic1` key came later and is optional, as every address is: older files read as
+/// they are. What
 /// belongs to one wallet (a pairing, whether a contact is trusted or may send invoices, the
 /// payments made) stays in that wallet and points here by the contact's id.
 ///
@@ -36,7 +38,7 @@ const int contactsFileVersion = 1;
 
 /// One address book entry as stored.
 class ContactFields {
-  const ContactFields({this.id = '', required this.name, this.epicbox, this.http, this.tor, this.note, this.label = ContactLabel.wallet});
+  const ContactFields({this.id = '', required this.name, this.epicbox, this.http, this.tor, this.epic1, this.note, this.label = ContactLabel.wallet});
 
   /// Empty for a contact not saved yet.
   final String id;
@@ -50,6 +52,9 @@ class ContactFields {
 
   /// `<56 characters>.onion`, lower case.
   final String? tor;
+
+  /// An epic1 link, `epic:epic1…?epicbox=…`.
+  final String? epic1;
   final String? note;
 
   /// Display only; written only when not [ContactLabel.wallet].
@@ -59,16 +64,18 @@ class ContactFields {
     RecipientKind.epicbox => epicbox,
     RecipientKind.http => http,
     RecipientKind.tor => tor,
+    RecipientKind.epic1 => epic1,
   };
 
-  List<String> get addresses => [?epicbox, ?http, ?tor];
+  List<String> get addresses => [?epicbox, ?http, ?tor, ?epic1];
 
-  ContactFields copyWith({String? id, String? epicbox, String? http, String? tor, String? note, ContactLabel? label}) => ContactFields(
+  ContactFields copyWith({String? id, String? epicbox, String? http, String? tor, String? epic1, String? note, ContactLabel? label}) => ContactFields(
     id: id ?? this.id,
     name: name,
     epicbox: epicbox ?? this.epicbox,
     http: http ?? this.http,
     tor: tor ?? this.tor,
+    epic1: epic1 ?? this.epic1,
     note: note ?? this.note,
     label: label ?? this.label,
   );
@@ -79,6 +86,7 @@ class ContactFields {
     if (epicbox != null) 'epicbox': epicbox,
     if (http != null) 'http': http,
     if (tor != null) 'tor': tor,
+    if (epic1 != null) 'epic1': epic1,
     if (note != null) 'note': note,
     'label': ?label.stored,
   };
@@ -89,7 +97,7 @@ class ContactFields {
     String? opt(String k) => j[k] is String && (j[k] as String).trim().isNotEmpty ? j[k] as String : null;
     final id = opt('id'), name = opt('name');
     if (id == null || name == null) return null;
-    return ContactFields(id: id, name: name, epicbox: opt('epicbox'), http: opt('http'), tor: opt('tor'), note: opt('note'), label: ContactLabel.fromStored(j['label']));
+    return ContactFields(id: id, name: name, epicbox: opt('epicbox'), http: opt('http'), tor: opt('tor'), epic1: opt('epic1'), note: opt('note'), label: ContactLabel.fromStored(j['label']));
   }
 
   @override
@@ -100,14 +108,15 @@ class ContactFields {
       other.epicbox == epicbox &&
       other.http == http &&
       other.tor == tor &&
+      other.epic1 == epic1 &&
       other.note == note &&
       other.label == label;
 
   @override
-  int get hashCode => Object.hash(id, name, epicbox, http, tor, note, label);
+  int get hashCode => Object.hash(id, name, epicbox, http, tor, epic1, note, label);
 
   @override
-  String toString() => 'ContactFields($id, $name, epicbox: $epicbox, http: $http, tor: $tor, note: $note, label: ${label.name})';
+  String toString() => 'ContactFields($id, $name, epicbox: $epicbox, http: $http, tor: $tor, epic1: $epic1, note: $note, label: ${label.name})';
 }
 
 WalletError _io(String message) => WalletError(kind: WalletErrorKind.io, message: message);
@@ -698,7 +707,7 @@ class ContactStore {
     String? t(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
     final name = t(c.name);
     if (name == null) throw _invalid('the contact needs a name');
-    return ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), note: t(c.note), label: c.label);
+    return ContactFields(id: c.id.trim(), name: name, epicbox: t(c.epicbox), http: t(c.http), tor: t(c.tor), epic1: t(c.epic1), note: t(c.note), label: c.label);
   }
 
   /// Applies [change] to a copy and persists it; the contacts change only if the write

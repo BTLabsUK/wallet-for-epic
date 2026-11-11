@@ -90,7 +90,7 @@ class SendPairingLine extends ConsumerWidget {
     final contact = contactFor(ref.watch(contactsProvider).value ?? const <Contact>[], address);
     if (contact == null) return const SizedBox.shrink();
     final pairing = sendPairingFor(ref, address);
-    final kinds = contact.kinds;
+    final kinds = contact.methodKinds;
     final current = parseRecipient(address).kind;
     // The phone sends to an http(s) address whatever its stored Link · HTTP switch says.
     final prefs = (ref.watch(appSettingsProvider).value?.payments ?? PaymentPrefs.defaults).copyWith(linkHttp: true);
@@ -119,8 +119,8 @@ class SendPairingLine extends ConsumerWidget {
                   ButtonSegment(
                     value: k,
                     label: Text(recipientMethodWord(l, k)),
-                    enabled: prefs.offers(MethodKind.ofRecipient(k)),
-                    tooltip: prefs.offers(MethodKind.ofRecipient(k)) ? null : methodOffReason(l, MethodKind.ofRecipient(k)),
+                    enabled: prefs.offers(MethodKind.ofRecipient(k)!),
+                    tooltip: prefs.offers(MethodKind.ofRecipient(k)!) ? null : methodOffReason(l, MethodKind.ofRecipient(k)!),
                   ),
               ],
               selected: {if (kinds.contains(current)) current else kinds.first},

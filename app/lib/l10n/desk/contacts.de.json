@@ -35,7 +35,7 @@
   "deskConTxSent": "Gesendet",
   "deskConErrName": "Geben Sie dem Kontakt einen Namen.",
   "deskConErrAddressEmpty": "Geben Sie eine Adresse ein.",
-  "deskConErrAddressInvalid": "Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).",
+  "deskConErrAddressInvalid": "Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…), eine Onion-Adresse (….onion) oder einen epic1-Link (epic:epic1…).",
   "deskConAddPicture": "Bild hinzufügen",
   "deskConChangePicture": "Bild ändern",
   "deskConRemovePicture": "Entfernen",

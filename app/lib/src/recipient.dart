@@ -5,8 +5,9 @@ library;
 
 import 'wallet_service.dart' show onionAddressFormat, onionHost;
 
-/// Where a payment goes.
-enum RecipientKind { epicbox, tor, http }
+/// Where a payment goes. [epic1] is an epic1 link (`epic:epic1…?epicbox=…`), paid in epic1
+/// mode only; the classic methods never take it.
+enum RecipientKind { epicbox, tor, http, epic1 }
 
 class Recipient {
   const Recipient(this.kind, this.address);
@@ -21,7 +22,8 @@ class Recipient {
 /// or an `http(s)://` wallet URL from typed, pasted or scanned text. Removes whitespace, which
 /// QR codes and chat apps sometimes add. An onion (with or without `.onion`, with
 /// `http://`, a port, a trailing slash, in upper case) comes back as `<56 characters>.onion`
-/// in lower case, the one form the app shows. Does not validate; see [checkRecipient].
+/// in lower case, the one form the app shows. An epic1 link or bare epic1 address
+/// ([epic1Shaped]) is [RecipientKind.epic1], as typed. Does not validate; see [checkRecipient].
 Recipient parseRecipient(String text) {
   final clean = text.replaceAll(RegExp(r'\s'), '');
   final lower = clean.toLowerCase();
@@ -32,12 +34,33 @@ Recipient parseRecipient(String text) {
   if (lower.startsWith('http://') || lower.startsWith('https://')) {
     return Recipient(RecipientKind.http, clean);
   }
+  if (epic1Shaped(clean)) return Recipient(RecipientKind.epic1, clean);
   const scheme = 'epicbox://';
   final address = lower.startsWith(scheme)
       ? clean.substring(scheme.length)
       : clean;
   return Recipient(RecipientKind.epicbox, address);
 }
+
+/// Whether [text] has the shape of an epic1 link (`epic:epic1…`, `epic://epic1…`) or a bare
+/// epic1 address (`epic1…`); `tepic1` on the test network. LEPIC's `readLink` is the real check.
+bool epic1Shaped(String text) {
+  final t = text.trim().toLowerCase();
+  return _epic1Link.hasMatch(t) || _epic1Bare.hasMatch(t);
+}
+
+final RegExp _epic1Link = RegExp(r'^epic:(//)?t?epic1');
+final RegExp _epic1Bare = RegExp(r'^t?epic1[0-9a-z]{20,}');
+
+/// Whether [text] is a bare epic1 address (no `epic:` scheme), which cannot be paid alone.
+/// Whether [text] names an epic1 address with no way to reach it: the bare address, or an
+/// `epic:` link with no query (no server). LEPIC pays only a link that names a server.
+bool epic1AddressOnly(String text) {
+  final t = text.trim().toLowerCase();
+  return _epic1Bare.hasMatch(t) || (_epic1Link.hasMatch(t) && !t.contains('?'));
+}
+
+bool epic1Bare(String text) => _epic1Bare.hasMatch(text.trim().toLowerCase());
 
 final RegExp _epicboxShape = RegExp(
   r'^[1-9A-HJ-NP-Za-km-z]{40,}(?:@[^@\s]+)?$',
@@ -51,6 +74,7 @@ bool recipientShaped(Recipient to) => switch (to.kind) {
   RecipientKind.epicbox => _epicboxShape.hasMatch(to.address),
   RecipientKind.http => Uri.tryParse(to.address)?.host.isNotEmpty ?? false,
   RecipientKind.tor => true,
+  RecipientKind.epic1 => true,
 };
 
 /// Whether [url] is a whole HTTP(S) address to send to: a host that is an IPv4 address, an

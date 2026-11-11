@@ -10,12 +10,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
+import '../../contact_epic1.dart';
 import '../../devices/phone_devices.dart' show deviceServiceProvider;
 import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../models.dart';
+import '../../pairing_providers.dart' show contactPairingProvider;
 import '../../providers.dart';
+import '../../recipient.dart' show epic1AddressOnly;
 import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart';
@@ -86,6 +89,12 @@ class _Epic1SendStartState extends ConsumerState<Epic1SendStart> {
       _error = null;
       _classic = false;
     });
+    // An epic1 address alone names no server, so it cannot be paid: the line says so.
+    if (epic1AddressOnly(text)) {
+      final verdict = await checkEpic1(ref.read(epic1Provider), text);
+      if (mounted) setState(() => _error = epic1CheckText(l, verdict, invalid: l.deskE1ErrNotLink));
+      return;
+    }
     if (looksLikeEpic1Link(text)) {
       final done = await openEpic1LinkSend(context, text);
       if (!mounted) return;
@@ -114,6 +123,12 @@ class _Epic1SendStartState extends ConsumerState<Epic1SendStart> {
       MaterialPageRoute<Contact>(builder: (_) => const ContactsScreen(pick: true, forPayment: true)),
     );
     if (contact == null || !mounted) return;
+    // No pairing that takes epic1: the contact's epic1 link is paid, as if pasted.
+    final link = contact.epic1;
+    if (link != null && classicOnlyPairing(ref.read(contactPairingProvider(contact.id)))) {
+      _field.text = link;
+      return _open(link);
+    }
     widget.onContact(contact);
   }
 

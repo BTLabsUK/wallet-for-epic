@@ -144,13 +144,13 @@ class EBadge extends StatelessWidget {
   /// alone with the full name ("Link · Tor") in its tooltip and semantics: for a list row,
   /// where the name repeats on every line.
   EBadge.kind(RecipientKind kind, {super.key, required AppLocalizations l, bool compact = false, String? tooltip})
-    : label = compact ? null : MethodIcons.shortName(l, MethodKind.ofRecipient(kind)),
-      icon = MethodIcons.of(MethodKind.ofRecipient(kind)),
+    : label = compact ? null : MethodIcons.recipientShortName(l, kind),
+      icon = MethodIcons.ofRecipient(kind),
       tone = BadgeTone.neutral,
       busy = false,
       dot = false,
-      semanticsLabel = compact ? MethodIcons.fullName(l, MethodKind.ofRecipient(kind)) : null,
-      tooltip = tooltip ?? (compact ? MethodIcons.fullName(l, MethodKind.ofRecipient(kind)) : null),
+      semanticsLabel = compact ? MethodIcons.recipientFullName(l, kind) : null,
+      tooltip = tooltip ?? (compact ? MethodIcons.recipientFullName(l, kind) : null),
       liveRegion = false,
       wrap = false;
 
@@ -203,7 +203,7 @@ class EBadge extends StatelessWidget {
   final bool wrap;
 
   /// The method glyph of [kind]: [MethodIcons] is the source.
-  static IconData kindIcon(RecipientKind kind) => MethodIcons.of(MethodKind.ofRecipient(kind));
+  static IconData kindIcon(RecipientKind kind) => MethodIcons.ofRecipient(kind);
 
   @override
   Widget build(BuildContext context) {

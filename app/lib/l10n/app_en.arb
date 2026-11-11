@@ -3569,7 +3569,7 @@
       }
     }
   },
-  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).",
+  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).",
   "@contactsAddressInvalidAny": {
     "description": "Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them."
   },
@@ -9701,7 +9701,7 @@
   "@deskConErrAddressEmpty": {
     "description": "Error under the Address field of the contact form when it is empty."
   },
-  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).",
+  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).",
   "@deskConErrAddressInvalid": {
     "description": "Error under the Address field of the contact form when the text is not an address."
   },
@@ -19264,6 +19264,14 @@
       }
     }
   },
+  "epic1AddressAlone": "An epic1 address alone cannot be paid. Paste the epic1 link.",
+  "@epic1AddressAlone": {
+    "description": "Contact editor and epic1 Send: a bare epic1 address was pasted. Only an epic:epic1… link with a server can be paid."
+  },
+  "addrPasteAnother": "Paste another address, or leave empty",
+  "@addrPasteAnother": {
+    "description": "Contact editor: placeholder of an empty extra address field. Any address type fits."
+  },
   "pendingTitle": "Pending invites",
   "@pendingTitle": {
     "description": "Screen title and the Contacts row."
@@ -22082,7 +22090,7 @@
   "@sendDirectAddressShapeNoTor": {
     "description": "Error under To when Link is chosen and the text is not an http(s) address, in the build without Tor."
   },
-  "contactsAddressInvalidAnyNoTor": "Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).",
+  "contactsAddressInvalidAnyNoTor": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an epic1 link (epic:epic1…).",
   "@contactsAddressInvalidAnyNoTor": {
     "description": "contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address."
   },

@@ -2531,6 +2531,7 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
       epicbox: contact.epicbox?.trim(),
       http: contact.http?.trim(),
       tor: contact.tor?.trim(),
+      epic1: contact.epic1?.trim(),
       note: (contact.note?.trim().isEmpty ?? true)
           ? null
           : contact.note!.trim(),

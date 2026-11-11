@@ -2777,7 +2777,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) ที่อยู่ onion (….onion) หรือลิงก์ epic1 (epic:epic1…)';
 
   @override
   String get settingsTitle => 'การตั้งค่า';
@@ -7244,7 +7244,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) ที่อยู่ onion (….onion) หรือลิงก์ epic1 (epic:epic1…)';
 
   @override
   String get deskConAddPicture => 'เพิ่มรูป';
@@ -14076,6 +14076,13 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get epic1AddressAlone =>
+      'ชำระด้วยที่อยู่ epic1 อย่างเดียวไม่ได้ วางลิงก์ epic1';
+
+  @override
+  String get addrPasteAnother => 'วางที่อยู่อื่น หรือเว้นว่างไว้';
+
+  @override
   String get pendingTitle => 'คำเชิญที่รออยู่';
 
   @override
@@ -16105,7 +16112,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) หรือที่อยู่ลิงก์ (https://…)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือลิงก์ epic1 (epic:epic1…)';
 
   @override
   String get handshakeLink1NoTor =>

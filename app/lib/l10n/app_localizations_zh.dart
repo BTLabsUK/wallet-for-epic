@@ -2667,7 +2667,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）、onion 地址（….onion）或 epic1 链接（epic:epic1…）。';
 
   @override
   String get settingsTitle => '设置';
@@ -6989,7 +6989,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）、onion 地址（….onion）或 epic1 链接（epic:epic1…）。';
 
   @override
   String get deskConAddPicture => '添加图片';
@@ -13603,6 +13603,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get epic1AddressAlone => '仅凭 epic1 地址无法付款。请粘贴 epic1 链接。';
+
+  @override
+  String get addrPasteAnother => '粘贴另一个地址，或留空';
+
+  @override
   String get pendingTitle => '待处理邀请';
 
   @override
@@ -15551,7 +15557,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      '地址无效。请使用 Epicbox 地址（es5x…@服务器）或链接地址（https://…）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 epic1 链接（epic:epic1…）。';
 
   @override
   String get handshakeLink1NoTor => '你的钱包通过互联网把付款直接发到对方的钱包。这些币被锁定。';

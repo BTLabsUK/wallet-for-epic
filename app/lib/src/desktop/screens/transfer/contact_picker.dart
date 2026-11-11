@@ -27,10 +27,19 @@ bool contactRefusesPayments(WidgetRef ref, Contact c) => ref
     .watch(paymentRefusalsProvider)
     .refusesPayments(pairingId: ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id))?.id : null, address: c.epicbox);
 
-/// epic1 mode and [c] has no pairing that takes epic1 payments: "Classic only", not payable.
+/// epic1 mode and [c] has neither a pairing that takes epic1 payments nor an epic1 link:
+/// "Classic only", not payable.
 bool contactClassicOnly(WidgetRef ref, Contact c) =>
-    ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 &&
-    !(ref.watch(deskPairsProvider) && (ref.watch(deskContactPairingProvider(c.id))?.nativeSlates ?? false));
+    ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 && c.epic1 == null && !contactPairsNatively(ref, c);
+
+/// [c] has a pairing that takes epic1 payments. [watch] false outside build.
+bool contactPairsNatively(WidgetRef ref, Contact c, {bool watch = true}) => watch
+    ? ref.watch(deskPairsProvider) && (ref.watch(deskContactPairingProvider(c.id))?.nativeSlates ?? false)
+    : ref.read(deskPairsProvider) && (ref.read(deskContactPairingProvider(c.id))?.nativeSlates ?? false);
+
+/// The epic1 link epic1 mode pays [c] with: its own, when no pairing takes epic1 payments.
+String? contactEpic1Link(WidgetRef ref, Contact c, {bool watch = true}) =>
+    c.epic1 != null && !contactPairsNatively(ref, c, watch: watch) ? c.epic1 : null;
 
 /// "Through Anna's pairing" with the trust badge, where a contact with no address shows its
 /// address in a list.

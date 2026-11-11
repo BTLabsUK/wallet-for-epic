@@ -67,6 +67,7 @@ import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
 import '../../../epic1.dart' show PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
+import '../../../recipient.dart' show epic1AddressOnly;
 import '../epic1/epic1_files.dart' show jumpToEpic1Switch, showEpic1ModeDialog;
 import '../epic1/send_link.dart' show Epic1SendPage;
 import 'send_summary_rows.dart';
@@ -262,7 +263,8 @@ final _sendKeeperProvider = Provider<_SendKeeper>((ref) {
 });
 
 /// Send: in epic1 mode the epic1 page, unless a contact was picked (the paired send goes
-/// native by itself); otherwise today's form.
+/// native by itself; a contact with only an epic1 link pays that on the epic1 page);
+/// otherwise today's form.
 class SendScreen extends ConsumerWidget {
   const SendScreen({super.key, this.arg});
 
@@ -272,8 +274,12 @@ class SendScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final a = arg;
     final contact = a is Contact || (a is SendArgs && (a.contact != null || a.pairingTo != null));
-    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 && !contact) {
-      return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null);
+    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
+      if (!contact) return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null);
+      final picked = a is Contact ? a : (a as SendArgs).contact;
+      if (picked != null) {
+        if (contactEpic1Link(ref, picked) case final link?) return Epic1SendPage(key: ValueKey(link), code: link);
+      }
     }
     return _ClassicSend(arg: arg);
   }
@@ -1096,8 +1102,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     void dialog(IconData icon, String title, String body, String shown) =>
         showCodeDialog(context, icon: icon, title: title, text: body, code: shown);
     // epic1 payments are off: their links and files say how to turn them on.
+    // An epic1 address alone is paid in neither mode.
     if (looksLikeEpic1Link(text)) {
-      fieldError((l) => l.deskE1ModeEpic1Link);
+      fieldError((l) => epic1AddressOnly(text) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link);
       return true;
     }
     if (looksLikeEpictx(text)) {
@@ -2057,7 +2064,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   /// [contact]'s one address is of [m]'s kind: it can be paid only that way.
   static bool _onlyKind(Contact? contact, MethodKind m) =>
-      contact != null && contact.kinds.length == 1 && MethodKind.ofRecipient(contact.kinds.single) == m;
+      contact != null && contact.methodKinds.length == 1 && MethodKind.ofRecipient(contact.methodKinds.single) == m;
 
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
@@ -2336,7 +2343,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
             _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => _bestAddress(x, st), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
           ..._underTo(st, picked),
-          if (_codeError != null && looksLikeEpic1Link(_to.text)) ...[
+          if (_codeError != null && looksLikeEpic1Link(_to.text) && !epic1AddressOnly(_to.text)) ...[
             SizedBox(height: Sp.x2),
             Align(
               alignment: AlignmentDirectional.centerStart,

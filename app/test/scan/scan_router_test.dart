@@ -29,6 +29,7 @@ const _o = 'http://$_onion.onion';
 
 /// The address checks, the way Send runs them, with [_floonet] on the other chain.
 AddressVerdict _check(Recipient to) => switch (to.kind) {
+  RecipientKind.epic1 => AddressVerdict.invalid,
   RecipientKind.epicbox when to.address == _floonet =>
     AddressVerdict.otherChain,
   RecipientKind.epicbox =>
