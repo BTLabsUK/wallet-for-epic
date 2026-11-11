@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The camera library behind QR scanning: the only file that imports it. Free code only, in
-/// every build: the camera plugin (CameraX on Android, AVFoundation on iOS, Apache-2.0/BSD) for
-/// the picture and zxing-cpp (Apache-2.0, through flutter_zxing) for the codes. No Google ML Kit
-/// or Play services. Phones only (qrScanSupported in scan_screen.dart); desktops and the web have no scanner.
+/// The camera library behind QR scanning on the phones. Free code only, in every build: the
+/// camera plugin (CameraX on Android, AVFoundation on iOS, Apache-2.0/BSD) for the picture and
+/// zxing-cpp (Apache-2.0, through flutter_zxing) for the codes. No Google ML Kit or Play
+/// services. The desktops have their own (lib/src/camera/desktop_qr_camera.dart) and share
+/// [CameraTurns] with it; the web has no scanner.
 library;
 
 import 'dart:async';
@@ -31,24 +32,65 @@ class ScannerException implements Exception {
   String toString() => 'ScannerException($error)';
 }
 
+/// One who holds the app's camera in turn: told to give it back when a later one takes it.
+abstract interface class CameraHolder {
+  /// A later holder took the camera: give it back, and do not restart on your own.
+  void yieldCamera();
+}
+
+/// The one camera of the app, held by one scanner at a time. The camera plugins keep one
+/// camera for the whole app (on Android one preview and one frame reader): a scanner opened
+/// while the one before it still had the camera lost its picture and its frames when that one
+/// closed, and its own close then failed. A scan screen closes only after its exit transition,
+/// so the next one (Scan again, or the QR Payment reader after Home's scan) always came too
+/// early. So each start [take]s the camera from the holder before it, and waits for [free]:
+/// every camera given back is released by then.
+abstract final class CameraTurns {
+  static CameraHolder? _holder;
+  static Future<void> _free = Future.value();
+
+  /// [holder] takes the camera; the holder before it yields.
+  static void take(CameraHolder holder) {
+    final previous = _holder;
+    _holder = holder;
+    if (previous != null && !identical(previous, holder)) previous.yieldCamera();
+  }
+
+  /// Whether [holder] still has the camera: a later start or a close takes it.
+  static bool holds(CameraHolder holder) => identical(_holder, holder);
+
+  /// Done when every camera given back so far is released.
+  static Future<void> get free => _free;
+
+  /// [holder] gives the camera back. [release], if any, runs after every release before it; a
+  /// release that fails counts as done.
+  static Future<void> giveBack(CameraHolder holder, [Future<void> Function()? release]) {
+    if (identical(_holder, holder)) _holder = null;
+    if (release == null) return Future.value();
+    return CameraTurns.release(release);
+  }
+
+  /// Runs [release] after every release before it, holder or not: a camera that opened after
+  /// its holder gave it back. One that fails counts as done.
+  static Future<void> release(Future<void> Function() release) => _free = _free.then((_) => release()).catchError((Object _) {});
+
+  /// No holder and nothing to release. For tests in fake time: a future made outside a test's
+  /// zone never completes inside it.
+  @visibleForTesting
+  static void reset() {
+    _holder = null;
+    _free = Future.value();
+  }
+}
+
 /// The camera of one scan screen, reading QR codes only. Started by hand, so the permission
 /// prompt can run under the auto-lock hold.
-class ScannerController extends ChangeNotifier {
+class ScannerController extends ChangeNotifier implements CameraHolder {
   /// With [everyFrame], [codes] hands out the code of every frame, repeats included (an
   /// animated code changes six times a second); without, repeats of one code are dropped.
   ScannerController({this.everyFrame = false});
 
   final bool everyFrame;
-
-  /// The controller holding the camera. The camera plugin keeps one camera for the whole app
-  /// (on Android one preview and one frame reader): a scanner opened while the one before it
-  /// still has the camera lost its picture and its frames when that one closed, and its own
-  /// close then failed. A scan screen closes only after its exit transition, so the next
-  /// one (Scan again, or the QR Payment reader after Home's scan) always came too early. So
-  /// each start takes the camera from the controller before it, and waits until every
-  /// camera given back is released.
-  static ScannerController? _owner;
-  static Future<void> _free = Future.value();
 
   /// Starts and stops zxing's worker, which is shared and counts its users.
   @visibleForTesting
@@ -84,22 +126,20 @@ class ScannerController extends ChangeNotifier {
   }
 
   /// Whether a later start or a close took the camera from this start.
-  bool get _cancelled => _closed || !identical(_owner, this);
+  bool get _cancelled => _closed || !CameraTurns.holds(this);
 
   Future<void> start() async {
     if (_closed || _starting || (_camera?.value.isStreamingImages ?? false)) {
       return;
     }
-    final previous = _owner;
-    _owner = this;
-    if (previous != null && !identical(previous, this)) previous._yield();
+    CameraTurns.take(this);
     _lifecycle.watch();
     _starting = true;
     _error = null;
     _changed();
     try {
       // The camera and zxing's worker given back by any scanner are released first.
-      await _free;
+      await CameraTurns.free;
       if (_cancelled) return;
       var camera = _camera;
       if (camera == null) {
@@ -162,7 +202,8 @@ class ScannerController extends ChangeNotifier {
 
   /// A later scanner takes the camera: this one gives it back and no longer restarts on
   /// its own. Its screen is closing; Try again or a new start takes the camera back.
-  void _yield() {
+  @override
+  void yieldCamera() {
     _lifecycle.stop();
     unawaited(_release());
   }
@@ -175,10 +216,9 @@ class ScannerController extends ChangeNotifier {
     _camera = null;
     _reading = false;
     _torchOn = false;
-    if (identical(_owner, this)) _owner = null;
-    if (camera == null && !reading) return Future.value();
+    if (camera == null && !reading) return CameraTurns.giveBack(this);
     _changed();
-    return _free = _free.then((_) async {
+    return CameraTurns.giveBack(this, () async {
       if (camera != null) {
         try {
           if (camera.value.isStreamingImages) await camera.stopImageStream();
@@ -252,12 +292,15 @@ class ScannerController extends ChangeNotifier {
 
 /// Calls [onPause] when the app leaves the foreground and [onResume] when it is back, once
 /// each, from [watch] until [stop]. [onResume] comes only after an [onPause], so a screen
-/// that came back from the system settings tries the camera again.
+/// that came back from the system settings tries the camera again. Without
+/// [pauseWhenInactive] (the desktops) only a hidden or minimised window pauses: a window that
+/// lost the focus keeps scanning.
 class ScannerLifecycle with WidgetsBindingObserver {
-  ScannerLifecycle({required this.onPause, required this.onResume});
+  ScannerLifecycle({required this.onPause, required this.onResume, this.pauseWhenInactive = true});
 
   final Future<void> Function() onPause;
   final Future<void> Function() onResume;
+  final bool pauseWhenInactive;
   bool _watching = false;
   bool _paused = false;
 
@@ -276,6 +319,8 @@ class ScannerLifecycle with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
+      case AppLifecycleState.inactive when !pauseWhenInactive:
+        break;
       case AppLifecycleState.inactive ||
           AppLifecycleState.hidden ||
           AppLifecycleState.paused:

@@ -418,6 +418,12 @@ const List<SettingsKey> configKeys = [
   SettingsKey('contacts.quarantine_keep_days', IntKind(min: 1, max: 3650), byDefault: 30),
   // ... and a collect stopped at a mailbox's limit repeats this many times
   SettingsKey('contacts.collect_repeats', IntKind(min: 0, max: 50), byDefault: 5),
+  // [camera]: the desktop QR scan's picture checks (`desktop_qr_camera.dart`): no first frame,
+  // no frame, the same frame, a black picture, each for this long
+  SettingsKey('camera.first_frame_ms', IntKind(min: 500, max: 60000), byDefault: 6000),
+  SettingsKey('camera.stall_ms', IntKind(min: 500, max: 60000), byDefault: 3000),
+  SettingsKey('camera.frozen_ms', IntKind(min: 500, max: 60000), byDefault: 5000),
+  SettingsKey('camera.dark_ms', IntKind(min: 500, max: 60000), byDefault: 3000),
 ];
 
 ValueProblem? _explorerBlock(String v) => checkTemplate('height', optional: true)(v);

@@ -194,3 +194,12 @@ quarantine_max_bytes = 16777216
 quarantine_keep_days = 30
 # A collect that stops at a mailbox's message limit runs again, up to this many more times.
 collect_repeats = 5
+
+[camera]
+# The desktop QR scan: No picture when the first frame takes longer than first_frame_ms, when no
+# frame comes for stall_ms, or when the picture stays the same for frozen_ms; Dark (a closed cover
+# or shutter) when it is black for dark_ms, until it comes back.
+first_frame_ms = 6000
+stall_ms = 3000
+frozen_ms = 5000
+dark_ms = 3000

@@ -7,7 +7,15 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../wallet_backend.dart' show hostIsPhone;
+import 'desktop_camera.dart' show createDesktopCameraProbe;
+
+/// `--dart-define=WFE_FAKE_CAMERA=<value>` in a debug build (qr_camera.dart's `fakeCameraMode`):
+/// `none` and `unsupported` are this probe's answer, every other value is present.
+const String _fakeCameraMode = kDebugMode ? String.fromEnvironment('WFE_FAKE_CAMERA') : '';
 
 /// What the probe found.
 enum CameraPresence {
@@ -59,8 +67,19 @@ class NoCameraProbe implements CameraProbe {
   Future<CameraPresence> probe() async => CameraPresence.none;
 }
 
-/// The probe of this host; the desktop one comes with the desktop camera.
-final cameraProbeProvider = Provider<CameraProbe>((ref) => const NoCameraProbe());
+/// The probe of this host: the desktops list their cameras (desktop_qr_camera.dart), the
+/// phones keep their own scanner and the web has none.
+final cameraProbeProvider = Provider<CameraProbe>((ref) {
+  if (_fakeCameraMode.isNotEmpty) {
+    return FakeCameraProbe(switch (_fakeCameraMode) {
+      'none' => CameraPresence.none,
+      'unsupported' => CameraPresence.unsupported,
+      _ => CameraPresence.present,
+    });
+  }
+  if (!kIsWeb && !hostIsPhone) return createDesktopCameraProbe();
+  return const NoCameraProbe();
+});
 
 /// The last answer of the probe. [CameraPresenceNotifier.recheck] asks again; calls while one is
 /// running share it.
