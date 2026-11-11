@@ -10,15 +10,19 @@ import 'dart:typed_data' show Uint8List;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show MethodChannel, MissingPluginException;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData, MethodChannel, MissingPluginException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'announcements_service.dart' show announcementsProvider;
 import '../btlabs_public.dart' show Announcement, AnnouncementLink;
 import '../desktop/data/files.dart' show openInBrowser;
+import '../desktop/widgets/kit.dart' show ETone, showEToast;
 import '../l10n.dart';
 import '../network_gate.dart' show NetDial, NetGate;
 import '../scan/incoming_link.dart' show incomingLinkProvider;
+import '../ui/common.dart' show copyText;
+import '../ui/network_mode_text.dart' show browserOffNote;
+import '../ui/notices.dart' show NoticeAction, NoticeLevel, noticeProvider;
 import '../ui/theme/tokens.dart';
 
 /// The message a screen shows (toast placement): the first live one, or null when the feature
@@ -130,9 +134,31 @@ class _AnnouncementCardState extends ConsumerState<AnnouncementCard> {
   Future<void> _open(AnnouncementLink link) async {
     final url = link.url;
     if (url.startsWith('https://')) {
-      await ref.read(announcementOpenUrlProvider)(url);
+      final l = context.l10n;
+      // The mode keeps the browser shut (Tor only, Node only, Kill switch) or the browser did
+      // not open: say why, with the link to copy.
+      final blocked = !NetGate.allows(NetDial.browser, Uri.tryParse(url)?.host ?? '');
+      if (!blocked && await ref.read(announcementOpenUrlProvider)(url)) return;
+      if (!mounted) return;
+      _cannotOpen(blocked ? browserOffNote(l) : l.deskSetAboutBrowserNotOpened, url);
     } else if (url.startsWith('epic:')) {
       ref.read(incomingLinkProvider.notifier).deliver(url);
+    }
+  }
+
+  /// [note] on the screen's own notice (desktop toast, phone notice) with Copy for [url].
+  void _cannotOpen(String note, String url) {
+    final l = context.l10n;
+    if (widget.dense) {
+      showEToast(context, note, text: url, tone: ETone.warn, action: (label: l.commonCopy, run: () {
+        Clipboard.setData(ClipboardData(text: url));
+      }));
+    } else {
+      ref.read(noticeProvider.notifier).show(
+        note,
+        level: NoticeLevel.warning,
+        action: NoticeAction(l.commonCopy, () => copyText(context, url, l.settingsLinkCopied)),
+      );
     }
   }
 

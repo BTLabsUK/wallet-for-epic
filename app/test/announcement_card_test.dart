@@ -9,7 +9,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/announcements/announcement_card.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show Announcement, AnnouncementLink;
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
+import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/scan/incoming_link.dart' show incomingLinkProvider;
+import 'package:epic_wallet/src/ui/notices.dart' show NoticeLevel, noticeProvider;
 
 /// A 1×1 PNG.
 final Uint8List _png = base64Decode(
@@ -194,6 +197,41 @@ void main() {
       await tester.tap(_link);
       await tester.pump();
       expect(opened, ['https://t.me/BTLABS_BOT?start=faucet']);
+    });
+
+    testWidgets('Tor only keeps the browser shut: the tap says so and offers Copy', (tester) async {
+      final opened = <String>[];
+      final container = ProviderContainer(overrides: [
+        announcementOpenUrlProvider.overrideWithValue((url) async {
+          opened.add(url);
+          return true;
+        }),
+      ]);
+      addTearDown(container.dispose);
+      NetGate.set(NetworkMode.torOnly);
+      addTearDown(() => NetGate.set(NetworkMode.standard));
+      await _pump(tester, AnnouncementCard(_msg(), onDismiss: () {}), container: container);
+      await tester.tap(_link);
+      await tester.pump();
+      final l = lookupAppLocalizations(const Locale('en'));
+      expect(opened, isEmpty);
+      final notice = container.read(noticeProvider);
+      expect(notice?.text, l.browserOffTorOnly);
+      expect(notice?.level, NoticeLevel.warning);
+      expect(notice?.action?.label, l.commonCopy);
+      container.read(noticeProvider.notifier).clear();
+    });
+
+    testWidgets('a browser that does not open says so', (tester) async {
+      final container = ProviderContainer(overrides: [
+        announcementOpenUrlProvider.overrideWithValue((url) async => false),
+      ]);
+      addTearDown(container.dispose);
+      await _pump(tester, AnnouncementCard(_msg(), onDismiss: () {}), container: container);
+      await tester.tap(_link);
+      await tester.pump();
+      expect(container.read(noticeProvider)?.text, lookupAppLocalizations(const Locale('en')).deskSetAboutBrowserNotOpened);
+      container.read(noticeProvider.notifier).clear();
     });
 
     testWidgets('an epic: tap goes to the incoming-link router and not to the launcher', (tester) async {
