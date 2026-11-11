@@ -159,6 +159,12 @@ class _Harness {
   }
 }
 
+/// Waits for the toast to leave: it floats over the top of the screen and takes the touches there.
+Future<void> _toastGone(WidgetTester tester) async {
+  await tester.pump(noticeDuration(NoticeLevel.success));
+  await tester.pumpAndSettle();
+}
+
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
@@ -743,6 +749,7 @@ void main() {
       expect(h.session.receivedSlates, [incoming]);
       await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'from-bob.tx.response');
+      await _toastGone(tester);
       await _tap(tester, find.text(_l.commonShare));
       expect(h.files.shared.single.name, 'from-bob.tx.response');
       expect(find.text(_l.slateCopyReply), findsNothing);
@@ -790,6 +797,7 @@ void main() {
       );
       await _tap(tester, find.text(_l.slateCopyReply));
       expect(h.copied, [h.session.responseSlate.json]);
+      await _toastGone(tester);
       await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'incoming.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n.dart';
 import '../theme/tokens.dart';
+import '../tip.dart';
 import 'kit_icons.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
@@ -36,8 +37,9 @@ class KitIconButton extends StatelessWidget {
         label: label,
         excludeSemantics: true,
         onTap: onPressed,
-        child: Tooltip(
-          message: label,
+        child: Tip(
+          label,
+          excludeFromSemantics: true,
           child: Material(
             color: filled ? t.fill : Colors.transparent,
             borderRadius: BorderRadius.circular(Kit.rIconButton),
