@@ -5624,5 +5624,7 @@
   "deskSetGrpAnnouncements": "Ogłoszenia",
   "deskSetSynAnnouncements": "ogłoszenia, ogloszenia, nowości, wiadomości, komunikaty, bt labs",
   "announcementsTitle": "Ogłoszenia",
-  "announcementsHint": "Krótkie wiadomości od BT Labs między wersjami, podpisane przez BT Labs. Wyłączone: nie są sprawdzane."
+  "announcementsHint": "Krótkie wiadomości od BT Labs między wersjami, podpisane przez BT Labs. Wyłączone: nie są sprawdzane.",
+  "announcementDismiss": "Ukryj",
+  "announcementOpensInBrowser": "otwiera w przeglądarce"
 }

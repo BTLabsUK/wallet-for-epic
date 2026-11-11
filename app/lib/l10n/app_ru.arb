@@ -5624,5 +5624,7 @@
   "deskSetGrpAnnouncements": "Объявления",
   "deskSetSynAnnouncements": "объявления, новости, сообщения, уведомления, bt labs",
   "announcementsTitle": "Объявления",
-  "announcementsHint": "Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют."
+  "announcementsHint": "Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют.",
+  "announcementDismiss": "Скрыть",
+  "announcementOpensInBrowser": "открывается в браузере"
 }

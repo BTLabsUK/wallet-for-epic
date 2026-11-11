@@ -22375,6 +22375,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Krótkie wiadomości od BT Labs między wersjami, podpisane przez BT Labs. Wyłączone: nie są sprawdzane.';
 
   @override
+  String get announcementDismiss => 'Ukryj';
+
+  @override
+  String get announcementOpensInBrowser => 'otwiera w przeglądarce';
+
+  @override
   String get deskSetGrpAnnouncements => 'Ogłoszenia';
 
   @override

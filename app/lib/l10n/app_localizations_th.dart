@@ -21212,6 +21212,12 @@ class AppLocalizationsTh extends AppLocalizations {
       'ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้';
 
   @override
+  String get announcementDismiss => 'ปิด';
+
+  @override
+  String get announcementOpensInBrowser => 'เปิดในเบราว์เซอร์';
+
+  @override
   String get deskSetGrpAnnouncements => 'ประกาศ';
 
   @override

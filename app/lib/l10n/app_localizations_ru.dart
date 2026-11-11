@@ -22363,6 +22363,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют.';
 
   @override
+  String get announcementDismiss => 'Скрыть';
+
+  @override
+  String get announcementOpensInBrowser => 'открывается в браузере';
+
+  @override
   String get deskSetGrpAnnouncements => 'Объявления';
 
   @override

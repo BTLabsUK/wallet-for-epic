@@ -21913,6 +21913,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht.';
 
   @override
+  String get announcementDismiss => 'Ausblenden';
+
+  @override
+  String get announcementOpensInBrowser => 'öffnet im Browser';
+
+  @override
   String get deskSetGrpAnnouncements => 'Hinweise';
 
   @override

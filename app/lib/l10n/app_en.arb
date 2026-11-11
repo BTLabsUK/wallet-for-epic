@@ -29371,6 +29371,14 @@
   "@announcementsHint": {
     "description": "Settings › Advanced: the explanation behind the info icon of the Announcements switch (phone and desktop)."
   },
+  "announcementDismiss": "Dismiss",
+  "@announcementDismiss": {
+    "description": "Announcement card: tooltip and screen-reader name of the × that closes a message from BT Labs for good."
+  },
+  "announcementOpensInBrowser": "opens in the browser",
+  "@announcementOpensInBrowser": {
+    "description": "Announcement card: screen-reader addition after the link, said when the link opens an https address in the system browser (lower case, follows the link label and host)."
+  },
   "deskSetGrpAnnouncements": "Announcements",
   "@deskSetGrpAnnouncements": {
     "description": "Settings: heading of the “Announcements” group of rows (on its page and over search results)."

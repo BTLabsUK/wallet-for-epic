@@ -33762,6 +33762,18 @@ abstract class AppLocalizations {
   /// **'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.'**
   String get announcementsHint;
 
+  /// Announcement card: tooltip and screen-reader name of the × that closes a message from BT Labs for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get announcementDismiss;
+
+  /// Announcement card: screen-reader addition after the link, said when the link opens an https address in the system browser (lower case, follows the link label and host).
+  ///
+  /// In en, this message translates to:
+  /// **'opens in the browser'**
+  String get announcementOpensInBrowser;
+
   /// Settings: heading of the “Announcements” group of rows (on its page and over search results).
   ///
   /// In en, this message translates to:

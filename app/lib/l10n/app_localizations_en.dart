@@ -21651,6 +21651,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.';
 
   @override
+  String get announcementDismiss => 'Dismiss';
+
+  @override
+  String get announcementOpensInBrowser => 'opens in the browser';
+
+  @override
   String get deskSetGrpAnnouncements => 'Announcements';
 
   @override

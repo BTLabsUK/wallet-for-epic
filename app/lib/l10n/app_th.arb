@@ -5624,5 +5624,7 @@
   "deskSetGrpAnnouncements": "ประกาศ",
   "deskSetSynAnnouncements": "ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs",
   "announcementsTitle": "ประกาศ",
-  "announcementsHint": "ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้"
+  "announcementsHint": "ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้",
+  "announcementDismiss": "ปิด",
+  "announcementOpensInBrowser": "เปิดในเบราว์เซอร์"
 }

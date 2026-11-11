@@ -20443,6 +20443,12 @@ class AppLocalizationsZh extends AppLocalizations {
       'BT Labs 在版本更新之间发布的简短消息，由 BT Labs 签名。关闭后：不再检查这些消息。';
 
   @override
+  String get announcementDismiss => '不再显示';
+
+  @override
+  String get announcementOpensInBrowser => '在浏览器中打开';
+
+  @override
   String get deskSetGrpAnnouncements => '公告';
 
   @override

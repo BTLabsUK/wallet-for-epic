@@ -5624,5 +5624,7 @@
   "deskSetGrpAnnouncements": "Hinweise",
   "deskSetSynAnnouncements": "hinweise, neuigkeiten, mitteilungen, nachrichten, bt labs",
   "announcementsTitle": "Hinweise",
-  "announcementsHint": "Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht."
+  "announcementsHint": "Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht.",
+  "announcementDismiss": "Ausblenden",
+  "announcementOpensInBrowser": "öffnet im Browser"
 }
