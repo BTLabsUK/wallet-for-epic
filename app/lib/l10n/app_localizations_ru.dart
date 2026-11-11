@@ -14610,10 +14610,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyRefused =>
-      'Не для этого кошелька, слишком большое или повреждено.';
-
-  @override
   String msgCheckItemPairingFailed(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14640,7 +14636,140 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyUnreadable => 'Сохранено на этом устройстве.';
+  String get msgCheckWhyRefusedNothing =>
+      'Не для этого кошелька, слишком большое или повреждено. Ничего делать не нужно.';
+
+  @override
+  String get msgCheckWhyPairingFailed =>
+      'Время вышло или сопряжение не приняли. Можно выполнить сопряжение снова.';
+
+  @override
+  String get msgCheckWhyUnreadableOpen =>
+      'Хранится на этом устройстве. Откройте, чтобы повторить попытку или удалить.';
+
+  @override
+  String get msgCheckOpenKept => 'Показать непрочитанные сообщения';
+
+  @override
+  String get msgKeptTitle => 'Непрочитанные сообщения';
+
+  @override
+  String msgKeptIntro(int days) {
+    return 'Эти сообщения прислал сопряжённый контакт, но ваш кошелёк не смог их прочитать. Они хранятся на этом устройстве $days дн., затем удаляются.';
+  }
+
+  @override
+  String get msgKeptEmpty => 'Сейчас здесь нет ожидающих сообщений.';
+
+  @override
+  String get msgKeptLoadFailed =>
+      'Не удалось загрузить сообщения. Закройте окно и попробуйте снова.';
+
+  @override
+  String msgKeptArrived(String when) {
+    return 'Получено $when';
+  }
+
+  @override
+  String msgKeptFrom(String name) {
+    return 'От: $name';
+  }
+
+  @override
+  String get msgKeptFromUnknown => 'От сопряжённого контакта';
+
+  @override
+  String get msgKeptKindPayment => 'Платёж';
+
+  @override
+  String get msgKeptKindSlate => 'Платёж или счёт';
+
+  @override
+  String get msgKeptKindNotice => 'Сообщение контакта';
+
+  @override
+  String get msgKeptKindUnknown => 'Сообщение';
+
+  @override
+  String get msgKeptWhyHold =>
+      'Кошелёк пробовал несколько раз, но не смог закончить.';
+
+  @override
+  String get msgKeptWhySlate =>
+      'Эта версия приложения не может его прочитать. Возможно, у отправителя более новая или старая версия, либо сообщение повредилось в пути.';
+
+  @override
+  String get msgKeptWhyNotice =>
+      'Эта версия приложения не знает такого вида сообщений. Обновление может помочь его прочитать.';
+
+  @override
+  String get msgKeptWhyCap =>
+      'Слишком много входящих платежей ещё не завершено. Попробуйте снова, когда часть завершится.';
+
+  @override
+  String get msgKeptWhyRefused =>
+      'Ваш кошелёк отклонил этот платёж, например, потому что он истёк или уже был получен.';
+
+  @override
+  String get msgKeptWhyOther => 'Кошелёк не записал причину.';
+
+  @override
+  String get msgKeptAdvanced => 'Для опытных пользователей';
+
+  @override
+  String get msgKeptReasonCode => 'Код причины';
+
+  @override
+  String get msgKeptTries => 'Попытки';
+
+  @override
+  String get msgKeptSize => 'Размер';
+
+  @override
+  String msgKeptSizeBytes(int count) {
+    return '$count байт';
+  }
+
+  @override
+  String get msgKeptMessageId => 'ID сообщения';
+
+  @override
+  String get msgKeptContactId => 'ID контакта';
+
+  @override
+  String get msgKeptAddress => 'Адрес';
+
+  @override
+  String get msgKeptRetry => 'Повторить';
+
+  @override
+  String get msgKeptRemove => 'Удалить с этого устройства';
+
+  @override
+  String get msgKeptCopy => 'Копировать сведения';
+
+  @override
+  String get msgKeptCopied => 'Сведения скопированы';
+
+  @override
+  String get msgKeptRetried => 'Прочитано. Оно больше не хранится.';
+
+  @override
+  String get msgKeptStillKept => 'Всё ещё не прочитано. Оно остаётся здесь.';
+
+  @override
+  String get msgKeptActionFailed =>
+      'Не получилось. Ничего не изменилось; попробуйте снова.';
+
+  @override
+  String get msgKeptRemoveTitle => 'Удалить это сообщение?';
+
+  @override
+  String get msgKeptRemoveBody =>
+      'Оно будет удалено с этого устройства, и прочитать его позже будет нельзя. Отправителю об этом не сообщается.';
+
+  @override
+  String get msgKeptRemoveConfirm => 'Удалить';
 
   @override
   String noticeSealedUnopenable(String name) {

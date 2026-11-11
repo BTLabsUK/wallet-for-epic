@@ -52,9 +52,9 @@ void main() {
       'Checked 2 min ago',
       '2 messages left for the next check',
       '1 message turned away',
-      'Not for this wallet, too large or damaged.',
+      'Not for this wallet, too large or damaged. Nothing to do.',
       '1 message could not be read',
-      'Kept on this device.',
+      'Kept on this device. Open it to try again or remove it.',
     ]);
     expect(messageCheckLines(l, const MessageCheck(failed: true), now: now), ['The last message check failed']);
     expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(messages: 3, failed: 1, capped: 1)), now: now), [
@@ -62,7 +62,18 @@ void main() {
       '3 messages read',
       'More messages wait for the next check',
       '1 pairing did not complete',
+      'It ran out of time or was not accepted. You can pair again.',
     ]);
+  });
+
+  test('a kept message read or removed lowers the unreadable count at once', () async {
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero);
+    await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome(messages: 2, unreadable: 2));
+    checks.setUnreadable(1);
+    expect((checks.value.outcome.unreadable, checks.value.outcome.messages), (1, 2));
+    checks.setUnreadable(0);
+    expect(checks.value.outcome.unreadable, 0);
+    checks.dispose();
   });
 
   test('the age reads in minutes, hours or days', () {

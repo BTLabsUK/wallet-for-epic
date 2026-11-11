@@ -13252,9 +13252,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyRefused => '不属于此钱包、过大或已损坏。';
-
-  @override
   String msgCheckItemPairingFailed(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -13275,7 +13272,129 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyUnreadable => '已保留在此设备上。';
+  String get msgCheckWhyRefusedNothing => '不属于这个钱包、太大或已损坏。无需操作。';
+
+  @override
+  String get msgCheckWhyPairingFailed => '超时了，或未被接受。你可以重新配对。';
+
+  @override
+  String get msgCheckWhyUnreadableOpen => '保留在此设备上。打开后可重试或移除。';
+
+  @override
+  String get msgCheckOpenKept => '查看未读取的消息';
+
+  @override
+  String get msgKeptTitle => '未读取的消息';
+
+  @override
+  String msgKeptIntro(int days) {
+    return '已配对的联系人发来了这些消息，但你的钱包无法读取。它们会在此设备上保留 $days 天，之后会被移除。';
+  }
+
+  @override
+  String get msgKeptEmpty => '目前这里没有等待处理的消息。';
+
+  @override
+  String get msgKeptLoadFailed => '无法加载消息。请关闭后重试。';
+
+  @override
+  String msgKeptArrived(String when) {
+    return '到达时间：$when';
+  }
+
+  @override
+  String msgKeptFrom(String name) {
+    return '来自 $name';
+  }
+
+  @override
+  String get msgKeptFromUnknown => '来自已配对的联系人';
+
+  @override
+  String get msgKeptKindPayment => '付款';
+
+  @override
+  String get msgKeptKindSlate => '付款或账单';
+
+  @override
+  String get msgKeptKindNotice => '联系人消息';
+
+  @override
+  String get msgKeptKindUnknown => '消息';
+
+  @override
+  String get msgKeptWhyHold => '你的钱包尝试了多次，仍无法完成。';
+
+  @override
+  String get msgKeptWhySlate => '此应用版本无法读取它。发送方可能使用更新或更旧的版本，或者消息在传输中损坏了。';
+
+  @override
+  String get msgKeptWhyNotice => '此应用版本不认识这种消息。更新后可能就能读取。';
+
+  @override
+  String get msgKeptWhyCap => '还有太多收款未完成。等部分完成后再试。';
+
+  @override
+  String get msgKeptWhyRefused => '你的钱包拒绝了这笔付款，例如因为它已过期或已收到。';
+
+  @override
+  String get msgKeptWhyOther => '你的钱包没有记录原因。';
+
+  @override
+  String get msgKeptAdvanced => '面向高级用户';
+
+  @override
+  String get msgKeptReasonCode => '原因代码';
+
+  @override
+  String get msgKeptTries => '尝试次数';
+
+  @override
+  String get msgKeptSize => '大小';
+
+  @override
+  String msgKeptSizeBytes(int count) {
+    return '$count 字节';
+  }
+
+  @override
+  String get msgKeptMessageId => '消息 ID';
+
+  @override
+  String get msgKeptContactId => '联系人 ID';
+
+  @override
+  String get msgKeptAddress => '地址';
+
+  @override
+  String get msgKeptRetry => '重试';
+
+  @override
+  String get msgKeptRemove => '从此设备移除';
+
+  @override
+  String get msgKeptCopy => '复制详情';
+
+  @override
+  String get msgKeptCopied => '详情已复制';
+
+  @override
+  String get msgKeptRetried => '已读取。不再保留。';
+
+  @override
+  String get msgKeptStillKept => '仍未读取。它会留在这里。';
+
+  @override
+  String get msgKeptActionFailed => '没有成功。没有任何更改，请重试。';
+
+  @override
+  String get msgKeptRemoveTitle => '移除这条消息？';
+
+  @override
+  String get msgKeptRemoveBody => '它会从此设备删除，之后无法再读取。发送方不会收到通知。';
+
+  @override
+  String get msgKeptRemoveConfirm => '移除';
 
   @override
   String noticeSealedUnopenable(String name) {

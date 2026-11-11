@@ -14636,10 +14636,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyRefused =>
-      'Nie dla tego portfela, za duża lub uszkodzona.';
-
-  @override
   String msgCheckItemPairingFailed(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14666,7 +14662,140 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyUnreadable => 'Zachowana na tym urządzeniu.';
+  String get msgCheckWhyRefusedNothing =>
+      'Nie dla tego portfela, zbyt duża lub uszkodzona. Nic nie trzeba robić.';
+
+  @override
+  String get msgCheckWhyPairingFailed =>
+      'Czas minął lub parowanie nie zostało przyjęte. Możesz sparować ponownie.';
+
+  @override
+  String get msgCheckWhyUnreadableOpen =>
+      'Zachowana na tym urządzeniu. Otwórz ją, aby spróbować ponownie lub ją usunąć.';
+
+  @override
+  String get msgCheckOpenKept => 'Pokaż nieodczytane wiadomości';
+
+  @override
+  String get msgKeptTitle => 'Nieodczytane wiadomości';
+
+  @override
+  String msgKeptIntro(int days) {
+    return 'Sparowany kontakt wysłał te wiadomości, ale Twój portfel nie mógł ich odczytać. Zostają na tym urządzeniu przez $days dni, a potem są usuwane.';
+  }
+
+  @override
+  String get msgKeptEmpty => 'Żadne wiadomości na razie tu nie czekają.';
+
+  @override
+  String get msgKeptLoadFailed =>
+      'Nie udało się wczytać wiadomości. Zamknij to okno i spróbuj ponownie.';
+
+  @override
+  String msgKeptArrived(String when) {
+    return 'Dotarła $when';
+  }
+
+  @override
+  String msgKeptFrom(String name) {
+    return 'Od: $name';
+  }
+
+  @override
+  String get msgKeptFromUnknown => 'Od sparowanego kontaktu';
+
+  @override
+  String get msgKeptKindPayment => 'Płatność';
+
+  @override
+  String get msgKeptKindSlate => 'Płatność lub faktura';
+
+  @override
+  String get msgKeptKindNotice => 'Wiadomość od kontaktu';
+
+  @override
+  String get msgKeptKindUnknown => 'Wiadomość';
+
+  @override
+  String get msgKeptWhyHold =>
+      'Portfel próbował kilka razy i nie udało się zakończyć.';
+
+  @override
+  String get msgKeptWhySlate =>
+      'Ta wersja aplikacji nie może jej odczytać. Nadawca może mieć nowszą lub starszą wersję albo wiadomość uszkodziła się w drodze.';
+
+  @override
+  String get msgKeptWhyNotice =>
+      'Ta wersja aplikacji nie zna tego rodzaju wiadomości. Aktualizacja może ją odczytać.';
+
+  @override
+  String get msgKeptWhyCap =>
+      'Zbyt wiele przychodzących płatności nadal nie jest zakończonych. Spróbuj ponownie, gdy część się zakończy.';
+
+  @override
+  String get msgKeptWhyRefused =>
+      'Portfel odrzucił tę płatność, na przykład dlatego, że wygasła lub została już odebrana.';
+
+  @override
+  String get msgKeptWhyOther => 'Portfel nie zapisał powodu.';
+
+  @override
+  String get msgKeptAdvanced => 'Dla zaawansowanych';
+
+  @override
+  String get msgKeptReasonCode => 'Kod powodu';
+
+  @override
+  String get msgKeptTries => 'Próby';
+
+  @override
+  String get msgKeptSize => 'Rozmiar';
+
+  @override
+  String msgKeptSizeBytes(int count) {
+    return '$count B';
+  }
+
+  @override
+  String get msgKeptMessageId => 'ID wiadomości';
+
+  @override
+  String get msgKeptContactId => 'ID kontaktu';
+
+  @override
+  String get msgKeptAddress => 'Adres';
+
+  @override
+  String get msgKeptRetry => 'Spróbuj ponownie';
+
+  @override
+  String get msgKeptRemove => 'Usuń z tego urządzenia';
+
+  @override
+  String get msgKeptCopy => 'Kopiuj szczegóły';
+
+  @override
+  String get msgKeptCopied => 'Szczegóły skopiowane';
+
+  @override
+  String get msgKeptRetried => 'Odczytano. Nie jest już zachowywana.';
+
+  @override
+  String get msgKeptStillKept => 'Nadal nieodczytana. Zostaje tutaj.';
+
+  @override
+  String get msgKeptActionFailed =>
+      'To się nie udało. Nic się nie zmieniło; spróbuj ponownie.';
+
+  @override
+  String get msgKeptRemoveTitle => 'Usunąć tę wiadomość?';
+
+  @override
+  String get msgKeptRemoveBody =>
+      'Zostanie usunięta z tego urządzenia i nie będzie można jej później odczytać. Nadawca nie dostanie informacji.';
+
+  @override
+  String get msgKeptRemoveConfirm => 'Usuń';
 
   @override
   String noticeSealedUnopenable(String name) {

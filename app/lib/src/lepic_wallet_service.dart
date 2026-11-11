@@ -4550,6 +4550,41 @@ class _LepicPairing implements PairingApi {
   @override
   Future<void> removeStray(String id) async {}
 
+  @override
+  Future<List<KeptMessage>> keptMessages() => _call(() async {
+    final kept = [
+      for (final m in await _w.contactQuarantine())
+        KeptMessage(
+          id: m.id,
+          contactId: m.contactId,
+          code: m.reason,
+          firstSeen: _ms(m.firstSeenMs.toInt()),
+          attempts: m.attempts,
+          size: m.size.toInt(),
+        ),
+    ]..sort((a, b) => a.firstSeen.compareTo(b.firstSeen));
+    _s.checks.setUnreadable(kept.length);
+    return kept;
+  });
+
+  @override
+  Future<int> retryKept({String? id}) => _call(() async {
+    final done = await _w.contactQuarantineRetry(id: id, relayMode: lepicRelayMode());
+    logInfo('pairing', 'quarantine retried ${done.retried}, ${done.kept} left');
+    // The count of one message is its own; the status shows them all.
+    final left = id == null ? done.kept : (await _w.contactQuarantine()).length;
+    _s.checks.setUnreadable(left);
+    if (done.cleared > 0 && !_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+    return left;
+  });
+
+  @override
+  Future<bool> removeKept(String id) => _call(() async {
+    final gone = await _w.contactQuarantineDiscard(id: id);
+    _s.checks.setUnreadable((await _w.contactQuarantine()).length);
+    return gone;
+  });
+
 
   @override
   Future<PairingRecord> standingCode({required String name}) => _call(() async {

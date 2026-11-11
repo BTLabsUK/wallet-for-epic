@@ -10,6 +10,8 @@
 /// server offer ([DeskRelayOfferPanel]) when there is one.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,6 +28,7 @@ import '../screens/settings/prefs.dart';
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_failover.dart';
+import 'kept_messages_dialog.dart';
 import 'message_check_panel.dart';
 import 'rail.dart' show RailItem;
 import 'relay_offer.dart';
@@ -176,7 +179,14 @@ class DeskStatusPopover extends ConsumerWidget {
         secondMono = !modeLine;
         if (address != null && address.isNotEmpty) facts.add((label: l.lvShellAddress, value: common.shortAddress(address, relay: false), mono: true));
         if (shallow && (i.state == EState.risk || i.state == EState.warn)) notes.add(l.lvShellBoxDownBody);
-        panel = DeskMessageCheckPanel(ref.watch(deskMessageCheckProvider).value ?? const MessageCheck());
+        panel = DeskMessageCheckPanel(
+          ref.watch(deskMessageCheckProvider).value ?? const MessageCheck(),
+          onOpenKept: () {
+            close();
+            final nav = deskNavigatorKey.currentContext;
+            if (nav != null) unawaited(showDeskKeptMessages(nav));
+          },
+        );
       default:
         tile = DeskServiceTile(icon: i.icon, state: i.state);
         if (i.second != '–' && i.second != i.word) second = [i.second, ?i.marker].join(' ');

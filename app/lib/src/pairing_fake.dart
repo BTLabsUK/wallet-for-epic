@@ -235,6 +235,11 @@ class FakePairing implements PairingApi {
 
   final List<PairingRecord> records = [];
   final List<PairingStray> strayList = [];
+
+  /// The messages kept unread ([keptMessages]); a test or the preview seeds them. [retryKept]
+  /// takes the ids in [keptTakenOnRetry] and keeps the rest, one attempt more.
+  final List<KeptMessage> keptList = [];
+  final Set<String> keptTakenOnRetry = {};
   final Map<String, PairingInvitePreview> _previews = {};
 
   /// The standing code, apart from [records]: an unused code is no row.
@@ -683,6 +688,32 @@ class FakePairing implements PairingApi {
   Future<void> removeStray(String id) async {
     _require('removeStray');
     strayList.removeWhere((s) => s.id == id);
+  }
+
+  @override
+  Future<List<KeptMessage>> keptMessages() async => enabled ? [...keptList] : const [];
+
+  @override
+  Future<int> retryKept({String? id}) async {
+    calls.add('retryKept');
+    for (var i = keptList.length - 1; i >= 0; i--) {
+      final m = keptList[i];
+      if (id != null && m.id != id) continue;
+      if (keptTakenOnRetry.contains(m.id)) {
+        keptList.removeAt(i);
+      } else {
+        keptList[i] = KeptMessage(id: m.id, contactId: m.contactId, code: m.code, firstSeen: m.firstSeen, attempts: m.attempts + 1, size: m.size);
+      }
+    }
+    return keptList.length;
+  }
+
+  @override
+  Future<bool> removeKept(String id) async {
+    calls.add('removeKept');
+    final before = keptList.length;
+    keptList.removeWhere((m) => m.id == id);
+    return keptList.length < before;
   }
 
   String _checkName(String name) {

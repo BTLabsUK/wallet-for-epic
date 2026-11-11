@@ -13720,9 +13720,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyRefused => 'ไม่ใช่ของกระเป๋านี้ ใหญ่เกินไป หรือเสียหาย';
-
-  @override
   String msgCheckItemPairingFailed(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -13743,7 +13740,138 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get msgCheckWhyUnreadable => 'เก็บไว้ในอุปกรณ์นี้';
+  String get msgCheckWhyRefusedNothing =>
+      'ไม่ใช่ของกระเป๋านี้ ใหญ่เกินไป หรือเสียหาย ไม่ต้องทำอะไร';
+
+  @override
+  String get msgCheckWhyPairingFailed =>
+      'หมดเวลาหรือไม่ได้รับการยอมรับ คุณจับคู่ใหม่ได้';
+
+  @override
+  String get msgCheckWhyUnreadableOpen =>
+      'เก็บไว้ในอุปกรณ์นี้ เปิดเพื่อลองอีกครั้งหรือลบออก';
+
+  @override
+  String get msgCheckOpenKept => 'แสดงข้อความที่ยังไม่ได้อ่าน';
+
+  @override
+  String get msgKeptTitle => 'ข้อความที่ยังไม่ได้อ่าน';
+
+  @override
+  String msgKeptIntro(int days) {
+    return 'ผู้ติดต่อที่จับคู่ไว้ส่งข้อความเหล่านี้มา แต่กระเป๋าของคุณอ่านไม่ได้ ข้อความจะอยู่ในอุปกรณ์นี้ $days วัน แล้วจึงถูกลบ';
+  }
+
+  @override
+  String get msgKeptEmpty => 'ตอนนี้ไม่มีข้อความรออยู่ที่นี่';
+
+  @override
+  String get msgKeptLoadFailed => 'โหลดข้อความไม่ได้ ปิดหน้านี้แล้วลองอีกครั้ง';
+
+  @override
+  String msgKeptArrived(String when) {
+    return 'มาถึงเมื่อ $when';
+  }
+
+  @override
+  String msgKeptFrom(String name) {
+    return 'จาก $name';
+  }
+
+  @override
+  String get msgKeptFromUnknown => 'จากผู้ติดต่อที่จับคู่ไว้';
+
+  @override
+  String get msgKeptKindPayment => 'การชำระเงิน';
+
+  @override
+  String get msgKeptKindSlate => 'การชำระเงินหรือใบแจ้งหนี้';
+
+  @override
+  String get msgKeptKindNotice => 'ข้อความจากผู้ติดต่อ';
+
+  @override
+  String get msgKeptKindUnknown => 'ข้อความ';
+
+  @override
+  String get msgKeptWhyHold => 'กระเป๋าของคุณลองหลายครั้งแล้วแต่ทำไม่สำเร็จ';
+
+  @override
+  String get msgKeptWhySlate =>
+      'แอปเวอร์ชันนี้อ่านข้อความนี้ไม่ได้ ผู้ส่งอาจใช้เวอร์ชันใหม่กว่าหรือเก่ากว่า หรือข้อความเสียหายระหว่างทาง';
+
+  @override
+  String get msgKeptWhyNotice =>
+      'แอปเวอร์ชันนี้ไม่รู้จักข้อความประเภทนี้ การอัปเดตอาจทำให้อ่านได้';
+
+  @override
+  String get msgKeptWhyCap =>
+      'การชำระเงินขาเข้าที่ยังไม่เสร็จมีมากเกินไป ลองอีกครั้งเมื่อบางรายการเสร็จแล้ว';
+
+  @override
+  String get msgKeptWhyRefused =>
+      'กระเป๋าของคุณปฏิเสธการชำระเงินนี้ เช่น เพราะหมดอายุแล้วหรือได้รับไปแล้ว';
+
+  @override
+  String get msgKeptWhyOther => 'กระเป๋าของคุณไม่ได้บันทึกสาเหตุไว้';
+
+  @override
+  String get msgKeptAdvanced => 'สำหรับผู้ใช้ขั้นสูง';
+
+  @override
+  String get msgKeptReasonCode => 'รหัสสาเหตุ';
+
+  @override
+  String get msgKeptTries => 'จำนวนครั้งที่ลอง';
+
+  @override
+  String get msgKeptSize => 'ขนาด';
+
+  @override
+  String msgKeptSizeBytes(int count) {
+    return '$count ไบต์';
+  }
+
+  @override
+  String get msgKeptMessageId => 'รหัสข้อความ';
+
+  @override
+  String get msgKeptContactId => 'รหัสผู้ติดต่อ';
+
+  @override
+  String get msgKeptAddress => 'ที่อยู่';
+
+  @override
+  String get msgKeptRetry => 'ลองอีกครั้ง';
+
+  @override
+  String get msgKeptRemove => 'ลบออกจากอุปกรณ์นี้';
+
+  @override
+  String get msgKeptCopy => 'คัดลอกรายละเอียด';
+
+  @override
+  String get msgKeptCopied => 'คัดลอกรายละเอียดแล้ว';
+
+  @override
+  String get msgKeptRetried => 'อ่านแล้ว ไม่ได้เก็บไว้อีกต่อไป';
+
+  @override
+  String get msgKeptStillKept => 'ยังอ่านไม่ได้ ข้อความยังอยู่ที่นี่';
+
+  @override
+  String get msgKeptActionFailed =>
+      'ไม่สำเร็จ ไม่มีอะไรเปลี่ยนแปลง ลองอีกครั้ง';
+
+  @override
+  String get msgKeptRemoveTitle => 'ลบข้อความนี้ไหม';
+
+  @override
+  String get msgKeptRemoveBody =>
+      'ข้อความจะถูกลบออกจากอุปกรณ์นี้และอ่านภายหลังไม่ได้ ผู้ส่งจะไม่ได้รับแจ้ง';
+
+  @override
+  String get msgKeptRemoveConfirm => 'ลบ';
 
   @override
   String noticeSealedUnopenable(String name) {
