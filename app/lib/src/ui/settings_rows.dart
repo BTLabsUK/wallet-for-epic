@@ -106,7 +106,11 @@ class RadioRow<T> extends StatelessWidget {
           ? Text(title)
           : TitleWithHint(title, hint: hint, hintKey: hintKey, icon: hintIcon ?? icon, labelled: enabled, onOpen: onHint)),
       subtitle: subtitle == null ? null : Text(subtitle!),
-      trailing: Radio<T>(value: value, enabled: enabled),
+      // With an info icon the row is not merged, so an enabled radio carries the title itself
+      // (disabled, the row's own node has it).
+      trailing: hint == null || !enabled
+          ? Radio<T>(value: value, enabled: enabled)
+          : Semantics(label: title, child: Radio<T>(value: value, enabled: enabled)),
       onTap: enabled && group != null ? () => group.onChanged(value) : null,
     );
     return hint == null ? MergeSemantics(child: tile) : tile;

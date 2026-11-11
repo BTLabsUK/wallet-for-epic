@@ -280,7 +280,11 @@ class HintSwitchTile extends StatelessWidget {
               onHelp: onHelp,
             ),
       subtitle: subtitle,
-      trailing: Switch(value: value, onChanged: onChanged),
+      // With an info icon the row is not merged, so an enabled switch carries the title itself
+      // (disabled, the row's own node has it).
+      trailing: hint == null || onChanged == null
+          ? Switch(value: value, onChanged: onChanged)
+          : Semantics(label: title, child: Switch(value: value, onChanged: onChanged)),
       enabled: onChanged != null,
       onTap: onChanged == null ? null : () => onChanged(!value),
     );
