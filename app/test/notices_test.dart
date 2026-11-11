@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // The notice standard (`app/README.md` "Notifications"): levels and their timing, the queue,
-// dismissal, the dock under the app bar, semantics and large text.
+// dismissal, the floating toast, semantics and large text.
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -327,38 +329,34 @@ void main() {
     },
   );
 
-  testWidgets('the dock is closed without a notice and opens to the card', (
+  testWidgets('the toast floats 50 dp from the top and 12 dp from the sides, and moves nothing', (
     tester,
   ) async {
     final c = await _pump(tester);
     final dock = find.byType(NoticeDock);
-    final appBar = tester.getRect(find.byType(AppBar));
     final open = find.text('Open');
     final idleTop = tester.getTopLeft(open).dy;
     expect(tester.getSize(dock).height, 0);
     expect(_card, findsNothing);
 
     c.notices.show('PIN changed', level: NoticeLevel.success);
-    // Half way it is opening, and the content moves with it.
     await tester.pump();
     await tester.pump(noticeDockDuration ~/ 2);
-    final half = tester.getSize(dock).height;
     await tester.pumpAndSettle();
     final card = tester.getRect(_card);
-    final height = tester.getSize(dock).height;
-    expect(half, inExclusiveRange(0, height));
-    expect(height, card.height + NoticeDock.padding.vertical);
-    // Under the app bar, never over it, and the content moved down by the dock.
-    expect(card.top, appBar.bottom + progressSlotHeight + 12);
-    expect(card.overlaps(appBar), isFalse);
-    expect(tester.getTopLeft(open).dy, idleTop + height);
-    expect(card.overlaps(tester.getRect(open)), isFalse);
+    final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+    expect(card.top, Kit.toastTop);
+    expect(card.left, Kit.toastSide);
+    expect(screen.width - card.right, Kit.toastSide);
+    expect(card.height, greaterThanOrEqualTo(Kit.toastMin));
+    // The dock has no height: the content stays where it was.
+    expect(tester.getSize(dock).height, 0);
+    expect(tester.getTopLeft(open).dy, idleTop);
 
-    // It closes again with the last notice.
+    // It leaves with the last notice.
     await tester.pump(noticeDuration(NoticeLevel.success));
     await tester.pumpAndSettle();
     expect(_card, findsNothing);
-    expect(tester.getSize(dock).height, 0);
     expect(tester.getTopLeft(open).dy, idleTop);
   });
 
@@ -389,20 +387,18 @@ void main() {
     await tester.pump();
     await tester.pump(noticeDockDuration ~/ 2);
     await tester.pumpAndSettle();
-    expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+    expect(_card, findsOneWidget);
     // The same row under the same spot: a second tap there toggles it again.
     expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
     await tester.tapAt(before);
     expect(taps, [5, 5]);
-    // The card still covers nothing.
-    expect(tester.getRect(_card).overlaps(tester.getRect(row)), isFalse);
     // Closing does not move it either.
     await tester.pump(noticeDuration(NoticeLevel.info));
     await tester.pumpAndSettle();
     expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
   });
 
-  testWidgets('A-07: a notice no finger in the body led to pushes the content down, covering nothing', (
+  testWidgets('A-07: a notice floats over the top of a list and moves no row', (
     tester,
   ) async {
     final c = await _pump(tester);
@@ -421,23 +417,19 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // The last press was elsewhere (a dialog's button, another screen): here, the app bar.
-    final press = await tester.startGesture(tester.getCenter(find.text('Payment')));
-    await press.up();
     final first = find.byKey(const ValueKey('row0'));
     final before = tester.getTopLeft(first).dy;
     c.notices.show('Payment cancelled', level: NoticeLevel.success);
     await tester.pumpAndSettle();
-    final dock = tester.getSize(find.byType(NoticeDock).last).height;
-    expect(dock, greaterThan(0));
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
-    expect(tester.getRect(_card).overlaps(tester.getRect(first)), isFalse);
+    expect(_card, findsOneWidget);
+    expect(tester.getTopLeft(first).dy, before);
     await tester.pump(noticeDuration(NoticeLevel.success));
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before, epsilon: 1));
+    expect(_card, findsNothing);
+    expect(tester.getTopLeft(first).dy, before);
   });
 
-  testWidgets('android-18: a persistent notice pushes the content down and covers nothing', (
+  testWidgets('android-18: a persistent progress toast stays, updates in place and moves nothing', (
     tester,
   ) async {
     final c = await _pump(tester);
@@ -467,11 +459,8 @@ void main() {
       tag: 'update',
     );
     await tester.pumpAndSettle();
-    final dock = tester.getSize(find.byType(NoticeDock).last).height;
-    expect(dock, greaterThan(0));
-    // The first row moved down by the dock, so it sits whole under the card.
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
-    expect(tester.getRect(_card).overlaps(tester.getRect(first)), isFalse);
+    expect(_card, findsOneWidget);
+    expect(tester.getTopLeft(first).dy, before);
     // Progress updates keep it there.
     c.notices.show(
       'Downloading version 26.10.9… 70%',
@@ -482,11 +471,13 @@ void main() {
       tag: 'update',
     );
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
-    // Closing it gives the space back.
+    expect(find.text('Downloading version 26.10.9… 70%'), findsOneWidget);
+    expect(tester.getTopLeft(first).dy, before);
+    // Closing it removes the toast.
     c.notices.dismissTag('update');
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before, epsilon: 1));
+    expect(_card, findsNothing);
+    expect(tester.getTopLeft(first).dy, before);
   });
 
   testWidgets('a notice survives a pop, docked on the screen below', (
@@ -505,36 +496,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(_second), findsNothing);
     expect(find.text('PIN changed'), findsOneWidget);
-    final appBar = tester.getRect(find.byType(AppBar));
-    final card = tester.getRect(_card);
-    expect(card.top, greaterThanOrEqualTo(appBar.bottom));
-    // The screen below still takes touches.
+    expect(tester.getRect(_card).top, Kit.toastTop);
+    // The screen below still takes touches once the toast has gone.
+    await tester.pump(noticeDuration(NoticeLevel.success));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
     expect(find.byKey(_second), findsOneWidget);
   });
 
-  testWidgets('a screen opened while a notice shows starts with it docked', (
+  testWidgets('a screen opened while a notice shows still shows one toast', (
     tester,
   ) async {
     final c = await _pump(tester);
     c.notices.show('Saved', level: NoticeLevel.success, persistent: true);
     await tester.pumpAndSettle();
-    final open = tester.getSize(find.byType(NoticeDock)).height;
     await tester.tap(find.text('Open'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 16));
-    expect(
-      tester
-          .getSize(
-            find.descendant(
-              of: find.byKey(_second),
-              matching: find.byType(NoticeDock),
-            ),
-          )
-          .height,
-      open,
-    );
+    expect(_card, findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(_card, findsOneWidget);
   });
 
   testWidgets('the card takes the content width, 600 dp at most', (
@@ -543,12 +525,12 @@ void main() {
     final c = await _pump(tester);
     c.notices.show('Phone', level: NoticeLevel.info);
     await tester.pumpAndSettle();
-    expect(tester.getSize(_card).width, 1080 / 2.625 - 32);
+    expect(tester.getSize(_card).width, 1080 / 2.625 - 2 * Kit.toastSide);
     tester.view.physicalSize = const Size(2400, 1600);
     tester.view.devicePixelRatio = 1;
     c.notices.show('Wide screen', level: NoticeLevel.info);
     await tester.pumpAndSettle();
-    expect(tester.getSize(_card).width, 600 - 32);
+    expect(tester.getSize(_card).width, 600);
   });
 
   testWidgets('a screen reader hears the level and the whole text', (
@@ -567,12 +549,12 @@ void main() {
       tester.getSemantics(find.bySemanticsLabel('Error: $long')),
       isSemantics(isLiveRegion: true),
     );
-    // Three lines on screen (A-10).
+    // Two lines on screen.
     final text = tester.widget<Text>(
       find.descendant(of: _card, matching: find.text(long)),
     );
     expect(text.maxLines, noticeMaxLines);
-    expect(noticeMaxLines, 3);
+    expect(noticeMaxLines, 2);
     handle.dispose();
   });
 
@@ -587,7 +569,7 @@ void main() {
       expect(layout(tester).actionsBeside, isTrue);
       final text = tester.getRect(find.text('Copied'));
       final button = tester.getRect(find.widgetWithText(TextButton, 'View'));
-      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(Icons.check_circle_outline)));
+      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(KitIcons.success)));
       expect(button.left, greaterThan(text.right));
       expect(text.center.dy, moreOrLessEquals(button.center.dy, epsilon: 1));
       expect(icon.center.dy, moreOrLessEquals(text.center.dy, epsilon: 1));
@@ -595,8 +577,8 @@ void main() {
 
     testWidgets('text that would wrap puts the action on its own row and keeps the whole text', (tester) async {
       final c = await _pump(tester);
-      // The test font draws every letter 14 dp wide: three lines on a phone.
-      const text = 'Now on epicbox.example.org. New address ready.';
+      // The test font draws every letter 14 dp wide: two lines on a phone.
+      const text = 'Now on epicbox.example.org. Ready.';
       c.notices.show(text, level: NoticeLevel.success, action: NoticeAction('Show new address', () {}));
       await tester.pumpAndSettle();
       expect(layout(tester).actionsBeside, isFalse);
@@ -684,7 +666,7 @@ void main() {
         final card = tester.getRect(_card);
         expect(card.left, greaterThanOrEqualTo(0));
         expect(card.right, lessThanOrEqualTo(1080 / 2.625));
-        expect(card.overlaps(tester.getRect(find.byType(AppBar))), isFalse);
+        expect(card.top, Kit.toastTop);
         expect(find.text('Try again'), findsOneWidget);
       }
     });

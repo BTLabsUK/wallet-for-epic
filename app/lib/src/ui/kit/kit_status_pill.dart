@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 
 import '../../l10n.dart';
 import '../theme/tokens.dart';
+import 'kit_connection_dot.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
 /// The state of the wallet's connection as a word with a dot (HANDOFF 7.1): [ok] "Ready",
 /// [warn] "Reconnecting". Built for Home but not shown there until the design is settled. The
-/// dot has a soft halo of its colour. Pass [label] to name another state.
+/// dot ([KitConnectionDot]) has a soft halo of its colour. Pass [label] to name another state.
+/// [onTap] makes it a button (Home and unlock open the connections sheet from it); [semanticsId]
+/// names it for the test drivers.
 class KitStatusPill extends StatelessWidget {
   const KitStatusPill({super.key, required this.ready, this.label, this.onTap, this.semanticsId});
 
@@ -22,7 +25,6 @@ class KitStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final color = ready ? t.ok : t.warn;
     final word = label ?? (ready ? context.l10n.phoneKitReady : context.l10n.phoneKitReconnecting);
     final pill = Container(
       height: Kit.pill,
@@ -31,15 +33,7 @@ class KitStatusPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.18), spreadRadius: 3)],
-            ),
-          ),
+          KitConnectionDot(ready: ready),
           const SizedBox(width: 11),
           Flexible(child: Text(word, style: KitType.pill.copyWith(color: t.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
