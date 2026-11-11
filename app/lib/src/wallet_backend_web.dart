@@ -4,6 +4,7 @@
 /// reload and no network at all.
 library;
 
+import 'package:flutter/semantics.dart' show SemanticsBinding, SemanticsHandle;
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'secret_store_api.dart';
@@ -11,8 +12,15 @@ import 'vault.dart' show LegacyFiles;
 import 'wallet_service.dart';
 import 'web/preview.dart';
 
-/// Nothing to load: the preview has no wallet core.
-Future<void> initWalletBackend() async {}
+/// Kept for the whole run: dropping it would turn the page's accessibility tree off again.
+SemanticsHandle? _semantics;
+
+/// Nothing to load: the preview has no wallet core. Its semantics tree is on from the start, so
+/// screen readers and browser agents (Playwright's accessibility snapshot) see the buttons,
+/// tabs and fields without first pressing the engine's hidden "Enable accessibility" button.
+Future<void> initWalletBackend() async {
+  if (webFakeBackend) _semantics ??= SemanticsBinding.instance.ensureSemantics();
+}
 
 /// The preview runs no tor: nothing to tell it.
 void wantTorAtOpen(Future<bool> Function(WalletConfig config) wanted) {}
