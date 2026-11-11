@@ -39,16 +39,11 @@ lepic/crates/lepic-legacy-rpc/src/server.rs	"/v2/foreign"
 lepic/crates/lepic-node/src/rpc.rs	"/v2/foreign"
 lepic/crates/lepic-methods/src/tor/mod.rs	"/v2/foreign"
 
-# LEPIC: the native endpoint's paths (ADR 0052), protocol every native wallet serves.
-lepic/crates/lepic-peer/src/lib.rs	"/v1/peer(/slates)?"
-# LEPIC CLI: its own REST API's paths and the OpenAPI document listing them (the API's
-# interface, like the node's /v2/foreign), never an address.
-lepic/crates/lepic-cli/src/api/routes.rs	"/v1/[^"]*"
-lepic/crates/lepic-cli/src/api/openapi.rs	"/v[12]/[^"]*"
-# LEPIC CLI: commands sent to a running `lepic serve` (ADR 0053) call the same REST API's paths
-# over its local socket; the socket comes from the data directory, never an address.
-lepic/crates/lepic-cli/src/through_serve.rs	"/v1/[^"]*"
-lepic/crates/lepic-cli/src/through_serve/families.rs	"/v1/[^"]*"
+# LEPIC: the native endpoint's path (ADR 0052, ADR 0055), protocol every native wallet serves.
+lepic/crates/lepic-peer/src/lib.rs	"/api/v1/inbox"
+# LEPIC CLI: where its wallet API's paths are mounted (ADR 0055; the API's interface, like the
+# node's /v2/foreign), never an address.
+lepic/crates/lepic-cli/src/api/spec.rs	"/api/v1"
 # LEPIC: 3415 is what a peer's http:// address without a port means, in every Epic wallet
 # (protocol, ADR 0030), and its documentation; the generated Dart copies the doc comments.
 lepic/crates/lepic-legacy-rpc/src/url.rs	(?<![0-9])3415(?![0-9])
@@ -101,6 +96,6 @@ app/lib/src/trust_ids.g.dart	'[a-z0-9_.]+'
 lepic/crates/lepic-transport/src/host_rule/tests.rs	"[0-9a-fA-F:.]+"
 lepic/crates/lepic-native-slate/src/tail/tests.rs	epicbox\.epiccash\.com|a\.org
 lepic/crates/lepic-peer/src/origin/tests.rs	[a-z2-7]{56}\.onion
-lepic/crates/lepic-peer/src/origin/tests.rs	(?<![0-9])3415(?![0-9])|/v1/peer
+lepic/crates/lepic-peer/src/origin/tests.rs	(?<![0-9])3415(?![0-9])|/api/v1/inbox
 lepic/crates/lepic-native-slate/src/tail/tests.rs	:65535(?![0-9])
 lepic/crates/lepic-epic1/src/link/tests.rs	:2100(?![0-9])
