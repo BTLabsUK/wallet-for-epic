@@ -173,7 +173,7 @@
   "@deskConErrAddressEmpty": {
     "description": "Error under the Address field of the contact form when it is empty."
   },
-  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).",
+  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).",
   "@deskConErrAddressInvalid": {
     "description": "Error under the Address field of the contact form when the text is not an address."
   },

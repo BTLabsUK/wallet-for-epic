@@ -20,6 +20,7 @@ const _onion = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';
 const _o = 'http://$_onion.onion';
 
 AddressVerdict _check(Recipient to) => switch (to.kind) {
+  RecipientKind.epic1 => AddressVerdict.invalid,
   RecipientKind.epicbox when to.address == _floonet =>
     AddressVerdict.otherChain,
   RecipientKind.epicbox =>

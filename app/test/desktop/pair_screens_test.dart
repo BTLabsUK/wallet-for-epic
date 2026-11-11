@@ -17,7 +17,9 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, unnamedPeerName;
+import 'package:epic_wallet/src/models.dart' show PairingInvitePreview, PairingParty;
+import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, relayHostOf, unnamedPeerName;
+import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
 import 'package:epic_wallet/src/trust/policy.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show PairingEndReason, PairingState;
 import 'package:flutter/material.dart';
@@ -389,6 +391,75 @@ void main() {
     await tester.tap(find.byKey(deskRequestsNotNowKey));
     await _real(tester);
     expect((await tester.runAsync(_pairing.requests))!.where((r) => r.fromAddress == piotr.epicbox), isEmpty);
+  });
+
+  group('Pair with …? body', () {
+    Widget opener(PairingInvitePreview preview, InviteSource? source) => Consumer(
+      builder: (context, ref, _) => Center(child: TextButton(onPressed: () => showDeskIncoming(context, ref, preview, source: source), child: const Text('open'))),
+    );
+    String? value(WidgetTester tester, Key key) {
+      final at = find.byKey(key);
+      if (at.evaluate().isEmpty) return null;
+      return tester.widgetList<Text>(find.descendant(of: at, matching: find.byType(Text), matchRoot: true)).map((t) => t.data).join();
+    }
+
+    testWidgets('a pasted invite: the sealed line, Server, Source and the time left; no key, the initials', (tester) async {
+      await _open(tester, const DeskPairScreen());
+      _pairing.clock = DateTime.now;
+      await _paste(tester, _l.pairInviteMessage(_pairing.inviteLinkFrom(name: 'Anna')));
+      expect(find.text(_l.pairIncomingBody('Anna')), findsOneWidget);
+      for (final label in [_l.pairIncomingServer, _l.pairIncomingSource, _l.pairExpiresIn]) {
+        expect(find.text(label), findsOneWidget, reason: label);
+      }
+      expect(value(tester, deskIncomingServerKey), relayHostOf(_pairing.homeRelay));
+      expect(value(tester, deskIncomingSourceKey), _l.pairIncomingSourcePasted);
+      expect(value(tester, deskIncomingExpiresKey), _l.pairDurDays(6, 22));
+      expect(find.byType(KeyPictureView), findsNothing);
+      expect(find.byType(DeskPairAvatar), findsOneWidget);
+      expect(find.byKey(deskIncomingPairKey), findsOneWidget);
+      expect(find.byKey(deskIncomingNotNowKey), findsOneWidget);
+    });
+
+    testWidgets('a scanned shop invite with a key: the key picture, the server without its port', (tester) async {
+      final preview = PairingInvitePreview(
+        token: 't1',
+        name: 'Pairing Demo Shop',
+        expiresAt: DateTime.now().add(const Duration(hours: 2, minutes: 30, seconds: 20)),
+        kind: PairingParty.shop,
+        homeRelay: 'relay.example.com:443',
+        inviteKey: Uint8List.fromList(List.generate(32, (i) => i * 7)),
+      );
+      await _open(tester, opener(preview, InviteSource.scanned));
+      await tester.tap(find.text('open'));
+      await _real(tester);
+      expect(find.byType(KeyPictureView), findsOneWidget);
+      expect(find.byType(DeskPairAvatar), findsNothing);
+      expect(value(tester, deskIncomingServerKey), 'relay.example.com');
+      expect(value(tester, deskIncomingSourceKey), _l.pairIncomingSourceScanned);
+      expect(value(tester, deskIncomingExpiresKey), _l.pairDurHours(2, 30));
+    });
+
+    testWidgets('a request to this wallet: the request line and Sent to your Epicbox address', (tester) async {
+      final preview = PairingInvitePreview(token: 't2', name: 'Piotr', expiresAt: DateTime.now().add(const Duration(days: 1, hours: 3, minutes: 30)), homeRelay: 'epicbox.example.org', fromAddress: 'es${'p' * 50}@epicbox.epiccash.com');
+      await _open(tester, opener(preview, null));
+      await tester.tap(find.text('open'));
+      await _real(tester);
+      expect(find.text(_l.pairIncomingBodyRequest('Piotr')), findsOneWidget);
+      expect(find.text(_l.pairIncomingBody('Piotr')), findsNothing);
+      expect(value(tester, deskIncomingSourceKey), _l.pairIncomingSourceRequest);
+      expect(value(tester, deskIncomingServerKey), 'epicbox.example.org');
+    });
+
+    testWidgets('no server in the invite and no known source: those rows are left out', (tester) async {
+      final preview = PairingInvitePreview(token: 't3', name: 'Bob', expiresAt: DateTime.now().add(const Duration(minutes: 30, seconds: 30)));
+      await _open(tester, opener(preview, null));
+      await tester.tap(find.text('open'));
+      await _real(tester);
+      expect(find.byKey(deskIncomingServerKey), findsNothing);
+      expect(find.byKey(deskIncomingSourceKey), findsNothing);
+      expect(find.text(_l.pairIncomingServer), findsNothing);
+      expect(value(tester, deskIncomingExpiresKey), _l.pairDurMinutes(30));
+    });
   });
 }
 

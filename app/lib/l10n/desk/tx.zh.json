@@ -104,5 +104,7 @@
   "deskTxNowUndeliveredRelay": "未送达。{relay} 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。",
   "deskTxMore": "更多",
   "deskTxLess": "收起",
-  "deskTxNowConfirmedBlock": "{confirmations, plural, other{已确认，{confirmations} 个确认 · 区块 {block}。}}"
+  "deskTxNowConfirmedBlock": "{confirmations, plural, other{已确认，{confirmations} 个确认 · 区块 {block}。}}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC，{via}。尚未支付任何款项：取消免费且一定成功。",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC，{via}。这笔付款之后仍可能完成。"
 }

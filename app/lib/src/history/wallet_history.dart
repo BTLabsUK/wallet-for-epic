@@ -52,6 +52,7 @@ Contact _contact(ContactRec c) => Contact(
   epicbox: c.epicbox,
   http: c.http,
   tor: c.tor,
+  epic1: c.epic1,
   note: c.note,
   label: ContactLabel.fromStored(c.label),
 );
@@ -62,6 +63,7 @@ Contact _fromShared(ContactFields c) => Contact(
   epicbox: c.epicbox,
   http: c.http,
   tor: c.tor,
+  epic1: c.epic1,
   note: c.note,
   label: c.label,
 );
@@ -72,6 +74,7 @@ ContactRec _recOf(ContactFields c) => ContactRec(
   epicbox: c.epicbox,
   http: c.http,
   tor: c.tor,
+  epic1: c.epic1,
   note: c.note,
   label: c.label.stored,
 );
@@ -134,7 +137,7 @@ int mergeBackupContacts(
       continue;
     }
     if (c.id.isEmpty || book.any((e) => e.id == c.id)) continue;
-    book.add(ContactFields(id: c.id, name: c.name.trim(), note: _trimmed(c.note), label: ContactLabel.fromStored(c.label)));
+    book.add(ContactFields(id: c.id, name: c.name.trim(), epic1: _trimmed(c.epic1), note: _trimmed(c.note), label: ContactLabel.fromStored(c.label)));
     n++;
   }
   final plan = planGuiContacts(
@@ -154,7 +157,7 @@ int mergeBackupContacts(
   for (final a in plan.add) {
     final from = withAddress.where((c) => _sharesAddress(c, a)).firstOrNull;
     final id = from == null || from.id.isEmpty || book.any((e) => e.id == from.id) ? _randomHex(16) : from.id;
-    book.add(a.copyWith(id: id));
+    book.add(a.copyWith(id: id, epic1: _trimmed(from?.epic1)));
     n++;
   }
   return n;
@@ -172,7 +175,7 @@ Set<String> _favouritesIn(HistoryPayload payload, List<ContactFields> book) => {
 };
 
 ContactFields _fieldsOfRec(ContactRec c) =>
-    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: ContactLabel.fromStored(c.label));
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, epic1: c.epic1, note: c.note, label: ContactLabel.fromStored(c.label));
 
 class WalletHistory {
   /// With [contacts], the address book is that store, shared by every wallet on the device
@@ -339,12 +342,14 @@ class WalletHistory {
   }
 
   /// Adds (empty `id`) or replaces a contact. It needs a name and at least one address; each
-  /// address is kept in its kind's field ([Contact.epicbox], [Contact.http], [Contact.tor]).
+  /// address is kept in its kind's field ([Contact.epicbox], [Contact.http], [Contact.tor],
+  /// [Contact.epic1]).
   Future<Contact> saveContact(Contact contact) async {
     final name = contact.name.trim();
     final epicbox = _trimmed(contact.epicbox);
     final http = _trimmed(contact.http);
     final tor = _trimmed(contact.tor);
+    final epic1 = _trimmed(contact.epic1);
     if (name.isEmpty) throw _invalid('the contact needs a name');
     // No address: a contact a pairing pays (RFC 0002, the mailbox is never an address).
     // Whether an address is valid is each screen's check, with the core's validators. Nothing
@@ -360,6 +365,7 @@ class WalletHistory {
             epicbox: epicbox,
             http: http,
             tor: tor,
+            epic1: epic1,
             note: _trimmed(contact.note),
             label: contact.label,
           ),
@@ -372,6 +378,7 @@ class WalletHistory {
       epicbox: epicbox,
       http: http,
       tor: tor,
+      epic1: epic1,
       note: _trimmed(contact.note),
       label: contact.label.stored,
     );

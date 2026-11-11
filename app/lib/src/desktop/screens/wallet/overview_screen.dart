@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
-import '../../../models.dart' show Epic1Via;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../../trust_ids.dart';
@@ -32,6 +31,7 @@ import 'activity_screen.dart' show ActivityArgs;
 import 'restore_scan_panel.dart';
 import '../scan/desk_scan.dart' show DeskScanButton;
 import '../scan/desk_scan_route.dart';
+import '../../../ui/via.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../settings_file/host_settings.dart' show hostSettings;
@@ -1182,10 +1182,11 @@ class _InFlightRow extends ConsumerWidget {
 /// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
 /// from Bob". The Deep end names an address when no contact does.
 String _inFlightTitle(AppLocalizations l, Tx t, bool technical) {
-  // A payment handed over in person or by link has no name to give: the title says how.
-  final nameless = t.contactName == null && t.counterparty == null && t.epic1Via != null;
-  if (nameless && technical && !t.incoming && t.epic1Via == Epic1Via.inPerson) return l.deskLvPaySendingInPerson;
-  final name = t.contactName ?? (technical && !nameless ? whoOf(l, t) : null);
+  // The Deep end names the way when no contact or address does: "via file", "in person".
+  final via = technical ? viaOf(t) : null;
+  if (via == Via.inPerson && !t.incoming) return l.deskLvPaySendingInPerson;
+  if (via != null) return t.incoming ? l.deskLvPayArrivingVia(viaPhrase(l, via)) : l.deskLvPaySendingVia(viaPhrase(l, via));
+  final name = t.contactName ?? (technical ? whoOf(l, t) : null);
   if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
   if (name == null) return l.lvPayOnItsWay;
   return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);

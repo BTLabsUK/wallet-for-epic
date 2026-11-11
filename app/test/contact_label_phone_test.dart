@@ -72,10 +72,15 @@ void main() {
     await _session.saveContact(contact: Contact(id: '', name: 'Bob', address: _bob, label: ContactLabel.exchange));
   });
 
-  testWidgets('the list marks a labelled contact and draws nothing for the default', (tester) async {
+  testWidgets('the list marks only a contact whose kind is not the plain wallet, at the larger size', (tester) async {
     await _pump(tester, const ContactsScreen());
-    expect(find.byType(ContactLabelMark), findsOneWidget);
-    expect(tester.widget<ContactLabelMark>(find.byType(ContactLabelMark)).label, ContactLabel.exchange);
+    final marks = find.byType(ContactLabelMark);
+    expect(marks, findsOneWidget);
+    expect(tester.widget<ContactLabelMark>(marks).label, ContactLabel.exchange);
+    // The 48 px row avatar: a 21 px mark (it was 19 px) with a 17 px glyph (it was 14 px).
+    expect(tester.getSize(marks).width, closeTo(contactLabelMarkSize(48), 0.01));
+    expect(contactLabelMarkSize(48), greaterThanOrEqualTo(21));
+    expect(tester.getSize(find.descendant(of: marks, matching: find.byType(ContactLabelGlyph))).width, greaterThanOrEqualTo(16.8));
   });
 
   testWidgets('the contact page mark opens the picker; setting and clearing a label updates it and the stored contact', (tester) async {

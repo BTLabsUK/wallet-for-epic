@@ -37,6 +37,9 @@ AddressCheck scanCheckFor(WalletService service) => (to) {
       return httpAddressComplete(to.address)
           ? AddressVerdict.valid
           : AddressVerdict.invalid;
+    case RecipientKind.epic1:
+      // An epic1 link is paid from epic1 Send, not from a scanned payment code.
+      return AddressVerdict.invalid;
   }
 };
 

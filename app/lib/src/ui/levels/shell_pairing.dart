@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n.dart';
+import '../../pairing_text.dart' show InviteSource;
 import '../../levels/level_providers.dart';
 import '../../pairing_api.dart' show PairingLinkKind, pairingLinkIn, pairingLinkKind;
 import '../../pairing_providers.dart';
@@ -38,7 +39,7 @@ Future<bool> offerPairRequest(BuildContext context, WidgetRef ref, String text) 
       persistent: true,
       tag: pairRequestNoticeTag,
       action: NoticeAction(l.lvShellSeeRequest, () {
-        if (context.mounted) showIncomingInvite(context, ref, preview);
+        if (context.mounted) showIncomingInvite(context, ref, preview, source: InviteSource.opened);
       }),
       secondary: NoticeAction(l.pairNotNow, () {}),
     );

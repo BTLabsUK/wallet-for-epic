@@ -14,6 +14,7 @@ import '../devices/device_link_code.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart' show pairingSupportedProvider;
+import '../pairing_text.dart' show inviteSourceOf;
 import '../payment_prefs.dart';
 import '../providers.dart';
 import '../scan/scan_checks.dart';
@@ -172,7 +173,13 @@ Future<void> openScannedCode(
     case SlateText(:final text):
       await _showSlateText(context, text);
     case PairingLink(:final text) when ref.read(pairingSupportedProvider):
-      await openPairingLink(context, ref, text, byCamera: origin == CodeOrigin.qr);
+      await openPairingLink(
+        context,
+        ref,
+        text,
+        byCamera: origin == CodeOrigin.qr,
+        source: inviteSourceOf(origin),
+      );
     case PairingLink(:final text):
       await showPairingSheet(context, text, origin: origin);
     case WrongNetwork(:final recipient):

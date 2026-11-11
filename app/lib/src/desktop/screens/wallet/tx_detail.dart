@@ -4,6 +4,7 @@ import '../../../name_service/pins.dart' show LinkPaymentRec;
 import '../../../name_service/receipts.dart';
 import '../../../trust/policy.dart' show MailboxSendStage, mailboxSendStage;
 import '../transfer/send_screen.dart' show SendArgs;
+import '../../../ui/via.dart';
 import 'receipt_line.dart';
 import '../../../cancel_choice.dart';
 import '../../../cancel_final.dart' show CancelResult;
@@ -542,6 +543,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     Text(t.foundDuring == FoundDuring.restore ? l.deskTxHeadRestored : l.deskTxHeadFoundOnChain, style: ts.small)
                   else if (t.fromBackup && t.counterparty == null)
                     Text(l.deskTxHeadBackup, style: ts.small)
+                  else if (withdrawal == null && mailboxName == null && viaOf(t) != null)
+                    // Only the path is known: "via file", not "to file".
+                    Text(viaPhrase(l, viaOf(t)!), style: ts.small)
                   else
                     Text.rich(
                       TextSpan(
@@ -1144,8 +1148,12 @@ Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDia
           ? l.txDetailsCancelReceiveBody
           : keepNumbersWithUnits(
               twoWays
-                  ? l.deskTxCancelNotPostedBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t))
-                  : l.deskTxCancelOutgoingBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t)),
+                  ? (viaOf(t) != null
+                        ? l.deskTxCancelNotPostedViaBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), viaPhrase(l, viaOf(t)!))
+                        : l.deskTxCancelNotPostedBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t)))
+                  : (viaOf(t) != null
+                        ? l.deskTxCancelOutgoingViaBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), viaPhrase(l, viaOf(t)!))
+                        : l.deskTxCancelOutgoingBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t))),
             ),
       body: twoWays ? DeskCancelChoices(anchor: anchor) : DeskCancelNote(anchor: anchor, inDialog: true),
       // Named by outcome (B-04): Keep and Unlock coins outlined, Move coins back the one

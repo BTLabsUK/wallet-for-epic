@@ -62,6 +62,9 @@ ParsedAddress _parse(String text, DeskWalletApi? api) {
         r.address,
         complete: named && httpAddressProblem(r.address) == null,
       );
+    case RecipientKind.epic1:
+      // An epic1 link is no address a method pays; the contact form checks it with LEPIC.
+      return ParsedAddress(AddressKind.none, r.address, complete: false);
     case RecipientKind.epicbox:
       if (!_epicboxShape.hasMatch(r.address)) {
         return ParsedAddress(AddressKind.none, r.address, complete: false);
@@ -77,6 +80,7 @@ AddressCheck deskScanCheck(DeskWalletApi api) => (to) => switch (to.kind) {
       : (api.epicboxAddressOtherChain(to.address) ? AddressVerdict.otherChain : AddressVerdict.invalid),
   RecipientKind.tor => api.isOnionAddress(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
   RecipientKind.http => httpAddressComplete(to.address) ? AddressVerdict.valid : AddressVerdict.invalid,
+  RecipientKind.epic1 => AddressVerdict.invalid,
 };
 
 /// What a pasted or linked [text] is, checked against [api].

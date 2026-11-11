@@ -2777,7 +2777,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) ที่อยู่ onion (….onion) หรือลิงก์ epic1 (epic:epic1…)';
 
   @override
   String get settingsTitle => 'การตั้งค่า';
@@ -7244,7 +7244,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) ที่อยู่ onion (….onion) หรือลิงก์ epic1 (epic:epic1…)';
 
   @override
   String get deskConAddPicture => 'เพิ่มรูป';
@@ -13444,6 +13444,29 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'เมื่อจับคู่แล้ว ไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก';
+  }
+
+  @override
+  String get pairIncomingServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get pairIncomingSource => 'ที่มา';
+
+  @override
+  String get pairIncomingSourceScanned => 'สแกน QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'วางคำเชิญ';
+
+  @override
+  String get pairIncomingSourceOpened => 'เปิดจากแอปอื่น';
+
+  @override
+  String get pairIncomingSourceRequest => 'ส่งมาที่ที่อยู่ Epicbox ของคุณ';
+
+  @override
   String get pairVerifiedService => 'บริการของ BT Labs ที่ตรวจสอบแล้ว';
 
   @override
@@ -14074,6 +14097,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'วางที่อยู่ $type หรือเว้นว่างไว้';
   }
+
+  @override
+  String get epic1AddressAlone =>
+      'ชำระด้วยที่อยู่ epic1 อย่างเดียวไม่ได้ วางลิงก์ epic1';
+
+  @override
+  String get addrPasteAnother => 'วางที่อยู่อื่น หรือเว้นว่างไว้';
 
   @override
   String get pendingTitle => 'คำเชิญที่รออยู่';
@@ -16105,7 +16135,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) หรือที่อยู่ลิงก์ (https://…)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือลิงก์ epic1 (epic:epic1…)';
 
   @override
   String get handshakeLink1NoTor =>
@@ -21278,6 +21308,84 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskIpOnlineDetails => 'รายละเอียด';
 
   @override
+  String deskLvPaySendingVia(String via) {
+    return 'กำลังส่ง $via';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String via) {
+    return 'กำลังเข้ามา $via';
+  }
+
+  @override
+  String txSpokenSendingVia(String amount, String via) {
+    return 'กำลังส่ง $amount $via';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return 'กำลังรับ $amount $via';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return 'ส่ง $amount $via แล้ว';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return 'ได้รับ $amount $via';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return 'ยกเลิกการส่ง $amount $via';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return 'ยกเลิกการรับ $amount $via';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': 'ผ่านไฟล์',
+      'link': 'ผ่านลิงก์ epic1',
+      'inPerson': 'ด้วยตนเอง',
+      'epicbox': 'ผ่าน Epicbox',
+      'http': 'ผ่าน HTTP',
+      'tor': 'ผ่าน Tor',
+      'qr': 'ผ่าน QR',
+      'other': 'ด้วยวิธีอื่น',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return 'กำลังไป $via';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC $via';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC $via ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC $via รายการนี้ยังอาจสำเร็จได้ในภายหลัง';
+  }
+
+  @override
+  String get deskOvScan => 'สแกน';
+
+  @override
   String get deskQrHiddenReply =>
       'แสดงให้กระเป๋าของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้';
 
@@ -21371,7 +21479,4 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => 'ไม่พบกล้อง วางโค้ดแทน';
-
-  @override
-  String get deskOvScan => 'สแกน';
 }

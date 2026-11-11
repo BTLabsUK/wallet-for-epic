@@ -18,5 +18,7 @@
   "deskLvSendFinishFile": "Завершить файл ответа",
   "deskLvSendFinishFileText": "Откройте полученный ответ, чтобы опубликовать платёж.",
   "deskLvSendPrevAddress": "Прежний адрес",
-  "deskLvSendPrevText": "Старый адрес был на {server}. Всем, у кого он есть, нужен новый."
+  "deskLvSendPrevText": "Старый адрес был на {server}. Всем, у кого он есть, нужен новый.",
+  "deskLvSendLiveVia": "Идёт {via}",
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}"
 }

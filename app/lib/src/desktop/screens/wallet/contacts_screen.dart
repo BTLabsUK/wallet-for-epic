@@ -6,12 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
+import '../../../contact_epic1.dart';
 import '../../../contact_label.dart';
 import '../../../history/domain_check_book.dart' show DomainStatus;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../trust/policy.dart' show statedAutomated;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
-import '../../../recipient.dart' show RecipientKind, parseRecipient;
+import '../../../recipient.dart' show RecipientKind, epic1AddressOnly, parseRecipient;
 import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -452,12 +453,14 @@ class _Empty extends ConsumerWidget {
 
 /// The contact's picture (the mock draws a placeholder), else its initials.
 class _Pic extends StatelessWidget {
-  const _Pic({required this.name, required this.picture, required this.size, this.label = ContactLabel.wallet, this.onLabelTap});
+  const _Pic({required this.name, required this.picture, required this.size, this.label, this.onLabelTap});
 
   final String name;
   final bool picture;
   final double size;
-  final ContactLabel label;
+
+  /// Null where the avatar is no stored contact's yet (the add form): no mark.
+  final ContactLabel? label;
   final VoidCallback? onLabelTap;
 
   @override
@@ -640,13 +643,13 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
             decoration: BoxDecoration(color: widget.selected ? c.s3 : (_hover ? c.hover : null), borderRadius: BorderRadius.circular(Rad.sm)),
             child: Row(
               children: [
-                _Pic(name: x.name, picture: x.hasPicture, size: 40.u, label: x.label),
+                _Pic(name: x.name, picture: x.hasPicture, size: 40.u, label: x.label.listMark),
                 SizedBox(width: 14.u),
                 Expanded(
                   child: EAddressLines(
                     full: true,
                     name: x.name,
-                    address: x.address,
+                    address: x.address.isEmpty ? (x.epic1 ?? '') : x.address,
                     addresses: x.addresses,
                     note: x.note,
                     nameTrailing: Row(
@@ -1006,6 +1009,13 @@ class _AddrField {
   final FocusNode focus = FocusNode();
   RecipientKind? clash;
 
+  /// LEPIC's verdict on an epic1 text, and the text it was for.
+  String? epic1Text;
+  Epic1Check? epic1;
+
+  /// [epic1] when it is for [text], else null (not checked yet).
+  Epic1Check? epic1For(String text) => epic1Text == text ? epic1 : null;
+
   void dispose() {
     text.dispose();
     focus.dispose();
@@ -1041,6 +1051,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _nameFocus.addListener(() {
       if (!_nameFocus.hasFocus && _name.text.trim().isNotEmpty) setState(() => _touched.add('name'));
     });
+    // A saved epic1 link shows its kind on opening, as a typed one does.
+    for (final f in _fields) {
+      _checkEpic1(f);
+    }
   }
 
   @override
@@ -1060,6 +1074,9 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   RecipientKind? _kindOf(_AddrField f) {
     final a = f.text.text.trim();
     if (a.isEmpty) return null;
+    if (parseRecipient(a).kind == RecipientKind.epic1) {
+      return f.epic1For(a) == Epic1Check.link ? RecipientKind.epic1 : null;
+    }
     final p = parseAddress(a, ref.read(deskApiProvider));
     final allowed = switch (p.kind) {
       AddressKind.tor => DeskFeatures.tor,
@@ -1074,8 +1091,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   String? _errorOf(_AddrField f) {
     final l = context.l10n;
     if (f.clash != null) return l.addrDuplicateType(_name.text.trim().isEmpty ? l.contactTitle : _name.text.trim(), recipientMethodWord(l, f.clash!));
-    if (f.text.text.trim().isEmpty) return null;
+    final text = f.text.text.trim();
+    if (text.isEmpty) return null;
     if (_kindOf(f) != null) return null;
+    final invalid = DeskFeatures.tor ? l.deskConErrAddressInvalid : l.contactsAddressInvalidAnyNoTor;
+    if (parseRecipient(text).kind == RecipientKind.epic1) {
+      // LEPIC's verdict once it is in; until then the shape's.
+      final verdict = f.epic1For(text);
+      if (verdict != null) return epic1CheckText(l, verdict, invalid: invalid);
+      return epic1AddressOnly(text) ? l.epic1AddressAlone : null;
+    }
     // The build without Tor takes no new onion address.
     if (!DeskFeatures.tor) return addressKindOf(f.text.text.trim()) == AddressKind.tor ? l.sendTorNotInVersion : l.contactsAddressInvalidAnyNoTor;
     return l.deskConErrAddressInvalid;
@@ -1098,6 +1123,19 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       extra.disposeLater();
     }
     setState(() {});
+    _checkEpic1(f);
+  }
+
+  /// Has LEPIC read [f]'s epic1 text, once per text; then [_changed] again, so the kind,
+  /// the free field and the line under it follow its verdict.
+  Future<void> _checkEpic1(_AddrField f) async {
+    final text = f.text.text.trim();
+    if (parseRecipient(text).kind != RecipientKind.epic1 || f.epic1For(text) != null) return;
+    final verdict = await checkEpic1(ref.read(deskApiProvider).epic1, text);
+    if (!mounted || f.text.text.trim() != text || !_fields.contains(f)) return;
+    f.epic1Text = text;
+    f.epic1 = verdict;
+    _changed(f);
   }
 
   Future<void> _scan(_AddrField f) async {
@@ -1134,11 +1172,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   Future<void> _save() async {
     setState(() => _tried = true);
     if (_nameError != null) return _nameFocus.requestFocus();
+    await Future.wait([for (final f in _fields) _checkEpic1(f)]);
+    if (!mounted) return;
     final filled = [for (final f in _fields) if (f.text.text.trim().isNotEmpty) f];
     if ((filled.isEmpty && !_addressOptional) || filled.any((f) => _errorOf(f) != null)) return;
     String? of(RecipientKind kind) {
       for (final f in filled) {
-        if (_kindOf(f) == kind) return parseAddress(f.text.text, ref.read(deskApiProvider)).canonical;
+        if (_kindOf(f) != kind) continue;
+        // An epic1 link is stored as typed, whitespace dropped.
+        if (kind == RecipientKind.epic1) return parseRecipient(f.text.text).address;
+        return parseAddress(f.text.text, ref.read(deskApiProvider)).canonical;
       }
       return null;
     }
@@ -1159,6 +1202,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               epicbox: of(RecipientKind.epicbox),
               http: of(RecipientKind.http),
               tor: of(RecipientKind.tor),
+              epic1: of(RecipientKind.epic1),
               note: _note.text.trim().isEmpty ? null : _note.text.trim(),
               label: widget.contact?.label ?? ContactLabel.wallet,
               favourite: widget.contact?.favourite ?? false,
@@ -1282,16 +1326,19 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   Widget _addressField(AppLocalizations l, DeskColors c, _AddrField f, List<RecipientKind> free, bool missing) {
     final kind = _kindOf(f);
     final empty = f.text.text.trim().isEmpty;
-    final error = missing ? l.deskConErrAddressEmpty : (_tried || !f.focus.hasFocus ? _errorOf(f) : (f.clash != null ? _errorOf(f) : null));
-    // An empty field is labelled by the kind it takes first ("Epicbox address", as Edit contact
-    // labels a typed one); a further one's hint says it may stay empty, the first has none.
-    final shownKind = kind ?? (empty && free.isNotEmpty ? free.first : null);
-    final hint = empty && _fields.length > 1 && free.isNotEmpty ? l.addrDesktopThird(recipientMethodWord(l, free.first)) : null;
+    // LEPIC's line on an epic1 text shows as soon as it is in: a pasted address alone says so.
+    final epic1Said = f.epic1For(f.text.text.trim()) != null;
+    final error = missing
+        ? l.deskConErrAddressEmpty
+        : (_tried || !f.focus.hasFocus || epic1Said ? _errorOf(f) : (f.clash != null ? _errorOf(f) : null));
+    // Any kind fits a field, so it is labelled Address and its badge names the kind it holds; a
+    // further one's hint says it may stay empty, the first has none.
+    final hint = empty && _fields.length > 1 && free.isNotEmpty ? l.addrPasteAnother : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EField(
-          label: shownKind == null ? l.addrField : l.addrFieldTyped(recipientMethodWord(l, shownKind)),
+          label: l.addrField,
           error: error,
           child: EInput(
             controller: f.text,
@@ -1593,7 +1640,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 size: EBtnSize.sm,
                 onPressed: () => _run(() async {
                   await ref.read(deskProvider.notifier).saveContact(
-                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, note: x.note, label: x.label, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
+                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, epic1: x.epic1, note: x.note, label: x.label, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
                   );
                 }),
               ),

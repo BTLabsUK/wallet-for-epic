@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../ui/via.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
-import '../../../pairing_text.dart' show sendRoutePairedLineOf, sendRoutePublicLineOf, sendRouteReasonText, sendRouteServerDownText;
+import '../../../pairing_text.dart' show inviteSourceOf, sendRoutePairedLineOf, sendRoutePublicLineOf, sendRouteReasonText, sendRouteServerDownText;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
@@ -65,11 +66,12 @@ import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
 import '../../../ui/link_send.dart' show amountEdited, linkRefusalText;
 import '../wallet/contacts_screen.dart' show ContactsArgs;
-import '../wallet/tx_display.dart' show statusOf;
+import '../wallet/tx_display.dart' show statusOf, viaOf;
 import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
 import '../../../epic1.dart' show PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
+import '../../../recipient.dart' show epic1AddressOnly;
 import '../epic1/epic1_files.dart' show jumpToEpic1Switch, showEpic1ModeDialog;
 import '../epic1/send_link.dart' show Epic1SendPage;
 import 'send_summary_rows.dart';
@@ -265,7 +267,8 @@ final _sendKeeperProvider = Provider<_SendKeeper>((ref) {
 });
 
 /// Send: in epic1 mode the epic1 page, unless a contact was picked (the paired send goes
-/// native by itself); otherwise today's form.
+/// native by itself; a contact with only an epic1 link pays that on the epic1 page);
+/// otherwise today's form.
 class SendScreen extends ConsumerWidget {
   const SendScreen({super.key, this.arg});
 
@@ -275,8 +278,12 @@ class SendScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final a = arg;
     final contact = a is Contact || (a is SendArgs && (a.contact != null || a.pairingTo != null));
-    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 && !contact) {
-      return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null);
+    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
+      if (!contact) return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null);
+      final picked = a is Contact ? a : (a as SendArgs).contact;
+      if (picked != null) {
+        if (contactEpic1Link(ref, picked) case final link?) return Epic1SendPage(key: ValueKey(link), code: link);
+      }
     }
     return _ClassicSend(arg: arg);
   }
@@ -1109,8 +1116,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     void dialog(IconData icon, String title, String body, String shown) =>
         showCodeDialog(context, icon: icon, title: title, text: body, code: shown);
     // epic1 payments are off: their links and files say how to turn them on.
+    // An epic1 address alone is paid in neither mode.
     if (looksLikeEpic1Link(text)) {
-      fieldError((l) => l.deskE1ModeEpic1Link);
+      fieldError((l) => epic1AddressOnly(text) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link);
       return true;
     }
     if (looksLikeEpictx(text)) {
@@ -1151,7 +1159,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       case PairingLink() when pasted && !ref.read(deskPairsProvider):
         fieldError((l) => l.scanPairingUnavailable);
       case PairingLink(text: final link):
-        openPairingLink(link);
+        openPairingLink(link, origin: origin);
       case WrongNetwork() when pasted:
         fieldError((l) => l.scanWrongNetworkBody);
       case WrongNetwork(:final recipient):
@@ -1291,8 +1299,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   /// A pairing link: Pair with Anna?, the words check or why not; a wallet that does not pair
   /// says so.
-  void openPairingLink(String link) => ref.read(deskPairsProvider)
-      ? deskOpenPairingText(context, ref, link).catchError((Object e) {
+  void openPairingLink(String link, {CodeOrigin origin = CodeOrigin.paste}) => ref.read(deskPairsProvider)
+      ? deskOpenPairingText(context, ref, link, source: inviteSourceOf(origin)).catchError((Object e) {
           if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
         })
       : showCodeDialog(context, icon: Icons.handshake_outlined, title: context.l10n.scanPairingTitle, text: context.l10n.scanPairingUnavailable, code: link);
@@ -1919,6 +1927,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     // The payment as the wallet lists it now, so the steps move on their own.
     final live = ref.watch(deskProvider.select((s) => s.txs))?.where((t) => r.tx.slateId.isNotEmpty ? t.slateId == r.tx.slateId : t.id == r.tx.id).firstOrNull ?? r.tx;
     final name = _sentTo ?? live.contactName;
+    // No name: the path it took ("via file"), when that is known.
+    final via = name == null ? viaOf(live) : null;
     final amount = formatEpicL(l, r.tx.amount);
     // Over before it finished: its receiver declined it, or it was cancelled under Activity.
     // The row's words for the title; a declined send says the balance is unchanged.
@@ -1930,7 +1940,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           key: const ValueKey('send-cancelled'),
           glyph: const ResultGlyph(icon: EIcons.cancel, tone: ETone.neutral),
           title: word,
-          text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
+          text: name != null ? l.deskLvSendLiveAmountTo(amount, name) : (via != null ? l.deskLvSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskLvSendLiveAmount(amount)),
           body: live.receiverDeclined ? Text(l.txDetailsReceiverDeclined, style: context.ts.body) : null,
           actions: actions,
         ),
@@ -1942,8 +1952,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         key: const ValueKey('send-done'),
         // On its way: the steps under it say how far; the tile says it is under way.
         glyph: const ResultGlyph(icon: EIcons.send, tone: ETone.info),
-        title: name == null ? l.lvPayOnItsWay : l.deskLvSendLiveTo(name),
-        text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
+        title: name != null ? l.deskLvSendLiveTo(name) : (via != null ? l.deskLvSendLiveVia(viaPhrase(l, via)) : l.lvPayOnItsWay),
+        text: name != null ? l.deskLvSendLiveAmountTo(amount, name) : (via != null ? l.deskLvSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskLvSendLiveAmount(amount)),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -2109,7 +2119,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   /// [contact]'s one address is of [m]'s kind: it can be paid only that way.
   static bool _onlyKind(Contact? contact, MethodKind m) =>
-      contact != null && contact.kinds.length == 1 && MethodKind.ofRecipient(contact.kinds.single) == m;
+      contact != null && contact.methodKinds.length == 1 && MethodKind.ofRecipient(contact.methodKinds.single) == m;
 
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
@@ -2390,7 +2400,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
             _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => _bestAddress(x, st), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
           ..._underTo(st, picked),
-          if (_codeError != null && looksLikeEpic1Link(_to.text)) ...[
+          if (_codeError != null && looksLikeEpic1Link(_to.text) && !epic1AddressOnly(_to.text)) ...[
             SizedBox(height: Sp.x2),
             Align(
               alignment: AlignmentDirectional.centerStart,
@@ -3306,7 +3316,7 @@ class _Suggestions extends StatelessWidget {
                         if (pairingOf(x) case final p?)
                           Flexible(child: PairingOnlyLine(name: x.name, pairing: p))
                         else ...[
-                          EKindTag(addressKindOf(addressOf(x)), compact: true),
+                          EKindTag.of(addressOf(x), compact: true),
                           SizedBox(width: Sp.x3),
                           Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
                         ],

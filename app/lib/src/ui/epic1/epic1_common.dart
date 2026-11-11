@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../contacts.dart' show contactsProvider;
 import '../../epic1.dart';
 import '../../l10n.dart';
 import '../../models.dart' show PairingRecord;
@@ -68,10 +69,12 @@ const Key epic1ModeSettingsKey = ValueKey('epic1-mode-settings');
 /// slates only.
 bool classicOnlyPairing(PairingRecord? pairing) => pairing == null || !pairing.nativeSlates;
 
-/// The contact [contactId] is "Classic only" now: epic1 mode is in use and it has no pairing
-/// that takes epic1 payments (spec D3, D7).
+/// The contact [contactId] is "Classic only" now: epic1 mode is in use and it has neither a
+/// pairing that takes epic1 payments (spec D3, D7) nor an epic1 link.
 final classicOnlyProvider = Provider.family<bool, String>((ref, contactId) {
   if (ref.watch(paymentModeProvider) != PaymentMode.epic1) return false;
+  final contact = ref.watch(contactsProvider).value?.where((c) => c.id == contactId).firstOrNull;
+  if (contact?.epic1 != null) return false;
   return classicOnlyPairing(ref.watch(contactPairingProvider(contactId)));
 });
 

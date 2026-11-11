@@ -3569,7 +3569,7 @@
       }
     }
   },
-  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).",
+  "contactsAddressInvalidAny": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).",
   "@contactsAddressInvalidAny": {
     "description": "Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them."
   },
@@ -9701,7 +9701,7 @@
   "@deskConErrAddressEmpty": {
     "description": "Error under the Address field of the contact form when it is empty."
   },
-  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).",
+  "deskConErrAddressInvalid": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).",
   "@deskConErrAddressInvalid": {
     "description": "Error under the Address field of the contact form when the text is not an address."
   },
@@ -18304,6 +18304,40 @@
       }
     }
   },
+  "pairIncomingBodyRequest": "Once paired, transaction files and invoices between you and {name} are sealed.",
+  "@pairIncomingBodyRequest": {
+    "description": "Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pairing Demo Shop"
+      }
+    }
+  },
+  "pairIncomingServer": "Server",
+  "@pairIncomingServer": {
+    "description": "Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com."
+  },
+  "pairIncomingSource": "Source",
+  "@pairIncomingSource": {
+    "description": "Pair request dialog: fact label for how the invite reached this wallet."
+  },
+  "pairIncomingSourceScanned": "Scanned QR",
+  "@pairIncomingSourceScanned": {
+    "description": "Pair request dialog, Source value: the invite was scanned with the camera."
+  },
+  "pairIncomingSourcePasted": "Pasted invite",
+  "@pairIncomingSourcePasted": {
+    "description": "Pair request dialog, Source value: the invite was pasted."
+  },
+  "pairIncomingSourceOpened": "Opened from another app",
+  "@pairIncomingSourceOpened": {
+    "description": "Pair request dialog, Source value: a browser or another app opened the invite in the wallet (an epiccash:// or invite page link)."
+  },
+  "pairIncomingSourceRequest": "Sent to your Epicbox address",
+  "@pairIncomingSourceRequest": {
+    "description": "Pair request dialog, Source value: the request came as a message to the user's Epicbox address."
+  },
   "pairVerifiedService": "Verified BT Labs service",
   "@pairVerifiedService": {
     "description": "Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services."
@@ -19263,6 +19297,14 @@
         "example": "Epicbox"
       }
     }
+  },
+  "epic1AddressAlone": "An epic1 address alone cannot be paid. Paste the epic1 link.",
+  "@epic1AddressAlone": {
+    "description": "Contact editor and epic1 Send: a bare epic1 address was pasted. Only an epic:epic1… link with a server can be paid."
+  },
+  "addrPasteAnother": "Paste another address, or leave empty",
+  "@addrPasteAnother": {
+    "description": "Contact editor: placeholder of an empty extra address field. Any address type fits."
   },
   "pendingTitle": "Pending invites",
   "@pendingTitle": {
@@ -22082,7 +22124,7 @@
   "@sendDirectAddressShapeNoTor": {
     "description": "Error under To when Link is chosen and the text is not an http(s) address, in the build without Tor."
   },
-  "contactsAddressInvalidAnyNoTor": "Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).",
+  "contactsAddressInvalidAnyNoTor": "Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an epic1 link (epic:epic1…).",
   "@contactsAddressInvalidAnyNoTor": {
     "description": "contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address."
   },
@@ -29453,6 +29495,176 @@
   "@deskIpOnlineDetails": {
     "description": "Screen reader hint of the online answer status line: tapping it opens its details."
   },
+  "deskLvPaySendingVia": "Sending {via}",
+  "@deskLvPaySendingVia": {
+    "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvPayArrivingVia": "Arriving {via}",
+  "@deskLvPayArrivingVia": {
+    "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenSendingVia": "Sending {amount} {via}",
+  "@txSpokenSendingVia": {
+    "description": "Screen-reader text of a pending outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenReceivingVia": "Receiving {amount} {via}",
+  "@txSpokenReceivingVia": {
+    "description": "Screen-reader text of a pending incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenSentVia": "Sent {amount} {via}",
+  "@txSpokenSentVia": {
+    "description": "Screen-reader text of a completed outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenReceivedVia": "Received {amount} {via}",
+  "@txSpokenReceivedVia": {
+    "description": "Screen-reader text of a completed incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenCancelledSendVia": "Cancelled send of {amount} {via}",
+  "@txSpokenCancelledSendVia": {
+    "description": "Screen-reader text of a cancelled outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenCancelledReceiveVia": "Cancelled receive of {amount} {via}",
+  "@txSpokenCancelledReceiveVia": {
+    "description": "Screen-reader text of a cancelled incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txViaPhrase": "{via, select, file{via file} link{via epic1 link} inPerson{in person} epicbox{via Epicbox} http{via HTTP} tor{via Tor} qr{via QR} other{via another method}}",
+  "@txViaPhrase": {
+    "description": "How a payment with no contact name or address travels, for a sentence like 'Sending {via}': via file, via epic1 link, in person, via Epicbox, via HTTP, via Tor, via QR.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvSendLiveVia": "On its way {via}",
+  "@deskLvSendLiveVia": {
+    "description": "Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
+  "@deskLvSendLiveAmountVia": {
+    "description": "Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Nothing has been paid yet: cancelling is free and certain.",
+  "@deskTxCancelOutgoingViaBody": {
+    "description": "Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. This payment could still go through later.",
+  "@deskTxCancelNotPostedViaBody": {
+    "description": "Cancel dialog body for an outgoing payment not yet posted that has no contact name or address; via is how it travels.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskOvScan": "Scan",
+  "@deskOvScan": {
+    "description": "Button on Overview beside Send and Receive that reads any code with the camera."
+  },
   "deskQrHiddenReply": "Show it to the sender’s wallet. Only their wallet can use it.",
   "@deskQrHiddenReply": {
     "description": "Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer."
@@ -29568,9 +29780,5 @@
   "deskScanNoCamera": "No camera found. Paste the code instead.",
   "@deskScanNoCamera": {
     "description": "The quiet line under a paste field when this computer has no camera; Scan is greyed out."
-  },
-  "deskOvScan": "Scan",
-  "@deskOvScan": {
-    "description": "Button on Overview beside Send and Receive that reads any code with the camera."
   }
 }

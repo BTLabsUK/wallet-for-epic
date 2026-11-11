@@ -13,6 +13,8 @@
   "deskLvPaySendingTo": "Wysyłanie do {name}",
   "deskLvPaySendingInPerson": "Wysyłanie osobiście",
   "deskLvPayArrivingFrom": "Nadchodzi od {name}",
+  "deskLvPaySendingVia": "Wysyłanie {via}",
+  "deskLvPayArrivingVia": "Nadchodzi {via}",
   "deskLvPayStartedAt": "{amount} EPIC · rozpoczęto {time}",
   "deskLvPayHeroArriving": "+{amount} nadchodzi od {name}",
   "deskLvPayHeroArrivingMany": "+{amount} nadchodzi",

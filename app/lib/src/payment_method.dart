@@ -19,11 +19,13 @@ enum MethodKind {
 
   final MethodFamily family;
 
-  /// The method an address of [kind] is paid through.
-  static MethodKind ofRecipient(RecipientKind kind) => switch (kind) {
+  /// The method an address of [kind] is paid through; null for an epic1 link, which is paid
+  /// in epic1 mode, not through a method.
+  static MethodKind? ofRecipient(RecipientKind kind) => switch (kind) {
     RecipientKind.epicbox => MethodKind.epicbox,
     RecipientKind.http => MethodKind.linkHttp,
     RecipientKind.tor => MethodKind.linkTor,
+    RecipientKind.epic1 => null,
   };
 }
 

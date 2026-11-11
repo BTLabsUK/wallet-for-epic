@@ -24,3 +24,8 @@ enum ContactLabel {
     return ContactLabel.wallet;
   }
 }
+
+extension ContactLabelListMark on ContactLabel {
+  /// What a list row draws: nothing for the default plain wallet, else the label.
+  ContactLabel? get listMark => this == ContactLabel.wallet ? null : this;
+}

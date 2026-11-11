@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../models.dart' show Epic1Via;
 import '../payment_method.dart';
+import '../recipient.dart' show RecipientKind;
 import 'status_icons.dart';
 
 export '../payment_method.dart';
@@ -55,6 +56,24 @@ abstract final class MethodIcons {
     Epic1Via.link => l.deskE1LinkTitle,
     Epic1Via.inPerson => l.deskE1InPerson,
   };
+
+  /// The glyph of an address of [kind]: its method's, or the epic1 link's.
+  static IconData ofRecipient(RecipientKind kind) {
+    final m = MethodKind.ofRecipient(kind);
+    return m == null ? epic1(Epic1Via.link) : of(m);
+  }
+
+  /// The short name of an address of [kind]: [shortName] of its method, or "epic1 link".
+  static String recipientShortName(AppLocalizations l, RecipientKind kind) {
+    final m = MethodKind.ofRecipient(kind);
+    return m == null ? epic1Name(l, Epic1Via.link) : shortName(l, m);
+  }
+
+  /// The full name of an address of [kind]: [fullName] of its method, or "epic1 link".
+  static String recipientFullName(AppLocalizations l, RecipientKind kind) {
+    final m = MethodKind.ofRecipient(kind);
+    return m == null ? epic1Name(l, Epic1Via.link) : fullName(l, m);
+  }
 
   static IconData family(MethodFamily f) => switch (f) {
     MethodFamily.epicbox => epicbox,

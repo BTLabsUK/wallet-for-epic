@@ -167,7 +167,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (!ref.read(pairingSupportedProvider)) return showPairingSheet(context, link.invite, origin: CodeOrigin.link);
     // Just send and receive: a notice with See request, not the sheet over the screen.
     if (await offerPairRequest(context, ref, link.invite) || !mounted) return;
-    await openPairingLink(context, ref, link.invite);
+    await openPairingLink(context, ref, link.invite, source: InviteSource.opened);
   }
 
   @override

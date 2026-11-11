@@ -4504,7 +4504,7 @@ abstract class AppLocalizations {
   /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).'**
   String get contactsAddressInvalidAny;
 
   /// Title of the settings screen.
@@ -11794,7 +11794,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…), an onion address (….onion) or an epic1 link (epic:epic1…).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -21714,6 +21714,48 @@ abstract class AppLocalizations {
   /// **'Pair request from {name}'**
   String pairIncomingTitle(String name);
 
+  /// Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.
+  ///
+  /// In en, this message translates to:
+  /// **'Once paired, transaction files and invoices between you and {name} are sealed.'**
+  String pairIncomingBodyRequest(String name);
+
+  /// Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get pairIncomingServer;
+
+  /// Pair request dialog: fact label for how the invite reached this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get pairIncomingSource;
+
+  /// Pair request dialog, Source value: the invite was scanned with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned QR'**
+  String get pairIncomingSourceScanned;
+
+  /// Pair request dialog, Source value: the invite was pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted invite'**
+  String get pairIncomingSourcePasted;
+
+  /// Pair request dialog, Source value: a browser or another app opened the invite in the wallet (an epiccash:// or invite page link).
+  ///
+  /// In en, this message translates to:
+  /// **'Opened from another app'**
+  String get pairIncomingSourceOpened;
+
+  /// Pair request dialog, Source value: the request came as a message to the user's Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to your Epicbox address'**
+  String get pairIncomingSourceRequest;
+
   /// Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services.
   ///
   /// In en, this message translates to:
@@ -22601,6 +22643,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paste a {type} address, or leave empty'**
   String addrDesktopThird(String type);
+
+  /// Contact editor and epic1 Send: a bare epic1 address was pasted. Only an epic:epic1… link with a server can be paid.
+  ///
+  /// In en, this message translates to:
+  /// **'An epic1 address alone cannot be paid. Paste the epic1 link.'**
+  String get epic1AddressAlone;
+
+  /// Contact editor: placeholder of an empty extra address field. Any address type fits.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste another address, or leave empty'**
+  String get addrPasteAnother;
 
   /// Screen title and the Contacts row.
   ///
@@ -25587,7 +25641,7 @@ abstract class AppLocalizations {
   /// contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an epic1 link (epic:epic1…).'**
   String get contactsAddressInvalidAnyNoTor;
 
   /// handshakeLink1 in the build without Tor: the same caption without Tor.
@@ -33870,6 +33924,90 @@ abstract class AppLocalizations {
   /// **'Details'**
   String get deskIpOnlineDetails;
 
+  /// Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending {via}'**
+  String deskLvPaySendingVia(String via);
+
+  /// Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving {via}'**
+  String deskLvPayArrivingVia(String via);
+
+  /// Screen-reader text of a pending outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending {amount} {via}'**
+  String txSpokenSendingVia(String amount, String via);
+
+  /// Screen-reader text of a pending incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving {amount} {via}'**
+  String txSpokenReceivingVia(String amount, String via);
+
+  /// Screen-reader text of a completed outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {amount} {via}'**
+  String txSpokenSentVia(String amount, String via);
+
+  /// Screen-reader text of a completed incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {amount} {via}'**
+  String txSpokenReceivedVia(String amount, String via);
+
+  /// Screen-reader text of a cancelled outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled send of {amount} {via}'**
+  String txSpokenCancelledSendVia(String amount, String via);
+
+  /// Screen-reader text of a cancelled incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled receive of {amount} {via}'**
+  String txSpokenCancelledReceiveVia(String amount, String via);
+
+  /// How a payment with no contact name or address travels, for a sentence like 'Sending {via}': via file, via epic1 link, in person, via Epicbox, via HTTP, via Tor, via QR.
+  ///
+  /// In en, this message translates to:
+  /// **'{via, select, file{via file} link{via epic1 link} inPerson{in person} epicbox{via Epicbox} http{via HTTP} tor{via Tor} qr{via QR} other{via another method}}'**
+  String txViaPhrase(String via);
+
+  /// Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way {via}'**
+  String deskLvSendLiveVia(String via);
+
+  /// Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC {via}'**
+  String deskLvSendLiveAmountVia(String amount, String via);
+
+  /// Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC {via}. Nothing has been paid yet: cancelling is free and certain.'**
+  String deskTxCancelOutgoingViaBody(String amount, String via);
+
+  /// Cancel dialog body for an outgoing payment not yet posted that has no contact name or address; via is how it travels.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC {via}. This payment could still go through later.'**
+  String deskTxCancelNotPostedViaBody(String amount, String via);
+
+  /// Button on Overview beside Send and Receive that reads any code with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get deskOvScan;
+
   /// Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer.
   ///
   /// In en, this message translates to:
@@ -34043,12 +34181,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No camera found. Paste the code instead.'**
   String get deskScanNoCamera;
-
-  /// Button on Overview beside Send and Receive that reads any code with the camera.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan'**
-  String get deskOvScan;
 }
 
 class _AppLocalizationsDelegate

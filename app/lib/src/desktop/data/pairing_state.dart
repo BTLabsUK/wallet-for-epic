@@ -333,6 +333,7 @@ Future<void> deskWriteProvenAddress(WidgetRef ref, PairingRecord r) async {
         epicbox: address,
         http: contact.http,
         tor: contact.tor,
+        epic1: contact.epic1,
         note: contact.note,
         label: contact.label,
         favourite: contact.favourite,

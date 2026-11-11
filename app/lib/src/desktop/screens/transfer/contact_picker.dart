@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../contact_label.dart' show ContactLabelListMark;
 import '../../../epic1.dart' show PaymentMode;
 import '../../../models.dart' show PairingRecord;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
@@ -27,10 +28,19 @@ bool contactRefusesPayments(WidgetRef ref, Contact c) => ref
     .watch(paymentRefusalsProvider)
     .refusesPayments(pairingId: ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id))?.id : null, address: c.epicbox);
 
-/// epic1 mode and [c] has no pairing that takes epic1 payments: "Classic only", not payable.
+/// epic1 mode and [c] has neither a pairing that takes epic1 payments nor an epic1 link:
+/// "Classic only", not payable.
 bool contactClassicOnly(WidgetRef ref, Contact c) =>
-    ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 &&
-    !(ref.watch(deskPairsProvider) && (ref.watch(deskContactPairingProvider(c.id))?.nativeSlates ?? false));
+    ref.watch(deskPaymentModeProvider) == PaymentMode.epic1 && c.epic1 == null && !contactPairsNatively(ref, c);
+
+/// [c] has a pairing that takes epic1 payments. [watch] false outside build.
+bool contactPairsNatively(WidgetRef ref, Contact c, {bool watch = true}) => watch
+    ? ref.watch(deskPairsProvider) && (ref.watch(deskContactPairingProvider(c.id))?.nativeSlates ?? false)
+    : ref.read(deskPairsProvider) && (ref.read(deskContactPairingProvider(c.id))?.nativeSlates ?? false);
+
+/// The epic1 link epic1 mode pays [c] with: its own, when no pairing takes epic1 payments.
+String? contactEpic1Link(WidgetRef ref, Contact c, {bool watch = true}) =>
+    c.epic1 != null && !contactPairsNatively(ref, c, watch: watch) ? c.epic1 : null;
 
 /// "Through Anna's pairing" with the trust badge, where a contact with no address shows its
 /// address in a list.
@@ -224,7 +234,7 @@ class _PickRowState extends State<_PickRow> {
             padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x2),
             child: Row(
               children: [
-                EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label),
+                EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label.listMark),
                 SizedBox(width: 14.u),
                 Expanded(
                   child: classicOnly
@@ -262,7 +272,7 @@ class _PickRowState extends State<_PickRow> {
                         )
                       : EAddressLines(
                     name: widget.contact.name,
-                    address: widget.contact.address,
+                    address: widget.contact.address.isEmpty ? (widget.contact.epic1 ?? '') : widget.contact.address,
                     note: widget.contact.note,
                     nameTrailing: widget.contact.favourite
                         ? Padding(

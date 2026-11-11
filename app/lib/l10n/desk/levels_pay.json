@@ -111,6 +111,26 @@
       }
     }
   },
+  "deskLvPaySendingVia": "Sending {via}",
+  "@deskLvPaySendingVia": {
+    "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvPayArrivingVia": "Arriving {via}",
+  "@deskLvPayArrivingVia": {
+    "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
   "deskLvPayStartedAt": "{amount} EPIC · started {time}",
   "@deskLvPayStartedAt": {
     "description": "Overview's card for a payment in progress: its amount and the time it started.",

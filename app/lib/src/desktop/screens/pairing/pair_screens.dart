@@ -40,7 +40,7 @@ import '../../../ui/pairing/invite_links.dart';
 import '../../../name_service/name_service.dart';
 import '../../../trust/policy.dart' show featureNameService, mayOfferPair, statedAutomated;
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
-import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, WordTileSize, WordTiles;
+import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, PairTimeLeft, WordTileSize, WordTiles;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/name_service_state.dart';
 import '../../data/pairing_state.dart';
@@ -69,6 +69,9 @@ const Key deskPairConfirmationKey = ValueKey('desk-pair-confirmation');
 const Key deskPairCheckWordsKey = ValueKey('desk-pair-check-words');
 const Key deskIncomingPairKey = ValueKey('desk-incoming-pair');
 const Key deskIncomingNotNowKey = ValueKey('desk-incoming-not-now');
+const Key deskIncomingServerKey = ValueKey('desk-incoming-server');
+const Key deskIncomingSourceKey = ValueKey('desk-incoming-source');
+const Key deskIncomingExpiresKey = ValueKey('desk-incoming-expires');
 const Key deskWaitingCancelKey = ValueKey('desk-waiting-cancel');
 const Key deskWaitingCloseKey = ValueKey('desk-waiting-close');
 const Key deskWaitingAnswerKey = ValueKey('desk-waiting-answer');
@@ -278,7 +281,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           });
         }
       } else {
-        await deskOpenPairingText(context, ref, text, contact: _contact);
+        await deskOpenPairingText(context, ref, text, contact: _contact, source: InviteSource.pasted);
       }
       _enter.clear();
     } catch (error) {
@@ -540,8 +543,9 @@ Future<void> copyToClipboard(BuildContext context, String text, String toast) as
 /// Opens [pasted]: an invite asks "Pair with Anna?"; an answer opens the confirmation to
 /// copy, then the words; a confirmation opens the words (a request ends Verified with a
 /// toast). Anything else is "Not a pairing invite". An answer or confirmation of a pairing
-/// that finished already (the relay was faster) only says so.
-Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pasted, {Contact? contact}) async {
+/// that finished already (the relay was faster) only says so. [source] is how the invite
+/// came, for Pair with Anna?'s Source line.
+Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pasted, {Contact? contact, InviteSource? source}) async {
   // A device link is Link a device's, not a pairing's; a page link carries the invite in its
   // fragment.
   final invite = parseInvite(pasted);
@@ -576,7 +580,7 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
     switch (kind) {
       case PairingLinkKind.invite:
         final preview = await api.openInvite(text);
-        if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact);
+        if (context.mounted) await showDeskIncoming(context, ref, preview, contact: contact, source: source);
       case PairingLinkKind.reply:
         final r = await deskPairingCall(ref, (a) => a.openReply(text));
         if (already(r)) return;
@@ -645,18 +649,21 @@ class DeskConfirmationDialog extends ConsumerWidget {
 }
 
 /// "Pair with Anna?" as a dialog, in two forms (from a contact, by invite). Pair answers and
-/// opens the wait for the confirmation.
-Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact}) async {
-  final answered = await showEDialog<PairingRecord>(context, builder: (_) => _IncomingDialog(preview: p, contact: contact));
+/// opens the wait for the confirmation. Below the inviter, what the invite itself says: the
+/// server it came by, how it came ([source]; a request is always by Epicbox) and how long it
+/// stays open.
+Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact, InviteSource? source}) async {
+  final answered = await showEDialog<PairingRecord>(context, builder: (_) => _IncomingDialog(preview: p, contact: contact, source: source));
   if (answered == null || !context.mounted) return;
   await showEDialog<void>(context, dismissible: false, builder: (_) => DeskPairWaitingDialog(pairingId: answered.id, name: p.name));
 }
 
 class _IncomingDialog extends ConsumerStatefulWidget {
-  const _IncomingDialog({required this.preview, this.contact});
+  const _IncomingDialog({required this.preview, this.contact, this.source});
 
   final PairingInvitePreview preview;
   final Contact? contact;
+  final InviteSource? source;
 
   @override
   ConsumerState<_IncomingDialog> createState() => _IncomingDialogState();
@@ -704,6 +711,9 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final btlabs = sender == null && key != null ? btLabsKeyOf(key) : null;
     final name = sender?.name ?? btlabs?.name ?? p.name;
     final noName = sender == null && btlabs == null && isUnnamed(p.name);
+    final shown = noName ? l.commonUnknown : name;
+    final server = relayHostOf(p.homeRelay);
+    final source = inviteSourceText(l, widget.source, request: p.isRequest);
     return EDialog(
       title: l.pairIncomingTitle(noName ? l.commonUnknown : name),
       titleTrailing: btlabs != null ? VerifiedCheck(label: l.pairVerifiedService, colour: context.dc.ok, size: 18.u) : null,
@@ -724,6 +734,14 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
             ],
           ),
           if (p.fromAddress case final from?) ...[SizedBox(height: Sp.x3), Text(from, style: ts.mono())],
+          SizedBox(height: Sp.x4),
+          Text(p.isRequest ? l.pairIncomingBodyRequest(shown) : l.pairIncomingBody(shown), style: ts.bodyDim),
+          SizedBox(height: Sp.x3),
+          EFacts([
+            if (server.isNotEmpty) (l.pairIncomingServer, Text(server, key: deskIncomingServerKey, style: ts.mono())),
+            if (source != null) (l.pairIncomingSource, Text(source, key: deskIncomingSourceKey)),
+            (l.pairExpiresIn, PairTimeLeft(key: deskIncomingExpiresKey, until: p.expiresAt, style: ts.body)),
+          ]),
           if (_error != null) ...[SizedBox(height: Sp.x3), ENotice(title: _error!, tone: ETone.warn)],
         ],
       ),

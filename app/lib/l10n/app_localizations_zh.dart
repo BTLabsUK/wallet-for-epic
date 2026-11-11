@@ -2667,7 +2667,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）、onion 地址（….onion）或 epic1 链接（epic:epic1…）。';
 
   @override
   String get settingsTitle => '设置';
@@ -6989,7 +6989,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）、onion 地址（….onion）或 epic1 链接（epic:epic1…）。';
 
   @override
   String get deskConAddPicture => '添加图片';
@@ -12983,6 +12983,29 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return '配对后，你与 $name 之间的交易文件和账单都会被密封。';
+  }
+
+  @override
+  String get pairIncomingServer => '服务器';
+
+  @override
+  String get pairIncomingSource => '来源';
+
+  @override
+  String get pairIncomingSourceScanned => '扫描二维码';
+
+  @override
+  String get pairIncomingSourcePasted => '粘贴的邀请';
+
+  @override
+  String get pairIncomingSourceOpened => '从其他应用打开';
+
+  @override
+  String get pairIncomingSourceRequest => '发送到你的 Epicbox 地址';
+
+  @override
   String get pairVerifiedService => '已验证的 BT Labs 服务';
 
   @override
@@ -13601,6 +13624,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String addrDesktopThird(String type) {
     return '粘贴 $type 地址，或留空';
   }
+
+  @override
+  String get epic1AddressAlone => '仅凭 epic1 地址无法付款。请粘贴 epic1 链接。';
+
+  @override
+  String get addrPasteAnother => '粘贴另一个地址，或留空';
 
   @override
   String get pendingTitle => '待处理邀请';
@@ -15551,7 +15580,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      '地址无效。请使用 Epicbox 地址（es5x…@服务器）或链接地址（https://…）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 epic1 链接（epic:epic1…）。';
 
   @override
   String get handshakeLink1NoTor => '你的钱包通过互联网把付款直接发到对方的钱包。这些币被锁定。';
@@ -20505,6 +20534,84 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskIpOnlineDetails => '详情';
 
   @override
+  String deskLvPaySendingVia(String via) {
+    return '正在$via发送';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String via) {
+    return '正在$via收取';
+  }
+
+  @override
+  String txSpokenSendingVia(String amount, String via) {
+    return '正在$via发送 $amount';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return '正在$via接收 $amount';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return '已$via发送 $amount';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return '已$via收到 $amount';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return '已取消$via发送 $amount';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return '已取消$via接收 $amount';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': '通过文件',
+      'link': '通过 epic1 链接',
+      'inPerson': '当面',
+      'epicbox': '通过 Epicbox',
+      'http': '通过 HTTP',
+      'tor': '通过 Tor',
+      'qr': '通过二维码',
+      'other': '通过其他方式',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return '正在$via发送';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC（$via）';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC，$via。尚未支付任何款项：取消免费且一定成功。';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC，$via。这笔付款之后仍可能完成。';
+  }
+
+  @override
+  String get deskOvScan => '扫描';
+
+  @override
   String get deskQrHiddenReply => '只给发送方的钱包看。只有对方的钱包能使用它。';
 
   @override
@@ -20591,7 +20698,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => '未找到摄像头。请改为粘贴代码。';
-
-  @override
-  String get deskOvScan => '扫描';
 }

@@ -43,7 +43,8 @@ import 'theme/logo_qr.dart';
 import 'theme/tokens.dart';
 import 'tip.dart';
 import '../epic1.dart' show PaymentMode;
-import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyProvider;
+import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyPairing, classicOnlyProvider;
+import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 
 /// Keys of the contact page, for tests.
 const Key contactPageSendKey = ValueKey('contact-page-send');
@@ -180,12 +181,18 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   /// Send with the contact's address whose method is on (Epicbox, Tor, HTTP), as Send picks it;
   /// a contact with no address, through its pairing's mailbox.
-  /// In epic1 mode, always through the pairing (the header offers Send only with one that takes
-  /// epic1).
-  void _send(Contact contact, PairingRecord? pairing) =>
-      pairing != null && (contact.addresses.isEmpty || ref.read(paymentModeProvider) == PaymentMode.epic1)
-      ? showShellTab(context, ShellTab.send, pairingTo: pairing.id)
-      : showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
+  /// In epic1 mode, through the pairing that takes epic1, else the contact's epic1 link (the
+  /// header offers Send only with one of them).
+  void _send(Contact contact, PairingRecord? pairing) {
+    final epic1 = ref.read(paymentModeProvider) == PaymentMode.epic1;
+    if (epic1 && classicOnlyPairing(pairing) && contact.epic1 != null) {
+      unawaited(openEpic1LinkSend(context, contact.epic1!));
+    } else if (pairing != null && (contact.addresses.isEmpty || epic1)) {
+      showShellTab(context, ShellTab.send, pairingTo: pairing.id);
+    } else {
+      showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
+    }
+  }
 
   void _edit(Contact contact) => Navigator.of(
     context,

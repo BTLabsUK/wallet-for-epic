@@ -2871,7 +2871,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…), eine Onion-Adresse (….onion) oder einen epic1-Link (epic:epic1…).';
 
   @override
   String get settingsTitle => 'Einstellungen';
@@ -7549,7 +7549,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…), eine Onion-Adresse (….onion) oder einen epic1-Link (epic:epic1…).';
 
   @override
   String get deskConAddPicture => 'Bild hinzufügen';
@@ -13964,6 +13964,29 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'Nach dem Koppeln sind Transaktionsdateien und Rechnungen zwischen Ihnen und $name versiegelt.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Server';
+
+  @override
+  String get pairIncomingSource => 'Quelle';
+
+  @override
+  String get pairIncomingSourceScanned => 'QR gescannt';
+
+  @override
+  String get pairIncomingSourcePasted => 'Einladung eingefügt';
+
+  @override
+  String get pairIncomingSourceOpened => 'Aus einer anderen App geöffnet';
+
+  @override
+  String get pairIncomingSourceRequest => 'An Ihre Epicbox-Adresse gesendet';
+
+  @override
   String get pairVerifiedService => 'Verifizierter BT-Labs-Dienst';
 
   @override
@@ -14611,6 +14634,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'Eine Adresse ($type) einfügen oder leer lassen';
   }
+
+  @override
+  String get epic1AddressAlone =>
+      'Eine epic1-Adresse allein kann nicht bezahlt werden. Fügen Sie den epic1-Link ein.';
+
+  @override
+  String get addrPasteAnother => 'Weitere Adresse einfügen oder leer lassen';
 
   @override
   String get pendingTitle => 'Offene Einladungen';
@@ -16698,7 +16728,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server) oder eine Link-Adresse (https://…).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder einen epic1-Link (epic:epic1…).';
 
   @override
   String get handshakeLink1NoTor =>
@@ -21980,6 +22010,84 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskIpOnlineDetails => 'Details';
 
   @override
+  String deskLvPaySendingVia(String via) {
+    return 'Senden $via';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String via) {
+    return 'Kommt $via';
+  }
+
+  @override
+  String txSpokenSendingVia(String amount, String via) {
+    return 'Senden $via: $amount';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return 'Empfang $via: $amount';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return 'Gesendet $via: $amount';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return 'Empfangen $via: $amount';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return 'Gesendete Zahlung $via storniert: $amount';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return 'Empfangene Zahlung $via storniert: $amount';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': 'per Datei',
+      'link': 'per epic1-Link',
+      'inPerson': 'persönlich',
+      'epicbox': 'über Epicbox',
+      'http': 'per HTTP',
+      'tor': 'über Tor',
+      'qr': 'per QR-Code',
+      'other': 'auf anderem Weg',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return 'Unterwegs $via';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC $via';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC $via. Noch wurde nichts bezahlt: Stornieren ist kostenlos und sicher.';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC $via. Diese Zahlung könnte später noch durchgehen.';
+  }
+
+  @override
+  String get deskOvScan => 'Scannen';
+
+  @override
   String get deskQrHiddenReply =>
       'Zeigen Sie ihn der Wallet des Absenders. Nur dessen Wallet kann ihn verwenden.';
 
@@ -22081,7 +22189,4 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.';
-
-  @override
-  String get deskOvScan => 'Scannen';
 }

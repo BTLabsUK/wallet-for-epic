@@ -2911,7 +2911,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…), onion-адрес (….onion) или ссылку epic1 (epic:epic1…).';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -7756,7 +7756,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…), onion-адрес (….onion) или ссылку epic1 (epic:epic1…).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -14306,6 +14306,29 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'После сопряжения файлы транзакций и счета между вами и $name запечатаны.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Сервер';
+
+  @override
+  String get pairIncomingSource => 'Источник';
+
+  @override
+  String get pairIncomingSourceScanned => 'Отсканированный QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'Вставленное приглашение';
+
+  @override
+  String get pairIncomingSourceOpened => 'Открыто из другого приложения';
+
+  @override
+  String get pairIncomingSourceRequest => 'Отправлено на ваш адрес Epicbox';
+
+  @override
   String get pairVerifiedService => 'Проверенный сервис BT Labs';
 
   @override
@@ -14972,6 +14995,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'Вставьте адрес ($type) или оставьте пустым';
   }
+
+  @override
+  String get epic1AddressAlone =>
+      'Оплатить только по адресу epic1 нельзя. Вставьте ссылку epic1.';
+
+  @override
+  String get addrPasteAnother => 'Вставьте ещё один адрес или оставьте пустым';
 
   @override
   String get pendingTitle => 'Ожидающие приглашения';
@@ -17127,7 +17157,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер) или адрес ссылки (https://…).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или ссылку epic1 (epic:epic1…).';
 
   @override
   String get handshakeLink1NoTor =>
@@ -22431,6 +22461,84 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskIpOnlineDetails => 'Подробности';
 
   @override
+  String deskLvPaySendingVia(String via) {
+    return 'Отправка $via';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String via) {
+    return 'Поступает $via';
+  }
+
+  @override
+  String txSpokenSendingVia(String amount, String via) {
+    return 'Отправка $via: $amount';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return 'Получение $via: $amount';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return 'Отправлено $via: $amount';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return 'Получено $via: $amount';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return 'Отменённая отправка $via: $amount';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return 'Отменённое получение $via: $amount';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': 'через файл',
+      'link': 'по ссылке epic1',
+      'inPerson': 'лично',
+      'epicbox': 'через Epicbox',
+      'http': 'по HTTP',
+      'tor': 'через Tor',
+      'qr': 'по QR-коду',
+      'other': 'другим способом',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return 'Идёт $via';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC $via';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC $via. Пока ничего не оплачено: отмена бесплатна и надёжна.';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC $via. Этот платёж ещё может пройти позже.';
+  }
+
+  @override
+  String get deskOvScan => 'Сканировать';
+
+  @override
   String get deskQrHiddenReply =>
       'Покажите его кошельку отправителя. Использовать его сможет только его кошелёк.';
 
@@ -22530,7 +22638,4 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Камера не найдена. Вставьте код вместо этого.';
-
-  @override
-  String get deskOvScan => 'Сканировать';
 }
