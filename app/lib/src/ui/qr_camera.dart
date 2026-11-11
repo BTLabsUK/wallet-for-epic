@@ -10,15 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../camera/desktop_camera.dart';
+import '../camera/fake_camera_env.dart';
 import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../wallet_backend.dart' show hostIsPhone;
 import 'scanner_backend.dart';
 
-/// `--dart-define=WFE_FAKE_CAMERA=<value>`, debug builds only: a camera that starts, shows a
-/// placeholder and then has that problem (a [QrCameraProblem] name), or `live` (no problem,
-/// no codes); `none` and `unsupported` are the probe's answers (camera_presence.dart). For
-/// screenshots of every scan state. Ignored in profile and release builds.
-const String fakeCameraMode = kDebugMode ? String.fromEnvironment('WFE_FAKE_CAMERA') : '';
+/// `WFE_FAKE_CAMERA=<value>`, debug builds only: a camera that starts, shows a placeholder and
+/// then has that problem (a [QrCameraProblem] name), or `live` (no problem, no codes); `none`
+/// and `unsupported` are the probe's answers (camera_presence.dart). For screenshots of every
+/// scan state. A `--dart-define` wins; else the process environment, so one debug bundle shows
+/// every state. Ignored in profile and release builds.
+final String fakeCameraMode = kDebugMode ? _definedFakeCamera.isNotEmpty ? _definedFakeCamera : fakeCameraEnv() : '';
+
+const String _definedFakeCamera = String.fromEnvironment('WFE_FAKE_CAMERA');
 
 /// Why the camera is not usable.
 enum QrCameraProblem {
