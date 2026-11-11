@@ -40,6 +40,22 @@ class ScannerController extends ChangeNotifier {
 
   final bool everyFrame;
 
+  /// The controller holding the camera. The camera plugin keeps one camera for the whole app
+  /// (on Android one preview and one frame reader): a scanner opened while the one before it
+  /// still has the camera lost its picture and its frames when that one closed, and its own
+  /// close then failed. A scan screen closes only after its exit transition, so the next
+  /// one (Scan again, or the QR Payment reader after Home's scan) always came too early. So
+  /// each start takes the camera from the controller before it, and waits until every
+  /// camera given back is released.
+  static ScannerController? _owner;
+  static Future<void> _free = Future.value();
+
+  /// Starts and stops zxing's worker, which is shared and counts its users.
+  @visibleForTesting
+  static Future<void> Function() startReading = zxing.zx.startCameraProcessing;
+  @visibleForTesting
+  static void Function() stopReading = zxing.zx.stopCameraProcessing;
+
   final StreamController<String> _codes = StreamController<String>.broadcast();
   CameraController? _camera;
   ScannerError? _error;
@@ -48,9 +64,11 @@ class ScannerController extends ChangeNotifier {
   bool _decoding = false;
   bool _closed = false;
   bool _starting = false;
-  Future<void>? _releasing;
+
+  /// This controller started zxing's worker and has not stopped it.
+  bool _reading = false;
   String? _last;
-  late final _lifecycle = ScannerLifecycle(onPause: _release, onResume: start);
+  late final _lifecycle = ScannerLifecycle(onPause: _pause, onResume: start);
 
   ScannerError? get error => _error;
 
@@ -65,21 +83,28 @@ class ScannerController extends ChangeNotifier {
     if (!_closed) notifyListeners();
   }
 
+  /// Whether a later start or a close took the camera from this start.
+  bool get _cancelled => _closed || !identical(_owner, this);
+
   Future<void> start() async {
     if (_closed || _starting || (_camera?.value.isStreamingImages ?? false)) {
       return;
     }
+    final previous = _owner;
+    _owner = this;
+    if (previous != null && !identical(previous, this)) previous._yield();
     _lifecycle.watch();
     _starting = true;
     _error = null;
     _changed();
     try {
-      // zxing's worker is shared: a release still under way must stop it before this starts it.
-      await _releasing;
-      if (_closed) return;
+      // The camera and zxing's worker given back by any scanner are released first.
+      await _free;
+      if (_cancelled) return;
       var camera = _camera;
       if (camera == null) {
         final cameras = await availableCameras();
+        if (_cancelled) return;
         if (cameras.isEmpty) {
           throw CameraException('NoCamera', 'No camera on this device');
         }
@@ -97,23 +122,32 @@ class ScannerController extends ChangeNotifier {
         _camera = camera;
       }
       if (!camera.value.isInitialized) await camera.initialize();
-      if (_closed) return;
+      if (_cancelled) return;
       // The camera API does not say whether there is a flash: offered on a back camera, and
       // taken away when switching it on fails.
       _torchAvailable =
           camera.description.lensDirection == CameraLensDirection.back;
-      await zxing.zx.startCameraProcessing();
-      if (_closed) return;
+      if (!_reading) {
+        _reading = true;
+        try {
+          await startReading();
+        } catch (error) {
+          // zxing took its count back.
+          _reading = false;
+          throw CameraException('ReaderFailed', '$error');
+        }
+      }
+      if (_cancelled) return;
       await camera.startImageStream(_onFrame);
       _changed();
     } on CameraException catch (error) {
+      // Given up for a later scanner or a close: not this screen's error.
+      if (_cancelled) return;
       // CameraAccessDenied, CameraAccessDeniedWithoutPrompt, CameraAccessRestricted.
       _error = error.code.startsWith('CameraAccess')
           ? ScannerError.denied
           : ScannerError.failed;
-      final camera = _camera;
-      _camera = null;
-      unawaited(camera?.dispose());
+      unawaited(_release());
       _changed();
       throw ScannerException(_error!);
     } finally {
@@ -124,22 +158,41 @@ class ScannerController extends ChangeNotifier {
   /// Gives the camera back while the app is in the background: the system takes it, and the
   /// old controller shows black from then on. [ScannerLifecycle] starts it again on return.
   /// Not while a start is under way: the permission prompt itself makes the app inactive.
+  Future<void> _pause() => _starting ? Future.value() : _release();
+
+  /// A later scanner takes the camera: this one gives it back and no longer restarts on
+  /// its own. Its screen is closing; Try again or a new start takes the camera back.
+  void _yield() {
+    _lifecycle.stop();
+    unawaited(_release());
+  }
+
+  /// Gives back the camera and zxing's worker, after every release before it. A camera the
+  /// plugin let go of already fails to close: it is released all the same.
   Future<void> _release() {
     final camera = _camera;
-    if (_closed || _starting || camera == null) return Future.value();
+    final reading = _reading;
     _camera = null;
+    _reading = false;
     _torchOn = false;
+    if (identical(_owner, this)) _owner = null;
+    if (camera == null && !reading) return Future.value();
     _changed();
-    return _releasing = () async {
-      try {
-        if (camera.value.isStreamingImages) await camera.stopImageStream();
-      } on CameraException {
-        // Released anyway.
+    return _free = _free.then((_) async {
+      if (camera != null) {
+        try {
+          if (camera.value.isStreamingImages) await camera.stopImageStream();
+        } catch (_) {
+          // Released anyway.
+        }
+        try {
+          await camera.dispose();
+        } catch (_) {
+          // Released anyway.
+        }
       }
-      await camera.dispose();
-      zxing.zx.stopCameraProcessing();
-      _releasing = null;
-    }();
+      if (reading) stopReading();
+    });
   }
 
   /// Reads the frames one at a time: those that come while one is read are dropped.
@@ -191,17 +244,7 @@ class ScannerController extends ChangeNotifier {
     if (_closed) return;
     _closed = true;
     _lifecycle.stop();
-    final camera = _camera;
-    _camera = null;
-    try {
-      if (camera?.value.isStreamingImages ?? false) {
-        await camera!.stopImageStream();
-      }
-    } on CameraException {
-      // Closing anyway.
-    }
-    await camera?.dispose();
-    zxing.zx.stopCameraProcessing();
+    await _release();
     await _codes.close();
     dispose();
   }

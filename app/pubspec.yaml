@@ -122,6 +122,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
   flutter_secure_storage_platform_interface: any
+  # A fake camera for test/scanner_camera_test.dart; already resolved through camera.
+  camera_platform_interface: any
 flutter:
 
   # The following line ensures that the Material Icons font is

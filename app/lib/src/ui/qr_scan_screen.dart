@@ -162,9 +162,9 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     Future.microtask(_firstStart);
   }
 
-  /// The first start. Home's scan hands a payment code over the moment it reads one, while its
-  /// own camera may still be closing, so a camera that fails to start is tried once more after
-  /// [qrCameraRetryAfter] before the screen says so.
+  /// The first start. Home's scan hands a payment code over the moment it reads one; this
+  /// camera waits for Home's to be given back (scanner_backend.dart). A camera that fails to
+  /// start all the same is tried once more after [qrCameraRetryAfter] before the screen says so.
   Future<void> _firstStart() async {
     await _retry();
     if (!mounted || _camera.value.problem != QrCameraProblem.failed) return;
