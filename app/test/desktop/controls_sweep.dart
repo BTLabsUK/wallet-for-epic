@@ -42,7 +42,7 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Transactions|settingsPrivacy\|Network & privacy.*|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsSecurity\|Security|settingsRescan\|Recheck balance|settingsAdvanced\|Advanced|settingsAbout\|About|settingsHelp\|Help)$'):
       'The place already shown: going there again adds nothing to the history.',
   // The Settings column (26.10.25) is the shell's while a Settings page is open.
-  RegExp(r'^(shell|settings\w+)\|(Wallet|Security|Payments|Invoices|Linked devices|Appearance|Node|Network & privacy|Advanced|Wallets|Files & logs|Help|About)$'):
+  RegExp(r'^(shell|settings\w+)\|(Wallet|Security|Transactions|Invoices|Linked devices|Appearance|Node|Network & privacy|Advanced|Wallets|Files & logs|Help|About)$'):
       'The Settings page already shown: going there again adds nothing to the history.',
   RegExp(r'^settingsAccount\|Name$'): 'The pencil beside the name field puts the caret in it (UD-032): only the focus moves.',
   RegExp(r'^settings(Account|Files)\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
