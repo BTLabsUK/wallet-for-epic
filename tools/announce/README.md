@@ -23,6 +23,21 @@ Flow: `add` (repeat) → `list` → `sign` → `publish --target test` → `veri
 https://examples.btlabs.uk/epic/announcements-test/announcements.json`.
 
 `sign` drops ended messages, refuses a serial that is not above the last signed one, and refuses
-anything the client would reject. `publish --target prod` is not set up.
+anything the client would reject.
 
-Tests: `python3 -I -m unittest tools/announce/test_announce.py`
+Production: `--target prod` before the command picks `~/.config/btlabs/announcements/` and signs
+with `~/.config/btlabs/signing/btlabs-ann-2026-a.key` (rank 1, keyid 8d85230d01812375). The rank-2
+key btlabs-ann-2026-b (5536e619d3a69009) is offline and only revokes rank 1 (`sign --revoke`).
+
+```sh
+python3 -I $A --target prod add …      # then list, sign as above
+python3 -I $A --target prod publish --target prod
+python3 -I $A --target prod verify --url https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/announcements.json
+```
+
+`publish --target prod` commits `announcements.json` to `~/code/btlabs-epic.github.io` (beside
+`btlabs.json`), pushes a cleaned copy to GitHub with `tools/push-github.sh` as
+`tools/publish-update-json.sh` does, and reads the raw file back (or the pushed commit's raw URL
+while GitHub's cache still serves main's old copy).
+
+Tests: `python3 -I tools/announce/test_announce.py`

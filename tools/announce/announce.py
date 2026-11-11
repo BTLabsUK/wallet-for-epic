@@ -41,6 +41,7 @@ MAX_TEXT, MAX_LABEL, MAX_URL = 140, 24, 512
 MAX_PNG_BYTES = 8192
 PNG_MIN_PX, PNG_MAX_PX = 32, 192
 
+DEFAULT_TARGET = "test"
 DEFAULT_DIR = "~/.config/btlabs/announcements-test"
 SOURCE_NAME = "feed.payload.json"
 ENVELOPE_NAME = "announcements.json"
@@ -50,6 +51,15 @@ SERIAL_NAME = ".last-signed-serial"
 TEST_FEED_URL = "https://examples.btlabs.uk/epic/announcements-test/announcements.json"
 TEST_HOST = "demo-vps"
 TEST_REMOTE_PATH = "/srv/examples/epic/announcements-test/announcements.json"
+# Production (the owner 2026-11-11): key btlabs-ann-2026-a beside the release key, rank-2
+# btlabs-ann-2026-b offline; the feed in the BT Labs Pages repository beside btlabs.json, read as
+# the raw file on main (reachable through Tor exits).
+PROD_DIR = "~/.config/btlabs/announcements"
+PROD_KEY = "~/.config/btlabs/signing/btlabs-ann-2026-a.key"
+PROD_SITE = "~/code/btlabs-epic.github.io"
+PROD_REPO = "BTLabsUK/btlabs-epic.github.io"
+PROD_FEED_URL = "https://raw.githubusercontent.com/%s/main/announcements.json" % PROD_REPO
+TOOLS_DIR = Path(__file__).resolve().parent.parent
 
 TS_RE = re.compile(
     r"([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
@@ -508,8 +518,15 @@ def source_bytes(source: dict) -> bytes:
 
 # ---------------------------------------------------------------- commands
 
+def target_dir(a, target=None) -> Path:
+    """--dir, else the folder of the target (--target, default test)."""
+    if a.dir:
+        return Path(os.path.expanduser(a.dir))
+    return Path(os.path.expanduser(PROD_DIR if (target or a.target) == "prod" else DEFAULT_DIR))
+
+
 def paths(a):
-    d = Path(os.path.expanduser(a.dir))
+    d = target_dir(a)
     return d, Path(os.path.expanduser(a.source)) if a.source else d / SOURCE_NAME
 
 
@@ -603,7 +620,8 @@ def cmd_list(a) -> int:
 
 def cmd_sign(a) -> int:
     d, src = paths(a)
-    data = sign_feed(d, now_utc(), a.days, a.key, a.revoke or (), src)
+    key = a.key or (os.path.expanduser(PROD_KEY) if a.target == "prod" else None)
+    data = sign_feed(d, now_utc(), a.days, key, a.revoke or (), src)
     print("signed -> %s (%d bytes)" % (d / ENVELOPE_NAME, len(data)))
     return 0
 
@@ -634,7 +652,7 @@ def fetch(url: str) -> bytes:
 
 
 def cmd_verify(a) -> int:
-    d = Path(os.path.expanduser(a.dir))
+    d = target_dir(a)
     keyring = read_json_file(Path(os.path.expanduser(a.keyring)) if a.keyring else d / KEYRING_NAME,
                              "keyring")
     if a.url:
@@ -655,9 +673,10 @@ def cmd_verify(a) -> int:
 
 
 def cmd_publish(a) -> int:
-    if a.target == "prod":
-        raise ToolError("production target not set up: the owner decides the host and key")
-    d = Path(os.path.expanduser(a.dir))
+    if a.target != DEFAULT_TARGET and a.target != a.publish_target:
+        raise ToolError("--target %s before the command and publish --target %s differ"
+                        % (a.target, a.publish_target))
+    d = target_dir(a, a.publish_target)
     env_path = d / ENVELOPE_NAME
     try:
         local = env_path.read_bytes()
@@ -667,6 +686,8 @@ def cmd_publish(a) -> int:
     r = verify_envelope(local, keyring, now_utc())
     if r["outcome"] == "rejected":
         raise ToolError("local envelope does not verify (%s); not publishing" % r["reason"])
+    if a.publish_target == "prod":
+        return publish_prod(local, keyring, a)
     tmp = "announcements-%s.json" % secrets.token_hex(6)
     subprocess.run(["scp", "-q", str(env_path), "%s:%s" % (TEST_HOST, tmp)], check=True, timeout=120)
     remote = "sudo install -D -m 644 -o root -g root %s %s && rm %s" % (
@@ -682,6 +703,66 @@ def cmd_publish(a) -> int:
     if r["outcome"] == "rejected":
         raise ToolError("fetched file does not verify (%s)" % r["reason"])
     print("published %s (%d bytes), fetched copy identical and verified" % (TEST_FEED_URL, len(got)))
+    return 0
+
+
+def git(*args, cwd=None, capture=False) -> str:
+    r = subprocess.run(["git", *args], cwd=cwd, check=True, timeout=300, text=True,
+                       stdout=subprocess.PIPE if capture else None,
+                       env=dict(os.environ, GIT_TERMINAL_PROMPT="0"))
+    return (r.stdout or "").strip()
+
+
+def check_fetched(url: str, local: bytes, keyring) -> str | None:
+    """None when url serves exactly `local` and it verifies; else why not."""
+    try:
+        got = fetch(url)
+    except OSError as e:
+        return "cannot fetch: %s" % e
+    if got != local:
+        return "serves other bytes (cache?)"
+    r = verify_envelope(got, keyring, now_utc())
+    return "does not verify (%s)" % r["reason"] if r["outcome"] == "rejected" else None
+
+
+def publish_prod(local: bytes, keyring, a) -> int:
+    """Commit announcements.json to the Pages repository and push it to GitHub the way
+    tools/publish-update-json.sh does: a cleaned bare copy (mailmap addresses, no co-author or
+    generated-with trailers) through tools/push-github.sh, fast-forward only. Then read it back."""
+    site = Path(os.path.expanduser(a.site or PROD_SITE))
+    if not (site / "btlabs.json").is_file():
+        raise ToolError("%s is not the Pages repository (no btlabs.json)" % site)
+    if git("status", "--porcelain", "--", "announcements.json", cwd=site, capture=True):
+        raise ToolError("%s/announcements.json has uncommitted changes" % site)
+    serial = json.loads(b64d(json.loads(local)["payload"]))["serial"]
+    write_file(site / "announcements.json", local)
+    git("add", "announcements.json", cwd=site)
+    if git("status", "--porcelain", "--", "announcements.json", cwd=site, capture=True):
+        git("commit", "-q", "-m", "announcements.json serial %d" % serial, cwd=site)
+    with tempfile.TemporaryDirectory() as work:
+        pub = Path(work) / "pub.git"
+        git("clone", "-q", "--bare", "--no-local", str(site), str(pub))
+        callback = ('import re\n'
+                    'keep = [l for l in message.split(b"\\n") if not re.match('
+                    'rb"(?i)(co-authored-by:|.*generated with )", l.strip())]\n'
+                    'return b"\\n".join(keep).rstrip(b"\\n") + b"\\n"')
+        git("-C", str(pub), "filter-repo", "--force", "--quiet", "--mailmap",
+            str(TOOLS_DIR / "publish" / "mailmap"), "--message-callback", callback)
+        commit = git("-C", str(pub), "rev-parse", "main", capture=True)
+        subprocess.run([str(TOOLS_DIR / "push-github.sh"), PROD_REPO.split("/")[1], str(pub)],
+                       check=True, timeout=600)
+    # raw.githubusercontent.com caches main for a few minutes: the pushed commit's own URL shows
+    # whether the push landed.
+    why = check_fetched(PROD_FEED_URL, local, keyring)
+    if why is None:
+        print("published %s (%d bytes), fetched copy identical and verified" % (PROD_FEED_URL, len(local)))
+        return 0
+    at = "https://raw.githubusercontent.com/%s/%s/announcements.json" % (PROD_REPO, commit)
+    why2 = check_fetched(at, local, keyring)
+    if why2 is not None:
+        raise ToolError("pushed, but %s %s" % (at, why2))
+    print("pushed commit %s: %s identical and verified; %s %s, check again in a few minutes"
+          % (commit[:12], at, PROD_FEED_URL, why))
     return 0
 
 
@@ -733,7 +814,7 @@ def make_vectors(d: Path, out: Path, png_path: Path, now: datetime) -> list:
 
 
 def cmd_fixtures(a) -> int:
-    d = Path(os.path.expanduser(a.dir))
+    d = target_dir(a)
     names = make_vectors(d, Path(a.out), Path(os.path.expanduser(a.png)), now_utc())
     print("wrote %s into %s" % (", ".join(names), a.out))
     return 0
@@ -743,7 +824,9 @@ def cmd_fixtures(a) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="announce", description=__doc__.splitlines()[0])
-    p.add_argument("--dir", default=DEFAULT_DIR)
+    p.add_argument("--target", choices=["test", "prod"], default=DEFAULT_TARGET,
+                   help="which feed: picks --dir (%s or %s) and the sign key" % (DEFAULT_DIR, PROD_DIR))
+    p.add_argument("--dir", help="folder of the source, keyring and envelope (default: by --target)")
     p.add_argument("--source", help="source payload (default: DIR/%s)" % SOURCE_NAME)
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -778,7 +861,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(fn=cmd_verify)
 
     s = sub.add_parser("publish", help="copy the signed envelope to a target and read it back")
-    s.add_argument("--target", required=True, choices=["test", "prod"])
+    s.add_argument("--target", dest="publish_target", required=True, choices=["test", "prod"])
+    s.add_argument("--site", help="prod: Pages repository checkout (default %s)" % PROD_SITE)
     s.set_defaults(fn=cmd_publish)
 
     s = sub.add_parser("fixtures", help="write the test vectors for the app's tests")

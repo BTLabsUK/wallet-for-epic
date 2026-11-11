@@ -254,10 +254,21 @@ class SignVerify(Base):
         data = A.sign_feed(self.d, self.now, 30, revoke=[kid_b])
         self.assertEqual(json.loads(A.b64d(json.loads(data)["payload"]))["revoked_keys"], [kid_b])
 
-    def test_publish_prod_refused(self):
-        rc, _, err = self.run_cli("publish", "--target", "prod")
+    def test_publish_targets(self):
+        rc, _, err = self.run_cli("--target", "prod", "publish", "--target", "test")
         self.assertEqual(rc, 2)
-        self.assertIn("production target not set up", err)
+        self.assertIn("differ", err)
+        (self.d / A.SOURCE_NAME).write_text(json.dumps({"messages": []}))
+        A.sign_feed(self.d, self.now - timedelta(seconds=5), 30)
+        rc, _, err = self.run_cli("publish", "--target", "prod", "--site", str(self.d))
+        self.assertEqual(rc, 2)
+        self.assertIn("not the Pages repository", err)
+
+    def test_target_picks_dir(self):
+        a = A.build_parser().parse_args(["--target", "prod", "list"])
+        self.assertEqual(A.target_dir(a), Path(os.path.expanduser(A.PROD_DIR)))
+        a = A.build_parser().parse_args(["list"])
+        self.assertEqual(A.target_dir(a), Path(os.path.expanduser(A.DEFAULT_DIR)))
 
 
 class Vectors(Base):
