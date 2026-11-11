@@ -266,6 +266,7 @@ void main() {
 
       await h.pump(tester, _Under(key: UniqueKey(), ContactEditScreen(contact: saved)));
       expect(find.text(_link), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is EBadge && w.icon == MethodIcons.ofRecipient(RecipientKind.epic1)), findsOneWidget, reason: 'the saved link shows its kind on opening');
       await tester.tap(find.text(_l.contactsSave));
       await tester.pumpAndSettle();
       expect((await h.session.contacts()).singleWhere((c) => c.name == 'Eve').epic1, _link);

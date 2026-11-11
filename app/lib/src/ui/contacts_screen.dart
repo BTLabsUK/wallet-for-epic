@@ -688,6 +688,15 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   bool get _editing => widget.contact != null;
 
   @override
+  void initState() {
+    super.initState();
+    // A saved epic1 link shows its kind on opening, as a typed one does.
+    for (final f in _fields) {
+      _checkEpic1(f);
+    }
+  }
+
+  @override
   void dispose() {
     _name.dispose();
     for (final f in _fields) {

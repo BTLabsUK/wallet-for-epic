@@ -40,20 +40,25 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-Future<_Wallet> _editor(WidgetTester tester) async {
+Future<_Wallet> _editor(WidgetTester tester, {ContactsArgs arg = const ContactsArgs(adding: true), List<Contact> seed = const []}) async {
   tester.view.physicalSize = const Size(1280, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final api = _Wallet();
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)], retry: (_, _) => null);
   addTearDown(container.dispose);
-  await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    for (final c in seed) {
+      await api.saveContact(c);
+    }
+    await container.read(deskProvider.notifier).refresh();
+  });
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
         theme: buildDeskTheme(Brightness.dark),
-        home: const Scaffold(body: ContactsScreen(arg: ContactsArgs(adding: true))),
+        home: Scaffold(body: ContactsScreen(arg: arg)),
       ),
     ),
   );
@@ -93,6 +98,13 @@ void main() {
       await _save(tester);
       expect(find.byWidgetPredicate((w) => w is EBadge && w.icon == MethodIcons.ofRecipient(RecipientKind.epic1)), findsWidgets);
       expect(find.text(_l.deskKitUnknown), findsNothing);
+    });
+
+    testWidgets('editing a contact with a saved link shows its kind on opening', (tester) async {
+      await _editor(tester, arg: const ContactsArgs(selectedId: 'eve', editing: true), seed: [Contact(id: 'eve', name: 'Eve', epic1: _link)]);
+      expect(find.text(_link), findsOneWidget);
+      // In the field, not only the list row.
+      expect(find.descendant(of: find.byType(EField), matching: find.byWidgetPredicate((w) => w is EBadge && w.icon == MethodIcons.ofRecipient(RecipientKind.epic1))), findsOneWidget);
     });
 
     testWidgets('a bare epic1 address gets its line at once and is not saved', (tester) async {

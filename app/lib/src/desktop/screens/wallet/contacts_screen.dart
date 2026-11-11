@@ -1047,6 +1047,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _nameFocus.addListener(() {
       if (!_nameFocus.hasFocus && _name.text.trim().isNotEmpty) setState(() => _touched.add('name'));
     });
+    // A saved epic1 link shows its kind on opening, as a typed one does.
+    for (final f in _fields) {
+      _checkEpic1(f);
+    }
   }
 
   @override
