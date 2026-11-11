@@ -202,7 +202,11 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     if (slate == null) return const [];
     return ref
         .read(walletServiceProvider)
-        .encodeQrSlate(json: slate.json, maxFragmentLen: qrFragmentLen);
+        .encodeQrSlate(
+          json: slate.json,
+          maxFragmentLen: qrFragmentLen,
+          singleCodeMaxLen: qrSingleCodeMaxLen,
+        );
   }
 
   Future<void> _onCode(String text) async {

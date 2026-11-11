@@ -17,6 +17,7 @@ import '../../errors.dart';
 import '../../l10n.dart';
 import '../../models.dart';
 import '../../providers.dart';
+import '../../qr_slate.dart' show QrFrames;
 import '../../trust_ids.dart';
 import '../../utf8_limit.dart';
 import '../app_dialog.dart';
@@ -560,6 +561,14 @@ class _InPersonQrState extends State<InPersonQr> {
   bool _shown = false;
   int _frame = 0;
   Timer? _timer;
+  QrFrames? _frames;
+
+  /// The parts drawn once, in one version and mask.
+  QrFrames _framesOf(List<String> parts) {
+    final drawn = _frames;
+    if (drawn != null && identical(drawn.texts, parts)) return drawn;
+    return _frames = QrFrames.of(parts);
+  }
 
   @override
   void didUpdateWidget(InPersonQr old) {
@@ -625,6 +634,7 @@ class _InPersonQrState extends State<InPersonQr> {
         ),
       );
     } else {
+      final frames = _framesOf(parts);
       inner = GestureDetector(
         onTap: () => _set(false),
         child: Container(
@@ -638,7 +648,7 @@ class _InPersonQrState extends State<InPersonQr> {
           child: Semantics(
             label: widget.label,
             image: true,
-            child: LogoQr(data: parts[_frame % parts.length], size: side, logo: QrLogo.epic1),
+            child: LogoQrImage(image: frames.images[_frame % frames.length], size: side, logo: QrLogo.epic1),
           ),
         ),
       );

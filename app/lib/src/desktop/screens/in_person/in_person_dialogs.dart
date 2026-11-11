@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../epic1.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../models.dart' show WalletError, WalletErrorKind, slateMessageMaxBytes;
+import '../../../qr_slate.dart' show QrFrames;
 import '../../../trust_ids.dart';
 import '../../../ui/in_person/in_person_logic.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -400,6 +401,14 @@ class _DeskInPersonQrState extends State<DeskInPersonQr> {
   bool _shown = false;
   int _frame = 0;
   Timer? _frames;
+  QrFrames? _drawn;
+
+  /// The parts drawn once, in one version and mask.
+  QrFrames _framesOf(List<String> parts) {
+    final drawn = _drawn;
+    if (drawn != null && identical(drawn.texts, parts)) return drawn;
+    return _drawn = QrFrames.of(parts);
+  }
 
   @override
   void didUpdateWidget(DeskInPersonQr old) {
@@ -442,7 +451,7 @@ class _DeskInPersonQrState extends State<DeskInPersonQr> {
       return Semantics(
         image: true,
         label: widget.label,
-        child: ExcludeSemantics(child: EQr(widget.parts[_frame % widget.parts.length], size: size, epic1: true)),
+        child: ExcludeSemantics(child: EQr.frame(_framesOf(widget.parts).images[_frame % widget.parts.length], size: size, epic1: true)),
       );
     }
     return Container(

@@ -10,12 +10,14 @@ import 'package:flutter/foundation.dart';
 
 import '../../epic1.dart';
 import '../../models.dart';
+import '../../qr_slate.dart' show qrFrameMs;
 
 /// How often a code on screen asks for its answers.
 const Duration inPersonPollEvery = Duration(seconds: 3);
 
-/// How long each part of an animated QR code shows.
-const Duration inPersonFrameEvery = Duration(milliseconds: 250);
+/// How long each part of an animated QR code shows: the payment code's rate, six a second, so
+/// an answer of about 19 parts passes in about three seconds.
+const Duration inPersonFrameEvery = Duration(milliseconds: qrFrameMs);
 
 /// A block is about a minute (as the payment details count).
 const int _minutesPerBlock = 1;
