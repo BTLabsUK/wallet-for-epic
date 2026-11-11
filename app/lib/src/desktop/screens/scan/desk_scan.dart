@@ -432,7 +432,7 @@ class _FramePainter extends CustomPainter {
 /// Scan, beside a field's paste: offered while a camera is found, greyed out otherwise. It
 /// checks again when it first shows.
 class DeskScanButton extends ConsumerStatefulWidget {
-  const DeskScanButton({super.key, required this.onScan, this.size = EBtnSize.inline, this.label});
+  const DeskScanButton({super.key, required this.onScan, this.size = EBtnSize.inline, this.label, this.enabled = true});
 
   final VoidCallback onScan;
   final EBtnSize size;
@@ -440,6 +440,9 @@ class DeskScanButton extends ConsumerStatefulWidget {
   /// Set: a button with this label and the camera icon (Home, beside Send and Receive); its
   /// greyed-out state carries the reason as a tip. Unset: the icon button beside a field.
   final String? label;
+
+  /// False while the flow around it is busy.
+  final bool enabled;
 
   @override
   ConsumerState<DeskScanButton> createState() => _DeskScanButtonState();
@@ -457,7 +460,7 @@ class _DeskScanButtonState extends ConsumerState<DeskScanButton> {
   @override
   Widget build(BuildContext context) {
     final presence = ref.watch(cameraPresenceProvider);
-    final on = presence.offersScan;
+    final on = presence.offersScan && widget.enabled;
     final label = widget.label;
     if (label != null) {
       final button = EButton(label: label, icon: EIcons.camera, size: widget.size, onPressed: on ? widget.onScan : null);

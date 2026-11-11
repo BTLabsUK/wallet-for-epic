@@ -14,7 +14,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../camera/camera_presence.dart';
 import '../../../sealed_text.dart' show isSealedText;
 import '../../../qr_slate.dart' show QrFrames, looksLikeQrSlate, partCountOf, partNumberOf, qrCountdownSeconds, qrFrameMs, qrLowSeconds, qrShowSeconds;
 import '../../../wallet_service.dart' show WalletError, WalletErrorKind;
@@ -118,9 +117,8 @@ Future<DeskScanResult<String>?> deskScanSlate(
   return deskScanParts<String>(context, title: title, hint: hint, reader: reader);
 }
 
-/// Scan QR beside a flow's Choose file or Paste: offered while a camera is found, greyed out
-/// otherwise. It asks for the camera again when it first shows.
-class DeskQrScanButton extends ConsumerStatefulWidget {
+/// Scan QR beside a flow's Choose file or Paste: the shared Scan, labelled.
+class DeskQrScanButton extends StatelessWidget {
   const DeskQrScanButton({super.key, required this.onScan, this.size = EBtnSize.sm, this.enabled = true});
 
   final VoidCallback onScan;
@@ -130,23 +128,8 @@ class DeskQrScanButton extends ConsumerStatefulWidget {
   final bool enabled;
 
   @override
-  ConsumerState<DeskQrScanButton> createState() => _DeskQrScanButtonState();
-}
-
-class _DeskQrScanButtonState extends ConsumerState<DeskQrScanButton> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      if (mounted) ref.read(cameraPresenceProvider.notifier).recheck();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final on = ref.watch(cameraPresenceProvider).offersScan && widget.enabled;
-    return EButton(label: context.l10n.postFinishedScanQr, icon: EIcons.camera, size: widget.size, onPressed: on ? widget.onScan : null);
-  }
+  Widget build(BuildContext context) =>
+      DeskScanButton(label: context.l10n.postFinishedScanQr, size: size, enabled: enabled, onScan: onScan);
 }
 
 /// Whether the file at [path] can be shown as a QR code: a plain transaction file. A sealed
