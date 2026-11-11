@@ -170,16 +170,15 @@ void main() {
   });
 
   group('Receive', () {
-    testWidgets('epic1: the link card with its QR covered, Copy link, Ask an amount, In person', (tester) async {
+    testWidgets('epic1: the link card with its QR shown, Copy link, Ask an amount, In person', (tester) async {
       await _open(tester, DeskRoute.receive, epic1: true);
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await _settle(tester);
       expect(find.byKey(const ValueKey('e1-link-card')), findsOneWidget);
       expect(_wallet.epic1Fake.calls, contains('makeLink'));
       expect(find.byKey(const ValueKey('e1-copy-link')), findsOneWidget);
-      expect(find.byKey(const ValueKey('rx-qr-image-epic1')), findsNothing, reason: 'covered until clicked');
-      await _tap(tester, 'rx-qr-epic1');
-      expect(find.byKey(const ValueKey('rx-qr-image-epic1')), findsOneWidget);
+      expect(find.byKey(const ValueKey('rx-qr-image-epic1')), findsOneWidget, reason: 'shown from the start');
+      expect(find.text('Show QR'), findsNothing, reason: 'no cover, no Show QR step');
       expect(find.byKey(const ValueKey('e1-ask-amount')), findsOneWidget);
       expect(find.byKey(const ValueKey('e1-request-in-person')), findsOneWidget);
       // No classic receiving rows.

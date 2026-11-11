@@ -220,6 +220,7 @@ class _Epic1LinkCardState extends ConsumerState<Epic1LinkCard> {
         title: l.deskE1LinkTitle,
         method: 'epic1',
         initiallyShown: widget.showQr,
+        fixed: true,
         epic1: true,
       );
       body = LayoutBuilder(
