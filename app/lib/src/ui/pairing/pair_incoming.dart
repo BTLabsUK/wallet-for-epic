@@ -29,7 +29,7 @@ import '../common.dart';
 import '../address_view.dart' show ShortAddressText;
 import '../key_picture.dart';
 import '../phone_sheet.dart';
-import '../theme/brand.dart';
+import '../theme/logo_qr.dart';
 import '../theme/tokens.dart';
 import 'invite_links.dart';
 import 'pair_check.dart';
@@ -509,7 +509,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(t.radiusSmall)),
-                            child: MarkedQr(data: link, size: 180),
+                            child: LogoQr(data: link, size: 180, logo: QrLogo.epic1),
                           ),
                         ),
                         const SizedBox(height: 12),

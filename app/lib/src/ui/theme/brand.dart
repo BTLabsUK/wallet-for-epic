@@ -10,7 +10,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../balanced_text.dart';
 import 'protocol.dart';
@@ -93,6 +92,21 @@ class _EpicMarkPainter extends CustomPainter {
   @override
   bool shouldRepaint(_EpicMarkPainter old) =>
       old.top != top || old.bottom != bottom;
+}
+
+/// Paints the BT Wallet mark ([EpicMark]'s polygons) in [paint], as large as fits in [box] and
+/// centred in it. For artwork that draws the mark itself: the QR code's logo.
+void paintBtMark(Canvas canvas, Rect box, Paint paint) {
+  const w = _EpicMarkPainter._w, h = _EpicMarkPainter._h;
+  final scale = (box.width / w) < (box.height / h) ? box.width / w : box.height / h;
+  canvas
+    ..save()
+    ..translate(box.center.dx - w * scale / 2, box.center.dy - h * scale / 2)
+    ..scale(scale);
+  for (final part in _EpicMarkPainter._parts) {
+    canvas.drawPath(part, paint);
+  }
+  canvas.restore();
 }
 
 /// Which app a [BrandWordmark] stands for. Desktop and phone share one name, BT Wallet, and
@@ -193,82 +207,6 @@ class BrandLockup extends StatelessWidget {
           SizedBox(width: size * kitGapRatio),
           BrandWordmark(variant: variant, size: size * textRatio, color: color),
         ],
-      ),
-    );
-  }
-}
-
-/// A QR code of [data] at error correction level H, with the [EpicMark] in ink on a small white tile
-/// in its centre. The tile is [markFraction] of the code's width, so it hides about 4 % of the
-/// modules, well inside the 30 % level H restores. Dark modules for white paper: the caller
-/// puts it on white with a quiet zone, so it scans in either theme. Decorative to screen
-/// readers; label it where it is used.
-class MarkedQr extends StatefulWidget {
-  const MarkedQr({super.key, required this.data, required this.size});
-
-  /// What the code holds, in full.
-  final String data;
-
-  /// Width and height in logical pixels.
-  final double size;
-
-  /// The mark's tile, as a share of the code's width. At most a fifth.
-  static const double markFraction = 0.2;
-
-  /// The error correction level of every code it draws.
-  static const int errorCorrectLevel = QrErrorCorrectLevel.H;
-
-  @override
-  State<MarkedQr> createState() => _MarkedQrState();
-}
-
-class _MarkedQrState extends State<MarkedQr> {
-  late QrImage _image = _encode();
-
-  QrImage _encode() => QrImage(
-    QrCode.fromData(
-      data: widget.data,
-      errorCorrectLevel: MarkedQr.errorCorrectLevel,
-    ),
-  );
-
-  @override
-  void didUpdateWidget(MarkedQr old) {
-    super.didUpdateWidget(old);
-    if (old.data != widget.data) _image = _encode();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // The paper is white in both themes, so the mark takes the light theme's accent.
-    const paper = protocolLight;
-    final tile = widget.size * MarkedQr.markFraction;
-    return ExcludeSemantics(
-      child: SizedBox.square(
-        dimension: widget.size,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned.fill(
-              child: PrettyQrView(
-                qrImage: _image,
-                decoration: PrettyQrDecoration(
-                  shape: PrettyQrSmoothSymbol(color: paper.text),
-                ),
-              ),
-            ),
-            Container(
-              width: tile,
-              height: tile,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: paper.surface,
-                borderRadius: BorderRadius.circular(tile * 0.18),
-              ),
-              child: EpicMark(size: tile * 0.58, color: paper.text),
-            ),
-          ],
-        ),
       ),
     );
   }

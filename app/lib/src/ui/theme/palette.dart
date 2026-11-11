@@ -130,3 +130,10 @@ abstract final class PaletteLight {
   static const tint = Color(0x1FC98A3E);
   static const dots = Color(0x00000000);
 }
+
+/// The epic1 brand pack's ink and amber (`~/epic1-branding`, tokens.json): the epic1 QR code's
+/// modules and its block 1, on white in both themes.
+abstract final class PaletteEpic1 {
+  static const ink = Color(0xFF1D1A14);
+  static const amber = Color(0xFFA66A1C);
+}

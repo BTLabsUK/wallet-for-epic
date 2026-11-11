@@ -34,6 +34,7 @@ class EQrReveal extends StatefulWidget {
     this.method,
     this.initiallyShown = false,
     this.fixed = false,
+    this.epic1 = false,
   });
 
   final String address;
@@ -61,6 +62,9 @@ class EQrReveal extends StatefulWidget {
   /// Covered form: the code always shows, with no blur and no Show or Hide (Receive's Epicbox
   /// address, item 17).
   final bool fixed;
+
+  /// The code is an epic1 link: drawn with the epic1 mark.
+  final bool epic1;
 
   @override
   State<EQrReveal> createState() => _EQrRevealState();
@@ -117,7 +121,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
         children: [
           Opacity(
             opacity: tag == null ? 1 : 0.35,
-            child: EQr(widget.address, size: size),
+            child: EQr(widget.address, size: size, epic1: widget.epic1),
           ),
           if (tag != null) _Tag(tag),
         ],
@@ -191,7 +195,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
                             opacity: 0.16,
                             child: ImageFiltered(
                               imageFilter: ImageFilter.blur(sigmaX: 9, sigmaY: 9),
-                              child: EQr(widget.address, size: size),
+                              child: EQr(widget.address, size: size, epic1: widget.epic1),
                             ),
                           ),
                         )

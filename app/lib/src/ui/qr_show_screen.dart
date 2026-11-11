@@ -24,6 +24,7 @@ import 'common.dart';
 import 'qr_common.dart';
 import 'qr_scan_screen.dart';
 import 'theme/brand.dart';
+import 'theme/logo_qr.dart';
 import 'theme/tokens.dart';
 
 /// How the show screen ended.
@@ -1205,8 +1206,8 @@ class _Numeral extends StatelessWidget {
   }
 }
 
-/// Paints one frame's modules, black on white, at a whole number of device pixels each: no
-/// scaling, no smoothing, so every module edge is crisp.
+/// Paints one frame in the [LogoQr] look with the BT Wallet mark, on white, at a whole number
+/// of device pixels a module, so every frame keeps the same crisp grid.
 class _QrPainter extends CustomPainter {
   _QrPainter({required this.frames, required this.frame, required this.dpr})
     : super(repaint: frame);
@@ -1223,44 +1224,17 @@ class _QrPainter extends CustomPainter {
     final pixels = size.width * dpr;
     final module = (pixels / (n + 2 * quiet)).floorToDouble().clamp(1.0, 1e6);
     final offset = ((pixels - module * n) / 2).floorToDouble();
-    final dark = Path();
-    for (var row = 0; row < n; row++) {
-      var col = 0;
-      while (col < n) {
-        if (!image.isDark(row, col)) {
-          col++;
-          continue;
-        }
-        final start = col;
-        while (col < n && image.isDark(row, col)) {
-          col++;
-        }
-        dark.addRect(
-          Rect.fromLTWH(
-            offset + start * module,
-            offset + row * module,
-            (col - start) * module,
-            module,
-          ),
-        );
-      }
-    }
     canvas
       ..save()
       ..scale(1 / dpr)
       ..drawRect(
         Offset.zero & Size(pixels, size.height * dpr),
         Paint()
-          ..color = const Color(0xFFFFFFFF)
+          ..color = protocolLight.surface
           ..isAntiAlias = false,
-      )
-      ..drawPath(
-        dark,
-        Paint()
-          ..color = const Color(0xFF000000)
-          ..isAntiAlias = false,
-      )
-      ..restore();
+      );
+    paintLogoQr(canvas, image, logo: QrLogo.bt, origin: Offset(offset, offset), module: module);
+    canvas.restore();
   }
 
   @override

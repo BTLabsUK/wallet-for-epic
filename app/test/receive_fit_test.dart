@@ -15,7 +15,7 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
-import 'package:epic_wallet/src/ui/theme/brand.dart';
+import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/ui/theme/protocol.dart' show CornerTicksPainter;
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -160,7 +160,7 @@ ScrollPosition _receiveScroll(WidgetTester tester) => tester
 
 /// The QR code's side.
 double _qrSide(WidgetTester tester) =>
-    tester.getSize(find.byType(MarkedQr)).width;
+    tester.getSize(find.byType(LogoQr)).width;
 
 void main() {
   setUpAll(_loadFonts);
@@ -184,7 +184,7 @@ void main() {
       // Everything the tab holds is there.
       expect(find.byKey(receiveAddressKey), findsOneWidget);
       expect(find.byKey(receiveEpicboxKey), findsOneWidget);
-      expect(find.byType(MarkedQr), findsOneWidget);
+      expect(find.byType(LogoQr), findsOneWidget);
       expect(find.byKey(receiveRequestKey), findsOneWidget);
       final help = find.text('How receiving works');
       expect(help, findsOneWidget);
@@ -206,7 +206,7 @@ void main() {
       // buttons. A code drawn past the room it was given would cover them.
       final code = tester.getRect(
         find.ancestor(
-          of: find.byType(MarkedQr),
+          of: find.byType(LogoQr),
           matching: find.byWidgetPredicate(
             (w) =>
                 w is CustomPaint && w.foregroundPainter is CornerTicksPainter,
@@ -228,11 +228,11 @@ void main() {
       expect(code.height, closeTo(side + 56, 0.5));
       expect(code.width, closeTo(side + 56, 0.5));
       expect(
-        code.deflate(28).contains(tester.getCenter(find.byType(MarkedQr))),
+        code.deflate(28).contains(tester.getCenter(find.byType(LogoQr))),
         isTrue,
       );
       expect(
-        tester.getRect(find.byType(MarkedQr)).top,
+        tester.getRect(find.byType(LogoQr)).top,
         closeTo(code.top + 28, 0.5),
       );
       expect(

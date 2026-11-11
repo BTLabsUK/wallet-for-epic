@@ -22,7 +22,7 @@ import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../scan_screen.dart';
-import '../theme/brand.dart';
+import '../theme/logo_qr.dart';
 import '../theme/tokens.dart';
 import '../scan_route.dart' show openDeviceLinkText;
 import 'invite_links.dart';
@@ -265,7 +265,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
                                   : const CircularProgressIndicator(),
                             ),
                           )
-                        : Semantics(label: l.pairCodeLabel, image: true, child: MarkedQr(data: pairingInviteText(code, invitePage: ref.watch(invitePageProvider)), size: 226)),
+                        : Semantics(label: l.pairCodeLabel, image: true, child: LogoQr(data: pairingInviteText(code, invitePage: ref.watch(invitePageProvider)), size: 226, logo: QrLogo.epic1)),
                   ),
                 ),
                 const SizedBox(height: 12),

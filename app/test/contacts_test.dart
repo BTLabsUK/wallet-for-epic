@@ -13,7 +13,7 @@ import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
-import 'package:epic_wallet/src/ui/theme/brand.dart';
+import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -374,10 +374,10 @@ void main() {
       );
       expect(find.text('Coffee club'), findsOneWidget);
       expect(find.text(_l.contactAddresses), findsOneWidget);
-      expect(find.byType(MarkedQr), findsNothing);
+      expect(find.byType(LogoQr), findsNothing);
       await tester.tap(find.text(_l.contactsShowCode));
       await tester.pumpAndSettle();
-      expect(find.byType(MarkedQr), findsOneWidget);
+      expect(find.byType(LogoQr), findsOneWidget);
       expect(find.textContaining('a' * 50, findRichText: true), findsWidgets);
     });
 

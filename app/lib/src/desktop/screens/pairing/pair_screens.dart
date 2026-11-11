@@ -299,7 +299,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
                     dimension: 176.u,
                     child: Center(child: _inviteError != null ? Text(_inviteError!, style: ts.bodyDim, textAlign: TextAlign.center) : const ESpinner()),
                   )
-                : Semantics(label: l.pairCodeLabel, image: true, child: EQr(deskPairingInviteText(invite, invitePage: ref.watch(invitePageProvider)), size: 176.u)),
+                : Semantics(label: l.pairCodeLabel, image: true, child: EQr(deskPairingInviteText(invite, invitePage: ref.watch(invitePageProvider)), size: 176.u, epic1: true)),
           ),
           SizedBox(height: Sp.x3),
           Text(contact == null ? l.pairCodeCaption : l.pairCodeCaptionFor(contact.name), style: ts.bodyDim, textAlign: TextAlign.center),

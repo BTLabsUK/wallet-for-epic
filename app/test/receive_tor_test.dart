@@ -19,7 +19,7 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/theme/brand.dart';
+import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -371,7 +371,7 @@ void main() {
       await h.pump(tester);
       await h.torTab(tester);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
-      expect(find.byType(MarkedQr), findsNothing);
+      expect(find.byType(LogoQr), findsNothing);
       expect(find.text(_l.receiveDirectNeedsTor), findsOneWidget);
       expect(find.text('Link receiving is off in Node only.'), findsOneWidget);
       expect(find.text(_l.receiveDirectMeanwhile), findsNothing);
@@ -438,7 +438,7 @@ void main() {
       expect(find.byKey(torSettingsLinkKey), findsNothing);
       expect(find.byType(Switch), findsNothing);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
-      expect(find.byType(MarkedQr), findsNothing);
+      expect(find.byType(LogoQr), findsNothing);
       // None of the words that were struck out.
       for (final word in ['Listener', 'listener', 'Advanced', 'Epic address']) {
         expect(find.textContaining(word), findsNothing);
@@ -460,7 +460,7 @@ void main() {
       expect(_status('Tor\u00A0· Starting'), findsOneWidget);
       expect(find.text(_l.receiveTorAddressLabel), findsOneWidget);
       expect(find.text(h.session.onion), findsOneWidget);
-      final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
+      final qr = tester.widget<LogoQr>(find.byType(LogoQr));
       expect(qr.data, h.session.onion);
       expect(find.bySemanticsLabel(_l.receiveTorQrLabel), findsOne);
       expect(find.byWidgetPredicate((w) => w is InfoHint && w.text == 'Works while the app is open.'), findsOneWidget);

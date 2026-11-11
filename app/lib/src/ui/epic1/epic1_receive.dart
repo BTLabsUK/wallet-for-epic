@@ -12,15 +12,15 @@ import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../providers.dart';
-import '../../settings.dart' show autoLockHoldProvider;
 import '../../slate_files.dart' show slateFilesProvider;
 import '../../models.dart' show WalletError, WalletErrorKind;
 import '../app_dialog.dart';
 import '../common.dart';
 import '../in_person/in_person_entry.dart';
 import '../phone_sheet.dart';
+import '../receive_screen.dart' show shareAddress;
 import '../settings_sections.dart';
-import '../theme/brand.dart' show MarkedQr;
+import '../theme/logo_qr.dart';
 import '../theme/protocol.dart' show CornerTicksPainter;
 import '../theme/tokens.dart';
 import '../theme/epic1_mark.dart';
@@ -88,10 +88,8 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
     }
   }
 
-  Future<void> _share(String link) async {
-    final files = ref.read(slateFilesProvider);
-    await ref.read(autoLockHoldProvider.notifier).during(() => files.shareText(link));
-  }
+  Future<void> _share(String link) =>
+      shareAddress(context, ref, address: link, chain: ref.read(walletConfigProvider)?.chain, logo: QrLogo.epic1);
 
   Future<void> _askAmount() async {
     final asked = await showPhoneSheet<({BigInt amount, String? message})>(
@@ -376,7 +374,7 @@ class _LinkQr extends StatelessWidget {
                 color: protocolLight.surface,
                 borderRadius: BorderRadius.circular(t.radiusSmall),
               ),
-              child: Semantics(label: l.deskE1PhLinkQrLabel, image: true, child: MarkedQr(data: link, size: size)),
+              child: Semantics(label: l.deskE1PhLinkQrLabel, image: true, child: LogoQr(data: link, size: size, logo: QrLogo.epic1)),
             ),
           ),
         ),

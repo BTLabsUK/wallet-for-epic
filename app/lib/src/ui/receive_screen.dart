@@ -52,6 +52,7 @@ import 'slate_file_screen.dart';
 import 'net_block.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
+import 'theme/logo_qr.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -1051,7 +1052,7 @@ class _AddressQr extends StatelessWidget {
             child: Semantics(
               label: semanticsLabel ?? l.receiveQrLabel,
               image: true,
-              child: MarkedQr(data: address, size: size),
+              child: LogoQr(data: address, size: size),
             ),
           ),
         ),
@@ -1330,12 +1331,14 @@ const double shareCardPixelRatio = 3;
 const String shareCardFileName = 'epic-cash-address.png';
 
 /// Shares [address]: as a [ShareCard] image with the address as its text where files can be
-/// shared, else as the address alone. Holds auto-lock while the share sheet is open.
+/// shared, else as the address alone. [logo] is the QR code's: the epic1 mark for an epic1
+/// link. Holds auto-lock while the share sheet is open.
 Future<void> shareAddress(
   BuildContext context,
   WidgetRef ref, {
   required String address,
   Chain? chain,
+  QrLogo logo = QrLogo.bt,
 }) async {
   final files = ref.read(slateFilesProvider);
   final hold = ref.read(autoLockHoldProvider.notifier);
@@ -1345,7 +1348,7 @@ Future<void> shareAddress(
   }
   Uint8List? png;
   try {
-    png = await renderShareCard(context, address: address, chain: chain);
+    png = await renderShareCard(context, address: address, chain: chain, logo: logo);
   } catch (error) {
     // The address alone still gets it across.
     logWarn(
@@ -1370,10 +1373,12 @@ Future<Uint8List> renderShareCard(
   BuildContext context, {
   required String address,
   Chain? chain,
+  QrLogo logo = QrLogo.bt,
 }) {
   final l = context.l10n;
   final card = ShareCard(
     address: address,
+    logo: logo,
     headline: l.receiveShareCardHeadline,
     network: chain == null || chain == Chain.mainnet || !devNetworksOf(context)
         ? null
@@ -1448,8 +1453,8 @@ Future<Uint8List> renderOffscreen({
   }
 }
 
-/// The picture Share sends: the mark, [headline], the QR code with the mark, the full
-/// [address], and the [network] name off mainnet. Built for [shareCardSize] in the light
+/// The picture Share sends: the mark, [headline], the QR code of [address] with [logo] in it,
+/// the full [address], and the [network] name off mainnet. Built for [shareCardSize] in the light
 /// theme; it reads its colours from the theme's tokens.
 class ShareCard extends StatelessWidget {
   const ShareCard({
@@ -1457,11 +1462,13 @@ class ShareCard extends StatelessWidget {
     required this.address,
     required this.headline,
     this.network,
+    this.logo = QrLogo.bt,
   });
 
   final String address;
   final String headline;
   final String? network;
+  final QrLogo logo;
 
   @override
   Widget build(BuildContext context) {
@@ -1502,16 +1509,24 @@ class ShareCard extends StatelessWidget {
                       border: Border.all(color: t.line),
                       borderRadius: BorderRadius.circular(t.radiusSmall),
                     ),
-                    child: MarkedQr(data: address, size: 232),
+                    child: LogoQr(data: address, size: 232, logo: logo),
                   ),
                 ),
                 const SizedBox(height: 20),
                 // As on the card in the app: the ends marked, the server whole on its own line.
-                MarkedAddress(
-                  address,
-                  center: true,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.35),
-                ),
+                // An epic1 link is one long run with no key to mark: it wraps, in full.
+                if (logo == QrLogo.epic1)
+                  Text(
+                    address,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.35, fontFamily: t.monoFamily, color: t.text),
+                  )
+                else
+                  MarkedAddress(
+                    address,
+                    center: true,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.35),
+                  ),
                 if (network != null) ...[
                   const SizedBox(height: 14),
                   Center(child: EBadge(network, tone: BadgeTone.warn)),

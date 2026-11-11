@@ -39,7 +39,7 @@ import 'pairing/pairing_parts.dart';
 import 'pairing/pairing_notices.dart' show pairingContactNoticeTag, pairingNewsOnScreen;
 import 'scan_route.dart' show sendPayments;
 import 'status_icons.dart' show EpicGlyphs;
-import 'theme/brand.dart';
+import 'theme/logo_qr.dart';
 import 'theme/tokens.dart';
 import 'tip.dart';
 import '../epic1.dart' show PaymentMode;
@@ -701,7 +701,7 @@ class _CodeSheetState extends State<_CodeSheet> {
               child: Semantics(
                 label: l.contactsQrLabel(widget.contact.name),
                 image: true,
-                child: MarkedQr(data: address, size: 220),
+                child: LogoQr(data: address, size: 220),
               ),
             ),
           ),

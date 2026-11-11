@@ -438,7 +438,7 @@ class _DeskInPersonQrState extends State<DeskInPersonQr> {
       return Semantics(
         image: true,
         label: widget.label,
-        child: ExcludeSemantics(child: EQr(widget.parts[_frame % widget.parts.length], size: size)),
+        child: ExcludeSemantics(child: EQr(widget.parts[_frame % widget.parts.length], size: size, epic1: true)),
       );
     }
     return Container(

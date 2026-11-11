@@ -19,7 +19,7 @@ import '../../settings.dart' show autoLockHoldProvider, clockProvider;
 import '../common.dart';
 import '../pairing/pairing_parts.dart';
 import '../scan_screen.dart' show ScanCode, qrScannerProvider;
-import '../theme/brand.dart';
+import '../theme/logo_qr.dart';
 import '../theme/tokens.dart';
 import 'device_parts.dart';
 
@@ -290,7 +290,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(t.radiusSmall)),
-            child: Semantics(label: l.linkPasteLabel, image: true, child: MarkedQr(data: code, size: size)),
+            child: Semantics(label: l.linkPasteLabel, image: true, child: LogoQr(data: code, size: size, logo: QrLogo.epic1)),
           ),
         ),
         const SizedBox(height: 12),

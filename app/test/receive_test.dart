@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
+import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -179,9 +180,6 @@ Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
   return (data.getUint32(16), data.getUint32(20));
 }
 
-// The QR checks read the code PrettyQrView draws.
-// ignore_for_file: invalid_use_of_protected_member
-
 void main() {
   group('tabs', () {
     testWidgets('two tabs without Tor with Send\'s look; Epicbox address by default', (
@@ -221,7 +219,7 @@ void main() {
       for (final key in [receiveAddressKey, receiveEpicboxKey, receiveRequestKey]) {
         expect(find.byKey(key), findsOneWidget);
       }
-      expect(find.byType(MarkedQr), findsOneWidget);
+      expect(find.byType(LogoQr), findsOneWidget);
       expect(find.text(_l.receiveFileTitle), findsNothing);
       expect(find.text(_l.receiveHelpButton), findsOneWidget);
       // Payment file: the file card and the help, nothing else.
@@ -235,7 +233,7 @@ void main() {
       ]) {
         expect(find.byKey(key), findsNothing);
       }
-      expect(find.byType(MarkedQr), findsNothing);
+      expect(find.byType(LogoQr), findsNothing);
       // The help ends both tabs.
       expect(
         tester.getRect(find.text(_l.receiveHelpButton)).top,
@@ -276,7 +274,7 @@ void main() {
     testWidgets('the code keeps its size where there is room', (tester) async {
       await _Harness().pump(tester);
       expect(
-        tester.getSize(find.byType(MarkedQr)),
+        tester.getSize(find.byType(LogoQr)),
         const Size.square(receiveQrMaxSize),
       );
     });
@@ -292,7 +290,7 @@ void main() {
       expect(find.byKey(const ValueKey('receive-no-epicbox')), findsOneWidget);
       expect(find.textContaining(_l.deskSlNoEpicboxTitle), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
-      expect(find.byType(PrettyQrView), findsNothing);
+      expect(find.byType(LogoQr), findsNothing);
       expect(find.byType(ErrorText), findsNothing, reason: 'no raw core error');
     });
 
@@ -304,7 +302,7 @@ void main() {
       // Advanced options is off, and the address is still whole.
       expect(_addressText, findsOneWidget);
       final card = tester.getRect(find.byKey(receiveAddressKey));
-      final qr = tester.getRect(find.byType(MarkedQr));
+      final qr = tester.getRect(find.byType(LogoQr));
       expect(card.bottom, lessThan(qr.top));
       expect(
         find.descendant(
@@ -346,7 +344,7 @@ void main() {
           matching: find.byType(Card),
         ),
       );
-      final qr = tester.getRect(find.byType(MarkedQr));
+      final qr = tester.getRect(find.byType(LogoQr));
       final view = tester.getRect(find.byType(ReceiveView));
       // Nothing beside the card: it spans the view, less the view's own padding.
       expect(card.width, greaterThan(view.width - 40));
@@ -454,8 +452,10 @@ void main() {
       expect(find.text(_address.split('@').first), findsOneWidget);
       expect(find.text('@${_address.split('@').last}'), findsOneWidget);
       expect(find.text('Pay me in Epic Cash'), findsOneWidget);
-      expect(find.byType(EpicMark), findsNWidgets(2));
-      expect(tester.widget<MarkedQr>(find.byType(MarkedQr)).data, _address);
+      // The card's head; the code paints its own BT Wallet mark.
+      expect(find.byType(EpicMark), findsOneWidget);
+      expect(tester.widget<LogoQr>(find.byType(LogoQr)).data, _address);
+      expect(tester.widget<LogoQr>(find.byType(LogoQr)).logo, QrLogo.bt);
       expect(find.text('Floonet'), findsNothing);
 
       await pumpCard(tester, network: 'Floonet');
@@ -488,40 +488,38 @@ void main() {
   });
 
   group('QR code', () {
-    testWidgets('holds the full address at level H with the mark', (
+    testWidgets('holds the full address at level H with the BT Wallet mark', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      final marked = tester.widget<MarkedQr>(find.byType(MarkedQr));
-      expect(marked.data, _address);
-      final view = tester.widget<PrettyQrView>(find.byType(PrettyQrView));
-      expect(view.qrImage.errorCorrectLevel, QrErrorCorrectLevel.H);
+      final qr = tester.widget<LogoQr>(find.byType(LogoQr));
+      expect(qr.data, _address);
+      expect(qr.logo, QrLogo.bt);
+      final painter = tester
+          .widgetList<CustomPaint>(
+            find.descendant(of: find.byType(LogoQr), matching: find.byType(CustomPaint)),
+          )
+          .map((w) => w.painter)
+          .whereType<LogoQrPainter>()
+          .single;
+      expect(painter.image.errorCorrectLevel, QrErrorCorrectLevel.H);
       final expected = QrImage(
         QrCode.fromData(
           data: _address,
           errorCorrectLevel: QrErrorCorrectLevel.H,
         ),
       );
-      expect(view.qrImage.moduleCount, expected.moduleCount);
+      expect(painter.image.moduleCount, expected.moduleCount);
       for (var x = 0; x < expected.moduleCount; x++) {
         for (var y = 0; y < expected.moduleCount; y++) {
-          expect(view.qrImage.isDark(y, x), expected.isDark(y, x));
+          expect(painter.image.isDark(y, x), expected.isDark(y, x));
         }
       }
-      // The mark sits in the middle, on a tile at most a fifth of the code's width.
-      final code = tester.getRect(find.byType(MarkedQr));
-      final mark = find.descendant(
-        of: find.byType(MarkedQr),
-        matching: find.byType(EpicMark),
-      );
-      expect(mark, findsOneWidget);
-      expect(tester.getCenter(mark), code.center);
-      final tile = tester.getRect(
-        find.ancestor(of: mark, matching: find.byType(Container)).first,
-      );
-      expect(tile.width, lessThanOrEqualTo(code.width / 5));
-      expect(tile.height, lessThanOrEqualTo(code.width / 5));
+      // The clear patch under the mark stays well inside what level H restores.
+      final n = expected.moduleCount;
+      final patch = LogoQr.patchModules(n);
+      expect(patch * patch, lessThan(n * n * 0.1));
     });
   });
 

@@ -34,7 +34,8 @@ const int qrHoldSteadySeconds = 4;
 const int qrQuietModules = 4;
 
 /// The parts of one code as drawable modules, all in the same QR version and mask, so the
-/// finder and alignment patterns never move between frames.
+/// finder and alignment patterns never move between frames. Level H, as every code the wallet
+/// shows: the BT Wallet mark covers the centre (`LogoQr`).
 class QrFrames {
   QrFrames._(this.texts, this.images, this.partCount);
 
@@ -46,7 +47,7 @@ class QrFrames {
       version = _versionOf(text, version);
     }
     QrImage image(String text, [int? mask]) {
-      final code = QrCode(version, QrErrorCorrectLevel.L)
+      final code = QrCode(version, QrErrorCorrectLevel.H)
         ..addAlphaNumeric(text);
       return mask == null ? QrImage(code) : QrImage.withMaskPattern(code, mask);
     }
@@ -64,7 +65,7 @@ class QrFrames {
     for (var version = from; version <= 40; version++) {
       try {
         QrImage.withMaskPattern(
-          QrCode(version, QrErrorCorrectLevel.L)..addAlphaNumeric(text),
+          QrCode(version, QrErrorCorrectLevel.H)..addAlphaNumeric(text),
           0,
         );
         return version;

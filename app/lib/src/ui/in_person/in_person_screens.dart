@@ -24,7 +24,8 @@ import '../common.dart';
 import '../contacts_screen.dart' show LiveFieldError;
 import '../invoice_review_screen.dart' show ReviewAmount;
 import '../pin.dart';
-import '../theme/brand.dart' show GlyphTile, MarkedQr;
+import '../theme/brand.dart' show GlyphTile;
+import '../theme/logo_qr.dart';
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 import 'in_person_logic.dart';
@@ -630,7 +631,7 @@ class _InPersonQrState extends State<InPersonQr> {
           child: Semantics(
             label: widget.label,
             image: true,
-            child: MarkedQr(data: parts[_frame % parts.length], size: side),
+            child: LogoQr(data: parts[_frame % parts.length], size: side, logo: QrLogo.epic1),
           ),
         ),
       );

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desk_l10n.dart';
 import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
-import '../../ui/theme/brand.dart' show MarkedQr;
+import '../../ui/theme/logo_qr.dart';
 import '../../amount.dart' show AmountSurface, epicFor, epicUnit, exactDecimals;
 import '../../contact_label.dart';
 import '../../initials.dart';
@@ -202,12 +202,16 @@ String _decimalsPad(AppLocalizations l, String text, int decimals) {
   return missing > 0 ? '0' * missing : '';
 }
 
-/// A QR code with the Epic mark, on white, with the accent glow.
+/// A [LogoQr] on white, with the accent glow: the BT Wallet mark in its centre, or the epic1
+/// mark when [epic1] (links, in-person codes, pairing and device invites).
 class EQr extends StatelessWidget {
-  const EQr(this.data, {super.key, this._size});
+  const EQr(this.data, {super.key, this._size, this.epic1 = false});
 
   final String data;
   final double? _size;
+
+  /// The code is an epic1 one: the epic1 mark instead of the BT Wallet mark.
+  final bool epic1;
   double get size => _size ?? 216.u;
 
   @override
@@ -225,7 +229,7 @@ class EQr extends StatelessWidget {
           BoxShadow(color: c.glow, blurRadius: 40.u, spreadRadius: -6.u),
         ],
       ),
-      child: MarkedQr(data: data, size: size - 28.u),
+      child: LogoQr(data: data, size: size - 28.u, logo: epic1 ? QrLogo.epic1 : QrLogo.bt),
     );
   }
 }
