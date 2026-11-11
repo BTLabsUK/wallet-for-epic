@@ -468,7 +468,8 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
       },
       style: TextButton.styleFrom(
         foregroundColor: primary ? t.accentText : t.dim,
-        textStyle: KitType.toastAction,
+        // From the theme's label style, so the fallback fonts (Thai, Chinese) stay.
+        textStyle: Theme.of(context).textTheme.labelLarge?.merge(KitType.toastAction),
         minimumSize: const Size(44, Kit.hitMin),
         padding: const EdgeInsets.symmetric(horizontal: 10),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,

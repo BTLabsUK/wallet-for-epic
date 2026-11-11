@@ -155,7 +155,7 @@ class _SlotText extends StatelessWidget {
 }
 
 /// The needs-you card (HANDOFF 7.1): a gold-soft ground, a gold-line edge, deep-gold corner
-/// marks, a [title] and one [subtitle] line, then a gold Review button and a ghost Later. At
+/// marks, a [title] and a [subtitle] of up to two lines, then a gold Review button and a ghost Later. At
 /// most one gold button on the screen: this card's, which is why the screen's own primary
 /// leaves the gold to it. Its height follows its content (at least [Kit.slotCard]).
 class KitNeedsYouCard extends StatelessWidget {
@@ -213,7 +213,7 @@ class KitNeedsYouCard extends StatelessWidget {
                       children: [
                         KitWell(icon: icon, gold: true),
                         const SizedBox(width: 12),
-                        Expanded(child: _SlotText(title: title, subtitle: subtitle)),
+                        Expanded(child: _SlotText(title: title, subtitle: subtitle, maxSubtitleLines: 2)),
                       ],
                     ),
                     Padding(
