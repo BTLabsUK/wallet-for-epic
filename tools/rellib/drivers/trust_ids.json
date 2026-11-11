@@ -261,5 +261,7 @@
 {"id": "g4.pin.key.8", "screen": "pin", "family": ["android"], "names": ["8"], "match": "exact", "secret": true},
 {"id": "g4.pin.key.9", "screen": "pin", "family": ["android"], "names": ["9"], "match": "exact", "secret": true},
 {"id": "g4.pin.key.delete", "screen": "pin", "family": ["android"], "keys": ["phoneKitDeleteDigit"], "driver": false},
-{"id": "g4.pin.key.bio", "screen": "pin", "family": ["android"], "keys": ["pinUseBiometrics"], "driver": false}
+{"id": "g4.pin.key.bio", "screen": "pin", "family": ["android"], "keys": ["pinUseBiometrics"], "driver": false},
+{"id": "g4.unlock.forgot", "screen": "unlock", "family": ["android"], "keys": ["pinForgot"], "driver": false},
+{"id": "g4.unlock.servers", "screen": "unlock", "family": ["android"], "keys": ["phoneKitReady"], "driver": false}
 ]}

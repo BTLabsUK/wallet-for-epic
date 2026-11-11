@@ -30008,5 +30008,9 @@
   "phonePinBiometricsBody": "Face or fingerprint, whichever this phone has. The PIN still works.",
   "@phonePinBiometricsBody": {
     "description": "Text of the biometrics offer sheet after choosing a PIN."
+  },
+  "phoneUnlockResetBody": "The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.",
+  "@phoneUnlockResetBody": {
+    "description": "Body of the Forgot PIN sheet on the unlock screen."
   }
 }

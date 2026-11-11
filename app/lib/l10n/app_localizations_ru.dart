@@ -22805,4 +22805,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phonePinBiometricsBody =>
       'Лицо или отпечаток пальца, смотря что есть в телефоне. PIN тоже работает.';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'PIN нельзя восстановить. Вы можете удалить этот кошелёк с телефона и восстановить его по фразе восстановления. Без фразы его монеты будут потеряны навсегда.';
 }

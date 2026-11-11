@@ -21644,4 +21644,8 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phonePinBiometricsBody =>
       'ใบหน้าหรือลายนิ้วมือ แล้วแต่โทรศัพท์เครื่องนี้ PIN ยังใช้ได้เหมือนเดิม';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'ไม่สามารถกู้คืน PIN ได้ คุณลบกระเป๋านี้ออกจากโทรศัพท์แล้วกู้คืนด้วยวลีกู้คืนได้ หากไม่มีวลีนี้ เหรียญในกระเป๋าจะสูญหายถาวร';
 }

@@ -22819,4 +22819,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phonePinBiometricsBody =>
       'Twarz lub odcisk palca, zależnie od telefonu. PIN nadal działa.';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'PIN-u nie można odzyskać. Możesz usunąć ten portfel z telefonu i przywrócić go z frazy odzyskiwania. Bez frazy jego monety przepadną na zawsze.';
 }

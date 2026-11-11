@@ -1,4 +1,5 @@
 {
   "phonePinChooseHint": "用于解锁钱包和批准付款。",
-  "phonePinBiometricsBody": "面容或指纹，取决于这部手机。PIN 仍然可用。"
+  "phonePinBiometricsBody": "面容或指纹，取决于这部手机。PIN 仍然可用。",
+  "phoneUnlockResetBody": "PIN 无法找回。你可以从手机上删除这个钱包，再用恢复短语恢复它。没有恢复短语，其中的币将永久丢失。"
 }

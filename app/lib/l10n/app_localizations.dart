@@ -34475,6 +34475,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Face or fingerprint, whichever this phone has. The PIN still works.'**
   String get phonePinBiometricsBody;
+
+  /// Body of the Forgot PIN sheet on the unlock screen.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.'**
+  String get phoneUnlockResetBody;
 }
 
 class _AppLocalizationsDelegate

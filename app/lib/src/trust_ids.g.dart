@@ -219,6 +219,8 @@ abstract final class TrustIds {
   static const pinKey9 = 'g4.pin.key.9';
   static const pinKeyDelete = 'g4.pin.key.delete';
   static const pinKeyBio = 'g4.pin.key.bio';
+  static const unlockForgot = 'g4.unlock.forgot';
+  static const unlockServers = 'g4.unlock.servers';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -448,5 +450,7 @@ abstract final class TrustIds {
     'g4.pin.key.9',
     'g4.pin.key.delete',
     'g4.pin.key.bio',
+    'g4.unlock.forgot',
+    'g4.unlock.servers',
   ];
 }

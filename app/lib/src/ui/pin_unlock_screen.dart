@@ -14,13 +14,18 @@ import '../restore_scan.dart' show historyImportOfferProvider;
 import '../trust_ids.dart';
 import '../vault.dart';
 import '../wallet_service.dart';
-import 'app_dialog.dart';
-import 'centered_body.dart';
+import 'kit/kit_brand_tile.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_check_row.dart';
+import 'kit/kit_sheet.dart';
+import 'kit/kit_status_pill.dart';
+import 'kit/kit_tokens.dart';
+import 'network_menu.dart';
+import 'theme/tokens.dart';
 import 'common.dart';
-import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
-import 'theme/brand.dart';
+import 'theme/brand.dart' show heroGlow;
 import 'wallet_delete.dart';
 
 /// Opens the wallet with the PIN or biometrics.
@@ -36,7 +41,9 @@ class PinUnlockScreen extends ConsumerStatefulWidget {
 }
 
 class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
+  /// The passphrase field's text (a passphrase wallet); the PIN is typed on the keypad.
   final _pin = TextEditingController();
+  String _digits = '';
   String? _pinError;
   String? _error;
   bool _busy = false;
@@ -72,6 +79,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
 
   @override
   void dispose() {
+    _digits = '';
     _pin.clear();
     _pin.dispose();
     super.dispose();
@@ -195,6 +203,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       final still = await vault.biometricsEnabled(config.chain);
       if (!mounted) return;
       setState(() {
+        _digits = '';
         _biometrics = still;
         _pinError = describePinRejection(l, rejection);
       });
@@ -210,7 +219,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     } catch (error) {
       logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
       _pin.clear();
-      if (mounted) setState(() => _error = describeError(l, error));
+      if (mounted) {
+        setState(() {
+          _digits = '';
+          _error = describeError(l, error);
+        });
+      }
     } finally {
       unawaited(copying.cancel());
       if (mounted) {
@@ -229,8 +243,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       _keyRefused = false;
       _error = null;
     });
-    if (_pin.text.isNotEmpty) {
-      await _unlockWithPin(_pin.text);
+    final typed = _digits.isNotEmpty ? _digits : _pin.text;
+    if (typed.isNotEmpty) {
+      await _unlockWithPin(typed);
     } else if (_biometrics) {
       await _unlockWithBiometrics();
     }
@@ -240,7 +255,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final l = context.l10n;
-    final confirmed = await showAppDialog<bool>(context, builder: (_) => const _ResetDialog());
+    final confirmed = await showKitSheet<bool>(context: context, builder: (_) => const _ForgotSheet());
     if (confirmed != true || !mounted) return;
     setState(() {
       _busy = true;
@@ -274,6 +289,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   void _switchMode(bool passphrase) {
     _pin.clear();
     setState(() {
+      _digits = '';
       _passphraseChosen = passphrase;
       _pinError = null;
     });
@@ -282,131 +298,174 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final config = ref.watch(walletConfigProvider);
     final checkAt = _checkAt;
     final passphrase = _passphraseChosen ?? (ref.watch(usesPassphraseProvider).value ?? false);
     final canSwitch = ref.watch(passphraseEverUsedProvider).value ?? false;
-    return SlotScaffold(
-      centered: true,
-      glow: heroGlow,
-      // The title is the hero's heading; the bar only holds the network action.
-      appBar: AppBar(
-        actions: [
-          NetworkSettingsButton(enabled: !_busy),
-        ],
-      ),
-      body: CenteredBody(
-        children: [
-          BrandHero(
-            title: config == null
-                ? l.unlockTitle
-                : ref.watch(devNetworksProvider)
-                ? '${l.unlockTitle}${networkSuffix(l, config.chain)}'
-                : l.unlockTitle,
-          ),
-          const SizedBox(height: 28),
-          if (widget.stranded) ...[
-            ErrorText(l.unlockStranded),
-            const SizedBox(height: 16),
-          ],
-          PinField(
-            // The field changes with the mode, so its state (the eye, focus) starts over.
-            key: ValueKey(passphrase ? 'unlock-passphrase' : 'unlock-pin'),
-            controller: _pin,
-            label: passphrase ? l.passphraseLabel : l.pinLabel,
-            enabled: !_busy,
-            errorText: _pinError,
-            onCompleted: _unlockWithPin,
-            passphrase: passphrase,
-            // The error line's room is kept, so a wrong PIN moves nothing below.
-            reserveError: true,
-          ),
-          const SizedBox(height: 8),
-          // One slot for the check's bar or the error: Forgot PIN stays where it is whether a
-          // check runs, failed or has not started.
-          if (_busy && _copy != null)
-            StoreCopyLine(progress: _copy!)
-          else
-            PinStepFoot(
-              child: _busy
-                  ? PinCheckBar(
-                      status: _deleting == null ? null : deleteStepText(l, _deleting!),
-                      lines: _deleting == null ? [l.workChecking, l.workOpening] : const [],
-                    )
-                  : (_error == null ? null : ErrorText(_error!)),
-            ),
-          if (_busy && checkAt != null) ...[
-            const SizedBox(height: 8),
-            PinWaitNote(until: checkAt),
-          ],
-          if (_biometrics) ...[
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              icon: const Icon(Icons.fingerprint),
-              label: Text(l.pinUseBiometrics),
-              onPressed: _busy || _reading ? null : _unlockWithBiometrics,
-            ),
-          ],
-          const SizedBox(height: 24),
-          // A healthy wallet the Keystore holds back is not one to delete.
-          if (_keyRefused)
-            FilledButton(
-              onPressed: _busy || _reading ? null : _tryAgain,
-              child: TrustId(TrustIds.unlockRetry, child: Text(l.unlockTryAgain)),
-            )
-          else
-            TextButton(
-              onPressed: _busy ? null : _forgotPin,
-              child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
-            ),
-          // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
-          if (canSwitch)
-            TextButton(
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              onPressed: _busy ? null : () => _switchMode(!passphrase),
-              child: Text(
-                passphrase ? l.passphraseUsePinInstead : l.passphraseUsePassphraseInstead,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+    final title = config != null && ref.watch(devNetworksProvider) ? '${l.unlockTitle}${networkSuffix(l, config.chain)}' : l.unlockTitle;
+    final top = <Widget>[
+      const KitBrandTile(size: 64),
+      const SizedBox(height: 20),
+      Semantics(header: true, child: Text(title, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center)),
+      const SizedBox(height: 24),
+      if (widget.stranded) ...[
+        ErrorText(l.unlockStranded),
+        const SizedBox(height: 16),
+      ],
+    ];
+    // One slot for the check's bar or the message: nothing around it moves whether a check
+    // runs, failed or has not started.
+    final Widget? progress = _busy
+        ? (_copy != null
+              ? StoreCopyLine(progress: _copy!)
+              : Column(mainAxisSize: MainAxisSize.min, children: [
+                  PinCheckBar(
+                    status: _deleting == null ? null : deleteStepText(l, _deleting!),
+                    lines: _deleting == null ? [l.workChecking, l.workOpening] : const [],
+                  ),
+                  if (checkAt != null) ...[const SizedBox(height: 8), PinWaitNote(until: checkAt)],
+                ]))
+        : null;
+    final message = _pinError ?? _error;
+    final footer = <Widget>[
+      // A healthy wallet the Keystore holds back is not one to delete.
+      if (_keyRefused)
+        KitButton(label: l.unlockTryAgain, onPressed: _busy || _reading ? null : _tryAgain, semanticsId: TrustIds.unlockRetry)
+      else
+        KitButton(
+          label: passphrase ? l.passphraseForgot : l.pinForgot,
+          kind: KitButtonKind.ghost,
+          onPressed: _busy ? null : () => _forgotPin(),
+          semanticsId: TrustIds.unlockForgot,
+        ),
+      // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
+      if (canSwitch)
+        KitButton(
+          label: passphrase ? l.passphraseUsePinInstead : l.passphraseUsePassphraseInstead,
+          kind: KitButtonKind.ghost,
+          small: true,
+          expand: false,
+          onPressed: _busy ? null : () => _switchMode(!passphrase),
+        ),
+    ];
+    final Widget content = passphrase
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                      Center(child: Column(mainAxisSize: MainAxisSize.min, children: top)),
+                      PinField(
+                        key: const ValueKey('unlock-passphrase'),
+                        controller: _pin,
+                        label: l.passphraseLabel,
+                        enabled: !_busy,
+                        errorText: _pinError,
+                        onCompleted: _unlockWithPin,
+                        passphrase: true,
+                        reserveError: true,
+                      ),
+                      const SizedBox(height: 8),
+                      PinMessage(_pinError == null ? _error : null, child: progress),
+                    ]),
+                  ),
                 ),
               ),
+              ...footer,
+            ],
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: PinPad(
+                  key: const ValueKey('unlock-pin'),
+                  fill: true,
+                  top: top,
+                  digits: _digits,
+                  enabled: !_busy && !_keyRefused,
+                  error: message != null,
+                  onChanged: (v) => setState(() {
+                    _digits = v;
+                    // A new try clears the last answer.
+                    if (v.isNotEmpty) _pinError = null;
+                  }),
+                  onCompleted: _unlockWithPin,
+                  onBiometrics: _biometrics && !_busy && !_reading ? _unlockWithBiometrics : null,
+                  below: PinMessage(message, child: progress),
+                ),
+              ),
+              const SizedBox(height: 4),
+              ...footer,
+            ],
+          );
+    return SlotScaffold(
+      glow: heroGlow,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    // The way to the servers before a wallet is open; the app is ready to open
+                    // the wallet without them.
+                    child: KitStatusPill(ready: true, onTap: _busy ? null : () => showNetworkMenu(context), semanticsId: TrustIds.unlockServers),
+                  ),
+                  Expanded(child: content),
+                ],
+              ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class _ResetDialog extends StatefulWidget {
-  const _ResetDialog();
+/// Forgot PIN (HANDOFF 7.8): says the PIN cannot be recovered, asks for a tick that the
+/// recovery phrase is at hand, then Keep wallet or Delete wallet. Pops true to delete.
+class _ForgotSheet extends StatefulWidget {
+  const _ForgotSheet();
 
   @override
-  State<_ResetDialog> createState() => _ResetDialogState();
+  State<_ForgotSheet> createState() => _ForgotSheetState();
 }
 
-class _ResetDialogState extends State<_ResetDialog> {
+class _ForgotSheetState extends State<_ForgotSheet> {
   bool _understood = false;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AppDialog(
+    final t = context.tokens;
+    return KitSheet(
       title: l.pinResetTitle,
-      icon: Icons.delete_forever_outlined,
-      tone: DialogTone.risk,
-      description: l.pinResetBody,
-      body: DialogCheckRow(
-        value: _understood,
-        onChanged: (value) => setState(() => _understood = value),
-        label: l.pinResetConfirm,
+      primaryLabel: l.pinResetKeep,
+      onPrimary: () => Navigator.pop(context, false),
+      secondary: KitButton(
+        label: l.pinResetDelete,
+        kind: _understood ? KitButtonKind.danger : KitButtonKind.off,
+        onPressed: _understood ? () => Navigator.pop(context, true) : null,
       ),
-      actions: [
-        DialogButton.secondary(label: l.pinResetKeep, onPressed: () => Navigator.pop(context, false)),
-        DialogButton.risk(label: l.pinResetDelete, onPressed: _understood ? () => Navigator.pop(context, true) : null),
-      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.phoneUnlockResetBody, style: KitType.body.copyWith(color: t.dim)),
+            const SizedBox(height: 18),
+            KitCheckRow(label: l.pinResetConfirm, value: _understood, onChanged: (v) => setState(() => _understood = v)),
+          ],
+        ),
+      ),
     );
   }
 }

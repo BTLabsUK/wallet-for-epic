@@ -22356,4 +22356,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phonePinBiometricsBody =>
       'Gesicht oder Fingerabdruck, je nach Gerät. Die PIN funktioniert weiterhin.';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'Die PIN lässt sich nicht wiederherstellen. Du kannst diese Wallet vom Telefon löschen und mit ihrer Wiederherstellungsphrase neu aufbauen. Ohne die Phrase sind ihre Coins für immer verloren.';
 }
