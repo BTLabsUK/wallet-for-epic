@@ -1,0 +1,15 @@
+{
+  "deskQrHiddenReply": "Zeigen Sie ihn der Wallet des Absenders. Nur dessen Wallet kann ihn verwenden.",
+  "deskQrHiddenPaid": "Zeigen Sie ihn der Wallet, die die Zahlung angefordert hat. Nur diese Wallet kann ihn verwenden.",
+  "deskQrTimedOutBody": "Zeigen Sie ihn erneut, wenn das andere Gerät bereit ist.",
+  "deskQrCannotShow": "Diese Datei kann nicht als QR-Code angezeigt werden.",
+  "deskQrAimPayment": "Richten Sie die Kamera auf den Zahlungs-QR auf dem anderen Gerät.",
+  "deskQrAimReply": "Richten Sie die Kamera auf den Antwort-QR auf dem anderen Gerät.",
+  "deskQrAimAny": "Richten Sie die Kamera auf den QR-Code einer Zahlung, einer Antwort, einer Rechnung oder einer fertigen Zahlung.",
+  "deskQrNotTx": "Das ist kein Zahlungs-QR-Code.",
+  "deskQrScannedName": "Gescannter QR-Code",
+  "deskQrPastedName": "Eingefügter Text",
+  "deskQrScanFinalize": "Oder scannen Sie ihre Antwort als QR-Code.",
+  "deskSetTxQrHint": "Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.",
+  "deskQrScanImport": "Oder scannen Sie die Zahlung oder Rechnung als QR-Code."
+}

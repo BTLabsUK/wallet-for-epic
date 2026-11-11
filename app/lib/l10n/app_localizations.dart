@@ -20952,10 +20952,10 @@ abstract class AppLocalizations {
   /// **'Finish the current payment first.'**
   String get linkFinishCurrentFirst;
 
-  /// Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (BT Wallet on a phone) reads. 'QR Payment' is the method's name.
+  /// Error under To on desktop Send when the pasted text is one part of an animated QR Payment code (ur:epic-slate/…). Scanned by the camera, the code opens its scan; pasted, it cannot be read from one part.
   ///
   /// In en, this message translates to:
-  /// **'A QR Payment code. Scan it with BT Wallet on a phone.'**
+  /// **'That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.'**
   String get deskSendToQrPayment;
 
   /// Description row of the Link · Tor group on Settings › Transactions.
@@ -33845,6 +33845,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No camera found. Paste the code instead.'**
   String get deskScanNoCamera;
+
+  /// Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the sender’s wallet. Only their wallet can use it.'**
+  String get deskQrHiddenReply;
+
+  /// Under the covered QR of an answer to an invoice on desktop, shown back to whoever asked for the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the wallet that asked for the payment. Only that wallet can use it.'**
+  String get deskQrHiddenPaid;
+
+  /// Under 'Hidden after N seconds' on desktop's payment QR. The other device is a phone or another computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it again when the other device is ready.'**
+  String get deskQrTimedOutBody;
+
+  /// Shown in place of the QR on desktop when the transaction file could not be read or cut into QR parts.
+  ///
+  /// In en, this message translates to:
+  /// **'This file cannot be shown as a QR code.'**
+  String get deskQrCannotShow;
+
+  /// Hint in desktop's scan dialog when scanning a sender's animated payment QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the payment QR on the other device.'**
+  String get deskQrAimPayment;
+
+  /// Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the reply QR on the other device.'**
+  String get deskQrAimReply;
+
+  /// Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.'**
+  String get deskQrAimAny;
+
+  /// Shown in desktop's scan dialog when the code in view is not an animated QR Payment code at all.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a payment QR code.'**
+  String get deskQrNotTx;
+
+  /// Name of a result line in Transaction files on desktop for a transaction that came in by the camera, in place of a file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned QR code'**
+  String get deskQrScannedName;
+
+  /// Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted text'**
+  String get deskQrPastedName;
+
+  /// Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan their reply as a QR code.'**
+  String get deskQrScanFinalize;
+
+  /// Hint of the QR Payment method in desktop Settings › Payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.'**
+  String get deskSetTxQrHint;
+
+  /// Line beside Scan QR on desktop's Sign a payment step, under the box that takes the sender's file or an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan the payment or invoice as a QR code.'**
+  String get deskQrScanImport;
 }
 
 class _AppLocalizationsDelegate

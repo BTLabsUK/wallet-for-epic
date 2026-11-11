@@ -11,7 +11,9 @@ import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
+import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'finished_payment.dart' show FinishedNotPostedPanel;
+import 'qr_payment.dart';
 
 /// Argument of the Finalize route: [done] opens on the posted transaction, [error] on a
 /// refused file.
@@ -99,6 +101,12 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     }
   }
 
+  Future<void> _retry() async {
+    final last = _last;
+    if (last == null) return _pick();
+    await _finalize(last);
+  }
+
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
     final path = files == null ? 'f0e1d2c3.response' : await files.pickSlate(title: context.l10n.deskFinPickTitle);
@@ -106,7 +114,24 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     await _finalize((api) => api.finalizeFile(path));
   }
 
+  /// Scan QR: the reply to this wallet's payment or invoice as an animated code, or the text
+  /// pasted in its place; both are finalized as pasted text.
+  Future<void> _scan() async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.qrScanReply, hint: l.deskQrAimReply, notSlate: (l) => l.qrScanNotReply);
+    if (got == null || !mounted) return;
+    final text = switch (got) {
+      DeskScanned(:final value) => value,
+      DeskPasted(:final text) => text,
+    };
+    await _finalize((api) => api.finalizeText(text));
+  }
+
+  /// The last finalize, which Try again runs once more (a file picked again, or the same text).
+  Future<Tx> Function(DeskWalletApi api)? _last;
+
   Future<void> _finalize(Future<Tx> Function(DeskWalletApi api) run) async {
+    _last = run;
     setState(() {
       _busy = true;
       _error = null;
@@ -182,7 +207,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
               text: _error == FinalizeError.failed && _detail != null && _requestRefusal(_detail!) ? _detail!.text(l) : _error!.text(l),
               tone: ETone.risk,
               icon: EIcons.error,
-              actions: [if (_error == FinalizeError.notPosted) EButton(label: l.deskFinTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _pick)],
+              actions: [if (_error == FinalizeError.notPosted) EButton(label: l.deskFinTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _retry)],
             ),
             SizedBox(height: Sp.x5),
           ],
@@ -217,13 +242,16 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
                 ],
               ),
             )
-          else
+          else ...[
             EDropZone(
               title: l.deskFinChoose,
               text: l.deskFinChooseText,
               buttonLabel: l.deskFinChooseFile,
               onPick: _pick,
             ),
+            SizedBox(height: Sp.x3),
+            DeskScanRow(text: l.deskQrScanFinalize, button: DeskQrScanButton(key: const ValueKey('fin-scan'), onScan: _scan)),
+          ],
         ],
       ),
     );

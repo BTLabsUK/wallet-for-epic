@@ -3469,7 +3469,7 @@
   "linkWaitingPairingNotice": "ได้รับลิงก์จับคู่",
   "linkWaitingNotice": "ได้รับลิงก์ชำระเงิน",
   "linkFinishCurrentFirst": "ทำรายการปัจจุบันให้เสร็จก่อน",
-  "deskSendToQrPayment": "โค้ดชำระด้วย QR ให้สแกนด้วย BT Wallet บนโทรศัพท์",
+  "deskSendToQrPayment": "นี่เป็นเพียงส่วนหนึ่งของ QR Code แบบเคลื่อนไหว สแกนโค้ดด้วยกล้อง หรือวางข้อความทั้งหมดของธุรกรรม",
   "deskSetupSaveFailedTitle": "ไม่ได้บันทึกการตั้งค่า",
   "deskSetupSaveFailedText": "{reason} บันทึกอีกครั้ง หรือข้ามเพื่อใช้การตั้งค่าที่บันทึกไว้แล้ว",
   "deskSetupResumeLead": "การตั้งค่าครั้งก่อนยังไม่เสร็จ กระเป๋าเงินอ่านบล็อกเชนและส่งธุรกรรมผ่านโหนด Epic",
@@ -5636,5 +5636,18 @@
   "deskScanDark": "ภาพจากกล้องเป็นสีดำ ฝาปิดกล้องอาจปิดอยู่",
   "deskScanUnplugged": "กล้องถูกถอดออก",
   "deskScanReaderFailed": "ตัวอ่าน QR ไม่เริ่มทำงาน",
-  "deskScanNoCamera": "ไม่พบกล้อง วางโค้ดแทน"
+  "deskScanNoCamera": "ไม่พบกล้อง วางโค้ดแทน",
+  "deskQrHiddenReply": "แสดงให้กระเป๋าของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้",
+  "deskQrHiddenPaid": "แสดงให้กระเป๋าที่ขอชำระเงิน เฉพาะกระเป๋านั้นเท่านั้นที่ใช้ได้",
+  "deskQrTimedOutBody": "แสดงอีกครั้งเมื่ออุปกรณ์อีกเครื่องพร้อม",
+  "deskQrCannotShow": "ไม่สามารถแสดงไฟล์นี้เป็น QR Code ได้",
+  "deskQrAimPayment": "หันกล้องไปที่ QR ของรายการบนอุปกรณ์อีกเครื่อง",
+  "deskQrAimReply": "หันกล้องไปที่ QR ของคำตอบบนอุปกรณ์อีกเครื่อง",
+  "deskQrAimAny": "หันกล้องไปที่ QR Code ของรายการ คำตอบ ใบแจ้งหนี้ หรือรายการที่เสร็จแล้ว",
+  "deskQrNotTx": "นี่ไม่ใช่ QR Code ของรายการ",
+  "deskQrScannedName": "QR Code ที่สแกน",
+  "deskQrPastedName": "ข้อความที่วาง",
+  "deskQrScanFinalize": "หรือสแกนคำตอบของเขาเป็น QR Code",
+  "deskSetTxQrHint": "จ่ายและรับเงินโดยแสดงและสแกนธุรกรรมเป็น QR Code แบบเคลื่อนไหว ไม่ต้องใช้เครือข่าย บนคอมพิวเตอร์นี้มาพร้อมกับโอนไฟล์: แสดง QR และ สแกน QR อยู่ข้างปุ่มไฟล์",
+  "deskQrScanImport": "หรือสแกนรายการหรือใบแจ้งหนี้เป็น QR Code"
 }

@@ -13807,7 +13807,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'Код «Оплата по QR». Отсканируйте его в BT Wallet на телефоне.';
+      'Это одна часть анимированного QR-кода. Отсканируйте код камерой или вставьте весь текст транзакции.';
 
   @override
   String get deskSetRecvTorText =>
@@ -22409,4 +22409,50 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Камера не найдена. Вставьте код вместо этого.';
+
+  @override
+  String get deskQrHiddenReply =>
+      'Покажите его кошельку отправителя. Использовать его сможет только его кошелёк.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Покажите его кошельку, который запросил платёж. Использовать его сможет только тот кошелёк.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Покажите его снова, когда другое устройство будет готово.';
+
+  @override
+  String get deskQrCannotShow => 'Этот файл нельзя показать как QR-код.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Наведите камеру на QR платежа на другом устройстве.';
+
+  @override
+  String get deskQrAimReply =>
+      'Наведите камеру на QR ответа на другом устройстве.';
+
+  @override
+  String get deskQrAimAny =>
+      'Наведите камеру на QR-код платежа, ответа, счёта или готового платежа.';
+
+  @override
+  String get deskQrNotTx => 'Это не QR-код платежа.';
+
+  @override
+  String get deskQrScannedName => 'Отсканированный QR-код';
+
+  @override
+  String get deskQrPastedName => 'Вставленный текст';
+
+  @override
+  String get deskQrScanFinalize => 'Или отсканируйте их ответ как QR-код.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Платите и получайте платежи, показывая и сканируя транзакцию как анимированный QR-код, сеть не нужна. На этом компьютере это часть «Передачи файла»: «Показать QR» и «Сканировать QR» стоят рядом с кнопками файлов.';
+
+  @override
+  String get deskQrScanImport => 'Или отсканируйте платёж или счёт как QR-код.';
 }

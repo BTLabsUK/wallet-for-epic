@@ -3469,7 +3469,7 @@
   "linkWaitingPairingNotice": "收到配对链接",
   "linkWaitingNotice": "收到付款链接",
   "linkFinishCurrentFirst": "请先完成当前付款。",
-  "deskSendToQrPayment": "这是二维码付款码，请用手机上的 BT Wallet 扫描。",
+  "deskSendToQrPayment": "这只是动态二维码的一部分。请用摄像头扫描该码，或粘贴交易的完整文本。",
   "deskSetupSaveFailedTitle": "设置未保存",
   "deskSetupSaveFailedText": "{reason}。请再次保存，或跳过以保留目前已保存的设置。",
   "deskSetupResumeLead": "上次设置未完成。钱包通过 Epic 节点读取区块链并发送交易。",
@@ -5636,5 +5636,18 @@
   "deskScanDark": "摄像头画面全黑。镜头盖可能已关闭。",
   "deskScanUnplugged": "摄像头已断开。",
   "deskScanReaderFailed": "二维码识别未能启动。",
-  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。"
+  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。",
+  "deskQrHiddenReply": "只给发送方的钱包看。只有对方的钱包能使用它。",
+  "deskQrHiddenPaid": "只给发出付款请求的钱包看。只有那个钱包能使用它。",
+  "deskQrTimedOutBody": "另一台设备准备好后再显示。",
+  "deskQrCannotShow": "此文件无法显示为二维码。",
+  "deskQrAimPayment": "请把摄像头对准另一台设备上的付款二维码。",
+  "deskQrAimReply": "请把摄像头对准另一台设备上的回复二维码。",
+  "deskQrAimAny": "请把摄像头对准付款、回复、账单或已完成付款的二维码。",
+  "deskQrNotTx": "这不是付款二维码。",
+  "deskQrScannedName": "扫描的二维码",
+  "deskQrPastedName": "粘贴的文本",
+  "deskQrScanFinalize": "或将对方的回复作为二维码扫描。",
+  "deskSetTxQrHint": "通过显示和扫描动态二维码形式的交易来付款和收款，无需网络。在这台电脑上它随“文件传输”一起提供：“显示二维码”和“扫描二维码”位于文件按钮旁边。",
+  "deskQrScanImport": "或将付款或账单作为二维码扫描。"
 }

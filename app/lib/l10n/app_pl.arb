@@ -3469,7 +3469,7 @@
   "linkWaitingPairingNotice": "Otrzymano link parowania",
   "linkWaitingNotice": "Otrzymano link płatności",
   "linkFinishCurrentFirst": "Najpierw dokończ bieżącą płatność.",
-  "deskSendToQrPayment": "Kod Płatności QR. Zeskanuj go w BT Wallet na telefonie.",
+  "deskSendToQrPayment": "To jedna część animowanego kodu QR. Zeskanuj kod kamerą albo wklej cały tekst transakcji.",
   "deskSetupSaveFailedTitle": "Ustawienia nie zostały zapisane",
   "deskSetupSaveFailedText": "{reason}. Zapisz ponownie albo pomiń, aby zachować dotychczas zapisane ustawienia.",
   "deskSetupResumeLead": "Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic.",
@@ -5636,5 +5636,18 @@
   "deskScanDark": "Obraz z kamery jest czarny. Może jej osłona jest zamknięta.",
   "deskScanUnplugged": "Kamera została odłączona.",
   "deskScanReaderFailed": "Czytnik QR się nie uruchomił.",
-  "deskScanNoCamera": "Nie znaleziono kamery. Wklej kod zamiast tego."
+  "deskScanNoCamera": "Nie znaleziono kamery. Wklej kod zamiast tego.",
+  "deskQrHiddenReply": "Pokaż go portfelowi nadawcy. Tylko jego portfel może go użyć.",
+  "deskQrHiddenPaid": "Pokaż go portfelowi, który prosił o płatność. Tylko ten portfel może go użyć.",
+  "deskQrTimedOutBody": "Pokaż go ponownie, gdy drugie urządzenie będzie gotowe.",
+  "deskQrCannotShow": "Tego pliku nie da się pokazać jako kodu QR.",
+  "deskQrAimPayment": "Skieruj kamerę na kod QR płatności na drugim urządzeniu.",
+  "deskQrAimReply": "Skieruj kamerę na kod QR odpowiedzi na drugim urządzeniu.",
+  "deskQrAimAny": "Skieruj kamerę na kod QR płatności, odpowiedzi, faktury albo gotowej płatności.",
+  "deskQrNotTx": "To nie jest kod QR płatności.",
+  "deskQrScannedName": "Zeskanowany kod QR",
+  "deskQrPastedName": "Wklejony tekst",
+  "deskQrScanFinalize": "Albo zeskanuj ich odpowiedź jako kod QR.",
+  "deskSetTxQrHint": "Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.",
+  "deskQrScanImport": "Albo zeskanuj płatność lub fakturę jako kod QR."
 }

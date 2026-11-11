@@ -7,6 +7,7 @@
 /// its response saved beside it. One short line per file says what happened.
 library;
 
+import 'dart:async' show unawaited;
 import 'dart:convert' show utf8;
 import 'dart:io' show File;
 
@@ -26,7 +27,9 @@ import '../../data/invoice_state.dart' show RequestFile;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../epic1/epic1_files.dart' show jumpToEpic1Switch;
+import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'import_tx_screen.dart' show ImportArgs;
+import 'qr_payment.dart';
 import 'send_screen.dart' show SendArgs;
 
 /// Files can be dropped on the card in the desktop apps (Linux, Windows, macOS); the browser
@@ -97,6 +100,35 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
     ]);
   }
 
+  /// Scan QR: an animated payment code, or the text pasted in its place, takes the steps of a
+  /// file, on a line of its own.
+  Future<void> _scan() async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.scanQrTitle, hint: l.deskQrAimAny, notSlate: (l) => l.deskQrNotTx);
+    if (got == null || !mounted) return;
+    final (name, text, scanned) = switch (got) {
+      DeskScanned(:final value) => (l.deskQrScannedName, value, true),
+      DeskPasted(:final text) => (l.deskQrPastedName, text, false),
+    };
+    setState(() {
+      _busy = true;
+      _lines
+        ..clear()
+        ..add(_Line(name, null, _Tone.wait));
+    });
+    _Line line;
+    try {
+      line = await _route(name, scanned ? text : decodeSlateFile(utf8.encode(text)), showReply: scanned);
+    } on FormatException {
+      line = _Line(name, l.deskErrNotTxFile2, _Tone.risk);
+    }
+    if (!mounted) return;
+    setState(() {
+      _lines[0] = line;
+      _busy = false;
+    });
+  }
+
   /// Works through [picked] one file at a time, a line each.
   Future<void> _handle(List<PickedSlate> picked) async {
     if (picked.isEmpty || !mounted) return;
@@ -117,11 +149,8 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
   /// Reads [f], works out what it is and does its step.
   Future<_Line> _run(PickedSlate f) async {
     final l = context.l10n;
-    final api = ref.read(deskApiProvider);
-    final nav = ref.read(deskNavProvider.notifier);
     _Line say(String text, _Tone tone, {String? action, VoidCallback? onAction}) =>
         _Line(f.name, text, tone, action: action, onAction: onAction);
-    _Line failed(Object e) => say(_bare(e is DeskError ? e.text(l) : deskErrorText(e, l)), _Tone.risk);
 
     final String text;
     try {
@@ -139,6 +168,20 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
     } on Object {
       return say(l.deskErrFileNotReadable, _Tone.risk);
     }
+    if (!mounted) return say(l.deskErrFileNotReadable, _Tone.risk);
+    return _route(f.name, text, path: kIsWeb ? null : f.path);
+  }
+
+  /// Works out what the transaction [text] is and does its step: the file at [path], or the
+  /// text itself when null (the browser build, a scanned or pasted code). A payment signed from
+  /// a scan shows its reply as a QR code at once ([showReply]).
+  Future<_Line> _route(String name, String text, {String? path, bool showReply = false}) async {
+    final l = context.l10n;
+    final api = ref.read(deskApiProvider);
+    final nav = ref.read(deskNavProvider.notifier);
+    _Line say(String text, _Tone tone, {String? action, VoidCallback? onAction}) =>
+        _Line(name, text, tone, action: action, onAction: onAction);
+    _Line failed(Object e) => say(_bare(e is DeskError ? e.text(l) : deskErrorText(e, l)), _Tone.risk);
 
     // A payment both sides finished (under Kill switch, often on another device): post it.
     FinishedPayment? finished;
@@ -181,7 +224,7 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
     // The answer to one of this wallet's payments, or to its invoice: finalize and post.
     if (await api.isResponseText(text)) {
       try {
-        final tx = kIsWeb ? await api.finalizeText(text) : await api.finalizeFile(f.path);
+        final tx = path == null ? await api.finalizeText(text) : await api.finalizeFile(path);
         // Kill switch finishes without a node: the payment waits in Activity as a file to post.
         if (NetGate.killSwitch && tx.notPosted) {
           return say(l.finalizeNotPostedTitle, _Tone.wait, action: l.deskFinViewActivity, onAction: () => nav.go(DeskRoute.activity, tx.id));
@@ -194,8 +237,11 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
 
     // A sender's file: sign it and save the response beside it.
     try {
-      final r = kIsWeb ? await api.receiveText(text) : await api.receiveFile(f.path);
-      return say(l.deskTfSigned(r.response), _Tone.ok);
+      final r = path == null ? await api.receiveText(text) : await api.receiveFile(path);
+      // The reply goes back the way the payment came: a scanned one is shown as a QR code.
+      void show() => showDeskSlateQr(context, kind: DeskQrKind.reply, path: r.response);
+      if (showReply && mounted) unawaited(Future.microtask(show));
+      return say(l.deskTfSigned(r.response), _Tone.ok, action: l.qrShow, onAction: show);
     } on Object catch (e) {
       return failed(e);
     }
@@ -244,14 +290,21 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
             key: const ValueKey('rx-files-open-row'),
             title: l.deskTfOpenTitle,
             text: _dropsHere ? '${l.deskTfOpenText} ${l.deskTfDropHint}' : l.deskTfOpenText,
-            control: EButton(
-              key: const ValueKey('rx-files-open'),
-              semanticsId: TrustIds.txRecvOpen,
-              label: l.deskRecvOpen,
-              icon: EIcons.fileUp,
-              size: EBtnSize.sm,
-              busy: _busy,
-              onPressed: _busy ? null : _open,
+            control: Wrap(
+              spacing: Sp.x2,
+              runSpacing: Sp.x2,
+              children: [
+                DeskQrScanButton(key: const ValueKey('rx-files-scan'), enabled: !_busy, onScan: _scan),
+                EButton(
+                  key: const ValueKey('rx-files-open'),
+                  semanticsId: TrustIds.txRecvOpen,
+                  label: l.deskRecvOpen,
+                  icon: EIcons.fileUp,
+                  size: EBtnSize.sm,
+                  busy: _busy,
+                  onPressed: _busy ? null : _open,
+                ),
+              ],
             ),
             below: _lines.isEmpty ? null : _results(),
           ),

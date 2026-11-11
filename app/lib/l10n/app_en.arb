@@ -17670,9 +17670,9 @@
   "@linkFinishCurrentFirst": {
     "description": "Notice when a payment link arrives while Send asks for the PIN or sends; the link is dropped."
   },
-  "deskSendToQrPayment": "A QR Payment code. Scan it with BT Wallet on a phone.",
+  "deskSendToQrPayment": "That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.",
   "@deskSendToQrPayment": {
-    "description": "Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (BT Wallet on a phone) reads. 'QR Payment' is the method's name."
+    "description": "Error under To on desktop Send when the pasted text is one part of an animated QR Payment code (ur:epic-slate/…). Scanned by the camera, the code opens its scan; pasted, it cannot be read from one part."
   },
   "deskSetRecvTorText": "Straight from another wallet at this wallet’s Tor address, while it is open.",
   "@deskSetRecvTorText": {
@@ -29426,5 +29426,57 @@
   "deskScanNoCamera": "No camera found. Paste the code instead.",
   "@deskScanNoCamera": {
     "description": "The quiet line under a paste field when this computer has no camera; Scan is greyed out."
+  },
+  "deskQrHiddenReply": "Show it to the sender’s wallet. Only their wallet can use it.",
+  "@deskQrHiddenReply": {
+    "description": "Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer."
+  },
+  "deskQrHiddenPaid": "Show it to the wallet that asked for the payment. Only that wallet can use it.",
+  "@deskQrHiddenPaid": {
+    "description": "Under the covered QR of an answer to an invoice on desktop, shown back to whoever asked for the payment."
+  },
+  "deskQrTimedOutBody": "Show it again when the other device is ready.",
+  "@deskQrTimedOutBody": {
+    "description": "Under 'Hidden after N seconds' on desktop's payment QR. The other device is a phone or another computer."
+  },
+  "deskQrCannotShow": "This file cannot be shown as a QR code.",
+  "@deskQrCannotShow": {
+    "description": "Shown in place of the QR on desktop when the transaction file could not be read or cut into QR parts."
+  },
+  "deskQrAimPayment": "Point the camera at the payment QR on the other device.",
+  "@deskQrAimPayment": {
+    "description": "Hint in desktop's scan dialog when scanning a sender's animated payment QR."
+  },
+  "deskQrAimReply": "Point the camera at the reply QR on the other device.",
+  "@deskQrAimReply": {
+    "description": "Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice."
+  },
+  "deskQrAimAny": "Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.",
+  "@deskQrAimAny": {
+    "description": "Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds."
+  },
+  "deskQrNotTx": "That is not a payment QR code.",
+  "@deskQrNotTx": {
+    "description": "Shown in desktop's scan dialog when the code in view is not an animated QR Payment code at all."
+  },
+  "deskQrScannedName": "Scanned QR code",
+  "@deskQrScannedName": {
+    "description": "Name of a result line in Transaction files on desktop for a transaction that came in by the camera, in place of a file name."
+  },
+  "deskQrPastedName": "Pasted text",
+  "@deskQrPastedName": {
+    "description": "Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name."
+  },
+  "deskQrScanFinalize": "Or scan their reply as a QR code.",
+  "@deskQrScanFinalize": {
+    "description": "Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file."
+  },
+  "deskSetTxQrHint": "Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.",
+  "@deskSetTxQrHint": {
+    "description": "Hint of the QR Payment method in desktop Settings › Payment methods."
+  },
+  "deskQrScanImport": "Or scan the payment or invoice as a QR code.",
+  "@deskQrScanImport": {
+    "description": "Line beside Scan QR on desktop's Sign a payment step, under the box that takes the sender's file or an invoice."
   }
 }

@@ -12968,7 +12968,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'โค้ดชำระด้วย QR ให้สแกนด้วย BT Wallet บนโทรศัพท์';
+      'นี่เป็นเพียงส่วนหนึ่งของ QR Code แบบเคลื่อนไหว สแกนโค้ดด้วยกล้อง หรือวางข้อความทั้งหมดของธุรกรรม';
 
   @override
   String get deskSetRecvTorText =>
@@ -21254,4 +21254,48 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => 'ไม่พบกล้อง วางโค้ดแทน';
+
+  @override
+  String get deskQrHiddenReply =>
+      'แสดงให้กระเป๋าของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'แสดงให้กระเป๋าที่ขอชำระเงิน เฉพาะกระเป๋านั้นเท่านั้นที่ใช้ได้';
+
+  @override
+  String get deskQrTimedOutBody => 'แสดงอีกครั้งเมื่ออุปกรณ์อีกเครื่องพร้อม';
+
+  @override
+  String get deskQrCannotShow => 'ไม่สามารถแสดงไฟล์นี้เป็น QR Code ได้';
+
+  @override
+  String get deskQrAimPayment =>
+      'หันกล้องไปที่ QR ของรายการบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get deskQrAimReply => 'หันกล้องไปที่ QR ของคำตอบบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get deskQrAimAny =>
+      'หันกล้องไปที่ QR Code ของรายการ คำตอบ ใบแจ้งหนี้ หรือรายการที่เสร็จแล้ว';
+
+  @override
+  String get deskQrNotTx => 'นี่ไม่ใช่ QR Code ของรายการ';
+
+  @override
+  String get deskQrScannedName => 'QR Code ที่สแกน';
+
+  @override
+  String get deskQrPastedName => 'ข้อความที่วาง';
+
+  @override
+  String get deskQrScanFinalize => 'หรือสแกนคำตอบของเขาเป็น QR Code';
+
+  @override
+  String get deskSetTxQrHint =>
+      'จ่ายและรับเงินโดยแสดงและสแกนธุรกรรมเป็น QR Code แบบเคลื่อนไหว ไม่ต้องใช้เครือข่าย บนคอมพิวเตอร์นี้มาพร้อมกับโอนไฟล์: แสดง QR และ สแกน QR อยู่ข้างปุ่มไฟล์';
+
+  @override
+  String get deskQrScanImport => 'หรือสแกนรายการหรือใบแจ้งหนี้เป็น QR Code';
 }

@@ -1,6 +1,6 @@
 {
-  "deskSendToQrPayment": "A QR Payment code. Scan it with BT Wallet on a phone.",
+  "deskSendToQrPayment": "That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.",
   "@deskSendToQrPayment": {
-    "description": "Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (BT Wallet on a phone) reads. 'QR Payment' is the method's name."
+    "description": "Error under To on desktop Send when the pasted text is one part of an animated QR Payment code (ur:epic-slate/…). Scanned by the camera, the code opens its scan; pasted, it cannot be read from one part."
   }
 }

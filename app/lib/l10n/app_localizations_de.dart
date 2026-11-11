@@ -13470,7 +13470,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'Ein QR-Zahlungscode. Scannen Sie ihn mit BT Wallet auf dem Telefon.';
+      'Das ist ein Teil eines animierten QR-Codes. Scannen Sie den Code mit der Kamera oder fügen Sie den ganzen Text der Transaktion ein.';
 
   @override
   String get deskSetRecvTorText =>
@@ -21959,4 +21959,52 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.';
+
+  @override
+  String get deskQrHiddenReply =>
+      'Zeigen Sie ihn der Wallet des Absenders. Nur dessen Wallet kann ihn verwenden.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Zeigen Sie ihn der Wallet, die die Zahlung angefordert hat. Nur diese Wallet kann ihn verwenden.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Zeigen Sie ihn erneut, wenn das andere Gerät bereit ist.';
+
+  @override
+  String get deskQrCannotShow =>
+      'Diese Datei kann nicht als QR-Code angezeigt werden.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Richten Sie die Kamera auf den Zahlungs-QR auf dem anderen Gerät.';
+
+  @override
+  String get deskQrAimReply =>
+      'Richten Sie die Kamera auf den Antwort-QR auf dem anderen Gerät.';
+
+  @override
+  String get deskQrAimAny =>
+      'Richten Sie die Kamera auf den QR-Code einer Zahlung, einer Antwort, einer Rechnung oder einer fertigen Zahlung.';
+
+  @override
+  String get deskQrNotTx => 'Das ist kein Zahlungs-QR-Code.';
+
+  @override
+  String get deskQrScannedName => 'Gescannter QR-Code';
+
+  @override
+  String get deskQrPastedName => 'Eingefügter Text';
+
+  @override
+  String get deskQrScanFinalize => 'Oder scannen Sie ihre Antwort als QR-Code.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.';
+
+  @override
+  String get deskQrScanImport =>
+      'Oder scannen Sie die Zahlung oder Rechnung als QR-Code.';
 }

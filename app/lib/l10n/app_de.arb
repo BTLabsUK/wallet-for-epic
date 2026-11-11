@@ -3469,7 +3469,7 @@
   "linkWaitingPairingNotice": "Kopplungslink empfangen",
   "linkWaitingNotice": "Zahlungslink empfangen",
   "linkFinishCurrentFirst": "Schließen Sie zuerst die aktuelle Zahlung ab.",
-  "deskSendToQrPayment": "Ein QR-Zahlungscode. Scannen Sie ihn mit BT Wallet auf dem Telefon.",
+  "deskSendToQrPayment": "Das ist ein Teil eines animierten QR-Codes. Scannen Sie den Code mit der Kamera oder fügen Sie den ganzen Text der Transaktion ein.",
   "deskSetupSaveFailedTitle": "Einstellungen nicht gespeichert",
   "deskSetupSaveFailedText": "{reason}. Speichern Sie erneut oder überspringen Sie, um die bisher gespeicherten Einstellungen zu behalten.",
   "deskSetupResumeLead": "Die Einrichtung wurde beim letzten Mal nicht abgeschlossen. Die Wallet liest die Blockchain und sendet über einen Epic-Node.",
@@ -5636,5 +5636,18 @@
   "deskScanDark": "Das Kamerabild ist schwarz. Vielleicht ist die Abdeckung geschlossen.",
   "deskScanUnplugged": "Die Kamera wurde getrennt.",
   "deskScanReaderFailed": "Der QR-Leser ist nicht gestartet.",
-  "deskScanNoCamera": "Keine Kamera gefunden. Fügen Sie den Code stattdessen ein."
+  "deskScanNoCamera": "Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.",
+  "deskQrHiddenReply": "Zeigen Sie ihn der Wallet des Absenders. Nur dessen Wallet kann ihn verwenden.",
+  "deskQrHiddenPaid": "Zeigen Sie ihn der Wallet, die die Zahlung angefordert hat. Nur diese Wallet kann ihn verwenden.",
+  "deskQrTimedOutBody": "Zeigen Sie ihn erneut, wenn das andere Gerät bereit ist.",
+  "deskQrCannotShow": "Diese Datei kann nicht als QR-Code angezeigt werden.",
+  "deskQrAimPayment": "Richten Sie die Kamera auf den Zahlungs-QR auf dem anderen Gerät.",
+  "deskQrAimReply": "Richten Sie die Kamera auf den Antwort-QR auf dem anderen Gerät.",
+  "deskQrAimAny": "Richten Sie die Kamera auf den QR-Code einer Zahlung, einer Antwort, einer Rechnung oder einer fertigen Zahlung.",
+  "deskQrNotTx": "Das ist kein Zahlungs-QR-Code.",
+  "deskQrScannedName": "Gescannter QR-Code",
+  "deskQrPastedName": "Eingefügter Text",
+  "deskQrScanFinalize": "Oder scannen Sie ihre Antwort als QR-Code.",
+  "deskSetTxQrHint": "Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.",
+  "deskQrScanImport": "Oder scannen Sie die Zahlung oder Rechnung als QR-Code."
 }
