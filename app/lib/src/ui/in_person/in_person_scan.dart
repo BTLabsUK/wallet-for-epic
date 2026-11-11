@@ -122,7 +122,7 @@ class _InPersonScanScreenState extends ConsumerState<InPersonScanScreen> {
         final problem = _camera.value.problem;
         final String dock = switch (problem) {
           QrCameraProblem.denied => l.qrScanCameraDenied,
-          QrCameraProblem.failed => l.qrScanCameraFailed,
+          QrCameraProblem() => l.qrScanCameraFailed,
           null => _count > 0 ? l.qrScanProgress(_received, _count) : l.deskIpScanAim,
         };
         return Scaffold(

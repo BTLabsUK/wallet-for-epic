@@ -16,8 +16,30 @@ enum QrCameraProblem {
   /// The user refused the camera permission.
   denied,
 
-  /// The camera could not start for another reason.
+  /// The camera could not start for another reason (a driver error, an unknown one).
   failed,
+
+  /// Another app holds the camera (desktop).
+  busy,
+
+  /// No picture: no first frame, frames stopped, or the same frame over and over (desktop).
+  noPicture,
+
+  /// The picture is black, a closed cover or lens shutter most often (desktop). Not final: it
+  /// clears when the picture comes back.
+  dark,
+
+  /// The camera went away during the scan (desktop).
+  unplugged,
+
+  /// The QR reader did not load or start.
+  readerFailed,
+
+  /// This system lacks what the camera needs (desktop: GStreamer, Windows media features).
+  unsupported;
+
+  /// The camera stopped and stays stopped: only Try again, Paste or Close go on.
+  bool get stopsScan => this != dark;
 }
 
 @immutable
