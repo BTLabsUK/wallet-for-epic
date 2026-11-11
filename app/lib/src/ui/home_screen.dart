@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../announcements/announcement_card.dart' show AnnouncementToast, firstLiveAnnouncementProvider;
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../recent_activity.dart';
 import '../epic1.dart' show PaymentMode;
@@ -900,6 +901,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Contacts, as one entry; View all stands for Activity.
     final tiles = ref.watch(levelFeaturesProvider.select((f) => f.balanceTiles)) == BalancePresentation.tiles;
     final plain = ref.watch(levelFeaturesProvider.select((f) => f.wording)) == LevelWording.plain;
+    final announcement = ref.watch(firstLiveAnnouncementProvider);
     Widget column(Widget child) => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
@@ -941,6 +943,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // The desktop Overview's tiles, then its sidebar's destinations. The
                     // statuses are the icons in the balance area above; the full card is in
                     // Settings. One gap between every card on the tab, the tiles' own.
+                    // A message from BT Labs: above the cards, until dismissed.
+                    if (announcement != null) ...[
+                      NoticeSurface(
+                        key: const ValueKey('home-announcement'),
+                        color: context.tokens.info,
+                        child: AnnouncementToast(announcement, swipeToDismiss: true),
+                      ),
+                      const SizedBox(height: homeCardGap),
+                    ],
                     if (tiles) ...[
                       BalanceTiles(onTap: _openOutputs),
                       const SizedBox(height: homeCardGap),

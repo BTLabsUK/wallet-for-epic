@@ -3,6 +3,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:epic_wallet/src/announcements/announcements_service.dart'
+    show AnnouncementsNotifier, AnnouncementsState, announcementsProvider;
+import 'package:epic_wallet/src/announcements/announcement_card.dart' show AnnouncementCard;
+import 'package:epic_wallet/src/btlabs_public.dart' show Announcement;
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show AppConfig, hostSettings;
 import 'package:epic_wallet/src/dev_networks.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/epic1.dart' show FakeEpic1;
@@ -44,6 +48,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show SemanticsData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -296,6 +301,7 @@ class _Harness {
     this.advanced = AdvancedPrefs.none,
     FakeWalletSession? session,
     bool fromBeforeOnionKey = false,
+    this.extraOverrides = const [],
   }) : session =
            session ??
            FakeWalletSession(
@@ -316,6 +322,9 @@ class _Harness {
   }
 
   final Chain chain;
+
+  /// More provider overrides for the tree.
+  final List<Override> extraOverrides;
 
   /// The wallet's PIN, which a send asks for.
   static const _pin = '123456';
@@ -374,6 +383,7 @@ class _Harness {
           clockProvider.overrideWithValue(() => _now),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           walletConfigProvider.overrideWith(() => _Config(config)),
+          ...extraOverrides,
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -393,6 +403,27 @@ class _Harness {
       ),
     );
     settle ? await tester.pumpAndSettle() : await _frames(tester);
+  }
+}
+
+/// The announcements service with a fixed list of live messages; records what the screen does.
+class _FakeAnnouncements extends AnnouncementsNotifier {
+  _FakeAnnouncements(this.messages);
+
+  final List<Announcement> messages;
+  final dismissed = <String>[];
+  final seen = <String>[];
+
+  @override
+  AnnouncementsState build() => AnnouncementsState(live: messages);
+
+  @override
+  Future<void> markSeen(String id) async => seen.add(id);
+
+  @override
+  Future<void> dismiss(String id) async {
+    dismissed.add(id);
+    state = AnnouncementsState(live: [for (final m in state.live) if (m.id != id) m]);
   }
 }
 
@@ -4756,6 +4787,43 @@ void main() {
       await leaveAndBack(tester);
       expect(find.byKey(sendRecipientClearKey), findsOneWidget);
       await clear(tester);
+    });
+  });
+
+  group('announcement toast', () {
+    const first = Announcement(id: 'first-2611', text: 'Faucet open for beta testers.');
+    const second = Announcement(id: 'second-2611', text: 'A second message.');
+    final card = find.byKey(const ValueKey('home-announcement'));
+
+    testWidgets('shows the first live message above the balance, seen but kept', (tester) async {
+      final fake = _FakeAnnouncements([first, second]);
+      final h = _Harness(extraOverrides: [announcementsProvider.overrideWith(() => fake)]);
+      await h.pump(tester);
+      expect(card, findsOneWidget);
+      expect(find.text('Faucet open for beta testers.'), findsOneWidget);
+      expect(find.text('A second message.'), findsNothing);
+      expect(fake.seen, ['first-2611']);
+      expect(fake.dismissed, isEmpty);
+      expect(tester.getTopLeft(card).dy, lessThan(tester.getTopLeft(find.byType(BalanceTiles)).dy));
+    });
+
+    testWidgets('the × dismisses it and the next live message takes its place', (tester) async {
+      final fake = _FakeAnnouncements([first, second]);
+      final h = _Harness(extraOverrides: [announcementsProvider.overrideWith(() => fake)]);
+      await h.pump(tester);
+      await tester.tap(find.byKey(const ValueKey('announcement-dismiss')));
+      await tester.pumpAndSettle();
+      expect(fake.dismissed, ['first-2611']);
+      expect(find.text('Faucet open for beta testers.'), findsNothing);
+      expect(find.text('A second message.'), findsOneWidget);
+    });
+
+    testWidgets('nothing is shown, and no space kept, when nothing is live', (tester) async {
+      final fake = _FakeAnnouncements(const []);
+      final h = _Harness(extraOverrides: [announcementsProvider.overrideWith(() => fake)]);
+      await h.pump(tester);
+      expect(card, findsNothing);
+      expect(find.byType(AnnouncementCard), findsNothing);
     });
   });
 }

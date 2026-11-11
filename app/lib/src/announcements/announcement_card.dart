@@ -13,12 +13,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodChannel, MissingPluginException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'announcements_service.dart' show announcementsProvider;
 import '../btlabs_public.dart' show Announcement, AnnouncementLink;
 import '../desktop/data/files.dart' show openInBrowser;
 import '../l10n.dart';
 import '../network_gate.dart' show NetDial, NetGate;
 import '../scan/incoming_link.dart' show incomingLinkProvider;
 import '../ui/theme/tokens.dart';
+
+/// The message a screen shows (toast placement): the first live one, or null when the feature
+/// is off, there is no feed or nothing is live. Dismissing it brings the next live one up.
+final firstLiveAnnouncementProvider = Provider<Announcement?>((ref) {
+  final live = ref.watch(announcementsProvider.select((s) => s.live));
+  return live.isEmpty ? null : live.first;
+});
 
 /// Side of the image box, in logical pixels (the spec's 64×64 box).
 const double announcementImageSize = 64;
@@ -319,6 +327,37 @@ class _LinkRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// [AnnouncementCard] wired to the service: shown until dismissed (seen only records that it
+/// has been on screen), the × and the swipe dismiss it for good. The screen wraps it in its
+/// own surface and leaves no space when [firstLiveAnnouncementProvider] is null.
+class AnnouncementToast extends ConsumerWidget {
+  /// Creates the toast for [announcement].
+  const AnnouncementToast(this.announcement, {super.key, this.dense = false, this.swipeToDismiss = false});
+
+  /// The message, from [firstLiveAnnouncementProvider].
+  final Announcement announcement;
+
+  /// See [AnnouncementCard.dense].
+  final bool dense;
+
+  /// See [AnnouncementCard.swipeToDismiss].
+  final bool swipeToDismiss;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final id = announcement.id;
+    final service = ref.read(announcementsProvider.notifier);
+    return AnnouncementCard(
+      announcement,
+      key: ValueKey('announcement-toast-$id'),
+      dense: dense,
+      swipeToDismiss: swipeToDismiss,
+      onShown: () => service.markSeen(id),
+      onDismiss: () => service.dismiss(id),
     );
   }
 }

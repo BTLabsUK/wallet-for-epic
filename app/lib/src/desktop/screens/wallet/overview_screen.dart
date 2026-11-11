@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../announcements/announcement_card.dart' show AnnouncementToast, firstLiveAnnouncementProvider;
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
@@ -128,7 +129,19 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         if (mounted) unawaited(showHistoryImportOffer(context, ref));
       });
     }
+    final announcement = ref.watch(firstLiveAnnouncementProvider);
     final notices = <Widget>[
+      // A message from BT Labs, on the notices' surface: one at a time, until dismissed.
+      if (announcement != null)
+        DecoratedBox(
+          key: const ValueKey('overview-announcement'),
+          decoration: BoxDecoration(
+            color: context.dc.s1,
+            borderRadius: BorderRadius.circular(Rad.sm),
+            border: Border.all(color: context.dc.lineStrong),
+          ),
+          child: AnnouncementToast(announcement, dense: true),
+        ),
       // The one notice about levels (the shell's); the Epicbox server offer is a toast.
       if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
       if (shallow && empty && !_readyHidden)
