@@ -19,7 +19,10 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import '../transfer/file_panels.dart' show FileChip, ResultPanel, ResultGlyph;
+import '../transfer/finalize_screen.dart' show FinalizeArgs;
+import '../transfer/qr_payment.dart';
 import 'invoice_parts.dart';
 
 /// The To select's value for "Save as a file for anyone".
@@ -179,6 +182,18 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     if (mounted && path != null) setState(() => _path = path);
   }
 
+  /// The payer's answer, scanned as a QR code: Finalize takes it, as an opened answer file.
+  Future<void> _scanReply() async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.qrScanReply, hint: l.deskQrAimReply, notSlate: (l) => l.qrScanNotReply);
+    if (!mounted || got == null) return;
+    final text = switch (got) {
+      DeskScanned(:final value) => value,
+      DeskPasted(:final text) => text,
+    };
+    ref.read(deskNavProvider.notifier).go(DeskRoute.finalize, FinalizeArgs(text: text));
+  }
+
   /// Another request: the form again, empty.
   void _another() => setState(() {
     _made = null;
@@ -219,6 +234,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
           body: _path == null ? null : FileChip(_path!),
           actions: [
             if (_path == null) InvButton(label: l.reqSaveFile, icon: EIcons.file, kind: EBtnKind.primary, width: InvW.md, onPressed: () => _saveMade(made)),
+            DeskShowQrButton(key: const ValueKey('req-file-qr'), kind: DeskQrKind.request, json: made.json, size: EBtnSize.sm, onScanReply: _scanReply),
             InvButton(label: l.deskInvIssuerAnother, icon: EIcons.request, kind: _path == null ? EBtnKind.secondary : EBtnKind.primary, width: InvW.md, onPressed: _another),
           ],
         ),

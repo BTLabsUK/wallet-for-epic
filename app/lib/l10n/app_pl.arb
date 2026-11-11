@@ -3469,7 +3469,7 @@
   "linkWaitingPairingNotice": "Otrzymano link parowania",
   "linkWaitingNotice": "Otrzymano link płatności",
   "linkFinishCurrentFirst": "Najpierw dokończ bieżącą płatność.",
-  "deskSendToQrPayment": "Kod Płatności QR. Zeskanuj go w BT Wallet na telefonie.",
+  "deskSendToQrPayment": "To jedna część animowanego kodu QR. Zeskanuj kod kamerą albo wklej cały tekst transakcji.",
   "deskSetupSaveFailedTitle": "Ustawienia nie zostały zapisane",
   "deskSetupSaveFailedText": "{reason}. Zapisz ponownie albo pomiń, aby zachować dotychczas zapisane ustawienia.",
   "deskSetupResumeLead": "Konfiguracja nie została ostatnio dokończona. Portfel czyta łańcuch i wysyła płatności przez węzeł Epic.",
@@ -5620,5 +5620,18 @@
   "deskE1TourSendText": "Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Przed wysłaniem jest podgląd.",
   "deskE1TourReceiveText": "Link epic1 tego portfela: udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.",
   "deskE1Sealed": "Zapieczętowane przez epic1",
-  "deskE1SpokenSealed": "{row}, zapieczętowane przez epic1"
+  "deskE1SpokenSealed": "{row}, zapieczętowane przez epic1",
+  "deskQrHiddenReply": "Pokaż go portfelowi nadawcy. Tylko jego portfel może go użyć.",
+  "deskQrHiddenPaid": "Pokaż go portfelowi, który prosił o płatność. Tylko ten portfel może go użyć.",
+  "deskQrTimedOutBody": "Pokaż go ponownie, gdy drugie urządzenie będzie gotowe.",
+  "deskQrCannotShow": "Tego pliku nie da się pokazać jako kodu QR.",
+  "deskQrAimPayment": "Skieruj kamerę na kod QR płatności na drugim urządzeniu.",
+  "deskQrAimReply": "Skieruj kamerę na kod QR odpowiedzi na drugim urządzeniu.",
+  "deskQrAimAny": "Skieruj kamerę na kod QR płatności, odpowiedzi, faktury albo gotowej płatności.",
+  "deskQrNotTx": "To nie jest kod QR płatności.",
+  "deskQrScannedName": "Zeskanowany kod QR",
+  "deskQrPastedName": "Wklejony tekst",
+  "deskQrScanFinalize": "Albo zeskanuj ich odpowiedź jako kod QR.",
+  "deskSetTxQrHint": "Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.",
+  "deskQrScanImport": "Albo zeskanuj płatność lub fakturę jako kod QR."
 }

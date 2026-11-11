@@ -13312,7 +13312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'A QR Payment code. Scan it with BT Wallet on a phone.';
+      'That is one part of an animated QR code. Scan the code with the camera, or paste the transaction’s whole text.';
 
   @override
   String get deskSetRecvTorText =>
@@ -21642,4 +21642,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, sealed with epic1';
   }
+
+  @override
+  String get deskQrHiddenReply =>
+      'Show it to the sender’s wallet. Only their wallet can use it.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Show it to the wallet that asked for the payment. Only that wallet can use it.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Show it again when the other device is ready.';
+
+  @override
+  String get deskQrCannotShow => 'This file cannot be shown as a QR code.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Point the camera at the payment QR on the other device.';
+
+  @override
+  String get deskQrAimReply =>
+      'Point the camera at the reply QR on the other device.';
+
+  @override
+  String get deskQrAimAny =>
+      'Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.';
+
+  @override
+  String get deskQrNotTx => 'That is not a payment QR code.';
+
+  @override
+  String get deskQrScannedName => 'Scanned QR code';
+
+  @override
+  String get deskQrPastedName => 'Pasted text';
+
+  @override
+  String get deskQrScanFinalize => 'Or scan their reply as a QR code.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.';
+
+  @override
+  String get deskQrScanImport => 'Or scan the payment or invoice as a QR code.';
 }

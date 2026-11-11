@@ -1,0 +1,15 @@
+{
+  "deskQrHiddenReply": "Pokaż go portfelowi nadawcy. Tylko jego portfel może go użyć.",
+  "deskQrHiddenPaid": "Pokaż go portfelowi, który prosił o płatność. Tylko ten portfel może go użyć.",
+  "deskQrTimedOutBody": "Pokaż go ponownie, gdy drugie urządzenie będzie gotowe.",
+  "deskQrCannotShow": "Tego pliku nie da się pokazać jako kodu QR.",
+  "deskQrAimPayment": "Skieruj kamerę na kod QR płatności na drugim urządzeniu.",
+  "deskQrAimReply": "Skieruj kamerę na kod QR odpowiedzi na drugim urządzeniu.",
+  "deskQrAimAny": "Skieruj kamerę na kod QR płatności, odpowiedzi, faktury albo gotowej płatności.",
+  "deskQrNotTx": "To nie jest kod QR płatności.",
+  "deskQrScannedName": "Zeskanowany kod QR",
+  "deskQrPastedName": "Wklejony tekst",
+  "deskQrScanFinalize": "Albo zeskanuj ich odpowiedź jako kod QR.",
+  "deskSetTxQrHint": "Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.",
+  "deskQrScanImport": "Albo zeskanuj płatność lub fakturę jako kod QR."
+}

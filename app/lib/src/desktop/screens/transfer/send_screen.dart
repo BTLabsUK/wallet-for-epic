@@ -52,6 +52,8 @@ import 'epicbox_notice.dart';
 import 'file_panels.dart';
 import 'finalize_screen.dart' show FinalizeArgs;
 import 'import_tx_screen.dart' show ImportArgs;
+import 'qr_payment.dart';
+import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
@@ -1128,6 +1130,11 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         // Open signs the pasted text as if its file had been chosen (LNX-3); an answer to one
         // of this wallet's sends is finalized instead (LNX-14).
         showSlateTextDialog(context, onOpen: () => _openSlate(slate));
+      // A part of an animated QR code the camera read: the part scan reads the rest, then the
+      // transaction opens as a chosen file would. A pasted part says how to bring it in.
+      case SlateFrames(text: final t) when origin == CodeOrigin.qr:
+        setState(() => _to.text = _lastTo);
+        unawaited(_scanFrames(t));
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
       case PairingLink() when pasted && !ref.read(deskPairsProvider):
@@ -1237,6 +1244,37 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       nav.go(DeskRoute.finalize, FinalizeArgs(text: slate));
     } else {
       nav.go(DeskRoute.importTx, ImportArgs(text: slate));
+    }
+  }
+
+  /// The rest of an animated QR code whose part [first] was read: its transaction opens as
+  /// [_openSlate]; a text pasted in the scan's place opens as any paste.
+  Future<void> _scanFrames(String first) async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.scanQrTitle, hint: l.deskQrAimAny, notSlate: (l) => l.deskQrNotTx, first: first);
+    if (!mounted) return;
+    switch (got) {
+      case DeskScanned(:final value):
+        await _openSlate(value);
+      case DeskPasted(:final text):
+        openPaymentText(text, origin: CodeOrigin.paste);
+      case null:
+        break;
+    }
+  }
+
+  /// Their reply to the payment file just written, scanned as a QR code: Finalize takes it.
+  Future<void> _scanReply(DeskNav nav) async {
+    final l = context.l10n;
+    final got = await deskScanSlate(context, ref, title: l.qrScanReply, hint: l.deskQrAimReply, notSlate: (l) => l.qrScanNotReply);
+    if (!mounted) return;
+    switch (got) {
+      case DeskScanned(:final value):
+        nav.go(DeskRoute.finalize, FinalizeArgs(text: value));
+      case DeskPasted(:final text):
+        nav.go(DeskRoute.finalize, FinalizeArgs(text: text));
+      case null:
+        break;
     }
   }
 
@@ -1928,6 +1966,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           EButton.primary(label: l.deskSendFinalize, icon: EIcons.fileUp, onPressed: () => nav.go(DeskRoute.finalize)),
           EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
           EButton(label: l.deskSendNewSend, onPressed: _reset),
+          // A sealed file stays a file: only a plain one shows as a QR code.
+          if (name == null && deskQrShowsFile(_plainFile ?? r.fileName))
+            DeskShowQrButton(key: const ValueKey('send-file-qr'), kind: DeskQrKind.payment, path: _plainFile ?? r.fileName, onScanReply: () => _scanReply(nav)),
           if (name != null) EButton.ghost(key: const ValueKey('send-file-as-plain'), label: l.sendAsPlain, busy: _plainBusy, onPressed: _plainBusy ? null : () => _asPlain(r)),
         ],
       ),

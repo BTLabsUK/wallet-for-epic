@@ -13833,7 +13833,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'Kod Płatności QR. Zeskanuj go w BT Wallet na telefonie.';
+      'To jedna część animowanego kodu QR. Zeskanuj kod kamerą albo wklej cały tekst transakcji.';
 
   @override
   String get deskSetRecvTorText =>
@@ -22366,4 +22366,51 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, zapieczętowane przez epic1';
   }
+
+  @override
+  String get deskQrHiddenReply =>
+      'Pokaż go portfelowi nadawcy. Tylko jego portfel może go użyć.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Pokaż go portfelowi, który prosił o płatność. Tylko ten portfel może go użyć.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Pokaż go ponownie, gdy drugie urządzenie będzie gotowe.';
+
+  @override
+  String get deskQrCannotShow => 'Tego pliku nie da się pokazać jako kodu QR.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Skieruj kamerę na kod QR płatności na drugim urządzeniu.';
+
+  @override
+  String get deskQrAimReply =>
+      'Skieruj kamerę na kod QR odpowiedzi na drugim urządzeniu.';
+
+  @override
+  String get deskQrAimAny =>
+      'Skieruj kamerę na kod QR płatności, odpowiedzi, faktury albo gotowej płatności.';
+
+  @override
+  String get deskQrNotTx => 'To nie jest kod QR płatności.';
+
+  @override
+  String get deskQrScannedName => 'Zeskanowany kod QR';
+
+  @override
+  String get deskQrPastedName => 'Wklejony tekst';
+
+  @override
+  String get deskQrScanFinalize => 'Albo zeskanuj ich odpowiedź jako kod QR.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.';
+
+  @override
+  String get deskQrScanImport =>
+      'Albo zeskanuj płatność lub fakturę jako kod QR.';
 }

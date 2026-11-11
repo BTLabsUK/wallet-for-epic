@@ -12532,7 +12532,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkFinishCurrentFirst => '请先完成当前付款。';
 
   @override
-  String get deskSendToQrPayment => '这是二维码付款码，请用手机上的 BT Wallet 扫描。';
+  String get deskSendToQrPayment => '这只是动态二维码的一部分。请用摄像头扫描该码，或粘贴交易的完整文本。';
 
   @override
   String get deskSetRecvTorText => '钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。';
@@ -20434,4 +20434,44 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row，已用 epic1 密封';
   }
+
+  @override
+  String get deskQrHiddenReply => '只给发送方的钱包看。只有对方的钱包能使用它。';
+
+  @override
+  String get deskQrHiddenPaid => '只给发出付款请求的钱包看。只有那个钱包能使用它。';
+
+  @override
+  String get deskQrTimedOutBody => '另一台设备准备好后再显示。';
+
+  @override
+  String get deskQrCannotShow => '此文件无法显示为二维码。';
+
+  @override
+  String get deskQrAimPayment => '请把摄像头对准另一台设备上的付款二维码。';
+
+  @override
+  String get deskQrAimReply => '请把摄像头对准另一台设备上的回复二维码。';
+
+  @override
+  String get deskQrAimAny => '请把摄像头对准付款、回复、账单或已完成付款的二维码。';
+
+  @override
+  String get deskQrNotTx => '这不是付款二维码。';
+
+  @override
+  String get deskQrScannedName => '扫描的二维码';
+
+  @override
+  String get deskQrPastedName => '粘贴的文本';
+
+  @override
+  String get deskQrScanFinalize => '或将对方的回复作为二维码扫描。';
+
+  @override
+  String get deskSetTxQrHint =>
+      '通过显示和扫描动态二维码形式的交易来付款和收款，无需网络。在这台电脑上它随“文件传输”一起提供：“显示二维码”和“扫描二维码”位于文件按钮旁边。';
+
+  @override
+  String get deskQrScanImport => '或将付款或账单作为二维码扫描。';
 }
