@@ -20847,4 +20847,239 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => '关闭';
+
+  @override
+  String get phoneSettingsSearchHint => '搜索设置';
+
+  @override
+  String get phoneSettingsNoMatch => '没有找到';
+
+  @override
+  String get phoneSettingsPhraseLine => '找回此钱包的唯一方式';
+
+  @override
+  String get phoneSettingsBackedUp => '✓ 已备份';
+
+  @override
+  String get phoneSettingsPhraseBackedUp => '恢复短语已备份';
+
+  @override
+  String get phoneSettingsUnlocking => '解锁';
+
+  @override
+  String get phoneSettingsBiometrics => '生物识别';
+
+  @override
+  String get phoneSettingsBiometricsLine => '面容或指纹';
+
+  @override
+  String get phoneSettingsPinWord => 'PIN 码';
+
+  @override
+  String phoneSettingsLocksAfter(String time) {
+    return '$time后锁定';
+  }
+
+  @override
+  String phoneSettingsAutoLockFootnote(String time) {
+    return '离开应用 $time后，钱包会锁定。';
+  }
+
+  @override
+  String get phoneSettingsLockNow => '立即锁定';
+
+  @override
+  String phoneSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 分钟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneSettingsOneHour => '1 小时';
+
+  @override
+  String get phoneSettingsAutoLockSub => '无人使用时锁定钱包';
+
+  @override
+  String get phoneSettingsPickerNote => '点按即保存。';
+
+  @override
+  String get phoneSettingsPassphrase => '附加口令';
+
+  @override
+  String get phoneSettingsPassphraseLine => '恢复短语之外的附加词';
+
+  @override
+  String get phoneSettingsSecurityHelp1 => 'PIN 码或生物识别用于在此手机上解锁钱包。';
+
+  @override
+  String get phoneSettingsSecurityHelp2 => '恢复短语是在另一部手机上找回钱包的唯一方式。';
+
+  @override
+  String get phoneSettingsSecurityHelp3 => '口令会改变恢复短语所打开的钱包。没有口令时，短语打开的是一个空钱包。';
+
+  @override
+  String get phoneSettingsNetworkHelp => '连接模式决定钱包的流量被隐藏多少，以及使用哪些服务器。';
+
+  @override
+  String get phoneSettingsWalletHelp1 => '导出会把钱包数据保存为一个由你保管的文件。';
+
+  @override
+  String get phoneSettingsWalletHelp2 => '删除钱包会将其从这部手机移除。只有恢复短语能把它找回来。';
+
+  @override
+  String get phoneSettingsPayments => '付款';
+
+  @override
+  String get phoneSettingsPayWays => '付款方式';
+
+  @override
+  String get phoneSettingsPaymentsHelp1 => '关闭的付款方式在发送或请求金额时不会出现。';
+
+  @override
+  String get phoneSettingsPaymentsHelp2 => 'Epicbox 需要双方手机都在线。当面和文件方式无需服务器。';
+
+  @override
+  String get phoneSettingsPaymentsHelp3 => '选币方式决定一笔付款花费哪些币。';
+
+  @override
+  String get phoneSettingsEpicboxLine => '双方手机在线';
+
+  @override
+  String get phoneSettingsInPerson => '当面';
+
+  @override
+  String get phoneSettingsInPersonLine => '两部手机之间展示二维码';
+
+  @override
+  String get phoneSettingsWithFile => '用文件';
+
+  @override
+  String get phoneSettingsWithFileLine => '通过任意应用传递的文件';
+
+  @override
+  String get phoneSettingsTorAddress => 'Tor 地址';
+
+  @override
+  String get phoneSettingsTorAddressLine => '在 .onion 地址接收';
+
+  @override
+  String get phoneSettingsSplitLine => '把找零拆成多个币';
+
+  @override
+  String get phoneSettingsInvoicesLine => '你发出的请求及其状态';
+
+  @override
+  String get phoneSettingsFailoverLine => '一个节点停止时切换到另一个节点';
+
+  @override
+  String get phoneSettingsServerStatus => '服务器状态';
+
+  @override
+  String phoneSettingsServerStatusLine(String host) {
+    return '打开 $host';
+  }
+
+  @override
+  String get phoneSettingsExport => '导出钱包数据';
+
+  @override
+  String get phoneSettingsExportLine => '把付款和联系人保存到文件';
+
+  @override
+  String get phoneSettingsImport => '导入钱包数据';
+
+  @override
+  String get phoneSettingsCsv => '导出为 CSV';
+
+  @override
+  String get phoneSettingsCsvLine => '付款记录的电子表格';
+
+  @override
+  String get phoneSettingsUpkeep => '维护';
+
+  @override
+  String get phoneSettingsRecheckLine => '查找钱包漏掉的付款';
+
+  @override
+  String get phoneSettingsOutputsLine => '钱包持有的币';
+
+  @override
+  String get phoneSettingsRestore => '用短语恢复';
+
+  @override
+  String get phoneSettingsRestoreLine => '用恢复短语重建钱包';
+
+  @override
+  String get phoneSettingsAdvancedLine => '币、技术细节、选币';
+
+  @override
+  String get phoneSettingsAdvOutputsLine => '显示钱包持有的币';
+
+  @override
+  String get phoneSettingsAdvTechnicalLine => '显示 ID、高度和原始状态';
+
+  @override
+  String get phoneSettingsAdvSendLine => '发送时显示选币';
+
+  @override
+  String get phoneSettingsAdvServersLine => '显示服务器的地址和状态';
+
+  @override
+  String get phoneSettingsAdvRecheckLine => '选择重新检查的起点';
+
+  @override
+  String get phoneSettingsAdvFilesLine => '显示可保存或打开的付款文件';
+
+  @override
+  String get phoneSettingsShowPricesLine => '以你的货币显示价值';
+
+  @override
+  String get phoneSettingsHideAmounts => '隐藏金额';
+
+  @override
+  String get phoneSettingsHideAmountsLine => '用圆点代替余额';
+
+  @override
+  String get phoneSettingsAppearanceHelp1 => '主题、语言和货币仅对这部手机生效。';
+
+  @override
+  String get phoneSettingsAppearanceHelp2 => '价格是来自外部来源的估算，绝不会改变任何付款。';
+
+  @override
+  String get phoneSettingsHubInPerson => '当面';
+
+  @override
+  String get phoneSettingsHubFile => '文件';
+
+  @override
+  String get phoneSettingsHubTor => 'Tor';
+
+  @override
+  String get phoneSettingsConnected => '已连接';
+
+  @override
+  String get phoneSettingsNotConnected => '未连接';
+
+  @override
+  String get phoneSettingsNoneLinked => '未关联';
+
+  @override
+  String get phoneSettingsOneLinked => '已关联 1 台';
+
+  @override
+  String get phoneSettingsHelpLine => '指南、导览、报告问题';
+
+  @override
+  String get phoneSettingsMadeBy => '开发者';
+
+  @override
+  String get phoneSettingsProtocol => '协议';
+
+  @override
+  String get phoneSettingsEngine => '引擎';
 }

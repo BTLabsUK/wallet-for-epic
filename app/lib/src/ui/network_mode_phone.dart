@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The phone's network-mode widgets: the Network section of Settings › Network & privacy (four radio rows,
-/// each with its ⓘ, the dim line for the chosen mode), the switch confirmation, and the mode's
+/// each with the line on what the mode does), the switch confirmation, and the mode's
 /// line in the connections sheet. Text and glyphs: `network_mode_text.dart`; the rules:
 /// `network_gate.dart`.
 library;
@@ -20,8 +20,9 @@ import 'network_mode_text.dart';
 import '../help/help_content.dart' show HelpId;
 import 'help/network_modes_diagram.dart';
 import 'help_screen.dart' show openHelp;
-import 'info_hint.dart' show InfoHint;
-import 'settings_rows.dart' show RadioRow, SettingsHeader;
+import 'kit/kit_group.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_tokens.dart';
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'tor_ui.dart' show torShown;
 import 'theme/tokens.dart';
@@ -129,9 +130,8 @@ class NetworkModeConfirmSheet extends StatelessWidget {
 /// The test drivers' stable names for the modes (`TrustIds`, lib/src/trust_ids.dart).
 const _modeId = {NetworkMode.standard: TrustIds.privacyModeStandard, NetworkMode.torOnly: TrustIds.privacyModeToronly};
 
-/// The Network section of Settings › Network & privacy: its header and one radio row per offered mode,
-/// just the name and its ⓘ (the explanation lives in the sheet, none in the list; the owner: "no
-/// explanations in main view"), as tall as the other rows. Tor only is left out of the build
+/// The Connection mode block of Settings › Network & privacy: its label and one radio row per
+/// offered mode, each with the one line on what it does. Tor only is left out of the build
 /// without Tor and disabled while Tor is unavailable on the phone.
 class NetworkModeSection extends ConsumerWidget {
   const NetworkModeSection({super.key, this.headerKey, this.tourId});
@@ -146,45 +146,26 @@ class NetworkModeSection extends ConsumerWidget {
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     Widget row(NetworkMode m) {
       final enabled = m != NetworkMode.torOnly || torAvailable;
-      final name = networkModeName(l, m);
-      // The settings radio row: the mode's glyph leads, the radio ends the row.
-      return RadioRow<NetworkMode>(
+      return KitRow.radio(
+        key: networkModeRowKey(m),
         semanticsId: _modeId[m],
-        tileKey: networkModeRowKey(m),
-        value: m,
-        enabled: enabled,
-        icon: networkModeGlyph(m),
-        title: name,
-        hint: networkModeHint(l, m),
-        hintKey: networkModeHintKey(m),
-        // The ⓘ opens the picture of the modes at this row's mode.
-        onHint: () => showNetworkModesSheet(context, m),
+        title: networkModeName(l, m),
+        subtitle: networkModeHint(l, m),
+        subtitleLines: 3,
+        selected: mode == m,
+        onChanged: enabled ? () => chooseNetworkMode(context, ref, m) : null,
       );
     }
-    final rows = RadioGroup<NetworkMode>(
-      groupValue: mode,
-      onChanged: (v) {
-        if (v != null) chooseNetworkMode(context, ref, v);
-      },
-      child: Column(children: [for (final m in offeredNetworkModes()) row(m)]),
+    final rows = KitGroup(
+      dividerInset: Kit.dividerInsetPlain,
+      children: [for (final m in offeredNetworkModes()) row(m)],
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         KeyedSubtree(
           key: networkSectionKey,
-          child: SettingsHeader(
-            l.advNetworkHeader,
-            key: headerKey,
-            // The picture of the modes, at the wallet's own.
-            trailing: InfoHint(
-              networkModeHint(l, mode),
-              key: networkModesHintKey,
-              title: l.netModesTitle,
-              label: l.netModesAbout,
-              onOpen: () => showNetworkModesSheet(context, mode),
-            ),
-          ),
+          child: KeyedSubtree(key: headerKey, child: KitGroupLabel(l.netModesGroup)),
         ),
         tourId == null ? rows : tourId!(rows),
       ],

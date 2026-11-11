@@ -30000,5 +30000,325 @@
   "phoneKitDismiss": "Dismiss",
   "@phoneKitDismiss": {
     "description": "Screen reader label of the × on a floating notice."
+  },
+  "phoneSettingsSearchHint": "Search settings",
+  "@phoneSettingsSearchHint": {
+    "description": "Hint in the search field at the top of Settings."
+  },
+  "phoneSettingsNoMatch": "Nothing found",
+  "@phoneSettingsNoMatch": {
+    "description": "Title of the empty state when a Settings search finds nothing."
+  },
+  "phoneSettingsPhraseLine": "The only way to get this wallet back",
+  "@phoneSettingsPhraseLine": {
+    "description": "Line under the recovery phrase row in This wallet."
+  },
+  "phoneSettingsBackedUp": "✓ Backed up",
+  "@phoneSettingsBackedUp": {
+    "description": "Value on the recovery phrase row when the phrase is backed up. Starts with a check mark."
+  },
+  "phoneSettingsPhraseBackedUp": "Recovery phrase backed up",
+  "@phoneSettingsPhraseBackedUp": {
+    "description": "Line on the Settings hub: the recovery phrase is backed up."
+  },
+  "phoneSettingsUnlocking": "Unlocking",
+  "@phoneSettingsUnlocking": {
+    "description": "Group label in Security above the biometrics and PIN rows."
+  },
+  "phoneSettingsBiometrics": "Biometrics",
+  "@phoneSettingsBiometrics": {
+    "description": "Row title in Security: unlock with the phone's biometrics."
+  },
+  "phoneSettingsBiometricsLine": "Face or fingerprint",
+  "@phoneSettingsBiometricsLine": {
+    "description": "Line under the Biometrics row."
+  },
+  "phoneSettingsPinWord": "PIN",
+  "@phoneSettingsPinWord": {
+    "description": "Word on the Settings hub line when the wallet unlocks with the PIN."
+  },
+  "phoneSettingsLocksAfter": "Locks after {time}",
+  "@phoneSettingsLocksAfter": {
+    "description": "Part of the Security line on the Settings hub. {time} is a duration like '5 minutes'.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "5 minutes"
+      }
+    }
+  },
+  "phoneSettingsAutoLockFootnote": "The wallet locks after {time} away from the app.",
+  "@phoneSettingsAutoLockFootnote": {
+    "description": "Note under the auto-lock row in Security. {time} is a duration like '5 minutes'.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "5 minutes"
+      }
+    }
+  },
+  "phoneSettingsLockNow": "Lock now",
+  "@phoneSettingsLockNow": {
+    "description": "Row in Security that locks the wallet at once."
+  },
+  "phoneSettingsMinutes": "{count, plural, one{{count} minute} other{{count} minutes}}",
+  "@phoneSettingsMinutes": {
+    "description": "Auto-lock choice: a number of minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "phoneSettingsOneHour": "1 hour",
+  "@phoneSettingsOneHour": {
+    "description": "Auto-lock choice: one hour."
+  },
+  "phoneSettingsAutoLockSub": "Lock the wallet after it is left alone",
+  "@phoneSettingsAutoLockSub": {
+    "description": "Line under the title of the auto-lock picker."
+  },
+  "phoneSettingsPickerNote": "Saved when you tap.",
+  "@phoneSettingsPickerNote": {
+    "description": "Note under the choices of a picker: the choice is saved when tapped."
+  },
+  "phoneSettingsPassphrase": "Passphrase",
+  "@phoneSettingsPassphrase": {
+    "description": "Row title in Security: an extra word set added to the recovery phrase."
+  },
+  "phoneSettingsPassphraseLine": "Extra words on top of the recovery phrase",
+  "@phoneSettingsPassphraseLine": {
+    "description": "Line under the Passphrase row."
+  },
+  "phoneSettingsSecurityHelp1": "The PIN or biometrics unlock the wallet on this phone.",
+  "@phoneSettingsSecurityHelp1": {
+    "description": "Help sheet of Security, first paragraph."
+  },
+  "phoneSettingsSecurityHelp2": "The recovery phrase is the only way to get the wallet back on another phone.",
+  "@phoneSettingsSecurityHelp2": {
+    "description": "Help sheet of Security, second paragraph."
+  },
+  "phoneSettingsSecurityHelp3": "A passphrase changes which wallet the phrase opens. Without it the phrase opens an empty one.",
+  "@phoneSettingsSecurityHelp3": {
+    "description": "Help sheet of Security, third paragraph."
+  },
+  "phoneSettingsNetworkHelp": "Connection mode sets how much of the wallet's traffic is hidden and which servers it uses.",
+  "@phoneSettingsNetworkHelp": {
+    "description": "Help sheet of Network: one line about connection modes."
+  },
+  "phoneSettingsWalletHelp1": "Export saves the wallet's data to a file you keep.",
+  "@phoneSettingsWalletHelp1": {
+    "description": "Help sheet of This wallet, first paragraph."
+  },
+  "phoneSettingsWalletHelp2": "Delete wallet removes it from this phone. Only the recovery phrase brings it back.",
+  "@phoneSettingsWalletHelp2": {
+    "description": "Help sheet of This wallet, second paragraph."
+  },
+  "phoneSettingsPayments": "Payments",
+  "@phoneSettingsPayments": {
+    "description": "Title of the Payments page and its row in Settings."
+  },
+  "phoneSettingsPayWays": "Ways to pay",
+  "@phoneSettingsPayWays": {
+    "description": "Group label in Payments above the ways to pay."
+  },
+  "phoneSettingsPaymentsHelp1": "A way to pay that is off is not offered when sending or asking for an amount.",
+  "@phoneSettingsPaymentsHelp1": {
+    "description": "Help sheet of Payments, first paragraph."
+  },
+  "phoneSettingsPaymentsHelp2": "Epicbox needs both phones online. In person and With a file work without a server.",
+  "@phoneSettingsPaymentsHelp2": {
+    "description": "Help sheet of Payments, second paragraph."
+  },
+  "phoneSettingsPaymentsHelp3": "Coin choice sets which coins a payment spends.",
+  "@phoneSettingsPaymentsHelp3": {
+    "description": "Help sheet of Payments, third paragraph."
+  },
+  "phoneSettingsEpicboxLine": "Both phones online",
+  "@phoneSettingsEpicboxLine": {
+    "description": "Line under the Epicbox row in Payments."
+  },
+  "phoneSettingsInPerson": "In person",
+  "@phoneSettingsInPerson": {
+    "description": "Payments row: paying with a QR code shown face to face."
+  },
+  "phoneSettingsInPersonLine": "QR codes shown between two phones",
+  "@phoneSettingsInPersonLine": {
+    "description": "Line under the In person row."
+  },
+  "phoneSettingsWithFile": "With a file",
+  "@phoneSettingsWithFile": {
+    "description": "Payments row: paying by passing a file."
+  },
+  "phoneSettingsWithFileLine": "A file passed by any app",
+  "@phoneSettingsWithFileLine": {
+    "description": "Line under the With a file row."
+  },
+  "phoneSettingsTorAddress": "Tor address",
+  "@phoneSettingsTorAddress": {
+    "description": "Payments row: receiving at a Tor address."
+  },
+  "phoneSettingsTorAddressLine": "Receive at an .onion address",
+  "@phoneSettingsTorAddressLine": {
+    "description": "Line under the Tor address row."
+  },
+  "phoneSettingsSplitLine": "Keeps change in several coins",
+  "@phoneSettingsSplitLine": {
+    "description": "Line under the Split change row in Payments."
+  },
+  "phoneSettingsInvoicesLine": "Requests you made and their state",
+  "@phoneSettingsInvoicesLine": {
+    "description": "Line under the Invoices row in Payments."
+  },
+  "phoneSettingsFailoverLine": "Switch to another node when one stops",
+  "@phoneSettingsFailoverLine": {
+    "description": "Line under the Node failover row in Network."
+  },
+  "phoneSettingsServerStatus": "Server status",
+  "@phoneSettingsServerStatus": {
+    "description": "Row in Network that opens the service status website."
+  },
+  "phoneSettingsServerStatusLine": "Opens {host}",
+  "@phoneSettingsServerStatusLine": {
+    "description": "Line under the Server status row. {host} is a web address like status.example.org.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
+  },
+  "phoneSettingsExport": "Export wallet data",
+  "@phoneSettingsExport": {
+    "description": "Row in This wallet: save the wallet's data to a file."
+  },
+  "phoneSettingsExportLine": "Save payments and contacts to a file",
+  "@phoneSettingsExportLine": {
+    "description": "Line under the Export row."
+  },
+  "phoneSettingsImport": "Import wallet data",
+  "@phoneSettingsImport": {
+    "description": "Row in This wallet: load wallet data from a file."
+  },
+  "phoneSettingsCsv": "Export as CSV",
+  "@phoneSettingsCsv": {
+    "description": "Row in This wallet: save payments as a spreadsheet file."
+  },
+  "phoneSettingsCsvLine": "Payments as a spreadsheet",
+  "@phoneSettingsCsvLine": {
+    "description": "Line under the CSV row."
+  },
+  "phoneSettingsUpkeep": "Upkeep",
+  "@phoneSettingsUpkeep": {
+    "description": "Group label in This wallet above the upkeep rows."
+  },
+  "phoneSettingsRecheckLine": "Look for payments the wallet missed",
+  "@phoneSettingsRecheckLine": {
+    "description": "Line under the Recheck balance row."
+  },
+  "phoneSettingsOutputsLine": "Coins the wallet holds",
+  "@phoneSettingsOutputsLine": {
+    "description": "Line under the Outputs row when no count is known."
+  },
+  "phoneSettingsRestore": "Restore from phrase",
+  "@phoneSettingsRestore": {
+    "description": "Row in This wallet: restore from the recovery phrase."
+  },
+  "phoneSettingsRestoreLine": "Rebuild the wallet from the recovery phrase",
+  "@phoneSettingsRestoreLine": {
+    "description": "Line under the Restore row."
+  },
+  "phoneSettingsAdvancedLine": "Outputs, technical details, coin choice",
+  "@phoneSettingsAdvancedLine": {
+    "description": "Line under the Advanced row on the Settings hub."
+  },
+  "phoneSettingsAdvOutputsLine": "Show the coins the wallet holds",
+  "@phoneSettingsAdvOutputsLine": {
+    "description": "Line under the Outputs switch in Advanced."
+  },
+  "phoneSettingsAdvTechnicalLine": "Show ids, heights and raw states",
+  "@phoneSettingsAdvTechnicalLine": {
+    "description": "Line under the Technical details switch in Advanced."
+  },
+  "phoneSettingsAdvSendLine": "Show coin choice when sending",
+  "@phoneSettingsAdvSendLine": {
+    "description": "Line under the Send options switch in Advanced."
+  },
+  "phoneSettingsAdvServersLine": "Show addresses and health of servers",
+  "@phoneSettingsAdvServersLine": {
+    "description": "Line under the Server details switch in Advanced."
+  },
+  "phoneSettingsAdvRecheckLine": "Choose where a recheck starts",
+  "@phoneSettingsAdvRecheckLine": {
+    "description": "Line under the Recheck from height switch in Advanced."
+  },
+  "phoneSettingsAdvFilesLine": "Show payment files to save or open",
+  "@phoneSettingsAdvFilesLine": {
+    "description": "Line under the Transaction files switch in Advanced."
+  },
+  "phoneSettingsShowPricesLine": "Show a value in your currency",
+  "@phoneSettingsShowPricesLine": {
+    "description": "Line under the Show prices switch in Appearance."
+  },
+  "phoneSettingsHideAmounts": "Hide amounts",
+  "@phoneSettingsHideAmounts": {
+    "description": "Switch in Appearance: hide balances."
+  },
+  "phoneSettingsHideAmountsLine": "Show dots instead of balances",
+  "@phoneSettingsHideAmountsLine": {
+    "description": "Line under the Hide amounts switch."
+  },
+  "phoneSettingsAppearanceHelp1": "Theme, language and currency apply on this phone only.",
+  "@phoneSettingsAppearanceHelp1": {
+    "description": "Help sheet of Appearance, first paragraph."
+  },
+  "phoneSettingsAppearanceHelp2": "Prices are an estimate from an outside source. They never change a payment.",
+  "@phoneSettingsAppearanceHelp2": {
+    "description": "Help sheet of Appearance, second paragraph."
+  },
+  "phoneSettingsHubInPerson": "in person",
+  "@phoneSettingsHubInPerson": {
+    "description": "Word in the Payments line on the Settings hub: the in-person way is on. Lower case."
+  },
+  "phoneSettingsHubFile": "file",
+  "@phoneSettingsHubFile": {
+    "description": "Word in the Payments line on the Settings hub: the file way is on. Lower case."
+  },
+  "phoneSettingsHubTor": "Tor",
+  "@phoneSettingsHubTor": {
+    "description": "Word in the Payments line on the Settings hub: the Tor way is on."
+  },
+  "phoneSettingsConnected": "connected",
+  "@phoneSettingsConnected": {
+    "description": "Word after the connection mode on the Settings hub when the wallet is connected. Lower case."
+  },
+  "phoneSettingsNotConnected": "not connected",
+  "@phoneSettingsNotConnected": {
+    "description": "Word after the connection mode on the Settings hub when the wallet is not connected. Lower case."
+  },
+  "phoneSettingsNoneLinked": "None linked",
+  "@phoneSettingsNoneLinked": {
+    "description": "Line under Linked devices when none is linked."
+  },
+  "phoneSettingsOneLinked": "1 linked",
+  "@phoneSettingsOneLinked": {
+    "description": "Line under Linked devices when one device is linked."
+  },
+  "phoneSettingsHelpLine": "Guides, the tour, report a problem",
+  "@phoneSettingsHelpLine": {
+    "description": "Line under the Help row on the Settings hub."
+  },
+  "phoneSettingsMadeBy": "Made by",
+  "@phoneSettingsMadeBy": {
+    "description": "Row in About: who makes the app."
+  },
+  "phoneSettingsProtocol": "Protocol",
+  "@phoneSettingsProtocol": {
+    "description": "Row in About: the payment protocol the wallet speaks."
+  },
+  "phoneSettingsEngine": "Engine",
+  "@phoneSettingsEngine": {
+    "description": "Row in About: the wallet engine."
   }
 }

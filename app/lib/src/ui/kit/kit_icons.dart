@@ -29,6 +29,7 @@ abstract final class KitIcons {
   static const IconData scan = Icons.qr_code_scanner_rounded;
   static const IconData qr = Icons.qr_code_2_rounded;
   static const IconData send = Icons.north_east_rounded;
+  static const IconData external = Icons.north_east_rounded;
   static const IconData receive = Icons.south_west_rounded;
   static const IconData copy = Icons.content_copy_rounded;
   static const IconData paste = Icons.content_paste_rounded;

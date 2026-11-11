@@ -34463,6 +34463,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get phoneKitDismiss;
+
+  /// Hint in the search field at the top of Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get phoneSettingsSearchHint;
+
+  /// Title of the empty state when a Settings search finds nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get phoneSettingsNoMatch;
+
+  /// Line under the recovery phrase row in This wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'The only way to get this wallet back'**
+  String get phoneSettingsPhraseLine;
+
+  /// Value on the recovery phrase row when the phrase is backed up. Starts with a check mark.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Backed up'**
+  String get phoneSettingsBackedUp;
+
+  /// Line on the Settings hub: the recovery phrase is backed up.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery phrase backed up'**
+  String get phoneSettingsPhraseBackedUp;
+
+  /// Group label in Security above the biometrics and PIN rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocking'**
+  String get phoneSettingsUnlocking;
+
+  /// Row title in Security: unlock with the phone's biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometrics'**
+  String get phoneSettingsBiometrics;
+
+  /// Line under the Biometrics row.
+  ///
+  /// In en, this message translates to:
+  /// **'Face or fingerprint'**
+  String get phoneSettingsBiometricsLine;
+
+  /// Word on the Settings hub line when the wallet unlocks with the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get phoneSettingsPinWord;
+
+  /// Part of the Security line on the Settings hub. {time} is a duration like '5 minutes'.
+  ///
+  /// In en, this message translates to:
+  /// **'Locks after {time}'**
+  String phoneSettingsLocksAfter(String time);
+
+  /// Note under the auto-lock row in Security. {time} is a duration like '5 minutes'.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet locks after {time} away from the app.'**
+  String phoneSettingsAutoLockFootnote(String time);
+
+  /// Row in Security that locks the wallet at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock now'**
+  String get phoneSettingsLockNow;
+
+  /// Auto-lock choice: a number of minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} minute} other{{count} minutes}}'**
+  String phoneSettingsMinutes(int count);
+
+  /// Auto-lock choice: one hour.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get phoneSettingsOneHour;
+
+  /// Line under the title of the auto-lock picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock the wallet after it is left alone'**
+  String get phoneSettingsAutoLockSub;
+
+  /// Note under the choices of a picker: the choice is saved when tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved when you tap.'**
+  String get phoneSettingsPickerNote;
+
+  /// Row title in Security: an extra word set added to the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get phoneSettingsPassphrase;
+
+  /// Line under the Passphrase row.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra words on top of the recovery phrase'**
+  String get phoneSettingsPassphraseLine;
+
+  /// Help sheet of Security, first paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN or biometrics unlock the wallet on this phone.'**
+  String get phoneSettingsSecurityHelp1;
+
+  /// Help sheet of Security, second paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'The recovery phrase is the only way to get the wallet back on another phone.'**
+  String get phoneSettingsSecurityHelp2;
+
+  /// Help sheet of Security, third paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'A passphrase changes which wallet the phrase opens. Without it the phrase opens an empty one.'**
+  String get phoneSettingsSecurityHelp3;
+
+  /// Help sheet of Network: one line about connection modes.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection mode sets how much of the wallet\'s traffic is hidden and which servers it uses.'**
+  String get phoneSettingsNetworkHelp;
+
+  /// Help sheet of This wallet, first paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Export saves the wallet\'s data to a file you keep.'**
+  String get phoneSettingsWalletHelp1;
+
+  /// Help sheet of This wallet, second paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet removes it from this phone. Only the recovery phrase brings it back.'**
+  String get phoneSettingsWalletHelp2;
+
+  /// Title of the Payments page and its row in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get phoneSettingsPayments;
+
+  /// Group label in Payments above the ways to pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Ways to pay'**
+  String get phoneSettingsPayWays;
+
+  /// Help sheet of Payments, first paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'A way to pay that is off is not offered when sending or asking for an amount.'**
+  String get phoneSettingsPaymentsHelp1;
+
+  /// Help sheet of Payments, second paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox needs both phones online. In person and With a file work without a server.'**
+  String get phoneSettingsPaymentsHelp2;
+
+  /// Help sheet of Payments, third paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin choice sets which coins a payment spends.'**
+  String get phoneSettingsPaymentsHelp3;
+
+  /// Line under the Epicbox row in Payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Both phones online'**
+  String get phoneSettingsEpicboxLine;
+
+  /// Payments row: paying with a QR code shown face to face.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get phoneSettingsInPerson;
+
+  /// Line under the In person row.
+  ///
+  /// In en, this message translates to:
+  /// **'QR codes shown between two phones'**
+  String get phoneSettingsInPersonLine;
+
+  /// Payments row: paying by passing a file.
+  ///
+  /// In en, this message translates to:
+  /// **'With a file'**
+  String get phoneSettingsWithFile;
+
+  /// Line under the With a file row.
+  ///
+  /// In en, this message translates to:
+  /// **'A file passed by any app'**
+  String get phoneSettingsWithFileLine;
+
+  /// Payments row: receiving at a Tor address.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor address'**
+  String get phoneSettingsTorAddress;
+
+  /// Line under the Tor address row.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive at an .onion address'**
+  String get phoneSettingsTorAddressLine;
+
+  /// Line under the Split change row in Payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps change in several coins'**
+  String get phoneSettingsSplitLine;
+
+  /// Line under the Invoices row in Payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests you made and their state'**
+  String get phoneSettingsInvoicesLine;
+
+  /// Line under the Node failover row in Network.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to another node when one stops'**
+  String get phoneSettingsFailoverLine;
+
+  /// Row in Network that opens the service status website.
+  ///
+  /// In en, this message translates to:
+  /// **'Server status'**
+  String get phoneSettingsServerStatus;
+
+  /// Line under the Server status row. {host} is a web address like status.example.org.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens {host}'**
+  String phoneSettingsServerStatusLine(String host);
+
+  /// Row in This wallet: save the wallet's data to a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export wallet data'**
+  String get phoneSettingsExport;
+
+  /// Line under the Export row.
+  ///
+  /// In en, this message translates to:
+  /// **'Save payments and contacts to a file'**
+  String get phoneSettingsExportLine;
+
+  /// Row in This wallet: load wallet data from a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Import wallet data'**
+  String get phoneSettingsImport;
+
+  /// Row in This wallet: save payments as a spreadsheet file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as CSV'**
+  String get phoneSettingsCsv;
+
+  /// Line under the CSV row.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments as a spreadsheet'**
+  String get phoneSettingsCsvLine;
+
+  /// Group label in This wallet above the upkeep rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Upkeep'**
+  String get phoneSettingsUpkeep;
+
+  /// Line under the Recheck balance row.
+  ///
+  /// In en, this message translates to:
+  /// **'Look for payments the wallet missed'**
+  String get phoneSettingsRecheckLine;
+
+  /// Line under the Outputs row when no count is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins the wallet holds'**
+  String get phoneSettingsOutputsLine;
+
+  /// Row in This wallet: restore from the recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from phrase'**
+  String get phoneSettingsRestore;
+
+  /// Line under the Restore row.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuild the wallet from the recovery phrase'**
+  String get phoneSettingsRestoreLine;
+
+  /// Line under the Advanced row on the Settings hub.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs, technical details, coin choice'**
+  String get phoneSettingsAdvancedLine;
+
+  /// Line under the Outputs switch in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the coins the wallet holds'**
+  String get phoneSettingsAdvOutputsLine;
+
+  /// Line under the Technical details switch in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Show ids, heights and raw states'**
+  String get phoneSettingsAdvTechnicalLine;
+
+  /// Line under the Send options switch in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Show coin choice when sending'**
+  String get phoneSettingsAdvSendLine;
+
+  /// Line under the Server details switch in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Show addresses and health of servers'**
+  String get phoneSettingsAdvServersLine;
+
+  /// Line under the Recheck from height switch in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where a recheck starts'**
+  String get phoneSettingsAdvRecheckLine;
+
+  /// Line under the Transaction files switch in Advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Show payment files to save or open'**
+  String get phoneSettingsAdvFilesLine;
+
+  /// Line under the Show prices switch in Appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a value in your currency'**
+  String get phoneSettingsShowPricesLine;
+
+  /// Switch in Appearance: hide balances.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get phoneSettingsHideAmounts;
+
+  /// Line under the Hide amounts switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Show dots instead of balances'**
+  String get phoneSettingsHideAmountsLine;
+
+  /// Help sheet of Appearance, first paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, language and currency apply on this phone only.'**
+  String get phoneSettingsAppearanceHelp1;
+
+  /// Help sheet of Appearance, second paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices are an estimate from an outside source. They never change a payment.'**
+  String get phoneSettingsAppearanceHelp2;
+
+  /// Word in the Payments line on the Settings hub: the in-person way is on. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'in person'**
+  String get phoneSettingsHubInPerson;
+
+  /// Word in the Payments line on the Settings hub: the file way is on. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'file'**
+  String get phoneSettingsHubFile;
+
+  /// Word in the Payments line on the Settings hub: the Tor way is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get phoneSettingsHubTor;
+
+  /// Word after the connection mode on the Settings hub when the wallet is connected. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'connected'**
+  String get phoneSettingsConnected;
+
+  /// Word after the connection mode on the Settings hub when the wallet is not connected. Lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'not connected'**
+  String get phoneSettingsNotConnected;
+
+  /// Line under Linked devices when none is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'None linked'**
+  String get phoneSettingsNoneLinked;
+
+  /// Line under Linked devices when one device is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'1 linked'**
+  String get phoneSettingsOneLinked;
+
+  /// Line under the Help row on the Settings hub.
+  ///
+  /// In en, this message translates to:
+  /// **'Guides, the tour, report a problem'**
+  String get phoneSettingsHelpLine;
+
+  /// Row in About: who makes the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by'**
+  String get phoneSettingsMadeBy;
+
+  /// Row in About: the payment protocol the wallet speaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Protocol'**
+  String get phoneSettingsProtocol;
+
+  /// Row in About: the wallet engine.
+  ///
+  /// In en, this message translates to:
+  /// **'Engine'**
+  String get phoneSettingsEngine;
 }
 
 class _AppLocalizationsDelegate

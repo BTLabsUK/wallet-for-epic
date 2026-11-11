@@ -70,7 +70,6 @@ THEME = {
     "Dark": T("g4.appearance.theme.dark"),
     "Light": T("g4.appearance.theme.light"),
 }
-LEVEL_ROW = T("g4.advanced.level")
 TECHNICAL = T("g4.advanced.technical")
 CONF_FEWER = T("g4.confirmations.fewer")
 
@@ -639,8 +638,6 @@ class Phone:
     def find_again(self, route):
         """Back to the step a route names (the fault's, core/lane.py): the view, then the setting."""
         target = tg.kept(route["find"], "android")
-        if target.id != LEVEL_ROW.id:
-            self._view_deep_end()
         self.find_setting(target, tuple(route["pages"]), route["what"])
 
     # ---- set up on the previous release
@@ -744,36 +741,8 @@ class Phone:
         self.home()
         return s
 
-    def _level_three(self, tree):
-        three = tg._norm(self._text("levelThreeTitle", "Let me explore everything"))
-        return any(three in tg._norm(n.name) for n in self.d.find_in(LEVEL_ROW, tree))
-
     def _view_deep_end(self):
-        """A release with levels opens a new install at level 1, where Home has only the Network and
-        Epicbox icons and Settings hides more: Settings › Advanced › Wallet view › Deep end › Save."""
-        d = self.d
-        if not d.has_control(DEEP_END):
-            self.log("no Wallet view row: a build without levels")
-            return
-        d.step = "find-%s" % LEVEL_ROW.id
-        if not self.section("advanced") or not self._look(LEVEL_ROW, 1):
-            d.step = "find-%s" % LEVEL_ROW.id
-            d.harness("Wallet view row not on Settings › advanced",
-                      route={"find": LEVEL_ROW.id, "pages": ["advanced"], "what": "Wallet view"})
-        d.reached("find-%s" % LEVEL_ROW.id)
-        if self._level_three(d.tree()):
-            return
-        d.press(LEVEL_ROW, step="wallet-view", then=shows(DEEP_END), timeout=20)
-        n = self._pressable(DEEP_END, d.tree())
-        if "checked" not in n.states and "selected" not in n.states:
-            d._act(d.s.press, n)
-            d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
-                                                                  for x in dd.find_in(DEEP_END, tree))), 10)
-        if d.seen(SAVE):
-            d.press(SAVE, step="wallet-view-save", then=Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)),
-                    timeout=30)
-        d.must(Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)), 20, step="wallet-view")
-        self.log("Settings › Advanced › Wallet view: Deep end")
+        """The phone has no wallet views any more: every switch is on its own page, so nothing to set."""
 
     def _host_rows(self, tree, entry):
         return [n for n in self.d.find_in(SERVER_ROW, tree) if "press" in n.actions
@@ -940,11 +909,7 @@ class Phone:
         self.find_setting(TECHNICAL, ("advanced",), "Technical details")
         n = next(iter(d.find_in(TECHNICAL, d.tree())), None)
         out["technical_details"] = ("checked" in n.states) if n else None
-        out["level"] = None
-        if self.section("advanced") and self._look(LEVEL_ROW, 1):
-            tree = d.tree()
-            row = next(iter(d.find_in(LEVEL_ROW, tree)), None)
-            out["level"] = "3" if self._level_three(tree) else (row.name.split("\n", 1)[-1].strip() if row else None)
+        out["level"] = None   # the phone has no wallet views
         d.shot("%s-settings-read" % self.which)
         self.home()
         return out
