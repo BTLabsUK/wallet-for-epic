@@ -3833,7 +3833,6 @@ class _LepicEpic1 implements Epic1Wallet {
         minimumConfirmations: minimumConfirmations,
         message: _message(message),
         options: await _s._optionsFor(amount ?? BigInt.zero, minimumConfirmations, options),
-        proof: false,
         hostsOk: hostsOk,
         relayMode: lepicRelayMode(),
       ),
@@ -5158,10 +5157,8 @@ class _LepicPairing implements PairingApi {
           name: name.trim(),
           kind: lepic.ContactKind.person,
           expiry: lepic.InviteExpiry.oneHour,
-          offerWords: false,
           relayMode: lepicRelayMode(),
           // No words: no meeting relay is asked.
-          meetingRelays: const [],
           homeRelay: homeRelay,
           pairingClass: lepic.PairingClass.private,
         );
