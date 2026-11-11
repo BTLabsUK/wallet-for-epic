@@ -22884,4 +22884,220 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneProgSetAside(String amount) {
     return '$amount пока отложено.';
   }
+
+  @override
+  String get phoneActSearchHint => 'Имя, заметка или сумма';
+
+  @override
+  String get phoneActNeedsYou => 'Ждёт вас';
+
+  @override
+  String get phoneActInProgress => 'В процессе';
+
+  @override
+  String get phoneActSealed => 'Запечатан';
+
+  @override
+  String get phoneActCancelledNothing => 'Отменено, ничего не отправлено';
+
+  @override
+  String get phoneActReview => 'Проверить';
+
+  @override
+  String phoneActInvoiceFor(String amount) {
+    return 'Счёт на $amount';
+  }
+
+  @override
+  String get phoneActEmptyTitle => 'Платежей пока нет';
+
+  @override
+  String get phoneActNoneTitle => 'Ничего не найдено';
+
+  @override
+  String get phoneActMenu => 'Ещё';
+
+  @override
+  String get phoneActHelpTitle => 'Активность';
+
+  @override
+  String get phoneActHelp1 =>
+      'Здесь каждый отправленный и полученный платёж, новые сверху.';
+
+  @override
+  String get phoneActHelp2 =>
+      'Незавершённые платежи остаются вверху, в разделе «В процессе».';
+
+  @override
+  String get phoneActHelp3 =>
+      'Нажмите на платёж, чтобы увидеть, на каком он этапе и что с ним можно сделать.';
+
+  @override
+  String get phonePayHelpTitle => 'О платеже';
+
+  @override
+  String get phonePayHelp1 =>
+      'Шаги показывают, на каком этапе платёж и почему.';
+
+  @override
+  String get phonePayHelp2 =>
+      'Пока платёж ждёт, его монеты отложены. Если он так и не завершится, его можно отменить.';
+
+  @override
+  String get phonePayHelp3 =>
+      'В «Подробнее» есть адрес, блок и идентификатор платежа.';
+
+  @override
+  String phonePayTo(String name) {
+    return 'Кому: $name';
+  }
+
+  @override
+  String phonePayFrom(String name) {
+    return 'От $name';
+  }
+
+  @override
+  String get phonePayCompleted => 'Завершён';
+
+  @override
+  String phonePayCompletedOn(String date) {
+    return 'Завершён $date';
+  }
+
+  @override
+  String get phonePayNever => 'Что, если он не завершится?';
+
+  @override
+  String get phonePayNeverSend =>
+      'Пока платёж ждёт, его монеты отложены и ничего не теряется. Если он так и не завершится, отмените его, и монеты вернутся на ваш баланс.';
+
+  @override
+  String get phonePayNeverReceive =>
+      'Баланс не изменится, пока платёж не подтверждён. Если он так и не завершится, его можно отменить здесь, и он будет отброшен.';
+
+  @override
+  String get phonePayNote => 'Заметка';
+
+  @override
+  String get phonePayAddNote => 'Добавить заметку';
+
+  @override
+  String get phonePayLabel => 'Метка';
+
+  @override
+  String get phonePayAddLabel => 'Добавить метку';
+
+  @override
+  String get phonePayFee => 'Комиссия сети';
+
+  @override
+  String get phonePayMore => 'Подробнее';
+
+  @override
+  String get phonePaySentThrough => 'Отправлено через';
+
+  @override
+  String get phonePayReceivedThrough => 'Получено через';
+
+  @override
+  String get phonePayTotal => 'Всего с комиссией';
+
+  @override
+  String get phonePayBlock => 'Блок';
+
+  @override
+  String get phonePayId => 'Идентификатор платежа';
+
+  @override
+  String get phonePayCoins => 'Использованные монеты';
+
+  @override
+  String get phonePayOutputsOne => '1 выход';
+
+  @override
+  String phonePayOutputsMany(String count) {
+    return 'Выходов: $count';
+  }
+
+  @override
+  String phonePayViaSent(String route) {
+    return 'Отправлено через $route';
+  }
+
+  @override
+  String phonePayViaReceived(String route) {
+    return 'Получено через $route';
+  }
+
+  @override
+  String get phonePayRouteEpicbox => 'Epicbox';
+
+  @override
+  String get phonePayRouteEpic1 => 'Ссылка epic1';
+
+  @override
+  String get phonePayRouteInPerson => 'При встрече';
+
+  @override
+  String get phonePayRouteFile => 'Файл';
+
+  @override
+  String get phonePayRouteTor => 'Прямая · Tor';
+
+  @override
+  String get phonePayRouteHttp => 'Напрямую';
+
+  @override
+  String phonePayViaEpicboxOutNamed(String name) {
+    return 'Платёж ждал на сервере Epicbox, пока кошелёк $name его не забрал. $name не должен был быть онлайн в момент отправки.';
+  }
+
+  @override
+  String get phonePayViaEpicboxOut =>
+      'Платёж ждал на сервере Epicbox, пока другой кошелёк его не забрал. Ему не нужно было быть онлайн в момент отправки.';
+
+  @override
+  String get phonePayViaEpicboxIn =>
+      'Платёж ждал на сервере Epicbox, пока ваш кошелёк его не забрал. Вам не нужно было быть онлайн в момент отправки.';
+
+  @override
+  String get phonePayViaEpic1 =>
+      'Платёж был запечатан в ссылку, и вы передали её. Получил его тот, кто открыл ссылку в Epic Wallet.';
+
+  @override
+  String get phonePayViaInPerson =>
+      'Два телефона показали друг другу код. Ничего не ждало на сервере.';
+
+  @override
+  String get phonePayViaFile =>
+      'Платёж передавался туда и обратно в виде файла. Ничего не ждало на сервере.';
+
+  @override
+  String get phonePayViaTor =>
+      'Платёж ушёл напрямую в другой кошелёк через Tor. Оба кошелька должны были быть онлайн.';
+
+  @override
+  String get phonePayViaHttp =>
+      'Платёж ушёл напрямую в другой кошелёк по прямому соединению. Оба кошелька должны были быть онлайн.';
+
+  @override
+  String get phonePayViaServer => 'Сервер';
+
+  @override
+  String get phonePayViaOther => 'Другие пути платежа';
+
+  @override
+  String get phonePayRouteSubEpic1 => 'Оплачено по ссылке на платёж';
+
+  @override
+  String get phonePayRouteSubInPerson =>
+      'Два телефона показывают друг другу код';
+
+  @override
+  String get phonePayRouteSubFile =>
+      'Файл платежа, который передают туда и обратно';
+
+  @override
+  String get phonePayRouteSubTor => 'Напрямую в их кошелёк, через Tor';
 }

@@ -66,6 +66,11 @@ abstract final class Kit {
   static const double flowHeader = 44;
   static const double pageTitleHeader = 44;
   static const double searchField = 42;
+
+  /// The segmented filter: its track, the radius of track and chosen segment.
+  static const double segmented = 38;
+  static const double rSegmented = 12;
+  static const double rSegment = 9;
   static const double field = 52;
   static const double pill = 32;
   static const double chip = 28;

@@ -22899,4 +22899,219 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneProgSetAside(String amount) {
     return '$amount jest do tego czasu zarezerwowane.';
   }
+
+  @override
+  String get phoneActSearchHint => 'Nazwa, notatka lub kwota';
+
+  @override
+  String get phoneActNeedsYou => 'Czeka na ciebie';
+
+  @override
+  String get phoneActInProgress => 'W toku';
+
+  @override
+  String get phoneActSealed => 'Zapieczętowana';
+
+  @override
+  String get phoneActCancelledNothing => 'Anulowano, nic nie wysłano';
+
+  @override
+  String get phoneActReview => 'Sprawdź';
+
+  @override
+  String phoneActInvoiceFor(String amount) {
+    return 'Faktura na $amount';
+  }
+
+  @override
+  String get phoneActEmptyTitle => 'Brak płatności';
+
+  @override
+  String get phoneActNoneTitle => 'Nic do pokazania';
+
+  @override
+  String get phoneActMenu => 'Więcej';
+
+  @override
+  String get phoneActHelpTitle => 'Aktywność';
+
+  @override
+  String get phoneActHelp1 =>
+      'Tu widać każdą wysłaną i odebraną płatność, najnowsze na górze.';
+
+  @override
+  String get phoneActHelp2 =>
+      'Płatności, które nie są jeszcze gotowe, są na górze, w sekcji W toku.';
+
+  @override
+  String get phoneActHelp3 =>
+      'Dotknij płatności, aby zobaczyć, na jakim jest etapie i co możesz z nią zrobić.';
+
+  @override
+  String get phonePayHelpTitle => 'O płatności';
+
+  @override
+  String get phonePayHelp1 =>
+      'Kroki pokazują, na jakim etapie jest płatność i dlaczego.';
+
+  @override
+  String get phonePayHelp2 =>
+      'Gdy płatność czeka, jej monety są odłożone. Jeśli nigdy się nie zakończy, możesz ją anulować.';
+
+  @override
+  String get phonePayHelp3 =>
+      'W „Więcej szczegółów” są adres, blok i identyfikator płatności.';
+
+  @override
+  String phonePayTo(String name) {
+    return 'Do $name';
+  }
+
+  @override
+  String phonePayFrom(String name) {
+    return 'Od $name';
+  }
+
+  @override
+  String get phonePayCompleted => 'Zakończona';
+
+  @override
+  String phonePayCompletedOn(String date) {
+    return 'Zakończona $date';
+  }
+
+  @override
+  String get phonePayNever => 'A jeśli nigdy się nie zakończy?';
+
+  @override
+  String get phonePayNeverSend =>
+      'Gdy płatność czeka, jej monety są odłożone i nic nie ginie. Jeśli nigdy się nie zakończy, anuluj ją, a monety wrócą do twojego salda.';
+
+  @override
+  String get phonePayNeverReceive =>
+      'Saldo zmieni się dopiero po potwierdzeniu płatności. Jeśli nigdy się nie zakończy, możesz ją tu anulować, a zostanie odrzucona.';
+
+  @override
+  String get phonePayNote => 'Notatka';
+
+  @override
+  String get phonePayAddNote => 'Dodaj notatkę';
+
+  @override
+  String get phonePayLabel => 'Etykieta';
+
+  @override
+  String get phonePayAddLabel => 'Dodaj etykietę';
+
+  @override
+  String get phonePayFee => 'Opłata sieciowa';
+
+  @override
+  String get phonePayMore => 'Więcej szczegółów';
+
+  @override
+  String get phonePaySentThrough => 'Wysłano przez';
+
+  @override
+  String get phonePayReceivedThrough => 'Odebrano przez';
+
+  @override
+  String get phonePayTotal => 'Razem z opłatą';
+
+  @override
+  String get phonePayBlock => 'Blok';
+
+  @override
+  String get phonePayId => 'Identyfikator płatności';
+
+  @override
+  String get phonePayCoins => 'Użyte monety';
+
+  @override
+  String get phonePayOutputsOne => '1 wyjście';
+
+  @override
+  String phonePayOutputsMany(String count) {
+    return 'Wyjść: $count';
+  }
+
+  @override
+  String phonePayViaSent(String route) {
+    return 'Wysłano przez $route';
+  }
+
+  @override
+  String phonePayViaReceived(String route) {
+    return 'Odebrano przez $route';
+  }
+
+  @override
+  String get phonePayRouteEpicbox => 'Epicbox';
+
+  @override
+  String get phonePayRouteEpic1 => 'Link epic1';
+
+  @override
+  String get phonePayRouteInPerson => 'Osobiście';
+
+  @override
+  String get phonePayRouteFile => 'Plik';
+
+  @override
+  String get phonePayRouteTor => 'Link · Tor';
+
+  @override
+  String get phonePayRouteHttp => 'Bezpośrednio';
+
+  @override
+  String phonePayViaEpicboxOutNamed(String name) {
+    return 'Płatność czekała na serwerze Epicbox, aż portfel $name ją odebrał. $name nie musiał być online, gdy ją wysłano.';
+  }
+
+  @override
+  String get phonePayViaEpicboxOut =>
+      'Płatność czekała na serwerze Epicbox, aż drugi portfel ją odebrał. Nie musiał być online, gdy ją wysłano.';
+
+  @override
+  String get phonePayViaEpicboxIn =>
+      'Płatność czekała na serwerze Epicbox, aż twój portfel ją odebrał. Nie musiałeś być online, gdy ją wysłano.';
+
+  @override
+  String get phonePayViaEpic1 =>
+      'Płatność została zapieczętowana w linku i przekazana przez ciebie. Otrzymała ją osoba, która otworzyła link w Epic Wallet.';
+
+  @override
+  String get phonePayViaInPerson =>
+      'Oba telefony pokazały sobie nawzajem kod. Nic nie czekało na serwerze.';
+
+  @override
+  String get phonePayViaFile =>
+      'Płatność była przekazywana tam i z powrotem jako plik. Nic nie czekało na serwerze.';
+
+  @override
+  String get phonePayViaTor =>
+      'Płatność poszła prosto do drugiego portfela przez Tor. Oba portfele musiały być online.';
+
+  @override
+  String get phonePayViaHttp =>
+      'Płatność poszła prosto do drugiego portfela przez bezpośrednie połączenie. Oba portfele musiały być online.';
+
+  @override
+  String get phonePayViaServer => 'Serwer';
+
+  @override
+  String get phonePayViaOther => 'Inne drogi płatności';
+
+  @override
+  String get phonePayRouteSubEpic1 => 'Zapłacono z linku do płatności';
+
+  @override
+  String get phonePayRouteSubInPerson => 'Dwa telefony pokazują sobie kod';
+
+  @override
+  String get phonePayRouteSubFile =>
+      'Plik płatności przekazywany tam i z powrotem';
+
+  @override
+  String get phonePayRouteSubTor => 'Prosto do ich portfela, przez Tor';
 }

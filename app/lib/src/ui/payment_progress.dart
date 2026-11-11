@@ -21,9 +21,11 @@ library;
 
 import '../l10n.dart';
 import '../models.dart';
+import '../network_gate.dart' show NetGate;
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
 import 'common.dart';
+import 'finished_not_posted.dart' show isPostElsewhere;
 import 'kit/kit_steps.dart' show KitStep, KitStepState;
 
 /// The steps of one payment and where it is.
@@ -180,4 +182,35 @@ String _waitingReason(AppLocalizations l, TxEntry tx, String? who, String? reser
     _ => who == null ? l.phoneProgAnswersLive : l.phoneProgAnswersLiveNamed(who),
   };
   return reserved == null ? answer : '$answer ${l.phoneProgSetAside(reserved)}';
+}
+
+/// The word under a row's name in the Activity list while a payment is open: "Waiting for Tom",
+/// "Arriving", "Confirming 1 of 3", "Posted". The same words as the level screens' plain style,
+/// without the level: the phone shows one wording to everyone. [who] is the other side's name,
+/// [pairedWith] the payee of a paired send.
+String paymentRowWord(
+  AppLocalizations l,
+  TxEntry tx,
+  BigInt? tip, {
+  int? target,
+  DateTime? now,
+  String? who,
+  String? pairedWith,
+  bool paused = false,
+}) {
+  final today = txStatusLabel(l, tx, tip, target: target, now: now, pairedWith: pairedWith, paused: paused);
+  return switch (txPhase(tx, tip, target: target)) {
+    TxPhase.waitingRecipient when tx.undelivered || pairedWith != null => today,
+    TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) => today,
+    TxPhase.waitingRecipient => who == null ? l.txStatusWaitingRecipient : l.txStatusWaitingFor(who),
+    TxPhase.waitingSender when senderCancelled(tx) || pairedWith != null => today,
+    TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) => today,
+    TxPhase.waitingSender => l.lvPayArriving,
+    TxPhase.confirming when isPostElsewhere(tx) || tx.repostable || tx.posting || NetGate.killSwitch => today,
+    TxPhase.confirming => switch (txConfirmations(tx, tip) ?? 0) {
+      0 => l.lvPolPosted,
+      final n => l.lvPayConfirming(n, target ?? confirmationsTarget),
+    },
+    _ => today,
+  };
 }

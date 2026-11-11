@@ -197,7 +197,7 @@ void main() {
       h.session.labels['s:plain'] = 'Rent, September';
       await h.pump(tester, const HistoryScreen());
       await tester.enterText(
-        find.widgetWithText(TextField, _l.historySearchLabel),
+        find.widgetWithText(TextField, _l.phoneActSearchHint),
         'septem',
       );
       await tester.pump(searchDebounce);

@@ -22437,4 +22437,218 @@ class AppLocalizationsDe extends AppLocalizations {
   String phoneProgSetAside(String amount) {
     return '$amount ist bis dahin reserviert.';
   }
+
+  @override
+  String get phoneActSearchHint => 'Name, Notiz oder Betrag';
+
+  @override
+  String get phoneActNeedsYou => 'Wartet auf dich';
+
+  @override
+  String get phoneActInProgress => 'In Arbeit';
+
+  @override
+  String get phoneActSealed => 'Versiegelt';
+
+  @override
+  String get phoneActCancelledNothing => 'Abgebrochen, nichts wurde gesendet';
+
+  @override
+  String get phoneActReview => 'Prüfen';
+
+  @override
+  String phoneActInvoiceFor(String amount) {
+    return 'Rechnung über $amount';
+  }
+
+  @override
+  String get phoneActEmptyTitle => 'Noch keine Zahlungen';
+
+  @override
+  String get phoneActNoneTitle => 'Nichts zu zeigen';
+
+  @override
+  String get phoneActMenu => 'Mehr';
+
+  @override
+  String get phoneActHelpTitle => 'Aktivität';
+
+  @override
+  String get phoneActHelp1 =>
+      'Hier steht jede Zahlung, die du sendest oder empfängst, die neueste zuerst.';
+
+  @override
+  String get phoneActHelp2 =>
+      'Zahlungen, die noch nicht fertig sind, stehen oben unter In Arbeit.';
+
+  @override
+  String get phoneActHelp3 =>
+      'Tippe auf eine Zahlung, um ihren Stand und deine Möglichkeiten zu sehen.';
+
+  @override
+  String get phonePayHelpTitle => 'Zur Zahlung';
+
+  @override
+  String get phonePayHelp1 =>
+      'Die Schritte zeigen, wo die Zahlung steht und warum.';
+
+  @override
+  String get phonePayHelp2 =>
+      'Solange eine Zahlung wartet, bleiben ihre Coins reserviert. Wenn sie nie fertig wird, kannst du sie abbrechen.';
+
+  @override
+  String get phonePayHelp3 =>
+      'Unter „Weitere Details“ stehen Adresse, Block und Zahlungs-ID.';
+
+  @override
+  String phonePayTo(String name) {
+    return 'An $name';
+  }
+
+  @override
+  String phonePayFrom(String name) {
+    return 'Von $name';
+  }
+
+  @override
+  String get phonePayCompleted => 'Abgeschlossen';
+
+  @override
+  String phonePayCompletedOn(String date) {
+    return 'Abgeschlossen $date';
+  }
+
+  @override
+  String get phonePayNever => 'Was, wenn sie nie fertig wird?';
+
+  @override
+  String get phonePayNeverSend =>
+      'Solange eine Zahlung wartet, bleiben ihre Coins reserviert und nichts geht verloren. Wird sie nie fertig, brich sie ab, und die Coins kehren auf dein Guthaben zurück.';
+
+  @override
+  String get phonePayNeverReceive =>
+      'Dein Guthaben ändert sich erst, wenn die Zahlung bestätigt ist. Wird sie nie fertig, kannst du sie hier abbrechen, und sie wird verworfen.';
+
+  @override
+  String get phonePayNote => 'Notiz';
+
+  @override
+  String get phonePayAddNote => 'Notiz hinzufügen';
+
+  @override
+  String get phonePayLabel => 'Bezeichnung';
+
+  @override
+  String get phonePayAddLabel => 'Bezeichnung hinzufügen';
+
+  @override
+  String get phonePayFee => 'Netzwerkgebühr';
+
+  @override
+  String get phonePayMore => 'Weitere Details';
+
+  @override
+  String get phonePaySentThrough => 'Gesendet über';
+
+  @override
+  String get phonePayReceivedThrough => 'Empfangen über';
+
+  @override
+  String get phonePayTotal => 'Gesamt mit Gebühr';
+
+  @override
+  String get phonePayBlock => 'Block';
+
+  @override
+  String get phonePayId => 'Zahlungs-ID';
+
+  @override
+  String get phonePayCoins => 'Verwendete Coins';
+
+  @override
+  String get phonePayOutputsOne => '1 Output';
+
+  @override
+  String phonePayOutputsMany(String count) {
+    return '$count Outputs';
+  }
+
+  @override
+  String phonePayViaSent(String route) {
+    return 'Gesendet über $route';
+  }
+
+  @override
+  String phonePayViaReceived(String route) {
+    return 'Empfangen über $route';
+  }
+
+  @override
+  String get phonePayRouteEpicbox => 'Epicbox';
+
+  @override
+  String get phonePayRouteEpic1 => 'epic1-Link';
+
+  @override
+  String get phonePayRouteInPerson => 'Persönlich';
+
+  @override
+  String get phonePayRouteFile => 'Datei';
+
+  @override
+  String get phonePayRouteTor => 'Link · Tor';
+
+  @override
+  String get phonePayRouteHttp => 'Direkt';
+
+  @override
+  String phonePayViaEpicboxOutNamed(String name) {
+    return 'Die Zahlung wartete auf einem Epicbox-Server, bis die Wallet von $name sie abholte. $name musste beim Senden nicht online sein.';
+  }
+
+  @override
+  String get phonePayViaEpicboxOut =>
+      'Die Zahlung wartete auf einem Epicbox-Server, bis die andere Wallet sie abholte. Sie musste beim Senden nicht online sein.';
+
+  @override
+  String get phonePayViaEpicboxIn =>
+      'Die Zahlung wartete auf einem Epicbox-Server, bis deine Wallet sie abholte. Du musstest beim Senden nicht online sein.';
+
+  @override
+  String get phonePayViaEpic1 =>
+      'Die Zahlung wurde in einen Link versiegelt und von dir weitergegeben. Wer den Link in Epic Wallet öffnete, erhielt sie.';
+
+  @override
+  String get phonePayViaInPerson =>
+      'Die beiden Handys zeigten sich gegenseitig einen Code. Nichts wartete auf einem Server.';
+
+  @override
+  String get phonePayViaFile =>
+      'Die Zahlung wurde als Datei hin und her gegeben. Nichts wartete auf einem Server.';
+
+  @override
+  String get phonePayViaTor =>
+      'Die Zahlung ging über Tor direkt an die andere Wallet. Beide Wallets mussten online sein.';
+
+  @override
+  String get phonePayViaHttp =>
+      'Die Zahlung ging über eine direkte Verbindung an die andere Wallet. Beide Wallets mussten online sein.';
+
+  @override
+  String get phonePayViaServer => 'Server';
+
+  @override
+  String get phonePayViaOther => 'Andere Wege einer Zahlung';
+
+  @override
+  String get phonePayRouteSubEpic1 => 'Über einen Zahlungslink bezahlt';
+
+  @override
+  String get phonePayRouteSubInPerson => 'Zwei Handys zeigen sich einen Code';
+
+  @override
+  String get phonePayRouteSubFile => 'Eine Zahlungsdatei, die hin und her geht';
+
+  @override
+  String get phonePayRouteSubTor => 'Direkt an ihre Wallet, über Tor';
 }

@@ -34601,6 +34601,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} is set aside until then.'**
   String phoneProgSetAside(String amount);
+
+  /// Search field hint on the Activity screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, note or amount'**
+  String get phoneActSearchHint;
+
+  /// Group heading on Activity above invoices that wait for the user's decision.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs you'**
+  String get phoneActNeedsYou;
+
+  /// Group heading on Activity above payments that are not finished yet.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get phoneActInProgress;
+
+  /// Second line of an Activity row for a payment sealed with epic1. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Sealed'**
+  String get phoneActSealed;
+
+  /// Second line of an Activity row for a payment the user cancelled before any coins moved.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled, nothing was sent'**
+  String get phoneActCancelledNothing;
+
+  /// Button on the Needs you card of Activity that opens an invoice. A verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get phoneActReview;
+
+  /// Second line of the Needs you card: someone asks the user to pay. {amount} is the amount with the unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice for {amount}'**
+  String phoneActInvoiceFor(String amount);
+
+  /// Title of the Activity screen when the wallet has no payments.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet'**
+  String get phoneActEmptyTitle;
+
+  /// Title of the Activity screen when a filter or a search finds no payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show'**
+  String get phoneActNoneTitle;
+
+  /// Tooltip of the three-dot button in the Activity title.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get phoneActMenu;
+
+  /// Title of the help sheet of the Activity screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get phoneActHelpTitle;
+
+  /// First line of the Activity help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Every payment you send or receive is listed here, newest first.'**
+  String get phoneActHelp1;
+
+  /// Second line of the Activity help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments that are not finished yet stay at the top, under In progress.'**
+  String get phoneActHelp2;
+
+  /// Third line of the Activity help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a payment to see where it stands and what you can do with it.'**
+  String get phoneActHelp3;
+
+  /// Title of the help sheet on the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'About a payment'**
+  String get phonePayHelpTitle;
+
+  /// First help line on the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'The steps show where the payment is and why it is there.'**
+  String get phonePayHelp1;
+
+  /// Second help line on the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'While a payment waits, its coins stay set aside. If it never finishes, you can cancel it.'**
+  String get phonePayHelp2;
+
+  /// Third help line on the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'More details has the address, the block and the payment ID.'**
+  String get phonePayHelp3;
+
+  /// Line under the amount on the payment page for a payment the user sent.
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String phonePayTo(String name);
+
+  /// Line under the amount on the payment page for a payment the user received.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String phonePayFrom(String name);
+
+  /// Row on the payment page of a finished payment, before its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get phonePayCompleted;
+
+  /// Row on the payment page of a finished payment, with its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {date}'**
+  String phonePayCompletedOn(String date);
+
+  /// Gold row and sheet title on the payment page of a payment that waits.
+  ///
+  /// In en, this message translates to:
+  /// **'What if it never finishes?'**
+  String get phonePayNever;
+
+  /// Body of the sheet 'What if it never finishes?' for a payment the user sent.
+  ///
+  /// In en, this message translates to:
+  /// **'While a payment waits, its coins stay set aside and nothing is lost. If it never finishes, cancel it and the coins return to your balance.'**
+  String get phonePayNeverSend;
+
+  /// Body of the sheet 'What if it never finishes?' for a payment the user receives.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is added to your balance until the payment is confirmed. If it never finishes, you can cancel it here and it is dropped.'**
+  String get phonePayNeverReceive;
+
+  /// Row label on the payment page for the user's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get phonePayNote;
+
+  /// Gold row on the payment page when there is no note yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get phonePayAddNote;
+
+  /// Row label on the payment page for the user's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get phonePayLabel;
+
+  /// Gold row on the payment page when there is no label yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a label'**
+  String get phonePayAddLabel;
+
+  /// Row label on the payment page for the fee paid to the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee'**
+  String get phonePayFee;
+
+  /// Row on the payment page that opens the details sheet; also its title.
+  ///
+  /// In en, this message translates to:
+  /// **'More details'**
+  String get phonePayMore;
+
+  /// Row label in the details sheet: how a sent payment travelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent through'**
+  String get phonePaySentThrough;
+
+  /// Row label in the details sheet: how a received payment travelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Received through'**
+  String get phonePayReceivedThrough;
+
+  /// Row label in the details sheet: the amount plus the fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Total with fee'**
+  String get phonePayTotal;
+
+  /// Row label in the details sheet: the block that holds the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get phonePayBlock;
+
+  /// Row label in the details sheet: the payment's identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment ID'**
+  String get phonePayId;
+
+  /// Row label in the details sheet: how many coins (outputs) the payment used.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins used'**
+  String get phonePayCoins;
+
+  /// Value of the Coins used row when one coin was used.
+  ///
+  /// In en, this message translates to:
+  /// **'1 output'**
+  String get phonePayOutputsOne;
+
+  /// Value of the Coins used row when several coins were used.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} outputs'**
+  String phonePayOutputsMany(String count);
+
+  /// Title of the route sheet of a sent payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent through {route}'**
+  String phonePayViaSent(String route);
+
+  /// Title of the route sheet of a received payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Received through {route}'**
+  String phonePayViaReceived(String route);
+
+  /// Name of the Epicbox route. A product name.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get phonePayRouteEpicbox;
+
+  /// Name of the route of a payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 link'**
+  String get phonePayRouteEpic1;
+
+  /// Name of the route where two phones show each other a code.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get phonePayRouteInPerson;
+
+  /// Name of the route of a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get phonePayRouteFile;
+
+  /// Name of the route straight to the other wallet over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor'**
+  String get phonePayRouteTor;
+
+  /// Name of the route straight to the other wallet over a live connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get phonePayRouteHttp;
+
+  /// Explanation in the route sheet for a payment sent by Epicbox to a named person.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment waited on an Epicbox server until {name}\'s wallet collected it. {name} did not need to be online when you sent it.'**
+  String phonePayViaEpicboxOutNamed(String name);
+
+  /// Explanation in the route sheet for a payment sent by Epicbox to someone with no name.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment waited on an Epicbox server until the other wallet collected it. They did not need to be online when you sent it.'**
+  String get phonePayViaEpicboxOut;
+
+  /// Explanation in the route sheet for a payment received by Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment waited on an Epicbox server until your wallet collected it. You did not need to be online when it was sent.'**
+  String get phonePayViaEpicboxIn;
+
+  /// Explanation in the route sheet for a payment made with a payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment was sealed in a link and handed over by you. Whoever opened the link in Epic Wallet received it.'**
+  String get phonePayViaEpic1;
+
+  /// Explanation in the route sheet for a payment made in person.
+  ///
+  /// In en, this message translates to:
+  /// **'The two phones showed each other a code. Nothing waited on a server.'**
+  String get phonePayViaInPerson;
+
+  /// Explanation in the route sheet for a payment made with files.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment was passed back and forth as a file. Nothing waited on a server.'**
+  String get phonePayViaFile;
+
+  /// Explanation in the route sheet for a payment sent straight over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment went straight to the other wallet over Tor. Both wallets had to be online.'**
+  String get phonePayViaTor;
+
+  /// Explanation in the route sheet for a payment sent straight to the other wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment went straight to the other wallet over a live connection. Both wallets had to be online.'**
+  String get phonePayViaHttp;
+
+  /// Row label in the route sheet: the Epicbox server the payment used.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get phonePayViaServer;
+
+  /// Group heading in the route sheet above the list of the other routes.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ways a payment can travel'**
+  String get phonePayViaOther;
+
+  /// One line under the epic1 link route in the route sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from a payment link'**
+  String get phonePayRouteSubEpic1;
+
+  /// One line under the In person route in the route sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Two phones showing each other a code'**
+  String get phonePayRouteSubInPerson;
+
+  /// One line under the File route in the route sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment file passed back and forth'**
+  String get phonePayRouteSubFile;
+
+  /// One line under the Tor route in the route sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet, over Tor'**
+  String get phonePayRouteSubTor;
 }
 
 class _AppLocalizationsDelegate

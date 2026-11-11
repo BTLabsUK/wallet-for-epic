@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
+import 'package:epic_wallet/src/ui/phone_tx_row.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -819,34 +820,35 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
 
-      expect(find.text('Pending'), findsWidgets);
+      expect(find.text('In progress'), findsOneWidget);
       expect(find.text('Yesterday'), findsOneWidget);
       expect(find.text('Found on the chain'), findsOneWidget);
-      expect(find.text('Cancelled'), findsWidgets);
+      // The cancelled send stays in the list, greyed.
+      expect(find.text('\u22121.0'), findsOneWidget);
 
-      await tester.enterText(find.widgetWithText(TextField, _l.historySearchLabel), 'rent');
+      await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'rent');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.text('+5.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('\u22122.0\u00a0EPIC'), findsNothing);
+      expect(find.text('+5.0'), findsOneWidget);
+      expect(find.text('\u22122.0'), findsNothing);
 
-      await tester.enterText(find.widgetWithText(TextField, _l.historySearchLabel), 'zzz');
+      await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'zzz');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
       expect(find.text('Nothing matches “zzz”.'), findsOneWidget);
 
-      await _tap(tester, find.byTooltip(_l.historyClearSearch));
-      await _tap(tester, find.widgetWithText(ChoiceChip, 'Sent'));
-      expect(find.text('\u22122.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('+5.0\u00a0EPIC'), findsNothing);
-      // The cancelled send has its own filter.
-      expect(find.text('\u22121.0\u00a0EPIC'), findsNothing);
-      await _tap(tester, find.widgetWithText(ChoiceChip, 'Cancelled'));
-      expect(find.text('\u22121.0\u00a0EPIC'), findsOneWidget);
+      await _tap(tester, find.text(_l.historyClearSearch));
+      await _tap(tester, find.text('Sent'));
+      expect(find.text('\u22122.0'), findsOneWidget);
+      expect(find.text('+5.0'), findsNothing);
+      // A cancelled send is in All only.
+      expect(find.text('\u22121.0'), findsNothing);
+      // Pending and Cancelled are not filters of the screen any more.
+      expect(find.text('Cancelled'), findsNothing);
 
-      await _tap(tester, find.widgetWithText(ChoiceChip, 'Received'));
-      expect(find.text('+5.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('+7.25\u00a0EPIC'), findsOneWidget);
+      await _tap(tester, find.text('Received'));
+      expect(find.text('+5.0'), findsOneWidget);
+      expect(find.text('+7.25'), findsOneWidget);
     });
 
     testWidgets('empty states in plain words', (tester) async {
@@ -2273,20 +2275,18 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester, const HistoryScreen());
       // The cancelled 1\u00a0EPIC send would be 0.50\u00a0USD.
-      expect(find.text('\u22121.0\u00a0EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0'), findsOneWidget);
       expect(find.text('≈\u00a00.50\u00a0USD'), findsNothing);
       expect(find.text('≈\u00a01.00\u00a0USD'), findsOneWidget);
       // Cancelled is said by the chip, not the title.
       expect(find.text(_l.txOutgoingPayment), findsOneWidget);
     });
 
-    testWidgets('filter chips scroll on one row', (tester) async {
+    testWidgets('the three filters sit on one row', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      final first = tester.getCenter(find.widgetWithText(ChoiceChip, 'All'));
-      final last = tester.getCenter(
-        find.widgetWithText(ChoiceChip, 'Cancelled'),
-      );
+      final first = tester.getCenter(find.text('All'));
+      final last = tester.getCenter(find.text('Sent'));
       expect(first.dy, last.dy);
     });
 
@@ -2384,19 +2384,27 @@ void main() {
   });
 
   group('polish', () {
-    testWidgets('the chip row fades where more chips lie beyond the edge', (
+    testWidgets('a scrolling row fades where more lies beyond the edge', (
       tester,
     ) async {
-      final h = _Harness();
-      await h.pump(tester, const HistoryScreen());
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Center(
+            child: SizedBox(
+              width: 200,
+              child: FadingRow(
+                children: [
+                  for (var i = 0; i < 5; i++) SizedBox(width: 90, child: Text('chip $i')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
       final row = tester.state<FadingRowState>(find.byType(FadingRow));
-      // The test font is wide, so the five chips do not fit 360 dp.
       expect(row.moreRight, isTrue);
       expect(row.moreLeft, isFalse);
-      await tester.drag(
-        find.widgetWithText(ChoiceChip, 'All'),
-        const Offset(-2000, 0),
-      );
+      await tester.drag(find.text('chip 0'), const Offset(-2000, 0));
       await tester.pumpAndSettle();
       expect(row.moreRight, isFalse);
       expect(row.moreLeft, isTrue);
@@ -2557,18 +2565,18 @@ void main() {
     ) async {
       final h = _Harness(transactions: many(2000));
       await h.pump(tester, const HistoryScreen(), 1, const Size(1080, 2340));
-      final built = find.byType(TxTile).evaluate().length;
+      final built = find.byType(PhoneTxRow).evaluate().length;
       expect(built, greaterThan(0));
       expect(built, lessThan(40));
       // Search still reaches a row far down the list.
       await tester.enterText(
-        find.widgetWithText(TextField, _l.historySearchLabel),
+        find.widgetWithText(TextField, _l.phoneActSearchHint),
         'needle',
       );
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.byType(TxTile), findsOneWidget);
-      expect(find.text('+1,501.0\u00a0EPIC'), findsOneWidget);
+      expect(find.byType(PhoneTxRow), findsOneWidget);
+      expect(find.text('+1,501.0'), findsOneWidget);
     });
 
     testWidgets('2,000 payments: home shows five', (tester) async {
@@ -2580,13 +2588,13 @@ void main() {
     testWidgets('search waits for typing to pause', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      await tester.enterText(find.widgetWithText(TextField, _l.historySearchLabel), 'rent');
+      await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'rent');
       await tester.pump(const Duration(milliseconds: 100));
       // Still the whole list: the filter has not run yet.
-      expect(find.byType(TxTile), findsNWidgets(4));
+      expect(find.byType(PhoneTxRow), findsNWidgets(4));
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.byType(TxTile), findsOneWidget);
+      expect(find.byType(PhoneTxRow), findsOneWidget);
     });
 
     test('a row is one sentence', () {

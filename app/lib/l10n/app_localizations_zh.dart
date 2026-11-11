@@ -20930,4 +20930,206 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneProgSetAside(String amount) {
     return '$amount 暂时预留。';
   }
+
+  @override
+  String get phoneActSearchHint => '姓名、备注或金额';
+
+  @override
+  String get phoneActNeedsYou => '等你处理';
+
+  @override
+  String get phoneActInProgress => '进行中';
+
+  @override
+  String get phoneActSealed => '已封印';
+
+  @override
+  String get phoneActCancelledNothing => '已取消，未发送任何内容';
+
+  @override
+  String get phoneActReview => '查看';
+
+  @override
+  String phoneActInvoiceFor(String amount) {
+    return '$amount 的账单';
+  }
+
+  @override
+  String get phoneActEmptyTitle => '暂无付款';
+
+  @override
+  String get phoneActNoneTitle => '没有可显示的内容';
+
+  @override
+  String get phoneActMenu => '更多';
+
+  @override
+  String get phoneActHelpTitle => '动态';
+
+  @override
+  String get phoneActHelp1 => '这里按时间倒序列出你发送和收到的每一笔付款。';
+
+  @override
+  String get phoneActHelp2 => '尚未完成的付款会留在顶部的“进行中”。';
+
+  @override
+  String get phoneActHelp3 => '点按一笔付款，查看进度和可执行的操作。';
+
+  @override
+  String get phonePayHelpTitle => '关于这笔付款';
+
+  @override
+  String get phonePayHelp1 => '步骤显示这笔付款进行到哪一步，以及原因。';
+
+  @override
+  String get phonePayHelp2 => '付款等待期间，对应的币会被预留。如果一直没有完成，你可以取消。';
+
+  @override
+  String get phonePayHelp3 => '“更多详情”里有地址、区块和付款编号。';
+
+  @override
+  String phonePayTo(String name) {
+    return '发给 $name';
+  }
+
+  @override
+  String phonePayFrom(String name) {
+    return '来自 $name';
+  }
+
+  @override
+  String get phonePayCompleted => '已完成';
+
+  @override
+  String phonePayCompletedOn(String date) {
+    return '已完成 $date';
+  }
+
+  @override
+  String get phonePayNever => '如果一直没有完成呢？';
+
+  @override
+  String get phonePayNeverSend =>
+      '付款等待期间，对应的币会被预留，不会丢失。如果一直没有完成，取消后这些币会回到你的余额。';
+
+  @override
+  String get phonePayNeverReceive =>
+      '付款确认前，你的余额不会变化。如果一直没有完成，你可以在这里取消，这笔付款会被丢弃。';
+
+  @override
+  String get phonePayNote => '备注';
+
+  @override
+  String get phonePayAddNote => '添加备注';
+
+  @override
+  String get phonePayLabel => '标签';
+
+  @override
+  String get phonePayAddLabel => '添加标签';
+
+  @override
+  String get phonePayFee => '网络费用';
+
+  @override
+  String get phonePayMore => '更多详情';
+
+  @override
+  String get phonePaySentThrough => '发送方式';
+
+  @override
+  String get phonePayReceivedThrough => '接收方式';
+
+  @override
+  String get phonePayTotal => '含费用合计';
+
+  @override
+  String get phonePayBlock => '区块';
+
+  @override
+  String get phonePayId => '付款编号';
+
+  @override
+  String get phonePayCoins => '使用的币';
+
+  @override
+  String get phonePayOutputsOne => '1 个输出';
+
+  @override
+  String phonePayOutputsMany(String count) {
+    return '$count 个输出';
+  }
+
+  @override
+  String phonePayViaSent(String route) {
+    return '通过 $route 发送';
+  }
+
+  @override
+  String phonePayViaReceived(String route) {
+    return '通过 $route 接收';
+  }
+
+  @override
+  String get phonePayRouteEpicbox => 'Epicbox';
+
+  @override
+  String get phonePayRouteEpic1 => 'epic1 链接';
+
+  @override
+  String get phonePayRouteInPerson => '当面';
+
+  @override
+  String get phonePayRouteFile => '文件';
+
+  @override
+  String get phonePayRouteTor => '直连 · Tor';
+
+  @override
+  String get phonePayRouteHttp => '直连';
+
+  @override
+  String phonePayViaEpicboxOutNamed(String name) {
+    return '付款会留在 Epicbox 服务器上，直到 $name 的钱包来取走。你发送时，$name 不需要在线。';
+  }
+
+  @override
+  String get phonePayViaEpicboxOut =>
+      '付款会留在 Epicbox 服务器上，直到对方钱包来取走。你发送时，对方不需要在线。';
+
+  @override
+  String get phonePayViaEpicboxIn => '付款会留在 Epicbox 服务器上，直到你的钱包来取走。发送时你不需要在线。';
+
+  @override
+  String get phonePayViaEpic1 => '付款被封入链接，由你转交。在 Epic Wallet 中打开链接的人收到了它。';
+
+  @override
+  String get phonePayViaInPerson => '两部手机互相出示了二维码。没有任何内容停留在服务器上。';
+
+  @override
+  String get phonePayViaFile => '付款以文件的形式来回传递。没有任何内容停留在服务器上。';
+
+  @override
+  String get phonePayViaTor => '付款通过 Tor 直接发到对方钱包。双方钱包都必须在线。';
+
+  @override
+  String get phonePayViaHttp => '付款通过直接连接发到对方钱包。双方钱包都必须在线。';
+
+  @override
+  String get phonePayViaServer => '服务器';
+
+  @override
+  String get phonePayViaOther => '付款的其他途径';
+
+  @override
+  String get phonePayRouteSubEpic1 => '通过付款链接支付';
+
+  @override
+  String get phonePayRouteSubInPerson => '两部手机互相出示二维码';
+
+  @override
+  String get phonePayRouteSubFile => '来回传递的付款文件';
+
+  @override
+  String get phonePayRouteSubTor => '通过 Tor 直连对方钱包';
 }
