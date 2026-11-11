@@ -5620,5 +5620,21 @@
   "deskE1TourSendText": "Einen epic1-Link einfügen oder einen Kontakt wählen. „Persönlich bezahlen“ ist für ein Smartphone neben Ihnen. Vor dem Abschicken kommt eine Prüfung.",
   "deskE1TourReceiveText": "Der epic1-Link dieser Wallet: Teilen Sie ihn, um bezahlt zu werden. „Persönlich anfordern“ ist für ein Smartphone neben Ihnen.",
   "deskE1Sealed": "Mit epic1 versiegelt",
-  "deskE1SpokenSealed": "{row}, mit epic1 versiegelt"
+  "deskE1SpokenSealed": "{row}, mit epic1 versiegelt",
+  "deskScanStarting": "Kamera wird gestartet …",
+  "deskScanAim": "Halten Sie den Code vor die Kamera.",
+  "deskScanTryAgain": "Erneut versuchen",
+  "deskScanDeniedWindows": "Der Kamerazugriff ist in Windows-Einstellungen › Datenschutz und Sicherheit › Kamera ausgeschaltet.",
+  "deskScanDeniedMac": "Der Kamerazugriff ist in Systemeinstellungen › Datenschutz & Sicherheit › Kamera ausgeschaltet.",
+  "deskScanDeniedLinux": "Diese App darf die Kamera nicht öffnen.",
+  "deskScanUnsupportedLinux": "Die Kameraunterstützung (GStreamer) fehlt auf diesem System.",
+  "deskScanUnsupportedWindows": "Die Windows-Medienfunktionen fehlen.",
+  "deskScanUnsupportedOther": "Die Kameraunterstützung fehlt auf diesem System.",
+  "deskScanBusy": "Eine andere App verwendet die Kamera.",
+  "deskScanFailed": "Die Kamera ist nicht gestartet.",
+  "deskScanNoPicture": "Die Kamera liefert kein Bild.",
+  "deskScanDark": "Das Kamerabild ist schwarz. Vielleicht ist die Abdeckung geschlossen.",
+  "deskScanUnplugged": "Die Kamera wurde getrennt.",
+  "deskScanReaderFailed": "Der QR-Leser ist nicht gestartet.",
+  "deskScanNoCamera": "Keine Kamera gefunden. Fügen Sie den Code stattdessen ein."
 }

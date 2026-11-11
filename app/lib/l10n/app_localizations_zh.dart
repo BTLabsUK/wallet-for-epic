@@ -20434,4 +20434,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row，已用 epic1 密封';
   }
+
+  @override
+  String get deskScanStarting => '正在启动摄像头…';
+
+  @override
+  String get deskScanAim => '请把二维码放在摄像头前。';
+
+  @override
+  String get deskScanTryAgain => '重试';
+
+  @override
+  String get deskScanDeniedWindows => '摄像头权限已在 Windows 设置 › 隐私和安全性 › 相机中关闭。';
+
+  @override
+  String get deskScanDeniedMac => '摄像头权限已在系统设置 › 隐私与安全性 › 摄像头中关闭。';
+
+  @override
+  String get deskScanDeniedLinux => '此应用无权打开摄像头。';
+
+  @override
+  String get deskScanUnsupportedLinux => '此系统缺少摄像头支持（GStreamer）。';
+
+  @override
+  String get deskScanUnsupportedWindows => '缺少 Windows 媒体功能。';
+
+  @override
+  String get deskScanUnsupportedOther => '此系统缺少摄像头支持。';
+
+  @override
+  String get deskScanBusy => '另一个应用正在使用摄像头。';
+
+  @override
+  String get deskScanFailed => '摄像头未能启动。';
+
+  @override
+  String get deskScanNoPicture => '摄像头没有画面。';
+
+  @override
+  String get deskScanDark => '摄像头画面全黑。镜头盖可能已关闭。';
+
+  @override
+  String get deskScanUnplugged => '摄像头已断开。';
+
+  @override
+  String get deskScanReaderFailed => '二维码识别未能启动。';
+
+  @override
+  String get deskScanNoCamera => '未找到摄像头。请改为粘贴代码。';
 }

@@ -1,0 +1,18 @@
+{
+  "deskScanStarting": "Kamera wird gestartet …",
+  "deskScanAim": "Halten Sie den Code vor die Kamera.",
+  "deskScanTryAgain": "Erneut versuchen",
+  "deskScanDeniedWindows": "Der Kamerazugriff ist in Windows-Einstellungen › Datenschutz und Sicherheit › Kamera ausgeschaltet.",
+  "deskScanDeniedMac": "Der Kamerazugriff ist in Systemeinstellungen › Datenschutz & Sicherheit › Kamera ausgeschaltet.",
+  "deskScanDeniedLinux": "Diese App darf die Kamera nicht öffnen.",
+  "deskScanUnsupportedLinux": "Die Kameraunterstützung (GStreamer) fehlt auf diesem System.",
+  "deskScanUnsupportedWindows": "Die Windows-Medienfunktionen fehlen.",
+  "deskScanUnsupportedOther": "Die Kameraunterstützung fehlt auf diesem System.",
+  "deskScanBusy": "Eine andere App verwendet die Kamera.",
+  "deskScanFailed": "Die Kamera ist nicht gestartet.",
+  "deskScanNoPicture": "Die Kamera liefert kein Bild.",
+  "deskScanDark": "Das Kamerabild ist schwarz. Vielleicht ist die Abdeckung geschlossen.",
+  "deskScanUnplugged": "Die Kamera wurde getrennt.",
+  "deskScanReaderFailed": "Der QR-Leser ist nicht gestartet.",
+  "deskScanNoCamera": "Keine Kamera gefunden. Fügen Sie den Code stattdessen ein."
+}

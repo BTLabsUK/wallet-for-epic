@@ -33749,6 +33749,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{row}, sealed with epic1'**
   String deskE1SpokenSealed(String row);
+
+  /// Scan dialog: shown in the camera area until the camera's picture appears.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the camera…'**
+  String get deskScanStarting;
+
+  /// Scan dialog: the line under the camera picture while scanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the code in front of the camera.'**
+  String get deskScanAim;
+
+  /// Scan dialog: button that starts the camera again after it stopped. Never pressed by the app itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get deskScanTryAgain;
+
+  /// Scan dialog, Windows: the system does not let the app open the camera. Use the Windows settings page names of the language.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off in Windows Settings › Privacy & security › Camera.'**
+  String get deskScanDeniedWindows;
+
+  /// Scan dialog, macOS: the system does not let the app open the camera. Use the macOS settings names of the language.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off in System Settings › Privacy & Security › Camera.'**
+  String get deskScanDeniedMac;
+
+  /// Scan dialog, Linux: the system refused to open the camera (permissions, a sandbox portal).
+  ///
+  /// In en, this message translates to:
+  /// **'This app is not allowed to open the camera.'**
+  String get deskScanDeniedLinux;
+
+  /// Scan dialog and the line beside paste, Linux: the GStreamer libraries the camera needs are not installed. Keep 'GStreamer' as is.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera support (GStreamer) is missing on this system.'**
+  String get deskScanUnsupportedLinux;
+
+  /// Scan dialog and the line beside paste, Windows: Windows N editions without the Media Feature Pack.
+  ///
+  /// In en, this message translates to:
+  /// **'The Windows media features are missing.'**
+  String get deskScanUnsupportedWindows;
+
+  /// Scan dialog and the line beside paste, other systems: what the camera needs is not there.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera support is missing on this system.'**
+  String get deskScanUnsupportedOther;
+
+  /// Scan dialog: the camera is held by another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Another app is using the camera.'**
+  String get deskScanBusy;
+
+  /// Scan dialog: the camera failed to start for another reason (a driver error).
+  ///
+  /// In en, this message translates to:
+  /// **'The camera did not start.'**
+  String get deskScanFailed;
+
+  /// Scan dialog: the camera opened but sends no picture, or a frozen one.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera sends no picture.'**
+  String get deskScanNoPicture;
+
+  /// Scan dialog: shown over a black picture (a closed lens cover or shutter); it goes away when the picture comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera picture is black. Its cover may be closed.'**
+  String get deskScanDark;
+
+  /// Scan dialog: the camera went away during the scan (unplugged).
+  ///
+  /// In en, this message translates to:
+  /// **'The camera was disconnected.'**
+  String get deskScanUnplugged;
+
+  /// Scan dialog: the part that reads QR codes from the picture failed to load.
+  ///
+  /// In en, this message translates to:
+  /// **'The QR reader did not start.'**
+  String get deskScanReaderFailed;
+
+  /// The quiet line under a paste field when this computer has no camera; Scan is greyed out.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera found. Paste the code instead.'**
+  String get deskScanNoCamera;
 }
 
 class _AppLocalizationsDelegate

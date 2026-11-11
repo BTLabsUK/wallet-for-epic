@@ -22366,4 +22366,60 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, zapieczętowane przez epic1';
   }
+
+  @override
+  String get deskScanStarting => 'Uruchamianie kamery…';
+
+  @override
+  String get deskScanAim => 'Trzymaj kod przed kamerą.';
+
+  @override
+  String get deskScanTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'Dostęp do kamery jest wyłączony w Ustawieniach systemu Windows › Prywatność i zabezpieczenia › Aparat.';
+
+  @override
+  String get deskScanDeniedMac =>
+      'Dostęp do kamery jest wyłączony w Ustawieniach systemowych › Prywatność i ochrona › Kamera.';
+
+  @override
+  String get deskScanDeniedLinux =>
+      'Ta aplikacja nie ma zgody na otwarcie kamery.';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'Brakuje obsługi kamery (GStreamer) w tym systemie.';
+
+  @override
+  String get deskScanUnsupportedWindows =>
+      'Brakuje funkcji multimediów systemu Windows.';
+
+  @override
+  String get deskScanUnsupportedOther =>
+      'Brakuje obsługi kamery w tym systemie.';
+
+  @override
+  String get deskScanBusy => 'Kamery używa inna aplikacja.';
+
+  @override
+  String get deskScanFailed => 'Kamera się nie uruchomiła.';
+
+  @override
+  String get deskScanNoPicture => 'Kamera nie przesyła obrazu.';
+
+  @override
+  String get deskScanDark =>
+      'Obraz z kamery jest czarny. Może jej osłona jest zamknięta.';
+
+  @override
+  String get deskScanUnplugged => 'Kamera została odłączona.';
+
+  @override
+  String get deskScanReaderFailed => 'Czytnik QR się nie uruchomił.';
+
+  @override
+  String get deskScanNoCamera =>
+      'Nie znaleziono kamery. Wklej kod zamiast tego.';
 }

@@ -5620,5 +5620,21 @@
   "deskE1TourSendText": "粘贴 epic1 链接，或选择联系人。“当面付款”用于身边的手机。发出前会先确认。",
   "deskE1TourReceiveText": "这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。",
   "deskE1Sealed": "已用 epic1 密封",
-  "deskE1SpokenSealed": "{row}，已用 epic1 密封"
+  "deskE1SpokenSealed": "{row}，已用 epic1 密封",
+  "deskScanStarting": "正在启动摄像头…",
+  "deskScanAim": "请把二维码放在摄像头前。",
+  "deskScanTryAgain": "重试",
+  "deskScanDeniedWindows": "摄像头权限已在 Windows 设置 › 隐私和安全性 › 相机中关闭。",
+  "deskScanDeniedMac": "摄像头权限已在系统设置 › 隐私与安全性 › 摄像头中关闭。",
+  "deskScanDeniedLinux": "此应用无权打开摄像头。",
+  "deskScanUnsupportedLinux": "此系统缺少摄像头支持（GStreamer）。",
+  "deskScanUnsupportedWindows": "缺少 Windows 媒体功能。",
+  "deskScanUnsupportedOther": "此系统缺少摄像头支持。",
+  "deskScanBusy": "另一个应用正在使用摄像头。",
+  "deskScanFailed": "摄像头未能启动。",
+  "deskScanNoPicture": "摄像头没有画面。",
+  "deskScanDark": "摄像头画面全黑。镜头盖可能已关闭。",
+  "deskScanUnplugged": "摄像头已断开。",
+  "deskScanReaderFailed": "二维码识别未能启动。",
+  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。"
 }
