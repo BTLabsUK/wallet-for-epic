@@ -143,7 +143,8 @@ void main() {
         final camera = FakeQrCamera(problem: problem);
         final result = await _open(tester, camera);
         expect(find.text(line), findsOneWidget);
-        expect(find.text(_l.deskScanAim), findsNothing);
+        // Hidden, keeping its place, so the dialog does not change height.
+        expect(find.text(_l.deskScanAim).hitTestable(), findsNothing);
         expect(_button(_l.deskScanTryAgain), findsOneWidget);
         expect(_button(_l.commonPaste), findsOneWidget);
         expect(_button(_l.commonClose), findsOneWidget);

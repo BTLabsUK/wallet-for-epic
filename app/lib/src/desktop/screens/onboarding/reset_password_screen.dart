@@ -103,7 +103,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   /// Scan: a phrase code the camera read (or the dialog's paste) goes the Paste way.
   Future<void> _scanPhrase() async {
-    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint, phrase: true);
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrPhraseHint, phrase: true);
     if (r == null) return;
     _takePhrase(r.scanText);
   }

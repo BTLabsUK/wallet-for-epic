@@ -265,7 +265,9 @@ class _DeskScanDialogState<T> extends ConsumerState<DeskScanDialog<T>> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _Viewer(camera: _camera, starting: _starting && problem == null, problem: problem),
-              if (!stopped) ...[SizedBox(height: Sp.x3), _ScanLine<T>(step: _step)],
+              SizedBox(height: Sp.x3),
+              // Hidden, not gone, while a problem holds the picture: the dialog keeps its height.
+              Visibility(visible: !stopped, maintainSize: true, maintainAnimation: true, maintainState: true, child: _ScanLine<T>(step: _step)),
             ],
           ),
           actions: [
