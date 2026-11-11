@@ -22797,4 +22797,91 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Закрыть';
+
+  @override
+  String get phoneProgSent => 'Отправлено';
+
+  @override
+  String get phoneProgNetwork => 'В сети, ждёт блока';
+
+  @override
+  String get phoneProgSenderFinished => 'Отправитель завершил';
+
+  @override
+  String get phoneProgPayerPending => 'Ждём плательщика';
+
+  @override
+  String phoneProgPayerPendingNamed(String name) {
+    return 'Ждём оплаты от $name';
+  }
+
+  @override
+  String get phoneProgSenderPending => 'Ждём, пока отправитель завершит платёж';
+
+  @override
+  String phoneProgSenderPendingNamed(String name) {
+    return 'Ждём, пока $name завершит платёж';
+  }
+
+  @override
+  String get phoneProgReported => 'Отправитель сообщает, что платёж в сети';
+
+  @override
+  String phoneProgReportedNamed(String name) {
+    return '$name сообщает, что платёж в сети';
+  }
+
+  @override
+  String get phoneProgPostElsewhere =>
+      'Готово, но не отправлено в сеть. Отправьте через другое соединение.';
+
+  @override
+  String get phoneProgPosting => 'Отправка в сеть';
+
+  @override
+  String get phoneProgKillSwitch => 'Задержано, пока все соединения выключены';
+
+  @override
+  String get phoneProgNotPosted => 'Ещё не отправлено. Отправьте снова.';
+
+  @override
+  String get phoneProgNoNewBlock =>
+      'Нового блока пока нет. Сеть сейчас медленная.';
+
+  @override
+  String get phoneProgNotInBlock => 'В сети, но ни один блок её ещё не включил';
+
+  @override
+  String get phoneProgInNetwork => 'В сети. Скоро её включит блок.';
+
+  @override
+  String get phoneProgAnswersEpicbox =>
+      'Epicbox хранит платёж, пока получатель не откроет кошелёк.';
+
+  @override
+  String phoneProgAnswersEpicboxNamed(String who) {
+    return 'Epicbox хранит платёж, пока $who не откроет кошелёк.';
+  }
+
+  @override
+  String get phoneProgAnswersFile =>
+      'Платёж продолжится, когда вернётся файл-ответ.';
+
+  @override
+  String phoneProgAnswersFileNamed(String who) {
+    return 'Платёж продолжится, когда вернётся файл-ответ от $who.';
+  }
+
+  @override
+  String get phoneProgAnswersLive => 'Их кошелёк ещё не ответил.';
+
+  @override
+  String phoneProgAnswersLiveNamed(String who) {
+    return 'Кошелёк $who ещё не ответил.';
+  }
+
+  @override
+  String phoneProgSetAside(String amount) {
+    return '$amount пока отложено.';
+  }
 }

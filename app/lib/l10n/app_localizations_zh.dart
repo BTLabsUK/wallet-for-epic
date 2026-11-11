@@ -20847,4 +20847,87 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => '关闭';
+
+  @override
+  String get phoneProgSent => '已发送';
+
+  @override
+  String get phoneProgNetwork => '在网络中，等待区块';
+
+  @override
+  String get phoneProgSenderFinished => '发送方已完成';
+
+  @override
+  String get phoneProgPayerPending => '等待付款人';
+
+  @override
+  String phoneProgPayerPendingNamed(String name) {
+    return '等待 $name 付款';
+  }
+
+  @override
+  String get phoneProgSenderPending => '等待发送方完成付款';
+
+  @override
+  String phoneProgSenderPendingNamed(String name) {
+    return '等待 $name 完成付款';
+  }
+
+  @override
+  String get phoneProgReported => '发送方称已发到网络';
+
+  @override
+  String phoneProgReportedNamed(String name) {
+    return '$name 称已发到网络';
+  }
+
+  @override
+  String get phoneProgPostElsewhere => '已完成但未发布。请换一个连接发布。';
+
+  @override
+  String get phoneProgPosting => '正在发布到网络';
+
+  @override
+  String get phoneProgKillSwitch => '所有连接关闭时暂缓发布';
+
+  @override
+  String get phoneProgNotPosted => '尚未发布。请再次发布。';
+
+  @override
+  String get phoneProgNoNewBlock => '暂无新区块，网络目前较慢。';
+
+  @override
+  String get phoneProgNotInBlock => '已在网络中，但还没有区块收录';
+
+  @override
+  String get phoneProgInNetwork => '已在网络中，很快会被区块收录。';
+
+  @override
+  String get phoneProgAnswersEpicbox => 'Epicbox 会保留它，直到收款人打开钱包。';
+
+  @override
+  String phoneProgAnswersEpicboxNamed(String who) {
+    return 'Epicbox 会保留它，直到 $who 打开钱包。';
+  }
+
+  @override
+  String get phoneProgAnswersFile => '收到回复文件后继续。';
+
+  @override
+  String phoneProgAnswersFileNamed(String who) {
+    return '收到 $who 的回复文件后继续。';
+  }
+
+  @override
+  String get phoneProgAnswersLive => '对方钱包尚未回应。';
+
+  @override
+  String phoneProgAnswersLiveNamed(String who) {
+    return '$who 的钱包尚未回应。';
+  }
+
+  @override
+  String phoneProgSetAside(String amount) {
+    return '$amount 暂时预留。';
+  }
 }

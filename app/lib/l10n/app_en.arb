@@ -30000,5 +30000,139 @@
   "phoneKitDismiss": "Dismiss",
   "@phoneKitDismiss": {
     "description": "Screen reader label of the × on a floating notice."
+  },
+  "phoneProgSent": "Sent",
+  "@phoneProgSent": {
+    "description": "Payment steps, first step of a payment you sent. One word."
+  },
+  "phoneProgNetwork": "In the network, waiting for a block",
+  "@phoneProgNetwork": {
+    "description": "Payment steps: the payment is on the network and no block holds it yet."
+  },
+  "phoneProgSenderFinished": "Sender finished",
+  "@phoneProgSenderFinished": {
+    "description": "Payment steps of a payment you receive: the sender has completed their part."
+  },
+  "phoneProgPayerPending": "Waiting for the payer",
+  "@phoneProgPayerPending": {
+    "description": "Reason line under the current step of a request you sent that is not paid yet."
+  },
+  "phoneProgPayerPendingNamed": "Waiting for {name} to pay",
+  "@phoneProgPayerPendingNamed": {
+    "description": "Reason line under the current step of a request you sent that is not paid yet. {name} is the payer.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgSenderPending": "Waiting for the sender to finish the payment",
+  "@phoneProgSenderPending": {
+    "description": "Reason line: a payment is arriving and the sender has not finished it yet."
+  },
+  "phoneProgSenderPendingNamed": "Waiting for {name} to finish the payment",
+  "@phoneProgSenderPendingNamed": {
+    "description": "Reason line: a payment is arriving and the sender has not finished it yet. {name} is the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "phoneProgReported": "The sender says it is on the network",
+  "@phoneProgReported": {
+    "description": "Reason line: the sender reports the payment posted to the network; this wallet has not seen it in a block."
+  },
+  "phoneProgReportedNamed": "{name} says it is on the network",
+  "@phoneProgReportedNamed": {
+    "description": "Reason line: the sender reports the payment posted to the network. {name} is the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "phoneProgPostElsewhere": "Finished but not posted. Post it from another connection.",
+  "@phoneProgPostElsewhere": {
+    "description": "Reason line: the payment is complete on this phone but could not be posted to the network from here."
+  },
+  "phoneProgPosting": "Posting to the network",
+  "@phoneProgPosting": {
+    "description": "Reason line: the wallet is sending the finished payment to the network right now."
+  },
+  "phoneProgKillSwitch": "Held back while all connections are off",
+  "@phoneProgKillSwitch": {
+    "description": "Reason line: the payment is finished but the Kill switch holds every connection."
+  },
+  "phoneProgNotPosted": "Not posted yet. Post it again.",
+  "@phoneProgNotPosted": {
+    "description": "Reason line: the finished payment did not reach the network and can be posted again."
+  },
+  "phoneProgNoNewBlock": "No new block yet. The network is slow right now.",
+  "@phoneProgNoNewBlock": {
+    "description": "Reason line: the payment is on the network and the chain has found no new block for a while."
+  },
+  "phoneProgNotInBlock": "On the network, but no block has taken it yet",
+  "@phoneProgNotInBlock": {
+    "description": "Reason line: new blocks come, but none holds this payment yet."
+  },
+  "phoneProgInNetwork": "On the network. A block will include it soon.",
+  "@phoneProgInNetwork": {
+    "description": "Reason line: the payment is on the network and waits for the next block."
+  },
+  "phoneProgAnswersEpicbox": "Epicbox keeps it until the recipient opens their wallet.",
+  "@phoneProgAnswersEpicbox": {
+    "description": "Reason line of a sent payment that waits for the other wallet, sent through Epicbox."
+  },
+  "phoneProgAnswersEpicboxNamed": "Epicbox keeps it until {who} opens their wallet.",
+  "@phoneProgAnswersEpicboxNamed": {
+    "description": "Reason line of a sent payment that waits for the other wallet, sent through Epicbox. {who} is the recipient's name.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgAnswersFile": "It continues when the answer file comes back.",
+  "@phoneProgAnswersFile": {
+    "description": "Reason line of a sent payment that travels as a file and waits for the answer file."
+  },
+  "phoneProgAnswersFileNamed": "It continues when the answer file from {who} comes back.",
+  "@phoneProgAnswersFileNamed": {
+    "description": "Reason line of a sent payment that travels as a file and waits for the answer file. {who} is the recipient's name.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgAnswersLive": "Their wallet has not answered yet.",
+  "@phoneProgAnswersLive": {
+    "description": "Reason line of a sent payment that waits for the other wallet to answer directly."
+  },
+  "phoneProgAnswersLiveNamed": "{who}'s wallet has not answered yet.",
+  "@phoneProgAnswersLiveNamed": {
+    "description": "Reason line of a sent payment that waits for the other wallet to answer directly. {who} is the recipient's name.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgSetAside": "{amount} is set aside until then.",
+  "@phoneProgSetAside": {
+    "description": "Second sentence of a reason line: the amount a waiting send keeps reserved. {amount} is like '12.508 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.508 EPIC"
+      }
+    }
   }
 }

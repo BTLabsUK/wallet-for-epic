@@ -22348,4 +22348,93 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Schließen';
+
+  @override
+  String get phoneProgSent => 'Gesendet';
+
+  @override
+  String get phoneProgNetwork => 'Im Netzwerk, wartet auf einen Block';
+
+  @override
+  String get phoneProgSenderFinished => 'Absender fertig';
+
+  @override
+  String get phoneProgPayerPending => 'Wartet auf den Zahlenden';
+
+  @override
+  String phoneProgPayerPendingNamed(String name) {
+    return 'Warten auf Zahlung von $name';
+  }
+
+  @override
+  String get phoneProgSenderPending =>
+      'Warten, bis der Absender die Zahlung abschließt';
+
+  @override
+  String phoneProgSenderPendingNamed(String name) {
+    return 'Warten, bis $name die Zahlung abschließt';
+  }
+
+  @override
+  String get phoneProgReported => 'Der Absender meldet es im Netzwerk';
+
+  @override
+  String phoneProgReportedNamed(String name) {
+    return '$name meldet es im Netzwerk';
+  }
+
+  @override
+  String get phoneProgPostElsewhere =>
+      'Fertig, aber nicht gesendet. Über eine andere Verbindung senden.';
+
+  @override
+  String get phoneProgPosting => 'Wird an das Netzwerk gesendet';
+
+  @override
+  String get phoneProgKillSwitch =>
+      'Zurückgehalten, solange alle Verbindungen aus sind';
+
+  @override
+  String get phoneProgNotPosted => 'Noch nicht gesendet. Erneut senden.';
+
+  @override
+  String get phoneProgNoNewBlock =>
+      'Noch kein neuer Block. Das Netzwerk ist gerade langsam.';
+
+  @override
+  String get phoneProgNotInBlock => 'Im Netzwerk, aber noch in keinem Block';
+
+  @override
+  String get phoneProgInNetwork => 'Im Netzwerk. Ein Block nimmt sie bald auf.';
+
+  @override
+  String get phoneProgAnswersEpicbox =>
+      'Epicbox hält sie bereit, bis der Empfänger sein Wallet öffnet.';
+
+  @override
+  String phoneProgAnswersEpicboxNamed(String who) {
+    return 'Epicbox hält sie bereit, bis $who das Wallet öffnet.';
+  }
+
+  @override
+  String get phoneProgAnswersFile =>
+      'Es geht weiter, wenn die Antwortdatei zurückkommt.';
+
+  @override
+  String phoneProgAnswersFileNamed(String who) {
+    return 'Es geht weiter, wenn die Antwortdatei von $who zurückkommt.';
+  }
+
+  @override
+  String get phoneProgAnswersLive => 'Ihr Wallet hat noch nicht geantwortet.';
+
+  @override
+  String phoneProgAnswersLiveNamed(String who) {
+    return 'Das Wallet von $who hat noch nicht geantwortet.';
+  }
+
+  @override
+  String phoneProgSetAside(String amount) {
+    return '$amount ist bis dahin reserviert.';
+  }
 }

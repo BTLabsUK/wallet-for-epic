@@ -11,3 +11,7 @@ bool txEdgeRunMoves = true;
 /// Whether the current marker's ring on Send's tracker pulses (`send_tracker.dart`). Off in
 /// widget tests; reduced motion stops it too.
 bool sendPulseMoves = true;
+
+/// Whether the network step of a payment's progress animates (`kit/kit_steps.dart`). Off in
+/// widget tests; reduced motion stops it too.
+bool paymentNetworkMoves = true;

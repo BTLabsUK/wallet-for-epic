@@ -34463,6 +34463,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get phoneKitDismiss;
+
+  /// Payment steps, first step of a payment you sent. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get phoneProgSent;
+
+  /// Payment steps: the payment is on the network and no block holds it yet.
+  ///
+  /// In en, this message translates to:
+  /// **'In the network, waiting for a block'**
+  String get phoneProgNetwork;
+
+  /// Payment steps of a payment you receive: the sender has completed their part.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender finished'**
+  String get phoneProgSenderFinished;
+
+  /// Reason line under the current step of a request you sent that is not paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the payer'**
+  String get phoneProgPayerPending;
+
+  /// Reason line under the current step of a request you sent that is not paid yet. {name} is the payer.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name} to pay'**
+  String phoneProgPayerPendingNamed(String name);
+
+  /// Reason line: a payment is arriving and the sender has not finished it yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the sender to finish the payment'**
+  String get phoneProgSenderPending;
+
+  /// Reason line: a payment is arriving and the sender has not finished it yet. {name} is the sender.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name} to finish the payment'**
+  String phoneProgSenderPendingNamed(String name);
+
+  /// Reason line: the sender reports the payment posted to the network; this wallet has not seen it in a block.
+  ///
+  /// In en, this message translates to:
+  /// **'The sender says it is on the network'**
+  String get phoneProgReported;
+
+  /// Reason line: the sender reports the payment posted to the network. {name} is the sender.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} says it is on the network'**
+  String phoneProgReportedNamed(String name);
+
+  /// Reason line: the payment is complete on this phone but could not be posted to the network from here.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished but not posted. Post it from another connection.'**
+  String get phoneProgPostElsewhere;
+
+  /// Reason line: the wallet is sending the finished payment to the network right now.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting to the network'**
+  String get phoneProgPosting;
+
+  /// Reason line: the payment is finished but the Kill switch holds every connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Held back while all connections are off'**
+  String get phoneProgKillSwitch;
+
+  /// Reason line: the finished payment did not reach the network and can be posted again.
+  ///
+  /// In en, this message translates to:
+  /// **'Not posted yet. Post it again.'**
+  String get phoneProgNotPosted;
+
+  /// Reason line: the payment is on the network and the chain has found no new block for a while.
+  ///
+  /// In en, this message translates to:
+  /// **'No new block yet. The network is slow right now.'**
+  String get phoneProgNoNewBlock;
+
+  /// Reason line: new blocks come, but none holds this payment yet.
+  ///
+  /// In en, this message translates to:
+  /// **'On the network, but no block has taken it yet'**
+  String get phoneProgNotInBlock;
+
+  /// Reason line: the payment is on the network and waits for the next block.
+  ///
+  /// In en, this message translates to:
+  /// **'On the network. A block will include it soon.'**
+  String get phoneProgInNetwork;
+
+  /// Reason line of a sent payment that waits for the other wallet, sent through Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox keeps it until the recipient opens their wallet.'**
+  String get phoneProgAnswersEpicbox;
+
+  /// Reason line of a sent payment that waits for the other wallet, sent through Epicbox. {who} is the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox keeps it until {who} opens their wallet.'**
+  String phoneProgAnswersEpicboxNamed(String who);
+
+  /// Reason line of a sent payment that travels as a file and waits for the answer file.
+  ///
+  /// In en, this message translates to:
+  /// **'It continues when the answer file comes back.'**
+  String get phoneProgAnswersFile;
+
+  /// Reason line of a sent payment that travels as a file and waits for the answer file. {who} is the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'It continues when the answer file from {who} comes back.'**
+  String phoneProgAnswersFileNamed(String who);
+
+  /// Reason line of a sent payment that waits for the other wallet to answer directly.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet has not answered yet.'**
+  String get phoneProgAnswersLive;
+
+  /// Reason line of a sent payment that waits for the other wallet to answer directly. {who} is the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{who}\'s wallet has not answered yet.'**
+  String phoneProgAnswersLiveNamed(String who);
+
+  /// Second sentence of a reason line: the amount a waiting send keeps reserved. {amount} is like '12.508 EPIC'.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is set aside until then.'**
+  String phoneProgSetAside(String amount);
 }
 
 class _AppLocalizationsDelegate

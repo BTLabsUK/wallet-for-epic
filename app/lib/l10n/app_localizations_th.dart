@@ -21637,4 +21637,89 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'ปิด';
+
+  @override
+  String get phoneProgSent => 'ส่งแล้ว';
+
+  @override
+  String get phoneProgNetwork => 'อยู่ในเครือข่าย รอบล็อก';
+
+  @override
+  String get phoneProgSenderFinished => 'ผู้ส่งดำเนินการเสร็จ';
+
+  @override
+  String get phoneProgPayerPending => 'รอผู้จ่าย';
+
+  @override
+  String phoneProgPayerPendingNamed(String name) {
+    return 'รอ $name จ่าย';
+  }
+
+  @override
+  String get phoneProgSenderPending => 'รอผู้ส่งทำรายการให้เสร็จ';
+
+  @override
+  String phoneProgSenderPendingNamed(String name) {
+    return 'รอ $name ทำรายการให้เสร็จ';
+  }
+
+  @override
+  String get phoneProgReported => 'ผู้ส่งแจ้งว่าอยู่ในเครือข่ายแล้ว';
+
+  @override
+  String phoneProgReportedNamed(String name) {
+    return '$name แจ้งว่าอยู่ในเครือข่ายแล้ว';
+  }
+
+  @override
+  String get phoneProgPostElsewhere =>
+      'เสร็จแล้วแต่ยังไม่ได้ส่งเข้าเครือข่าย ส่งผ่านการเชื่อมต่ออื่น';
+
+  @override
+  String get phoneProgPosting => 'กำลังส่งเข้าเครือข่าย';
+
+  @override
+  String get phoneProgKillSwitch => 'ถูกระงับขณะปิดการเชื่อมต่อทั้งหมด';
+
+  @override
+  String get phoneProgNotPosted => 'ยังไม่ได้ส่ง ส่งอีกครั้ง';
+
+  @override
+  String get phoneProgNoNewBlock => 'ยังไม่มีบล็อกใหม่ เครือข่ายช้าอยู่';
+
+  @override
+  String get phoneProgNotInBlock => 'อยู่ในเครือข่าย แต่ยังไม่มีบล็อกรับไว้';
+
+  @override
+  String get phoneProgInNetwork => 'อยู่ในเครือข่าย อีกไม่นานบล็อกจะรับไว้';
+
+  @override
+  String get phoneProgAnswersEpicbox =>
+      'Epicbox เก็บไว้จนกว่าผู้รับจะเปิดกระเป๋า';
+
+  @override
+  String phoneProgAnswersEpicboxNamed(String who) {
+    return 'Epicbox เก็บไว้จนกว่า $who จะเปิดกระเป๋า';
+  }
+
+  @override
+  String get phoneProgAnswersFile => 'ดำเนินการต่อเมื่อไฟล์ตอบกลับมา';
+
+  @override
+  String phoneProgAnswersFileNamed(String who) {
+    return 'ดำเนินการต่อเมื่อไฟล์ตอบกลับจาก $who มาถึง';
+  }
+
+  @override
+  String get phoneProgAnswersLive => 'กระเป๋าของเขายังไม่ตอบกลับ';
+
+  @override
+  String phoneProgAnswersLiveNamed(String who) {
+    return 'กระเป๋าของ $who ยังไม่ตอบกลับ';
+  }
+
+  @override
+  String phoneProgSetAside(String amount) {
+    return '$amount ถูกกันไว้ก่อน';
+  }
 }
