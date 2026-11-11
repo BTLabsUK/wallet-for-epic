@@ -110,11 +110,34 @@ void CameraDesktopPluginRegisterWithRegistrar(
 // Plugin registration
 // ---------------------------------------------------------------------------
 
+// The Media Foundation DLLs are delay-loaded (see CMakeLists.txt), so the app
+// starts without them. Returns why the camera cannot work, or "" when they
+// are all in System32.
+static std::string MissingMediaFoundation() {
+  static const wchar_t* const kDlls[] = {L"mfplat.dll", L"mf.dll",
+                                         L"mfreadwrite.dll"};
+  for (const wchar_t* dll : kDlls) {
+    HMODULE module =
+        LoadLibraryExW(dll, nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (module == nullptr) {
+      return "Media Foundation is not installed (" + WideToUtf8(dll) +
+             " missing, error " + std::to_string(GetLastError()) + ")";
+    }
+    // Kept loaded: the delay-load helper finds it already in the process.
+  }
+  return {};
+}
+
 // static
 void CameraDesktopPlugin::RegisterWithRegistrar(
     flutter::PluginRegistrarWindows* registrar) {
-  // One-time Media Foundation startup (reference-counted internally).
-  MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
+  const std::string missing = MissingMediaFoundation();
+  if (missing.empty()) {
+    // One-time Media Foundation startup (reference-counted internally).
+    MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET);
+  } else {
+    DebugLog("RegisterWithRegistrar: camera unsupported: " + missing);
+  }
   const HRESULT co_hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
   auto channel = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
@@ -124,6 +147,7 @@ void CameraDesktopPlugin::RegisterWithRegistrar(
   auto plugin = std::make_unique<CameraDesktopPlugin>(registrar,
                                                        std::move(channel));
   plugin->should_co_uninitialize_ = (co_hr == S_OK || co_hr == S_FALSE);
+  plugin->unsupported_reason_ = missing;
   instance_ = plugin.get();
 
   plugin->channel_->SetMethodCallHandler(
@@ -152,7 +176,7 @@ CameraDesktopPlugin::~CameraDesktopPlugin() {
     }
     cameras_.clear();
   }
-  MFShutdown();
+  if (unsupported_reason_.empty()) MFShutdown();
   if (should_co_uninitialize_) {
     CoUninitialize();
   }
@@ -170,6 +194,15 @@ void CameraDesktopPlugin::HandleMethodCall(
       std::get_if<flutter::EncodableMap>(call.arguments());
   const flutter::EncodableMap empty_args;
   const flutter::EncodableMap& safe_args = args ? *args : empty_args;
+
+  if (!unsupported_reason_.empty()) {
+    result->Error(camera_error::kUnsupported, unsupported_reason_,
+                  flutter::EncodableValue(flutter::EncodableMap{
+                      {flutter::EncodableValue("reason"),
+                       flutter::EncodableValue(unsupported_reason_)},
+                  }));
+    return;
+  }
 
   if (method == "availableCameras") {
     HandleAvailableCameras(std::move(result));
@@ -216,6 +249,7 @@ void CameraDesktopPlugin::HandleAvailableCameras(
         raw_result);
 
     auto devices = DeviceEnumerator::EnumerateVideoDevices();
+    const bool denied = DeviceEnumerator::CameraAccessDenied();
     DebugLog("HandleAvailableCameras: returning " +
              std::to_string(devices.size()) + " camera(s)");
 
@@ -238,9 +272,12 @@ void CameraDesktopPlugin::HandleAvailableCameras(
           {flutter::EncodableValue("name"),
            flutter::EncodableValue(display_name)},
           {flutter::EncodableValue("lensDirection"),
-           flutter::EncodableValue(0)},
+           flutter::EncodableValue(device.lens_direction)},
           {flutter::EncodableValue("sensorOrientation"),
            flutter::EncodableValue(0)},
+          {flutter::EncodableValue("denied"), flutter::EncodableValue(denied)},
+          {flutter::EncodableValue("builtIn"),
+           flutter::EncodableValue(device.built_in)},
       }));
     }
 
@@ -333,7 +370,7 @@ void CameraDesktopPlugin::HandleCreate(
   std::wstring symbolic_link = DeviceEnumerator::FindSymbolicLink(*camera_name);
   if (symbolic_link.empty()) {
     DebugLog("HandleCreate: symbolic link not found for camera: " + *camera_name);
-    result->Error("camera_not_found",
+    result->Error(camera_error::kNoDevice,
                   "Could not find camera: " + *camera_name);
     return;
   }

@@ -91,10 +91,11 @@ class CameraSession: NSObject {
         AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
             guard let self = self else { return }
             if !granted {
+                let status = AVCaptureDevice.authorizationStatus(for: .video)
                 DispatchQueue.main.async {
-                    result(FlutterError(code: "permission_denied",
+                    result(FlutterError(code: CameraErrorCode.denied,
                                         message: "Camera permission was denied",
-                                        details: nil))
+                                        details: ["authorizationStatus": status.rawValue]))
                 }
                 return
             }
@@ -114,7 +115,7 @@ class CameraSession: NSObject {
         }
         guard let device = exactMatch ?? devices.first else {
             DispatchQueue.main.async {
-                result(FlutterError(code: "no_camera",
+                result(FlutterError(code: CameraErrorCode.noDevice,
                                     message: "No camera device found for ID: \(self.config.deviceId)",
                                     details: nil))
             }
@@ -158,7 +159,7 @@ class CameraSession: NSObject {
             let canAdd = session.canAddInput(videoInput)
             guard canAdd else {
                 DispatchQueue.main.async {
-                    result(FlutterError(code: "input_failed",
+                    result(FlutterError(code: CameraErrorCode.failed,
                                         message: "canAddInput returned false for device=\(device.uniqueID) preset=\(chosenPreset.rawValue) format=BGRA",
                                         details: nil))
                 }
@@ -167,10 +168,11 @@ class CameraSession: NSObject {
             session.addInput(videoInput)
         } catch {
             let message = error.localizedDescription
+            let code = CameraErrorCode.classify(error, device: device)
             DispatchQueue.main.async {
-                result(FlutterError(code: "input_failed",
+                result(FlutterError(code: code,
                                     message: "Failed to create video input: \(message)",
-                                    details: nil))
+                                    details: CameraErrorCode.details(error)))
             }
             return
         }
@@ -201,7 +203,7 @@ class CameraSession: NSObject {
         let canAddOutput = session.canAddOutput(vOutput)
         guard canAddOutput else {
             DispatchQueue.main.async {
-                result(FlutterError(code: "output_failed",
+                result(FlutterError(code: CameraErrorCode.failed,
                                     message: "canAddOutput returned false for device=\(device.uniqueID) preset=\(chosenPreset.rawValue) format=BGRA",
                                     details: nil))
             }
@@ -236,13 +238,14 @@ class CameraSession: NSObject {
             ]
         }
 
-        // Mirror at the capture source so all consumers get mirrored frames.
+        // Frames come unmirrored, as the camera sees them, so a code reads the
+        // right way round; the app mirrors only the preview. setMirror still
+        // changes it.
         if let connection = vOutput.connection(with: .video) {
             if connection.isVideoMirroringSupported {
                 connection.automaticallyAdjustsVideoMirroring = false
-                connection.isVideoMirrored = true
+                connection.isVideoMirrored = false
             }
-        } else {
         }
 
         // Add audio output if enabled.
@@ -269,6 +272,10 @@ class CameraSession: NSObject {
                        selector: #selector(sessionInterruptionEnded(_:)),
                        name: .AVCaptureSessionInterruptionEnded,
                        object: session)
+        nc.addObserver(self,
+                       selector: #selector(deviceWasDisconnected(_:)),
+                       name: .AVCaptureDeviceWasDisconnected,
+                       object: device)
 
         captureSession = session
         pendingInitResult = result
@@ -283,7 +290,7 @@ class CameraSession: NSObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 15.0) { [weak self] in
             guard let self = self, let pending = self.pendingInitResult else { return }
             self.pendingInitResult = nil
-            pending(FlutterError(code: "initialization_timeout",
+            pending(FlutterError(code: CameraErrorCode.noPicture,
                                  message: "Camera initialization timed out, no frames received",
                                  details: nil))
         }
@@ -292,21 +299,41 @@ class CameraSession: NSObject {
     @objc private func sessionRuntimeError(_ notification: Notification) {
         let error = notification.userInfo?[AVCaptureSessionErrorKey] as? Error
         let message = error?.localizedDescription ?? "Unknown runtime error"
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.methodChannel?.invokeMethod("cameraError", arguments: [
-                "cameraId": self.cameraId,
-                "message": message,
-            ])
-        }
+        let code = error.map { CameraErrorCode.classify($0, device: videoDevice) } ?? CameraErrorCode.failed
+        let details: [String: Any] = error.map { CameraErrorCode.details($0) } ?? [:]
+        reportError(message, code: code, details: details)
     }
 
     @objc private func sessionWasInterrupted(_ notification: Notification) {
+        // On macOS an interruption means another app took the camera, or the
+        // system did; the session does not say which, the device does.
+        let inUse = videoDevice?.isInUseByAnotherApplication ?? false
+        var details: [String: Any] = ["inUseByAnotherApplication": inUse]
+        if let reason = notification.userInfo?["AVCaptureSessionInterruptionReasonKey"] as? Int {
+            details["reason"] = reason
+        }
+        reportError("Camera session interrupted", code: inUse ? CameraErrorCode.busy : CameraErrorCode.failed, details: details)
+    }
+
+    @objc private func deviceWasDisconnected(_ notification: Notification) {
+        reportError("Camera was disconnected", code: CameraErrorCode.unplugged, details: [:])
+    }
+
+    /// Fails a pending initialize with the error, or sends cameraError when
+    /// the camera is running.
+    private func reportError(_ description: String, code: String, details: [String: Any]) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
+            if let pending = self.pendingInitResult {
+                self.pendingInitResult = nil
+                pending(FlutterError(code: code, message: description, details: details))
+                return
+            }
             self.methodChannel?.invokeMethod("cameraError", arguments: [
                 "cameraId": self.cameraId,
-                "message": "Camera session interrupted",
+                "description": description,
+                "code": code,
+                "details": details,
             ])
         }
     }

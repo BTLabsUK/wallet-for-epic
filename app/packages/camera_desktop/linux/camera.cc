@@ -5,11 +5,86 @@
 #include <gio/gio.h>
 #include <gst/video/video.h>
 
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include <atomic>
 #include <cstdio>
 #include <cstring>
 
 static const guint kInitTimeoutMs = 8000;
+
+// Structured error codes (README "Error codes"): the app decides from the code,
+// never from the message.
+static const char kCodeDenied[] = "denied";
+static const char kCodeBusy[] = "busy";
+static const char kCodeUnplugged[] = "unplugged";
+static const char kCodeNoDevice[] = "no_device";
+static const char kCodeNoPicture[] = "no_picture";
+static const char kCodeFailed[] = "failed";
+
+// Opens the node the way v4l2src does and maps the errno. Returns nullptr
+// when it opens. ENOENT/ENODEV/ENXIO mean the device is gone: unplugged while
+// it was running, no_device before.
+static const char* CheckNode(const std::string& path, bool running,
+                             int* out_errno) {
+  int fd = open(path.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+  if (fd >= 0) {
+    close(fd);
+    *out_errno = 0;
+    return nullptr;
+  }
+  int e = errno;
+  *out_errno = e;
+  switch (e) {
+    case EACCES:
+    case EPERM:
+      return kCodeDenied;
+    case EBUSY:
+      return kCodeBusy;
+    case ENOENT:
+    case ENODEV:
+    case ENXIO:
+      return running ? kCodeUnplugged : kCodeNoDevice;
+    default:
+      return kCodeFailed;
+  }
+}
+
+static FlValue* ErrorDetails(const GError* err, int sys_errno) {
+  FlValue* details = fl_value_new_map();
+  if (err) {
+    fl_value_set_string_take(details, "domain",
+                             fl_value_new_string(g_quark_to_string(err->domain)));
+    fl_value_set_string_take(details, "code", fl_value_new_int(err->code));
+  }
+  fl_value_set_string_take(details, "errno", fl_value_new_int(sys_errno));
+  return details;
+}
+
+// Maps a pipeline error to a code from its GError domain and code, and for
+// resource errors that do not say why, from the errno of opening the node
+// again.
+const char* Camera::ClassifyError(const GError* err, bool running,
+                                  int* out_errno) {
+  *out_errno = 0;
+  bool v4l2 = config_.backend == CameraBackend::kV4L2;
+  if (err && err->domain == GST_RESOURCE_ERROR) {
+    if (err->code == GST_RESOURCE_ERROR_BUSY) return kCodeBusy;
+    if (err->code == GST_RESOURCE_ERROR_NO_SPACE_LEFT) return kCodeFailed;
+    if (v4l2) {
+      const char* node = CheckNode(config_.device_path, running, out_errno);
+      if (node) return node;
+    }
+    if (err->code == GST_RESOURCE_ERROR_NOT_AUTHORIZED) return kCodeDenied;
+    if (err->code == GST_RESOURCE_ERROR_NOT_FOUND) {
+      return running ? kCodeUnplugged : kCodeNoDevice;
+    }
+    return kCodeFailed;
+  }
+  return kCodeFailed;
+}
 
 // Cap on MethodChannel fallback frames queued on the main loop but not yet
 // delivered. Beyond it frames are dropped, so a stalled main thread cannot
@@ -80,12 +155,28 @@ void Camera::Initialize(FlMethodCall* method_call) {
          config_.backend == CameraBackend::kPipeWire ? "PipeWire" : "V4L2",
          config_.target_width, config_.target_height, config_.target_fps);
 
+  // A node that cannot be opened says why at once, before any pipeline.
+  if (config_.backend == CameraBackend::kV4L2) {
+    int sys_errno = 0;
+    const char* code = CheckNode(config_.device_path, false, &sys_errno);
+    if (code) {
+      g_info("[camera_desktop] Camera %d: %s does not open: %s (%s)",
+             camera_id_, config_.device_path.c_str(), g_strerror(sys_errno),
+             code);
+      RespondToPendingInit(false, g_strerror(sys_errno), code,
+                           ErrorDetails(nullptr, sys_errno));
+      state_.store(CameraState::kCreated);
+      return;
+    }
+  }
+
   GError* error = nullptr;
   if (!BuildPipeline(&error)) {
     g_info("[camera_desktop] Camera %d: BuildPipeline failed: %s", camera_id_,
            error ? error->message : "unknown error");
-    RespondToPendingInit(false, error->message);
-    g_error_free(error);
+    RespondToPendingInit(false, error ? error->message : "unknown error",
+                         kCodeFailed, ErrorDetails(error, 0));
+    g_clear_error(&error);
     state_.store(CameraState::kCreated);
     return;
   }
@@ -96,7 +187,8 @@ void Camera::Initialize(FlMethodCall* method_call) {
   if (ret == GST_STATE_CHANGE_FAILURE) {
     g_info("[camera_desktop] Camera %d: gst_element_set_state(PLAYING) failed",
            camera_id_);
-    RespondToPendingInit(false, "Failed to start GStreamer pipeline");
+    RespondToPendingInit(false, "Failed to start GStreamer pipeline",
+                         kCodeFailed, ErrorDetails(nullptr, 0));
     gst_object_unref(pipeline_);
     pipeline_ = nullptr;
     appsink_ = nullptr;
@@ -125,7 +217,7 @@ bool Camera::BuildPipeline(GError** error) {
   gchar preview_tail[512];
   g_snprintf(
       preview_tail, sizeof(preview_tail),
-      "! videoflip name=flip method=horizontal-flip "
+      "! videoflip name=flip method=none "
       "! videoscale ! videorate "
       "! video/x-raw,format=RGBA,width=%d,height=%d,framerate=%d/1 "
       "! tee name=t "
@@ -157,7 +249,10 @@ bool Camera::BuildPipeline(GError** error) {
     // break negotiation. Cameras exposing only raw formats (e.g. NV12/YUYV) use
     // the unconstrained capture + scale path, which negotiates any native mode
     // and adapts it to the target via videoscale/videorate.
-    if (DeviceEnumerator::SupportsMjpeg(config_.device_path, w, h)) {
+    GstElementFactory* jpegdec = gst_element_factory_find("jpegdec");
+    bool has_jpegdec = jpegdec != nullptr;
+    if (jpegdec) gst_object_unref(jpegdec);
+    if (has_jpegdec && DeviceEnumerator::SupportsMjpeg(config_.device_path, w, h)) {
       pipeline_str = g_strdup_printf(
           "v4l2src device=%s "
           "! image/jpeg,width=%d,height=%d "
@@ -234,8 +329,12 @@ bool Camera::BuildPipeline(GError** error) {
   return true;
 }
 
-void Camera::RespondToPendingInit(bool success, const char* error_message) {
-  if (!pending_init_call_) return;
+void Camera::RespondToPendingInit(bool success, const char* error_message,
+                                  const char* code, FlValue* details) {
+  if (!pending_init_call_) {
+    if (details) fl_value_unref(details);
+    return;
+  }
 
   // Cancel the timeout.
   if (init_timeout_id_ > 0) {
@@ -251,10 +350,10 @@ void Camera::RespondToPendingInit(bool success, const char* error_message) {
                              fl_value_new_float((double)actual_height_.load()));
     fl_method_call_respond_success(pending_init_call_, result, nullptr);
   } else {
-    g_autoptr(FlValue) details = fl_value_new_null();
-    fl_method_call_respond_error(pending_init_call_, "initialization_failed",
+    g_autoptr(FlValue) owned = details ? details : fl_value_new_null();
+    fl_method_call_respond_error(pending_init_call_, code ? code : kCodeFailed,
                                  error_message ? error_message : "Unknown error",
-                                 details, nullptr);
+                                 owned, nullptr);
   }
 
   g_object_unref(pending_init_call_);
@@ -432,7 +531,7 @@ GstFlowReturn Camera::OnNewSample(GstAppSink* sink, gpointer user_data) {
     g_idle_add(
         [](gpointer user_data) -> gboolean {
           Camera* cam = static_cast<Camera*>(user_data);
-          cam->RespondToPendingInit(true, nullptr);
+          cam->RespondToPendingInit(true, nullptr, nullptr, nullptr);
           return G_SOURCE_REMOVE;
         },
         self);
@@ -458,14 +557,20 @@ gboolean Camera::OnBusMessage(GstBus* bus, GstMessage* msg,
 
       // C-2: load state_ atomically.
       CameraState s = self->state_.load();
+      const char* message = err ? err->message : "unknown";
       if (s == CameraState::kInitializing) {
-        self->RespondToPendingInit(false, err->message);
+        int sys_errno = 0;
+        const char* code = self->ClassifyError(err, false, &sys_errno);
+        self->RespondToPendingInit(false, message, code,
+                                   ErrorDetails(err, sys_errno));
         self->state_.store(CameraState::kCreated);
       } else if (s == CameraState::kRunning || s == CameraState::kPaused) {
-        self->SendError(err->message);
+        int sys_errno = 0;
+        const char* code = self->ClassifyError(err, true, &sys_errno);
+        self->SendError(message, code, ErrorDetails(err, sys_errno));
       }
 
-      g_error_free(err);
+      g_clear_error(&err);
       g_free(debug);
       break;
     }
@@ -473,7 +578,14 @@ gboolean Camera::OnBusMessage(GstBus* bus, GstMessage* msg,
       // End of stream (e.g., device unplugged).
       CameraState s = self->state_.load();
       if (s == CameraState::kRunning || s == CameraState::kPaused) {
-        self->SendError("Camera stream ended unexpectedly");
+        int sys_errno = 0;
+        const char* code = nullptr;
+        if (self->config_.backend == CameraBackend::kV4L2) {
+          code = CheckNode(self->config_.device_path, true, &sys_errno);
+        }
+        self->SendError("Camera stream ended unexpectedly",
+                        code ? code : kCodeFailed,
+                        ErrorDetails(nullptr, sys_errno));
       }
       break;
     }
@@ -489,7 +601,8 @@ gboolean Camera::OnInitTimeout(gpointer user_data) {
 
   if (self->state_.load() == CameraState::kInitializing) {
     self->RespondToPendingInit(
-        false, "Camera initialization timed out, no frames received");
+        false, "Camera initialization timed out, no frames received",
+        kCodeNoPicture, ErrorDetails(nullptr, 0));
     if (self->pipeline_) {
       gst_element_set_state(self->pipeline_, GST_STATE_NULL);
     }
@@ -498,12 +611,17 @@ gboolean Camera::OnInitTimeout(gpointer user_data) {
   return G_SOURCE_REMOVE;
 }
 
-void Camera::SendError(const std::string& description) {
+void Camera::SendError(const std::string& description, const char* code,
+                       FlValue* details) {
   g_autoptr(FlValue) args = fl_value_new_map();
   fl_value_set_string_take(args, "cameraId",
                            fl_value_new_int(camera_id_));
   fl_value_set_string_take(args, "description",
                            fl_value_new_string(description.c_str()));
+  fl_value_set_string_take(args, "code",
+                           fl_value_new_string(code ? code : kCodeFailed));
+  fl_value_set_string_take(args, "details",
+                           details ? details : fl_value_new_null());
   fl_method_channel_invoke_method(method_channel_, "cameraError", args,
                                   nullptr, nullptr, nullptr);
 }
@@ -622,7 +740,8 @@ void Camera::StartVideoRecording(FlMethodCall* method_call) {
     }
     if (config_.enable_audio && !record_handler_->has_audio()) {
       SendError("Audio recording was requested but audio setup failed. "
-                "Recording will continue without audio.");
+                "Recording will continue without audio.",
+                "audio_unavailable", nullptr);
     }
   }
 
@@ -719,7 +838,8 @@ void Camera::Dispose() {
 
   // Cancel pending init if still waiting (main thread → main thread, safe).
   if (pending_init_call_) {
-    RespondToPendingInit(false, "Camera disposed during initialization");
+    RespondToPendingInit(false, "Camera disposed during initialization",
+                         "disposed", nullptr);
   }
 
   // C-4: null the callback atomically BEFORE stopping the pipeline. This

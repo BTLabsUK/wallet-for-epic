@@ -10,6 +10,8 @@ struct DeviceInfo {
   std::string bus_info;      // e.g. "usb-0000:00:14.0-4" (for deduplication)
   int lens_direction;        // 0=front, 1=back, 2=external
   int sensor_orientation;    // 0 for most Linux webcams
+  bool denied = false;       // the node exists but this user may not open it
+  bool built_in = false;     // Linux cannot tell; the lowest node comes first
 };
 
 struct ResolutionInfo {

@@ -23,6 +23,24 @@
 #include "camera_texture.h"
 #include "record_handler.h"
 
+// Error codes sent in a method error's code and in cameraError's "code", the
+// same on every desktop platform. They come from the HRESULT, never from a
+// message's text; the HRESULT itself goes in the details.
+namespace camera_error {
+constexpr char kDenied[] = "denied";
+constexpr char kBusy[] = "busy";
+constexpr char kUnplugged[] = "unplugged";
+constexpr char kNoDevice[] = "no_device";
+constexpr char kNoPicture[] = "no_picture";
+constexpr char kUnsupported[] = "unsupported";
+constexpr char kFailed[] = "failed";
+
+// The code for a Media Foundation failure.
+const char* Classify(HRESULT hr);
+// {"hresult": hr} for an error's details, or null when hr is S_OK.
+flutter::EncodableValue Details(HRESULT hr);
+}  // namespace camera_error
+
 using Microsoft::WRL::ComPtr;
 
 enum class CameraState {
@@ -95,11 +113,15 @@ class Camera : public std::enable_shared_from_this<Camera> {
   HRESULT StartPreviewInternal();
 
   void CompleteInit(bool success, const std::string& error,
-                    int width = 0, int height = 0);
-  void FailAllPendingResults(const std::string& error);
+                    int width = 0, int height = 0,
+                    const char* code = nullptr, HRESULT hr = S_OK);
+  void FailAllPendingResults(const std::string& error,
+                             const char* init_code = nullptr,
+                             HRESULT hr = S_OK);
 
   void DisposeInternal();
-  void SendError(const std::string& description);
+  void SendError(const std::string& description, const char* code,
+                 HRESULT hr = S_OK);
   int  InitElapsedMs() const;
 
   void PostImageStreamFrame(const uint8_t* data, int width, int height);

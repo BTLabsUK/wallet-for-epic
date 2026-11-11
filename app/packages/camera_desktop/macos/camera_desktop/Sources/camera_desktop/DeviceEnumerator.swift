@@ -5,12 +5,18 @@ struct DeviceInfo {
     let name: String
     let lensDirection: Int   // 0=front, 1=back, 2=external
     let sensorOrientation: Int
+    /// Camera access is denied or restricted for this app (System Settings).
+    let denied: Bool
+    /// The Mac's own camera (FaceTime HD), not an external or Continuity one.
+    let builtIn: Bool
 }
 
 class DeviceEnumerator {
     /// Enumerates available video capture devices.
     static func enumerateDevices() -> [DeviceInfo] {
         let devices = AVCaptureDevice.captureDevices(mediaType: .video)
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        let denied = status == .denied || status == .restricted
         let infos = devices.map { device -> (AVCaptureDevice, DeviceInfo) in
             let lensDirection: Int
             switch device.position {
@@ -26,7 +32,9 @@ class DeviceEnumerator {
                 deviceId: device.uniqueID,
                 name: displayName,
                 lensDirection: lensDirection,
-                sensorOrientation: 0
+                sensorOrientation: 0,
+                denied: denied,
+                builtIn: device.deviceType == .builtInWideAngleCamera
             )
             return (device, info)
         }

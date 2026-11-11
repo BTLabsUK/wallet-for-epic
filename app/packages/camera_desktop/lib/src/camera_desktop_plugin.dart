@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:camera_platform_interface/camera_platform_interface.dart';
@@ -8,6 +7,61 @@ import 'package:flutter/widgets.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import 'image_stream_ffi.dart';
+
+/// The structured error codes the native side sends (README "Error codes").
+/// The app decides from these, never from the message text.
+abstract final class CameraDesktopErrorCode {
+  /// The user or the system has not allowed this app the camera.
+  static const denied = 'denied';
+
+  /// Another app holds the camera.
+  static const busy = 'busy';
+
+  /// The camera went away while it was in use.
+  static const unplugged = 'unplugged';
+
+  /// The camera was not there when it was opened.
+  static const noDevice = 'no_device';
+
+  /// The camera opened but sent no picture in time.
+  static const noPicture = 'no_picture';
+
+  /// This system cannot run the camera: the media libraries are missing.
+  static const unsupported = 'unsupported';
+
+  /// Anything else; the details carry the errno or HRESULT.
+  static const failed = 'failed';
+}
+
+/// A [CameraErrorEvent] with the native error [code] and its [details]
+/// (errno, HRESULT, error domain).
+class CameraDesktopErrorEvent extends CameraErrorEvent {
+  /// Creates an error event for [cameraId].
+  const CameraDesktopErrorEvent(super.cameraId, super.description, {required this.code, this.details});
+
+  /// One of [CameraDesktopErrorCode], or another native code.
+  final String code;
+
+  /// The native specifics, for logs.
+  final Object? details;
+}
+
+/// A camera as the native side lists it, with what [CameraDescription] has no
+/// room for.
+class CameraDesktopDevice {
+  /// Creates a device entry.
+  const CameraDesktopDevice({required this.description, this.denied = false, this.builtIn = false});
+
+  /// The description to create the camera with.
+  final CameraDescription description;
+
+  /// The camera is there but this app may not open it.
+  final bool denied;
+
+  /// The camera is built into the computer (macOS built-in wide angle,
+  /// Windows front panel). Linux cannot tell and says false.
+  final bool builtIn;
+}
 
 /// Desktop implementation of [CameraPlatform].
 ///
@@ -119,8 +173,9 @@ class CameraDesktopPlugin extends CameraPlatform {
     switch (call.method) {
       case 'cameraError':
         final cameraId = args!['cameraId']! as int;
-        final description = args['description']! as String;
-        _eventStreamController.add(CameraErrorEvent(cameraId, description));
+        final description = args['description'] as String? ?? '';
+        final code = args['code'] as String? ?? CameraDesktopErrorCode.failed;
+        _eventStreamController.add(CameraDesktopErrorEvent(cameraId, description, code: code, details: args['details']));
       case 'cameraClosing':
         final cameraId = args!['cameraId']! as int;
         _eventStreamController.add(CameraClosingEvent(cameraId));
@@ -162,15 +217,30 @@ class CameraDesktopPlugin extends CameraPlatform {
 
   @override
   Future<List<CameraDescription>> availableCameras() async {
-    final result = await _channel.invokeListMethod<Map<dynamic, dynamic>>(
-      'availableCameras',
-    );
-    if (result == null) return <CameraDescription>[];
+    return [for (final d in await listDevices()) d.description];
+  }
+
+  /// The cameras, with whether each is denied or built in. Throws
+  /// [CameraException] with code [CameraDesktopErrorCode.unsupported] when
+  /// this system cannot run the camera, and the reason as the description.
+  Future<List<CameraDesktopDevice>> listDevices() async {
+    final List<Map<dynamic, dynamic>>? result;
+    try {
+      result = await _channel.invokeListMethod<Map<dynamic, dynamic>>('availableCameras');
+    } on PlatformException catch (e) {
+      throw CameraException(e.code, e.message);
+    }
+    if (result == null) return const <CameraDesktopDevice>[];
     return result.map((Map<dynamic, dynamic> m) {
-      return CameraDescription(
-        name: m['name'] as String,
-        lensDirection: CameraLensDirection.values[m['lensDirection'] as int],
-        sensorOrientation: m['sensorOrientation'] as int,
+      final lens = m['lensDirection'] as int? ?? CameraLensDirection.external.index;
+      return CameraDesktopDevice(
+        description: CameraDescription(
+          name: m['name'] as String,
+          lensDirection: lens >= 0 && lens < CameraLensDirection.values.length ? CameraLensDirection.values[lens] : CameraLensDirection.external,
+          sensorOrientation: m['sensorOrientation'] as int? ?? 0,
+        ),
+        denied: m['denied'] as bool? ?? false,
+        builtIn: m['builtIn'] as bool? ?? false,
       );
     }).toList();
   }
@@ -263,7 +333,7 @@ class CameraDesktopPlugin extends CameraPlatform {
       );
     } on PlatformException catch (e) {
       _eventStreamController.add(
-        CameraErrorEvent(cameraId, e.message ?? 'Initialization failed'),
+        CameraDesktopErrorEvent(cameraId, e.message ?? 'Initialization failed', code: e.code, details: e.details),
       );
       throw CameraException(e.code, e.message);
     }
@@ -331,10 +401,8 @@ class CameraDesktopPlugin extends CameraPlatform {
 
   /// Builds the camera preview widget for the given [cameraId].
   ///
-  /// On macOS and Linux the native backend mirrors the texture, so the
-  /// [Texture] widget is returned as-is. On Windows, IMFCaptureEngine does
-  /// not mirror natively, so the texture is wrapped in a horizontal
-  /// [Transform] flip.
+  /// The texture as the camera sees it, never mirrored (patched: the app
+  /// mirrors the preview itself, so the frames it decodes are not mirrored).
   @override
   Widget buildPreview(int cameraId) {
     final textureId = _textureIds[cameraId];
@@ -345,13 +413,7 @@ class CameraDesktopPlugin extends CameraPlatform {
             'Was createCamera called?',
       );
     }
-    final texture = Texture(textureId: textureId);
-    if (!Platform.isWindows) return texture;
-    return Transform(
-      alignment: Alignment.center,
-      transform: Matrix4.diagonal3Values(-1, 1, 1),
-      child: texture,
-    );
+    return Texture(textureId: textureId);
   }
 
   @override
@@ -451,10 +513,19 @@ class CameraDesktopPlugin extends CameraPlatform {
         active = current;
         _activeImageStreams[cameraId] = current;
 
-        final dynamic value = await _channel.invokeMethod<dynamic>(
-          'startImageStream',
-          {'cameraId': cameraId},
-        );
+        // Patched: a refusal arrives on the stream as a CameraException, not
+        // as an uncaught error of this callback.
+        final dynamic value;
+        try {
+          value = await _channel.invokeMethod<dynamic>(
+            'startImageStream',
+            {'cameraId': cameraId},
+          );
+        } on PlatformException catch (e) {
+          if (identical(_activeImageStreams[cameraId], current)) _activeImageStreams.remove(cameraId);
+          if (!controller.isClosed) controller.addError(CameraException(e.code, e.message));
+          return;
+        }
         final handle = extractStreamHandle(value);
         streamHandle = handle;
 

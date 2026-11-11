@@ -58,4 +58,14 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE
   windowscodecs
   d3d11
   dxgi
+  cfgmgr32
 )
+
+# Media Foundation loads on first use, so the app starts on Windows N/KN
+# without the Media Feature Pack; the plugin checks for the DLLs first and
+# answers "unsupported" when they are missing.
+if(MSVC)
+  target_link_libraries(${PLUGIN_NAME} PRIVATE delayimp)
+  target_link_options(${PLUGIN_NAME} PRIVATE
+    "/DELAYLOAD:mf.dll" "/DELAYLOAD:mfplat.dll" "/DELAYLOAD:mfreadwrite.dll")
+endif()

@@ -6,9 +6,35 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <errno.h>
+#include <stdlib.h>
+
 #include <algorithm>
 #include <cstring>
 #include <set>
+
+// The physical device behind a node (/sys/class/video4linux/videoN/device),
+// readable without opening the node. Empty when sysfs does not have it.
+static std::string SysfsDevice(int index) {
+  char link[96];
+  snprintf(link, sizeof(link), "/sys/class/video4linux/video%d/device", index);
+  char* real = realpath(link, nullptr);
+  if (!real) return std::string();
+  std::string out(real);
+  free(real);
+  return out;
+}
+
+// One line of a sysfs attribute, trimmed. Empty when missing.
+static std::string SysfsAttr(int index, const char* attr) {
+  char path[96];
+  snprintf(path, sizeof(path), "/sys/class/video4linux/video%d/%s", index, attr);
+  gchar* text = nullptr;
+  if (!g_file_get_contents(path, &text, nullptr, nullptr) || !text) return std::string();
+  std::string out(g_strstrip(text));
+  g_free(text);
+  return out;
+}
 
 static const int kMaxDeviceIndex = 64;
 static const int kMinFps = 15;
@@ -72,15 +98,34 @@ static int QueryMaxFps(int fd, __u32 pixel_format, int width, int height) {
 std::vector<DeviceInfo> DeviceEnumerator::EnumerateDevices() {
   std::vector<DeviceInfo> devices;
   std::set<std::string> seen_bus_info;
+  std::set<std::string> seen_sysfs;
   int open_failures = 0;
 
   for (int i = 0; i < kMaxDeviceIndex; i++) {
     char path[32];
     snprintf(path, sizeof(path), "/dev/video%d", i);
 
+    // Enumeration only queries capabilities; it never starts streaming.
+    std::string sysfs = SysfsDevice(i);
     int fd = open(path, O_RDONLY | O_NONBLOCK);
     if (fd < 0) {
+      int e = errno;
       open_failures++;
+      // A node this user may not open is still a camera, present but denied.
+      // Without QUERYCAP the capture node is told from sysfs: index 0 is the
+      // first node of its device, the one that captures.
+      if ((e == EACCES || e == EPERM) && SysfsAttr(i, "index") == "0" &&
+          !(sysfs.size() > 0 && seen_sysfs.count(sysfs))) {
+        if (!sysfs.empty()) seen_sysfs.insert(sysfs);
+        DeviceInfo info;
+        info.device_path = path;
+        info.name = SysfsAttr(i, "name");
+        if (info.name.empty()) info.name = path;
+        info.lens_direction = 2;
+        info.sensor_orientation = 0;
+        info.denied = true;
+        devices.push_back(info);
+      }
       continue;
     }
 
@@ -115,11 +160,13 @@ std::vector<DeviceInfo> DeviceEnumerator::EnumerateDevices() {
 
     // Deduplicate by bus_info, each physical camera may expose multiple nodes.
     std::string bus(reinterpret_cast<const char*>(cap.bus_info));
-    if (!bus.empty() && seen_bus_info.count(bus)) {
+    if ((!bus.empty() && seen_bus_info.count(bus)) ||
+        (!sysfs.empty() && seen_sysfs.count(sysfs))) {
       close(fd);
       continue;
     }
     if (!bus.empty()) seen_bus_info.insert(bus);
+    if (!sysfs.empty()) seen_sysfs.insert(sysfs);
 
     DeviceInfo info;
     info.device_path = path;
@@ -138,7 +185,8 @@ std::vector<DeviceInfo> DeviceEnumerator::EnumerateDevices() {
   }
   g_info("[camera_desktop] V4L2 enumeration found %zu camera(s)", devices.size());
   for (const auto& d : devices) {
-    g_info("[camera_desktop]   → %s (%s)", d.name.c_str(), d.device_path.c_str());
+    g_info("[camera_desktop]   → %s (%s)%s", d.name.c_str(), d.device_path.c_str(),
+           d.denied ? " denied" : "");
   }
   return devices;
 }

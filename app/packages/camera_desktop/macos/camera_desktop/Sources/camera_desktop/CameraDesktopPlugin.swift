@@ -112,6 +112,8 @@ public class CameraDesktopPlugin: NSObject, FlutterPlugin, NSApplicationDelegate
                     "name": device.name,
                     "lensDirection": device.lensDirection,
                     "sensorOrientation": device.sensorOrientation,
+                    "denied": device.denied,
+                    "builtIn": device.builtIn,
                 ]
             }
             DispatchQueue.main.async {

@@ -1,6 +1,7 @@
 #include "camera.h"
 
 #include <comdef.h>
+#include <mferror.h>
 #include <flutter/standard_method_codec.h>
 #include <mfobjects.h>
 #include <objbase.h>
@@ -14,6 +15,42 @@
 #include "logging.h"
 #include "photo_handler.h"
 #include "pixel_utils.h"
+
+// ============================================================================
+// Error codes
+// ============================================================================
+
+namespace camera_error {
+
+const char* Classify(HRESULT hr) {
+  // An if chain: HRESULT_FROM_WIN32 is an inline function in some SDKs, not a
+  // constant a case label could use.
+  if (hr == E_ACCESSDENIED) return kDenied;
+  // The camera is open in another app, or the system gave it to one.
+  if (hr == MF_E_HW_MFT_FAILED_START_STREAMING ||
+      hr == MF_E_VIDEO_RECORDING_DEVICE_PREEMPTED ||
+      hr == HRESULT_FROM_WIN32(ERROR_SHARING_VIOLATION) ||
+      hr == HRESULT_FROM_WIN32(ERROR_BUSY)) {
+    return kBusy;
+  }
+  if (hr == MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED ||
+      hr == HRESULT_FROM_WIN32(ERROR_DEVICE_NOT_CONNECTED) ||
+      hr == HRESULT_FROM_WIN32(ERROR_DEV_NOT_EXIST) ||
+      hr == HRESULT_FROM_WIN32(ERROR_DEVICE_REMOVED)) {
+    return kUnplugged;
+  }
+  return kFailed;
+}
+
+flutter::EncodableValue Details(HRESULT hr) {
+  if (hr == S_OK) return flutter::EncodableValue();
+  return flutter::EncodableValue(flutter::EncodableMap{
+      {flutter::EncodableValue("hresult"),
+       flutter::EncodableValue(static_cast<int64_t>(static_cast<uint32_t>(hr)))},
+  });
+}
+
+}  // namespace camera_error
 
 // ============================================================================
 // COM callbacks
@@ -645,7 +682,8 @@ void Camera::Initialize(
 
     HRESULT hr = self->CreateCaptureEngine();
     if (FAILED(hr)) {
-      self->CompleteInit(false, "Failed to create capture engine");
+      self->CompleteInit(false, "Failed to create capture engine", 0, 0,
+                         camera_error::Classify(hr), hr);
       CoUninitialize();
       return;
     }
@@ -681,12 +719,14 @@ void Camera::Initialize(
           if (st == CameraState::kInitializing) {
             DebugLog("Camera::Initialize: timed out in kInitializing, no engine "
                      "event received");
-            self->CompleteInit(false, "Camera initialization timed out");
+            self->CompleteInit(false, "Camera initialization timed out", 0, 0,
+                               camera_error::kNoPicture);
           } else if (st == CameraState::kRunning &&
                      !self->first_frame_received_.load()) {
             DebugLog("Camera::Initialize: started but no frames within 8s, "
                      "signaling cameraError");
-            self->SendError("Camera started but no frames were received");
+            self->SendError("Camera started but no frames were received",
+                            camera_error::kNoPicture);
           }
         }
       }
@@ -733,8 +773,15 @@ void Camera::OnEngineEvent(IMFMediaEvent* event) {
     }
     if (msg.empty()) msg = "Unknown capture engine error";
     DebugLog("Camera::OnEngineEvent ERROR: " + msg);
-    FailAllPendingResults(msg);
-    SendError("Capture engine error: " + msg);
+    const char* code = camera_error::Classify(event_hr);
+    bool was_initializing = false;
+    {
+      std::lock_guard<std::mutex> lk(pending_mutex_);
+      was_initializing = static_cast<bool>(pending_init_);
+    }
+    FailAllPendingResults(msg, code, event_hr);
+    // A failed initialize already carries the error.
+    if (!was_initializing) SendError("Capture engine error: " + msg, code, event_hr);
     return;
   }
 
@@ -742,7 +789,8 @@ void Camera::OnEngineEvent(IMFMediaEvent* event) {
   if (event_type == MF_CAPTURE_ENGINE_INITIALIZED) {
     if (FAILED(event_hr)) {
       _com_error ce(event_hr);
-      CompleteInit(false, "Engine init failed: " + WstrToUtf8(ce.ErrorMessage()));
+      CompleteInit(false, "Engine init failed: " + WstrToUtf8(ce.ErrorMessage()),
+                   0, 0, camera_error::Classify(event_hr), event_hr);
       return;
     }
     DebugLog("Camera::OnEngineEvent INITIALIZED");
@@ -751,7 +799,8 @@ void Camera::OnEngineEvent(IMFMediaEvent* event) {
 
     HRESULT hr = FindBaseMediaTypes();
     if (FAILED(hr)) {
-      CompleteInit(false, "Failed to enumerate camera media types");
+      CompleteInit(false, "Failed to enumerate camera media types", 0, 0,
+                   camera_error::Classify(hr), hr);
       return;
     }
     DebugLog("init-timing: +" + std::to_string(InitElapsedMs()) +
@@ -759,7 +808,8 @@ void Camera::OnEngineEvent(IMFMediaEvent* event) {
 
     hr = StartPreviewInternal();
     if (FAILED(hr)) {
-      CompleteInit(false, "Failed to start camera preview");
+      CompleteInit(false, "Failed to start camera preview", 0, 0,
+                   camera_error::Classify(hr), hr);
       return;
     }
 
@@ -970,7 +1020,8 @@ void Camera::OnPreviewSample(IMFSample* sample) {
 // ============================================================================
 
 void Camera::CompleteInit(bool success, const std::string& error,
-                          int width, int height) {
+                          int width, int height, const char* code,
+                          HRESULT hr) {
   std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> r;
   {
     std::lock_guard<std::mutex> lk(pending_mutex_);
@@ -997,16 +1048,28 @@ void Camera::CompleteInit(bool success, const std::string& error,
       if (state_ == CameraState::kInitializing)
         state_ = CameraState::kCreated;
     }
-    r->Error("initialization_failed", error);
+    r->Error(code ? code : camera_error::kFailed, error,
+             camera_error::Details(hr));
   }
 }
 
-void Camera::FailAllPendingResults(const std::string& error) {
-  std::lock_guard<std::mutex> lk(pending_mutex_);
-  if (pending_init_) {
-    pending_init_->Error("disposed", error);
-    pending_init_.reset();
+void Camera::FailAllPendingResults(const std::string& error,
+                                   const char* init_code, HRESULT hr) {
+  std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> init;
+  {
+    std::lock_guard<std::mutex> lk(pending_mutex_);
+    init = std::move(pending_init_);
   }
+  if (init) {
+    {
+      std::lock_guard<std::mutex> lk(state_mutex_);
+      if (init_code && state_ == CameraState::kInitializing)
+        state_ = CameraState::kCreated;
+    }
+    init->Error(init_code ? init_code : "disposed", error,
+                camera_error::Details(hr));
+  }
+  std::lock_guard<std::mutex> lk(pending_mutex_);
   if (pending_start_record_) {
     pending_start_record_->Error("disposed", error);
     pending_start_record_.reset();
@@ -1359,10 +1422,13 @@ void Camera::ResumePreview() {
 // Error
 // ============================================================================
 
-void Camera::SendError(const std::string& description) {
+void Camera::SendError(const std::string& description, const char* code,
+                       HRESULT hr) {
   auto* channel = channel_;
   int camera_id = camera_id_;
-  platform_task_poster_([channel, camera_id, description]() {
+  std::string code_str(code ? code : camera_error::kFailed);
+  flutter::EncodableValue details = camera_error::Details(hr);
+  platform_task_poster_([channel, camera_id, description, code_str, details]() {
     channel->InvokeMethod(
         "cameraError",
         std::make_unique<flutter::EncodableValue>(flutter::EncodableMap{
@@ -1370,6 +1436,9 @@ void Camera::SendError(const std::string& description) {
              flutter::EncodableValue(camera_id)},
             {flutter::EncodableValue("description"),
              flutter::EncodableValue(description)},
+            {flutter::EncodableValue("code"),
+             flutter::EncodableValue(code_str)},
+            {flutter::EncodableValue("details"), details},
         }));
   }, "cameraError");
 }

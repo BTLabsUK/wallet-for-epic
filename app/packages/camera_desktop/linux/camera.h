@@ -94,7 +94,11 @@ class Camera {
 
  private:
   bool BuildPipeline(GError** error);
-  void RespondToPendingInit(bool success, const char* error_message);
+  // Takes ownership of |details| (may be null).
+  void RespondToPendingInit(bool success, const char* error_message,
+                            const char* code, FlValue* details);
+  // Maps a GStreamer error to a structured code (camera.cc).
+  const char* ClassifyError(const GError* err, bool running, int* out_errno);
 
   // GStreamer callbacks (static with user_data = Camera*).
   static GstFlowReturn OnNewSample(GstAppSink* sink, gpointer user_data);
@@ -103,7 +107,9 @@ class Camera {
   static gboolean OnInitTimeout(gpointer user_data);
 
   // Sends an error event to Dart via the method channel.
-  void SendError(const std::string& description);
+  // Takes ownership of |details| (may be null).
+  void SendError(const std::string& description, const char* code,
+                 FlValue* details);
 
   int camera_id_;
   int64_t texture_id_;

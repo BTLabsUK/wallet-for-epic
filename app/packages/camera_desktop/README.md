@@ -1,3 +1,34 @@
+# Vendored copy
+
+This is [camera_desktop](https://github.com/hugocornellier/camera_desktop) 2.0.0 (MIT, see LICENSE), vendored for
+Epic Wallet's desktop QR scanner. `example/`, `android/`, `ios/` and `linux/test/` are left out. Our patches:
+
+- **Linux loader.** `camera_desktop_plugin` is a small loader (`linux/loader.cc`) with no GStreamer dependency. It opens
+  `libcamera_desktop_impl.so` (the camera, linked to GStreamer) from the bundle's `lib/` with `RTLD_NOW | RTLD_LOCAL`
+  and asks it whether GStreamer and every element the pipeline needs are there. When the library does not load or an
+  element is missing, every call answers the error code `unsupported` with the reason, so the app still starts. The
+  loader exports the FFI image-stream functions and forwards them. `CAMERA_DESKTOP_FORCE_UNSUPPORTED=1` forces the
+  fallback. Without the GStreamer development files at build time only the loader is built.
+- **Windows delay-load.** `mf.dll`, `mfplat.dll` and `mfreadwrite.dll` are delay-loaded. The plugin checks them in
+  System32 (`LoadLibraryExW` with `LOAD_LIBRARY_SEARCH_SYSTEM32`) before the first Media Foundation call and answers
+  `unsupported` when one is missing (Windows N/KN without the Media Feature Pack).
+- **Error codes.** Method errors and `cameraError` carry a code: `denied`, `busy`, `unplugged`, `no_device`,
+  `no_picture` (no frames in time), `unsupported`, or `failed` with the errno, GError or HRESULT in the details. They
+  come from the platform's error codes and the device's state, never from message text. In Dart the event is
+  `CameraDesktopErrorEvent` (with `code` and `details`); the codes are in `CameraDesktopErrorCode`.
+- **Enumeration.** `listDevices()` returns `CameraDesktopDevice`s with `denied` (Linux: a `/dev/video*` node that
+  cannot be opened, named from sysfs; macOS: access denied or restricted; Windows: the privacy consent store) and
+  `builtIn` (macOS built-in wide-angle camera; Windows front panel). Enumeration never streams.
+- **No mirroring.** Frames and the preview come as the camera sees them on every platform (upstream mirrored on macOS
+  and flipped the preview on Windows). The app mirrors its preview itself.
+- **macOS.** Unplugging sends `unplugged` (`AVCaptureDeviceWasDisconnected`); an interruption while another app uses
+  the camera sends `busy`; `cameraError` sends `description` (upstream sent `message`, which Dart did not read).
+- **Linux.** MJPEG is used only when `jpegdec` is installed.
+- **Image stream.** A refused `startImageStream` arrives on the frame stream as a `CameraException` (upstream left it
+  an uncaught error).
+
+---
+
 <h1 align="center">camera_desktop</h1>
 
 <p align="center">

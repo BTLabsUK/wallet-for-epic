@@ -55,6 +55,9 @@ static void respond_with_devices(FlMethodCall* method_call,
                              fl_value_new_int(device.lens_direction));
     fl_value_set_string_take(entry, "sensorOrientation",
                              fl_value_new_int(device.sensor_orientation));
+    fl_value_set_string_take(entry, "denied", fl_value_new_bool(device.denied));
+    fl_value_set_string_take(entry, "builtIn",
+                             fl_value_new_bool(device.built_in));
     fl_value_append(result, entry);
   }
   fl_method_call_respond_success(method_call, result, nullptr);
@@ -443,7 +446,33 @@ static void camera_desktop_plugin_init(CameraDesktopPlugin* self) {
   }
 }
 
-void camera_desktop_plugin_register_with_registrar(
+// The loader (loader.cc) calls these two after dlopen. The probe answers 1
+// when GStreamer starts and has every element the pipeline needs; otherwise 0
+// with the reason. jpegdec is optional: without it MJPEG is not used.
+extern "C" __attribute__((visibility("default"))) int camera_desktop_impl_probe(
+    char* reason, size_t reason_len) {
+  GError* error = nullptr;
+  if (!gst_init_check(nullptr, nullptr, &error)) {
+    g_snprintf(reason, reason_len, "GStreamer did not start: %s",
+               error ? error->message : "unknown");
+    g_clear_error(&error);
+    return 0;
+  }
+  static const char* const kNeeded[] = {"v4l2src",  "videoconvert", "videoscale",
+                                        "videorate", "videoflip",   "tee",
+                                        "queue",    "appsink"};
+  for (const char* name : kNeeded) {
+    GstElementFactory* factory = gst_element_factory_find(name);
+    if (factory == nullptr) {
+      g_snprintf(reason, reason_len, "GStreamer element %s is missing", name);
+      return 0;
+    }
+    gst_object_unref(factory);
+  }
+  return 1;
+}
+
+extern "C" __attribute__((visibility("default"))) void camera_desktop_impl_register(
     FlPluginRegistrar* registrar) {
   // Initialize GStreamer (safe to call multiple times).
   gst_init(nullptr, nullptr);

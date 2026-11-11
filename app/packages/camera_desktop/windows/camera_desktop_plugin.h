@@ -99,6 +99,9 @@ class CameraDesktopPlugin : public flutter::Plugin {
   int next_camera_id_ = 1;
   bool should_co_uninitialize_ = false;
   bool shutting_down_ = false;
+  // Set when Media Foundation is missing (Windows N/KN without the Media
+  // Feature Pack): every call answers "unsupported" with this reason.
+  std::string unsupported_reason_;
 
   static CameraDesktopPlugin* instance_;
 };
