@@ -20449,7 +20449,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get announcementOpensInBrowser => '在浏览器中打开';
 
   @override
-  String get deskSetGrpAnnouncements => '公告';
+  String get deskSetGrpAnnouncements => '来自 BT Labs';
 
   @override
   String get deskSetSynAnnouncements => '公告, 通知, 消息, 新闻, bt labs';

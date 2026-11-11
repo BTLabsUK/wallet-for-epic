@@ -21218,7 +21218,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get announcementOpensInBrowser => 'เปิดในเบราว์เซอร์';
 
   @override
-  String get deskSetGrpAnnouncements => 'ประกาศ';
+  String get deskSetGrpAnnouncements => 'จาก BT Labs';
 
   @override
   String get deskSetSynAnnouncements =>

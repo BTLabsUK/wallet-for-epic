@@ -5621,7 +5621,7 @@
   "deskE1TourReceiveText": "这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。",
   "deskE1Sealed": "已用 epic1 密封",
   "deskE1SpokenSealed": "{row}，已用 epic1 密封",
-  "deskSetGrpAnnouncements": "公告",
+  "deskSetGrpAnnouncements": "来自 BT Labs",
   "deskSetSynAnnouncements": "公告, 通知, 消息, 新闻, bt labs",
   "announcementsTitle": "公告",
   "announcementsHint": "BT Labs 在版本更新之间发布的简短消息，由 BT Labs 签名。关闭后：不再检查这些消息。",

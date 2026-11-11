@@ -33774,10 +33774,10 @@ abstract class AppLocalizations {
   /// **'opens in the browser'**
   String get announcementOpensInBrowser;
 
-  /// Settings: heading of the “Announcements” group of rows (on its page and over search results).
+  /// Settings › Advanced: heading of the group that holds the Announcements switch (on its page and over search results). BT Labs is a name: keep it.
   ///
   /// In en, this message translates to:
-  /// **'Announcements'**
+  /// **'From BT Labs'**
   String get deskSetGrpAnnouncements;
 
   /// Settings search: other words that find the “Announcements” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.

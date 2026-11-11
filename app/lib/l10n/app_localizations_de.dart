@@ -21919,7 +21919,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get announcementOpensInBrowser => 'öffnet im Browser';
 
   @override
-  String get deskSetGrpAnnouncements => 'Hinweise';
+  String get deskSetGrpAnnouncements => 'Von BT Labs';
 
   @override
   String get deskSetSynAnnouncements =>

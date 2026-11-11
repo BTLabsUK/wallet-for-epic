@@ -22381,7 +22381,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get announcementOpensInBrowser => 'otwiera w przeglądarce';
 
   @override
-  String get deskSetGrpAnnouncements => 'Ogłoszenia';
+  String get deskSetGrpAnnouncements => 'Od BT Labs';
 
   @override
   String get deskSetSynAnnouncements =>

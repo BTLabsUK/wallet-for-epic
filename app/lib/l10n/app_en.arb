@@ -29379,9 +29379,9 @@
   "@announcementOpensInBrowser": {
     "description": "Announcement card: screen-reader addition after the link, said when the link opens an https address in the system browser (lower case, follows the link label and host)."
   },
-  "deskSetGrpAnnouncements": "Announcements",
+  "deskSetGrpAnnouncements": "From BT Labs",
   "@deskSetGrpAnnouncements": {
-    "description": "Settings: heading of the “Announcements” group of rows (on its page and over search results)."
+    "description": "Settings › Advanced: heading of the group that holds the Announcements switch (on its page and over search results). BT Labs is a name: keep it."
   },
   "deskSetSynAnnouncements": "announcements, news, messages, notices, bt labs",
   "@deskSetSynAnnouncements": {

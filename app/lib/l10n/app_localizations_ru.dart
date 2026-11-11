@@ -22369,7 +22369,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementOpensInBrowser => 'открывается в браузере';
 
   @override
-  String get deskSetGrpAnnouncements => 'Объявления';
+  String get deskSetGrpAnnouncements => 'От BT Labs';
 
   @override
   String get deskSetSynAnnouncements =>
