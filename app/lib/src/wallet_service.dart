@@ -33,13 +33,16 @@ export 'models.dart';
 export 'pairing_api.dart';
 
 /// Bytes one part of an animated QR code carries, for payments and in-person codes alike.
-/// Every code the wallet shows is level H with a logo in its centre; 64 keeps each part within
-/// a version 11 code (61 modules, alphanumeric), the size a 200-byte part had at level L.
-const int qrFragmentLen = 64;
+/// Every code the wallet shows is level H with a logo in its centre; 107 keeps each part within
+/// a version 14 code (73 modules, alphanumeric), at most 270 of its 283 characters. The qr
+/// package draws no version 15 code at level H (its table for it lacks the second block
+/// group), so a longer part would take version 16.
+const int qrFragmentLen = 107;
 
-/// The longest payload, in bytes, that shows as one QR code rather than an animated one. 80
-/// keeps a single code within version 11 at level H as well (LEPIC's own default is 360).
-const int qrSingleCodeMaxLen = 80;
+/// The longest payload, in bytes, that shows as one QR code rather than an animated one. 124
+/// keeps a single code within version 14 at level H as well, at most 270 characters (LEPIC's
+/// own default is 360).
+const int qrSingleCodeMaxLen = 124;
 
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 /// Whether the wallet core takes [WalletConfig.offline] (Kill switch sessions that refuse their

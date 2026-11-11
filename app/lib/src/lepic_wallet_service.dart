@@ -1327,6 +1327,7 @@ class LepicWalletService implements WalletService {
   }) => _guard(
     () => lepic.encodeUrSlate(
       json: json,
+      chain: _lepicChain(_chain),
       maxFragmentLen: maxFragmentLen,
       singleCodeMaxLen: singleCodeMaxLen,
     ),

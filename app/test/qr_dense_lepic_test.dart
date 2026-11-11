@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // The QR codes the wallet shows, on the real LEPIC codec: payment files (`ur:epic-slate`) and
 // in-person codes and answers, encoded with the app's limits (qrFragmentLen, qrSingleCodeMaxLen),
-// every part read back, and every frame drawn at level H no larger than version 11 (61 modules),
-// the size a part had at level L before the logo. Needs a LEPIC Linux library, the release one or
+// every part read back, and every frame drawn at level H no larger than version 14 (73 modules).
+// The payment slates in test/fixtures/qr_slates come from a floonet send and invoice of LEPIC's
+// test wallets, with a message; s1.v1-64.parts is that S1 as an app before native payment codes
+// showed it (deflated text, 64-byte parts). Needs a LEPIC Linux library, the release one or
 // LEPIC's mock build (lepic-flutter's `tool/lepic.sh test` makes it in test_native/):
 //
 //   WFE_LEPIC_LIB=<path to liblepic_ffi.so> flutter test test/qr_dense_lepic_test.dart
@@ -19,8 +21,10 @@ import 'package:lepic/src/rust/api/in_person.dart' as lepic_in_person;
 
 final String? _lib = Platform.environment['WFE_LEPIC_LIB'] ?? Platform.environment['WFE_LEPIC_MOCK_LIB'];
 
-/// The largest frame the wallet draws: version 11.
-const int _maxModules = 61;
+/// The largest frame the wallet draws: version 14.
+const int _maxModules = 73;
+
+const String _slates = 'test/fixtures/qr_slates';
 
 /// [length] bytes that do not compress, the same on every run, behind the magic LEPIC checks:
 /// a native slate's (a code) or an envelope's (an answer).
@@ -59,11 +63,12 @@ void main() {
     // A send code, an invoice code and the pay answer, at the sizes LEPIC makes them.
     for (final (name, length, partCount, answer) in [
       ('a short code', 60, 1, false),
-      ('a send code', 196, 4, false),
-      ('an invoice code', 321, 6, false),
-      ('a pay answer', 1152, 19, true),
+      ('the longest single code', 118, 1, false),
+      ('a send code', 196, 2, false),
+      ('an invoice code', 321, 4, false),
+      ('a pay answer', 1152, 11, true),
     ]) {
-      test('$name ($length bytes) reads back and every frame fits version 11', () {
+      test('$name ($length bytes) reads back and every frame fits version 14', () {
         final bytes = _bytes(length, length, answer: answer);
         final parts = inPerson(bytes);
         expectFrames(parts, partCount);
@@ -85,14 +90,48 @@ void main() {
   }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : null);
 
   group('payment files', () {
-    for (final (name, length) in [('a short payment', 40), ('a long payment', 4000)]) {
-      test('$name reads back and every frame fits version 11', () async {
-        final json = _json(length, length);
-        final parts = await lepic.encodeUrSlate(
-          json: json,
-          maxFragmentLen: qrFragmentLen,
-          singleCodeMaxLen: qrSingleCodeMaxLen,
+    Future<List<String>> encode(String json) => lepic.encodeUrSlate(
+      json: json,
+      chain: lepic.Chain.floonet,
+      maxFragmentLen: qrFragmentLen,
+      singleCodeMaxLen: qrSingleCodeMaxLen,
+    );
+
+    // The parts each stage takes as lepic.v1 bytes, and the stage the text read back has.
+    for (final (name, partCount, stage) in [
+      ('s1', 3, lepic.SlateStage.s1),
+      ('s2', 17, lepic.SlateStage.s2),
+      ('s3', 19, lepic.SlateStage.s3),
+      ('i1', 3, lepic.SlateStage.i1),
+      ('i2', 18, lepic.SlateStage.i2),
+    ]) {
+      test('a real $name reads back as the same slate and every frame fits version 14', () async {
+        final json = File('$_slates/$name.json').readAsStringSync();
+        final parts = await encode(json);
+        expectFrames(parts, partCount);
+        final read = await lepic.decodeUrSlate(parts: parts);
+        expect(read.complete, isTrue);
+        final (got, shown) = (
+          await lepic.inspectSlate(json: read.json!, chain: lepic.Chain.floonet),
+          await lepic.inspectSlate(json: json, chain: lepic.Chain.floonet),
         );
+        expect(got.stage, stage);
+        expect((got.slateId, got.amount, got.fee), (shown.slateId, shown.amount, shown.fee));
+      });
+    }
+
+    test('a code an older app showed, deflated text in 64-byte parts, still reads', () async {
+      final parts = File('$_slates/s1.v1-64.parts').readAsLinesSync();
+      final read = await lepic.decodeUrSlate(parts: parts);
+      expect(read.complete, isTrue);
+      expect(read.json, File('$_slates/s1.json').readAsStringSync());
+    });
+
+    // Text that is not a slate goes as deflated text.
+    for (final (name, length) in [('a short payment', 40), ('a long payment', 4000)]) {
+      test('$name that is not a slate reads back and every frame fits version 14', () async {
+        final json = _json(length, length);
+        final parts = await encode(json);
         final partCount = QrFrames.of(parts).partCount;
         expect(partCount, length < 100 ? 1 : greaterThan(10));
         expectFrames(parts, partCount);
