@@ -249,5 +249,17 @@
 {"id": "g4.e1.pay_in_person", "screen": "send", "family": ["desktop"], "keys": ["deskE1PayInPerson"], "driver": false},
 {"id": "g4.e1.send", "screen": "send_review", "family": ["desktop"], "keys": ["deskE1Send"], "driver": false},
 {"id": "g4.e1.cancel_unlock", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1CancelUnlock"], "driver": false},
-{"id": "g4.e1.try_next", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1TryNext"], "driver": false}
+{"id": "g4.e1.try_next", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1TryNext"], "driver": false},
+{"id": "g4.pin.key.0", "screen": "pin", "family": ["android"], "names": ["0"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.1", "screen": "pin", "family": ["android"], "names": ["1"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.2", "screen": "pin", "family": ["android"], "names": ["2"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.3", "screen": "pin", "family": ["android"], "names": ["3"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.4", "screen": "pin", "family": ["android"], "names": ["4"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.5", "screen": "pin", "family": ["android"], "names": ["5"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.6", "screen": "pin", "family": ["android"], "names": ["6"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.7", "screen": "pin", "family": ["android"], "names": ["7"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.8", "screen": "pin", "family": ["android"], "names": ["8"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.9", "screen": "pin", "family": ["android"], "names": ["9"], "match": "exact", "secret": true},
+{"id": "g4.pin.key.delete", "screen": "pin", "family": ["android"], "keys": ["phoneKitDeleteDigit"], "driver": false},
+{"id": "g4.pin.key.bio", "screen": "pin", "family": ["android"], "keys": ["pinUseBiometrics"], "driver": false}
 ]}

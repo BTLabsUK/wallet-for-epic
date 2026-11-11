@@ -20847,4 +20847,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => '关闭';
+
+  @override
+  String get phonePinChooseHint => '用于解锁钱包和批准付款。';
+
+  @override
+  String get phonePinBiometricsBody => '面容或指纹，取决于这部手机。PIN 仍然可用。';
 }

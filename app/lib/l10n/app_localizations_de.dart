@@ -22348,4 +22348,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Schließen';
+
+  @override
+  String get phonePinChooseHint =>
+      'Sie entsperrt die Wallet und gibt Zahlungen frei.';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'Gesicht oder Fingerabdruck, je nach Gerät. Die PIN funktioniert weiterhin.';
 }

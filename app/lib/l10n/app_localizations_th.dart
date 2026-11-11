@@ -21637,4 +21637,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'ปิด';
+
+  @override
+  String get phonePinChooseHint => 'ใช้ปลดล็อกกระเป๋าและอนุมัติการชำระเงิน';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'ใบหน้าหรือลายนิ้วมือ แล้วแต่โทรศัพท์เครื่องนี้ PIN ยังใช้ได้เหมือนเดิม';
 }

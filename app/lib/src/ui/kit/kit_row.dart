@@ -141,11 +141,12 @@ class KitRow extends StatelessWidget {
 
 /// The rounded square behind a row's icon: 40 px, radius 13, the quiet fill.
 class KitIconWell extends StatelessWidget {
-  const KitIconWell(this.icon, {super.key, this.color, this.size = Kit.avatar});
+  const KitIconWell(this.icon, {super.key, this.color, this.size = Kit.avatar, this.iconSize = 22});
 
   final IconData icon;
   final Color? color;
   final double size;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +156,7 @@ class KitIconWell extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(Kit.rAvatar)),
-      child: ExcludeSemantics(child: Icon(icon, size: 22, color: color ?? t.dim)),
+      child: ExcludeSemantics(child: Icon(icon, size: iconSize, color: color ?? t.dim)),
     );
   }
 }

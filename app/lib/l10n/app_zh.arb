@@ -5739,5 +5739,7 @@
   "phoneKitStepDone": "已完成",
   "phoneKitStepNow": "进行中",
   "phoneKitStepLater": "未开始",
-  "phoneKitDismiss": "关闭"
+  "phoneKitDismiss": "关闭",
+  "phonePinChooseHint": "用于解锁钱包和批准付款。",
+  "phonePinBiometricsBody": "面容或指纹，取决于这部手机。PIN 仍然可用。"
 }

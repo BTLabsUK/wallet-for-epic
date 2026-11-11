@@ -50,7 +50,7 @@ Future<bool> inPersonSpendGate(BuildContext context, WidgetRef ref, BigInt amoun
   final vault = ref.read(vaultProvider);
   final l = context.l10n;
   final shown = epicExact(l, amount);
-  final approved = await askPin(
+  final approved = await showPinSheet(
     context,
     reason: usesPassphrase(ref) ? l.sendPassphraseReason(shown) : l.sendPinReason(shown),
     action: (pin) async {

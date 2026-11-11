@@ -34,6 +34,9 @@ BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 PIN_CHOOSE = T("g4.pin.choose")
 PIN_AGAIN = T("g4.pin.again")
 PIN_FIELD = T("g4.pin.field")
+# The wallet's own keypad (the phone's PIN screens); a passphrase wallet and older builds keep the text field.
+PIN_KEYS = {"0": T("g4.pin.key.0"), "1": T("g4.pin.key.1"), "2": T("g4.pin.key.2"), "3": T("g4.pin.key.3"), "4": T("g4.pin.key.4"),
+            "5": T("g4.pin.key.5"), "6": T("g4.pin.key.6"), "7": T("g4.pin.key.7"), "8": T("g4.pin.key.8"), "9": T("g4.pin.key.9")}
 PIN_WRONG = T("g4.pin.wrong")
 UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
@@ -207,7 +210,14 @@ class Phone:
         d.trail.append(step)
         for _ in range(2):
             f = d.locate(PIN_FIELD, 30)
-            d._act(d.s.set_text, f, self.pin, True)
+            if d.find_in(PIN_KEYS["0"], d.tree()):
+                # The keypad: one key per digit, no digit in a log or a step line.
+                with d.hush():
+                    for c in self.pin:
+                        k = d.locate(PIN_KEYS[c], 10)
+                        d._act(d.s.press, k)
+            else:
+                d._act(d.s.set_text, f, self.pin, True)
             r = d.wait(then, timeout)
             if r:
                 return r

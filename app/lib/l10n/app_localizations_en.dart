@@ -22084,4 +22084,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Dismiss';
+
+  @override
+  String get phonePinChooseHint =>
+      'It unlocks the wallet and approves payments.';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'Face or fingerprint, whichever this phone has. The PIN still works.';
 }

@@ -22797,4 +22797,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Закрыть';
+
+  @override
+  String get phonePinChooseHint =>
+      'Он открывает кошелёк и подтверждает платежи.';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'Лицо или отпечаток пальца, смотря что есть в телефоне. PIN тоже работает.';
 }

@@ -5739,5 +5739,7 @@
   "phoneKitStepDone": "Gotowe",
   "phoneKitStepNow": "W toku",
   "phoneKitStepLater": "Jeszcze nie rozpoczęte",
-  "phoneKitDismiss": "Zamknij"
+  "phoneKitDismiss": "Zamknij",
+  "phonePinChooseHint": "Odblokowuje portfel i zatwierdza płatności.",
+  "phonePinBiometricsBody": "Twarz lub odcisk palca, zależnie od telefonu. PIN nadal działa."
 }

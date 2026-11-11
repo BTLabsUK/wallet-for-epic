@@ -22811,4 +22811,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Zamknij';
+
+  @override
+  String get phonePinChooseHint =>
+      'Odblokowuje portfel i zatwierdza płatności.';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'Twarz lub odcisk palca, zależnie od telefonu. PIN nadal działa.';
 }

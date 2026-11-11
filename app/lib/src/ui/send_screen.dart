@@ -80,7 +80,7 @@ import '../pairing_file_seal.dart' show fileSealTarget, sealQuiet;
 import 'status_icons.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
-import 'pin.dart' show askPin, usesPassphrase;
+import 'pin.dart' show showPinSheet, usesPassphrase;
 import 'qr_scan_screen.dart';
 import 'payment_code_ui.dart';
 import 'qr_show_screen.dart';
@@ -1573,7 +1573,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final config = ref.read(walletConfigProvider);
     if (session == null || config == null) return false;
     final vault = ref.read(vaultProvider);
-    final ok = await askPin<bool>(
+    final ok = await showPinSheet<bool>(
       context,
       reason: reason,
       action: (pin) async {

@@ -23,7 +23,7 @@ import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart';
 import '../in_person/in_person_entry.dart';
-import '../pin.dart' show askPin, usesPassphrase;
+import '../pin.dart' show showPinSheet, usesPassphrase;
 import '../theme/tokens.dart';
 import '../tip.dart';
 import 'epic1_common.dart';
@@ -293,7 +293,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     if (session == null || config == null) return false;
     final vault = ref.read(vaultProvider);
     final text = epicText(l, amount);
-    final ok = await askPin<bool>(
+    final ok = await showPinSheet<bool>(
       context,
       reason: usesPassphrase(ref) ? l.sendPassphraseReason(text) : l.sendPinReason(text),
       action: (pin) async {

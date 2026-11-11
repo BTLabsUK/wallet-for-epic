@@ -34463,6 +34463,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get phoneKitDismiss;
+
+  /// Hint under the title of the first PIN step.
+  ///
+  /// In en, this message translates to:
+  /// **'It unlocks the wallet and approves payments.'**
+  String get phonePinChooseHint;
+
+  /// Text of the biometrics offer sheet after choosing a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Face or fingerprint, whichever this phone has. The PIN still works.'**
+  String get phonePinBiometricsBody;
 }
 
 class _AppLocalizationsDelegate

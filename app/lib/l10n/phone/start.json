@@ -1,0 +1,10 @@
+{
+  "phonePinChooseHint": "It unlocks the wallet and approves payments.",
+  "@phonePinChooseHint": {
+    "description": "Hint under the title of the first PIN step."
+  },
+  "phonePinBiometricsBody": "Face or fingerprint, whichever this phone has. The PIN still works.",
+  "@phonePinBiometricsBody": {
+    "description": "Text of the biometrics offer sheet after choosing a PIN."
+  }
+}

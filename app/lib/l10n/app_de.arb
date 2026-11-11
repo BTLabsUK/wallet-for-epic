@@ -5739,5 +5739,7 @@
   "phoneKitStepDone": "Erledigt",
   "phoneKitStepNow": "In Arbeit",
   "phoneKitStepLater": "Noch nicht begonnen",
-  "phoneKitDismiss": "Schließen"
+  "phoneKitDismiss": "Schließen",
+  "phonePinChooseHint": "Sie entsperrt die Wallet und gibt Zahlungen frei.",
+  "phonePinBiometricsBody": "Gesicht oder Fingerabdruck, je nach Gerät. Die PIN funktioniert weiterhin."
 }

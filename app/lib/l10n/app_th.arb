@@ -5739,5 +5739,7 @@
   "phoneKitStepDone": "เสร็จแล้ว",
   "phoneKitStepNow": "กำลังดำเนินการ",
   "phoneKitStepLater": "ยังไม่เริ่ม",
-  "phoneKitDismiss": "ปิด"
+  "phoneKitDismiss": "ปิด",
+  "phonePinChooseHint": "ใช้ปลดล็อกกระเป๋าและอนุมัติการชำระเงิน",
+  "phonePinBiometricsBody": "ใบหน้าหรือลายนิ้วมือ แล้วแต่โทรศัพท์เครื่องนี้ PIN ยังใช้ได้เหมือนเดิม"
 }
