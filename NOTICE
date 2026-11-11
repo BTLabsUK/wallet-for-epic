@@ -22,6 +22,10 @@ Carbon Icons (Copyright IBM Corp., Apache License 2.0) and Material Symbols
 (Copyright Google LLC, Apache License 2.0); app/assets/licenses/status-icons.txt
 names the icon each glyph comes from.
 
+The desktop camera plugin (app/packages/camera_desktop) is camera_desktop 2.0.0
+(https://github.com/hugocornellier/camera_desktop, Copyright Hugo Cornellier, MIT licence),
+vendored with changes for the QR scan; its README lists them.
+
 The wallet engine is LEPIC (https://github.com/BTLabsUK/lepic), licensed
 under the Apache License, Version 2.0, with its own NOTICE.
 
