@@ -21299,4 +21299,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskIpOnlineDetails => 'รายละเอียด';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return 'กำลังส่งผ่าน $method';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return 'กำลังเข้ามาผ่าน $method';
+  }
+
+  @override
+  String get deskLvPayViaFile => 'ไฟล์';
 }

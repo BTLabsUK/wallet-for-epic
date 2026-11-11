@@ -5647,5 +5647,8 @@
   "deskIpOnlineCancel": "取消在线回应",
   "deskIpOnlineCancelCode": "之后扫描或粘贴另一部手机的回应。",
   "deskIpOnlineCancelAnswer": "之后由另一部手机扫描你的回应。",
-  "deskIpOnlineDetails": "详情"
+  "deskIpOnlineDetails": "详情",
+  "deskLvPaySendingVia": "正在通过{method}发送",
+  "deskLvPayArrivingVia": "正在通过{method}收取",
+  "deskLvPayViaFile": "文件"
 }

@@ -30,6 +30,8 @@ import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'activity_screen.dart' show ActivityArgs;
 import 'restore_scan_panel.dart';
+import '../../../ui/method_icons.dart' show MethodIcons;
+import '../../data/models.dart' show TxMethod;
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../settings_file/host_settings.dart' show hostSettings;
@@ -1181,10 +1183,24 @@ String _inFlightTitle(AppLocalizations l, Tx t, bool technical) {
   // A payment handed over in person or by link has no name to give: the title says how.
   final nameless = t.contactName == null && t.counterparty == null && t.epic1Via != null;
   if (nameless && technical && !t.incoming && t.epic1Via == Epic1Via.inPerson) return l.deskLvPaySendingInPerson;
+  // The Deep end says "via <method>" when only the way is known (a file, an epic1 link): the
+  // method is the path, not the recipient.
+  if (technical && t.contactName == null && !(nameless && t.incoming && t.epic1Via == Epic1Via.inPerson)) {
+    final via = _inFlightVia(l, t);
+    if (via != null) return t.incoming ? l.deskLvPayArrivingVia(via) : l.deskLvPaySendingVia(via);
+  }
   final name = t.contactName ?? (technical && !nameless ? whoOf(l, t) : null);
   if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
   if (name == null) return l.lvPayOnItsWay;
   return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);
+}
+
+/// The method a nameless in-flight payment travels by, when that is all there is to say: an
+/// epic1 link, a transaction file. Null when a contact or an address can be named.
+String? _inFlightVia(AppLocalizations l, Tx t) {
+  if (t.epic1Via != null && t.counterparty == null) return MethodIcons.epic1Name(l, t.epic1Via!);
+  if (t.method == TxMethod.file && !t.toSelf && !t.coinbase && !t.otherWallet && t.deviceName == null) return l.deskLvPayViaFile;
+  return null;
 }
 
 class _PendingFiles extends ConsumerWidget {

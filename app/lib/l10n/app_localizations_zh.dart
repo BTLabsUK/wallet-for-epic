@@ -20526,4 +20526,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskIpOnlineDetails => '详情';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return '正在通过$method发送';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return '正在通过$method收取';
+  }
+
+  @override
+  String get deskLvPayViaFile => '文件';
 }

@@ -5647,5 +5647,8 @@
   "deskIpOnlineCancel": "Отменить ответ онлайн",
   "deskIpOnlineCancelCode": "Затем отсканируйте или вставьте ответ другого телефона.",
   "deskIpOnlineCancelAnswer": "Затем другой телефон сканирует ваш ответ.",
-  "deskIpOnlineDetails": "Подробности"
+  "deskIpOnlineDetails": "Подробности",
+  "deskLvPaySendingVia": "Отправка через {method}",
+  "deskLvPayArrivingVia": "Поступает через {method}",
+  "deskLvPayViaFile": "файл"
 }

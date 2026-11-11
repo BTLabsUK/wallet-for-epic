@@ -21738,4 +21738,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskIpOnlineDetails => 'Details';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return 'Sending via $method';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return 'Arriving via $method';
+  }
+
+  @override
+  String get deskLvPayViaFile => 'file';
 }

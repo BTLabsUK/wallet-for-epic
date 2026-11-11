@@ -27,7 +27,8 @@ class _Wallet extends MockDeskWallet {
         slateId: 's$i',
         direction: TxDirection.sent,
         state: TxState.waitingRecipient,
-        method: TxMethod.epicbox,
+        method: i == 3 ? TxMethod.file : TxMethod.epicbox,
+        counterparty: i == 3 ? '/tmp/pay.tx' : null,
         amount: 1000000 * i,
         fee: 8000,
         created: DateTime(2026, 10, 27, 12).subtract(Duration(minutes: i)),
@@ -77,6 +78,8 @@ void main() {
     // A row says the step it is at, as the card does, and opens its payment in Activity.
     expect(find.descendant(of: _row(2), matching: find.textContaining('Sending to')), findsOneWidget);
     expect(find.descendant(of: _row(2), matching: find.text(_l.deskLvPayOnEpicbox)), findsOneWidget);
+    // A file names no one: the row says how it goes, not "to file".
+    expect(find.descendant(of: _row(3), matching: find.text('Sending via file')), findsOneWidget);
     await tester.tap(_row(3));
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.activity);

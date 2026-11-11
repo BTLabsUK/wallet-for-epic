@@ -22452,4 +22452,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskIpOnlineDetails => 'Подробности';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return 'Отправка через $method';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return 'Поступает через $method';
+  }
+
+  @override
+  String get deskLvPayViaFile => 'файл';
 }

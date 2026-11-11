@@ -22464,4 +22464,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskIpOnlineDetails => 'Szczegóły';
+
+  @override
+  String deskLvPaySendingVia(String method) {
+    return 'Wysyłanie przez $method';
+  }
+
+  @override
+  String deskLvPayArrivingVia(String method) {
+    return 'Nadchodzi przez $method';
+  }
+
+  @override
+  String get deskLvPayViaFile => 'plik';
 }

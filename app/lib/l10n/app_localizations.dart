@@ -33911,6 +33911,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Details'**
   String get deskIpOnlineDetails;
+
+  /// Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; method is how it travels (file, epic1 link, Epicbox).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending via {method}'**
+  String deskLvPaySendingVia(String method);
+
+  /// Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; method is how it travels.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving via {method}'**
+  String deskLvPayArrivingVia(String method);
+
+  /// The word for a transaction file after 'via' in 'Sending via file'. Lower case in English.
+  ///
+  /// In en, this message translates to:
+  /// **'file'**
+  String get deskLvPayViaFile;
 }
 
 class _AppLocalizationsDelegate
