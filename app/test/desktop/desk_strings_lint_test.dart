@@ -32,6 +32,7 @@ const _skipped = <String>{
   'screens/devices/shots.dart',
   'screens/epic1/shots.dart',
   'screens/onboarding/shots.dart',
+  'screens/scan/shots.dart',
   'screens/settings/shots.dart',
   'data/desk_link_handler.dart', // the Linux link entry's file text
   'screens/settings/help_places.dart', // English help place targets, the keys links resolve by

@@ -7,7 +7,7 @@ library;
 import '../settings_file/host_settings.dart' show AppConfig;
 import '../ui/qr_camera.dart' show QrCamera;
 import 'camera_presence.dart' show CameraProbe;
-import 'desktop_camera_stub.dart' if (dart.library.io) 'desktop_qr_camera.dart' as impl;
+import 'desktop_qr_camera.dart' if (dart.library.js_interop) 'desktop_camera_stub.dart' as impl;
 
 /// How long the desktop camera waits before it says No picture or Dark (`[camera]` of
 /// `app-config.toml`).
