@@ -66,6 +66,10 @@ else
     has "$f" && r=0 || r=1; check "$f" $r
   done
   has usr/bin/bin/epic && r=0 || r=1; check "usr/bin/bin/epic (the built-in node)" $r
+  for f in usr/bin/lib/libcamera_desktop_plugin.so usr/bin/lib/libcamera_desktop_impl.so; do
+    has "$f" && r=0 || r=1; check "$f (the camera)" $r
+  done
+  grep -q '^squashfs-root/.*/libgst' <<<"$listing" && r=1 || r=0; check "no GStreamer bundled (the system's is used)" $r
   if [[ $tor == 1 ]]; then
     for f in tor VERSION LICENSE.tor.txt; do
       has "usr/bin/bin/tor-bundle/$f" && r=0 || r=1; check "usr/bin/bin/tor-bundle/$f" $r

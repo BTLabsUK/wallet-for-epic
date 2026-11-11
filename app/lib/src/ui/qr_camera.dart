@@ -9,7 +9,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../camera/desktop_camera.dart';
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../wallet_backend.dart' show hostIsPhone;
 import 'scanner_backend.dart';
+
+/// `--dart-define=WFE_FAKE_CAMERA=<value>`, debug builds only: a camera that starts, shows a
+/// placeholder and then has that problem (a [QrCameraProblem] name), or `live` (no problem,
+/// no codes); `none` and `unsupported` are the probe's answers (camera_presence.dart). For
+/// screenshots of every scan state. Ignored in profile and release builds.
+const String fakeCameraMode = kDebugMode ? String.fromEnvironment('WFE_FAKE_CAMERA') : '';
 
 /// Why the camera is not usable.
 enum QrCameraProblem {
@@ -106,9 +115,13 @@ abstract class QrCamera extends ValueListenable<QrCameraState> {
 /// Makes the camera of one scan screen.
 typedef QrCameraFactory = QrCamera Function();
 
-final qrCameraFactoryProvider = Provider<QrCameraFactory>(
-  (ref) => MobileQrCamera.new,
-);
+/// The phones' camera through scanner_backend.dart, the desktops' through
+/// desktop_qr_camera.dart.
+final qrCameraFactoryProvider = Provider<QrCameraFactory>((ref) {
+  if (fakeCameraMode.isNotEmpty) return () => DebugFakeQrCamera(fakeCameraMode);
+  if (!kIsWeb && !hostIsPhone) return () => createDesktopQrCamera(DesktopCameraTimings.of(ref.read(hostSettingsProvider).config));
+  return MobileQrCamera.new;
+});
 
 /// The phone camera, through scanner_backend.dart.
 class MobileQrCamera extends ChangeNotifier implements QrCamera {
@@ -240,6 +253,79 @@ class FakeQrCamera extends ChangeNotifier implements QrCamera {
   Future<void> close() async {
     if (disposed) return;
     disposed = true;
+    await _codes.close();
+    super.dispose();
+  }
+}
+
+/// The camera of `WFE_FAKE_CAMERA` ([fakeCameraMode]): starts with a placeholder picture, and
+/// a moment later has the problem [mode] names; `live` stays as it is, reading nothing.
+class DebugFakeQrCamera extends ChangeNotifier implements QrCamera {
+  DebugFakeQrCamera(this.mode, {this.delay = const Duration(milliseconds: 800)});
+
+  final String mode;
+  final Duration delay;
+
+  final StreamController<String> _codes = StreamController<String>.broadcast();
+  QrCameraState _state = const QrCameraState();
+  Timer? _timer;
+  bool _disposed = false;
+
+  QrCameraProblem? get _problem => switch (mode) {
+    'live' => null,
+    'none' => QrCameraProblem.unplugged,
+    _ => QrCameraProblem.values.asNameMap()[mode] ?? QrCameraProblem.failed,
+  };
+
+  void _set(QrCameraState next) {
+    if (_disposed || next == _state) return;
+    _state = next;
+    notifyListeners();
+  }
+
+  @override
+  QrCameraState get value => _state;
+
+  @override
+  Stream<String> get codes => _codes.stream;
+
+  @override
+  Future<void> start() async {
+    _set(_state.copyWith(clearProblem: true));
+    final problem = _problem;
+    _timer?.cancel();
+    if (problem != null) _timer = Timer(delay, () => _set(_state.copyWith(problem: problem)));
+  }
+
+  @override
+  Future<void> toggleTorch() async {}
+
+  @override
+  Future<void> setZoom({required bool twice}) async => _set(_state.copyWith(zoomed: twice));
+
+  @override
+  Widget preview(BuildContext context) => ColoredBox(
+    color: const Color(0xFF14181C),
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.videocam_outlined, size: 48, color: Colors.white38),
+          const SizedBox(height: 8),
+          Text(
+            'Fake camera: $mode', // l10n-ok: debug builds only
+            style: const TextStyle(color: Colors.white54),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  @override
+  Future<void> close() async {
+    if (_disposed) return;
+    _disposed = true;
+    _timer?.cancel();
     await _codes.close();
     super.dispose();
   }

@@ -28,7 +28,8 @@ import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 /// `--dart-define=WFE_WEB_FAKE=true`, the clickable web preview of the phone app: the payment
 /// methods are the phone's, QR is offered although the browser has no camera, and the scan
 /// screen shows a simulated camera that reads the fake wallet's payment and reply. Never set
-/// in a real build.
+/// in a real build. `WFE_FAKE_CAMERA` fakes the desktop camera's states in debug builds
+/// (qr_camera.dart's `fakeCameraMode`).
 const bool qrPreviewSimulation = bool.fromEnvironment('WFE_WEB_FAKE');
 
 /// Whether the payment methods are the phone's (QR on, File off by default). Tests override it:

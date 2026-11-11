@@ -75,6 +75,12 @@ dependencies:
   # by zxing-cpp. Free code only, no Google ML Kit or Play services. Hidden where unsupported.
   camera: 0.12.2
   flutter_zxing: 3.1.0
+  # The same on the desktops (Linux, macOS, Windows; lib/src/camera/desktop_qr_camera.dart):
+  # camera_desktop 2.0.0, vendored with our patches (packages/camera_desktop/README.md).
+  camera_desktop:
+    path: packages/camera_desktop
+  # Its types (frames, events, settings) for desktop_qr_camera.dart; already resolved through camera.
+  camera_platform_interface: 2.15.0
   # Full brightness while a payment QR code shows (the window's brightness, never the system
   # setting; lib/src/screen_brightness.dart).
   screen_brightness: 2.1.11
@@ -122,8 +128,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
   flutter_secure_storage_platform_interface: any
-  # A fake camera for test/scanner_camera_test.dart; already resolved through camera.
-  camera_platform_interface: any
 flutter:
 
   # The following line ensures that the Material Icons font is

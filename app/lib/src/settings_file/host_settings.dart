@@ -205,6 +205,20 @@ class AppConfig {
   /// has not answered shows "Not answering".
   Duration get contactsCheckWait => _s('contacts.check_wait_s');
 
+  // [camera]
+
+  /// The desktop QR scan says No picture when the first frame takes longer than this,
+  Duration get cameraFirstFrame => Duration(milliseconds: _int('camera.first_frame_ms'));
+
+  /// ... when no frame comes for this long,
+  Duration get cameraStall => Duration(milliseconds: _int('camera.stall_ms'));
+
+  /// ... or when the picture stays the same for this long.
+  Duration get cameraFrozen => Duration(milliseconds: _int('camera.frozen_ms'));
+
+  /// A picture black for this long says Dark until it comes back.
+  Duration get cameraDark => Duration(milliseconds: _int('camera.dark_ms'));
+
   // [notices]
 
   /// After start and resume, how long server warnings wait (`connection_grace.dart`).

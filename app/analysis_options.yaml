@@ -21,6 +21,8 @@ analyzer:
     # The git-ignored clones of lepic-flutter and LEPIC: separate packages with their own
     # pubspecs (the emulator test app needs integration_test, which the app does not).
     - third_party/**
+    # Vendored packages with their own pubspecs and lints (packages/camera_desktop).
+    - packages/**
 
 linter:
   # The lint rules applied to this project can be customized in the

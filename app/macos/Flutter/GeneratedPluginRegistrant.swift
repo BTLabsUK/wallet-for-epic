@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+import camera_desktop
 import desktop_drop
 import file_picker_darwin
 import file_selector_macos
@@ -16,6 +17,7 @@ import share_plus
 import window_manager
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  CameraDesktopPlugin.register(with: registry.registrar(forPlugin: "CameraDesktopPlugin"))
   DesktopDropPlugin.register(with: registry.registrar(forPlugin: "DesktopDropPlugin"))
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))

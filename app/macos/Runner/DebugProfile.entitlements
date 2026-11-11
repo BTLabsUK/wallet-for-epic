@@ -9,5 +9,8 @@
 	<true/>
 	<key>com.apple.security.network.server</key>
 	<true/>
+	<!-- The hardened runtime blocks the camera without it (the QR scanner). -->
+	<key>com.apple.security.device.camera</key>
+	<true/>
 </dict>
 </plist>
