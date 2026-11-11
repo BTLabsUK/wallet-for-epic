@@ -19,6 +19,8 @@ import '../../app/shell.dart' show deskRouteShown;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, RelayMoveState, SealMode, contactKinds, keyCheckOpenFor, pairingVouchesFor;
 import '../../../relay_moves.dart' show relayLabelOf;
 import '../../../pairing_text.dart' show pairingEndedRowText, pairingEndedText, peerLabel;
@@ -1098,6 +1100,14 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     setState(() {});
   }
 
+  Future<void> _scan(_AddrField f) async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint);
+    final t = r?.scanText;
+    if (t == null || t.isEmpty || !mounted) return;
+    f.text.text = t;
+    _changed(f);
+  }
+
   void _remove(_AddrField f) {
     _fields.remove(f);
     f.disposeLater();
@@ -1291,7 +1301,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
             invalid: error != null,
             onChanged: (_) => _changed(f),
             trailing: kind == null
-                ? null
+                ? (empty ? DeskScanButton(onScan: () => _scan(f), size: EBtnSize.inline) : null)
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

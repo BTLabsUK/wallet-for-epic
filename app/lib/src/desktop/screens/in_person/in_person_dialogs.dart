@@ -19,6 +19,9 @@ import '../../../ui/in_person/in_person_logic.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../../../ui/in_person/in_person_scan.dart' show InPersonScanned;
+import '../scan/desk_scan.dart';
+import 'in_person_reader.dart';
 
 /// Test keys.
 const Key deskInPersonAmountKey = ValueKey('desk-ip-amount');
@@ -45,6 +48,8 @@ Future<String?> deskInPersonPasswordError(WidgetRef ref, AppLocalizations l, Str
 
 /// Request or pay in person: the form, then the code and its check. With [watch] (an answer
 /// pasted outside its code's dialog) it opens at the check.
+const Key deskIpScanKey = ValueKey('desk-ip-scan');
+
 class DeskInPersonCodeDialog extends ConsumerStatefulWidget {
   const DeskInPersonCodeDialog({super.key, required this.stage, this.watch});
 
@@ -174,6 +179,27 @@ class _DeskInPersonCodeDialogState extends ConsumerState<DeskInPersonCodeDialog>
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     final text = data?.text?.trim() ?? '';
     final ok = text.isNotEmpty && await watch.take(text);
+    if (mounted) setState(() => _pasteError = ok ? null : context.l10n.deskIpNotAnswer);
+  }
+
+  /// Scan answer: the camera (parts of an animated code included) or the dialog's paste.
+  Future<void> _scanAnswer() async {
+    final watch = _watch;
+    final wallet = ref.read(deskApiProvider).epic1;
+    if (watch == null || wallet == null) return;
+    final l = context.l10n;
+    final got = await deskScanParts<InPersonScanned>(context, title: l.deskIpScanAnswer, hint: l.deskIpScanAim, reader: DeskInPersonReader(wallet));
+    if (got == null || !mounted) return;
+    final bool ok;
+    switch (got) {
+      case DeskScanned<InPersonScanned>(:final value):
+        final bytes = value.bytes;
+        final text = value.text;
+        ok = bytes != null ? await watch.takeBytes(bytes) : (text != null && text.isNotEmpty && await watch.take(text));
+      case DeskPasted<InPersonScanned>(:final text):
+        final t = text.trim();
+        ok = t.isNotEmpty && await watch.take(t);
+    }
     if (mounted) setState(() => _pasteError = ok ? null : context.l10n.deskIpNotAnswer);
   }
 
@@ -326,6 +352,7 @@ class _DeskInPersonCodeDialogState extends ConsumerState<DeskInPersonCodeDialog>
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         EButton(semanticsId: TrustIds.txIpPaste, label: l.deskIpPasteAnswer, icon: EIcons.paste, onPressed: _paste),
+        DeskScanButton(key: deskIpScanKey, onScan: _scanAnswer),
       ],
     );
   }

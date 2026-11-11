@@ -44,6 +44,8 @@ import '../../desk_l10n.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskContactPairingProvider, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 import '../pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords;
 import '../../widgets/tor_chip.dart';
 import '../../../ui/pairing/pairing_parts.dart' show SealedBadge, TrustBadge;
@@ -1046,6 +1048,16 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     final t = d?.text?.trim();
     if (t == null || t.isEmpty || !mounted) return;
     if (openPaymentText(t, origin: CodeOrigin.paste)) return;
+    _pasted(t);
+  }
+
+  /// Scan beside Paste: a camera-read code goes the paste path with origin qr, a pasted one with origin paste.
+  Future<void> _scan() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint);
+    if (r == null || !mounted) return;
+    final t = r.scanText;
+    if (t.isEmpty) return;
+    if (openPaymentText(t, origin: r.origin)) return;
     _pasted(t);
   }
 
@@ -2324,6 +2336,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
                             EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _clearRecipient)
                           else
                             EIconButton(icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste),
+                          if (_to.text.isEmpty) ...[SizedBox(width: Sp.x1), DeskScanButton(onScan: _scan, size: EBtnSize.inline)],
                           SizedBox(width: Sp.x1),
                           EButton(label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
                         ],

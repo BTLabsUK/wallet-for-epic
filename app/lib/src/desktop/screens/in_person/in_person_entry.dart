@@ -11,7 +11,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../epic1.dart';
 import '../../../ui/in_person/in_person_logic.dart';
+import '../../../camera/camera_presence.dart';
+import '../../../ui/in_person/in_person_scan.dart' show InPersonScanned;
+import '../../data/api.dart' show DeskWalletApi;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import 'in_person_reader.dart';
 import 'in_person_dialogs.dart';
 
 /// Receive › "Request in person": amount and message, then the code and the check.
@@ -41,24 +47,34 @@ Future<bool> openDeskInPersonText(BuildContext context, String text) async {
     case InPersonArmored(:final bytes):
       return _openAnswer(context, wallet, bytes);
     case InPersonBytes(:final bytes, :final fromQr):
-      final InPersonCodeInfo info;
-      try {
-        info = await wallet.inPersonRead(bytes, minimumConfirmations: BigInt.from(await api.minimumConfirmations()));
-      } on Object catch (e) {
-        if (!context.mounted) return true;
-        if (deskInPersonExpired(e)) {
-          await showEDialog<void>(context, builder: (_) => const DeskInPersonExpiredDialog());
-          return true;
-        }
-        return fromQr && await _openAnswer(context, wallet, bytes);
-      }
-      if (!context.mounted) return true;
-      await showEDialog<void>(context, dismissible: false, builder: (_) => DeskInPersonReviewDialog(code: bytes, info: info));
-      return true;
-    case InPersonPart():
+      return _openBytes(context, api, wallet, bytes, fromQr);
+    case InPersonPart(:final part):
       // One part of an animated code: only a camera reads the rest.
-      return false;
+      final presence = await container.read(cameraPresenceProvider.notifier).recheck();
+      if (!presence.offersScan || !context.mounted) return false;
+      final got = await deskScanParts(context, title: context.l10n.scanQrTitle, hint: context.l10n.deskIpScanAim, reader: DeskInPersonReader(wallet, first: part));
+      if (got is! DeskScanned<InPersonScanned> || !context.mounted) return got is DeskScanned;
+      final bytes = got.value.bytes;
+      return bytes != null && await _openBytes(context, api, wallet, bytes, true);
   }
+}
+
+/// A whole code's [bytes], read from text or the camera: its review, or an answer's check.
+Future<bool> _openBytes(BuildContext context, DeskWalletApi api, Epic1Wallet wallet, Uint8List bytes, bool fromQr) async {
+  final InPersonCodeInfo info;
+  try {
+    info = await wallet.inPersonRead(bytes, minimumConfirmations: BigInt.from(await api.minimumConfirmations()));
+  } on Object catch (e) {
+    if (!context.mounted) return true;
+    if (deskInPersonExpired(e)) {
+      await showEDialog<void>(context, builder: (_) => const DeskInPersonExpiredDialog());
+      return true;
+    }
+    return fromQr && await _openAnswer(context, wallet, bytes);
+  }
+  if (!context.mounted) return true;
+  await showEDialog<void>(context, dismissible: false, builder: (_) => DeskInPersonReviewDialog(code: bytes, info: info));
+  return true;
 }
 
 /// An answer to a code this wallet showed, pasted outside the code's dialog: the check.

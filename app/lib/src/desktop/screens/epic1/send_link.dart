@@ -19,6 +19,8 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPayInPerson;
 import '../transfer/contact_picker.dart' show showContactPicker;
 import '../transfer/send_screen.dart' show SendArgs;
@@ -86,6 +88,15 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   Future<void> _paste() async {
     final d = await Clipboard.getData(Clipboard.kTextPlain);
     final t = d?.text?.trim();
+    if (t == null || t.isEmpty || !mounted) return;
+    _to.text = t;
+    _last = t;
+    await _open(t);
+  }
+
+  Future<void> _scan() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint);
+    final t = r?.scanText;
     if (t == null || t.isEmpty || !mounted) return;
     _to.text = t;
     _last = t;
@@ -375,6 +386,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
                           EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
                         else
                           EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _reset),
+                        if (empty && !_reading) ...[SizedBox(width: Sp.x1), DeskScanButton(key: const ValueKey('e1-scan'), onScan: _scan, size: EBtnSize.inline)],
                         SizedBox(width: Sp.x1),
                         EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
                       ],
