@@ -10,7 +10,7 @@ import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
-import '../../../pairing_text.dart' show sendRoutePairedLineOf, sendRoutePublicLineOf, sendRouteReasonText, sendRouteServerDownText;
+import '../../../pairing_text.dart' show inviteSourceOf, sendRoutePairedLineOf, sendRoutePublicLineOf, sendRouteReasonText, sendRouteServerDownText;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
@@ -1133,7 +1133,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       case PairingLink() when pasted && !ref.read(deskPairsProvider):
         fieldError((l) => l.scanPairingUnavailable);
       case PairingLink(text: final link):
-        openPairingLink(link);
+        openPairingLink(link, origin: origin);
       case WrongNetwork() when pasted:
         fieldError((l) => l.scanWrongNetworkBody);
       case WrongNetwork(:final recipient):
@@ -1242,8 +1242,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   /// A pairing link: Pair with Anna?, the words check or why not; a wallet that does not pair
   /// says so.
-  void openPairingLink(String link) => ref.read(deskPairsProvider)
-      ? deskOpenPairingText(context, ref, link).catchError((Object e) {
+  void openPairingLink(String link, {CodeOrigin origin = CodeOrigin.paste}) => ref.read(deskPairsProvider)
+      ? deskOpenPairingText(context, ref, link, source: inviteSourceOf(origin)).catchError((Object e) {
           if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
         })
       : showCodeDialog(context, icon: Icons.handshake_outlined, title: context.l10n.scanPairingTitle, text: context.l10n.scanPairingUnavailable, code: link);

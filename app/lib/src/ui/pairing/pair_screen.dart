@@ -184,7 +184,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
       return;
     }
     if (kind != PairingLinkKind.reply) {
-      await openPairingLink(context, ref, invite?.invite ?? text, contact: widget.contact, byCamera: byCamera);
+      await openPairingLink(context, ref, invite?.invite ?? text, contact: widget.contact, byCamera: byCamera, source: byCamera ? InviteSource.scanned : InviteSource.pasted);
       return;
     }
     setState(() => _busy = true);

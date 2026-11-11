@@ -13964,6 +13964,29 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'Nach dem Koppeln sind Transaktionsdateien und Rechnungen zwischen Ihnen und $name versiegelt.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Server';
+
+  @override
+  String get pairIncomingSource => 'Quelle';
+
+  @override
+  String get pairIncomingSourceScanned => 'QR gescannt';
+
+  @override
+  String get pairIncomingSourcePasted => 'Einladung eingefügt';
+
+  @override
+  String get pairIncomingSourceOpened => 'Aus einer anderen App geöffnet';
+
+  @override
+  String get pairIncomingSourceRequest => 'An Ihre Epicbox-Adresse gesendet';
+
+  @override
   String get pairVerifiedService => 'Verifizierter BT-Labs-Dienst';
 
   @override

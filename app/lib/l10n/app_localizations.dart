@@ -21714,6 +21714,48 @@ abstract class AppLocalizations {
   /// **'Pair request from {name}'**
   String pairIncomingTitle(String name);
 
+  /// Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.
+  ///
+  /// In en, this message translates to:
+  /// **'Once paired, transaction files and invoices between you and {name} are sealed.'**
+  String pairIncomingBodyRequest(String name);
+
+  /// Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get pairIncomingServer;
+
+  /// Pair request dialog: fact label for how the invite reached this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get pairIncomingSource;
+
+  /// Pair request dialog, Source value: the invite was scanned with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned QR'**
+  String get pairIncomingSourceScanned;
+
+  /// Pair request dialog, Source value: the invite was pasted.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted invite'**
+  String get pairIncomingSourcePasted;
+
+  /// Pair request dialog, Source value: a browser or another app opened the invite in the wallet (an epiccash:// or invite page link).
+  ///
+  /// In en, this message translates to:
+  /// **'Opened from another app'**
+  String get pairIncomingSourceOpened;
+
+  /// Pair request dialog, Source value: the request came as a message to the user's Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to your Epicbox address'**
+  String get pairIncomingSourceRequest;
+
   /// Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services.
   ///
   /// In en, this message translates to:

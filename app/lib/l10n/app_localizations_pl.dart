@@ -14330,6 +14330,29 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'Po sparowaniu pliki transakcji i faktury między tobą a $name są zapieczętowane.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Serwer';
+
+  @override
+  String get pairIncomingSource => 'Źródło';
+
+  @override
+  String get pairIncomingSourceScanned => 'Zeskanowany QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'Wklejone zaproszenie';
+
+  @override
+  String get pairIncomingSourceOpened => 'Otwarte z innej aplikacji';
+
+  @override
+  String get pairIncomingSourceRequest => 'Wysłane na twój adres Epicbox';
+
+  @override
   String get pairVerifiedService => 'Zweryfikowana usługa BT Labs';
 
   @override

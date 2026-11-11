@@ -18304,6 +18304,40 @@
       }
     }
   },
+  "pairIncomingBodyRequest": "Once paired, transaction files and invoices between you and {name} are sealed.",
+  "@pairIncomingBodyRequest": {
+    "description": "Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Pairing Demo Shop"
+      }
+    }
+  },
+  "pairIncomingServer": "Server",
+  "@pairIncomingServer": {
+    "description": "Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com."
+  },
+  "pairIncomingSource": "Source",
+  "@pairIncomingSource": {
+    "description": "Pair request dialog: fact label for how the invite reached this wallet."
+  },
+  "pairIncomingSourceScanned": "Scanned QR",
+  "@pairIncomingSourceScanned": {
+    "description": "Pair request dialog, Source value: the invite was scanned with the camera."
+  },
+  "pairIncomingSourcePasted": "Pasted invite",
+  "@pairIncomingSourcePasted": {
+    "description": "Pair request dialog, Source value: the invite was pasted."
+  },
+  "pairIncomingSourceOpened": "Opened from another app",
+  "@pairIncomingSourceOpened": {
+    "description": "Pair request dialog, Source value: a browser or another app opened the invite in the wallet (an epiccash:// or invite page link)."
+  },
+  "pairIncomingSourceRequest": "Sent to your Epicbox address",
+  "@pairIncomingSourceRequest": {
+    "description": "Pair request dialog, Source value: the request came as a message to the user's Epicbox address."
+  },
   "pairVerifiedService": "Verified BT Labs service",
   "@pairVerifiedService": {
     "description": "Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services."

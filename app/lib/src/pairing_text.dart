@@ -8,6 +8,7 @@ import 'dart:ui' show Locale, PlatformDispatcher;
 
 import 'l10n.dart';
 import 'models.dart';
+import 'scan/scan_checks.dart' show CodeOrigin;
 import 'trust/policy.dart' show MailboxDefault, PlainReason;
 
 /// The answerer's wait: the answer went to the relay too, so the pairing usually finishes by
@@ -98,6 +99,39 @@ String pairingSpan(AppLocalizations l, Duration span) {
   if (minutes < 60) return l.pairDurMinutes(minutes);
   if (minutes < 24 * 60) return l.pairDurHours(minutes ~/ 60, minutes % 60);
   return l.pairDurDays(minutes ~/ (24 * 60), (minutes % (24 * 60)) ~/ 60);
+}
+
+/// How an invite reached the pair-request dialog: the camera, a paste, or another app (a
+/// browser's Open in BT Wallet, a tapped `epiccash://pair/…`). A request to this wallet's
+/// address is [PairingInvitePreview.isRequest] instead. Null where the caller cannot tell,
+/// and the dialog then shows no Source row.
+enum InviteSource { scanned, pasted, opened }
+
+/// The [InviteSource] of a code that came by [origin].
+InviteSource inviteSourceOf(CodeOrigin origin) => switch (origin) {
+  CodeOrigin.qr => InviteSource.scanned,
+  CodeOrigin.link => InviteSource.opened,
+  CodeOrigin.paste => InviteSource.pasted,
+};
+
+/// The dialog's Source value for [source], or for a request; null when there is none.
+String? inviteSourceText(AppLocalizations l, InviteSource? source, {bool request = false}) {
+  if (request) return l.pairIncomingSourceRequest;
+  return switch (source) {
+    InviteSource.scanned => l.pairIncomingSourceScanned,
+    InviteSource.pasted => l.pairIncomingSourcePasted,
+    InviteSource.opened => l.pairIncomingSourceOpened,
+    null => null,
+  };
+}
+
+/// The host of an invite's home relay (`domain:port`): the server the dialog names. Empty
+/// when the invite names none.
+String relayHostOf(String homeRelay) {
+  final relay = homeRelay.trim();
+  final colon = relay.lastIndexOf(':');
+  if (colon <= 0 || int.tryParse(relay.substring(colon + 1)) == null) return relay;
+  return relay.substring(0, colon);
 }
 
 /// A countdown clock, `9:32`.

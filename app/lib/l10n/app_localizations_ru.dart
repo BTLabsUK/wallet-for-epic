@@ -14306,6 +14306,29 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'После сопряжения файлы транзакций и счета между вами и $name запечатаны.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Сервер';
+
+  @override
+  String get pairIncomingSource => 'Источник';
+
+  @override
+  String get pairIncomingSourceScanned => 'Отсканированный QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'Вставленное приглашение';
+
+  @override
+  String get pairIncomingSourceOpened => 'Открыто из другого приложения';
+
+  @override
+  String get pairIncomingSourceRequest => 'Отправлено на ваш адрес Epicbox';
+
+  @override
   String get pairVerifiedService => 'Проверенный сервис BT Labs';
 
   @override

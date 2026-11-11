@@ -13444,6 +13444,29 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'เมื่อจับคู่แล้ว ไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างคุณกับ $name จะถูกปิดผนึก';
+  }
+
+  @override
+  String get pairIncomingServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get pairIncomingSource => 'ที่มา';
+
+  @override
+  String get pairIncomingSourceScanned => 'สแกน QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'วางคำเชิญ';
+
+  @override
+  String get pairIncomingSourceOpened => 'เปิดจากแอปอื่น';
+
+  @override
+  String get pairIncomingSourceRequest => 'ส่งมาที่ที่อยู่ Epicbox ของคุณ';
+
+  @override
   String get pairVerifiedService => 'บริการของ BT Labs ที่ตรวจสอบแล้ว';
 
   @override

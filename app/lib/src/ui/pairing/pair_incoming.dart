@@ -40,6 +40,9 @@ import 'pairing_parts.dart';
 /// Keys for tests.
 const Key incomingPairKey = ValueKey('incoming-pair');
 const Key incomingNotNowKey = ValueKey('incoming-not-now');
+const Key incomingServerKey = ValueKey('incoming-server');
+const Key incomingSourceKey = ValueKey('incoming-source');
+const Key incomingExpiresKey = ValueKey('incoming-expires');
 const Key waitingCancelKey = ValueKey('waiting-cancel');
 const Key waitingAnswerBoxKey = ValueKey('waiting-answer-box');
 const Key waitingShareKey = ValueKey('waiting-share');
@@ -52,7 +55,8 @@ const Key finishScreenCheckKey = ValueKey('finish-check');
 /// sheet, the finish code to send, the words check, or the notice that says why not.
 /// [contact] is the address-book contact the pairing attaches to, when known. With [replace]
 /// the screen that opens takes the place of the current one. Text without a pairing link,
-/// or an older in-person card, is "Not a pairing code".
+/// or an older in-person card, is "Not a pairing code". [source] is how the text came, for the
+/// pair request's Source row; [byCamera] alone counts as scanned.
 Future<void> openPairingLink(
   BuildContext context,
   WidgetRef ref,
@@ -60,7 +64,9 @@ Future<void> openPairingLink(
   Contact? contact,
   bool replace = false,
   bool byCamera = false,
+  InviteSource? source,
 }) async {
+  source ??= byCamera ? InviteSource.scanned : null;
   // A page link carries the invite in its fragment; a message holds the bare text among words.
   final bare = parseInvite(pasted)?.invite ?? pasted;
   final kind = pairingLinkKind(bare);
@@ -97,7 +103,7 @@ Future<void> openPairingLink(
     switch (kind) {
       case PairingLinkKind.invite:
         final preview = await api.openInvite(text);
-        if (context.mounted) await showIncomingInvite(context, ref, preview, contact: contact, replace: replace);
+        if (context.mounted) await showIncomingInvite(context, ref, preview, contact: contact, replace: replace, source: source);
       case PairingLinkKind.reply:
         // Their answer came by hand: the finish code goes back the same way, then the words.
         final record = await pairingCall(ref, (a) => a.openReply(text));
@@ -124,19 +130,21 @@ Future<void> openPairingLink(
 }
 
 /// "Pair with Anna?" for [preview]. Pair answers it and opens the wait for the confirm.
+/// [source] is how the invite came (see [InviteSource]).
 Future<void> showIncomingInvite(
   BuildContext context,
   WidgetRef ref,
   PairingInvitePreview preview, {
   Contact? contact,
   bool replace = false,
+  InviteSource? source,
 }) async {
   final answered = await showPhoneSheet<PairingRecord>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: true,
-    builder: (_) => IncomingInviteSheet(preview: preview, contact: contact),
+    builder: (_) => IncomingInviteSheet(preview: preview, contact: contact, source: source),
   );
   if (answered == null || !context.mounted) return;
   final screen = PairingWaitingScreen(pairingId: answered.id, name: preview.name);
@@ -147,13 +155,17 @@ Future<void> showIncomingInvite(
 /// The sheet, in two forms: from a contact (the request's sender is in Contacts: avatar, "In
 /// your contacts", the sender address) or by code (the name alone, no chip). When the invite
 /// has a key, its key picture takes the avatar's place; a BT Labs service shows its listed
-/// name and a green check after it instead of the claimed name. Pair · Not now;
-/// no name field, no invoice switch, no expiry row. Pops with the answered record.
+/// name and a green check after it instead of the claimed name. Under it what pairing does,
+/// then the facts the invite really carries: its server, how it came, the time it has left.
+/// Pair · Not now; no name field, no invoice switch. Pops with the answered record.
 class IncomingInviteSheet extends ConsumerStatefulWidget {
-  const IncomingInviteSheet({super.key, required this.preview, this.contact});
+  const IncomingInviteSheet({super.key, required this.preview, this.contact, this.source});
 
   final PairingInvitePreview preview;
   final Contact? contact;
+
+  /// How the invite came; null shows no Source row (a request has its own).
+  final InviteSource? source;
 
   @override
   ConsumerState<IncomingInviteSheet> createState() => _IncomingInviteSheetState();
@@ -260,6 +272,17 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
             const SizedBox(height: 12),
             ShortAddressText(from, style: const TextStyle(fontSize: 13)),
           ],
+          const SizedBox(height: 16),
+          Text(
+            p.isRequest ? l.pairIncomingBodyRequest(noName ? l.commonUnknown : name) : l.pairIncomingBody(noName ? l.commonUnknown : name),
+            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
+          const SizedBox(height: 12),
+          if (relayHostOf(p.homeRelay) case final host when host.isNotEmpty)
+            _Fact(key: incomingServerKey, label: l.pairIncomingServer, value: Text(host, style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.text))),
+          if (inviteSourceText(l, widget.source, request: p.isRequest) case final source?)
+            _Fact(key: incomingSourceKey, label: l.pairIncomingSource, value: Text(source)),
+          _Fact(key: incomingExpiresKey, label: l.pairExpiresIn, value: PairTimeLeft(until: p.expiresAt)),
           const SizedBox(height: 20),
           // The primary over the secondary, as every foot on the phone (UP-029).
           FilledButton(
@@ -276,6 +299,36 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
             child: Text(l.pairNotNow),
           ),
           SizedBox(height: t.radiusSmall),
+        ],
+      ),
+    );
+  }
+}
+
+/// One fact of the sheet: the label, dim, at the start; the value at the end.
+class _Fact extends StatelessWidget {
+  const _Fact({super.key, required this.label, required this.value});
+
+  final String label;
+  final Widget value;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final style = Theme.of(context).textTheme.bodyMedium;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: style?.copyWith(color: t.dim)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: DefaultTextStyle.merge(style: style?.copyWith(color: t.text), textAlign: TextAlign.end, child: value),
+            ),
+          ),
         ],
       ),
     );

@@ -9,7 +9,9 @@ import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, pairingEndedText, pairingSpan, unnamedPeerName;
+import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName;
+import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
+import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show PairAvatar, PairTimeLeft;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -821,5 +823,96 @@ void main() {
 
   test('a span counts whole minutes: a fresh 7 d invite is 6 d 23 h', () {
     expect(pairingSpan(_l, const Duration(days: 7) - const Duration(seconds: 30)), _l.pairDurDays(6, 23));
+  });
+
+  group('Pair with …? body', () {
+    /// A home with one button that opens the sheet for [preview].
+    Widget opener(PairingInvitePreview preview, InviteSource? source) => Consumer(
+      builder: (context, ref, _) => Scaffold(
+        body: Center(child: TextButton(onPressed: () => showIncomingInvite(context, ref, preview, source: source), child: const Text('open'))),
+      ),
+    );
+
+    String? fact(WidgetTester tester, Key key) {
+      final row = find.byKey(key);
+      if (row.evaluate().isEmpty) return null;
+      return tester.widgetList<Text>(find.descendant(of: row, matching: find.byType(Text))).map((t) => t.data).join(' · ');
+    }
+
+    testWidgets('a pasted invite: the sealed line, Server, Source and the time left; no key, the initials', (tester) async {
+      final h = _Harness();
+      _clipboard(tester, h.api.inviteLinkFrom(name: 'Northwind'));
+      await h.pump(tester, const PairScreen(), settle: false);
+      await tester.tap(find.byKey(pairPasteKey));
+      await _frames(tester);
+      expect(find.text(_l.pairIncomingBody('Northwind')), findsOneWidget);
+      expect(fact(tester, incomingServerKey), '${_l.pairIncomingServer} · ${relayHostOf(h.api.homeRelay)}');
+      expect(relayHostOf(h.api.homeRelay), isNot(contains(':')));
+      expect(fact(tester, incomingSourceKey), '${_l.pairIncomingSource} · ${_l.pairIncomingSourcePasted}');
+      expect(fact(tester, incomingExpiresKey), '${_l.pairExpiresIn} · ${_l.pairDurDays(6, 22)}');
+      expect(find.byType(KeyPictureView), findsNothing);
+      expect(find.byType(PairAvatar), findsOneWidget);
+      expect(find.byKey(incomingPairKey), findsOneWidget);
+      expect(find.byKey(incomingNotNowKey), findsOneWidget);
+    });
+
+    testWidgets('a scanned shop invite with a key: the key picture, the server without its port', (tester) async {
+      final h = _Harness();
+      final preview = PairingInvitePreview(
+        token: 't1',
+        name: 'Pairing Demo Shop',
+        expiresAt: DateTime.now().add(const Duration(hours: 2, minutes: 30, seconds: 20)),
+        kind: PairingParty.shop,
+        homeRelay: 'relay.example.com:443',
+        inviteKey: Uint8List.fromList(List.generate(32, (i) => i * 7)),
+      );
+      await h.pump(tester, opener(preview, InviteSource.scanned));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.byType(KeyPictureView), findsOneWidget);
+      expect(find.byType(PairAvatar), findsNothing);
+      expect(fact(tester, incomingServerKey), '${_l.pairIncomingServer} · relay.example.com');
+      expect(fact(tester, incomingSourceKey), '${_l.pairIncomingSource} · ${_l.pairIncomingSourceScanned}');
+      expect(fact(tester, incomingExpiresKey), '${_l.pairExpiresIn} · ${_l.pairDurHours(2, 30)}');
+    });
+
+    testWidgets('a request to this wallet: the request line, Sent to your Epicbox address, no words step named', (tester) async {
+      final h = _Harness();
+      final preview = PairingInvitePreview(token: 't2', name: 'Anna', expiresAt: DateTime.now().add(const Duration(days: 1, hours: 3, minutes: 30)), homeRelay: 'epicbox.example.org', fromAddress: _anna);
+      await h.pump(tester, opener(preview, InviteSource.opened));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairIncomingBodyRequest('Anna')), findsOneWidget);
+      expect(find.text(_l.pairIncomingBody('Anna')), findsNothing);
+      expect(fact(tester, incomingSourceKey), '${_l.pairIncomingSource} · ${_l.pairIncomingSourceRequest}');
+      expect(fact(tester, incomingServerKey), '${_l.pairIncomingServer} · epicbox.example.org');
+    });
+
+    testWidgets('the time left counts down each second on the pairing clock', (tester) async {
+      var now = DateTime(2026, 11, 11, 12);
+      await tester.pumpWidget(ProviderScope(
+        overrides: [pairingClockProvider.overrideWithValue(() => now)],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: PairTimeLeft(until: DateTime(2026, 11, 11, 12, 2)),
+        ),
+      ));
+      expect(find.text(_l.pairDurMinutes(2)), findsOneWidget);
+      now = now.add(const Duration(seconds: 61));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text(_l.pairDurUnderMinute), findsOneWidget);
+    });
+
+    testWidgets('no server in the invite and no known source: those rows are left out', (tester) async {
+      final h = _Harness();
+      final preview = PairingInvitePreview(token: 't3', name: 'Bob', expiresAt: DateTime.now().add(const Duration(minutes: 30, seconds: 30)));
+      await h.pump(tester, opener(preview, null));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(incomingServerKey), findsNothing);
+      expect(find.byKey(incomingSourceKey), findsNothing);
+      expect(fact(tester, incomingExpiresKey), '${_l.pairExpiresIn} · ${_l.pairDurMinutes(30)}');
+    });
   });
 }

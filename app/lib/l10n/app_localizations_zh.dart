@@ -12983,6 +12983,29 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return '配对后，你与 $name 之间的交易文件和账单都会被密封。';
+  }
+
+  @override
+  String get pairIncomingServer => '服务器';
+
+  @override
+  String get pairIncomingSource => '来源';
+
+  @override
+  String get pairIncomingSourceScanned => '扫描二维码';
+
+  @override
+  String get pairIncomingSourcePasted => '粘贴的邀请';
+
+  @override
+  String get pairIncomingSourceOpened => '从其他应用打开';
+
+  @override
+  String get pairIncomingSourceRequest => '发送到你的 Epicbox 地址';
+
+  @override
   String get pairVerifiedService => '已验证的 BT Labs 服务';
 
   @override

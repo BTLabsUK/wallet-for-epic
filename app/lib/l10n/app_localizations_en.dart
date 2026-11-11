@@ -13799,6 +13799,29 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String pairIncomingBodyRequest(String name) {
+    return 'Once paired, transaction files and invoices between you and $name are sealed.';
+  }
+
+  @override
+  String get pairIncomingServer => 'Server';
+
+  @override
+  String get pairIncomingSource => 'Source';
+
+  @override
+  String get pairIncomingSourceScanned => 'Scanned QR';
+
+  @override
+  String get pairIncomingSourcePasted => 'Pasted invite';
+
+  @override
+  String get pairIncomingSourceOpened => 'Opened from another app';
+
+  @override
+  String get pairIncomingSourceRequest => 'Sent to your Epicbox address';
+
+  @override
   String get pairVerifiedService => 'Verified BT Labs service';
 
   @override
