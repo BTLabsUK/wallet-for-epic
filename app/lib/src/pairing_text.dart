@@ -71,7 +71,8 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.waiting => l.pairWaitingSendBody,
     };
 
-/// The reason line of an ended pairing in a notice ("Anna reported the words do not match").
+/// The reason line of an ended pairing in a notice and on the contact's page, under the title
+/// Pairing ended ("Anna reported the words do not match").
 String pairingEndedText(AppLocalizations l, PairingEndReason reason, String name) => switch (reason) {
   PairingEndReason.mismatch => l.pairEndedMismatch,
   PairingEndReason.peerMismatch => l.pairEndedPeerMismatch(name),
@@ -79,8 +80,8 @@ String pairingEndedText(AppLocalizations l, PairingEndReason reason, String name
   PairingEndReason.neverFinished => l.pairEndedNeverFinished(name),
 };
 
-/// The reason line of an ended pairing under the other wallet's name (a contacts row, a
-/// contact's Ended block): the name is the title, so the line does not repeat it.
+/// The reason line of an ended pairing under the other wallet's name (a contacts row): the name
+/// is the title, so the line does not repeat it. The contact's page says the name: [pairingEndedText].
 String pairingEndedRowText(AppLocalizations l, PairingEndReason reason) => switch (reason) {
   PairingEndReason.mismatch => l.pairEndedMismatch,
   PairingEndReason.peerMismatch => l.pairEndedRowPeerMismatch,

@@ -221,7 +221,7 @@ class ContactPairingBlock extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(l.pairEndedShort, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
-                        Text(pairingEndedRowText(l, p.endedReason ?? PairingEndReason.neverFinished), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                        Text(pairingEndedText(l, p.endedReason ?? PairingEndReason.neverFinished, name), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                       ],
                     ),
                   ),

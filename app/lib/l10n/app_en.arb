@@ -25927,15 +25927,15 @@
   },
   "pairEndedRowPeerMismatch": "Reported the words do not match.",
   "@pairEndedRowPeerMismatch": {
-    "description": "Ended reason under the other wallet's name (a contacts row, the contact's Ended block): it pressed They do not match. The name is the title above; not repeated."
+    "description": "Ended reason under the other wallet's name (a contacts row): it pressed They do not match. The name is the title above; not repeated."
   },
   "pairEndedRowNeverFinished": "Its wallet never finished.",
   "@pairEndedRowNeverFinished": {
-    "description": "Ended reason under the other wallet's name (a contacts row, the contact's Ended block): never heard within 7 days. The name is the title above; not repeated."
+    "description": "Ended reason under the other wallet's name (a contacts row): never heard within 7 days. The name is the title above; not repeated."
   },
   "pairEndedRowUnpaired": "Removed the pairing.",
   "@pairEndedRowUnpaired": {
-    "description": "Ended reason under the other wallet's name (a contacts row, the contact's Ended block): it removed the pairing on its side. The name is the title above; not repeated."
+    "description": "Ended reason under the other wallet's name (a contacts row): it removed the pairing on its side. The name is the title above; not repeated."
   },
   "pairNoAnswerFrom": "No answer from {name}’s wallet",
   "@pairNoAnswerFrom": {

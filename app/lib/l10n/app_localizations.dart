@@ -29568,19 +29568,19 @@ abstract class AppLocalizations {
   /// **'{name}’s wallet never finished.'**
   String pairEndedNeverFinished(String name);
 
-  /// Ended reason under the other wallet's name (a contacts row, the contact's Ended block): it pressed They do not match. The name is the title above; not repeated.
+  /// Ended reason under the other wallet's name (a contacts row): it pressed They do not match. The name is the title above; not repeated.
   ///
   /// In en, this message translates to:
   /// **'Reported the words do not match.'**
   String get pairEndedRowPeerMismatch;
 
-  /// Ended reason under the other wallet's name (a contacts row, the contact's Ended block): never heard within 7 days. The name is the title above; not repeated.
+  /// Ended reason under the other wallet's name (a contacts row): never heard within 7 days. The name is the title above; not repeated.
   ///
   /// In en, this message translates to:
   /// **'Its wallet never finished.'**
   String get pairEndedRowNeverFinished;
 
-  /// Ended reason under the other wallet's name (a contacts row, the contact's Ended block): it removed the pairing on its side. The name is the title above; not repeated.
+  /// Ended reason under the other wallet's name (a contacts row): it removed the pairing on its side. The name is the title above; not repeated.
   ///
   /// In en, this message translates to:
   /// **'Removed the pairing.'**

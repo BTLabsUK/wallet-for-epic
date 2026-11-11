@@ -21,7 +21,7 @@ import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
 import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, RelayMoveState, SealMode, contactKinds, keyCheckOpenFor, pairingVouchesFor;
 import '../../../relay_moves.dart' show relayLabelOf;
-import '../../../pairing_text.dart' show pairingEndedRowText, peerLabel;
+import '../../../pairing_text.dart' show pairingEndedRowText, pairingEndedText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, NoPaymentsMark, PairPendingBadge, TrustBadge;
 import '../../data/name_service_state.dart' show deskNameServices;
@@ -1443,7 +1443,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           key: deskContactEndedKey,
           gap: false,
           rows: [
-            ESetRow(title: l.pairEndedShort, text: pairingEndedRowText(l, p.endedReason ?? PairingEndReason.neverFinished)),
+            ESetRow(title: l.pairEndedShort, text: pairingEndedText(l, p.endedReason ?? PairingEndReason.neverFinished, name)),
             for (final t in held)
               ESetRow(
                 key: deskContactHeldSendKey,

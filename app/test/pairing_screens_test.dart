@@ -580,7 +580,7 @@ void main() {
       h.api.peerMismatch('p');
       await tester.pumpAndSettle();
       expect(find.byKey(contactPageEndedKey), findsOneWidget);
-      expect(find.text(_l.pairEndedRowPeerMismatch), findsOneWidget);
+      expect(find.text(_l.pairEndedPeerMismatch('Anna')), findsOneWidget);
       expect(find.byKey(contactPageHeldSendKey), findsOneWidget);
       expect(find.text(_l.pairHeldSend), findsOneWidget);
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
@@ -593,13 +593,21 @@ void main() {
 
     testWidgets('never finished: the reason line; Remove drops it, the contact stays', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.ended, endedReason: PairingEndReason.neverFinished));
-      expect(find.text(_l.pairEndedRowNeverFinished), findsOneWidget);
+      expect(find.text(_l.pairEndedNeverFinished('Anna')), findsOneWidget);
       await tester.tap(find.byKey(contactPageRemovePairingKey));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(confirmRemovePairingKey));
       await tester.pumpAndSettle();
       expect(h.api.records, isEmpty);
       expect(find.text(_l.pairNotPaired), findsOneWidget);
+    });
+
+    testWidgets('removed by the other side: the page names who removed it', (tester) async {
+      await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.ended, endedReason: PairingEndReason.unpaired));
+      // Under the title Pairing ended a bare "Removed the pairing." reads as the user's own act.
+      expect(find.descendant(of: find.byKey(contactPageEndedKey), matching: find.text(_l.noticeUnpaired('Anna'))), findsOneWidget);
+      expect(find.text(_l.pairEndedRowUnpaired), findsNothing);
+      expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
     });
 
     testWidgets('a later card proves another address: Update the contact\'s address or Detach', (tester) async {

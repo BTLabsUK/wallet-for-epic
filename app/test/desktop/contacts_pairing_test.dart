@@ -126,7 +126,7 @@ void main() {
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
     expect(find.byKey(deskContactEndedKey), findsOneWidget);
-    expect(find.text(_l.pairEndedRowPeerMismatch), findsOneWidget);
+    expect(find.descendant(of: find.byKey(deskContactEndedKey), matching: find.text(_l.pairEndedPeerMismatch(_c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1').name))), findsOneWidget);
     expect(find.text(_l.trustEnded), findsWidgets);
     expect(find.byKey(deskContactPairAgainKey), findsOneWidget);
     expect(find.byKey(deskContactRemovePairingKey), findsOneWidget);
@@ -180,7 +180,7 @@ void main() {
     _fake.seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', state: PairingState.ended, endedReason: PairingEndReason.neverFinished);
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
-    expect(find.text(_l.pairEndedRowNeverFinished), findsOneWidget);
+    expect(find.descendant(of: find.byKey(deskContactEndedKey), matching: find.text(_l.pairEndedNeverFinished(_c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c6').name))), findsOneWidget);
     await tester.tap(find.byKey(deskContactRemovePairingKey));
     await _real(tester);
     await tester.tap(find.byKey(deskConfirmRemovePairingKey));
@@ -365,7 +365,10 @@ void main() {
     _fake.removedByPeer(mockAnnaPairing);
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
-    expect(find.text(_l.pairEndedRowUnpaired), findsOneWidget);
+    // The page names who ended it: under the title Pairing ended, a bare "Removed the pairing."
+    // would read as the user's own act.
+    expect(find.descendant(of: find.byKey(deskContactEndedKey), matching: find.text(_l.noticeUnpaired(_c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1').name))), findsOneWidget);
+    expect(find.text(_l.pairEndedRowUnpaired), findsNothing);
     expect(find.text(_l.contactSealPayments), findsNothing);
     expect(find.byKey(deskContactPairAgainKey), findsOneWidget);
     expect(find.byKey(deskContactPairKey), findsOneWidget);
