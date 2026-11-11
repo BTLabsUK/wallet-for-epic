@@ -43,6 +43,8 @@ class _IssuerWallet implements lepic.EpicWallet {
 
   @override
   bool get isDisposed => false;
+  @override
+  bool nativeDirectInUse() => false;
 
   @override
   void lock() {}
