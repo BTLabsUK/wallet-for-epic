@@ -21642,4 +21642,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, sealed with epic1';
   }
+
+  @override
+  String get deskScanStarting => 'Starting the camera…';
+
+  @override
+  String get deskScanAim => 'Hold the code in front of the camera.';
+
+  @override
+  String get deskScanTryAgain => 'Try again';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'Camera access is off in Windows Settings › Privacy & security › Camera.';
+
+  @override
+  String get deskScanDeniedMac =>
+      'Camera access is off in System Settings › Privacy & Security › Camera.';
+
+  @override
+  String get deskScanDeniedLinux =>
+      'This app is not allowed to open the camera.';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'Camera support (GStreamer) is missing on this system.';
+
+  @override
+  String get deskScanUnsupportedWindows =>
+      'The Windows media features are missing.';
+
+  @override
+  String get deskScanUnsupportedOther =>
+      'Camera support is missing on this system.';
+
+  @override
+  String get deskScanBusy => 'Another app is using the camera.';
+
+  @override
+  String get deskScanFailed => 'The camera did not start.';
+
+  @override
+  String get deskScanNoPicture => 'The camera sends no picture.';
+
+  @override
+  String get deskScanDark =>
+      'The camera picture is black. Its cover may be closed.';
+
+  @override
+  String get deskScanUnplugged => 'The camera was disconnected.';
+
+  @override
+  String get deskScanReaderFailed => 'The QR reader did not start.';
+
+  @override
+  String get deskScanNoCamera => 'No camera found. Paste the code instead.';
 }

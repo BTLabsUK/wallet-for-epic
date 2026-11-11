@@ -5620,5 +5620,21 @@
   "deskE1TourSendText": "วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายต่อหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนส่งทุกครั้ง",
   "deskE1TourReceiveText": "ลิงก์ epic1 ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ",
   "deskE1Sealed": "ปิดผนึกด้วย epic1",
-  "deskE1SpokenSealed": "{row} ปิดผนึกด้วย epic1"
+  "deskE1SpokenSealed": "{row} ปิดผนึกด้วย epic1",
+  "deskScanStarting": "กำลังเปิดกล้อง…",
+  "deskScanAim": "ถือโค้ดไว้หน้ากล้อง",
+  "deskScanTryAgain": "ลองอีกครั้ง",
+  "deskScanDeniedWindows": "การเข้าถึงกล้องปิดอยู่ใน การตั้งค่า Windows › ความเป็นส่วนตัวและความปลอดภัย › กล้อง",
+  "deskScanDeniedMac": "การเข้าถึงกล้องปิดอยู่ใน การตั้งค่าระบบ › ความเป็นส่วนตัวและความปลอดภัย › กล้อง",
+  "deskScanDeniedLinux": "แอปนี้ไม่ได้รับอนุญาตให้เปิดกล้อง",
+  "deskScanUnsupportedLinux": "ระบบนี้ไม่มีส่วนรองรับกล้อง (GStreamer)",
+  "deskScanUnsupportedWindows": "ไม่มีฟีเจอร์สื่อของ Windows",
+  "deskScanUnsupportedOther": "ระบบนี้ไม่มีส่วนรองรับกล้อง",
+  "deskScanBusy": "แอปอื่นกำลังใช้กล้องอยู่",
+  "deskScanFailed": "กล้องไม่เริ่มทำงาน",
+  "deskScanNoPicture": "กล้องไม่ส่งภาพมา",
+  "deskScanDark": "ภาพจากกล้องเป็นสีดำ ฝาปิดกล้องอาจปิดอยู่",
+  "deskScanUnplugged": "กล้องถูกถอดออก",
+  "deskScanReaderFailed": "ตัวอ่าน QR ไม่เริ่มทำงาน",
+  "deskScanNoCamera": "ไม่พบกล้อง วางโค้ดแทน"
 }

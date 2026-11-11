@@ -21203,4 +21203,55 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row ปิดผนึกด้วย epic1';
   }
+
+  @override
+  String get deskScanStarting => 'กำลังเปิดกล้อง…';
+
+  @override
+  String get deskScanAim => 'ถือโค้ดไว้หน้ากล้อง';
+
+  @override
+  String get deskScanTryAgain => 'ลองอีกครั้ง';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'การเข้าถึงกล้องปิดอยู่ใน การตั้งค่า Windows › ความเป็นส่วนตัวและความปลอดภัย › กล้อง';
+
+  @override
+  String get deskScanDeniedMac =>
+      'การเข้าถึงกล้องปิดอยู่ใน การตั้งค่าระบบ › ความเป็นส่วนตัวและความปลอดภัย › กล้อง';
+
+  @override
+  String get deskScanDeniedLinux => 'แอปนี้ไม่ได้รับอนุญาตให้เปิดกล้อง';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'ระบบนี้ไม่มีส่วนรองรับกล้อง (GStreamer)';
+
+  @override
+  String get deskScanUnsupportedWindows => 'ไม่มีฟีเจอร์สื่อของ Windows';
+
+  @override
+  String get deskScanUnsupportedOther => 'ระบบนี้ไม่มีส่วนรองรับกล้อง';
+
+  @override
+  String get deskScanBusy => 'แอปอื่นกำลังใช้กล้องอยู่';
+
+  @override
+  String get deskScanFailed => 'กล้องไม่เริ่มทำงาน';
+
+  @override
+  String get deskScanNoPicture => 'กล้องไม่ส่งภาพมา';
+
+  @override
+  String get deskScanDark => 'ภาพจากกล้องเป็นสีดำ ฝาปิดกล้องอาจปิดอยู่';
+
+  @override
+  String get deskScanUnplugged => 'กล้องถูกถอดออก';
+
+  @override
+  String get deskScanReaderFailed => 'ตัวอ่าน QR ไม่เริ่มทำงาน';
+
+  @override
+  String get deskScanNoCamera => 'ไม่พบกล้อง วางโค้ดแทน';
 }

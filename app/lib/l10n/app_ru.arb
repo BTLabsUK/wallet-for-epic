@@ -5620,5 +5620,21 @@
   "deskE1TourSendText": "Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Перед отправкой — проверка.",
   "deskE1TourReceiveText": "Ссылка epic1 этого кошелька: поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.",
   "deskE1Sealed": "Запечатано epic1",
-  "deskE1SpokenSealed": "{row}, запечатано epic1"
+  "deskE1SpokenSealed": "{row}, запечатано epic1",
+  "deskScanStarting": "Запуск камеры…",
+  "deskScanAim": "Держите код перед камерой.",
+  "deskScanTryAgain": "Повторить",
+  "deskScanDeniedWindows": "Доступ к камере выключен в разделе Параметры Windows › Конфиденциальность и защита › Камера.",
+  "deskScanDeniedMac": "Доступ к камере выключен в разделе Системные настройки › Конфиденциальность и безопасность › Камера.",
+  "deskScanDeniedLinux": "Этому приложению не разрешено открывать камеру.",
+  "deskScanUnsupportedLinux": "В системе нет поддержки камеры (GStreamer).",
+  "deskScanUnsupportedWindows": "Нет компонентов мультимедиа Windows.",
+  "deskScanUnsupportedOther": "В системе нет поддержки камеры.",
+  "deskScanBusy": "Камеру использует другое приложение.",
+  "deskScanFailed": "Камера не запустилась.",
+  "deskScanNoPicture": "Камера не передаёт изображение.",
+  "deskScanDark": "Изображение с камеры чёрное. Возможно, закрыта шторка.",
+  "deskScanUnplugged": "Камера отключена.",
+  "deskScanReaderFailed": "Сканер QR-кодов не запустился.",
+  "deskScanNoCamera": "Камера не найдена. Вставьте код вместо этого."
 }

@@ -22354,4 +22354,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, запечатано epic1';
   }
+
+  @override
+  String get deskScanStarting => 'Запуск камеры…';
+
+  @override
+  String get deskScanAim => 'Держите код перед камерой.';
+
+  @override
+  String get deskScanTryAgain => 'Повторить';
+
+  @override
+  String get deskScanDeniedWindows =>
+      'Доступ к камере выключен в разделе Параметры Windows › Конфиденциальность и защита › Камера.';
+
+  @override
+  String get deskScanDeniedMac =>
+      'Доступ к камере выключен в разделе Системные настройки › Конфиденциальность и безопасность › Камера.';
+
+  @override
+  String get deskScanDeniedLinux =>
+      'Этому приложению не разрешено открывать камеру.';
+
+  @override
+  String get deskScanUnsupportedLinux =>
+      'В системе нет поддержки камеры (GStreamer).';
+
+  @override
+  String get deskScanUnsupportedWindows =>
+      'Нет компонентов мультимедиа Windows.';
+
+  @override
+  String get deskScanUnsupportedOther => 'В системе нет поддержки камеры.';
+
+  @override
+  String get deskScanBusy => 'Камеру использует другое приложение.';
+
+  @override
+  String get deskScanFailed => 'Камера не запустилась.';
+
+  @override
+  String get deskScanNoPicture => 'Камера не передаёт изображение.';
+
+  @override
+  String get deskScanDark =>
+      'Изображение с камеры чёрное. Возможно, закрыта шторка.';
+
+  @override
+  String get deskScanUnplugged => 'Камера отключена.';
+
+  @override
+  String get deskScanReaderFailed => 'Сканер QR-кодов не запустился.';
+
+  @override
+  String get deskScanNoCamera =>
+      'Камера не найдена. Вставьте код вместо этого.';
 }
