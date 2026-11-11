@@ -22809,4 +22809,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneUnlockResetBody =>
       'PIN нельзя восстановить. Вы можете удалить этот кошелёк с телефона и восстановить его по фразе восстановления. Без фразы его монеты будут потеряны навсегда.';
+
+  @override
+  String get phoneWelcomeBody =>
+      'Создайте кошелёк меньше чем за минуту или верните прежний по фразе восстановления.';
+
+  @override
+  String get phoneWelcomeTorLine => 'Подключаться через Tor с первой секунды';
+
+  @override
+  String get phoneStartPinHelpTitle => 'О PIN-коде';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'PIN открывает кошелёк на этом телефоне и подтверждает каждый платёж. Он никогда не покидает телефон.';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'PIN нельзя восстановить. Храните фразу восстановления в надёжном месте: по ней можно вернуть кошелёк и задать новый PIN.';
 }

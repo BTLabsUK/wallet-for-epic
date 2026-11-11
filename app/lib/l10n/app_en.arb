@@ -30012,5 +30012,25 @@
   "phoneUnlockResetBody": "The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.",
   "@phoneUnlockResetBody": {
     "description": "Body of the Forgot PIN sheet on the unlock screen."
+  },
+  "phoneWelcomeBody": "Make a wallet in under a minute, or bring one back with its recovery phrase.",
+  "@phoneWelcomeBody": {
+    "description": "Text under the Welcome title on the first screen."
+  },
+  "phoneWelcomeTorLine": "Connect through Tor from the first second",
+  "@phoneWelcomeTorLine": {
+    "description": "Line under the Tor only switch on the first screen."
+  },
+  "phoneStartPinHelpTitle": "About the PIN",
+  "@phoneStartPinHelpTitle": {
+    "description": "Title of the help sheet on the PIN step of the first start."
+  },
+  "phoneStartPinHelpUnlock": "The PIN unlocks the wallet on this phone and approves every payment. It never leaves the phone.",
+  "@phoneStartPinHelpUnlock": {
+    "description": "First line of the PIN help sheet."
+  },
+  "phoneStartPinHelpLost": "The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.",
+  "@phoneStartPinHelpLost": {
+    "description": "Second line of the PIN help sheet."
   }
 }

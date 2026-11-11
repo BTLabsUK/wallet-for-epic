@@ -22360,4 +22360,23 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneUnlockResetBody =>
       'Die PIN lässt sich nicht wiederherstellen. Du kannst diese Wallet vom Telefon löschen und mit ihrer Wiederherstellungsphrase neu aufbauen. Ohne die Phrase sind ihre Coins für immer verloren.';
+
+  @override
+  String get phoneWelcomeBody =>
+      'Erstelle in unter einer Minute eine Wallet oder hole eine mit ihrer Wiederherstellungsphrase zurück.';
+
+  @override
+  String get phoneWelcomeTorLine =>
+      'Von der ersten Sekunde an über Tor verbinden';
+
+  @override
+  String get phoneStartPinHelpTitle => 'Zur PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'Die PIN entsperrt die Wallet auf diesem Telefon und gibt jede Zahlung frei. Sie verlässt das Telefon nie.';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'Die PIN lässt sich nicht wiederherstellen. Bewahre die Wiederherstellungsphrase sicher auf: Mit ihr stellst du die Wallet wieder her und wählst eine neue PIN.';
 }

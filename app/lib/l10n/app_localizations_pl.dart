@@ -22823,4 +22823,22 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneUnlockResetBody =>
       'PIN-u nie można odzyskać. Możesz usunąć ten portfel z telefonu i przywrócić go z frazy odzyskiwania. Bez frazy jego monety przepadną na zawsze.';
+
+  @override
+  String get phoneWelcomeBody =>
+      'Utwórz portfel w mniej niż minutę albo przywróć go frazą odzyskiwania.';
+
+  @override
+  String get phoneWelcomeTorLine => 'Łącz się przez Tor od pierwszej sekundy';
+
+  @override
+  String get phoneStartPinHelpTitle => 'O kodzie PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'PIN odblokowuje portfel na tym telefonie i zatwierdza każdą płatność. Nigdy nie opuszcza telefonu.';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'PIN-u nie można odzyskać. Przechowuj frazę odzyskiwania w bezpiecznym miejscu: z nią przywrócisz portfel i ustawisz nowy PIN.';
 }

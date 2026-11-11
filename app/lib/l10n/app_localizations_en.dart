@@ -22096,4 +22096,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneUnlockResetBody =>
       'The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.';
+
+  @override
+  String get phoneWelcomeBody =>
+      'Make a wallet in under a minute, or bring one back with its recovery phrase.';
+
+  @override
+  String get phoneWelcomeTorLine => 'Connect through Tor from the first second';
+
+  @override
+  String get phoneStartPinHelpTitle => 'About the PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'The PIN unlocks the wallet on this phone and approves every payment. It never leaves the phone.';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.';
 }

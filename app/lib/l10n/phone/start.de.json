@@ -1,5 +1,10 @@
 {
   "phonePinChooseHint": "Sie entsperrt die Wallet und gibt Zahlungen frei.",
   "phonePinBiometricsBody": "Gesicht oder Fingerabdruck, je nach Gerät. Die PIN funktioniert weiterhin.",
-  "phoneUnlockResetBody": "Die PIN lässt sich nicht wiederherstellen. Du kannst diese Wallet vom Telefon löschen und mit ihrer Wiederherstellungsphrase neu aufbauen. Ohne die Phrase sind ihre Coins für immer verloren."
+  "phoneUnlockResetBody": "Die PIN lässt sich nicht wiederherstellen. Du kannst diese Wallet vom Telefon löschen und mit ihrer Wiederherstellungsphrase neu aufbauen. Ohne die Phrase sind ihre Coins für immer verloren.",
+  "phoneWelcomeBody": "Erstelle in unter einer Minute eine Wallet oder hole eine mit ihrer Wiederherstellungsphrase zurück.",
+  "phoneWelcomeTorLine": "Von der ersten Sekunde an über Tor verbinden",
+  "phoneStartPinHelpTitle": "Zur PIN",
+  "phoneStartPinHelpUnlock": "Die PIN entsperrt die Wallet auf diesem Telefon und gibt jede Zahlung frei. Sie verlässt das Telefon nie.",
+  "phoneStartPinHelpLost": "Die PIN lässt sich nicht wiederherstellen. Bewahre die Wiederherstellungsphrase sicher auf: Mit ihr stellst du die Wallet wieder her und wählst eine neue PIN."
 }

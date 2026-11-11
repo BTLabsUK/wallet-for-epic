@@ -21648,4 +21648,22 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneUnlockResetBody =>
       'ไม่สามารถกู้คืน PIN ได้ คุณลบกระเป๋านี้ออกจากโทรศัพท์แล้วกู้คืนด้วยวลีกู้คืนได้ หากไม่มีวลีนี้ เหรียญในกระเป๋าจะสูญหายถาวร';
+
+  @override
+  String get phoneWelcomeBody =>
+      'สร้างกระเป๋าใน 1 นาที หรือกู้คืนกระเป๋าเดิมด้วยวลีกู้คืน';
+
+  @override
+  String get phoneWelcomeTorLine => 'เชื่อมต่อผ่าน Tor ตั้งแต่วินาทีแรก';
+
+  @override
+  String get phoneStartPinHelpTitle => 'เกี่ยวกับ PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'PIN ใช้ปลดล็อกกระเป๋าบนโทรศัพท์เครื่องนี้และอนุมัติทุกการชำระเงิน PIN จะไม่ออกจากโทรศัพท์';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'ไม่สามารถกู้ PIN ได้ เก็บวลีกู้คืนไว้ให้ปลอดภัย เพราะใช้กู้กระเป๋าและตั้ง PIN ใหม่ได้';
 }

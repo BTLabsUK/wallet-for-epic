@@ -178,7 +178,7 @@
 {"id": "tx.pay.http", "screen": "tx", "family": ["desktop"], "role": "toggle", "keys": ["methodDirectHttp"], "names": ["Link · HTTP"], "match": "exact"},
 {"id": "tx.pay.tor", "screen": "tx", "family": ["desktop"], "role": "toggle", "keys": ["methodDirectTor"], "names": ["Link · Tor"], "match": "exact"},
 {"id": "tx.pay.file", "screen": "tx", "family": ["desktop"], "role": "toggle", "keys": ["methodDirectFile", "advTransactionFiles"], "names": ["Direct · File Transfer"], "match": "exact"},
-{"id": "g4.welcome.toronly", "screen": "welcome", "family": ["android"], "role": "toggle", "keys": ["advModeTorOnly", "levelUndercoverTitle"], "names": ["Tor only"]},
+{"id": "g4.welcome.toronly", "screen": "welcome", "family": ["android"], "many": true, "role": "toggle", "keys": ["advModeTorOnly", "levelUndercoverTitle"], "names": ["Tor only"]},
 {"id": "g4.pin.biometrics.notnow", "screen": "pin", "family": ["android"], "keys": ["pinBiometricsNotNow"], "names": ["Not now"], "match": "exact"},
 {"id": "g4.pin.choose", "screen": "pin", "kind": "copy", "family": ["android"], "role": "text", "keys": ["pinChooseTitle"], "names": ["re:choose a \\d+-digit pin"], "secret": true},
 {"id": "g4.pin.again", "screen": "pin", "kind": "copy", "family": ["android"], "role": "text", "keys": ["pinConfirmTitle"], "names": ["Enter the PIN again"], "secret": true},

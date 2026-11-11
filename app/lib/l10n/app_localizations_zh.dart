@@ -20857,4 +20857,19 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get phoneUnlockResetBody =>
       'PIN 无法找回。你可以从手机上删除这个钱包，再用恢复短语恢复它。没有恢复短语，其中的币将永久丢失。';
+
+  @override
+  String get phoneWelcomeBody => '不到一分钟即可创建钱包，或用恢复短语找回旧钱包。';
+
+  @override
+  String get phoneWelcomeTorLine => '从第一秒起通过 Tor 连接';
+
+  @override
+  String get phoneStartPinHelpTitle => '关于 PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock => 'PIN 用于在这部手机上解锁钱包并批准每笔付款，它不会离开手机。';
+
+  @override
+  String get phoneStartPinHelpLost => 'PIN 无法找回。请妥善保管恢复短语，用它可以恢复钱包并设置新的 PIN。';
 }

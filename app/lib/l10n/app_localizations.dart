@@ -34481,6 +34481,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.'**
   String get phoneUnlockResetBody;
+
+  /// Text under the Welcome title on the first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a wallet in under a minute, or bring one back with its recovery phrase.'**
+  String get phoneWelcomeBody;
+
+  /// Line under the Tor only switch on the first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect through Tor from the first second'**
+  String get phoneWelcomeTorLine;
+
+  /// Title of the help sheet on the PIN step of the first start.
+  ///
+  /// In en, this message translates to:
+  /// **'About the PIN'**
+  String get phoneStartPinHelpTitle;
+
+  /// First line of the PIN help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN unlocks the wallet on this phone and approves every payment. It never leaves the phone.'**
+  String get phoneStartPinHelpUnlock;
+
+  /// Second line of the PIN help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.'**
+  String get phoneStartPinHelpLost;
 }
 
 class _AppLocalizationsDelegate
