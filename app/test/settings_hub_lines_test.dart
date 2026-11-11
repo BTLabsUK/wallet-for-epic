@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart' show HintSwitchTile;
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -158,4 +159,19 @@ void main() {
       findsOneWidget,
     );
   });
+
+  for (final level in [WalletLevel.justSendReceive, WalletLevel.casual, WalletLevel.everything]) {
+    testWidgets('Advanced › Announcements at ${level.name}: the title and the switch, no description line', (tester) async {
+      await _pump(tester, level: level);
+      await tester.tap(find.byKey(settingsGroupKey(SettingsSection.advanced)));
+      await tester.pumpAndSettle();
+      final row = find.byKey(const ValueKey('adv-announcements'));
+      expect(row, findsOneWidget);
+      expect(tester.widget<HintSwitchTile>(row).subtitle, isNull);
+      expect(tester.widget<ListTile>(find.descendant(of: row, matching: find.byType(ListTile))).subtitle, isNull);
+      expect(find.text(_l.announcementsHint), findsNothing, reason: 'the explanation waits behind the info icon');
+      expect(find.textContaining('between releases'), findsNothing);
+      expect(find.descendant(of: row, matching: find.byIcon(Icons.info_outline)), findsOneWidget);
+    });
+  }
 }
