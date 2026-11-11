@@ -1,8 +1,0 @@
-# Commits that must never be released. tools/rel refuses a run whose source commit is listed:
-# at start, at the source step, at the publish gate and at every publish step.
-# One [[commit]] per entry: the full 40-character sha, why, the date it was listed.
-
-[[commit]]
-sha = "b1e4540d52a45682b5025e25878b9dbce2d1e80a"
-reason = "run-3 candidate: its password fields read as a Show button to screen readers (fixed in c1d3623c5, merged as 6e62429a2)"
-date = "2026-11-03"
