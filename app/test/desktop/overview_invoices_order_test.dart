@@ -6,8 +6,6 @@ import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/invoices/issue_tab.dart' show requestStateText;
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show Tx, TxDirection, TxMethod, TxState;
-import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
