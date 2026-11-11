@@ -48,6 +48,8 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera scans the QR code of an address you send Epic Cash to.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>BT Wallet connects to a node, a relay or another wallet on your local network when you choose one.</string>
 	<key>NSMainNibFile</key>

@@ -15,11 +15,16 @@ ARG RUNTIME_SHA256=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec2
 ARG RUSTUP_VERSION=1.29.2
 ARG RUSTUP_SHA256=5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4
 
+# GStreamer's headers build the desktop camera (app/packages/camera_desktop: libcamera_desktop_impl.so).
+# The AppImage does not carry GStreamer: the system's is used, and without it the camera says
+# unsupported.
+
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl git unzip xz-utils zip file \
       clang cmake ninja-build pkg-config build-essential \
       libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev \
+      libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
       squashfs-tools desktop-file-utils \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && git config --system --add safe.directory '*'
