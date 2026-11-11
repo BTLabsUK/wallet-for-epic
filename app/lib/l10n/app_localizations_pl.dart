@@ -22544,4 +22544,7 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Nie znaleziono kamery. Wklej kod zamiast tego.';
+
+  @override
+  String get deskOvScan => 'Skanuj';
 }

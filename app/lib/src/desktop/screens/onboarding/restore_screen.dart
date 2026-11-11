@@ -13,6 +13,8 @@ import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../../trust_ids.dart';
 import '../../../ui/scan_start.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 import 'onboarding_parts.dart';
 import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
@@ -119,7 +121,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   Future<void> _pasteClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = data?.text ?? '';
+    _takePhrase(data?.text ?? '');
+  }
+
+  /// Scan: a phrase code the camera read (or the dialog's paste) goes the Paste way.
+  Future<void> _scanPhrase() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint, phrase: true);
+    if (r == null) return;
+    _takePhrase(r.scanText);
+  }
+
+  void _takePhrase(String text) {
     if (!mounted) return;
     if (PhraseEntry.split(text).isEmpty) {
       setState(() => _clipboardEmpty = true);
@@ -314,6 +326,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       actions: [
         // Words only on a narrow window, so the row fits "Use 24 words".
         EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
+        DeskScanButton(key: const ValueKey('restore-scan'), onScan: _scanPhrase),
         EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
         // Names the length, so a typed 12-word phrase is never taken for 24 by mistake.
         EButton.primary(
@@ -339,6 +352,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           SizedBox(height: Sp.x3),
           PhraseGrid(entry: e, autofocus: true, onSubmit: _toAccount, firstId: TrustIds.restorePhrase),
           SizedBox(height: Sp.x3),
+          const DeskNoCameraLine(),
           // One line, always there, so the grid never moves when the verdict changes.
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),

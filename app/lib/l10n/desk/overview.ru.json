@@ -33,6 +33,7 @@
   "deskOvReceiveEpic": "Получить EPIC",
   "deskOvSend": "Отправить",
   "deskOvReceive": "Получить",
+  "deskOvScan": "Сканировать",
   "deskOvSendWaits": "Отправка возобновится, когда узел синхронизируется.",
   "deskOvSendWaitsNode": "Отправка станет доступна, когда узел ответит.",
   "deskOvBalance": "Баланс",

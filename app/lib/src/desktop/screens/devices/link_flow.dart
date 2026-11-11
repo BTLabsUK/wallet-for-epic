@@ -21,10 +21,13 @@ import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
 import '../../data/devices_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 
 const Key deskLinkCodeKey = ValueKey('desk-link-code');
 const Key deskLinkCopyKey = ValueKey('desk-link-copy');
 const Key deskLinkPasteFieldKey = ValueKey('desk-link-paste-field');
+const Key deskLinkScanKey = ValueKey('desk-link-scan');
 const Key deskLinkGoKey = ValueKey('desk-link-go');
 const Key deskLinkCancelKey = ValueKey('desk-link-cancel');
 const Key deskLinkRetryKey = ValueKey('desk-link-retry');
@@ -167,6 +170,16 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     final text = data?.text?.trim() ?? '';
     if (text.isEmpty || !mounted) return;
+    setState(() {
+      _text.text = text;
+      _error = null;
+    });
+  }
+
+  Future<void> _scanIn() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint);
+    final text = r?.scanText;
+    if (text == null || text.isEmpty || !mounted) return;
     setState(() {
       _text.text = text;
       _error = null;
@@ -368,9 +381,16 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
             semanticLabel: l.linkPasteLabel,
             onChanged: (_) => setState(() => _error = null),
             onSubmitted: (_) => _answer(),
-            trailing: EIconButton(icon: EIcons.paste, label: l.commonPaste, onPressed: _pasteFromClipboard),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                EIconButton(icon: EIcons.paste, label: l.commonPaste, onPressed: _pasteFromClipboard),
+                DeskScanButton(key: deskLinkScanKey, onScan: _scanIn, size: EBtnSize.inline),
+              ],
+            ),
           ),
         ),
+        const DeskNoCameraLine(),
       ],
     );
   }

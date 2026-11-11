@@ -20591,4 +20591,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => '未找到摄像头。请改为粘贴代码。';
+
+  @override
+  String get deskOvScan => '扫描';
 }

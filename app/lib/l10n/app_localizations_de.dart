@@ -22081,4 +22081,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.';
+
+  @override
+  String get deskOvScan => 'Scannen';
 }

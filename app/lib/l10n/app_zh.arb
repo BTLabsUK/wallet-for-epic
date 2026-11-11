@@ -5669,5 +5669,6 @@
   "deskScanDark": "摄像头画面全黑。镜头盖可能已关闭。",
   "deskScanUnplugged": "摄像头已断开。",
   "deskScanReaderFailed": "二维码识别未能启动。",
-  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。"
+  "deskScanNoCamera": "未找到摄像头。请改为粘贴代码。",
+  "deskOvScan": "扫描"
 }

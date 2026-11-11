@@ -21816,4 +21816,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => 'No camera found. Paste the code instead.';
+
+  @override
+  String get deskOvScan => 'Scan';
 }

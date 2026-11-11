@@ -30,6 +30,8 @@ import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'activity_screen.dart' show ActivityArgs;
 import 'restore_scan_panel.dart';
+import '../scan/desk_scan.dart' show DeskScanButton;
+import '../scan/desk_scan_route.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../settings_file/host_settings.dart' show hostSettings;
@@ -444,6 +446,8 @@ class _BalancePanel extends ConsumerWidget {
                   // Send and Receive look alike: neither is the one thing to do here.
                   EButton(label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
                   EButton(label: l.deskOvReceive, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
+                  // Scan reads any code and opens it like a link; greyed out with no camera.
+                  DeskScanButton(key: const ValueKey('home-scan'), label: l.deskOvScan, onScan: () => unawaited(openDeskScan(context, ref)), size: EBtnSize.md),
                 ],
         ),
         if (sendBlocked && !empty) ...[

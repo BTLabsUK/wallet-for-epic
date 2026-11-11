@@ -33,6 +33,7 @@
   "deskOvReceiveEpic": "Odbierz EPIC",
   "deskOvSend": "Wyślij",
   "deskOvReceive": "Odbierz",
+  "deskOvScan": "Skanuj",
   "deskOvSendWaits": "Wysyłanie wróci po synchronizacji węzła.",
   "deskOvSendWaitsNode": "Wysyłanie będzie możliwe, gdy węzeł odpowie.",
   "deskOvBalance": "Saldo",

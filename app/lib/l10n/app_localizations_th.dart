@@ -21371,4 +21371,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => 'ไม่พบกล้อง วางโค้ดแทน';
+
+  @override
+  String get deskOvScan => 'สแกน';
 }

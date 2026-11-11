@@ -5669,5 +5669,6 @@
   "deskScanDark": "Das Kamerabild ist schwarz. Vielleicht ist die Abdeckung geschlossen.",
   "deskScanUnplugged": "Die Kamera wurde getrennt.",
   "deskScanReaderFailed": "Der QR-Leser ist nicht gestartet.",
-  "deskScanNoCamera": "Keine Kamera gefunden. Fügen Sie den Code stattdessen ein."
+  "deskScanNoCamera": "Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.",
+  "deskOvScan": "Scannen"
 }

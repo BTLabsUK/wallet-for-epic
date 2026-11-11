@@ -29568,5 +29568,9 @@
   "deskScanNoCamera": "No camera found. Paste the code instead.",
   "@deskScanNoCamera": {
     "description": "The quiet line under a paste field when this computer has no camera; Scan is greyed out."
+  },
+  "deskOvScan": "Scan",
+  "@deskOvScan": {
+    "description": "Button on Overview beside Send and Receive that reads any code with the camera."
   }
 }

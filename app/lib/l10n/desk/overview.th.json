@@ -33,6 +33,7 @@
   "deskOvReceiveEpic": "รับ EPIC",
   "deskOvSend": "ส่ง",
   "deskOvReceive": "รับ",
+  "deskOvScan": "สแกน",
   "deskOvSendWaits": "การส่งจะกลับมาเมื่อโหนดซิงก์เสร็จ",
   "deskOvSendWaitsNode": "การส่งจะกลับมาเมื่อโหนดตอบสนอง",
   "deskOvBalance": "ยอดคงเหลือ",

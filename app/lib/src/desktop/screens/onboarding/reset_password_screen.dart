@@ -7,6 +7,8 @@ import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../log.dart';
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 import 'onboarding_parts.dart';
 import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
@@ -96,7 +98,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   Future<void> _pasteClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = data?.text ?? '';
+    _takePhrase(data?.text ?? '');
+  }
+
+  /// Scan: a phrase code the camera read (or the dialog's paste) goes the Paste way.
+  Future<void> _scanPhrase() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint, phrase: true);
+    if (r == null) return;
+    _takePhrase(r.scanText);
+  }
+
+  void _takePhrase(String text) {
     if (!mounted) return;
     if (PhraseEntry.split(text).isEmpty) {
       setState(() => _clipboardEmpty = true);
@@ -293,6 +305,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       back: backButton(() => _toUnlock()),
       actions: [
         EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
+        DeskScanButton(key: const ValueKey('reset-scan'), onScan: _scanPhrase),
         EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: e.filled == 0 ? null : e.clear),
         EButton.primary(
           key: const ValueKey('reset-password-words'),
@@ -306,6 +319,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         children: [
           PhraseGrid(entry: e, autofocus: true, onSubmit: complete && !_checking ? _toPassword : null),
           SizedBox(height: Sp.x3),
+          const DeskNoCameraLine(),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),
             child: status == null ? null : Semantics(

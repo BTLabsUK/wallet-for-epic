@@ -22530,4 +22530,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Камера не найдена. Вставьте код вместо этого.';
+
+  @override
+  String get deskOvScan => 'Сканировать';
 }

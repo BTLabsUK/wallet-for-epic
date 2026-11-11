@@ -47,6 +47,8 @@ import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../devices/link_flow.dart' show showDeskLinkDevice;
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 import 'desk_allow_row.dart';
 import 'name_service_dialogs.dart';
 import '../wallet/contact_label_menu.dart' show ContactLabelField;
@@ -57,6 +59,7 @@ import '../transfer/contact_picker.dart' show showContactPicker;
 const Key deskPairEnterKey = ValueKey('desk-pair-enter');
 const Key deskPairGoKey = ValueKey('desk-pair-go');
 const Key deskPairPasteKey = ValueKey('desk-pair-paste');
+const Key deskPairScanKey = ValueKey('desk-pair-scan');
 const Key deskPairCopyInviteKey = ValueKey('desk-pair-copy-invite');
 const Key deskPairChangeNameKey = ValueKey('desk-pair-change-name');
 const Key deskPairNameKey = ValueKey('desk-pair-name');
@@ -72,6 +75,7 @@ const Key deskWaitingAnswerKey = ValueKey('desk-waiting-answer');
 const Key deskWaitingCopyKey = ValueKey('desk-waiting-copy');
 const Key deskWaitingFinishKey = ValueKey('desk-waiting-finish');
 const Key deskWaitingFinishGoKey = ValueKey('desk-waiting-finish-go');
+const Key deskWaitingScanKey = ValueKey('desk-waiting-scan');
 const Key deskConfirmCopyKey = ValueKey('desk-confirm-copy');
 const Key deskConfirmCheckKey = ValueKey('desk-confirm-check');
 const Key deskCheckMatchKey = ValueKey('desk-check-match');
@@ -235,6 +239,15 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     setState(() => _enterError = null);
   }
 
+  /// Scan: the code the camera (or the dialog's paste) gave fills the field as Paste does.
+  Future<void> _scanEnter() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint);
+    final text = r?.scanText;
+    if (!mounted || text == null || text.isEmpty) return;
+    _enter.text = text;
+    setState(() => _enterError = null);
+  }
+
   bool get _ready => _enter.text.trim().isNotEmpty;
 
   Future<void> _go() async {
@@ -353,9 +366,11 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
               alignment: WrapAlignment.end,
               children: [
                 EButton.ghost(key: deskPairPasteKey, label: l.commonPaste, icon: EIcons.paste, onPressed: _pasteEnter),
+                DeskScanButton(key: deskPairScanKey, onScan: _scanEnter, size: EBtnSize.sm),
                 EButton.primary(key: deskPairGoKey, semanticsId: TrustIds.pairScreenGo, label: l.pairTitle, size: EBtnSize.sm, busy: _busy, onPressed: _ready ? _go : null),
               ],
             ),
+            const DeskNoCameraLine(),
           ],
         ),
       ),
@@ -832,6 +847,14 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     await _openFinish();
   }
 
+  Future<void> _scanFinish() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrHint);
+    final text = r?.scanText;
+    if (!mounted || text == null || text.isEmpty) return;
+    _finish.text = text;
+    await _openFinish();
+  }
+
   Future<void> _openFinish() async {
     final l = context.l10n;
     final text = _finish.text;
@@ -914,10 +937,13 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
                         SizedBox(width: Sp.x2),
                         EButton.ghost(label: l.commonPaste, icon: EIcons.paste, onPressed: _pasteFinish),
                         SizedBox(width: Sp.x2),
+                        DeskScanButton(key: deskWaitingScanKey, onScan: _scanFinish, size: EBtnSize.sm),
+                        SizedBox(width: Sp.x2),
                         EButton(key: deskWaitingFinishGoKey, label: l.pairTitle, size: EBtnSize.sm, onPressed: _openFinish),
                       ],
                     ),
                   ),
+                  const DeskNoCameraLine(),
                 ],
               ),
             ),

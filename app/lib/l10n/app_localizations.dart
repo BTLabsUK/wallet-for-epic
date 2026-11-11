@@ -34043,6 +34043,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No camera found. Paste the code instead.'**
   String get deskScanNoCamera;
+
+  /// Button on Overview beside Send and Receive that reads any code with the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get deskOvScan;
 }
 
 class _AppLocalizationsDelegate

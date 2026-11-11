@@ -120,6 +120,13 @@ String _unsupported(AppLocalizations l) => switch (_os) {
   _ => l.deskScanUnsupportedOther,
 };
 
+/// Why this computer cannot scan: no camera found, or what the system lacks. Null otherwise.
+String? _noCameraText(AppLocalizations l, CameraPresence presence) => switch (presence) {
+  CameraPresence.none => l.deskScanNoCamera,
+  CameraPresence.unsupported => _unsupported(l),
+  _ => null,
+};
+
 /// The one line of each camera problem.
 String deskScanProblemText(AppLocalizations l, QrCameraProblem p) => switch (p) {
   QrCameraProblem.denied => switch (_os) {
@@ -425,10 +432,14 @@ class _FramePainter extends CustomPainter {
 /// Scan, beside a field's paste: offered while a camera is found, greyed out otherwise. It
 /// checks again when it first shows.
 class DeskScanButton extends ConsumerStatefulWidget {
-  const DeskScanButton({super.key, required this.onScan, this.size = EBtnSize.inline});
+  const DeskScanButton({super.key, required this.onScan, this.size = EBtnSize.inline, this.label});
 
   final VoidCallback onScan;
   final EBtnSize size;
+
+  /// Set: a button with this label and the camera icon (Home, beside Send and Receive); its
+  /// greyed-out state carries the reason as a tip. Unset: the icon button beside a field.
+  final String? label;
 
   @override
   ConsumerState<DeskScanButton> createState() => _DeskScanButtonState();
@@ -445,7 +456,14 @@ class _DeskScanButtonState extends ConsumerState<DeskScanButton> {
 
   @override
   Widget build(BuildContext context) {
-    final on = ref.watch(cameraPresenceProvider).offersScan;
+    final presence = ref.watch(cameraPresenceProvider);
+    final on = presence.offersScan;
+    final label = widget.label;
+    if (label != null) {
+      final button = EButton(label: label, icon: EIcons.camera, size: widget.size, onPressed: on ? widget.onScan : null);
+      final why = _noCameraText(context.l10n, presence);
+      return on || why == null ? button : ETip(why, child: button);
+    }
     return EIconButton(icon: EIcons.camera, label: context.l10n.scanQrTitle, size: widget.size, onPressed: on ? widget.onScan : null);
   }
 }
@@ -458,11 +476,7 @@ class DeskNoCameraLine extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final text = switch (ref.watch(cameraPresenceProvider)) {
-      CameraPresence.none => l.deskScanNoCamera,
-      CameraPresence.unsupported => _unsupported(l),
-      _ => null,
-    };
+    final text = _noCameraText(l, ref.watch(cameraPresenceProvider));
     if (text == null) return const SizedBox.shrink();
     final c = context.dc;
     return Padding(

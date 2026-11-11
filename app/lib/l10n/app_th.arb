@@ -5669,5 +5669,6 @@
   "deskScanDark": "ภาพจากกล้องเป็นสีดำ ฝาปิดกล้องอาจปิดอยู่",
   "deskScanUnplugged": "กล้องถูกถอดออก",
   "deskScanReaderFailed": "ตัวอ่าน QR ไม่เริ่มทำงาน",
-  "deskScanNoCamera": "ไม่พบกล้อง วางโค้ดแทน"
+  "deskScanNoCamera": "ไม่พบกล้อง วางโค้ดแทน",
+  "deskOvScan": "สแกน"
 }
