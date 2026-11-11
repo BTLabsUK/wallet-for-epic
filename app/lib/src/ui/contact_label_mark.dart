@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The contact label as a small mark in the avatar's bottom-right corner. Display only
-/// except where [onTap] is given (the contact page and the desktop details), where the mark
-/// opens the label picker. The label is local to this wallet's user: it is drawn here and
+/// The contact label as a mark in the avatar's bottom-right corner, on every contact avatar
+/// that knows its label: list rows as well as the contact page. Display only except where
+/// [onTap] is given (the contact page and the desktop details), where the mark opens the
+/// label picker. The label is local to this wallet's user: it is drawn here and
 /// nowhere else.
 library;
 
@@ -63,14 +64,17 @@ class ContactLabelGlyph extends StatelessWidget {
   );
 }
 
-/// The avatar corner mark's side for an avatar of [avatar] px.
-double contactLabelMarkSize(double avatar) => avatar * 0.4 < 18 ? 18 : avatar * 0.4;
+/// The avatar corner mark's side for an avatar of [avatar] px: 44 % of it, never under 20 px,
+/// so the glyph reads on a 40 px list row.
+double contactLabelMarkSize(double avatar) => avatar * 0.44 < 20 ? 20 : avatar * 0.44;
+
+/// The glyph's side in a mark of [side] px.
+double contactLabelGlyphSize(double side) => side * 0.8;
 
 /// How far the mark sticks out past the avatar's corner.
 double contactLabelMarkOverhang(double avatar) => avatar * 0.1;
 
-/// The mark: a small tile with the label's glyph. The default label draws in the faint colour
-/// (it is shown only where it can be tapped).
+/// The mark: a small tile with the label's glyph. The default label draws in the faint colour.
 class ContactLabelMark extends StatelessWidget {
   const ContactLabelMark({super.key, required this.label, required this.avatar});
 
@@ -93,7 +97,7 @@ class ContactLabelMark extends StatelessWidget {
         // The ring in the page colour parts the mark from the avatar's corner tick.
         boxShadow: [BoxShadow(color: t.bg, spreadRadius: 2)],
       ),
-      child: ContactLabelGlyph(label, size: side * 0.72, color: faint ? t.faint : t.dim),
+      child: ContactLabelGlyph(label, size: contactLabelGlyphSize(side), color: faint ? t.faint : t.dim),
     );
   }
 }
@@ -114,7 +118,9 @@ class AvatarLabelMark extends StatelessWidget {
 
   final Widget avatar;
   final double size;
-  final ContactLabel label;
+
+  /// Null on an avatar that is no contact's (a wallet, a pairing): no mark.
+  final ContactLabel? label;
   final VoidCallback? onTap;
   final double hit;
 
@@ -124,8 +130,8 @@ class AvatarLabelMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onTap = this.onTap;
-    // Nothing to draw: the default label in a list or a header.
-    if (label == ContactLabel.wallet && onTap == null) return avatar;
+    final label = this.label;
+    if (label == null) return avatar;
     // The mark sits in every contact header: where no localizations are installed (a bare
     // test host) it names itself in English instead of throwing.
     final l = Localizations.of<AppLocalizations>(context, AppLocalizations) ?? lookupAppLocalizations(const Locale('en'));
@@ -134,17 +140,16 @@ class AvatarLabelMark extends StatelessWidget {
     final over = contactLabelMarkOverhang(size);
     final mark = ContactLabelMark(label: label, avatar: size);
     if (onTap == null) {
-      return Semantics(
-        label: text,
-        container: false,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            avatar,
-            Positioned(right: -over, bottom: -over, child: mark),
-          ],
-        ),
+      final drawn = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          avatar,
+          Positioned(right: -over, bottom: -over, child: mark),
+        ],
       );
+      // A row of plain wallets does not read out "Label: Just a wallet" on each.
+      if (label == ContactLabel.wallet) return drawn;
+      return Semantics(label: text, container: false, child: drawn);
     }
     // The mark's centre is (side / 2 - over) inside the avatar's corner; the hit box is
     // centred on it and stays inside this widget's own bounds so that it receives the tap.

@@ -55,13 +55,18 @@ Future<void> _open(WidgetTester tester, DeskWalletApi api, ContactsArgs args) as
 }
 
 void main() {
-  testWidgets('the list draws a mark for each labelled contact only', (tester) async {
+  testWidgets('every list row draws its mark, the plain wallets too, at a readable size', (tester) async {
     final api = _Wallet();
     await api.label();
     await _open(tester, api, const ContactsArgs());
     // The mock has an exchange, a service and a vendor; the others are plain wallets.
-    expect(find.byType(ContactLabelMark), findsWidgets);
-    expect(find.byType(ContactLabelMark).evaluate().where((e) => (e.widget as ContactLabelMark).label == ContactLabel.wallet), isEmpty);
+    final labels = find.byType(ContactLabelMark).evaluate().map((e) => (e.widget as ContactLabelMark).label).toSet();
+    expect(labels, containsAll([ContactLabel.exchange, ContactLabel.service, ContactLabel.vendor, ContactLabel.wallet]));
+    // A 40 u row avatar: the mark is at least 20 px with a 16 px glyph.
+    final service = find.byWidgetPredicate((w) => w is ContactLabelMark && w.label == ContactLabel.service).first;
+    expect(tester.getSize(service).width, greaterThanOrEqualTo(20));
+    final glyph = find.descendant(of: service, matching: find.byType(ContactLabelGlyph));
+    expect(tester.getSize(glyph).width, greaterThanOrEqualTo(16));
   });
 
   testWidgets('the details mark opens the menu; a choice is saved with the other fields kept; the default clears it', (tester) async {

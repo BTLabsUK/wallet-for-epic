@@ -450,12 +450,14 @@ class _Empty extends ConsumerWidget {
 
 /// The contact's picture (the mock draws a placeholder), else its initials.
 class _Pic extends StatelessWidget {
-  const _Pic({required this.name, required this.picture, required this.size, this.label = ContactLabel.wallet, this.onLabelTap});
+  const _Pic({required this.name, required this.picture, required this.size, this.label, this.onLabelTap});
 
   final String name;
   final bool picture;
   final double size;
-  final ContactLabel label;
+
+  /// Null where the avatar is no stored contact's yet (the add form): no mark.
+  final ContactLabel? label;
   final VoidCallback? onLabelTap;
 
   @override

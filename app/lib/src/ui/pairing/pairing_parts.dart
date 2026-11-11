@@ -319,7 +319,7 @@ class PairAvatar extends StatelessWidget {
     super.key,
     required this.name,
     this.size = 48,
-    this.label = ContactLabel.wallet,
+    this.label,
     this.onLabelTap,
     this.labelHit = 48,
     this.labelTip,
@@ -328,9 +328,9 @@ class PairAvatar extends StatelessWidget {
   final String name;
   final double size;
 
-  /// The user's label for this contact, drawn as a mark in the bottom-right corner. The
-  /// default draws nothing, unless [onLabelTap] is given.
-  final ContactLabel label;
+  /// The user's label for this contact, drawn as a mark in the bottom-right corner (the
+  /// default faint). Null for an avatar that is no contact's: no mark.
+  final ContactLabel? label;
 
   /// Makes the mark a button (the faint wallet mark for the default): it opens the picker.
   /// The widget is then larger than [size] by the part of the hit area past the corner.
@@ -426,6 +426,43 @@ class _PairCountdownState extends ConsumerState<PairCountdown> {
         ],
       ),
     );
+  }
+}
+
+/// The time left until [until] as a short span (`6 d 23 h`, `14 min`, `under a minute`), read
+/// again each second from the pairing clock: the value of the pair request's expiry row, on
+/// the phone and the desktop.
+class PairTimeLeft extends ConsumerStatefulWidget {
+  const PairTimeLeft({super.key, required this.until, this.style});
+
+  final DateTime until;
+  final TextStyle? style;
+
+  @override
+  ConsumerState<PairTimeLeft> createState() => _PairTimeLeftState();
+}
+
+class _PairTimeLeftState extends ConsumerState<PairTimeLeft> {
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final left = widget.until.difference(ref.watch(pairingClockProvider)());
+    return Text(pairingSpan(_l10n(context), left), style: widget.style);
   }
 }
 

@@ -25,12 +25,13 @@ import 'tip.dart';
 /// A contact's or wallet's initials in the phone's avatar tile ([PairAvatar]: the gold corner
 /// brackets, the grid, gold initials), the one standard on both apps (UP-011).
 class EAvatar extends StatelessWidget {
-  const EAvatar(this.name, {super.key, this._size, this.label = ContactLabel.wallet, this.onLabelTap});
+  const EAvatar(this.name, {super.key, this._size, this.label, this.onLabelTap});
 
   final String name;
 
-  /// The user's label for the contact: a mark on the avatar's corner (see [PairAvatar]).
-  final ContactLabel label;
+  /// The user's label for the contact: a mark on the avatar's corner (see [PairAvatar]);
+  /// null for no mark.
+  final ContactLabel? label;
   final VoidCallback? onLabelTap;
   final double? _size;
   double get size => _size ?? 32.u;
@@ -53,7 +54,7 @@ class EAvatar extends StatelessWidget {
       labelTip: (message, child) => ETip(message, onClick: false, excludeFromSemantics: true, child: child),
     );
     // The mark carries its own name; the tile alone is decoration.
-    return label == ContactLabel.wallet && !tapped ? ExcludeSemantics(child: avatar) : avatar;
+    return (label == null || label == ContactLabel.wallet) && !tapped ? ExcludeSemantics(child: avatar) : avatar;
   }
 }
 
