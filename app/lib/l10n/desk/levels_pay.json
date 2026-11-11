@@ -88,6 +88,10 @@
     }
   },
   "deskLvPaySendingTo": "Sending to {name}",
+  "deskLvPaySendingInPerson": "Sending in person",
+  "@deskLvPaySendingInPerson": {
+    "description": "Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end)."
+  },
   "@deskLvPaySendingTo": {
     "description": "Overview's card for a payment you sent that is not done yet (Deep end); name is the recipient.",
     "placeholders": {

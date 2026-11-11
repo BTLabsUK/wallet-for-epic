@@ -20436,6 +20436,115 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get deskLvPaySendingInPerson => '正在当面发送';
+
+  @override
+  String get deskInvIssuerWaitingInPerson => '正在等待对方钱包的回复。在对方批准之前不会付款。';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return '回应将在线返回 · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => '正在在线发送回应…';
+
+  @override
+  String get deskIpOnlineDown => '无法连接 Epicbox 服务器 · 正在重试';
+
+  @override
+  String get deskIpOnlineTitle => '在线回应';
+
+  @override
+  String get deskIpOnlineServer => 'Epicbox 服务器';
+
+  @override
+  String get deskIpOnlineStatus => '状态';
+
+  @override
+  String get deskIpOnlineTimeLeft => '剩余时间';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '约 $count 分钟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => '正在发送回应…';
+
+  @override
+  String get deskIpStepSent => '回应已发送';
+
+  @override
+  String get deskIpStepReceived => '已收到回应';
+
+  @override
+  String get deskIpStepDown => '无法连接，正在重试。';
+
+  @override
+  String get deskIpStepFailed => '未能送达';
+
+  @override
+  String get deskIpStepCancelled => '已取消';
+
+  @override
+  String get deskIpOnlineCancel => '取消在线回应';
+
+  @override
+  String get deskIpOnlineCancelCode => '之后扫描或粘贴另一部手机的回应。';
+
+  @override
+  String get deskIpOnlineCancelAnswer => '之后由另一部手机扫描你的回应。';
+
+  @override
+  String get deskIpOnlineDetails => '详情';
+
+  @override
+  String get deskQrHiddenReply => '只给发送方的钱包看。只有对方的钱包能使用它。';
+
+  @override
+  String get deskQrHiddenPaid => '只给发出付款请求的钱包看。只有那个钱包能使用它。';
+
+  @override
+  String get deskQrTimedOutBody => '另一台设备准备好后再显示。';
+
+  @override
+  String get deskQrCannotShow => '此文件无法显示为二维码。';
+
+  @override
+  String get deskQrAimPayment => '请把摄像头对准另一台设备上的付款二维码。';
+
+  @override
+  String get deskQrAimReply => '请把摄像头对准另一台设备上的回复二维码。';
+
+  @override
+  String get deskQrAimAny => '请把摄像头对准付款、回复、账单或已完成付款的二维码。';
+
+  @override
+  String get deskQrNotTx => '这不是付款二维码。';
+
+  @override
+  String get deskQrScannedName => '扫描的二维码';
+
+  @override
+  String get deskQrPastedName => '粘贴的文本';
+
+  @override
+  String get deskQrScanFinalize => '或将对方的回复作为二维码扫描。';
+
+  @override
+  String get deskSetTxQrHint =>
+      '通过显示和扫描动态二维码形式的交易来付款和收款，无需网络。在这台电脑上它随“文件传输”一起提供：“显示二维码”和“扫描二维码”位于文件按钮旁边。';
+
+  @override
+  String get deskQrScanImport => '或将付款或账单作为二维码扫描。';
+
+  @override
   String get deskScanStarting => '正在启动摄像头…';
 
   @override
@@ -20482,44 +20591,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskScanNoCamera => '未找到摄像头。请改为粘贴代码。';
-
-  @override
-  String get deskQrHiddenReply => '只给发送方的钱包看。只有对方的钱包能使用它。';
-
-  @override
-  String get deskQrHiddenPaid => '只给发出付款请求的钱包看。只有那个钱包能使用它。';
-
-  @override
-  String get deskQrTimedOutBody => '另一台设备准备好后再显示。';
-
-  @override
-  String get deskQrCannotShow => '此文件无法显示为二维码。';
-
-  @override
-  String get deskQrAimPayment => '请把摄像头对准另一台设备上的付款二维码。';
-
-  @override
-  String get deskQrAimReply => '请把摄像头对准另一台设备上的回复二维码。';
-
-  @override
-  String get deskQrAimAny => '请把摄像头对准付款、回复、账单或已完成付款的二维码。';
-
-  @override
-  String get deskQrNotTx => '这不是付款二维码。';
-
-  @override
-  String get deskQrScannedName => '扫描的二维码';
-
-  @override
-  String get deskQrPastedName => '粘贴的文本';
-
-  @override
-  String get deskQrScanFinalize => '或将对方的回复作为二维码扫描。';
-
-  @override
-  String get deskSetTxQrHint =>
-      '通过显示和扫描动态二维码形式的交易来付款和收款，无需网络。在这台电脑上它随“文件传输”一起提供：“显示二维码”和“扫描二维码”位于文件按钮旁边。';
-
-  @override
-  String get deskQrScanImport => '或将付款或账单作为二维码扫描。';
 }

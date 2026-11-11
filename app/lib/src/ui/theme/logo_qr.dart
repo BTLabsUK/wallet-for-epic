@@ -76,12 +76,24 @@ class _LogoQrState extends State<LogoQr> {
   }
 
   @override
+  Widget build(BuildContext context) => LogoQrImage(image: _image, size: widget.size, logo: widget.logo);
+}
+
+/// An encoded QR [image] in the [LogoQr] look, for frames of an animated code (`QrFrames`).
+class LogoQrImage extends StatelessWidget {
+  const LogoQrImage({super.key, required this.image, required this.size, this.logo = QrLogo.bt});
+
+  final QrImage image;
+  final double size;
+  final QrLogo logo;
+
+  @override
   Widget build(BuildContext context) {
     return ExcludeSemantics(
       child: RepaintBoundary(
         child: CustomPaint(
-          size: Size.square(widget.size),
-          painter: LogoQrPainter(_image, widget.logo),
+          size: Size.square(size),
+          painter: LogoQrPainter(image, logo),
         ),
       ),
     );

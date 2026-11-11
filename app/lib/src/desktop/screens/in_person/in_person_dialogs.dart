@@ -14,11 +14,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../epic1.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../models.dart' show WalletError, WalletErrorKind, slateMessageMaxBytes;
+import '../../../qr_slate.dart' show QrFrames;
 import '../../../trust_ids.dart';
 import '../../../ui/in_person/in_person_logic.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import 'in_person_online.dart';
 
 /// Test keys.
 const Key deskInPersonAmountKey = ValueKey('desk-ip-amount');
@@ -316,7 +318,10 @@ class _DeskInPersonCodeDialogState extends ConsumerState<DeskInPersonCodeDialog>
               ],
             ),
           SizedBox(height: Sp.x2),
-          Semantics(liveRegion: true, child: Text(l.deskIpWaiting, style: ts.bodyDim)),
+          if (watch.online)
+            DeskInPersonOnlineLine(online: watch)
+          else
+            Semantics(liveRegion: true, child: Text(l.deskIpWaiting, style: ts.bodyDim)),
           if (paste != null) ...[
             SizedBox(height: Sp.x3),
             ENotice(tone: ETone.risk, icon: EIcons.error, title: paste),
@@ -325,7 +330,7 @@ class _DeskInPersonCodeDialogState extends ConsumerState<DeskInPersonCodeDialog>
       ),
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
-        EButton(semanticsId: TrustIds.txIpPaste, label: l.deskIpPasteAnswer, icon: EIcons.paste, onPressed: _paste),
+        if (watch.manual) EButton(semanticsId: TrustIds.txIpPaste, label: l.deskIpPasteAnswer, icon: EIcons.paste, onPressed: _paste),
       ],
     );
   }
@@ -396,6 +401,14 @@ class _DeskInPersonQrState extends State<DeskInPersonQr> {
   bool _shown = false;
   int _frame = 0;
   Timer? _frames;
+  QrFrames? _drawn;
+
+  /// The parts drawn once, in one version and mask.
+  QrFrames _framesOf(List<String> parts) {
+    final drawn = _drawn;
+    if (drawn != null && identical(drawn.texts, parts)) return drawn;
+    return _drawn = QrFrames.of(parts);
+  }
 
   @override
   void didUpdateWidget(DeskInPersonQr old) {
@@ -438,7 +451,7 @@ class _DeskInPersonQrState extends State<DeskInPersonQr> {
       return Semantics(
         image: true,
         label: widget.label,
-        child: ExcludeSemantics(child: EQr(widget.parts[_frame % widget.parts.length], size: size, epic1: true)),
+        child: ExcludeSemantics(child: EQr.frame(_framesOf(widget.parts).images[_frame % widget.parts.length], size: size, epic1: true)),
       );
     }
     return Container(
@@ -486,9 +499,6 @@ class DeskInPersonText extends StatelessWidget {
   }
 }
 
-/// How the answer went out.
-enum DeskInPersonPosted { posted, none, failed }
-
 /// A pasted code: its review, the answer and its check code.
 class DeskInPersonReviewDialog extends ConsumerStatefulWidget {
   const DeskInPersonReviewDialog({super.key, required this.code, required this.info});
@@ -506,10 +516,12 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
   String? _failure;
   String? _passwordError;
   InPersonAnswerMade? _answer;
-  DeskInPersonPosted? _posted;
 
-  /// The answer's check code, from the post; null until it is posted.
-  String? _checkCode;
+  /// The answer going to its code's server; null without a server or once declined.
+  InPersonAnswerPost? _online;
+
+  /// The answer is shown, not posted: the code names no server, or the server was declined.
+  bool _noPost = false;
 
   /// The server is not in the list: asks before posting.
   bool _ask = false;
@@ -520,7 +532,13 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
   @override
   void dispose() {
     _password.dispose();
+    _online?.removeListener(_changed);
+    _online?.dispose();
     super.dispose();
+  }
+
+  void _changed() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _answerCode() async {
@@ -550,11 +568,11 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
       _parts = wallet.qrParts(made.envelope);
       final mailbox = made.mailbox ?? widget.info.mailbox;
       if (mailbox == null) {
-        setState(() => _posted = DeskInPersonPosted.none);
+        setState(() => _noPost = true);
       } else if (!mailbox.inRelayList) {
         setState(() => _ask = true);
       } else {
-        await _post();
+        _start(mailbox);
       }
     } on Object catch (e) {
       if (mounted) setState(() => _failure = deskErrorText(e, l));
@@ -563,30 +581,18 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
     }
   }
 
-  /// Posts the answer to its code's server.
-  Future<void> _post() async {
+  /// Posts the answer to [mailbox], its code's server; the dialog follows the post.
+  void _start(Epic1Host mailbox) {
     final answer = _answer;
     final wallet = ref.read(deskApiProvider).epic1;
     if (answer == null || wallet == null) return;
+    final post = InPersonAnswerPost(wallet: wallet, slateId: answer.slateId, mailbox: mailbox, cutoff: widget.info.ttlCutoff)
+      ..addListener(_changed);
     setState(() {
-      _busy = true;
       _ask = false;
+      _online = post;
     });
-    DeskInPersonPosted posted;
-    String? checkCode;
-    try {
-      checkCode = await wallet.inPersonPost(slateId: answer.slateId, relayOk: true);
-      posted = DeskInPersonPosted.posted;
-    } on Object {
-      posted = DeskInPersonPosted.failed;
-    }
-    if (mounted) {
-      setState(() {
-        _busy = false;
-        _posted = posted;
-        _checkCode = checkCode;
-      });
-    }
+    unawaited(post.post());
   }
 
   @override
@@ -604,14 +610,13 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
         actions: [
           EButton(label: l.commonCancel, onPressed: () => setState(() {
             _ask = false;
-            _posted = DeskInPersonPosted.none;
+            _noPost = true;
           })),
-          EButton.primary(semanticsId: TrustIds.txIpUseserver, label: l.deskIpUseServer, onPressed: _post),
+          EButton.primary(semanticsId: TrustIds.txIpUseserver, label: l.deskIpUseServer, onPressed: () => _start(host)),
         ],
       );
     }
-    final posted = _posted;
-    if (answer != null && posted != null) return _answered(context, title, answer, posted);
+    if (answer != null && (_noPost || _online != null)) return _answered(context, title, answer, _online);
     return _review(context, title);
   }
 
@@ -669,10 +674,12 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
     );
   }
 
-  /// The check code once the answer is posted; until then [title], the review's.
-  Widget _answered(BuildContext context, String title, InPersonAnswerMade answer, DeskInPersonPosted posted) {
+  /// The check code once the answer is posted; until then [title], the review's. While
+  /// [online] sends there is no answer code; it shows once the post failed or was cancelled.
+  Widget _answered(BuildContext context, String title, InPersonAnswerMade answer, InPersonAnswerPost? online) {
     final l = context.l10n;
-    final checkCode = _checkCode;
+    final checkCode = online?.checkCode;
+    final step = online?.step;
     return EDialog(
       title: checkCode != null ? l.deskIpCheckTitle : title,
       icon: EIcons.shield,
@@ -683,16 +690,17 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
         mainAxisSize: MainAxisSize.min,
         children: [
           if (checkCode != null) DeskInPersonCheck(key: deskInPersonCheckKey, code: checkCode),
-          if (posted == DeskInPersonPosted.failed) ...[
+          if (step == InPersonOnlineStep.posting) DeskInPersonOnlineLine(online: online!),
+          if (step == InPersonOnlineStep.failed) ...[
             SizedBox(height: Sp.x4),
             ENotice(
               tone: ETone.warn,
               icon: EIcons.alert,
               title: l.deskIpPostFailed,
-              actions: [EButton(label: l.commonRetry, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : _post)],
+              actions: [EButton(label: l.commonRetry, size: EBtnSize.inline, onPressed: online!.post)],
             ),
           ],
-          if (posted != DeskInPersonPosted.posted) ...[
+          if (online == null || online.showAnswer) ...[
             SizedBox(height: Sp.x5),
             Text(l.deskIpAnswerLead, style: context.ts.bodyDim),
             SizedBox(height: Sp.x3),

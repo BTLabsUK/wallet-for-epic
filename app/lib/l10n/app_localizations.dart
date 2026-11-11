@@ -33750,6 +33750,204 @@ abstract class AppLocalizations {
   /// **'{row}, sealed with epic1'**
   String deskE1SpokenSealed(String row);
 
+  /// Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending in person'**
+  String get deskLvPaySendingInPerson;
+
+  /// Detail text of a waiting request that was issued in person (no payer name).
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other wallet’s answer. Nothing is paid until it approves.'**
+  String get deskInvIssuerWaitingInPerson;
+
+  /// Quiet status line under an in-person code while its answer comes back through an Epicbox server; host is the server's name. Tapping it opens the details.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer comes back online · {host}'**
+  String deskIpOnlineLine(String host);
+
+  /// Status line in place of the answer QR code while the answer goes to the code's Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer online…'**
+  String get deskIpOnlineSending;
+
+  /// Status line under an in-person code when the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server not reachable · trying again'**
+  String get deskIpOnlineDown;
+
+  /// Title of the details of an in-person answer going through an Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Online answer'**
+  String get deskIpOnlineTitle;
+
+  /// Label of the row naming the Epicbox server the answer goes through.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server'**
+  String get deskIpOnlineServer;
+
+  /// Label of the row with the online answer's current step.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskIpOnlineStatus;
+
+  /// Label of the row with how long the in-person code still works.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get deskIpOnlineTimeLeft;
+
+  /// Value of the Time left row; count is minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{About {count} min} other{About {count} min}}'**
+  String deskIpOnlineMinutes(int count);
+
+  /// Online answer step: this wallet sends its answer to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending the answer…'**
+  String get deskIpStepPosting;
+
+  /// Online answer step: the answer reached the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer sent'**
+  String get deskIpStepSent;
+
+  /// Online answer step: the other phone's answer came in.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer received'**
+  String get deskIpStepReceived;
+
+  /// Online answer step: the Epicbox server did not answer; the wallet keeps asking.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable. Trying again.'**
+  String get deskIpStepDown;
+
+  /// Online answer step: the answer could not be sent to the Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Did not go through'**
+  String get deskIpStepFailed;
+
+  /// Online answer step: the user cancelled the online reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deskIpStepCancelled;
+
+  /// Button: stop sending or waiting online; the answer then goes by scan or paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel online reply'**
+  String get deskIpOnlineCancel;
+
+  /// Line under Cancel online reply on the side that shows the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then scan or paste the other phone\'s answer.'**
+  String get deskIpOnlineCancelCode;
+
+  /// Line under Cancel online reply on the side that answered the code.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the other phone scans your answer.'**
+  String get deskIpOnlineCancelAnswer;
+
+  /// Screen reader hint of the online answer status line: tapping it opens its details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get deskIpOnlineDetails;
+
+  /// Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the sender’s wallet. Only their wallet can use it.'**
+  String get deskQrHiddenReply;
+
+  /// Under the covered QR of an answer to an invoice on desktop, shown back to whoever asked for the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to the wallet that asked for the payment. Only that wallet can use it.'**
+  String get deskQrHiddenPaid;
+
+  /// Under 'Hidden after N seconds' on desktop's payment QR. The other device is a phone or another computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it again when the other device is ready.'**
+  String get deskQrTimedOutBody;
+
+  /// Shown in place of the QR on desktop when the transaction file could not be read or cut into QR parts.
+  ///
+  /// In en, this message translates to:
+  /// **'This file cannot be shown as a QR code.'**
+  String get deskQrCannotShow;
+
+  /// Hint in desktop's scan dialog when scanning a sender's animated payment QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the payment QR on the other device.'**
+  String get deskQrAimPayment;
+
+  /// Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the reply QR on the other device.'**
+  String get deskQrAimReply;
+
+  /// Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.'**
+  String get deskQrAimAny;
+
+  /// Shown in desktop's scan dialog when the code in view is not an animated QR Payment code at all.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a payment QR code.'**
+  String get deskQrNotTx;
+
+  /// Name of a result line in Transaction files on desktop for a transaction that came in by the camera, in place of a file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned QR code'**
+  String get deskQrScannedName;
+
+  /// Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted text'**
+  String get deskQrPastedName;
+
+  /// Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan their reply as a QR code.'**
+  String get deskQrScanFinalize;
+
+  /// Hint of the QR Payment method in desktop Settings › Payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.'**
+  String get deskSetTxQrHint;
+
+  /// Line beside Scan QR on desktop's Sign a payment step, under the box that takes the sender's file or an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan the payment or invoice as a QR code.'**
+  String get deskQrScanImport;
+
   /// Scan dialog: shown in the camera area until the camera's picture appears.
   ///
   /// In en, this message translates to:
@@ -33845,84 +34043,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No camera found. Paste the code instead.'**
   String get deskScanNoCamera;
-
-  /// Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer.
-  ///
-  /// In en, this message translates to:
-  /// **'Show it to the sender’s wallet. Only their wallet can use it.'**
-  String get deskQrHiddenReply;
-
-  /// Under the covered QR of an answer to an invoice on desktop, shown back to whoever asked for the payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Show it to the wallet that asked for the payment. Only that wallet can use it.'**
-  String get deskQrHiddenPaid;
-
-  /// Under 'Hidden after N seconds' on desktop's payment QR. The other device is a phone or another computer.
-  ///
-  /// In en, this message translates to:
-  /// **'Show it again when the other device is ready.'**
-  String get deskQrTimedOutBody;
-
-  /// Shown in place of the QR on desktop when the transaction file could not be read or cut into QR parts.
-  ///
-  /// In en, this message translates to:
-  /// **'This file cannot be shown as a QR code.'**
-  String get deskQrCannotShow;
-
-  /// Hint in desktop's scan dialog when scanning a sender's animated payment QR.
-  ///
-  /// In en, this message translates to:
-  /// **'Point the camera at the payment QR on the other device.'**
-  String get deskQrAimPayment;
-
-  /// Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice.
-  ///
-  /// In en, this message translates to:
-  /// **'Point the camera at the reply QR on the other device.'**
-  String get deskQrAimReply;
-
-  /// Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds.
-  ///
-  /// In en, this message translates to:
-  /// **'Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.'**
-  String get deskQrAimAny;
-
-  /// Shown in desktop's scan dialog when the code in view is not an animated QR Payment code at all.
-  ///
-  /// In en, this message translates to:
-  /// **'That is not a payment QR code.'**
-  String get deskQrNotTx;
-
-  /// Name of a result line in Transaction files on desktop for a transaction that came in by the camera, in place of a file name.
-  ///
-  /// In en, this message translates to:
-  /// **'Scanned QR code'**
-  String get deskQrScannedName;
-
-  /// Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name.
-  ///
-  /// In en, this message translates to:
-  /// **'Pasted text'**
-  String get deskQrPastedName;
-
-  /// Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file.
-  ///
-  /// In en, this message translates to:
-  /// **'Or scan their reply as a QR code.'**
-  String get deskQrScanFinalize;
-
-  /// Hint of the QR Payment method in desktop Settings › Payment methods.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.'**
-  String get deskSetTxQrHint;
-
-  /// Line beside Scan QR on desktop's Sign a payment step, under the box that takes the sender's file or an invoice.
-  ///
-  /// In en, this message translates to:
-  /// **'Or scan the payment or invoice as a QR code.'**
-  String get deskQrScanImport;
 }
 
 class _AppLocalizationsDelegate

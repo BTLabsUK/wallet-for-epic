@@ -21906,6 +21906,128 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get deskLvPaySendingInPerson => 'Persönlich senden';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Warten auf die Antwort der anderen Wallet. Es wird nichts bezahlt, bis sie zustimmt.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Antwort kommt online · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Antwort wird online gesendet…';
+
+  @override
+  String get deskIpOnlineDown =>
+      'Epicbox-Server nicht erreichbar · neuer Versuch';
+
+  @override
+  String get deskIpOnlineTitle => 'Online-Antwort';
+
+  @override
+  String get deskIpOnlineServer => 'Epicbox-Server';
+
+  @override
+  String get deskIpOnlineStatus => 'Status';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Verbleibende Zeit';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Etwa $count Min.',
+      one: 'Etwa $count Min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Antwort wird gesendet…';
+
+  @override
+  String get deskIpStepSent => 'Antwort gesendet';
+
+  @override
+  String get deskIpStepReceived => 'Antwort empfangen';
+
+  @override
+  String get deskIpStepDown => 'Nicht erreichbar. Neuer Versuch.';
+
+  @override
+  String get deskIpStepFailed => 'Nicht zugestellt';
+
+  @override
+  String get deskIpStepCancelled => 'Storniert';
+
+  @override
+  String get deskIpOnlineCancel => 'Online-Antwort abbrechen';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Danach die Antwort des anderen Telefons scannen oder einfügen.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Danach scannt das andere Telefon Ihre Antwort.';
+
+  @override
+  String get deskIpOnlineDetails => 'Details';
+
+  @override
+  String get deskQrHiddenReply =>
+      'Zeigen Sie ihn der Wallet des Absenders. Nur dessen Wallet kann ihn verwenden.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Zeigen Sie ihn der Wallet, die die Zahlung angefordert hat. Nur diese Wallet kann ihn verwenden.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Zeigen Sie ihn erneut, wenn das andere Gerät bereit ist.';
+
+  @override
+  String get deskQrCannotShow =>
+      'Diese Datei kann nicht als QR-Code angezeigt werden.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Richten Sie die Kamera auf den Zahlungs-QR auf dem anderen Gerät.';
+
+  @override
+  String get deskQrAimReply =>
+      'Richten Sie die Kamera auf den Antwort-QR auf dem anderen Gerät.';
+
+  @override
+  String get deskQrAimAny =>
+      'Richten Sie die Kamera auf den QR-Code einer Zahlung, einer Antwort, einer Rechnung oder einer fertigen Zahlung.';
+
+  @override
+  String get deskQrNotTx => 'Das ist kein Zahlungs-QR-Code.';
+
+  @override
+  String get deskQrScannedName => 'Gescannter QR-Code';
+
+  @override
+  String get deskQrPastedName => 'Eingefügter Text';
+
+  @override
+  String get deskQrScanFinalize => 'Oder scannen Sie ihre Antwort als QR-Code.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.';
+
+  @override
+  String get deskQrScanImport =>
+      'Oder scannen Sie die Zahlung oder Rechnung als QR-Code.';
+
+  @override
   String get deskScanStarting => 'Kamera wird gestartet …';
 
   @override
@@ -21959,52 +22081,4 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Keine Kamera gefunden. Fügen Sie den Code stattdessen ein.';
-
-  @override
-  String get deskQrHiddenReply =>
-      'Zeigen Sie ihn der Wallet des Absenders. Nur dessen Wallet kann ihn verwenden.';
-
-  @override
-  String get deskQrHiddenPaid =>
-      'Zeigen Sie ihn der Wallet, die die Zahlung angefordert hat. Nur diese Wallet kann ihn verwenden.';
-
-  @override
-  String get deskQrTimedOutBody =>
-      'Zeigen Sie ihn erneut, wenn das andere Gerät bereit ist.';
-
-  @override
-  String get deskQrCannotShow =>
-      'Diese Datei kann nicht als QR-Code angezeigt werden.';
-
-  @override
-  String get deskQrAimPayment =>
-      'Richten Sie die Kamera auf den Zahlungs-QR auf dem anderen Gerät.';
-
-  @override
-  String get deskQrAimReply =>
-      'Richten Sie die Kamera auf den Antwort-QR auf dem anderen Gerät.';
-
-  @override
-  String get deskQrAimAny =>
-      'Richten Sie die Kamera auf den QR-Code einer Zahlung, einer Antwort, einer Rechnung oder einer fertigen Zahlung.';
-
-  @override
-  String get deskQrNotTx => 'Das ist kein Zahlungs-QR-Code.';
-
-  @override
-  String get deskQrScannedName => 'Gescannter QR-Code';
-
-  @override
-  String get deskQrPastedName => 'Eingefügter Text';
-
-  @override
-  String get deskQrScanFinalize => 'Oder scannen Sie ihre Antwort als QR-Code.';
-
-  @override
-  String get deskSetTxQrHint =>
-      'Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.';
-
-  @override
-  String get deskQrScanImport =>
-      'Oder scannen Sie die Zahlung oder Rechnung als QR-Code.';
 }

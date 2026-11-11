@@ -442,7 +442,11 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     try {
       final texts = await ref
           .read(walletServiceProvider)
-          .encodeQrSlate(json: widget.json, maxFragmentLen: qrFragmentLen);
+          .encodeQrSlate(
+          json: widget.json,
+          maxFragmentLen: qrFragmentLen,
+          singleCodeMaxLen: qrSingleCodeMaxLen,
+        );
       final frames = QrFrames.of(texts);
       if (mounted) setState(() => _frames = frames);
     } catch (error) {

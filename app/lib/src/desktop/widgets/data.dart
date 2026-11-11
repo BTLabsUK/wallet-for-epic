@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart' show QrImage;
 
 import '../desk_l10n.dart';
 import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
@@ -205,9 +206,13 @@ String _decimalsPad(AppLocalizations l, String text, int decimals) {
 /// A [LogoQr] on white, with the accent glow: the BT Wallet mark in its centre, or the epic1
 /// mark when [epic1] (links, in-person codes, pairing and device invites).
 class EQr extends StatelessWidget {
-  const EQr(this.data, {super.key, this._size, this.epic1 = false});
+  const EQr(this.data, {super.key, this._size, this.epic1 = false}) : image = null;
+
+  /// One frame of an animated code, already encoded (`QrFrames`).
+  const EQr.frame(QrImage this.image, {super.key, this._size, this.epic1 = false}) : data = '';
 
   final String data;
+  final QrImage? image;
   final double? _size;
 
   /// The code is an epic1 one: the epic1 mark instead of the BT Wallet mark.
@@ -229,7 +234,10 @@ class EQr extends StatelessWidget {
           BoxShadow(color: c.glow, blurRadius: 40.u, spreadRadius: -6.u),
         ],
       ),
-      child: LogoQr(data: data, size: size - 28.u, logo: epic1 ? QrLogo.epic1 : QrLogo.bt),
+      child: switch (image) {
+        final image? => LogoQrImage(image: image, size: size - 28.u, logo: epic1 ? QrLogo.epic1 : QrLogo.bt),
+        null => LogoQr(data: data, size: size - 28.u, logo: epic1 ? QrLogo.epic1 : QrLogo.bt),
+      },
     );
   }
 }

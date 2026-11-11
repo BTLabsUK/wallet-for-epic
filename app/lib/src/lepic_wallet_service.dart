@@ -1323,8 +1323,13 @@ class LepicWalletService implements WalletService {
   Future<List<String>> encodeQrSlate({
     required String json,
     required int maxFragmentLen,
+    int? singleCodeMaxLen,
   }) => _guard(
-    () => lepic.encodeUrSlate(json: json, maxFragmentLen: maxFragmentLen),
+    () => lepic.encodeUrSlate(
+      json: json,
+      maxFragmentLen: maxFragmentLen,
+      singleCodeMaxLen: singleCodeMaxLen,
+    ),
   );
 
   @override
@@ -4029,7 +4034,13 @@ class _LepicEpic1 implements Epic1Wallet {
 
   @override
   List<String> qrParts(List<int> bytes) =>
-      _guardSync(() => lepic_in_person.inPersonQrParts(bytes: bytes, maxFragmentLen: qrFragmentLen));
+      _guardSync(
+        () => lepic_in_person.inPersonQrParts(
+          bytes: bytes,
+          maxFragmentLen: qrFragmentLen,
+          singleCodeMaxLen: qrSingleCodeMaxLen,
+        ),
+      );
 
   @override
   InPersonQrProgress qrRead(List<String> parts) => _guardSync(() {

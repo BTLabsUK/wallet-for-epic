@@ -10,12 +10,14 @@ import 'package:flutter/foundation.dart';
 
 import '../../epic1.dart';
 import '../../models.dart';
+import '../../qr_slate.dart' show qrFrameMs;
 
 /// How often a code on screen asks for its answers.
 const Duration inPersonPollEvery = Duration(seconds: 3);
 
-/// How long each part of an animated QR code shows.
-const Duration inPersonFrameEvery = Duration(milliseconds: 250);
+/// How long each part of an animated QR code shows: the payment code's rate, six a second, so
+/// an answer of about 19 parts passes in about three seconds.
+const Duration inPersonFrameEvery = Duration(milliseconds: qrFrameMs);
 
 /// A block is about a minute (as the payment details count).
 const int _minutesPerBlock = 1;
@@ -107,9 +109,54 @@ enum InPersonPhase {
   expired,
 }
 
+/// Where an answer going through the code's Epicbox server stands.
+enum InPersonOnlineStep {
+  /// The answering side sends its answer.
+  posting,
+
+  /// The answering side's answer went through.
+  sent,
+
+  /// The code side waits for the answer.
+  waiting,
+
+  /// The code side got the answer.
+  received,
+
+  /// The server did not answer: the answering side shows its answer to scan; the code side
+  /// keeps asking and offers paste and scan meanwhile.
+  failed,
+
+  /// "Cancel online reply": the answer goes by scan or paste.
+  cancelled,
+}
+
+/// An answer coming back through an Epicbox server, for the status line and its details.
+abstract interface class InPersonOnline implements Listenable {
+  /// The Epicbox server, host alone.
+  String get host;
+
+  InPersonOnlineStep get step;
+
+  /// The block height the code stops working at.
+  BigInt get cutoff;
+
+  /// Stops sending or waiting online; the answer then goes by scan or paste.
+  void cancelOnline();
+}
+
+/// [mailbox] (`domain:port` or a bare host) without its port.
+String inPersonHostOf(String mailbox) {
+  final at = mailbox.lastIndexOf(':');
+  return at > 0 && int.tryParse(mailbox.substring(at + 1)) != null ? mailbox.substring(0, at) : mailbox;
+}
+
+/// Polls failing in a row before the code side shows paste and scan again.
+const int _failsBeforeManual = 2;
+
 /// A code this wallet shows, waiting for its answer: asks [Epic1Wallet.inPersonAnswers] every
 /// [inPersonPollEvery] while it waits, and takes answers pasted or scanned back.
-class InPersonCodeWatch extends ChangeNotifier {
+class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   InPersonCodeWatch({required this.wallet, required this.stage, required BigInt this.amount, required InPersonCodeMade made, this.pollEvery = inPersonPollEvery})
     : _made = made,
       _slateId = made.slateId {
@@ -158,6 +205,43 @@ class InPersonCodeWatch extends ChangeNotifier {
   bool _asking = false;
   bool _disposed = false;
 
+  /// "Cancel online reply" was pressed: no more asking the server.
+  bool _manual = false;
+
+  /// Asks that failed in a row.
+  int _fails = 0;
+
+  /// The code names an Epicbox server for its answer.
+  bool get hasMailbox => _made?.mailbox != null;
+
+  @override
+  String get host => inPersonHostOf(_made?.mailbox ?? '');
+
+  @override
+  BigInt get cutoff => _made?.ttlCutoff ?? BigInt.zero;
+
+  @override
+  InPersonOnlineStep get step {
+    if (_manual) return InPersonOnlineStep.cancelled;
+    if (_phase != InPersonPhase.waiting) return InPersonOnlineStep.received;
+    return _fails >= _failsBeforeManual ? InPersonOnlineStep.failed : InPersonOnlineStep.waiting;
+  }
+
+  /// The answer comes back through the server: the screen shows the status line, and paste
+  /// and scan only once the server failed.
+  bool get online => hasMailbox && !_manual && _phase == InPersonPhase.waiting;
+
+  /// Paste and scan are offered: no server, the server failed, or the online reply was cancelled.
+  bool get manual => !online || step == InPersonOnlineStep.failed;
+
+  @override
+  void cancelOnline() {
+    if (!online) return;
+    _manual = true;
+    _poll?.cancel();
+    if (!_disposed) notifyListeners();
+  }
+
   /// The QR parts of the code.
   late List<String> parts = switch (_made) {
     final made? => wallet.qrParts(made.bytes),
@@ -177,12 +261,18 @@ class InPersonCodeWatch extends ChangeNotifier {
 
   /// Asks for the answers once.
   Future<void> poll() async {
-    if (_phase != InPersonPhase.waiting || _asking) return;
+    if (_phase != InPersonPhase.waiting || _asking || _manual) return;
     _asking = true;
     final slateId = _slateId;
     try {
       final status = await wallet.inPersonAnswers(slateId);
-      if (_disposed || _phase != InPersonPhase.waiting || slateId != _slateId) return;
+      // An answer that comes after "Cancel online reply" is left: the one pasted or scanned
+      // is the same answer to LEPIC (it keeps one record per answer).
+      if (_disposed || _phase != InPersonPhase.waiting || slateId != _slateId || _manual) return;
+      if (_fails > 0) {
+        _fails = 0;
+        notifyListeners();
+      }
       if (status.answers.any((a) => a.sameCode)) {
         _set(InPersonPhase.sameCode);
       } else if (status.answers.isNotEmpty) {
@@ -192,8 +282,13 @@ class InPersonCodeWatch extends ChangeNotifier {
         _set(InPersonPhase.check);
       }
     } on WalletError catch (e) {
-      if (!_disposed && e.kind == WalletErrorKind.codeExpired) _set(InPersonPhase.expired);
-      // Else the server did not answer this time: the next ask tries again.
+      if (_disposed || slateId != _slateId) return;
+      if (e.kind == WalletErrorKind.codeExpired) {
+        _set(InPersonPhase.expired);
+      } else if (!_manual && ++_fails == _failsBeforeManual) {
+        // The server did not answer: the next ask tries again, and paste and scan show.
+        notifyListeners();
+      }
     } finally {
       _asking = false;
     }
@@ -277,6 +372,8 @@ class InPersonCodeWatch extends ChangeNotifier {
     _checkCode = null;
     error = null;
     tx = null;
+    _manual = false;
+    _fails = 0;
     _set(InPersonPhase.waiting);
     _start();
   }
@@ -285,6 +382,78 @@ class InPersonCodeWatch extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _poll?.cancel();
+    super.dispose();
+  }
+}
+
+/// An answer sent through the code's Epicbox server [mailbox] ([Epic1Wallet.inPersonPost]),
+/// after the user agreed to the server. [post] starts it; Retry calls it again.
+class InPersonAnswerPost extends ChangeNotifier implements InPersonOnline {
+  InPersonAnswerPost({required this.wallet, required this.slateId, required this.mailbox, required this.cutoff});
+
+  final Epic1Wallet wallet;
+  final String slateId;
+  final Epic1Host mailbox;
+
+  @override
+  final BigInt cutoff;
+
+  @override
+  String get host => mailbox.host;
+
+  InPersonOnlineStep _step = InPersonOnlineStep.posting;
+  @override
+  InPersonOnlineStep get step => _step;
+
+  /// From the post, once [InPersonOnlineStep.sent].
+  String? checkCode;
+
+  /// Counts posts, so a post that ends after Cancel or a newer post is left.
+  int _round = 0;
+  bool _disposed = false;
+
+  /// The answer goes to the other phone as a QR code and text.
+  bool get showAnswer => _step == InPersonOnlineStep.failed || _step == InPersonOnlineStep.cancelled;
+
+  /// Sends the answer.
+  Future<void> post() async {
+    if (_step == InPersonOnlineStep.sent || _step == InPersonOnlineStep.cancelled) return;
+    final round = ++_round;
+    _set(InPersonOnlineStep.posting);
+    try {
+      final code = await wallet.inPersonPost(slateId: slateId, relayOk: true);
+      if (round != _round) {
+        // It went through after Cancel: the other phone may ask about its check code.
+        if (_step == InPersonOnlineStep.cancelled && checkCode == null) {
+          checkCode = code;
+          if (!_disposed) notifyListeners();
+        }
+        return;
+      }
+      checkCode = code;
+      _set(InPersonOnlineStep.sent);
+    } on Object {
+      if (round == _round) _set(InPersonOnlineStep.failed);
+    }
+  }
+
+  @override
+  void cancelOnline() {
+    if (_step != InPersonOnlineStep.posting && _step != InPersonOnlineStep.failed) return;
+    // A post on its way cannot be stopped: its answer is the one shown, and the other phone
+    // takes it once whichever way it comes.
+    _round++;
+    _set(InPersonOnlineStep.cancelled);
+  }
+
+  void _set(InPersonOnlineStep step) {
+    _step = step;
+    if (!_disposed) notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
     super.dispose();
   }
 }

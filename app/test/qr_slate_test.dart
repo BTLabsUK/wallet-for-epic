@@ -53,6 +53,21 @@ void main() {
       expect(frames.length, 1);
       expect(frames.partCount, 1);
     });
+
+    test('lowercase UR parts draw as small as uppercase ones', () async {
+      final texts = await encode(_json(3));
+      final lower = QrFrames.of([for (final t in texts) t.toLowerCase()]);
+      expect(lower.moduleCount, QrFrames.of(texts).moduleCount);
+    });
+
+    test('a text that is no UR code draws in byte mode', () {
+      // Base64url has lowercase letters, which the alphanumeric mode cannot hold; an
+      // alphanumeric code would refuse them.
+      const text = 'aGVsbG8td29ybGQtdGhpcy1pcy1hLXRlc3QtY29kZQ_-';
+      final frames = QrFrames.of([text, text]);
+      expect(frames.length, 2);
+      expect(frames.moduleCount, frames.images.first.typeNumber * 4 + 17);
+    });
   });
 
   group('QrSlateReader', () {

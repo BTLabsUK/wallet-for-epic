@@ -11,6 +11,7 @@ import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_actions.dart';
 import 'invoice_parts.dart';
+import 'issue_tab.dart' show requestStateText;
 import 'issuer_actions.dart';
 
 class TxInvoiceBlock extends ConsumerWidget {
@@ -32,14 +33,7 @@ class TxInvoiceBlock extends ConsumerWidget {
     final String text;
     final List<Widget> actions;
     if (r != null) {
-      final who = r.payerName ?? shortAddress(r.payerAddress, compact: true);
-      text = switch (r.state) {
-        RequestState.waiting => l.deskInvIssuerWaitingText(who),
-        RequestState.paid || RequestState.confirming || RequestState.completed => l.deskInvIssuerPaidText(who),
-        RequestState.notPosted => l.deskInvIssuerNotPostedText,
-        RequestState.bounced => l.deskInvIssuerBounced(who),
-        _ => l.deskInvIssuerEnded,
-      };
+      text = requestStateText(l, r).$1;
       actions = [
         if (r.state == RequestState.waiting)
           InvButton(label: l.deskInvIssuerWithdraw, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showWithdrawRequest(context, ref, r)),

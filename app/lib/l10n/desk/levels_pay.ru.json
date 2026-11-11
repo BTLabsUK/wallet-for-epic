@@ -11,6 +11,7 @@
   "deskLvPayDone": "Готово",
   "deskLvPayOnItsWayTo": "Идёт к {name}",
   "deskLvPaySendingTo": "Отправка: {name}",
+  "deskLvPaySendingInPerson": "Отправка лично",
   "deskLvPayArrivingFrom": "Поступает от {name}",
   "deskLvPayStartedAt": "{amount} EPIC · начато {time}",
   "deskLvPayHeroArriving": "+{amount} поступает от {name}",

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // epic1 in person on the phone (spec D5, P3, P5, P6): a request code answered and checked
 // (Matches, Different), a send code answered by paste, a scanned send code received, two
-// phones with the same check code, and an expired code. The wallet is FakeEpic1.
+// phones with the same check code, and an expired code. The online answer: the status line
+// and its sheet, the server down, Cancel online reply and the late answers, no server.
+// The wallet is FakeEpic1.
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:epic_wallet/src/epic1.dart';
@@ -9,6 +12,8 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/in_person/in_person_entry.dart';
+import 'package:epic_wallet/src/ui/in_person/in_person_logic.dart';
+import 'package:epic_wallet/src/ui/in_person/in_person_online.dart';
 import 'package:epic_wallet/src/ui/in_person/in_person_screens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -146,11 +151,15 @@ void main() {
     await close(tester);
   });
 
-  testWidgets('pay: the PIN, the send code, the answer pasted back, Matches: Sent', (tester) async {
+  testWidgets('no Epicbox server: the PIN, the send code, the answer pasted back, Matches: Sent', (tester) async {
+    fake.inPersonNoMailbox = true;
     await pump(tester);
     await makeCode(tester, 'pay');
     expect(fake.calls, contains('inPersonSend'));
     expect(find.text(_l.deskIpCodeLeadPay), findsOneWidget);
+    expect(find.byKey(inPersonOnlineKey), findsNothing);
+    expect(find.text(_l.deskIpWaiting), findsOneWidget);
+    expect(find.text(_l.deskIpScanAnswer), findsOneWidget);
     clipboard(tester, 'BEGINEPICTX. answer. ENDEPICTX.');
     await tester.tap(find.text(_l.deskIpPasteAnswer));
     await frames(tester);
@@ -194,8 +203,181 @@ void main() {
     await tester.tap(find.text(_l.deskE1ShowNewCode));
     await frames(tester);
     expect(fake.calls.where((c) => c == 'inPersonRequest'), hasLength(2));
-    expect(find.text(_l.deskIpWaiting), findsOneWidget);
+    expect(find.byKey(inPersonOnlineKey), findsOneWidget);
     expect(find.text(_l.qrShow), findsOneWidget);
+    await close(tester);
+  });
+
+  int count(String call) => fake.calls.where((c) => c == call).length;
+
+  /// Opens the pasted send code [fill] and presses Receive.
+  Future<void> receive(WidgetTester tester, {int fill = 7}) async {
+    final code = base64Url.encode([InPersonStage.send.index, ...List.filled(32, fill)]);
+    openInPersonText(tester.element(find.text('request')), code);
+    await frames(tester);
+    await tester.tap(find.text(_l.deskIpReceiveButton));
+    await frames(tester);
+  }
+
+  /// Opens the status line's sheet.
+  Future<void> details(WidgetTester tester) async {
+    await tester.tap(find.byKey(inPersonOnlineKey));
+    await frames(tester, n: 4);
+    expect(find.text(_l.deskIpOnlineTitle), findsOneWidget);
+  }
+
+  testWidgets('online: one status line, no Paste or Scan; the sheet; the answer comes back', (tester) async {
+    await pump(tester);
+    await makeCode(tester, 'request');
+    expect(find.byKey(inPersonOnlineKey), findsOneWidget);
+    expect(find.text(_l.deskIpOnlineLine('relay.example.invalid')), findsOneWidget);
+    expect(find.text(_l.deskIpWaiting), findsNothing);
+    expect(find.text(_l.deskIpPasteAnswer), findsNothing);
+    expect(find.text(_l.deskIpScanAnswer), findsNothing);
+    await details(tester);
+    expect(find.text('relay.example.invalid'), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(inPersonOnlineStepKey)).data, _l.deskIpWaiting);
+    expect(find.byKey(inPersonOnlineCancelKey), findsOneWidget);
+    fake.answerCode(_firstSlate);
+    await frames(tester, n: 2, step: inPersonPollEveryForTest);
+    // The sheet follows: received, nothing left to cancel.
+    expect(tester.widget<Text>(find.byKey(inPersonOnlineStepKey)).data, _l.deskIpStepReceived);
+    expect(find.byKey(inPersonOnlineCancelKey), findsNothing);
+    await tester.tap(find.text(_l.commonClose).last);
+    await frames(tester, n: 4);
+    expect(find.text(_l.deskIpCheckPayer('4821')), findsOneWidget);
+    expect(find.byKey(inPersonOnlineKey), findsNothing);
+    await close(tester);
+  });
+
+  testWidgets('online: the server down twice says so and brings Paste and Scan back; it keeps asking', (tester) async {
+    fake.inPersonServerDown = true;
+    await pump(tester);
+    await makeCode(tester, 'request');
+    await frames(tester, n: 1, step: inPersonPollEveryForTest);
+    expect(find.text(_l.deskIpPasteAnswer), findsNothing);
+    await frames(tester, n: 1, step: inPersonPollEveryForTest);
+    expect(find.text(_l.deskIpOnlineDown), findsOneWidget);
+    expect(find.text(_l.deskIpPasteAnswer), findsOneWidget);
+    expect(find.text(_l.deskIpScanAnswer), findsOneWidget);
+    fake.inPersonServerDown = false;
+    fake.answerCode(_firstSlate);
+    await frames(tester, n: 2, step: inPersonPollEveryForTest);
+    expect(find.text(_l.deskIpCheckPayer('4821')), findsOneWidget);
+    await close(tester);
+  });
+
+  testWidgets('cancel online reply: Paste and Scan come back, a late online answer is left, one finish', (tester) async {
+    await pump(tester);
+    await makeCode(tester, 'pay');
+    await details(tester);
+    expect(find.text(_l.deskIpOnlineCancelCode), findsOneWidget);
+    await tester.tap(find.byKey(inPersonOnlineCancelKey));
+    await frames(tester, n: 4);
+    expect(find.byKey(inPersonOnlineKey), findsNothing);
+    expect(find.text(_l.deskIpWaiting), findsOneWidget);
+    expect(find.text(_l.deskIpPasteAnswer), findsOneWidget);
+    final asks = count('inPersonAnswers');
+    // The answer reaches the server after the cancel: nobody asks for it.
+    fake.answerCode(_firstSlate);
+    await frames(tester, n: 2, step: inPersonPollEveryForTest);
+    expect(count('inPersonAnswers'), asks);
+    expect(find.text(_l.deskIpCheckOther('4821')), findsNothing);
+    // The same answer pasted: LEPIC's one record of it.
+    fake.inPersonTakeKnown = true;
+    clipboard(tester, 'BEGINEPICTX. answer. ENDEPICTX.');
+    await tester.tap(find.text(_l.deskIpPasteAnswer));
+    await frames(tester);
+    expect(find.text(_l.deskIpCheckOther('4821')), findsOneWidget);
+    await tester.tap(find.text(_l.deskIpMatches));
+    await frames(tester);
+    expect(find.text(_l.deskIpSent), findsWidgets);
+    expect(count('inPersonFinalize'), 1);
+    await close(tester);
+  });
+
+  testWidgets('an answer that lands while the cancel is pressed is left', (tester) async {
+    final made = await fake.inPersonRequest(amount: BigInt.from(150000000));
+    final watch = InPersonCodeWatch(wallet: fake, stage: InPersonStage.request, amount: BigInt.from(150000000), made: made);
+    fake.answerCode(made.slateId);
+    final asking = watch.poll();
+    watch.cancelOnline();
+    await asking;
+    expect(watch.phase, InPersonPhase.waiting);
+    expect(watch.step, InPersonOnlineStep.cancelled);
+    expect(watch.manual, isTrue);
+    watch.dispose();
+  });
+
+  testWidgets('a paste after the online answer is the same answer: nothing changes, one finish', (tester) async {
+    final made = await fake.inPersonRequest(amount: BigInt.from(150000000));
+    final watch = InPersonCodeWatch(wallet: fake, stage: InPersonStage.request, amount: BigInt.from(150000000), made: made);
+    fake.answerCode(made.slateId);
+    await watch.poll();
+    expect(watch.phase, InPersonPhase.check);
+    expect(watch.step, InPersonOnlineStep.received);
+    expect(watch.manual, isTrue);
+    expect(watch.online, isFalse);
+    fake.inPersonTakeKnown = true;
+    expect(await watch.take('BEGINEPICTX. answer. ENDEPICTX.'), isTrue);
+    expect(watch.phase, InPersonPhase.check);
+    expect(watch.checkCode, '4821');
+    await watch.matches();
+    expect(watch.phase, InPersonPhase.done);
+    expect(count('inPersonFinalize'), 1);
+    watch.dispose();
+  });
+
+  testWidgets('answering online: Sending in place of the QR; a failed post shows the answer; Retry posts', (tester) async {
+    final hold = fake.inPersonPostHold = Completer<void>();
+    await pump(tester);
+    await receive(tester);
+    expect(find.text(_l.deskIpOnlineSending), findsOneWidget);
+    expect(find.byKey(inPersonAnswerQrKey), findsNothing);
+    expect(find.text(_l.deskIpAnswerLead), findsNothing);
+    fake.inPersonServerDown = true;
+    hold.complete();
+    await frames(tester);
+    expect(find.text(_l.deskIpPostFailed), findsOneWidget);
+    expect(find.text(_l.deskIpAnswerLead), findsOneWidget);
+    expect(find.byKey(inPersonAnswerQrKey), findsOneWidget);
+    expect(find.byKey(inPersonOnlineKey), findsNothing);
+    fake.inPersonServerDown = false;
+    await tester.tap(find.text(_l.commonRetry));
+    await frames(tester);
+    expect(find.byKey(inPersonCheckKey), findsOneWidget);
+    expect(find.text(_l.deskIpAnswerLead), findsNothing);
+    expect(count('inPersonPost'), 2);
+    await close(tester);
+  });
+
+  testWidgets('answering online: Cancel while sending shows the answer; a late check code still shows', (tester) async {
+    final hold = fake.inPersonPostHold = Completer<void>();
+    await pump(tester);
+    await receive(tester);
+    await details(tester);
+    expect(tester.widget<Text>(find.byKey(inPersonOnlineStepKey)).data, _l.deskIpStepPosting);
+    expect(find.text(_l.deskIpOnlineCancelAnswer), findsOneWidget);
+    await tester.tap(find.byKey(inPersonOnlineCancelKey));
+    await frames(tester, n: 4);
+    expect(find.text(_l.deskIpAnswerLead), findsOneWidget);
+    expect(find.byKey(inPersonAnswerQrKey), findsOneWidget);
+    expect(find.byKey(inPersonOnlineKey), findsNothing);
+    hold.complete();
+    await frames(tester);
+    expect(find.byKey(inPersonCheckKey), findsOneWidget);
+    expect(find.text(_l.deskIpAnswerLead), findsOneWidget);
+    await close(tester);
+  });
+
+  testWidgets('answering with no Epicbox server: the answer QR at once, no post, no status line', (tester) async {
+    fake.inPersonNoMailbox = true;
+    await pump(tester);
+    await receive(tester);
+    expect(find.text(_l.deskIpAnswerLead), findsOneWidget);
+    expect(find.byKey(inPersonAnswerQrKey), findsOneWidget);
+    expect(find.byKey(inPersonOnlineKey), findsNothing);
+    expect(fake.calls, isNot(contains('inPersonPost')));
     await close(tester);
   });
 

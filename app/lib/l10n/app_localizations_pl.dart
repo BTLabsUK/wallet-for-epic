@@ -22368,6 +22368,128 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get deskLvPaySendingInPerson => 'Wysyłanie osobiście';
+
+  @override
+  String get deskInvIssuerWaitingInPerson =>
+      'Czekamy na odpowiedź drugiego portfela. Nic nie zostanie zapłacone, dopóki go nie zatwierdzi.';
+
+  @override
+  String deskIpOnlineLine(String host) {
+    return 'Odpowiedź wróci online · $host';
+  }
+
+  @override
+  String get deskIpOnlineSending => 'Wysyłanie odpowiedzi online…';
+
+  @override
+  String get deskIpOnlineDown => 'Serwer Epicbox niedostępny · ponawianie';
+
+  @override
+  String get deskIpOnlineTitle => 'Odpowiedź online';
+
+  @override
+  String get deskIpOnlineServer => 'Serwer Epicbox';
+
+  @override
+  String get deskIpOnlineStatus => 'Status';
+
+  @override
+  String get deskIpOnlineTimeLeft => 'Pozostały czas';
+
+  @override
+  String deskIpOnlineMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Około $count min.',
+      many: 'Około $count min.',
+      few: 'Około $count min.',
+      one: 'Około $count min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskIpStepPosting => 'Wysyłanie odpowiedzi…';
+
+  @override
+  String get deskIpStepSent => 'Odpowiedź wysłana';
+
+  @override
+  String get deskIpStepReceived => 'Odpowiedź odebrana';
+
+  @override
+  String get deskIpStepDown => 'Niedostępny. Ponawianie.';
+
+  @override
+  String get deskIpStepFailed => 'Nie udało się wysłać';
+
+  @override
+  String get deskIpStepCancelled => 'Anulowano';
+
+  @override
+  String get deskIpOnlineCancel => 'Anuluj odpowiedź online';
+
+  @override
+  String get deskIpOnlineCancelCode =>
+      'Potem zeskanuj lub wklej odpowiedź drugiego telefonu.';
+
+  @override
+  String get deskIpOnlineCancelAnswer =>
+      'Potem drugi telefon skanuje twoją odpowiedź.';
+
+  @override
+  String get deskIpOnlineDetails => 'Szczegóły';
+
+  @override
+  String get deskQrHiddenReply =>
+      'Pokaż go portfelowi nadawcy. Tylko jego portfel może go użyć.';
+
+  @override
+  String get deskQrHiddenPaid =>
+      'Pokaż go portfelowi, który prosił o płatność. Tylko ten portfel może go użyć.';
+
+  @override
+  String get deskQrTimedOutBody =>
+      'Pokaż go ponownie, gdy drugie urządzenie będzie gotowe.';
+
+  @override
+  String get deskQrCannotShow => 'Tego pliku nie da się pokazać jako kodu QR.';
+
+  @override
+  String get deskQrAimPayment =>
+      'Skieruj kamerę na kod QR płatności na drugim urządzeniu.';
+
+  @override
+  String get deskQrAimReply =>
+      'Skieruj kamerę na kod QR odpowiedzi na drugim urządzeniu.';
+
+  @override
+  String get deskQrAimAny =>
+      'Skieruj kamerę na kod QR płatności, odpowiedzi, faktury albo gotowej płatności.';
+
+  @override
+  String get deskQrNotTx => 'To nie jest kod QR płatności.';
+
+  @override
+  String get deskQrScannedName => 'Zeskanowany kod QR';
+
+  @override
+  String get deskQrPastedName => 'Wklejony tekst';
+
+  @override
+  String get deskQrScanFinalize => 'Albo zeskanuj ich odpowiedź jako kod QR.';
+
+  @override
+  String get deskSetTxQrHint =>
+      'Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.';
+
+  @override
+  String get deskQrScanImport =>
+      'Albo zeskanuj płatność lub fakturę jako kod QR.';
+
+  @override
   String get deskScanStarting => 'Uruchamianie kamery…';
 
   @override
@@ -22422,51 +22544,4 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskScanNoCamera =>
       'Nie znaleziono kamery. Wklej kod zamiast tego.';
-
-  @override
-  String get deskQrHiddenReply =>
-      'Pokaż go portfelowi nadawcy. Tylko jego portfel może go użyć.';
-
-  @override
-  String get deskQrHiddenPaid =>
-      'Pokaż go portfelowi, który prosił o płatność. Tylko ten portfel może go użyć.';
-
-  @override
-  String get deskQrTimedOutBody =>
-      'Pokaż go ponownie, gdy drugie urządzenie będzie gotowe.';
-
-  @override
-  String get deskQrCannotShow => 'Tego pliku nie da się pokazać jako kodu QR.';
-
-  @override
-  String get deskQrAimPayment =>
-      'Skieruj kamerę na kod QR płatności na drugim urządzeniu.';
-
-  @override
-  String get deskQrAimReply =>
-      'Skieruj kamerę na kod QR odpowiedzi na drugim urządzeniu.';
-
-  @override
-  String get deskQrAimAny =>
-      'Skieruj kamerę na kod QR płatności, odpowiedzi, faktury albo gotowej płatności.';
-
-  @override
-  String get deskQrNotTx => 'To nie jest kod QR płatności.';
-
-  @override
-  String get deskQrScannedName => 'Zeskanowany kod QR';
-
-  @override
-  String get deskQrPastedName => 'Wklejony tekst';
-
-  @override
-  String get deskQrScanFinalize => 'Albo zeskanuj ich odpowiedź jako kod QR.';
-
-  @override
-  String get deskSetTxQrHint =>
-      'Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.';
-
-  @override
-  String get deskQrScanImport =>
-      'Albo zeskanuj płatność lub fakturę jako kod QR.';
 }
