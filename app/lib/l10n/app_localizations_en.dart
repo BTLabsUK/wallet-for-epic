@@ -21747,15 +21747,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskIpOnlineDetails => 'Details';
 
   @override
-  String deskLvPaySendingVia(String method) {
-    return 'Sending via $method';
+  String deskLvPaySendingVia(String via) {
+    return 'Sending $via';
   }
 
   @override
-  String deskLvPayArrivingVia(String method) {
-    return 'Arriving via $method';
+  String deskLvPayArrivingVia(String via) {
+    return 'Arriving $via';
   }
 
   @override
-  String get deskLvPayViaFile => 'file';
+  String txSpokenSendingVia(String amount, String via) {
+    return 'Sending $amount $via';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return 'Receiving $amount $via';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return 'Sent $amount $via';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return 'Received $amount $via';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return 'Cancelled send of $amount $via';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return 'Cancelled receive of $amount $via';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': 'via file',
+      'link': 'via epic1 link',
+      'inPerson': 'in person',
+      'epicbox': 'via Epicbox',
+      'http': 'via HTTP',
+      'tor': 'via Tor',
+      'qr': 'via QR',
+      'other': 'via another method',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return 'On its way $via';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC $via';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC $via. Nothing has been paid yet: cancelling is free and certain.';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC $via. This payment could still go through later.';
+  }
 }

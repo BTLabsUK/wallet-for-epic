@@ -20534,15 +20534,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskIpOnlineDetails => '详情';
 
   @override
-  String deskLvPaySendingVia(String method) {
-    return '正在通过$method发送';
+  String deskLvPaySendingVia(String via) {
+    return '正在$via发送';
   }
 
   @override
-  String deskLvPayArrivingVia(String method) {
-    return '正在通过$method收取';
+  String deskLvPayArrivingVia(String via) {
+    return '正在$via收取';
   }
 
   @override
-  String get deskLvPayViaFile => '文件';
+  String txSpokenSendingVia(String amount, String via) {
+    return '正在$via发送 $amount';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return '正在$via接收 $amount';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return '已$via发送 $amount';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return '已$via收到 $amount';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return '已取消$via发送 $amount';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return '已取消$via接收 $amount';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': '通过文件',
+      'link': '通过 epic1 链接',
+      'inPerson': '当面',
+      'epicbox': '通过 Epicbox',
+      'http': '通过 HTTP',
+      'tor': '通过 Tor',
+      'qr': '通过二维码',
+      'other': '通过其他方式',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return '正在$via发送';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC（$via）';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC，$via。尚未支付任何款项：取消免费且一定成功。';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC，$via。这笔付款之后仍可能完成。';
+  }
 }

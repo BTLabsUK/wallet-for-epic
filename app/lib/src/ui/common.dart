@@ -41,6 +41,7 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
+import 'via.dart';
 import 'tx_label.dart';
 import 'tip.dart';
 import 'levels/payment_steps.dart' show paymentStepWord;
@@ -1780,6 +1781,16 @@ Path txEdgePath(Rect rect, double radius, double start, double extent) {
   return part;
 }
 
+/// How [tx] travelled, for rows with no name and no address; null when that is not known.
+Via? _spokenVia(TxEntry tx) {
+  if (tx.counterparty != null) return null;
+  return switch (tx.epic1Via) {
+    Epic1Via.inPerson => Via.inPerson,
+    Epic1Via.link => Via.link,
+    null => viaOfTransport(tx.transport),
+  };
+}
+
 /// What a screen reader says for a payment row, as one sentence:
 /// "Received 10 EPIC from Alice, completed, Today, 10:01".
 /// [who] is the contact name or short address, [date] the row's date text. A [label] the user
@@ -1812,7 +1823,16 @@ String txSpokenLabel(
   } else {
     final cancelled = tx.status == TxStatus.cancelled;
     final pending = !cancelled && isPending(tx);
+    // No name and no address: the path it took, when known ("via file").
+    final via = who == null ? _spokenVia(tx) : null;
+    final v = via == null ? '' : viaPhrase(l, via);
     what = switch ((out, who)) {
+      (true, null) when cancelled && via != null => l.txSpokenCancelledSendVia(amount, v),
+      (false, null) when cancelled && via != null => l.txSpokenCancelledReceiveVia(amount, v),
+      (true, null) when pending && via != null => l.txSpokenSendingVia(amount, v),
+      (false, null) when pending && via != null && !tx.awaitingPayer => l.txSpokenReceivingVia(amount, v),
+      (true, null) when !cancelled && !pending && via != null => l.txSpokenSentVia(amount, v),
+      (false, null) when !cancelled && !pending && !tx.awaitingPayer && via != null => l.txSpokenReceivedVia(amount, v),
       (true, null) when cancelled => l.txSpokenCancelledSend(amount),
       (true, final w?) when cancelled => l.txSpokenCancelledSendTo(amount, w),
       (false, null) when cancelled => l.txSpokenCancelledReceive(amount),

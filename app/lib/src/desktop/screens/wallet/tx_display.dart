@@ -8,7 +8,8 @@ import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
 import '../../../levels/level_features.dart' show LevelWording;
 import '../../../epic1.dart' show PaymentMode;
-import '../../../models.dart' show DeviceEnding;
+import '../../../models.dart' show DeviceEnding, Epic1Via;
+import '../../../ui/via.dart';
 import '../../../ui/epic1/epic1_sealed.dart' show Epic1SealedBadge;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../desk_l10n.dart';
@@ -46,6 +47,27 @@ String whoOf(AppLocalizations l, Tx t) {
   if (t.method == TxMethod.file) return fileNameOf(t) ?? l.slateFileTitle;
   // An invoice's other side is an Epicbox address: first six and last six, no host.
   return shortAddress(cp, compact: t.isInvoice);
+}
+
+/// How a payment travelled when no contact or address names its other side (a file, an epic1
+/// link, an exchange in person, an Epicbox payment with no address kept): the row says "via
+/// file", not "to file". Null when a name is known or the row names its side another way (this
+/// wallet, a mining reward, another device, a scan find, a history backup).
+Via? viaOf(Tx t) {
+  if (t.contactName != null || t.toSelf || t.coinbase || t.otherWallet || t.deviceName != null) return null;
+  final cp = t.counterparty;
+  if (t.epic1Via != null && cp == null) return t.epic1Via == Epic1Via.inPerson ? Via.inPerson : Via.link;
+  if (t.foundByScan && cp == null) return null;
+  if (t.fromBackup && cp == null) return null;
+  // A file is named by its file name in the list; in a sentence the file is the way, not the person.
+  if (t.method == TxMethod.file) return Via.file;
+  if (cp != null) return null;
+  return switch (t.method) {
+    TxMethod.epicbox => Via.epicbox,
+    TxMethod.http => Via.http,
+    TxMethod.tor => Via.tor,
+    TxMethod.file => Via.file,
+  };
 }
 
 /// The words for a payment a scan found with no record, by which scan found it. An

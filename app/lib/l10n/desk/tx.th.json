@@ -104,5 +104,7 @@
   "deskTxNowUndeliveredRelay": "ส่งไม่ถึง {relay} ไม่ตอบสนอง ผู้รับจึงยังไม่ได้รับรายการนี้ ส่งอีกครั้ง หรือยกเลิกเพื่อปลดเงินคืน",
   "deskTxMore": "เพิ่มเติม",
   "deskTxLess": "ย่อ",
-  "deskTxNowConfirmedBlock": "{confirmations, plural, other{ยืนยันแล้ว {confirmations} ครั้ง · บล็อก {block}}}"
+  "deskTxNowConfirmedBlock": "{confirmations, plural, other{ยืนยันแล้ว {confirmations} ครั้ง · บล็อก {block}}}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via} ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via} รายการนี้ยังอาจสำเร็จได้ในภายหลัง"
 }

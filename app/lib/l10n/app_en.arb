@@ -29495,28 +29495,170 @@
   "@deskIpOnlineDetails": {
     "description": "Screen reader hint of the online answer status line: tapping it opens its details."
   },
-  "deskLvPaySendingVia": "Sending via {method}",
+  "deskLvPaySendingVia": "Sending {via}",
   "@deskLvPaySendingVia": {
-    "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; method is how it travels (file, epic1 link, Epicbox).",
+    "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.",
     "placeholders": {
-      "method": {
+      "via": {
         "type": "String",
-        "example": "epic1 link"
+        "example": "via file"
       }
     }
   },
-  "deskLvPayArrivingVia": "Arriving via {method}",
+  "deskLvPayArrivingVia": "Arriving {via}",
   "@deskLvPayArrivingVia": {
-    "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; method is how it travels.",
+    "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.",
     "placeholders": {
-      "method": {
+      "via": {
         "type": "String",
-        "example": "epic1 link"
+        "example": "via file"
       }
     }
   },
-  "deskLvPayViaFile": "file",
-  "@deskLvPayViaFile": {
-    "description": "The word for a transaction file after 'via' in 'Sending via file'. Lower case in English."
+  "txSpokenSendingVia": "Sending {amount} {via}",
+  "@txSpokenSendingVia": {
+    "description": "Screen-reader text of a pending outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenReceivingVia": "Receiving {amount} {via}",
+  "@txSpokenReceivingVia": {
+    "description": "Screen-reader text of a pending incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenSentVia": "Sent {amount} {via}",
+  "@txSpokenSentVia": {
+    "description": "Screen-reader text of a completed outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenReceivedVia": "Received {amount} {via}",
+  "@txSpokenReceivedVia": {
+    "description": "Screen-reader text of a completed incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenCancelledSendVia": "Cancelled send of {amount} {via}",
+  "@txSpokenCancelledSendVia": {
+    "description": "Screen-reader text of a cancelled outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txSpokenCancelledReceiveVia": "Cancelled receive of {amount} {via}",
+  "@txSpokenCancelledReceiveVia": {
+    "description": "Screen-reader text of a cancelled incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "txViaPhrase": "{via, select, file{via file} link{via epic1 link} inPerson{in person} epicbox{via Epicbox} http{via HTTP} tor{via Tor} qr{via QR} other{via another method}}",
+  "@txViaPhrase": {
+    "description": "How a payment with no contact name or address travels, for a sentence like 'Sending {via}': via file, via epic1 link, in person, via Epicbox, via HTTP, via Tor, via QR.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvSendLiveVia": "On its way {via}",
+  "@deskLvSendLiveVia": {
+    "description": "Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
+  "@deskLvSendLiveAmountVia": {
+    "description": "Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Nothing has been paid yet: cancelling is free and certain.",
+  "@deskTxCancelOutgoingViaBody": {
+    "description": "Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
+  },
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. This payment could still go through later.",
+  "@deskTxCancelNotPostedViaBody": {
+    "description": "Cancel dialog body for an outgoing payment not yet posted that has no contact name or address; via is how it travels.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
   }
 }

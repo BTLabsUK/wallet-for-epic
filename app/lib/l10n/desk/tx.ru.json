@@ -104,5 +104,7 @@
   "deskTxNowUndeliveredRelay": "Не доставлено. {relay} не ответил, поэтому получатель не получил платёж. Отправьте его снова или отмените, чтобы освободить средства.",
   "deskTxMore": "Ещё",
   "deskTxLess": "Меньше",
-  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Подтверждено, {confirmations} подтверждение · блок {block}.} few{Подтверждено, {confirmations} подтверждения · блок {block}.} many{Подтверждено, {confirmations} подтверждений · блок {block}.} other{Подтверждено, {confirmations} подтверждения · блок {block}.}}"
+  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Подтверждено, {confirmations} подтверждение · блок {block}.} few{Подтверждено, {confirmations} подтверждения · блок {block}.} many{Подтверждено, {confirmations} подтверждений · блок {block}.} other{Подтверждено, {confirmations} подтверждения · блок {block}.}}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Пока ничего не оплачено: отмена бесплатна и надёжна.",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. Этот платёж ещё может пройти позже."
 }

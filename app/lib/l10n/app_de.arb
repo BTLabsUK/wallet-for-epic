@@ -5650,7 +5650,17 @@
   "deskIpOnlineCancelCode": "Danach die Antwort des anderen Telefons scannen oder einfügen.",
   "deskIpOnlineCancelAnswer": "Danach scannt das andere Telefon Ihre Antwort.",
   "deskIpOnlineDetails": "Details",
-  "deskLvPaySendingVia": "Senden per {method}",
-  "deskLvPayArrivingVia": "Kommt per {method}",
-  "deskLvPayViaFile": "Datei"
+  "deskLvPaySendingVia": "Senden {via}",
+  "deskLvPayArrivingVia": "Kommt {via}",
+  "txSpokenSendingVia": "Senden {via}: {amount}",
+  "txSpokenReceivingVia": "Empfang {via}: {amount}",
+  "txSpokenSentVia": "Gesendet {via}: {amount}",
+  "txSpokenReceivedVia": "Empfangen {via}: {amount}",
+  "txSpokenCancelledSendVia": "Gesendete Zahlung {via} storniert: {amount}",
+  "txSpokenCancelledReceiveVia": "Empfangene Zahlung {via} storniert: {amount}",
+  "txViaPhrase": "{via, select, file{per Datei} link{per epic1-Link} inPerson{persönlich} epicbox{über Epicbox} http{per HTTP} tor{über Tor} qr{per QR-Code} other{auf anderem Weg}}",
+  "deskLvSendLiveVia": "Unterwegs {via}",
+  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Noch wurde nichts bezahlt: Stornieren ist kostenlos und sicher.",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. Diese Zahlung könnte später noch durchgehen."
 }

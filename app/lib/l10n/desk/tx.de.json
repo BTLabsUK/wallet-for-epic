@@ -104,5 +104,7 @@
   "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
   "deskTxMore": "Mehr",
   "deskTxLess": "Weniger",
-  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Bestätigt, {confirmations} Bestätigung · Block {block}.} other{Bestätigt, {confirmations} Bestätigungen · Block {block}.}}"
+  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Bestätigt, {confirmations} Bestätigung · Block {block}.} other{Bestätigt, {confirmations} Bestätigungen · Block {block}.}}",
+  "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Noch wurde nichts bezahlt: Stornieren ist kostenlos und sicher.",
+  "deskTxCancelNotPostedViaBody": "{amount} EPIC {via}. Diese Zahlung könnte später noch durchgehen."
 }

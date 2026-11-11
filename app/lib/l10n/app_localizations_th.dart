@@ -21308,15 +21308,77 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskIpOnlineDetails => 'รายละเอียด';
 
   @override
-  String deskLvPaySendingVia(String method) {
-    return 'กำลังส่งผ่าน $method';
+  String deskLvPaySendingVia(String via) {
+    return 'กำลังส่ง $via';
   }
 
   @override
-  String deskLvPayArrivingVia(String method) {
-    return 'กำลังเข้ามาผ่าน $method';
+  String deskLvPayArrivingVia(String via) {
+    return 'กำลังเข้ามา $via';
   }
 
   @override
-  String get deskLvPayViaFile => 'ไฟล์';
+  String txSpokenSendingVia(String amount, String via) {
+    return 'กำลังส่ง $amount $via';
+  }
+
+  @override
+  String txSpokenReceivingVia(String amount, String via) {
+    return 'กำลังรับ $amount $via';
+  }
+
+  @override
+  String txSpokenSentVia(String amount, String via) {
+    return 'ส่ง $amount $via แล้ว';
+  }
+
+  @override
+  String txSpokenReceivedVia(String amount, String via) {
+    return 'ได้รับ $amount $via';
+  }
+
+  @override
+  String txSpokenCancelledSendVia(String amount, String via) {
+    return 'ยกเลิกการส่ง $amount $via';
+  }
+
+  @override
+  String txSpokenCancelledReceiveVia(String amount, String via) {
+    return 'ยกเลิกการรับ $amount $via';
+  }
+
+  @override
+  String txViaPhrase(String via) {
+    String _temp0 = intl.Intl.selectLogic(via, {
+      'file': 'ผ่านไฟล์',
+      'link': 'ผ่านลิงก์ epic1',
+      'inPerson': 'ด้วยตนเอง',
+      'epicbox': 'ผ่าน Epicbox',
+      'http': 'ผ่าน HTTP',
+      'tor': 'ผ่าน Tor',
+      'qr': 'ผ่าน QR',
+      'other': 'ด้วยวิธีอื่น',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String deskLvSendLiveVia(String via) {
+    return 'กำลังไป $via';
+  }
+
+  @override
+  String deskLvSendLiveAmountVia(String amount, String via) {
+    return '$amount EPIC $via';
+  }
+
+  @override
+  String deskTxCancelOutgoingViaBody(String amount, String via) {
+    return '$amount EPIC $via ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน';
+  }
+
+  @override
+  String deskTxCancelNotPostedViaBody(String amount, String via) {
+    return '$amount EPIC $via รายการนี้ยังอาจสำเร็จได้ในภายหลัง';
+  }
 }

@@ -33924,23 +33924,83 @@ abstract class AppLocalizations {
   /// **'Details'**
   String get deskIpOnlineDetails;
 
-  /// Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; method is how it travels (file, epic1 link, Epicbox).
+  /// Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.
   ///
   /// In en, this message translates to:
-  /// **'Sending via {method}'**
-  String deskLvPaySendingVia(String method);
+  /// **'Sending {via}'**
+  String deskLvPaySendingVia(String via);
 
-  /// Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; method is how it travels.
+  /// Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.
   ///
   /// In en, this message translates to:
-  /// **'Arriving via {method}'**
-  String deskLvPayArrivingVia(String method);
+  /// **'Arriving {via}'**
+  String deskLvPayArrivingVia(String via);
 
-  /// The word for a transaction file after 'via' in 'Sending via file'. Lower case in English.
+  /// Screen-reader text of a pending outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
   ///
   /// In en, this message translates to:
-  /// **'file'**
-  String get deskLvPayViaFile;
+  /// **'Sending {amount} {via}'**
+  String txSpokenSendingVia(String amount, String via);
+
+  /// Screen-reader text of a pending incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving {amount} {via}'**
+  String txSpokenReceivingVia(String amount, String via);
+
+  /// Screen-reader text of a completed outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {amount} {via}'**
+  String txSpokenSentVia(String amount, String via);
+
+  /// Screen-reader text of a completed incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {amount} {via}'**
+  String txSpokenReceivedVia(String amount, String via);
+
+  /// Screen-reader text of a cancelled outgoing payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled send of {amount} {via}'**
+  String txSpokenCancelledSendVia(String amount, String via);
+
+  /// Screen-reader text of a cancelled incoming payment row that has no contact name or address; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled receive of {amount} {via}'**
+  String txSpokenCancelledReceiveVia(String amount, String via);
+
+  /// How a payment with no contact name or address travels, for a sentence like 'Sending {via}': via file, via epic1 link, in person, via Epicbox, via HTTP, via Tor, via QR.
+  ///
+  /// In en, this message translates to:
+  /// **'{via, select, file{via file} link{via epic1 link} inPerson{in person} epicbox{via Epicbox} http{via HTTP} tor{via Tor} qr{via QR} other{via another method}}'**
+  String txViaPhrase(String via);
+
+  /// Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way {via}'**
+  String deskLvSendLiveVia(String via);
+
+  /// Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC {via}'**
+  String deskLvSendLiveAmountVia(String amount, String via);
+
+  /// Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC {via}. Nothing has been paid yet: cancelling is free and certain.'**
+  String deskTxCancelOutgoingViaBody(String amount, String via);
+
+  /// Cancel dialog body for an outgoing payment not yet posted that has no contact name or address; via is how it travels.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC {via}. This payment could still go through later.'**
+  String deskTxCancelNotPostedViaBody(String amount, String via);
 }
 
 class _AppLocalizationsDelegate
