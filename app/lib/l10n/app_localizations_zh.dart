@@ -20434,4 +20434,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row，已用 epic1 密封';
   }
+
+  @override
+  String get announcementsTitle => '公告';
+
+  @override
+  String get announcementsHint =>
+      'BT Labs 在版本更新之间发布的简短消息，由 BT Labs 签名。关闭后：不再检查这些消息。';
+
+  @override
+  String get deskSetGrpAnnouncements => '公告';
+
+  @override
+  String get deskSetSynAnnouncements => '公告, 通知, 消息, 新闻, bt labs';
 }

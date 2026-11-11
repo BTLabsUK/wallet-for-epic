@@ -21904,4 +21904,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, mit epic1 versiegelt';
   }
+
+  @override
+  String get announcementsTitle => 'Hinweise';
+
+  @override
+  String get announcementsHint =>
+      'Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht.';
+
+  @override
+  String get deskSetGrpAnnouncements => 'Hinweise';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'hinweise, neuigkeiten, mitteilungen, nachrichten, bt labs';
 }

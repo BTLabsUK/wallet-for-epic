@@ -187,5 +187,7 @@
   "deskSetRowWebsite": "เว็บไซต์",
   "deskSetSynWebsite": "เว็บไซต์, เว็บ, ไซต์, epic cash",
   "deskSetSynSource": "github, โค้ด, ซอร์สโค้ด, โอเพนซอร์ส, repository",
-  "deskSetSynPrivacyPolicy": "ความเป็นส่วนตัว, นโยบาย, gdpr, ข้อมูล"
+  "deskSetSynPrivacyPolicy": "ความเป็นส่วนตัว, นโยบาย, gdpr, ข้อมูล",
+  "deskSetGrpAnnouncements": "ประกาศ",
+  "deskSetSynAnnouncements": "ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs"
 }

@@ -22366,4 +22366,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, zapieczętowane przez epic1';
   }
+
+  @override
+  String get announcementsTitle => 'Ogłoszenia';
+
+  @override
+  String get announcementsHint =>
+      'Krótkie wiadomości od BT Labs między wersjami, podpisane przez BT Labs. Wyłączone: nie są sprawdzane.';
+
+  @override
+  String get deskSetGrpAnnouncements => 'Ogłoszenia';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'ogłoszenia, ogloszenia, nowości, wiadomości, komunikaty, bt labs';
 }

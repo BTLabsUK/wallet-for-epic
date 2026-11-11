@@ -22354,4 +22354,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, запечатано epic1';
   }
+
+  @override
+  String get announcementsTitle => 'Объявления';
+
+  @override
+  String get announcementsHint =>
+      'Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют.';
+
+  @override
+  String get deskSetGrpAnnouncements => 'Объявления';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'объявления, новости, сообщения, уведомления, bt labs';
 }

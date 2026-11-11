@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_info.dart';
 import '../app_log.dart';
+import '../announcements/announcements_service.dart' show announcementsOffered;
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../dev_networks.dart';
 import '../dist_build.dart';
@@ -1141,6 +1142,22 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       const SizedBox(height: 8),
       SettingsHeader(l.advBalanceHeader),
       const ConfirmationsRow(),
+      ],
+      // In every view (no level gate): anyone can turn the messages off. No feed in
+      // app-config.toml: no row.
+      if (announcementsOffered(ref.watch(hostSettingsProvider))) ...[
+        const SizedBox(height: 8),
+        trustId(
+          TrustIds.advancedAnnouncements,
+          HintSwitchTile(
+            key: const ValueKey('adv-announcements'),
+            icon: Icons.campaign_outlined,
+            title: l.announcementsTitle,
+            hint: l.announcementsHint,
+            value: ref.watch(hostSettingsProvider).announcementsEnabled,
+            onChanged: (on) => ref.read(hostSettingsProvider.notifier).set('online.announcements', on),
+          ),
+        ),
       ],
     ];
   }

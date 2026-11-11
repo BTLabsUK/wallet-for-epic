@@ -207,6 +207,7 @@ abstract final class TrustIds {
   static const e1Send = 'g4.e1.send';
   static const e1CancelUnlock = 'g4.e1.cancel_unlock';
   static const e1TryNext = 'g4.e1.try_next';
+  static const advancedAnnouncements = 'g4.advanced.announcements';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -424,5 +425,6 @@ abstract final class TrustIds {
     'g4.e1.send',
     'g4.e1.cancel_unlock',
     'g4.e1.try_next',
+    'g4.advanced.announcements',
   ];
 }

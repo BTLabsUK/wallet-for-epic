@@ -249,5 +249,6 @@
 {"id": "g4.e1.pay_in_person", "screen": "send", "family": ["desktop"], "keys": ["deskE1PayInPerson"], "driver": false},
 {"id": "g4.e1.send", "screen": "send_review", "family": ["desktop"], "keys": ["deskE1Send"], "driver": false},
 {"id": "g4.e1.cancel_unlock", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1CancelUnlock"], "driver": false},
-{"id": "g4.e1.try_next", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1TryNext"], "driver": false}
+{"id": "g4.e1.try_next", "screen": "send_waiting", "family": ["desktop"], "keys": ["deskE1TryNext"], "driver": false},
+{"id": "g4.advanced.announcements", "screen": "advanced", "role": "toggle", "keys": ["announcementsTitle"], "driver": false}
 ]}

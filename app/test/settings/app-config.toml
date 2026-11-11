@@ -123,6 +123,11 @@ timeout_s = 20
 report = "https://support.lab.invalid/v1/report"
 donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid"
 signed_file = "https://pages.example.invalid/btlabs.json"
+[announcements]
+feed = "https://pages.example.invalid/announcements.json"
+first_check_s = 45
+check_every_h = 6
+timeout_s = 30
 [links]
 website = "https://epic.invalid"
 community = "https://chat.example.invalid/EpicCash"

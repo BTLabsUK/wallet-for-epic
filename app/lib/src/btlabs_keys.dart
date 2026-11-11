@@ -30,3 +30,31 @@ const String btlabsKeyringJson = '''
 
 /// The bundled keyring, parsed once.
 final Keyring btlabsKeyring = Keyring.parse(btlabsKeyringJson);
+
+/// The keys that may sign `announcements.json` (announcements spec §2, §3): their own keyring,
+/// so a stolen announcement key signs no release and the release key signs no announcement.
+/// Rank 1 signs; rank 2 only revokes rank 1.
+///
+/// TEST KEYS (made 2026-11-11, public halves only). Replace with the production pair before
+/// any release (announcements spec §9): the test keys must not ship.
+const String announcementsKeyringJson = '''
+{
+  "keys": [
+    {
+      "keyid": "9df7615cea67d189",
+      "rank": 1,
+      "public_key": "F4Zl8uMhjZWuzdpd9Cl18MBzjUcPQ5Y6dhc+KD2jnxU=",
+      "label": "ann-test-a"
+    },
+    {
+      "keyid": "4795449464419841",
+      "rank": 2,
+      "public_key": "Gjh/UyKnBypVh1ACE/kRIVXyP05daI8xckRYkBD10wM=",
+      "label": "ann-test-b"
+    }
+  ]
+}
+''';
+
+/// The bundled announcements keyring, parsed once.
+final Keyring announcementsKeyring = Keyring.parse(announcementsKeyringJson);

@@ -187,5 +187,7 @@
   "deskSetRowWebsite": "Website",
   "deskSetSynWebsite": "website, webseite, internet, epic cash",
   "deskSetSynSource": "github, quellcode, code, open source, repository",
-  "deskSetSynPrivacyPolicy": "datenschutz, richtlinie, dsgvo, daten"
+  "deskSetSynPrivacyPolicy": "datenschutz, richtlinie, dsgvo, daten",
+  "deskSetGrpAnnouncements": "Hinweise",
+  "deskSetSynAnnouncements": "hinweise, neuigkeiten, mitteilungen, nachrichten, bt labs"
 }

@@ -7,6 +7,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/dart.dart';
@@ -18,6 +19,9 @@ const btlabsPublicType = 'application/vnd.btlabs.public+json';
 
 /// The `payloadType` of the wallet release manifest (FORMAT.md section 6).
 const walletUpdateType = 'application/vnd.btlabs.wallet-for-epic.update+json';
+
+/// The `payloadType` of the announcements feed (`announcements.json`, announcements spec §2).
+const announcementsType = 'application/vnd.btlabs.wallet-for-epic.announcements+json';
 
 /// Largest accepted envelope, in UTF-8 bytes.
 const btlabsMaxEnvelopeBytes = 65536;
@@ -1310,4 +1314,193 @@ String _notes(Object? v) {
     throw const _Bad();
   }
   return v;
+}
+
+// ------------------------------------------------------- announcements
+
+/// The link of an [Announcement]: [label] and [url] (https, or an `epic:` URI).
+class AnnouncementLink {
+  /// Creates a link.
+  const AnnouncementLink({required this.label, required this.url});
+
+  /// 1 to 24 code points.
+  final String label;
+
+  /// An https URL or an `epic:` URI, at most 512 characters.
+  final String url;
+}
+
+/// One message of the announcements feed (announcements spec §2).
+class Announcement {
+  /// Creates a message.
+  const Announcement({
+    required this.id,
+    required this.text,
+    this.link,
+    this.imagePng,
+    this.startsAt,
+    this.endsAt,
+    this.platforms,
+  });
+
+  /// `^[a-z0-9][a-z0-9-]{0,31}$`; the identity of a message.
+  final String id;
+
+  /// 1 to 140 code points, one line, plain text.
+  final String text;
+
+  /// The one link, if any.
+  final AnnouncementLink? link;
+
+  /// The decoded PNG file (at most 8192 bytes, square, 32 to 192 px), if any.
+  final Uint8List? imagePng;
+
+  /// Not shown before this time (UTC); null = from the start.
+  final DateTime? startsAt;
+
+  /// Not shown from this time on (UTC); null = no end.
+  final DateTime? endsAt;
+
+  /// Subset of `desktop`, `phone`; null = both.
+  final Set<String>? platforms;
+}
+
+/// The payload of `announcements.json` (schema 1).
+class AnnouncementsFeed {
+  /// Creates a feed.
+  const AnnouncementsFeed({
+    required this.serial,
+    required this.issuedAt,
+    required this.expiresAt,
+    required this.messages,
+    required this.revokedKeys,
+  });
+
+  /// Rollback counter (FORMAT.md section 3).
+  final int serial;
+
+  /// UTC.
+  final DateTime issuedAt;
+
+  /// UTC; after it nothing from this feed is shown. At most 45 days after [issuedAt].
+  final DateTime expiresAt;
+
+  /// 0 to 4 messages with unique ids.
+  final List<Announcement> messages;
+
+  /// Revoked keyids named by the file (not yet filtered by rank).
+  final List<String> revokedKeys;
+}
+
+/// Verifies an announcements envelope by FORMAT.md section 5, steps 1 to 9, with the
+/// announcements keyring. Never throws.
+Future<VerifyResult<AnnouncementsFeed>> verifyAnnouncements(
+  String envelope, {
+  required Keyring keyring,
+  ManifestState? state,
+  required DateTime now,
+}) async {
+  try {
+    return await _verify<AnnouncementsFeed>(envelope, keyring, state, now, announcementsType, _parseAnnouncements);
+  } catch (_) {
+    return const Rejected<AnnouncementsFeed>(RejectReason.malformed);
+  }
+}
+
+/// Re-checks a stored announcements envelope on load (FORMAT.md section 5, last paragraph):
+/// trusted and unrevoked signer, valid signature, payload digest equal to [state].digest.
+/// Expiry is the caller's to apply ([AnnouncementsFeed.expiresAt]). Returns null on any failure.
+Future<AnnouncementsFeed?> loadCachedAnnouncements(
+  String envelope, {
+  required Keyring keyring,
+  required ManifestState state,
+}) async {
+  try {
+    if (utf8.encode(envelope).length > btlabsMaxEnvelopeBytes) return null;
+    final env = _parseEnvelope(envelope);
+    if (env == null || env.type != announcementsType) return null;
+    final signer = await _findSigner(env, keyring, state.revoked);
+    if (signer is! BtlabsKey) return null;
+    if (_hex((await const DartSha256().hash(env.payload)).bytes) != state.digest) return null;
+    return _parseAnnouncements(env.payload).manifest;
+  } catch (_) {
+    return null;
+  }
+}
+
+const _announcementMaxMessages = 4;
+const _announcementValidity = Duration(days: 45);
+const _announcementPlatforms = ['desktop', 'phone'];
+const _pngMaxBytes = 8192;
+final _epicUriRe = RegExp(r'^epic:[\x21-\x7e]+$');
+
+_Parsed<AnnouncementsFeed> _parseAnnouncements(List<int> bytes) {
+  final (:text, :root) = _decodeRoot(bytes);
+  final (:serial, :issued, :expires) = _header(root);
+  if (expires.difference(issued) > _announcementValidity) throw const _Bad();
+  final messages = _list(root['messages'], _announcementMaxMessages, _announcement);
+  _unique(messages.map((m) => m.id));
+  final revoked = _revokedKeys(root);
+  return _Parsed(
+    AnnouncementsFeed(
+      serial: serial,
+      issuedAt: issued,
+      expiresAt: expires,
+      messages: List.unmodifiable(messages),
+      revokedKeys: List.unmodifiable(revoked),
+    ),
+    text,
+    serial: serial,
+    expiresAt: expires,
+    revokedKeys: revoked,
+  );
+}
+
+Announcement _announcement(Object? v) {
+  final o = _obj(v);
+  AnnouncementLink? link;
+  if (o.containsKey('link')) {
+    final l = _obj(o['link']);
+    final url = l['url'];
+    final ok = url is String && url.length <= 512 && (_urlRe.hasMatch(url) || _epicUriRe.hasMatch(url));
+    if (!ok) throw const _Bad();
+    link = AnnouncementLink(label: _text(l['label'], 24), url: url);
+  }
+  Uint8List? png;
+  if (o.containsKey('image')) {
+    final data = _obj(o['image'])['png'];
+    final raw = data is String ? _strictBase64(data) : null;
+    if (raw == null || !_pngOk(raw)) throw const _Bad();
+    png = Uint8List.fromList(raw);
+  }
+  final starts = o.containsKey('starts_at') ? _ts(o['starts_at']) : null;
+  final ends = o.containsKey('ends_at') ? _ts(o['ends_at']) : null;
+  if (starts != null && ends != null && !starts.isBefore(ends)) throw const _Bad();
+  Set<String>? platforms;
+  if (o.containsKey('platforms')) {
+    platforms = Set.unmodifiable(_list(o['platforms'], _announcementPlatforms.length, (e) => _enum(e, _announcementPlatforms)));
+  }
+  return Announcement(
+    id: _id(o['id']),
+    text: _text(o['text'], 140),
+    link: link,
+    imagePng: png,
+    startsAt: starts,
+    endsAt: ends,
+    platforms: platforms,
+  );
+}
+
+/// PNG signature, a 13-byte IHDR chunk first, width equal to height, 32 to 192 px, at most
+/// 8192 bytes.
+bool _pngOk(List<int> b) {
+  if (b.length < 33 || b.length > _pngMaxBytes) return false;
+  const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  for (var i = 0; i < 8; i++) {
+    if (b[i] != sig[i]) return false;
+  }
+  int be(int at) => (b[at] << 24) | (b[at + 1] << 16) | (b[at + 2] << 8) | b[at + 3];
+  if (be(8) != 13 || be(12) != 0x49484452) return false; // length 13, "IHDR"
+  final w = be(16);
+  return w == be(20) && w >= 32 && w <= 192;
 }

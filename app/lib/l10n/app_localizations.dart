@@ -33749,6 +33749,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{row}, sealed with epic1'**
   String deskE1SpokenSealed(String row);
+
+  /// Settings › Advanced: name of the switch for messages from BT Labs (phone row and desktop row).
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get announcementsTitle;
+
+  /// Settings › Advanced: the explanation behind the info icon of the Announcements switch (phone and desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.'**
+  String get announcementsHint;
+
+  /// Settings: heading of the “Announcements” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get deskSetGrpAnnouncements;
+
+  /// Settings search: other words that find the “Announcements” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'announcements, news, messages, notices, bt labs'**
+  String get deskSetSynAnnouncements;
 }
 
 class _AppLocalizationsDelegate

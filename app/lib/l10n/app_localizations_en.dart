@@ -21642,4 +21642,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row, sealed with epic1';
   }
+
+  @override
+  String get announcementsTitle => 'Announcements';
+
+  @override
+  String get announcementsHint =>
+      'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.';
+
+  @override
+  String get deskSetGrpAnnouncements => 'Announcements';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'announcements, news, messages, notices, bt labs';
 }

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../announcements/announcements_service.dart' show announcementsProvider;
 import 'settings_file_watch.dart';
 import '../../invite_links.dart' show inviteInboxProvider;
 import '../../app_info.dart';
@@ -31,6 +32,8 @@ class DeskApp extends ConsumerWidget {
     final theme = ref.watch(deskProvider.select((s) => s.settings.theme));
     final scale = ref.watch(deskProvider.select((s) => s.settings.scale));
     final language = ref.watch(deskProvider.select((s) => s.settings.language));
+    // Alive for the app's life: BT Labs' signed announcements (announcements_service.dart).
+    ref.watch(announcementsProvider.select((_) => true));
     // Before anything reads a token: the theme below and every screen size from it. The BT Labs
     // Theme's 100 % is a 17 px root (6.1.6's MODERN_BASE), the tokens are written for 16.
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;

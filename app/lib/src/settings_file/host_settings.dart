@@ -290,6 +290,14 @@ class AppConfig {
   /// BT Labs' signed public file; null: not read.
   String? get supportSignedFile => _orNull(_text('support.signed_file'));
 
+  // [announcements]: no feed, no announcements.
+  Duration get announcementsFirstCheck => _s('announcements.first_check_s');
+  Duration get announcementsEvery => Duration(hours: _int('announcements.check_every_h'));
+  Duration get announcementsTimeout => _s('announcements.timeout_s');
+
+  /// The signed announcements file; null: no announcements and no switch.
+  String? get announcementsFeed => _orNull(_text('announcements.feed'));
+
   // [links]: each null when left out (its link is not shown).
   String? get linkWebsite => _orNull(_text('links.website'));
   String? get linkCommunity => _orNull(_text('links.community'));
@@ -455,6 +463,9 @@ class HostSettings {
   bool get updatesCheck => value('online.update_check') as bool;
   bool get priceEnabled => value('online.price') as bool;
 
+  /// `online.announcements`: the user's switch for messages from BT Labs; absent = on.
+  bool get announcementsEnabled => value('online.announcements') as bool;
+
   // app-config.toml, by the names the app has always read them under.
   List<String> get torOnionOnlyDomains => config.torOnionOnlyDomains;
   List<OnionRoute> get torOnions => config.torOnions;
@@ -469,6 +480,7 @@ class HostSettings {
   String? get supportReport => config.supportReport;
   String? get supportDonation => config.supportDonation;
   String? get supportDirectory => config.supportSignedFile;
+  String? get announcementsFeedUrl => config.announcementsFeed;
   String? get linkWebsite => config.linkWebsite;
   String? get linkCommunity => config.linkCommunity;
   String? get linkSource => config.linkSource;

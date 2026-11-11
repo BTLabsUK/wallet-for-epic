@@ -21203,4 +21203,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskE1SpokenSealed(String row) {
     return '$row ปิดผนึกด้วย epic1';
   }
+
+  @override
+  String get announcementsTitle => 'ประกาศ';
+
+  @override
+  String get announcementsHint =>
+      'ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้';
+
+  @override
+  String get deskSetGrpAnnouncements => 'ประกาศ';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs';
 }
