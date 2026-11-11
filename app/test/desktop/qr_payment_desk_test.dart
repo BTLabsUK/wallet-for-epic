@@ -13,7 +13,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart' sh
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
-import 'package:epic_wallet/src/qr_slate.dart' show qrFrameMs;
+import 'package:epic_wallet/src/qr_slate.dart' show QrFrames, qrFrameMs;
 import 'package:epic_wallet/src/scan/scan_checks.dart' show CodeOrigin;
 import 'package:epic_wallet/src/slate_files.dart' show responseFileName;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/wallet_service.dart' show FakeWalletService, Fak
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart' show QrImage;
 
 final _l = englishStrings;
 
@@ -162,7 +163,24 @@ void main() {
     expect(find.byKey(const ValueKey('desk-qr-countdown')), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
     await tester.pump();
-    String shown() => tester.widget<EQr>(find.byKey(const ValueKey('desk-qr-image'))).data;
+    // Each frame is drawn ahead (QrFrames): the part shown is the one whose code has its modules.
+    final frames = QrFrames.of(parts);
+    bool same(QrImage a, QrImage b) {
+      if (a.moduleCount != b.moduleCount) return false;
+      for (var y = 0; y < a.moduleCount; y++) {
+        for (var x = 0; x < a.moduleCount; x++) {
+          if (a.isDark(y, x) != b.isDark(y, x)) return false;
+        }
+      }
+      return true;
+    }
+
+    String shown() {
+      final image = tester.widget<EQr>(find.byKey(const ValueKey('desk-qr-image'))).image!;
+      final at = frames.images.indexWhere((f) => same(f, image));
+      return at < 0 ? '' : parts[at];
+    }
+
     String label() => tester.widget<Text>(find.byKey(const ValueKey('desk-qr-part'))).data!;
     // Frame by frame through every part, the spare parts after the plain ones included.
     final first = parts.indexOf(shown());
