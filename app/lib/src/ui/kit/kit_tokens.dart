@@ -79,6 +79,12 @@ abstract final class Kit {
   static const double grabberWidth = 36;
   static const double grabberHeight = 5;
 
+  /// The radio ring and its dot, and the stepper's pill.
+  static const double radio = 26;
+  static const double radioDot = 12;
+  static const double stepperWidth = 128;
+  static const double stepperHeight = 44;
+
   // Row heights.
   static const double rowList = 62;
   static const double rowSettings = 56;

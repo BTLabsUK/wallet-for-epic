@@ -34,6 +34,7 @@ abstract final class KitIcons {
   static const IconData paste = Icons.content_paste_rounded;
   static const IconData share = Icons.ios_share_rounded;
   static const IconData add = Icons.add_rounded;
+  static const IconData remove = Icons.remove_rounded;
   static const IconData edit = Icons.edit_outlined;
   static const IconData delete = Icons.delete_outline_rounded;
   static const IconData search = Icons.search_rounded;

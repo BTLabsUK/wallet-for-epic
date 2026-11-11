@@ -140,12 +140,16 @@ class KitChoice<T> {
 /// A picker (HANDOFF 7.5): a title and rows with a tick on the chosen one. A tap saves the
 /// choice and closes the sheet, so there is no Save button. Use [KitPickerSheet.show].
 class KitPickerSheet<T> extends StatelessWidget {
-  const KitPickerSheet({super.key, required this.title, required this.choices, required this.selected, required this.onSelected});
+  const KitPickerSheet({super.key, required this.title, required this.choices, required this.selected, required this.onSelected, this.subtitle, this.note});
 
   final String title;
   final List<KitChoice<T>> choices;
   final T? selected;
   final ValueChanged<T> onSelected;
+
+  /// A line under the title saying what the choice does, and a note under the rows.
+  final String? subtitle;
+  final String? note;
 
   static Future<T?> show<T>({
     required BuildContext context,
@@ -153,12 +157,16 @@ class KitPickerSheet<T> extends StatelessWidget {
     required List<KitChoice<T>> choices,
     required T? selected,
     ValueChanged<T>? onSelected,
+    String? subtitle,
+    String? note,
   }) => showKitSheet<T>(
     context: context,
     builder: (sheetContext) => KitPickerSheet<T>(
       title: title,
       choices: choices,
       selected: selected,
+      subtitle: subtitle,
+      note: note,
       onSelected: (v) {
         onSelected?.call(v);
         Navigator.of(sheetContext).pop(v);
@@ -167,23 +175,42 @@ class KitPickerSheet<T> extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) => KitSheet(
-    title: title,
-    child: KitGroup(
-      onSheet: true,
-      dividerInset: Kit.dividerInsetPlain,
-      children: [
-        for (final c in choices)
-          KitRow(
-            title: c.title,
-            subtitle: c.subtitle,
-            leading: c.leading,
-            size: KitRowSize.sheet,
-            selected: c.value == selected,
-            onTap: () => onSelected(c.value),
-            semanticsId: c.semanticsId,
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return KitSheet(
+      title: title,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (subtitle != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              child: Text(subtitle!, style: KitType.body.copyWith(color: t.dim)),
+            ),
+          KitGroup(
+            onSheet: true,
+            dividerInset: Kit.dividerInsetPlain,
+            children: [
+              for (final c in choices)
+                KitRow(
+                  title: c.title,
+                  subtitle: c.subtitle,
+                  leading: c.leading,
+                  size: KitRowSize.sheet,
+                  selected: c.value == selected,
+                  onTap: () => onSelected(c.value),
+                  semanticsId: c.semanticsId,
+                ),
+            ],
           ),
-      ],
-    ),
-  );
+          if (note != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Text(note!, style: KitType.rowSub.copyWith(color: t.dim)),
+            ),
+        ],
+      ),
+    );
+  }
 }

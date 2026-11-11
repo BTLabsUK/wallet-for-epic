@@ -40,6 +40,10 @@ class KitRow extends StatelessWidget {
     this.semanticsId,
     this.semanticsLabel,
     this.toggled,
+    this.subtitleLines = 1,
+    this.subtitleWidget,
+    this.valueColor,
+    this.isChoice,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -52,16 +56,44 @@ class KitRow extends StatelessWidget {
     required ValueChanged<bool>? onChanged,
     KitRowSize size = KitRowSize.settings,
     String? semanticsId,
+    int subtitleLines = 1,
   }) => KitRow(
     key: key,
     title: title,
     subtitle: subtitle,
+    subtitleLines: subtitleLines,
     leading: leading,
     size: size,
     trailing: IgnorePointer(child: ExcludeSemantics(child: KitSwitch(value: value, onChanged: onChanged))),
     onTap: onChanged == null ? null : () => onChanged(!value),
     semanticsId: semanticsId,
     toggled: value,
+  );
+
+  /// A row with a radio at the end: one of several choices that apply at once. Tapping the row
+  /// chooses it; [selected] is whether it is the chosen one.
+  factory KitRow.radio({
+    Key? key,
+    required String title,
+    String? subtitle,
+    Widget? leading,
+    required bool selected,
+    required VoidCallback? onChanged,
+    KitRowSize size = KitRowSize.settings,
+    String? semanticsId,
+    int subtitleLines = 2,
+  }) => KitRow(
+    key: key,
+    title: title,
+    subtitle: subtitle,
+    subtitleLines: subtitleLines,
+    leading: leading,
+    size: size,
+    trailing: ExcludeSemantics(child: KitRadio(selected: selected)),
+    onTap: onChanged,
+    semanticsId: semanticsId,
+    toggled: null,
+    isChoice: selected,
   );
 
   final String title;
@@ -84,6 +116,19 @@ class KitRow extends StatelessWidget {
   /// Set by [KitRow.toggle], so a screen reader hears a switch, not a button.
   final bool? toggled;
 
+  /// How many lines the [subtitle] may take before it ends in an ellipsis: 1 in a list, 2 for the
+  /// consequence line of a settings row.
+  final int subtitleLines;
+
+  /// A subtitle that is not plain text (a host in the mono face); [subtitle] is ignored then.
+  final Widget? subtitleWidget;
+
+  /// The colour of the [value] (a state word: green "Connected"); the dim colour by default.
+  final Color? valueColor;
+
+  /// Set by [KitRow.radio]: whether this choice is the chosen one (read as selected).
+  final bool? isChoice;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -93,7 +138,7 @@ class KitRow extends StatelessWidget {
           flex: 0,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 140),
-            child: Text(value!, style: KitType.rowSub.copyWith(color: t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+            child: Text(value!, style: KitType.rowSub.copyWith(color: valueColor ?? t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
         ),
       ?trailing,
@@ -113,10 +158,12 @@ class KitRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  if (subtitle != null)
+                  if (subtitleWidget != null || subtitle != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
-                      child: Text(subtitle!, style: KitType.rowSub.copyWith(color: t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      child:
+                          subtitleWidget ??
+                          Text(subtitle!, style: KitType.rowSub.copyWith(color: t.dim), maxLines: subtitleLines, overflow: TextOverflow.ellipsis),
                     ),
                 ],
               ),
@@ -131,7 +178,7 @@ class KitRow extends StatelessWidget {
         : Semantics(
             button: toggled == null,
             toggled: toggled,
-            selected: selected ? true : null,
+            selected: isChoice ?? (selected ? true : null),
             label: semanticsLabel,
             child: InkWell(onTap: onTap, child: body),
           );
@@ -210,6 +257,28 @@ class KitSwitch extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The radio of a [KitRow.radio]: a 22 px ring, with a filled dot when chosen.
+class KitRadio extends StatelessWidget {
+  const KitRadio({super.key, required this.selected});
+
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: Kit.radio,
+      height: Kit.radio,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: selected ? t.text : t.hair2, width: 1.5),
+      ),
+      child: selected ? Container(width: Kit.radioDot, height: Kit.radioDot, decoration: BoxDecoration(color: t.text, shape: BoxShape.circle)) : null,
     );
   }
 }
