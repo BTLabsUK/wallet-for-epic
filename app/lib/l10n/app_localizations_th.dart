@@ -21087,4 +21087,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
+
+  @override
+  String get phoneHomeFirstPayment => 'การชำระเงินครั้งแรกของคุณ';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'จะแสดงที่นี่เมื่อมาถึง';
 }

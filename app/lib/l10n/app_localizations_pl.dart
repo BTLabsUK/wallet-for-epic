@@ -22131,4 +22131,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'Jeśli nadawca opublikuje płatność później, i tak dotrze.';
+
+  @override
+  String get phoneHomeFirstPayment => 'Twoja pierwsza płatność';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Pojawi się tutaj, gdy dotrze';
 }

@@ -4,6 +4,17 @@ part of '../screenshot_tour_test.dart';
 
 final List<(String, _Start, _Visit)> _framesHome = [
   ('fr-Home', _Start.home, (t) => t.shot('fr-Home')),
+  // Before the first payment: Recent as empty slots, Receive in gold.
+  ('fr-Home-empty', _Start.home, (t) => t.shot('fr-Home-empty')),
+  // The same wallet after its first unlock: the tour is offered once, with a close mark.
+  (
+    'fr-Home-empty-tour',
+    _Start.home,
+    (t) async {
+      await t.frames();
+      await t.shot('fr-Home-empty-tour');
+    },
+  ),
   (
     'fr-Contacts',
     _Start.home,
@@ -45,6 +56,8 @@ final List<(String, _Start, _Visit)> _framesHome = [
 
 /// Per-frame data on top of the base wallet (frame_data.dart), by visit name.
 final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
+  'fr-Home-empty': _seedNewWallet,
+  'fr-Home-empty-tour': _seedNewWallet,
   // Three payments under way, an invoice to review, 3 confirmations to wait for.
   'fr-Home-busy': (s) {
     s.summaryValue = WalletSummary(
@@ -91,6 +104,22 @@ final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
     ];
   },
 };
+
+/// A new wallet: no payment yet, nothing in it.
+void _seedNewWallet(FakeWalletSession s) {
+  s.summaryValue = WalletSummary(
+    lastConfirmedHeight: _tip,
+    minimumConfirmations: BigInt.from(defaultMinimumConfirmations),
+    total: BigInt.zero,
+    spendable: BigInt.zero,
+    awaitingConfirmation: BigInt.zero,
+    awaitingFinalization: BigInt.zero,
+    immature: BigInt.zero,
+    locked: BigInt.zero,
+    validatedWithNode: true,
+  );
+  s.transactionsValue = [];
+}
 
 /// Tom is paired and sealed: a lunch he paid, a sent payment, and 12.5 still waiting on his wallet.
 void _seedTomPage(FakeWalletSession s) {

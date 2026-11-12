@@ -5602,5 +5602,7 @@
   "phoneProgReadyToSpend": "可以花费",
   "phoneKitPickerSaveFailed": "未保存。请重试。",
   "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
-  "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。"
+  "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。",
+  "phoneHomeFirstPayment": "你的第一笔付款",
+  "phoneHomeFirstPaymentHint": "到账后显示在这里"
 }

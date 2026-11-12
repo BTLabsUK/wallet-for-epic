@@ -22125,4 +22125,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'Если отправитель опубликует платёж позже, он всё равно поступит.';
+
+  @override
+  String get phoneHomeFirstPayment => 'Ваш первый платёж';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Появится здесь, когда поступит';
 }

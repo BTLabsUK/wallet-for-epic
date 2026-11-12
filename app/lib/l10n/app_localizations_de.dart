@@ -21751,4 +21751,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
+
+  @override
+  String get phoneHomeFirstPayment => 'Deine erste Zahlung';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Erscheint hier, sobald sie ankommt';
 }

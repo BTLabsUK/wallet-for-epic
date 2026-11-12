@@ -5602,5 +5602,7 @@
   "phoneProgReadyToSpend": "Готово к трате",
   "phoneKitPickerSaveFailed": "Не сохранено. Попробуйте ещё раз.",
   "phoneTxCancelledByUser": "Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.",
-  "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит."
+  "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит.",
+  "phoneHomeFirstPayment": "Ваш первый платёж",
+  "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит"
 }
