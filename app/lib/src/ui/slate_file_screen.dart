@@ -31,6 +31,7 @@ import 'kit/kit_hero_amount.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_kv.dart';
 import 'kit/kit_row.dart';
+import 'kit/kit_sheet.dart' show KitSheet;
 import 'kit/kit_step_strip.dart';
 import 'kit/kit_tokens.dart';
 import '../epic1.dart' show PaymentMode, looksLikeEpictx;
@@ -78,6 +79,7 @@ class SlateFileScreen extends ConsumerStatefulWidget {
     this.expectedSlateId,
     this.pasted = false,
     this.scanned = false,
+    this.scanner,
   });
 
   final SlateFile file;
@@ -91,6 +93,11 @@ class SlateFileScreen extends ConsumerStatefulWidget {
 
   /// When finalizing our own send, the id the response must carry.
   final String? expectedSlateId;
+
+  /// The scanner this payment was read with, still open under it ([openScannedPayment]): a
+  /// payment to us is offered as a sheet over the camera (InPerson-3), and anything else takes
+  /// the scanner away and shows as a page.
+  final Route<dynamic>? scanner;
 
   @override
   ConsumerState<SlateFileScreen> createState() => _SlateFileScreenState();
@@ -128,6 +135,29 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   /// Why a sealed file did not open: sealed for another wallet or install, or by a newer one.
   PairingFailure? _sealFailure;
+
+  /// The scanner under this screen was taken away: the screen is a page from now on.
+  bool _leftScanner = false;
+
+  /// Takes the scanner under this screen away, once; its camera closes with it.
+  void _leaveScanner() {
+    if (_leftScanner) return;
+    _leftScanner = true;
+    final scanner = widget.scanner;
+    if (scanner != null && scanner.isActive) scanner.navigator?.removeRoute(scanner);
+  }
+
+  /// True while this screen is the sheet over the scanner: reading, then a payment to us that
+  /// can be accepted.
+  bool _overScanner(SlateInfo? info) =>
+      widget.scanner != null &&
+      !_leftScanner &&
+      _modeLine == null &&
+      _posted == null &&
+      _response == null &&
+      _sealFailure == null &&
+      !_answerUnknown &&
+      (_reading || info != null && info.stage == SlateStage.send && _error == null);
 
   @override
   void initState() {
@@ -197,6 +227,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return true;
     final navigator = Navigator.of(context);
+    _leaveScanner();
     if (await openInPersonText(context, _file.json)) {
       if (mounted) navigator.pop(true);
       return true;
@@ -293,6 +324,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   /// A payment request: the Review in its file form takes over this screen (DESIGN §3.3).
   void _toReview(SlateInfo info) {
+    _leaveScanner();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<bool>(
         builder: (_) => RequestFileReviewScreen(
@@ -445,6 +477,127 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     return (labels, now);
   }
 
+  /// A payment to us under its title (InPerson-3), on the page and on the sheet: the amount in
+  /// the figure face at 40 with the unit and value under it, the sender's note, and what Accept
+  /// does while it can be done.
+  List<Widget> _incoming(AppLocalizations l, WalletTokens t, SlateInfo info) {
+    final message = messageBy(info.messages, SlateRole.sender);
+    final amount = epicFor(l, info.amount, surface: AmountSurface.exact, unit: false);
+    final fiat = phoneFiat(l, info.amount, amountDisplay(ref), approx: true);
+    return [
+      const SizedBox(height: 18),
+      Semantics(
+        label: '+$amount $epicUnit',
+        excludeSemantics: true,
+        child: Text(
+          '+$amount',
+          textAlign: TextAlign.center,
+          textScaler: TextScaler.noScaling,
+          style: KitType.amountOnPage.copyWith(fontSize: 40, letterSpacing: -1.6, height: 1, color: t.ok),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Text(
+        fiat == null ? epicUnit : '$epicUnit · $fiat',
+        textAlign: TextAlign.center,
+        style: KitType.body.copyWith(color: t.dim),
+      ),
+      const SizedBox(height: 18),
+      if (message != null) ...[
+        KitGroup(margin: EdgeInsets.zero, children: [KitKvRow(label: l.phoneAcceptNote, value: message)]),
+        const SizedBox(height: 14),
+      ],
+      // What to do next, only while it can be done: never above a refusal.
+      if (_error == null) FileInfoLine(widget.scanned ? l.phoneAcceptHintQr : l.phoneAcceptHintFile),
+    ];
+  }
+
+  /// "Not now" on the sheet: back to the scanner, which reads again.
+  void _notNow() {
+    if (!_busy) Navigator.of(context).pop(false);
+  }
+
+  /// The payment as a sheet over the dimmed scanner (InPerson-3): the scrim, then the sheet
+  /// rising from the bottom with the payment, Accept and Not now. While the payment is read
+  /// there is only the scrim: the scanner's tick shows through it.
+  Widget _sheet(BuildContext context, SlateInfo? info) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final route = ModalRoute.of(context);
+    final shown = route?.animation ?? kAlwaysCompleteAnimation;
+    final ready = !_reading && info != null;
+    final shape = Theme.of(context).bottomSheetTheme.shape;
+    final curve = CurvedAnimation(parent: shown, curve: Curves.easeOutCubic);
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _notNow();
+      },
+      child: Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: FadeTransition(
+                opacity: curve,
+                child: ModalBarrier(
+                  color: t.scrim,
+                  onDismiss: _notNow,
+                  semanticsLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                ),
+              ),
+            ),
+            if (ready)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SlideTransition(
+                  position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(curve),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 640,
+                      maxHeight: MediaQuery.sizeOf(context).height - MediaQuery.paddingOf(context).top,
+                    ),
+                    child: Material(
+                      color: t.sheet,
+                      shape: shape,
+                      clipBehavior: Clip.antiAlias,
+                      child: KitSheet(
+                        title: l.phoneAcceptTitle,
+                        titleGap: 0,
+                        actionsTop: 18,
+                        buttonsGap: 4,
+                        primary: KitButton(
+                          label: l.phoneAcceptAccept,
+                          semanticsId: TrustIds.acceptAccept,
+                          busy: _busy,
+                          onPressed: _busy ? null : _sign,
+                        ),
+                        secondary: KitButton(
+                          label: l.phoneAcceptNotNow,
+                          kind: KitButtonKind.ghost,
+                          semanticsId: TrustIds.acceptLater,
+                          onPressed: _busy ? null : _notNow,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: _incoming(l, t, info),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Semantics(liveRegion: true, label: l.slateReadingQr, child: const SizedBox.shrink()),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -589,76 +742,49 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         receiving ? SlateRole.sender : SlateRole.receiver,
       );
       final amount = epicFor(l, info.amount, surface: AmountSurface.exact, unit: false);
-      final fiat = receiving ? phoneFiat(l, info.amount, amountDisplay(ref), approx: true) : null;
-      body = [
-        // Where it came from: the file's name, or what kind of text it was. A payment to us
-        // reads as the frame's sheet (InPerson-3): `.sheet h2`, 4 further in than the page.
-        Padding(
-          padding: EdgeInsets.only(left: receiving ? 4 : 0, top: receiving ? 14 : 0),
-          child: Text(
-            receiving
-                ? l.phoneAcceptTitle
-                : (widget.scanned ? l.slateScannedReplyTitle : widget.pasted ? l.slatePastedTitle : _file.name),
-            style: receiving ? KitType.sheetTitle.copyWith(color: t.text) : KitType.rowTitle.copyWith(fontSize: 20, color: t.text),
-          ),
-        ),
-        if (receiving) ...[
-          // The amount in the figure face at 40, the unit and value on a line under it.
-          const SizedBox(height: 18),
-          Semantics(
-            label: '+$amount $epicUnit',
-            excludeSemantics: true,
-            child: Text(
-              '+$amount',
-              textAlign: TextAlign.center,
-              textScaler: TextScaler.noScaling,
-              style: KitType.amountOnPage.copyWith(fontSize: 40, letterSpacing: -1.6, height: 1, color: t.ok),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            fiat == null ? epicUnit : '$epicUnit · $fiat',
-            textAlign: TextAlign.center,
-            style: KitType.body.copyWith(color: t.dim),
-          ),
-          const SizedBox(height: 18),
-        ] else ...[
-          const SizedBox(height: 14),
-          KitHeroAmount(amount: amount, unit: epicUnit),
-          const SizedBox(height: 10),
-          FileInfoLine(
-            info.stage == SlateStage.requestAnswer
-                ? l.slateIncomingRequestAnswer(epicExact(l, info.amount))
-                : l.slateIncomingResponse(epicExact(l, info.amount), epicExact(l, info.fee)),
-            bare: true,
-          ),
-          const SizedBox(height: 16),
-        ],
-        if (message != null) ...[
-          KitGroup(
-            margin: EdgeInsets.zero,
-            children: [
-              if (receiving)
-                KitKvRow(label: l.phoneAcceptNote, value: message)
-              else
-                KitRow(
-                  // A request's answer carries the issuer's own message: it is this wallet's.
-                  title: info.stage == SlateStage.requestAnswer ? l.invoicesMessage : l.txDetailsMessageFromRecipient,
-                  value: message,
-                  size: KitRowSize.settings,
+      body = receiving
+          ? [
+              // A payment to us reads as the frame's sheet (InPerson-3): `.sheet h2`, 4 further
+              // in than the page.
+              Padding(
+                padding: const EdgeInsets.only(left: 4, top: 14),
+                child: Text(l.phoneAcceptTitle, style: KitType.sheetTitle.copyWith(color: t.text)),
+              ),
+              ..._incoming(l, t, info),
+            ]
+          : [
+              // Where it came from: the file's name, or what kind of text it was.
+              Text(
+                widget.scanned ? l.slateScannedReplyTitle : widget.pasted ? l.slatePastedTitle : _file.name,
+                style: KitType.rowTitle.copyWith(fontSize: 20, color: t.text),
+              ),
+              const SizedBox(height: 14),
+              KitHeroAmount(amount: amount, unit: epicUnit),
+              const SizedBox(height: 10),
+              FileInfoLine(
+                info.stage == SlateStage.requestAnswer
+                    ? l.slateIncomingRequestAnswer(epicExact(l, info.amount))
+                    : l.slateIncomingResponse(epicExact(l, info.amount), epicExact(l, info.fee)),
+                bare: true,
+              ),
+              const SizedBox(height: 16),
+              if (message != null) ...[
+                KitGroup(
+                  margin: EdgeInsets.zero,
+                  children: [
+                    KitRow(
+                      // A request's answer carries the issuer's own message: it is this wallet's.
+                      title: info.stage == SlateStage.requestAnswer ? l.invoicesMessage : l.txDetailsMessageFromRecipient,
+                      value: message,
+                      size: KitRowSize.settings,
+                    ),
+                  ],
                 ),
-            ],
-          ),
-          SizedBox(height: receiving ? 14 : 4),
-        ],
-        // What to do next, only while it can be done: never above a refusal.
-        if (_error == null)
-          FileInfoLine(
-            receiving
-                ? (widget.scanned ? l.phoneAcceptHintQr : l.phoneAcceptHintFile)
-                : l.slateIncomingResponseHint,
-          ),
-      ];
+                const SizedBox(height: 4),
+              ],
+              // What to do next, only while it can be done: never above a refusal.
+              if (_error == null) FileInfoLine(l.slateIncomingResponseHint),
+            ];
       // The primary at the foot, as on every other step (UP-013).
       if (_error == null) {
         foot = Column(
@@ -682,6 +808,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ],
         );
       }
+    }
+    if (_overScanner(info)) return _sheet(context, info);
+    if (widget.scanner != null && !_leftScanner) {
+      // A page from here on: the scanner under it goes.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _leaveScanner();
+      });
     }
     final error = _error;
     final strip = _steps(l, info);
@@ -1070,4 +1203,36 @@ Future<bool> openSlateFile(
     ),
   );
   return done ?? false;
+}
+
+/// Opens a payment read by the receiver's scanner over the scanner itself ([QrOpen]): a payment
+/// to us is the sheet of InPerson-3, anything else a page that takes the scanner away. True
+/// when the scanner should read again: "Not now", back, or text that is not a payment file.
+Future<bool> openScannedPayment(BuildContext scanner, String json) async {
+  final String text;
+  try {
+    text = decodeSlateFile(utf8.encode(json));
+  } on FormatException catch (error) {
+    final container = ProviderScope.containerOf(scanner, listen: false);
+    container.read(noticeProvider.notifier).show(describeError(scanner.l10n, error), level: NoticeLevel.error);
+    return true;
+  }
+  final route = ModalRoute.of(scanner);
+  final still = MediaQuery.disableAnimationsOf(scanner);
+  await Navigator.of(scanner).push<bool>(
+    PageRouteBuilder<bool>(
+      opaque: false,
+      transitionDuration: still ? Duration.zero : const Duration(milliseconds: 280),
+      reverseTransitionDuration: still ? Duration.zero : const Duration(milliseconds: 220),
+      pageBuilder: (_, _, _) => SlateFileScreen(
+        file: SlateFile(name: scannedSlateName, json: text),
+        pasted: true,
+        scanned: true,
+        scanner: route,
+      ),
+      transitionsBuilder: (_, _, _, child) => child,
+    ),
+  );
+  // A scanner taken away meanwhile is closed already; one still here reads again.
+  return true;
 }

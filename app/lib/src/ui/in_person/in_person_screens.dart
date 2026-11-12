@@ -25,9 +25,11 @@ import '../common.dart';
 import '../contacts_screen.dart' show LiveFieldError;
 import '../kit/kit_corner_marks.dart';
 import '../kit/kit_button.dart';
+import '../kit/kit_group.dart';
 import '../kit/kit_headers.dart';
 import '../kit/kit_hero_amount.dart';
 import '../kit/kit_icons.dart';
+import '../kit/kit_kv.dart';
 import '../kit/kit_step_strip.dart';
 import '../kit/kit_tokens.dart';
 import '../pin.dart';
@@ -889,7 +891,11 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
             style: KitType.body.copyWith(color: t.dim),
           ),
         ],
-        if (message != null && message.isNotEmpty) ...[
+        // A payment to us carries the sender's words as the classic sheet does (InPerson-3).
+        if (message != null && message.isNotEmpty && _receive) ...[
+          const SizedBox(height: 18),
+          KitGroup(margin: EdgeInsets.zero, children: [KitKvRow(label: l.phoneAcceptNote, value: message)]),
+        ] else if (message != null && message.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
             message,

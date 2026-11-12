@@ -626,7 +626,8 @@ Future<void> scanSlateQr(
 }) async {
   final notice = ref.read(noticeProvider.notifier);
   final l = context.l10n;
-  final result = await scanQrSlate(context, QrScanKind.payment, first: first);
+  // A payment read opens over the scanner (InPerson-3); the scanner closes once it is taken.
+  final result = await scanQrSlate(context, QrScanKind.payment, first: first, open: openScannedPayment);
   if (!context.mounted) return;
   switch (result) {
     case QrScanned(:final json):

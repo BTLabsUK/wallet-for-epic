@@ -38,6 +38,23 @@ void _fInSlate(_Tour t) {
   t.session.responseSlate = const Slate(slateId: 'frame-in', json: '{"id":"frame-in","step":"response"}');
 }
 
+/// Receive in person: the receiver's scanner reads the payment of [_fInSlate], which opens as
+/// the sheet over it (InPerson-3).
+Future<void> _fInScanned(_Tour t) async {
+  _fInSlate(t);
+  final parts = await t.service.encodeQrSlate(json: _fInJson, maxFragmentLen: qrFragmentLen);
+  await t.push(const QrScanScreen(kind: QrScanKind.payment, open: openScannedPayment));
+  for (final text in parts) {
+    t.camera.emit(text);
+    await t.tester.pump();
+    await t.tester.pump();
+  }
+  // The tick, then the sheet rising.
+  await t.elapse(qrCompleteFor.inMilliseconds + 100);
+  await t.elapse(400);
+  await t.frames();
+}
+
 /// Pay in person: Send, the amount, the code made.
 Future<void> _fPayMake(_Tour t) async {
   await _directWaysOn(t);
@@ -117,13 +134,11 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await t.shot('fr-InPerson-2-Scan');
   }),
   ('fr-InPerson-3-Accept', _Start.home, (t) async {
-    _fInSlate(t);
-    await t.push(const SlateFileScreen(file: SlateFile(name: scannedSlateName, json: _fInJson), pasted: true, scanned: true));
+    await _fInScanned(t);
     await t.shot('fr-InPerson-3-Accept');
   }),
   ('fr-InPerson-4-Answer', _Start.home, (t) async {
-    _fInSlate(t);
-    await t.push(const SlateFileScreen(file: SlateFile(name: scannedSlateName, json: _fInJson), pasted: true, scanned: true));
+    await _fInScanned(t);
     await t.tapText(t.l.phoneAcceptAccept);
     await t.tap(find.byKey(showReplyQrKey));
     await t.tap(find.byKey(qrShowButtonKey));

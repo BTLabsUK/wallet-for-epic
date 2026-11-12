@@ -618,6 +618,51 @@ void main() {
       expect(find.text(_l.slateSaveToDevice), findsOneWidget);
     });
 
+    testWidgets('Receive: Not now on the sheet goes back to the scanner, which reads again', (
+      tester,
+    ) async {
+      final h = _Harness();
+      final json = _paymentJson;
+      h.service.slateInfos[json] = SlateInfo(
+        slateId: 'slate-1',
+        amount: _epic(1),
+        fee: BigInt.from(8000000),
+        stage: SlateStage.send,
+      );
+      await h.pump(tester, const ReceiveView());
+      await _openInPerson(tester);
+      await tester.tap(find.byKey(receiveScanQrKey));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await h.scan(tester, await h.parts(json));
+      await tester.pump(qrCompleteFor);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+
+      await tester.tap(find.text(_l.phoneAcceptNotNow));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsNothing);
+      expect(find.byType(QrScanScreen), findsOneWidget);
+      expect(h.session.receivedSlates, isEmpty);
+
+      // The same code still in view is not opened again at once; after the pause it is.
+      await h.scan(tester, await h.parts(json));
+      await tester.pump(qrCompleteFor);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsNothing);
+      await tester.pump(qrDeclinedFor);
+      await h.scan(tester, await h.parts(json));
+      await tester.pump(qrCompleteFor);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+
+      // Back on the sheet is Not now too.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsNothing);
+      expect(find.byType(QrScanScreen), findsOneWidget);
+    });
+
     testWidgets('Receive: scan, accept, show the reply, follow the payment', (
       tester,
     ) async {
@@ -646,8 +691,8 @@ void main() {
         find.text(_l.phoneAcceptHintQr),
         findsOneWidget,
       );
-      // Titled for the method, with no word of files.
-      expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
+      // A sheet over the scanner, with no word of files.
+      expect(find.byType(QrScanScreen), findsOneWidget);
       expect(find.text(_l.slateFileTitle), findsNothing);
       await tester.tap(find.text(_l.phoneAcceptAccept));
       await tester.pumpAndSettle();
@@ -655,6 +700,9 @@ void main() {
         find.text(_l.slateAcceptedHeadlineQr),
         findsOneWidget,
       );
+      // Accepted: the scanner under it is gone, the page titled for the method.
+      expect(find.byType(QrScanScreen), findsNothing);
+      expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
       expect(find.byKey(showReplyQrKey), findsOneWidget);
       // The home notice stays quiet while this screen is open.
       expect(qrPaymentScreensOpen, 1);

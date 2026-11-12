@@ -20,9 +20,11 @@ import '../settings.dart';
 import '../trust_ids.dart';
 import '../wallet_service.dart' show FakeWalletSession;
 import 'common.dart';
+import 'kit/kit_ground.dart' show KitGround;
 import 'kit/kit_button.dart';
 import 'kit/kit_empty_state.dart';
 import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_step_strip.dart';
 import 'kit/kit_tokens.dart';
@@ -47,6 +49,11 @@ final class QrScanned extends QrScanResult {
 /// What the sender's scan does with the reply once it is read: finishes and posts the payment.
 /// True when it was posted; a false answer closes the screen so the caller can say why.
 typedef QrFinish = Future<bool> Function(String json);
+
+/// What the receiver's scan does with a payment once it is read, with the scanner still open
+/// under it (InPerson-3: the payment's sheet over the scanner). True to read again ("Not now"),
+/// false when the scanner is done; a scanner taken off the stack meanwhile just closes.
+typedef QrOpen = Future<bool> Function(BuildContext scanner, String json);
 
 /// The user chose a file instead of the camera.
 final class QrScanOpenFile extends QrScanResult {
@@ -79,6 +86,10 @@ const Duration qrCompleteFor = Duration(milliseconds: 350);
 
 const Duration _notSlateCooldown = Duration(seconds: 2);
 
+/// How long a payment put aside with "Not now" is not opened again, while it is likely still
+/// in front of the camera.
+const Duration qrDeclinedFor = Duration(seconds: 4);
+
 /// How long the first start waits before trying a camera that failed once more.
 const Duration qrCameraRetryAfter = Duration(milliseconds: 900);
 
@@ -92,11 +103,12 @@ Future<QrScanResult?> scanQrSlate(
   BuildContext context,
   QrScanKind kind, {
   QrFinish? finish,
+  QrOpen? open,
   String? first,
   BigInt? amount,
 }) => Navigator.of(context).push<QrScanResult>(
   MaterialPageRoute<QrScanResult>(
-    builder: (_) => QrScanScreen(kind: kind, finish: finish, first: first, amount: amount),
+    builder: (_) => QrScanScreen(kind: kind, finish: finish, open: open, first: first, amount: amount),
   ),
 );
 
@@ -105,6 +117,7 @@ class QrScanScreen extends ConsumerStatefulWidget {
     super.key,
     required this.kind,
     this.finish,
+    this.open,
     this.first,
     this.amount,
   });
@@ -119,6 +132,10 @@ class QrScanScreen extends ConsumerStatefulWidget {
 
   /// What to do with the finished reply; null hands the text back as it is.
   final QrFinish? finish;
+
+  /// What to do with a read payment while the scanner stays open under it; null hands the text
+  /// back as it is.
+  final QrOpen? open;
 
   /// A part read before this screen opened, fed first.
   final String? first;
@@ -162,6 +179,10 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
   Timer? _coolTimer;
   Timer? _speakTimer;
   Timer? _doneTimer;
+  Timer? _declinedTimer;
+
+  /// The payment put aside with "Not now", not opened again for [qrDeclinedFor].
+  String? _declined;
 
   @override
   void initState() {
@@ -194,6 +215,7 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       _coolTimer,
       _speakTimer,
       _doneTimer,
+      _declinedTimer,
     ]) {
       timer?.cancel();
     }
@@ -241,6 +263,11 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       case QrReadKind.part:
         _part(read.received, read.count);
       case QrReadKind.complete:
+        if (read.json != null && read.json == _declined) {
+          // Still in view after "Not now": read it afresh once the pause is over.
+          _reader.reset();
+          return;
+        }
         _finish(read);
     }
   }
@@ -330,6 +357,11 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     });
     final json = read.json!;
     final finish = widget.finish;
+    final open = widget.open;
+    if (finish == null && open != null) {
+      _doneTimer = Timer(qrCompleteFor, () => _open(json, open));
+      return;
+    }
     if (finish == null) {
       _doneTimer = Timer(qrCompleteFor, () {
         if (mounted) Navigator.of(context).pop(QrScanned(json));
@@ -337,6 +369,42 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       return;
     }
     _doneTimer = Timer(qrCompleteFor, () => _post(json, finish));
+  }
+
+  /// Opens the read payment over this screen; "Not now" comes back here and the camera reads
+  /// again, anything else closes the scanner.
+  Future<void> _open(String json, QrOpen open) async {
+    if (!mounted) return;
+    final again = await open(context, json);
+    if (!mounted) return;
+    if (again) {
+      _resume(json);
+      return;
+    }
+    final route = ModalRoute.of(context);
+    if (route == null) return;
+    if (route.isCurrent) {
+      Navigator.of(context).pop();
+    } else if (route.isActive) {
+      Navigator.of(context).removeRoute(route);
+    }
+  }
+
+  /// Back to reading after [declined] was put aside.
+  void _resume(String declined) {
+    _reader.reset();
+    _declined = declined;
+    _declinedTimer?.cancel();
+    _declinedTimer = Timer(qrDeclinedFor, () => _declined = null);
+    setState(() {
+      _complete = false;
+      _received = 0;
+      _count = 0;
+      _spoken = 0;
+      _steady = false;
+      _notice = _Notice.none;
+      _warnCorners = false;
+    });
   }
 
   /// Runs the caller's finish step on the reply, telling how it goes.
@@ -383,7 +451,7 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
         }
         // The camera view is dark in either theme, so it takes the whole dark theme: the title,
         // icons and tips then read on the feed (a light theme's title was dark on black).
-        return Theme(data: _scannerTheme, child: _view(context, state));
+        return Theme(data: _scannerTheme, child: KitGround(child: _view(context, state)));
       },
     );
   }
@@ -441,7 +509,6 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
 
     final footBottom = (34 - MediaQuery.viewPaddingOf(context).bottom).clamp(0, 34).toDouble();
     return Scaffold(
-      backgroundColor: dark.bg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -451,6 +518,9 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
               back: reply,
               onLeading: () => Navigator.of(context).maybePop(),
               leadingId: TrustIds.qrscanBack,
+              // The frames' "?" at the right: what this scan is waiting for, and the steady hint.
+              onHelp: () => showKitHelp(context, title: reply ? l.phoneQrHelpTitle : title, lines: [dockText, l.qrScanSteady]),
+              helpId: TrustIds.qrscanHelp,
             ),
             if (steps != null) KitStepStrip(labels: steps, current: reply ? 1 : 0),
             // The camera card is as tall as the frame draws it (420) and shorter on a small
