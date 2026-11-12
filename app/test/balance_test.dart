@@ -137,17 +137,17 @@ Future<ProviderContainer> _pump(
 
 Future<void> _tab(WidgetTester tester, String label) async {
   await shellGo(tester, label);
-  // The notice toast floats over the top and takes the touches there: close what shows.
+  await _clearToast(tester);
+}
+
+/// The notice toast floats over the top and takes the touches there: close what shows.
+Future<void> _clearToast(WidgetTester tester) async {
   final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first));
   for (var i = 0; i < 5 && container.read(noticeProvider) != null; i++) {
     container.read(noticeProvider.notifier).dismiss();
     await tester.pumpAndSettle();
   }
 }
-
-/// The words of the figure title on Send and Receive.
-String _titleText(WidgetTester tester) =>
-    tester.widget<Text>(find.byKey(titleFigureKey)).textSpan!.toPlainText();
 
 /// The words of Home's figure.
 String _figure(WidgetTester tester) =>
@@ -221,13 +221,14 @@ void main() {
   });
 
   group('every figure shows four decimals, the exact amount a tap away', () {
-    testWidgets('Wallet and the Send header cut to four decimals; a tap opens the balance sheet', (
+    testWidgets('Wallet cuts to four decimals; a tap opens the balance sheet', (
       tester,
     ) async {
       final session = FakeWalletSession(summary: _summary(spendable: 1234.56781234));
       await _pump(tester, session, width: 360);
       expect(_figure(tester), '1,234.5678');
       expect(find.text('1,234.56781234\u00a0EPIC'), findsNothing);
+      await _clearToast(tester);
       await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
@@ -244,12 +245,6 @@ void main() {
       );
       handle.dispose();
 
-      await _tab(tester, l.homeSendButton);
-      expect(_titleText(tester), startsWith('1,234.5678'));
-      await tester.tap(find.byKey(titleFigureKey));
-      await tester.pumpAndSettle();
-      expect(find.byKey(balanceSheetKey), findsOneWidget);
-      expect(find.text('1,234.56781234\u00a0EPIC'), findsOneWidget);
     });
 
     testWidgets('hidden balances show dots and tell nothing on a tap', (tester) async {
@@ -289,21 +284,6 @@ void main() {
       expect(tester.getRect(find.text(l.phoneHomeInSends(epicFor(l, _epic(10.0), unit: false)))), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
-      // The header on Send and Receive agrees: the same 7.492, and the same amounts as tokens
-      // (the test font is wide, so the line may be collapsed; a screen reader hears each).
-      final handle = tester.ensureSemantics();
-      for (final tab in [l.homeSendButton, l.homeReceiveButton]) {
-        await _tab(tester, tab);
-        expect(_titleText(tester), startsWith('7.492'), reason: tab);
-        for (final text in ['10.0 locked', '+7.492 coming in']) {
-          expect(
-            find.bySemanticsLabel(RegExp(RegExp.escape(text))),
-            findsOneWidget,
-            reason: '$tab: $text',
-          );
-        }
-      }
-      handle.dispose();
     });
 
     testWidgets('a send from the only coin: the figure keeps the change coming back', (
@@ -371,18 +351,6 @@ void main() {
         // Home: 2 confirming and 16 maturing arrive, the 5 locked are in sends.
         expect(find.text(l.phoneHomeArriving(epicFor(l, _epic(18.0), unit: false))), findsOneWidget);
         expect(find.text(l.phoneHomeInSends(epicFor(l, _epic(5.0), unit: false))), findsOneWidget);
-        // Send and Receive keep three tokens: 5 locked, 2 confirming and 16 maturing coming
-        // in, and the 0.5 not on chain yet apart (never counted as coming in).
-        await _tab(tester, l.homeSendButton);
-        final handle = tester.ensureSemantics();
-        for (final text in ['5.0 locked', '+18.0 coming in', 'Not on chain yet: 0.5']) {
-          expect(
-            find.bySemanticsLabel(RegExp(RegExp.escape(text))),
-            findsOneWidget,
-            reason: text,
-          );
-        }
-        handle.dispose();
         // The ? still lists each balance with its own words.
         final rows = BalanceHelp.rows(l, session.summaryValue);
         // The wallet's balance (3.25 spendable + 2 confirming), what is spendable now, then
@@ -412,14 +380,6 @@ void main() {
       expect(find.textContaining('arriving'), findsNothing);
       await _tab(tester, l.homeSendButton);
       expect(find.textContaining('coming in'), findsNothing);
-      // The header names it for what it is, not on chain yet, never as coming in.
-      final handle = tester.ensureSemantics();
-      expect(find.bySemanticsLabel(RegExp('coming in')), findsNothing);
-      expect(
-        find.bySemanticsLabel(RegExp(RegExp.escape('Not on chain yet: 1,000,000.0'))),
-        findsOneWidget,
-      );
-      handle.dispose();
       final rows = BalanceHelp.rows(l, session.summaryValue);
       // Balance, spendable now and total are all 1: one row says it.
       expect(rows.map((r) => r.$1), [

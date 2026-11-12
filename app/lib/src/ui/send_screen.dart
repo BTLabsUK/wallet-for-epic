@@ -3668,6 +3668,7 @@ class _SendViewState extends ConsumerState<SendView> {
             fiat: fiat,
             dimFraction: _maxUsed && !gate.notEnough,
             point: _point(l),
+            swapReachBelow: Kit.hitTarget - 14 - 18,
             onSwap: price != null || _fiatEntry ? _toggleUnit : null,
             swapId: file ? null : TrustIds.sendSwap,
             semanticsId: file ? null : TrustIds.sendAmount,
@@ -3697,8 +3698,8 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ],
       ),
-      // `.avail`, 24 under the fiat line (its target takes 8 of it).
-      const SizedBox(height: 16),
+      // `.avail`, 24 under the fiat line (the swap target takes 16 of it, the bar's slot 1).
+      SizedBox(height: fiat != null ? 7 : 15),
       if (summary != null)
         KitAvailableBar(
           available: epicFor(l, summary.spendable, unit: false),

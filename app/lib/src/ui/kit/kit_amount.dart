@@ -26,6 +26,7 @@ class KitAmountDisplay extends StatelessWidget {
     this.semanticsId,
     this.dimFraction = false,
     this.point = '.',
+    this.swapReachBelow = 8,
   });
 
   final String amount;
@@ -41,6 +42,10 @@ class KitAmountDisplay extends StatelessWidget {
 
   /// The decimal separator the figure is typed with.
   final String point;
+
+  /// How far the swap target reaches under the fiat line: the page takes it from the gap below
+  /// (16 gives the 48 of a touch).
+  final double swapReachBelow;
 
   /// [text] with its whole part (before [point]) grouped in threes, as the frames show 1,300.
   static String _grouped(String text, String point) {
@@ -110,9 +115,7 @@ class KitAmountDisplay extends StatelessWidget {
           ),
         ),
         if (fiat != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: kitId(
+          kitId(
               swapId,
               Tooltip(
                 message: context.l10n.phoneKitSwapCurrency,
@@ -125,10 +128,10 @@ class KitAmountDisplay extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: onSwap,
-                  // `.lbl` at 15: the figure and the chevrons, 6 apart. The target is 8 above and
-                  // below the line (taken from the gap over it).
+                  // `.lbl` at 15: the figure and the chevrons, 6 apart. The target is 14 above the
+                  // line (the 6 gap over it and the frame's 8) and [swapReachBelow] under it.
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Kit.gutter, vertical: 8),
+                    padding: EdgeInsets.fromLTRB(Kit.gutter, 14, Kit.gutter, swapReachBelow),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -147,7 +150,6 @@ class KitAmountDisplay extends StatelessWidget {
               ),
             ),
             ),
-          ),
       ],
     );
   }
@@ -167,6 +169,9 @@ class KitAvailableBar extends StatelessWidget {
   final String? maxId;
   final EdgeInsetsGeometry margin;
 
+  /// The bar is drawn 46 high in a 48 slot: 1 above and below.
+  static const double _inset = (Kit.hitTarget - Kit.availableBar) / 2;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -174,74 +179,91 @@ class KitAvailableBar extends StatelessWidget {
     return Padding(
       padding: margin,
       child: Center(
-        child: Container(
-          height: Kit.availableBar,
-          padding: const EdgeInsetsDirectional.only(start: 16, end: 6),
-          decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rPill)),
-          // The outline is drawn over the bar, so it takes no room from Max's target.
-          foregroundDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Kit.rPill),
-            border: Border.all(color: over ? t.risk.withValues(alpha: 0.45) : t.hair),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Semantics(
-                  container: true,
-                  label: '${l.phoneKitAvailable} $available',
-                  excludeSemantics: true,
-                  // Larger text shrinks the pair to fit beside Max rather than overflowing.
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(l.phoneKitAvailable, style: KitType.body.copyWith(color: over ? t.risk : t.dim, fontSize: 14)),
-                        const SizedBox(width: 10),
-                        Text(available, style: KitType.rowAmount.copyWith(color: over ? t.risk : t.text), maxLines: 1),
-                      ],
-                    ),
+        // The bar is drawn 46 high inside a 48 slot, so Max's target is the 48 of a touch.
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              top: _inset,
+              bottom: _inset,
+              child: DecoratedBox(decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rPill))),
+            ),
+            // The outline is drawn over the bar, so it takes no room from Max's target.
+            Positioned.fill(
+              top: _inset,
+              bottom: _inset,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Kit.rPill),
+                    border: Border.all(color: over ? t.risk.withValues(alpha: 0.45) : t.hair),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              kitId(
-                maxId,
-                Semantics(
-                  container: true,
-                  button: true,
-                  toggled: maxOn,
-                  label: l.sendMax,
-                  excludeSemantics: true,
-                  onTap: onMax,
-                  // The touch target is the bar's whole height; the pill is drawn inside.
-                  child: SizedBox(
-                    height: Kit.availableBar,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 16, end: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Semantics(
+                      container: true,
+                      label: '${l.phoneKitAvailable} $available',
+                      excludeSemantics: true,
+                      // Larger text shrinks the pair to fit beside Max rather than overflowing.
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(l.phoneKitAvailable, style: KitType.body.copyWith(color: over ? t.risk : t.dim, fontSize: 14)),
+                            const SizedBox(width: 10),
+                            Text(available, style: KitType.rowAmount.copyWith(color: over ? t.risk : t.text), maxLines: 1),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  kitId(
+                    maxId,
+                    Semantics(
+                      container: true,
+                      button: true,
+                      toggled: maxOn,
+                      label: l.sendMax,
+                      excludeSemantics: true,
                       onTap: onMax,
-                      child: Center(
-                        widthFactor: 1,
-                        child: Material(
-                          color: maxOn ? t.accent : Colors.transparent,
-                          shape: StadiumBorder(side: BorderSide(color: maxOn ? t.accent : t.goldLine)),
-                          child: InkWell(
-                            customBorder: const StadiumBorder(),
-                            onTap: onMax,
-                            child: SizedBox(
-                              height: Kit.maxPill,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 15),
-                                child: Center(
-                                  widthFactor: 1,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (maxOn) ...[Icon(KitIcons.check, size: 14, color: t.accentInk), const SizedBox(width: 5)],
-                                      Text(l.sendMax, style: KitType.buttonSmall.copyWith(color: maxOn ? t.accentInk : t.accentText)),
-                                    ],
+                      // The touch target is the bar's whole height; the pill is drawn inside.
+                      child: SizedBox(
+                        height: Kit.hitTarget,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onMax,
+                          child: Center(
+                            widthFactor: 1,
+                            child: Material(
+                              color: maxOn ? t.accent : Colors.transparent,
+                              shape: StadiumBorder(side: BorderSide(color: maxOn ? t.accent : t.goldLine)),
+                              child: InkWell(
+                                customBorder: const StadiumBorder(),
+                                onTap: onMax,
+                                child: SizedBox(
+                                  height: Kit.maxPill,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                                    child: Center(
+                                      widthFactor: 1,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (maxOn) ...[Icon(KitIcons.check, size: 14, color: t.accentInk), const SizedBox(width: 5)],
+                                          Text(l.sendMax, style: KitType.buttonSmall.copyWith(color: maxOn ? t.accentInk : t.accentText)),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -251,10 +273,10 @@ class KitAvailableBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
