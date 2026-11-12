@@ -198,8 +198,7 @@ class PhoneTxRow extends ConsumerWidget {
             const SizedBox(width: 3),
             Flexible(child: Text(l.phoneActSealed, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
           ] else if (detail != null && detail.isNotEmpty) ...[
-            Text(' · ', style: mono.copyWith(color: t.dim)),
-            Flexible(child: Text(detail, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
+            Flexible(child: Text(' · $detail', maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
           ],
         ],
       );
