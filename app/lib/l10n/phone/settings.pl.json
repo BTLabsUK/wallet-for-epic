@@ -72,5 +72,11 @@
   "phoneSettingsHelpLine": "Poradniki, wycieczka, zgłoś problem",
   "phoneSettingsMadeBy": "Autor",
   "phoneSettingsProtocol": "Protokół",
-  "phoneSettingsEngine": "Silnik"
+  "phoneSettingsEngine": "Silnik",
+  "phoneSettingsAboutRow": "O BT Wallet",
+  "phoneSettingsHelpHelp1": "Poradniki wyjaśniają, jak działa portfel. Wyszukiwanie przeszukuje je wszystkie.",
+  "phoneSettingsHelpHelp2": "Poradniki można pokazać w innym języku niż aplikacja. Wybierz go flagą pod wyszukiwaniem.",
+  "phoneSettingsDevicesEmpty": "Brak połączonych urządzeń",
+  "phoneSettingsDevicesEmptyLine": "Odtwórz ten portfel na drugim urządzeniu, a potem połącz oba tutaj. Płatności z jednego pojawią się wtedy na drugim.",
+  "phoneSettingsLinkDevice": "Połącz urządzenie"
 }

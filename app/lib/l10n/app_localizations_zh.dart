@@ -21082,4 +21082,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSettingsEngine => '引擎';
+
+  @override
+  String get phoneSettingsAboutRow => '关于 BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 => '指南说明钱包如何运作。搜索会查找所有指南。';
+
+  @override
+  String get phoneSettingsHelpHelp2 => '指南可以用与应用不同的语言显示。点搜索框下方的旗帜选择。';
+
+  @override
+  String get phoneSettingsDevicesEmpty => '没有已关联的设备';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      '在你的另一台设备上恢复此钱包，然后在此关联两台设备。在其中一台上的付款会显示在另一台上。';
+
+  @override
+  String get phoneSettingsLinkDevice => '关联设备';
 }

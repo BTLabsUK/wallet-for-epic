@@ -13,24 +13,32 @@ import '../help/help_content.dart';
 import '../help/help_i18n.dart';
 import '../l10n.dart';
 import '../levels/level_features.dart';
-import '../levels/level_providers.dart';
 import '../phone_tor.dart';
 import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../tor_build.dart';
+import '../trust_ids.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
 import 'devices/linked_devices_screen.dart' show LinkedDevicesScreen;
 import 'devices/sync_help_phone.dart';
 import 'handshake.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_search_field.dart';
+import 'kit/kit_support.dart';
+import 'kit/kit_tokens.dart';
 import 'help/network_modes_diagram.dart';
 import 'help_language_switch.dart';
-import 'info_hint.dart';
 import 'contacts_screen.dart';
 import 'history_screen.dart';
 import 'invoices_screen.dart';
 import 'outputs_screen.dart';
+import 'phone_frame.dart' show phoneFrameBreakpoint;
 import 'settings_screen.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
@@ -116,8 +124,8 @@ bool helpMatches(HelpTopic topic, List<String> words) {
 
 /// Opens Help: the index, or [topic]'s page straight away ([HelpId]), scrolled to [anchor]
 /// ([HelpAnchor]) when the topic has that heading.
-Future<void> openHelp(BuildContext context, [String? topic, String? anchor]) => Navigator.of(context).push<void>(
-  MaterialPageRoute<void>(builder: (_) => HelpScreen(topic: topic, anchor: anchor)),
+Future<void> openHelp(BuildContext context, [String? topic, String? anchor, String? backLabel]) => Navigator.of(context).push<void>(
+  MaterialPageRoute<void>(builder: (_) => HelpScreen(topic: topic, anchor: anchor, backLabel: backLabel)),
 );
 
 /// A small help button for a screen's app bar or a label's row: opens [topic]'s page.
@@ -141,16 +149,19 @@ class HelpButton extends StatelessWidget {
   }
 }
 
-/// Help: the search field over the sections and their topics. With [topic], that topic's page
-/// opens over the index at once, so Back lands on the index.
+/// Help: the search field over the sections. A section opens a page of its topics; a search
+/// lists the matching topics at once. With [topic], that topic's page opens over the index at
+/// once, so Back lands on the index. [backLabel] names where Back goes (the hub's name when
+/// Help is opened from it).
 class HelpScreen extends ConsumerStatefulWidget {
-  const HelpScreen({super.key, this.topic, this.anchor});
+  const HelpScreen({super.key, this.topic, this.anchor, this.backLabel});
 
   /// The topic to open on arrival, by [HelpTopic.id].
   final String? topic;
 
   /// The heading of that topic to scroll to ([HelpBlock.anchor]).
   final String? anchor;
+  final String? backLabel;
 
   @override
   ConsumerState<HelpScreen> createState() => _HelpScreenState();
@@ -179,11 +190,22 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     );
   }
 
+  void _openSection(HelpSection section, List<HelpTopic> all, String lang) {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => _HelpSectionScreen(
+          section: section,
+          topics: [for (final t in all) if (t.section == section.id) t],
+          open: (topic) => _openTopic(topic, all, lang),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final text = Theme.of(context).textTheme;
     final lang = phoneHelpLanguage(ref, context);
     final topics = phoneHelpTopics(context, ref, lang);
     final sections = _sectionsFor(topics, lang);
@@ -202,85 +224,206 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final hits = searching ? [for (final x in topics) if (helpMatches(x, words)) x] : topics;
     // Nobody has written the help in this language yet: it shows in English.
     final english = !helpTranslated(lang);
+    final tipsHidden = ref.watch(tipsHiddenProvider);
+    final version = ref.watch(appVersionProvider);
 
-    Widget row(HelpTopic topic, {bool section = false}) => _TopicRow(
-      topic: topic,
-      words: words,
-      overline: section ? sections.firstWhere((s) => s.id == topic.section).title : null,
-      onTap: () => _openTopic(topic, topics, lang),
-    );
+    final List<Widget> body = searching
+        ? [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, Kit.gutter, Kit.gutter, Kit.gutter / 2),
+              child: Text(
+                hits.isEmpty ? l.helpNoMatch(_query.text.trim()) : l.helpMatchCount(hits.length),
+                style: KitType.rowSub.copyWith(color: t.dim),
+              ),
+            ),
+            if (hits.isNotEmpty)
+              KitGroup(
+                children: [
+                  for (final x in hits)
+                    _topicRow(
+                      context,
+                      x,
+                      words: words,
+                      overline: sections.firstWhere((s) => s.id == x.section).title,
+                      onTap: () => _openTopic(x, topics, lang),
+                    ),
+                ],
+              ),
+          ]
+        : [
+            KitGroup(
+              children: [
+                for (final s in sections)
+                  KitRow(
+                    size: KitRowSize.list,
+                    leading: KitIconWell(_sectionIcon(s.id), color: t.accent),
+                    title: s.title,
+                    chevron: true,
+                    semanticsId: TrustIds.helpSection,
+                    onTap: () => _openSection(s, topics, lang),
+                  ),
+              ],
+            ),
+            const SizedBox(height: Kit.groupGap),
+            KitGroup(
+              children: [
+                PhoneTourTarget(
+                  id: 'tour-help-feedback',
+                  child: KitRow(
+                    key: helpFeedbackKey,
+                    size: KitRowSize.list,
+                    leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accent),
+                    title: l.settingsSendFeedback,
+                    chevron: true,
+                    semanticsId: TrustIds.helpReport,
+                    onTap: () => openFeedback(context),
+                  ),
+                ),
+                KitRow(
+                  key: helpShowTourKey,
+                  size: KitRowSize.list,
+                  leading: KitIconWell(Icons.play_circle_outline_rounded, color: t.accent),
+                  title: l.tourPhoneShowAgain,
+                  chevron: true,
+                  semanticsId: TrustIds.helpTour,
+                  onTap: () => startPhoneTour(ref),
+                ),
+                if (tipsHidden)
+                  KitRow(
+                    key: helpShowTipsKey,
+                    size: KitRowSize.list,
+                    leading: KitIconWell(Icons.lightbulb_outline_rounded, color: t.accent),
+                    title: l.settingsShowTipsAgain,
+                    semanticsId: TrustIds.helpTips,
+                    onTap: () async {
+                      await ref.read(appSettingsProvider.notifier).showTipsAgain();
+                      ref.read(noticeProvider.notifier).show(l.settingsShowTipsAgainDone, level: NoticeLevel.success);
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: Kit.groupGap),
+            KitGroup(
+              children: [
+                KitRow(
+                  size: KitRowSize.list,
+                  title: l.phoneSettingsAboutRow,
+                  value: version.hasValue ? version.value : null,
+                  chevron: true,
+                  semanticsId: TrustIds.helpAbout,
+                  onTap: () => openSettingsSection(context, SettingsSection.about, backLabel: l.helpTitle),
+                ),
+              ],
+            ),
+          ];
 
     return SlotScaffold(
-      appBar: AppBar(
-        title: Text(l.helpTitle),
-        actions: [
-          HelpLanguageSwitch(current: lang),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
+            constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Send feedback first, above the topics and the search: the one thing a
-                // stuck user needs most, one tap from Settings.
-                const PhoneTourTarget(id: 'tour-help-feedback', child: _FeedbackRow()),
+                KitPageHeader(
+                  backLabel: widget.backLabel ?? l.phoneKitBack,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  title: l.helpTitle,
+                  onHelp: () => showKitHelp(
+                    context,
+                    title: l.helpTitle,
+                    lines: [l.phoneSettingsHelpHelp1, l.phoneSettingsHelpHelp2],
+                    sheetId: TrustIds.settingsHelpSheet,
+                  ),
+                  helpId: TrustIds.helpHelp,
+                  backId: TrustIds.helpBack,
+                ),
                 PhoneTourTarget(
                   id: 'tour-help-search',
-                  child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                  child: TextField(
+                  child: KitSearchField(
                     key: helpSearchKey,
                     controller: _query,
+                    hint: l.helpSearchHint,
                     onChanged: (_) => setState(() {}),
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: l.helpSearchHint,
-                      isDense: true,
-                      constraints: const BoxConstraints(minHeight: 44),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _query.text.isEmpty
-                          ? null
-                          : IconButton(
-                              tooltip: l.commonClose,
-                              icon: const Icon(Icons.close),
-                              onPressed: () => setState(_query.clear),
-                            ),
-                    ),
+                    semanticsId: TrustIds.helpSearch,
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 4, Kit.gutter / 2, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: english
+                            ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim))
+                            : const SizedBox.shrink(),
+                      ),
+                      kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+                    padding: const EdgeInsets.only(bottom: Kit.gutter * 2),
+                    children: body,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The icon of a Help section on the index.
+IconData _sectionIcon(String id) => switch (id) {
+  'start' => Icons.flag_outlined,
+  'how' => Icons.swap_horiz_rounded,
+  'network' => KitIcons.network,
+  'safety' => KitIcons.security,
+  'maintenance' => Icons.build_outlined,
+  'trouble' => Icons.error_outline_rounded,
+  _ => KitIcons.devices,
+};
+
+/// One section: its lede under the title and its topics as rows.
+class _HelpSectionScreen extends StatelessWidget {
+  const _HelpSectionScreen({required this.section, required this.topics, required this.open});
+
+  final HelpSection section;
+  final List<HelpTopic> topics;
+  final void Function(HelpTopic topic) open;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return SlotScaffold(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KitPageHeader(
+                  backLabel: l.helpTitle,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  title: section.title,
+                  backId: TrustIds.helpBack,
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: Kit.gutter * 2),
                     children: [
-                      if (english)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(l.helpEnglishOnly, style: text.bodySmall?.copyWith(color: t.dim)),
-                        ),
-                      if (searching) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            hits.isEmpty ? l.helpNoMatch(_query.text.trim()) : l.helpMatchCount(hits.length),
-                            style: text.bodyMedium?.copyWith(color: t.dim),
-                          ),
-                        ),
-                        for (final x in hits) row(x, section: true),
-                      ] else
-                        for (final s in sections) ...[
-                          _SectionHead(section: s),
-                          for (final x in topics.where((x) => x.section == s.id)) row(x),
-                          // Room between the topic groups (item 4: Help was crowded).
-                          const SizedBox(height: 24),
-                        ],
-                      if (!searching) const _ShowTipsAgain(),
-                      if (!searching) const _ShowTourAgain(),
-                      const _StillStuck(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter),
+                        child: Text(section.lede, style: KitType.body.copyWith(color: t.dim)),
+                      ),
+                      KitGroup(children: [for (final x in topics) _topicRow(context, x, onTap: () => open(x))]),
+                      const SizedBox(height: Kit.groupGap),
+                      const _ReportRow(),
                     ],
                   ),
                 ),
@@ -293,159 +436,33 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
   }
 }
 
+/// One topic as a row: its title, its one-line answer under it (the search's words marked), a
+/// chevron. [overline] names the section a search hit belongs to.
+Widget _topicRow(BuildContext context, HelpTopic topic, {List<String> words = const [], String? overline, required VoidCallback onTap}) {
+  final t = context.tokens;
+  return KitRow(
+    size: KitRowSize.list,
+    title: topic.title,
+    subtitleWidget: Text.rich(
+      markedSpan(topic.short, words, KitType.rowSub.copyWith(color: t.dim), t),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    ),
+    subtitleLines: 2,
+    chevron: true,
+    semanticsId: TrustIds.helpTopic,
+    onTap: onTap,
+  );
+}
+
 /// The key of the Send feedback row at the top of Help, for tests.
 const Key helpFeedbackKey = ValueKey('help-feedback');
 
 /// The key of the Show tips again row, for tests.
 const Key helpShowTipsKey = ValueKey('help-show-tips');
 
-/// Send feedback at the top of Help: a row with the explanation behind its info icon and a
-/// hairline under it.
-class _FeedbackRow extends ConsumerWidget {
-  const _FeedbackRow();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    return Container(
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t.line))),
-      child: ListTile(
-        key: helpFeedbackKey,
-        leading: Icon(Icons.feedback_outlined, color: t.accentText),
-        title: TitleWithHint(
-          l.settingsSendFeedback,
-          hint: l.settingsSendFeedbackHint,
-          icon: Icons.feedback_outlined,
-        ),
-        trailing: const NavChevron(),
-        onTap: () => openFeedback(context),
-      ),
-    );
-  }
-}
-
 /// The key of the Show the tour again row, for tests.
 const Key helpShowTourKey = ValueKey('help-show-tour');
-
-/// Show the tour again: opens the first-unlock tour from its first step.
-class _ShowTourAgain extends ConsumerWidget {
-  const _ShowTourAgain();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => ListTile(
-    key: helpShowTourKey,
-    contentPadding: EdgeInsets.zero,
-    leading: const Icon(Icons.tour_outlined),
-    title: Text(context.l10n.tourPhoneShowAgain),
-    onTap: () => startPhoneTour(ref),
-  );
-}
-
-/// Show tips again: brings back every inline guide closed with its X. Off while none is
-/// hidden.
-class _ShowTipsAgain extends ConsumerWidget {
-  const _ShowTipsAgain();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final hidden = ref.watch(tipsHiddenProvider);
-    return ListTile(
-      key: helpShowTipsKey,
-      contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.lightbulb_outline),
-      title: Text(l.settingsShowTipsAgain),
-      enabled: hidden,
-      onTap: hidden
-          ? () async {
-              await ref.read(appSettingsProvider.notifier).showTipsAgain();
-              ref.read(noticeProvider.notifier).show(l.settingsShowTipsAgainDone, level: NoticeLevel.success);
-            }
-          : null,
-    );
-  }
-}
-
-class _SectionHead extends StatelessWidget {
-  const _SectionHead({required this.section});
-
-  final HelpSection section;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final text = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
-      child: Semantics(
-        header: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(section.title, style: text.titleMedium),
-            const SizedBox(height: 4),
-            Text(section.lede, style: text.bodySmall?.copyWith(color: t.dim)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// One topic in the index: title, its one-line answer, a chevron; the search's words marked.
-class _TopicRow extends StatelessWidget {
-  const _TopicRow({required this.topic, required this.words, required this.onTap, this.overline});
-
-  final HelpTopic topic;
-  final List<String> words;
-  final VoidCallback onTap;
-  final String? overline;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final text = Theme.of(context).textTheme;
-    return Semantics(
-      button: true,
-      label: topic.title,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 60),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t.line))),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ExcludeSemantics(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (overline != null)
-                        Text(overline!, style: text.labelSmall?.copyWith(color: t.dim)),
-                      Text.rich(markedSpan(topic.title, words, text.bodyLarge!, t)),
-                      const SizedBox(height: 2),
-                      Text.rich(
-                        markedSpan(topic.short, words, text.bodySmall!.copyWith(color: t.dim), t),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const NavChevron(size: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// [text] with every occurrence of [words] marked in the accent's soft colour.
 TextSpan markedSpan(String text, List<String> words, TextStyle style, WalletTokens t) {
@@ -475,33 +492,25 @@ TextSpan markedSpan(String text, List<String> words, TextStyle style, WalletToke
   return TextSpan(style: style, children: spans);
 }
 
-/// Bottom of the index and of every topic: the way to say what was unclear.
-class _StillStuck extends ConsumerWidget {
-  const _StillStuck();
+/// Bottom of a section and of every topic: the way to say what was unclear.
+class _ReportRow extends StatelessWidget {
+  const _ReportRow();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l = context.l10n;
-    final text = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l.helpStillStuck, style: text.titleMedium),
-          const SizedBox(height: 8),
-          Text(l.helpTellUs),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.feedback_outlined),
-              label: Text(l.helpSendFeedback),
-              onPressed: () => openFeedback(context),
-            ),
-          ),
-        ],
-      ),
+    final t = context.tokens;
+    return KitGroup(
+      children: [
+        KitRow(
+          size: KitRowSize.list,
+          leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accent),
+          title: l.settingsSendFeedback,
+          chevron: true,
+          semanticsId: TrustIds.helpReport,
+          onTap: () => openFeedback(context),
+        ),
+      ],
     );
   }
 }
@@ -528,6 +537,13 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
 
   /// The requested heading's key, once it is built.
   final _anchorKey = GlobalKey(debugLabel: 'help anchor');
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -548,8 +564,8 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
       return;
     }
     if (attempt > 20) return;
-    final scroll = PrimaryScrollController.maybeOf(context);
-    if (scroll == null || !scroll.hasClients) return;
+    final scroll = _scroll;
+    if (!scroll.hasClients) return;
     final pos = scroll.position;
     if (pos.pixels >= pos.maxScrollExtent) return;
     scroll.jumpTo((pos.pixels + pos.viewportDimension).clamp(0, pos.maxScrollExtent).toDouble());
@@ -560,71 +576,96 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final text = Theme.of(context).textTheme;
-    final body = text.bodyLarge!.copyWith(height: 1.45);
+    final body = KitType.body.copyWith(color: t.text, height: 1.45);
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.helpTitle)),
-      body: ScreenBody(
-        children: [
-          Text(section.title, style: text.labelMedium?.copyWith(color: t.dim)),
-          const SizedBox(height: 4),
-          Semantics(header: true, child: Text(topic.title, style: text.headlineSmall)),
-          const SizedBox(height: 8),
-          Text(topic.short, style: text.bodyLarge?.copyWith(color: t.dim, height: 1.4)),
-          const SizedBox(height: 12),
-          Divider(height: 1, color: t.line),
-          const SizedBox(height: 16),
-          if (topic.devices) ...[const PhoneSyncDiagram(), const SizedBox(height: 20)],
-          // Network modes: the picture of what each mode lets out, at the wallet's own mode.
-          if (topic.id == HelpId.modes) ...[
-            Consumer(builder: (context, ref, _) => NetworkModesDiagram(initial: ref.watch(networkModeProvider))),
-            const SizedBox(height: 24),
-          ],
-          // The topic's text is selectable with a long press, and copies from the handle menu.
-          SelectionArea(
-            child: Consumer(
-              builder: (context, ref, _) {
-                final features = ref.watch(levelFeaturesProvider);
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final b in topic.body) HelpBlockView(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? _anchorKey : null, block: b, style: body, features: features),
-                  ],
-                );
-              },
-            ),
-          ),
-          if (topic.devices) ...[const SizedBox(height: 4), const PhoneSyncStatus(), const SizedBox(height: 12)],
-          if (topic.handshake)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.play_circle_outline),
-                label: Text(l.helpShowHandshake),
-                onPressed: () => showHandshakeSheet(context),
-              ),
-            ),
-          if (related.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Text(l.helpMoreInSection, style: text.titleMedium),
-            const SizedBox(height: 4),
-            for (final r in related)
-              _TopicRow(
-                topic: r,
-                words: const [],
-                onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute<void>(
-                    builder: (_) => HelpTopicScreen(
-                      topic: r,
-                      section: section,
-                      related: [topic, for (final x in related) if (x != r) x],
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KitPageHeader(
+                  backLabel: section.title,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  title: l.helpTitle,
+                  backId: TrustIds.helpBack,
+                ),
+                Expanded(
+                  child: PrimaryScrollController(
+                    controller: _scroll,
+                    child: ListView(
+                      controller: _scroll,
+                      padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter * 2),
+                      children: [
+                        Semantics(header: true, child: Text(topic.title, style: KitType.pageTitle)),
+                        const SizedBox(height: 8),
+                        Text(topic.short, style: KitType.body.copyWith(color: t.dim, height: 1.4)),
+                        const SizedBox(height: 12),
+                        Divider(height: 1, color: t.line),
+                        const SizedBox(height: 16),
+                        if (topic.devices) ...[const PhoneSyncDiagram(), const SizedBox(height: 20)],
+                        // Network modes: the picture of what each mode lets out, at the wallet's own mode.
+                        if (topic.id == HelpId.modes) ...[
+                          Consumer(builder: (context, ref, _) => NetworkModesDiagram(initial: ref.watch(networkModeProvider))),
+                          const SizedBox(height: 24),
+                        ],
+                        // The topic's text is selectable with a long press, and copies from the handle menu.
+                        SelectionArea(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (final b in topic.body)
+                                HelpBlockView(
+                                  key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? _anchorKey : null,
+                                  block: b,
+                                  style: body,
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (topic.devices) ...[const SizedBox(height: 4), const PhoneSyncStatus(), const SizedBox(height: 12)],
+                        if (topic.handshake)
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.play_circle_outline),
+                              label: Text(l.helpShowHandshake),
+                              onPressed: () => showHandshakeSheet(context),
+                            ),
+                          ),
+                        if (related.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          KitGroupLabel(l.helpMoreInSection),
+                          KitGroup(
+                            children: [
+                              for (final r in related)
+                                _topicRow(
+                                  context,
+                                  r,
+                                  onTap: () => Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute<void>(
+                                      builder: (_) => HelpTopicScreen(
+                                        topic: r,
+                                        section: section,
+                                        related: [topic, for (final x in related) if (x != r) x],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                        const SizedBox(height: Kit.groupGap),
+                        const _ReportRow(),
+                      ],
                     ),
                   ),
                 ),
-              ),
-          ],
-          const _StillStuck(),
-        ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -667,7 +708,7 @@ class HelpBlockView extends StatelessWidget {
     if (block.kind == HelpBlockKind.h) {
       return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 8),
-        child: Semantics(header: true, child: Text(block.text, style: Theme.of(context).textTheme.titleMedium)),
+        child: Semantics(header: true, child: Text(block.text, style: KitType.sectionHead.copyWith(color: context.tokens.text))),
       );
     }
     if (block.kind == HelpBlockKind.p) {

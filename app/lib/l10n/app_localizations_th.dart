@@ -21888,4 +21888,25 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneSettingsEngine => 'เอนจิน';
+
+  @override
+  String get phoneSettingsAboutRow => 'เกี่ยวกับ BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'คู่มือ อธิบายวิธีการทำงานของกระเป๋าเงิน การค้นหาจะค้นทุกคู่มือ';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'แสดงคู่มือเป็นภาษาอื่นที่ไม่ใช่ภาษาของแอปได้ เลือกด้วยธงใต้ช่องค้นหา';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'ยังไม่มีอุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'กู้คืนกระเป๋าเงินนี้บนอุปกรณ์เครื่องอื่น แล้วเชื่อมโยงทั้งสองเครื่องที่นี่ รายการที่ทำบนเครื่องหนึ่งจะแสดงบนอีกเครื่องด้วย';
+
+  @override
+  String get phoneSettingsLinkDevice => 'เชื่อมโยงอุปกรณ์';
 }

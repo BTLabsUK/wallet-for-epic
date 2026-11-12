@@ -256,6 +256,19 @@ abstract final class TrustIds {
   static const settingsResult = 'g4.settings.result';
   static const settingsLinkedDevices = 'g4.settings.linkedDevices';
   static const settingsHelp = 'g4.settings.help';
+  static const helpSearch = 'g4.help.search';
+  static const helpSection = 'g4.help.section';
+  static const helpTopic = 'g4.help.topic';
+  static const helpTour = 'g4.help.tour';
+  static const helpTips = 'g4.help.tips';
+  static const helpReport = 'g4.help.report';
+  static const helpAbout = 'g4.help.about';
+  static const helpLanguage = 'g4.help.language';
+  static const helpBack = 'g4.help.back';
+  static const helpHelp = 'g4.help.help';
+  static const devicesLink = 'g4.devices.link';
+  static const devicesBack = 'g4.devices.back';
+  static const devicesHelp = 'g4.devices.help';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -522,5 +535,18 @@ abstract final class TrustIds {
     'g4.settings.result',
     'g4.settings.linkedDevices',
     'g4.settings.help',
+    'g4.help.search',
+    'g4.help.section',
+    'g4.help.topic',
+    'g4.help.tour',
+    'g4.help.tips',
+    'g4.help.report',
+    'g4.help.about',
+    'g4.help.language',
+    'g4.help.back',
+    'g4.help.help',
+    'g4.devices.link',
+    'g4.devices.back',
+    'g4.devices.help',
   ];
 }

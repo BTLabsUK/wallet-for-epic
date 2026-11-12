@@ -23057,4 +23057,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneSettingsEngine => 'Движок';
+
+  @override
+  String get phoneSettingsAboutRow => 'О BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'Руководства объясняют, как работает кошелёк. Поиск идёт по всем.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'Руководства можно показать на другом языке, чем приложение. Выберите его флагом под поиском.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'Нет связанных устройств';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Восстановите этот кошелёк на другом устройстве, затем свяжите их здесь. Платежи, сделанные на одном, появятся на другом.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Связать устройство';
 }

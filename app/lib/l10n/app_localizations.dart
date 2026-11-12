@@ -34907,6 +34907,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Engine'**
   String get phoneSettingsEngine;
+
+  /// Row at the bottom of Help that opens About. The app's name is not translated.
+  ///
+  /// In en, this message translates to:
+  /// **'About BT Wallet'**
+  String get phoneSettingsAboutRow;
+
+  /// Help sheet of the Help page, first paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'The guides explain how the wallet works. Search looks through all of them.'**
+  String get phoneSettingsHelpHelp1;
+
+  /// Help sheet of the Help page, second paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'The guides can be shown in a language other than the app\'s. Pick it with the flag under the search.'**
+  String get phoneSettingsHelpHelp2;
+
+  /// Title of the empty state of Linked devices.
+  ///
+  /// In en, this message translates to:
+  /// **'No devices linked'**
+  String get phoneSettingsDevicesEmpty;
+
+  /// Text under the title of the empty state of Linked devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this wallet on your other device, then link the two here. Payments made on one then show on the other.'**
+  String get phoneSettingsDevicesEmptyLine;
+
+  /// Button on Linked devices: start linking another device.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a device'**
+  String get phoneSettingsLinkDevice;
 }
 
 class _AppLocalizationsDelegate

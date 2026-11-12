@@ -22338,4 +22338,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneSettingsEngine => 'Engine';
+
+  @override
+  String get phoneSettingsAboutRow => 'About BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'The guides explain how the wallet works. Search looks through all of them.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'The guides can be shown in a language other than the app\'s. Pick it with the flag under the search.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'No devices linked';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Restore this wallet on your other device, then link the two here. Payments made on one then show on the other.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Link a device';
 }

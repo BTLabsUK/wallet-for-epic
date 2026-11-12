@@ -72,5 +72,11 @@
   "phoneSettingsHelpLine": "指南、导览、报告问题",
   "phoneSettingsMadeBy": "开发者",
   "phoneSettingsProtocol": "协议",
-  "phoneSettingsEngine": "引擎"
+  "phoneSettingsEngine": "引擎",
+  "phoneSettingsAboutRow": "关于 BT Wallet",
+  "phoneSettingsHelpHelp1": "指南说明钱包如何运作。搜索会查找所有指南。",
+  "phoneSettingsHelpHelp2": "指南可以用与应用不同的语言显示。点搜索框下方的旗帜选择。",
+  "phoneSettingsDevicesEmpty": "没有已关联的设备",
+  "phoneSettingsDevicesEmptyLine": "在你的另一台设备上恢复此钱包，然后在此关联两台设备。在其中一台上的付款会显示在另一台上。",
+  "phoneSettingsLinkDevice": "关联设备"
 }

@@ -214,7 +214,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               subtitle: l.phoneSettingsHelpLine,
               chevron: true,
               semanticsId: TrustIds.settingsHelp,
-              onTap: () => openHelp(context),
+              onTap: () => openHelp(context, null, null, l.settingsTitle),
             ),
             place(SettingsSection.advanced, line: l.phoneSettingsAdvancedLine),
           ],

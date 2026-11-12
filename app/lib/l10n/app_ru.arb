@@ -5813,5 +5813,11 @@
   "phoneSettingsHelpLine": "Руководства, тур, сообщить о проблеме",
   "phoneSettingsMadeBy": "Разработчик",
   "phoneSettingsProtocol": "Протокол",
-  "phoneSettingsEngine": "Движок"
+  "phoneSettingsEngine": "Движок",
+  "phoneSettingsAboutRow": "О BT Wallet",
+  "phoneSettingsHelpHelp1": "Руководства объясняют, как работает кошелёк. Поиск идёт по всем.",
+  "phoneSettingsHelpHelp2": "Руководства можно показать на другом языке, чем приложение. Выберите его флагом под поиском.",
+  "phoneSettingsDevicesEmpty": "Нет связанных устройств",
+  "phoneSettingsDevicesEmptyLine": "Восстановите этот кошелёк на другом устройстве, затем свяжите их здесь. Платежи, сделанные на одном, появятся на другом.",
+  "phoneSettingsLinkDevice": "Связать устройство"
 }

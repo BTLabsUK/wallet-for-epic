@@ -30320,5 +30320,29 @@
   "phoneSettingsEngine": "Engine",
   "@phoneSettingsEngine": {
     "description": "Row in About: the wallet engine."
+  },
+  "phoneSettingsAboutRow": "About BT Wallet",
+  "@phoneSettingsAboutRow": {
+    "description": "Row at the bottom of Help that opens About. The app's name is not translated."
+  },
+  "phoneSettingsHelpHelp1": "The guides explain how the wallet works. Search looks through all of them.",
+  "@phoneSettingsHelpHelp1": {
+    "description": "Help sheet of the Help page, first paragraph."
+  },
+  "phoneSettingsHelpHelp2": "The guides can be shown in a language other than the app's. Pick it with the flag under the search.",
+  "@phoneSettingsHelpHelp2": {
+    "description": "Help sheet of the Help page, second paragraph."
+  },
+  "phoneSettingsDevicesEmpty": "No devices linked",
+  "@phoneSettingsDevicesEmpty": {
+    "description": "Title of the empty state of Linked devices."
+  },
+  "phoneSettingsDevicesEmptyLine": "Restore this wallet on your other device, then link the two here. Payments made on one then show on the other.",
+  "@phoneSettingsDevicesEmptyLine": {
+    "description": "Text under the title of the empty state of Linked devices."
+  },
+  "phoneSettingsLinkDevice": "Link a device",
+  "@phoneSettingsLinkDevice": {
+    "description": "Button on Linked devices: start linking another device."
   }
 }

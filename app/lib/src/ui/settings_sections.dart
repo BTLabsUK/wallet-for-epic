@@ -191,18 +191,21 @@ Key settingsSectionKey(SettingsSection section) =>
     ValueKey('settings-section-${section.name}');
 
 /// Opens [section]'s page over the current route.
-Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toNetwork = false}) =>
+Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toNetwork = false, String? backLabel}) =>
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SettingsSectionScreen(section: section, toNetwork: toNetwork),
+        builder: (_) => SettingsSectionScreen(section: section, toNetwork: toNetwork, backLabel: backLabel),
       ),
     );
 
 /// One group's page: its rows under the group's title, with the actions they need.
 class SettingsSectionScreen extends ConsumerStatefulWidget {
-  const SettingsSectionScreen({super.key, required this.section, this.toNetwork = false});
+  const SettingsSectionScreen({super.key, required this.section, this.toNetwork = false, this.backLabel});
 
   final SettingsSection section;
+
+  /// The back link's words when the page is not opened from the Settings hub (About from Help).
+  final String? backLabel;
 
   /// Network & privacy opened from the mode mark or an Off (mode) status: scrolled to the
   /// Network section (its first group, so the page opens on it).
@@ -535,6 +538,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     return SettingsPhonePage(
       pageKey: settingsSectionKey(widget.section),
       title: settingsSectionTitle(l, widget.section),
+      backLabel: widget.backLabel,
       controller: _scroll,
       help: _help(l),
       helpId: TrustIds.settingsPageHelp,

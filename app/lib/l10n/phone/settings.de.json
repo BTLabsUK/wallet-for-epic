@@ -72,5 +72,11 @@
   "phoneSettingsHelpLine": "Anleitungen, die Tour, ein Problem melden",
   "phoneSettingsMadeBy": "Von",
   "phoneSettingsProtocol": "Protokoll",
-  "phoneSettingsEngine": "Engine"
+  "phoneSettingsEngine": "Engine",
+  "phoneSettingsAboutRow": "Über BT Wallet",
+  "phoneSettingsHelpHelp1": "Die Anleitungen erklären, wie das Wallet funktioniert. Die Suche durchsucht alle.",
+  "phoneSettingsHelpHelp2": "Die Anleitungen lassen sich in einer anderen Sprache als die der App anzeigen. Sie wählst du mit der Flagge unter der Suche.",
+  "phoneSettingsDevicesEmpty": "Keine Geräte verknüpft",
+  "phoneSettingsDevicesEmptyLine": "Stelle dieses Wallet auf deinem anderen Gerät wieder her und verknüpfe beide hier. Zahlungen, die auf einem erfolgen, erscheinen dann auch auf dem anderen.",
+  "phoneSettingsLinkDevice": "Gerät verknüpfen"
 }

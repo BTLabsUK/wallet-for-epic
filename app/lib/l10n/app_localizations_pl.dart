@@ -23069,4 +23069,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneSettingsEngine => 'Silnik';
+
+  @override
+  String get phoneSettingsAboutRow => 'O BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'Poradniki wyjaśniają, jak działa portfel. Wyszukiwanie przeszukuje je wszystkie.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'Poradniki można pokazać w innym języku niż aplikacja. Wybierz go flagą pod wyszukiwaniem.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'Brak połączonych urządzeń';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Odtwórz ten portfel na drugim urządzeniu, a potem połącz oba tutaj. Płatności z jednego pojawią się wtedy na drugim.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Połącz urządzenie';
 }
