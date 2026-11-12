@@ -45,6 +45,7 @@ class KitRow extends StatelessWidget {
     this.valueColor,
     this.isChoice,
     this.minHeight,
+    this.compact = false,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -133,6 +134,9 @@ class KitRow extends StatelessWidget {
   /// Set by [KitRow.radio]: whether this choice is the chosen one (read as selected).
   final bool? isChoice;
 
+  /// A tighter row (padding 8, 54 high) for the list of ways in a sheet.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -150,9 +154,9 @@ class KitRow extends StatelessWidget {
       if (chevron) Icon(KitIcons.chevron, size: 18, color: t.faint),
     ];
     final body = ConstrainedBox(
-      constraints: BoxConstraints(minHeight: minHeight ?? size.height),
+      constraints: BoxConstraints(minHeight: minHeight ?? (compact ? 54 : size.height)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: compact ? 8 : 10),
         child: Row(
           children: [
             if (leading != null) ...[leading!, const SizedBox(width: 12)],

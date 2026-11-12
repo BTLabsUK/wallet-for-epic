@@ -22421,11 +22421,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneProgAnswersEpicbox =>
-      'Epicbox keeps it until the recipient opens their wallet.';
+      'It answers when the recipient next opens it.';
 
   @override
   String phoneProgAnswersEpicboxNamed(String who) {
-    return 'Epicbox keeps it until $who opens their wallet.';
+    return 'It answers when $who next opens it.';
   }
 
   @override
@@ -23202,5 +23202,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String phoneRecvFileLead(String amount) {
     return 'Share this file. Whoever opens it is asked for $amount.';
+  }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
   }
 }

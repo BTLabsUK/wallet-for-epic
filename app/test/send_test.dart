@@ -771,7 +771,7 @@ void main() {
         expect(h.session.sentMessages, ['Lunch']);
         // The tracker, not "Sent": the payment waits for their wallet.
         expect(find.text(_l.phoneProgSent), findsOneWidget);
-        expect(find.text(_l.phoneProgNetwork), findsOneWidget);
+        expect(find.text(_l.phoneProgNetwork), findsNothing);
         expect(find.text(_l.txStepConfirmed), findsOneWidget);
         // The cancel rule waits behind a small expandable.
         expect(find.textContaining('cancels by itself'), findsNothing);

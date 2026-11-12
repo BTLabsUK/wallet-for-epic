@@ -775,7 +775,7 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'rent');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.text('+5.0'), findsOneWidget);
+      expect(find.textContaining('+5.0'), findsOneWidget);
       expect(find.text('\u22122.0'), findsNothing);
 
       await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'zzz');
@@ -793,7 +793,7 @@ void main() {
       expect(find.text('Cancelled'), findsNothing);
 
       await _tap(tester, find.text('Received'));
-      expect(find.text('+5.0'), findsOneWidget);
+      expect(find.textContaining('+5.0'), findsOneWidget);
       expect(find.text('+7.25'), findsOneWidget);
     });
 
@@ -983,7 +983,7 @@ void main() {
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
         expect(find.text(_l.lvPayConfirming(1, 3)), findsNothing);
-        expect(find.textContaining('Completed '), findsOneWidget);
+        expect(find.text('Completed'), findsOneWidget);
       });
     }
 
@@ -1176,8 +1176,8 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
 
       // The details say the exact amount.
-      expect(find.text('+5.0\u00a0EPIC'), findsOneWidget);
-      expect(find.textContaining('≈\u00a02.50\u00a0USD'), findsOneWidget);
+      expect(find.textContaining('+5.0'), findsOneWidget);
+      expect(find.textContaining('≈\u00a0\$2.50'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
       expect(find.text('08commit'), findsNothing);
       await _openMore(tester);
@@ -1186,9 +1186,13 @@ void main() {
       expect(find.text(_l.txDetailsExplorerLink), findsOneWidget);
       expect(find.text(hostSettings.explorerBlock(2499300)!), findsNothing);
       expect(find.text('08commit'), findsNothing);
+      // The coins sheet has the row that shows the technical details.
+      await _tap(tester, find.text(_l.phonePayCoins));
+      expect(find.text('08commit'), findsOneWidget);
       await _tap(tester, find.byKey(txDetailsTechnicalKey));
       expect(find.text('08commit'), findsOneWidget);
       expect(find.text('from-alice'), findsOneWidget);
+      await _tap(tester, find.text(_l.commonDone).last);
       await _tap(tester, find.text(_l.commonDone));
 
       await _tap(tester, find.byKey(txPrivateNoteKey));
@@ -1341,8 +1345,9 @@ void main() {
       // The recipient reads in the line under the amount and in the steps; the More sheet has
       // the rest.
       expect(find.textContaining('To Bob'), findsOneWidget);
-      expect(find.text(_l.txStatusWaitingFor('Bob')), findsOneWidget);
-      expect(find.text(_l.phoneProgNetwork), findsOneWidget);
+      expect(find.text(_l.phoneProgWaitingAnswerNamed('Bob')), findsOneWidget);
+      // The network step shows once the payment is on the network.
+      expect(find.text(_l.phoneProgNetwork), findsNothing);
       expect(find.textContaining('by block 2,500,120'), findsOneWidget);
       await _openMore(tester);
       expect(find.text(_l.txDetailsSentTo), findsOneWidget);
@@ -1408,7 +1413,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       expect(find.text(_l.txDetailsSendAgain), findsNothing);
-      expect(find.text(_l.txStatusWaitingRecipient), findsWidgets);
+      expect(find.text(_l.phoneProgWaitingAnswer), findsWidgets);
     });
 
     testWidgets('opening the wallet sends an undelivered epicbox send again, once', (
@@ -2158,6 +2163,9 @@ void main() {
         await _openMore(tester);
         expect(find.text('08commit'), findsNothing);
         expect(find.text(_l.txDetailsKernel), findsNothing);
+        expect(find.byKey(txDetailsTechnicalKey), findsNothing);
+        await _tap(tester, find.text(_l.phonePayCoins));
+        expect(find.text(_l.txDetailsKernel), findsNothing);
         await _tap(tester, find.byKey(txDetailsTechnicalKey));
         // The rows show, and the row is gone.
         expect(find.text('08commit'), findsOneWidget);
@@ -2169,6 +2177,7 @@ void main() {
         await again.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
         await _openMore(tester);
         expect(find.text('08commit'), findsNothing);
+        await _tap(tester, find.text(_l.phonePayCoins));
         expect(find.byKey(txDetailsTechnicalKey), findsOneWidget);
       },
     );
@@ -2209,8 +2218,10 @@ void main() {
       expect(find.text(_l.txDetailsExplorerLink), findsOneWidget);
       expect(find.text(_l.phonePayId), findsOneWidget);
       expect(find.text('Wallet log id'), findsNothing);
+      await _tap(tester, find.text(_l.phonePayCoins));
       await _tap(tester, find.byKey(txDetailsTechnicalKey));
       expect(find.text(_l.txDetailsLocalId), findsOneWidget);
+      await _tap(tester, find.text(_l.commonDone).last);
 
       // A tap on the explorer row copies it.
       await _tap(tester, find.text(_l.txDetailsExplorerLink));

@@ -30427,11 +30427,11 @@
   "@phoneProgInNetwork": {
     "description": "Reason line: the payment is on the network and waits for the next block."
   },
-  "phoneProgAnswersEpicbox": "Epicbox keeps it until the recipient opens their wallet.",
+  "phoneProgAnswersEpicbox": "It answers when the recipient next opens it.",
   "@phoneProgAnswersEpicbox": {
     "description": "Reason line of a sent payment that waits for the other wallet, sent through Epicbox."
   },
-  "phoneProgAnswersEpicboxNamed": "Epicbox keeps it until {who} opens their wallet.",
+  "phoneProgAnswersEpicboxNamed": "It answers when {who} next opens it.",
   "@phoneProgAnswersEpicboxNamed": {
     "description": "Reason line of a sent payment that waits for the other wallet, sent through Epicbox. {who} is the recipient's name.",
     "placeholders": {
@@ -31516,6 +31516,20 @@
       "amount": {
         "type": "String",
         "example": "25 EPIC"
+      }
+    }
+  },
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "@phoneProgWaitingAnswer": {
+    "description": "Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet."
+  },
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "@phoneProgWaitingAnswerNamed": {
+    "description": "Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet. {name} is the recipient's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
       }
     }
   }

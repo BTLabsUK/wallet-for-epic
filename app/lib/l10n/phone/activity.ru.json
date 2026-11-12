@@ -82,5 +82,7 @@
   "phonePayRouteSubEpic1": "Оплачено по ссылке на платёж",
   "phonePayRouteSubInPerson": "Два телефона показывают друг другу код",
   "phonePayRouteSubFile": "Файл платежа, который передают туда и обратно",
-  "phonePayRouteSubTor": "Напрямую в их кошелёк, через Tor"
+  "phonePayRouteSubTor": "Напрямую в их кошелёк, через Tor",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

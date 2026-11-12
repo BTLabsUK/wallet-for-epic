@@ -86,8 +86,9 @@ class KitSheet extends StatelessWidget {
         top: false,
         child: SingleChildScrollView(
           // `.sheet` padding-bottom 34 is the home-indicator zone: the inset the SafeArea gives
-          // is part of it, a phone with no inset keeps 16.
-          padding: EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom > 0 ? 0 : 16),
+          // is part of it, a phone with no inset keeps 16. The inset is read from the view: the
+          // SafeArea of [showPhoneSheet] above has already taken it out of the MediaQuery.
+          padding: EdgeInsets.only(bottom: _viewInsetBottom(context) > 0 ? 0 : 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -116,6 +117,11 @@ class KitSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+double _viewInsetBottom(BuildContext context) {
+  final view = View.maybeOf(context);
+  return view == null ? MediaQuery.viewPaddingOf(context).bottom : view.padding.bottom / view.devicePixelRatio;
 }
 
 /// Opens [builder]'s content as a redesign sheet over [showPhoneSheet], so the bottom inset

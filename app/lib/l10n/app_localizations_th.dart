@@ -22744,4 +22744,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'แชร์ไฟล์นี้ ใครเปิดจะถูกขอ $amount';
   }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
 }

@@ -23483,4 +23483,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'Teile diese Datei. Wer sie öffnet, wird um $amount gebeten.';
   }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
 }

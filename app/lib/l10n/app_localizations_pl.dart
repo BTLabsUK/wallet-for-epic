@@ -23937,4 +23937,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'Udostępnij ten plik. Kto go otworzy, zostanie poproszony o $amount.';
   }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
 }

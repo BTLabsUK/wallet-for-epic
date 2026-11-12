@@ -133,11 +133,14 @@ class KitWell extends StatelessWidget {
 }
 
 class _SlotText extends StatelessWidget {
-  const _SlotText({required this.title, this.subtitle, this.maxSubtitleLines = 1});
+  const _SlotText({required this.title, this.subtitle, this.maxSubtitleLines = 1, this.needs = false});
 
   final String title;
   final String? subtitle;
   final int maxSubtitleLines;
+
+  /// The needs-you card's words (`.need b`, `.need p`): the title 600 at 1.3, the sub at 1.4.
+  final bool needs;
 
   @override
   Widget build(BuildContext context) {
@@ -146,11 +149,14 @@ class _SlotText extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis),
+        Text(
+          title,
+          style: KitType.rowTitle.copyWith(color: t.text, fontWeight: needs ? FontWeight.w600 : null, height: needs ? 1.3 : null),
+          maxLines: 1, overflow: TextOverflow.ellipsis),
         if (subtitle != null)
           Padding(
             padding: const EdgeInsets.only(top: 3),
-            child: Text(subtitle!, style: KitType.rowSub.copyWith(color: t.dim), maxLines: maxSubtitleLines, overflow: TextOverflow.ellipsis),
+            child: Text(subtitle!, style: KitType.rowSub.copyWith(color: t.dim, height: needs ? 1.4 : null), maxLines: maxSubtitleLines, overflow: TextOverflow.ellipsis),
           ),
       ],
     );
@@ -216,7 +222,7 @@ class KitNeedsYouCard extends StatelessWidget {
                       children: [
                         KitWell(icon: icon, gold: true),
                         const SizedBox(width: 12),
-                        Expanded(child: _SlotText(title: title, subtitle: subtitle, maxSubtitleLines: 2)),
+                        Expanded(child: _SlotText(title: title, subtitle: subtitle, maxSubtitleLines: 2, needs: true)),
                       ],
                     ),
                     Padding(

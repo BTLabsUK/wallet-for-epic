@@ -21902,4 +21902,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return '分享此文件。打开的人会被要求支付 $amount。';
   }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
 }
