@@ -160,10 +160,8 @@ abstract final class TrustIds {
   static const tabReceive = 'g4.tab.receive';
   static const commonClose = 'g4.common.close';
   static const commonDone = 'g4.common.done';
-  static const commonSave = 'g4.common.save';
   static const commonContinue = 'g4.common.continue';
   static const backupRow = 'g4.backup.row';
-  static const statusNetwork = 'g4.status.network';
   static const serverClear = 'g4.server.clear';
   static const sendClear = 'g4.send.clear';
   static const sendBack = 'g4.send.back';
@@ -512,6 +510,7 @@ abstract final class TrustIds {
   static const contactCopyAddress = 'g4.contact.copy_address';
   static const payCopyAddress = 'g4.pay.copy-address';
   static const payCopyExplorer = 'g4.pay.copy-explorer';
+  static const tourOfferShow = 'g4.tour.offer.show';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -682,10 +681,8 @@ abstract final class TrustIds {
     'g4.tab.receive',
     'g4.common.close',
     'g4.common.done',
-    'g4.common.save',
     'g4.common.continue',
     'g4.backup.row',
-    'g4.status.network',
     'g4.server.clear',
     'g4.send.clear',
     'g4.send.back',
@@ -1034,5 +1031,6 @@ abstract final class TrustIds {
     'g4.contact.copy_address',
     'g4.pay.copy-address',
     'g4.pay.copy-explorer',
+    'g4.tour.offer.show',
   ];
 }

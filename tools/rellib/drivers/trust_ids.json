@@ -24,9 +24,9 @@
 {"id": "g4.settings.section.contacts", "screen": "settings", "family": ["desktop"], "role": "menu_item", "keys": ["deskShellNavContacts"], "names": ["Contacts"], "match": "exact"},
 {"id": "g4.settings.section.advanced", "screen": "settings", "role": "menu_item", "keys": ["deskSetFrameAdvanced"], "names": ["Advanced"], "android": {"keys": ["advTitle"]}},
 {"id": "g4.settings.section.about", "screen": "settings", "role": "menu_item", "keys": ["deskSetFrameAbout"], "names": ["About"], "android": {"keys": ["settingsSectionAbout"]}},
-{"id": "g4.level.stop.1", "screen": "level", "keys": ["lvPickStopOne"], "driver": false},
-{"id": "g4.level.stop.2", "screen": "level", "keys": ["lvPickStopTwo"], "driver": false},
-{"id": "g4.level.stop.3", "screen": "level", "role": "checkbox", "keys": ["lvPickStopThree"], "names": ["Deep end"], "android": {"role": "other", "match": "exact"}},
+{"id": "g4.level.stop.1", "screen": "level", "family": ["desktop"], "keys": ["lvPickStopOne"], "driver": false},
+{"id": "g4.level.stop.2", "screen": "level", "family": ["desktop"], "keys": ["lvPickStopTwo"], "driver": false},
+{"id": "g4.level.stop.3", "screen": "level", "family": ["desktop"], "role": "checkbox", "keys": ["lvPickStopThree"], "names": ["Deep end"], "android": {"role": "other", "match": "exact"}},
 {"id": "g4.appearance.theme.system", "screen": "appearance", "keys": ["deskSetAppearSystem"], "names": ["System"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearSystem", "settingsThemeSystem"]}},
 {"id": "g4.appearance.theme.dark", "screen": "appearance", "keys": ["deskSetAppearDark"], "names": ["Dark"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearDark", "settingsThemeDark"]}},
 {"id": "g4.appearance.theme.light", "screen": "appearance", "keys": ["deskSetAppearLight"], "names": ["Light"], "match": "exact", "android": {"role": "checkbox", "keys": ["deskSetAppearLight", "settingsThemeLight"]}},
@@ -189,10 +189,8 @@
 {"id": "g4.tab.receive", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["homeReceiveButton"], "names": ["Receive"]},
 {"id": "g4.common.close", "screen": "common", "family": ["android"], "keys": ["commonClose"], "names": ["Close"], "match": "exact", "many": true},
 {"id": "g4.common.done", "screen": "common", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact"},
-{"id": "g4.common.save", "screen": "common", "family": ["android"], "keys": ["commonSave"], "names": ["Save"], "match": "exact"},
 {"id": "g4.common.continue", "screen": "common", "family": ["android"], "keys": ["commonContinue"], "names": ["Continue"], "match": "exact", "many": true},
 {"id": "g4.backup.row", "screen": "backup", "family": ["android"], "keys": ["settingsBackupPhrase"], "names": ["Back up recovery phrase"]},
-{"id": "g4.status.network", "screen": "status", "family": ["android"], "names": ["re:network\\b.*"], "match": "starts", "many": true},
 {"id": "g4.server.clear", "screen": "server", "family": ["android"], "keys": ["slClear"], "names": ["Clear"], "match": "exact"},
 {"id": "g4.privacy.status.epicbox", "screen": "privacy", "kind": "copy", "family": ["android"], "role": "other", "keys": ["statusEpicboxOnline", "statusEpicboxConnecting", "statusEpicboxOffline", "statusEpicboxBlocked"], "names": ["re:epicbox (connected|connecting|not connected|blocked)\\b.*"], "match": "starts"},
 {"id": "g4.send.clear", "screen": "send", "family": ["android"], "keys": ["sendClearRecipient"], "names": ["Clear recipient"], "match": "exact", "many": true},
@@ -554,5 +552,6 @@
 {"id": "g4.home.backup_not_now", "screen": "home", "family": ["android"], "keys": ["homeHistoryReminderNotNow"], "driver": false},
 {"id": "g4.contact.copy_address", "screen": "contact", "family": ["android"], "keys": ["contactCopyAddress"], "driver": false},
 {"id": "g4.pay.copy-address", "screen": "payment", "family": ["android"], "keys": ["txDetailsCopyAddress"], "driver": false},
-{"id": "g4.pay.copy-explorer", "screen": "payment", "family": ["android"], "keys": ["txDetailsExplorerLink"], "driver": false}
+{"id": "g4.pay.copy-explorer", "screen": "payment", "family": ["android"], "keys": ["txDetailsExplorerLink"], "driver": false},
+{"id": "g4.tour.offer.show", "screen": "tour", "family": ["android"], "keys": ["phoneTourOfferShow"], "driver": false}
 ]}
