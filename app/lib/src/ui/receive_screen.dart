@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:convert';
-import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import '../trust_ids.dart';
-import 'status_icons.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,48 +21,49 @@ import '../providers.dart';
 import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../settings.dart';
 import '../slate_files.dart';
-import '../tor_phone.dart';
-import '../tor_routes.dart';
+import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'address_view.dart';
 import 'common.dart';
 import 'epic1/epic1_receive.dart';
-import 'file_exchange_help.dart';
-import 'handshake.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
-import 'levels/pay_arrival.dart';
-import '../levels/level_providers.dart' show levelFeaturesProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchResultProvider;
-import 'method_strip.dart';
-import 'payment_gate.dart';
-import 'settings_screen.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_corner_marks.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_tokens.dart';
+import 'levels/pay_arrival.dart' show NewAddressBadge, NewAddressLines, arrivingPayment;
+import 'net_block.dart';
+import 'tor_ui.dart';
 import 'network_mode_phone.dart' show openNetworkSection;
 import 'network_mode_text.dart';
-import 'status.dart' show EpicboxState, offGlyphColor, relayLabel;
-import 'qr_scan_screen.dart';
-import 'relay_blocked.dart';
-import 'request_qr_screen.dart' show openQrRequest;
+import 'receive_arriving.dart';
+import 'receive_other.dart';
 import 'scan_screen.dart' show offersQrPayment;
 import 'server_picker.dart' show showEpicboxPicker;
 import 'slate_file_screen.dart';
-import 'net_block.dart';
+import 'status.dart' show EpicboxState, offGlyphColor, relayLabel;
+import 'qr_scan_screen.dart';
+import 'relay_blocked.dart';
+import 'status_icons.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/logo_qr.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
-import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 
-/// Receive's ways of receiving, one tab each: Epicbox first and by default, Link (the
-/// Link · Tor onion address where the app has Tor, and the Link · HTTP address for this Wi-Fi
-/// network), a code scanned from the phone next to this one (Direct · QR) and a payment file
-/// (Direct · File).
+/// The ways Receive used to offer as tabs. The phone has one screen now, with the other ways
+/// in a sheet; the choice stays so that places that point at a way (relay-down, the tour, the
+/// status line) keep compiling, and it is not read.
 enum ReceiveTab { epicbox, direct, qr, file }
 
-/// Which of Receive's tabs shows. Kept while the app runs, across tab changes and rebuilds;
-/// Epicbox at start.
+/// Kept for the callers that point Receive at a way; the one-screen Receive does not read it.
 final receiveTabProvider = NotifierProvider<ReceiveTabNotifier, ReceiveTab>(
   ReceiveTabNotifier.new,
 );
@@ -77,431 +75,182 @@ class ReceiveTabNotifier extends Notifier<ReceiveTab> {
   void choose(ReceiveTab tab) => state = tab;
 }
 
-/// The key of Receive's tab choice, for tests.
-const Key receiveTabsKey = ValueKey('receive-tabs');
+/// Opens Receive as a full screen (from Home's Receive button).
+Future<void> openReceive(BuildContext context) =>
+    Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const ReceiveScreen()));
 
-/// The QR code's side on Receive: at most [receiveQrMaxSize], and less when the Epicbox tab
-/// would not fit the screen otherwise, down to [receiveQrMinSize]: 110 dp (17.5 mm) still scans
-/// from a phone held close, and lets the tab fit a 360 x 800 dp phone. Below that the page
-/// scrolls.
-const double receiveQrMaxSize = 240, receiveQrMinSize = 110;
+/// The Receive flow screen: close, title and "?" over [ReceiveView].
+class ReceiveScreen extends StatelessWidget {
+  const ReceiveScreen({super.key});
 
-/// Receiving: epicbox payments arrive by themselves while connected; with Link · Tor and Tor
-/// on, other wallets reach this one at its onion address while the app is open; with
-/// Link · HTTP on, wallets on this Wi-Fi network reach it at its HTTP address; a payment file
-/// or its text can still be accepted by hand.
-///
-/// The Receive tab's content: a choice at the top with Send's look, then on Epicbox the
-/// address (tap to copy, Share inside), the epicbox line, the QR code, and requesting a
-/// payment when the wallet handles invoices; on Link, stacked, the
-/// onion address in the same card, Tor's state and the QR code (or with Tor off a Turn on
-/// Tor) while Link · Tor is on (the phone receives nothing over Link · HTTP); on File the
-/// file card. Help ends them all. The QR code takes the room
-/// left, so the Epicbox tab fits a phone without scrolling.
-/// Room on each side of a method tab's label.
-const double _tabPad = 4;
-
-/// The labels of a row of method tabs at one size: each on one line where it fits [width],
-/// else broken at its " · " (family on one line, option on the next); when a line still does
-/// not fit, one smaller size for all of them, never a size per tab.
-({List<String> texts, double size}) fitTabLabels(
-  BuildContext context,
-  List<String> labels, {
-  required double width,
-  required TextStyle style,
-}) {
-  final scaler = MediaQuery.textScalerOf(context);
-  final direction = Directionality.of(context);
-  double widthOf(String line) {
-    final painter = TextPainter(
-      text: TextSpan(text: line, style: style),
-      textDirection: direction,
-      textScaler: scaler,
-      maxLines: 1,
-    )..layout();
-    final w = painter.width;
-    painter.dispose();
-    return w;
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return SlotScaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            KitFlowHeader(
+              title: l.phoneRecvTitle,
+              onLeading: () => Navigator.of(context).maybePop(),
+              leadingId: TrustIds.receiveClose,
+              onHelp: () => showKitHelp(
+                context,
+                title: l.phoneRecvHelpTitle,
+                lines: [l.phoneRecvHelp1, l.phoneRecvHelp2, l.phoneRecvHelp3],
+                onMore: () => openHelp(context, HelpId.receive),
+                sheetId: TrustIds.receiveHelpSheet,
+                moreId: TrustIds.receiveHelpMore,
+              ),
+              helpId: TrustIds.receiveHelp,
+            ),
+            const Expanded(child: ReceiveView()),
+          ],
+        ),
+      ),
+    );
   }
-
-  var scale = 1.0;
-  final texts = <String>[];
-  for (final label in labels) {
-    final lines = widthOf(label) > width && label.contains(' · ')
-        ? label.split(' · ')
-        : [label];
-    texts.add(lines.join('\n'));
-    for (final line in lines) {
-      final w = widthOf(line);
-      if (w > width && width > 0) scale = math.min(scale, width / w);
-    }
-  }
-  return (texts: texts, size: (style.fontSize ?? 12) * scale);
 }
 
-/// Level 1's quiet link between QR Payment and the address.
-const Key receiveQuietQrKey = ValueKey('receive-quiet-qr');
-
-class ReceiveView extends ConsumerWidget {
+/// Receiving: one screen. The epicbox address as a QR code and in words, with Copy and Share
+/// and a line saying the wallet is listening; Ask for an amount (when the wallet handles
+/// invoices) and Other ways to receive (a sheet: in person, with a file, Tor address). A
+/// payment arriving opens its steps in a sheet over the screen. In epic1 mode the epic1 link
+/// takes the place of the address.
+class ReceiveView extends ConsumerStatefulWidget {
   const ReceiveView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // epic1 mode (spec P4): the link card in place of the methods.
+  ConsumerState<ReceiveView> createState() => _ReceiveViewState();
+}
+
+class _ReceiveViewState extends ConsumerState<ReceiveView> {
+  /// The payment whose sheet was opened last, so one payment opens one sheet.
+  String? _announced;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _announce(arrivingPayment(ref.read(homeProvider).value?.transactions ?? const [])?.key);
+    });
+  }
+
+  void _announce(String? key) {
+    if (key == null || key == _announced) return;
+    // Only the Receive in front: a Receive under another page or tab stays quiet.
+    if (ModalRoute.of(context)?.isCurrent != true || !TickerMode.valuesOf(context).enabled) return;
+    _announced = key;
+    showReceiveArrival(context, key);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (ref.watch(paymentModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
+    ref.listen(
+      homeProvider.select((h) => arrivingPayment(h.value?.transactions ?? const [])?.key),
+      (_, key) => _announce(key),
+    );
     final l = context.l10n;
-    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
-    var tab = ref.watch(receiveTabProvider);
     final payments =
         ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
-        (ref.watch(phonePaymentsProvider)
-            ? PaymentPrefs.phoneDefaults
-            : PaymentPrefs.defaults);
-    final filePending = hasPendingFileSend(
-      ref.watch(homeProvider.select((h) => h.value?.transactions)),
-    );
-    final torState = phoneTorState(ref.watch(phoneTorProvider));
-    // Level 1: no method tabs or strip; QR Payment is a quiet link.
-    final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
-    final relayMove = quiet ? ref.watch(relaySwitchResultProvider) : null;
-    final arriving = quiet ? arrivingPayment(ref.watch(homeProvider.select((h) => h.value?.transactions)) ?? const []) : null;
-    // Link: the Tor part where the app has Tor and Link · Tor is on. Link · HTTP only sends.
-    // The Link tab keeps its page with Link · Tor off: it offers to turn it on.
-    // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
-    final offlineBlock = watchNetBlock(context, ref);
-    final offline = offlineBlock.byMode;
-    final offlineNote = NetBlockNote(offlineBlock, line: l.receiveLinkOffMode(networkModeName(l, ref.watch(networkModeProvider))));
+        (ref.watch(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults);
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    final offline = watchNetBlock(context, ref).byMode;
     final address = ref.watch(addressProvider);
     // The Epicbox list of the settings file is empty: no server, so no address to hand out
     // (LEPIC's is on a placeholder server, lepic_wallet_service.dart's noEpicboxDomain).
     final noServer = ref.watch(hostSettingsProvider.select((h) => h.epicboxServers.isEmpty));
     // Requests go to paired contacts or into a file, both through pairing (RFC 0002).
     final invoices = ref.watch(invoicesShownProvider) && ref.watch(pairingSupportedProvider);
-    final help = Center(
-      child: TextButton.icon(
-        icon: const Icon(Icons.help_outline),
-        label: Text(l.receiveHelpButton),
-        onPressed: () => openHelp(context, HelpId.receive),
-      ),
-    );
-    ({ReceiveTab value, IconData icon, String label}) segment(ReceiveTab value, IconData icon, String label) =>
-        (value: value, icon: icon, label: label);
-    // With Epicbox alone there is nothing to choose: the strip names it.
-    final tabSegments = <({ReceiveTab value, IconData icon, String label})>[
-        // Epicbox off (Settings › Transactions): no address to hand out, no tab.
-        if (payments.epicbox)
-          segment(ReceiveTab.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-        // Link is Link · Tor on the phone (Link · HTTP only sends): no tab without Tor. With
-        // Tor, Link stays whatever Settings › Transactions says, so the strip never jumps:
-        // with Link · Tor off its page offers to turn it on.
-        if (!quiet && torAvailable)
-          segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
-        // QR is the phone next to this one: offered where the camera works.
-        if (tab == ReceiveTab.qr || ((payments.directQr || quiet) && offersQrPayment(ref)))
-          segment(ReceiveTab.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
-        // The tab in use and a file send waiting for its reply keep File.
-        if (!quiet && (tab == ReceiveTab.file || payments.directFile || filePending))
-          segment(ReceiveTab.file, MethodIcons.of(MethodKind.directFile), MethodIcons.shortName(l, MethodKind.directFile)),
-    ];
-    // Every method off: nothing to show but the way to Settings.
-    if (tabSegments.isEmpty) {
-      return CenteredScroll(
-        child: EmptyState(
-          key: receiveNoMethodsKey,
-          icon: const Icon(Icons.call_received),
-          message: '${l.receiveNoMethods}. ${l.receiveNoMethodsBody}',
-          action: FilledButton.tonal(
-            onPressed: () => openSettingsSection(context, SettingsSection.transactions),
-            child: Text(l.receiveNoMethodsButton),
-          ),
-        ),
-      );
-    }
-    // The tab in use went off: the first that is on.
-    if (!tabSegments.any((s) => s.value == tab)) tab = tabSegments.first.value;
-    final Widget tabs = tabSegments.length == 1 || quiet
-        ? const SizedBox.shrink()
-        : LayoutBuilder(
-            builder: (context, box) {
-              // Icon above the label, every label at one size (PH-1): the selected tab changes
-              // colour (the button's own, accent when selected) and weight, never size. Measured
-              // at the heavier weight. Room per tab: its share, less the padding and dividers.
-              final style = Theme.of(context).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w600);
-              // On a narrow phone the icons alone; the label stays in the tooltip and for
-              // screen readers (UP-002).
-              final iconOnly = box.maxWidth < 360;
-              final fit = fitTabLabels(
-                context,
-                [for (final s in tabSegments) s.label],
-                width: box.maxWidth / tabSegments.length - 2 * _tabPad - 2,
-                style: style,
-              );
-              return SegmentedButton<ReceiveTab>(
-                key: receiveTabsKey,
-                segments: [
-                  for (final (i, s) in tabSegments.indexed)
-                    ButtonSegment(
-                      value: s.value,
-                      tooltip: s.label,
-                      label: TrustId(s.value == ReceiveTab.epicbox ? TrustIds.receiveMethodEpicbox : null, child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(s.icon, size: 18, semanticLabel: iconOnly ? s.label : null),
-                          if (!iconOnly) const SizedBox(height: 2),
-                          if (!iconOnly)
-                          Text(
-                            fit.texts[i],
-                            maxLines: 2,
-                            softWrap: false,
-                            textAlign: TextAlign.center,
-                            // No colour here: the button's selected and unselected colours.
-                            style: TextStyle(
-                              fontSize: fit.size,
-                              fontWeight: s.value == tab ? FontWeight.w600 : FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      )),
-                    ),
-                ],
-                selected: {tab},
-                showSelectedIcon: false,
-                expandedInsets: EdgeInsets.zero,
-                style: const ButtonStyle(
-                  minimumSize: WidgetStatePropertyAll(Size(0, 44)),
-                  padding: WidgetStatePropertyAll(
-                    EdgeInsets.symmetric(horizontal: _tabPad, vertical: 6),
-                  ),
-                ),
-                onSelectionChanged: (selected) =>
-                    ref.read(receiveTabProvider.notifier).choose(selected.first),
-              );
-            },
-          );
-    Widget column(List<Widget> children) => Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
-    );
-    // What the tab means, so the sender's side is plain: picture, title, one line.
-    final strip = quiet ? const SizedBox.shrink() : Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: DismissibleTip(
-        id: receiveMethodTipId,
-        child: MethodStrip(
-          method: switch (tab) {
-            ReceiveTab.epicbox => TransferMethod.epicbox,
-            ReceiveTab.direct => TransferMethod.direct,
-            ReceiveTab.qr => TransferMethod.qr,
-            ReceiveTab.file => TransferMethod.file,
-          },
-          receiving: true,
-          overTor:
-              tab == ReceiveTab.epicbox &&
-              torWay(TorRoute.epicbox, torState) == TorWay.overTor,
-        ),
-      ),
-    );
-    Widget caption(String text) => Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodySmall
-            ?.copyWith(color: context.tokens.dim),
-      ),
+    final relayMove = ref.watch(relaySwitchResultProvider);
+    final ways = OtherWays(
+      inPerson: payments.directQr && offersQrPayment(ref),
+      file: true,
+      tor: torAvailable,
     );
     final value = noServer ? null : address.value;
-    // Level 1's quiet link: into QR Payment from the address, back out of it.
-    Widget quietLink() {
-      final toQr = tab != ReceiveTab.qr;
-      if (toQr && !tabSegments.any((s) => s.value == ReceiveTab.qr)) return const SizedBox.shrink();
-      return Center(
-        child: TextButton(
-          key: receiveQuietQrKey,
-          style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-          onPressed: () => ref.read(receiveTabProvider.notifier).choose(toQr ? ReceiveTab.qr : ReceiveTab.epicbox),
-          child: Text(toQr ? l.lvPaySendQrLink : l.lvPayReceiveBack),
-        ),
+    final Widget top;
+    if (!payments.epicbox) {
+      top = const SizedBox.shrink();
+    } else if (noServer) {
+      top = EmptyState(
+        key: const ValueKey('receive-no-epicbox'),
+        icon: Icon(MethodIcons.of(MethodKind.epicbox)),
+        message: '${l.deskSlNoEpicboxTitle}. ${l.deskSlNoEpicboxText}',
+        action: FilledButton.tonal(onPressed: () => showEpicboxPicker(context), child: Text(l.slRelayField)),
       );
-    }
-    final Widget above;
-    final Widget? code;
-    final Widget below;
-    if (tab == ReceiveTab.qr) {
-      above = column([
-        strip,
-        const _QrCard(),
-        const SizedBox(height: 8),
-        if (quiet) quietLink(),
-        help,
-      ]);
-      code = null;
-      below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.file) {
-      above = column([
-        strip,
-        const _FileCard(),
-        const SizedBox(height: 8),
-        help,
-      ]);
-      code = null;
-      below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && !payments.linkTor) {
-      // Link · Tor off: say so and offer its switch (GP-024). The tab is there only with Tor.
-      above = column([
-        strip,
-        _LinkOff(payments: payments),
-        const SizedBox(height: 8),
-        help,
-      ]);
-      code = null;
-      below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && torState == TorState.off) {
-      // No Link · Tor receiving without Tor, and no onion to hand out: Tor never runs in
-      // Offline either.
-      above = column([
-        strip,
-        _DirectNeedsTor(epicbox: payments.epicbox, offline: offline),
-        if (offline) offlineNote,
-        const SizedBox(height: 8),
-      ]);
-      code = null;
-      below = column([
-        const SizedBox(height: 8),
-        help,
-      ]);
-    } else if (tab == ReceiveTab.direct) {
-      final onion = ref.watch(phoneTorProvider.select((s) => s.onion));
-      // The code stays, scannable and the same address, but dimmed until the address is
-      // reachable: the state line under it says why.
-      final reachable = ref.watch(
-        phoneTorProvider.select((s) => s.phase == PhoneTorPhase.ready),
-      );
-      above = column([
-        strip,
-        if (onion != null) ...[
-          AnimatedOpacity(
-            opacity: reachable ? 1 : 0.6,
-            duration: const Duration(milliseconds: 300),
-            child: _AddressRow(
-              address: onion,
-              label: l.receiveTorAddressLabel,
-              cardKey: receiveTorAddressKey,
-            ),
-          ),
-          caption(l.receiveTorCaption),
-          const SizedBox(height: 8),
-        ] else
-          const LinearProgressIndicator(),
-        if (offline)
-          offlineNote
-        else
-          TorStateLine(openSettings: () => openPrivacySettings(context)),
-        const SizedBox(height: 4),
-      ]);
-      code = onion == null
-          ? null
-          : LayoutBuilder(
-              builder: (context, room) => AnimatedOpacity(
-                key: receiveTorQrKey,
-                opacity: reachable ? 1 : 0.4,
-                duration: const Duration(milliseconds: 300),
-                child: _AddressQr(
-                  address: onion,
-                  semanticsLabel: l.receiveTorQrLabel,
-                  size:
-                      math
-                          .min(room.maxWidth, room.maxHeight)
-                          .clamp(
-                            receiveQrMinSize + _AddressQr.frame,
-                            receiveQrMaxSize + _AddressQr.frame,
-                          ) -
-                      _AddressQr.frame,
-                ),
-              ),
-            );
-      below = column([
-        const SizedBox(height: 8),
-        help,
-      ]);
-    } else {
-      above = column([
-        strip,
-        if (noServer)
-          EmptyState(
-            key: const ValueKey('receive-no-epicbox'),
-            icon: Icon(MethodIcons.of(MethodKind.epicbox)),
-            message: '${l.deskSlNoEpicboxTitle}. ${l.deskSlNoEpicboxText}',
-            action: FilledButton.tonal(onPressed: () => showEpicboxPicker(context), child: Text(l.slRelayField)),
-          )
-        else if (value != null) ...[
-          if (relayMove != null) ...[const NewAddressBadge(), const SizedBox(height: 4)],
+    } else if (value != null) {
+      top = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (relayMove != null) ...[const NewAddressBadge(), const SizedBox(height: 12)],
           PhoneTourTarget(
             id: 'tour-receive-address',
-            child: _AddressRow(
-              address: value,
-              label: relayMove != null ? l.lvPayNewAddress : l.receiveAddressLabel,
-              cardKey: receiveAddressKey,
+            child: Column(
+              children: [
+                ReceiveQr(address: value),
+                const SizedBox(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ReceiveAddressBlock(
+                    address: value,
+                    label: relayMove != null ? l.lvPayNewAddress : l.receiveAddressLabel,
+                    cardKey: receiveAddressKey,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          if (relayMove != null) ...[NewAddressLines(result: relayMove), const SizedBox(height: 8)],
+          if (relayMove != null) ...[const SizedBox(height: 8), NewAddressLines(result: relayMove)],
+          const SizedBox(height: 16),
           if (offline) _EpicboxOffByMode(mode: ref.watch(networkModeProvider)) else const _EpicboxLine(),
-          const SizedBox(height: 8),
-        ] else if (address.hasError)
-          ErrorText(describeError(l, address.error!))
-        else
-          const LinearProgressIndicator(),
-      ]);
-      code = value == null
-          ? null
-          : LayoutBuilder(
-              builder: (context, room) => _AddressQr(
-                address: value,
-                size:
-                    math
-                        .min(room.maxWidth, room.maxHeight)
-                        .clamp(
-                          receiveQrMinSize + _AddressQr.frame,
-                          receiveQrMaxSize + _AddressQr.frame,
-                        ) -
-                    _AddressQr.frame,
-              ),
-            );
-      below = column([
-        if (arriving != null) ...[const SizedBox(height: 8), ArrivalCard(tx: arriving)],
-        if (quiet) quietLink(),
-        if (invoices) ...[
-          const SizedBox(height: 8),
-          const Center(child: _RequestButton()),
         ],
-        const SizedBox(height: 8),
-        help,
-      ]);
+      );
+    } else if (address.hasError) {
+      top = ErrorText(describeError(l, address.error!));
+    } else {
+      top = const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: LinearProgressIndicator());
     }
-    const padding = 16.0;
+    final rows = [
+      if (invoices)
+        KitRow(
+          leading: KitIconWell(KitIcons.invoice),
+          title: l.phoneRecvAsk,
+          subtitle: l.phoneRecvAskLine,
+          chevron: true,
+          semanticsId: TrustIds.receiveAsk,
+          key: receiveRequestKey,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen())),
+        ),
+      if (ways.any)
+        KitRow(
+          leading: KitIconWell(KitIcons.qr),
+          title: l.phoneRecvOther,
+          subtitle: l.phoneRecvOtherLine,
+          chevron: true,
+          semanticsId: TrustIds.receiveOther,
+          onTap: () => showOtherWays(context, ways: ways),
+        ),
+    ];
     return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, viewport) => SingleChildScrollView(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Padding(
-                padding: const EdgeInsets.all(padding),
-                child: _ReceivePage(
-                  height: math.max(0, viewport.maxHeight - 2 * padding),
-                  leastCode: receiveQrMinSize + _AddressQr.frame,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: tabs,
-                    ),
-                    above,
-                    ?code,
-                    below,
+      top: false,
+      child: SingleChildScrollView(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 24, Kit.gutter, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  top,
+                  if (rows.isNotEmpty) ...[
+                    const SizedBox(height: 22),
+                    KitGroup(margin: EdgeInsets.zero, children: rows),
                   ],
-                ),
+                ],
               ),
             ),
           ),
@@ -511,171 +260,102 @@ class ReceiveView extends ConsumerWidget {
   }
 }
 
-/// Receive's page: the tabs at the top, then the rest right under them on every tab, so
-/// switching tabs never moves the content's start (a centred tab left a band of empty page
-/// above it). With
-/// four children the third is the QR code, which gets the room the others leave, at least
-/// [leastCode]: the page is [height] tall, or taller and scrolled when even the least code
-/// does not fit.
-class _ReceivePage extends MultiChildRenderObjectWidget {
-  const _ReceivePage({
-    required this.height,
-    required this.leastCode,
-    required super.children,
-  });
+/// The address as a QR code with the mark in its centre, in the brand's corner marks. Always
+/// shown, like the desktop Receive: no cover, no tap to hide. [semanticsLabel] is what a screen
+/// reader calls it.
+class ReceiveQr extends StatelessWidget {
+  const ReceiveQr({super.key, required this.address, this.semanticsLabel, this.logo = QrLogo.bt});
 
-  final double height;
-  final double leastCode;
+  final String address;
+  final String? semanticsLabel;
+  final QrLogo logo;
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderReceivePage(height, leastCode);
-
-  @override
-  void updateRenderObject(BuildContext context, _RenderReceivePage render) {
-    render
-      ..height = height
-      ..leastCode = leastCode;
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    const pad = 12.0;
+    return Center(
+      heightFactor: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: KitCornerMarks(
+          inset: 14,
+          arm: 22,
+          child: Container(
+            width: Kit.qr,
+            height: Kit.qr,
+            padding: const EdgeInsets.all(pad),
+            decoration: BoxDecoration(
+              // Dark modules on white scan reliably in either theme.
+              color: protocolLight.surface,
+              borderRadius: BorderRadius.circular(Kit.rQr),
+              boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.22 : 0.12), blurRadius: 40)],
+            ),
+            child: Semantics(
+              label: semanticsLabel ?? l.receiveQrLabel,
+              image: true,
+              child: LogoQr(data: address, size: Kit.qr - 2 * pad, logo: logo),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
-class _ReceivePageData extends ContainerBoxParentData<RenderBox> {}
-
-class _RenderReceivePage extends RenderBox
-    with
-        ContainerRenderObjectMixin<RenderBox, _ReceivePageData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, _ReceivePageData> {
-  _RenderReceivePage(this._height, this._leastCode);
-
-  double _height;
-  set height(double value) {
-    if (value == _height) return;
-    _height = value;
-    markNeedsLayout();
-  }
-
-  double _leastCode;
-  set leastCode(double value) {
-    if (value == _leastCode) return;
-    _leastCode = value;
-    markNeedsLayout();
-  }
-
-  @override
-  void setupParentData(RenderBox child) {
-    if (child.parentData is! _ReceivePageData) {
-      child.parentData = _ReceivePageData();
-    }
-  }
-
-  @override
-  double computeMinIntrinsicHeight(double width) => _height;
-
-  @override
-  double computeMaxIntrinsicHeight(double width) => _height;
-
-  @override
-  Size computeDryLayout(covariant BoxConstraints constraints) =>
-      constraints.constrain(Size(constraints.maxWidth, _height));
-
-  @override
-  void performLayout() {
-    final width = constraints.maxWidth;
-    final children = getChildrenAsList();
-    final loose = BoxConstraints(maxWidth: width);
-    final tight = BoxConstraints.tightFor(width: width);
-    // The tabs, the part above the code and the part below it: as tall as they are.
-    final rest = [
-      for (final (i, child) in children.indexed)
-        if (children.length < 4 || i != 2) child,
-    ];
-    var used = 0.0;
-    for (final child in rest) {
-      child.layout(tight, parentUsesSize: true);
-      used += child.size.height;
-    }
-    if (children.length == 4) {
-      final code = children[2];
-      code.layout(
-        loose.copyWith(maxHeight: math.max(_height - used, _leastCode)),
-        parentUsesSize: true,
-      );
-      used += code.size.height;
-    }
-    size = constraints.constrain(Size(width, math.max(_height, used)));
-    // The tabs stay at the top; the rest starts right under them, centred across.
-    final head = children.first;
-    var y = head.size.height;
-    (head.parentData! as _ReceivePageData).offset = Offset.zero;
-    for (final child in children.skip(1)) {
-      (child.parentData! as _ReceivePageData).offset = Offset(
-        (width - child.size.width) / 2,
-        y,
-      );
-      y += child.size.height;
-    }
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
-      defaultHitTestChildren(result, position: position);
-
-  @override
-  void paint(PaintingContext context, Offset offset) =>
-      defaultPaint(context, offset);
-}
-
-/// The key of the address card, which copies on a tap, for tests.
+/// The key of the address, which copies on a tap, for tests.
 const Key receiveAddressKey = ValueKey('receive-address');
 
-/// The key of the onion address card on the Direct tab, for tests.
+/// The key of the onion address on the Tor page, for tests.
 const Key receiveTorAddressKey = ValueKey('receive-tor-address');
 
 /// The key of the Tor address's QR code (its opacity: dim until reachable), for tests.
 const Key receiveTorQrKey = ValueKey('receive-tor-qr');
 
-/// The key of Share inside the address card, for tests.
+/// The key of Share under the address, for tests.
 const Key receiveShareKey = ValueKey('receive-share');
 
 /// The key of the epicbox line, for tests.
 const Key receiveEpicboxKey = ValueKey('receive-epicbox');
 
-/// The full address in a full-width card that copies on a tap anywhere on it, with the copy
-/// icon and, where the device shares, Share stacked on its right. [label] names the kind of
-/// address above it: the same card for the epicbox and the Tor address.
-class _AddressRow extends ConsumerStatefulWidget {
-  const _AddressRow({
+/// An address in the middle of the screen, first and last six characters marked (a tap copies,
+/// a long press selects), a line asking to check them with the payer, then Copy and, where the
+/// device shares, Share. [label] names the kind of address for a screen reader: the same block
+/// serves the epicbox and the Tor address.
+class ReceiveAddressBlock extends ConsumerStatefulWidget {
+  const ReceiveAddressBlock({
+    super.key,
     required this.address,
     required this.label,
     required this.cardKey,
+    this.copied,
   });
 
   final String address;
   final String label;
 
-  /// The key of the card's tap target, for tests.
+  /// The key of the address's tap target, for tests.
   final Key cardKey;
 
+  /// The notice after a copy; the address-copied line by default.
+  final String? copied;
+
   @override
-  ConsumerState<_AddressRow> createState() => _AddressRowState();
+  ConsumerState<ReceiveAddressBlock> createState() => _ReceiveAddressBlockState();
 }
 
-class _AddressRowState extends ConsumerState<_AddressRow> {
+class _ReceiveAddressBlockState extends ConsumerState<ReceiveAddressBlock> {
   bool _sharing = false;
 
-  void _copy() =>
-      copyText(context, widget.address, context.l10n.receiveAddressCopied);
+  void _copy() => copyText(context, widget.address, widget.copied ?? context.l10n.receiveAddressCopied);
 
   Future<void> _share() async {
     if (_sharing) return;
     setState(() => _sharing = true);
     try {
-      await shareAddress(
-        context,
-        ref,
-        address: widget.address,
-        chain: ref.read(walletConfigProvider)?.chain,
-      );
+      await shareAddress(context, ref, address: widget.address, chain: ref.read(walletConfigProvider)?.chain);
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
@@ -685,100 +365,67 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final files = ref.watch(slateFilesProvider);
-    final address = widget.address;
     final canShare = files.canShare || files.canShareText;
-    // A 48 dp box for each icon, stacked on the card's right: copy above share.
-    const icon = 48.0;
-    const inset = 4.0;
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Semantics(
-            key: widget.cardKey,
-            container: true,
-            button: true,
-            label: widget.label,
-            value: address,
-            onTapHint: l.commonCopy,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          key: widget.cardKey,
+          container: true,
+          button: true,
+          label: widget.label,
+          value: widget.address,
+          onTapHint: l.commonCopy,
+          onTap: _copy,
+          excludeSemantics: true,
+          child: InkWell(
             onTap: _copy,
-            excludeSemantics: true,
-            child: InkWell(
-              onTap: _copy,
-              child: ConstrainedBox(
-                // Room for both icons, however short the address.
-                constraints: BoxConstraints(
-                  minHeight: canShare ? 2 * icon + 2 * inset : 0,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                    16,
-                    inset,
-                    inset,
-                    inset,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.label,
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: t.dim,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              // Selectable for a long press; a tap copies, like the card.
-                              // The server on its own line, shrunk rather than broken inside
-                              // its name on a narrow phone at a large text size (UP-033).
-                              MarkedAddress(address, selectable: true, onTap: _copy),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox.square(
-                        dimension: icon,
-                        child: Icon(Icons.copy, size: 20, color: t.accentText),
-                      ),
-                    ],
-                  ),
-                ),
+            borderRadius: BorderRadius.circular(Kit.rButtonSmall),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: Kit.hitTarget),
+              child: Center(
+                // Selectable for a long press; a tap copies. The server on its own line, shrunk
+                // rather than broken inside its name on a narrow phone at a large text size.
+                child: MarkedAddress(widget.address, center: true, selectable: true, onTap: _copy),
               ),
             ),
           ),
-          if (canShare)
-            PositionedDirectional(
-              top: inset + icon,
-              end: inset,
-              child: IconButton(
-                key: receiveShareKey,
-                tooltip: l.commonShare,
-                constraints: const BoxConstraints.tightFor(
-                  width: icon,
-                  height: icon,
-                ),
-                padding: EdgeInsets.zero,
-                onPressed: _sharing ? null : _share,
-                // Through the button, so it greys while a share is under way.
-                color: t.accentText,
-                icon: const Icon(Icons.share, size: 20),
+        ),
+        const SizedBox(height: 8),
+        Text(l.phoneRecvCheck, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.faint)),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            Expanded(
+              child: KitButton(
+                label: l.commonCopy,
+                kind: KitButtonKind.quiet,
+                icon: KitIcons.copy,
+                semanticsId: TrustIds.receiveCopy,
+                onPressed: _copy,
               ),
             ),
-        ],
-      ),
+            if (canShare) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: KitButton(
+                  key: receiveShareKey,
+                  label: l.commonShare,
+                  icon: KitIcons.share,
+                  semanticsId: TrustIds.receiveShare,
+                  onPressed: _sharing ? null : _share,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
     );
   }
 }
 
-/// The Epicbox tab while Node only or Kill switch turns Epicbox off: the status word reads Off
+/// The Epicbox line while Node only or Kill switch turns Epicbox off: the status word reads Off
 /// ({mode}), and the address stays shown and copyable above; payments to it wait on the Epicbox
 /// server and arrive when the mode is left.
 class _EpicboxOffByMode extends StatelessWidget {
@@ -804,7 +451,7 @@ class _EpicboxOffByMode extends StatelessWidget {
             children: [
               Icon(EpicGlyphs.epicbox, size: 16, color: offGlyphColor(t)),
               const SizedBox(width: 6),
-              Flexible(child: Text(statusOffByModeWord(l, mode), style: theme.textTheme.labelMedium?.copyWith(color: t.dim))),
+              Flexible(child: Text(statusOffByModeWord(l, mode), style: KitType.rowSub.copyWith(color: t.dim))),
             ],
           ),
         ),
@@ -835,9 +482,10 @@ class _EpicboxOffByMode extends StatelessWidget {
 /// The key of the Epicbox-off-by-mode notice on Receive, for tests.
 const Key receiveEpicboxOffModeKey = ValueKey('receive-epicbox-off-mode');
 
-/// Where the epicbox listener stands, in one quiet line. Offline or stopped, it says what that
-/// means for receiving and offers Retry, which restarts the listener. Blocked by this network,
-/// it says so and offers another relay in one tap ([RelayBlockedNote]).
+/// Where the epicbox listener stands, in one quiet line under the address: a green dot and
+/// "Listening for payments". Offline or stopped, it says what that means for receiving and offers
+/// Retry, which restarts the listener. Blocked by this network, it says so and offers another
+/// relay in one tap ([RelayBlockedNote]).
 class _EpicboxLine extends ConsumerWidget {
   const _EpicboxLine();
 
@@ -845,417 +493,89 @@ class _EpicboxLine extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     // As the header shows it: offline only once it lasts; a stopped listener (null) at once.
     final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
     final offline = epicbox == null || epicbox == EpicboxState.offline;
     final blocked = epicbox == EpicboxState.blocked;
     final config = ref.watch(walletConfigProvider);
-    // State first, then the server (GP-021): the server matters after a switch, as the
-    // address changes with it. Level 1 names no server: the state alone.
-    final hosts = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
-    final host = config == null || !hosts ? null : relayLabel(config);
-    final (IconData icon, String word, Color color) =
-        epicbox == EpicboxState.online
-        ? (EpicGlyphs.epicbox, host != null ? l.receiveEpicboxConnected(host) : hosts ? l.statusEpicboxOnline : l.lvShellBoxListening, t.ok)
+    // The server is named only with Advanced server details on.
+    final host = config == null || !AdvancedOptions.has(context, AdvancedFeature.serverDetails) ? null : relayLabel(config);
+    final (String word, Color color) = epicbox == EpicboxState.online
+        ? (host != null ? l.receiveEpicboxConnected(host) : l.phoneRecvListening, t.ok)
         : blocked
-        ? (EpicGlyphs.epicbox, l.statusEpicboxBlocked, t.risk)
+        ? (l.statusEpicboxBlocked, t.risk)
         : offline
-        ? (EpicGlyphs.epicbox, host == null ? l.statusEpicboxOffline : l.receiveEpicboxNotConnected(host), t.risk)
-        : (EpicGlyphs.epicbox, l.statusEpicboxConnecting, t.dim);
+        ? (host == null ? l.statusEpicboxOffline : l.receiveEpicboxNotConnected(host), t.risk)
+        : (l.statusEpicboxConnecting, t.dim);
     return Column(
       key: receiveEpicboxKey,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
+        TrustId(
+          TrustIds.receiveListening,
+          child: Semantics(
           liveRegion: true,
           container: true,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  word,
-                  style: theme.textTheme.labelMedium?.copyWith(color: color),
+              ExcludeSemantics(
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                 ),
               ),
+              const SizedBox(width: 8),
+              Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: color))),
             ],
           ),
-        ),
+        )),
         if (config != null)
           Advanced(
             feature: AdvancedFeature.serverDetails,
-            child: Center(
-              child: Readout(
-                l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'),
-              ),
-            ),
+            child: Center(child: Readout(l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'))),
           ),
         if (offline) ...[
           const SizedBox(height: 4),
           Text(
             l.receiveEpicboxOfflineBody,
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            style: KitType.rowSub.copyWith(color: t.dim),
           ),
+          const SizedBox(height: 8),
           Center(
-            child: TextButton.icon(
-              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-              icon: const Icon(Icons.refresh),
-              label: Text(l.commonRetry),
+            child: KitButton(
+              label: l.commonRetry,
+              kind: KitButtonKind.quiet,
+              small: true,
+              expand: false,
+              icon: Icons.refresh,
               onPressed: () => ref.read(listenerProvider.notifier).restart(),
             ),
           ),
         ],
-        if (blocked) ...[
-          const SizedBox(height: 4),
-          const RelayBlockedNote(),
-        ],
+        if (blocked) ...[const SizedBox(height: 4), const RelayBlockedNote()],
       ],
     );
   }
 }
 
-/// The key of Turn on Tor on Receive's Link tab, for tests.
-/// The Turn on button of Receive › Link while Link · Tor is off, for tests.
+/// The key of the Turn on button of Receive › Tor address while Link · Tor is off, for tests.
 const Key receiveTurnOnLinkTorKey = ValueKey('receive-turn-on-link-tor');
 
+/// The key of the Turn on Tor button of Receive › Tor address, for tests.
 const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 
-/// Receive's Link tab with Link · Tor on and Tor off: Link · Tor receiving needs Tor, the
-/// Epicbox address works meanwhile (while [epicbox] is on), and Turn on Tor (the one switch,
-/// as in Settings › Privacy).
-/// Receive › Link with Link · Tor off: the reason and its Turn on.
-class _LinkOff extends ConsumerWidget {
-  const _LinkOff({required this.payments});
-
-  final PaymentPrefs payments;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          l.netBlockMethodOff(MethodIcons.fullName(l, MethodKind.linkTor)),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(color: context.tokens.dim),
-        ),
-        const SizedBox(height: 12),
-        FilledButton.tonalIcon(
-          key: receiveTurnOnLinkTorKey,
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
-          icon: Icon(MethodIcons.of(MethodKind.linkTor)),
-          label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkTor))),
-          onPressed: () => ref.read(appSettingsProvider.notifier).setPayments(payments.withMethod(MethodKind.linkTor, true)),
-        ),
-      ],
-    );
-  }
-}
-
-class _DirectNeedsTor extends ConsumerWidget {
-  const _DirectNeedsTor({required this.epicbox, this.offline = false});
-
-  final bool epicbox;
-
-  /// Offline mode: Tor does not run and nothing arrives, so no way to turn it on here and no
-  /// pointer to the Epicbox address; the offline line follows.
-  final bool offline;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 8),
-        Text(
-          l.receiveDirectNeedsTor,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge,
-        ),
-        if (epicbox && !offline) ...[
-          const SizedBox(height: 4),
-          Text(
-            l.receiveDirectMeanwhile,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim),
-          ),
-        ],
-        if (!offline) ...[
-          const SizedBox(height: 12),
-          FilledButton.tonalIcon(
-            key: receiveTurnOnTorKey,
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
-            icon: const Icon(torIcon),
-            label: Text(l.torTurnOn),
-            onPressed: () =>
-                ref.read(phoneTorProvider.notifier).setReceiving(true),
-          ),
-        ] else
-          const SizedBox(height: 8),
-      ],
-    );
-  }
-}
-
-/// The address as a QR code of [size] with the mark, framed by corner ticks. Always shown,
-/// like the desktop Receive: no cover, no tap to hide.
-class _AddressQr extends StatelessWidget {
-  const _AddressQr({
-    required this.address,
-    required this.size,
-    this.semanticsLabel,
-  });
-
-  final String address;
-  final double size;
-
-  /// What a screen reader calls it; the epicbox address's code without it.
-  final String? semanticsLabel;
-
-  /// What the frame adds to the code's side: the ticks' and the white margin's padding.
-  static const double frame = 2 * 12 + 2 * 16;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return Center(
-      // As tall as the code, so the page stacks it with the rest.
-      heightFactor: 1,
-      // The corner ticks frame the code as the screen's one object.
-      child: CustomPaint(
-        foregroundPainter: CornerTicksPainter(t.tick, length: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              // Dark modules on white scan reliably in either theme.
-              color: protocolLight.surface,
-              borderRadius: BorderRadius.circular(t.radiusSmall),
-              boxShadow: [
-                BoxShadow(
-                  color: t.accent.withValues(alpha: dark ? 0.22 : 0.12),
-                  blurRadius: 40,
-                ),
-              ],
-            ),
-            child: Semantics(
-              label: semanticsLabel ?? l.receiveQrLabel,
-              image: true,
-              child: LogoQr(data: address, size: size),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Receiving by QR: the sender's phone shows the payment, this one scans it, accepts and shows
-/// its reply. A title, one line and the camera button.
-class _QrCard extends ConsumerWidget {
-  const _QrCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    // Scanning a payment asks the node to sign, like opening a file: Offline lets it use the
-    // node in use, and says so when that node is not local.
-    final offlineNode = watchOfflineUsesNode(context, ref);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      l.receiveQrTitle,
-                      style: theme.textTheme.titleSmall,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  tooltip: l.sendHowItWorks,
-                  icon: const Icon(Icons.info_outline),
-                  onPressed: () => showHandshakeSheet(
-                    context,
-                    flow: HandshakeFlow.qrReceive,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l.receiveQrBody,
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              key: receiveScanQrKey,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              icon: const Icon(Icons.qr_code_scanner),
-              label: Text(l.qrScanPayment),
-              onPressed: () => scanSlateQr(context, ref),
-            ),
-            // Asking for an amount: a request shown as a QR.
-            if (ref.watch(sessionProvider.select((s) => s?.supportsRequestFiles ?? false))) ...[
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                key: receiveQrRequestKey,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                icon: const Icon(Icons.request_quote_outlined),
-                label: Text(l.receiveQrRequest),
-                onPressed: () => openQrRequest(context),
-              ),
-            ],
-            if (offlineNode)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: OfflineNodeNote(),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Receiving by payment file, for everyone: Open file, Paste, and a ? for the explainer.
-class _FileCard extends ConsumerWidget {
-  const _FileCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    // Opening or pasting a file asks the node: Offline lets it use the node in use, and says
-    // so when that node is not local.
-    final offlineNode = watchOfflineUsesNode(context, ref);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 4, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      l.receiveFileTitle,
-                      style: theme.textTheme.titleSmall,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  tooltip: l.fileHelpTitle,
-                  icon: const Icon(Icons.help_outline),
-                  onPressed: () => showFileExchangeHelp(
-                    context,
-                    role: FileExchangeRole.receiver,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Text(
-                l.receiveFileBody,
-                style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                      ),
-                      icon: const Icon(Icons.file_open_outlined),
-                      label: Text(l.receiveFileOpen),
-                      onPressed: () => openSlateFile(context, ref),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                      ),
-                      icon: const Icon(Icons.content_paste),
-                      label: Text(l.commonPaste),
-                      onPressed: () => pasteSlate(context, ref),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (offlineNode)
-              const Padding(
-                padding: EdgeInsets.only(top: 4, right: 12),
-                child: OfflineNodeNote(),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The key of the Scan payment QR button of Receive's file card, for tests.
+/// The key of the Scan payment QR button on In person, for tests.
 const Key receiveScanQrKey = ValueKey('receive-scan-qr');
 const Key receiveQrRequestKey = ValueKey('receive-qr-request');
 
 /// The key of Receive's empty state when every method is off, for tests.
 const Key receiveNoMethodsKey = ValueKey('receive-no-methods');
 
-/// The key of Receive's request button, for tests.
+/// The key of the Ask for an amount row, for tests.
 const Key receiveRequestKey = ValueKey('receive-request');
-
-/// Asking someone to pay this wallet, when the wallet handles invoices: the button to the
-/// request form.
-class _RequestButton extends StatelessWidget {
-  const _RequestButton();
-
-  @override
-  Widget build(BuildContext context) => OutlinedButton.icon(
-    key: receiveRequestKey,
-    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-    icon: const Icon(Icons.request_quote_outlined),
-    label: Text(context.l10n.receiveRequestTitle),
-    onPressed: () => Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen()),
-    ),
-  );
-}
 
 /// Reads payment text from the clipboard and opens it in [SlateFileScreen], as a file would
 /// be. Says so in a notice when the clipboard holds nothing that can be one.

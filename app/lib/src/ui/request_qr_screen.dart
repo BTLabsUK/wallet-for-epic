@@ -16,15 +16,20 @@ import '../models.dart';
 import '../network_gate.dart' show NetBlock;
 import '../providers.dart';
 import '../settings.dart';
+import '../slate_files.dart' show sendFileName;
+import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'invoice_request_screen.dart';
 import 'invoice_review_screen.dart' show ReviewAmount, requestFileRefusal;
+import 'kit/kit_button.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_tokens.dart';
 import 'net_block.dart';
 import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
+import 'receive_code.dart';
 import 'slate_file_screen.dart' show NotPostedNotice, openSlateFile;
-import 'theme/brand.dart' show GlyphTile;
 import 'theme/tokens.dart';
 
 /// The keys of the request QR screen, for tests.
@@ -163,38 +168,22 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final posted = _posted;
     final canPost = _canPost;
     final message = widget.message;
-    final noteRow = message == null || message.isEmpty
-        ? null
-        : Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyLarge),
-          );
 
     if (posted != null && posted.repostable) {
-      return SlotScaffold(
-        appBar: AppBar(title: Text(l.qrShowTitleRequest)),
-        body: ScreenBody(
-          children: [
-            NotPostedNotice(tx: posted),
-            const SizedBox(height: 8),
-            BusyButton(label: l.commonDone, onPressed: () => Navigator.pop(context)),
-          ],
-        ),
+      return RequestPlainPage(
+        title: l.qrShowTitleRequest,
+        bottom: [KitButton(label: l.commonDone, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.receiveCodeDone)],
+        children: [NotPostedNotice(tx: posted)],
       );
     }
 
     if (posted != null) {
       // The receipt: where the payment stands, from the wallet's history.
       final tx =
-          ref
-              .watch(homeProvider.select((h) => h.value?.transactions))
-              ?.where((x) => x.slateId == widget.slate.slateId)
-              .firstOrNull ??
-          posted;
+          ref.watch(homeProvider.select((h) => h.value?.transactions))?.where((x) => x.slateId == widget.slate.slateId).firstOrNull ?? posted;
       final status = qrShowStatus(
         l,
         reply: false,
@@ -204,116 +193,88 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
         tip: tipHeight(ref),
         target: confirmationsTargetOf(ref),
       );
-      return SlotScaffold(
-        appBar: AppBar(title: Text(l.reqQrPaidTitle)),
-        body: ScreenBody(
-          bottom: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FilledButton.icon(
-                key: requestQrNewKey,
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                icon: const Icon(Icons.add),
-                label: Text(l.reqQrNew),
-                onPressed: _newRequest,
-              ),
-              TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: () => Navigator.pop(context),
-                child: Text(l.commonDone),
-              ),
-            ],
-          ),
-          children: [
-            Row(
-              key: requestQrPaidKey,
-              children: [
-                GlyphTile(size: 48, child: Icon(Icons.check_circle_outline, color: t.ok)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    liveRegion: true,
-                    child: Text(
-                      l.reqQrPaidHeadline(epicExact(l, widget.amount)),
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ReviewAmount(amount: widget.amount),
-            ?noteRow,
-            const SizedBox(height: 16),
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                status.text,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: status.tone == QrStatusTone.ok ? t.ok : t.info,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final error = _error;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.qrShowTitleRequest)),
-      idle: _busy ? SlotProgress(label: l.qrShowTitleRequest) : null,
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            FilledButton.icon(
-              key: requestQrShowKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              icon: const Icon(Icons.qr_code_2),
-              label: Text(l.qrShow),
-              onPressed: _busy ? null : _show,
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              key: requestQrScanKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              icon: const Icon(Icons.qr_code_scanner),
-              label: Text(l.qrScanReply),
-              onPressed: _busy || !canPost ? null : _scan,
-            ),
-          ],
-        ),
+      return RequestPlainPage(
+        title: l.reqQrPaidTitle,
+        bottom: [
+          KitButton(key: requestQrNewKey, label: l.reqQrNew, icon: KitIcons.add, onPressed: _newRequest),
+          KitButton(label: l.commonDone, kind: KitButtonKind.quiet, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.receiveCodeDone),
+        ],
         children: [
           Row(
+            key: requestQrPaidKey,
             children: [
-              GlyphTile(size: 48, child: Icon(Icons.qr_code_2, color: t.accentText)),
+              Icon(KitIcons.check, color: t.ok, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Semantics(
                   header: true,
-                  child: Text(l.qrShowSubRequest(epicExact(l, widget.amount)), style: theme.textTheme.titleMedium),
+                  liveRegion: true,
+                  child: Text(l.reqQrPaidHeadline(epicExact(l, widget.amount)), style: KitType.rowTitle.copyWith(color: t.text)),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
           ReviewAmount(amount: widget.amount),
-          ?noteRow,
+          if (message != null && message.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: KitType.body.copyWith(color: t.text)),
+            ),
           const SizedBox(height: 16),
-          Text(l.qrStatusRequestShowing, style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
-          const SizedBox(height: 4),
-          Text(l.reqQrOpenNote, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-          if (!canPost) ...[const SizedBox(height: 12), NetBlockNote(watchNetBlock(context, ref, node: true))],
-          if (error != null) ...[
-            const SizedBox(height: 16),
-            InlineNotice(key: requestQrErrorKey, level: NoticeLevel.error, text: error(l), liveRegion: true),
-          ],
+          RequestStatusLine(text: status.text, ok: status.tone == QrStatusTone.ok),
         ],
+      );
+    }
+
+    final error = _error;
+    return RequestCodePage(
+      amount: widget.amount,
+      message: message,
+      json: widget.slate.json,
+      fileName: sendFileName(widget.slate.slateId),
+      busy: _busy,
+      onDone: () => Navigator.pop(context),
+      status: const RequestStatusLine(),
+      card: RequestCodeCard(
+        child: TrustId(
+          TrustIds.receiveCodeShow,
+          child: Semantics(
+            button: true,
+            label: l.phoneRecvShowCode,
+            excludeSemantics: true,
+            onTap: _busy ? null : _show,
+            child: Material(
+              key: requestQrShowKey,
+              color: t.fill,
+              borderRadius: BorderRadius.circular(Kit.rQr),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(Kit.rQr),
+                onTap: _busy ? null : _show,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(KitIcons.qr, size: 64, color: t.accentText),
+                    const SizedBox(height: 10),
+                    Text(l.phoneRecvShowCode, style: KitType.button.copyWith(color: t.text)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
+      actions: [
+        KitButton(
+          key: requestQrScanKey,
+          label: l.qrScanReply,
+          kind: KitButtonKind.quiet,
+          icon: KitIcons.scan,
+          onPressed: _busy || !canPost ? null : _scan,
+        ),
+        if (!canPost) NetBlockNote(watchNetBlock(context, ref, node: true)),
+        if (error != null) InlineNotice(key: requestQrErrorKey, level: NoticeLevel.error, text: error(l), liveRegion: true),
+      ],
     );
   }
 }

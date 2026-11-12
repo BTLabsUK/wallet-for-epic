@@ -23381,4 +23381,110 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phonePayRouteSubTor => 'Напрямую в их кошелёк, через Tor';
+
+  @override
+  String get phoneRecvTitle => 'Получить';
+
+  @override
+  String get phoneRecvHelpTitle => 'Получение';
+
+  @override
+  String get phoneRecvHelp1 =>
+      'Поделитесь адресом или кодом. Кто его имеет, тот может вам заплатить.';
+
+  @override
+  String get phoneRecvHelp2 =>
+      'Запрос суммы создаёт код, который просит заданную сумму.';
+
+  @override
+  String get phoneRecvHelp3 =>
+      'Другие способы нужны, когда плательщик не может использовать ваш адрес.';
+
+  @override
+  String get phoneRecvCheck =>
+      'Сверьте первые и последние шесть символов с тем, кто вам платит.';
+
+  @override
+  String get phoneRecvListening => 'Ожидает платежи';
+
+  @override
+  String get phoneRecvAsk => 'Запросить сумму';
+
+  @override
+  String get phoneRecvAskLine => 'Плательщик видит, сколько и за что';
+
+  @override
+  String get phoneRecvAskLineLink => 'Создаёт ссылку с запросом';
+
+  @override
+  String get phoneRecvOther => 'Другие способы получить';
+
+  @override
+  String get phoneRecvOtherLine => 'Лично или файлом';
+
+  @override
+  String get phoneRecvOtherSheetLine =>
+      'На случай, если плательщик не может использовать ваш адрес.';
+
+  @override
+  String get phoneRecvInPersonLine =>
+      'Отсканируйте код плательщика, затем покажите свой';
+
+  @override
+  String get phoneRecvFileLine =>
+      'Откройте файл платежа или вставьте его текст';
+
+  @override
+  String get phoneRecvTorLine => 'Прямо на этот телефон, через Tor';
+
+  @override
+  String get phoneRecvOff => 'Выкл.';
+
+  @override
+  String get phoneRecvFromAnyone => 'От любого';
+
+  @override
+  String phoneRecvFromName(String name) {
+    return 'От $name';
+  }
+
+  @override
+  String get phoneRecvWho => 'Кто платит?';
+
+  @override
+  String get phoneRecvAnyoneCode => 'Любой, по коду';
+
+  @override
+  String get phoneRecvAnyoneCodeLine => 'Сканирует код с этого экрана';
+
+  @override
+  String get phoneRecvAnyoneFile => 'Любой, файлом';
+
+  @override
+  String get phoneRecvAnyoneFileLine =>
+      'Сохраняет файл, который можно передать';
+
+  @override
+  String phoneRecvAskFor(String amount) {
+    return 'Запросить $amount';
+  }
+
+  @override
+  String phoneRecvCodeLead(String amount) {
+    return 'Покажите этот код или поделитесь им. Кто его откроет, увидит запрос на $amount.';
+  }
+
+  @override
+  String get phoneRecvWaitingPaid => 'Ожидает оплаты';
+
+  @override
+  String get phoneRecvViewPayment => 'Открыть платёж';
+
+  @override
+  String get phoneRecvShowCode => 'Показать код';
+
+  @override
+  String phoneRecvArrivalFrom(String name) {
+    return 'от $name';
+  }
 }

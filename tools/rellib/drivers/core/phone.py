@@ -99,7 +99,6 @@ MODE_NORMAL = T("g4.privacy.mode.standard")
 EPICBOX_ROW = T("g4.privacy.status.epicbox")
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
-RECEIVE_EPICBOX = T("g4.receive.method.epicbox")
 SEND_TO = T("g4.send.to")
 # The address selector under To for a paired contact: Paired address | Public address.
 SEND_ROUTE_PAIRED = T("g4.send.route.paired")
@@ -939,9 +938,6 @@ class Phone:
         d = self.d
         self.restore_finish()
         self.tab(TAB_RECEIVE)
-        m = d.seen(RECEIVE_EPICBOX)
-        if m and "selected" not in m.states:
-            d._act(d.s.press, m)
 
         def got(dd, tree):
             for n in tree:
