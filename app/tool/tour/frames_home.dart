@@ -58,7 +58,7 @@ final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
     );
     s.transactionsValue = [
       // Two of three blocks: Confirming 2 of 3.
-      _fTx(11, out: false, amount: 37.0, at: _at(0, 14, 48), who: _fAnna, status: TxStatus.awaitingConfirmation, height: _tip - BigInt.one),
+      _fTx(11, out: false, amount: 25.0, at: _at(0, 14, 48), who: _fAnna, status: TxStatus.awaitingConfirmation, height: _tip - BigInt.one),
       _fTx(12, out: true, amount: 12.5, at: _at(0, 14, 30), who: _fTom, sealed: true, status: TxStatus.awaitingRecipient),
       _fTx(13, out: false, amount: 12.0, at: _at(0, 14, 10), who: _fAnna, status: TxStatus.awaitingConfirmation),
       ...s.transactionsValue,
@@ -72,8 +72,9 @@ final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
     _seedNorthwindAsk(s);
     s.pairing.seedPaired(id: 'p-tom', name: 'Tom', contactId: 'f-tom', paymentsAddress: _fTom, nativeSlates: true);
     s.transactionsValue = [
-      _fTx(11, out: false, amount: 37.0, at: _at(0, 14, 48), who: _fAnna, status: TxStatus.awaitingConfirmation),
-      _fTx(12, out: true, amount: 12.5, at: _at(0, 14, 30), who: _fTom, sealed: true, status: TxStatus.awaitingRecipient),
+      _fTx(11, out: false, amount: 37.0, at: _at(0, 18, 13), who: _fAnna, status: TxStatus.awaitingConfirmation),
+      _fTx(13, out: false, amount: 12.0, at: _at(0, 14, 20), who: _fAnna, status: TxStatus.awaitingConfirmation),
+      _fTx(12, out: true, amount: 12.5, at: _at(0, 18, 12), who: _fTom, sealed: true, status: TxStatus.awaitingRecipient),
       _fTx(6, out: false, amount: 150.0, at: _at(1, 16, 40), who: _fBob, sealed: true),
       ...s.transactionsValue,
     ];
@@ -84,9 +85,9 @@ final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
 void _seedTomPage(FakeWalletSession s) {
   s.pairing.seedPaired(id: 'p-tom', name: 'Tom', contactId: 'f-tom', paymentsAddress: _fTom, nativeSlates: true);
   s.transactionsValue = [
-    _fTx(21, out: true, amount: 12.5, at: _at(0, 14, 30), who: _fTom, note: 'Tickets', sealed: true, status: TxStatus.awaitingRecipient),
+    _fTx(21, out: true, amount: 12.5, at: _at(0, 18, 12), who: _fTom, note: 'Tickets', label: 'Tickets', sealed: true, status: TxStatus.awaitingRecipient),
     _fTx(22, out: true, amount: 25.0, at: _at(10, 12, 0), who: _fTom, sealed: true),
-    _fTx(23, out: false, amount: 40.0, at: _at(15, 13, 0), who: _fTom, note: 'Lunch', sealed: true),
+    _fTx(23, out: false, amount: 40.0, at: _at(15, 13, 0), who: _fTom, note: 'Lunch', label: 'Lunch', sealed: true),
     // The base wallet's own payment to Tom is replaced by these.
     for (final tx in s.transactionsValue)
       if (tx.counterparty != _fTom) tx,

@@ -21,7 +21,6 @@ import 'package:epic_wallet/src/trust/policy.dart' show profileAutomated, profil
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -170,7 +169,9 @@ void main() {
       expect(find.text(_l.contactsEmptyCaption), findsOneWidget);
       expect(find.byType(TextField), findsNothing);
       expect(find.byType(FloatingActionButton), findsNothing);
-      await tester.tap(find.widgetWithText(KitButton, _l.contactsAdd));
+      await tester.tap(find.byKey(contactsMoreKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(contactsAddItemKey));
       await tester.pumpAndSettle();
       expect(find.text(_l.contactsNewTitle), findsOneWidget);
     });
@@ -183,7 +184,7 @@ void main() {
       await h.add('alice', _alice);
       await h.add('Tor friend', _onion);
       await h.pump(tester, const ContactsScreen());
-      expect(find.byTooltip(_l.contactsAdd), findsOneWidget);
+      expect(find.byKey(contactsMoreKey), findsOneWidget);
       // The faces strip and the row each show the initials.
       expect(find.text('BB'), findsNWidgets(2));
       expect(find.text('AL'), findsNWidgets(2));
@@ -191,10 +192,10 @@ void main() {
       expect(find.text(_l.phoneContactsNoPayments), findsNWidgets(3));
       await tester.tap(find.text(_l.phoneContactsAtoZ));
       await tester.pumpAndSettle();
-      // Not paired: the method badge after the name.
-      expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
+      // Not paired: only a kind that is not the default marks the row (Epicbox is the default).
+      expect(find.byIcon(EpicGlyphs.epicbox), findsNothing);
       expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
-      expect(find.text(_l.methodEpicbox), findsNWidgets(2));
+      expect(find.text(_l.methodEpicbox), findsNothing);
       expect(find.text(_l.methodShortTor), findsOneWidget);
       expect(
         find.textContaining(
@@ -384,7 +385,9 @@ void main() {
       expect(find.text('Coffee club'), findsOneWidget);
       expect(find.text(_l.contactAddresses), findsOneWidget);
       expect(find.byType(LogoQr), findsNothing);
-      await tester.tap(find.text(_l.contactsShowCode));
+      await tester.tap(find.byKey(contactPageMoreKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(contactPageCodeKey));
       await tester.pumpAndSettle();
       expect(find.byType(LogoQr), findsOneWidget);
       expect(find.textContaining('a' * 50, findRichText: true), findsWidgets);

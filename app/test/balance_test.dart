@@ -335,6 +335,10 @@ void main() {
         (l.homeWalletBalance, _epic(98.992)),
         (l.homeBalanceSpendableNow, BigInt.zero),
       ]);
+      // The notice toast floats over the top and takes the touches there: close what shows.
+      final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first));
+      container.read(noticeProvider.notifier).dismiss();
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);

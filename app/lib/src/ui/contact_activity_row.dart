@@ -25,11 +25,14 @@ import 'theme/epic1_mark.dart' show Epic1Glyph;
 import 'theme/tokens.dart';
 
 class ContactActivityRow extends ConsumerWidget {
-  const ContactActivityRow({super.key, required this.tx, required this.name, required this.onOpen});
+  const ContactActivityRow({super.key, required this.tx, required this.name, required this.onOpen, this.others = const []});
 
   final TxEntry tx;
   final String name;
   final VoidCallback onOpen;
+
+  /// All the contact's payments, to count those on their way.
+  final List<TxEntry> others;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,12 +47,26 @@ class ContactActivityRow extends ConsumerWidget {
     final open = paymentInProgress(tx, tip, target: target);
     final sealed = phoneShowsSealed(ref, tx) && !cancelled;
     final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
-    final status = open
-        ? paymentRowWord(l, tx, tip, target: target, now: now, who: name, pairedWith: txPayeeName(ref, tx), paused: paused)
-        : txStatusLabel(l, tx, tip, target: target, now: now, paused: paused);
+    // Two or more payments from the contact on their way: the count, as the frame says.
+    final arriving = others.where((o) => !txAmount(o).outgoing && paymentInProgress(o, tip, target: target)).length;
+    final String status;
+    if (open && !outgoing && arriving > 1) {
+      status = l.phoneContactsArriving(arriving);
+    } else if (open) {
+      status = paymentRowWord(l, tx, tip, target: target, now: now, who: name, pairedWith: txPayeeName(ref, tx), paused: paused);
+    } else if (tx.status == TxStatus.confirmed) {
+      // A finished payment names who paid whom.
+      status = outgoing ? l.phoneContactsYouPaid : l.phoneContactsPaidYou;
+    } else {
+      status = txStatusLabel(l, tx, tip, target: target, now: now, paused: paused);
+    }
     final when = localTime(tx.timeUnix);
-    // The time of day for today, else the day (Yesterday, the weekday, the date).
-    final time = daysAgo(when, now) == 0 ? localClock(l, when) : phoneRowDay(l, when, now);
+    // Under a minute: Now; the time of day for today, else the day (Yesterday, the weekday, the date).
+    final time = now.difference(when).abs() < const Duration(minutes: 1)
+        ? l.phoneContactsNow
+        : daysAgo(when, now) == 0
+        ? localClock(l, when)
+        : phoneRowDay(l, when, now);
     final note = tx.note?.trim() ?? '';
     final sub = KitType.rowSub;
     final Widget second;

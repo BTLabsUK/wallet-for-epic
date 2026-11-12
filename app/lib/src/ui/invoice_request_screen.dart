@@ -406,7 +406,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     } else if (_fiatEntry) {
       fiat = approxText(epicExact(l, amount ?? BigInt.zero));
     } else {
-      fiat = approxText(localDigits(l, fiatText(amount ?? BigInt.zero, price, currency)));
+      fiat = phoneFiat(l, amount ?? BigInt.zero, (hidden: false, price: price, currency: currency), approx: true);
     }
     final anyone = toQr || toFile;
     final chip = anyone ? l.phoneRecvFromAnyone : (to == null ? l.phoneRecvWho : l.phoneRecvFromName(pairingName(to, contacts)));

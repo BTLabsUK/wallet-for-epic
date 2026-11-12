@@ -5,5 +5,10 @@
   "phoneContactsAsks": "Verlangt {amount}",
   "phoneContactsFaces": "Kontakte",
   "phoneContactPaired": "Gekoppelt · Zahlungen zwischen euch sind versiegelt",
-  "phoneContactRequest": "Anfordern"
+  "phoneContactRequest": "Anfordern",
+  "phoneContactsYouPaid": "Du hast bezahlt",
+  "phoneContactsPaidYou": "Hat dich bezahlt",
+  "phoneContactsArriving": "{count} Zahlungen unterwegs",
+  "phoneContactsNow": "Jetzt",
+  "phoneContactsWaitingAnswer": "Warten auf die Wallet von {who}"
 }

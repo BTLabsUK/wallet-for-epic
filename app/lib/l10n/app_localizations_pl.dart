@@ -23947,6 +23947,25 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get phoneContactsYouPaid => 'Zapłacono';
+
+  @override
+  String get phoneContactsPaidYou => 'Zapłacił(a) tobie';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count płatności w drodze';
+  }
+
+  @override
+  String get phoneContactsNow => 'Teraz';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'Czekamy na portfel: $who';
+  }
+
+  @override
   String get phoneSendRouteEpicbox => 'Adres Epicbox';
 
   @override

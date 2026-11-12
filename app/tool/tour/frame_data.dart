@@ -69,6 +69,7 @@ TxEntry _fTx(
   required int at,
   String? who,
   String? note,
+  String? label,
   bool sealed = false,
   TxStatus status = TxStatus.confirmed,
   int depth = 6000,
@@ -93,6 +94,7 @@ TxEntry _fTx(
     numInputs: out ? 1 : 0,
     counterparty: who,
     note: note,
+    label: label,
     epic1Via: sealed ? Epic1Via.link : null,
   );
 }

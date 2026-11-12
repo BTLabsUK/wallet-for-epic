@@ -129,7 +129,7 @@ Future<void> copySecretText(BuildContext context, String text, String notice) as
 const double progressSlotHeight = 2;
 
 /// A 2 dp line under the app bar for a screen's own status, such as [SlotProgress]. It
-/// reserves no more, so nothing moves when work starts or ends. Notices dock under it
+/// is laid over the top edge and reserves nothing, so nothing moves when work starts or ends. Notices dock under it
 /// ([NoticeDock]).
 class ProgressSlot extends StatelessWidget {
   const ProgressSlot({super.key, this.idle});
@@ -209,17 +209,24 @@ class _SlotScaffoldState extends State<SlotScaffold> {
       appBar: widget.appBar,
       floatingActionButton: widget.floatingActionButton,
       bottomNavigationBar: widget.bottomNavigationBar,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      // The slot is a line laid over the top edge, not a row: the frames have no 2 dp above the
+      // content.
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          ProgressSlot(idle: widget.idle),
-          MeasureDock(meter: _dock, child: const NoticeDock()),
-          Expanded(
-            child: StillUnderDock(
-              meter: _dock,
-              child: widget.centered ? CenteredScroll(child: body) : body,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              MeasureDock(meter: _dock, child: const NoticeDock()),
+              Expanded(
+                child: StillUnderDock(
+                  meter: _dock,
+                  child: widget.centered ? CenteredScroll(child: body) : body,
+                ),
+              ),
+            ],
           ),
+          Positioned(top: 0, left: 0, right: 0, child: ProgressSlot(idle: widget.idle)),
         ],
       ),
     );
