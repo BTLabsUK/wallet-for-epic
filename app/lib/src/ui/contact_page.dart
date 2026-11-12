@@ -29,6 +29,7 @@ import 'inline_button.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
+import 'kit/kit_corner_marks.dart';
 import 'kit/kit_group.dart';
 import 'kit/kit_headers.dart' show KitIconButton;
 import 'kit/kit_icons.dart';
@@ -1216,17 +1217,25 @@ class _CodeSheetState extends State<_CodeSheet> {
             const SizedBox(height: 16),
           ],
           Center(
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                // Dark modules on white scan reliably in either theme.
-                color: protocolLight.surface,
-                borderRadius: BorderRadius.circular(t.radiusSmall),
-              ),
-              child: Semantics(
-                label: l.contactsQrLabel(widget.contact.name),
-                image: true,
-                child: LogoQr(data: address, size: 220),
+            // The gold corner marks every redesign QR has, painted 14 outside the card.
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: KitCornerMarks(
+                inset: 14,
+                arm: 22,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    // Dark modules on white scan reliably in either theme.
+                    color: protocolLight.surface,
+                    borderRadius: BorderRadius.circular(t.radiusSmall),
+                  ),
+                  child: Semantics(
+                    label: l.contactsQrLabel(widget.contact.name),
+                    image: true,
+                    child: LogoQr(data: address, size: 220),
+                  ),
+                ),
               ),
             ),
           ),
