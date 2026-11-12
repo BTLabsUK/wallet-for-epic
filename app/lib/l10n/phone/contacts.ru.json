@@ -1,0 +1,9 @@
+{
+  "phoneContactsSearchHint": "Поиск или вставьте адрес",
+  "phoneContactsAtoZ": "А–Я",
+  "phoneContactsNoPayments": "Платежей пока нет",
+  "phoneContactsAsks": "Просит {amount}",
+  "phoneContactsFaces": "Контакты",
+  "phoneContactPaired": "Связаны · платежи между вами запечатаны",
+  "phoneContactRequest": "Запросить"
+}

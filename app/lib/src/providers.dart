@@ -1398,10 +1398,11 @@ class PaymentCancelledNotifier extends Notifier<InvoiceEvent?> {
   }
 }
 
-/// The three tabs of the wallet shell, left to right.
-enum ShellTab { send, wallet, receive }
+/// The tabs of the wallet shell, left to right. The Scan button between Activity and Contacts
+/// opens the scanner as a flow, so it is no tab.
+enum ShellTab { home, activity, contacts, settings }
 
-/// The tab the shell shows. Wallet, the middle one, whenever a wallet opens.
+/// The tab the shell shows. Home whenever a wallet opens.
 final shellTabProvider = NotifierProvider<ShellTabNotifier, ShellTab>(
   ShellTabNotifier.new,
 );
@@ -1410,10 +1411,32 @@ class ShellTabNotifier extends Notifier<ShellTab> {
   @override
   ShellTab build() {
     ref.watch(sessionProvider);
-    return ShellTab.wallet;
+    return ShellTab.home;
   }
 
   void go(ShellTab tab) => state = tab;
+}
+
+/// The two full-screen flows that open over the tab bar from Home.
+enum ShellFlow { send, receive }
+
+/// A flow the shell is asked to open, until the shell has taken it. Anything that used to jump
+/// to the Send or Receive tab (a scanned code, a notification, Send again) asks here.
+final shellFlowProvider = NotifierProvider<ShellFlowNotifier, ShellFlow?>(
+  ShellFlowNotifier.new,
+);
+
+class ShellFlowNotifier extends Notifier<ShellFlow?> {
+  @override
+  ShellFlow? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  void open(ShellFlow flow) => state = flow;
+
+  /// The shell took the request.
+  void taken() => state = null;
 }
 
 /// A recipient handed to the Send tab, from a scanned QR code or Send again. [id] tells two

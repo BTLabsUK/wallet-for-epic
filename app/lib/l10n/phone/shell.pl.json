@@ -1,0 +1,19 @@
+{
+  "phoneTabHome": "Start",
+  "phoneTabScan": "Skanuj",
+  "phoneReview": "Sprawdź",
+  "phoneLater": "Później",
+  "phoneHomeRecent": "Ostatnie",
+  "phoneHomeSeeAll": "Pokaż wszystko",
+  "phoneHomeArriving": "+{amount} nadchodzi",
+  "phoneHomeInSends": "{amount} w wysyłkach",
+  "phoneHomeSyncing": "Synchronizacja {percent}%",
+  "phoneHomeOffline": "Offline",
+  "phoneHomeInvoiceTitle": "Faktura od {name}",
+  "phoneHomeInvoiceBody": "{amount}. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz.",
+  "phoneHomeBalanceLastKnown": "Dostępne · ostatnio znane",
+  "phoneHomeBalanceSheetHint": "Szczegóły salda",
+  "phoneHomeEmpty": "Brak płatności. Odbierz trochę EPIC, aby zacząć.",
+  "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
+  "phoneTourOfferShow": "Pokaż"
+}

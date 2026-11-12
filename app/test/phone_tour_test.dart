@@ -30,6 +30,7 @@ import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tour/phone_tour.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'support/shell_where.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -145,8 +146,18 @@ Future<_Rig> _pump(
 }
 
 /// Home idle for the start delay, then the tour's first step settled.
+/// Home has been idle: the tour is offered in a toast.
 Future<void> _startAuto(WidgetTester tester) async {
   await tester.pump(phoneTourStartDelay + const Duration(milliseconds: 100));
+  await tester.pumpAndSettle();
+}
+
+Finder get _offer => find.text(_l.phoneTourOffer);
+
+/// The offer, then "Show me": the tour is open.
+Future<void> _startTour(WidgetTester tester) async {
+  await _startAuto(tester);
+  await tester.tap(find.text(_l.phoneTourOfferShow));
   await tester.pumpAndSettle();
 }
 
@@ -239,47 +250,61 @@ void main() {
   });
 
   group('start', () {
-    testWidgets('opens once after the first unlock, on Wallet, saved as seen', (tester) async {
+    testWidgets('is offered once after the first unlock, saved as seen; Show me opens it on Wallet', (tester) async {
       final rig = await _pump(tester);
-      expect(_overlay, findsNothing, reason: 'not before Home has been idle');
+      expect(_offer, findsNothing, reason: 'not before Home has been idle');
       await _startAuto(tester);
+      expect(_offer, findsOneWidget);
+      expect(_overlay, findsNothing, reason: 'the toast asks; it does not open the tour');
+      expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
+      expect(rig.container.read(appSettingsProvider).value?.phoneTourSeen, isTrue);
+      await tester.tap(find.text(_l.phoneTourOfferShow));
+      await tester.pumpAndSettle();
       expect(_overlay, findsOneWidget);
       expect(_counter(tester), '1 of 9');
       expect(_inTour(find.text('Wallet')), findsOneWidget);
-      expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
-      expect(rig.container.read(appSettingsProvider).value?.phoneTourSeen, isTrue);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('does not open when it was seen', (tester) async {
+    testWidgets('the offer left alone ends with its toast; the tour stays unopened', (tester) async {
+      await _pump(tester);
+      await _startAuto(tester);
+      await tester.pump(const Duration(seconds: 13));
+      await tester.pumpAndSettle();
+      expect(_offer, findsNothing);
+      expect(_overlay, findsNothing);
+    });
+
+    testWidgets('no offer when it was seen', (tester) async {
       await _pump(tester, seen: true);
       await _startAuto(tester);
+      expect(_offer, findsNothing);
       expect(_overlay, findsNothing);
     });
 
     testWidgets('is off in the other suites by default (the flag is the test harness switch)', (tester) async {
       await _pump(tester, auto: false);
       await _startAuto(tester);
+      expect(_offer, findsNothing);
       expect(_overlay, findsNothing);
     });
 
-    testWidgets('a payment link opened at the first unlock wins: Send stays, the tour waits for Wallet', (tester) async {
+    testWidgets('a payment link opened at the first unlock wins: Send stays, the offer waits for Wallet', (tester) async {
       final rig = await _pump(tester);
       rig.container.read(incomingLinkProvider.notifier).deliver('epic:${'b' * 52}@epicbox.epiccash.com?amount=0.4');
       await tester.pumpAndSettle();
-      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      expect(shellWhere(tester), ShellWhere.send);
       await _startAuto(tester);
-      expect(_overlay, findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.send);
-      // Back on Wallet, Home is idle again: the tour opens.
-      rig.container.read(shellTabProvider.notifier).go(ShellTab.wallet);
-      await tester.pumpAndSettle();
+      expect(_offer, findsNothing);
+      expect(shellWhere(tester), ShellWhere.send);
+      // Back on Wallet, Home is idle again: the offer comes.
+      await closeShellFlow(tester);
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-      expect(_overlay, findsOneWidget);
+      expect(_offer, findsOneWidget);
     });
 
-    testWidgets('does not open over a dialog; opens once it is closed', (tester) async {
+    testWidgets('no offer over a dialog; it comes once the dialog is closed', (tester) async {
       await _pump(tester);
       unawaited(
         showDialog<void>(
@@ -290,34 +315,35 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(phoneTourStartDelay + const Duration(milliseconds: 100));
       await tester.pumpAndSettle();
-      expect(_overlay, findsNothing);
+      expect(_offer, findsNothing);
       Navigator.of(tester.element(find.text('Backup reminder'))).pop();
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-      expect(_overlay, findsOneWidget);
+      expect(_offer, findsOneWidget);
     });
 
     testWidgets('Skip ends it, marks it seen and lands on Wallet; it does not come back', (tester) async {
       final rig = await _pump(tester);
-      await _startAuto(tester);
+      await _startTour(tester);
       await _tap(tester, _l.tourPhoneNext);
       await _tap(tester, _l.tourPhoneSkip);
       expect(_overlay, findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
       expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
       // Another unlock: a new Home, the saved flag says seen.
       goHome(tester.element(find.byType(HomeScreen)));
       await tester.pumpAndSettle();
       await _startAuto(tester);
+      expect(_offer, findsNothing);
       expect(_overlay, findsNothing);
     });
   });
 
   group('steps open the right screens', () {
     testWidgets('Next walks all nine, Back walks back, Done lands on Wallet', (tester) async {
-      final rig = await _pump(tester);
-      await _startAuto(tester);
+      await _pump(tester);
+      await _startTour(tester);
       final steps = phoneTourSteps(invoices: true);
 
       void expectStep(int i) {
@@ -346,14 +372,14 @@ void main() {
       }
 
       expectStep(0);
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
       expect(_button('Back'), findsNothing, reason: 'nothing before the first step');
       await _tap(tester, _l.tourPhoneNext);
       expectStep(1);
-      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      expect(shellWhere(tester), ShellWhere.send);
       await _tap(tester, _l.tourPhoneNext);
       expectStep(2);
-      expect(rig.container.read(shellTabProvider), ShellTab.receive);
+      expect(shellWhere(tester), ShellWhere.receive);
       for (var i = 3; i < steps.length; i++) {
         await _tap(tester, _l.tourPhoneNext);
         expectStep(i);
@@ -371,26 +397,26 @@ void main() {
       await tester.pumpAndSettle();
       expect(_overlay, findsNothing);
       expect(find.byType(HelpScreen), findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
     testWidgets('Back from a screen step closes that screen and returns to the tab', (tester) async {
-      final rig = await _pump(tester);
-      await _startAuto(tester);
+      await _pump(tester);
+      await _startTour(tester);
       for (var i = 0; i < 3; i++) {
         await _tap(tester, _l.tourPhoneNext);
       }
       expect(find.byType(HistoryScreen), findsOneWidget);
       await _tap(tester, _l.tourPhoneBack);
       expect(find.byType(HistoryScreen), findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.receive);
+      expect(shellWhere(tester), ShellWhere.receive);
       expect(_counter(tester), '3 of 9');
     });
 
     testWidgets('system Back moves the tour one step back, and ends it on the first step', (tester) async {
       await _pump(tester);
-      await _startAuto(tester);
+      await _startTour(tester);
       for (var i = 0; i < 4; i++) {
         await _tap(tester, _l.tourPhoneNext);
       }
@@ -413,7 +439,7 @@ void main() {
 
     testWidgets('the Invoices step is there only when the wallet takes invoices', (tester) async {
       await _pump(tester, invoices: false);
-      await _startAuto(tester);
+      await _startTour(tester);
       expect(_counter(tester), '1 of 8');
       for (var i = 0; i < 7; i++) {
         await _tap(tester, _l.tourPhoneNext);
@@ -425,7 +451,7 @@ void main() {
 
     testWidgets('the Advanced step lights the page and switches nothing on', (tester) async {
       final rig = await _pump(tester);
-      await _startAuto(tester);
+      await _startTour(tester);
       for (var i = 0; i < 7; i++) {
         await _tap(tester, _l.tourPhoneNext);
       }
@@ -442,7 +468,7 @@ void main() {
 
     testWidgets('a pushed screen is under the card: Next works on it', (tester) async {
       await _pump(tester);
-      await _startAuto(tester);
+      await _startTour(tester);
       for (var i = 0; i < 3; i++) {
         await _tap(tester, _l.tourPhoneNext);
       }
@@ -455,7 +481,7 @@ void main() {
 
     testWidgets('locking while it is open ends it with Home', (tester) async {
       final rig = await _pump(tester);
-      await _startAuto(tester);
+      await _startTour(tester);
       final context = tester.element(find.byType(HomeScreen));
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (_) => const Scaffold(body: Text('PIN'))),
@@ -470,7 +496,7 @@ void main() {
 
   group('Show the tour again', () {
     testWidgets('Help starts it from the first step, also when it was seen', (tester) async {
-      final rig = await _pump(tester, seen: true);
+      await _pump(tester, seen: true);
       await _startAuto(tester);
       expect(_overlay, findsNothing);
       unawaited(openHelp(tester.element(find.byType(HomeScreen))));
@@ -484,14 +510,14 @@ void main() {
       expect(_overlay, findsOneWidget);
       expect(_counter(tester), '1 of 9');
       expect(find.byType(HelpScreen), findsNothing, reason: 'the tour starts on Home');
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
     });
   });
 
   group('a new wallet without coins', () {
     testWidgets('the Send step lights what the tab shows: that there is nothing to send yet', (tester) async {
       await _pump(tester, funded: false);
-      await _startAuto(tester);
+      await _startTour(tester);
       await _tap(tester, _l.tourPhoneNext);
       expect(_lit('tour-send-empty'), isTrue);
       expect(_lit('tour-send-methods'), isFalse);
@@ -508,7 +534,7 @@ void main() {
     ]) {
       testWidgets('every step fits at ${size.width.toInt()}×${size.height.toInt()}${insets ? ' with bars' : ''}; the card never covers the lit area and stays at the bottom', (tester) async {
         await _pump(tester, size: size, insets: insets);
-        await _startAuto(tester);
+        await _startTour(tester);
         final steps = phoneTourSteps(invoices: true);
         final screen = Offset.zero & size;
         final safe = Rect.fromLTRB(0, insets ? 24 : 0, size.width, size.height - (insets ? 48 : 0));
@@ -543,7 +569,7 @@ void main() {
         PhoneTourStep(place: TourPlace.send, targets: const ['tour-send-methods', 'tour-send-recipient'], titleOf: (_) => 'Senden', textOf: (_) => long),
       ];
       await _pump(tester, size: const Size(360, 800), textScale: 1.6, insets: true);
-      await _startAuto(tester);
+      await _startTour(tester);
       for (var i = 0; i < 2; i++) {
         final card = tester.getRect(_card);
         expect(card.left, greaterThanOrEqualTo(0));
@@ -562,6 +588,8 @@ void main() {
     testWidgets('reduced motion: the card is there at once, no fade to wait for', (tester) async {
       await _pump(tester, still: true);
       await tester.pump(phoneTourStartDelay + const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.phoneTourOfferShow));
       // A few frames to place it, none to fade it in.
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 16));
@@ -573,7 +601,7 @@ void main() {
     testWidgets('the card is announced as a route of its own and the counter, title and text are read', (tester) async {
       final handle = tester.ensureSemantics();
       await _pump(tester);
-      await _startAuto(tester);
+      await _startTour(tester);
       expect(find.bySemanticsLabel(_l.tourPhoneSemantics), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Next$')), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Skip tour$')), findsOneWidget);

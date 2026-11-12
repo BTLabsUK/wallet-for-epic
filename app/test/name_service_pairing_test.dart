@@ -480,7 +480,10 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkNoMatchKey));
+      // The sheet slides in; its action is pressed once it is in place.
       await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.ensureVisible(find.byKey(checkStopKey));
       await tester.tap(find.byKey(checkStopKey));
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));

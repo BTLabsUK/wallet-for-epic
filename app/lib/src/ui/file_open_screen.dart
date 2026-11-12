@@ -17,6 +17,7 @@ import 'kit/kit_headers.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_step_strip.dart';
+import 'net_block.dart' show OfflineNodeNote, watchOfflineUsesNode;
 import 'receive_screen.dart' show pasteSlate;
 import 'slate_file_screen.dart' show openSlateFile;
 
@@ -72,6 +73,8 @@ class FileOpenScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   FileInfoLine(l.phoneFileOpenNote),
+                  // Opening a file needs the node; offline, say so before the user picks one.
+                  if (watchOfflineUsesNode(context, ref)) const Padding(padding: EdgeInsets.only(top: 12), child: OfflineNodeNote()),
                 ],
               ),
             ),

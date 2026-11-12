@@ -1,0 +1,8 @@
+{
+  "phoneAboutProtocol": "โปรโตคอลการชำระเงิน",
+  "phoneAboutWhatsNew": "มีอะไรใหม่",
+  "phoneAboutHelpTitle": "เกี่ยวกับ BT Wallet",
+  "phoneAboutHelp1": "BT Wallet สร้างโดย BT Labs ทำงานบนเอนจินของตัวเองชื่อ LEPIC และส่งการชำระเงินผ่านโปรโตคอล epic1",
+  "phoneAboutHelp2": "ลิงก์ในหน้านี้จะถูกคัดลอก คุณจึงเปิดในเบราว์เซอร์ที่ไว้ใจได้",
+  "phoneAboutNotesTitle": "มีอะไรใหม่ใน {version}"
+}

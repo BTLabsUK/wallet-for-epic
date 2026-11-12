@@ -29,6 +29,7 @@ import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -256,22 +257,17 @@ void main() {
   group('Receive', () {
     const receive = SlotScaffold(body: ReceiveView());
 
-    testWidgets('epic1: the link card, its QR covered until tapped', (tester) async {
+    testWidgets('epic1: the link card with its QR, Copy link and Share', (tester) async {
       final session = _session(on: true);
       await _pump(tester, session, receive);
       expect(_key(epic1LinkCardKey), findsOneWidget);
-      expect(_key(epic1QrCoverKey), findsOneWidget);
-      expect(_key(epic1QrKey), findsNothing);
+      expect(_key(epic1QrKey), findsOneWidget);
       expect(_key(epic1CopyLinkKey), findsOneWidget);
+      expect(_key(epic1AskAmountKey), findsOneWidget);
       expect(_key(epic1RequestInPersonKey), findsOneWidget);
       // The tour's Receive step lights the link card.
       expect(_tourTarget('tour-receive-address', _key(epic1LinkCardKey)), findsOneWidget);
       expect(session.epic1Fake.calls, contains('makeLink'));
-      final shown = tester.widget<Text>(_key(epic1LinkTextKey)).data!;
-      expect(shown, startsWith('epic:epic1'));
-      expect(shown, contains('…'));
-      await _tap(tester, _key(epic1QrCoverKey));
-      expect(_key(epic1QrKey), findsOneWidget);
     });
 
     testWidgets('classic: no link card', (tester) async {
@@ -424,7 +420,7 @@ void main() {
       final alice = (await session.contacts()).single;
       await _pump(tester, session, ContactPage(contactId: alice.id));
       expect(_key(classicOnlyKey), findsOneWidget);
-      expect(tester.widget<ButtonStyleButton>(_key(contactPageSendKey)).onPressed, isNull);
+      expect(tester.widget<KitButton>(_key(contactPageSendKey)).onPressed, isNull);
     });
   });
 }

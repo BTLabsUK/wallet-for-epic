@@ -1,0 +1,283 @@
+// SPDX-License-Identifier: Apache-2.0
+/// The page after "Ask for an amount" (Gap-1): the request as a code or a file, with what it asks
+/// for, Copy and Share, and where the payment stands. The request QR and the request file both
+/// use it; each brings its own card and its own steps after the payment.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../amount.dart' show epicUnit;
+import '../app_log.dart';
+import '../l10n.dart';
+import '../price.dart';
+import '../settings.dart';
+import '../slate_files.dart';
+import '../trust_ids.dart';
+import 'common.dart';
+import 'help_screen.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_corner_marks.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
+import 'kit/kit_tokens.dart';
+import 'theme/tokens.dart';
+
+/// Opens the short help of the Ask pages.
+void showAskHelp(BuildContext context) {
+  final l = context.l10n;
+  showKitHelp(
+    context,
+    title: l.phoneRecvAsk,
+    lines: [l.phoneRecvHelp2],
+    onMore: () => openHelp(context, HelpId.receive),
+    sheetId: TrustIds.receiveHelpSheet,
+    moreId: TrustIds.receiveHelpMore,
+  );
+}
+
+/// The card of a request page: [child] inside gold corner marks, like the address QR on Receive.
+class RequestCodeCard extends StatelessWidget {
+  const RequestCodeCard({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: KitCornerMarks(
+      inset: 14,
+      arm: 22,
+      child: SizedBox(width: Kit.qr, height: Kit.qr, child: child),
+    ),
+  );
+}
+
+/// A request page: back header, the card, the amount and what it is for, the lead, Copy and
+/// Share, [status] and Done. [json] is the request's text; [fileName] names it when it is shared
+/// or saved. [saveFile] adds "Save to device" for a request that is a file.
+class RequestCodePage extends ConsumerWidget {
+  const RequestCodePage({
+    super.key,
+    required this.amount,
+    required this.json,
+    required this.fileName,
+    required this.card,
+    required this.status,
+    required this.onDone,
+    this.message,
+    this.saveFile = false,
+    this.lead,
+    this.actions = const [],
+    this.busy = false,
+  });
+
+  final BigInt amount;
+  final String? message;
+  final String json;
+  final String fileName;
+  final Widget card;
+  final Widget status;
+  final VoidCallback onDone;
+  final bool saveFile;
+
+  /// Replaces the lead line.
+  final String? lead;
+
+  /// More buttons under Copy and Share (Scan reply).
+  final List<Widget> actions;
+  final bool busy;
+
+  Future<void> _hand(BuildContext context, WidgetRef ref, Future<bool> Function(SlateFiles files) action) async {
+    final files = ref.read(slateFilesProvider);
+    final notice = ref.read(noticeProvider.notifier);
+    final failed = context.l10n.slateHandOverFailed(fileName);
+    try {
+      await ref.read(autoLockHoldProvider.notifier).during(() => action(files));
+    } catch (error) {
+      logWarn('files', 'handing over a request failed: $error');
+      notice.show(failed, level: NoticeLevel.error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final files = ref.watch(slateFilesProvider);
+    final price = ref.watch(priceProvider).value;
+    final currency = ref.watch(appSettingsProvider.select((s) => s.value?.fiatCurrency)) ?? 'usd';
+    final figure = epicExact(l, amount);
+    final number = figure.endsWith(epicUnit) ? figure.substring(0, figure.length - epicUnit.length).trimRight() : figure;
+    final fiat = price == null ? null : approxText(localDigits(l, fiatText(amount, price, currency)));
+    final note = message == null || message!.isEmpty ? null : message;
+    final detail = [?note, ?fiat].join(' · ');
+    return SlotScaffold(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              children: [
+                KitFlowHeader(
+                  title: l.phoneRecvAsk,
+                  back: true,
+                  onLeading: () => Navigator.of(context).maybePop(),
+                  onHelp: () => showAskHelp(context),
+                  leadingId: TrustIds.receiveAskBack,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(Kit.gutter, 14, Kit.gutter, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        card,
+                        const SizedBox(height: 18),
+                        Semantics(
+                          container: true,
+                          label: figure,
+                          excludeSemantics: true,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(number, style: KitType.amountOnPage.copyWith(color: t.txReceived), maxLines: 1),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(epicUnit, style: KitType.unit.copyWith(color: t.accentText)),
+                            ],
+                          ),
+                        ),
+                        if (detail.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(detail, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.dim)),
+                        ],
+                        const SizedBox(height: 14),
+                        Text(lead ?? l.phoneRecvCodeLead(figure), textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.dim)),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: KitButton(
+                                label: l.commonCopy,
+                                kind: KitButtonKind.quiet,
+                                semanticsId: TrustIds.receiveCodeCopy,
+                                onPressed: () => copySecretText(context, json, l.slateCopied),
+                              ),
+                            ),
+                            if (files.canShare) ...[
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: KitButton(
+                                  label: l.commonShare,
+                                  semanticsId: TrustIds.receiveCodeShare,
+                                  onPressed: () => _hand(context, ref, (f) => f.share(name: fileName, json: json)),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (saveFile) ...[
+                          const SizedBox(height: 10),
+                          KitButton(
+                            label: l.slateSaveToDevice,
+                            kind: files.canShare ? KitButtonKind.quiet : KitButtonKind.gold,
+                            onPressed: () => _hand(context, ref, (f) async {
+                              final ok = await f.save(name: fileName, json: json, dialogTitle: l.slateSaveDialogTitle);
+                              if (ok) ref.read(noticeProvider.notifier).show(l.slateSaved(fileName), level: NoticeLevel.success);
+                              return ok;
+                            }),
+                          ),
+                        ],
+                        for (final a in actions) ...[const SizedBox(height: 10), a],
+                        const SizedBox(height: 18),
+                        Center(child: status),
+                        const SizedBox(height: 14),
+                        KitButton(label: l.commonDone, kind: KitButtonKind.quiet, semanticsId: TrustIds.receiveCodeDone, onPressed: busy ? null : onDone),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Waiting to be paid" with an info-blue dot, or [text] where the request stands otherwise.
+class RequestStatusLine extends StatelessWidget {
+  const RequestStatusLine({super.key, this.text, this.ok = false});
+
+  final String? text;
+  final bool ok;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final color = ok ? t.ok : t.info;
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ExcludeSemantics(
+            child: Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: color)),
+          ),
+          const SizedBox(width: 8),
+          Flexible(child: Text(text ?? context.l10n.phoneRecvWaitingPaid, style: KitType.rowSub.copyWith(color: color))),
+        ],
+      ),
+    );
+  }
+}
+
+/// A plain request page (a receipt, a notice): back header, [children] scrolling, [bottom] buttons.
+class RequestPlainPage extends StatelessWidget {
+  const RequestPlainPage({super.key, required this.title, required this.children, this.bottom = const []});
+
+  final String title;
+  final List<Widget> children;
+  final List<Widget> bottom;
+
+  @override
+  Widget build(BuildContext context) => SlotScaffold(
+    body: SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            children: [
+              KitFlowHeader(title: title, back: true, onLeading: () => Navigator.of(context).maybePop(), onHelp: () => showAskHelp(context)),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 20, Kit.gutter, 16),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+                ),
+              ),
+              if (bottom.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = 0; i < bottom.length; i++) ...[if (i > 0) const SizedBox(height: 10), bottom[i]],
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}

@@ -1,0 +1,19 @@
+{
+  "phoneTabHome": "Главная",
+  "phoneTabScan": "Сканировать",
+  "phoneReview": "Проверить",
+  "phoneLater": "Позже",
+  "phoneHomeRecent": "Недавние",
+  "phoneHomeSeeAll": "Все",
+  "phoneHomeArriving": "+{amount} поступает",
+  "phoneHomeInSends": "{amount} в отправках",
+  "phoneHomeSyncing": "Синхронизация {percent}%",
+  "phoneHomeOffline": "Не в сети",
+  "phoneHomeInvoiceTitle": "Счёт от {name}",
+  "phoneHomeInvoiceBody": "{amount}. Ничего не оплачивается, пока вы не подтвердите.",
+  "phoneHomeBalanceLastKnown": "Доступно · последнее известное",
+  "phoneHomeBalanceSheetHint": "Подробности баланса",
+  "phoneHomeEmpty": "Платежей пока нет. Получите немного EPIC, чтобы начать.",
+  "phoneTourOffer": "Показать, как устроен кошелёк?",
+  "phoneTourOfferShow": "Показать"
+}

@@ -3,6 +3,7 @@
 // the requests in the Invoices list, the request block in a transaction's details, withdraw
 // with its confirm, and the notices of each issuer event. Nothing on this side pays.
 
+import 'dart:async';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -11,10 +12,11 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
@@ -169,19 +171,33 @@ class _Harness {
     await tester.pumpAndSettle();
   }
 
-  /// Fills the form and taps Send request.
+  /// Types [amount] on the keypad.
+  Future<void> type(WidgetTester tester, String amount) async {
+    for (final c in amount.split('')) {
+      await tester.tap(find.descendant(of: find.byType(KitKeypad), matching: find.text(c)));
+      await tester.pump();
+    }
+  }
+
+  /// Writes [message] in the note sheet and closes it.
+  Future<void> note(WidgetTester tester, String message) async {
+    await tester.tap(find.text(_l.phonePayAddNote));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(requestMessageKey), message);
+    await tester.tap(find.text(_l.commonDone));
+    await tester.pumpAndSettle();
+  }
+
+  /// Picks the contact, fills the form and taps the Ask button.
   Future<void> request(
     WidgetTester tester, {
     String amount = '2.5',
     String message = '',
   }) async {
     await pick(tester);
-    await tester.enterText(find.byKey(requestAmountKey), amount);
-    if (message.isNotEmpty) {
-      await tester.enterText(find.byKey(requestMessageKey), message);
-    }
-    await tester.pump();
-    await tester.tap(find.text(_l.reqNewSend));
+    await type(tester, amount);
+    if (message.isNotEmpty) await note(tester, message);
+    await tester.tap(find.byType(KitButton).last);
     await tester.pumpAndSettle();
   }
 }
@@ -206,36 +222,31 @@ void main() {
       h.session.invoicesSupported = false;
       await h.pump(tester, const SlotScaffold(body: ReceiveView()));
       expect(find.byKey(receiveRequestKey), findsNothing);
-      expect(find.text(_l.receiveRequestTitle), findsNothing);
+      expect(find.text(_l.phoneRecvAsk), findsNothing);
     });
 
     testWidgets('opens the request form', (tester) async {
       final h = _Harness();
       await h.pump(tester, const SlotScaffold(body: ReceiveView()));
       expect(find.byKey(receiveRequestKey), findsOneWidget);
-      await tester.ensureVisible(find.text(_l.receiveRequestTitle));
-      await tester.tap(find.text(_l.receiveRequestTitle));
+      await tester.ensureVisible(find.text(_l.phoneRecvAsk));
+      await tester.tap(find.text(_l.phoneRecvAsk));
       await tester.pumpAndSettle();
-      expect(find.text(_l.reqNewTitle), findsOneWidget);
-      expect(find.text(_l.reqNewLead), findsOneWidget);
+      expect(find.byType(InvoiceRequestScreen), findsOneWidget);
+      expect(find.byKey(requestPayerKey), findsOneWidget);
     });
   });
 
   group('form', () {
-    testWidgets('without a paired payer: says so, and the file is the choice (DESIGN 3.2)', (
-      tester,
-    ) async {
+    testWidgets('without a paired payer the file is the choice', (tester) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
-      expect(find.text(_l.reqNoPayers), findsOneWidget);
-      expect(find.text(_l.reqToFile), findsOneWidget);
-      expect(find.text(_l.reqNewSend), findsNothing);
-      await tester.enterText(find.byKey(requestAmountKey), '2.5');
-      await tester.pump();
+      expect(find.text(_l.phoneRecvFromAnyone), findsOneWidget);
+      await h.type(tester, '2.5');
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
       // The request file, to save or share (DESIGN §3.2).
-      expect(find.text(_l.reqFileTitle), findsOneWidget);
+      expect(find.text(_l.reqFileLead), findsOneWidget);
       await tester.tap(find.text(_l.slateSaveToDevice));
       await tester.pumpAndSettle();
       expect(h.files.saved, hasLength(1));
@@ -247,31 +258,39 @@ void main() {
       h.session.requestFilesSupported = false;
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
       expect(find.byKey(requestSaveFileKey), findsNothing);
-      expect(find.text(_l.reqNewLeadContacts), findsOneWidget);
-      expect(find.text(_l.reqNewLead), findsNothing);
+      await tester.tap(find.byKey(requestPayerKey));
+      await tester.pumpAndSettle();
+      expect(find.text('Alice'), findsOneWidget);
+      expect(find.text(_l.phoneRecvAnyoneFile), findsNothing);
     });
 
-    testWidgets('a contact not verified is not offered under To', (tester) async {
+    testWidgets('a contact not verified is not offered as the payer', (tester) async {
       final h = _Harness();
       h.session.pairing.seedPaired(name: 'Tom', state: PairingState.paired, paymentsAddress: _payer);
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
-      expect(find.text(_l.reqNoPayers), findsOneWidget);
+      await tester.tap(find.byKey(requestPayerKey));
+      await tester.pumpAndSettle();
+      expect(find.text('Tom'), findsNothing);
+      expect(find.text(_l.phoneRecvAnyoneFile), findsOneWidget);
     });
 
-    testWidgets('asks for the payer and the amount before sending', (
-      tester,
-    ) async {
+    testWidgets('without files the payer must be chosen first', (tester) async {
       final h = _Harness()..pairPayer();
+      h.session.requestFilesSupported = false;
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
-      await tester.tap(find.text(_l.reqNewSend));
+      await h.type(tester, '2.5');
+      await tester.tap(find.byType(KitButton).last);
       await tester.pumpAndSettle();
       // A contact, the QR code or a file: the placeholder names both kinds (#1102).
-      expect(find.text(_l.reqPickContactOrMethod), findsWidgets);
+      expect(find.text(_l.reqPickContactOrMethod), findsOneWidget);
       expect(_l.reqPickContactOrMethod, 'Choose a contact or method');
-      expect(find.text(_l.sendAmountZero), findsOneWidget);
-      await h.request(tester, amount: '0');
-      expect(find.text(_l.sendAmountZero), findsOneWidget);
       expect(h.session.issuedRequests, isEmpty);
+      // The picker opened by itself: choosing Alice there sends it.
+      await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text('Alice')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(KitButton).last);
+      await tester.pumpAndSettle();
+      expect(h.session.issuedRequests, hasLength(1));
     });
 
     testWidgets('stops the message at 256 bytes and counts them', (
@@ -279,6 +298,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
+      await tester.tap(find.text(_l.phonePayAddNote));
+      await tester.pumpAndSettle();
       // Three bytes each: 90 of them would be 270.
       await tester.enterText(find.byKey(requestMessageKey), '€' * 85);
       await tester.pump();
@@ -313,19 +334,16 @@ void main() {
       expect(h.session.invoicePayments, 0);
     });
 
-    testWidgets('sums up the request above Send request once it is complete', (
+    testWidgets('names the payer and the amount on the Ask button once it is complete', (
       tester,
     ) async {
       final h = _Harness()..pairPayer();
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
-      expect(find.byKey(requestSummaryKey), findsNothing);
       await h.pick(tester);
-      await tester.enterText(find.byKey(requestAmountKey), '2.5');
-      await tester.pump();
-      expect(
-        find.text(_l.invoicesRequestSummary('Alice', epicExact(_l, _epic(2.5)))),
-        findsOneWidget,
-      );
+      await h.type(tester, '2.5');
+      expect(find.text(_l.phoneRecvFromName('Alice')), findsOneWidget);
+      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(2.5)))), findsOneWidget);
+      expect(find.byKey(requestSummaryKey), findsNothing);
     });
 
     testWidgets('a request the relay did not take stays on the form', (
@@ -339,7 +357,7 @@ void main() {
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
       await h.request(tester);
       expect(_noticeLevel(tester), NoticeLevel.error);
-      expect(find.text(_l.reqNewTitle), findsOneWidget);
+      expect(find.byType(InvoiceRequestScreen), findsOneWidget);
       expect(h.session.issuedRequests, isEmpty);
     });
   });
@@ -407,9 +425,10 @@ void main() {
     testWidgets('withdraw asks first, then withdraws', (tester) async {
       final h = _Harness();
       final request = await h.issue();
+      // Home listens for the request's events; the list opens over it.
       await h.pump(tester, const HomeScreen());
-      await tester.tap(
-        find.byKey(homeDestinationKey(HomeDestination.invoices)),
+      unawaited(
+        tester.state<NavigatorState>(find.byType(Navigator).first).push(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen())),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text(_l.issuedWithdraw));
@@ -425,12 +444,16 @@ void main() {
       await tester.tap(find.text(_l.issuedWithdraw));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
+      // The toast leaves by itself: read it before the screen settles.
+      for (var i = 0; i < 40 && _notice(tester) == null; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(_notice(tester), _l.issuerNoticeWithdrawn);
+      expect(_noticeLevel(tester), NoticeLevel.warning);
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [request.txId]);
       expect(_rich(_l.issuedWithdrawn), findsOneWidget);
       expect(find.text(_l.issuedWithdraw), findsNothing);
-      expect(_notice(tester), _l.issuerNoticeWithdrawn);
-      expect(_noticeLevel(tester), NoticeLevel.warning);
     });
 
     testWidgets('opens a request in its details', (tester) async {

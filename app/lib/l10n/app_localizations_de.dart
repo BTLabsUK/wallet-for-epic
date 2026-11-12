@@ -23229,4 +23229,227 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneSendTheirOnline => 'ihr Wallet muss geöffnet sein';
+
+  @override
+  String get phoneAboutProtocol => 'Zahlungsprotokoll';
+
+  @override
+  String get phoneAboutWhatsNew => 'Was ist neu';
+
+  @override
+  String get phoneAboutHelpTitle => 'Über BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet stammt von BT Labs. Es läuft auf einer eigenen Engine, LEPIC, und sendet Zahlungen über das Protokoll epic1.';
+
+  @override
+  String get phoneAboutHelp2 =>
+      'Links auf dieser Seite werden kopiert, damit du sie in einem Browser deiner Wahl öffnen kannst.';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return 'Neu in $version';
+  }
+
+  @override
+  String get phoneContactsSearchHint => 'Suchen oder Adresse einfügen';
+
+  @override
+  String get phoneContactsAtoZ => 'A bis Z';
+
+  @override
+  String get phoneContactsNoPayments => 'Noch keine Zahlungen';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return 'Verlangt $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => 'Kontakte';
+
+  @override
+  String get phoneContactPaired =>
+      'Gekoppelt · Zahlungen zwischen euch sind versiegelt';
+
+  @override
+  String get phoneContactRequest => 'Anfordern';
+
+  @override
+  String get phoneLinkScanSub => 'Code auf dem anderen Gerät scannen';
+
+  @override
+  String get phoneLinkShowSub => 'Das andere Gerät scannt ihn';
+
+  @override
+  String get phoneLinkPasteSub => 'Einen erhaltenen Code oder Link einfügen';
+
+  @override
+  String get phoneRecvTitle => 'Empfangen';
+
+  @override
+  String get phoneRecvHelpTitle => 'Empfangen';
+
+  @override
+  String get phoneRecvHelp1 =>
+      'Teile deine Adresse oder einen Code. Wer ihn hat, kann dich bezahlen.';
+
+  @override
+  String get phoneRecvHelp2 =>
+      'Betrag anfragen erzeugt einen Code, der einen festen Betrag verlangt.';
+
+  @override
+  String get phoneRecvHelp3 =>
+      'Andere Wege helfen, wenn die zahlende Person deine Adresse nicht nutzen kann.';
+
+  @override
+  String get phoneRecvCheck =>
+      'Prüfe die ersten und letzten sechs Zeichen mit der Person, die dich bezahlt.';
+
+  @override
+  String get phoneRecvListening => 'Wartet auf Zahlungen';
+
+  @override
+  String get phoneRecvAsk => 'Betrag anfragen';
+
+  @override
+  String get phoneRecvAskLine => 'Die Person sieht, wie viel und wofür';
+
+  @override
+  String get phoneRecvAskLineLink => 'Erzeugt einen Link, der ihn anfragt';
+
+  @override
+  String get phoneRecvOther => 'Andere Wege zum Empfangen';
+
+  @override
+  String get phoneRecvOtherLine => 'Persönlich oder per Datei';
+
+  @override
+  String get phoneRecvOtherSheetLine =>
+      'Für den Fall, dass die zahlende Person deine Adresse nicht nutzen kann.';
+
+  @override
+  String get phoneRecvInPersonLine =>
+      'Code der zahlenden Person scannen, dann deinen zeigen';
+
+  @override
+  String get phoneRecvFileLine =>
+      'Zahlungsdatei öffnen oder ihren Text einfügen';
+
+  @override
+  String get phoneRecvTorLine => 'Direkt zu diesem Handy, über Tor';
+
+  @override
+  String get phoneRecvOff => 'Aus';
+
+  @override
+  String get phoneRecvFromAnyone => 'Von jedem';
+
+  @override
+  String phoneRecvFromName(String name) {
+    return 'Von $name';
+  }
+
+  @override
+  String get phoneRecvWho => 'Wer zahlt?';
+
+  @override
+  String get phoneRecvAnyoneCode => 'Jeder, mit einem Code';
+
+  @override
+  String get phoneRecvAnyoneCodeLine =>
+      'Die Person scannt einen Code auf diesem Bildschirm';
+
+  @override
+  String get phoneRecvAnyoneFile => 'Jeder, mit einer Datei';
+
+  @override
+  String get phoneRecvAnyoneFileLine => 'Speichert eine Datei zum Weitergeben';
+
+  @override
+  String phoneRecvAskFor(String amount) {
+    return '$amount anfragen';
+  }
+
+  @override
+  String phoneRecvCodeLead(String amount) {
+    return 'Zeige diesen Code oder teile ihn. Wer ihn öffnet, wird um $amount gebeten.';
+  }
+
+  @override
+  String get phoneRecvWaitingPaid => 'Wartet auf Zahlung';
+
+  @override
+  String get phoneRecvViewPayment => 'Zahlung ansehen';
+
+  @override
+  String get phoneRecvShowCode => 'Code zeigen';
+
+  @override
+  String phoneRecvArrivalFrom(String name) {
+    return 'von $name';
+  }
+
+  @override
+  String get phoneTabHome => 'Start';
+
+  @override
+  String get phoneTabScan => 'Scannen';
+
+  @override
+  String get phoneReview => 'Prüfen';
+
+  @override
+  String get phoneLater => 'Später';
+
+  @override
+  String get phoneHomeRecent => 'Zuletzt';
+
+  @override
+  String get phoneHomeSeeAll => 'Alle anzeigen';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount kommt an';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount in Zahlungen';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Synchronisiert $percent %';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Offline';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Rechnung von $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Es wird erst bezahlt, wenn du bestätigst.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Verfügbar · zuletzt bekannt';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Details zum Guthaben';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
+
+  @override
+  String get phoneTourOffer => 'Kurze Tour durch die Wallet?';
+
+  @override
+  String get phoneTourOfferShow => 'Zeig mir';
 }

@@ -416,7 +416,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                   Align(
                     alignment: AlignmentDirectional.centerEnd,
                     // The way to the servers before a wallet is open; the app is ready to open
-                    // the wallet without them.
+                    // the wallet without them. Always Ready: node and relay state (walletStatusProvider)
+                    // come from the open wallet's tip and listener, so nothing is known before unlock.
                     child: KitStatusPill(ready: true, onTap: _busy ? null : () => showNetworkMenu(context), semanticsId: TrustIds.unlockServers),
                   ),
                   Expanded(child: content),

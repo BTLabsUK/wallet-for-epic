@@ -105,11 +105,33 @@ IconData _fallbackIcon(TxEntry tx) {
   return KitIcons.contact;
 }
 
-/// The Activity list's row for [tx]; opens its payment page.
+/// Whether [tx] is under way: confirming, or waiting on the other side.
+bool paymentInProgress(TxEntry tx, BigInt? tip, {int? target}) => switch (txPhase(tx, tip, target: target)) {
+  TxPhase.confirming ||
+  TxPhase.maturing ||
+  TxPhase.waitingRecipient ||
+  TxPhase.waitingSender ||
+  TxPhase.waitingPayer => true,
+  TxPhase.completed || TxPhase.cancelled || TxPhase.fromBackup => false,
+};
+
+/// The phone's row for [tx] (Activity, Home's Recent, Contacts); opens its payment page. The
+/// Contacts tab shows a contact by its latest payment: [onOpen] then opens the contact and
+/// [name] is the contact's.
 class PhoneTxRow extends ConsumerWidget {
-  const PhoneTxRow({super.key, required this.tx});
+  const PhoneTxRow({super.key, required this.tx, this.onOpen, this.name, this.dated = false});
 
   final TxEntry tx;
+
+  /// Replaces the tap that opens the payment.
+  final VoidCallback? onOpen;
+
+  /// The row's name when the caller knows it better than the payment does.
+  final String? name;
+
+  /// The time with its day (Home and Contacts, which have no day headers); else the clock only,
+  /// as under Activity's day headers.
+  final bool dated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -121,8 +143,8 @@ class PhoneTxRow extends ConsumerWidget {
     final target = confirmationsTargetOf(ref);
     final (:amount, :outgoing) = txAmount(tx);
     final cancelled = tx.status == TxStatus.cancelled;
-    final open = isPending(tx);
-    final name = txPartyName(ref, tx);
+    final open = paymentInProgress(tx, tip, target: target);
+    final name = this.name ?? txPartyName(ref, tx);
     final counterparty = tx.counterparty;
     final own = ownEpicboxServer(ref);
     // The phone names the relay of an address that is not the wallet's own server.
@@ -130,7 +152,7 @@ class PhoneTxRow extends ConsumerWidget {
     final addressTitle =
         counterparty != null && name == null && title == shortAddress(counterparty, ownServer: own);
     final aside = txTitleAside(tx, contactName: name, ownServer: own);
-    final time = localClock(l, localTime(tx.timeUnix));
+    final time = dated ? shortDate(l, localTime(tx.timeUnix), now) : localClock(l, localTime(tx.timeUnix));
     final sealed = phoneShowsSealed(ref, tx);
     final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
     final status = open
@@ -173,15 +195,20 @@ class PhoneTxRow extends ConsumerWidget {
       sub = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(child: Text(time, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
+          // One text: the date and time first, so the ellipsis cuts the detail, not the time.
+          Flexible(
+            child: Text(
+              (!(sealed && !cancelled) && detail != null && detail.isNotEmpty) ? '$time · $detail' : time,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: mono.copyWith(color: t.dim),
+            ),
+          ),
           if (sealed && !cancelled) ...[
             Text(' · ', style: mono.copyWith(color: t.dim)),
             ExcludeSemantics(child: Epic1Glyph(size: 16, color: t.accentText)),
             const SizedBox(width: 3),
             Flexible(child: Text(l.phoneActSealed, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
-          ] else if (detail != null && detail.isNotEmpty) ...[
-            Text(' · ', style: mono.copyWith(color: t.dim)),
-            Flexible(child: Text(detail, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
           ],
         ],
       );
@@ -198,9 +225,9 @@ class PhoneTxRow extends ConsumerWidget {
       direction: direction,
     );
 
-    void openPage() => Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
-    );
+    void openPage() => onOpen != null
+        ? onOpen!()
+        : Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)));
     final editable = tx.origin != TxOrigin.linkedDevice;
     VoidCallback? edit;
 

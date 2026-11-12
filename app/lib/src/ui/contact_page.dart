@@ -19,12 +19,27 @@ import '../initials.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart';
 import '../providers.dart';
-import '../recent_activity.dart';
+import '../settings.dart' show clockProvider;
 import '../wallet_service.dart';
 import 'address_view.dart' show MarkedAddress;
 import 'app_dialog.dart';
 import 'common.dart';
 import 'inline_button.dart';
+import 'invoice_request_screen.dart' show InvoiceRequestScreen;
+import 'kit/kit_avatar.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart' show KitIconButton;
+import 'kit/kit_icons.dart';
+import 'kit/kit_support.dart';
+import 'kit/kit_tokens.dart';
+import 'phone_tx_row.dart' show paymentInProgress;
+import 'tx_details_screen.dart' show TxDetailsScreen;
+import '../trust_ids.dart';
+import 'levels/payment_steps.dart' show paymentStepWord;
+import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
+import 'contact_label_mark.dart' show AvatarLabelMark;
 import 'contact_label_picker.dart';
 import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
@@ -50,6 +65,7 @@ import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 const Key contactPageSendKey = ValueKey('contact-page-send');
 const Key contactPageEditKey = ValueKey('contact-page-edit');
 const Key contactPageMoreKey = ValueKey('contact-page-more');
+const Key contactPageBackKey = ValueKey('contact-page-back');
 const Key contactPageDeleteKey = ValueKey('contact-page-delete');
 const Key contactPageHeaderPairKey = ValueKey('contact-page-header-pair');
 const Key contactPageStarKey = ValueKey('contact-page-star');
@@ -68,32 +84,59 @@ String contactInitials(String name) {
 /// Tor` for an onion address.
 String contactTag(AppLocalizations l, String address) => recipientMethodWord(l, parseRecipient(address).kind);
 
-/// The payments with [contact] (GP-043): the newest five rows whose other side is one of
-/// its addresses, then the way to all of them in Activity, searched by its name. Says so
-/// when there are none yet.
+/// How many of the newest payments the conversation shows; the rest are in Activity.
+const int contactBubbleCount = 8;
+
+/// The payments with [contact] as a conversation: bubbles by day, oldest first, an incoming
+/// one at the start edge and an outgoing one at the end edge (HANDOFF 9). A payment is the
+/// contact's by its address or by its pairing. The way to all of them in Activity, searched by
+/// the name, sits on top once there are more than the page shows. Says so when there are none.
 class _Payments extends ConsumerWidget {
-  const _Payments({required this.contact});
+  const _Payments({required this.contact, required this.pairing});
 
   final Contact contact;
+  final PairingRecord? pairing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final all = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
-    final mine = [for (final tx in all) if (contactFor([contact], tx.counterparty) != null) tx];
+    final pairingId = pairing?.id;
+    final mine = [
+      for (final tx in all)
+        if (contactFor([contact], tx.counterparty) != null || (pairingId != null && tx.pairingId == pairingId)) tx,
+    ]..sort((a, b) => b.timeUnix.compareTo(a.timeUnix));
     if (mine.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(l.contactPaymentsNone, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(child: Text(l.contactPaymentsNone, style: KitType.rowSub.copyWith(color: t.dim), textAlign: TextAlign.center)),
       );
+    }
+    final shown = mine.take(contactBubbleCount).toList().reversed.toList();
+    final now = ref.watch(clockProvider)();
+    final children = <Widget>[];
+    int? day;
+    for (final tx in shown) {
+      final when = localTime(tx.timeUnix);
+      final key = when.year * 10000 + when.month * 100 + when.day;
+      if (key != day) {
+        day = key;
+        children.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+            child: Center(
+              child: Semantics(header: true, child: Text(dayLabel(l, when, now), style: KitType.groupLabel.copyWith(color: t.dim))),
+            ),
+          ),
+        );
+      }
+      children.add(_PaymentBubble(tx: tx));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final tx in mine.take(recentActivityCount)) TxTile(tx: tx),
-        if (showViewAll(mine.length))
+        if (mine.length > contactBubbleCount)
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: InlineTextButton(
@@ -103,7 +146,126 @@ class _Payments extends ConsumerWidget {
               child: Text(l.contactPaymentsAll),
             ),
           ),
+        ...children,
       ],
+    );
+  }
+}
+
+/// One payment as a bubble: the amount, the label when it has one, and where it stands. A
+/// payment still under way is tinted in the info colour. A tap opens its details.
+class _PaymentBubble extends ConsumerWidget {
+  const _PaymentBubble({required this.tx});
+
+  final TxEntry tx;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final display = amountDisplay(ref);
+    final tip = tipHeight(ref);
+    final target = confirmationsTargetOf(ref);
+    final now = ref.watch(clockProvider)();
+    final (:amount, :outgoing) = txAmount(tx);
+    final cancelled = tx.status == TxStatus.cancelled;
+    final inProgress = paymentInProgress(tx, tip, target: target);
+    final sealed = phoneShowsSealed(ref, tx);
+    final name = txPartyName(ref, tx);
+    final step = paymentStepWord(
+      l,
+      tx,
+      tip,
+      target: target,
+      now: now,
+      who: name,
+      pairedWith: txPayeeName(ref, tx),
+      paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+    );
+    final date = shortDate(l, localTime(tx.timeUnix), now);
+    final signed = signedEpic(l, tx, hidden: display.hidden);
+    final label = tx.label?.trim();
+    final dim = KitType.rowSub.copyWith(color: inProgress ? t.info : t.dim);
+    final amountColor = cancelled
+        ? t.txCancelled
+        : outgoing
+        ? t.text
+        : t.txReceived;
+    final radius = BorderRadius.circular(Kit.rGroup);
+    return Align(
+      alignment: outgoing ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: FractionallySizedBox(
+          widthFactor: 0.78,
+          alignment: outgoing ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+          child: kitId(
+            TrustIds.contactPayment,
+            KitPress(
+              radius: Kit.rGroup,
+              semanticsLabel: txSpokenLabel(
+                l,
+                tx,
+                who: name,
+                date: date,
+                status: step,
+                hidden: display.hidden,
+                label: tx.label,
+                sealed: sealed,
+              ),
+              button: true,
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key))),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: inProgress ? t.info.withValues(alpha: 0.12) : t.group,
+                  borderRadius: radius,
+                  border: inProgress ? Border.all(color: t.info.withValues(alpha: 0.45)) : null,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        signed,
+                        style: TextStyle(
+                          fontFamily: t.monoFamily,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2,
+                          color: amountColor,
+                          decoration: cancelled ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                      if (label != null && label.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(label, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ],
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(inProgress ? Icons.schedule_rounded : KitIcons.check, size: 15, color: inProgress ? t.info : t.dim),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              sealed ? '$step$metaSeparator${l.deskE1Sealed}' : step,
+                              style: dim,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -188,9 +350,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     if (epic1 && classicOnlyPairing(pairing) && contact.epic1 != null) {
       unawaited(openEpic1LinkSend(context, contact.epic1!));
     } else if (pairing != null && (contact.addresses.isEmpty || epic1)) {
-      showShellTab(context, ShellTab.send, pairingTo: pairing.id);
+      showShellFlow(context, ShellFlow.send, pairingTo: pairing.id);
     } else {
-      showShellTab(context, ShellTab.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
+      showShellFlow(context, ShellFlow.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
     }
   }
 
@@ -262,76 +424,157 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     final pending = pairs && (pairing == null || pairing.ended) ? ref.watch(contactPendingPairingProvider(contact.id)) : null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
+    final t = context.tokens;
+    final classicOnly = ref.watch(classicOnlyProvider(contact.id));
+    final canAsk = pairing != null && !pairing.ended && pairing.state.isPaired && ref.watch(invoicesShownProvider);
+    final showSend = !noPayments;
+    final sendOn = !classicOnly && !(contact.addresses.isEmpty && !(pairing?.paysByMailbox ?? false));
+    Widget bar() {
+      final send = KitButton(
+        key: contactPageSendKey,
+        label: l.contactsSendAction,
+        icon: KitIcons.send,
+        onPressed: sendOn ? () => _send(contact, pairing) : null,
+        semanticsId: TrustIds.contactSend,
+      );
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: t.bg,
+          border: Border(top: BorderSide(color: t.hair)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, 12),
+                child: Row(
+                  children: [
+                    if (showSend) Expanded(child: classicOnly ? Tip(l.deskE1PhClassicOnlyTip, child: send) : send),
+                    if (showSend && canAsk) const SizedBox(width: 12),
+                    if (canAsk)
+                      Expanded(
+                        child: KitButton(
+                          label: l.phoneContactRequest,
+                          icon: KitIcons.receive,
+                          kind: KitButtonKind.quiet,
+                          semanticsId: TrustIds.contactRequest,
+                          onPressed: () => Navigator.of(context).push<void>(
+                            MaterialPageRoute<void>(builder: (_) => InvoiceRequestScreen(pairingId: pairing.id)),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return SlotScaffold(
-      appBar: AppBar(
-        title: Text(l.contactTitle),
-        actions: [
-          IconButton(key: contactPageEditKey, tooltip: l.contactEdit, icon: const Icon(Icons.edit_outlined), onPressed: () => _edit(contact)),
-          PopupMenuButton<String>(
-            key: contactPageMoreKey,
-            tooltip: l.contactMore,
-            onSelected: (v) => switch (v) {
-              'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
-              'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
-              'delete' => _delete(contact, pairing),
-              _ => null,
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                key: contactPageStarKey,
-                value: 'star',
-                child: ListTile(
-                  leading: Icon(starred ? Icons.star_rounded : Icons.star_outline_rounded),
-                  title: Text(starred ? l.contactUnstar : l.contactStar),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: _TopBar(
+                  onBack: () => Navigator.maybePop(context),
+                  more: PopupMenuButton<String>(
+                    key: contactPageMoreKey,
+                    tooltip: l.contactMore,
+                    onSelected: (v) => switch (v) {
+                      'edit' => _edit(contact),
+                      'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
+                      'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
+                      'delete' => _delete(contact, pairing),
+                      _ => null,
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        key: contactPageEditKey,
+                        value: 'edit',
+                        child: ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l.contactEdit)),
+                      ),
+                      PopupMenuItem(
+                        key: contactPageStarKey,
+                        value: 'star',
+                        child: ListTile(
+                          leading: Icon(starred ? Icons.star_rounded : Icons.star_outline_rounded),
+                          title: Text(starred ? l.contactUnstar : l.contactStar),
+                        ),
+                      ),
+                      if (pairing != null && !pairing.ended && pairing.sas.isNotEmpty)
+                        PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.pairCheckWords))),
+                      PopupMenuItem(
+                        key: contactPageDeleteKey,
+                        value: 'delete',
+                        child: ListTile(
+                          leading: Icon(Icons.delete_outline, color: t.risk),
+                          title: Text(l.contactDelete, style: TextStyle(color: t.risk)),
+                        ),
+                      ),
+                    ],
+                    child: const _MoreMark(),
+                  ),
                 ),
               ),
-              if (pairing != null && !pairing.ended && pairing.sas.isNotEmpty)
-                PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.pairCheckWords))),
-              PopupMenuItem(
-                key: contactPageDeleteKey,
-                value: 'delete',
-                child: ListTile(
-                  leading: Icon(Icons.delete_outline, color: context.tokens.risk),
-                  title: Text(l.contactDelete, style: TextStyle(color: context.tokens.risk)),
-                ),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _Header(
+                              contact: contact,
+                              pairing: pairing,
+                              starred: starred,
+                              onCode: () => _showCode(contact),
+                              onPair: pairs && (pairing == null || pairing.ended) && pending == null ? () => _pair(contact) : null,
+                              onPending: pairs && (pairing == null || pairing.ended) && pending != null ? () => _showMyCode(contact) : null,
+                            ),
+                            _Payments(contact: contact, pairing: pairing),
+                            const SizedBox(height: 8),
+                            // A contact that takes no payments: its own card first, then Pairing, Addresses last.
+                            if (noPayments && pairs && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
+                            if (!noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
+                            if (pairs) ...[
+                              PairSection(l.contactPairing),
+                              ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
+                              // A service the user paired with and took a name from: Pay me as @name · since, the
+                              // picture code and Leave, or the button that turns it on.
+                              if (!noPayments && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
+                            ],
+                            if (noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
+                            // The compatibility line (trust policy): one sentence, never a badge; a plain
+                            // contact's key can answer as another wallet app with pairing off too.
+                            ContactTrustLine(contactId: contact.id, name: contact.name),
+                            if (contact.note?.trim() case final note? when note.isNotEmpty) ...[
+                              PairSection(l.contactsNoteHeading),
+                              Text(note, style: KitType.body.copyWith(color: context.tokens.text)),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: ScreenBody(
-        children: [
-          _Header(
-            contact: contact,
-            pairing: pairing,
-            starred: starred,
-            onSend: () => _send(contact, pairing),
-            onCode: () => _showCode(contact),
-            onPair: pairs && (pairing == null || pairing.ended) && pending == null ? () => _pair(contact) : null,
-            onPending: pairs && (pairing == null || pairing.ended) && pending != null ? () => _showMyCode(contact) : null,
-          ),
-          // A contact that takes no payments: its own card first, then Pairing, Addresses last.
-          if (noPayments && pairs && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
-          if (!noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
-          if (pairs) ...[
-            PairSection(l.contactPairing),
-            ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
-            // A service the user paired with and took a name from: Pay me as @name · since, the
-            // picture code and Leave, or the button that turns it on.
-            if (!noPayments && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
+            ),
+            if (showSend || canAsk) bar(),
           ],
-          if (noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
-          // The compatibility line (trust policy): one sentence, never a badge; a plain
-          // contact's key can answer as another wallet app with pairing off too.
-          ContactTrustLine(contactId: contact.id, name: contact.name),
-          if (contact.note?.trim() case final note? when note.isNotEmpty) ...[
-            PairSection(l.contactsNoteHeading),
-            Text(note, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-          PairSection(l.contactPaymentsWith(contact.name)),
-          _Payments(contact: contact),
-        ],
+        ),
       ),
     );
   }
@@ -357,12 +600,75 @@ Future<void> _pickLabel(BuildContext context, WidgetRef ref, Contact contact) as
   }
 }
 
+/// The top row: the gold back link named after the list it returns to, and the "…" on the end.
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.onBack, required this.more});
+
+  final VoidCallback onBack;
+  final Widget more;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l10n;
+    return SizedBox(
+      height: Kit.pageTitleHeader + 4,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Row(
+          children: [
+            kitId(
+              TrustIds.contactBack,
+              KitPress(
+                key: contactPageBackKey,
+                radius: Kit.rIconButton,
+                semanticsLabel: l.contactsTitle,
+                button: true,
+                onTap: onBack,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: Kit.hitMin, minWidth: Kit.hitMin),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4, right: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(KitIcons.backLink, size: 28, color: t.accentText),
+                        Text(l.contactsTitle, style: KitType.navLink.copyWith(color: t.accentText)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Spacer(),
+            kitId(TrustIds.contactMore, more),
+            const SizedBox(width: 6),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The face of the "…" menu: the quiet square the other icon buttons use.
+class _MoreMark extends StatelessWidget {
+  const _MoreMark();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return DecoratedBox(
+      decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
+      child: SizedBox.square(dimension: Kit.hitMin, child: Icon(KitIcons.more, color: t.text)),
+    );
+  }
+}
+
 class _Header extends ConsumerWidget {
   const _Header({
     required this.contact,
     required this.pairing,
     required this.starred,
-    required this.onSend,
     required this.onCode,
     this.onPair,
     this.onPending,
@@ -371,7 +677,6 @@ class _Header extends ConsumerWidget {
   final Contact contact;
   final PairingRecord? pairing;
   final bool starred;
-  final VoidCallback onSend;
   final VoidCallback onCode;
 
   /// Not paired: Pair opens the Pair screen for this contact.
@@ -380,149 +685,101 @@ class _Header extends ConsumerWidget {
   /// A request sent or its code answered: Waiting opens the Pair screen for the contact.
   final VoidCallback? onPending;
 
-  /// A header button: 36 dp, hugging its content; [soft] the primary's soft gold (accentSoft
-  /// fill, accentText ink, a gold hairline), the rest outlined.
-  static ButtonStyle _headerStyle(BuildContext context, {bool soft = false}) {
-    final t = context.tokens;
-    final base = ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
-      fixedSize: const WidgetStatePropertyAll(Size.fromHeight(36)),
-      padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 14)),
-      tapTargetSize: MaterialTapTargetSize.padded,
-    );
-    if (!soft) return base.copyWith(side: WidgetStatePropertyAll(BorderSide(color: t.lineStrong)), foregroundColor: WidgetStatePropertyAll(t.text));
-    return base.copyWith(
-      backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.surfaceHi : t.accentSoft),
-      foregroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.faint : t.accentText),
-      iconColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.faint : t.accentText),
-      side: WidgetStateProperty.resolveWith(
-        (s) => BorderSide(color: s.contains(WidgetState.disabled) ? t.line : t.accent.withValues(alpha: 0.35)),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final p = pairing;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p?.id, address: contact.epicbox);
     final claimed = p?.name?.trim();
     final classicOnly = ref.watch(classicOnlyProvider(contact.id));
+    final paired = p != null && !p.ended && p.state.isPaired;
+    final dim = KitType.rowSub.copyWith(color: t.dim);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          children: [
-            PairAvatar(
-              name: contact.name,
-              size: 72,
-              label: contact.label,
-              onLabelTap: () => _pickLabel(context, ref, contact),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text.rich(
-                      TextSpan(
-                        text: contact.name,
-                        children: [
-                          if (starred)
-                            const WidgetSpan(
-                              alignment: PlaceholderAlignment.middle,
-                              child: Padding(padding: EdgeInsetsDirectional.only(start: 6), child: ContactStar(size: 18)),
-                            ),
-                        ],
-                      ),
-                      style: theme.textTheme.headlineSmall?.copyWith(fontFamily: t.headFamily, fontSize: 22),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (classicOnly) ...[const SizedBox(height: 4), const ClassicOnlyText()],
-                  // Verified is about the Epicbox address: none beside one the pairing did not bring.
-                  if ((p != null && pairingVouchesFor(p, contact.epicbox)) || noPayments) ...[
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        if (p != null && pairingVouchesFor(p, contact.epicbox)) TrustBadge(p),
-                        if (noPayments) NoPaymentsBadge(key: contactPageNoPaymentsKey),
-                        if (!noPayments && p != null && p.allowInvoices)
-                          EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
-                      ],
-                    ),
-                  ],
-                  if (claimed != null && claimed.isNotEmpty && claimed != contact.name) ...[
-                    const SizedBox(height: 4),
-                    Text(l.pairCallsThemselves(claimed), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                  ],
-                  // Only a proven domain is shown here; claimed or refused is in the details.
-                  if (p != null && p.peerDomain != null && p.domainStatus == DomainStatus.proven) ...[
-                    const SizedBox(height: 4),
-                    Semantics(
-                      label: '${p.peerDomain}, ${l.contactDomainVerified}',
-                      excludeSemantics: true,
-                      child: Row(
-                        key: contactPageDomainKey,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.language, size: 14, color: t.dim),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              p.peerDomain!,
-                              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+        const SizedBox(height: 4),
+        AvatarLabelMark(
+          avatar: KitAvatar(initials: contactInitials(contact.name), large: true),
+          size: Kit.avatarStrip,
+          label: contact.label,
+          onTap: () => _pickLabel(context, ref, contact),
         ),
-        const SizedBox(height: 16),
-        // One row of compact buttons, each hugging its icon and one word (Pairing UX plan
-        // 4.2): Send in soft gold, not a filled block; Pair while not paired, outlined as in
-        // Contacts' app bar ("Pair with Anna" only as its tooltip); Show code a glyph beside
-        // Pair, so the row fits Russian at 360 dp.
-        // Labelled buttons only (UP-028): the row wraps to a second line where the words
-        // need it (Russian at 360 dp).
+        const SizedBox(height: 10),
+        Semantics(
+          header: true,
+          child: Text.rich(
+            TextSpan(
+              text: contact.name,
+              children: [
+                if (starred)
+                  const WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(padding: EdgeInsetsDirectional.only(start: 6), child: ContactStar(size: 18)),
+                  ),
+              ],
+            ),
+            style: KitType.pageTitle.copyWith(color: t.text, fontSize: 24),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (paired) ...[
+          const SizedBox(height: 6),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(EpicGlyphs.sealed, size: 15, color: t.accentText),
+              const SizedBox(width: 6),
+              Flexible(child: Text(l.phoneContactPaired, style: dim, textAlign: TextAlign.center)),
+            ],
+          ),
+        ],
+        if (classicOnly) ...[const SizedBox(height: 6), const ClassicOnlyText()],
+        // Verified is about the Epicbox address: none beside one the pairing did not bring.
+        if ((p != null && pairingVouchesFor(p, contact.epicbox)) || noPayments || (!noPayments && p != null && p.allowInvoices)) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              if (p != null && pairingVouchesFor(p, contact.epicbox)) TrustBadge(p),
+              if (noPayments) NoPaymentsBadge(key: contactPageNoPaymentsKey),
+              if (!noPayments && p != null && p.allowInvoices) EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
+            ],
+          ),
+        ],
+        if (claimed != null && claimed.isNotEmpty && claimed != contact.name) ...[
+          const SizedBox(height: 4),
+          Text(l.pairCallsThemselves(claimed), style: dim, textAlign: TextAlign.center),
+        ],
+        // Only a proven domain is shown here; claimed or refused is in the details.
+        if (p != null && p.peerDomain != null && p.domainStatus == DomainStatus.proven) ...[
+          const SizedBox(height: 4),
+          Semantics(
+            label: '${p.peerDomain}, ${l.contactDomainVerified}',
+            excludeSemantics: true,
+            child: Row(
+              key: contactPageDomainKey,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.language, size: 14, color: t.dim),
+                const SizedBox(width: 4),
+                Flexible(child: Text(p.peerDomain!, style: dim, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              ],
+            ),
+          ),
+        ],
+        // Labelled buttons only (UP-028): the row wraps where the words need it (Russian at 360 dp).
+        const SizedBox(height: 12),
         Wrap(
+          alignment: WrapAlignment.center,
           spacing: 8,
           runSpacing: 8,
           children: [
-            if (!noPayments && classicOnly)
-              Tip(
-                l.deskE1PhClassicOnlyTip,
-                child: FilledButton.tonalIcon(
-                  key: contactPageSendKey,
-                  style: _headerStyle(context, soft: true),
-                  icon: const Icon(Icons.north_east, size: 18),
-                  label: Text(l.contactsSendAction),
-                  onPressed: null,
-                ),
-              )
-            else if (!noPayments)
-            FilledButton.tonalIcon(
-              key: contactPageSendKey,
-              style: _headerStyle(context, soft: true),
-              icon: const Icon(Icons.north_east, size: 18),
-              label: Text(l.contactsSendAction),
-              onPressed: contact.addresses.isEmpty && !(p?.paysByMailbox ?? false) ? null : onSend,
-            ),
-            if (onPair != null) ...[
+            if (onPair != null)
               Tip(
                 l.pairWithName(contact.name),
                 excludeFromSemantics: true,
@@ -530,39 +787,45 @@ class _Header extends ConsumerWidget {
                   label: l.pairWithName(contact.name),
                   button: true,
                   excludeSemantics: true,
-                  child: OutlinedButton.icon(
+                  child: KitButton(
                     key: contactPageHeaderPairKey,
-                    style: _headerStyle(context),
-                    icon: const Icon(EpicGlyphs.verified, size: 18),
-                    label: Text(l.pairTitle),
+                    label: l.pairTitle,
+                    icon: EpicGlyphs.verified,
+                    kind: KitButtonKind.quiet,
+                    small: true,
+                    expand: false,
                     onPressed: onPair,
                   ),
                 ),
-              ),
-            ] else if (onPending != null) ...[
-              OutlinedButton.icon(
+              )
+            else if (onPending != null)
+              KitButton(
                 key: contactPageHeaderPairKey,
-                style: _headerStyle(context),
-                icon: const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-                label: Text(l.trustWaiting),
+                label: l.trustWaiting,
+                icon: Icons.hourglass_empty_rounded,
+                kind: KitButtonKind.quiet,
+                small: true,
+                expand: false,
                 onPressed: onPending,
               ),
-            ],
-            OutlinedButton.icon(
-              style: _headerStyle(context),
-              icon: const Icon(Icons.qr_code_2, size: 18),
-              label: Text(l.contactsShowCode),
+            KitButton(
+              label: l.contactsShowCode,
+              icon: KitIcons.qr,
+              kind: KitButtonKind.quiet,
+              small: true,
+              expand: false,
               onPressed: contact.addresses.isEmpty ? null : onCode,
             ),
           ],
         ),
         // A contact with only a pairing that cannot take a payment now: why Send is off.
         if (!noPayments && !classicOnly && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             p.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(contact.name),
             key: contactPageSendReasonKey,
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+            style: dim,
+            textAlign: TextAlign.center,
           ),
         ],
       ],
@@ -596,7 +859,7 @@ class _Addresses extends StatelessWidget {
                 children: [
                   Icon(EpicGlyphs.sealed, size: 20, color: t.dim),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(l.contactNoAddressPaired, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color))),
+                  Expanded(child: Text(l.contactNoAddressPaired, style: KitType.rowTitle.copyWith(color: color))),
                 ],
               ),
             ),
@@ -604,23 +867,27 @@ class _Addresses extends StatelessWidget {
         ],
       );
     }
-    if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: TextStyle(color: t.dim));
-    return PairCard(
+    if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: KitType.body.copyWith(color: t.dim));
+    return KitGroup(
+      margin: EdgeInsets.zero,
+      dividerInset: Kit.dividerInsetPlain,
       children: [
         // Each address in full, its method chip and Copy on the label row above it.
         for (final kind in contact.kinds)
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 4, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 4, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    EBadge.kind(kind, l: l),
+                    KitChip(recipientMethodWord(l, kind)),
                     const Spacer(),
-                    IconButton(
-                      tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
-                      icon: Icon(Icons.copy, size: 20, color: t.accentText),
+                    KitIconButton(
+                      icon: KitIcons.copy,
+                      label: l.contactCopyAddress(recipientMethodWord(l, kind)),
+                      color: t.accentText,
+                      semanticsId: TrustIds.contactCopyAddress,
                       onPressed: () => copyText(context, contact.addressOf(kind)!, l.contactsCopied),
                     ),
                   ],

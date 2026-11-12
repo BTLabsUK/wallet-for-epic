@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../help/help_content.dart';
 import '../help/help_i18n.dart';
 import '../l10n.dart';
-import '../levels/level_features.dart';
 import '../phone_tor.dart';
 import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../providers.dart';
@@ -677,14 +676,13 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
 }
 
 /// A paragraph or a list of a topic's body. A term is bold; a place is a link that goes
-/// there when the phone has that screen at the wallet's View ([features], see [helpPlaceGoes]
-/// and [openHelpPlace]), else it reads as a term.
+/// there when the phone has that screen ([helpPlaceGoes] and [openHelpPlace]), else it reads as
+/// a term.
 class HelpBlockView extends StatelessWidget {
-  const HelpBlockView({super.key, required this.block, required this.style, this.features});
+  const HelpBlockView({super.key, required this.block, required this.style});
 
   final HelpBlock block;
   final TextStyle style;
-  final LevelFeatures? features;
 
   TextSpan _rich(BuildContext context, String text) {
     final t = context.tokens;
@@ -692,7 +690,7 @@ class HelpBlockView extends StatelessWidget {
       style: style,
       children: [
         for (final p in helpInline(text))
-          if (p.place && helpPlaceGoes(p.target, prefs: AdvancedOptions.of(context), features: features))
+          if (p.place && helpPlaceGoes(p.target, prefs: AdvancedOptions.of(context)))
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
@@ -825,31 +823,27 @@ HelpPhonePlace? helpPlaceDestination(String place) {
   return screen.$1;
 }
 
-/// Whether the phone can go to [place] from Help: it has the screen, Advanced ([prefs]) shows
-/// it (Outputs needs the Outputs switch) and the View ([features]) shows it (Just send and
-/// receive has no Outputs); either one not given allows
+/// Whether the phone can go to [place] from Help: it has the screen and Advanced ([prefs]) shows
+/// it (Outputs needs the Outputs switch); no [prefs] allows
 /// everything. A place of a hidden part reads as a term instead of a link.
-bool helpPlaceGoes(String place, {AdvancedPrefs? prefs, LevelFeatures? features}) {
+bool helpPlaceGoes(String place, {AdvancedPrefs? prefs}) {
   final to = helpPlaceDestination(place);
   if (to == null) return false;
   if (to == HelpPhonePlace.outputs && prefs != null && !prefs.has(AdvancedFeature.outputs)) return false;
-  if (features == null) return true;
-  return switch (to) {
-    HelpPhonePlace.outputs => features.outputs,
-    _ => true,
-  };
+  return true;
 }
 
 /// Goes to [place]: a shell tab closes Help; a screen or a Settings page opens over it.
 void openHelpPlace(BuildContext context, String place) {
   final navigator = Navigator.of(context);
+  final back = context.l10n.helpTitle;
   switch (helpPlaceDestination(place)) {
     case null:
       return;
     case HelpPhonePlace.receive:
-      showShellTab(context, ShellTab.receive);
+      showShellFlow(context, ShellFlow.receive);
     case HelpPhonePlace.send:
-      showShellTab(context, ShellTab.send);
+      showShellFlow(context, ShellFlow.send);
     case HelpPhonePlace.activity:
       navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const HistoryScreen()));
     case HelpPhonePlace.outputs:
@@ -861,18 +855,18 @@ void openHelpPlace(BuildContext context, String place) {
     case HelpPhonePlace.settings:
       navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const SettingsScreen()));
     case HelpPhonePlace.security:
-      openSettingsSection(context, SettingsSection.security);
+      openSettingsSection(context, SettingsSection.security, backLabel: back);
     case HelpPhonePlace.privacyNetwork:
-      openSettingsSection(context, SettingsSection.privacyNetwork);
+      openSettingsSection(context, SettingsSection.privacyNetwork, backLabel: back);
     case HelpPhonePlace.wallet:
-      openSettingsSection(context, SettingsSection.wallet);
+      openSettingsSection(context, SettingsSection.wallet, backLabel: back);
     case HelpPhonePlace.linkedDevices:
       navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const LinkedDevicesScreen()));
     case HelpPhonePlace.transactions:
-      openSettingsSection(context, SettingsSection.transactions);
+      openSettingsSection(context, SettingsSection.transactions, backLabel: back);
     case HelpPhonePlace.display:
-      openSettingsSection(context, SettingsSection.display);
+      openSettingsSection(context, SettingsSection.display, backLabel: back);
     case HelpPhonePlace.about:
-      openSettingsSection(context, SettingsSection.about);
+      openSettingsSection(context, SettingsSection.about, backLabel: back);
   }
 }

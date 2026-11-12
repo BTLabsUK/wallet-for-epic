@@ -407,7 +407,6 @@ class HomeDestinations extends ConsumerWidget {
         key: homeDestinationKey(HomeDestination.contacts),
         icon: Icons.people_outline,
         label: l.settingsContacts,
-        trust: TrustIds.homeContacts,
         onTap: () => onOpen(HomeDestination.contacts),
       ),
       if (invoices)
@@ -437,16 +436,12 @@ class _DestinationTile extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.badge = 0,
-    this.trust,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final int badge;
-
-  /// The drivers' id of the tile ([TrustIds]), on its one node.
-  final String? trust;
 
   @override
   Widget build(BuildContext context) {
@@ -458,7 +453,7 @@ class _DestinationTile extends StatelessWidget {
       label: badge > 0 ? '$label, $badge' : label,
       onTap: onTap,
       child: destinationBody(
-        trust,
+        null,
         Material(
         color: t.surface,
         shape: RoundedRectangleBorder(
@@ -552,7 +547,7 @@ class HomeContactsEntry extends StatelessWidget {
       label: l.settingsContacts,
       onTap: onTap,
       child: destinationBody(
-        TrustIds.homeContacts,
+        null,
         Material(
           color: t.surface,
           shape: RoundedRectangleBorder(

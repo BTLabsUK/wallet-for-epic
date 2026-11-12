@@ -21659,4 +21659,216 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSendTheirOnline => '对方钱包必须打开';
+
+  @override
+  String get phoneAboutProtocol => '支付协议';
+
+  @override
+  String get phoneAboutWhatsNew => '新内容';
+
+  @override
+  String get phoneAboutHelpTitle => '关于 BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet 由 BT Labs 制作，运行在自有引擎 LEPIC 上，通过 epic1 协议发送付款。';
+
+  @override
+  String get phoneAboutHelp2 => '此页的链接会被复制，你可以在信任的浏览器中打开。';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return '$version 的新内容';
+  }
+
+  @override
+  String get phoneContactsSearchHint => '搜索，或粘贴地址';
+
+  @override
+  String get phoneContactsAtoZ => '按字母';
+
+  @override
+  String get phoneContactsNoPayments => '暂无付款';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return '请求 $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => '联系人';
+
+  @override
+  String get phoneContactPaired => '已配对 · 你们之间的付款已加密封存';
+
+  @override
+  String get phoneContactRequest => '请求';
+
+  @override
+  String get phoneLinkScanSub => '扫描另一台设备上的代码';
+
+  @override
+  String get phoneLinkShowSub => '由另一台设备扫描';
+
+  @override
+  String get phoneLinkPasteSub => '粘贴收到的代码或链接';
+
+  @override
+  String get phoneRecvTitle => '收款';
+
+  @override
+  String get phoneRecvHelpTitle => '收款';
+
+  @override
+  String get phoneRecvHelp1 => '分享你的地址或二维码，拿到的人都可以向你付款。';
+
+  @override
+  String get phoneRecvHelp2 => '指定金额会生成一个要求固定金额的码。';
+
+  @override
+  String get phoneRecvHelp3 => '当付款人无法使用你的地址时，可以用其他方式。';
+
+  @override
+  String get phoneRecvCheck => '与向你付款的人核对地址的前六位和后六位字符。';
+
+  @override
+  String get phoneRecvListening => '正在等待付款';
+
+  @override
+  String get phoneRecvAsk => '指定金额';
+
+  @override
+  String get phoneRecvAskLine => '对方会看到金额和用途';
+
+  @override
+  String get phoneRecvAskLineLink => '生成一个带金额的链接';
+
+  @override
+  String get phoneRecvOther => '其他收款方式';
+
+  @override
+  String get phoneRecvOtherLine => '当面，或用文件';
+
+  @override
+  String get phoneRecvOtherSheetLine => '付款人无法使用你的地址时使用。';
+
+  @override
+  String get phoneRecvInPersonLine => '扫描付款人的码，再出示你的码';
+
+  @override
+  String get phoneRecvFileLine => '打开付款文件，或粘贴其文本';
+
+  @override
+  String get phoneRecvTorLine => '经由 Tor 直接送到这部手机';
+
+  @override
+  String get phoneRecvOff => '关';
+
+  @override
+  String get phoneRecvFromAnyone => '任何人';
+
+  @override
+  String phoneRecvFromName(String name) {
+    return '来自 $name';
+  }
+
+  @override
+  String get phoneRecvWho => '谁来付款？';
+
+  @override
+  String get phoneRecvAnyoneCode => '任何人，用码';
+
+  @override
+  String get phoneRecvAnyoneCodeLine => '对方扫描此屏幕上的码';
+
+  @override
+  String get phoneRecvAnyoneFile => '任何人，用文件';
+
+  @override
+  String get phoneRecvAnyoneFileLine => '保存一个文件，交给对方';
+
+  @override
+  String phoneRecvAskFor(String amount) {
+    return '收 $amount';
+  }
+
+  @override
+  String phoneRecvCodeLead(String amount) {
+    return '出示此码或分享它。打开的人会被要求支付 $amount。';
+  }
+
+  @override
+  String get phoneRecvWaitingPaid => '等待付款';
+
+  @override
+  String get phoneRecvViewPayment => '查看付款';
+
+  @override
+  String get phoneRecvShowCode => '显示码';
+
+  @override
+  String phoneRecvArrivalFrom(String name) {
+    return '来自 $name';
+  }
+
+  @override
+  String get phoneTabHome => '首页';
+
+  @override
+  String get phoneTabScan => '扫描';
+
+  @override
+  String get phoneReview => '查看';
+
+  @override
+  String get phoneLater => '稍后';
+
+  @override
+  String get phoneHomeRecent => '最近';
+
+  @override
+  String get phoneHomeSeeAll => '查看全部';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount 即将到账';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount 在发送中';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return '同步中 $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => '离线';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return '来自 $name 的账单';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount。在你批准之前不会付款。';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => '可用 · 最近已知';
+
+  @override
+  String get phoneHomeBalanceSheetHint => '余额详情';
+
+  @override
+  String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
+
+  @override
+  String get phoneTourOffer => '要不要快速看看钱包的功能?';
+
+  @override
+  String get phoneTourOfferShow => '带我看看';
 }

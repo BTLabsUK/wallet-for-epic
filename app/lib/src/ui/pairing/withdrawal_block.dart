@@ -16,6 +16,7 @@ import '../common.dart';
 import 'add_to_contacts_button.dart';
 import 'pair_check.dart' show attachPairingTo, pickContactForPairing, savePairingAsNewContact;
 import '../theme/protocol.dart';
+import '../kit/kit_tokens.dart';
 import '../theme/tokens.dart';
 
 /// The withdrawal [tx] is, with the name of the contact it came from; null when it is none.
@@ -46,7 +47,6 @@ class WithdrawalFromRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final record = ref.watch(pairingByIdProvider(pairingId));
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final saved = record?.contactId != null && contacts.any((c) => c.id == record!.contactId);
@@ -55,9 +55,9 @@ class WithdrawalFromRow extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.txDetailsReceivedFrom, style: theme.textTheme.labelLarge),
+          Text(l.txDetailsReceivedFrom, style: KitType.groupLabel.copyWith(color: t.dim)),
           const SizedBox(height: 2),
-          Text(name, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+          Text(name, style: KitType.body.copyWith(color: t.text)),
           if (record != null && !saved) ...[
             const SizedBox(height: 8),
             AddToContactsButton(
@@ -88,7 +88,6 @@ class WithdrawalBlock extends ConsumerWidget {
     if (w == null) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final tip = tipHeight(ref);
     final target = confirmationsTargetOf(ref);
     final confirmations = txConfirmations(tx, tip);
@@ -109,10 +108,10 @@ class WithdrawalBlock extends ConsumerWidget {
             const SizedBox(height: 16),
           ],
           if (w.slate.reference case final reference? when reference.isNotEmpty) ...[
-            Text(l.reqReference, style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
+            Text(l.reqReference, style: KitType.groupLabel.copyWith(color: t.dim)),
             const SizedBox(height: 2),
             // The exchange's own words for it: shown, never trusted for crediting.
-            Text(reference, maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(reference, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.body.copyWith(color: t.text)),
             const SizedBox(height: 16),
           ],
           StatusTimeline(

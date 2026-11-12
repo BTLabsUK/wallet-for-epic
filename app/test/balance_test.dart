@@ -12,12 +12,15 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
+import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey;
+import 'package:epic_wallet/src/ui/phone_tx_row.dart' show PhoneTxRow;
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'support/shell_where.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -132,27 +135,28 @@ Future<ProviderContainer> _pump(
 }
 
 Future<void> _tab(WidgetTester tester, String label) async {
-  await tester.tap(
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
-  );
-  await tester.pumpAndSettle();
+  await shellGo(tester, label);
+  // The notice toast floats over the top and takes the touches there: close what shows.
+  final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first));
+  for (var i = 0; i < 5 && container.read(noticeProvider) != null; i++) {
+    container.read(noticeProvider.notifier).dismiss();
+    await tester.pumpAndSettle();
+  }
 }
 
 /// The words of the figure title on Send and Receive.
 String _titleText(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(titleFigureKey)).textSpan!.toPlainText();
 
-/// [text] in the balance tile of [kind] on Wallet.
-Finder _inTile(BalanceKind kind, String text) => find.descendant(
-  of: find.byKey(balanceTileKey(kind)),
-  matching: find.text(text),
-);
+/// The words of Home's figure.
+String _figure(WidgetTester tester) =>
+    (tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!).toPlainText();
 
 /// What the only payment row says to a screen reader, which includes its status.
 String _rowLabel(WidgetTester tester) => tester
     .widget<Semantics>(
       find
-          .descendant(of: find.byType(TxTile), matching: find.byType(Semantics))
+          .descendant(of: find.byType(PhoneTxRow), matching: find.byType(Semantics))
           .first,
     )
     .properties
@@ -221,9 +225,9 @@ void main() {
     ) async {
       final session = FakeWalletSession(summary: _summary(spendable: 1234.56781234));
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '1,234.5678');
+      expect(_figure(tester), '1,234.5678');
       expect(find.text('1,234.56781234\u00a0EPIC'), findsNothing);
-      await tester.tap(find.byKey(balanceFigureKey));
+      await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
       // Balance, spendable now and Total are the same here: one row says it in full.
@@ -252,12 +256,12 @@ void main() {
       final container = await _pump(tester, session, width: 360);
       await container.read(appSettingsProvider.notifier).setHideBalances(true);
       await tester.pumpAndSettle();
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, hiddenAmount);
-      await tester.tap(find.byKey(balanceFigureKey));
+      expect(_figure(tester), hiddenAmount);
+      await tester.tap(find.byKey(homeFigureKey));
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.textContaining('1,234.56781234'), findsNothing);
       expect(
-        find.ancestor(of: find.byKey(balanceFigureKey), matching: find.byType(Tooltip)),
+        find.ancestor(of: find.byKey(homeFigureKey), matching: find.byType(Tooltip)),
         findsNothing,
       );
     });
@@ -273,18 +277,15 @@ void main() {
       );
       await _pump(tester, session, width: 360);
       // The figure is the wallet's balance: nothing spendable now, the 7.492 confirming.
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '7.492');
-      // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
-      for (final (kind, text) in [
-        (BalanceKind.locked, '10.0'),
-        (BalanceKind.confirming, '7.492'),
-      ]) {
-        expect(_inTile(kind, text).hitTestable(), findsOneWidget, reason: text);
+      expect(_figure(tester), '7.492');
+      // Home says it in two chips: the 7.492 arriving and the 10 held by sends.
+      for (final text in [l.phoneHomeArriving(epicText(l, _epic(7.492))), l.phoneHomeInSends(epicText(l, _epic(10.0)))]) {
+        expect(find.text(text).hitTestable(), findsOneWidget, reason: text);
       }
       // They stand still, and nothing runs to move them.
-      final at = tester.getRect(_inTile(BalanceKind.locked, '10.0'));
+      final at = tester.getRect(find.text(l.phoneHomeInSends(epicText(l, _epic(10.0)))));
       await tester.pump(const Duration(seconds: 3));
-      expect(tester.getRect(_inTile(BalanceKind.locked, '10.0')), at);
+      expect(tester.getRect(find.text(l.phoneHomeInSends(epicText(l, _epic(10.0))))), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
       // The header on Send and Receive agrees: the same 7.492, and the same amounts as tokens
@@ -326,21 +327,21 @@ void main() {
         ],
       );
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '98.992');
+      expect(_figure(tester), '98.992');
       // What can be sent now is in the sheet, next to the balance.
       final rows = BalanceHelp.rows(l, session.summaryValue, ownChange: _epic(98.992));
       expect(rows.take(2).map((r) => (r.$1, r.$2)), [
         (l.homeWalletBalance, _epic(98.992)),
         (l.homeBalanceSpendableNow, BigInt.zero),
       ]);
-      await tester.tap(find.byKey(balanceFigureKey));
+      await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
       expect(find.text(l.homeBalanceSpendableNow), findsOneWidget);
     });
 
     testWidgets(
-      'a tile per pending balance; the header keeps three tokens: locked, '
+      'a chip per pending sum; the header keeps three tokens: locked, '
       'everything on chain coming in, and not on chain yet',
       (tester) async {
         final session = FakeWalletSession(
@@ -362,7 +363,9 @@ void main() {
           (BalanceKind.locked, l.homeTileLocked, _epic(5)),
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
         ]);
-        expect(_inTile(BalanceKind.confirming, '2.0'), findsOneWidget);
+        // Home: 2 confirming and 16 maturing arrive, the 5 locked are in sends.
+        expect(find.text(l.phoneHomeArriving(epicText(l, _epic(18.0)))), findsOneWidget);
+        expect(find.text(l.phoneHomeInSends(epicText(l, _epic(5.0)))), findsOneWidget);
         // Send and Receive keep three tokens: 5 locked, 2 confirming and 16 maturing coming
         // in, and the 0.5 not on chain yet apart (never counted as coming in).
         await _tab(tester, l.homeSendButton);
@@ -400,9 +403,8 @@ void main() {
       );
       await _pump(tester, session, width: 360);
       expect(find.textContaining('coming in'), findsNothing);
-      // Not a Confirming tile either: it waits for the sender, and says so.
-      expect(find.byKey(balanceTileKey(BalanceKind.confirming)), findsNothing);
-      expect(_inTile(BalanceKind.waitingSender, '1,000,000.0'), findsOneWidget);
+      // Home shows no arriving chip for it: it waits for the sender.
+      expect(find.textContaining('arriving'), findsNothing);
       await _tab(tester, l.homeSendButton);
       expect(find.textContaining('coming in'), findsNothing);
       // The header names it for what it is, not on chain yet, never as coming in.
@@ -429,12 +431,9 @@ void main() {
       );
       await _pump(tester, session, width: 360, textScale: 2);
       expect(tester.takeException(), isNull);
-      // The tiles grow with the text; the first is whole, the others scroll in.
-      expect(
-        _inTile(BalanceKind.confirming, '6.4847').hitTestable(),
-        findsOneWidget,
-      );
-      expect(find.byKey(balanceTileKey(BalanceKind.locked)), findsOneWidget);
+      // The chips wrap under the figure at this size.
+      expect(find.textContaining('arriving'), findsOneWidget);
+      expect(find.textContaining('in sends'), findsOneWidget);
       await _tab(tester, l.homeSendButton);
       expect(tester.takeException(), isNull);
     });
@@ -466,8 +465,8 @@ void main() {
       await _pump(tester, session);
       expect(_rowLabel(tester), isNot(contains('received,')));
       expect(find.textContaining(l.txStatusReceived), findsNothing);
-      expect(find.textContaining(l.txStatusConfirming(0, 3)), findsOneWidget);
-      expect(_inTile(BalanceKind.confirming, '2.5'), findsOneWidget);
+      expect(find.textContaining(l.lvPolPosted), findsOneWidget);
+      expect(find.text(l.phoneHomeArriving(epicText(l, _epic(2.5)))), findsOneWidget);
 
       // The next refresh reaches block 228: three confirmations, both say so.
       session.summaryValue = _summary(
@@ -476,11 +475,8 @@ void main() {
       );
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
-      expect(
-        find.byKey(balanceTileKey(BalanceKind.confirming)),
-        findsNothing,
-      );
-      expect(find.textContaining(l.txStatusReceived), findsOneWidget);
+      expect(find.textContaining('arriving'), findsNothing);
+      expect(_rowLabel(tester), contains('received,'));
     });
 
     testWidgets('a tip ahead of the summary does not complete a row early', (
@@ -497,7 +493,7 @@ void main() {
         transactions: [received(height: _tip - BigInt.from(3))],
       );
       await _pump(tester, session);
-      expect(find.textContaining(l.txStatusConfirming(1, 3)), findsOneWidget);
+      expect(find.textContaining(l.lvPayConfirming(1, 3)), findsOneWidget);
       expect(find.textContaining(l.txStatusReceived), findsNothing);
     });
   });

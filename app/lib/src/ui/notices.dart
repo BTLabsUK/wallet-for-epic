@@ -278,6 +278,13 @@ class NoticeDock extends ConsumerStatefulWidget {
 }
 
 class _NoticeDockState extends ConsumerState<NoticeDock> with SingleTickerProviderStateMixin {
+  /// The docks alive now, oldest first. Only the newest draws the toast: a flow pushed over a
+  /// screen has its own dock, and the screen under it is still built.
+  static final List<_NoticeDockState> _live = [];
+  static final ValueNotifier<int> _liveChanged = ValueNotifier(0);
+
+  bool get _top => _live.isNotEmpty && identical(_live.last, this);
+
   final OverlayPortalController _portal = OverlayPortalController();
   late final AnimationController _open = AnimationController(
     vsync: this,
@@ -296,6 +303,8 @@ class _NoticeDockState extends ConsumerState<NoticeDock> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    _live.add(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _liveChanged.value++);
     // A screen opened while a notice shows starts with the toast in place.
     _shown = ref.read(noticeProvider);
     if (_shown != null) {
@@ -308,6 +317,9 @@ class _NoticeDockState extends ConsumerState<NoticeDock> with SingleTickerProvid
 
   @override
   void dispose() {
+    _live.remove(this);
+    // Not during this frame's build: the docks that listen rebuild after it.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _liveChanged.value++);
     _open.dispose();
     super.dispose();
   }
@@ -345,7 +357,10 @@ class _NoticeDockState extends ConsumerState<NoticeDock> with SingleTickerProvid
     ref.read(noticeProvider.notifier).accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
     return OverlayPortal(
       controller: _portal,
-      overlayChildBuilder: _toast,
+      overlayChildBuilder: (context) => ListenableBuilder(
+        listenable: _liveChanged,
+        builder: (context, _) => _top ? _toast(context) : const SizedBox.shrink(),
+      ),
       child: const SizedBox.shrink(),
     );
   }

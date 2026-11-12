@@ -35951,6 +35951,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'their wallet has to be open'**
   String get phoneSendTheirOnline;
+
+  /// Row in About: the payment protocol the wallet speaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment protocol'**
+  String get phoneAboutProtocol;
+
+  /// Row in About that shows the notes of this version.
+  ///
+  /// In en, this message translates to:
+  /// **'What is new'**
+  String get phoneAboutWhatsNew;
+
+  /// Title of the About page's help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'About BT Wallet'**
+  String get phoneAboutHelpTitle;
+
+  /// First line of the About help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'BT Wallet is made by BT Labs. It runs its own engine, LEPIC, and sends payments over the epic1 protocol.'**
+  String get phoneAboutHelp1;
+
+  /// Second line of the About help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Links on this page are copied, so you can open them in a browser you trust.'**
+  String get phoneAboutHelp2;
+
+  /// Title of the sheet with the release notes. {version} is the app version like 26.11.1.
+  ///
+  /// In en, this message translates to:
+  /// **'What is new in {version}'**
+  String phoneAboutNotesTitle(String version);
+
+  /// Placeholder of the search field on the Contacts tab; typing filters by name, note or address
+  ///
+  /// In en, this message translates to:
+  /// **'Search, or paste an address'**
+  String get phoneContactsSearchHint;
+
+  /// Link and heading on the Contacts tab: lists the contacts alphabetically instead of by latest payment
+  ///
+  /// In en, this message translates to:
+  /// **'A to Z'**
+  String get phoneContactsAtoZ;
+
+  /// State line of a contact's row when nothing was paid to or by them yet
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet'**
+  String get phoneContactsNoPayments;
+
+  /// State line of a contact's row when they sent an invoice that waits for the user. {amount} is the amount with the unit, e.g. 42.5 EPIC
+  ///
+  /// In en, this message translates to:
+  /// **'Asks for {amount}'**
+  String phoneContactsAsks(String amount);
+
+  /// Screen reader label of the strip of contact faces above the list on the Contacts tab
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get phoneContactsFaces;
+
+  /// Line under a paired contact's name on its page; shown only when the pairing is active
+  ///
+  /// In en, this message translates to:
+  /// **'Paired · payments between you are sealed'**
+  String get phoneContactPaired;
+
+  /// Button at the bottom of a contact's page that opens the form to ask this contact for an amount. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get phoneContactRequest;
+
+  /// Subtitle of the Scan row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on your other device'**
+  String get phoneLinkScanSub;
+
+  /// Subtitle of the Show my code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other device scans it'**
+  String get phoneLinkShowSub;
+
+  /// Subtitle of the Paste code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a code or link you were sent'**
+  String get phoneLinkPasteSub;
+
+  /// Title of the Receive screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive'**
+  String get phoneRecvTitle;
+
+  /// Title of the short help sheet on the Receive screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get phoneRecvHelpTitle;
+
+  /// Receive help, first line.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your address or code. Whoever has it can pay you.'**
+  String get phoneRecvHelp1;
+
+  /// Receive help, second line.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for an amount makes a code that asks for a set amount.'**
+  String get phoneRecvHelp2;
+
+  /// Receive help, third line.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ways to receive are for when the payer cannot use your address.'**
+  String get phoneRecvHelp3;
+
+  /// Hint under the full address on Receive: how the payer checks it is the right one.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the first and last six characters with the person paying you.'**
+  String get phoneRecvCheck;
+
+  /// Status line on Receive while the wallet is connected and waiting for payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening for payments'**
+  String get phoneRecvListening;
+
+  /// Row on Receive and title of the screen that asks the payer for a set amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for an amount'**
+  String get phoneRecvAsk;
+
+  /// Line under the Ask for an amount row.
+  ///
+  /// In en, this message translates to:
+  /// **'They see how much and what for'**
+  String get phoneRecvAskLine;
+
+  /// Line under the Ask for an amount row when the wallet receives through epic1 links.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes a link that asks for it'**
+  String get phoneRecvAskLineLink;
+
+  /// Row on Receive and title of the sheet with the other ways to get paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Other ways to receive'**
+  String get phoneRecvOther;
+
+  /// Line under the Other ways to receive row.
+  ///
+  /// In en, this message translates to:
+  /// **'In person, or with a file'**
+  String get phoneRecvOtherLine;
+
+  /// Line under the title of the Other ways to receive sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'For when the payer cannot use your address.'**
+  String get phoneRecvOtherSheetLine;
+
+  /// Line under In person in the Other ways to receive sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the payer\'s code, then show yours'**
+  String get phoneRecvInPersonLine;
+
+  /// Line under With a file in the Other ways to receive sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a payment file, or paste its text'**
+  String get phoneRecvFileLine;
+
+  /// Line under Tor address in the Other ways to receive sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to this phone, over Tor'**
+  String get phoneRecvTorLine;
+
+  /// Value on the Tor address row when receiving over Tor is off. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get phoneRecvOff;
+
+  /// Chip on the Ask for an amount screen: the request is for whoever opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'From anyone'**
+  String get phoneRecvFromAnyone;
+
+  /// Chip on the Ask for an amount screen: the request goes to one contact. {name} is the contact.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String phoneRecvFromName(String name);
+
+  /// Title of the sheet that picks who the request is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Who pays?'**
+  String get phoneRecvWho;
+
+  /// Choice in the who-pays sheet: a code anyone can scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone, with a code'**
+  String get phoneRecvAnyoneCode;
+
+  /// Line under the Anyone, with a code choice.
+  ///
+  /// In en, this message translates to:
+  /// **'They scan a code on this screen'**
+  String get phoneRecvAnyoneCodeLine;
+
+  /// Choice in the who-pays sheet: a file anyone can open.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone, with a file'**
+  String get phoneRecvAnyoneFile;
+
+  /// Line under the Anyone, with a file choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves a file you hand over'**
+  String get phoneRecvAnyoneFileLine;
+
+  /// Button that sends the request. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for {amount}'**
+  String phoneRecvAskFor(String amount);
+
+  /// Lead on the screen that shows a request as a code. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this code or share it. Whoever opens it is asked for {amount}.'**
+  String phoneRecvCodeLead(String amount);
+
+  /// Status line under a request code that nobody has paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be paid'**
+  String get phoneRecvWaitingPaid;
+
+  /// Button on the sheet for an arriving payment: opens the payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'View payment'**
+  String get phoneRecvViewPayment;
+
+  /// Button that shows a request as a code in full.
+  ///
+  /// In en, this message translates to:
+  /// **'Show code'**
+  String get phoneRecvShowCode;
+
+  /// Line under the amount on the sheet for an arriving payment. {name} is the sender.
+  ///
+  /// In en, this message translates to:
+  /// **'from {name}'**
+  String phoneRecvArrivalFrom(String name);
+
+  /// Tab bar: the first tab, the wallet's home screen. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get phoneTabHome;
+
+  /// Screen reader label of the round button in the middle of the tab bar that opens the QR scanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get phoneTabScan;
+
+  /// Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get phoneReview;
+
+  /// Quiet button that puts a needs-you card away for now
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get phoneLater;
+
+  /// Heading over the latest payments on Home
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get phoneHomeRecent;
+
+  /// Link at the end of Home's Recent heading; opens the Activity tab
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get phoneHomeSeeAll;
+
+  /// Info chip under Home's balance: the amount that is on its way in
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} arriving'**
+  String phoneHomeArriving(String amount);
+
+  /// Quiet chip under Home's balance: the amount held by payments being sent
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} in sends'**
+  String phoneHomeInSends(String amount);
+
+  /// The status pill on Home while the node is catching up
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing {percent}%'**
+  String phoneHomeSyncing(String percent);
+
+  /// The status pill on Home when the wallet reaches neither the node nor Epicbox
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get phoneHomeOffline;
+
+  /// Title of the card on Home when an invoice waits for the user's approval
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice from {name}'**
+  String phoneHomeInvoiceTitle(String name);
+
+  /// Body of the invoice card on Home; the amount may include a fiat value
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}. Nothing is paid until you approve.'**
+  String phoneHomeInvoiceBody(String amount);
+
+  /// Caption over Home's balance when the figure is the last one known (no connection)
+  ///
+  /// In en, this message translates to:
+  /// **'Available · last known'**
+  String get phoneHomeBalanceLastKnown;
+
+  /// Spoken name of Home's balance, which opens the sheet with every part of the balance
+  ///
+  /// In en, this message translates to:
+  /// **'Balance details'**
+  String get phoneHomeBalanceSheetHint;
+
+  /// Empty Home: what stands under the Recent heading before the first payment
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet. Receive some EPIC to begin.'**
+  String get phoneHomeEmpty;
+
+  /// Toast shown once after the first unlock: offers the wallet tour. Short question.
+  ///
+  /// In en, this message translates to:
+  /// **'Want a quick tour of the wallet?'**
+  String get phoneTourOffer;
+
+  /// Button on the tour offer toast: starts the tour. One or two words.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me'**
+  String get phoneTourOfferShow;
 }
 
 class _AppLocalizationsDelegate

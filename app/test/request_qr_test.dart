@@ -14,6 +14,8 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart' show qrCompleteFor, qrPostedFor;
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -165,6 +167,23 @@ class _Entry extends ConsumerWidget {
   );
 }
 
+/// Types [amount] on the Ask page's keypad.
+Future<void> _type(WidgetTester tester, String amount) async {
+  for (final c in amount.split('')) {
+    await tester.tap(find.descendant(of: find.byType(KitKeypad), matching: find.text(c)));
+    await tester.pump();
+  }
+}
+
+/// Writes [message] in the note sheet and closes it.
+Future<void> _note(WidgetTester tester, String message) async {
+  await tester.tap(find.text(_l.phonePayAddNote));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byKey(requestMessageKey), message);
+  await tester.tap(find.text(_l.commonDone));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('whoever asks', () {
     testWidgets('the entry opens the form that shows the request as a QR', (tester) async {
@@ -173,7 +192,7 @@ void main() {
       await tester.tap(find.text('entry'));
       await tester.pumpAndSettle();
       expect(find.byType(InvoiceRequestScreen), findsOneWidget);
-      expect(find.descendant(of: find.byKey(requestPayerKey), matching: find.text(_l.reqToQr)), findsOneWidget);
+      expect(find.descendant(of: find.byKey(requestPayerKey), matching: find.text(_l.phoneRecvFromAnyone)), findsOneWidget);
       expect(find.byKey(requestShowQrKey), findsOneWidget);
       expect(find.byKey(requestSaveFileKey), findsNothing);
     });
@@ -181,10 +200,9 @@ void main() {
     testWidgets('makes the request, shows its code, finishes on the payer\'s answer and shows the receipt', (tester) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
-      await tester.enterText(find.byKey(requestAmountKey), '12.5');
-      await tester.enterText(find.byKey(requestMessageKey), 'Table 4');
-      await tester.pump();
-      expect(find.text(_l.reqQrSummary(epicExact(_l, _epic(12.5)))), findsOneWidget);
+      await _type(tester, '12.5');
+      await _note(tester, 'Table 4');
+      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(12.5)))), findsOneWidget);
       await tester.tap(find.byKey(requestShowQrKey));
       await tester.pumpAndSettle();
 
@@ -217,8 +235,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(requestShowQrKey), findsOneWidget);
       // The note stays for the next payer; the amount starts empty.
-      expect(tester.widget<TextField>(find.byKey(requestMessageKey)).controller!.text, 'Table 4');
-      expect(tester.widget<TextField>(find.byKey(requestAmountKey)).controller!.text, isEmpty);
+      expect(find.text('Table 4'), findsOneWidget);
+      expect(tester.widget<KitButton>(find.byKey(requestShowQrKey)).onPressed, isNull);
     });
 
     testWidgets('an answer to another request is refused on the request screen; nothing is finished', (tester) async {
@@ -226,8 +244,7 @@ void main() {
       final other = await h.session.pairing.requestFile(amount: _epic(3));
       final otherAnswer = await h.session.payRequestFile(slateJson: other.json, amount: _epic(3));
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
-      await tester.enterText(find.byKey(requestAmountKey), '5');
-      await tester.pump();
+      await _type(tester, '5');
       await tester.tap(find.byKey(requestShowQrKey));
       await tester.pumpAndSettle();
       await tester.pageBack();

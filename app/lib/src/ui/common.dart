@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../address_format.dart' show displayCase;
 import '../address_format.dart' as address_format show shortAddress;
-import '../advanced.dart' show NetworkModeRestricted;
+import '../advanced.dart' show AdvancedFeature, NetworkModeRestricted;
 import '../amount.dart';
 import '../devices/device_ending.dart';
 import 'info_hint.dart' show InfoHint;
@@ -45,7 +45,7 @@ import 'via.dart';
 import 'tx_label.dart';
 import 'tip.dart';
 import 'levels/payment_steps.dart' show paymentStepWord;
-import '../levels/level_providers.dart' show levelFeaturesProvider;
+import '../levels/level_providers.dart' show effectiveAdvancedProvider;
 
 export '../models.dart' show txAmount;
 export '../text_join.dart';
@@ -53,29 +53,29 @@ export '../text_join.dart';
 export 'badge.dart';
 export 'notices.dart';
 
-/// Replaces the whole navigation stack with the shell of the open wallet, on its Wallet tab.
+/// Replaces the whole navigation stack with the shell of the open wallet, on its Home tab.
 void goHome(BuildContext context) {
   ProviderScope.containerOf(
     context,
     listen: false,
-  ).read(shellTabProvider.notifier).go(ShellTab.wallet);
+  ).read(shellTabProvider.notifier).go(ShellTab.home);
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
     (_) => false,
   );
 }
 
-/// Shows [tab] of the wallet shell and closes every screen over it. With [recipient] (a
-/// scanned code, Send again), the Send form takes it as the recipient; with [pairingTo], the
-/// paired contact with no address, paid through its mailbox.
-void showShellTab(BuildContext context, ShellTab tab, {String? recipient, String? pairingTo}) {
+/// Opens [flow] over the wallet shell and closes every screen over the shell first. With
+/// [recipient] (a scanned code, Send again), the Send form takes it as the recipient; with
+/// [pairingTo], the paired contact with no address, paid through its mailbox.
+void showShellFlow(BuildContext context, ShellFlow flow, {String? recipient, String? pairingTo}) {
   final container = ProviderScope.containerOf(context, listen: false);
   if (recipient != null) {
     container.read(sendRecipientProvider.notifier).hand(recipient);
   } else if (pairingTo != null) {
     container.read(sendRecipientProvider.notifier).handPairing(pairingTo);
   }
-  container.read(shellTabProvider.notifier).go(tab);
+  container.read(shellFlowProvider.notifier).open(flow);
   Navigator.of(context).popUntil((route) => route.isFirst);
 }
 
@@ -555,7 +555,7 @@ String shortAddress(String address, {String? ownServer, bool relay = true}) {
   }
   final at = text.indexOf('@');
   final key = at < 0 ? text : text.substring(0, at);
-  // Level 1 names no server ([LevelFeatures.serverNames]): the key alone ([relay] false).
+  // A row names no server unless Server details is on: the key alone ([relay] false).
   var server = at < 0 || !relay ? '' : text.substring(at);
   if (ownServer != null && server.isNotEmpty) {
     final host = server.substring(1).split(':').first.toLowerCase();
@@ -1006,7 +1006,6 @@ class TxStatusLine extends ConsumerWidget {
                     context.l10n,
                     tx,
                     tip,
-                    style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
                     target: target,
                     now: now,
                     who: txPartyName(ref, tx),
@@ -1885,8 +1884,8 @@ class TxTile extends ConsumerWidget {
         : approxFiat(l, amount, display, short: true);
     final theme = Theme.of(context);
     final name = txPartyName(ref, tx);
-    // Level 1 names no server: an address is its key alone.
-    final relay = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
+    // A row names no server unless Server details is on: an address is its key alone.
+    final relay = ref.watch(effectiveAdvancedProvider.select((a) => a.has(AdvancedFeature.serverDetails)));
     final title = txTitle(
       l,
       tx,
@@ -1939,7 +1938,6 @@ class TxTile extends ConsumerWidget {
                 l,
                 tx,
                 tip,
-                style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
                 target: confirmationsTargetOf(ref),
                 now: now,
                 who: name,
