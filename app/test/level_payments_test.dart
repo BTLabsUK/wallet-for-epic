@@ -13,7 +13,6 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/levels/payment_steps.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
-import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/theme/protocol.dart' show TimelineState;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
