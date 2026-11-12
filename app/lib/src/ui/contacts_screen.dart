@@ -52,6 +52,7 @@ import 'tour/tour_target.dart';
 
 /// Keys for tests.
 const Key contactsPairKey = ValueKey('contacts-pair');
+const Key contactsAddItemKey = ValueKey('contacts-add-item');
 const Key contactsMoreKey = ValueKey('contacts-more');
 const Key contactsImportKey = ValueKey('contacts-import');
 const Key contactsExportKey = ValueKey('contacts-export');
@@ -95,9 +96,12 @@ class LiveFieldError extends StatelessWidget {
 /// What the Contacts tab knows of one contact: its latest payment, and the invoice it waits on
 /// the user to approve.
 class ContactActivity {
-  const ContactActivity({this.latest, this.asks});
+  const ContactActivity({this.latest, this.asks, this.all = const []});
 
   final TxEntry? latest;
+
+  /// Every payment of the contact (the latest among them).
+  final List<TxEntry> all;
   final PendingInvoice? asks;
 }
 
@@ -115,9 +119,11 @@ final contactActivityProvider = Provider<Map<String, ContactActivity>>((ref) {
   final txs = ref.watch(homeProvider.select((h) => h.value?.transactions)) ?? const <TxEntry>[];
   final invoices = ref.watch(pendingInvoicesProvider).value ?? const <PendingInvoice>[];
   final latest = <String, TxEntry>{};
+  final every = <String, List<TxEntry>>{};
   for (final tx in txs) {
     final id = contactFor(contacts, tx.counterparty)?.id ?? byPairing[tx.pairingId];
     if (id == null) continue;
+    (every[id] ??= []).add(tx);
     final seen = latest[id];
     if (seen == null || tx.timeUnix > seen.timeUnix) latest[id] = tx;
   }
@@ -127,7 +133,7 @@ final contactActivityProvider = Provider<Map<String, ContactActivity>>((ref) {
     if (id != null) asks.putIfAbsent(id, () => i);
   }
   return {
-    for (final id in {...latest.keys, ...asks.keys}) id: ContactActivity(latest: latest[id], asks: asks[id]),
+    for (final id in {...latest.keys, ...asks.keys}) id: ContactActivity(latest: latest[id], asks: asks[id], all: every[id] ?? const []),
   };
 });
 
@@ -296,34 +302,17 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 if (!widget.pick)
                   KitTabTitle(
                     l.contactsTitle,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Pair in one place, labelled, beside Add contact; never a gold button
-                        // (Pairing UX plan 4.1).
-                        if (pairs)
-                          KitButton(
-                            key: contactsPairKey,
-                            label: l.pairTitle,
-                            icon: EpicGlyphs.verified,
-                            kind: KitButtonKind.quiet,
-                            small: true,
-                            expand: false,
-                            onPressed: _pair,
-                            semanticsId: TrustIds.contactsPair,
-                          ),
-                        const SizedBox(width: 8),
-                        KitIconButton(
-                          icon: KitIcons.add,
-                          label: l.contactsAdd,
-                          filled: true,
-                          color: t.accentText,
-                          onPressed: _add,
-                          semanticsId: TrustIds.contactsAdd,
-                        ),
-                        // With no contacts there is no list to carry it: Import lives here.
-                        if (none && !closed) _more(false),
-                      ],
+                    // One gold "+" opens Add a contact, Pair, Import and Export (the frame has
+                    // nothing else in the title row).
+                    trailing: Builder(
+                      builder: (btn) => KitIconButton(
+                        key: contactsMoreKey,
+                        icon: KitIcons.add,
+                        label: l.contactMore,
+                        color: t.accentText,
+                        onPressed: () => _plusMenu(btn, canExport: canExport, pairs: pairs),
+                        semanticsId: TrustIds.contactsMore,
+                      ),
                     ),
                   ),
                 Expanded(child: content),
@@ -352,31 +341,54 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     );
   }
 
-  Widget _more(bool canExport) {
+  Future<void> _plusMenu(BuildContext btn, {required bool canExport, required bool pairs}) async {
     final l = context.l10n;
-    return kitId(
-      TrustIds.contactsMore,
-      PopupMenuButton<String>(
-        key: contactsMoreKey,
-        tooltip: l.contactMore,
-        icon: Icon(KitIcons.more, color: context.tokens.dim),
-        onSelected: (v) => v == 'import' ? importContacts(context, ref) : exportContacts(context, ref),
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            key: contactsImportKey,
-            value: 'import',
-            child: ListTile(leading: const Icon(Icons.file_download_outlined), title: Text(l.contactsImport)),
-          ),
-          PopupMenuItem(
-            key: contactsExportKey,
-            value: 'export',
-            // A contact without an address is a pairing's, which the file never carries.
-            enabled: canExport,
-            child: ListTile(enabled: canExport, leading: const Icon(Icons.file_upload_outlined), title: Text(l.contactsExport)),
-          ),
-        ],
-      ),
+    final box = btn.findRenderObject()! as RenderBox;
+    final overlay = Overlay.of(btn).context.findRenderObject()! as RenderBox;
+    final rect = RelativeRect.fromRect(
+      Rect.fromPoints(box.localToGlobal(Offset.zero, ancestor: overlay), box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay)),
+      Offset.zero & overlay.size,
     );
+    final v = await showMenu<String>(
+      context: btn,
+      position: rect,
+      items: [
+        PopupMenuItem(
+          key: contactsAddItemKey,
+          value: 'add',
+          child: kitId(TrustIds.contactsAdd, ListTile(leading: const Icon(Icons.person_add_alt), title: Text(l.contactsAdd))),
+        ),
+        if (pairs)
+          PopupMenuItem(
+            key: contactsPairKey,
+            value: 'pair',
+            child: kitId(TrustIds.contactsPair, ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.pairTitle))),
+          ),
+        PopupMenuItem(
+          key: contactsImportKey,
+          value: 'import',
+          child: ListTile(leading: const Icon(Icons.file_download_outlined), title: Text(l.contactsImport)),
+        ),
+        PopupMenuItem(
+          key: contactsExportKey,
+          value: 'export',
+          // A contact without an address is a pairing's, which the file never carries.
+          enabled: canExport,
+          child: ListTile(enabled: canExport, leading: const Icon(Icons.file_upload_outlined), title: Text(l.contactsExport)),
+        ),
+      ],
+    );
+    if (!mounted || v == null) return;
+    switch (v) {
+      case 'add':
+        _add();
+      case 'pair':
+        _pair();
+      case 'import':
+        await importContacts(context, ref);
+      default:
+        await exportContacts(context, ref);
+    }
   }
 
   Widget _list(List<Contact> all, List<PairingRecord> orphans, bool canExport) {
@@ -417,7 +429,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       void open() => _open(c);
       if (!pick) {
         if (a?.asks != null) return _AsksRow(contact: c, invoice: a!.asks!, onTap: open);
-        if (!az && a?.latest != null) return ContactActivityRow(tx: a!.latest!, name: c.name, onOpen: open);
+        if (!az && a?.latest != null) return ContactActivityRow(tx: a!.latest!, name: c.name, onOpen: open, others: a.all);
       }
       return _ContactRow(contact: c, onTap: open, forPayment: pick && widget.forPayment, noPaymentsYet: !pick && !az && a?.latest == null);
     }
@@ -449,7 +461,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   ),
                 ),
               ),
-              _more(canExport),
             ],
           ),
         ),
@@ -872,7 +883,8 @@ class _ContactRow extends ConsumerWidget {
                           Flexible(child: TrustBadge(pairing, short: true))
                         else if (inFlight)
                           const Flexible(child: PairPendingBadge())
-                        else if (!several && contact.addresses.isNotEmpty)
+                        // Like the label mark, a list row marks only a kind that is not the default Epicbox.
+                        else if (!several && contact.addresses.isNotEmpty && (forPayment || contact.kinds.first != RecipientKind.epicbox))
                           Flexible(child: EBadge.kind(contact.kinds.first, l: l)),
                         if (noPayments) ...[
                           const SizedBox(width: 6),

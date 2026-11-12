@@ -22744,4 +22744,23 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'แชร์ไฟล์นี้ ใครเปิดจะถูกขอ $amount';
   }
+
+  @override
+  String get phoneContactsYouPaid => 'คุณจ่ายแล้ว';
+
+  @override
+  String get phoneContactsPaidYou => 'จ่ายให้คุณแล้ว';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count การชำระเงินกำลังมา';
+  }
+
+  @override
+  String get phoneContactsNow => 'ตอนนี้';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'กำลังรอกระเป๋าของ $who ตอบกลับ';
+  }
 }

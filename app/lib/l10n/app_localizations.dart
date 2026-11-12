@@ -36383,6 +36383,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share this file. Whoever opens it is asked for {amount}.'**
   String phoneRecvFileLead(String amount);
+
+  /// Start of a contact row's second line on the Contacts tab when the user's latest payment to them is done; the note or Sealed follows after a dot
+  ///
+  /// In en, this message translates to:
+  /// **'You paid'**
+  String get phoneContactsYouPaid;
+
+  /// Start of a contact row's second line on the Contacts tab when the contact's latest payment to the user is done; the note or Sealed follows after a dot
+  ///
+  /// In en, this message translates to:
+  /// **'Paid you'**
+  String get phoneContactsPaidYou;
+
+  /// Second line of a contact row on the Contacts tab when two or more payments from them are still on their way. {count} is the number, 2 or more
+  ///
+  /// In en, this message translates to:
+  /// **'{count} payments arriving'**
+  String phoneContactsArriving(int count);
+
+  /// Time under the amount of a contact row on the Contacts tab when the payment is less than a minute old
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get phoneContactsNow;
+
+  /// A payment bubble on a contact's page while their wallet has not answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {who}\'s wallet to answer'**
+  String phoneContactsWaitingAnswer(String who);
 }
 
 class _AppLocalizationsDelegate

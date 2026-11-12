@@ -23937,4 +23937,23 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'Udostępnij ten plik. Kto go otworzy, zostanie poproszony o $amount.';
   }
+
+  @override
+  String get phoneContactsYouPaid => 'Zapłacono';
+
+  @override
+  String get phoneContactsPaidYou => 'Zapłacił(a) tobie';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count płatności w drodze';
+  }
+
+  @override
+  String get phoneContactsNow => 'Teraz';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'Czekamy na portfel: $who';
+  }
 }

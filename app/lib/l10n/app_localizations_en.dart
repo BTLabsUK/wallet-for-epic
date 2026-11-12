@@ -23203,4 +23203,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'Share this file. Whoever opens it is asked for $amount.';
   }
+
+  @override
+  String get phoneContactsYouPaid => 'You paid';
+
+  @override
+  String get phoneContactsPaidYou => 'Paid you';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count payments arriving';
+  }
+
+  @override
+  String get phoneContactsNow => 'Now';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'Waiting for $who\'s wallet to answer';
+  }
 }

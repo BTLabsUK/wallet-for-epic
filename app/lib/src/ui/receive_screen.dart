@@ -394,7 +394,7 @@ class _ReceiveAddressBlockState extends ConsumerState<ReceiveAddressBlock> {
                     selectable: true,
                     flat: true,
                     // Frame .addr: mono 14 on 1.55; its glyph pitch measures 7.87 px (the line breaks after 39 characters).
-                    style: const TextStyle(fontSize: 14, height: 1.55, letterSpacing: -0.5),
+                    style: const TextStyle(fontSize: 14, height: 1.55, letterSpacing: -0.55),
                     onTap: _copy,
                   ),
                 ),

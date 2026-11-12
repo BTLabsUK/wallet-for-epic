@@ -233,7 +233,7 @@ class PhoneTxRow extends ConsumerWidget {
 
     final initials = _initialsOf(tx, title, named: name != null);
     final direction = open
-        ? KitDirection.pending
+        ? (outgoing ? KitDirection.pendingOut : KitDirection.pendingIn)
         : (outgoing ? KitDirection.out : KitDirection.incoming);
     final avatar = KitAvatar(
       initials: initials,

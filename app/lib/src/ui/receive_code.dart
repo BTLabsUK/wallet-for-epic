@@ -110,7 +110,7 @@ class RequestCodePage extends ConsumerWidget {
     final currency = ref.watch(appSettingsProvider.select((s) => s.value?.fiatCurrency)) ?? 'usd';
     final figure = epicExact(l, amount);
     final number = figure.endsWith(epicUnit) ? figure.substring(0, figure.length - epicUnit.length).trimRight() : figure;
-    final fiat = price == null ? null : approxText(localDigits(l, fiatText(amount, price, currency)));
+    final fiat = price == null ? null : phoneFiat(l, amount, (hidden: false, price: price, currency: currency), approx: true);
     final note = message == null || message!.isEmpty ? null : message;
     final detail = [?note, ?fiat].join(' · ');
     return SlotScaffold(
@@ -174,10 +174,13 @@ class RequestCodePage extends ConsumerWidget {
                             ],
                           ],
                         ),
+                        for (final a in actions) ...[const SizedBox(height: 10), a],
+                        const SizedBox(height: 16),
+                        Center(child: status),
                         if (saveFile) ...[
-                          // The frame has only Copy and Share; saving the file stays one quiet line
-                          // under them (without Share it is the main button).
-                          SizedBox(height: files.canShare ? 4 : 10),
+                          // The frame has only Copy and Share and the status; saving the file stays one
+                          // quiet line after the status (without Share it is the main button).
+                          SizedBox(height: files.canShare ? 18 : 10),
                           KitButton(
                             label: l.slateSaveToDevice,
                             kind: files.canShare ? KitButtonKind.ghost : KitButtonKind.gold,
@@ -188,9 +191,6 @@ class RequestCodePage extends ConsumerWidget {
                             }),
                           ),
                         ],
-                        for (final a in actions) ...[const SizedBox(height: 10), a],
-                        const SizedBox(height: 16),
-                        Center(child: status),
                       ],
                     ),
                   ),

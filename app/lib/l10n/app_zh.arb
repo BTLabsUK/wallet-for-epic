@@ -6059,5 +6059,10 @@
   "phoneQrDoneCodeRead": "You scanned their code",
   "phoneQrDoneAnswerSeen": "They scanned your answer",
   "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
-  "phoneRecvFileLead": "分享此文件。打开的人会被要求支付 {amount}。"
+  "phoneRecvFileLead": "分享此文件。打开的人会被要求支付 {amount}。",
+  "phoneContactsYouPaid": "你已支付",
+  "phoneContactsPaidYou": "已向你付款",
+  "phoneContactsArriving": "{count} 笔付款在途中",
+  "phoneContactsNow": "刚刚",
+  "phoneContactsWaitingAnswer": "等待 {who} 的钱包回应"
 }

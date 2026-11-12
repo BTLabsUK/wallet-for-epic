@@ -23926,4 +23926,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return 'Поделитесь этим файлом. Кто его откроет, увидит запрос на $amount.';
   }
+
+  @override
+  String get phoneContactsYouPaid => 'Вы заплатили';
+
+  @override
+  String get phoneContactsPaidYou => 'Заплатил(а) вам';
+
+  @override
+  String phoneContactsArriving(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count платежа в пути',
+      many: '$count платежей в пути',
+      few: '$count платежа в пути',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneContactsNow => 'Сейчас';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'Ждём ответа кошелька: $who';
+  }
 }

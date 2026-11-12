@@ -21902,4 +21902,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneRecvFileLead(String amount) {
     return '分享此文件。打开的人会被要求支付 $amount。';
   }
+
+  @override
+  String get phoneContactsYouPaid => '你已支付';
+
+  @override
+  String get phoneContactsPaidYou => '已向你付款';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count 笔付款在途中';
+  }
+
+  @override
+  String get phoneContactsNow => '刚刚';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return '等待 $who 的钱包回应';
+  }
 }

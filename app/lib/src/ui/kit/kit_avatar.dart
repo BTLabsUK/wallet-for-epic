@@ -9,7 +9,7 @@ import 'kit_tokens.dart';
 
 /// Which way money went, shown as the small badge on an avatar: out is dim, in is ok, and a
 /// payment still in progress is info (HANDOFF 7.3).
-enum KitDirection { out, incoming, pending }
+enum KitDirection { out, incoming, pending, pendingOut, pendingIn }
 
 /// A contact or a thing in a list: 40 px (radius 13) or, in the contact strip, 54 px (radius
 /// 18). Shows [initials] in gold, or [icon]. [neutral] makes the figure dim, for a thing that
@@ -78,6 +78,9 @@ class _Badge extends StatelessWidget {
       KitDirection.out => (t.dim, KitIcons.send),
       KitDirection.incoming => (t.ok, KitIcons.receive),
       KitDirection.pending => (t.info, KitIcons.send),
+      // `.dir.live`: the direction's arrow in the info colour.
+      KitDirection.pendingOut => (t.info, KitIcons.send),
+      KitDirection.pendingIn => (t.info, KitIcons.receive),
     };
     return Container(
       width: Kit.avatarBadge,
