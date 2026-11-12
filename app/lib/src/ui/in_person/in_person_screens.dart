@@ -23,6 +23,7 @@ import '../../utf8_limit.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart' show LiveFieldError;
+import '../kit/kit_corner_marks.dart';
 import '../kit/kit_button.dart';
 import '../kit/kit_headers.dart';
 import '../kit/kit_hero_amount.dart';
@@ -737,7 +738,13 @@ class _InPersonQrState extends State<InPersonQr> {
         ),
       );
     }
-    return Center(heightFactor: 1, child: inner);
+    return Center(
+      heightFactor: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: KitCornerMarks(inset: 14, arm: 22, child: inner),
+      ),
+    );
   }
 }
 

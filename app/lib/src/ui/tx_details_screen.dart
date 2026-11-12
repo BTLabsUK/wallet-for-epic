@@ -1762,13 +1762,14 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
     if (mounted) setState(() => _behind = has == ExplorerHas.notYet ? height : null);
   }
 
-  Widget _copyRow(String title, String value, {required String notice, String? shown, String? hint, VoidCallback? after}) {
+  Widget _copyRow(String title, String value, {required String notice, String? shown, String? hint, VoidCallback? after, String? id}) {
     final t = context.tokens;
     return _FieldRow(
       title: title,
       body: shown ?? value,
       bodyLines: 3,
       hint: hint,
+      semanticsId: id,
       trailing: Icon(KitIcons.copy, size: 20, color: t.dim),
       onTap: () async {
         await copyText(context, value, notice);
@@ -1826,11 +1827,6 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
                 ),
             ],
           ),
-          trailing: IconButton(
-            tooltip: l.txDetailsCopyAddress,
-            icon: Icon(KitIcons.copy, size: 20, color: t.dim),
-            onPressed: () => copyText(context, counterparty, l.txDetailsAddressCopied),
-          ),
         ),
         if (widget.name == null)
           _FieldRow(
@@ -1881,14 +1877,6 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
           chevron: true,
           onTap: () => _showCoins(tx),
         ),
-      if (url != null)
-        _copyRow(
-          l.txDetailsExplorerLink,
-          url,
-          notice: l.txDetailsLinkCopied,
-          hint: _behind != null && _behind == tx.blockHeight?.toInt() ? l.txDetailsExplorerBehind : null,
-          after: () => _checkExplorer(tx.blockHeight!.toInt()),
-        ),
       // Advanced › Technical details shows the rows; without it this row shows them for this
       // view only (the switch stays off). Send feedback carries the slate id for support.
       if (!technical)
@@ -1921,7 +1909,42 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
       primaryKind: KitButtonKind.quiet,
       onPrimary: () => Navigator.of(context).pop(),
       primaryId: TrustIds.payMoreDone,
-      child: KitGroup(onSheet: true, dividerInset: Kit.dividerInsetPlain, children: rows),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          KitGroup(onSheet: true, dividerInset: Kit.dividerInsetPlain, children: rows),
+          if (counterparty != null || url != null) ...[
+            const SizedBox(height: 12),
+            KitGroup(
+              onSheet: true,
+              dividerInset: Kit.dividerInsetPlain,
+              children: [
+                if (counterparty != null)
+                  KitRow(
+                    size: KitRowSize.settings,
+                    title: l.txDetailsCopyAddress,
+                    titleColor: t.accentText,
+                    semanticsId: TrustIds.payCopyAddress,
+                    onTap: () => copyText(context, counterparty, l.txDetailsAddressCopied),
+                  ),
+                if (url != null)
+                  KitRow(
+                    size: KitRowSize.settings,
+                    title: l.txDetailsExplorerLink,
+                    titleColor: t.accentText,
+                    subtitle: _behind != null && _behind == tx.blockHeight?.toInt() ? l.txDetailsExplorerBehind : null,
+                    subtitleLines: 2,
+                    semanticsId: TrustIds.payCopyExplorer,
+                    onTap: () async {
+                      await copyText(context, url, l.txDetailsLinkCopied);
+                      _checkExplorer(tx.blockHeight!.toInt());
+                    },
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 

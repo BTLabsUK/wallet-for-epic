@@ -34,7 +34,7 @@ import 'kit/kit_icons.dart';
 import 'kit/kit_search_field.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
-import 'payment_row.dart';
+import 'phone_tx_row.dart';
 import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyProvider;
 import 'tip.dart';
 import 'inline_button.dart';
@@ -417,7 +417,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       void open() => _open(c);
       if (!pick) {
         if (a?.asks != null) return _AsksRow(contact: c, invoice: a!.asks!, onTap: open);
-        if (!az && a?.latest != null) return PaymentRow(tx: a!.latest!, name: c.name, onOpen: open);
+        if (!az && a?.latest != null) return PhoneTxRow(tx: a!.latest!, name: c.name, onOpen: open, dated: true);
       }
       return _ContactRow(contact: c, onTap: open, forPayment: pick && widget.forPayment, noPaymentsYet: !pick && !az && a?.latest == null);
     }

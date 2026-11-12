@@ -843,6 +843,7 @@ bool helpPlaceGoes(String place, {AdvancedPrefs? prefs, LevelFeatures? features}
 /// Goes to [place]: a shell tab closes Help; a screen or a Settings page opens over it.
 void openHelpPlace(BuildContext context, String place) {
   final navigator = Navigator.of(context);
+  final back = context.l10n.helpTitle;
   switch (helpPlaceDestination(place)) {
     case null:
       return;
@@ -861,18 +862,18 @@ void openHelpPlace(BuildContext context, String place) {
     case HelpPhonePlace.settings:
       navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const SettingsScreen()));
     case HelpPhonePlace.security:
-      openSettingsSection(context, SettingsSection.security);
+      openSettingsSection(context, SettingsSection.security, backLabel: back);
     case HelpPhonePlace.privacyNetwork:
-      openSettingsSection(context, SettingsSection.privacyNetwork);
+      openSettingsSection(context, SettingsSection.privacyNetwork, backLabel: back);
     case HelpPhonePlace.wallet:
-      openSettingsSection(context, SettingsSection.wallet);
+      openSettingsSection(context, SettingsSection.wallet, backLabel: back);
     case HelpPhonePlace.linkedDevices:
       navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const LinkedDevicesScreen()));
     case HelpPhonePlace.transactions:
-      openSettingsSection(context, SettingsSection.transactions);
+      openSettingsSection(context, SettingsSection.transactions, backLabel: back);
     case HelpPhonePlace.display:
-      openSettingsSection(context, SettingsSection.display);
+      openSettingsSection(context, SettingsSection.display, backLabel: back);
     case HelpPhonePlace.about:
-      openSettingsSection(context, SettingsSection.about);
+      openSettingsSection(context, SettingsSection.about, backLabel: back);
   }
 }

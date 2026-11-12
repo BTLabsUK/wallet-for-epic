@@ -507,6 +507,11 @@ abstract final class TrustIds {
   static const receiveArriveSheet = 'g4.receive.arrive-sheet';
   static const receiveArriveDone = 'g4.receive.arrive-done';
   static const receiveArriveView = 'g4.receive.arrive-view';
+  static const homeBackupExport = 'g4.home.backup_export';
+  static const homeBackupNotNow = 'g4.home.backup_not_now';
+  static const contactCopyAddress = 'g4.contact.copy_address';
+  static const payCopyAddress = 'g4.pay.copy-address';
+  static const payCopyExplorer = 'g4.pay.copy-explorer';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -1024,5 +1029,10 @@ abstract final class TrustIds {
     'g4.receive.arrive-sheet',
     'g4.receive.arrive-done',
     'g4.receive.arrive-view',
+    'g4.home.backup_export',
+    'g4.home.backup_not_now',
+    'g4.contact.copy_address',
+    'g4.pay.copy-address',
+    'g4.pay.copy-explorer',
   ];
 }

@@ -549,5 +549,10 @@
 {"id": "g4.receive.code-show", "screen": "receive", "keys": ["phoneRecvShowCode"], "driver": false},
 {"id": "g4.receive.arrive-sheet", "screen": "receive", "keys": ["lvPayArriving"], "driver": false},
 {"id": "g4.receive.arrive-done", "screen": "receive", "keys": ["commonDone"], "driver": false},
-{"id": "g4.receive.arrive-view", "screen": "receive", "keys": ["phoneRecvViewPayment"], "driver": false}
+{"id": "g4.receive.arrive-view", "screen": "receive", "keys": ["phoneRecvViewPayment"], "driver": false},
+{"id": "g4.home.backup_export", "screen": "home", "family": ["android"], "keys": ["homeHistoryExportButton"], "driver": false},
+{"id": "g4.home.backup_not_now", "screen": "home", "family": ["android"], "keys": ["homeHistoryReminderNotNow"], "driver": false},
+{"id": "g4.contact.copy_address", "screen": "contact", "family": ["android"], "keys": ["contactCopyAddress"], "driver": false},
+{"id": "g4.pay.copy-address", "screen": "payment", "family": ["android"], "keys": ["txDetailsCopyAddress"], "driver": false},
+{"id": "g4.pay.copy-explorer", "screen": "payment", "family": ["android"], "keys": ["txDetailsExplorerLink"], "driver": false}
 ]}

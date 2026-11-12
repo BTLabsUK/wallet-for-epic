@@ -147,6 +147,8 @@ void main() {
       final observer = _Observer(pushed);
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           navigatorObservers: [observer],
           home: Builder(
             builder: (c) {
@@ -162,6 +164,8 @@ void main() {
       final page = (pushed.single as MaterialPageRoute<dynamic>).builder(context);
       expect(page, isA<SettingsSectionScreen>());
       expect((page as SettingsSectionScreen).section, SettingsSection.security);
+      // Back names Help, where the place was opened from.
+      expect(page.backLabel, AppLocalizations.of(context).helpTitle);
     });
   });
 

@@ -117,6 +117,56 @@ void main() {
     });
   }
 
+  testWidgets('a flow over a screen shows one toast, in the flow; the screen shows it again when the flow closes', (tester) async {
+    final c = await _pump(tester);
+    // A pushed route keeps the screen under it built (offstage): count those too.
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    c.notices.show('Once', level: NoticeLevel.info, persistent: true);
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+    Navigator.of(tester.element(find.byKey(_second))).pop();
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+  });
+
+  testWidgets('a flow stacked over the shell in one tree shows one toast', (tester) async {
+    var flow = false;
+    late StateSetter set;
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: buildWalletTheme(protocolLight, Brightness.light),
+          home: StatefulBuilder(
+            builder: (context, setState) {
+              set = setState;
+              return Stack(
+                children: [
+                  const SlotScaffold(body: SizedBox.expand()),
+                  if (flow) const Positioned.fill(child: SlotScaffold(key: _second, body: SizedBox.expand())),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    final c = ProviderScope.containerOf(tester.element(find.byType(Stack).first));
+    set(() => flow = true);
+    await tester.pumpAndSettle();
+    c.notices.show('Once', level: NoticeLevel.info, persistent: true);
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+    set(() => flow = false);
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+  });
+
   testWidgets('an action adds 4 seconds; persistent stays', (tester) async {
     final c = await _pump(tester);
     c.notices.show(

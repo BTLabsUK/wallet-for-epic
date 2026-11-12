@@ -13,12 +13,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactsProvider;
+import '../devices/device_providers.dart' show withDeviceHistory;
+import '../devices/phone_devices.dart' show phoneDevices;
 import '../l10n.dart';
 import '../models.dart';
 import '../pairing_providers.dart' show pairingsProvider;
 import '../providers.dart';
+import '../settings.dart';
 import '../trust_ids.dart';
+import 'backup_screen.dart' show backedUpProvider;
 import 'common.dart';
+import 'home_screen.dart' show paymentsNotInBackup, unbackedPayments;
+import 'settings_history.dart' show exportHistoryBackup;
 import 'invoice_review_screen.dart';
 import 'invoices_screen.dart' show invoiceSenderName;
 import 'kit/kit_icons.dart';
@@ -107,10 +113,76 @@ class InfoSlotItem extends HomeSlotItem {
   );
 }
 
+/// A history backup that is due: payments a restore from the phrase cannot bring back. "Not now"
+/// puts the reminder off for 30 days; Export runs the backup.
+class HistoryBackupSlotItem extends HomeSlotItem {
+  const HistoryBackupSlotItem({required this.chain, required this.count, required this.exported});
+
+  final Chain chain;
+  final int count;
+
+  /// Whether a backup was ever exported (the words differ).
+  final bool exported;
+
+  @override
+  String get id => 'history-backup';
+
+  @override
+  bool get needsYou => true;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref, HomeSlotPage page) {
+    final l = context.l10n;
+    return KitNeedsYouCard(
+      title: exported ? l.homeHistoryChangedSinceBackup(count) : l.homeHistoryNotBackedUp(count),
+      reviewLabel: l.homeHistoryExportButton,
+      laterLabel: l.homeHistoryReminderNotNow,
+      icon: KitIcons.backup,
+      pages: page.pages,
+      page: page.page,
+      reviewId: TrustIds.homeBackupExport,
+      laterId: TrustIds.homeBackupNotNow,
+      onLater: () => ref.read(appSettingsProvider.notifier).dismissHistoryReminder(chain, ref.read(clockProvider)()),
+      onReview: () => exportHistoryBackup(context, ref),
+    );
+  }
+}
+
+/// The backup reminder as a slot item, or null when none is due. It waits until the phrase is
+/// written down: that backup comes first.
+final _historyBackupItemProvider = Provider<HistoryBackupSlotItem?>((ref) {
+  final config = ref.watch(walletConfigProvider);
+  final settings = ref.watch(appSettingsProvider).value;
+  final backedUp = ref.watch(backedUpProvider).value ?? true;
+  if (config == null || settings == null || !backedUp) return null;
+  final rows = withDeviceHistory(ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[], ref.watch(phoneDevices.view));
+  final chain = config.chain;
+  final now = ref.watch(clockProvider)();
+  final exportedAt = settings.historyExportedAt[chain.name];
+  final firstSeenAt = settings.historyReminderFirstSeenAt[chain.name];
+  final snapshot = settings.historyExportSnapshots[chain.name];
+  if (firstSeenAt == null && unbackedPayments(rows, exportedAt: exportedAt, snapshot: snapshot) > 0) {
+    // The 30 days of a wallet with no export and no dismissal start here.
+    final notifier = ref.read(appSettingsProvider.notifier);
+    Future.microtask(() => notifier.markHistoryReminderSeen(chain, now));
+  }
+  final count = paymentsNotInBackup(
+    rows,
+    now: now,
+    exportedAt: exportedAt,
+    dismissedAt: settings.historyReminderDismissedAt[chain.name],
+    firstSeenAt: firstSeenAt,
+    snapshot: snapshot,
+  );
+  if (count == null) return null;
+  return HistoryBackupSlotItem(chain: chain, count: count, exported: exportedAt != null);
+});
+
 /// Everything the slot could show, needs-you first. Add new kinds here.
 final homeSlotItemsProvider = Provider<List<HomeSlotItem>>((ref) {
   final invoices = ref.watch(pendingInvoicesProvider).value ?? const <PendingInvoice>[];
-  return [for (final i in invoices) InvoiceSlotItem(i)];
+  final backup = ref.watch(_historyBackupItemProvider);
+  return [for (final i in invoices) InvoiceSlotItem(i), ?backup];
 });
 
 /// The ids the user put away with "Later" in this session.
