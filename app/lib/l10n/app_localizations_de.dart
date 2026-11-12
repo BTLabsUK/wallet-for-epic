@@ -23624,4 +23624,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneSendHelpStep3Sub =>
       'Nach ein paar Blöcken kann sie ausgegeben werden.';
+
+  @override
+  String get phoneProgArrived => 'Arrived';
+
+  @override
+  String get phoneProgFinishesByItself =>
+      'It finishes by itself. You can leave this screen.';
+
+  @override
+  String get phoneProgReadyToSpend => 'Ready to spend';
 }

@@ -1,5 +1,8 @@
 {
   "de": [
+    "phoneProgArrived",
+    "phoneProgFinishesByItself",
+    "phoneProgReadyToSpend",
     "phoneQrAimAnswer",
     "phoneQrDoneAnswerRead",
     "phoneQrDoneAnswerSeen",
@@ -10,6 +13,9 @@
     "phoneQrReplyShowing"
   ],
   "pl": [
+    "phoneProgArrived",
+    "phoneProgFinishesByItself",
+    "phoneProgReadyToSpend",
     "phoneQrAimAnswer",
     "phoneQrDoneAnswerRead",
     "phoneQrDoneAnswerSeen",
@@ -20,6 +26,9 @@
     "phoneQrReplyShowing"
   ],
   "ru": [
+    "phoneProgArrived",
+    "phoneProgFinishesByItself",
+    "phoneProgReadyToSpend",
     "phoneQrAimAnswer",
     "phoneQrDoneAnswerRead",
     "phoneQrDoneAnswerSeen",
@@ -30,6 +39,9 @@
     "phoneQrReplyShowing"
   ],
   "th": [
+    "phoneProgArrived",
+    "phoneProgFinishesByItself",
+    "phoneProgReadyToSpend",
     "phoneQrAimAnswer",
     "phoneQrDoneAnswerRead",
     "phoneQrDoneAnswerSeen",
@@ -40,6 +52,9 @@
     "phoneQrReplyShowing"
   ],
   "zh": [
+    "phoneProgArrived",
+    "phoneProgFinishesByItself",
+    "phoneProgReadyToSpend",
     "phoneQrAimAnswer",
     "phoneQrDoneAnswerRead",
     "phoneQrDoneAnswerSeen",

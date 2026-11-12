@@ -31687,5 +31687,17 @@
   "phoneSendHelpStep3Sub": "After a few blocks it is theirs to spend.",
   "@phoneSendHelpStep3Sub": {
     "description": "Line under the third step of the Send help sheet."
+  },
+  "phoneProgArrived": "Arrived",
+  "@phoneProgArrived": {
+    "description": "Payment steps of a payment you receive: the first step once the payment has arrived."
+  },
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "@phoneProgFinishesByItself": {
+    "description": "Detail under the confirming step of a payment you receive."
+  },
+  "phoneProgReadyToSpend": "Ready to spend",
+  "@phoneProgReadyToSpend": {
+    "description": "Last step of a payment you receive: the money can be spent."
   }
 }

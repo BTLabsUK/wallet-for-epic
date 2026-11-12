@@ -6096,5 +6096,8 @@
   "phoneSendHelpStep2": "Их кошелёк отвечает",
   "phoneSendHelpStep2Sub": "Платёж требует обоих кошельков. Через Epicbox их кошелёк может ответить позже, при следующем открытии.",
   "phoneSendHelpStep3": "Сеть подтверждает его",
-  "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить."
+  "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить.",
+  "phoneProgArrived": "Arrived",
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "phoneProgReadyToSpend": "Ready to spend"
 }

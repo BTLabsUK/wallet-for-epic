@@ -23355,4 +23355,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneSendHelpStep3Sub =>
       'After a few blocks it is theirs to spend.';
+
+  @override
+  String get phoneProgArrived => 'Arrived';
+
+  @override
+  String get phoneProgFinishesByItself =>
+      'It finishes by itself. You can leave this screen.';
+
+  @override
+  String get phoneProgReadyToSpend => 'Ready to spend';
 }

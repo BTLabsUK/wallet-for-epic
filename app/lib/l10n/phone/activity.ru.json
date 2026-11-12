@@ -85,5 +85,8 @@
   "phonePayRouteSubTor": "Напрямую в их кошелёк, через Tor",
   "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
   "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
-  "phoneProgAtTime": "в {time}"
+  "phoneProgAtTime": "в {time}",
+  "phoneProgArrived": "Arrived",
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "phoneProgReadyToSpend": "Ready to spend"
 }

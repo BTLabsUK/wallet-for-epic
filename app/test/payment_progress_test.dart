@@ -113,21 +113,28 @@ void main() {
   group('receiving', () {
     test('arrives, then the sender finishes', () {
       final p = _go(_received(TxStatus.awaitingConfirmation), who: 'Anna')!;
-      expect(_labels(p), ['Arriving', 'Sender finished', 'Confirmed']);
+      expect(_labels(p), ['Arriving', 'Confirming 0 of 3', 'Ready to spend']);
       expect(p.current, 0);
       expect(p.reason, 'Waiting for Anna to finish the payment');
     });
 
     test('is in the network once the sender says it posted', () {
       final p = _go(_received(TxStatus.awaitingConfirmation, reported: _at(_now.subtract(const Duration(minutes: 5)))), who: 'Anna')!;
-      expect(p.current, 2);
+      expect(_labels(p), ['Arrived', 'In the network, waiting for a block', 'Confirming 0 of 3', 'Ready to spend']);
+      expect(p.current, 1);
       expect(p.network, isTrue);
+      expect(p.beforeNetwork, isFalse);
       expect(p.reason, 'Anna says it is on the network');
     });
 
     test('counts blocks and completes', () {
-      expect(_go(_received(TxStatus.confirmed, height: _tip - BigInt.one))!.reason, 'Confirming 2 of 3');
-      expect(_go(_received(TxStatus.confirmed, height: _tip - BigInt.from(9)))!.completed, isTrue);
+      final counting = _go(_received(TxStatus.confirmed, height: _tip - BigInt.one))!;
+      expect(counting.steps[counting.current].title, 'Confirming 2 of 3');
+      expect(counting.reason, 'It finishes by itself. You can leave this screen.');
+      final done = _go(_received(TxStatus.confirmed, height: _tip - BigInt.from(9)))!;
+      expect(done.completed, isTrue);
+      expect(_labels(done).last, 'Ready to spend');
+      expect(_states(done), everyElement(KitStepState.done));
     });
   });
 

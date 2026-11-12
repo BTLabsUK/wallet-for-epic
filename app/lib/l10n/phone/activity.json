@@ -7,6 +7,18 @@
   "@phoneProgNetwork": {
     "description": "Payment steps: the payment is on the network and no block holds it yet."
   },
+  "phoneProgArrived": "Arrived",
+  "@phoneProgArrived": {
+    "description": "Payment steps of a payment you receive: the first step once the payment has arrived."
+  },
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "@phoneProgFinishesByItself": {
+    "description": "Detail under the confirming step of a payment you receive."
+  },
+  "phoneProgReadyToSpend": "Ready to spend",
+  "@phoneProgReadyToSpend": {
+    "description": "Last step of a payment you receive: the money can be spent."
+  },
   "phoneProgSenderFinished": "Sender finished",
   "@phoneProgSenderFinished": {
     "description": "Payment steps of a payment you receive: the sender has completed their part."

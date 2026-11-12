@@ -24074,4 +24074,14 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneSendHelpStep3Sub =>
       'Через несколько блоков получатель сможет их потратить.';
+
+  @override
+  String get phoneProgArrived => 'Arrived';
+
+  @override
+  String get phoneProgFinishesByItself =>
+      'It finishes by itself. You can leave this screen.';
+
+  @override
+  String get phoneProgReadyToSpend => 'Ready to spend';
 }

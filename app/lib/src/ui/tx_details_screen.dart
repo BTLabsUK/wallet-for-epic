@@ -1020,7 +1020,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           KitSteps(
             steps: progress.steps,
             semanticsId: TrustIds.paySteps,
-            footer: progress.current <= 1
+            footer: progress.beforeNetwork
                 ? KitKvRow(
                     label: l.phonePayNever,
                     labelColor: t.accentText,

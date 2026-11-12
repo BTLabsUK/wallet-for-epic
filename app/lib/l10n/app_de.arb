@@ -6096,5 +6096,8 @@
   "phoneSendHelpStep2": "Ihre Wallet antwortet",
   "phoneSendHelpStep2Sub": "Eine Zahlung braucht beide Wallets. Mit Epicbox kann ihre später antworten, wenn sie das nächste Mal geöffnet wird.",
   "phoneSendHelpStep3": "Das Netzwerk bestätigt sie",
-  "phoneSendHelpStep3Sub": "Nach ein paar Blöcken kann sie ausgegeben werden."
+  "phoneSendHelpStep3Sub": "Nach ein paar Blöcken kann sie ausgegeben werden.",
+  "phoneProgArrived": "Arrived",
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "phoneProgReadyToSpend": "Ready to spend"
 }

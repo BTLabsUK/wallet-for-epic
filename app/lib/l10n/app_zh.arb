@@ -6096,5 +6096,8 @@
   "phoneSendHelpStep2": "对方的钱包回应",
   "phoneSendHelpStep2Sub": "一笔付款需要双方钱包。使用 Epicbox 时，对方可以稍后在下次打开时回应。",
   "phoneSendHelpStep3": "网络确认",
-  "phoneSendHelpStep3Sub": "几个区块之后，对方就可以花费这笔钱。"
+  "phoneSendHelpStep3Sub": "几个区块之后，对方就可以花费这笔钱。",
+  "phoneProgArrived": "Arrived",
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "phoneProgReadyToSpend": "Ready to spend"
 }

@@ -22040,4 +22040,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSendHelpStep3Sub => '几个区块之后，对方就可以花费这笔钱。';
+
+  @override
+  String get phoneProgArrived => 'Arrived';
+
+  @override
+  String get phoneProgFinishesByItself =>
+      'It finishes by itself. You can leave this screen.';
+
+  @override
+  String get phoneProgReadyToSpend => 'Ready to spend';
 }

@@ -17,7 +17,6 @@ import '../settings.dart' show clockProvider;
 import '../trust_ids.dart';
 import '../watch_mode.dart' show BlockWait;
 import 'common.dart';
-import 'kit/kit_avatar.dart';
 import 'kit/kit_button.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_sheet.dart';
@@ -80,43 +79,68 @@ class ReceiveArrivalSheet extends ConsumerWidget {
             navigator.push(MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)));
           },
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-          child: Column(
-            children: [
-              ExcludeSemantics(
-                child: KitAvatar(
-                  large: true,
-                  initials: initials.isEmpty ? null : initials,
-                  icon: initials.isEmpty ? KitIcons.contact : null,
-                  direction: KitDirection.incoming,
-                ),
+        actionsTop: 18,
+        buttonsGap: 4,
+        child: Column(
+          children: [
+            // `.center`: 6 above, 20 in, 6 between the avatar, the amount and the line.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+              child: Column(
+                children: [
+                  ExcludeSemantics(
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(16)),
+                      child: initials.isEmpty
+                          ? Icon(KitIcons.contact, size: 22, color: t.accentText)
+                          : Text(
+                              initials,
+                              style: KitType.initials.copyWith(color: t.accentText, fontSize: 15, letterSpacing: 0.3),
+                              maxLines: 1,
+                              textScaler: TextScaler.noScaling,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Semantics(
+                    container: true,
+                    liveRegion: true,
+                    label: who == null ? amount : l.lvPayArrivalFrom(amount, who),
+                    excludeSemantics: true,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        number,
+                        style: KitType.amountOnPage.copyWith(color: t.txReceived, fontSize: 38, letterSpacing: -1.52),
+                        maxLines: 1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ExcludeSemantics(
+                    child: Text(
+                      who == null ? epicUnit : '$epicUnit ${l.phoneRecvArrivalFrom(who)}',
+                      style: KitType.body.copyWith(color: t.dim),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 14),
-              Semantics(
-                container: true,
-                liveRegion: true,
-                label: who == null ? amount : l.lvPayArrivalFrom(amount, who),
-                excludeSemantics: true,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(number, style: KitType.amountOnPage.copyWith(color: t.txReceived), maxLines: 1),
-                ),
-              ),
-              const SizedBox(height: 2),
-              ExcludeSemantics(
+            ),
+            const SizedBox(height: 20),
+            if (progress != null)
+              KitSteps(steps: progress.steps)
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  who == null ? epicUnit : '$epicUnit ${l.phoneRecvArrivalFrom(who)}',
-                  style: KitType.rowSub.copyWith(color: t.dim),
+                  txStatusLabel(l, tx, tip, target: confirmationsTargetOf(ref), now: now),
+                  style: KitType.body.copyWith(color: t.dim),
                 ),
               ),
-              const SizedBox(height: 18),
-              if (progress != null)
-                KitSteps(steps: progress.steps)
-              else
-                Text(txStatusLabel(l, tx, tip, target: confirmationsTargetOf(ref), now: now), style: KitType.body.copyWith(color: t.dim)),
-            ],
-          ),
+          ],
         ),
       ),
     );

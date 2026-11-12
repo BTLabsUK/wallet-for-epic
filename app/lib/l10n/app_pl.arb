@@ -6096,5 +6096,8 @@
   "phoneSendHelpStep2": "Ich portfel odpowiada",
   "phoneSendHelpStep2Sub": "Płatność wymaga obu portfeli. Przez Epicbox ich portfel może odpowiedzieć później, przy następnym otwarciu.",
   "phoneSendHelpStep3": "Sieć ją potwierdza",
-  "phoneSendHelpStep3Sub": "Po kilku blokach mogą ją wydać."
+  "phoneSendHelpStep3Sub": "Po kilku blokach mogą ją wydać.",
+  "phoneProgArrived": "Arrived",
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "phoneProgReadyToSpend": "Ready to spend"
 }
