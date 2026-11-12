@@ -84,17 +84,18 @@ List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang, [Map<String,
   final tor = topics.any((t) => t.id == HelpId.tor);
   final all = {for (final s in localizedHelpSections(lang, tor: tor)) s.id: s};
   final out = <HelpSection>[];
-  // The phone's order and names; Pairing, which the index has no place for, goes last.
-  for (final id in ['start', 'how', 'network', 'safety', 'maintenance', 'trouble']) {
+  // The phone's order and names; Pairing, which the index has no place for, sits after Networks.
+  for (final id in ['start', 'how', 'network', pairingHelpSection, 'safety', 'maintenance', 'trouble']) {
+    if (id == pairingHelpSection) {
+      if (used.contains(id)) out.add((id: id, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
+      continue;
+    }
     final s = all[id];
     if (s == null || !used.contains(id)) continue;
     out.add((id: s.id, title: titles[id] ?? s.title, lede: s.lede, art: s.art));
   }
   for (final s in all.values) {
     if (!out.any((o) => o.id == s.id) && used.contains(s.id)) out.add(s);
-  }
-  if (used.contains(pairingHelpSection)) {
-    out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
   }
   return out;
 }
@@ -273,10 +274,19 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
           ]
         : [
             // The frame draws the first group 21 below the search and 21 between groups.
-            const SizedBox(height: 14),
+            const SizedBox(height: 7),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter / 2, 7),
+              child: Row(
+                children: [
+                  Expanded(child: english ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim)) : const SizedBox.shrink()),
+                  kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
+                ],
+              ),
+            ),
             KitGroup(
               children: [
-                for (final s in sections.where((s) => s.id != pairingHelpSection))
+                for (final s in sections)
                   KitRow(
                     size: KitRowSize.settings,
                     leading: KitIconWell(_sectionIcon(s.id), color: t.accentText, iconSize: 20),
@@ -337,33 +347,6 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   onTap: () => openSettingsSection(context, SettingsSection.about, backLabel: l.helpTitle),
                 ),
               ],
-            ),
-            // The index has no place for these in the design: Pairing's page and the help's
-            // language sit last.
-            if (sections.any((s) => s.id == pairingHelpSection)) ...[
-              const SizedBox(height: Kit.groupGap + 2),
-              KitGroup(
-                children: [
-                  for (final s in sections.where((s) => s.id == pairingHelpSection))
-                    KitRow(
-                      size: KitRowSize.settings,
-                      leading: KitIconWell(_sectionIcon(s.id), color: t.accentText, iconSize: 20),
-                      title: s.title,
-                      chevron: true,
-                      semanticsId: TrustIds.helpSection,
-                      onTap: () => _openSection(s, topics, lang),
-                    ),
-                ],
-              ),
-            ],
-            Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter / 2, 0),
-              child: Row(
-                children: [
-                  Expanded(child: english ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim)) : const SizedBox.shrink()),
-                  kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
-                ],
-              ),
             ),
           ];
 
