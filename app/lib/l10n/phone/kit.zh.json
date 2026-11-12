@@ -10,5 +10,6 @@
   "phoneKitStepDone": "已完成",
   "phoneKitStepNow": "进行中",
   "phoneKitStepLater": "未开始",
-  "phoneKitDismiss": "关闭"
+  "phoneKitDismiss": "关闭",
+  "phoneKitPickerSaveFailed": "未保存。请重试。"
 }

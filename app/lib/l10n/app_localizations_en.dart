@@ -23365,4 +23365,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneProgReadyToSpend => 'Ready to spend';
+
+  @override
+  String get phoneKitPickerSaveFailed => 'Not saved. Try again.';
 }

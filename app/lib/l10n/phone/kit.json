@@ -66,5 +66,9 @@
   "phoneKitDismiss": "Dismiss",
   "@phoneKitDismiss": {
     "description": "Screen reader label of the × on a floating notice."
+  },
+  "phoneKitPickerSaveFailed": "Not saved. Try again.",
+  "@phoneKitPickerSaveFailed": {
+    "description": "Line in a picker sheet when saving the tapped choice failed; the sheet stays open."
   }
 }

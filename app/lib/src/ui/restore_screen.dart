@@ -831,7 +831,7 @@ class RestoreWordCheck extends StatelessWidget {
   }
 }
 
-/// A gold text link at the foot of the phrase box (`.field .lnk`: 15/500, 40 px high).
+/// A gold text link at the foot of the phrase box (`.field .lnk`: 15/500, 40 px high, with a 44 tap area).
 class _PhraseLink extends StatelessWidget {
   const _PhraseLink({super.key, required this.label, required this.onPressed, this.icon});
 
@@ -842,24 +842,26 @@ class _PhraseLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+    return KitHitReach(
+      child: Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
         onTap: onPressed,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 40),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[Icon(icon, size: 18, color: t.accentText), const SizedBox(width: 6)],
-                Text(label, style: KitType.rowTitle.copyWith(fontSize: 15, fontWeight: FontWeight.w500, color: t.accentText)),
-              ],
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onPressed,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[Icon(icon, size: 18, color: t.accentText), const SizedBox(width: 6)],
+                  Text(label, style: KitType.rowTitle.copyWith(fontSize: 15, fontWeight: FontWeight.w500, color: t.accentText)),
+                ],
+              ),
             ),
           ),
         ),

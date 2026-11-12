@@ -22039,4 +22039,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneProgReadyToSpend => '可以花费';
+
+  @override
+  String get phoneKitPickerSaveFailed => '未保存。请重试。';
 }

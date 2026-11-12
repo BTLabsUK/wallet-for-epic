@@ -6099,5 +6099,6 @@
   "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить.",
   "phoneProgArrived": "Получено",
   "phoneProgFinishesByItself": "Завершится само. Можно закрыть этот экран.",
-  "phoneProgReadyToSpend": "Готово к трате"
+  "phoneProgReadyToSpend": "Готово к трате",
+  "phoneKitPickerSaveFailed": "Не сохранено. Попробуйте ещё раз."
 }

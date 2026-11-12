@@ -6099,5 +6099,6 @@
   "phoneSendHelpStep3Sub": "Nach ein paar Blöcken kann sie ausgegeben werden.",
   "phoneProgArrived": "Angekommen",
   "phoneProgFinishesByItself": "Es schließt von selbst ab. Du kannst diesen Bildschirm verlassen.",
-  "phoneProgReadyToSpend": "Bereit zum Ausgeben"
+  "phoneProgReadyToSpend": "Bereit zum Ausgeben",
+  "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal."
 }

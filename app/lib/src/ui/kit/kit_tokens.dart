@@ -23,6 +23,9 @@ abstract final class Kit {
   /// The smallest tappable size.
   static const double hitMin = 44;
 
+  /// The opacity of a control that cannot be used right now (a disabled row, a switch).
+  static const double disabledOpacity = 0.4;
+
   /// The smallest tap target Android accepts; icon buttons and the back link use it.
   static const double hitTarget = 48;
   /// The tap target of a control that sits on its own (Android's guideline); the pill, chip or
@@ -216,6 +219,9 @@ abstract final class KitType {
 
   /// `.toast .ta`.
   static final TextStyle toastAction = _body(14.5, weight: FontWeight.w600);
+
+  /// `.hint`: the line under a sheet's title, 13 px with a 1.45 line height.
+  static final TextStyle hint = _body(13, height: 1.45);
 
   /// Running text; the frames use 1.4 to 1.45 (`.need p`, `.hint`, `.lead`).
   static final TextStyle body = _body(15, height: 1.4);

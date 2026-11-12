@@ -6099,5 +6099,6 @@
   "phoneSendHelpStep3Sub": "หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้",
   "phoneProgArrived": "มาถึงแล้ว",
   "phoneProgFinishesByItself": "เสร็จเองโดยอัตโนมัติ ออกจากหน้านี้ได้เลย",
-  "phoneProgReadyToSpend": "พร้อมใช้จ่าย"
+  "phoneProgReadyToSpend": "พร้อมใช้จ่าย",
+  "phoneKitPickerSaveFailed": "ไม่ได้บันทึก ลองอีกครั้ง"
 }

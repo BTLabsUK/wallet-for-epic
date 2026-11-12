@@ -6099,5 +6099,6 @@
   "phoneSendHelpStep3Sub": "几个区块之后，对方就可以花费这笔钱。",
   "phoneProgArrived": "已到账",
   "phoneProgFinishesByItself": "会自动完成。你可以离开此页面。",
-  "phoneProgReadyToSpend": "可以花费"
+  "phoneProgReadyToSpend": "可以花费",
+  "phoneKitPickerSaveFailed": "未保存。请重试。"
 }

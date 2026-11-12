@@ -334,7 +334,6 @@ class PinSetupView extends ConsumerStatefulWidget {
     this.intro,
     this.askBiometrics = true,
     this.chooseTitle,
-    this.chooseLabel,
     this.actionsAtFoot = false,
   });
 
@@ -349,10 +348,6 @@ class PinSetupView extends ConsumerStatefulWidget {
 
   /// Replaces "Choose a 6-digit PIN".
   final String? chooseTitle;
-
-  /// Kept for the screens that name the first PIN ("New PIN"); the keypad has no field label,
-  /// so it only labels the dots for a screen reader.
-  final String? chooseLabel;
 
   /// Shown above the title of the first step.
   final Widget? intro;
