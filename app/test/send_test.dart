@@ -1561,8 +1561,9 @@ void main() {
       await _tap(tester, find.text(_l.contactsSave));
       expect(find.text('Bob'), findsWidgets); // the row, and the face above the list
 
-      // With contacts, Add is the app bar's icon.
-      await _tap(tester, find.byTooltip(_l.contactsAdd));
+      // With contacts, Add is in the "+" menu of the title row.
+      await _tap(tester, find.byKey(contactsMoreKey));
+      await _tap(tester, find.byKey(contactsAddItemKey));
       await _enter(tester, _l.contactsNameLabel, 'Carol');
       await _enterAddress(tester, _bob);
       expect(
