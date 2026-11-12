@@ -33,9 +33,10 @@ class KitStatusPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Home-busy: a pill that is not ready says so in the dot's colour.
           KitConnectionDot(ready: ready),
           const SizedBox(width: 8),
-          Flexible(child: Text(word, style: KitType.pill.copyWith(color: t.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
+          Flexible(child: Text(word, style: KitType.pill.copyWith(color: ready ? t.dim : t.warn), maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

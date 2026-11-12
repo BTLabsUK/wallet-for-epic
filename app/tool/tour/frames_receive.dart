@@ -129,6 +129,8 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await t.tap(find.byKey(qrShowButtonKey));
     await t.elapse(1300);
     await t.elapse(700);
+    await t.elapse(1000);
+    await t.elapse(1000);
     await t.shot('fr-InPerson-4-Answer');
   }),
   ('fr-Gap-3-InPerson-Done', _Start.home, (t) async {

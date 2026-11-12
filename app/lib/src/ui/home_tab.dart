@@ -424,7 +424,7 @@ class _Figure extends StatelessWidget {
                     style: base,
                   ),
                   Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8, top: 10),
+                    padding: const EdgeInsetsDirectional.only(start: 8, top: 6),
                     child: Text(epicUnit, textScaler: TextScaler.noScaling, style: KitType.unit.copyWith(color: t.accentText)),
                   ),
                 ],

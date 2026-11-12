@@ -62,10 +62,19 @@ final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
       // Two of three blocks: Confirming 2 of 3.
       _fTx(11, out: false, amount: 25.0, at: _at(0, 14, 48), who: _fAnna, status: TxStatus.awaitingConfirmation, height: _tip - BigInt.one),
       _fTx(12, out: true, amount: 12.5, at: _at(0, 14, 30), who: _fTom, sealed: true, status: TxStatus.awaitingRecipient),
-      _fTx(13, out: false, amount: 12.0, at: _at(0, 14, 10), who: _fAnna, status: TxStatus.awaitingConfirmation),
+      _fTx(13, out: false, amount: 12.0, at: _at(0, 14, 10), who: _fAnna, status: TxStatus.awaitingConfirmation, pending: true),
       ...s.transactionsValue,
     ];
     _seedNorthwindAsk(s);
+    // The frame's slot says "1 of 2": a second ask waits behind Northwind's.
+    s.pendingInvoicesValue['inv-nw-2'] = PendingInvoice(
+      slateId: 'inv-nw-2',
+      senderAddress: _fNorthwind,
+      amount: _epic(10),
+      receivedAt: frameNow.subtract(const Duration(minutes: 30)),
+      expiresAt: frameNow.add(const Duration(hours: 23)),
+      pairingId: 'p-nw',
+    );
   },
   // The people view: Northwind asks, two payments from Anna on their way, Tom's wallet to answer,
   // Bob's sealed payment yesterday, Mira without any.
@@ -75,7 +84,7 @@ final Map<String, void Function(FakeWalletSession s)> _homeSeeds = {
     s.pairing.seedPaired(id: 'p-tom', name: 'Tom', contactId: 'f-tom', paymentsAddress: _fTom, nativeSlates: true);
     s.transactionsValue = [
       _fTx(11, out: false, amount: 37.0, at: _at(0, 18, 13), who: _fAnna, status: TxStatus.awaitingConfirmation),
-      _fTx(13, out: false, amount: 12.0, at: _at(0, 14, 20), who: _fAnna, status: TxStatus.awaitingConfirmation),
+      _fTx(13, out: false, amount: 12.0, at: _at(0, 14, 20), who: _fAnna, status: TxStatus.awaitingConfirmation, pending: true),
       _fTx(12, out: true, amount: 12.5, at: _at(0, 18, 12), who: _fTom, sealed: true, status: TxStatus.awaitingRecipient),
       _fTx(6, out: false, amount: 150.0, at: _at(1, 16, 40), who: _fBob, sealed: true),
       ...s.transactionsValue,
