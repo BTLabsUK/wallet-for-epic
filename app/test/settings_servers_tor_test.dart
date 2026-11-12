@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
@@ -168,7 +169,7 @@ void main() {
         expect(tester.widget<ServerListSheet>(sheet).kind, kind);
         // The sheet is a modal route over the page: closing it lands on the same page.
         // The header's close comes before the field's clear button, which is a close icon too.
-    await tester.tap(find.byIcon(Icons.close).first);
+        await tester.tap(find.byIcon(KitIcons.close).first);
         await tester.pumpAndSettle();
         expect(sheet, findsNothing);
         expect(find.byKey(key), findsOneWidget);

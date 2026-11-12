@@ -21,6 +21,8 @@ import 'package:epic_wallet/src/server_list_store.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/server_switch.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/notices.dart' show noticeProvider;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart' show showEpicboxPicker, showNodePicker;
@@ -275,7 +277,7 @@ Finder _inRow(String value, String text) => find.descendant(
 Finder _foot(String text) =>
     find.descendant(of: find.byKey(serverListFootKey), matching: find.text(text));
 Finder _field() => find.byKey(serverListFieldKey);
-Finder _check(String value) => find.descendant(of: _row(value), matching: find.byIcon(Icons.check));
+Finder _check(String value) => find.descendant(of: _row(value), matching: find.byIcon(KitIcons.check));
 
 String _fieldText(WidgetTester tester) => tester.widget<TextField>(_field()).controller!.text;
 
@@ -310,7 +312,7 @@ const _noMatch = 'No match.';
 const _placeholder = 'Paste or type to filter or add';
 
 /// The Epicbox confirm that a row tap opens.
-Finder _confirm() => find.byType(AlertDialog);
+Finder _confirm() => find.ancestor(of: find.byKey(serverListSwitchKey), matching: find.byType(KitSheet));
 Finder _confirmSwitch() => find.byKey(serverListSwitchKey);
 Finder _footAction(String label) =>
     find.descendant(of: find.byKey(serverListFootKey), matching: find.text(label));
@@ -1007,6 +1009,8 @@ void main() {
               await tester.enterText(_field(), 'zzzzzz');
               await tester.pumpAndSettle();
               expect(find.text(_noMatch), findsOneWidget);
+              await tester.ensureVisible(find.byKey(serverListAddKey));
+              await tester.pumpAndSettle();
               await tester.tap(find.byKey(serverListAddKey));
               await tester.pumpAndSettle();
               expect(find.text(_notAddress), findsOneWidget);
