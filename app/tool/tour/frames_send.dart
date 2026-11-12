@@ -44,25 +44,24 @@ final List<(String, _Start, _Visit)> _framesSend = [
   ('fr-Send-4-Sent', _Start.home, (t) async {
     await _sendToTom(t);
     await t.tap(find.byKey(sendReviewButtonKey));
-    // The wallet's own record of the payment: sent today 18:12 over Epicbox to Tom.
-    t.session.transactionsValue.add(
-      fakeTx(
-        id: 100,
-        slateId: 'send-0',
-        kind: TxKind.sent,
-        status: TxStatus.awaitingRecipient,
-        createdAtUnix: _at(0, 18, 12),
-        amountDebited: _epic(12.5) + t.session.fee,
-        fee: t.session.fee,
-        numInputs: 1,
-        numOutputs: 0,
-        counterparty: _fTom,
-        transport: 'epicbox',
-        pairingId: 'p-tom',
-        cancellable: true,
-      ),
-    );
     await t.send(epicText(t.l, _epic(12.5)));
+    // The wallet's own record of the payment: sent today 18:12 over Epicbox to Tom.
+    final sent = t.session.transactionsValue.indexWhere((x) => x.slateId == 'send-1');
+    t.session.transactionsValue[sent] = fakeTx(
+      id: 101,
+      slateId: 'send-1',
+      kind: TxKind.sent,
+      status: TxStatus.awaitingRecipient,
+      createdAtUnix: _at(0, 18, 12),
+      amountDebited: _epic(12.5) + t.session.fee,
+      fee: t.session.fee,
+      numInputs: 1,
+      numOutputs: 0,
+      counterparty: _fTom,
+      transport: 'epicbox',
+      pairingId: 'p-tom',
+      cancellable: true,
+    );
     ProviderScope.containerOf(t.tester.element(find.byType(Navigator).first)).invalidate(homeProvider);
     await t.frames();
     await t.shot('fr-Send-4-Sent');
