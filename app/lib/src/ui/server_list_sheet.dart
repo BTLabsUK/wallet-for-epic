@@ -208,6 +208,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// Whether a switch is running.
   bool _busy = false;
 
+  /// Counts the switches tapped: only the latest one's result shows.
+  int _tap = 0;
+
   /// The server a switch is going to while it runs, then until [_connectedTimer] ends: its row
   /// says Connecting…, then Connected.
   String? _switching;
@@ -323,17 +326,20 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   String _current(NetworkChoice choice) =>
       _node ? (ref.read(nodeFailoverProvider)?.inUse ?? choice.nodeUrl) : choice.relay.label;
 
-  /// A tap on a row: the server in use says so; a node is switched to at once; an Epicbox
-  /// server asks first, as the address changes.
+  /// A tap on a row: the server in use says so; a node is switched to at once, also while
+  /// another switch runs (the row tapped last wins); an Epicbox server asks first, as the
+  /// address changes.
   Future<void> _pick(String value, NetworkChoice choice) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (_sel != null) return _tick(value);
-    if (_same(value, _current(choice))) {
+    final nodeSwitching = _busy && _node;
+    if (nodeSwitching && _switching != null && _same(value, _switching!)) return;
+    if (_same(value, _current(choice)) && !nodeSwitching) {
       _say(context.l10n.serverAlreadyInUse, note: true);
       return;
     }
-    if (_busy) return;
     if (_node) return _switchTo(value, choice);
+    if (_busy) return;
     final l = context.l10n;
     final host = serverHost(value);
     final sure = await confirmPairSheet(
@@ -561,6 +567,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   }
 
   Future<void> _switchTo(String value, NetworkChoice choice) async {
+    final tap = ++_tap;
     _connectedTimer?.cancel();
     setState(() {
       _busy = true;
@@ -578,7 +585,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         return;
       }
       final live = await widget.liveSwitch(ref, nodeUrl: nodeUrl, relay: relay);
-      if (!mounted) return;
+      // A later tap took over: its switch says how it went.
+      if (!mounted || tap != _tap) return;
       if (live) {
         _field.clear();
         setState(() {
@@ -620,7 +628,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         });
       }
     } catch (error) {
-      if (mounted) {
+      if (mounted && tap == _tap) {
         setState(() {
           _busy = false;
           _switching = null;

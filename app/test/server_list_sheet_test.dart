@@ -421,6 +421,30 @@ void main() {
       await _timers(tester);
     });
 
+    testWidgets('node: a tap while a switch runs is taken; the row tapped last is the one marked', (
+      tester,
+    ) async {
+      final env = _Env()
+        ..liveAnswer = true
+        ..hold = Completer<void>();
+      await _pump(tester, ServerKind.node, env);
+      await tester.tap(_row(_epicnet));
+      await tester.pump();
+      expect(_inRow(_epicnet, 'Connecting'), findsOneWidget);
+      await tester.tap(_row(_epiccash));
+      await tester.pump();
+      expect(env.live.map((e) => e.nodeUrl), [_epicnet, _epiccash]);
+      expect(_inRow(_epiccash, 'Connecting'), findsOneWidget);
+      expect(_inRow(_epicnet, 'Connecting'), findsNothing);
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      // The older switch's answer is not shown; the latest one is.
+      expect(_foot('Switched to node.epic.invalid:3413'), findsOneWidget);
+      expect(_foot('Switched to node.net.invalid:3413'), findsNothing);
+      await _timers(tester);
+    });
+
     testWidgets('typing filters by host or operator; closing the filter brings the list back', (
       tester,
     ) async {
