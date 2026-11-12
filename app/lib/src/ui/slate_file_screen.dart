@@ -904,7 +904,7 @@ class SlateFileButtons extends ConsumerWidget {
         children: [
           Row(children: [Expanded(child: copy), const SizedBox(width: 10), Expanded(child: share ?? saveButton)]),
           if (hint != null) ...[const SizedBox(height: 16), hint!],
-          if (!noShare) ...[const SizedBox(height: 4), saveButton],
+          if (!noShare) ...[const SizedBox(height: 22), saveButton],
         ],
       );
     }

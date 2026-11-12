@@ -88,6 +88,7 @@ SERVER = {
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
 CONTACTS = T("g4.tab.contacts")
 CONTACTS_ADD = T("g4.contacts.add")
+CONTACTS_MORE = T("g4.contacts.more")  # the gold "+" in the title: Add, Pair, Import, Export
 SWITCH = T("g4.server.switch")
 CLEAR = T("g4.server.clear")
 SERVER_ROW = T("g4.server.row")
@@ -568,7 +569,7 @@ class Phone:
         self._wait_home("home", 30)
 
     def contacts(self):
-        """Home › Contacts, until the Contacts page shows (its Add contact), then back to Home. A build
+        """Home › Contacts, until the Contacts page shows (its "+" menu), then back to Home. A build
         before the entry (26.11.2 and older had Contacts in Settings › This wallet at level 1) has none
         on Home: logged, nothing pressed."""
         d = self.d
@@ -576,7 +577,7 @@ class Phone:
         if not d.seen(CONTACTS):
             self.log("no Contacts on Home: a build before the entry")
             return False
-        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_ADD), timeout=20)
+        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_MORE), timeout=20)
         self.log("Home › Contacts: the Contacts page")
         self.home()
         return True

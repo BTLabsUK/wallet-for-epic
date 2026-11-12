@@ -21910,4 +21910,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneProgWaitingAnswerNamed(String name) {
     return 'Waiting for $name\'s wallet to answer';
   }
+
+  @override
+  String get phoneContactsYouPaid => '你已支付';
+
+  @override
+  String get phoneContactsPaidYou => '已向你付款';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count 笔付款在途中';
+  }
+
+  @override
+  String get phoneContactsNow => '刚刚';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return '等待 $who 的钱包回应';
+  }
 }

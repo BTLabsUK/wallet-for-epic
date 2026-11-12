@@ -545,7 +545,7 @@
 {"id": "g4.contacts.review", "screen": "contacts", "family": ["android"], "keys": ["phoneReview"], "driver": false},
 {"id": "g4.contacts.face", "screen": "contacts", "family": ["android"], "keys": ["phoneContactsFaces"], "driver": false},
 {"id": "g4.contacts.pair", "screen": "contacts", "family": ["android"], "keys": ["pairTitle"], "driver": false},
-{"id": "g4.contacts.more", "screen": "contacts", "family": ["android"], "keys": ["contactMore"], "driver": false},
+{"id": "g4.contacts.more", "screen": "contacts", "family": ["android"], "keys": ["contactMore"]},
 {"id": "g4.contacts.row", "screen": "contacts", "family": ["android"], "keys": ["contactsTitle"], "driver": false},
 {"id": "g4.contact.send", "screen": "contact", "family": ["android"], "keys": ["contactsSendAction"], "driver": false},
 {"id": "g4.contact.request", "screen": "contact", "family": ["android"], "keys": ["phoneContactRequest"], "driver": false},

@@ -175,6 +175,7 @@ class _HomeHeader extends ConsumerWidget {
                 // The bar is 44 as drawn; the pill's 48 tall target reaches past it.
                 child: OverflowBox(
                   maxHeight: 48,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: KitStatusPill(
                     key: homePillKey,
                     ready: state == HomeConnection.ready,

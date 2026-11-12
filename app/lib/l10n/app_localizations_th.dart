@@ -22752,4 +22752,23 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneProgWaitingAnswerNamed(String name) {
     return 'Waiting for $name\'s wallet to answer';
   }
+
+  @override
+  String get phoneContactsYouPaid => 'คุณจ่ายแล้ว';
+
+  @override
+  String get phoneContactsPaidYou => 'จ่ายให้คุณแล้ว';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count การชำระเงินกำลังมา';
+  }
+
+  @override
+  String get phoneContactsNow => 'ตอนนี้';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'กำลังรอกระเป๋าของ $who ตอบกลับ';
+  }
 }

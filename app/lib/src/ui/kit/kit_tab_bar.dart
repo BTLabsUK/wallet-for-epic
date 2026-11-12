@@ -141,6 +141,8 @@ class _Tab extends StatelessWidget {
           radius: 36,
           child: Stack(
             clipBehavior: Clip.none,
+            // `.tab` centres its content in the cell (the stack would pin it to the start).
+            alignment: Alignment.topCenter,
             children: [
               // `.tab`: gap 4, the 9 px of the bar's padding above.
               Padding(

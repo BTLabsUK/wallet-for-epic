@@ -31532,5 +31532,36 @@
         "example": "Tom"
       }
     }
+  },
+  "phoneContactsYouPaid": "You paid",
+  "@phoneContactsYouPaid": {
+    "description": "Start of a contact row's second line on the Contacts tab when the user's latest payment to them is done; the note or Sealed follows after a dot"
+  },
+  "phoneContactsPaidYou": "Paid you",
+  "@phoneContactsPaidYou": {
+    "description": "Start of a contact row's second line on the Contacts tab when the contact's latest payment to the user is done; the note or Sealed follows after a dot"
+  },
+  "phoneContactsArriving": "{count} payments arriving",
+  "@phoneContactsArriving": {
+    "description": "Second line of a contact row on the Contacts tab when two or more payments from them are still on their way. {count} is the number, 2 or more",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "phoneContactsNow": "Now",
+  "@phoneContactsNow": {
+    "description": "Time under the amount of a contact row on the Contacts tab when the payment is less than a minute old"
+  },
+  "phoneContactsWaitingAnswer": "Waiting for {who}'s wallet to answer",
+  "@phoneContactsWaitingAnswer": {
+    "description": "A payment bubble on a contact's page while their wallet has not answered yet.",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
   }
 }

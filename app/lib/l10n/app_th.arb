@@ -6061,5 +6061,10 @@
   "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
   "phoneRecvFileLead": "แชร์ไฟล์นี้ ใครเปิดจะถูกขอ {amount}",
   "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneContactsYouPaid": "คุณจ่ายแล้ว",
+  "phoneContactsPaidYou": "จ่ายให้คุณแล้ว",
+  "phoneContactsArriving": "{count} การชำระเงินกำลังมา",
+  "phoneContactsNow": "ตอนนี้",
+  "phoneContactsWaitingAnswer": "กำลังรอกระเป๋าของ {who} ตอบกลับ"
 }
