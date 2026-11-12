@@ -7,7 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart' show QrImage;
 
 import '../desk_l10n.dart';
-import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
+import '../../ui/contact_label_mark.dart' show AvatarLabelMark;
+import '../../ui/contact_page.dart' show contactInitials;
+import '../../ui/theme/brand.dart' show GlyphTile;
+import '../../ui/theme/tokens.dart' show WalletTokensOf;
 import '../../ui/theme/logo_qr.dart';
 import '../../amount.dart' show AmountSurface, epicFor, epicUnit, exactDecimals;
 import '../../contact_label.dart';
@@ -22,14 +25,15 @@ import 'buttons.dart';
 import 'selectable.dart';
 import 'tip.dart';
 
-/// A contact's or wallet's initials in the phone's avatar tile ([PairAvatar]: the gold corner
-/// brackets, the grid, gold initials), the one standard on both apps (UP-011).
+/// A contact's or wallet's initials in the corner-ticked tile ([GlyphTile]: the gold corner
+/// brackets, the grid, gold initials), with the label mark ([AvatarLabelMark]) (UP-011). The
+/// phone's avatars use the frames' plain tile since the redesign; desktop keeps this one.
 class EAvatar extends StatelessWidget {
   const EAvatar(this.name, {super.key, this._size, this.label, this.onLabelTap});
 
   final String name;
 
-  /// The user's label for the contact: a mark on the avatar's corner (see [PairAvatar]);
+  /// The user's label for the contact: a mark on the avatar's corner (see [AvatarLabelMark]);
   /// null for no mark.
   final ContactLabel? label;
   final VoidCallback? onLabelTap;
@@ -45,13 +49,21 @@ class EAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tapped = onLabelTap != null;
-    final avatar = PairAvatar(
-      name: name,
+    final t = context.tokens;
+    final tile = GlyphTile(
+      size: size,
+      child: Text(
+        contactInitials(name),
+        style: TextStyle(fontFamily: t.headFamily, fontSize: size * 0.35, fontWeight: FontWeight.w600, color: t.accentText),
+      ),
+    );
+    final avatar = AvatarLabelMark(
+      avatar: tile,
       size: size,
       label: label,
-      onLabelTap: onLabelTap,
-      labelHit: 32.u,
-      labelTip: (message, child) => ETip(message, onClick: false, excludeFromSemantics: true, child: child),
+      onTap: onLabelTap,
+      hit: 32.u,
+      tip: (message, child) => ETip(message, onClick: false, excludeFromSemantics: true, child: child),
     );
     // The mark carries its own name; the tile alone is decoration.
     return (label == null || label == ContactLabel.wallet) && !tapped ? ExcludeSemantics(child: avatar) : avatar;
