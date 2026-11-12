@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'kit/kit_sheet.dart' show KitGrabber;
+import 'kit/kit_tokens.dart' show Kit;
 
 /// `showModalBottomSheet` for the phone screens: the sheet's content stays clear of the bottom
 /// system inset (the navigation bar on an edge-to-edge Android), so its last button is never
@@ -31,12 +32,16 @@ Future<T?> showPhoneSheet<T>({
   constraints: constraints,
   builder: (context) => SafeArea(
     top: false,
-    child: showDragHandle
+    // On top of the inset, the last button keeps [Kit.groupGap] from the navigation bar.
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: Kit.groupGap),
+      child: showDragHandle
         ? Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [const KitGrabber(), Flexible(child: builder(context))],
           )
         : builder(context),
+    ),
   ),
 );
