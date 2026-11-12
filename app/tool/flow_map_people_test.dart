@@ -465,7 +465,7 @@ FakeWalletSession _session() {
 }
 
 /// Where the tour starts.
-enum _Start { firstRun, unlock, home }
+enum _Start { home }
 
 class _Tour {
   _Tour(this.tester, this.theme);
@@ -542,18 +542,13 @@ class _Tour {
       NetGate.set(NetworkMode.standard);
     });
     if (_tourLocale != 'en') store.values['app.language'] = _tourLocale;
-    if (from case _Start.unlock || _Start.home) {
-      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
-      store.values['wallet.mainnet.backedUp'] = '1';
-      // A wallet made on this version: the one-time Tor address notice is already seen.
-      store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
-    }
+    store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
+    store.values['wallet.mainnet.backedUp'] = '1';
+    // A wallet made on this version: the one-time Tor address notice is already seen.
+    store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     if (epic1) session.epic1Fake = unlisted ? _UnlistedEpic1(on: true) : FakeEpic1(on: true);
     service = FakeWalletService(
-      existingWallets: switch (from) {
-        _Start.unlock || _Start.home => {_mainnetDir},
-        _ => {},
-      },
+      existingWallets: {_mainnetDir},
       session: session,
     )..nodeTipValue = NodeTip(height: _tip, nodeVersion: mockNodeVersion);
     // Touch devices show no keyboard-focus rings; the test binding would otherwise draw them.

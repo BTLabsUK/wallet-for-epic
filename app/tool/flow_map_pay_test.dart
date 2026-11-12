@@ -496,7 +496,7 @@ _LinkSession _session() {
 }
 
 /// Where the tour starts.
-enum _Start { firstRun, unlock, home }
+enum _Start { home }
 
 class _Tour {
   _Tour(this.tester, this.theme);
@@ -586,19 +586,14 @@ class _Tour {
       NetGate.set(NetworkMode.standard);
     });
     if (_tourLocale != 'en') store.values['app.language'] = _tourLocale;
-    if (from case _Start.unlock || _Start.home) {
-      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
-      store.values['wallet.mainnet.backedUp'] = '1';
-      // A wallet made on this version: the one-time Tor address notice is already seen.
-      store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
-    }
+    store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
+    store.values['wallet.mainnet.backedUp'] = '1';
+    // A wallet made on this version: the one-time Tor address notice is already seen.
+    store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     if (pairingOff) session.pairing.enabled = false;
     if (epic1) session.epic1Fake = FakeEpic1(on: true);
     service = (vectorLinks ? _VectorService.new : otherChain ? _OtherChainService.new : FakeWalletService.new)(
-      existingWallets: switch (from) {
-        _Start.unlock || _Start.home => {_mainnetDir},
-        _ => {},
-      },
+      existingWallets: {_mainnetDir},
       session: session,
     )..nodeTipValue = NodeTip(height: _tip, nodeVersion: mockNodeVersion);
     // Touch devices show no keyboard-focus rings; the test binding would otherwise draw them.
@@ -1083,6 +1078,8 @@ typedef _Setup = void Function(_Tour t);
 void _visit(String name, Future<void> Function(_Tour t) body, {_Setup? setup, _Start from = _Start.home}) {
   testWidgets('$name (dark)', (tester) async {
     // Inside the test's own zone: the camera queue of an earlier test never completes here.
+    // A widget test kept in tool/ (the flow map), so the analyzer does not count it as a test.
+    // ignore: invalid_use_of_visible_for_testing_member
     CameraTurns.reset();
     final t = _Tour(tester, ThemeMode.dark)..visit = name;
     setup?.call(t);
