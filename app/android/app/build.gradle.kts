@@ -1,5 +1,6 @@
 import java.util.Base64
 import java.util.Properties
+import java.util.zip.ZipFile
 
 plugins {
     id("com.android.application")
@@ -49,10 +50,18 @@ val dartDefines: List<String> = (project.findProperty("dart-defines") as String?
 // (or 0, off) no tor is packed, even when tools/fetch-tor.sh left one in src/main/tor-jniLibs.
 val torBuilt = dartDefines.none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE_TOR=off") }
 
+// Where the build is distributed (lib/src/dist_build.dart, https://docs.btlabs.uk/developers/build/variants/): web (unset, our
+// own download page), play (Google Play) or fdroid (F-Droid, IzzyOnDroid). Only web has the
+// in-app updater and its install permissions (src/updater/). msstore is the Windows build only.
+val dist: String = dartDefines.lastOrNull { it.startsWith("WFE_DIST=") }?.removePrefix("WFE_DIST=") ?: "web"
+if (dist !in setOf("web", "play", "fdroid")) {
+    throw GradleException("WFE_DIST=$dist: use web, play or fdroid on Android (https://docs.btlabs.uk/developers/build/variants/).")
+}
+val distUpdates = dist == "web"
+
 // A build with Tor packs tor for every ABI it builds, whatever started Gradle (tools/rel, the
 // shared test builds, a plain `flutter build apk`): it is fetched here (tools/fetch-tor.sh,
-// pinned hashes), F-Droid's comes from source (tools/build-tor-android.sh,
-// run before). The build fails when one is still missing, when LEPIC was built without its tor
+// pinned hashes), F-Droid's comes from source (tools/build-tor-android.sh, run before). The build fails when one is still missing, when LEPIC was built without its tor
 // feature, or when the finished APK or bundle has no libtor.so.
 val torJniLibs: File = file("src/main/tor-jniLibs")
 val abiOf = mapOf("android-arm64" to "arm64-v8a", "android-x64" to "x86_64",
@@ -62,14 +71,6 @@ val torAbis: List<String> = (project.findProperty("target-platform") as String?)
     ?.let { abis -> if (dist == "play") abis.filter { it == "arm64-v8a" } else abis }
     ?: listOf("arm64-v8a", "x86_64")
 
-// Where the build is distributed (lib/src/dist_build.dart, https://docs.btlabs.uk/developers/build/variants/): web (unset, our
-// own download page), play (Google Play) or fdroid (F-Droid, IzzyOnDroid). Only web has the
-// in-app updater and its install permissions (src/updater/). msstore is the Windows build only.
-val dist: String = dartDefines.lastOrNull { it.startsWith("WFE_DIST=") }?.removePrefix("WFE_DIST=") ?: "web"
-if (dist !in setOf("web", "play", "fdroid")) {
-    throw GradleException("WFE_DIST=$dist: use web, play or fdroid on Android (https://docs.btlabs.uk/developers/build/variants/).")
-}
-val distUpdates = dist == "web"
 // F-Droid builds the release APK unsigned and signs it itself: WFE_ANDROID_UNSIGNED=1 (the recipe
 // sets it) leaves the fdroid release unsigned and skips the release key check. -PwfeUnsigned=true
 // (or ORG_GRADLE_PROJECT_wfeUnsigned=true, which tool/build_android_release.sh sets for the release
@@ -221,12 +222,12 @@ tasks.matching { Regex("^(package|sign)\\w*(Debug|Profile|Release)(Bundle)?$").m
             if (!torBuilt) return@doLast
             outputs.files.asFileTree.filter { it.name.endsWith(".apk") || it.name.endsWith(".aab") }
                 .forEach { pkg ->
-                    val entries = java.util.zip.ZipFile(pkg).use { z -> z.entries().toList().map { it.name } }
+                    val entries = ZipFile(pkg).use { z -> z.entries().toList().map { it.name } }
                     val abis = entries.mapNotNull { Regex("^(?:base/)?lib/([^/]+)/libflutter\\.so$").find(it)?.groupValues?.get(1) }
                     val lacking = abis.filter { a -> entries.none { it.endsWith("lib/$a/libtor.so") } }
                     if (abis.isEmpty() || lacking.isNotEmpty()) throw GradleException(
                         "Tor build, but ${pkg.name} has no libtor.so for ${lacking.ifEmpty { listOf("any ABI") }.joinToString()}")
-                    logger.lifecycle("Tor check: ${pkg.name} has libtor.so for ${abis.joinToString()}")
+                    println("Tor check: ${pkg.name} has libtor.so for ${abis.joinToString()}")
                 }
         }
     }
