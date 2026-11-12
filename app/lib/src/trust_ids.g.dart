@@ -344,6 +344,121 @@ abstract final class TrustIds {
   static const fileScanagain = 'g4.file.scanagain';
   static const fileOpen = 'g4.file.open';
   static const filePaste = 'g4.file.paste';
+  static const aboutBack = 'g4.about.back';
+  static const aboutHelp = 'g4.about.help';
+  static const aboutHelpSheet = 'g4.about.help_sheet';
+  static const aboutWhatsNew = 'g4.about.whats_new';
+  static const aboutNotesSheet = 'g4.about.notes_sheet';
+  static const aboutNotesDone = 'g4.about.notes_done';
+  static const linkdevClose = 'g4.linkdev.close';
+  static const linkdevConfirm = 'g4.linkdev.confirm';
+  static const linkdevConfirmCancel = 'g4.linkdev.confirm_cancel';
+  static const linkdevScan = 'g4.linkdev.scan';
+  static const linkdevShow = 'g4.linkdev.show';
+  static const linkdevPasteOpen = 'g4.linkdev.paste_open';
+  static const linkdevPasteField = 'g4.linkdev.paste_field';
+  static const linkdevPasteGo = 'g4.linkdev.paste_go';
+  static const linkdevCopy = 'g4.linkdev.copy';
+  static const linkdevCancel = 'g4.linkdev.cancel';
+  static const linkdevReplace = 'g4.linkdev.replace';
+  static const linkdevReplaceSheet = 'g4.linkdev.replace_sheet';
+  static const linkdevReplaceYes = 'g4.linkdev.replace_yes';
+  static const linkdevReplaceKeep = 'g4.linkdev.replace_keep';
+  static const linkdevPasteAnother = 'g4.linkdev.paste_another';
+  static const linkdevRetry = 'g4.linkdev.retry';
+  static const linkdevCloseFailed = 'g4.linkdev.close_failed';
+  static const pairflowClose = 'g4.pairflow.close';
+  static const pairflowShare = 'g4.pairflow.share';
+  static const pairflowCopy = 'g4.pairflow.copy';
+  static const pairflowNameRow = 'g4.pairflow.name_row';
+  static const pairflowNameSheet = 'g4.pairflow.name_sheet';
+  static const pairflowNameField = 'g4.pairflow.name_field';
+  static const pairflowNameSave = 'g4.pairflow.name_save';
+  static const pairflowNameCancel = 'g4.pairflow.name_cancel';
+  static const pairflowScan = 'g4.pairflow.scan';
+  static const pairflowPaste = 'g4.pairflow.paste';
+  static const pairflowFinishShare = 'g4.pairflow.finish_share';
+  static const pairflowFinishCopy = 'g4.pairflow.finish_copy';
+  static const pairflowFinishCheck = 'g4.pairflow.finish_check';
+  static const pairflowStatusCheck = 'g4.pairflow.status_check';
+  static const pairflowRequestSend = 'g4.pairflow.request_send';
+  static const pairflowRequestCode = 'g4.pairflow.request_code';
+  static const pairflowRequestsBack = 'g4.pairflow.requests_back';
+  static const pairflowRequestsPair = 'g4.pairflow.requests_pair';
+  static const pairflowRequestsNotNow = 'g4.pairflow.requests_not_now';
+  static const pairflowRequestsRow = 'g4.pairflow.requests_row';
+  static const pairflowInviteSheet = 'g4.pairflow.invite_sheet';
+  static const pairflowInvitePair = 'g4.pairflow.invite_pair';
+  static const pairflowInviteNotNow = 'g4.pairflow.invite_not_now';
+  static const pairflowWaitingClose = 'g4.pairflow.waiting_close';
+  static const pairflowWaitingCancel = 'g4.pairflow.waiting_cancel';
+  static const pairflowWaitingShare = 'g4.pairflow.waiting_share';
+  static const pairflowWaitingCopy = 'g4.pairflow.waiting_copy';
+  static const pairflowWaitingPaste = 'g4.pairflow.waiting_paste';
+  static const pairflowWaitingFinishField = 'g4.pairflow.waiting_finish_field';
+  static const pairflowWaitingFinishGo = 'g4.pairflow.waiting_finish_go';
+  static const pairflowCancelSheet = 'g4.pairflow.cancel_sheet';
+  static const pairflowCancelConfirm = 'g4.pairflow.cancel_confirm';
+  static const pairflowCancelKeep = 'g4.pairflow.cancel_keep';
+  static const pairflowFinishClose = 'g4.pairflow.finish_close';
+  static const pairflowFinishScreenShare = 'g4.pairflow.finish_screen_share';
+  static const pairflowFinishScreenCheck = 'g4.pairflow.finish_screen_check';
+  static const pairflowOutcomeClose = 'g4.pairflow.outcome_close';
+  static const pairflowOutcomeUpdate = 'g4.pairflow.outcome_update';
+  static const pairflowOutcomeBack = 'g4.pairflow.outcome_back';
+  static const pairflowAddButton = 'g4.pairflow.add_button';
+  static const pairflowAddSheet = 'g4.pairflow.add_sheet';
+  static const pairflowAddNew = 'g4.pairflow.add_new';
+  static const pairflowAddExisting = 'g4.pairflow.add_existing';
+  static const pairflowCheckClose = 'g4.pairflow.check_close';
+  static const pairflowCheckMatch = 'g4.pairflow.check_match';
+  static const pairflowCheckNoMatch = 'g4.pairflow.check_no_match';
+  static const pairflowCheckStop = 'g4.pairflow.check_stop';
+  static const pairflowCheckStopBack = 'g4.pairflow.check_stop_back';
+  static const pairflowCheckStopSheet = 'g4.pairflow.check_stop_sheet';
+  static const pairflowOtherCancel = 'g4.pairflow.other_cancel';
+  static const pairflowOtherNew = 'g4.pairflow.other_new';
+  static const pairflowOtherSheet = 'g4.pairflow.other_sheet';
+  static const pairflowRemoveConfirm = 'g4.pairflow.remove_confirm';
+  static const pairflowRemoveKeep = 'g4.pairflow.remove_keep';
+  static const pairflowRemoveSheet = 'g4.pairflow.remove_sheet';
+  static const pairflowResultAddNamed = 'g4.pairflow.result_add_named';
+  static const pairflowResultCheckNow = 'g4.pairflow.result_check_now';
+  static const pairflowResultClose = 'g4.pairflow.result_close';
+  static const pairflowResultDone = 'g4.pairflow.result_done';
+  static const pairflowResultLabel = 'g4.pairflow.result_label';
+  static const pairflowRelayAccept = 'g4.pairflow.relay_accept';
+  static const pairflowRelayRefuse = 'g4.pairflow.relay_refuse';
+  static const pairflowCpPair = 'g4.pairflow.cp_pair';
+  static const pairflowCpPairAgain = 'g4.pairflow.cp_pair_again';
+  static const pairflowCpShowCode = 'g4.pairflow.cp_show_code';
+  static const pairflowCpCancel = 'g4.pairflow.cp_cancel';
+  static const pairflowCpRemove = 'g4.pairflow.cp_remove';
+  static const pairflowCpCheck = 'g4.pairflow.cp_check';
+  static const pairflowCpKeysCheck = 'g4.pairflow.cp_keys_check';
+  static const pairflowCpKeepOld = 'g4.pairflow.cp_keep_old';
+  static const pairflowCpUseNew = 'g4.pairflow.cp_use_new';
+  static const pairflowCpKeysOk = 'g4.pairflow.cp_keys_ok';
+  static const pairflowCpUpdateAddress = 'g4.pairflow.cp_update_address';
+  static const pairflowCpDetach = 'g4.pairflow.cp_detach';
+  static const pairflowCpMoveAccept = 'g4.pairflow.cp_move_accept';
+  static const pairflowCpMoveRefuse = 'g4.pairflow.cp_move_refuse';
+  static const pairflowCpMoveRetry = 'g4.pairflow.cp_move_retry';
+  static const pairflowCpPairAgainUnproven = 'g4.pairflow.cp_pair_again_unproven';
+  static const pairflowCpHeldCancel = 'g4.pairflow.cp_held_cancel';
+  static const pairflowSendCheck = 'g4.pairflow.send_check';
+  static const pairflowNsJoin = 'g4.pairflow.ns_join';
+  static const pairflowNsNotNow = 'g4.pairflow.ns_not_now';
+  static const pairflowNsWaitClose = 'g4.pairflow.ns_wait_close';
+  static const pairflowNsWaitCancel = 'g4.pairflow.ns_wait_cancel';
+  static const pairflowNsCheckClose = 'g4.pairflow.ns_check_close';
+  static const pairflowNsMatch = 'g4.pairflow.ns_match';
+  static const pairflowNsNoMatch = 'g4.pairflow.ns_no_match';
+  static const pairflowNsRemoveSheet = 'g4.pairflow.ns_remove_sheet';
+  static const pairflowNsRemoveConfirm = 'g4.pairflow.ns_remove_confirm';
+  static const pairflowNsRemoveKeep = 'g4.pairflow.ns_remove_keep';
+  static const pairflowNsLeave = 'g4.pairflow.ns_leave';
+  static const pairflowNsBlockJoin = 'g4.pairflow.ns_block_join';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -698,5 +813,120 @@ abstract final class TrustIds {
     'g4.file.scanagain',
     'g4.file.open',
     'g4.file.paste',
+    'g4.about.back',
+    'g4.about.help',
+    'g4.about.help_sheet',
+    'g4.about.whats_new',
+    'g4.about.notes_sheet',
+    'g4.about.notes_done',
+    'g4.linkdev.close',
+    'g4.linkdev.confirm',
+    'g4.linkdev.confirm_cancel',
+    'g4.linkdev.scan',
+    'g4.linkdev.show',
+    'g4.linkdev.paste_open',
+    'g4.linkdev.paste_field',
+    'g4.linkdev.paste_go',
+    'g4.linkdev.copy',
+    'g4.linkdev.cancel',
+    'g4.linkdev.replace',
+    'g4.linkdev.replace_sheet',
+    'g4.linkdev.replace_yes',
+    'g4.linkdev.replace_keep',
+    'g4.linkdev.paste_another',
+    'g4.linkdev.retry',
+    'g4.linkdev.close_failed',
+    'g4.pairflow.close',
+    'g4.pairflow.share',
+    'g4.pairflow.copy',
+    'g4.pairflow.name_row',
+    'g4.pairflow.name_sheet',
+    'g4.pairflow.name_field',
+    'g4.pairflow.name_save',
+    'g4.pairflow.name_cancel',
+    'g4.pairflow.scan',
+    'g4.pairflow.paste',
+    'g4.pairflow.finish_share',
+    'g4.pairflow.finish_copy',
+    'g4.pairflow.finish_check',
+    'g4.pairflow.status_check',
+    'g4.pairflow.request_send',
+    'g4.pairflow.request_code',
+    'g4.pairflow.requests_back',
+    'g4.pairflow.requests_pair',
+    'g4.pairflow.requests_not_now',
+    'g4.pairflow.requests_row',
+    'g4.pairflow.invite_sheet',
+    'g4.pairflow.invite_pair',
+    'g4.pairflow.invite_not_now',
+    'g4.pairflow.waiting_close',
+    'g4.pairflow.waiting_cancel',
+    'g4.pairflow.waiting_share',
+    'g4.pairflow.waiting_copy',
+    'g4.pairflow.waiting_paste',
+    'g4.pairflow.waiting_finish_field',
+    'g4.pairflow.waiting_finish_go',
+    'g4.pairflow.cancel_sheet',
+    'g4.pairflow.cancel_confirm',
+    'g4.pairflow.cancel_keep',
+    'g4.pairflow.finish_close',
+    'g4.pairflow.finish_screen_share',
+    'g4.pairflow.finish_screen_check',
+    'g4.pairflow.outcome_close',
+    'g4.pairflow.outcome_update',
+    'g4.pairflow.outcome_back',
+    'g4.pairflow.add_button',
+    'g4.pairflow.add_sheet',
+    'g4.pairflow.add_new',
+    'g4.pairflow.add_existing',
+    'g4.pairflow.check_close',
+    'g4.pairflow.check_match',
+    'g4.pairflow.check_no_match',
+    'g4.pairflow.check_stop',
+    'g4.pairflow.check_stop_back',
+    'g4.pairflow.check_stop_sheet',
+    'g4.pairflow.other_cancel',
+    'g4.pairflow.other_new',
+    'g4.pairflow.other_sheet',
+    'g4.pairflow.remove_confirm',
+    'g4.pairflow.remove_keep',
+    'g4.pairflow.remove_sheet',
+    'g4.pairflow.result_add_named',
+    'g4.pairflow.result_check_now',
+    'g4.pairflow.result_close',
+    'g4.pairflow.result_done',
+    'g4.pairflow.result_label',
+    'g4.pairflow.relay_accept',
+    'g4.pairflow.relay_refuse',
+    'g4.pairflow.cp_pair',
+    'g4.pairflow.cp_pair_again',
+    'g4.pairflow.cp_show_code',
+    'g4.pairflow.cp_cancel',
+    'g4.pairflow.cp_remove',
+    'g4.pairflow.cp_check',
+    'g4.pairflow.cp_keys_check',
+    'g4.pairflow.cp_keep_old',
+    'g4.pairflow.cp_use_new',
+    'g4.pairflow.cp_keys_ok',
+    'g4.pairflow.cp_update_address',
+    'g4.pairflow.cp_detach',
+    'g4.pairflow.cp_move_accept',
+    'g4.pairflow.cp_move_refuse',
+    'g4.pairflow.cp_move_retry',
+    'g4.pairflow.cp_pair_again_unproven',
+    'g4.pairflow.cp_held_cancel',
+    'g4.pairflow.send_check',
+    'g4.pairflow.ns_join',
+    'g4.pairflow.ns_not_now',
+    'g4.pairflow.ns_wait_close',
+    'g4.pairflow.ns_wait_cancel',
+    'g4.pairflow.ns_check_close',
+    'g4.pairflow.ns_match',
+    'g4.pairflow.ns_no_match',
+    'g4.pairflow.ns_remove_sheet',
+    'g4.pairflow.ns_remove_confirm',
+    'g4.pairflow.ns_remove_keep',
+    'g4.pairflow.ns_leave',
+    'g4.pairflow.ns_block_join',
   ];
 }

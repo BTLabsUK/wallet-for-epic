@@ -35831,6 +35831,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get phoneAcceptNotNow;
+
+  /// Row in About: the payment protocol the wallet speaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment protocol'**
+  String get phoneAboutProtocol;
+
+  /// Row in About that shows the notes of this version.
+  ///
+  /// In en, this message translates to:
+  /// **'What is new'**
+  String get phoneAboutWhatsNew;
+
+  /// Title of the About page's help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'About BT Wallet'**
+  String get phoneAboutHelpTitle;
+
+  /// First line of the About help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'BT Wallet is made by BT Labs. It runs its own engine, LEPIC, and sends payments over the epic1 protocol.'**
+  String get phoneAboutHelp1;
+
+  /// Second line of the About help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Links on this page are copied, so you can open them in a browser you trust.'**
+  String get phoneAboutHelp2;
+
+  /// Title of the sheet with the release notes. {version} is the app version like 26.11.1.
+  ///
+  /// In en, this message translates to:
+  /// **'What is new in {version}'**
+  String phoneAboutNotesTitle(String version);
+
+  /// Subtitle of the Scan row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on your other device'**
+  String get phoneLinkScanSub;
+
+  /// Subtitle of the Show my code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other device scans it'**
+  String get phoneLinkShowSub;
+
+  /// Subtitle of the Paste code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a code or link you were sent'**
+  String get phoneLinkPasteSub;
 }
 
 class _AppLocalizationsDelegate

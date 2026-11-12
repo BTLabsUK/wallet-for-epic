@@ -22884,4 +22884,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneAcceptNotNow => 'Not now';
+
+  @override
+  String get phoneAboutProtocol => 'Payment protocol';
+
+  @override
+  String get phoneAboutWhatsNew => 'What is new';
+
+  @override
+  String get phoneAboutHelpTitle => 'About BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet is made by BT Labs. It runs its own engine, LEPIC, and sends payments over the epic1 protocol.';
+
+  @override
+  String get phoneAboutHelp2 =>
+      'Links on this page are copied, so you can open them in a browser you trust.';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return 'What is new in $version';
+  }
+
+  @override
+  String get phoneLinkScanSub => 'Scan the code on your other device';
+
+  @override
+  String get phoneLinkShowSub => 'Your other device scans it';
+
+  @override
+  String get phoneLinkPasteSub => 'Paste a code or link you were sent';
 }

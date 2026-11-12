@@ -5967,5 +5967,14 @@
   "phoneAcceptHintQr": "Примите платёж и покажите ответ. Ничего не придёт, пока его не отсканируют.",
   "phoneAcceptHintFile": "Примите платёж и отправьте ответ. Ничего не придёт, пока его не откроют.",
   "phoneAcceptAccept": "Принять",
-  "phoneAcceptNotNow": "Не сейчас"
+  "phoneAcceptNotNow": "Не сейчас",
+  "phoneAboutProtocol": "Платёжный протокол",
+  "phoneAboutWhatsNew": "Что нового",
+  "phoneAboutHelpTitle": "О BT Wallet",
+  "phoneAboutHelp1": "BT Wallet создан BT Labs. Он работает на собственном движке LEPIC и отправляет платежи по протоколу epic1.",
+  "phoneAboutHelp2": "Ссылки на этой странице копируются, поэтому их можно открыть в браузере, которому вы доверяете.",
+  "phoneAboutNotesTitle": "Что нового в {version}",
+  "phoneLinkScanSub": "Отсканируйте код на другом устройстве",
+  "phoneLinkShowSub": "Другое устройство отсканирует его",
+  "phoneLinkPasteSub": "Вставьте полученный код или ссылку"
 }

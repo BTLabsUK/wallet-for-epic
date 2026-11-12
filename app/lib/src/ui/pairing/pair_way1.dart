@@ -5,8 +5,6 @@
 /// the contact. Also the Pair requests list: requests from contacts, each with Pair · Not now.
 library;
 
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,12 +16,16 @@ import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../trust/policy.dart';
 import '../../wallet_service.dart';
-import '../common.dart';
+import '../../trust_ids.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_sheet.dart';
+import '../kit/kit_tokens.dart';
+import '../notices.dart' show NoticeLevel, noticeProvider;
+import 'pair_flow.dart';
 import '../address_view.dart' show ShortAddressText;
 import '../key_picture.dart';
-import '../phone_sheet.dart';
-import '../settings_rows.dart' show NavChevron;
-import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'pair_incoming.dart';
 import 'pair_screen.dart';
@@ -52,12 +54,7 @@ Future<void> pairWithContact(BuildContext context, WidgetRef ref, Contact contac
   final sendable = await canSendPairRequest(ref, contact);
   if (!context.mounted) return;
   if (!sendable) return _showCode(context, contact);
-  final choice = await showPhoneSheet<bool>(
-    context: context,
-    useSafeArea: true,
-    showDragHandle: true,
-    builder: (_) => _RequestSheet(contact: contact),
-  );
+  final choice = await showKitSheet<bool>(context: context, builder: (_) => _RequestSheet(contact: contact));
   if (choice == null || !context.mounted) return;
   if (!choice) return _showCode(context, contact);
   await sendPairRequest(context, ref, contact);
@@ -97,32 +94,19 @@ class _RequestSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    final foot = math.max(MediaQuery.paddingOf(context).bottom, MediaQuery.viewInsetsOf(context).bottom);
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + foot),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Semantics(header: true, child: Text(l.pairWithName(contact.name), style: theme.textTheme.titleLarge)),
-          const SizedBox(height: 10),
-          Text(l.pairRequestBody, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-          const SizedBox(height: 20),
-          FilledButton(
-            key: way1SendKey,
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.pairSendRequest),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            key: way1ShowCodeKey,
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.pairShowMyCodeInstead),
-          ),
-        ],
+    return KitSheet(
+      title: l.pairWithName(contact.name),
+      primary: KitButton(key: way1SendKey, label: l.pairSendRequest, semanticsId: TrustIds.pairflowRequestSend, onPressed: () => Navigator.pop(context, true)),
+      secondary: KitButton(
+        key: way1ShowCodeKey,
+        label: l.pairShowMyCodeInstead,
+        kind: KitButtonKind.quiet,
+        semanticsId: TrustIds.pairflowRequestCode,
+        onPressed: () => Navigator.pop(context, false),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Text(l.pairRequestBody, style: KitType.body.copyWith(color: t.dim)),
       ),
     );
   }
@@ -144,19 +128,16 @@ class PairRequestsScreen extends ConsumerWidget {
         if (context.mounted && (ModalRoute.of(context)?.isCurrent ?? false)) Navigator.of(context).pop();
       });
     }
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.pairRequestsTitle)),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [for (final r in requests) _RequestRow(request: r, contact: contactOfRequest(contacts, r))],
-            ),
-          ),
-        ),
-      ),
+    return PairFlowPage(
+      title: l.pairRequestsTitle,
+      back: true,
+      leadingId: TrustIds.pairflowRequestsBack,
+      children: [
+        for (final r in requests) ...[
+          _RequestRow(request: r, contact: contactOfRequest(contacts, r)),
+          const PairGap(),
+        ],
+      ],
     );
   }
 }
@@ -183,37 +164,57 @@ class _RequestRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final theme = Theme.of(context);
+    final t = context.tokens;
     final name = contact?.name ?? request.claimedName;
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
-      child: Row(
-        children: [
-          if (inviteKeyOf(request.inviteLink) case final key?)
-            KeyPictureView(picture: KeyPicture.of(key), size: 48)
-          else
-            PairAvatar(name: name),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l.pairWantsToPair(name), style: theme.textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 2),
-                ShortAddressText(request.fromAddress, style: const TextStyle(fontSize: 13)),
-              ],
-            ),
+    return PairCard(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  if (inviteKeyOf(request.inviteLink) case final key?)
+                    KeyPictureView(picture: KeyPicture.of(key), size: 48)
+                  else
+                    PairAvatar(name: name),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l.pairWantsToPair(name), style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 3),
+                        ShortAddressText(request.fromAddress, style: KitType.rowSub.copyWith(color: t.dim)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const PairGap(12),
+              Row(
+                children: [
+                  Expanded(
+                    child: KitButton(key: requestsPairKey, label: l.pairRequestPair, small: true, semanticsId: TrustIds.pairflowRequestsPair, onPressed: () => _pair(context, ref)),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: KitButton(
+                      key: requestsNotNowKey,
+                      label: l.pairNotNow,
+                      small: true,
+                      kind: KitButtonKind.quiet,
+                      semanticsId: TrustIds.pairflowRequestsNotNow,
+                      onPressed: () => pairingCall(ref, (api) => api.dismissRequest(request.id)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          FilledButton(key: requestsPairKey, onPressed: () => _pair(context, ref), child: Text(l.pairRequestPair)),
-          const SizedBox(width: 4),
-          TextButton(
-            key: requestsNotNowKey,
-            onPressed: () => pairingCall(ref, (api) => api.dismissRequest(request.id)),
-            child: Text(l.pairNotNow),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -232,14 +233,12 @@ class PairRequestsRow extends ConsumerWidget {
     final t = context.tokens;
     final count = (ref.watch(pairRequestsProvider).value ?? const <PairRequest>[]).length;
     if (count == 0) return const SizedBox.shrink();
-    return ListTile(
+    return KitRow(
       key: contactsRequestsKey,
-      minTileHeight: 64,
-      // The contacts list's one tile size and text column (48 tile, 12 gap).
-      horizontalTitleGap: 12,
-      leading: GlyphTile(size: 48, child: Icon(Icons.handshake_outlined, color: t.info)),
-      title: Text(l.pairRequestsRow(count)),
-      trailing: const NavChevron(),
+      title: l.pairRequestsRow(count),
+      leading: KitIconWell(KitIcons.contact, color: t.info),
+      chevron: true,
+      semanticsId: TrustIds.pairflowRequestsRow,
       onTap: () => openPairRequests(context),
     );
   }

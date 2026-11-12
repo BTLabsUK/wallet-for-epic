@@ -5967,5 +5967,14 @@
   "phoneAcceptHintQr": "ยอมรับ แล้วแสดงคำตอบให้เขา จะไม่มีอะไรเข้าจนกว่าเขาจะสแกน",
   "phoneAcceptHintFile": "ยอมรับ แล้วส่งคำตอบของคุณ จะไม่มีอะไรเข้าจนกว่าเขาจะเปิด",
   "phoneAcceptAccept": "ยอมรับ",
-  "phoneAcceptNotNow": "ไว้ก่อน"
+  "phoneAcceptNotNow": "ไว้ก่อน",
+  "phoneAboutProtocol": "โปรโตคอลการชำระเงิน",
+  "phoneAboutWhatsNew": "มีอะไรใหม่",
+  "phoneAboutHelpTitle": "เกี่ยวกับ BT Wallet",
+  "phoneAboutHelp1": "BT Wallet สร้างโดย BT Labs ทำงานบนเอนจินของตัวเองชื่อ LEPIC และส่งการชำระเงินผ่านโปรโตคอล epic1",
+  "phoneAboutHelp2": "ลิงก์ในหน้านี้จะถูกคัดลอก คุณจึงเปิดในเบราว์เซอร์ที่ไว้ใจได้",
+  "phoneAboutNotesTitle": "มีอะไรใหม่ใน {version}",
+  "phoneLinkScanSub": "สแกนรหัสบนอุปกรณ์อีกเครื่อง",
+  "phoneLinkShowSub": "อุปกรณ์อีกเครื่องสแกนรหัสนี้",
+  "phoneLinkPasteSub": "วางรหัสหรือลิงก์ที่ได้รับ"
 }

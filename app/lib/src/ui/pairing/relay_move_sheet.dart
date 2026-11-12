@@ -14,7 +14,10 @@ import '../../pairing_providers.dart';
 import '../../providers.dart' show networkChoiceProvider;
 import '../../relay_moves.dart';
 import '../../server_list_store.dart';
-import '../phone_sheet.dart';
+import '../../trust_ids.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_sheet.dart';
+import '../kit/kit_tokens.dart';
 import '../theme/tokens.dart';
 
 const Key relayMoveSheetKey = ValueKey('relay-move-sheet');
@@ -54,9 +57,8 @@ Future<void> askPhoneRelayMove(BuildContext context, WidgetRef ref, PairingRecor
   final name = pairingName(p, ref.read(contactsProvider).value ?? const <Contact>[], l: l);
   await pairingCall(ref, (api) => api.markRelayMoveShown(p.id, relay));
   if (!context.mounted) return;
-  final accept = await showPhoneSheet<bool>(
+  final accept = await showKitSheet<bool>(
     context: context,
-    showDragHandle: true,
     builder: (_) => Consumer(
       builder: (context, ref, _) => RelayMoveGuard(
         pairingId: p.id,
@@ -124,58 +126,32 @@ class RelayMoveSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = context.l10n;
-    final theme = Theme.of(context);
-    final body = theme.textTheme.bodyMedium?.copyWith(color: t.dim, height: 1.5);
-    const target = Size(64, 44);
-    return Padding(
+    final body = KitType.body.copyWith(color: t.dim);
+    return KitSheet(
       key: relayMoveSheetKey,
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.alt_route, size: 22, color: t.dim),
-              const SizedBox(width: 10),
-              Expanded(child: Semantics(header: true, child: Text(l.relayMoveTitle(name), style: theme.textTheme.titleMedium))),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l.relayMoveBody(name, relay), style: body),
-                if (addsServer) ...[const SizedBox(height: 8), Text(l.relayMoveAddsServer(relay), style: body)],
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                OutlinedButton(
-                  key: relayMoveRefuseKey,
-                  style: OutlinedButton.styleFrom(minimumSize: target),
-                  onPressed: () => Navigator.pop(context, false),
-                  child: Text(l.relayMoveRefuse),
-                ),
-                FilledButton(
-                  key: relayMoveAcceptKey,
-                  style: FilledButton.styleFrom(minimumSize: target),
-                  onPressed: () => Navigator.pop(context, true),
-                  child: Text(l.relayMoveAccept),
-                ),
-              ],
-            ),
-          ),
-        ],
+      title: l.relayMoveTitle(name),
+      primary: KitButton(
+        key: relayMoveAcceptKey,
+        label: l.relayMoveAccept,
+        semanticsId: TrustIds.pairflowRelayAccept,
+        onPressed: () => Navigator.pop(context, true),
+      ),
+      secondary: KitButton(
+        key: relayMoveRefuseKey,
+        label: l.relayMoveRefuse,
+        kind: KitButtonKind.quiet,
+        semanticsId: TrustIds.pairflowRelayRefuse,
+        onPressed: () => Navigator.pop(context, false),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.relayMoveBody(name, relay), style: body),
+            if (addsServer) ...[const SizedBox(height: 8), Text(l.relayMoveAddsServer(relay), style: body)],
+          ],
+        ),
       ),
     );
   }

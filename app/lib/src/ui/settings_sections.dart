@@ -7,9 +7,7 @@ library;
 
 import 'dart:async';
 
-import '../address_format.dart' show shownUrl;
 import 'address_view.dart' show HostText;
-import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,7 +15,6 @@ import '../app_info.dart';
 import '../app_log.dart';
 import '../settings_file/host_settings.dart' show hostSettings;
 import '../dev_networks.dart';
-import '../dist_build.dart';
 import '../epic1.dart' show PaymentMode;
 import '../l10n.dart';
 import '../network.dart';
@@ -38,6 +35,7 @@ import '../help/help_content.dart' show HelpId;
 import '../trust_ids.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
+import 'about_phone.dart';
 import 'app_dialog.dart';
 import 'backup_screen.dart';
 import 'common.dart';
@@ -45,10 +43,8 @@ import 'confirmations_row.dart';
 import 'epic1/epic1_settings.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
-import 'licences_screen.dart';
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
-import 'network_mode_text.dart' show blockMode, networkModeName;
 import 'net_block.dart';
 import 'payment_gate.dart' show pendingEpicboxSends;
 import 'network_status.dart';
@@ -66,13 +62,10 @@ import 'kit/kit_icons.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_settings.dart';
 import 'kit/kit_sheet.dart';
-import 'kit/kit_corner_marks.dart';
 import 'kit/kit_tokens.dart';
 import 'settings_phone.dart';
 import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
-import 'theme/brand.dart' show BrandVariant, BrandWordmark, EpicMark;
-import 'theme/epic1_mark.dart' show Epic1Mark;
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
@@ -83,9 +76,6 @@ import '../settings_file/status_site.dart' show statusSiteConfigured, statusSite
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 export 'settings_rows.dart' show SettingsHeader, SettingsSubHeader, NavChevron, RadioRow;
 export '../seed_contacts.dart' show projectRepoUrl;
-
-/// The maker's name on the About page. A name, never translated.
-const String _madeBy = 'BT Labs';
 
 /// BT Labs' privacy policy; null when `app-config.toml` leaves it out (no link).
 String? get privacyPolicyUrl => hostSettings.linkPrivacy;
@@ -520,7 +510,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       sheetId: TrustIds.settingsHelpSheet,
       moreId: TrustIds.settingsHelpMore,
     ),
-    SettingsSection.about => null,
+    SettingsSection.about => SettingsPageHelp(
+      title: l.phoneAboutHelpTitle,
+      lines: [l.phoneAboutHelp1, l.phoneAboutHelp2],
+      sheetId: TrustIds.aboutHelpSheet,
+    ),
   };
 
   @override
@@ -541,8 +535,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       backLabel: widget.backLabel,
       controller: _scroll,
       help: _help(l),
-      helpId: TrustIds.settingsPageHelp,
-      backId: TrustIds.settingsPageBack,
+      helpId: widget.section == SettingsSection.about ? TrustIds.aboutHelp : TrustIds.settingsPageHelp,
+      backId: widget.section == SettingsSection.about ? TrustIds.aboutBack : TrustIds.settingsPageBack,
       children: rows,
     );
   }
@@ -1151,85 +1145,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// About: the mark and name, the facts about this build, then Updates, Licences and the
-  /// links. The page's back link reads "Help": About sits in Help's list too.
-  List<Widget> _about(AppLocalizations l) {
-    final version = ref.watch(appVersionProvider);
-    final updates = ref.read(updateProvider.notifier).supported;
-    final block = watchNetBlock(context, ref);
-    final t = context.tokens;
-    return [
-      const SizedBox(height: Kit.gutter),
-      Center(
-        child: KitCornerMarks(
-          inset: 8,
-          child: SizedBox(
-            width: Kit.brandTile,
-            height: Kit.brandTile,
-            child: Center(child: EpicMark(size: Kit.brandTile * 0.6, color: t.accentText)),
-          ),
-        ),
-      ),
-      const SizedBox(height: Kit.gutter * 2),
-      const Center(child: BrandWordmark(variant: BrandVariant.mobile, size: 24)),
-      const SizedBox(height: Kit.gutter * 2),
-      KitGroup(
-        dividerInset: Kit.dividerInsetPlain,
-        children: [
-          KitRow(
-            size: KitRowSize.settings,
-            title: l.settingsVersion,
-            value: version.hasValue ? version.value ?? l.commonUnknown : '…',
-            // A store build: the store updates it, the app has no updater.
-            subtitle: distStore == null ? null : l.settingsUpdatesFrom(distStore!),
-          ),
-          KitRow(size: KitRowSize.settings, title: l.phoneSettingsMadeBy, value: _madeBy),
-          KitRow(
-            size: KitRowSize.settings,
-            title: l.phoneSettingsProtocol,
-            trailing: const Epic1Mark(fontSize: 16),
-          ),
-          KitRow(size: KitRowSize.settings, title: l.phoneSettingsEngine, value: 'LEPIC'),
-        ],
-      ),
-      const SizedBox(height: Kit.gutter),
-      KitGroup(
-        dividerInset: Kit.dividerInsetPlain,
-        children: [
-          if (updates)
-            KitRow(
-              size: KitRowSize.settings,
-              title: l.settingsCheckUpdates,
-              subtitle: block == NetBlock.none
-                  ? null
-                  : (blockMode(block) != null ? l.updatesOffMode(networkModeName(l, blockMode(block)!)) : netBlockReason(l, block)!),
-              subtitleLines: 2,
-              semanticsId: TrustIds.aboutUpdates,
-              onTap: block != NetBlock.none
-                  ? null
-                  : () {
-                      ref.read(updateProvider.notifier).check();
-                      // The result follows as a notice of its own.
-                      _say(l.updateChecking, level: NoticeLevel.info);
-                    },
-            ),
-          KitRow(
-            key: settingsLicencesKey,
-            size: KitRowSize.settings,
-            title: l.settingsLicences,
-            chevron: true,
-            semanticsId: TrustIds.aboutLicences,
-            onTap: () => _push(const LicenceTextsScreen()),
-          ),
-          // The site's address as its name, the same in every language and on the desktop. The
-          // app has no browser launcher: a tap copies the address.
-          if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site, id: TrustIds.aboutSite),
-          if (projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!, id: TrustIds.aboutSource),
-          if (privacyPolicyUrl case final url?) LinkTile(title: l.settingsPrivacyPolicy, url: url, id: TrustIds.aboutPrivacy),
-        ],
-      ),
-    ];
-  }
+  /// About: the mark and name, the facts about this build, then What is new, Licences and the
+  /// links (`about_phone.dart`). The page's back link reads "Help": About sits in Help's list too.
+  List<Widget> _about(AppLocalizations l) => const [AboutPhoneBody()];
 }
 
 /// `Euro (EUR)`, or the bare code for one the list does not know.

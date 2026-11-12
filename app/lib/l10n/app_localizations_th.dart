@@ -22426,4 +22426,35 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneAcceptNotNow => 'ไว้ก่อน';
+
+  @override
+  String get phoneAboutProtocol => 'โปรโตคอลการชำระเงิน';
+
+  @override
+  String get phoneAboutWhatsNew => 'มีอะไรใหม่';
+
+  @override
+  String get phoneAboutHelpTitle => 'เกี่ยวกับ BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet สร้างโดย BT Labs ทำงานบนเอนจินของตัวเองชื่อ LEPIC และส่งการชำระเงินผ่านโปรโตคอล epic1';
+
+  @override
+  String get phoneAboutHelp2 =>
+      'ลิงก์ในหน้านี้จะถูกคัดลอก คุณจึงเปิดในเบราว์เซอร์ที่ไว้ใจได้';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return 'มีอะไรใหม่ใน $version';
+  }
+
+  @override
+  String get phoneLinkScanSub => 'สแกนรหัสบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get phoneLinkShowSub => 'อุปกรณ์อีกเครื่องสแกนรหัสนี้';
+
+  @override
+  String get phoneLinkPasteSub => 'วางรหัสหรือลิงก์ที่ได้รับ';
 }

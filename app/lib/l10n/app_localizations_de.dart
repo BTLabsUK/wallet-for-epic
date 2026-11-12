@@ -23157,4 +23157,35 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneAcceptNotNow => 'Nicht jetzt';
+
+  @override
+  String get phoneAboutProtocol => 'Zahlungsprotokoll';
+
+  @override
+  String get phoneAboutWhatsNew => 'Was ist neu';
+
+  @override
+  String get phoneAboutHelpTitle => 'Über BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet stammt von BT Labs. Es läuft auf einer eigenen Engine, LEPIC, und sendet Zahlungen über das Protokoll epic1.';
+
+  @override
+  String get phoneAboutHelp2 =>
+      'Links auf dieser Seite werden kopiert, damit du sie in einem Browser deiner Wahl öffnen kannst.';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return 'Neu in $version';
+  }
+
+  @override
+  String get phoneLinkScanSub => 'Code auf dem anderen Gerät scannen';
+
+  @override
+  String get phoneLinkShowSub => 'Das andere Gerät scannt ihn';
+
+  @override
+  String get phoneLinkPasteSub => 'Einen erhaltenen Code oder Link einfügen';
 }

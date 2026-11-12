@@ -13,13 +13,15 @@ import '../../name_service/phone_name_service.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import '../app_dialog.dart';
+import '../../trust_ids.dart';
 import '../common.dart';
 import '../info_hint.dart';
-import '../phone_sheet.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_sheet.dart';
+import '../kit/kit_tokens.dart';
 import '../status_icons.dart' show EpicGlyphs;
-import '../theme/brand.dart' show GlyphTile;
 import '../theme/tokens.dart';
+import 'pair_flow.dart';
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -46,11 +48,8 @@ Future<bool> showNameServiceJoinSheet(BuildContext context, WidgetRef ref, {requ
   }
   if (!context.mounted) return false;
   final entry = service.entryOf(serviceKey);
-  final joined = await showPhoneSheet<bool>(
+  final joined = await showKitSheet<bool>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
     builder: (_) => _JoinSheet(serviceKey: serviceKey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: ref.read(paymentRefusalsProvider).refusesPayments(pairingId: entry?.pairingId)),
   );
   return joined ?? false;
@@ -94,46 +93,43 @@ class _JoinSheetState extends ConsumerState<_JoinSheet> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
     final t = context.tokens;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(l.nsJoinTitle(widget.name, widget.label), style: theme.textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
-                ),
+    final title = l.nsJoinTitle(widget.name, widget.label);
+    return KitSheet(
+      title: title,
+      primary: KitButton(
+        key: nsJoinKey,
+        label: l.nsJoin(widget.name, widget.label),
+        semanticsId: TrustIds.pairflowNsJoin,
+        onPressed: _busy ? null : _join,
+      ),
+      secondary: KitButton(
+        key: nsNotNowKey,
+        label: l.nsNotNow,
+        kind: KitButtonKind.quiet,
+        semanticsId: TrustIds.pairflowNsNotNow,
+        onPressed: _busy ? null : () => Navigator.pop(context, false),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.nsJoinBody(widget.name, widget.label, widget.host), style: KitType.body.copyWith(color: t.dim)),
+                  if (widget.noPayments) ...[
+                    const SizedBox(height: 8),
+                    Text(l.contactNoPaymentsNamed(widget.label), style: KitType.body.copyWith(color: t.dim)),
+                  ],
+                ],
               ),
-              InfoHint(l.nsJoinInfo(widget.label), title: l.nsJoinTitle(widget.name, widget.label)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(l.nsJoinBody(widget.name, widget.label, widget.host), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
-          if (widget.noPayments) ...[
-            const SizedBox(height: 8),
-            Text(l.contactNoPaymentsNamed(widget.label), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
+            ),
+            InfoHint(l.nsJoinInfo(widget.label), title: title),
           ],
-          const SizedBox(height: 20),
-          FilledButton(
-            key: nsJoinKey,
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: _busy ? null : _join,
-            child: Text(l.nsJoin(widget.name, widget.label)),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            key: nsNotNowKey,
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: _busy ? null : () => Navigator.pop(context, false),
-            child: Text(l.nsNotNow),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -163,26 +159,33 @@ class NameServiceWaiting extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.nsCodeTitle)),
-      body: ScreenBody(
-        bottom: OutlinedButton(
-          key: nsWaitCancelKey,
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: onCancel,
-          child: Text(l.commonCancel),
-        ),
-        children: [
-          const SizedBox(height: 48),
-          Center(child: GlyphTile(size: 72, child: Icon(Icons.hourglass_empty_rounded, color: t.info))),
-          const SizedBox(height: 16),
-          Semantics(
-            liveRegion: true,
-            child: Text(l.nsWaitingFor(label), textAlign: TextAlign.center, style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily)),
-          ),
-        ],
+    return PairFlowPage(
+      title: l.nsCodeTitle,
+      leadingId: TrustIds.pairflowNsWaitClose,
+      bottom: KitButton(
+        key: nsWaitCancelKey,
+        label: l.commonCancel,
+        kind: KitButtonKind.quiet,
+        semanticsId: TrustIds.pairflowNsWaitCancel,
+        onPressed: onCancel,
       ),
+      children: [
+        const PairGap(48),
+        Center(
+          child: Container(
+            width: Kit.emptyWell,
+            height: Kit.emptyWell,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: t.fill, shape: BoxShape.circle),
+            child: ExcludeSemantics(child: Icon(Icons.hourglass_empty_rounded, size: 34, color: t.info)),
+          ),
+        ),
+        const PairGap(18),
+        Semantics(
+          liveRegion: true,
+          child: Text(l.nsWaitingFor(label), textAlign: TextAlign.center, style: KitType.sheetTitle.copyWith(color: t.text)),
+        ),
+      ],
     );
   }
 }
@@ -216,51 +219,46 @@ class NameServiceCodeCheck extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.nsCodeTitle)),
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            FilledButton(
-              key: matchKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: busy ? null : onMatch,
-              child: Text(l.sasMatch),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              key: noMatchKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: busy ? null : onNoMatch,
-              child: Text(l.sasNoMatch),
-            ),
-          ],
-        ),
+    return PairFlowPage(
+      title: l.nsCodeTitle,
+      leadingId: TrustIds.pairflowNsCheckClose,
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              PairAvatar(name: label),
-              const SizedBox(width: 12),
-              Expanded(child: Text(label, style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily))),
-              if (noPayments) ...[const SizedBox(width: 8), const NoPaymentsBadge()],
-            ],
-          ),
-          const SizedBox(height: 16),
-          PairLead(l.nsCodeLead(label)),
-          const SizedBox(height: 16),
-          PairCard(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
-                child: NameServiceCodeTiles(key: nsCodeKey, indexes: nameServiceCodeIndexes(fromHex(serviceKey)), label: l.nsCodeLabel),
-              ),
-            ],
+          KitButton(key: matchKey, label: l.sasMatch, semanticsId: TrustIds.pairflowNsMatch, onPressed: busy ? null : onMatch),
+          const PairGap(10),
+          KitButton(
+            key: noMatchKey,
+            label: l.sasNoMatch,
+            kind: KitButtonKind.quiet,
+            semanticsId: TrustIds.pairflowNsNoMatch,
+            onPressed: busy ? null : onNoMatch,
           ),
         ],
       ),
+      children: [
+        const PairGap(6),
+        Row(
+          children: [
+            PairAvatar(name: label),
+            const SizedBox(width: 12),
+            Expanded(child: Text(label, style: KitType.sheetTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis)),
+            if (noPayments) ...[const SizedBox(width: 8), const NoPaymentsBadge()],
+          ],
+        ),
+        const PairGap(14),
+        PairLead(l.nsCodeLead(label)),
+        const PairGap(16),
+        PairCard(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
+              child: NameServiceCodeTiles(key: nsCodeKey, indexes: nameServiceCodeIndexes(fromHex(serviceKey)), label: l.nsCodeLabel),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -306,16 +304,17 @@ class _NameServiceBlockState extends ConsumerState<NameServiceBlock> {
     if (!mounted) return;
     setState(() => _busy = false);
     // Remove the name service too: the existing remove-pairing path.
-    final remove = await confirmAppDialog(
+    final remove = await confirmPairSheet(
       context,
       title: l.nsRemoveTooTitle(widget.label),
-      icon: Icons.link_off,
-      tone: DialogTone.risk,
-      description: l.contactRemovePairingBody(widget.label),
-      cancelLabel: l.contactKeep,
-      confirmLabel: l.contactRemove,
-      risk: true,
-      confirmKey: nsRemoveTooKey,
+      body: l.contactRemovePairingBody(widget.label),
+      action: l.contactRemove,
+      cancel: l.contactKeep,
+      risky: true,
+      actionKey: nsRemoveTooKey,
+      sheetId: TrustIds.pairflowNsRemoveSheet,
+      actionId: TrustIds.pairflowNsRemoveConfirm,
+      cancelId: TrustIds.pairflowNsRemoveKeep,
     );
     if (!remove || !mounted) return;
     try {
@@ -331,7 +330,6 @@ class _NameServiceBlockState extends ConsumerState<NameServiceBlock> {
     if (entry == null) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final service = ref.read(nameServiceProvider);
     final code = service?.listingCodeFor(entry.serviceKey);
     final since = entry.joinedAt;
@@ -356,8 +354,8 @@ class _NameServiceBlockState extends ConsumerState<NameServiceBlock> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(joined ? l.nsJoined(entry.payAsArg, widget.label, since0) : (unlisted ? l.nsNotListed : l.nsNotJoined), style: theme.textTheme.bodyLarge),
-                        if (unlisted) Text(l.nsNotListedBody(widget.label), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                        Text(joined ? l.nsJoined(entry.payAsArg, widget.label, since0) : (unlisted ? l.nsNotListed : l.nsNotJoined), style: KitType.rowTitle.copyWith(color: t.text)),
+                        if (unlisted) Text(l.nsNotListedBody(widget.label), style: KitType.rowSub.copyWith(color: t.dim)),
                       ],
                     ),
                   ),
@@ -366,17 +364,20 @@ class _NameServiceBlockState extends ConsumerState<NameServiceBlock> {
                   Flexible(
                     flex: 2,
                     child: joined
-                        ? OutlinedButton(
+                        ? KitButton(
                             key: nsLeaveKey,
-                            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                            label: l.nsLeave,
+                            small: true,
+                            kind: KitButtonKind.quiet,
+                            semanticsId: TrustIds.pairflowNsLeave,
                             onPressed: _busy ? null : () => _leave(entry),
-                            child: Text(l.nsLeave),
                           )
-                        : FilledButton(
+                        : KitButton(
                             key: nsJoinKey,
-                            style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                            label: unlisted ? l.nsJoinAgain : l.nsJoin(entry.payAsArg, widget.label),
+                            small: true,
+                            semanticsId: TrustIds.pairflowNsBlockJoin,
                             onPressed: _busy ? null : () => _join(entry),
-                            child: Text(unlisted ? l.nsJoinAgain : l.nsJoin(entry.payAsArg, widget.label), textAlign: TextAlign.center),
                           ),
                   ),
                 ],
@@ -390,7 +391,7 @@ class _NameServiceBlockState extends ConsumerState<NameServiceBlock> {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(l.nsListingCode, style: theme.textTheme.labelLarge?.copyWith(color: t.dim))),
+                        Expanded(child: Text(l.nsListingCode, style: KitType.groupLabel.copyWith(color: t.dim))),
                         InfoHint(l.nsListingCodeInfo(widget.label), title: l.nsListingCode, size: InfoHint.inRow),
                       ],
                     ),

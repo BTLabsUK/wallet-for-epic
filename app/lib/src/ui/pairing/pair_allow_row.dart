@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 
 import '../../l10n.dart';
 import '../info_hint.dart';
+import '../kit/kit_row.dart' show KitSwitch;
+import '../kit/kit_tokens.dart';
 import '../theme/tokens.dart';
 import 'pairing_parts.dart' show PairCard;
 
@@ -78,7 +80,6 @@ class _PairLiveSwitchRowState extends State<PairLiveSwitchRow> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
     final enabled = widget.onChanged != null && widget.lockedLine == null;
     final shown = widget.busy && _pending != null ? _pending! : widget.value;
     final line = widget.lockedLine ?? widget.line;
@@ -86,7 +87,7 @@ class _PairLiveSwitchRowState extends State<PairLiveSwitchRow> {
     // Not merged: a screen reader reaches the info button on its own, and the switch carries
     // the row's label and line.
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 56),
+      constraints: const BoxConstraints(minHeight: Kit.rowSettings),
       child: Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
         child: Row(
@@ -100,7 +101,7 @@ class _PairLiveSwitchRowState extends State<PairLiveSwitchRow> {
                     children: [
                       Flexible(
                         child: ExcludeSemantics(
-                          child: Text(widget.label, style: theme.textTheme.bodyLarge?.copyWith(color: enabled ? t.text : t.dim)),
+                          child: Text(widget.label, style: KitType.rowTitle.copyWith(color: enabled ? t.text : t.dim)),
                         ),
                       ),
                       if (widget.info.isNotEmpty) InfoHint(widget.info, title: widget.label),
@@ -115,7 +116,7 @@ class _PairLiveSwitchRowState extends State<PairLiveSwitchRow> {
                       curve: Curves.easeOut,
                       alignment: AlignmentDirectional.topStart,
                       child: ExcludeSemantics(
-                        child: Text(line, key: ValueKey(line), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                        child: Text(line, key: ValueKey(line), style: KitType.rowSub.copyWith(color: t.dim)),
                       ),
                     ),
                 ],
@@ -133,7 +134,7 @@ class _PairLiveSwitchRowState extends State<PairLiveSwitchRow> {
                 opacity: enabled ? 1 : 0.38,
                 child: IgnorePointer(
                   ignoring: widget.busy,
-                  child: Switch(
+                  child: KitSwitch(
                     key: widget.switchKey,
                     value: shown,
                     // Busy keeps the enabled look; a second tap or Enter does nothing until the

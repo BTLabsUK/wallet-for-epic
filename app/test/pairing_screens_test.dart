@@ -11,6 +11,9 @@ import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
 import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName;
 import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show PairAvatar, PairTimeLeft;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -434,7 +437,7 @@ void main() {
       unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))));
       await tester.pumpAndSettle();
       expect(find.byKey(checkMatchKey), findsOneWidget);
-      await tester.pageBack();
+      await tester.tap(find.byIcon(KitIcons.close).first);
       await tester.pumpAndSettle();
       expect(find.byKey(checkMatchKey), findsNothing);
       expect(h.api.records.single.state, PairingState.paired);
@@ -554,7 +557,7 @@ void main() {
       // The pairing is stored: it is removed, and the other wallet told, as a paired one is.
       expect(find.byKey(contactPageCancelPairingKey), findsNothing);
       expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
-      final seal = tester.widget<Switch>(find.byKey(contactPageSealKey));
+      final seal = tester.widget<KitSwitch>(find.byKey(contactPageSealKey));
       expect(seal.onChanged, isNull, reason: 'nothing is sealed to a wallet not heard');
       h.api.hear(h.api.records.single.id);
       await _frames(tester);
@@ -568,8 +571,8 @@ void main() {
       h.api.peerMatch('p');
       await tester.pumpAndSettle();
       expect(find.text(_l.pairConfirmedToo('Anna')), findsOneWidget);
-      expect(tester.widget<Switch>(find.byKey(contactPageSealKey)).onChanged, isNotNull);
-      expect(tester.widget<Switch>(find.byKey(contactPageInvoicesKey)).onChanged, isNotNull);
+      expect(tester.widget<KitSwitch>(find.byKey(contactPageSealKey)).onChanged, isNotNull);
+      expect(tester.widget<KitSwitch>(find.byKey(contactPageInvoicesKey)).onChanged, isNotNull);
     });
 
     testWidgets('ended by the peer: the reason, the held send with Cancel, Pair again and Remove', (tester) async {
@@ -588,7 +591,7 @@ void main() {
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
       expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
       expect(find.byKey(contactPageSealKey), findsNothing, reason: 'no switches on an ended pairing');
-      await tester.tap(find.widgetWithText(TextButton, _l.commonCancel).first);
+      await tester.tap(find.widgetWithText(KitButton, _l.commonCancel).first);
       await _frames(tester);
       expect(h.session.cancelledTxIds, isNotEmpty, reason: 'the held send was cancelled');
     });

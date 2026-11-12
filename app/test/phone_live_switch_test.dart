@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/ui/launch_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
@@ -156,7 +157,7 @@ void main() {
     expect(w.session.onionRoutes, hasLength(1));
   });
 
-  testWidgets('a new relay is switched live after the dialog says the address changes, and the '
+  testWidgets('a new relay is switched live after the sheet says the address changes, and the '
       'listener receives on it', (tester) async {
     final w = await _open(tester);
     expect(w.session.listenerStarts, 1);
@@ -165,7 +166,7 @@ void main() {
     // The dialog's Switch, with its line, is the confirmation.
     await _footSwitch(tester);
     // The sheet says the same under its list; the dialog's body is what asks.
-    expect(find.descendant(of: find.byType(AlertDialog), matching: find.text(_l.slSwitchBody)), findsOneWidget);
+    expect(find.descendant(of: find.byType(KitSheet).last, matching: find.text(_l.slSwitchBody)), findsOneWidget);
     expect(find.byKey(serverListSwitchKey), findsOneWidget);
     await tester.tap(find.byKey(serverListSwitchKey));
     await tester.pumpAndSettle();
