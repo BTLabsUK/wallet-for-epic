@@ -532,9 +532,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             child: SealedBadge(name: pairingName(_sealedFrom!, ref.watch(contactsProvider).value ?? const [])),
           ),
           const SizedBox(height: 12),
-          SlateFileButtons(name: name, json: sealed, copyable: widget.pasted, framed: true),
+          SlateFileButtons(name: name, json: sealed, copyable: widget.pasted, framed: true, reply: true),
         ] else if (!showQr || fileOn)
-          SlateFileButtons(name: name, json: response.json, copyable: widget.pasted, primary: !showQr, framed: true),
+          SlateFileButtons(name: name, json: response.json, copyable: widget.pasted, primary: !showQr, framed: true, reply: true),
         const SizedBox(height: 14),
         FileInfoLine(widget.scanned ? l.slateAcceptedHeadlineQr : (response.repeated ? l.slateRepeatedBody(epicExact(l, info.amount)) : l.phoneFileReplyHint)),
       ];
@@ -786,6 +786,7 @@ class SlateFileButtons extends ConsumerWidget {
     this.primary = true,
     this.onHandedOver,
     this.framed = false,
+    this.reply = false,
   });
 
   final String name;
@@ -801,6 +802,9 @@ class SlateFileButtons extends ConsumerWidget {
   /// On the file pages of the redesign: "Copy as text" beside a gold "Share reply", "Save to
   /// device" under them. Off, the buttons keep their older words.
   final bool framed;
+
+  /// With [framed]: the file is a reply, so the share button says "Share reply", not "Share file".
+  final bool reply;
 
   Future<void> _out(
     BuildContext context,
@@ -848,7 +852,7 @@ class SlateFileButtons extends ConsumerWidget {
     final share = files.canShare
         ? KitButton(
             icon: KitIcons.share,
-            label: framed ? l.phoneFileShareReply : l.commonShare,
+            label: framed ? (reply ? l.phoneFileShareReply : l.phoneFileShare) : l.commonShare,
             kind: primary ? KitButtonKind.gold : KitButtonKind.quiet,
             semanticsId: TrustIds.fileShare,
             onPressed: () => _out(context, ref, (f) => f.share(name: name, json: json)),

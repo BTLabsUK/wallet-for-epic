@@ -412,6 +412,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
     final t = context.tokens;
     final l = context.l10n;
     final choose = _step == _PinStep.choose;
+    final hintStyle = KitType.body.copyWith(color: t.dim);
     final top = <Widget>[
       if (choose) ?widget.intro,
       Semantics(
@@ -423,7 +424,12 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
         ),
       ),
       const SizedBox(height: 12),
-      Text(choose ? l.phonePinChooseHint : '', style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+      // The hint's room stays on the repeat step, so the keypad and the title do not move.
+      ReservedSlot.like(
+        alignment: AlignmentDirectional.topCenter,
+        model: Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center),
+        child: choose ? Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center) : null,
+      ),
       const SizedBox(height: 28),
     ];
     return PinPad(
