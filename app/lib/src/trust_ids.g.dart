@@ -244,6 +244,8 @@ abstract final class TrustIds {
   static const fileShowqr = 'g4.file.showqr';
   static const fileFinish = 'g4.file.finish';
   static const fileScanagain = 'g4.file.scanagain';
+  static const fileOpen = 'g4.file.open';
+  static const filePaste = 'g4.file.paste';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -498,5 +500,7 @@ abstract final class TrustIds {
     'g4.file.showqr',
     'g4.file.finish',
     'g4.file.scanagain',
+    'g4.file.open',
+    'g4.file.paste',
   ];
 }

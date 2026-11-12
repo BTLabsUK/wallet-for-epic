@@ -286,5 +286,7 @@
 {"id": "g4.accept.later", "screen": "accept", "family": ["android"], "keys": ["phoneAcceptNotNow"], "names": ["Not now"], "match": "exact", "driver": false},
 {"id": "g4.file.showqr", "screen": "file", "family": ["android"], "keys": ["qrShowReplyAsQr"], "names": ["Show reply as QR code"], "match": "exact", "driver": false},
 {"id": "g4.file.finish", "screen": "file", "family": ["android"], "keys": ["slateFinishPayment"], "names": ["Finish payment"], "match": "exact", "driver": false},
-{"id": "g4.file.scanagain", "screen": "file", "family": ["android"], "keys": ["qrScanAgain"], "names": ["Scan again"], "match": "exact", "driver": false}
+{"id": "g4.file.scanagain", "screen": "file", "family": ["android"], "keys": ["qrScanAgain"], "names": ["Scan again"], "match": "exact", "driver": false},
+{"id": "g4.file.open", "screen": "file", "family": ["android"], "keys": ["phoneFileOpenFile"], "names": ["Open a file"], "match": "exact", "driver": false},
+{"id": "g4.file.paste", "screen": "file", "family": ["android"], "keys": ["phoneFilePasteText"], "names": ["Paste its text"], "match": "exact", "driver": false}
 ]}
