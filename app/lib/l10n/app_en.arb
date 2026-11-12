@@ -31244,5 +31244,149 @@
   "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
   "@phoneHomeEmpty": {
     "description": "Empty Home: what stands under the Recent heading before the first payment"
+  },
+  "phoneRecvTitle": "Receive",
+  "@phoneRecvTitle": {
+    "description": "Title of the Receive screen."
+  },
+  "phoneRecvHelpTitle": "Receiving",
+  "@phoneRecvHelpTitle": {
+    "description": "Title of the short help sheet on the Receive screen."
+  },
+  "phoneRecvHelp1": "Share your address or code. Whoever has it can pay you.",
+  "@phoneRecvHelp1": {
+    "description": "Receive help, first line."
+  },
+  "phoneRecvHelp2": "Ask for an amount makes a code that asks for a set amount.",
+  "@phoneRecvHelp2": {
+    "description": "Receive help, second line."
+  },
+  "phoneRecvHelp3": "Other ways to receive are for when the payer cannot use your address.",
+  "@phoneRecvHelp3": {
+    "description": "Receive help, third line."
+  },
+  "phoneRecvCheck": "Check the first and last six characters with the person paying you.",
+  "@phoneRecvCheck": {
+    "description": "Hint under the full address on Receive: how the payer checks it is the right one."
+  },
+  "phoneRecvListening": "Listening for payments",
+  "@phoneRecvListening": {
+    "description": "Status line on Receive while the wallet is connected and waiting for payments."
+  },
+  "phoneRecvAsk": "Ask for an amount",
+  "@phoneRecvAsk": {
+    "description": "Row on Receive and title of the screen that asks the payer for a set amount."
+  },
+  "phoneRecvAskLine": "They see how much and what for",
+  "@phoneRecvAskLine": {
+    "description": "Line under the Ask for an amount row."
+  },
+  "phoneRecvAskLineLink": "Makes a link that asks for it",
+  "@phoneRecvAskLineLink": {
+    "description": "Line under the Ask for an amount row when the wallet receives through epic1 links."
+  },
+  "phoneRecvOther": "Other ways to receive",
+  "@phoneRecvOther": {
+    "description": "Row on Receive and title of the sheet with the other ways to get paid."
+  },
+  "phoneRecvOtherLine": "In person, or with a file",
+  "@phoneRecvOtherLine": {
+    "description": "Line under the Other ways to receive row."
+  },
+  "phoneRecvOtherSheetLine": "For when the payer cannot use your address.",
+  "@phoneRecvOtherSheetLine": {
+    "description": "Line under the title of the Other ways to receive sheet."
+  },
+  "phoneRecvInPersonLine": "Scan the payer's code, then show yours",
+  "@phoneRecvInPersonLine": {
+    "description": "Line under In person in the Other ways to receive sheet."
+  },
+  "phoneRecvFileLine": "Open a payment file, or paste its text",
+  "@phoneRecvFileLine": {
+    "description": "Line under With a file in the Other ways to receive sheet."
+  },
+  "phoneRecvTorLine": "Straight to this phone, over Tor",
+  "@phoneRecvTorLine": {
+    "description": "Line under Tor address in the Other ways to receive sheet."
+  },
+  "phoneRecvOff": "Off",
+  "@phoneRecvOff": {
+    "description": "Value on the Tor address row when receiving over Tor is off. One word."
+  },
+  "phoneRecvFromAnyone": "From anyone",
+  "@phoneRecvFromAnyone": {
+    "description": "Chip on the Ask for an amount screen: the request is for whoever opens it."
+  },
+  "phoneRecvFromName": "From {name}",
+  "@phoneRecvFromName": {
+    "description": "Chip on the Ask for an amount screen: the request goes to one contact. {name} is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneRecvWho": "Who pays?",
+  "@phoneRecvWho": {
+    "description": "Title of the sheet that picks who the request is for."
+  },
+  "phoneRecvAnyoneCode": "Anyone, with a code",
+  "@phoneRecvAnyoneCode": {
+    "description": "Choice in the who-pays sheet: a code anyone can scan."
+  },
+  "phoneRecvAnyoneCodeLine": "They scan a code on this screen",
+  "@phoneRecvAnyoneCodeLine": {
+    "description": "Line under the Anyone, with a code choice."
+  },
+  "phoneRecvAnyoneFile": "Anyone, with a file",
+  "@phoneRecvAnyoneFile": {
+    "description": "Choice in the who-pays sheet: a file anyone can open."
+  },
+  "phoneRecvAnyoneFileLine": "Saves a file you hand over",
+  "@phoneRecvAnyoneFileLine": {
+    "description": "Line under the Anyone, with a file choice."
+  },
+  "phoneRecvAskFor": "Ask for {amount}",
+  "@phoneRecvAskFor": {
+    "description": "Button that sends the request. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
+  },
+  "phoneRecvCodeLead": "Show this code or share it. Whoever opens it is asked for {amount}.",
+  "@phoneRecvCodeLead": {
+    "description": "Lead on the screen that shows a request as a code. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
+  },
+  "phoneRecvWaitingPaid": "Waiting to be paid",
+  "@phoneRecvWaitingPaid": {
+    "description": "Status line under a request code that nobody has paid yet."
+  },
+  "phoneRecvViewPayment": "View payment",
+  "@phoneRecvViewPayment": {
+    "description": "Button on the sheet for an arriving payment: opens the payment page."
+  },
+  "phoneRecvShowCode": "Show code",
+  "@phoneRecvShowCode": {
+    "description": "Button that shows a request as a code in full."
+  },
+  "phoneRecvArrivalFrom": "from {name}",
+  "@phoneRecvArrivalFrom": {
+    "description": "Line under the amount on the sheet for an arriving payment. {name} is the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
   }
 }

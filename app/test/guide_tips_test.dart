@@ -10,7 +10,6 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/method_strip.dart';
-import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -170,27 +169,15 @@ void main() {
     ]);
   });
 
-  testWidgets('Receive: the method guide closes with its X and nothing moves', (
-    tester,
-  ) async {
-    final store = MemorySecretStore();
-    final container = await _pump(
-      tester,
-      const SlotScaffold(body: ReceiveView()),
-      store,
-    );
-    await _closeAndBringBack(tester, container, store, receiveMethodTipId, [
-      find.text(_l.receiveHelpButton),
-    ]);
-  });
-
   testWidgets('a closed guide stays closed after a restart', (tester) async {
     final store = MemorySecretStore()
-      ..values[AppSettingsNotifier.tipsHiddenKey] = '["$receiveMethodTipId"]';
-    await _pump(tester, const SlotScaffold(body: ReceiveView()), store);
+      ..values[AppSettingsNotifier.tipsHiddenKey] = '["$sendMethodTipId"]';
+    await _pump(tester, SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {})), store);
+    await tester.tap(find.text(_l.sendPayByFile));
+    await tester.pumpAndSettle();
     expect(_seen(tester), isFalse);
     expect(
-      find.byKey(tipHideKey(receiveMethodTipId)).hitTestable(),
+      find.byKey(tipHideKey(sendMethodTipId)).hitTestable(),
       findsNothing,
     );
   });

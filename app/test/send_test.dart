@@ -1651,7 +1651,7 @@ void main() {
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
 
-      await tester.tap(find.byTooltip(_l.commonShare));
+      await tester.tap(find.text(_l.commonShare));
       await _untilRendered(tester, () => h.files.gate != null);
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
@@ -1691,8 +1691,8 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
-      // The tab's label may break at its " · "; its tooltip keeps the whole name.
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip(_l.methodShortFile)));
+      await _tap(tester, find.text(_l.phoneRecvOther));
+      await _tap(tester, find.text(_l.phoneSettingsWithFile));
       await _tap(tester, find.text(_l.receiveFileOpen));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
@@ -2120,8 +2120,11 @@ void main() {
   group('help', () {
     testWidgets('receive links to help about receiving', (tester) async {
       final h = _Harness();
-      await h.pump(tester, _receiveTab());
-      await _tap(tester, find.text(_l.receiveHelpButton));
+      await h.pump(tester, const ReceiveScreen());
+      await tester.tap(find.byTooltip(_l.sendHelp));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.deskKitMoreInHelp));
+      await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('Receive your first EPIC'), findsOneWidget);
     });

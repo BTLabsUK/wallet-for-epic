@@ -165,7 +165,6 @@ abstract final class TrustIds {
   static const backupRow = 'g4.backup.row';
   static const statusNetwork = 'g4.status.network';
   static const serverClear = 'g4.server.clear';
-  static const receiveMethodEpicbox = 'g4.receive.method.epicbox';
   static const sendClear = 'g4.send.clear';
   static const sendBack = 'g4.send.back';
   static const restoreMonthEarlier = 'g4.restore.month.earlier';
@@ -481,6 +480,33 @@ abstract final class TrustIds {
   static const contactBack = 'g4.contact.back';
   static const contactMore = 'g4.contact.more';
   static const contactPayment = 'g4.contact.payment';
+  static const receiveClose = 'g4.receive.close';
+  static const receiveHelp = 'g4.receive.help';
+  static const receiveHelpSheet = 'g4.receive.help-sheet';
+  static const receiveHelpMore = 'g4.receive.help-more';
+  static const receiveCopy = 'g4.receive.copy';
+  static const receiveShare = 'g4.receive.share';
+  static const receiveAsk = 'g4.receive.ask';
+  static const receiveOther = 'g4.receive.other';
+  static const receiveOtherSheet = 'g4.receive.other-sheet';
+  static const receiveOtherInPerson = 'g4.receive.other-in-person';
+  static const receiveOtherFile = 'g4.receive.other-file';
+  static const receiveOtherTor = 'g4.receive.other-tor';
+  static const receiveOtherCancel = 'g4.receive.other-cancel';
+  static const receiveListening = 'g4.receive.listening';
+  static const receiveAskBack = 'g4.receive.ask-back';
+  static const receiveAskPayer = 'g4.receive.ask-payer';
+  static const receiveAskNote = 'g4.receive.ask-note';
+  static const receiveAskSubmit = 'g4.receive.ask-submit';
+  static const receiveAskAnyoneCode = 'g4.receive.ask-anyone-code';
+  static const receiveAskAnyoneFile = 'g4.receive.ask-anyone-file';
+  static const receiveCodeCopy = 'g4.receive.code-copy';
+  static const receiveCodeShare = 'g4.receive.code-share';
+  static const receiveCodeDone = 'g4.receive.code-done';
+  static const receiveCodeShow = 'g4.receive.code-show';
+  static const receiveArriveSheet = 'g4.receive.arrive-sheet';
+  static const receiveArriveDone = 'g4.receive.arrive-done';
+  static const receiveArriveView = 'g4.receive.arrive-view';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -656,7 +682,6 @@ abstract final class TrustIds {
     'g4.backup.row',
     'g4.status.network',
     'g4.server.clear',
-    'g4.receive.method.epicbox',
     'g4.send.clear',
     'g4.send.back',
     'g4.restore.month.earlier',
@@ -972,5 +997,32 @@ abstract final class TrustIds {
     'g4.contact.back',
     'g4.contact.more',
     'g4.contact.payment',
+    'g4.receive.close',
+    'g4.receive.help',
+    'g4.receive.help-sheet',
+    'g4.receive.help-more',
+    'g4.receive.copy',
+    'g4.receive.share',
+    'g4.receive.ask',
+    'g4.receive.other',
+    'g4.receive.other-sheet',
+    'g4.receive.other-in-person',
+    'g4.receive.other-file',
+    'g4.receive.other-tor',
+    'g4.receive.other-cancel',
+    'g4.receive.listening',
+    'g4.receive.ask-back',
+    'g4.receive.ask-payer',
+    'g4.receive.ask-note',
+    'g4.receive.ask-submit',
+    'g4.receive.ask-anyone-code',
+    'g4.receive.ask-anyone-file',
+    'g4.receive.code-copy',
+    'g4.receive.code-share',
+    'g4.receive.code-done',
+    'g4.receive.code-show',
+    'g4.receive.arrive-sheet',
+    'g4.receive.arrive-done',
+    'g4.receive.arrive-view',
   ];
 }

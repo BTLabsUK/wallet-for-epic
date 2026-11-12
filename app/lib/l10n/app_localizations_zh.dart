@@ -21699,4 +21699,102 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
+
+  @override
+  String get phoneRecvTitle => '收款';
+
+  @override
+  String get phoneRecvHelpTitle => '收款';
+
+  @override
+  String get phoneRecvHelp1 => '分享你的地址或二维码，拿到的人都可以向你付款。';
+
+  @override
+  String get phoneRecvHelp2 => '指定金额会生成一个要求固定金额的码。';
+
+  @override
+  String get phoneRecvHelp3 => '当付款人无法使用你的地址时，可以用其他方式。';
+
+  @override
+  String get phoneRecvCheck => '与向你付款的人核对地址的前六位和后六位字符。';
+
+  @override
+  String get phoneRecvListening => '正在等待付款';
+
+  @override
+  String get phoneRecvAsk => '指定金额';
+
+  @override
+  String get phoneRecvAskLine => '对方会看到金额和用途';
+
+  @override
+  String get phoneRecvAskLineLink => '生成一个带金额的链接';
+
+  @override
+  String get phoneRecvOther => '其他收款方式';
+
+  @override
+  String get phoneRecvOtherLine => '当面，或用文件';
+
+  @override
+  String get phoneRecvOtherSheetLine => '付款人无法使用你的地址时使用。';
+
+  @override
+  String get phoneRecvInPersonLine => '扫描付款人的码，再出示你的码';
+
+  @override
+  String get phoneRecvFileLine => '打开付款文件，或粘贴其文本';
+
+  @override
+  String get phoneRecvTorLine => '经由 Tor 直接送到这部手机';
+
+  @override
+  String get phoneRecvOff => '关';
+
+  @override
+  String get phoneRecvFromAnyone => '任何人';
+
+  @override
+  String phoneRecvFromName(String name) {
+    return '来自 $name';
+  }
+
+  @override
+  String get phoneRecvWho => '谁来付款？';
+
+  @override
+  String get phoneRecvAnyoneCode => '任何人，用码';
+
+  @override
+  String get phoneRecvAnyoneCodeLine => '对方扫描此屏幕上的码';
+
+  @override
+  String get phoneRecvAnyoneFile => '任何人，用文件';
+
+  @override
+  String get phoneRecvAnyoneFileLine => '保存一个文件，交给对方';
+
+  @override
+  String phoneRecvAskFor(String amount) {
+    return '收 $amount';
+  }
+
+  @override
+  String phoneRecvCodeLead(String amount) {
+    return '出示此码或分享它。打开的人会被要求支付 $amount。';
+  }
+
+  @override
+  String get phoneRecvWaitingPaid => '等待付款';
+
+  @override
+  String get phoneRecvViewPayment => '查看付款';
+
+  @override
+  String get phoneRecvShowCode => '显示码';
+
+  @override
+  String phoneRecvArrivalFrom(String name) {
+    return '来自 $name';
+  }
 }

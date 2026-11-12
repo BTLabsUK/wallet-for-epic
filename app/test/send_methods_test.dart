@@ -20,7 +20,6 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
-import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
@@ -1029,76 +1028,36 @@ void main() {
   });
 
   group('receive', () {
-    testWidgets('a strip per tab; Link needs Tor, then the onion', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(
-        tester,
-        body: const ReceiveView(),
-        height: 3600,
-        payments: _directOn,
-      );
-      expect(find.text(_l.methodReceiveEpicboxShort), findsOneWidget);
-      expect(_info('The Epicbox server holds a payment until this wallet opens.'), findsOneWidget);
-      // The caption under the address went for room.
-      expect(
-        find.text(
-          _l.deskRecvCheckSix,
-        ),
-        findsNothing,
-      );
-      for (final label in ['Epicbox', 'Link', 'Direct · File']) {
-        expect(
-          find.descendant(
-            of: find.byKey(receiveTabsKey),
-            // A long label wraps in two lines; the tooltip holds it whole.
-            matching: find.byTooltip(label),
-          ),
-          findsOneWidget,
-          reason: label,
-        );
-      }
-      expect(find.text(_l.methodGroupHttp), findsNothing);
-      expect(find.text(_l.sendFactTor), findsNothing);
+    Future<void> openWay(WidgetTester tester, String label) async {
+      await _tap(tester, find.text(_l.phoneRecvOther));
+      await _tap(tester, find.text(label));
+    }
 
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Link')));
-      expect(find.text(_l.methodReceiveDirectTitle), findsOneWidget);
-      expect(_info('Works while the app is open.'), findsOneWidget);
+    testWidgets('Other ways: the Tor address needs Tor, then shows the onion', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, body: const ReceiveView(), height: 3600, payments: _directOn);
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
+      await openWay(tester, _l.phoneSettingsTorAddress);
       expect(find.text(_l.receiveDirectNeedsTor), findsOneWidget);
-      expect(
-        find.text(_l.receiveDirectMeanwhile),
-        findsOneWidget,
-      );
+      expect(find.text(_l.receiveDirectMeanwhile), findsOneWidget);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       await _tap(tester, find.byKey(receiveTurnOnTorKey));
       expect(h.container.read(phoneTorProvider).receiving, isTrue);
       expect(find.byKey(receiveTorAddressKey), findsOneWidget);
       expect(find.text('Tor\u00A0· Starting'), findsOneWidget);
-      expect(
-        find.text(
-          _l.receiveTorCaption,
-        ),
-        findsOneWidget,
-      );
+      expect(find.text(_l.receiveTorCaption), findsOneWidget);
       // No switch on Receive: the link goes to Settings.
       expect(find.byType(Switch), findsNothing);
       expect(find.text(_l.torSettingsLink), findsOneWidget);
-
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
-      expect(find.text(_l.methodReceiveFileTitle), findsOneWidget);
-      expect(
-        _info('Works with no connection between the wallets.'),
-        findsOneWidget,
-      );
     }, skip: !torBuilt);
 
-    testWidgets('Epicbox with Tor on: the strip adds Over Tor', (tester) async {
+    testWidgets('Other ways: With a file opens the file page', (tester) async {
       final h = _Harness();
-      await h.pump(tester, body: const ReceiveView(), height: 3600);
-      await h.torOn(tester);
-      expect(_info('The Epicbox server holds a payment until this wallet opens. Over Tor.'), findsOneWidget);
-    }, skip: !torBuilt);
+      await h.pump(tester, body: const ReceiveView(), height: 3600, payments: _directOn);
+      await openWay(tester, _l.phoneSettingsWithFile);
+      expect(find.text(_l.receiveFileTitle), findsOneWidget);
+      expect(find.text(_l.receiveFileOpen), findsOneWidget);
+    });
 
     testWidgets('receiving help opens the Receive topic', (
       tester,
@@ -1202,4 +1161,3 @@ void main() {
 }
 
 /// A method strip's ⓘ holding [text]: everything past the strip's one line is behind it.
-Finder _info(String text) => find.byWidgetPredicate((w) => w is InfoHint && w.text == text);
