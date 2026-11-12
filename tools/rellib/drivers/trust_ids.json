@@ -384,6 +384,8 @@
 {"id": "g4.qrshow.hide", "screen": "qrshow", "family": ["android"], "keys": ["qrHide"], "names": ["Hide"], "match": "exact", "driver": false},
 {"id": "g4.qrshow.next", "screen": "qrshow", "family": ["android"], "keys": ["phoneQrScanAnswer"], "names": ["Scan their answer"], "match": "exact", "many": true, "driver": false},
 {"id": "g4.qrshow.done", "screen": "qrshow", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact", "many": true, "driver": false},
+{"id": "g4.qrshow.close", "screen": "qrshow", "family": ["android"], "keys": ["commonClose"], "names": ["Close"], "match": "exact", "many": true, "driver": false},
+{"id": "g4.qrshow.viewpayment", "screen": "qrshow", "family": ["android"], "keys": ["phoneRecvViewPayment"], "names": ["View payment"], "match": "exact", "driver": false},
 {"id": "g4.qrscan.back", "screen": "qrscan", "family": ["android"], "keys": ["phoneKitBack"], "names": ["Back"], "match": "exact", "many": true, "driver": false},
 {"id": "g4.qrscan.again", "screen": "qrscan", "family": ["android"], "keys": ["phoneQrShowMine"], "names": ["Show my code again"], "match": "exact", "driver": false},
 {"id": "g4.qrscan.settings", "screen": "qrscan", "family": ["android"], "keys": ["qrScanOpenSettings"], "names": ["Open settings"], "match": "exact", "driver": false},

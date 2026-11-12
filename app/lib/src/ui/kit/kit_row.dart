@@ -196,19 +196,23 @@ class KitRow extends StatelessWidget {
 
 /// The rounded square behind a row's icon: 40 px, radius 13, the quiet fill.
 class KitIconWell extends StatelessWidget {
-  const KitIconWell(IconData this.icon, {super.key, this.color, this.size = Kit.avatar, this.iconSize = 22}) : child = null;
+  const KitIconWell(IconData this.icon, {super.key, this.color, this.size = Kit.avatar, this.iconSize = 22, this.radius = Kit.rAvatar}) : child = null;
 
   /// A well around any mark (the brand's, on the hub's wallet card).
   const KitIconWell.child(Widget this.child, {super.key, this.size = Kit.avatar})
     : icon = null,
       color = null,
-      iconSize = 22;
+      iconSize = 22,
+      radius = Kit.rAvatar;
 
   final IconData? icon;
   final Widget? child;
   final Color? color;
   final double size;
   final double iconSize;
+
+  /// The corner radius: 13 for the 40 well, 15 for the 46 one of the file cards.
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +221,7 @@ class KitIconWell extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(Kit.rAvatar)),
+      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(radius)),
       child: ExcludeSemantics(child: child ?? Icon(icon, size: iconSize, color: color ?? t.dim)),
     );
   }

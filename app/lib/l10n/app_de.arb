@@ -6053,5 +6053,11 @@
   "phoneSendTheirOffline": "ihr Wallet kann offline sein",
   "phoneSendTheirOnline": "ihr Wallet muss geöffnet sein",
   "phoneTourOffer": "Kurze Tour durch die Wallet?",
-  "phoneTourOfferShow": "Zeig mir"
+  "phoneTourOfferShow": "Zeig mir",
+  "phoneQrDoneScanned": "Your code was scanned",
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "phoneRecvFileLead": "Teile diese Datei. Wer sie öffnet, wird um {amount} gebeten."
 }

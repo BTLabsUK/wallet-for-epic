@@ -23916,4 +23916,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'Pokaż';
+
+  @override
+  String get phoneQrDoneScanned => 'Your code was scanned';
+
+  @override
+  String get phoneQrDoneAnswerRead => 'Their answer was read';
+
+  @override
+  String get phoneQrDoneCodeRead => 'You scanned their code';
+
+  @override
+  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+
+  @override
+  String get phoneQrDoneFinishes =>
+      'It finishes by itself. You can put the phone away.';
+
+  @override
+  String phoneRecvFileLead(String amount) {
+    return 'Udostępnij ten plik. Kto go otworzy, zostanie poproszony o $amount.';
+  }
 }

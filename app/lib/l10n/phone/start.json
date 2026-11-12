@@ -179,6 +179,26 @@
   "@phoneQrDoneTitleReceived": {
     "description": "Headline once the payment received with QR codes is posted."
   },
+  "phoneQrDoneScanned": "Your code was scanned",
+  "@phoneQrDoneScanned": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's code."
+  },
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "@phoneQrDoneAnswerRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's answer."
+  },
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "@phoneQrDoneCodeRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's code."
+  },
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "@phoneQrDoneAnswerSeen": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's answer."
+  },
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "@phoneQrDoneFinishes": {
+    "description": "The line under the step in progress on the finished in-person payment page."
+  },
   "phoneQrPaidWhen": "{amount} is paid when the answer is read.",
   "@phoneQrPaidWhen": {
     "description": "Dim line under the camera when the payer scans the answer: what happens on a good read.",

@@ -6053,5 +6053,11 @@
   "phoneSendTheirOffline": "ich portfel może być offline",
   "phoneSendTheirOnline": "ich portfel musi być otwarty",
   "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
-  "phoneTourOfferShow": "Pokaż"
+  "phoneTourOfferShow": "Pokaż",
+  "phoneQrDoneScanned": "Your code was scanned",
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "phoneRecvFileLead": "Udostępnij ten plik. Kto go otworzy, zostanie poproszony o {amount}."
 }

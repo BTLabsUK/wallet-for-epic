@@ -31488,5 +31488,35 @@
   },
   "@phoneTourOfferShow": {
     "description": "Button on the tour offer toast: starts the tour. One or two words."
+  },
+  "phoneQrDoneScanned": "Your code was scanned",
+  "@phoneQrDoneScanned": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's code."
+  },
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "@phoneQrDoneAnswerRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's answer."
+  },
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "@phoneQrDoneCodeRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's code."
+  },
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "@phoneQrDoneAnswerSeen": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's answer."
+  },
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "@phoneQrDoneFinishes": {
+    "description": "The line under the step in progress on the finished in-person payment page."
+  },
+  "phoneRecvFileLead": "Share this file. Whoever opens it is asked for {amount}.",
+  "@phoneRecvFileLead": {
+    "description": "Lead on the screen that shows a request as a file. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
   }
 }

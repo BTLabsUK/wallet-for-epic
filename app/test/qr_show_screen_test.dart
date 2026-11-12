@@ -248,8 +248,13 @@ void main() {
     expect(h.secure, [true]);
     await tester.tap(show());
     await _tick(tester, 3);
-    // The line about screenshots shows with the code, on Android only.
+    // The line about screenshots is in the help of the page, on Android only.
+    expect(find.text(_l.qrSecureLine), findsNothing);
+    await tester.tap(find.byTooltip(_l.sendHelp));
+    await tester.pumpAndSettle();
     expect(find.text(_l.qrSecureLine), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(h.secure, [true, false]);

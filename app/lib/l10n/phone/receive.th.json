@@ -25,6 +25,7 @@
   "phoneRecvAnyoneFileLine": "บันทึกไฟล์ไว้ส่งต่อ",
   "phoneRecvAskFor": "ขอ {amount}",
   "phoneRecvCodeLead": "แสดงโค้ดนี้หรือแชร์ ใครเปิดจะถูกขอ {amount}",
+  "phoneRecvFileLead": "แชร์ไฟล์นี้ ใครเปิดจะถูกขอ {amount}",
   "phoneRecvWaitingPaid": "รอการชำระเงิน",
   "phoneRecvViewPayment": "ดูการชำระเงิน",
   "phoneRecvShowCode": "แสดงโค้ด",

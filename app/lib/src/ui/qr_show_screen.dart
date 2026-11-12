@@ -31,12 +31,14 @@ import 'kit/kit_help_sheet.dart';
 import 'kit/kit_hero_amount.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_step_strip.dart';
+import 'kit/kit_steps.dart';
 import 'kit/kit_tokens.dart';
 import 'qr_common.dart';
 import 'qr_scan_screen.dart';
 import 'theme/brand.dart';
 import 'theme/logo_qr.dart';
 import 'theme/tokens.dart';
+import 'tx_details_screen.dart' show TxDetailsScreen;
 
 /// How the show screen ended.
 sealed class QrShowResult {
@@ -596,6 +598,117 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     QrShowRole.finished => null,
   };
 
+  /// The page once the payment is posted (Gap-3): no title, a green ring with a check, what was
+  /// done, the amount, the three steps, Done and View payment.
+  Widget _doneScreen(BuildContext context, {required QrShowRole role, required QrStatus status, required TxEntry tx}) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final answers = role == QrShowRole.reply || role == QrShowRole.paid;
+    final received = role == QrShowRole.reply || role == QrShowRole.request;
+    final finished = status.tone == QrStatusTone.ok;
+    final steps = [
+      KitStep(title: answers ? l.phoneQrDoneCodeRead : l.phoneQrDoneScanned, state: KitStepState.done),
+      KitStep(title: answers ? l.phoneQrDoneAnswerSeen : l.phoneQrDoneAnswerRead, state: KitStepState.done),
+      KitStep(
+        title: status.text,
+        state: finished ? KitStepState.done : KitStepState.now,
+        detail: finished ? null : l.phoneQrDoneFinishes,
+        network: !finished,
+      ),
+    ];
+    return SlotScaffold(
+      glow: heroGlow,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KitFlowHeader(
+                  title: '',
+                  onLeading: () => Navigator.of(context).pop(const QrShowDone()),
+                  leadingId: TrustIds.qrshowClose,
+                  onHelp: () => showKitHelp(
+                    context,
+                    title: l.phoneQrHelpTitle,
+                    lines: [status.text, l.qrHoldHint, l.qrHiddenBodyPayment],
+                  ),
+                  helpId: TrustIds.qrshowHelp,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 36, bottom: Kit.gutter),
+                    child: Semantics(
+                      key: qrDoneCardKey,
+                      liveRegion: true,
+                      container: true,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: Container(
+                              width: 76,
+                              height: 76,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: t.okSoft,
+                                boxShadow: [BoxShadow(color: t.ok.withValues(alpha: .05), spreadRadius: 10)],
+                              ),
+                              child: Icon(KitIcons.check, size: 36, color: t.ok),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          Text(
+                            received ? l.phoneQrDoneTitleReceived : l.phoneQrDoneTitlePaid,
+                            textAlign: TextAlign.center,
+                            style: KitType.pageTitle.copyWith(color: t.text, fontSize: 26, letterSpacing: -0.52),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            epicFor(l, widget.amount, surface: AmountSurface.exact),
+                            textAlign: TextAlign.center,
+                            style: KitType.rowAmount.copyWith(color: t.dim, fontSize: 17),
+                          ),
+                          const SizedBox(height: 32),
+                          KitSteps(steps: steps),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      KitButton(
+                        key: qrNextButtonKey,
+                        label: l.commonDone,
+                        semanticsId: TrustIds.qrshowDone,
+                        onPressed: () => Navigator.of(context).pop(const QrShowDone()),
+                      ),
+                      const SizedBox(height: 6),
+                      KitButton(
+                        label: l.phoneRecvViewPayment,
+                        kind: KitButtonKind.ghost,
+                        semanticsId: TrustIds.qrshowViewpayment,
+                        onPressed: () => Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -604,8 +717,8 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     final role = widget.role;
     final incoming = role == QrShowRole.reply || role == QrShowRole.request;
     final ready = _frames != null;
-    final width = MediaQuery.sizeOf(context).width;
-    final card = (width - 90).clamp(264.0, 312.0);
+    // The frame's card: 212 (`.qr`).
+    const card = Kit.qr;
 
     // Where things stand, from the real payment: the code's own state, and for a reply what the
     // wallet's history says of the received payment.
@@ -645,15 +758,8 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           unit: epicUnit,
           incoming: incoming,
         ),
-      if (!done) const SizedBox(height: 36),
-      if (done)
-        _DoneCard(
-          key: qrDoneCardKey,
-          role: role,
-          amount: epicFor(l, widget.amount, surface: AmountSurface.exact),
-          status: status,
-        )
-      else
+      if (!done) const SizedBox(height: 22),
+      if (!done)
         _CardBox(
           card: card,
           label: switch (role) {
@@ -679,7 +785,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
         _PartLine(frames: _frames!, frame: _frame),
       ],
       if (!done) ...[
-        SizedBox(height: showing && _frames!.partCount > 1 ? 14 : 34),
+        SizedBox(height: showing && _frames!.partCount > 1 ? 14 : 20),
         // What to do now, and where the payment stands.
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
@@ -705,30 +811,13 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
         const SizedBox(height: 12),
         _HidesChip(secondsLeft: _secondsLeft),
       ],
-      if (showing && !kIsWeb && defaultTargetPlatform == TargetPlatform.android)
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.visibility_off_outlined, size: 14, color: t.faint),
-              const SizedBox(width: 6),
-              Flexible(child: Text(l.qrSecureLine, style: KitType.rowSub.copyWith(color: t.faint, fontSize: 12))),
-            ],
-          ),
-        ),
       if (_encodeError != null) ErrorText(describeError(l, _encodeError!)),
     ];
 
     final nextLabel = reply ? l.commonDone : l.phoneQrScanAnswer;
     final nextId = reply ? TrustIds.qrshowDone : TrustIds.qrshowNext;
     final Widget bottom = done
-        ? KitButton(
-            key: qrNextButtonKey,
-            label: l.commonDone,
-            semanticsId: TrustIds.qrshowDone,
-            onPressed: () => Navigator.of(context).pop(const QrShowDone()),
-          )
+        ? const SizedBox.shrink()
         : switch (_phase) {
             QrShowPhase.hidden => KitButton(
               key: qrShowButtonKey,
@@ -750,6 +839,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   semanticsId: nextId,
                   onPressed: widget.scanEnabled ? _next : null,
                 ),
+                if (!reply) ...[
                 const SizedBox(height: 4),
                 KitButton(
                   key: qrHideButtonKey,
@@ -758,6 +848,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   semanticsId: TrustIds.qrshowHide,
                   onPressed: () => _cover(QrShowPhase.hidden),
                 ),
+                ],
               ],
             ),
             QrShowPhase.timedOut || QrShowPhase.away => Column(
@@ -783,6 +874,8 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
             ),
           };
 
+    if (done) return _doneScreen(context, role: role, status: status, tx: tx!);
+
     return SlotScaffold(
       glow: heroGlow,
       breathing: showing,
@@ -801,13 +894,13 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   onHelp: () => showKitHelp(
                     context,
                     title: l.phoneQrHelpTitle,
-                    lines: [status.text, l.qrHoldHint, l.qrHiddenBodyPayment],
+                    lines: [status.text, l.qrHoldHint, l.qrHiddenBodyPayment, if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) l.qrSecureLine],
                   ),
                   helpId: TrustIds.qrshowHelp,
                 ),
                 if (steps != null) KitStepStrip(labels: steps.$1, current: steps.$2),
                 Expanded(
-                  child: CenteredScroll(
+                  child: SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Column(
@@ -818,63 +911,11 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                     ),
                   ),
                 ),
-                Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter), child: bottom),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: bottom),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// What stands in the code's place once the payment is posted (Gap-3): a green check, what was
-/// done, the amount, and where the payment stands.
-class _DoneCard extends StatelessWidget {
-  const _DoneCard({super.key, required this.role, required this.amount, required this.status});
-
-  final QrShowRole role;
-  final String amount;
-  final QrStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final l = context.l10n;
-    final received = role == QrShowRole.reply || role == QrShowRole.request;
-    return Semantics(
-      liveRegion: true,
-      container: true,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 24),
-          Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: t.okSoft),
-            child: Icon(KitIcons.check, size: 44, color: t.ok),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            received ? l.phoneQrDoneTitleReceived : l.phoneQrDoneTitlePaid,
-            textAlign: TextAlign.center,
-            style: KitType.pageTitle.copyWith(color: t.text),
-          ),
-          const SizedBox(height: 10),
-          Text(amount, textAlign: TextAlign.center, style: KitType.rowAmount.copyWith(color: t.dim, fontSize: 18)),
-          const SizedBox(height: 24),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(Kit.gutter),
-            decoration: BoxDecoration(
-              color: t.raised,
-              borderRadius: BorderRadius.circular(Kit.rGroup),
-              border: Border.all(color: t.hair),
-            ),
-            child: Text(status.text, style: KitType.body.copyWith(color: t.text)),
-          ),
-        ],
       ),
     );
   }
@@ -1006,13 +1047,15 @@ class _Card extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(Kit.rQr),
           ),
-          child: SizedBox(
-            width: side,
-            height: side,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (r < 1)
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(Kit.rQr - 1),
+            child: SizedBox(
+              width: side,
+              height: side,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (r < 1)
                   Opacity(
                     opacity: 1 - r,
                     child: _Cover(
@@ -1022,9 +1065,10 @@ class _Card extends StatelessWidget {
                       reduced: reduced,
                     ),
                   ),
-                if (code != null)
-                  r < 1 ? Opacity(opacity: r, child: code) : code,
-              ],
+                  if (code != null)
+                    r < 1 ? Opacity(opacity: r, child: code) : code,
+                ],
+              ),
             ),
           ),
         );

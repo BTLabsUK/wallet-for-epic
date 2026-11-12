@@ -6053,5 +6053,11 @@
   "phoneSendTheirOffline": "对方钱包可以离线",
   "phoneSendTheirOnline": "对方钱包必须打开",
   "phoneTourOffer": "要不要快速看看钱包的功能?",
-  "phoneTourOfferShow": "带我看看"
+  "phoneTourOfferShow": "带我看看",
+  "phoneQrDoneScanned": "Your code was scanned",
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "phoneRecvFileLead": "分享此文件。打开的人会被要求支付 {amount}。"
 }

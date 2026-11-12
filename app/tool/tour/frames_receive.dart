@@ -38,14 +38,20 @@ void _fInSlate(_Tour t) {
   t.session.responseSlate = const Slate(slateId: 'frame-in', json: '{"id":"frame-in","step":"response"}');
 }
 
-/// Pay in person: Send, the amount, the code made and shown.
-Future<void> _fPayShow(_Tour t) async {
+/// Pay in person: Send, the amount, the code made.
+Future<void> _fPayMake(_Tour t) async {
   await _directWaysOn(t);
   await t.tapText(t.l.homeSendButton);
-  await t.tapText(t.l.sendPayInPerson);
+  await t.tapText(t.l.sendNoAddress);
+  await t.tapText(t.l.phoneSendInPerson);
   await t.enter(t.l.sendAmountLabel('EPIC'), localDecimal(t.l, '12.5'));
-  await t.tap(find.widgetWithText(FilledButton, t.l.sendMakeQr));
+  await t.tap(find.text(t.l.sendMakeQr));
   await t.enterPin();
+}
+
+/// Pay in person: the code made and shown.
+Future<void> _fPayShow(_Tour t) async {
+  await _fPayMake(t);
   await t.tap(find.byKey(qrShowButtonKey));
   await t.elapse(1300);
   await t.elapse(2400);
@@ -122,12 +128,20 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await t.elapse(5000);
     await t.shot('fr-InPerson-4-Answer');
   }),
+  ('fr-Gap-3-InPerson-Done', _Start.home, (t) async {
+    await _fPayMake(t);
+    await t.frames();
+    await t.shot('fr-Gap-3-InPerson-Done');
+  }),
   ('fr-File-1-Made', _Start.home, (t) async {
+    frameClockAt = DateTime(2026, 11, 12, 18, 12);
     await _directWaysOn(t);
     await t.tapText(t.l.homeSendButton);
-    await t.tapText(t.l.sendPayByFile);
+    await t.tapText(t.l.sendNoAddress);
+    await t.tapText(t.l.phoneSendWithFile);
     await t.enter(t.l.sendAmountLabel('EPIC'), localDecimal(t.l, '12.5'));
-    await t.tap(find.widgetWithText(FilledButton, t.l.sendMakeFile));
+    await t.tap(find.text(t.l.sendMakeFile));
+    await t.enterPin();
     await t.shot('fr-File-1-Made');
   }),
   ('fr-Gap-4-File-Open', _Start.home, (t) async {
@@ -137,6 +151,7 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await t.shot('fr-Gap-4-File-Open');
   }),
   ('fr-Gap-5-File-Reply', _Start.home, (t) async {
+    frameClockAt = DateTime(2026, 11, 12, 18, 20);
     _fInSlate(t);
     await t.push(const SlateFileScreen(file: SlateFile(name: 'from-tom.tx', json: _fInJson)));
     await t.tapText(t.l.phoneAcceptAccept);
@@ -153,6 +168,24 @@ final List<(String, _Start, _Visit)> _framesReceive = [
 /// Per-frame data on top of the base wallet (frame_data.dart), by visit name.
 final Map<String, void Function(FakeWalletSession s)> _receiveSeeds = {
   for (final name in _frameClassic) name: (s) => s.address = _fMe,
+  // The payment is already posted when the code page opens: it shows the finished page.
+  'fr-Gap-3-InPerson-Done': (s) {
+    s.address = _fMe;
+    s.transactionsValue.add(
+      fakeTx(
+        id: 11,
+        slateId: 'slate-1',
+        kind: TxKind.sent,
+        status: TxStatus.awaitingConfirmation,
+        createdAtUnix: _at(0, 14, 50),
+        timeUnix: _at(0, 14, 50),
+        amountDebited: _epic(12.508),
+        fee: _epic(0.008),
+        numInputs: 1,
+        blockHeight: _tip,
+      ),
+    );
+  },
   'fr-Receive-3-Arriving': (s) {
     s.address = _fMe;
     s.transactionsValue.add(

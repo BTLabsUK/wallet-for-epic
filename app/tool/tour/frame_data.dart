@@ -13,6 +13,10 @@ const double _frameInsetBottom = 34;
 /// come out as drawn.
 final DateTime frameNow = DateTime(2026, 11, 12, 14, 52);
 
+/// What the clock says now: [frameNow], unless a visit sets another time (the file pages say when
+/// the file was made).
+DateTime frameClockAt = frameNow;
+
 /// The frames' rate: 1,284.7321 EPIC is $1,327.13, 25.0 is $25.82, 42.5 is $43.90.
 class _FramePrice implements PriceSource {
   @override

@@ -36347,6 +36347,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show me'**
   String get phoneTourOfferShow;
+
+  /// A step of the finished in-person payment: the other phone read this phone's code.
+  ///
+  /// In en, this message translates to:
+  /// **'Your code was scanned'**
+  String get phoneQrDoneScanned;
+
+  /// A step of the finished in-person payment: this phone read the other phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Their answer was read'**
+  String get phoneQrDoneAnswerRead;
+
+  /// A step of the finished in-person payment: this phone read the other phone's code.
+  ///
+  /// In en, this message translates to:
+  /// **'You scanned their code'**
+  String get phoneQrDoneCodeRead;
+
+  /// A step of the finished in-person payment: the other phone read this phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'They scanned your answer'**
+  String get phoneQrDoneAnswerSeen;
+
+  /// The line under the step in progress on the finished in-person payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'It finishes by itself. You can put the phone away.'**
+  String get phoneQrDoneFinishes;
+
+  /// Lead on the screen that shows a request as a file. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this file. Whoever opens it is asked for {amount}.'**
+  String phoneRecvFileLead(String amount);
 }
 
 class _AppLocalizationsDelegate

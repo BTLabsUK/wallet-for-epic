@@ -1,26 +1,51 @@
 {
   "de": [
     "phoneQrAimAnswer",
+    "phoneQrDoneAnswerRead",
+    "phoneQrDoneAnswerSeen",
+    "phoneQrDoneCodeRead",
+    "phoneQrDoneFinishes",
+    "phoneQrDoneScanned",
     "phoneQrHoldHint",
     "phoneQrReplyShowing"
   ],
   "pl": [
     "phoneQrAimAnswer",
+    "phoneQrDoneAnswerRead",
+    "phoneQrDoneAnswerSeen",
+    "phoneQrDoneCodeRead",
+    "phoneQrDoneFinishes",
+    "phoneQrDoneScanned",
     "phoneQrHoldHint",
     "phoneQrReplyShowing"
   ],
   "ru": [
     "phoneQrAimAnswer",
+    "phoneQrDoneAnswerRead",
+    "phoneQrDoneAnswerSeen",
+    "phoneQrDoneCodeRead",
+    "phoneQrDoneFinishes",
+    "phoneQrDoneScanned",
     "phoneQrHoldHint",
     "phoneQrReplyShowing"
   ],
   "th": [
     "phoneQrAimAnswer",
+    "phoneQrDoneAnswerRead",
+    "phoneQrDoneAnswerSeen",
+    "phoneQrDoneCodeRead",
+    "phoneQrDoneFinishes",
+    "phoneQrDoneScanned",
     "phoneQrHoldHint",
     "phoneQrReplyShowing"
   ],
   "zh": [
     "phoneQrAimAnswer",
+    "phoneQrDoneAnswerRead",
+    "phoneQrDoneAnswerSeen",
+    "phoneQrDoneCodeRead",
+    "phoneQrDoneFinishes",
+    "phoneQrDoneScanned",
     "phoneQrHoldHint",
     "phoneQrReplyShowing"
   ]

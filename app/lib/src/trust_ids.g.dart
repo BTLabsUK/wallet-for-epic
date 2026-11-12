@@ -341,6 +341,8 @@ abstract final class TrustIds {
   static const qrshowHide = 'g4.qrshow.hide';
   static const qrshowNext = 'g4.qrshow.next';
   static const qrshowDone = 'g4.qrshow.done';
+  static const qrshowClose = 'g4.qrshow.close';
+  static const qrshowViewpayment = 'g4.qrshow.viewpayment';
   static const qrscanBack = 'g4.qrscan.back';
   static const qrscanAgain = 'g4.qrscan.again';
   static const qrscanSettings = 'g4.qrscan.settings';
@@ -891,6 +893,8 @@ abstract final class TrustIds {
     'g4.qrshow.hide',
     'g4.qrshow.next',
     'g4.qrshow.done',
+    'g4.qrshow.close',
+    'g4.qrshow.viewpayment',
     'g4.qrscan.back',
     'g4.qrscan.again',
     'g4.qrscan.settings',

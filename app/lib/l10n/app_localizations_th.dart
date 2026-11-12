@@ -22723,4 +22723,25 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'ดูเลย';
+
+  @override
+  String get phoneQrDoneScanned => 'Your code was scanned';
+
+  @override
+  String get phoneQrDoneAnswerRead => 'Their answer was read';
+
+  @override
+  String get phoneQrDoneCodeRead => 'You scanned their code';
+
+  @override
+  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+
+  @override
+  String get phoneQrDoneFinishes =>
+      'It finishes by itself. You can put the phone away.';
+
+  @override
+  String phoneRecvFileLead(String amount) {
+    return 'แชร์ไฟล์นี้ ใครเปิดจะถูกขอ $amount';
+  }
 }

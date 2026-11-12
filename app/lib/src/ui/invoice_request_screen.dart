@@ -599,7 +599,7 @@ class RequestFileSavedScreen extends StatelessWidget {
       json: slate.json,
       fileName: name,
       saveFile: true,
-      lead: l.reqFileLead,
+      lead: l.phoneRecvFileLead(epicExact(l, amount)),
       status: const RequestStatusLine(),
       onDone: () => Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),

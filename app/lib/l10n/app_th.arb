@@ -6053,5 +6053,11 @@
   "phoneSendTheirOffline": "กระเป๋าของเขาออฟไลน์ได้",
   "phoneSendTheirOnline": "กระเป๋าของเขาต้องเปิดอยู่",
   "phoneTourOffer": "ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม",
-  "phoneTourOfferShow": "ดูเลย"
+  "phoneTourOfferShow": "ดูเลย",
+  "phoneQrDoneScanned": "Your code was scanned",
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "phoneRecvFileLead": "แชร์ไฟล์นี้ ใครเปิดจะถูกขอ {amount}"
 }

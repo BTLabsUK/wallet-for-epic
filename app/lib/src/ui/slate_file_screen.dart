@@ -502,12 +502,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       final name = _sealedAnswer != null
           ? sealedFileName(info!.slateId, text: _sealedAnswer)
           : replyFileName(info!.slateId, loaded: _file.name == pastedSlateName || _file.name == scannedSlateName ? null : _file.name);
-      final made = fileMadeTime(context, _madeAt ??= DateTime.now());
+      final made = fileMadeTime(context, _madeAt ??= ref.read(clockProvider)());
       final amount = epicFor(l, info.amount, surface: AmountSurface.exact, unit: false);
+      final hint = FileInfoLine(widget.scanned ? l.slateAcceptedHeadlineQr : (response.repeated ? l.slateRepeatedBody(epicExact(l, info.amount)) : l.phoneFileReplyHint));
       body = [
-        const SizedBox(height: 18),
+        const SizedBox(height: 22),
         KitHeroAmount(amount: '+$amount', unit: epicUnit, incoming: true),
-        const SizedBox(height: 18),
+        const SizedBox(height: 28),
         Semantics(
           liveRegion: true,
           child: FileCard(
@@ -532,13 +533,15 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             child: SealedBadge(name: pairingName(_sealedFrom!, ref.watch(contactsProvider).value ?? const [])),
           ),
           const SizedBox(height: 12),
-          SlateFileButtons(name: name, json: sealed, copyable: widget.pasted, framed: true, reply: true),
+          SlateFileButtons(name: name, json: sealed, framed: true, reply: true, hint: hint),
         ] else if (!showQr || fileOn)
-          SlateFileButtons(name: name, json: response.json, copyable: widget.pasted, primary: !showQr, framed: true, reply: true),
-        const SizedBox(height: 14),
-        FileInfoLine(widget.scanned ? l.slateAcceptedHeadlineQr : (response.repeated ? l.slateRepeatedBody(epicExact(l, info.amount)) : l.phoneFileReplyHint)),
+          SlateFileButtons(name: name, json: response.json, primary: !showQr, framed: true, reply: true, hint: hint)
+        else ...[
+          const SizedBox(height: 16),
+          hint,
+        ],
       ];
-      foot = KitButton(label: l.commonDone, semanticsId: TrustIds.fileDone, onPressed: () => Navigator.pop(context, true));
+      foot = KitButton(label: l.commonDone, kind: KitButtonKind.quiet, semanticsId: TrustIds.fileDone, onPressed: () => Navigator.pop(context, true));
     } else if (_reading) {
       body = [
         Semantics(
@@ -643,7 +646,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
               onPressed: _busy ? null : (receiving ? _sign : _finalize),
             ),
             if (receiving) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               KitButton(
                 label: l.phoneAcceptNotNow,
                 kind: KitButtonKind.ghost,
@@ -676,8 +679,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             ),
             if (strip != null) KitStepStrip(labels: strip.$1, current: strip.$2),
             Expanded(
-              child: ScreenBody(
-                bottom: foot,
+              child: _FileBody(
+                foot: foot,
                 children: [
                   ...body,
                   if (error != null && !_answerUnknown) ...[
@@ -704,6 +707,29 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       ),
     );
   }
+}
+
+/// The body of a file page, as in the frames: [children] scrolling at 16 from the edges and the
+/// [foot] at the bottom with no rule above it (`.foot`).
+class _FileBody extends StatelessWidget {
+  const _FileBody({required this.children, this.foot});
+
+  final List<Widget> children;
+  final Widget? foot;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 600),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: ListView(padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter), children: children)),
+          if (foot != null) Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: foot),
+        ],
+      ),
+    ),
+  );
 }
 
 /// A payment file the wallet made, ready to hand over (DESIGN §3.2, §3.3): a file tile, the
@@ -787,6 +813,7 @@ class SlateFileButtons extends ConsumerWidget {
     this.onHandedOver,
     this.framed = false,
     this.reply = false,
+    this.hint,
   });
 
   final String name;
@@ -805,6 +832,9 @@ class SlateFileButtons extends ConsumerWidget {
 
   /// With [framed]: the file is a reply, so the share button says "Share reply", not "Share file".
   final bool reply;
+
+  /// With [framed]: the line under the buttons; "Save to device" follows it.
+  final Widget? hint;
 
   Future<void> _out(
     BuildContext context,
@@ -840,7 +870,7 @@ class SlateFileButtons extends ConsumerWidget {
           f.save(name: name, json: json, dialogTitle: l.slateSaveDialogTitle),
       done: l.slateSaved(name),
     );
-    final copy = copyable
+    final copy = copyable || framed
         ? KitButton(
             icon: KitIcons.copy,
             label: framed ? l.phoneFileCopyText : l.slateCopyReply,
@@ -865,16 +895,24 @@ class SlateFileButtons extends ConsumerWidget {
       semanticsId: TrustIds.fileSave,
       onPressed: save,
     );
+    if (framed && copy != null) {
+      // The frame: Copy as text beside the gold share, then the hint.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(children: [Expanded(child: copy), const SizedBox(width: 10), Expanded(child: share ?? saveButton)]),
+          if (hint != null) ...[const SizedBox(height: 16), hint!],
+          // Save to device is the system share sheet's own "Save to Files" here; the button is
+          // only on a device that cannot share.
+        ],
+      );
+    }
     return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (framed && copy != null && share != null)
-            Row(children: [Expanded(child: copy), const SizedBox(width: 12), Expanded(child: share)])
-          else ...[
-            ?share,
-            if (share != null && copy != null) const SizedBox(height: 10),
-            ?copy,
-          ],
+          ?share,
+          if (share != null && copy != null) const SizedBox(height: 10),
+          ?copy,
           if (share != null || copy != null) const SizedBox(height: 10),
           saveButton,
         ],
