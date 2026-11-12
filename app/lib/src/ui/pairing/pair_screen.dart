@@ -383,19 +383,24 @@ class _StatusLine extends ConsumerWidget {
                   ? Icon(KitIcons.success, size: 22, color: t.ok)
                   : const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
             ),
-            trailing: check
-                ? KitButton(
-                    key: pairCheckWordsKey,
-                    label: l.pairCheckWords,
-                    kind: KitButtonKind.quiet,
-                    small: true,
-                    expand: false,
-                    semanticsId: TrustIds.pairflowStatusCheck,
-                    onPressed: onCheck,
-                  )
-                : null,
           ),
         ),
+        if (check)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: KitButton(
+                key: pairCheckWordsKey,
+                label: l.pairCheckWords,
+                kind: KitButtonKind.quiet,
+                small: true,
+                expand: false,
+                semanticsId: TrustIds.pairflowStatusCheck,
+                onPressed: onCheck,
+              ),
+            ),
+          ),
       ],
     );
   }
