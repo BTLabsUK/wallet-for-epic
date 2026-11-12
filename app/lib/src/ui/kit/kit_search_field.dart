@@ -13,6 +13,9 @@ import 'kit_tokens.dart';
 /// The search or address field (HANDOFF 7.4): 42 tall, radius 13, the quiet fill, a search
 /// glyph, a [hint], and optionally a "Paste" text button and a scan icon at the end. The paste
 /// and scan buttons show when their callbacks are set.
+/// Android's tap-target guideline; the pill inside is shorter.
+const double _touchHeight = Kit.touchMin;
+
 class KitSearchField extends StatelessWidget {
   const KitSearchField({
     super.key,
@@ -49,11 +52,20 @@ class KitSearchField extends StatelessWidget {
     final l = context.l10n;
     return Padding(
       padding: margin,
-      child: Container(
-        height: Kit.searchField,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rSearch)),
-        child: Row(
+      // The pill is Kit.searchField high; the field and its buttons are a full touch target tall.
+      child: SizedBox(
+        height: _touchHeight,
+        child: Stack(
+          children: [
+            Center(
+              child: Container(
+                height: Kit.searchField,
+                decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rSearch)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
           children: [
             ExcludeSemantics(child: Icon(icon, size: 20, color: t.faint)),
             const SizedBox(width: 9),
@@ -67,7 +79,9 @@ class KitSearchField extends StatelessWidget {
                   onSubmitted: onSubmitted,
                   style: KitType.body.copyWith(color: t.text),
                   cursorColor: t.accent,
-                  maxLines: 1,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     isCollapsed: true,
                     filled: false,
@@ -103,6 +117,9 @@ class KitSearchField extends StatelessWidget {
               ),
             if (onScan != null)
               KitIconButton(icon: KitIcons.scan, label: l.sendScanButton, onPressed: onScan, color: t.dim, semanticsId: scanId),
+          ],
+        ),
+            ),
           ],
         ),
       ),

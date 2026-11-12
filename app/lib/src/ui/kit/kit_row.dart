@@ -133,6 +133,10 @@ class KitRow extends StatelessWidget {
             toggled: toggled,
             selected: selected ? true : null,
             label: semanticsLabel,
+            // A given label is the whole reading: the texts inside would repeat it.
+            hint: semanticsLabel == null ? null : subtitle,
+            excludeSemantics: semanticsLabel != null,
+            onTap: semanticsLabel == null ? null : onTap,
             child: InkWell(onTap: onTap, child: body),
           );
     return kitId(semanticsId, Material(type: MaterialType.transparency, child: row));

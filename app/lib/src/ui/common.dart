@@ -53,29 +53,29 @@ export '../text_join.dart';
 export 'badge.dart';
 export 'notices.dart';
 
-/// Replaces the whole navigation stack with the shell of the open wallet, on its Wallet tab.
+/// Replaces the whole navigation stack with the shell of the open wallet, on its Home tab.
 void goHome(BuildContext context) {
   ProviderScope.containerOf(
     context,
     listen: false,
-  ).read(shellTabProvider.notifier).go(ShellTab.wallet);
+  ).read(shellTabProvider.notifier).go(ShellTab.home);
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
     (_) => false,
   );
 }
 
-/// Shows [tab] of the wallet shell and closes every screen over it. With [recipient] (a
-/// scanned code, Send again), the Send form takes it as the recipient; with [pairingTo], the
-/// paired contact with no address, paid through its mailbox.
-void showShellTab(BuildContext context, ShellTab tab, {String? recipient, String? pairingTo}) {
+/// Opens [flow] over the wallet shell and closes every screen over the shell first. With
+/// [recipient] (a scanned code, Send again), the Send form takes it as the recipient; with
+/// [pairingTo], the paired contact with no address, paid through its mailbox.
+void showShellFlow(BuildContext context, ShellFlow flow, {String? recipient, String? pairingTo}) {
   final container = ProviderScope.containerOf(context, listen: false);
   if (recipient != null) {
     container.read(sendRecipientProvider.notifier).hand(recipient);
   } else if (pairingTo != null) {
     container.read(sendRecipientProvider.notifier).handPairing(pairingTo);
   }
-  container.read(shellTabProvider.notifier).go(tab);
+  container.read(shellFlowProvider.notifier).open(flow);
   Navigator.of(context).popUntil((route) => route.isFirst);
 }
 

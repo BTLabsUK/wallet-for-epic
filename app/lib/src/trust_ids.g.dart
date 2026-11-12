@@ -67,9 +67,8 @@ abstract final class TrustIds {
   static const sendRoutePublic = 'g4.send.route.public';
   static const overviewRefresh = 'g4.overview.refresh';
   static const overviewAvailable = 'g4.overview.available';
-  static const homeLock = 'g4.home.lock';
-  static const homeSettings = 'g4.home.settings';
-  static const homeContacts = 'g4.home.contacts';
+  static const tabSettings = 'g4.tab.settings';
+  static const tabContacts = 'g4.tab.contacts';
   static const backupAgree = 'g4.backup.agree';
   static const backupShow = 'g4.backup.show';
   static const backupDone = 'g4.backup.done';
@@ -157,7 +156,7 @@ abstract final class TrustIds {
   static const pinField = 'g4.pin.field';
   static const unlockRetry = 'g4.unlock.retry';
   static const tabSend = 'g4.tab.send';
-  static const tabWallet = 'g4.tab.wallet';
+  static const tabHome = 'g4.tab.home';
   static const tabReceive = 'g4.tab.receive';
   static const commonClose = 'g4.common.close';
   static const commonDone = 'g4.common.done';
@@ -207,6 +206,28 @@ abstract final class TrustIds {
   static const e1Send = 'g4.e1.send';
   static const e1CancelUnlock = 'g4.e1.cancel_unlock';
   static const e1TryNext = 'g4.e1.try_next';
+  static const tabActivity = 'g4.tab.activity';
+  static const tabScan = 'g4.tab.scan';
+  static const homeStatus = 'g4.home.status';
+  static const homeBalance = 'g4.home.balance';
+  static const homeEye = 'g4.home.eye';
+  static const homeSeeall = 'g4.home.seeall';
+  static const homeReview = 'g4.home.review';
+  static const homeLater = 'g4.home.later';
+  static const homeReceiveEmpty = 'g4.home.receive-empty';
+  static const flowClose = 'g4.flow.close';
+  static const contactsSearch = 'g4.contacts.search';
+  static const contactsAtoz = 'g4.contacts.atoz';
+  static const contactsReview = 'g4.contacts.review';
+  static const contactsFace = 'g4.contacts.face';
+  static const contactsPair = 'g4.contacts.pair';
+  static const contactsMore = 'g4.contacts.more';
+  static const contactsRow = 'g4.contacts.row';
+  static const contactSend = 'g4.contact.send';
+  static const contactRequest = 'g4.contact.request';
+  static const contactBack = 'g4.contact.back';
+  static const contactMore = 'g4.contact.more';
+  static const contactPayment = 'g4.contact.payment';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -284,9 +305,8 @@ abstract final class TrustIds {
     'g4.send.route.public',
     'g4.overview.refresh',
     'g4.overview.available',
-    'g4.home.lock',
-    'g4.home.settings',
-    'g4.home.contacts',
+    'g4.tab.settings',
+    'g4.tab.contacts',
     'g4.backup.agree',
     'g4.backup.show',
     'g4.backup.done',
@@ -374,7 +394,7 @@ abstract final class TrustIds {
     'g4.pin.field',
     'g4.unlock.retry',
     'g4.tab.send',
-    'g4.tab.wallet',
+    'g4.tab.home',
     'g4.tab.receive',
     'g4.common.close',
     'g4.common.done',
@@ -424,5 +444,27 @@ abstract final class TrustIds {
     'g4.e1.send',
     'g4.e1.cancel_unlock',
     'g4.e1.try_next',
+    'g4.tab.activity',
+    'g4.tab.scan',
+    'g4.home.status',
+    'g4.home.balance',
+    'g4.home.eye',
+    'g4.home.seeall',
+    'g4.home.review',
+    'g4.home.later',
+    'g4.home.receive-empty',
+    'g4.flow.close',
+    'g4.contacts.search',
+    'g4.contacts.atoz',
+    'g4.contacts.review',
+    'g4.contacts.face',
+    'g4.contacts.pair',
+    'g4.contacts.more',
+    'g4.contacts.row',
+    'g4.contact.send',
+    'g4.contact.request',
+    'g4.contact.back',
+    'g4.contact.more',
+    'g4.contact.payment',
   ];
 }

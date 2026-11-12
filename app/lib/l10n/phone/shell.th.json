@@ -1,0 +1,17 @@
+{
+  "phoneTabHome": "หน้าแรก",
+  "phoneTabScan": "สแกน",
+  "phoneReview": "ตรวจสอบ",
+  "phoneLater": "ภายหลัง",
+  "phoneHomeRecent": "ล่าสุด",
+  "phoneHomeSeeAll": "ดูทั้งหมด",
+  "phoneHomeArriving": "+{amount} กำลังเข้า",
+  "phoneHomeInSends": "{amount} ในการส่ง",
+  "phoneHomeSyncing": "กำลังซิงก์ {percent}%",
+  "phoneHomeOffline": "ออฟไลน์",
+  "phoneHomeInvoiceTitle": "ใบแจ้งหนี้จาก {name}",
+  "phoneHomeInvoiceBody": "{amount} จะไม่มีการชำระเงินจนกว่าคุณจะอนุมัติ",
+  "phoneHomeBalanceLastKnown": "ใช้ได้ · ล่าสุดที่ทราบ",
+  "phoneHomeBalanceSheetHint": "รายละเอียดยอดเงิน",
+  "phoneHomeEmpty": "ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น"
+}

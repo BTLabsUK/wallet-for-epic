@@ -22084,4 +22084,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Dismiss';
+
+  @override
+  String get phoneTabHome => 'Home';
+
+  @override
+  String get phoneTabScan => 'Scan';
+
+  @override
+  String get phoneReview => 'Review';
+
+  @override
+  String get phoneLater => 'Later';
+
+  @override
+  String get phoneHomeRecent => 'Recent';
+
+  @override
+  String get phoneHomeSeeAll => 'See all';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount arriving';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount in sends';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Syncing $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Offline';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Invoice from $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Nothing is paid until you approve.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Available · last known';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Balance details';
+
+  @override
+  String get phoneHomeEmpty => 'No payments yet. Receive some EPIC to begin.';
+
+  @override
+  String get phoneContactsSearchHint => 'Search, or paste an address';
+
+  @override
+  String get phoneContactsAtoZ => 'A to Z';
+
+  @override
+  String get phoneContactsNoPayments => 'No payments yet';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return 'Asks for $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => 'Contacts';
+
+  @override
+  String get phoneContactPaired => 'Paired · payments between you are sealed';
+
+  @override
+  String get phoneContactRequest => 'Request';
 }

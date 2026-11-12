@@ -39,10 +39,10 @@ UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
 UNLOCK_RETRY = T("g4.unlock.retry")
 
-LOCK = T("g4.home.lock")
-SETTINGS = T("g4.home.settings")
+FLOW_CLOSE = T("g4.flow.close")   # Send and Receive open as flows over the tab bar, with a close button
+SETTINGS = T("g4.tab.settings")
 TAB_SEND = T("g4.tab.send")
-TAB_WALLET = T("g4.tab.wallet")
+TAB_WALLET = T("g4.tab.home")
 TAB_RECEIVE = T("g4.tab.receive")
 CLOSE = T("g4.common.close")
 DONE = T("g4.common.done")
@@ -83,7 +83,7 @@ SERVER = {
 STATUS_ANY = T("g4.status.network")  # level 1's Network icon ("Network · OK")
 # Home › Contacts: level 1's one entry under the balance, the Contacts tile of the destinations row at
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
-CONTACTS = T("g4.home.contacts")
+CONTACTS = T("g4.tab.contacts")
 CONTACTS_ADD = T("g4.contacts.add")
 SWITCH = T("g4.server.switch")
 CLEAR = T("g4.server.clear")
@@ -193,8 +193,8 @@ class Phone:
         return self.d.labels.text(key) if self.d.labels and self.d.labels.text(key) else fallback
 
     def _home(self):
-        return Expect("the wallet's home (Lock wallet and the tabs)",
-                      lambda d, tree: d.find_in(LOCK, tree) and d.find_in(TAB_WALLET, tree) and True)
+        return Expect("the wallet's tab bar (Home, Activity, Scan, Contacts, Settings)",
+                      lambda d, tree: d.find_in(TAB_WALLET, tree) and True)
 
     def _pressable(self, target, tree):
         hits = self.d.find_in(target, tree)
@@ -558,8 +558,14 @@ class Phone:
         return True
 
     def tab(self, target):
+        """Send or Receive: Home's two buttons open the flow over the tab bar (its close button
+        marks it). Any other target is a tab of the bar."""
         d = self.d
         self.home()
+        if target in (TAB_SEND, TAB_RECEIVE):
+            d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
+                    then=shows(FLOW_CLOSE))
+            return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))
 
@@ -575,12 +581,12 @@ class Phone:
         return self._section_names
 
     def settings(self):
-        """The Settings list: Back from a Settings page, else from home by the Settings button."""
+        """The Settings list: Back from a Settings page, else the Settings tab."""
         d = self.d
         for _ in range(3):
             if self.in_settings():
                 return
-            if d.seen(SETTINGS) and d.seen(LOCK):
+            if d.seen(SETTINGS):   # Settings is a tab: the bar shows on every tab
                 break
             d.s.key("back")
             time.sleep(1)

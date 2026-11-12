@@ -65,7 +65,7 @@ void keepWaitingForRelay(WidgetRef ref) {
 /// Receive, at the Epicbox address the move gave.
 void showNewAddress(WidgetRef ref) {
   ref.read(receiveTabProvider.notifier).choose(ReceiveTab.epicbox);
-  ref.read(shellTabProvider.notifier).go(ShellTab.receive);
+  ref.read(shellFlowProvider.notifier).open(ShellFlow.receive);
 }
 
 /// The offer's notice while one stands; draws nothing. Sits in the shell's app bar beside

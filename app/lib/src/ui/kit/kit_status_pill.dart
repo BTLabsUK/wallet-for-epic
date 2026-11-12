@@ -40,8 +40,15 @@ class KitStatusPill extends StatelessWidget {
       ),
     );
     final id = semanticsId;
-    Widget out = Semantics(label: word, button: onTap != null, excludeSemantics: true, onTap: onTap, child: pill);
-    if (onTap != null) out = GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: out);
+    // As a button the pill is 48 dp tall to touch (Android's guideline); the pill drawn is 32.
+    Widget out = Semantics(
+      label: word,
+      button: onTap != null,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: onTap == null ? pill : SizedBox(height: Kit.touchMin, child: Center(child: pill)),
+    );
+    if (onTap != null) out = GestureDetector(behavior: HitTestBehavior.opaque, excludeFromSemantics: true, onTap: onTap, child: out);
     return id == null ? out : kitId(id, out);
   }
 }

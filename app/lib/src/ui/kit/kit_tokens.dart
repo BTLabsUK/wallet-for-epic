@@ -22,6 +22,10 @@ abstract final class Kit {
   /// The smallest tappable size.
   static const double hitMin = 44;
 
+  /// The tap target of a control that sits on its own (Android's guideline); the pill, chip or
+  /// field drawn inside may be shorter.
+  static const double touchMin = 48;
+
   // Radii.
   /// A group, a card, a toast, an announcement.
   static const double rGroup = 20;

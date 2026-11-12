@@ -674,7 +674,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       ref
           .read(sendRecipientProvider.notifier)
           .handRequest(PaymentRequest(recipient: parseRecipient(address ?? ''), amount: rec.amount), CodeOrigin.link);
-      showShellTab(context, ShellTab.send);
+      showShellFlow(context, ShellFlow.send);
     } catch (error) {
       if (!mounted) return;
       _showMessage(describeError(context.l10n, error), level: NoticeLevel.error);
@@ -1590,7 +1590,7 @@ class _CounterpartyRow extends StatelessWidget {
                   icon: const Icon(Icons.replay),
                   label: Text(l.txDetailsSendAgain),
                   onPressed: () =>
-                      showShellTab(context, ShellTab.send, recipient: address),
+                      showShellFlow(context, ShellFlow.send, recipient: address),
                 ),
             ],
           ),

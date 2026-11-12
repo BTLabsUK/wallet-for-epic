@@ -152,7 +152,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
   void _tryStart() {
     if (!mounted || _gaveUp) return;
     final route = ModalRoute.of(context);
-    if (route == null || !route.isCurrent || ref.read(shellTabProvider) != ShellTab.wallet) {
+    if (route == null || !route.isCurrent || ref.read(shellTabProvider) != ShellTab.home) {
       if (_touched) {
         _gaveUp = true;
       } else if (++_waits < 30) {
@@ -212,7 +212,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
     });
     // A tab the user picked before the tour opened (a payment link moves to Send untouched).
     ref.listen(shellTabProvider, (_, tab) {
-      if (_touched && tab != ShellTab.wallet) _gaveUp = true;
+      if (_touched && tab != ShellTab.home) _gaveUp = true;
     });
     final open = ref.watch(phoneTourProvider.select((s) => s.open));
     return PopScope(
@@ -336,18 +336,18 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
   /// Opens [place]: a Home tab (closing the screen the tour had open), or a screen pushed over
   /// Home, replacing the previous step's screen.
   void _navigate(TourPlace place) {
-    final tab = switch (place) {
-      TourPlace.wallet => ShellTab.wallet,
-      TourPlace.send => ShellTab.send,
-      TourPlace.receive => ShellTab.receive,
+    final flow = switch (place) {
+      TourPlace.send => ShellFlow.send,
+      TourPlace.receive => ShellFlow.receive,
       _ => null,
     };
-    if (tab != null) {
+    if (place == TourPlace.wallet || flow != null) {
       _leaveScreens();
       if (place == TourPlace.receive) {
         ref.read(receiveTabProvider.notifier).choose(ReceiveTab.epicbox);
       }
-      ref.read(shellTabProvider.notifier).go(tab);
+      ref.read(shellTabProvider.notifier).go(ShellTab.home);
+      if (flow != null) ref.read(shellFlowProvider.notifier).open(flow);
       return;
     }
     final route = MaterialPageRoute<void>(
@@ -397,7 +397,7 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
     _closing = true;
     _gen++;
     _leaveScreens();
-    ref.read(shellTabProvider.notifier).go(ShellTab.wallet);
+    ref.read(shellTabProvider.notifier).go(ShellTab.home);
     if (!_reduce && _fade.value > 0) {
       await _fade.animateBack(0, curve: Curves.easeIn);
     }

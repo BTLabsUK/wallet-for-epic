@@ -2600,8 +2600,8 @@ class _SendViewState extends ConsumerState<SendView> {
             // Never a dead end: the next step is the Receive tab.
             action: TextButton(
               onPressed: () => ref
-                  .read(shellTabProvider.notifier)
-                  .go(ShellTab.receive),
+                  .read(shellFlowProvider.notifier)
+                  .open(ShellFlow.receive),
               child: Text(context.l10n.homeReceiveButton),
             ),
           ),

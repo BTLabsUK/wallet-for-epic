@@ -20847,4 +20847,82 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => '关闭';
+
+  @override
+  String get phoneTabHome => '首页';
+
+  @override
+  String get phoneTabScan => '扫描';
+
+  @override
+  String get phoneReview => '查看';
+
+  @override
+  String get phoneLater => '稍后';
+
+  @override
+  String get phoneHomeRecent => '最近';
+
+  @override
+  String get phoneHomeSeeAll => '查看全部';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount 即将到账';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount 在发送中';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return '同步中 $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => '离线';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return '来自 $name 的账单';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount。在你批准之前不会付款。';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => '可用 · 最近已知';
+
+  @override
+  String get phoneHomeBalanceSheetHint => '余额详情';
+
+  @override
+  String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
+
+  @override
+  String get phoneContactsSearchHint => '搜索，或粘贴地址';
+
+  @override
+  String get phoneContactsAtoZ => '按字母';
+
+  @override
+  String get phoneContactsNoPayments => '暂无付款';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return '请求 $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => '联系人';
+
+  @override
+  String get phoneContactPaired => '已配对 · 你们之间的付款已加密封存';
+
+  @override
+  String get phoneContactRequest => '请求';
 }

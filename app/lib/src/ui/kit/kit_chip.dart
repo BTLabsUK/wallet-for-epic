@@ -43,7 +43,7 @@ class KitChip extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: ConstrainedBox(constraints: const BoxConstraints(minHeight: Kit.hitMin), child: Center(widthFactor: 1, child: chip)),
+          child: ConstrainedBox(constraints: const BoxConstraints(minHeight: Kit.touchMin), child: Center(widthFactor: 1, child: chip)),
         ),
       ),
     );

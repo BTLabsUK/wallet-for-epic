@@ -1,0 +1,17 @@
+{
+  "phoneTabHome": "首页",
+  "phoneTabScan": "扫描",
+  "phoneReview": "查看",
+  "phoneLater": "稍后",
+  "phoneHomeRecent": "最近",
+  "phoneHomeSeeAll": "查看全部",
+  "phoneHomeArriving": "+{amount} 即将到账",
+  "phoneHomeInSends": "{amount} 在发送中",
+  "phoneHomeSyncing": "同步中 {percent}%",
+  "phoneHomeOffline": "离线",
+  "phoneHomeInvoiceTitle": "来自 {name} 的账单",
+  "phoneHomeInvoiceBody": "{amount}。在你批准之前不会付款。",
+  "phoneHomeBalanceLastKnown": "可用 · 最近已知",
+  "phoneHomeBalanceSheetHint": "余额详情",
+  "phoneHomeEmpty": "还没有付款。先收一些 EPIC 开始吧。"
+}
