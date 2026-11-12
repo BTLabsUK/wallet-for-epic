@@ -258,7 +258,7 @@ void main() {
       expect(h.session.paidRequestFiles['req-qr-1']!.amount, _epic(12.5));
       expect(find.byType(QrShowScreen), findsOneWidget);
       expect(find.text(_l.qrStatusPaidHidden), findsOneWidget);
-      expect(find.text(_l.qrShowSubPaid(epicExact(_l, _epic(12.5)))), findsOneWidget);
+      expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
 
       await h.showCode(tester);
       expect(find.text(_l.qrStatusPaidShowing), findsOneWidget, reason: 'signed is not posted: it waits for whoever asked');

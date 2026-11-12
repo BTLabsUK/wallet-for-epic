@@ -26,6 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/pin_pad.dart';
+
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -142,7 +144,7 @@ class _Harness {
     await tester.tap(find.byKey(requestFileApproveKey));
     await tester.pumpAndSettle();
     expect(find.text(_l.invoicePinReason), findsOneWidget);
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
   }
 }

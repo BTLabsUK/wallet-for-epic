@@ -4,6 +4,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import '../trust_ids.dart';
+import 'file_flow_pages.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_hero_amount.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_step_strip.dart';
 import 'app_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter/services.dart';
@@ -80,7 +85,7 @@ import '../pairing_file_seal.dart' show fileSealTarget, sealQuiet;
 import 'status_icons.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
-import 'pin.dart' show askPin, usesPassphrase;
+import 'pin.dart' show showPinSheet, usesPassphrase;
 import 'qr_scan_screen.dart';
 import 'payment_code_ui.dart';
 import 'qr_show_screen.dart';
@@ -351,6 +356,8 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The payment file was saved or shared: Open response file is the primary now (UP-008).
   bool _fileHandedOver = false;
+  /// When the payment file was first shown, for its "made 18:12" line.
+  DateTime? _fileMadeAt;
 
   /// The options a send goes out with: those reviewed, or LEPIC's send-all after Max.
   SendOptions? get _sendOptions => _maxUsed ? null : _options;
@@ -1573,7 +1580,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final config = ref.read(walletConfigProvider);
     if (session == null || config == null) return false;
     final vault = ref.read(vaultProvider);
-    final ok = await askPin<bool>(
+    final ok = await showPinSheet<bool>(
       context,
       reason: reason,
       action: (pin) async {
@@ -4417,20 +4424,28 @@ class _SendViewState extends ConsumerState<SendView> {
         l.sendFileTitle,
         extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
       ),
-      _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
-      Text(
-        l.sendFileShareHint,
-        style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+      KitStepStrip(labels: [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone], current: _fileHandedOver ? 1 : 0),
+      const SizedBox(height: 18),
+      KitHeroAmount(amount: epicFor(l, _parsedAmount ?? BigInt.zero, surface: AmountSurface.exact, unit: false), unit: epicUnit),
+      const SizedBox(height: 18),
+      FileCard(
+        title: l.phoneFilePayCard,
+        sub: l.phoneFileMadeSub(epicExact(l, _parsedAmount ?? BigInt.zero), fileMadeTime(context, _fileMadeAt ??= DateTime.now())),
       ),
       const SizedBox(height: 12),
       SlateFileButtons(
         name: name,
         json: _plainCopy ?? slate.json,
         primary: !_fileHandedOver,
+        framed: true,
         onHandedOver: () {
           if (!_fileHandedOver) setState(() => _fileHandedOver = true);
         },
       ),
+      const SizedBox(height: 14),
+      FileInfoLine(l.phoneFileSendHint),
+      const SizedBox(height: 14),
+      FileInfoLine(l.phoneFileHeld(epicExact(l, _parsedAmount ?? BigInt.zero)), bare: true),
       const SizedBox(height: 8),
       // The text itself is a detail for those who copy it by hand.
       ExpansionTile(
@@ -4605,26 +4620,20 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     final off = _busy || _postBlock != NetBlock.none;
     if (_viaQr) {
-      return FilledButton.icon(
+      return KitButton(
         key: sendScanReplyKey,
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        icon: const Icon(Icons.qr_code_scanner),
-        label: Text(l.qrScanReply),
+        icon: KitIcons.scan,
+        label: l.qrScanReply,
+        semanticsId: TrustIds.fileReply,
         onPressed: off || !offersQrPayment(ref) ? null : _scanReply,
       );
     }
-    // Outlined until the file is saved or shared, then the primary (UP-008).
-    if (!_fileHandedOver) {
-      return OutlinedButton(
-        key: sendOpenReplyKey,
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: off ? null : _openReply,
-        child: Text(l.sendOpenReply),
-      );
-    }
-    return BusyButton(
+    // Quiet until the file is saved or shared, then the primary (UP-008).
+    return KitButton(
       key: sendOpenReplyKey,
       label: l.sendOpenReply,
+      kind: _fileHandedOver ? KitButtonKind.gold : KitButtonKind.quiet,
+      semanticsId: TrustIds.fileReply,
       onPressed: off ? null : _openReply,
     );
   }

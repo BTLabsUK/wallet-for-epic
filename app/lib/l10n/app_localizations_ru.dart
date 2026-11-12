@@ -23381,4 +23381,225 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phonePayRouteSubTor => 'Напрямую в их кошелёк, через Tor';
+
+  @override
+  String get phonePinChooseHint =>
+      'Он открывает кошелёк и подтверждает платежи.';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'Лицо или отпечаток пальца, смотря что есть в телефоне. PIN тоже работает.';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'PIN нельзя восстановить. Вы можете удалить этот кошелёк с телефона и восстановить его по фразе восстановления. Без фразы его монеты будут потеряны навсегда.';
+
+  @override
+  String get phoneWelcomeBody =>
+      'Создайте кошелёк меньше чем за минуту или верните прежний по фразе восстановления.';
+
+  @override
+  String get phoneWelcomeTorLine => 'Подключаться через Tor с первой секунды';
+
+  @override
+  String get phoneStartPinHelpTitle => 'О PIN-коде';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'PIN открывает кошелёк на этом телефоне и подтверждает каждый платёж. Он никогда не покидает телефон.';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'PIN нельзя восстановить. Храните фразу восстановления в надёжном месте: по ней можно вернуть кошелёк и задать новый PIN.';
+
+  @override
+  String get phoneRestoreHelpTitle => 'Восстановление кошелька';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'Фраза восстановления возвращает баланс. Введите её слова, вставьте их или отсканируйте QR-код.';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'Выберите месяц, когда вы создали кошелёк. Не уверены? Более ранний месяц найдёт больше, но займёт больше времени.';
+
+  @override
+  String get phoneRestoreScan => 'Сканировать';
+
+  @override
+  String get phoneRestoreStartGroup => 'С чего начать поиск';
+
+  @override
+  String get phoneRestoreCreated => 'Кошелёк создан';
+
+  @override
+  String get phoneRestoreRestoring => 'Восстановление';
+
+  @override
+  String get phoneRestoreScanTitle => 'Ищем ваши монеты';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'Не закрывайте приложение, пока поиск не закончится. Экран остаётся включённым.';
+
+  @override
+  String get phoneRestoreLookingFrom => 'Ищем с';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'Отправка и получение откроются, когда поиск закончится. Если остановить, он продолжится на главной.';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'Поиск остановлен';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'Фраза восстановления вернула баланс. История, контакты и настройки возвращаются из файла данных кошелька, если вы его экспортировали.';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'Шаг $n из $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'Покажите свой код';
+
+  @override
+  String get phoneStepPayScan => 'Отсканируйте ответ';
+
+  @override
+  String get phoneStepPayFileSend => 'Отправьте файл';
+
+  @override
+  String get phoneStepPayFileReply => 'Откройте ответ';
+
+  @override
+  String get phoneStepRecvScan => 'Отсканируйте код';
+
+  @override
+  String get phoneStepRecvShow => 'Покажите свой ответ';
+
+  @override
+  String get phoneStepRecvFileOpen => 'Откройте файл';
+
+  @override
+  String get phoneStepRecvFileReply => 'Отправьте ответ';
+
+  @override
+  String get phoneQrTitlePay => 'Оплатить лично';
+
+  @override
+  String get phoneQrTitleReceive => 'Получить лично';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'Скроется через $seconds с';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'Отсканировать ответ';
+
+  @override
+  String get phoneQrHelpTitle => 'Оплата лично';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'Оплачено лично';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'Получено лично';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount будет оплачено, когда ответ прочитан.';
+  }
+
+  @override
+  String get phoneQrShowMine => 'Показать мой код снова';
+
+  @override
+  String get phoneFileTitleReceive => 'Получить файлом';
+
+  @override
+  String get phoneFilePayCard => 'Файл платежа';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return 'На $amount · создан $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => 'Ваш ответ';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return 'Для платежа $amount · создан $time';
+  }
+
+  @override
+  String get phoneFileCopyText => 'Копировать текстом';
+
+  @override
+  String get phoneFileShare => 'Отправить файл';
+
+  @override
+  String get phoneFileShareReply => 'Отправить ответ';
+
+  @override
+  String get phoneFileSendHint =>
+      'Отправьте его в любом приложении. Получатель откроет его в своём кошельке и пришлёт ответ.';
+
+  @override
+  String get phoneFileReplyHint =>
+      'Отправьте его тем же путём. Платёж пройдёт, когда отправитель откроет ваш ответ.';
+
+  @override
+  String get phoneFileWhenReply => 'Когда придёт ответ';
+
+  @override
+  String get phoneFileOpenReplySub => 'Файл или вставленный текст';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount отложено до этого момента. Можно закрыть экран: платёж ждёт в Активности.';
+  }
+
+  @override
+  String get phoneFileOpenIntro =>
+      'Вам прислали файл платежа. Откройте его здесь, чтобы увидеть платёж и принять его.';
+
+  @override
+  String get phoneFileOpenFile => 'Открыть файл';
+
+  @override
+  String get phoneFileOpenFileSub => 'Из «Файлов» или другого приложения';
+
+  @override
+  String get phoneFilePasteText => 'Вставить текст';
+
+  @override
+  String get phoneFilePasteTextSub => 'Если пришёл сообщением';
+
+  @override
+  String get phoneFileOpenNote =>
+      'Открытие файла ничего не принимает. Сначала видно, от кого он и на какую сумму.';
+
+  @override
+  String get phoneAcceptTitle => 'Вам платят';
+
+  @override
+  String get phoneAcceptNote => 'Заметка';
+
+  @override
+  String get phoneAcceptHintQr =>
+      'Примите платёж и покажите ответ. Ничего не придёт, пока его не отсканируют.';
+
+  @override
+  String get phoneAcceptHintFile =>
+      'Примите платёж и отправьте ответ. Ничего не придёт, пока его не откроют.';
+
+  @override
+  String get phoneAcceptAccept => 'Принять';
+
+  @override
+  String get phoneAcceptNotNow => 'Не сейчас';
 }

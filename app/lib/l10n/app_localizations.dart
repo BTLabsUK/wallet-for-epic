@@ -35447,6 +35447,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Straight to their wallet, over Tor'**
   String get phonePayRouteSubTor;
+
+  /// Hint under the title of the first PIN step.
+  ///
+  /// In en, this message translates to:
+  /// **'It unlocks the wallet and approves payments.'**
+  String get phonePinChooseHint;
+
+  /// Text of the biometrics offer sheet after choosing a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Face or fingerprint, whichever this phone has. The PIN still works.'**
+  String get phonePinBiometricsBody;
+
+  /// Body of the Forgot PIN sheet on the unlock screen.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.'**
+  String get phoneUnlockResetBody;
+
+  /// Text under the Welcome title on the first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a wallet in under a minute, or bring one back with its recovery phrase.'**
+  String get phoneWelcomeBody;
+
+  /// Line under the Tor only switch on the first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect through Tor from the first second'**
+  String get phoneWelcomeTorLine;
+
+  /// Title of the help sheet on the PIN step of the first start.
+  ///
+  /// In en, this message translates to:
+  /// **'About the PIN'**
+  String get phoneStartPinHelpTitle;
+
+  /// First line of the PIN help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN unlocks the wallet on this phone and approves every payment. It never leaves the phone.'**
+  String get phoneStartPinHelpUnlock;
+
+  /// Second line of the PIN help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.'**
+  String get phoneStartPinHelpLost;
+
+  /// Title of the help sheet on the Restore screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring a wallet'**
+  String get phoneRestoreHelpTitle;
+
+  /// First line of the Restore help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The recovery phrase brings back the balance. Type its words, paste them or scan its QR code.'**
+  String get phoneRestoreHelpPhrase;
+
+  /// Second line of the Restore help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the month you made the wallet. Not sure? An earlier month finds more and takes longer.'**
+  String get phoneRestoreHelpStart;
+
+  /// Button at the foot of the phrase box that scans the phrase from a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get phoneRestoreScan;
+
+  /// Label above the row that picks where the restore search starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to start looking'**
+  String get phoneRestoreStartGroup;
+
+  /// Row that shows the month the wallet was made; it opens the month choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet created'**
+  String get phoneRestoreCreated;
+
+  /// Title of the Restore screen while the search runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring'**
+  String get phoneRestoreRestoring;
+
+  /// Heading under the progress ring while the restore searches the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for your coins'**
+  String get phoneRestoreScanTitle;
+
+  /// Line under the heading while the restore searches the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the app open until this finishes. The screen stays on while it runs.'**
+  String get phoneRestoreScanBody;
+
+  /// Row that shows where the restore search started.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking from'**
+  String get phoneRestoreLookingFrom;
+
+  /// Dim note under the restore progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending and receiving open when the search ends. If you stop, it carries on from Home.'**
+  String get phoneRestoreScanNote;
+
+  /// Heading when the restore search stopped before the end.
+  ///
+  /// In en, this message translates to:
+  /// **'The search stopped'**
+  String get phoneRestoreStoppedTitle;
+
+  /// Text under the Your wallet is restored heading.
+  ///
+  /// In en, this message translates to:
+  /// **'The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.'**
+  String get phoneRestoreDoneBody;
+
+  /// Screen reader label of one step in the three-step strip of a two-phone or file payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}: {title}'**
+  String phoneStepOf(int n, int total, String title);
+
+  /// Step 1 of paying in person: the payer shows a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your code'**
+  String get phoneStepPayShow;
+
+  /// Step 2 of paying in person: the payer scans the other phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their answer'**
+  String get phoneStepPayScan;
+
+  /// Step 1 of paying with a file: the payer sends the payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the file'**
+  String get phoneStepPayFileSend;
+
+  /// Step 2 of paying with a file: the payer opens the file that comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'Open their reply'**
+  String get phoneStepPayFileReply;
+
+  /// Step 1 of getting paid in person: scan the payer's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their code'**
+  String get phoneStepRecvScan;
+
+  /// Step 2 of getting paid in person: show a QR code with the answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your answer'**
+  String get phoneStepRecvShow;
+
+  /// Step 1 of getting paid with a file: open the payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open their file'**
+  String get phoneStepRecvFileOpen;
+
+  /// Step 2 of getting paid with a file: send the reply file back.
+  ///
+  /// In en, this message translates to:
+  /// **'Send your reply'**
+  String get phoneStepRecvFileReply;
+
+  /// Title of the screen that shows the payer's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in person'**
+  String get phoneQrTitlePay;
+
+  /// Title of the screen that shows the receiver's answer as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive in person'**
+  String get phoneQrTitleReceive;
+
+  /// Chip under a shown QR code: seconds left before it hides.
+  ///
+  /// In en, this message translates to:
+  /// **'Hides in {seconds} s'**
+  String phoneQrHidesIn(int seconds);
+
+  /// Button on the payer's QR screen: scan the answer on the other phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their answer'**
+  String get phoneQrScanAnswer;
+
+  /// Title of the help sheet of the QR screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying in person'**
+  String get phoneQrHelpTitle;
+
+  /// Headline once the payment made with QR codes is posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in person'**
+  String get phoneQrDoneTitlePaid;
+
+  /// Headline once the payment received with QR codes is posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Received in person'**
+  String get phoneQrDoneTitleReceived;
+
+  /// Dim line under the camera when the payer scans the answer: what happens on a good read.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is paid when the answer is read.'**
+  String phoneQrPaidWhen(String amount);
+
+  /// Quiet button on the payer's scan screen: go back to the QR code that was shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my code again'**
+  String get phoneQrShowMine;
+
+  /// Header of the receiver's file pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive with a file'**
+  String get phoneFileTitleReceive;
+
+  /// Title of the card that holds the payment file the payer made.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment file'**
+  String get phoneFilePayCard;
+
+  /// Line under the payment file's title: its amount and when it was made.
+  ///
+  /// In en, this message translates to:
+  /// **'For {amount} · made {time}'**
+  String phoneFileMadeSub(String amount, String time);
+
+  /// Title of the card that holds the reply file the receiver made.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply'**
+  String get phoneFileReplyCard;
+
+  /// Line under the reply's title: which payment it answers and when it was made.
+  ///
+  /// In en, this message translates to:
+  /// **'For the {amount} payment · made {time}'**
+  String phoneFileReplySub(String amount, String time);
+
+  /// Button: copy the file's content as text, to send it in a message.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy as text'**
+  String get phoneFileCopyText;
+
+  /// Gold button: hand the payment file to another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Share file'**
+  String get phoneFileShare;
+
+  /// Gold button: hand the reply file to another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Share reply'**
+  String get phoneFileShareReply;
+
+  /// Info line under the payment file's buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it in any app. They open it in their wallet and send a reply back.'**
+  String get phoneFileSendHint;
+
+  /// Info line under the reply file's buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it back the same way it came. The payment is made when they open your reply.'**
+  String get phoneFileReplyHint;
+
+  /// Small label above the row that opens the reply.
+  ///
+  /// In en, this message translates to:
+  /// **'When their reply arrives'**
+  String get phoneFileWhenReply;
+
+  /// Subtitle of the row that opens the other wallet's reply.
+  ///
+  /// In en, this message translates to:
+  /// **'A file, or pasted text'**
+  String get phoneFileOpenReplySub;
+
+  /// Dim line under the open-reply row: the money is held, and the payer may leave.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is set aside until then. You can leave this screen; the payment waits in Activity.'**
+  String phoneFileHeld(String amount);
+
+  /// Text on the receiver's first file page.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone sent you a payment file. Open it here to see the payment and accept it.'**
+  String get phoneFileOpenIntro;
+
+  /// Row: pick a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a file'**
+  String get phoneFileOpenFile;
+
+  /// Subtitle of the Open a file row.
+  ///
+  /// In en, this message translates to:
+  /// **'From Files or another app'**
+  String get phoneFileOpenFileSub;
+
+  /// Row: paste the payment text.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste its text'**
+  String get phoneFilePasteText;
+
+  /// Subtitle of the Paste its text row.
+  ///
+  /// In en, this message translates to:
+  /// **'If it arrived as a message'**
+  String get phoneFilePasteTextSub;
+
+  /// Dim line under the receiver's two rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening a file accepts nothing yet. You see who it is from and how much first.'**
+  String get phoneFileOpenNote;
+
+  /// Title of the page that shows an incoming payment before it is accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone is paying you'**
+  String get phoneAcceptTitle;
+
+  /// Label of the sender's message row.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get phoneAcceptNote;
+
+  /// Info line on the incoming payment page, in person.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept it, then show your answer to them. Nothing arrives until they scan it.'**
+  String get phoneAcceptHintQr;
+
+  /// Info line on the incoming payment page, with a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept it, then send your reply. Nothing arrives until they open it.'**
+  String get phoneAcceptHintFile;
+
+  /// Gold button that accepts the incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get phoneAcceptAccept;
+
+  /// Ghost button that leaves the incoming payment page without accepting.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get phoneAcceptNotNow;
 }
 
 class _AppLocalizationsDelegate

@@ -1,25 +1,32 @@
 // SPDX-License-Identifier: Apache-2.0
-import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../advanced.dart';
 import '../app_log.dart';
-import '../dev_networks.dart';
 import '../errors.dart';
+import '../help/help_content.dart' show HelpId;
 import '../levels/first_run_servers_phone.dart';
-import '../levels/level_providers.dart';
+import '../levels/first_start.dart';
+import '../levels/wallet_level.dart' show firstStartLevel;
 import '../l10n.dart';
 import '../providers.dart';
+import '../settings.dart';
+import '../tor_build.dart';
 import '../trust_ids.dart';
-import 'centered_body.dart';
+import 'common.dart';
+import 'help_screen.dart' show openHelp;
+import 'kit/kit_brand_tile.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_tokens.dart';
 import 'launch_screen.dart';
 import 'levels/tor_wait_screen.dart';
-import 'common.dart';
-import 'network_menu.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
-import 'theme/brand.dart';
+import 'theme/brand.dart' show BrandVariant, BrandWordmark, heroGlow;
 import 'theme/tokens.dart';
 import 'work_status.dart';
 
@@ -29,15 +36,22 @@ const Key firstRunCreateKey = ValueKey('first-run-create');
 /// The first-run screen's "Restore from a phrase" button, for tests and the tour.
 const Key firstRunRestoreKey = ValueKey('first-run-restore');
 
-/// First start, and the start after the last wallet was deleted: the user chooses between a
-/// new wallet and a restore, then picks a PIN, and LEPIC creates the wallet sealed under it.
-/// The choice is a step of its own, before any text field: a tester whose keyboard covered
-/// the restore link under the PIN field created a wallet they did not want (26.10.16).
+/// The first-run screen's "Tor only" row, for tests and the tour.
+const Key firstRunTorOnlyKey = ValueKey('first-run-tor-only');
+
+/// First start, and the start after the last wallet was deleted (HANDOFF 7.7, Start-1): the
+/// brand tile, Create, Restore and, in Tor builds, the Tor only switch. The choice is a step of
+/// its own, before any PIN: a tester whose keyboard covered the restore link under the PIN
+/// field created a wallet they did not want (26.10.16). Create leads to the PIN on the keypad,
+/// then the repeat, then the biometrics offer; the wallet is made sealed under it.
+///
+/// On a fresh install nothing connects until Create or Restore ([firstStartProvider]): the
+/// screen answers that first step, with the Tor only switch, as the level step did before.
 class FirstRunScreen extends ConsumerStatefulWidget {
   const FirstRunScreen({super.key, this.startCreating = false});
 
-  /// From the first-start picker's Create, which stands in for the choice: the PIN step at
-  /// once, and its Back returns to the picker.
+  /// From a screen that stands in for the choice: the PIN step at once, and its Back returns
+  /// there.
   final bool startCreating;
 
   @override
@@ -51,6 +65,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   /// "Create a new wallet" was chosen: the PIN step shows.
   bool _creating = false;
 
+  /// Tor only from the first connection.
+  late bool _tor = torBuilt && ref.read(networkModeProvider) == NetworkMode.torOnly;
+
+  /// Create or Restore is saving the first step.
+  bool _busy = false;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +81,34 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   void dispose() {
     _answer = null;
     super.dispose();
+  }
+
+  /// The first step answered, before the PIN or the phrase: Tor only stored (or taken back
+  /// after a Back from a later step) and, on a fresh install, the hold on connections ends.
+  Future<void> _answerFirstStep() async {
+    if (torBuilt && !_tor && ref.read(networkModeProvider) == NetworkMode.torOnly) {
+      final settings = await ref.read(appSettingsProvider.future);
+      await ref.read(appSettingsProvider.notifier).setAdvanced(settings.advanced.withMode(NetworkMode.standard));
+    }
+    if (ref.read(firstStartProvider)) {
+      await ref.read(firstStartProvider.notifier).complete(level: firstStartLevel, undercover: _tor);
+    }
+  }
+
+  Future<void> _go({required bool restore}) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await _answerFirstStep();
+      if (!mounted) return;
+      if (restore) {
+        _leave(const RestoreScreen());
+      } else {
+        setState(() => _creating = true);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Future<void> _finish(String pin, bool useBiometrics) async {
@@ -117,7 +165,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     if (answer != null) _finish(answer.pin, answer.biometrics);
   }
 
-  /// Back on the PIN step: to the choice, or to the picker that stood in for it.
+  /// Back on the PIN step: to the choice, or to the screen that stood in for it.
   void _backFromPin() {
     if (widget.startCreating) {
       _leave(const LaunchScreen());
@@ -130,211 +178,145 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute<void>(builder: (_) => screen));
 
+  void _pinHelp() {
+    final l = context.l10n;
+    showKitHelp(
+      context,
+      title: l.phoneStartPinHelpTitle,
+      lines: [l.phoneStartPinHelpUnlock, l.phoneStartPinHelpLost],
+      onMore: () => openHelp(context, HelpId.phrase),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final config = ref.watch(walletConfigProvider);
-    final network = config == null || !ref.watch(devNetworksProvider)
-        ? ''
-        : networkSuffix(l, config.chain);
+    final t = context.tokens;
     final waiting = _answer != null && _error == null;
     final choosing = !_creating;
-
     final onPinStep = _creating && _answer == null;
-    // The system's Back on the PIN step returns to the choice, as the bar's arrow does.
+    // Tor only is a promise about the first connection: once connections were made (a Back
+    // from a later step with it off) the row stays away, and with it on it stays, to turn it
+    // off again.
+    final torOffered = torBuilt && (ref.watch(firstStartProvider) || _tor);
+
+    final Widget body;
+    if (onPinStep) {
+      // The system's Back and the header's arrow return to the choice.
+      body = Column(
+        children: [
+          KitFlowHeader(title: '', back: true, onLeading: _backFromPin, onHelp: _pinHelp),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter),
+              child: PinSetupView(onDone: _finish, actionsAtFoot: true),
+            ),
+          ),
+        ],
+      );
+    } else if (_answer == null && choosing) {
+      body = Padding(
+        padding: const EdgeInsets.fromLTRB(Kit.gutter, Kit.gutter, Kit.gutter, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const ExcludeSemantics(child: KitBrandTile()),
+                      const SizedBox(height: 18),
+                      const BrandWordmark(variant: BrandVariant.mobile, size: 26),
+                      const SizedBox(height: 32),
+                      Semantics(
+                        header: true,
+                        child: Text(l.firstRunTitle, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center),
+                      ),
+                      const SizedBox(height: 12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(l.phoneWelcomeBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: Kit.gutter),
+            KitButton(
+              key: firstRunCreateKey,
+              label: l.firstRunCreate,
+              onPressed: _busy ? null : () => _go(restore: false),
+              semanticsId: TrustIds.welcomeCreate,
+            ),
+            const SizedBox(height: 12),
+            KitButton(
+              key: firstRunRestoreKey,
+              label: l.firstRunRestore,
+              kind: KitButtonKind.quiet,
+              onPressed: _busy ? null : () => _go(restore: true),
+              semanticsId: TrustIds.welcomeRestore,
+            ),
+            if (torOffered) ...[
+              const SizedBox(height: 4),
+              KitRow.toggle(
+                key: firstRunTorOnlyKey,
+                title: l.levelUndercoverTitle,
+                subtitle: l.phoneWelcomeTorLine,
+                value: _tor,
+                onChanged: _busy ? null : (v) => setState(() => _tor = v),
+                semanticsId: TrustIds.welcomeToronly,
+              ),
+            ] else
+              const SizedBox(height: Kit.gutter),
+          ],
+        ),
+      );
+    } else {
+      body = Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Kit.gutter),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Center(child: ExcludeSemantics(child: KitBrandTile())),
+              const SizedBox(height: 28),
+              if (waiting) ...[
+                const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 16),
+                WorkStatus(
+                  lines: [l.workCreating, l.firstRunSecuring, l.workOpening],
+                  // The body text the plain line had. Not DefaultTextStyle.of(context): this
+                  // context is above the Scaffold, so it gave the no-Material fallback (red,
+                  // yellow underline).
+                  style: KitType.body.copyWith(color: t.dim),
+                ),
+              ] else ...[
+                ErrorText(_error!),
+                const SizedBox(height: 12),
+                KitButton(label: l.firstRunTryAgain, onPressed: _retry),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
     return PopScope(
       canPop: !onPinStep,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _backFromPin();
       },
       child: SlotScaffold(
-        centered: !(_answer == null && choosing) && !onPinStep,
         glow: heroGlow,
-        // The title is the hero's heading; the bar only holds the network action, and on the
-        // PIN step the way back to the choice.
-        appBar: AppBar(
-          leading: onPinStep
-              ? BackButton(onPressed: _backFromPin)
-              : null,
-          automaticallyImplyLeading: false,
-          // Mainnet on the built-in node works without a choice, but a new install must be able
-          // to reach floonet or another node before it has a wallet, so this is not Advanced.
-          actions: [
-            if (ref.watch(levelFeaturesProvider.select((f) => f.welcomeServerLink)))
-              NetworkSettingsButton(enabled: !waiting),
-          ],
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: body),
+          ),
         ),
-        body: onPinStep
-            ? SafeArea(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: PinSetupView(onDone: _finish, actionsAtFoot: true),
-                    ),
-                  ),
-                ),
-              )
-            : _answer == null && choosing
-            // The hero centred in the room above the two choices, which sit at the foot of
-            // the screen, above a keyboard.
-            ? SafeArea(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: Center(
-                              child: SingleChildScrollView(
-                                child: BrandHero(
-                                  title: '${l.firstRunTitle}$network',
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              FilledButton.icon(
-                                key: firstRunCreateKey,
-                                style: FilledButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(48),
-                                ),
-                                icon: const Icon(Icons.add),
-                                label: trustId(TrustIds.welcomeCreate, Text(l.firstRunCreate)),
-                                onPressed: () =>
-                                    setState(() => _creating = true),
-                              ),
-                              const SizedBox(height: 12),
-                              OutlinedButton.icon(
-                                key: firstRunRestoreKey,
-                                style: OutlinedButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(48),
-                                ),
-                                icon: const Icon(Icons.restore),
-                                label: trustId(TrustIds.welcomeRestore, Text(l.firstRunRestore)),
-                                onPressed: () => _leave(const RestoreScreen()),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            : CenteredBody(
-                children: [
-                  BrandHero(title: '${l.firstRunTitle}$network'),
-                  const SizedBox(height: 28),
-                  if (_answer == null && choosing)
-                    // Two plain choices and no text field, so no keyboard can cover either. A new
-                    // wallet is the primary one; Restore stands beside it at the same size. They
-                    // sit at the foot of the screen, as every primary action.
-                    const SizedBox.shrink()
-                  else if (_answer == null)
-                    PinSetupView(onDone: _finish)
-                  else if (waiting) ...[
-                    const Center(child: CircularProgressIndicator()),
-                    const SizedBox(height: 16),
-                    WorkStatus(
-                      lines: [l.workCreating, l.firstRunSecuring, l.workOpening],
-                      // The body text the plain line had. Not DefaultTextStyle.of(context): this
-                      // context is above the Scaffold, so it gave the no-Material fallback (red,
-                      // yellow underline).
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ] else ...[
-                    ErrorText(_error!),
-                    BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
-                  ],
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-/// The app bar's way to the servers before a wallet is open, on first run and unlock: it opens
-/// the small menu ([showNetworkMenu]) with Node and Epicbox. The icon and its label in the
-/// accent colour, so it reads as a button rather than a decoration. When the labelled button,
-/// measured at the current text scale and in the current language, would not fit beside a
-/// back arrow, it gives way to the icon and its tooltip, so a long label never overflows the
-/// bar.
-class NetworkSettingsButton extends StatelessWidget {
-  const NetworkSettingsButton({super.key, this.enabled = true});
-
-  /// False while the screen is busy (the button is disabled).
-  final bool enabled;
-
-  /// The icon in a [TextButton.icon]; it does not grow with the text.
-  static const double _iconSize = 18;
-
-  /// The button's start padding, icon gap and end padding: Material 3 shrinks them from
-  /// 12 + 8 + 16 at text scale 1 to 4 + 4 + 4 at scale 2 and above.
-  static const double _paddingAtOne = 36;
-  static const double _paddingAtTwo = 12;
-
-  /// The margin after the button, at the bar's end.
-  static const double _margin = 8;
-
-  /// What the bar keeps for everything else: a 56 dp back arrow when the screen is pushed,
-  /// and 16 of inset.
-  static const double _reserved = 72;
-
-  bool _labelFits(BuildContext context, String label) {
-    final theme = Theme.of(context);
-    final style =
-        theme.textButtonTheme.style?.textStyle?.resolve(const {}) ??
-        theme.textTheme.labelLarge;
-    final scaler = MediaQuery.textScalerOf(context);
-    final painter = TextPainter(
-      text: TextSpan(text: label, style: style),
-      textDirection: Directionality.of(context),
-      textScaler: scaler,
-      maxLines: 1,
-    )..layout();
-    final padding = lerpDouble(
-      _paddingAtOne,
-      _paddingAtTwo,
-      (scaler.scale(1) - 1).clamp(0.0, 1.0),
-    )!;
-    final width = painter.width + _iconSize + padding + _margin;
-    painter.dispose();
-    return width <= MediaQuery.sizeOf(context).width - _reserved;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final label = context.l10n.setupNetworkSettingsTooltip;
-    final colour = context.tokens.accentText;
-    const icon = Icon(Icons.settings_ethernet);
-    final onPressed = enabled ? () => showNetworkMenu(context) : null;
-    if (!_labelFits(context, label)) {
-      return IconButton(
-        tooltip: label,
-        color: colour,
-        icon: icon,
-        onPressed: onPressed,
-      );
-    }
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(end: 8),
-      child: TextButton.icon(
-        style: TextButton.styleFrom(
-          foregroundColor: colour,
-          minimumSize: const Size(48, 48),
-          tapTargetSize: MaterialTapTargetSize.padded,
-        ),
-        icon: icon,
-        label: Text(label),
-        onPressed: onPressed,
       ),
     );
   }

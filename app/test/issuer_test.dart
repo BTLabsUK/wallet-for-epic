@@ -20,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/pin_pad.dart';
+
 /// A valid fake epicbox address with a key made of [c].
 String addr(String c, {String relay = 'epicbox.epiccash.com'}) =>
     '${'es$c'.padRight(52, c)}@$relay';
@@ -506,7 +508,7 @@ class _AppHarness {
   }
 
   Future<void> unlock(WidgetTester tester) async {
-    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await typePin(tester, _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }

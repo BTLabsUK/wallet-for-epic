@@ -49,6 +49,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show SemanticsData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/pin_pad.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'support/test_settings.dart' show testConfigWithout;
@@ -595,7 +597,7 @@ Future<void> _sendOne(WidgetTester tester, String to) async {
   await tester.pumpAndSettle();
   await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
   await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
-  await tester.enterText(find.byType(TextField).last, _Harness._pin);
+  await enterPin(tester, _Harness._pin);
   await tester.pumpAndSettle();
 }
 
@@ -4472,13 +4474,13 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         await tester.pumpAndSettle();
         await _tap(tester, find.text(_l.sendMakeFile));
-        await tester.enterText(find.byType(TextField).last, _Harness._pin);
+        await enterPin(tester, _Harness._pin);
         await tester.pumpAndSettle();
         ProviderScope.containerOf(tester.element(find.byType(SendView)))
             .read(sendRecipientProvider.notifier)
             .hand(payee);
         await tester.pumpAndSettle();
-        expect(find.text(_l.sendFileWaitingReply), findsOneWidget);
+        expect(find.text(_l.phoneFileSendHint), findsOneWidget);
         // Done is the list's last row, under the first page of a short phone.
         await tester.scrollUntilVisible(
           find.widgetWithText(TextButton, _l.commonDone),

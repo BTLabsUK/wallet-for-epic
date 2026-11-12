@@ -56,6 +56,7 @@ abstract final class KitIcons {
   static const IconData palette = Icons.palette_outlined;
   static const IconData invoice = Icons.description_outlined;
   static const IconData contact = Icons.person_outline_rounded;
+  static const IconData clock = Icons.schedule_rounded;
 
   // States, for toasts and notices.
   static const IconData success = Icons.check_circle_outline_rounded;

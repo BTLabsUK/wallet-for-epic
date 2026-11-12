@@ -252,7 +252,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pump();
   await tester.tap(finder);
   await _settle(tester);
-  if (find.widgetWithText(TextField, _l.pinLabel).evaluate().isNotEmpty) {
+  if (pinAsked.evaluate().isNotEmpty) {
     await answerPin(tester, settle: false);
     await _settle(tester);
   }

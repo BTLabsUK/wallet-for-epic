@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -33,6 +34,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/pin_pad.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'support/real_time.dart';
@@ -499,7 +502,7 @@ class _AppHarness {
     );
     // Home keeps refresh timers; unmounting cancels them.
     addTearDown(() => tester.pumpWidget(const SizedBox()));
-    await tester.enterText(find.widgetWithText(TextField, _l.pinLabel), _pin);
+    await typePin(tester, _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }
@@ -1056,7 +1059,7 @@ void main() {
       await tester.tap(send, warnIfMissed: false);
       await tester.pumpAndSettle();
       // One PIN dialog for the two taps.
-      expect(find.widgetWithText(TextField, _l.pinLabel), findsOneWidget);
+      expect(pinAsked, findsOneWidget);
       await answerPin(tester);
       expect(h.session.epicboxSends, hasLength(1));
       // The Send tab is still there, on its tracker.
@@ -1428,7 +1431,10 @@ void main() {
         findsOneWidget,
       );
       expect(find.byType(SnackBar), findsNothing);
-      await _tap(tester, find.text(_l.commonShare));
+      // The toast is cleared so it does not sit over the share button.
+      ProviderScope.containerOf(tester.element(find.byType(MaterialApp))).read(noticeProvider.notifier).clear();
+      await tester.pumpAndSettle();
+      await _tap(tester, find.text(_l.phoneFileShare));
       expect(h.files.shared.single.name, 'slate-1.tx');
       expect(find.text(_l.sendOpenReply), findsOneWidget);
 
@@ -1452,7 +1458,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendFileWaitingReply), findsOneWidget);
+      expect(find.textContaining('is set aside until then'), findsOneWidget);
 
       h.files.picks.add(
         SlateFile(
@@ -1478,7 +1484,7 @@ void main() {
         findsOneWidget,
       );
       // Back on Send, the tracker has moved on.
-      await _tap(tester, find.widgetWithText(FilledButton, _l.commonDone));
+      await _tap(tester, find.widgetWithText(KitButton, _l.commonDone));
       expect(find.text(_l.sendFileWaitingReply), findsNothing);
       expect(find.text(_l.txStepAccepted), findsOneWidget);
       expect(find.text(_l.sendOpenReply), findsNothing);
@@ -1527,7 +1533,7 @@ void main() {
         expect(find.textContaining(message), findsOneWidget, reason: text);
         expect(h.session.finalizedSlates, isEmpty, reason: text);
       }
-      expect(find.text(_l.sendFileWaitingReply, skipOffstage: false), findsOneWidget);
+      expect(find.text(_l.phoneFileSendHint, skipOffstage: false), findsOneWidget);
     });
 
     testWidgets('by file: paste the response instead', (tester) async {
@@ -2137,7 +2143,7 @@ void main() {
           file: SlateFile(name: 'from-alice.tx', json: incoming),
         ),
       );
-      expect(find.text(_l.txDetailsMessageFromSender), findsOneWidget);
+      expect(find.text(_l.phoneAcceptNote), findsOneWidget);
       expect(find.text('hi Bob'), findsOneWidget);
       expect(h.session.receivedSlates, isEmpty);
     });
@@ -2185,7 +2191,7 @@ void main() {
           file: SlateFile(name: 'from-alice.tx', json: incoming),
         ),
       );
-      expect(find.text('Someone is sending you 3.0\u00a0EPIC.'), findsOneWidget);
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
       expect(find.text('Message'), findsNothing);
     });
 
@@ -2215,17 +2221,11 @@ void main() {
         ),
       );
       final loads = h.session.transactionsCalls;
-      await _tap(tester, find.text(_l.slateAcceptPayment));
+      await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming, incoming]);
       expect(h.session.transactionsCalls, loads);
-      expect(
-        find.text(
-          'Already accepted. Return from-bob.tx.response to the sender again.',
-        ),
-        findsOneWidget,
-      );
       expect(find.textContaining('not a second payment'), findsOneWidget);
-      expect(find.textContaining('Accepted. Return'), findsNothing);
+      expect(find.text(_l.phoneFileReplyHint), findsNothing);
       await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'from-bob.tx.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
@@ -2251,13 +2251,13 @@ void main() {
         settle: false,
       );
       expect(find.bySemanticsLabel(_l.slateReading), findsOneWidget);
-      expect(find.text(_l.slateAcceptPayment), findsNothing);
+      expect(find.text(_l.phoneAcceptAccept), findsNothing);
       expect(find.byType(ErrorText), findsNothing);
 
       gate.complete();
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(_l.slateReading), findsNothing);
-      expect(find.text(_l.slateAcceptPayment), findsNothing);
+      expect(find.text(_l.phoneAcceptAccept), findsNothing);
       expect(find.text(_l.slateFinishPayment), findsNothing);
       expect(h.session.receivedSlates, isEmpty);
       expect(h.session.finalizedSlates, isEmpty);

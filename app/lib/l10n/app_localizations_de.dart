@@ -22935,4 +22935,226 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phonePayRouteSubTor => 'Direkt an ihre Wallet, über Tor';
+
+  @override
+  String get phonePinChooseHint =>
+      'Sie entsperrt die Wallet und gibt Zahlungen frei.';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'Gesicht oder Fingerabdruck, je nach Gerät. Die PIN funktioniert weiterhin.';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'Die PIN lässt sich nicht wiederherstellen. Du kannst diese Wallet vom Telefon löschen und mit ihrer Wiederherstellungsphrase neu aufbauen. Ohne die Phrase sind ihre Coins für immer verloren.';
+
+  @override
+  String get phoneWelcomeBody =>
+      'Erstelle in unter einer Minute eine Wallet oder hole eine mit ihrer Wiederherstellungsphrase zurück.';
+
+  @override
+  String get phoneWelcomeTorLine =>
+      'Von der ersten Sekunde an über Tor verbinden';
+
+  @override
+  String get phoneStartPinHelpTitle => 'Zur PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'Die PIN entsperrt die Wallet auf diesem Telefon und gibt jede Zahlung frei. Sie verlässt das Telefon nie.';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'Die PIN lässt sich nicht wiederherstellen. Bewahre die Wiederherstellungsphrase sicher auf: Mit ihr stellst du die Wallet wieder her und wählst eine neue PIN.';
+
+  @override
+  String get phoneRestoreHelpTitle => 'Eine Wallet wiederherstellen';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'Die Wiederherstellungsphrase holt das Guthaben zurück. Tippe die Wörter ein, füge sie ein oder scanne ihren QR-Code.';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'Wähle den Monat, in dem du die Wallet erstellt hast. Unsicher? Ein früherer Monat findet mehr und dauert länger.';
+
+  @override
+  String get phoneRestoreScan => 'Scannen';
+
+  @override
+  String get phoneRestoreStartGroup => 'Wo die Suche beginnt';
+
+  @override
+  String get phoneRestoreCreated => 'Wallet erstellt';
+
+  @override
+  String get phoneRestoreRestoring => 'Wird wiederhergestellt';
+
+  @override
+  String get phoneRestoreScanTitle => 'Deine Coins werden gesucht';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'Lass die App offen, bis die Suche fertig ist. Der Bildschirm bleibt dabei an.';
+
+  @override
+  String get phoneRestoreLookingFrom => 'Suche ab';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'Senden und Empfangen öffnen sich, wenn die Suche endet. Wenn du stoppst, läuft sie auf Home weiter.';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'Die Suche wurde gestoppt';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'Die Wiederherstellungsphrase hat das Guthaben zurückgebracht. Verlauf, Kontakte und Einstellungen kommen aus einer Wallet-Datendatei zurück, falls du eine exportiert hast.';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'Schritt $n von $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'Ihren Code zeigen';
+
+  @override
+  String get phoneStepPayScan => 'Ihre Antwort scannen';
+
+  @override
+  String get phoneStepPayFileSend => 'Datei senden';
+
+  @override
+  String get phoneStepPayFileReply => 'Ihre Antwort öffnen';
+
+  @override
+  String get phoneStepRecvScan => 'Ihren Code scannen';
+
+  @override
+  String get phoneStepRecvShow => 'Ihre Antwort zeigen';
+
+  @override
+  String get phoneStepRecvFileOpen => 'Datei öffnen';
+
+  @override
+  String get phoneStepRecvFileReply => 'Antwort senden';
+
+  @override
+  String get phoneQrTitlePay => 'Persönlich bezahlen';
+
+  @override
+  String get phoneQrTitleReceive => 'Persönlich empfangen';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'Wird in $seconds s verborgen';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'Ihre Antwort scannen';
+
+  @override
+  String get phoneQrHelpTitle => 'Persönlich bezahlen';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'Persönlich bezahlt';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'Persönlich empfangen';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount werden bezahlt, sobald die Antwort gelesen ist.';
+  }
+
+  @override
+  String get phoneQrShowMine => 'Meinen Code erneut zeigen';
+
+  @override
+  String get phoneFileTitleReceive => 'Mit einer Datei empfangen';
+
+  @override
+  String get phoneFilePayCard => 'Zahlungsdatei';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return 'Für $amount · erstellt $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => 'Deine Antwort';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return 'Für die Zahlung von $amount · erstellt $time';
+  }
+
+  @override
+  String get phoneFileCopyText => 'Als Text kopieren';
+
+  @override
+  String get phoneFileShare => 'Datei teilen';
+
+  @override
+  String get phoneFileShareReply => 'Antwort teilen';
+
+  @override
+  String get phoneFileSendHint =>
+      'Schick sie in einer beliebigen App. Sie wird in der Wallet des anderen geöffnet, danach kommt eine Antwort zurück.';
+
+  @override
+  String get phoneFileReplyHint =>
+      'Schick sie auf demselben Weg zurück. Die Zahlung wird ausgeführt, sobald die Antwort geöffnet wird.';
+
+  @override
+  String get phoneFileWhenReply => 'Wenn die Antwort ankommt';
+
+  @override
+  String get phoneFileOpenReplySub => 'Eine Datei oder eingefügter Text';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount sind bis dahin zurückgelegt. Du kannst diesen Bildschirm verlassen; die Zahlung wartet in Aktivität.';
+  }
+
+  @override
+  String get phoneFileOpenIntro =>
+      'Jemand hat dir eine Zahlungsdatei geschickt. Öffne sie hier, um die Zahlung zu sehen und anzunehmen.';
+
+  @override
+  String get phoneFileOpenFile => 'Datei öffnen';
+
+  @override
+  String get phoneFileOpenFileSub => 'Aus Dateien oder einer anderen App';
+
+  @override
+  String get phoneFilePasteText => 'Text einfügen';
+
+  @override
+  String get phoneFilePasteTextSub => 'Wenn sie als Nachricht ankam';
+
+  @override
+  String get phoneFileOpenNote =>
+      'Beim Öffnen wird noch nichts angenommen. Du siehst zuerst, von wem sie ist und wie viel.';
+
+  @override
+  String get phoneAcceptTitle => 'Jemand bezahlt dich';
+
+  @override
+  String get phoneAcceptNote => 'Notiz';
+
+  @override
+  String get phoneAcceptHintQr =>
+      'Nimm sie an und zeige ihnen dann deine Antwort. Es kommt nichts an, bevor sie gescannt wird.';
+
+  @override
+  String get phoneAcceptHintFile =>
+      'Nimm sie an und schick dann deine Antwort. Es kommt nichts an, bevor sie geöffnet wird.';
+
+  @override
+  String get phoneAcceptAccept => 'Annehmen';
+
+  @override
+  String get phoneAcceptNotNow => 'Nicht jetzt';
 }

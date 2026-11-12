@@ -25,7 +25,6 @@ import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
-import 'package:epic_wallet/src/ui/level_step_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart' show RestoreScreen;
 import 'package:epic_wallet/src/ui/scan_start.dart' show ScanStart;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
@@ -417,10 +416,10 @@ void main() {
       await _closePhone(tester);
     });
 
-    testWidgets('Level step: create, restore and the level stops', (tester) async {
+    testWidgets('Welcome: create and restore', (tester) async {
       await _same(
         tester,
-        () => _openPhone(tester, const LevelStepScreen(), open: false),
+        () => _openPhone(tester, const FirstRunScreen(), open: false),
         () => _closePhone(tester),
         ['g4.welcome.create', 'g4.welcome.restore'],
       );

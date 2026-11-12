@@ -10,7 +10,7 @@ import 'kit_tokens.dart';
 /// An empty list or an unavailable thing (HANDOFF 7.11): a 72 px icon well, a [title], one dim
 /// line and one button. Centred in the room it is given, scrolls when the room is small.
 class KitEmptyState extends StatelessWidget {
-  const KitEmptyState({super.key, required this.icon, required this.title, this.message, this.actionLabel, this.onAction, this.actionId, this.actionKind = KitButtonKind.quiet});
+  const KitEmptyState({super.key, required this.icon, required this.title, this.message, this.actionLabel, this.onAction, this.actionId, this.actionKind = KitButtonKind.quiet, this.extra = const []});
 
   final IconData icon;
   final String title;
@@ -19,6 +19,9 @@ class KitEmptyState extends StatelessWidget {
   final VoidCallback? onAction;
   final String? actionId;
   final KitButtonKind actionKind;
+
+  /// Further lines under the message (an error text).
+  final List<Widget> extra;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +52,7 @@ class KitEmptyState extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(message!, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
                   ],
+                  ...extra,
                   if (actionLabel != null) ...[
                     const SizedBox(height: 22),
                     ConstrainedBox(

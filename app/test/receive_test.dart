@@ -744,15 +744,15 @@ void main() {
       );
       h.files.picks.add(const SlateFile(name: 'from-bob.tx', json: incoming));
       await _tap(tester, find.text(_l.receiveFileOpen));
-      expect(find.text('from-bob.tx'), findsOneWidget);
-      await _tap(tester, find.text(_l.slateAcceptPayment));
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+      await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming]);
       await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'from-bob.tx.response');
       await _toastGone(tester);
-      await _tap(tester, find.text(_l.commonShare));
+      await _tap(tester, find.text(_l.phoneFileShareReply));
       expect(h.files.shared.single.name, 'from-bob.tx.response');
-      expect(find.text(_l.slateCopyReply), findsNothing);
+      expect(find.text(_l.phoneFileCopyText), findsNothing);
     });
 
     testWidgets('paste: an empty clipboard and text that is no payment', (
@@ -787,15 +787,14 @@ void main() {
       );
       h.clipboard = '  $incoming\n';
       await _tap(tester, find.text(_l.commonPaste));
-      expect(find.text(_l.slatePastedTitle), findsOneWidget);
-      expect(find.text('Someone is sending you 3.0\u00a0EPIC.'), findsOneWidget);
-      await _tap(tester, find.text(_l.slateAcceptPayment));
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+      await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming]);
       expect(
-        find.text('Accepted. Return incoming.response to the sender.'),
+        find.text(_l.phoneFileReplyHint),
         findsOneWidget,
       );
-      await _tap(tester, find.text(_l.slateCopyReply));
+      await _tap(tester, find.text(_l.phoneFileCopyText));
       expect(h.copied, [h.session.responseSlate.json]);
       await _toastGone(tester);
       await _tap(tester, find.text(_l.slateSaveToDevice));

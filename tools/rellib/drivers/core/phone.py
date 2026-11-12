@@ -34,6 +34,9 @@ BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 PIN_CHOOSE = T("g4.pin.choose")
 PIN_AGAIN = T("g4.pin.again")
 PIN_FIELD = T("g4.pin.field")
+# The wallet's own keypad (the phone's PIN screens); a passphrase wallet and older builds keep the text field.
+PIN_KEYS = {"0": T("g4.pin.key.0"), "1": T("g4.pin.key.1"), "2": T("g4.pin.key.2"), "3": T("g4.pin.key.3"), "4": T("g4.pin.key.4"),
+            "5": T("g4.pin.key.5"), "6": T("g4.pin.key.6"), "7": T("g4.pin.key.7"), "8": T("g4.pin.key.8"), "9": T("g4.pin.key.9")}
 PIN_WRONG = T("g4.pin.wrong")
 UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
@@ -142,7 +145,7 @@ RESTORE_SCANNING = T("g4.restore.scan")
 RESTORE_RETRY = T("g4.restore.retry")
 RESTORE_OPEN = T("g4.restore.open")
 RESTORE_DONE = T("g4.restore.done")
-RESTORE_NOT_NOW = T("g4.restore.notnow")
+RESTORE_NOT_NOW = T("g4.restore.notnow")   # Home's rebuilt-database card; the done screen's Open wallet is RESTORE_OPEN
 RESTORE_UNFINISHED = T("g4.restore.unfinished")
 RESTORE_OFFLINE = T("g4.restore.offline")
 RESTORE_FAILED = T("g4.restore.failed")
@@ -206,7 +209,14 @@ class Phone:
         d.trail.append(step)
         for _ in range(2):
             f = d.locate(PIN_FIELD, 30)
-            d._act(d.s.set_text, f, self.pin, True)
+            if d.find_in(PIN_KEYS["0"], d.tree()):
+                # The keypad: one key per digit, no digit in a log or a step line.
+                with d.hush():
+                    for c in self.pin:
+                        k = d.locate(PIN_KEYS[c], 10)
+                        d._act(d.s.press, k)
+            else:
+                d._act(d.s.set_text, f, self.pin, True)
             r = d.wait(then, timeout)
             if r:
                 return r
@@ -352,7 +362,7 @@ class Phone:
         d.press(cell, step="restore-month-pick", then=gone(MONTH_TITLE), timeout=20)
 
     def _restore_scan(self):
-        """The restore screen's own scan (from the start chosen): its done screen (Not now), or Try
+        """The restore screen's own scan (from the start chosen): its done screen (Open wallet), or Try
         again twice when it stops, then Open wallet (Home carries the scan on)."""
         d = self.d
         tries = 0
@@ -363,10 +373,10 @@ class Phone:
                 return
             if at == "done":
                 d.shot("restore-done")
-                n = d.seen(RESTORE_NOT_NOW)   # "Not now" is a known obstacle too: a wait may press it first
+                n = d.seen(RESTORE_OPEN)   # Open wallet on the done screen (the phone has no Not now); a wait may press it first
                 if n:
                     d._act(d.s.press, n)
-                d.must(self._home(), 60, step="restore-not-now", goal="the wallet's home after Not now")
+                d.must(self._home(), 60, step="restore-open-done", goal="the wallet's home after Open wallet")
                 return
             d.shot("restore-unfinished")
             if tries < 2 and d.seen(RESTORE_RETRY):

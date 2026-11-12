@@ -44,7 +44,7 @@ Future<bool> _invoiceGate(BuildContext context, WidgetRef ref) async {
   final config = ref.read(walletConfigProvider);
   if (session == null || config == null) return false;
   final vault = ref.read(vaultProvider);
-  final approved = await askPin(
+  final approved = await showPinSheet(
     context,
     reason: usesPassphrase(ref) ? context.l10n.invoicePassphraseReason : context.l10n.invoicePinReason,
     action: (pin) async {

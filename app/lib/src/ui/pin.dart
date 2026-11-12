@@ -11,8 +11,13 @@ import '../providers.dart';
 import '../reserved_slot.dart';
 import '../trust_ids.dart';
 import '../vault.dart';
-import 'app_dialog.dart';
 import 'common.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_keypad.dart';
+import 'kit/kit_row.dart' show KitIconWell;
+import 'kit/kit_sheet.dart';
+import 'kit/kit_tokens.dart';
 import 'theme/tokens.dart';
 import 'work_status.dart';
 
@@ -156,8 +161,159 @@ class _PassphraseEntryState extends State<_PassphraseEntry> {
   }
 }
 
-/// Picks a PIN, confirms it, then asks about biometric unlock where the device has it.
-/// Calls [onDone] once, with the PIN and the biometric answer.
+/// The trust id of a [KitKeypad] key of the PIN pad (digits '0'..'9', [KitKey.delete],
+/// [KitKey.biometrics]), for the test drivers.
+String? pinKeyId(String key) => switch (key) {
+  '0' => TrustIds.pinKey0,
+  '1' => TrustIds.pinKey1,
+  '2' => TrustIds.pinKey2,
+  '3' => TrustIds.pinKey3,
+  '4' => TrustIds.pinKey4,
+  '5' => TrustIds.pinKey5,
+  '6' => TrustIds.pinKey6,
+  '7' => TrustIds.pinKey7,
+  '8' => TrustIds.pinKey8,
+  '9' => TrustIds.pinKey9,
+  KitKey.delete => TrustIds.pinKeyDelete,
+  KitKey.biometrics => TrustIds.pinKeyBio,
+  _ => null,
+};
+
+/// The PIN's six dots on the wallet's own keypad (HANDOFF 7.8): the dots, then [KitKeypad]. The
+/// digits stay with the caller ([digits], [onChanged]); [onCompleted] runs once [pinLength] of
+/// them are in. A hardware keyboard types too (digits and Backspace), so a tablet or a driver
+/// with a keyboard needs no touch. With [enabled] false the keys are dimmed and do nothing
+/// (while a PIN is checked). [error] draws the dots in risk. The PIN goes nowhere but to
+/// [onChanged] and [onCompleted]: this widget keeps and logs nothing.
+class PinPad extends StatelessWidget {
+  const PinPad({
+    super.key,
+    required this.digits,
+    required this.onChanged,
+    required this.onCompleted,
+    this.error = false,
+    this.enabled = true,
+    this.onBiometrics,
+    this.below,
+    this.top = const [],
+    this.fill = false,
+  });
+
+  final String digits;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onCompleted;
+  final bool error;
+  final bool enabled;
+
+  /// Shows the biometrics key bottom-left and calls this when it is pressed.
+  final VoidCallback? onBiometrics;
+
+  /// What sits between the dots and the keys: the error line, the wait, the progress.
+  final Widget? below;
+
+  /// What sits above the dots: the title and its hint.
+  final List<Widget> top;
+
+  /// With a bounded height: [top] and the dots are centred in the room above the keys, which
+  /// sit at the foot of the screen. Otherwise everything follows in one column.
+  final bool fill;
+
+  void _digit(String d) {
+    if (!enabled || digits.length >= pinLength) return;
+    final next = digits + d;
+    onChanged(next);
+    if (next.length == pinLength) onCompleted(next);
+  }
+
+  void _delete() {
+    if (!enabled || digits.isEmpty) return;
+    onChanged(digits.substring(0, digits.length - 1));
+  }
+
+  KeyEventResult _key(FocusNode node, KeyEvent event) {
+    if (event is KeyUpEvent) return KeyEventResult.ignored;
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      _delete();
+      return KeyEventResult.handled;
+    }
+    final c = event.character;
+    if (c != null && c.length == 1 && c.codeUnitAt(0) >= 0x30 && c.codeUnitAt(0) <= 0x39) {
+      _digit(c);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final head = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ...top,
+        TrustId(TrustIds.pinField, child: KitPinDots(filled: digits.length, error: error)),
+        if (below != null) ...[const SizedBox(height: 14), below!],
+      ],
+    );
+    final keys = Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: IgnorePointer(
+        ignoring: !enabled,
+        child: KitKeypad(
+          onDigit: _digit,
+          onDelete: _delete,
+          onDeleteLong: () {
+            if (enabled && digits.isNotEmpty) onChanged('');
+          },
+          onBiometrics: onBiometrics,
+          idFor: pinKeyId,
+        ),
+      ),
+    );
+    return Focus(
+      autofocus: true,
+      onKeyEvent: _key,
+      child: fill
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: Center(child: SingleChildScrollView(child: head))),
+                keys,
+              ],
+            )
+          : Column(mainAxisSize: MainAxisSize.min, children: [head, const SizedBox(height: 22), keys]),
+    );
+  }
+}
+
+/// The line under the PIN's dots: [text] in risk (a wrong PIN) or, with [quiet], in the dim
+/// colour. It holds two lines of room whether or not it says anything, so a message moves
+/// nothing around it.
+class PinMessage extends StatelessWidget {
+  const PinMessage(this.text, {super.key, this.quiet = false, this.child});
+
+  final String? text;
+  final bool quiet;
+
+  /// Instead of [text]: a chip or a progress line in the same room.
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final style = KitType.body.copyWith(color: quiet ? t.dim : t.risk);
+    return ReservedSlot.lines(
+      style: style,
+      lines: 2,
+      alignment: AlignmentDirectional.topCenter,
+      child: child ?? (text == null ? null : Semantics(liveRegion: true, child: Text(text!, style: style, textAlign: TextAlign.center))),
+    );
+  }
+}
+
+/// Picks a PIN on the keypad, confirms it, then asks about biometric unlock where the device
+/// has it. Calls [onDone] once, with the PIN and the biometric answer. It brings its own title
+/// and hint; the screen around it brings the header.
 class PinSetupView extends ConsumerStatefulWidget {
   const PinSetupView({
     super.key,
@@ -171,8 +327,8 @@ class PinSetupView extends ConsumerStatefulWidget {
 
   final void Function(String pin, bool useBiometrics) onDone;
 
-  /// The step's buttons at the foot of the screen (needs a bounded height), as first run
-  /// does; otherwise they follow the content.
+  /// The keypad at the foot of the screen with the title centred in the room above it (needs a
+  /// bounded height), as first run does; otherwise the parts follow one another.
   final bool actionsAtFoot;
 
   /// Whether to offer biometric unlock after the PIN. Off when changing an existing PIN.
@@ -181,51 +337,53 @@ class PinSetupView extends ConsumerStatefulWidget {
   /// Replaces "Choose a 6-digit PIN".
   final String? chooseTitle;
 
-  /// Replaces the first field's label, "PIN" ("New PIN" on Change PIN).
+  /// Kept for the screens that name the first PIN ("New PIN"); the keypad has no field label,
+  /// so it only labels the dots for a screen reader.
   final String? chooseLabel;
 
-  /// Shown above the first PIN field.
+  /// Shown above the title of the first step.
   final Widget? intro;
 
   @override
   ConsumerState<PinSetupView> createState() => _PinSetupViewState();
 }
 
-enum _PinStep { choose, confirm, biometrics }
+enum _PinStep { choose, confirm }
 
 class _PinSetupViewState extends ConsumerState<PinSetupView> {
-  final _pin = TextEditingController();
-  final _confirm = TextEditingController();
-  late final Future<bool> _biometricsAvailable = ref
-      .read(biometricStoreProvider)
-      .isAvailable();
+  late final Future<bool> _biometricsAvailable = ref.read(biometricStoreProvider).isAvailable();
   _PinStep _step = _PinStep.choose;
   bool _mismatch = false;
+  String _digits = '';
   String _chosen = '';
+  bool _asking = false;
 
   @override
   void dispose() {
-    _pin.clear();
-    _confirm.clear();
+    _digits = '';
     _chosen = '';
-    _pin.dispose();
-    _confirm.dispose();
     super.dispose();
   }
 
   void _chosenPin(String pin) {
+    // A beat on the full dots before the next step, so the sixth digit is seen.
     setState(() {
       _chosen = pin;
       _mismatch = false;
-      _step = _PinStep.confirm;
+    });
+    Future<void>.delayed(const Duration(milliseconds: 160), () {
+      if (!mounted) return;
+      setState(() {
+        _digits = '';
+        _step = _PinStep.confirm;
+      });
     });
   }
 
   Future<void> _confirmed(String pin) async {
     if (pin != _chosen) {
-      _confirm.clear();
-      _pin.clear();
       setState(() {
+        _digits = '';
         _chosen = '';
         _mismatch = true;
         _step = _PinStep.choose;
@@ -233,112 +391,99 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
       return;
     }
     if (widget.askBiometrics && await _biometricsAvailable) {
-      if (mounted) setState(() => _step = _PinStep.biometrics);
+      if (!mounted) return;
+      setState(() => _asking = true);
+      final use = await showPinBiometricsOffer(context);
+      if (!mounted) return;
+      widget.onDone(_chosen, use);
     } else {
       widget.onDone(pin, false);
     }
   }
 
+  void _chooseDifferent() => setState(() {
+    _digits = '';
+    _chosen = '';
+    _step = _PinStep.choose;
+  });
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final t = context.tokens;
     final l = context.l10n;
-    // The step's content, then its actions: at the foot of the screen when asked. The choose
-    // step holds the room of the confirm step's button ([PinStepFoot]), so the PIN field stays
-    // in one place between the two steps.
-    final (List<Widget> content, List<Widget> actions) = switch (_step) {
-      _PinStep.choose => (_chooseStep(theme, l), [const SizedBox(height: 8), const PinStepFoot()]),
-      _PinStep.confirm => (
-        _confirmStep(theme, l),
-        [const SizedBox(height: 8), PinStepFoot(child: _chooseDifferent(l))],
-      ),
-      _PinStep.biometrics => (_biometricsStep(theme, l), _biometricsActions(l)),
-    };
-    if (!widget.actionsAtFoot) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...content, ...actions]);
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: content),
-            ),
-          ),
+    final choose = _step == _PinStep.choose;
+    final hintStyle = KitType.body.copyWith(color: t.dim);
+    final top = <Widget>[
+      if (choose) ?widget.intro,
+      Semantics(
+        header: true,
+        child: Text(
+          choose ? (widget.chooseTitle ?? l.pinChooseTitle(pinLength)) : l.pinConfirmTitle,
+          style: KitType.pageTitle.copyWith(color: t.text),
+          textAlign: TextAlign.center,
         ),
-        ...actions,
-      ],
+      ),
+      const SizedBox(height: 12),
+      // The hint's room stays on the repeat step, so the keypad and the title do not move.
+      ReservedSlot.like(
+        alignment: AlignmentDirectional.topCenter,
+        model: Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center),
+        child: choose ? Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center) : null,
+      ),
+      const SizedBox(height: 28),
+    ];
+    return PinPad(
+      key: ValueKey('pin-${_step.name}'),
+      top: top,
+      fill: widget.actionsAtFoot,
+      digits: _asking ? _chosen : _digits,
+      enabled: !_asking,
+      onChanged: (v) => setState(() => _digits = v),
+      onCompleted: choose ? _chosenPin : _confirmed,
+      error: _mismatch,
+      below: PinMessage(
+        _mismatch ? l.pinMismatch : null,
+        child: !choose && !_asking
+            ? KitButton(label: l.pinChooseDifferent, onPressed: _chooseDifferent, kind: KitButtonKind.ghost, small: true, expand: false)
+            : null,
+      ),
     );
   }
+}
 
-  List<Widget> _chooseStep(ThemeData theme, AppLocalizations l) => [
-          ?widget.intro,
-          PinStepTitle(widget.chooseTitle ?? l.pinChooseTitle(pinLength)),
-          const SizedBox(height: 16),
-          PinField(
-            key: const ValueKey('pin-choose'),
-            controller: _pin,
-            label: widget.chooseLabel ?? l.pinLabel,
-            errorText: _mismatch ? l.pinMismatch : null,
-            reserveError: true,
-            onCompleted: _chosenPin,
+/// The biometrics offer after the PIN (HANDOFF 7.8): a sheet over the PIN screen with the
+/// fingerprint tile, a question, "Use biometrics" and "Not now". Answers true to use them;
+/// false for Not now, the back key or a swipe down.
+Future<bool> showPinBiometricsOffer(BuildContext context) async {
+  final use = await showKitSheet<bool>(
+    context: context,
+    isDismissible: false,
+    enableDrag: false,
+    builder: (sheet) {
+      final t = sheet.tokens;
+      final l = sheet.l10n;
+      return KitSheet(
+        primaryLabel: l.pinBiometricsEnable,
+        onPrimary: () => Navigator.pop(sheet, true),
+        secondaryLabel: l.pinBiometricsNotNow,
+        onSecondary: () => Navigator.pop(sheet, false),
+        secondaryId: TrustIds.pinBiometricsNotnow,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            children: [
+              Semantics(label: l.pinBiometricsIconLabel, child: KitIconWell(KitIcons.fingerprint, color: t.accent, size: 64, iconSize: 32)),
+              const SizedBox(height: 18),
+              Text(l.pinBiometricsQuestion, style: KitType.sheetTitle.copyWith(color: t.text), textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+              Text(l.phonePinBiometricsBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+            ],
           ),
-        ];
-
-  List<Widget> _confirmStep(ThemeData theme, AppLocalizations l) => [
-          PinStepTitle(l.pinConfirmTitle),
-          const SizedBox(height: 16),
-          PinField(
-            key: const ValueKey('pin-confirm'),
-            controller: _confirm,
-            label: l.pinRepeatLabel,
-            reserveError: true,
-            onCompleted: _confirmed,
-          ),
-        ];
-
-  Widget _chooseDifferent(AppLocalizations l) => TextButton(
-        onPressed: () {
-          _pin.clear();
-          _confirm.clear();
-          setState(() => _step = _PinStep.choose);
-        },
-        child: Text(l.pinChooseDifferent),
+        ),
       );
-
-  List<Widget> _biometricsStep(ThemeData theme, AppLocalizations l) => [
-          Icon(
-            Icons.fingerprint,
-            size: 64,
-            color: theme.colorScheme.primary,
-            semanticLabel: l.pinBiometricsIconLabel,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l.pinBiometricsQuestion,
-            style: theme.textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(l.pinBiometricsPinStillWorks, textAlign: TextAlign.center),
-          const SizedBox(height: 24),
-        ];
-
-  List<Widget> _biometricsActions(AppLocalizations l) => [
-          BusyButton(
-            label: l.pinBiometricsEnable,
-            onPressed: () => widget.onDone(_chosen, true),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            onPressed: () => widget.onDone(_chosen, false),
-            child: TrustId(TrustIds.pinBiometricsNotnow, child: Text(l.pinBiometricsNotNow)),
-          ),
-        ];
+    },
+  );
+  return use ?? false;
 }
 
 /// A PIN step's heading, with room for two lines whether it takes one or two: the steps'
@@ -521,8 +666,22 @@ bool usesPassphrase(WidgetRef ref) => ref.read(usesPassphraseProvider).value ?? 
 
 /// Asks for the PIN of the open wallet (or, with [allowBiometrics], its biometric copy) and
 /// runs [action] with it. Returns what [action] returned, or null if the user cancelled. A
-/// wrong PIN ([PinRejected] from [action]) is shown in the dialog and asked again.
+/// wrong PIN ([PinRejected] from [action]) is shown in the sheet and asked again. This is the
+/// one PIN sheet of the app ([showPinSheet]); [reason] is the line under its title.
 Future<T?> askPin<T extends Object>(
+  BuildContext context, {
+  String? reason,
+  bool allowBiometrics = true,
+  required Future<T> Function(String pin) action,
+}) => showPinSheet<T>(context, reason: reason, allowBiometrics: allowBiometrics, action: action);
+
+/// The PIN sheet (HANDOFF 7.8): "Enter your PIN", what it is for, six dots, the wallet's own
+/// keypad (with the biometrics key where the wallet has them) and Cancel. Runs [action] with the
+/// PIN once six digits are in and returns what it returned, or null on Cancel. A wrong PIN
+/// shows under the dots and the sheet asks again; the sheet stays open while [action] runs
+/// (LEPIC may wait up to an hour before it checks a PIN). A wallet that uses a passphrase gets
+/// the passphrase field instead of the keypad.
+Future<T?> showPinSheet<T extends Object>(
   BuildContext context, {
   String? reason,
   bool allowBiometrics = true,
@@ -537,35 +696,27 @@ Future<T?> askPin<T extends Object>(
       return null;
     }
   }
-  return showAppDialog<T>(
-    context,
-    builder: (_) => _PinPromptDialog<T>(
-      reason: reason,
-      allowBiometrics: allowBiometrics,
-      action: action,
-    ),
+  return showKitSheet<T>(
+    context: context,
+    enableDrag: false,
+    builder: (_) => _PinSheet<T>(reason: reason, allowBiometrics: allowBiometrics, action: action),
   );
 }
 
-class _PinPromptDialog<T extends Object> extends ConsumerStatefulWidget {
-  const _PinPromptDialog({
-    this.reason,
-    required this.allowBiometrics,
-    required this.action,
-  });
+class _PinSheet<T extends Object> extends ConsumerStatefulWidget {
+  const _PinSheet({this.reason, required this.allowBiometrics, required this.action});
 
   final String? reason;
   final bool allowBiometrics;
   final Future<T> Function(String pin) action;
 
   @override
-  ConsumerState<_PinPromptDialog<T>> createState() =>
-      _PinPromptDialogState<T>();
+  ConsumerState<_PinSheet<T>> createState() => _PinSheetState<T>();
 }
 
-class _PinPromptDialogState<T extends Object>
-    extends ConsumerState<_PinPromptDialog<T>> {
-  final _pin = TextEditingController();
+class _PinSheetState<T extends Object> extends ConsumerState<_PinSheet<T>> {
+  final _passphrase = TextEditingController();
+  String _digits = '';
   String? _error;
   bool _busy = false;
   bool _biometrics = false;
@@ -579,17 +730,16 @@ class _PinPromptDialogState<T extends Object>
 
   @override
   void dispose() {
-    _pin.clear();
-    _pin.dispose();
+    _digits = '';
+    _passphrase.clear();
+    _passphrase.dispose();
     super.dispose();
   }
 
   Future<void> _checkBiometrics() async {
     final config = ref.read(walletConfigProvider);
     if (config == null || !widget.allowBiometrics) return;
-    final enabled = await ref
-        .read(vaultProvider)
-        .biometricsEnabled(config.chain);
+    final enabled = await ref.read(vaultProvider).biometricsEnabled(config.chain);
     if (!mounted) return;
     setState(() => _biometrics = enabled);
     // Biometrics go first, as on the unlock screen; the PIN stays for a dismissed prompt.
@@ -621,7 +771,7 @@ class _PinPromptDialogState<T extends Object>
       final result = await widget.action(pin);
       if (mounted) Navigator.pop(context, result);
     } on PinRejected catch (rejection) {
-      _pin.clear();
+      _clear();
       final config = ref.read(walletConfigProvider);
       // A biometric copy that no longer opens is of no use.
       if (biometric && config != null) {
@@ -634,7 +784,7 @@ class _PinPromptDialogState<T extends Object>
         });
       }
     } catch (error) {
-      _pin.clear();
+      _clear();
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
       if (mounted) {
@@ -646,50 +796,94 @@ class _PinPromptDialogState<T extends Object>
     }
   }
 
+  void _clear() {
+    _passphrase.clear();
+    if (mounted) setState(() => _digits = '');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final checkAt = _checkAt;
     final passphrase = ref.watch(usesPassphraseProvider).value ?? false;
-    // Closing the dialog would not stop a running action (LEPIC may wait up to an hour before
-    // it checks the PIN), so it stays open until the action ends.
+    final reason = widget.reason;
+    final head = <Widget>[
+      Semantics(
+        header: true,
+        child: Text(
+          passphrase ? l.passphrasePromptTitle : l.pinPromptTitle,
+          style: KitType.sheetTitle.copyWith(color: t.text),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      if (reason != null) ...[
+        const SizedBox(height: 6),
+        Text(reason, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+      ],
+      const SizedBox(height: 24),
+    ];
+    final progress = _busy
+        ? Column(mainAxisSize: MainAxisSize.min, children: [
+            const PinCheckBar(),
+            if (checkAt != null) ...[const SizedBox(height: 8), PinWaitNote(until: checkAt)],
+          ])
+        : null;
+    // Closing the sheet would not stop a running action, so it stays open until the action ends.
     return PopScope(
       canPop: !_busy,
-      child: AppDialog(
-        title: passphrase ? l.passphrasePromptTitle : l.pinPromptTitle,
-        icon: Icons.lock_outline,
-        description: widget.reason,
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            PinField(
-              controller: _pin,
-              label: passphrase ? l.passphraseLabel : l.pinLabel,
-              enabled: !_busy,
-              errorText: _error,
-              onCompleted: _run,
-              passphrase: passphrase,
-            ),
-            if (_busy) ...[
-              const SizedBox(height: 8),
-              const PinCheckBar(),
-              if (checkAt != null) ...[
+      child: ColoredBox(
+        color: t.sheet,
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: 12 + MediaQuery.viewInsetsOf(context).bottom),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const KitGrabber(),
+                if (passphrase) ...[
+                  ...head.map((w) => Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: w)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                    child: PinField(
+                      controller: _passphrase,
+                      label: l.passphraseLabel,
+                      enabled: !_busy,
+                      errorText: _error,
+                      onCompleted: _run,
+                      passphrase: true,
+                    ),
+                  ),
+                  if (progress != null) Padding(padding: const EdgeInsets.only(top: 8, left: Kit.gutter, right: Kit.gutter), child: progress),
+                ] else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                    child: PinPad(
+                      top: head,
+                      digits: _digits,
+                      enabled: !_busy,
+                      error: _error != null,
+                      onChanged: (v) => setState(() => _digits = v),
+                      onCompleted: _run,
+                      onBiometrics: _biometrics ? _useBiometrics : null,
+                      below: PinMessage(_error, child: progress),
+                    ),
+                  ),
                 const SizedBox(height: 8),
-                PinWaitNote(until: checkAt),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                  child: KitButton(
+                    label: l.commonCancel,
+                    kind: KitButtonKind.quiet,
+                    onPressed: _busy ? null : () => Navigator.pop(context),
+                  ),
+                ),
               ],
-            ],
-            if (_biometrics)
-              TextButton.icon(
-                icon: const Icon(Icons.fingerprint),
-                label: Text(l.pinUseBiometrics),
-                onPressed: _busy ? null : _useBiometrics,
-              ),
-          ],
+            ),
+          ),
         ),
-        actions: [
-          DialogButton.secondary(label: l.commonCancel, onPressed: _busy ? null : () => Navigator.pop(context)),
-        ],
       ),
     );
   }

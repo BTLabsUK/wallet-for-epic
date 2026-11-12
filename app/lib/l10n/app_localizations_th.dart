@@ -22206,4 +22206,224 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phonePayRouteSubTor => 'ตรงถึงกระเป๋าของอีกฝั่ง ผ่าน Tor';
+
+  @override
+  String get phonePinChooseHint => 'ใช้ปลดล็อกกระเป๋าและอนุมัติการชำระเงิน';
+
+  @override
+  String get phonePinBiometricsBody =>
+      'ใบหน้าหรือลายนิ้วมือ แล้วแต่โทรศัพท์เครื่องนี้ PIN ยังใช้ได้เหมือนเดิม';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'ไม่สามารถกู้คืน PIN ได้ คุณลบกระเป๋านี้ออกจากโทรศัพท์แล้วกู้คืนด้วยวลีกู้คืนได้ หากไม่มีวลีนี้ เหรียญในกระเป๋าจะสูญหายถาวร';
+
+  @override
+  String get phoneWelcomeBody =>
+      'สร้างกระเป๋าใน 1 นาที หรือกู้คืนกระเป๋าเดิมด้วยวลีกู้คืน';
+
+  @override
+  String get phoneWelcomeTorLine => 'เชื่อมต่อผ่าน Tor ตั้งแต่วินาทีแรก';
+
+  @override
+  String get phoneStartPinHelpTitle => 'เกี่ยวกับ PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock =>
+      'PIN ใช้ปลดล็อกกระเป๋าบนโทรศัพท์เครื่องนี้และอนุมัติทุกการชำระเงิน PIN จะไม่ออกจากโทรศัพท์';
+
+  @override
+  String get phoneStartPinHelpLost =>
+      'ไม่สามารถกู้ PIN ได้ เก็บวลีกู้คืนไว้ให้ปลอดภัย เพราะใช้กู้กระเป๋าและตั้ง PIN ใหม่ได้';
+
+  @override
+  String get phoneRestoreHelpTitle => 'การกู้คืนกระเป๋า';
+
+  @override
+  String get phoneRestoreHelpPhrase =>
+      'วลีกู้คืนช่วยนำยอดเงินกลับมา พิมพ์คำ วางคำ หรือสแกน QR ของวลี';
+
+  @override
+  String get phoneRestoreHelpStart =>
+      'เลือกเดือนที่สร้างกระเป๋า ไม่แน่ใจ? เดือนที่เก่ากว่าจะพบมากกว่าแต่ใช้เวลานานกว่า';
+
+  @override
+  String get phoneRestoreScan => 'สแกน';
+
+  @override
+  String get phoneRestoreStartGroup => 'จุดเริ่มค้นหา';
+
+  @override
+  String get phoneRestoreCreated => 'สร้างกระเป๋าเมื่อ';
+
+  @override
+  String get phoneRestoreRestoring => 'กำลังกู้คืน';
+
+  @override
+  String get phoneRestoreScanTitle => 'กำลังค้นหาเหรียญของคุณ';
+
+  @override
+  String get phoneRestoreScanBody =>
+      'เปิดแอปค้างไว้จนกว่าจะเสร็จ หน้าจอจะติดอยู่ระหว่างทำงาน';
+
+  @override
+  String get phoneRestoreLookingFrom => 'ค้นหาตั้งแต่';
+
+  @override
+  String get phoneRestoreScanNote =>
+      'การส่งและรับจะเปิดเมื่อการค้นหาจบ หากหยุด ระบบจะทำต่อที่หน้าหลัก';
+
+  @override
+  String get phoneRestoreStoppedTitle => 'การค้นหาหยุดลง';
+
+  @override
+  String get phoneRestoreDoneBody =>
+      'วลีกู้คืนนำยอดเงินกลับมาแล้ว ประวัติ รายชื่อติดต่อ และการตั้งค่าจะกลับมาจากไฟล์ข้อมูลกระเป๋า หากคุณเคยส่งออกไว้';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'ขั้นที่ $n จาก $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'แสดงโค้ดของคุณ';
+
+  @override
+  String get phoneStepPayScan => 'สแกนคำตอบของเขา';
+
+  @override
+  String get phoneStepPayFileSend => 'ส่งไฟล์';
+
+  @override
+  String get phoneStepPayFileReply => 'เปิดคำตอบของเขา';
+
+  @override
+  String get phoneStepRecvScan => 'สแกนโค้ดของเขา';
+
+  @override
+  String get phoneStepRecvShow => 'แสดงคำตอบของคุณ';
+
+  @override
+  String get phoneStepRecvFileOpen => 'เปิดไฟล์ของเขา';
+
+  @override
+  String get phoneStepRecvFileReply => 'ส่งคำตอบของคุณ';
+
+  @override
+  String get phoneQrTitlePay => 'จ่ายต่อหน้า';
+
+  @override
+  String get phoneQrTitleReceive => 'รับต่อหน้า';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'ซ่อนใน $seconds วิ';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'สแกนคำตอบของเขา';
+
+  @override
+  String get phoneQrHelpTitle => 'การจ่ายต่อหน้า';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'จ่ายต่อหน้าแล้ว';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'รับต่อหน้าแล้ว';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount จะจ่ายเมื่ออ่านคำตอบแล้ว';
+  }
+
+  @override
+  String get phoneQrShowMine => 'แสดงโค้ดของฉันอีกครั้ง';
+
+  @override
+  String get phoneFileTitleReceive => 'รับด้วยไฟล์';
+
+  @override
+  String get phoneFilePayCard => 'ไฟล์การชำระเงิน';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return 'สำหรับ $amount · สร้างเมื่อ $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => 'คำตอบของคุณ';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return 'สำหรับการชำระเงิน $amount · สร้างเมื่อ $time';
+  }
+
+  @override
+  String get phoneFileCopyText => 'คัดลอกเป็นข้อความ';
+
+  @override
+  String get phoneFileShare => 'แชร์ไฟล์';
+
+  @override
+  String get phoneFileShareReply => 'แชร์คำตอบ';
+
+  @override
+  String get phoneFileSendHint =>
+      'ส่งผ่านแอปใดก็ได้ อีกฝ่ายเปิดในกระเป๋าของเขาแล้วส่งคำตอบกลับ';
+
+  @override
+  String get phoneFileReplyHint =>
+      'ส่งกลับทางเดียวกับที่ได้รับ การชำระเงินจะเกิดขึ้นเมื่อเขาเปิดคำตอบของคุณ';
+
+  @override
+  String get phoneFileWhenReply => 'เมื่อคำตอบมาถึง';
+
+  @override
+  String get phoneFileOpenReplySub => 'ไฟล์ หรือข้อความที่วาง';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount ถูกกันไว้จนกว่าจะถึงตอนนั้น คุณออกจากหน้านี้ได้ การชำระเงินรออยู่ในกิจกรรม';
+  }
+
+  @override
+  String get phoneFileOpenIntro =>
+      'มีคนส่งไฟล์การชำระเงินให้คุณ เปิดที่นี่เพื่อดูการชำระเงินและยอมรับ';
+
+  @override
+  String get phoneFileOpenFile => 'เปิดไฟล์';
+
+  @override
+  String get phoneFileOpenFileSub => 'จากไฟล์หรือแอปอื่น';
+
+  @override
+  String get phoneFilePasteText => 'วางข้อความ';
+
+  @override
+  String get phoneFilePasteTextSub => 'หากมาในรูปข้อความ';
+
+  @override
+  String get phoneFileOpenNote =>
+      'การเปิดไฟล์ยังไม่ยอมรับอะไร คุณจะเห็นก่อนว่ามาจากใครและเท่าไร';
+
+  @override
+  String get phoneAcceptTitle => 'มีคนกำลังจ่ายให้คุณ';
+
+  @override
+  String get phoneAcceptNote => 'บันทึก';
+
+  @override
+  String get phoneAcceptHintQr =>
+      'ยอมรับ แล้วแสดงคำตอบให้เขา จะไม่มีอะไรเข้าจนกว่าเขาจะสแกน';
+
+  @override
+  String get phoneAcceptHintFile =>
+      'ยอมรับ แล้วส่งคำตอบของคุณ จะไม่มีอะไรเข้าจนกว่าเขาจะเปิด';
+
+  @override
+  String get phoneAcceptAccept => 'ยอมรับ';
+
+  @override
+  String get phoneAcceptNotNow => 'ไว้ก่อน';
 }

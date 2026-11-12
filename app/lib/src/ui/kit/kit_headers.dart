@@ -60,9 +60,12 @@ class KitIconButton extends StatelessWidget {
 /// mark on the first step or a back arrow on a later one, the 17 [title] centred (with an
 /// optional [avatar] before it), and a "?" for help on the right.
 class KitFlowHeader extends StatelessWidget {
-  const KitFlowHeader({super.key, required this.title, required this.onLeading, this.back = false, this.onHelp, this.avatar, this.leadingId, this.helpId});
+  const KitFlowHeader({super.key, required this.title, required this.onLeading, this.back = false, this.onHelp, this.avatar, this.leadingId, this.helpId, this.showLeading = true});
 
   final String title;
+
+  /// False leaves the leading button out (a step that cannot be left, such as a search under way).
+  final bool showLeading;
 
   /// Closes the flow on the first step, goes back on a later one ([back]).
   final VoidCallback? onLeading;
@@ -83,9 +86,10 @@ class KitFlowHeader extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: KitIconButton(
+            if (showLeading)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: KitIconButton(
                 icon: back ? KitIcons.back : KitIcons.close,
                 label: back ? l.phoneKitBack : l.commonClose,
                 onPressed: onLeading,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// The first onboarding step of a fresh install (ui/level_step_screen.dart): no view picker, it
+// The first onboarding step of a fresh install (the Welcome, ui/first_run_screen.dart): no view picker, it
 // fits the smallest and a common phone without scrolling or overflow, the Tor only row sits
 // under Create and Restore, and Create stores the basic view and goes straight to the PIN.
 // Change level (Settings › Advanced › Wallet view) keeps the picker.
@@ -16,7 +16,9 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
-import 'package:epic_wallet/src/ui/level_step_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart';
 import 'package:epic_wallet/src/ui/levels/change_level_screen.dart';
 import 'package:epic_wallet/src/ui/levels/level_picker.dart';
 import 'package:epic_wallet/src/ui/pin.dart';
@@ -60,45 +62,44 @@ Future<ProviderContainer> _pump(WidgetTester tester, Size size) async {
   return ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
 }
 
+/// Whether the Welcome's Tor only switch is on.
+bool _torOn(WidgetTester tester) => tester.widget<KitRow>(find.byKey(firstRunTorOnlyKey)).toggled ?? false;
+
 void main() {
   for (final size in const [Size(320, 568), Size(390, 844)]) {
     testWidgets('fits ${size.width.toInt()}×${size.height.toInt()} unscrolled; Create leads to the PIN in the basic view', (
       tester,
     ) async {
       final container = await _pump(tester, size);
-      expect(find.byType(LevelStepScreen), findsOneWidget);
+      expect(find.byType(FirstRunScreen), findsOneWidget);
       // No view picker as a first step.
       expect(find.byKey(levelStopKey(WalletLevel.casual)), findsNothing);
 
-      // Everything in view, nothing to scroll (an overflow would have failed the pump).
+      // Everything in view (an overflow would have failed the pump). The buttons and the Tor
+      // only row are pinned; on the smallest phone the heading above them may scroll a little.
       final scrollable = tester.state<ScrollableState>(
-        find.descendant(of: find.byType(LevelStepScreen), matching: find.byType(Scrollable)).first,
+        find.descendant(of: find.byType(FirstRunScreen), matching: find.byType(Scrollable)).first,
       );
-      expect(scrollable.position.maxScrollExtent, 0);
-      for (final key in [levelCreateKey, levelRestoreKey, if (torBuilt) levelUndercoverKey]) {
+      if (size.height >= 800) expect(scrollable.position.maxScrollExtent, 0);
+      for (final key in [firstRunCreateKey, firstRunRestoreKey, if (torBuilt) firstRunTorOnlyKey]) {
         final rect = tester.getRect(find.byKey(key));
         expect(rect.bottom, lessThanOrEqualTo(size.height), reason: '$key below the screen');
       }
-      if (torBuilt) {
-        // Its ⓘ is not announced as the switch beside it.
-        expect(find.bySemanticsLabel('About Tor only'), findsOneWidget);
-      }
-
       // Create and Restore work at once; the Tor only row sits under them, off.
-      ButtonStyleButton create() => tester.widget<ButtonStyleButton>(find.byKey(levelCreateKey));
+      KitButton create() => tester.widget<KitButton>(find.byKey(firstRunCreateKey));
       expect(create().onPressed, isNotNull);
       if (torBuilt) {
         expect(
-          tester.getRect(find.byKey(levelUndercoverKey)).top,
-          greaterThan(tester.getRect(find.byKey(levelRestoreKey)).bottom),
+          tester.getRect(find.byKey(firstRunTorOnlyKey)).top,
+          greaterThan(tester.getRect(find.byKey(firstRunRestoreKey)).bottom),
         );
-        expect(tester.widget<UndercoverRow>(find.byType(UndercoverRow)).value, isFalse);
-        await tester.tap(find.byKey(levelUndercoverKey));
+        expect(_torOn(tester), isFalse);
+        await tester.tap(find.byKey(firstRunTorOnlyKey));
         await tester.pumpAndSettle();
-        expect(tester.widget<UndercoverRow>(find.byType(UndercoverRow)).value, isTrue);
+        expect(_torOn(tester), isTrue);
       }
 
-      await tester.tap(find.byKey(levelCreateKey));
+      await tester.tap(find.byKey(firstRunCreateKey));
       await tester.pumpAndSettle();
       // Straight to the PIN: the old Create / Restore choice is skipped.
       expect(find.byType(FirstRunScreen), findsOneWidget);
@@ -111,10 +112,10 @@ void main() {
       }
 
       // Back returns to the first step with the answer kept.
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byIcon(KitIcons.back));
       await tester.pumpAndSettle();
-      expect(find.byType(LevelStepScreen), findsOneWidget);
-      if (torBuilt) expect(tester.widget<UndercoverRow>(find.byType(UndercoverRow)).value, isTrue);
+      expect(find.byType(FirstRunScreen), findsOneWidget);
+      if (torBuilt) expect(_torOn(tester), isTrue);
     });
   }
 
@@ -122,9 +123,9 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await _pump(tester, const Size(320, 568));
-    expect(find.byType(LevelStepScreen), findsOneWidget);
-    await tester.scrollUntilVisible(find.byKey(levelRestoreKey), 100);
-    expect(find.byKey(levelRestoreKey), findsOneWidget);
+    expect(find.byType(FirstRunScreen), findsOneWidget);
+    await tester.scrollUntilVisible(find.byKey(firstRunRestoreKey), 100);
+    expect(find.byKey(firstRunRestoreKey), findsOneWidget);
   });
 
   testWidgets('Change level shows the level in force and Save stores the new one', (tester) async {

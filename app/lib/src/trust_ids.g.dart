@@ -305,6 +305,45 @@ abstract final class TrustIds {
   static const payRelease = 'g4.pay.release';
   static const payCancel = 'g4.pay.cancel';
   static const paySendAgain = 'g4.pay.send-again';
+  static const pinKey0 = 'g4.pin.key.0';
+  static const pinKey1 = 'g4.pin.key.1';
+  static const pinKey2 = 'g4.pin.key.2';
+  static const pinKey3 = 'g4.pin.key.3';
+  static const pinKey4 = 'g4.pin.key.4';
+  static const pinKey5 = 'g4.pin.key.5';
+  static const pinKey6 = 'g4.pin.key.6';
+  static const pinKey7 = 'g4.pin.key.7';
+  static const pinKey8 = 'g4.pin.key.8';
+  static const pinKey9 = 'g4.pin.key.9';
+  static const pinKeyDelete = 'g4.pin.key.delete';
+  static const pinKeyBio = 'g4.pin.key.bio';
+  static const unlockForgot = 'g4.unlock.forgot';
+  static const unlockServers = 'g4.unlock.servers';
+  static const qrshowBack = 'g4.qrshow.back';
+  static const qrshowHelp = 'g4.qrshow.help';
+  static const qrshowShow = 'g4.qrshow.show';
+  static const qrshowAgain = 'g4.qrshow.again';
+  static const qrshowHide = 'g4.qrshow.hide';
+  static const qrshowNext = 'g4.qrshow.next';
+  static const qrshowDone = 'g4.qrshow.done';
+  static const qrscanBack = 'g4.qrscan.back';
+  static const qrscanAgain = 'g4.qrscan.again';
+  static const qrscanSettings = 'g4.qrscan.settings';
+  static const qrscanRetry = 'g4.qrscan.retry';
+  static const qrscanFile = 'g4.qrscan.file';
+  static const fileBack = 'g4.file.back';
+  static const fileCopy = 'g4.file.copy';
+  static const fileShare = 'g4.file.share';
+  static const fileSave = 'g4.file.save';
+  static const fileDone = 'g4.file.done';
+  static const fileReply = 'g4.file.reply';
+  static const acceptAccept = 'g4.accept.accept';
+  static const acceptLater = 'g4.accept.later';
+  static const fileShowqr = 'g4.file.showqr';
+  static const fileFinish = 'g4.file.finish';
+  static const fileScanagain = 'g4.file.scanagain';
+  static const fileOpen = 'g4.file.open';
+  static const filePaste = 'g4.file.paste';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -620,5 +659,44 @@ abstract final class TrustIds {
     'g4.pay.release',
     'g4.pay.cancel',
     'g4.pay.send-again',
+    'g4.pin.key.0',
+    'g4.pin.key.1',
+    'g4.pin.key.2',
+    'g4.pin.key.3',
+    'g4.pin.key.4',
+    'g4.pin.key.5',
+    'g4.pin.key.6',
+    'g4.pin.key.7',
+    'g4.pin.key.8',
+    'g4.pin.key.9',
+    'g4.pin.key.delete',
+    'g4.pin.key.bio',
+    'g4.unlock.forgot',
+    'g4.unlock.servers',
+    'g4.qrshow.back',
+    'g4.qrshow.help',
+    'g4.qrshow.show',
+    'g4.qrshow.again',
+    'g4.qrshow.hide',
+    'g4.qrshow.next',
+    'g4.qrshow.done',
+    'g4.qrscan.back',
+    'g4.qrscan.again',
+    'g4.qrscan.settings',
+    'g4.qrscan.retry',
+    'g4.qrscan.file',
+    'g4.file.back',
+    'g4.file.copy',
+    'g4.file.share',
+    'g4.file.save',
+    'g4.file.done',
+    'g4.file.reply',
+    'g4.accept.accept',
+    'g4.accept.later',
+    'g4.file.showqr',
+    'g4.file.finish',
+    'g4.file.scanagain',
+    'g4.file.open',
+    'g4.file.paste',
   ];
 }

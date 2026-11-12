@@ -14,13 +14,24 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../amount.dart';
 import '../l10n.dart';
 import '../models.dart' show TxEntry;
 import '../providers.dart';
 import '../qr_slate.dart';
 import '../screen_brightness.dart';
 import '../secure_screen.dart';
+import '../trust_ids.dart';
 import 'common.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_corner_marks.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
+import 'kit/kit_hero_amount.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_step_strip.dart';
+import 'kit/kit_tokens.dart';
 import 'qr_common.dart';
 import 'qr_scan_screen.dart';
 import 'theme/brand.dart';
@@ -565,6 +576,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       context,
       QrScanKind.reply,
       finish: widget.finish,
+      amount: widget.amount,
     );
     if (!mounted) return;
     switch (result) {
@@ -577,28 +589,24 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     }
   }
 
+  /// The three steps this screen belongs to, and the one it is (HANDOFF 7.9): the payer and the
+  /// asker show first and scan the answer; whoever answers scans first and shows the answer.
+  (List<String>, int)? _steps(AppLocalizations l) => switch (widget.role) {
+    QrShowRole.payment || QrShowRole.request => ([l.phoneStepPayShow, l.phoneStepPayScan, l.commonDone], 0),
+    QrShowRole.reply || QrShowRole.paid => ([l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone], 1),
+    QrShowRole.finished => null,
+  };
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final reply = widget.reply;
-    final amount = epicExact(l, widget.amount);
+    final role = widget.role;
+    final incoming = role == QrShowRole.reply || role == QrShowRole.request;
     final ready = _frames != null;
     final width = MediaQuery.sizeOf(context).width;
     final card = (width - 90).clamp(264.0, 312.0);
-
-    final hint = Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 300),
-        child: Text(
-          l.qrHoldHint,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-        ),
-      ),
-    );
 
     // Where things stand, from the real payment: the code's own state, and for a reply what the
     // wallet's history says of the received payment.
@@ -608,7 +616,6 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
               .watch(homeProvider.select((h) => h.value?.transactions))
               ?.where((x) => x.slateId == widget.slateId)
               .firstOrNull;
-    final role = widget.role;
     final status = qrShowStatus(
       l,
       reply: reply,
@@ -619,55 +626,42 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       target: confirmationsTargetOf(ref),
     );
 
-    final done = qrPaymentPosted(
-      tx,
-      tipHeight(ref),
-      confirmationsTargetOf(ref),
-      role: role,
-    );
+    final done = qrPaymentPosted(tx, tipHeight(ref), confirmationsTargetOf(ref), role: role);
     final showing = _phase == QrShowPhase.showing && !done;
     final counting = _phase == QrShowPhase.countdown && !done;
+    final steps = done ? null : _steps(l);
+    final title = switch (role) {
+      QrShowRole.payment => l.phoneQrTitlePay,
+      QrShowRole.request => l.qrShowTitleRequest,
+      QrShowRole.reply || QrShowRole.paid => l.phoneQrTitleReceive,
+      QrShowRole.finished => l.finishedQrTitle,
+    };
 
     final content = <Widget>[
-      // The exact amount, in the data face as every amount but the balance headline.
-      AmountText(
-        amount,
-        textAlign: TextAlign.center,
-        style: theme.textTheme.titleMedium,
-      ),
-      const SizedBox(height: 2),
-      Text(
-        switch (role) {
-          QrShowRole.payment => l.qrShowSubPayment(amount),
-          QrShowRole.reply => l.qrShowSubReply(amount),
-          QrShowRole.request => l.qrShowSubRequest(amount),
-          QrShowRole.paid => l.qrShowSubPaid(amount),
-          QrShowRole.finished => l.qrShowSubFinished(amount),
-        },
-        textAlign: TextAlign.center,
-        style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-      ),
-      const SizedBox(height: 12),
-      if (!done) _StatusLine(key: qrStatusKey, status: status),
-      const SizedBox(height: 12),
+      // The exact amount, in the data face.
+      const SizedBox(height: 22),
+      if (!done)
+        KitHeroAmount(
+          amount: epicFor(l, widget.amount, surface: AmountSurface.exact, unit: false, signed: incoming),
+          unit: epicUnit,
+          incoming: incoming,
+        ),
+      if (!done) const SizedBox(height: 36),
       if (done)
-        _DoneCard(key: qrDoneCardKey, side: card, status: status)
+        _DoneCard(
+          key: qrDoneCardKey,
+          role: role,
+          amount: epicFor(l, widget.amount, surface: AmountSurface.exact),
+          status: status,
+        )
       else
-        _RingBox(
+        _CardBox(
           card: card,
           label: switch (role) {
-            QrShowRole.payment => l.qrSemanticsPayment(
-              showing ? l.qrStateShowing : l.qrStateHidden,
-            ),
-            QrShowRole.request => l.qrSemanticsRequest(
-              showing ? l.qrStateShowing : l.qrStateHidden,
-            ),
-            QrShowRole.reply || QrShowRole.paid => l.qrSemanticsReply(
-              showing ? l.qrStateShowing : l.qrStateHidden,
-            ),
-            QrShowRole.finished => l.qrSemanticsFinished(
-              showing ? l.qrStateShowing : l.qrStateHidden,
-            ),
+            QrShowRole.payment => l.qrSemanticsPayment(showing ? l.qrStateShowing : l.qrStateHidden),
+            QrShowRole.request => l.qrSemanticsRequest(showing ? l.qrStateShowing : l.qrStateHidden),
+            QrShowRole.reply || QrShowRole.paid => l.qrSemanticsReply(showing ? l.qrStateShowing : l.qrStateHidden),
+            QrShowRole.finished => l.qrSemanticsFinished(showing ? l.qrStateShowing : l.qrStateHidden),
           },
           phase: _phase,
           reply: reply,
@@ -675,77 +669,86 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           frame: _frame,
           numeral: _numeral,
           secondsLeft: _secondsLeft,
-          draw: _draw,
-          time: _time,
           reveal: _revealCurve,
           reduced: MediaQuery.disableAnimationsOf(context),
         ),
       if (showing) ...[
-        const SizedBox(height: 8),
+        const SizedBox(height: 18),
         _Pips(frames: _frames!, frame: _frame, reduced: _reduced),
         const SizedBox(height: 8),
-        _PartLine(frames: _frames!, frame: _frame, secondsLeft: _secondsLeft),
+        _PartLine(frames: _frames!, frame: _frame),
       ],
-      if (showing || counting) hint,
+      if (!done) ...[
+        SizedBox(height: showing ? 14 : 34),
+        // What to do now, and where the payment stands.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+          child: Column(
+            children: [
+              if (showing || counting)
+                Text(l.qrHoldHint, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.text)),
+              if (showing || counting) const SizedBox(height: 6),
+              _StatusLine(key: qrStatusKey, status: status),
+            ],
+          ),
+        ),
+      ],
+      if (showing) ...[
+        const SizedBox(height: 12),
+        _HidesChip(secondsLeft: _secondsLeft),
+      ],
       if (showing && !kIsWeb && defaultTargetPlatform == TargetPlatform.android)
         Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: 12),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.visibility_off_outlined, size: 14, color: t.faint),
               const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  l.qrSecureLine,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: t.faint,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
+              Flexible(child: Text(l.qrSecureLine, style: KitType.rowSub.copyWith(color: t.faint, fontSize: 12))),
             ],
           ),
         ),
       if (_encodeError != null) ErrorText(describeError(l, _encodeError!)),
     ];
 
-    final nextLabel = reply ? l.commonDone : l.qrScanReply;
+    final nextLabel = reply ? l.commonDone : l.phoneQrScanAnswer;
+    final nextId = reply ? TrustIds.qrshowDone : TrustIds.qrshowNext;
     final Widget bottom = done
-        ? FilledButton.icon(
+        ? KitButton(
             key: qrNextButtonKey,
-            style: _tall,
-            icon: const Icon(Icons.check),
-            label: Text(l.commonDone),
+            label: l.commonDone,
+            semanticsId: TrustIds.qrshowDone,
             onPressed: () => Navigator.of(context).pop(const QrShowDone()),
           )
         : switch (_phase) {
-            QrShowPhase.hidden => FilledButton.icon(
+            QrShowPhase.hidden => KitButton(
               key: qrShowButtonKey,
-              style: _tall,
-              icon: const Icon(Icons.qr_code_2),
-              label: Text(l.qrShow),
+              label: l.qrShow,
+              icon: KitIcons.qr,
+              semanticsId: TrustIds.qrshowShow,
               onPressed: ready ? _start : null,
             ),
             // Fixed slots once the code was shown (UP-023): the primary is the next step
-            // (Scan their reply / Done), the outlined secondary Hide or Show again.
+            // (Scan their answer / Done), the one under it Hide or Show again.
             QrShowPhase.countdown || QrShowPhase.showing => Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FilledButton.icon(
+                KitButton(
                   key: qrNextButtonKey,
-                  style: _tall,
-                  icon: Icon(reply ? Icons.check : Icons.qr_code_scanner),
-                  label: Text(nextLabel),
+                  label: nextLabel,
+                  icon: reply ? null : KitIcons.scan,
+                  semanticsId: nextId,
                   onPressed: widget.scanEnabled ? _next : null,
                 ),
-                const SizedBox(height: 8),
-                OutlinedButton(
+                const SizedBox(height: 4),
+                KitButton(
                   key: qrHideButtonKey,
-                  style: _tallOutlined,
+                  label: l.qrHide,
+                  kind: KitButtonKind.ghost,
+                  semanticsId: TrustIds.qrshowHide,
                   onPressed: () => _cover(QrShowPhase.hidden),
-                  child: Text(l.qrHide),
                 ),
               ],
             ),
@@ -753,19 +756,19 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FilledButton.icon(
+                KitButton(
                   key: qrNextButtonKey,
-                  style: _tall,
-                  icon: Icon(reply ? Icons.check : Icons.qr_code_scanner),
-                  label: Text(nextLabel),
+                  label: nextLabel,
+                  icon: reply ? null : KitIcons.scan,
+                  semanticsId: nextId,
                   onPressed: widget.scanEnabled ? _next : null,
                 ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
+                const SizedBox(height: 4),
+                KitButton(
                   key: qrShowButtonKey,
-                  style: _tallOutlined,
-                  icon: const Icon(Icons.qr_code_2),
-                  label: Text(l.qrShowAgain),
+                  label: l.qrShowAgain,
+                  kind: KitButtonKind.ghost,
+                  semanticsId: TrustIds.qrshowAgain,
                   onPressed: ready ? _start : null,
                 ),
               ],
@@ -775,14 +778,6 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     return SlotScaffold(
       glow: heroGlow,
       breathing: showing,
-      appBar: AppBar(
-        title: Text(switch (role) {
-          QrShowRole.payment => l.qrShowTitlePayment,
-          QrShowRole.request => l.qrShowTitleRequest,
-          QrShowRole.reply || QrShowRole.paid => l.qrShowTitleReply,
-          QrShowRole.finished => l.finishedQrTitle,
-        }),
-      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -790,10 +785,23 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                KitFlowHeader(
+                  title: title,
+                  back: true,
+                  onLeading: () => Navigator.of(context).maybePop(),
+                  leadingId: TrustIds.qrshowBack,
+                  onHelp: () => showKitHelp(
+                    context,
+                    title: l.phoneQrHelpTitle,
+                    lines: [status.text, l.qrHoldHint, l.qrHiddenBodyPayment],
+                  ),
+                  helpId: TrustIds.qrshowHelp,
+                ),
+                if (steps != null) KitStepStrip(labels: steps.$1, current: steps.$2),
                 Expanded(
                   child: CenteredScroll(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -802,15 +810,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                     ),
                   ),
                 ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: t.line)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                    child: bottom,
-                  ),
-                ),
+                Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter), child: bottom),
               ],
             ),
           ),
@@ -820,58 +820,82 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
   }
 }
 
-final ButtonStyle _tall = FilledButton.styleFrom(
-  minimumSize: const Size.fromHeight(48),
-);
-final ButtonStyle _tallOutlined = OutlinedButton.styleFrom(
-  minimumSize: const Size.fromHeight(48),
-);
-
-/// What stands in the code's place once the payment is posted: the progress, in green.
+/// What stands in the code's place once the payment is posted (Gap-3): a green check, what was
+/// done, the amount, and where the payment stands.
 class _DoneCard extends StatelessWidget {
-  const _DoneCard({super.key, required this.side, required this.status});
+  const _DoneCard({super.key, required this.role, required this.amount, required this.status});
 
-  final double side;
+  final QrShowRole role;
+  final String amount;
   final QrStatus status;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = context.l10n;
+    final received = role == QrShowRole.reply || role == QrShowRole.request;
     return Semantics(
       liveRegion: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: t.surfaceHi,
-          border: Border.all(color: t.lineStrong),
-          borderRadius: BorderRadius.circular(t.radius),
-        ),
-        child: SizedBox(
-          width: side,
-          height: side,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.check_circle, size: 64, color: t.ok),
-                const SizedBox(height: 12),
-                Text(
-                  status.text,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
+      container: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 24),
+          Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(shape: BoxShape.circle, color: t.okSoft),
+            child: Icon(KitIcons.check, size: 44, color: t.ok),
           ),
-        ),
+          const SizedBox(height: 28),
+          Text(
+            received ? l.phoneQrDoneTitleReceived : l.phoneQrDoneTitlePaid,
+            textAlign: TextAlign.center,
+            style: KitType.pageTitle.copyWith(color: t.text),
+          ),
+          const SizedBox(height: 10),
+          Text(amount, textAlign: TextAlign.center, style: KitType.rowAmount.copyWith(color: t.dim, fontSize: 18)),
+          const SizedBox(height: 24),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(Kit.gutter),
+            decoration: BoxDecoration(
+              color: t.raised,
+              borderRadius: BorderRadius.circular(Kit.rGroup),
+              border: Border.all(color: t.hair),
+            ),
+            child: Text(status.text, style: KitType.body.copyWith(color: t.text)),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// The card with its time line around it.
-class _RingBox extends StatelessWidget {
-  const _RingBox({
+/// The chip under a shown code: how long until it hides. It names the last seconds to a screen
+/// reader once.
+class _HidesChip extends StatelessWidget {
+  const _HidesChip({required this.secondsLeft});
+
+  final int secondsLeft;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final low = secondsLeft <= qrLowSeconds;
+    final announce = secondsLeft == qrLowSeconds;
+    return Semantics(
+      liveRegion: announce,
+      label: announce ? l.qrSecondsLeft(qrLowSeconds) : null,
+      excludeSemantics: announce,
+      child: KitChip(l.phoneQrHidesIn(secondsLeft), icon: KitIcons.clock, info: low),
+    );
+  }
+}
+
+/// The code's card with the brand's corner marks around it (HANDOFF 5.5).
+class _CardBox extends StatelessWidget {
+  const _CardBox({
     required this.card,
     required this.label,
     required this.phase,
@@ -880,8 +904,6 @@ class _RingBox extends StatelessWidget {
     required this.frame,
     required this.numeral,
     required this.secondsLeft,
-    required this.draw,
-    required this.time,
     required this.reveal,
     required this.reduced,
   });
@@ -894,117 +916,36 @@ class _RingBox extends StatelessWidget {
   final ValueListenable<int> frame;
   final int numeral;
   final int secondsLeft;
-  final Animation<double> draw;
-  final Animation<double> time;
   final Animation<double> reveal;
   final bool reduced;
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    final box = card + 24;
     return Semantics(
       image: true,
       label: label,
       excludeSemantics: true,
-      child: SizedBox(
-        width: box,
-        height: box,
-        child: AnimatedBuilder(
-          animation: Listenable.merge([draw, time]),
-          builder: (context, child) {
-            final low = secondsLeft <= qrLowSeconds;
-            final double? fromStart;
-            final double? remaining;
-            if (phase == QrShowPhase.countdown) {
-              fromStart = _step(draw.value, qrCountdownSeconds);
-              remaining = null;
-            } else if (phase == QrShowPhase.showing) {
-              fromStart = null;
-              remaining = 1 - _step(time.value, qrShowSeconds);
-            } else {
-              fromStart = remaining = null;
-            }
-            return CustomPaint(
-              painter: _TimeLinePainter(
-                track: t.line,
-                color: low ? t.warn : t.info,
-                drawn: fromStart,
-                remaining: remaining,
-              ),
-              child: child,
-            );
-          },
-          child: Center(
-            child: _Card(
-              key: qrCardKey,
-              side: card,
-              phase: phase,
-              reply: reply,
-              frames: frames,
-              frame: frame,
-              numeral: numeral,
-              secondsLeft: secondsLeft,
-              reveal: reveal,
-              reduced: reduced,
-            ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: KitCornerMarks(
+          inset: 14,
+          arm: 22,
+          child: _Card(
+            key: qrCardKey,
+            side: card,
+            phase: phase,
+            reply: reply,
+            frames: frames,
+            frame: frame,
+            numeral: numeral,
+            secondsLeft: secondsLeft,
+            reveal: reveal,
+            reduced: reduced,
           ),
         ),
       ),
     );
   }
-
-  /// [value] (0 to 1 over [seconds]), whole seconds only under reduced motion.
-  double _step(double value, int seconds) =>
-      reduced ? (value * seconds).floor() / seconds : value;
-}
-
-/// The time line: a track all round, and the part still to run (or already drawn).
-class _TimeLinePainter extends CustomPainter {
-  const _TimeLinePainter({
-    required this.track,
-    required this.color,
-    required this.drawn,
-    required this.remaining,
-  });
-
-  final Color track;
-  final Color color;
-
-  /// Drawing in: the part from the top centre, clockwise, 0 to 1.
-  final double? drawn;
-
-  /// Draining: the part still to run, 1 to 0, ending where it began.
-  final double? remaining;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = (Offset.zero & size).deflate(1.5);
-    final path = roundedSquarePath(rect, 22);
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round
-      ..color = track;
-    canvas.drawPath(path, paint);
-    final metric = path.computeMetrics().first;
-    paint.color = color;
-    if (drawn != null && drawn! > 0) {
-      canvas.drawPath(metric.extractPath(0, metric.length * drawn!), paint);
-    } else if (remaining != null && remaining! > 0) {
-      canvas.drawPath(
-        metric.extractPath(metric.length * (1 - remaining!), metric.length),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_TimeLinePainter old) =>
-      old.track != track ||
-      old.color != color ||
-      old.drawn != drawn ||
-      old.remaining != remaining;
 }
 
 /// The square card: a cover with words, or the white QR.
@@ -1055,7 +996,7 @@ class _Card extends StatelessWidget {
             border: Border.all(
               color: Color.lerp(t.lineStrong, const Color(0xFFFFFFFF), r)!,
             ),
-            borderRadius: BorderRadius.circular(t.radius),
+            borderRadius: BorderRadius.circular(Kit.rQr),
           ),
           child: SizedBox(
             width: side,
@@ -1298,52 +1239,22 @@ class _Pips extends StatelessWidget {
 
 /// `Part 3 of 7 · 38 s`.
 class _PartLine extends StatelessWidget {
-  const _PartLine({
-    required this.frames,
-    required this.frame,
-    required this.secondsLeft,
-  });
+  const _PartLine({required this.frames, required this.frame});
 
   final QrFrames frames;
   final ValueListenable<int> frame;
-  final int secondsLeft;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final style = TextStyle(
-      fontFamily: t.monoFamily,
-      fontSize: 13,
-      color: t.dim,
-    );
-    final announce = secondsLeft == qrLowSeconds;
-    return Semantics(
-      liveRegion: announce,
-      label: announce ? l.qrSecondsLeft(qrLowSeconds) : null,
-      excludeSemantics: announce,
-      child: SizedBox(
-        height: 22,
-        child: ValueListenableBuilder<int>(
-          valueListenable: frame,
-          builder: (context, value, _) => Text.rich(
-            TextSpan(
-              style: style,
-              children: [
-                TextSpan(
-                  text: l.qrPartOf(frames.partOf(value) + 1, frames.partCount),
-                ),
-                const TextSpan(text: '  │  '),
-                TextSpan(
-                  text: l.qrSecondsShort(secondsLeft),
-                  style: secondsLeft <= qrLowSeconds
-                      ? style.copyWith(color: t.warn)
-                      : null,
-                ),
-              ],
-            ),
-          ),
-        ),
+    final style = TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.dim);
+    return SizedBox(
+      height: 22,
+      child: ValueListenableBuilder<int>(
+        valueListenable: frame,
+        builder: (context, value, _) =>
+            Text(l.qrPartOf(frames.partOf(value) + 1, frames.partCount), style: style),
       ),
     );
   }

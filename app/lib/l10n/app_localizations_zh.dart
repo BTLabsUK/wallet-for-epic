@@ -21386,4 +21386,209 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phonePayRouteSubTor => '通过 Tor 直连对方钱包';
+
+  @override
+  String get phonePinChooseHint => '用于解锁钱包和批准付款。';
+
+  @override
+  String get phonePinBiometricsBody => '面容或指纹，取决于这部手机。PIN 仍然可用。';
+
+  @override
+  String get phoneUnlockResetBody =>
+      'PIN 无法找回。你可以从手机上删除这个钱包，再用恢复短语恢复它。没有恢复短语，其中的币将永久丢失。';
+
+  @override
+  String get phoneWelcomeBody => '不到一分钟即可创建钱包，或用恢复短语找回旧钱包。';
+
+  @override
+  String get phoneWelcomeTorLine => '从第一秒起通过 Tor 连接';
+
+  @override
+  String get phoneStartPinHelpTitle => '关于 PIN';
+
+  @override
+  String get phoneStartPinHelpUnlock => 'PIN 用于在这部手机上解锁钱包并批准每笔付款，它不会离开手机。';
+
+  @override
+  String get phoneStartPinHelpLost => 'PIN 无法找回。请妥善保管恢复短语，用它可以恢复钱包并设置新的 PIN。';
+
+  @override
+  String get phoneRestoreHelpTitle => '恢复钱包';
+
+  @override
+  String get phoneRestoreHelpPhrase => '恢复短语可找回余额。输入其中的单词、粘贴，或扫描它的二维码。';
+
+  @override
+  String get phoneRestoreHelpStart => '选择创建钱包的月份。不确定？更早的月份能找到更多，但耗时更长。';
+
+  @override
+  String get phoneRestoreScan => '扫描';
+
+  @override
+  String get phoneRestoreStartGroup => '从哪里开始查找';
+
+  @override
+  String get phoneRestoreCreated => '钱包创建于';
+
+  @override
+  String get phoneRestoreRestoring => '正在恢复';
+
+  @override
+  String get phoneRestoreScanTitle => '正在查找你的币';
+
+  @override
+  String get phoneRestoreScanBody => '请在完成前保持应用打开。运行期间屏幕会保持常亮。';
+
+  @override
+  String get phoneRestoreLookingFrom => '查找起点';
+
+  @override
+  String get phoneRestoreScanNote => '搜索结束后才能发送和接收。如果停止，会在主页继续。';
+
+  @override
+  String get phoneRestoreStoppedTitle => '搜索已停止';
+
+  @override
+  String get phoneRestoreDoneBody => '恢复短语已找回余额。历史、联系人和设置可从钱包数据文件恢复（如果你导出过）。';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return '第 $n 步，共 $total 步：$title';
+  }
+
+  @override
+  String get phoneStepPayShow => '出示你的码';
+
+  @override
+  String get phoneStepPayScan => '扫描对方的回复';
+
+  @override
+  String get phoneStepPayFileSend => '发送文件';
+
+  @override
+  String get phoneStepPayFileReply => '打开对方的回复';
+
+  @override
+  String get phoneStepRecvScan => '扫描对方的码';
+
+  @override
+  String get phoneStepRecvShow => '出示你的回复';
+
+  @override
+  String get phoneStepRecvFileOpen => '打开对方的文件';
+
+  @override
+  String get phoneStepRecvFileReply => '发送你的回复';
+
+  @override
+  String get phoneQrTitlePay => '当面支付';
+
+  @override
+  String get phoneQrTitleReceive => '当面收款';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return '$seconds 秒后隐藏';
+  }
+
+  @override
+  String get phoneQrScanAnswer => '扫描对方的回复';
+
+  @override
+  String get phoneQrHelpTitle => '当面支付';
+
+  @override
+  String get phoneQrDoneTitlePaid => '已当面支付';
+
+  @override
+  String get phoneQrDoneTitleReceived => '已当面收款';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '读取回复后即支付 $amount。';
+  }
+
+  @override
+  String get phoneQrShowMine => '再次出示我的码';
+
+  @override
+  String get phoneFileTitleReceive => '用文件收款';
+
+  @override
+  String get phoneFilePayCard => '付款文件';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return '$amount · 创建于 $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => '你的回复';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return '针对 $amount 的付款 · 创建于 $time';
+  }
+
+  @override
+  String get phoneFileCopyText => '复制为文本';
+
+  @override
+  String get phoneFileShare => '分享文件';
+
+  @override
+  String get phoneFileShareReply => '分享回复';
+
+  @override
+  String get phoneFileSendHint => '用任何应用发送。对方在其钱包中打开后会回传一个回复。';
+
+  @override
+  String get phoneFileReplyHint => '按原路发回。对方打开你的回复后付款即完成。';
+
+  @override
+  String get phoneFileWhenReply => '对方回复到达时';
+
+  @override
+  String get phoneFileOpenReplySub => '文件或粘贴的文本';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount 已先预留。你可以离开此页面,付款会在“活动”中等待。';
+  }
+
+  @override
+  String get phoneFileOpenIntro => '有人给你发了付款文件。在这里打开即可查看并接受付款。';
+
+  @override
+  String get phoneFileOpenFile => '打开文件';
+
+  @override
+  String get phoneFileOpenFileSub => '来自“文件”或其他应用';
+
+  @override
+  String get phoneFilePasteText => '粘贴文本';
+
+  @override
+  String get phoneFilePasteTextSub => '如果是以消息收到的';
+
+  @override
+  String get phoneFileOpenNote => '打开文件不会接受任何内容。你会先看到来源和金额。';
+
+  @override
+  String get phoneAcceptTitle => '有人向你付款';
+
+  @override
+  String get phoneAcceptNote => '备注';
+
+  @override
+  String get phoneAcceptHintQr => '先接受,再向对方出示你的回复。对方扫描后才会到账。';
+
+  @override
+  String get phoneAcceptHintFile => '先接受,再发送你的回复。对方打开后才会到账。';
+
+  @override
+  String get phoneAcceptAccept => '接受';
+
+  @override
+  String get phoneAcceptNotNow => '暂不';
 }

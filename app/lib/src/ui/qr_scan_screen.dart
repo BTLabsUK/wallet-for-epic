@@ -6,19 +6,26 @@ library;
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../amount.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../qr_slate.dart';
 import '../secure_screen.dart';
 import '../settings.dart';
+import '../trust_ids.dart';
 import '../wallet_service.dart' show FakeWalletSession;
 import 'common.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_empty_state.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_step_strip.dart';
+import 'kit/kit_tokens.dart';
 import 'qr_camera.dart';
 import 'qr_common.dart';
 import 'theme/tokens.dart';
@@ -86,9 +93,10 @@ Future<QrScanResult?> scanQrSlate(
   QrScanKind kind, {
   QrFinish? finish,
   String? first,
+  BigInt? amount,
 }) => Navigator.of(context).push<QrScanResult>(
   MaterialPageRoute<QrScanResult>(
-    builder: (_) => QrScanScreen(kind: kind, finish: finish, first: first),
+    builder: (_) => QrScanScreen(kind: kind, finish: finish, first: first, amount: amount),
   ),
 );
 
@@ -98,6 +106,7 @@ class QrScanScreen extends ConsumerStatefulWidget {
     required this.kind,
     this.finish,
     this.first,
+    this.amount,
   });
 
   const QrScanScreen.payment({Key? key})
@@ -113,6 +122,9 @@ class QrScanScreen extends ConsumerStatefulWidget {
 
   /// A part read before this screen opened, fed first.
   final String? first;
+
+  /// What the payment is for, when the caller knows it (the payer's own): said under the camera.
+  final BigInt? amount;
 
   @override
   ConsumerState<QrScanScreen> createState() => _QrScanScreenState();
@@ -384,7 +396,6 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     final finishesHere = widget.finish != null;
     final title = finished ? l.qrScanFinished : (reply ? l.qrScanReply : l.qrScanPayment);
     final reduced = MediaQuery.disableAnimationsOf(context);
-    final top = MediaQuery.paddingOf(context).top;
 
     final String dockText;
     final _DockTone tone;
@@ -419,123 +430,142 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
         ? dark.risk
         : (_warnCorners || _steady)
         ? dark.warn
-        : Colors.white;
+        : dark.accent;
+
+    final t = dark;
+    final steps = finished
+        ? null
+        : reply
+        ? [l.phoneStepPayShow, l.phoneStepPayScan, l.commonDone]
+        : [l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone];
 
     return Scaffold(
       backgroundColor: dark.bg,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        title: Text(title),
-        actions: [
-          _ZoomChip(
-            zoomed: camera.zoomed,
-            onPressed: () => _camera.setZoom(twice: !camera.zoomed),
-          ),
-          if (camera.torchAvailable)
-            IconButton(
-              tooltip: l.qrScanTorch,
-              isSelected: camera.torchOn,
-              icon: const Icon(Icons.flashlight_off),
-              selectedIcon: const Icon(Icons.flashlight_on),
-              onPressed: _camera.toggleTorch,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitFlowHeader(
+              title: finished ? title : (reply ? l.phoneQrTitlePay : title),
+              back: reply,
+              onLeading: () => Navigator.of(context).maybePop(),
+              leadingId: TrustIds.qrscanBack,
             ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final size = constraints.biggest;
-          final card = (size.width - 90).clamp(264.0, 312.0);
-          final side = (card - 20).clamp(0.0, 280.0);
-          final center = Offset(size.width / 2, size.height * 0.48);
-          final finder = Rect.fromCenter(
-            center: center,
-            width: side,
-            height: side,
-          );
-          final ring = finder.inflate(14);
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              _camera.preview(context),
-              IgnorePointer(
-                child: CustomPaint(painter: _ScrimPainter(finder: finder)),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 0,
-                height: top + 56,
-                child: const IgnorePointer(
+            if (steps != null) KitStepStrip(labels: steps, current: reply ? 1 : 0),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(Kit.gutter, 18, Kit.gutter, 0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(Kit.rSheetTop),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0x8C000000), Color(0x00000000)],
-                      ),
+                      color: Colors.black,
+                      border: Border.all(color: t.hair),
+                      borderRadius: BorderRadius.circular(Kit.rSheetTop),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final size = constraints.biggest;
+                        final side = math.min(size.width - 64, size.height - 90).clamp(0.0, 280.0);
+                        final center = Offset(size.width / 2, size.height * 0.46);
+                        final finder = Rect.fromCenter(center: center, width: side, height: side);
+                        final ring = finder.inflate(14);
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            _camera.preview(context),
+                            IgnorePointer(child: CustomPaint(painter: _ScrimPainter(finder: finder))),
+                            IgnorePointer(
+                              child: CustomPaint(
+                                painter: _FramePainter(
+                                  finder: finder,
+                                  ring: ring,
+                                  received: _received,
+                                  count: _count,
+                                  complete: _complete,
+                                  corners: corners,
+                                  info: dark.info,
+                                  ok: dark.ok,
+                                ),
+                              ),
+                            ),
+                            if (_complete)
+                              Positioned.fromRect(
+                                rect: finder,
+                                child: Center(child: _CheckTile(animate: !reduced, color: dark.ok)),
+                              ),
+                            if (_count > 0)
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                top: ring.bottom + 12,
+                                child: Semantics(
+                                  liveRegion: true,
+                                  label: '${l.qrScanCountLabel}: ${l.qrScanCount(_spoken, _count)}',
+                                  excludeSemantics: true,
+                                  child: Text(
+                                    l.qrScanCount(_received, _count),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily: dark.monoFamily,
+                                      fontSize: 15,
+                                      color: _complete ? dark.ok : Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _ZoomChip(
+                                    zoomed: camera.zoomed,
+                                    onPressed: () => _camera.setZoom(twice: !camera.zoomed),
+                                  ),
+                                  if (camera.torchAvailable)
+                                    IconButton(
+                                      tooltip: l.qrScanTorch,
+                                      isSelected: camera.torchOn,
+                                      icon: const Icon(Icons.flashlight_off),
+                                      selectedIcon: const Icon(Icons.flashlight_on),
+                                      onPressed: _camera.toggleTorch,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),
               ),
-              IgnorePointer(
-                child: CustomPaint(
-                  painter: _FramePainter(
-                    finder: finder,
-                    ring: ring,
-                    received: _received,
-                    count: _count,
-                    complete: _complete,
-                    corners: corners,
-                    info: dark.info,
-                    ok: dark.ok,
-                  ),
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, 0),
+              child: _Dock(
+                text: dockText,
+                tone: tone,
+                sub: reply && widget.amount != null && tone == _DockTone.plain
+                    ? l.phoneQrPaidWhen(epicFor(l, widget.amount!, surface: AmountSurface.exact))
+                    : null,
               ),
-              if (_complete)
-                Positioned.fromRect(
-                  rect: finder,
-                  child: Center(
-                    child: _CheckTile(animate: !reduced, color: dark.ok),
-                  ),
-                ),
-              if (_count > 0)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: ring.bottom + 26 - 10,
-                  child: Semantics(
-                    liveRegion: true,
-                    label:
-                        '${l.qrScanCountLabel}: ${l.qrScanCount(_spoken, _count)}',
-                    excludeSemantics: true,
-                    child: Text(
-                      l.qrScanCount(_received, _count),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: dark.monoFamily,
-                        fontSize: 15,
-                        color: _complete ? dark.ok : Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: _Dock(text: dockText, tone: tone),
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, Kit.gutter),
+              child: reply
+                  ? KitButton(
+                      label: l.phoneQrShowMine,
+                      kind: KitButtonKind.quiet,
+                      semanticsId: TrustIds.qrscanAgain,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    )
+                  : const SizedBox(height: Kit.button),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -546,65 +576,49 @@ final ThemeData _scannerTheme = buildWalletTheme(protocolDark, Brightness.dark);
 
 enum _DockTone { plain, info, warn, risk, ok }
 
-/// The line at the bottom of the camera: what to do, or what went wrong. Always dark, since the
-/// camera is.
+/// The line under the camera: what to do, or what went wrong, with a dim line of what happens
+/// next when there is one. Always dark, since the camera is.
 class _Dock extends StatelessWidget {
-  const _Dock({required this.text, required this.tone});
+  const _Dock({required this.text, required this.tone, this.sub});
 
   final String text;
   final _DockTone tone;
+  final String? sub;
 
   @override
   Widget build(BuildContext context) {
-    const dark = protocolDark;
-    final (fill, icon, color) = switch (tone) {
-      _DockTone.plain => (const Color(0x9E000000), null, Colors.white),
-      _DockTone.info => (const Color(0xD60F2A40), Icons.sync, dark.info),
-      _DockTone.warn => (
-        const Color(0xD13C260A),
-        Icons.warning_amber_rounded,
-        dark.warn,
-      ),
-      _DockTone.risk => (
-        const Color(0xD6461414),
-        Icons.error_outline,
-        dark.risk,
-      ),
-      _DockTone.ok => (
-        const Color(0xD6103C1C),
-        Icons.check_circle_outline,
-        dark.ok,
-      ),
+    final t = context.tokens;
+    final (icon, color) = switch (tone) {
+      _DockTone.plain => (null, t.text),
+      _DockTone.info => (Icons.sync, t.info),
+      _DockTone.warn => (Icons.warning_amber_rounded, t.warn),
+      _DockTone.risk => (Icons.error_outline, t.risk),
+      _DockTone.ok => (Icons.check_circle_outline, t.ok),
     };
     return Semantics(
       liveRegion: true,
       container: true,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: fill,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 22, color: color),
-                  const SizedBox(width: 10),
-                ],
-                Flexible(
-                  child: Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[Icon(icon, size: 22, color: color), const SizedBox(width: 10)],
+              Flexible(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: KitType.body.copyWith(color: tone == _DockTone.plain ? t.text : color, fontSize: 16),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
+          if (sub != null) ...[
+            const SizedBox(height: 4),
+            Text(sub!, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
+          ],
+        ],
       ),
     );
   }
@@ -851,11 +865,7 @@ class _FramePainter extends CustomPainter {
 
 /// The camera was refused or did not start: what to do instead.
 class _CameraProblem extends StatelessWidget {
-  const _CameraProblem({
-    required this.problem,
-    required this.onRetry,
-    required this.onFile,
-  });
+  const _CameraProblem({required this.problem, required this.onRetry, required this.onFile});
 
   final QrCameraProblem problem;
   final Future<void> Function() onRetry;
@@ -864,72 +874,41 @@ class _CameraProblem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
     final denied = problem == QrCameraProblem.denied;
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.qrScanPayment)),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 280),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(
-                  denied ? Icons.no_photography : Icons.error_outline,
-                  size: 48,
-                  color: t.risk,
-                ),
-                const SizedBox(height: 16),
-                Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    denied ? l.qrScanCameraDenied : l.qrScanCameraFailed,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (denied)
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    icon: const Icon(Icons.settings_outlined),
-                    label: Text(l.qrScanOpenSettings),
-                    onPressed: () => openAppSettings(),
-                  )
-                else
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    onPressed: onRetry,
-                    child: Text(l.scanQrTryAgain),
-                  ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  icon: const Icon(Icons.file_open_outlined),
-                  label: Text(l.qrScanOpenFileInstead),
-                  onPressed: onFile,
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l.scanQrBack),
-                ),
-              ],
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitFlowHeader(
+              title: l.qrScanPayment,
+              onLeading: () => Navigator.of(context).maybePop(),
+              leadingId: TrustIds.qrscanBack,
             ),
-          ),
+            Expanded(
+              child: Semantics(
+                liveRegion: true,
+                child: KitEmptyState(
+                  icon: denied ? Icons.no_photography_outlined : KitIcons.scan,
+                  title: denied ? l.qrScanCameraDenied : l.qrScanCameraFailed,
+                  actionLabel: denied ? l.qrScanOpenSettings : l.scanQrTryAgain,
+                  actionKind: KitButtonKind.gold,
+                  actionId: denied ? TrustIds.qrscanSettings : TrustIds.qrscanRetry,
+                  onAction: denied ? () => openAppSettings() : onRetry,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter),
+              child: KitButton(
+                label: l.qrScanOpenFileInstead,
+                kind: KitButtonKind.quiet,
+                icon: Icons.file_open_outlined,
+                semanticsId: TrustIds.qrscanFile,
+                onPressed: onFile,
+              ),
+            ),
+          ],
         ),
       ),
     );

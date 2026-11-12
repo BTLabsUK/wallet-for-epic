@@ -6,6 +6,7 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/qr_slate.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -117,10 +118,11 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester);
-    expect(find.text(_l.qrShowTitlePayment), findsOneWidget);
+    expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
     expect(find.text(_l.qrHiddenTitle), findsOneWidget);
     expect(find.text(_l.qrShow), findsOneWidget);
-    expect(find.text('1.5\u00a0EPIC to a phone next to you'), findsOneWidget);
+    expect(find.text('+1.5'), findsNothing);
+    expect(find.text('1.5'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
 
     await tester.tap(show());
@@ -152,7 +154,7 @@ void main() {
       ),
       findsNothing,
     );
-    expect(find.text(_l.qrScanReply), findsOneWidget);
+    expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
     expect(find.text(_l.qrHoldHint), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
     await tester.pump(const Duration(milliseconds: qrFrameMs));
@@ -174,33 +176,25 @@ void main() {
     expect(find.text('Hidden after 40 s'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
     expect(find.text(_l.qrShowAgain), findsOneWidget);
-    expect(find.text(_l.qrScanReply), findsOneWidget);
+    expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
 
     await tester.tap(show());
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('3'), findsOneWidget);
   });
 
-  testWidgets('the last ten seconds turn the seconds amber', (tester) async {
+  testWidgets('the last ten seconds say so once, and the chip counts down', (tester) async {
+    final semantics = tester.ensureSemantics();
     final h = _Harness();
     await h.pump(tester);
     await tester.tap(show());
     await _tick(tester, 3);
     await _tick(tester, 29);
-    Color? colorOf(String text) {
-      Color? found;
-      for (final rich in tester.widgetList<RichText>(find.byType(RichText))) {
-        rich.text.visitChildren((span) {
-          if (span is TextSpan && span.text == text) found = span.style?.color;
-          return true;
-        });
-      }
-      return found;
-    }
-
-    final calm = colorOf('11 s');
+    expect(find.text('Hides in 11 s'), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.qrSecondsLeft(qrLowSeconds)), findsNothing);
     await _tick(tester, 1);
-    expect(colorOf('10 s'), isNot(calm));
+    expect(find.bySemanticsLabel(_l.qrSecondsLeft(qrLowSeconds)), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('leaving the app covers the code and stays covered', (tester) async {
@@ -271,7 +265,7 @@ void main() {
     await tester.tap(find.byKey(qrNextButtonKey));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text(_l.qrScanReply), findsWidgets);
+    expect(find.text(_l.phoneQrTitlePay), findsWidgets);
     expect(find.text('camera'), findsOneWidget);
     final reply = '{"id":"slate-2","step":"response"}';
     final parts = await h.service.encodeQrSlate(
@@ -326,7 +320,7 @@ void main() {
     await tester.tap(show());
     await _tick(tester, 3);
     expect(
-      tester.widget<FilledButton>(find.byKey(qrNextButtonKey)).onPressed,
+      tester.widget<KitButton>(find.byKey(qrNextButtonKey)).onPressed,
       isNull,
     );
   });
@@ -336,8 +330,8 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester, reply: true);
-    expect(find.text(_l.qrShowTitleReply), findsOneWidget);
-    expect(find.text('To the sender of 1.5\u00a0EPIC'), findsOneWidget);
+    expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
+    expect(find.text('+1.5'), findsOneWidget);
     expect(
       find.text(_l.qrHiddenBodyReply),
       findsOneWidget,

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/pin_pad.dart';
 import 'support/real_time.dart';
 
 final _l = englishStrings;
@@ -91,6 +92,12 @@ class _Harness {
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
+  // The unlock of a PIN wallet takes its PIN on the keypad.
+  if (label == 'PIN' && pinPad.evaluate().isNotEmpty) {
+    await typePin(tester, text);
+    await tester.pumpAndSettle();
+    return;
+  }
   await tester.enterText(find.widgetWithText(TextField, label), text);
   await tester.pumpAndSettle();
 }
@@ -112,7 +119,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(find.text(_l.unlockTitle), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
       expect(find.text(_l.pinForgot), findsOneWidget);
       expect(find.text('Use passphrase instead'), findsNothing);
       expect(find.byIcon(Icons.visibility), findsNothing);
@@ -191,7 +198,7 @@ void main() {
       await h.pump(tester);
       expect(find.text(_l.unlockTitle), findsOneWidget);
       expect(find.widgetWithText(TextField, _l.passphraseLabel), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'PIN'), findsNothing);
+      expect(pinPad, findsNothing);
       expect(find.text(_l.passphraseForgot), findsOneWidget);
       expect(find.text('Forgot PIN?'), findsNothing);
       expect(find.text('Use PIN instead'), findsOneWidget);
@@ -245,7 +252,7 @@ void main() {
       final h = _Harness(everUsed: true);
       h.store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_passphrase);
       await h.pump(tester);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
       await _tapText(tester, _l.passphraseUsePassphraseInstead);
       expect(find.widgetWithText(TextField, _l.passphraseLabel), findsOneWidget);
       expect(find.text(_l.passphraseForgot), findsOneWidget);

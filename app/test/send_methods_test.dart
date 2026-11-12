@@ -330,7 +330,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await _reach(tester, finder);
   await tester.tap(finder);
   await _settle(tester);
-  if (find.widgetWithText(TextField, _l.pinLabel).evaluate().isNotEmpty) {
+  if (pinAsked.evaluate().isNotEmpty) {
     await answerPin(tester, settle: false);
     await _settle(tester);
   }
@@ -423,12 +423,12 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
       expect(_lines(), [_l.methodDirectTor]);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Turn on Link · Tor'), findsOneWidget);
       await _tap(tester, find.byKey(sendTurnOnMethodKey));
       expect(h.container.read(appSettingsProvider).value!.payments.linkTor, isTrue);
       expect(find.byKey(sendTurnOnMethodKey), findsNothing);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsNothing);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsNothing);
     }, skip: !torBuilt);
 
     testWidgets('a name finds the contact; the pick shows as a chip', (tester) async {
@@ -469,7 +469,7 @@ void main() {
       await _tap(tester, find.text(_l.commonPaste));
       expect(_lines(), [_l.methodDirectTor]);
       // Never a silent refusal: the note names the method that is off.
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
     }, skip: !torBuilt);
 
@@ -481,7 +481,7 @@ void main() {
       expect(find.byKey(netBlockNoteKey), findsNothing);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
       await _enter(tester, 'To', _onion);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
     }, skip: !torBuilt);
 
@@ -494,7 +494,7 @@ void main() {
       await _tap(tester, find.text(_l.sendContactsButton));
       await _tap(tester, find.text('Tor Tom'));
       expect(_lines(), [_l.methodDirectTor]);
-      const line = 'Link · Tor is off in Settings › Transactions. Tor Tom has only a Link · Tor address.';
+      const line = 'Link · Tor is off in the payment settings. Tor Tom has only a Link · Tor address.';
       expect(find.text(line), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       // The line opens Settings › Transactions.
@@ -606,7 +606,7 @@ void main() {
       await _tap(tester, find.text(_l.commonPaste));
       // Never swapped: what was pasted stays, and the note names the method that is off.
       expect(_toText(tester), _onion);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 
@@ -651,7 +651,7 @@ void main() {
         await h.pump(tester);
         await _tap(tester, find.text(_l.commonPaste));
         expect(_lines(), [_l.methodDirectTor]);
-        expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+        expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
         expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
         // The phone sends to an http(s) address with no switch on.
         await _tap(tester, find.byKey(sendRecipientClearKey));
@@ -973,7 +973,7 @@ void main() {
       await h.session.saveContact(contact: Contact(id: '', name: 'Alice', address: _bob, note: null));
       h.container.invalidate(contactsProvider);
       await tester.pumpAndSettle();
-      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions. Alice has only an Epicbox address.'), findsOneWidget);
+      expect(find.text('Epicbox is off in the payment settings. Alice has only an Epicbox address.'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
@@ -1160,7 +1160,7 @@ void main() {
       await _tap(tester, find.byKey(sendAsPlainKey));
       await _tap(tester, find.byKey(sendAsPlainConfirmKey));
       expect(find.text(l.sendSealedTitle('Bob'), skipOffstage: false), findsNothing);
-      expect(find.text(l.sendFileShareHint, skipOffstage: false), findsOneWidget);
+      expect(find.text(l.phoneFileSendHint, skipOffstage: false), findsOneWidget);
       expect((await h.session.pairing.pairing('p-bob'))!.seal, SealMode.degraded);
     });
 
@@ -1196,7 +1196,7 @@ void main() {
       await toFile(tester);
       expect(find.text(l.trustSealedFor('Bob')), findsNothing);
       await _tap(tester, makeFile());
-      expect(find.text(l.sendFileShareHint, skipOffstage: false), findsOneWidget);
+      expect(find.text(l.phoneFileSendHint, skipOffstage: false), findsOneWidget);
     });
   });
 }
