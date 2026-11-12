@@ -292,6 +292,26 @@ abstract final class TrustIds {
   static const linkdevPasteAnother = 'g4.linkdev.paste_another';
   static const linkdevRetry = 'g4.linkdev.retry';
   static const linkdevCloseFailed = 'g4.linkdev.close_failed';
+  static const pairflowClose = 'g4.pairflow.close';
+  static const pairflowShare = 'g4.pairflow.share';
+  static const pairflowCopy = 'g4.pairflow.copy';
+  static const pairflowNameRow = 'g4.pairflow.name_row';
+  static const pairflowNameSheet = 'g4.pairflow.name_sheet';
+  static const pairflowNameField = 'g4.pairflow.name_field';
+  static const pairflowNameSave = 'g4.pairflow.name_save';
+  static const pairflowNameCancel = 'g4.pairflow.name_cancel';
+  static const pairflowScan = 'g4.pairflow.scan';
+  static const pairflowPaste = 'g4.pairflow.paste';
+  static const pairflowFinishShare = 'g4.pairflow.finish_share';
+  static const pairflowFinishCopy = 'g4.pairflow.finish_copy';
+  static const pairflowFinishCheck = 'g4.pairflow.finish_check';
+  static const pairflowStatusCheck = 'g4.pairflow.status_check';
+  static const pairflowRequestSend = 'g4.pairflow.request_send';
+  static const pairflowRequestCode = 'g4.pairflow.request_code';
+  static const pairflowRequestsBack = 'g4.pairflow.requests_back';
+  static const pairflowRequestsPair = 'g4.pairflow.requests_pair';
+  static const pairflowRequestsNotNow = 'g4.pairflow.requests_not_now';
+  static const pairflowRequestsRow = 'g4.pairflow.requests_row';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -594,5 +614,25 @@ abstract final class TrustIds {
     'g4.linkdev.paste_another',
     'g4.linkdev.retry',
     'g4.linkdev.close_failed',
+    'g4.pairflow.close',
+    'g4.pairflow.share',
+    'g4.pairflow.copy',
+    'g4.pairflow.name_row',
+    'g4.pairflow.name_sheet',
+    'g4.pairflow.name_field',
+    'g4.pairflow.name_save',
+    'g4.pairflow.name_cancel',
+    'g4.pairflow.scan',
+    'g4.pairflow.paste',
+    'g4.pairflow.finish_share',
+    'g4.pairflow.finish_copy',
+    'g4.pairflow.finish_check',
+    'g4.pairflow.status_check',
+    'g4.pairflow.request_send',
+    'g4.pairflow.request_code',
+    'g4.pairflow.requests_back',
+    'g4.pairflow.requests_pair',
+    'g4.pairflow.requests_not_now',
+    'g4.pairflow.requests_row',
   ];
 }

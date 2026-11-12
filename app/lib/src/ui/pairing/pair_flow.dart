@@ -148,6 +148,7 @@ class PairField extends StatelessWidget {
     this.semanticsId,
     this.textInputAction,
     this.maxLength,
+    this.error,
   });
 
   final TextEditingController controller;
@@ -160,6 +161,9 @@ class PairField extends StatelessWidget {
   final String? semanticsId;
   final TextInputAction? textInputAction;
   final int? maxLength;
+
+  /// A refusal shown under the field.
+  final String? error;
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +187,8 @@ class PairField extends StatelessWidget {
           labelText: label,
           hintText: hint,
           counterText: '',
+          errorText: error,
+          errorStyle: KitType.rowSub.copyWith(color: t.risk),
           filled: true,
           fillColor: t.fill,
           labelStyle: KitType.body.copyWith(color: t.dim),
@@ -191,6 +197,8 @@ class PairField extends StatelessWidget {
           border: border(Colors.transparent),
           enabledBorder: border(Colors.transparent),
           focusedBorder: border(t.accent),
+          errorBorder: border(t.risk),
+          focusedErrorBorder: border(t.risk),
         ),
       ),
     );

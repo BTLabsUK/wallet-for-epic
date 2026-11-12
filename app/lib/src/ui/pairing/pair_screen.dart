@@ -19,15 +19,23 @@ import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../wallet_service.dart';
-import '../app_dialog.dart';
-import '../common.dart';
+import '../notices.dart' show NoticeLevel, noticeProvider;
 import '../scan_screen.dart';
-import '../theme/logo_qr.dart';
+import '../../trust_ids.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_group.dart';
+import '../kit/kit_headers.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_sheet.dart';
+import '../kit/kit_support.dart' show kitId;
+import '../kit/kit_tokens.dart';
 import '../theme/tokens.dart';
 import '../scan_route.dart' show openDeviceLinkText;
 import 'invite_links.dart';
 import 'pair_check.dart';
 import 'pair_incoming.dart';
+import 'pair_flow.dart';
 import 'pairing_clip_offer.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
@@ -150,7 +158,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
 
   Future<void> _changeName() async {
     final current = ref.read(pairingSeenAsProvider).value ?? '';
-    final name = await showAppDialog<String>(context, builder: (_) => _NameDialog(initial: current));
+    final name = await showKitSheet<String>(context: context, builder: (_) => _NameSheet(initial: current));
     if (name == null || !mounted) return;
     await ref.read(pairingSeenAsProvider.notifier).set(name);
     await _makeCode();
@@ -221,8 +229,6 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
     final contact = widget.contact;
     final net = ref.watch(pairNetProvider);
     final seenAs = ref.watch(pairingSeenAsProvider).value ?? '';
@@ -235,126 +241,105 @@ class _PairScreenState extends ConsumerState<PairScreen> {
       for (final r in all)
         if (_answered.contains(r.id) || (contact != null && r.contactId == contact.id && (r.state.isPending || r.state == PairingState.waiting))) r,
     ];
-    return SlotScaffold(
-      appBar: AppBar(title: Text(contact == null ? l.pairTitle : l.pairWithName(contact.name))),
-      body: ScreenBody(
-        children: [
-          PairSection(l.pairYourCode),
-          Container(
-            key: pairCodeKey,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: t.surface, border: Border.all(color: t.line), borderRadius: BorderRadius.circular(t.radius)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return PairFlowPage(
+      title: contact == null ? l.pairTitle : l.pairWithName(contact.name),
+      leadingId: TrustIds.pairflowClose,
+      children: [
+        PairSection(l.pairYourCode),
+        Column(
+          key: pairCodeKey,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PairQr(
+              data: code == null ? null : pairingInviteText(code, invitePage: ref.watch(invitePageProvider)),
+              label: l.pairCodeLabel,
+              placeholder: _error == null ? null : Text(_error!, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: protocolLight.dim)),
+            ),
+            const PairGap(14),
+            PairNote(contact == null ? l.pairCodeCaption : l.pairCodeCaptionFor(contact.name), center: true),
+            const PairGap(14),
+            Row(
               children: [
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      // Dark modules on white scan reliably in either theme.
-                      color: protocolLight.surface,
-                      border: Border.all(color: t.line),
-                      borderRadius: BorderRadius.circular(t.radiusSmall),
-                    ),
-                    child: code == null
-                        ? SizedBox.square(
-                            dimension: 226,
-                            child: Center(
-                              child: _error != null
-                                  ? Padding(padding: const EdgeInsets.all(16), child: Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: protocolLight.dim)))
-                                  : const CircularProgressIndicator(),
-                            ),
-                          )
-                        : Semantics(label: l.pairCodeLabel, image: true, child: LogoQr(data: pairingInviteText(code, invitePage: ref.watch(invitePageProvider)), size: 226, logo: QrLogo.epic1)),
+                Expanded(
+                  child: KitButton(
+                    key: pairShareKey,
+                    label: canShare ? l.commonShare : l.commonCopy,
+                    icon: canShare ? KitIcons.share : KitIcons.copy,
+                    semanticsId: TrustIds.pairflowShare,
+                    onPressed: code == null ? null : () => _share(copy: !canShare),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Text(contact == null ? l.pairCodeCaption : l.pairCodeCaptionFor(contact.name), textAlign: TextAlign.center, style: TextStyle(color: t.dim)),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        key: pairShareKey,
-                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(44)),
-                        icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
-                        label: Text(canShare ? l.commonShare : l.commonCopy),
-                        onPressed: code == null ? null : () => _share(copy: !canShare),
-                      ),
-                    ),
-                    if (canShare) ...[
-                      const SizedBox(width: 8),
-                      IconButton(
-                        key: pairCopyKey,
-                        tooltip: l.commonCopy,
-                        icon: const Icon(Icons.copy),
-                        onPressed: code == null ? null : () => _share(copy: true),
-                      ),
-                    ],
-                  ],
-                ),
-                if (net == PairNet.epicboxOff) ...[const SizedBox(height: 8), PairSmallPrint(l.pairEpicboxOffLine)],
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        seenAs.isEmpty ? l.pairSeenAsNone : l.pairSeenAsLine(seenAs),
-                        style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    TextButton(key: pairChangeNameKey, style: TextButton.styleFrom(minimumSize: const Size(0, 40)), onPressed: _changeName, child: Text(seenAs.isEmpty ? l.pairSeenAsAdd : l.pairChange)),
-                  ],
-                ),
+                if (canShare) ...[
+                  const SizedBox(width: 8),
+                  KitIconButton(
+                    key: pairCopyKey,
+                    icon: KitIcons.copy,
+                    label: l.commonCopy,
+                    filled: true,
+                    semanticsId: TrustIds.pairflowCopy,
+                    onPressed: code == null ? null : () => _share(copy: true),
+                  ),
+                ],
               ],
             ),
-          ),
-          if (_finishFor != null && _finishLink != null) ...[
-            const SizedBox(height: 12),
-            _FinishBox(
-              name: ref.watch(pairingNameProvider(_finishFor!)),
-              link: _finishLink!,
-              canShare: canShare,
-              onShare: () => _shareFinish(copy: !canShare),
-              onCopy: () => _shareFinish(copy: true),
-              onCheck: () => _checkWords(_finishFor!),
+            if (net == PairNet.epicboxOff) ...[const PairGap(8), PairSmallPrint(l.pairEpicboxOffLine)],
+          ],
+        ),
+        const PairGap(),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          children: [
+            KitRow(
+              key: pairChangeNameKey,
+              title: seenAs.isEmpty ? l.pairSeenAsNone : l.pairSeenAsLine(seenAs),
+              value: seenAs.isEmpty ? l.pairSeenAsAdd : l.pairChange,
+              chevron: true,
+              size: KitRowSize.settings,
+              semanticsId: TrustIds.pairflowNameRow,
+              onTap: _changeName,
             ),
           ],
-          for (final r in followed)
-            if (r.id != _finishFor) ...[
-              const SizedBox(height: 12),
-              _StatusLine(record: r, name: ref.watch(pairingNameProvider(r.id)), onCheck: r.sas.isEmpty ? null : () => _checkWords(r.id)),
-            ],
-          PairSection(contact == null ? l.pairHaveTheirCode : l.pairHaveNamesCode(contact.name)),
-          Row(
-            children: [
-              if (scan) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    key: pairScanKey,
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    icon: const Icon(Icons.qr_code_scanner, size: 18),
-                    label: Text(l.pairScan),
-                    onPressed: _busy ? null : _scan,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              Expanded(
-                child: OutlinedButton.icon(
-                  key: pairPasteKey,
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: const Icon(Icons.content_paste, size: 18),
-                  label: Text(l.pairPaste),
-                  onPressed: _busy ? null : _paste,
-                ),
-              ),
-            ],
+        ),
+        if (_finishFor != null && _finishLink != null) ...[
+          const PairGap(),
+          _FinishBox(
+            name: ref.watch(pairingNameProvider(_finishFor!)),
+            link: _finishLink!,
+            canShare: canShare,
+            onShare: () => _shareFinish(copy: !canShare),
+            onCopy: () => _shareFinish(copy: true),
+            onCheck: () => _checkWords(_finishFor!),
           ),
         ],
-      ),
+        for (final r in followed)
+          if (r.id != _finishFor) ...[
+            const PairGap(),
+            _StatusLine(record: r, name: ref.watch(pairingNameProvider(r.id)), onCheck: r.sas.isEmpty ? null : () => _checkWords(r.id)),
+          ],
+        PairSection(contact == null ? l.pairHaveTheirCode : l.pairHaveNamesCode(contact.name)),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          children: [
+            if (scan)
+              KitRow(
+                key: pairScanKey,
+                title: l.pairScan,
+                leading: const KitIconWell(KitIcons.scan),
+                chevron: true,
+                semanticsId: TrustIds.pairflowScan,
+                onTap: _busy ? null : _scan,
+              ),
+            KitRow(
+              key: pairPasteKey,
+              title: l.pairPaste,
+              leading: const KitIconWell(KitIcons.paste),
+              chevron: true,
+              semanticsId: TrustIds.pairflowPaste,
+              onTap: _busy ? null : _paste,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -383,21 +368,35 @@ class _StatusLine extends ConsumerWidget {
     };
     // Heard from: the pairing is on, nothing more to wait for.
     final done = r.state.isPaired;
-    return Semantics(
-      key: pairStatusKey,
-      liveRegion: true,
-      child: Row(
-        children: [
-          if (done)
-            Icon(Icons.check_circle, size: 16, color: t.ok)
-          else
-            const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
-          const SizedBox(width: 10),
-          Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim))),
-          if (onCheck != null && (r.state == PairingState.waiting || r.state == PairingState.paired || r.state == PairingState.keysChanged))
-            TextButton(key: pairCheckWordsKey, onPressed: onCheck, child: Text(l.pairCheckWords)),
-        ],
-      ),
+    final check = onCheck != null && (r.state == PairingState.waiting || r.state == PairingState.paired || r.state == PairingState.keysChanged);
+    return KitGroup(
+      margin: EdgeInsets.zero,
+      children: [
+        Semantics(
+          key: pairStatusKey,
+          liveRegion: true,
+          child: KitRow(
+            title: text,
+            size: KitRowSize.settings,
+            leading: KitIconWell.child(
+              done
+                  ? Icon(KitIcons.success, size: 22, color: t.ok)
+                  : const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+            trailing: check
+                ? KitButton(
+                    key: pairCheckWordsKey,
+                    label: l.pairCheckWords,
+                    kind: KitButtonKind.quiet,
+                    small: true,
+                    expand: false,
+                    semanticsId: TrustIds.pairflowStatusCheck,
+                    onPressed: onCheck,
+                  )
+                : null,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -417,7 +416,7 @@ class _FinishBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
+    final t = context.tokens;
     return PairCard(
       key: pairFinishBoxKey,
       children: [
@@ -426,26 +425,25 @@ class _FinishBox extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l.pairFinishCodeTitle, style: theme.textTheme.titleSmall),
-              const SizedBox(height: 6),
+              Semantics(header: true, child: Text(l.pairFinishCodeTitle, style: KitType.rowTitle.copyWith(color: t.text))),
+              const PairGap(6),
               PairSmallPrint(l.pairFinishCodeBody(name)),
-              const SizedBox(height: 10),
+              const PairGap(12),
               ShareBox(text: link),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilledButton.icon(
-                    key: pairFinishShareKey,
-                    icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
-                    label: Text(canShare ? l.commonShare : l.commonCopy),
-                    onPressed: onShare,
-                  ),
-                  if (canShare) OutlinedButton.icon(icon: const Icon(Icons.copy, size: 18), label: Text(l.commonCopy), onPressed: onCopy),
-                  OutlinedButton(key: pairCheckWordsKey, onPressed: onCheck, child: Text(l.pairCheckWords)),
-                ],
+              const PairGap(12),
+              KitButton(
+                key: pairFinishShareKey,
+                label: canShare ? l.commonShare : l.commonCopy,
+                icon: canShare ? KitIcons.share : KitIcons.copy,
+                semanticsId: TrustIds.pairflowFinishShare,
+                onPressed: onShare,
               ),
+              if (canShare) ...[
+                const PairGap(8),
+                KitButton(label: l.commonCopy, icon: KitIcons.copy, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowFinishCopy, onPressed: onCopy),
+              ],
+              const PairGap(8),
+              KitButton(key: pairCheckWordsKey, label: l.pairCheckWords, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowFinishCheck, onPressed: onCheck),
             ],
           ),
         ),
@@ -456,16 +454,16 @@ class _FinishBox extends StatelessWidget {
 
 /// Change "They see you as": one field, one name per wallet; applies to every later code and
 /// request, and the paired contacts get the new name.
-class _NameDialog extends StatefulWidget {
-  const _NameDialog({required this.initial});
+class _NameSheet extends StatefulWidget {
+  const _NameSheet({required this.initial});
 
   final String initial;
 
   @override
-  State<_NameDialog> createState() => _NameDialogState();
+  State<_NameSheet> createState() => _NameSheetState();
 }
 
-class _NameDialogState extends State<_NameDialog> {
+class _NameSheetState extends State<_NameSheet> {
   late final _text = TextEditingController(text: widget.initial);
   String? _error;
 
@@ -487,30 +485,35 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AppDialog(
+    final t = context.tokens;
+    return KitSheet(
       title: l.pairSeenAsEdit,
-      icon: Icons.badge_outlined,
-      body: TextField(
-        key: pairNameFieldKey,
-        controller: _text,
-        autofocus: true,
-        textCapitalization: TextCapitalization.words,
-        maxLength: 48,
-        buildCounter: (context, {required currentLength, required isFocused, required maxLength}) => null,
-        onChanged: (_) => setState(() => _error = null),
-        onSubmitted: (_) => _save(),
-        decoration: InputDecoration(
-          labelText: l.pairSeenAsField,
-          hintText: l.pairSeenAsHint,
-          helperText: l.pairSeenAsOptional,
-          border: const OutlineInputBorder(),
-          errorText: _error,
+      primary: KitButton(key: pairNameSaveKey, label: l.commonSave, semanticsId: TrustIds.pairflowNameSave, onPressed: _save),
+      secondaryLabel: l.commonCancel,
+      secondaryId: TrustIds.pairflowNameCancel,
+      onSecondary: () => Navigator.pop(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PairField(
+              key: pairNameFieldKey,
+              controller: _text,
+              label: l.pairSeenAsField,
+              hint: l.pairSeenAsHint,
+              autofocus: true,
+              maxLength: 48,
+              error: _error,
+              semanticsId: TrustIds.pairflowNameField,
+              onChanged: (_) => setState(() => _error = null),
+              onSubmitted: (_) => _save(),
+            ),
+            const PairGap(8),
+            kitId(TrustIds.pairflowNameSheet, Text(l.pairSeenAsOptional, style: KitType.rowSub.copyWith(color: t.dim))),
+          ],
         ),
       ),
-      actions: [
-        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
-        DialogButton.primary(key: pairNameSaveKey, label: l.commonSave, onPressed: _save),
-      ],
     );
   }
 }
