@@ -91,15 +91,7 @@ String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
 /// The picker rows of the wallet's node list ([NodeServer]s), in the neutral order of §18.
 /// [released] is the released node version when known; else the newest in the list counts.
 List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released}) {
-  final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
-  final tip = heights.isEmpty ? null : heights.reduce((a, b) => a > b ? a : b);
-  var newest = released;
-  if (newest == null) {
-    for (final n in nodes) {
-      final v = n.version;
-      if (v != null && (newest == null || (compareVersions(v, newest) ?? 0) > 0)) newest = v;
-    }
-  }
+  final (:tip, :newest) = nodeListMarks(nodes, released: released);
   final rows = [
     for (final n in nodes)
       () {

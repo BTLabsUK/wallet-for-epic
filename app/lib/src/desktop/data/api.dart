@@ -324,7 +324,6 @@ abstract interface class DeskWalletApi {
   /// to this wallet (cancel_final.dart), which the result tells; with [spendBack] false (the
   /// free "Stop waiting") only cancelled.
   Future<CancelResult> cancelTx(int id, {bool spendBack = true});
-  Future<String> exportProof(int id);
   /// Adds (empty id) or replaces [contact] and returns its id. Only stores: an address is never checked over the network.
   Future<String> saveContact(Contact contact);
   Future<void> deleteContact(String id);

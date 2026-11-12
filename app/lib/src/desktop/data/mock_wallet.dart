@@ -1115,12 +1115,6 @@ class MockDeskWallet implements DeskWalletApi {
   int get _nowUnix => DateTime(2026, 10, 21, 14, 30).millisecondsSinceEpoch ~/ 1000;
 
   @override
-  Future<String> exportProof(int id) async {
-    await _wait();
-    return '~/Documents/epic-proof-$id.json';
-  }
-
-  @override
   Future<String> saveContact(Contact contact) async {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);

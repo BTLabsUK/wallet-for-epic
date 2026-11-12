@@ -85,9 +85,6 @@ class SetSearch {
 
   /// The navigation entries with a result (a sub-page's result counts for its parent).
   Set<DeskRoute> get routes => {for (final h in [...shown, ...hidden]) setNavRouteOf(h.entry.route)};
-
-  /// The order the arrow keys walk: shown rows, Help topics, hidden rows.
-  int get flatLength => count;
 }
 
 /// Scores [e] for [words]: null when a word starts no word of the row.

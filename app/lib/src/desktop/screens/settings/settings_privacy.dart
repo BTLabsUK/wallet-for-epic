@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import '../../../state_language.dart' show torShownState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,7 +11,6 @@ import '../../../help/help_content.dart' show HelpId;
 import 'help_pairing.dart' show HelpAt;
 import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
-import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
 import 'prefs.dart';
@@ -51,27 +49,6 @@ class SettingsPrivacyScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-/// [problem] without its own full stop: the string adds one.
-String _noStop(String problem) => problem.endsWith('.') || problem.endsWith('。') ? problem.substring(0, problem.length - 1) : problem;
-
-/// The Tor state line of Settings › Privacy and the status card's hover card.
-MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status, {bool included = true}) {
-  if (!included) return MethodLine(l.deskSetPrivNotInBuild, EState.off);
-  return switch (tor) {
-    // Tor's one word per state (torShownState), as the rail and the status bar (D-04).
-    TorState.off => MethodLine.of(l, torShownState(tor)),
-    TorState.starting => MethodLine.of(l, torShownState(tor), detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0)),
-    TorState.on when status?.tor == ServiceHealth.slow =>
-      MethodLine.of(l, torShownState(tor), detail: status?.torProblem == null ? l.deskSetPrivNotPublished : l.deskSetPrivProblemSendsWork(status!.torProblem!)),
-    TorState.on => MethodLine.of(l, torShownState(tor)),
-    TorState.failed => MethodLine.of(
-      l,
-      torShownState(tor),
-      detail: status?.torProblem == null ? l.deskSetPrivStoppedDetail : l.deskSetPrivProblemDetail(_noStop(status!.torProblem!)),
-    ),
-  };
 }
 
 /// Server status: whether the status site is asked ([DeskSettings.useStatusSite]; off, the node

@@ -64,7 +64,7 @@ final Map<RegExp, String> _allowed = {
 };
 
 /// What the real wallet only stubs (throws UnsupportedError); a visible control must not reach them.
-const Set<String> _stubbed = {'exportProof', 'changePassword', 'newPhrase'};
+const Set<String> _stubbed = {'changePassword', 'newPhrase'};
 
 /// Reads: a control whose only effect is one of these did nothing the user can see.
 const Set<String> _reads = {
@@ -286,7 +286,6 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<CancelResult> cancelTx(int id, {bool spendBack = true}) => _r('cancelTx', () => _m.cancelTx(id, spendBack: spendBack));
   @override
-  Future<String> exportProof(int id) => _r('exportProof', () => _m.exportProof(id));
   @override
   Future<String> saveContact(Contact contact) => _r('saveContact', () => _m.saveContact(contact));
   @override

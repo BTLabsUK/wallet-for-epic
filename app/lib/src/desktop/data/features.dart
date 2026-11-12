@@ -19,8 +19,6 @@
 ///   close hides it to the tray while the node runs (app/tray/). Disabled, with its reason, on a
 ///   desktop without a tray.
 /// dandelion: Send's Dandelion++ switch and the review's Privacy line.
-/// paymentProofs: nothing on screen (the old proof dialog is gone, GP2-026); the API's
-///   exportProof stays unsupported.
 ///
 /// App-side, not in 0.1.0 (no core change needed):
 /// contactPictures: the contact form's picture and the list's photos (initials stay).
@@ -36,6 +34,5 @@ abstract final class DeskFeatures {
   static const bool tor = torBuilt;
   static const bool nodeBackground = true;
   static const bool dandelion = false;
-  static const bool paymentProofs = false;
   static const bool contactPictures = false;
 }
