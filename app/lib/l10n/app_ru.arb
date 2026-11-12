@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "Подробности баланса",
   "phoneHomeEmpty": "Платежей пока нет. Получите немного EPIC, чтобы начать.",
   "phoneTourOffer": "Показать, как устроен кошелёк?",
-  "phoneTourOfferShow": "Показать"
+  "phoneTourOfferShow": "Показать",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

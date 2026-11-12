@@ -619,7 +619,7 @@ void main() {
       expect(layout(tester).actionsBeside, isTrue);
       final text = tester.getRect(find.text('Copied'));
       final button = tester.getRect(find.widgetWithText(TextButton, 'View'));
-      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(KitIcons.success)));
+      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(KitIcons.check)));
       expect(button.left, greaterThan(text.right));
       expect(text.center.dy, moreOrLessEquals(button.center.dy, epsilon: 1));
       expect(icon.center.dy, moreOrLessEquals(text.center.dy, epsilon: 1));
@@ -628,7 +628,7 @@ void main() {
     testWidgets('text that would wrap puts the action on its own row and keeps the whole text', (tester) async {
       final c = await _pump(tester);
       // The test font draws every letter 14 dp wide: two lines on a phone.
-      const text = 'Now on epicbox.example.org. Ready.';
+      const text = 'Now on this server. All set.';
       c.notices.show(text, level: NoticeLevel.success, action: NoticeAction('Show new address', () {}));
       await tester.pumpAndSettle();
       expect(layout(tester).actionsBeside, isFalse);
@@ -636,12 +636,11 @@ void main() {
       final button = tester.getRect(find.widgetWithText(TextButton, 'Show new address'));
       // Under the words, at the end; the words are not cut to a few letters.
       expect(button.top, greaterThanOrEqualTo(words.bottom));
-      expect(button.right, moreOrLessEquals(tester.getRect(_card).right - 4, epsilon: 1));
+      expect(button.right, moreOrLessEquals(tester.getRect(_card).right - 10, epsilon: 1));
       final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
       expect(paragraph.didExceedMaxLines, isFalse);
-      // The close button stays level with the first line.
-      final close = tester.getRect(find.byTooltip(_l.commonClose));
-      expect(close.top, lessThan(words.top + 20));
+      // A notice that leaves on its own has no close button (the frame draws the × on the ones that stay).
+      expect(find.byTooltip(_l.commonClose), findsNothing);
     });
 
     testWidgets('a second action goes with the first: beside when short, under when not', (tester) async {
@@ -671,8 +670,8 @@ void main() {
       final t = tester.element(_card).tokens;
       final title = tester.widget<Text>(find.text('Wallet not saved'));
       final body = tester.widget<Text>(find.text('Free some space, then try again.'));
-      expect(title.style?.fontWeight, FontWeight.w600);
-      expect(body.style?.fontWeight, isNot(FontWeight.w600));
+      expect(title.style?.fontWeight, FontWeight.w500);
+      expect(body.style?.fontWeight, isNot(FontWeight.w500));
       expect(body.style?.color, t.dim);
       expect(find.bySemanticsLabel('Error: Wallet not saved. Free some space, then try again.'), findsOneWidget);
     });

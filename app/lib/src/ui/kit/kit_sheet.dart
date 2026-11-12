@@ -47,8 +47,11 @@ class KitSheet extends StatelessWidget {
     this.primaryId,
     this.secondaryId,
     this.primaryKind = KitButtonKind.gold,
+    this.buttonsTop = 18,
   });
 
+  /// The gap above the buttons: 18, or 14 where a frame draws a lone Done.
+  final double buttonsTop;
   final String? title;
   final Widget? child;
 
@@ -80,8 +83,9 @@ class KitSheet extends StatelessWidget {
         top: false,
         child: SingleChildScrollView(
           // `.sheet` padding-bottom 34 is the home-indicator zone: the inset the SafeArea gives
-          // is part of it, a phone with no inset keeps 16.
-          padding: EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom > 0 ? 0 : 16),
+          // is part of it, a phone with no inset keeps 16. The inset is read from the view: the
+          // SafeArea of [showPhoneSheet] above has already taken it out of the MediaQuery.
+          padding: EdgeInsets.only(bottom: _viewInsetBottom(context) > 0 ? 0 : 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,7 +99,7 @@ class KitSheet extends StatelessWidget {
               ?child,
               if (primaryButton != null || secondaryButton != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 18, Kit.gutter, 0),
+                  padding: EdgeInsets.fromLTRB(Kit.gutter, buttonsTop, Kit.gutter, 0),
                   child: Column(
                     children: [
                       ?primaryButton,
@@ -110,6 +114,11 @@ class KitSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+double _viewInsetBottom(BuildContext context) {
+  final view = View.maybeOf(context);
+  return view == null ? MediaQuery.viewPaddingOf(context).bottom : view.padding.bottom / view.devicePixelRatio;
 }
 
 /// Opens [builder]'s content as a redesign sheet over [showPhoneSheet], so the bottom inset

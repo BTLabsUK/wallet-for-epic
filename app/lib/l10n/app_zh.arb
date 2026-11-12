@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "余额详情",
   "phoneHomeEmpty": "还没有付款。先收一些 EPIC 开始吧。",
   "phoneTourOffer": "要不要快速看看钱包的功能?",
-  "phoneTourOfferShow": "带我看看"
+  "phoneTourOfferShow": "带我看看",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

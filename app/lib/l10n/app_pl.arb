@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "Szczegóły salda",
   "phoneHomeEmpty": "Brak płatności. Odbierz trochę EPIC, aby zacząć.",
   "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
-  "phoneTourOfferShow": "Pokaż"
+  "phoneTourOfferShow": "Pokaż",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

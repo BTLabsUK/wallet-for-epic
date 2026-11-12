@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "รายละเอียดยอดเงิน",
   "phoneHomeEmpty": "ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น",
   "phoneTourOffer": "ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม",
-  "phoneTourOfferShow": "ดูเลย"
+  "phoneTourOfferShow": "ดูเลย",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

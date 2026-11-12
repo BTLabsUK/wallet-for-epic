@@ -22713,4 +22713,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'ดูเลย';
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
 }

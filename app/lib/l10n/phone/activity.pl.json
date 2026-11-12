@@ -82,5 +82,7 @@
   "phonePayRouteSubEpic1": "Zapłacono z linku do płatności",
   "phonePayRouteSubInPerson": "Dwa telefony pokazują sobie kod",
   "phonePayRouteSubFile": "Plik płatności przekazywany tam i z powrotem",
-  "phonePayRouteSubTor": "Prosto do ich portfela, przez Tor"
+  "phonePayRouteSubTor": "Prosto do ich portfela, przez Tor",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

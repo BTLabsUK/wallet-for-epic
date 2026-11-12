@@ -33,8 +33,25 @@ class KitGroup extends StatelessWidget {
     final t = context.tokens;
     final kids = <Widget>[];
     for (var i = 0; i < children.length; i++) {
-      if (i > 0) kids.add(Padding(padding: EdgeInsetsDirectional.only(start: dividerInset), child: KitHairline(color: t.hair)));
-      kids.add(children[i]);
+      // The line is drawn over the top edge of the row (the frame's `.row + .row` border sits
+      // inside the row's height), so the rows keep their own heights.
+      kids.add(
+        i == 0
+            ? children[i]
+            : Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  children[i],
+                  PositionedDirectional(
+                    top: 0,
+                    start: dividerInset,
+                    end: 0,
+                    height: 1,
+                    child: IgnorePointer(child: ColoredBox(color: t.hair)),
+                  ),
+                ],
+              ),
+      );
     }
     return Padding(
       padding: margin,

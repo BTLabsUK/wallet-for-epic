@@ -23452,4 +23452,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'Zeig mir';
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
 }

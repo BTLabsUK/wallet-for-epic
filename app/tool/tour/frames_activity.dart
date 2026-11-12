@@ -144,6 +144,7 @@ TxEntry _payTx(
     amountCredited: BigInt.zero,
     fee: fee,
     numInputs: 2,
+    outputCommits: [for (final c in ['a1', 'b2']) '08${c * 33}'],
     counterparty: _fTomPay,
     transport: 'epicbox',
     pairingId: 'p-tom',

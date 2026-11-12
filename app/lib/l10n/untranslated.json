@@ -1,7 +1,22 @@
 {
-  "de": [],
-  "pl": [],
-  "ru": [],
-  "th": [],
-  "zh": []
+  "de": [
+    "phoneProgWaitingAnswer",
+    "phoneProgWaitingAnswerNamed"
+  ],
+  "pl": [
+    "phoneProgWaitingAnswer",
+    "phoneProgWaitingAnswerNamed"
+  ],
+  "ru": [
+    "phoneProgWaitingAnswer",
+    "phoneProgWaitingAnswerNamed"
+  ],
+  "th": [
+    "phoneProgWaitingAnswer",
+    "phoneProgWaitingAnswerNamed"
+  ],
+  "zh": [
+    "phoneProgWaitingAnswer",
+    "phoneProgWaitingAnswerNamed"
+  ]
 }

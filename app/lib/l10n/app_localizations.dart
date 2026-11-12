@@ -35043,13 +35043,13 @@ abstract class AppLocalizations {
   /// Reason line of a sent payment that waits for the other wallet, sent through Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox keeps it until the recipient opens their wallet.'**
+  /// **'It answers when the recipient next opens it.'**
   String get phoneProgAnswersEpicbox;
 
   /// Reason line of a sent payment that waits for the other wallet, sent through Epicbox. {who} is the recipient's name.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox keeps it until {who} opens their wallet.'**
+  /// **'It answers when {who} next opens it.'**
   String phoneProgAnswersEpicboxNamed(String who);
 
   /// Reason line of a sent payment that travels as a file and waits for the answer file.
@@ -36329,6 +36329,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show me'**
   String get phoneTourOfferShow;
+
+  /// Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for their wallet to answer'**
+  String get phoneProgWaitingAnswer;
+
+  /// Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet. {name} is the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}\'s wallet to answer'**
+  String phoneProgWaitingAnswerNamed(String name);
 }
 
 class _AppLocalizationsDelegate

@@ -888,6 +888,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             now: now,
             who: name,
             target: target,
+            reserved: tx.kind == TxKind.sent ? epicText(l, tx.amountDebited) : null,
             wait: wait,
             paused: paused,
             killSwitch: NetGate.killSwitch,
@@ -975,13 +976,19 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               decoration: BoxDecoration(color: t.ok.withValues(alpha: 0.12), shape: BoxShape.circle),
               child: Icon(KitIcons.check, size: 16, color: t.ok),
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(done, style: KitType.body.copyWith(fontSize: 14, color: t.dim, height: 1.3)),
-                const SizedBox(width: 6),
-                Icon(_stepsOpen ? KitIcons.chevronUp : KitIcons.chevronDown, size: 18, color: t.faint),
-              ],
+            // At large text the date wraps in its own room, so the row never runs out of width.
+            trailing: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 150),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(done, textAlign: TextAlign.end, style: KitType.body.copyWith(fontSize: 14, color: t.dim, height: 1.3)),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(_stepsOpen ? KitIcons.chevronUp : KitIcons.chevronDown, size: 18, color: t.faint),
+                ],
+              ),
             ),
             onTap: () => setState(() => _stepsOpen = !_stepsOpen),
             semanticsId: TrustIds.payCompleted,
@@ -1096,6 +1103,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     }
 
     // The rows under the status: messages, note, label, fee, and the sheet with the rest.
+    final labelInMore = progress != null && !progress.completed;
     final noteRow = KitKvRow(
       key: txPrivateNoteKey,
       label: l.phonePayNote,
@@ -1122,7 +1130,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
         ),
       if (!device) noteRow,
-      if (!device) _LabelRow(tx: tx),
+      // The frame's open payment shows no Label row: the sheet of more details has it.
+      if (!device && !labelInMore) _LabelRow(tx: tx),
       // Only a payment a scan found takes a typed sender, method and note.
       if (tx.source == TxSource.restored)
         KitRow(
@@ -1141,7 +1150,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         key: txDetailsMoreKey,
         label: l.phonePayMore,
         chevron: true,
-        onTap: () => _showMore(tx, name: name, mailboxName: mailboxName, withdrawal: withdrawal, via: via),
+        onTap: () => _showMore(tx, name: name, mailboxName: mailboxName, withdrawal: withdrawal, via: via, label: labelInMore && !device),
         semanticsId: TrustIds.payMore,
       ),
     ];
@@ -1224,7 +1233,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       if (canSendAgain)
         KitButton(
           label: l.txDetailsSendAgain,
-          icon: Icons.arrow_forward_rounded,
+          icon: KitIcons.send,
           kind: KitButtonKind.quiet,
           onPressed: () => showShellFlow(context, ShellFlow.send, recipient: counterparty),
           semanticsId: TrustIds.paySendAgain,
@@ -1312,7 +1321,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       Kit.gutter,
                       8,
                       Kit.gutter,
-                      (34 - MediaQuery.viewPaddingOf(context).bottom).clamp(12.0, 34.0),
+                      (34 - MediaQuery.viewPaddingOf(context).bottom).clamp(0.0, 34.0),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1383,6 +1392,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         primaryKind: KitButtonKind.quiet,
         onPrimary: () => Navigator.of(sheet).pop(),
         primaryId: TrustIds.payViaDone,
+        buttonsTop: 14,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1393,7 +1403,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    SizedBox(width: 40, child: Align(alignment: Alignment.centerLeft, child: KitRouteIcon(via, size: 22, color: t.accentText))),
+                    KitIconWell.child(KitRouteIcon(via, size: 22, color: t.accentText)),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Semantics(
                         header: true,
@@ -1432,6 +1443,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 for (final v in others)
                   KitRow(
                     size: KitRowSize.sheet,
+                    compact: true,
                     title: _routeName(l, v),
                     subtitle: sub(v),
                     leading: Container(
@@ -1457,6 +1469,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     required String? mailboxName,
     required ({PairingSlate slate, String name})? withdrawal,
     required Via? via,
+    required bool label,
   }) => showKitSheet<void>(
     context: context,
     builder: (sheet) => _MoreSheet(
@@ -1466,6 +1479,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       withdrawalName: withdrawal?.name,
       withdrawalPairingId: withdrawal?.slate.pairingId,
       via: via,
+      label: label,
     ),
   );
 }
@@ -1590,11 +1604,11 @@ class _PayHero extends StatelessWidget {
           Text(
             fiat == null ? line : '$line · $fiat',
             textAlign: TextAlign.center,
-            style: KitType.body.copyWith(color: t.dim, height: 1.3),
+            style: KitType.body.copyWith(color: t.dim, height: 1.21),
           ),
           if (via != null) ...[
             // `.chip` margin 12, less the 8 the 44 tap target adds above the 28 pill.
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             KitChip(
               _routeName(l, via!),
               leading: KitRouteIcon(via!),
@@ -1813,8 +1827,11 @@ class _MoreSheet extends ConsumerStatefulWidget {
     required this.withdrawalName,
     required this.withdrawalPairingId,
     required this.via,
+    required this.label,
   });
 
+  /// The Label row sits here when the page does not show it (a payment still open).
+  final bool label;
   final TxEntry tx;
   final String? name;
   final String? mailboxName;
@@ -1893,7 +1910,9 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
 
     // "Sent to" and its address sit above the rows, not in them (the frame's sheet).
     Widget? who;
+    final live = ref.watch(homeProvider).value?.transactions.where((x) => x.key == tx.key).firstOrNull ?? tx;
     final rows = <Widget>[
+      if (widget.label) _LabelRow(tx: live),
       // A withdrawal names the paired exchange, never its address (RFC C-21).
       if (widget.withdrawalPairingId != null)
         Padding(
@@ -1935,7 +1954,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(txMethodWord(l, tx.transport), style: KitType.body.copyWith(height: 1.3)),
+                    Flexible(child: Text(txMethodWord(l, tx.transport), style: KitType.body.copyWith(height: 1.3), overflow: TextOverflow.ellipsis)),
                     const SizedBox(width: 8),
                     ManualTag(editedAtUnix: tx.manualEditedAtUnix),
                   ],
@@ -1957,11 +1976,12 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
           value: coins == 1 ? l.phonePayOutputsOne : l.phonePayOutputsMany('$coins'),
           valueColor: t.dim,
           chevron: true,
-          onTap: () => _showCoins(tx),
+          onTap: () => _showCoins(tx, technical: technical),
         ),
-      // Advanced › Technical details shows the rows; without it this row shows them for this
-      // view only (the switch stays off). Send feedback carries the slate id for support.
-      if (!technical)
+      // Advanced › Technical details shows the rows; without it the coins sheet has a row that
+      // shows them for that view only (the switch stays off), or this one when no coins are
+      // listed. Send feedback carries the slate id for support.
+      if (!technical && coins == 0)
         KitKvRow(
           key: txDetailsTechnicalKey,
           label: l.txDetailsTechnical,
@@ -1970,7 +1990,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
           onTap: () => setState(() => _more = true),
           semanticsId: TrustIds.payTechnical,
         )
-      else ...[
+      else if (technical) ...[
         if (tx.kernelExcess case final kernel?)
           _copyRow(l.txDetailsKernel, kernel, notice: l.txDetailsKernelCopied),
         for (final (i, commit) in tx.outputCommits.indexed)
@@ -1985,7 +2005,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
     ];
     if (widget.withdrawalPairingId == null && counterparty != null) {
       who = Padding(
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2015,6 +2035,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
       primaryKind: KitButtonKind.quiet,
       onPrimary: () => Navigator.of(context).pop(),
       primaryId: TrustIds.payMoreDone,
+      buttonsTop: 14,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -2062,29 +2083,50 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
     );
   }
 
-  /// The coins the payment used, each with its commitment to copy.
-  Future<void> _showCoins(TxEntry tx) {
+  /// The coins the payment used, each with its commitment to copy. Without Advanced › Technical
+  /// details a last row shows the kernel, expiry and local id here only.
+  Future<void> _showCoins(TxEntry tx, {required bool technical}) {
     final l = context.l10n;
+    final t = context.tokens;
     final single = tx.outputCommits.length == 1;
+    var more = false;
     return showKitSheet<void>(
       context: context,
-      builder: (sheet) => KitSheet(
-        title: l.phonePayCoins,
-        primaryLabel: l.commonDone,
-        primaryKind: KitButtonKind.quiet,
-        onPrimary: () => Navigator.of(sheet).pop(),
-        primaryId: TrustIds.payCoinsDone,
-        child: KitGroup(
-          onSheet: true,
-          dividerInset: Kit.dividerInsetPlain,
-          children: [
-            for (final (i, commit) in tx.outputCommits.indexed)
-              _copyRow(
-                single ? l.txDetailsOutputCommitment : l.txDetailsOutputCommitmentNumbered(i + 1),
-                commit,
-                notice: single ? l.txDetailsOutputCommitmentCopied : l.txDetailsOutputCommitmentNumberedCopied(i + 1),
-              ),
-          ],
+      builder: (sheet) => StatefulBuilder(
+        builder: (sheet, setSheet) => KitSheet(
+          title: l.phonePayCoins,
+          primaryLabel: l.commonDone,
+          primaryKind: KitButtonKind.quiet,
+          onPrimary: () => Navigator.of(sheet).pop(),
+          primaryId: TrustIds.payCoinsDone,
+          buttonsTop: 14,
+          child: KitGroup(
+            onSheet: true,
+            dividerInset: Kit.dividerInsetPlain,
+            children: [
+              if (more)
+                if (tx.kernelExcess case final kernel?) _copyRow(l.txDetailsKernel, kernel, notice: l.txDetailsKernelCopied),
+              for (final (i, commit) in tx.outputCommits.indexed)
+                _copyRow(
+                  single ? l.txDetailsOutputCommitment : l.txDetailsOutputCommitmentNumbered(i + 1),
+                  commit,
+                  notice: single ? l.txDetailsOutputCommitmentCopied : l.txDetailsOutputCommitmentNumberedCopied(i + 1),
+                ),
+              if (more) ...[
+                if (tx.ttlCutoffHeight case final cutoff?) KitKvRow(label: l.txDetailsExpiryHeight, value: groupDigits(l, cutoff), mono: true),
+                if (tx.id case final id?) KitKvRow(label: l.txDetailsLocalId, value: '$id', mono: true),
+              ],
+              if (!technical && !more)
+                KitKvRow(
+                  key: txDetailsTechnicalKey,
+                  label: l.txDetailsTechnical,
+                  labelColor: t.accentText,
+                  chevron: true,
+                  onTap: () => setSheet(() => more = true),
+                  semanticsId: TrustIds.payTechnical,
+                ),
+            ],
+          ),
         ),
       ),
     );

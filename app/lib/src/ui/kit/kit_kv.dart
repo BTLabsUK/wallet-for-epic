@@ -46,30 +46,48 @@ class KitKvRow extends StatelessWidget {
     final valueStyle = (mono ? KitType.rowAmount : KitType.body).copyWith(color: valueColor ?? t.text, height: 1.3);
     final body = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      child: Row(
-        children: [
-          Flexible(
-            flex: 0,
-            child: Text(label, style: KitType.body.copyWith(color: labelColor ?? t.dim, height: 1.3)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child:
-                  valueWidget ??
-                  (value == null
-                      ? const SizedBox.shrink()
-                      : Text(value!, style: valueStyle, textAlign: TextAlign.end, maxLines: maxValueLines, overflow: TextOverflow.ellipsis)),
-            ),
-          ),
-          if (chevron) ...[const SizedBox(width: 6), Icon(KitIcons.chevron, size: 18, color: t.faint)],
-        ],
+      child: LayoutBuilder(
+        builder: (context, box) => Row(
+          children: [
+            // The label keeps its own width, up to 70% of the row: a long one wraps instead of
+            // pushing the value out; with no value it takes the row.
+            if (value == null && valueWidget == null)
+              Expanded(child: Text(label, style: KitType.body.copyWith(color: labelColor ?? t.dim, height: 1.3)))
+            else
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: box.maxWidth * 0.7),
+                child: Text(label, style: KitType.body.copyWith(color: labelColor ?? t.dim, height: 1.3)),
+              ),
+            if (value != null || valueWidget != null) ...[
+              const SizedBox(width: 16),
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child:
+                      valueWidget ??
+                      Text(value!, style: valueStyle, textAlign: TextAlign.end, maxLines: maxValueLines, overflow: TextOverflow.ellipsis),
+                ),
+              ),
+            ],
+            if (chevron) ...[const SizedBox(width: 6), Icon(KitIcons.chevron, size: 18, color: t.faint)],
+          ],
+        ),
       ),
     );
+    // A row that can be tapped is at least 48 tall (the platform's tap target; the frame's 46
+    // is 2 short of it).
     final row = onTap == null
         ? Semantics(container: true, child: body)
-        : Semantics(button: true, child: InkWell(onTap: onTap, child: body));
+        : Semantics(
+            button: true,
+            child: InkWell(
+              onTap: onTap,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Align(alignment: AlignmentDirectional.centerStart, child: body),
+              ),
+            ),
+          );
     return kitId(semanticsId, Material(type: MaterialType.transparency, child: row));
   }
 }

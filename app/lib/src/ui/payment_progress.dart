@@ -80,7 +80,13 @@ PaymentProgress? paymentProgress(
   if (request) {
     labels = [l.txStepRequested, l.txStepPaid, l.phoneProgNetwork, l.txStepConfirmed];
   } else if (outgoing) {
-    labels = [l.phoneProgSent, name == null ? l.txStatusWaitingRecipient : l.txStatusWaitingFor(name), l.phoneProgNetwork, l.txStepConfirmed];
+    labels = [
+      l.phoneProgSent,
+      // The frame's words for the second step: it is the other wallet that answers.
+      name == null ? l.phoneProgWaitingAnswer : l.phoneProgWaitingAnswerNamed(name),
+      l.phoneProgNetwork,
+      l.txStepConfirmed,
+    ];
   } else {
     labels = [l.lvPayArriving, l.phoneProgSenderFinished, l.phoneProgNetwork, l.txStepConfirmed];
   }
@@ -164,7 +170,10 @@ PaymentProgress? paymentProgress(
 
   return PaymentProgress(
     steps: [
+      // The frames draw three steps until the payment is on the network; the network step
+      // joins when it is the current one or past.
       for (var i = 0; i < 4; i++)
+        if (i != 2 || at >= 2)
         KitStep(
           title: labels[i],
           state: i < at ? KitStepState.done : (i == at ? KitStepState.now : KitStepState.later),
