@@ -24,10 +24,6 @@ const Duration pairingInviteRenewBefore = Duration(hours: 24);
 /// How long the answerer waits for the confirm (RFC 8.2).
 const Duration pairingReplyWait = Duration(hours: 1);
 
-/// How long an inviter waits to hear the other wallet before the pairing ends as never
-/// finished. Counted in time spent collecting, not wall time.
-const Duration pairingHeardWait = Duration(days: 7);
-
 /// How often the contact check collects the contacts it asked, until the wait ends.
 const Duration contactCheckEvery = Duration(seconds: 15);
 

@@ -131,10 +131,6 @@ String localMonthYear(AppLocalizations l, DateTime t) {
 String localMonthShort(AppLocalizations l, DateTime t) =>
     _date(() => DateFormat.LLL(l.localeName), t);
 
-/// `September`: a month's full name, for a screen reader.
-String localMonthName(AppLocalizations l, DateTime t) =>
-    _date(() => DateFormat.LLLL(l.localeName), t);
-
 /// `2021`, `2021年`: a year as a picker's header shows it.
 String localYear(AppLocalizations l, DateTime t) => _date(() => DateFormat.y(l.localeName), t);
 

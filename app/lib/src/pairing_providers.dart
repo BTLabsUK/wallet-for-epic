@@ -227,12 +227,6 @@ final contactPendingPairingProvider = Provider.family<PairingRecord?, String>(
   (ref, contactId) => ref.watch(pendingPairingsProvider).where((r) => r.contactId == contactId).firstOrNull,
 );
 
-/// Second answers to used codes.
-final pairingStraysProvider = FutureProvider<List<PairingStray>>((ref) {
-  ref.watch(pairingsProvider);
-  return ref.watch(pairingApiProvider).strays();
-});
-
 /// The pairing events of the open wallet, for the notices.
 final pairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(pairingApiProvider).events());
 
