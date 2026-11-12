@@ -759,12 +759,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   // The Epicbox relay offer as a notice.
                   const RelayDownNotices(),
                   Positioned.fill(
-                    child: switch (tab) {
-                      ShellTab.home => HomeTab(onRefresh: _refresh),
-                      ShellTab.activity => const HistoryScreen(),
-                      ShellTab.contacts => const ContactsScreen(),
-                      ShellTab.settings => const SettingsScreen(),
-                    },
+                    // A sideways swipe moves between the bar's tabs. Lists with swipe actions,
+                    // carousels and the like win the gesture arena first, so they keep working.
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onHorizontalDragEnd: (d) {
+                        final v = d.primaryVelocity ?? 0;
+                        if (v.abs() < 300) return;
+                        final next = tab.index + (v < 0 ? 1 : -1);
+                        if (next >= 0 && next < ShellTab.values.length) _goTab(next);
+                      },
+                      child: switch (tab) {
+                        ShellTab.home => HomeTab(onRefresh: _refresh),
+                        ShellTab.activity => const HistoryScreen(),
+                        ShellTab.contacts => const ContactsScreen(),
+                        ShellTab.settings => const SettingsScreen(),
+                      },
+                    ),
                   ),
                 ],
               ),

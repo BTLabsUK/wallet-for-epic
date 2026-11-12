@@ -2016,6 +2016,21 @@ void main() {
     });
   });
 
+  group('tab swipe', () {
+    testWidgets('a sideways swipe moves to the next and previous tab', (tester) async {
+      final h = _Harness(transactions: const []);
+      await h.pump(tester);
+      final c = ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
+      expect(c.read(shellTabProvider), ShellTab.home);
+      await tester.fling(find.byType(HomeScreen), const Offset(-300, 0), 1500);
+      await tester.pumpAndSettle();
+      expect(c.read(shellTabProvider), ShellTab.activity);
+      await tester.fling(find.byType(HomeScreen), const Offset(300, 0), 1500);
+      await tester.pumpAndSettle();
+      expect(c.read(shellTabProvider), ShellTab.home);
+    });
+  });
+
   group('first run', () {
     testWidgets('an empty wallet shows nothing under the buttons', (
       tester,
