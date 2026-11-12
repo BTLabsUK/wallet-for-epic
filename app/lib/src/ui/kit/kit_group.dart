@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../theme/epic1_mark.dart' show Epic1Text;
 import '../theme/tokens.dart';
 import 'kit_tokens.dart';
 
@@ -73,7 +74,7 @@ class KitGroupLabel extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 18, Kit.gutter + 4, 8),
     child: Semantics(
       header: true,
-      child: Text(text, style: KitType.groupLabel.copyWith(color: context.tokens.dim)),
+      child: Epic1Text(text, style: KitType.groupLabel.copyWith(color: context.tokens.dim)),
     ),
   );
 }

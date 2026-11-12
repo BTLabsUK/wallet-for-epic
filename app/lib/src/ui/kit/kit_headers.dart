@@ -147,7 +147,10 @@ class KitPageHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
               children: [
-                kitId(
+                Expanded(
+                  child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: kitId(
                   backId,
                   Semantics(
                     button: true,
@@ -165,7 +168,14 @@ class KitPageHeader extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(KitIcons.backLink, size: 28, color: t.accentText),
-                              Text(backLabel, style: KitType.navLink.copyWith(color: t.accentText)),
+                              Flexible(
+                                child: Text(
+                                  backLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: KitType.navLink.copyWith(color: t.accentText),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -173,7 +183,8 @@ class KitPageHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Spacer(),
+                ),
+                ),
                 if (onHelp != null)
                   KitIconButton(icon: KitIcons.help, label: context.l10n.sendHelp, onPressed: onHelp, color: t.dim, semanticsId: helpId),
               ],
