@@ -7,7 +7,8 @@ import '../theme/tokens.dart';
 import 'kit_icons.dart';
 import 'kit_tokens.dart';
 
-/// `.kv`: a label and its value in a group, padding 13 14, 15 px, 16 between. The label is dim
+/// `.kv`: a label and its value in a group, padding 13 14 (12.5 here: the frame's divider is
+/// drawn over the row, the group's takes a pixel), 15 px, 16 between. The label is dim
 /// ([labelStrong] makes it the text colour, weight 600); the value is mono (`b`) or [valueText]
 /// in the text colour. [sub] is the dim 12 px line under a mono value. A [onTap] row is a
 /// button with a faint chevron after the label (`button.kv`).
@@ -66,12 +67,12 @@ class KitKv extends StatelessWidget {
               if (sub != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Text(sub!, textAlign: TextAlign.end, style: KitType.body.copyWith(fontSize: 12, height: 1.3, color: t.faint)),
+                  child: Text(sub!, textAlign: TextAlign.end, style: KitType.body.copyWith(fontSize: 12, height: 1.2, color: t.faint)),
                 ),
             ],
           );
     final row = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

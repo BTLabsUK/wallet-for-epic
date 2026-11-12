@@ -76,6 +76,15 @@ final Set<String> _framesSendClassic = {for (final v in _framesSend) v.$1};
 
 /// Per-frame data on top of the base wallet (frame_data.dart), by visit name.
 final Map<String, void Function(FakeWalletSession s)> _sendSeeds = {
+  // Who lists Tom, Coffee Corner and the unsaved address as the people last paid.
+  'fr-Send-1-Who': (s) => s.transactionsValue
+    ..clear()
+    ..addAll([
+      _fTx(1, out: false, amount: 25.0, at: _at(0, 14, 48), who: _fAnna),
+      _fTx(3, out: true, amount: 12.5, at: _at(1, 18, 12), who: _fTom, sealed: true),
+      _fTx(2, out: true, amount: 9.294, at: _at(2, 9, 12), who: _fCoffee, note: 'Coffee beans'),
+      _fTx(5, out: true, amount: 80.0, at: _at(10, 12, 30), who: _fUnknown),
+    ]),
   // Tom is a paired contact in the frames that end in a payment: the review says Sealed.
   for (final v in const ['fr-Send-3-Review', 'fr-Send-4-Sent', 'fr-Start-5-Approve']) v: _pairTom,
 };

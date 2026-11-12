@@ -108,7 +108,8 @@ class KitFacesStrip extends StatelessWidget {
 }
 
 /// The frame of a complete address (Send-5): a gold-edged box round the address field, which
-/// shows the address in the mono face over as many lines as it needs, with a × to clear it. The
+/// shows the address in the mono face over as many lines as it needs, with a bare × to clear it
+/// (padding 12 6 12 14). The
 /// screen passes its own field as [child], so what is typed or pasted stays one field.
 class KitAddressBox extends StatelessWidget {
   const KitAddressBox({super.key, required this.child, required this.onClear, this.clearId, this.clearKey, this.margin = EdgeInsets.zero});
@@ -128,7 +129,7 @@ class KitAddressBox extends StatelessWidget {
     return Padding(
       padding: margin,
       child: Container(
-        padding: const EdgeInsetsDirectional.only(start: 14, top: 4, bottom: 4, end: 2),
+        padding: const EdgeInsetsDirectional.only(start: 14, top: 12, bottom: 12, end: 6),
         decoration: BoxDecoration(
           color: t.fill,
           border: Border.all(color: t.goldLine),
@@ -137,8 +138,9 @@ class KitAddressBox extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: child)),
-            KitIconButton(key: clearKey, icon: KitIcons.close, label: l.sendClearRecipient, onPressed: onClear, color: t.dim, semanticsId: clearId),
+            Expanded(child: child),
+            // `.ib` with no fill, the glyph 18, level with the first line.
+            KitIconButton(key: clearKey, icon: KitIcons.close, label: l.sendClearRecipient, onPressed: onClear, color: t.dim, bare: true, glyphSize: 18, semanticsId: clearId),
           ],
         ),
       ),

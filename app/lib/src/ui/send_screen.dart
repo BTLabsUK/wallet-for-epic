@@ -3654,14 +3654,15 @@ class _SendViewState extends ConsumerState<SendView> {
     final noteText = _note.text.trim();
     return [
       // `.big`: 44 under the bar (the list's own 14 is part of it).
-      const SizedBox(height: 30),
+      // A long figure (50) sits 8 lower than the 68 one, as the frame's margin says.
+      SizedBox(height: _amount.text.length > 8 ? 38 : 30),
       Stack(
+        alignment: Alignment.topCenter,
         children: [
           KitAmountDisplay(
             amount: _amount.text,
             unit: unit,
             fiat: fiat,
-            over: gate.notEnough,
             dimFraction: _maxUsed && !gate.notEnough,
             point: _point(l),
             onSwap: price != null || _fiatEntry ? _toggleUnit : null,
@@ -4066,7 +4067,7 @@ class _SendViewState extends ConsumerState<SendView> {
             style: mono,
             children: [
               TextSpan(text: short.substring(0, cut), style: gold),
-              const TextSpan(text: '…'),
+              const TextSpan(text: ' … '),
               TextSpan(text: short.substring(cut + 1, at < 0 ? short.length : at), style: gold),
               if (at >= 0) TextSpan(text: short.substring(at), style: TextStyle(color: t.dim)),
             ],

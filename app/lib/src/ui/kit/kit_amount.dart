@@ -12,7 +12,7 @@ import 'kit_tokens.dart';
 /// The amount being typed (wallet.css `.big`): the figure at 68 (50 when it is longer than
 /// [longFrom] characters) with the EPIC [unit] after it in gold, 13 (12 when long) and 10 (6)
 /// from the top of the line, and under it one fiat line with the swap chevrons. The figure
-/// turns risk-red when [over]. A [placeholder] figure ("0") shows in faint. With [dimFraction]
+/// groups its whole part by thousands (display only). A [placeholder] figure ("0") shows in faint. With [dimFraction]
 /// the digits from [point] on are drawn at 42 %, as Max shows an exact figure.
 class KitAmountDisplay extends StatelessWidget {
   const KitAmountDisplay({
@@ -21,7 +21,6 @@ class KitAmountDisplay extends StatelessWidget {
     required this.unit,
     this.fiat,
     this.onSwap,
-    this.over = false,
     this.longFrom = 8,
     this.swapId,
     this.semanticsId,
@@ -35,7 +34,6 @@ class KitAmountDisplay extends StatelessWidget {
   /// The other currency ("≈ $25.82"); hidden when null.
   final String? fiat;
   final VoidCallback? onSwap;
-  final bool over;
   final int longFrom;
   final String? swapId;
   final String? semanticsId;
@@ -44,14 +42,28 @@ class KitAmountDisplay extends StatelessWidget {
   /// The decimal separator the figure is typed with.
   final String point;
 
+  /// [text] with its whole part (before [point]) grouped in threes, as the frames show 1,300.
+  static String _grouped(String text, String point) {
+    final at = text.indexOf(point);
+    final whole = at < 0 ? text : text.substring(0, at);
+    if (whole.length < 4 || !RegExp(r'^\d+$').hasMatch(whole)) return text;
+    final sep = point == ',' ? '.' : ',';
+    final out = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      if (i > 0 && (whole.length - i) % 3 == 0) out.write(sep);
+      out.write(whole[i]);
+    }
+    return '$out${at < 0 ? '' : text.substring(at)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final empty = amount.isEmpty || amount == '0';
     final long = amount.length > longFrom;
-    final color = over ? t.risk : (empty ? t.faint : t.text);
+    final color = empty ? t.faint : t.text;
     final style = (long ? KitType.amountEntryLong : KitType.amountEntry).copyWith(color: color);
-    final shown = amount.isEmpty ? '0' : amount;
+    final shown = _grouped(amount.isEmpty ? '0' : amount, point);
     final cut = dimFraction ? shown.lastIndexOf(point) : -1;
     final figure = cut <= 0
         ? Text(shown, style: style, textScaler: TextScaler.noScaling)
