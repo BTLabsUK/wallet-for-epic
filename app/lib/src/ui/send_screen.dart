@@ -4558,7 +4558,8 @@ class _SendViewState extends ConsumerState<SendView> {
           margin: EdgeInsets.zero,
           dividerInset: Kit.dividerInsetPlain,
           children: [
-            if (waiting) KitRow(title: l.sendTrackIfNot, chevron: true, onTap: () => _ifNotSheet(context), semanticsId: TrustIds.sendTrackIfNot),
+            // Send-4-Sent: this row's title is regular weight.
+            if (waiting) KitRow(title: l.sendTrackIfNot, titleStyle: const TextStyle(fontWeight: FontWeight.w400), chevron: true, onTap: () => _ifNotSheet(context), semanticsId: TrustIds.sendTrackIfNot),
             if (unknown)
               KitRow(
                 title: l.phoneSendAddContact,
