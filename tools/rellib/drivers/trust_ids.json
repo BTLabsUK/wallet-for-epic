@@ -523,5 +523,7 @@
 {"id": "g4.contact.request", "screen": "contact", "family": ["android"], "keys": ["phoneContactRequest"], "driver": false},
 {"id": "g4.contact.back", "screen": "contact", "family": ["android"], "keys": ["contactsTitle"], "driver": false},
 {"id": "g4.contact.more", "screen": "contact", "family": ["android"], "keys": ["contactMore"], "driver": false},
-{"id": "g4.contact.payment", "screen": "contact", "family": ["android"], "keys": ["historyTitle"], "driver": false}
+{"id": "g4.contact.payment", "screen": "contact", "family": ["android"], "keys": ["historyTitle"], "driver": false},
+{"id": "g4.home.backup_export", "screen": "home", "family": ["android"], "keys": ["homeHistoryExportButton"], "driver": false},
+{"id": "g4.home.backup_not_now", "screen": "home", "family": ["android"], "keys": ["homeHistoryReminderNotNow"], "driver": false}
 ]}

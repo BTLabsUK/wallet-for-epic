@@ -42,7 +42,6 @@ import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart' show kitScanButtonKey;
 import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey, homePillKey;
 import 'package:epic_wallet/src/ui/home_status.dart' show connectionsSheetKey;
 import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
-import 'package:epic_wallet/src/ui/payment_row.dart' show PaymentRow;
 import 'support/shell_where.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -818,9 +817,9 @@ void main() {
       expect(find.textContaining('2,500,000'), findsNothing);
 
       // Recent activity: the pending send to Bob first, amounts with fiat.
-      final tiles = find.byType(PaymentRow);
+      final tiles = find.byType(PhoneTxRow);
       expect(tiles, findsNWidgets(4));
-      expect(tester.widget<PaymentRow>(tiles.first).tx.slateId, 'send-bob');
+      expect(tester.widget<PhoneTxRow>(tiles.first).tx.slateId, 'send-bob');
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
       expect(find.text('≈\u00a02.50\u00a0USD'), findsOneWidget);
       expect(find.textContaining('09:00'), findsOneWidget);
@@ -853,7 +852,7 @@ void main() {
         ],
       );
       await h.pump(tester);
-      expect(find.byType(PaymentRow), findsNWidgets(recentActivityCount));
+      expect(find.byType(PhoneTxRow), findsNWidgets(recentActivityCount));
       expect(find.text('+7.0\u00a0EPIC'), findsOneWidget);
       expect(find.text('+2.0\u00a0EPIC'), findsNothing);
       await _tap(tester, find.text(_l.phoneHomeSeeAll));
@@ -865,7 +864,7 @@ void main() {
       for (final n in [1, recentActivityCount]) {
         await tester.pumpWidget(const SizedBox());
         await _Harness(transactions: _latticeTxs(n)).pump(tester);
-        expect(find.byType(PaymentRow), findsNWidgets(n));
+        expect(find.byType(PhoneTxRow), findsNWidgets(n));
         await _tap(tester, find.text(_l.phoneHomeSeeAll));
         expect(_selectedTab(tester), ShellWhere.activity, reason: '$n');
       }
@@ -1023,7 +1022,7 @@ void main() {
       final h = _Harness(transactions: [sent(), ..._transactions()]);
       await h.pump(tester);
       Finder row(String text) => find.descendant(
-        of: find.byType(PaymentRow),
+        of: find.byType(PhoneTxRow),
         matching: find.textContaining(text),
       );
       expect(row('Confirming 1 of 3'), findsOneWidget);
@@ -1079,7 +1078,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.refreshCalls, refreshes + 1, reason: 'one refresh, at the watch pace');
       expect(
-        find.descendant(of: find.byType(PaymentRow), matching: find.textContaining('Confirming 1 of 3')),
+        find.descendant(of: find.byType(PhoneTxRow), matching: find.textContaining('Confirming 1 of 3')),
         findsOneWidget,
       );
     });
@@ -2458,7 +2457,7 @@ void main() {
     testWidgets('2,000 payments: home shows five', (tester) async {
       final h = _Harness(transactions: many(2000));
       await h.pump(tester);
-      expect(find.byType(PaymentRow), findsNWidgets(recentActivityCount));
+      expect(find.byType(PhoneTxRow), findsNWidgets(recentActivityCount));
     });
 
     testWidgets('search waits for typing to pause', (tester) async {

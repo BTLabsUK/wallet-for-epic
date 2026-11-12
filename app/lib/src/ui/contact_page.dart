@@ -31,7 +31,7 @@ import 'kit/kit_button.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
-import 'payment_row.dart' show paymentInProgress;
+import 'phone_tx_row.dart' show paymentInProgress;
 import 'tx_details_screen.dart' show TxDetailsScreen;
 import '../trust_ids.dart';
 import '../levels/level_features.dart' show TimelineStyle;

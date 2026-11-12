@@ -105,11 +105,29 @@ IconData _fallbackIcon(TxEntry tx) {
   return KitIcons.contact;
 }
 
-/// The Activity list's row for [tx]; opens its payment page.
+/// Whether [tx] is under way: confirming, or waiting on the other side.
+bool paymentInProgress(TxEntry tx, BigInt? tip, {int? target}) => switch (txPhase(tx, tip, target: target)) {
+  TxPhase.confirming ||
+  TxPhase.maturing ||
+  TxPhase.waitingRecipient ||
+  TxPhase.waitingSender ||
+  TxPhase.waitingPayer => true,
+  TxPhase.completed || TxPhase.cancelled || TxPhase.fromBackup => false,
+};
+
+/// The phone's row for [tx] (Activity, Home's Recent, Contacts); opens its payment page. The
+/// Contacts tab shows a contact by its latest payment: [onOpen] then opens the contact and
+/// [name] is the contact's.
 class PhoneTxRow extends ConsumerWidget {
-  const PhoneTxRow({super.key, required this.tx});
+  const PhoneTxRow({super.key, required this.tx, this.onOpen, this.name});
 
   final TxEntry tx;
+
+  /// Replaces the tap that opens the payment.
+  final VoidCallback? onOpen;
+
+  /// The row's name when the caller knows it better than the payment does.
+  final String? name;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -122,7 +140,7 @@ class PhoneTxRow extends ConsumerWidget {
     final (:amount, :outgoing) = txAmount(tx);
     final cancelled = tx.status == TxStatus.cancelled;
     final open = isPending(tx);
-    final name = txPartyName(ref, tx);
+    final name = this.name ?? txPartyName(ref, tx);
     final counterparty = tx.counterparty;
     final own = ownEpicboxServer(ref);
     // The phone names the relay of an address that is not the wallet's own server.
@@ -198,9 +216,9 @@ class PhoneTxRow extends ConsumerWidget {
       direction: direction,
     );
 
-    void openPage() => Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
-    );
+    void openPage() => onOpen != null
+        ? onOpen!()
+        : Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)));
     final editable = tx.origin != TxOrigin.linkedDevice;
     VoidCallback? edit;
 

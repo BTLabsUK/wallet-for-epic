@@ -13,7 +13,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey;
-import 'package:epic_wallet/src/ui/payment_row.dart' show PaymentRow;
+import 'package:epic_wallet/src/ui/phone_tx_row.dart' show PhoneTxRow;
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
@@ -156,7 +156,7 @@ String _figure(WidgetTester tester) =>
 String _rowLabel(WidgetTester tester) => tester
     .widget<Semantics>(
       find
-          .descendant(of: find.byType(PaymentRow), matching: find.byType(Semantics))
+          .descendant(of: find.byType(PhoneTxRow), matching: find.byType(Semantics))
           .first,
     )
     .properties

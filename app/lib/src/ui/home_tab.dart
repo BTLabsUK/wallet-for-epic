@@ -21,9 +21,7 @@ import '../restore_scan.dart';
 import '../settings.dart';
 import '../trust_ids.dart';
 import '../devices/phone_devices.dart' show watchHistory;
-import 'backup_screen.dart' show backedUpProvider;
 import 'common.dart';
-import 'home_cards.dart';
 import 'home_screen.dart' show homeCardGap;
 import 'home_parts.dart' show ownChangeOffChain;
 import 'home_slot.dart';
@@ -39,7 +37,7 @@ import 'kit/kit_sheet.dart';
 import 'kit/kit_status_pill.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
-import 'payment_row.dart';
+import 'phone_tx_row.dart';
 import 'restore_card.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'shell_header.dart' show BalanceHelp, balanceSheetKey, comingIn, fiatValueKey, walletFigure;
@@ -80,13 +78,11 @@ class HomeTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);
     final scan = ref.watch(scanProvider);
     final restoreUnfinished = ref.watch(restoreScanProvider.select((r) => r.required));
     final importOffer = ref.watch(historyImportOfferProvider);
     final data = home.value;
-    final backedUp = ref.watch(backedUpProvider).value ?? true;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
     final recent = pendingFirst(transactions).take(recentActivityCount).toList();
     final t = context.tokens;
@@ -130,12 +126,6 @@ class HomeTab extends ConsumerWidget {
                                 padding: const EdgeInsets.only(bottom: homeCardGap),
                                 child: ErrorText(describeError(l, home.error!)),
                               ),
-                            PendingSendsCard(
-                              transactions: transactions,
-                              open: (screen) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen)),
-                            ),
-                            // It waits until the phrase is written down: that backup comes first.
-                            if (backedUp && config != null) HistoryBackupCard(chain: config.chain, transactions: transactions),
                             _Recent(loaded: data != null, recent: recent),
                           ],
                         ),
@@ -490,7 +480,7 @@ class _Recent extends ConsumerWidget {
             ),
           ),
         ),
-        KitGroup(children: [for (final tx in recent) PaymentRow(tx: tx)]),
+        KitGroup(children: [for (final tx in recent) PhoneTxRow(tx: tx)]),
       ],
     );
   }
