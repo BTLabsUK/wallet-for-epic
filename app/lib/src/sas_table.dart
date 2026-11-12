@@ -332,16 +332,6 @@ SasWord? sasWordOfEmoji(String emoji) {
   return null;
 }
 
-/// Entries whose name starts with [prefix] (two letters or more), at most [limit], in table order.
-List<SasWord> sasCompletions(String prefix, {int limit = 3}) {
-  final p = prefix.trim().toLowerCase();
-  if (p.length < 2) return const [];
-  return [
-    for (final w in sasTable)
-      if (w.name.startsWith(p)) w,
-  ].take(limit).toList();
-}
-
 /// The four SAS indexes of [words], or null when one is not in the table.
 Uint8List? sasIndexesOf(List<SasWord> words) {
   if (words.length != 4) return null;

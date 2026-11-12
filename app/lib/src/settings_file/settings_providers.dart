@@ -220,11 +220,6 @@ class HostSettingsNotifier extends Notifier<HostSettings> {
   }
 }
 
-/// Changes of `node.use` and `epicbox.use`, from the app or a hand edit.
-final settingsUseChangesProvider = StreamProvider<UseChange>(
-  (ref) => ref.watch(settingsFileProvider)?.useChanges ?? const Stream.empty(),
-);
-
 /// The notices not yet dismissed, oldest first (those from before the first watch too).
 final settingsNoticesProvider = NotifierProvider<SettingsNoticesNotifier, List<SettingsNotice>>(
   SettingsNoticesNotifier.new,

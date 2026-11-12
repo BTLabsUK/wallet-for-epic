@@ -101,7 +101,6 @@ void main() {
       dump['issuedInvoices'] = await _try(() async => [for (final i in await s.issuedInvoices()) _dIssuedInvoice(i)]);
       dump['pairings'] = await _try(() async => [for (final p in await s.pairing.pairings()) _dPairingRecord(p)]);
       dump['privatePairings'] = await _try(() async => [for (final p in await s.pairing.privatePairings()) _dPairingRecord(p)]);
-      dump['strays'] = await _try(() async => (await s.pairing.strays()).length);
       dump['requests'] = await _try(() async => (await s.pairing.requests()).length);
       dump['heldOutputs'] = s.heldOutputs.length;
     } finally {

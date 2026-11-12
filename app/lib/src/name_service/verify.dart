@@ -93,21 +93,6 @@ Future<Payreq> verifyPayreq(
   return request;
 }
 
-/// A link text to a verified request: the decoders and [verifyPayreq] in one.
-Future<Payreq> verifyPayreqText(
-  String text, {
-  required int net,
-  required int nowSeconds,
-  Uint8List? listingKey,
-  required NameServiceVerifier verifier,
-}) => verifyPayreq(
-  Payreq.fromText(text),
-  net: net,
-  nowSeconds: nowSeconds,
-  listingKey: listingKey,
-  verifier: verifier,
-);
-
 /// A name service payload on a pairing of a wallet on [net]. [serviceKey] is the receiving name service's
 /// key (type 2), [bind] the four SAS-table indexes the wallet expects (type 1). A payload of an
 /// unknown type is returned unchecked: acknowledge and drop it. Throws `network`, `signature`,

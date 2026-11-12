@@ -5,7 +5,7 @@
 ///
 /// Tests drive the other side with [answerInvite], [confirmAnswer], [hear], [peerMatch],
 /// [peerMismatch], [neverFinished], [removedByPeer], [receiveRequest], [failPending],
-/// [changeKeys], [restoreKeys], [setRelayDown], [askRelayMove], [secondAnswer] and [emit]. With
+/// [changeKeys], [restoreKeys], [setRelayDown], [askRelayMove] and [emit]. With
 /// [autoAnswerAfter] set, a request is answered and an answer confirmed on their own after
 /// that long, as the preview wants.
 library;
@@ -234,7 +234,6 @@ class FakePairing implements PairingApi {
   PairingFailure? nextOpenFailure;
 
   final List<PairingRecord> records = [];
-  final List<PairingStray> strayList = [];
 
   /// The messages kept unread ([keptMessages]); a test or the preview seeds them. [retryKept]
   /// takes the ids in [keptTakenOnRetry] and keeps the rest, one attempt more.
@@ -610,14 +609,6 @@ class FakePairing implements PairingApi {
     if (down) emit(PairingEvent(PairingEventKind.homeRelayUnreachable, pairingId: id, name: _nameOf(r)));
   }
 
-  /// A second wallet answered the used code [inviteId], claiming [name].
-  PairingStray secondAnswer(String inviteId, String name) {
-    final stray = PairingStray(id: _id('stray'), inviteId: inviteId, name: name);
-    strayList.add(stray);
-    emit(PairingEvent(PairingEventKind.secondReply, pairingId: inviteId, name: _nameOf(_get(inviteId))));
-    return stray;
-  }
-
   /// A code of another wallet, as its link: [openInvite] reads it. [from] is the sender's
   /// address when the code travels as a request.
   String inviteLinkFrom({
@@ -679,15 +670,6 @@ class FakePairing implements PairingApi {
     if (!enabled) return null;
     final r = contactPairingOf(records, contactId);
     return r == null ? null : _shown(r);
-  }
-
-  @override
-  Future<List<PairingStray>> strays() async => enabled ? [...strayList] : const [];
-
-  @override
-  Future<void> removeStray(String id) async {
-    _require('removeStray');
-    strayList.removeWhere((s) => s.id == id);
   }
 
   @override

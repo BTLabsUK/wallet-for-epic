@@ -4543,13 +4543,6 @@ class _LepicPairing implements PairingApi {
     return contactPairingOf(found, contactId);
   });
 
-  // No second answers are kept: the engine refuses a used invite.
-  @override
-  Future<List<PairingStray>> strays() async => const [];
-
-  @override
-  Future<void> removeStray(String id) async {}
-
   @override
   Future<List<KeptMessage>> keptMessages() => _call(() async {
     final kept = [

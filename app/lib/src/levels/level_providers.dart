@@ -26,7 +26,6 @@ import '../advanced.dart';
 import '../network_gate.dart';
 import '../providers.dart' show secretStoreProvider;
 import '../settings.dart';
-import '../tor_build.dart';
 import 'level_features.dart';
 import 'wallet_level.dart';
 
@@ -78,11 +77,4 @@ final currentLevelProvider = Provider<WalletLevel>((ref) => _levelOf(ref.watch(w
 /// (see the library comment). The desktop keeps its levels in `desk_levels.dart`.
 final effectiveAdvancedProvider = Provider<AdvancedPrefs>((ref) {
   return ref.watch(appSettingsProvider.select((s) => s.value?.advanced)) ?? AdvancedPrefs.none;
-});
-
-/// What the matrix shows for the stored prefs, with no level in force: Send reads it until its
-/// rebuild stops reading the level. Nothing else on the phone reads it.
-final levelFeaturesProvider = Provider<LevelFeatures>((ref) {
-  final stored = ref.watch(appSettingsProvider.select((s) => s.value?.advanced)) ?? AdvancedPrefs.none;
-  return LevelFeatures.of(WalletLevel.everything, stored, torBuilt: torBuilt);
 });

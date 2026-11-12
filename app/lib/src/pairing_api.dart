@@ -24,10 +24,6 @@ const Duration pairingInviteRenewBefore = Duration(hours: 24);
 /// How long the answerer waits for the confirm (RFC 8.2).
 const Duration pairingReplyWait = Duration(hours: 1);
 
-/// How long an inviter waits to hear the other wallet before the pairing ends as never
-/// finished. Counted in time spent collecting, not wall time.
-const Duration pairingHeardWait = Duration(days: 7);
-
 /// How often the contact check collects the contacts it asked, until the wait ends.
 const Duration contactCheckEvery = Duration(seconds: 15);
 
@@ -56,12 +52,6 @@ abstract interface class PairingApi {
   /// shared by every wallet on the device; which contact a wallet paired with is the wallet's
   /// to say.
   Future<PairingRecord?> pairingForContact(String contactId);
-
-  /// Second answers to used codes, shown until removed (C-15).
-  Future<List<PairingStray>> strays();
-
-  /// Forgets the stray [id].
-  Future<void> removeStray(String id);
 
   /// Sets the Epicbox servers (`host[:port]`, up to three) of Settings › Advanced › Connection
   /// servers. Kept for the core's sake; the code carries the wallet's own relay.
@@ -390,12 +380,6 @@ class NoPairing implements PairingApi {
 
   @override
   Future<PairingRecord?> pairingForContact(String contactId) async => null;
-
-  @override
-  Future<List<PairingStray>> strays() async => const [];
-
-  @override
-  Future<void> removeStray(String id) async => throw pairingUnsupported('removeStray');
 
   @override
   Future<PairingRecord> standingCode({required String name}) async => throw pairingUnsupported('standingCode');

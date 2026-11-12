@@ -108,11 +108,6 @@ bool torSwitchDisabled(NetworkMode mode) => netModeOf(mode) == NetworkMode.killS
 /// Whether Tor only waits for its tor now: nothing may reach a relay before tor carries it.
 bool get torOnlyWaiting => NetGate.torOnly && !TorSwitch.carried;
 
-/// Throws [NetBlocked] (Tor only) for [what] while [torOnlyWaiting].
-void checkTorReady(String what) {
-  if (torOnlyWaiting) throw NetBlocked(NetworkMode.torOnly, what);
-}
-
 /// A network action refused by the mode: [what] is for the log, [mode] says why (Node only,
 /// Kill switch, or Tor only refusing a clearnet connection). [epicboxOff]: the Epicbox switch
 /// refused an Epicbox action (the mode is then whatever it is); [methodOff] names the method

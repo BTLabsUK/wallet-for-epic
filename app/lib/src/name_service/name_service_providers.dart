@@ -32,12 +32,6 @@ class NameServiceView {
     final e = book.byPairing(pairingId);
     return e != null && e.pinned ? e : null;
   }
-
-  /// The name service a valid hello named on [pairingId], before the user compared the code.
-  NameServiceEntry? helloFor(String pairingId) {
-    final e = book.byPairing(pairingId);
-    return e != null && !e.pinned ? e : null;
-  }
 }
 
 class NameServiceProviders {
