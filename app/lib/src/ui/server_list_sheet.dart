@@ -10,7 +10,6 @@
 library;
 
 import '../trust_ids.dart';
-import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -45,7 +44,11 @@ import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_build.dart';
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'address_view.dart' show HostText;
-import 'badge.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_settings.dart' show KitTag;
+import 'pairing/pair_flow.dart' show confirmPairSheet;
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
 import 'levels/relay_down.dart' show relayMovedNoticeTag, showNewAddress;
@@ -58,7 +61,6 @@ import 'relay_blocked.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
 import '../settings_file/status_site.dart' show statusSiteHost;
-import 'inline_button.dart';
 import 'kit/kit_tokens.dart';
 
 // The sheet.
@@ -334,16 +336,15 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (_node) return _switchTo(value, choice);
     final l = context.l10n;
     final host = serverHost(value);
-    final sure = await confirmAppDialog(
+    final sure = await confirmPairSheet(
       context,
       title: l.slSwitchTitle(host),
-      icon: _node ? EpicGlyphs.node : MethodIcons.epicbox,
-      description: l.slSwitchBody,
-      cancelLabel: l.commonCancel,
-      confirmLabel: l.slSwitch,
+      body: l.slSwitchBody,
+      cancel: l.commonCancel,
+      action: l.slSwitch,
       cancelKey: serverListCancelKey,
-      confirmKey: serverListSwitchKey,
-      confirmId: TrustIds.serverSwitch,
+      actionKey: serverListSwitchKey,
+      actionId: TrustIds.serverSwitch,
     );
     if (sure && mounted) await _switchTo(value, choice);
   }
@@ -365,14 +366,12 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// network, which cannot be told apart: a dialog asks before it is used.
   Future<bool> _plainHttpAgreed(String value) async {
     final l = context.l10n;
-    return confirmAppDialog(
+    return confirmPairSheet(
       context,
       title: l.slPlainHttpTitle,
-      icon: Icons.lan_outlined,
-      tone: DialogTone.warn,
-      description: l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value),
-      cancelLabel: l.commonCancel,
-      confirmLabel: l.slPlainHttpUse,
+      body: l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value),
+      cancel: l.commonCancel,
+      action: l.slPlainHttpUse,
     );
   }
 
@@ -633,6 +632,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   // Rows.
 
+OutlineInputBorder _fieldBorder(Color color) =>
+    OutlineInputBorder(borderRadius: BorderRadius.circular(Kit.rField), borderSide: BorderSide(color: color));
+
   /// Every row of the list in its order, with what the directory knows of each.
   List<_Entry> _entries(NetworkChoice choice, ServerList list) {
     final preset = choice.preset;
@@ -727,7 +729,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 if (_sel == null) HelpButton(_node ? HelpId.node : HelpId.epicbox),
                 IconButton(
                   tooltip: l.commonClose,
-                  icon: TrustId(TrustIds.commonClose, child: const Icon(Icons.close)),
+                  icon: TrustId(TrustIds.commonClose, child: const Icon(KitIcons.close)),
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),
               ],
@@ -822,7 +824,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           autocorrect: false,
           enableSuggestions: false,
           textInputAction: TextInputAction.done,
-          style: TextStyle(fontFamily: t.monoFamily, fontSize: 14),
+          style: KitType.body.copyWith(fontFamily: t.monoFamily, color: t.text),
+          cursorColor: t.accent,
           onChanged: (_) => setState(() => _fieldError = null),
           onSubmitted: (_) => _submit(choice, all),
           decoration: InputDecoration(
@@ -832,11 +835,19 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             hintMaxLines: 1,
             helperText: helper,
             helperMaxLines: 2,
-            border: const OutlineInputBorder(),
-            helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
+            labelStyle: KitType.body.copyWith(color: t.dim),
+            hintStyle: KitType.body.copyWith(color: t.faint),
+            filled: true,
+            fillColor: t.fill,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: _fieldBorder(Colors.transparent),
+            enabledBorder: _fieldBorder(Colors.transparent),
+            focusedBorder: _fieldBorder(t.accent),
+            helperStyle: KitType.rowSub.copyWith(color: _fieldError != null ? t.risk : t.dim),
             prefixIcon: Icon(
-              filtering ? Icons.search : (_node ? EpicGlyphs.node : EpicGlyphs.epicbox),
+              filtering ? KitIcons.search : (_node ? EpicGlyphs.node : EpicGlyphs.epicbox),
               size: 20,
+              color: t.dim,
             ),
             suffixIcon: _adding
                 ? const Padding(
@@ -851,7 +862,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 : IconButton(
                     key: serverListClearKey,
                     tooltip: l.slClear,
-                    icon: TrustId(TrustIds.serverClear, child: const Icon(Icons.close, size: 20)),
+                    icon: TrustId(TrustIds.serverClear, child: const Icon(KitIcons.close, size: 20)),
                     onPressed: () {
                       _field.clear();
                       setState(() => _fieldError = null);
@@ -881,7 +892,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                     else
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(l.slRelayWarning, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
+                        child: Text(l.slRelayWarning, style: KitType.rowSub.copyWith(color: t.dim)),
                       ),
                     if (!nodeLocal) ...[
                       const SizedBox(height: 8),
@@ -1063,7 +1074,9 @@ class _ServerRow extends StatelessWidget {
         if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
       ].join(', '),
     );
-    final row = Semantics(
+    final row = Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Semantics(
       button: ticked == null,
       selected: ticked == null ? selected : null,
       checked: ticked,
@@ -1072,12 +1085,12 @@ class _ServerRow extends StatelessWidget {
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(Kit.rButton),
+          borderRadius: BorderRadius.circular(Kit.rGroup),
           child: Ink(
             decoration: BoxDecoration(
-              color: selected ? t.selected : null,
-              border: Border.all(color: selected ? t.selectedLine : Colors.transparent),
-              borderRadius: BorderRadius.circular(Kit.rButton),
+              color: selected ? t.selected : t.group,
+              border: Border.all(color: selected ? t.selectedLine : t.hair),
+              borderRadius: BorderRadius.circular(Kit.rGroup),
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 56),
@@ -1114,10 +1127,10 @@ class _ServerRow extends StatelessWidget {
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
-                                    EBadge(l.serverDefault),
+                                    KitTag(l.serverDefault),
                                   ] else if (addedByYou) ...[
                                     const SizedBox(width: 8),
-                                    EBadge(l.slAddedByYou),
+                                    KitTag(l.slAddedByYou),
                                   ],
                                 ],
                               ),
@@ -1140,7 +1153,7 @@ class _ServerRow extends StatelessWidget {
                         width: 20,
                         child: check
                             ? Icon(
-                                Icons.check,
+                                KitIcons.check,
                                 size: 20,
                                 color: state == NodeHealthState.healthy ? t.ok : t.dim,
                               )
@@ -1152,7 +1165,7 @@ class _ServerRow extends StatelessWidget {
                       tooltip: current ? l.slSwitchFirst : l.slRemove,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                      icon: Icon(Icons.delete_outline, color: current ? t.dim.withValues(alpha: 0.4) : t.dim),
+                      icon: Icon(KitIcons.delete, color: current ? t.dim.withValues(alpha: 0.4) : t.dim),
                       onPressed: current ? null : onRemove,
                     ),
                   ],
@@ -1162,7 +1175,7 @@ class _ServerRow extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
     return dimmed ? Opacity(opacity: 0.55, child: row) : row;
   }
 }
@@ -1181,7 +1194,9 @@ class _AddRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    return Semantics(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Semantics(
       button: true,
       label: l.slAddRow(host),
       child: Material(
@@ -1189,11 +1204,11 @@ class _AddRow extends StatelessWidget {
         child: InkWell(
           key: serverListAddKey,
           onTap: busy ? null : onTap,
-          borderRadius: BorderRadius.circular(Kit.rButton),
+          borderRadius: BorderRadius.circular(Kit.rGroup),
           child: Ink(
             decoration: BoxDecoration(
-              border: Border.all(color: t.lineStrong),
-              borderRadius: BorderRadius.circular(Kit.rButton),
+              border: Border.all(color: t.hair2),
+              borderRadius: BorderRadius.circular(Kit.rGroup),
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 56),
@@ -1209,7 +1224,7 @@ class _AddRow extends StatelessWidget {
                                 dimension: 18,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : Icon(Icons.add, color: t.accentText),
+                            : Icon(KitIcons.add, color: t.accentText),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -1225,7 +1240,7 @@ class _AddRow extends StatelessWidget {
                                   TextSpan(text: '${l.serverAdd} '),
                                   TextSpan(
                                     text: host,
-                                    style: TextStyle(fontFamily: t.monoFamily, fontSize: 13),
+                                    style: KitType.rowSub.copyWith(fontFamily: t.monoFamily),
                                   ),
                                 ],
                               ),
@@ -1246,7 +1261,7 @@ class _AddRow extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -1259,17 +1274,17 @@ class _ResetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
-        child: InlineTextButton(
+        child: KitButton(
           key: serverListResetKey,
-          style: TextButton.styleFrom(foregroundColor: t.dim),
+          label: l.slResetDefaults,
+          kind: KitButtonKind.ghost,
+          small: true,
+          icon: Icons.restart_alt_rounded,
           onPressed: onTap,
-          icon: const Icon(Icons.restart_alt, size: 18),
-          child: Text(l.slResetDefaults),
         ),
       ),
     );
@@ -1297,11 +1312,9 @@ class _SelectionNote extends StatelessWidget {
             child: Text(note, key: serverListNoteKey, style: KitType.rowSub.copyWith(color: t.dim)),
           ),
           const SizedBox(width: 8),
-          EBadge(
-            l.slCount(count, limit),
-            key: serverListCountKey,
-            tone: count >= limit ? BadgeTone.info : BadgeTone.neutral,
+          Semantics(
             liveRegion: true,
+            child: KitChip(l.slCount(count, limit), key: serverListCountKey, info: count >= limit),
           ),
         ],
       ),
@@ -1389,11 +1402,11 @@ class ServerTile extends StatelessWidget {
       dimmed: dimmed,
       dotColor: busyDot,
       size: size,
-      radius: t.radiusSmall,
+      radius: Kit.rButtonSmall,
       fontFamily: montserrat,
       colors: ServerTileColors(
-        surface: t.surface,
-        line: t.line,
+        surface: t.fill,
+        line: t.hair,
         initials: t.dim,
         tints: [
           t.accent.withValues(alpha: 0.14),
@@ -1405,7 +1418,7 @@ class ServerTile extends StatelessWidget {
         risk: t.risk,
         unknown: t.faint,
         info: t.info,
-        ring: Theme.of(context).colorScheme.surface,
+        ring: t.group,
       ),
     );
   }
@@ -1453,16 +1466,11 @@ class NotConnectedLine extends StatelessWidget {
               liveRegion: true,
               child: Text(
                 l.serverUpNotConnected,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.risk),
+                style: KitType.rowSub.copyWith(color: t.risk),
               ),
             ),
           ),
-          TextButton.icon(
-            style: TextButton.styleFrom(minimumSize: const Size(64, 44)),
-            icon: const Icon(Icons.refresh, size: 18),
-            label: Text(l.commonRetry),
-            onPressed: onRetry,
-          ),
+          KitButton(label: l.commonRetry, kind: KitButtonKind.ghost, small: true, icon: Icons.refresh_rounded, onPressed: onRetry),
         ],
       ),
     );
@@ -1490,16 +1498,16 @@ class _FootLine extends StatelessWidget {
       key: serverListFootKey,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: t.surface,
-        border: Border(top: BorderSide(color: t.line)),
+        color: t.group,
+        border: Border(top: BorderSide(color: t.hair)),
       ),
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(Kit.gutter, 4, 8, 4),
       child: Semantics(
         liveRegion: true,
         child: Row(
           children: [
             Icon(
-              note ? Icons.info_outline : Icons.check_circle_outline,
+              note ? KitIcons.info : KitIcons.success,
               size: 18,
               color: note ? t.dim : t.ok,
             ),
@@ -1507,15 +1515,11 @@ class _FootLine extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.text),
+                style: KitType.rowSub.copyWith(color: t.text),
               ),
             ),
             if (action != null)
-              TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size(64, 44)),
-                onPressed: action,
-                child: Text(actionLabel),
-              )
+              KitButton(label: actionLabel, kind: KitButtonKind.ghost, small: true, onPressed: action)
             else
               const SizedBox(height: 44),
           ],
@@ -1542,7 +1546,7 @@ class _HealthCaption extends ConsumerWidget {
         padding: const EdgeInsets.only(top: 8),
         child: Text(
           context.l10n.serverHealthUnknown(statusSiteHost),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
+          style: KitType.rowSub.copyWith(color: context.tokens.dim),
         ),
       ),
       AsyncError() => const SizedBox.shrink(),
@@ -1603,7 +1607,6 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final wallet = watchWalletStatus(ref).node;
     final listed = ref.watch(publicNodeStatusProvider(choice.preset)).value;
     final net = ref.watch(networkStatusProvider(choice.preset)).value;
@@ -1613,16 +1616,16 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
       return Container(
         key: const ValueKey('no-node-set'),
         decoration: BoxDecoration(
-          color: t.surface,
-          border: Border.all(color: t.line),
-          borderRadius: BorderRadius.circular(Kit.rButton),
+          color: t.group,
+          border: Border.all(color: t.hair),
+          borderRadius: BorderRadius.circular(Kit.rGroup),
         ),
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Icon(Icons.cloud_off, size: 20, color: t.warn),
+            Icon(KitIcons.warning, size: 20, color: t.warn),
             const SizedBox(width: 12),
-            Expanded(child: Text(l.deskSlNoNodeTitle, style: theme.textTheme.bodyMedium?.copyWith(color: t.text, fontWeight: FontWeight.w600))),
+            Expanded(child: Text(l.deskSlNoNodeTitle, style: KitType.rowTitle.copyWith(color: t.text))),
           ],
         ),
       );
@@ -1661,12 +1664,12 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
         age < 120 ? l.serverLastBlockSeconds(age) : l.serverLastBlockMinutes(age ~/ 60),
     ];
     final checked = dirNode?.lastCheckedAt;
-    final small = theme.textTheme.bodySmall?.copyWith(color: t.dim);
+    final small = KitType.rowSub.copyWith(color: t.dim);
     return Container(
       decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(Kit.rButton),
+        color: t.group,
+        border: Border.all(color: t.hair),
+        borderRadius: BorderRadius.circular(Kit.rGroup),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -1688,13 +1691,10 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
                 Expanded(
                   child: Text(
                     l.serverCurrent,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: t.text,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: KitType.rowTitle.copyWith(color: t.text),
                   ),
                 ),
-                Text(face.word, style: theme.textTheme.bodySmall?.copyWith(color: face.color)),
+                Text(face.word, style: KitType.rowSub.copyWith(color: face.color)),
               ],
             ),
           ),
@@ -1717,11 +1717,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
                               Text(label, style: small),
                               Text(
                                 value,
-                                style: TextStyle(
-                                  fontFamily: t.monoFamily,
-                                  fontSize: 13,
-                                  color: t.text,
-                                ),
+                                style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.text),
                               ),
                             ],
                           ),
@@ -1749,7 +1745,6 @@ extension on _CurrentNodeFactsState {
   Widget _ownBox(BuildContext context, String url, NodeInfo? i, NetFace face) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final down = i?.head == NodeHead.down;
     final behind = i?.blocksBehind;
     final word = switch (i?.head) {
@@ -1776,10 +1771,10 @@ extension on _CurrentNodeFactsState {
         (l.ownNodeFactAccepts, switch (i.readyForTxs) { true => l.ownNodeYes, false => l.ownNodeNotYet, null => l.ownNodeUnknown }),
       if (i?.poolSize != null && !down) (l.ownNodeFactMempool, i!.poolSize == 0 ? l.ownNodePoolEmpty : l.ownNodePoolWaiting(i.poolSize!)),
     ];
-    final small = theme.textTheme.bodySmall?.copyWith(color: t.dim);
+    final small = KitType.rowSub.copyWith(color: t.dim);
     final label = ownNodeLabel(l, nodeClassOf(url));
     return Container(
-      decoration: BoxDecoration(color: t.surface, border: Border.all(color: t.line), borderRadius: BorderRadius.circular(t.radiusSmall)),
+      decoration: BoxDecoration(color: t.group, border: Border.all(color: t.hair), borderRadius: BorderRadius.circular(Kit.rGroup)),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1794,10 +1789,10 @@ extension on _CurrentNodeFactsState {
                 SignalBars(level: down ? SignalLevel.none : face.level, color: color, pulse: i?.head == NodeHead.syncing),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: t.text, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  child: Text(label, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
                 ),
                 const SizedBox(width: 8),
-                Flexible(child: Text(word, style: theme.textTheme.bodySmall?.copyWith(color: color), textAlign: TextAlign.end)),
+                Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: color), textAlign: TextAlign.end)),
               ],
             ),
           ),
@@ -1818,7 +1813,7 @@ extension on _CurrentNodeFactsState {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(label, style: small),
-                              Text(value, style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.text)),
+                              Text(value, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.text)),
                             ],
                           ),
                         ),

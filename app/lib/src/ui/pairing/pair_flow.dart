@@ -270,6 +270,7 @@ Future<bool> confirmPairSheet(
   String? actionId,
   String? cancelId,
   Key? actionKey,
+  Key? cancelKey,
 }) async {
   final yes = await showKitSheet<bool>(
     context: context,
@@ -284,9 +285,13 @@ Future<bool> confirmPairSheet(
           semanticsId: actionId,
           onPressed: () => Navigator.of(ctx).pop(true),
         ),
-        secondaryLabel: cancel,
-        secondaryId: cancelId,
-        onSecondary: () => Navigator.of(ctx).pop(false),
+        secondary: KitButton(
+          key: cancelKey,
+          label: cancel,
+          kind: KitButtonKind.quiet,
+          semanticsId: cancelId,
+          onPressed: () => Navigator.of(ctx).pop(false),
+        ),
         child: kitId(sheetId, Text(body, style: KitType.body.copyWith(color: t.dim))),
       );
     },
