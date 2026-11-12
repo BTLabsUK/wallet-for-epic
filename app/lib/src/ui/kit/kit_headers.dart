@@ -106,13 +106,15 @@ class KitFlowHeader extends StatelessWidget {
             if (showLeading)
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: KitIconButton(
-                icon: back ? KitIcons.back : KitIcons.close,
-                label: back ? l.phoneKitBack : l.commonClose,
-                onPressed: onLeading,
-                semanticsId: leadingId,
+                child: _reach(
+                  KitIconButton(
+                    icon: back ? KitIcons.back : KitIcons.close,
+                    label: back ? l.phoneKitBack : l.commonClose,
+                    onPressed: onLeading,
+                    semanticsId: leadingId,
+                  ),
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 52),
               child: Row(
@@ -131,13 +133,20 @@ class KitFlowHeader extends StatelessWidget {
             if (onHelp != null)
               Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: KitIconButton(icon: KitIcons.help, label: l.sendHelp, onPressed: onHelp, color: t.dim, semanticsId: helpId),
+                child: _reach(KitIconButton(icon: KitIcons.help, label: l.sendHelp, onPressed: onHelp, color: t.dim, semanticsId: helpId)),
               ),
           ],
         ),
       ),
     );
   }
+
+  /// The 48 target of a button in the 44 bar: it reaches 2 past the bar on each side.
+  static Widget _reach(Widget button) => SizedBox(
+    width: Kit.hitTarget,
+    height: Kit.flowHeader,
+    child: OverflowBox(minHeight: Kit.hitTarget, maxHeight: Kit.hitTarget, child: button),
+  );
 }
 
 /// The header of a page inside a tab (HANDOFF 7.4): a gold back link named after the page it
@@ -240,11 +249,13 @@ class KitTabTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
 
+  // `.ttl`: 44 tall at 58 from the top (the view's top padding is 54), 16 in. The box is 51 tall
+  // so the centre sits on the frame's line and the search field below keeps its 14.
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: Kit.flowHeader + 12,
+    height: Kit.flowHeader + 7,
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 0, 10, 0),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, 10, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

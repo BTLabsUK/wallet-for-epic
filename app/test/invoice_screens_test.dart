@@ -21,6 +21,8 @@ import 'package:epic_wallet/src/ui/invoices_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -31,6 +33,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
+import 'support/send_finders.dart' show buildInPage;
 
 const String _pin = '123456';
 
@@ -349,7 +352,8 @@ void main() {
       await tester.tap(find.text(_l.invoiceApprove));
       await tester.pumpAndSettle();
       expect(find.text(_l.invoicePinReason), findsNothing);
-      await tester.pageBack();
+      // The review's header leaves with its close button.
+      await tester.tap(find.byIcon(KitIcons.close));
       await tester.pumpAndSettle();
       expect(find.text('Anna'), findsNothing, reason: 'the open list dropped it');
     });
@@ -475,7 +479,7 @@ void main() {
       await h.invoice(message: hostile);
       await h.review(tester);
       expect(find.text(_l.reqRequests('My Exchange')), findsOneWidget);
-      final amount = tester.widget<Text>(find.descendant(of: find.byKey(invoiceReviewAmountKey), matching: find.byType(Text)));
+      final amount = tester.widget<Text>(find.descendant(of: find.byKey(invoiceReviewAmountKey), matching: find.byType(Text)).first);
       // The exact amount: a commit surface writes all eight decimals out.
       expect(amount.data, exactEpic(_epic(8)));
       expect(amount.style?.fontSize, 34);
@@ -518,6 +522,8 @@ void main() {
       final h = _Harness();
       await h.invoice(amount: 125);
       await h.review(tester);
+      // The page scrolls: the notice is built once it is near.
+      await buildInPage(tester, find.text(_l.invoicesShort(epicExact(_l, _epic(25)))));
       expect(
         find.text(_l.invoicesShort(epicExact(_l, _epic(25)))),
         findsOneWidget,
@@ -531,8 +537,8 @@ void main() {
       );
       expect(approve.onPressed, isNull);
       // Declining stays open.
-      final decline = tester.widget<OutlinedButton>(
-        find.widgetWithText(OutlinedButton, _l.invoiceDecline),
+      final decline = tester.widget<KitButton>(
+        find.widgetWithText(KitButton, _l.invoiceDecline),
       );
       expect(decline.onPressed, isNotNull);
     });

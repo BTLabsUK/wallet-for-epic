@@ -69,6 +69,7 @@ TxEntry _fTx(
   TxStatus status = TxStatus.confirmed,
   int depth = 6000,
   bool pending = false,
+  BigInt? height,
 }) {
   final fee = out ? _epic(0.008) : BigInt.zero;
   // Awaiting confirmation: [depth] blocks under the tip (1: two confirmations), or (pending) not on chain yet.
@@ -80,7 +81,7 @@ TxEntry _fTx(
     status: status,
     createdAtUnix: at,
     timeUnix: at,
-    blockHeight: onChain ? _tip - BigInt.from(depth) : null,
+    blockHeight: height ?? (onChain ? _tip - BigInt.from(depth) : null),
     blockTimeUnix: status == TxStatus.confirmed ? at : null,
     amountDebited: out ? _epic(amount) + fee : BigInt.zero,
     amountCredited: out ? BigInt.zero : _epic(amount),

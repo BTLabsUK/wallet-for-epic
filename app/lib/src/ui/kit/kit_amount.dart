@@ -73,11 +73,17 @@ class KitAmountDisplay extends StatelessWidget {
         ),
         if (fiat != null)
           Padding(
-            padding: const EdgeInsets.only(top: 6),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 6, Kit.gutter, 0),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(fiat!, style: KitType.rowTitle.copyWith(color: t.dim, fontWeight: FontWeight.w400)),
+                // Larger text shrinks the figure to fit beside the swap button.
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(fiat!, maxLines: 1, style: KitType.rowTitle.copyWith(color: t.dim, fontWeight: FontWeight.w400)),
+                  ),
+                ),
                 if (onSwap != null) KitIconButton(icon: KitIcons.swap, label: context.l10n.phoneKitSwapCurrency, onPressed: onSwap, color: t.dim, semanticsId: swapId),
               ],
             ),
@@ -109,8 +115,9 @@ class KitAvailableBar extends StatelessWidget {
       child: Container(
         height: Kit.availableBar,
         padding: const EdgeInsetsDirectional.only(start: 16, end: 6),
-        decoration: BoxDecoration(
-          color: t.fill,
+        decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rPill)),
+        // The outline is drawn over the bar, so it takes no room from Max's 48 dp target.
+        foregroundDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Kit.rPill),
           border: Border.all(color: over ? t.risk.withValues(alpha: 0.45) : t.hair),
         ),
@@ -121,43 +128,54 @@ class KitAvailableBar extends StatelessWidget {
                 container: true,
                 label: '${l.phoneKitAvailable} $available',
                 excludeSemantics: true,
-                child: Row(
-                  children: [
-                    Text(l.phoneKitAvailable, style: KitType.body.copyWith(color: over ? t.risk : t.dim, fontSize: 14)),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        available,
-                        style: KitType.rowAmount.copyWith(color: over ? t.risk : t.text),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                // Larger text shrinks the pair to fit beside Max rather than overflowing.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l.phoneKitAvailable, style: KitType.body.copyWith(color: over ? t.risk : t.dim, fontSize: 14)),
+                      const SizedBox(width: 8),
+                      Text(available, style: KitType.rowAmount.copyWith(color: over ? t.risk : t.text), maxLines: 1),
+                    ],
+                  ),
                 ),
               ),
             ),
             kitId(
               maxId,
               Semantics(
+                container: true,
                 button: true,
                 toggled: maxOn,
                 label: l.sendMax,
                 excludeSemantics: true,
                 onTap: onMax,
-                child: Material(
-                  color: maxOn ? t.accent : Colors.transparent,
-                  shape: StadiumBorder(side: BorderSide(color: maxOn ? t.accent : t.goldLine)),
-                  child: InkWell(
-                    customBorder: const StadiumBorder(),
+                // The touch target is the bar's whole height (48 dp); the pill is drawn inside.
+                child: SizedBox(
+                  height: Kit.availableBar,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: onMax,
-                    child: SizedBox(
-                      height: Kit.maxPill,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Center(
-                          widthFactor: 1,
-                          child: Text(l.sendMax, style: KitType.buttonSmall.copyWith(color: maxOn ? t.accentInk : t.accentText)),
+                    child: Center(
+                      widthFactor: 1,
+                      child: Material(
+                        color: maxOn ? t.accent : Colors.transparent,
+                        shape: StadiumBorder(side: BorderSide(color: maxOn ? t.accent : t.goldLine)),
+                        child: InkWell(
+                          customBorder: const StadiumBorder(),
+                          onTap: onMax,
+                          child: SizedBox(
+                            height: Kit.maxPill,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              child: Center(
+                                widthFactor: 1,
+                                child: Text(l.sendMax, style: KitType.buttonSmall.copyWith(color: maxOn ? t.accentInk : t.accentText)),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

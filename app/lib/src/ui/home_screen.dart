@@ -818,17 +818,20 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
       child: _Backdrop(
         child: SlotScaffold(
           body: SafeArea(
-            child: Column(
-              children: [
-                KitFlowHeader(
-                  title: send ? l.homeSendButton : l.homeReceiveButton,
-                  onLeading: _close,
-                  leadingId: TrustIds.flowClose,
-                ),
-                const BalanceHeader(),
-                Expanded(child: send ? SendView(onDone: _done, back: _sendBack) : const ReceiveView()),
-              ],
-            ),
+            // Send draws its own header per step (close on Who, back later), as the frames do.
+            child: send
+                ? SendView(onDone: _done, back: _sendBack)
+                : Column(
+                    children: [
+                      KitFlowHeader(
+                        title: l.homeReceiveButton,
+                        onLeading: _close,
+                        leadingId: TrustIds.flowClose,
+                      ),
+                      const BalanceHeader(),
+                      const Expanded(child: ReceiveView()),
+                    ],
+                  ),
           ),
         ),
       ),

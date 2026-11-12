@@ -21593,6 +21593,74 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneAcceptNotNow => '暂不';
 
   @override
+  String get phoneSendSearchHint => '姓名、地址或链接';
+
+  @override
+  String get phoneSendNewToYou => '你还没存过';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return '未保存 · $date 已付款';
+  }
+
+  @override
+  String get phoneSendNoAddressSub => '当面付款,或用文件付款';
+
+  @override
+  String get phoneSendNoAddressTitle => '无需地址付款';
+
+  @override
+  String get phoneSendNoAddressBody => '你在这里发起付款,对方回应后即完成。在对方回应之前,你可以取消。';
+
+  @override
+  String get phoneSendInPerson => '当面';
+
+  @override
+  String get phoneSendInPersonSub => '向旁边的手机出示二维码';
+
+  @override
+  String get phoneSendWithFile => '用文件';
+
+  @override
+  String get phoneSendWithFileSub => '用任意应用发送,对方会回传一个文件';
+
+  @override
+  String get phoneSendAddContact => '添加联系人';
+
+  @override
+  String get phoneSendAddressCheck => '请与收款人核对前六位和后六位字符。';
+
+  @override
+  String get phoneSendReviewTitle => '核对';
+
+  @override
+  String get phoneSendMoreDetails => '更多详情';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return '超出可发送金额 $amount。点按“最大”可全部发送。';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return '你的全部余额,减去 $fee 手续费';
+  }
+
+  @override
+  String get phoneSendViewPayment => '查看付款';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return '正在发给 $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => '对方钱包可以离线';
+
+  @override
+  String get phoneSendTheirOnline => '对方钱包必须打开';
+
+  @override
   String get phoneAboutProtocol => '支付协议';
 
   @override
@@ -21612,15 +21680,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return '$version 的新内容';
   }
-
-  @override
-  String get phoneLinkScanSub => '扫描另一台设备上的代码';
-
-  @override
-  String get phoneLinkShowSub => '由另一台设备扫描';
-
-  @override
-  String get phoneLinkPasteSub => '粘贴收到的代码或链接';
 
   @override
   String get phoneContactsSearchHint => '搜索，或粘贴地址';
@@ -21646,59 +21705,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneContactRequest => '请求';
 
   @override
-  String get phoneTabHome => '首页';
+  String get phoneLinkScanSub => '扫描另一台设备上的代码';
 
   @override
-  String get phoneTabScan => '扫描';
+  String get phoneLinkShowSub => '由另一台设备扫描';
 
   @override
-  String get phoneReview => '查看';
-
-  @override
-  String get phoneLater => '稍后';
-
-  @override
-  String get phoneHomeRecent => '最近';
-
-  @override
-  String get phoneHomeSeeAll => '查看全部';
-
-  @override
-  String phoneHomeArriving(String amount) {
-    return '+$amount 即将到账';
-  }
-
-  @override
-  String phoneHomeInSends(String amount) {
-    return '$amount 在发送中';
-  }
-
-  @override
-  String phoneHomeSyncing(String percent) {
-    return '同步中 $percent%';
-  }
-
-  @override
-  String get phoneHomeOffline => '离线';
-
-  @override
-  String phoneHomeInvoiceTitle(String name) {
-    return '来自 $name 的账单';
-  }
-
-  @override
-  String phoneHomeInvoiceBody(String amount) {
-    return '$amount。在你批准之前不会付款。';
-  }
-
-  @override
-  String get phoneHomeBalanceLastKnown => '可用 · 最近已知';
-
-  @override
-  String get phoneHomeBalanceSheetHint => '余额详情';
-
-  @override
-  String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
+  String get phoneLinkPasteSub => '粘贴收到的代码或链接';
 
   @override
   String get phoneRecvTitle => '收款';
@@ -21797,6 +21810,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return '来自 $name';
   }
+
+  @override
+  String get phoneTabHome => '首页';
+
+  @override
+  String get phoneTabScan => '扫描';
+
+  @override
+  String get phoneReview => '查看';
+
+  @override
+  String get phoneLater => '稍后';
+
+  @override
+  String get phoneHomeRecent => '最近';
+
+  @override
+  String get phoneHomeSeeAll => '查看全部';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount 即将到账';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount 在发送中';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return '同步中 $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => '离线';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return '来自 $name 的账单';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount。在你批准之前不会付款。';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => '可用 · 最近已知';
+
+  @override
+  String get phoneHomeBalanceSheetHint => '余额详情';
+
+  @override
+  String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
 
   @override
   String get phoneTourOffer => '要不要快速看看钱包的功能?';

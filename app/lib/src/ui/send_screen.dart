@@ -5,10 +5,25 @@ import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import '../trust_ids.dart';
 import 'file_flow_pages.dart';
+import 'kit/kit_amount.dart';
+import 'kit/kit_avatar.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_keypad.dart';
 import 'kit/kit_button.dart';
+import 'kit/kit_faces.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_search_field.dart';
+import 'kit/kit_sheet.dart';
+import 'kit/kit_tokens.dart';
+import 'kit/kit_headers.dart';
 import 'kit/kit_hero_amount.dart';
 import 'kit/kit_icons.dart';
+import 'kit/kit_result_mark.dart';
 import 'kit/kit_step_strip.dart';
+import 'kit/kit_steps.dart';
+import 'payment_progress.dart';
+import 'tx_details_screen.dart';
 import 'app_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter/services.dart';
@@ -45,7 +60,7 @@ import '../invite_links.dart' show parseInvite;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
-import '../scan/scan_text.dart' show directHostBesideOf, noteExpected, noteWarning;
+import '../scan/scan_text.dart' show noteExpected, noteWarning;
 import '../send_amount_gate.dart';
 import '../send_reach.dart';
 import '../send_route.dart';
@@ -73,10 +88,6 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
-import 'tip.dart';
-import '../levels/level_features.dart' show TimelineStyle;
-import '../levels/level_providers.dart' show levelFeaturesProvider;
-import 'levels/payment_steps.dart';
 import 'method_strip.dart';
 import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_parts.dart';
@@ -95,7 +106,6 @@ import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
-import 'theme/protocol.dart' show TimelineStep;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -124,6 +134,9 @@ const Key sendEpicboxDownKey = ValueKey('send-epicbox-down');
 /// multi-line one into a number input.
 const Key sendRecipientFieldKey = ValueKey('send-recipient-field');
 const Key sendAmountFieldKey = ValueKey('send-amount-field');
+
+/// The amount page's Review button, for tests.
+const Key sendReviewButtonKey = ValueKey('send-review-button');
 const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
 
 /// "Not enough spendable EPIC…" under the amount, said on the keystroke.
@@ -331,7 +344,7 @@ class _SendViewState extends ConsumerState<SendView> {
   final _note = TextEditingController();
   final _response = TextEditingController();
   final _recipientFocus = FocusNode();
-  final _amountFocus = FocusNode();
+  final _amountFocus = FocusNode(skipTraversal: true);
   final _noteFocus = FocusNode();
 
   /// The [RecipientHandoff.id] this form took last.
@@ -386,6 +399,9 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The note field is unfolded.
   bool _noteOpen = false;
+
+  /// The review's "More details" is open.
+  bool _reviewMore = false;
 
   /// The review's checks, kept from the tap on Continue until the review is left, so they
   /// run beside the fee estimate and each review asks the node again.
@@ -594,6 +610,8 @@ class _SendViewState extends ConsumerState<SendView> {
       } else {
         _origin = handoff.origin;
         _requestAddress = handoff.origin == null ? null : to.address;
+        // An address handed over whole is as settled as one pasted: it shows in its box.
+        _touched = recipientShaped(to);
       }
     }
     ref.listenManual(
@@ -865,15 +883,10 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The way a connection problem leaves: Pay in person (a QR Payment, where this phone
   /// offers it) and Pay with a file, each while its method is on.
-  bool get _qrOffered =>
-      _watchedPayments.directQr &&
-      offersQrPayment(ref) &&
-      ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directQr);
+  bool get _qrOffered => _watchedPayments.directQr && offersQrPayment(ref);
 
   bool get _fileOffered =>
-      (_watchedPayments.directFile &&
-          ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directFile)) ||
-      hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions)));
+      _watchedPayments.directFile || hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions)));
 
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scanCode(context);
@@ -1001,16 +1014,6 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
-  Future<void> _pickContact() async {
-    final contact = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(
-        builder: (_) => const ContactsScreen(pick: true, forPayment: true),
-      ),
-    );
-    if (contact == null || !mounted) return;
-    _useContact(contact);
-  }
-
   /// The pairing a contact with no address is paid through, when the wallet pairs.
   PairingRecord? _pairingOnly(Contact contact, {bool watch = false}) {
     if (contact.addresses.isNotEmpty) return null;
@@ -1035,9 +1038,18 @@ class _SendViewState extends ConsumerState<SendView> {
     return kind != null && !(watch ? _watchedPayments : _payments.copyWith(linkHttp: true)).offers(kind);
   }
 
-  /// The index in [contact]'s addresses Send uses first ([bestAddressIndex]).
-  int _bestIndex(Contact contact, {bool watch = true}) =>
-      bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
+  /// The index in [contact]'s addresses Send uses first: the one last paid successfully
+  /// ([lastPaidAddress]) when it can be paid now, else the best by method ([bestAddressIndex]).
+  int _bestIndex(Contact contact, {bool watch = true}) {
+    final txs = (watch ? ref.watch(homeProvider) : ref.read(homeProvider)).value?.transactions ?? const <TxEntry>[];
+    final paid = contact.addresses.length > 1 ? lastPaidAddress(contact, txs) : null;
+    if (paid != null) {
+      final i = contact.addresses.indexOf(paid);
+      final to = _readOf(paid);
+      if (i >= 0 && to.isAddress && !_heldNow(to, watch: watch)) return i;
+    }
+    return bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
+  }
 
   /// A classic address, request or file text, refused in epic1 mode's field.
   bool _classicCode(String text) {
@@ -1180,7 +1192,6 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
       if (problem == null && !held && (_pairingTo != null || read.isAddress)) _stage = SendStage.amount;
     });
-    if (problem == null && focus && _stage == SendStage.amount) _amountFocus.requestFocus();
   }
 
   /// The Android back: the step the header's arrow goes to, held like the arrow while the
@@ -2421,6 +2432,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   @override
   Widget build(BuildContext context) {
+    _bar = null;
     // A method off in Settings › Transactions holds the send too: Epicbox, or the Link method
     // the address picks (a pasted onion with Link · Tor off says so, never a silent refusal).
     // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
@@ -2498,18 +2510,20 @@ class _SendViewState extends ConsumerState<SendView> {
 
     // epic1 mode: one field for an epic1 link or a contact; a contact paid goes on as a pairing.
     if (_stage == SendStage.recipient && _pairingTo == null && ref.watch(paymentModeProvider) == PaymentMode.epic1) {
-      return ScreenBody(
-        children: [
-          PhoneTourTarget(
-            id: 'tour-send-recipient',
-            child: Epic1SendStart(
-              header: _header(context, context.l10n.homeSendButton, step: 1),
-              classicCode: _classicCode,
-              onContact: _useEpic1Contact,
-              onDone: () {},
+      return _page(
+        ScreenBody(
+          children: [
+            PhoneTourTarget(
+              id: 'tour-send-recipient',
+              child: Epic1SendStart(
+                header: _header(context, context.l10n.homeSendButton, onClose: _done),
+                classicCode: _classicCode,
+                onContact: _useEpic1Contact,
+                onDone: () {},
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -2517,7 +2531,7 @@ class _SendViewState extends ConsumerState<SendView> {
       SendStage.recipient => (_recipientStep(context), _recipientAction()),
       SendStage.amount => (_amountStep(context), _amountAction()),
       SendStage.review => (_reviewStep(context), _reviewAction(context)),
-      SendStage.sent => (_trackerStep(context, _sent!), _doneAction()),
+      SendStage.sent => (_trackerStep(context, _sent!), _sentAction(_sent!)),
       SendStage.fileAmount => (_fileAmountStep(context), _fileAmountAction()),
       SendStage.fileMade => (
         _fileMadeStep(context, _slate!),
@@ -2543,48 +2557,115 @@ class _SendViewState extends ConsumerState<SendView> {
         ref.watch(offlineNodePeersProvider).value == 0;
     // Offline on a node that is not local: the file steps say the node is used.
     final offlineNode = _offlineNode && note == NetBlock.none && (_stage == SendStage.fileAmount || _stage == SendStage.fileMade);
-    return ScreenBody(
-      bottom: note != NetBlock.none || noPeers || offlineNode
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (noPeers)
-                  NetBlockNote(NetBlock.none, key: offlineNoPeersKey, line: context.l10n.netOfflineNoPeers)
-                else if (offlineNode)
-                  const OfflineNodeNote()
-                else ...[
-                  NetBlockNote(
-                    note,
-                    line: note == _postBlock && note == NetBlock.killSwitch && _stage != SendStage.recipient && _stage != SendStage.amount && _stage != SendStage.review
-                        ? context.l10n.coldNeedsOnlineCheck
-                        : _methodOffLine(note),
+    final bottomWithNotes = note != NetBlock.none || noPeers || offlineNode
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (noPeers)
+                NetBlockNote(NetBlock.none, key: offlineNoPeersKey, line: context.l10n.netOfflineNoPeers)
+              else if (offlineNode)
+                const OfflineNodeNote()
+              else ...[
+                NetBlockNote(
+                  note,
+                  line: note == _postBlock && note == NetBlock.killSwitch && _stage != SendStage.recipient && _stage != SendStage.amount && _stage != SendStage.review
+                      ? context.l10n.coldNeedsOnlineCheck
+                      : _methodOffLine(note),
+                ),
+                // A Link method off: one tap turns it on here (Epicbox keeps its own way).
+                if (_sendMethod case final m? when note == NetBlock.methodOff && m.family == MethodFamily.link) ...[
+                  OutlinedButton(
+                    key: sendTurnOnMethodKey,
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+                    onPressed: () => _turnOn(m),
+                    child: Text(context.l10n.sendTurnOnMethod(MethodIcons.fullName(context.l10n, m))),
                   ),
-                  // A Link method off: one tap turns it on here (Epicbox keeps its own way).
-                  if (_sendMethod case final m? when note == NetBlock.methodOff && m.family == MethodFamily.link) ...[
-                    OutlinedButton(
-                      key: sendTurnOnMethodKey,
-                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(44)),
-                      onPressed: () => _turnOn(m),
-                      child: Text(context.l10n.sendTurnOnMethod(MethodIcons.fullName(context.l10n, m))),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                  const SizedBox(height: 8),
                 ],
-                bottom,
               ],
-            )
-          : bottom,
-      children: [
-        ...children,
-        if (_error != null)
-          ErrorText(_error!)
+              bottom,
+            ],
+          )
+        : bottom;
+    final problem = _error != null
+        ? ErrorText(_error!)
         // The reviewed payment no longer fits: Send is off, and this says why.
-        else if (_stage == SendStage.review && !_sendFailed && _gate.notEnough)
-          ErrorText(context.l10n.errorNotEnoughFunds),
+        : _stage == SendStage.review && !_sendFailed && _gate.notEnough
+        ? ErrorText(context.l10n.errorNotEnoughFunds)
+        : null;
+    if (_stage == SendStage.review) {
+      return _reviewPage(context, [...children, ?problem], bottomWithNotes);
+    }
+    return _page(ScreenBody(
+      bottom: bottomWithNotes,
+      children: [...children, ?problem],
+    ));
+  }
+
+  /// The review (HANDOFF 9, Send-3): a sheet over the amount page, which shows dimmed under it.
+  /// A tap on the dim, or the Android back, returns to the amount unless the payment is made or
+  /// being sent. [body] is the sheet's content, [actions] its buttons.
+  Widget _reviewPage(BuildContext context, List<Widget> body, Widget actions) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final unit = _fiatEntry ? (ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd').toUpperCase() : epicUnit;
+    _header(context, l.sendTo(_toName(l)), avatar: _toAvatar());
+    final canLeave = !_sendFailed && !_busy;
+    final height = MediaQuery.sizeOf(context).height;
+    return Stack(
+      children: [
+        // What the sheet covers: the amount's header and figure, inert.
+        ExcludeSemantics(
+          child: IgnorePointer(
+            child: _page(
+              ScreenBody(
+                children: [
+                  const SizedBox(height: 18),
+                  KitAmountDisplay(amount: _amount.text, unit: unit),
+                ],
+              ),
+            ),
+          ),
+        ),
+        // The dim is a touch target only; the system back is the way out for a screen reader.
+        Positioned.fill(
+          child: ExcludeSemantics(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: canLeave ? _backToAmount : null,
+              child: ColoredBox(color: t.scrim),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 600, maxHeight: height * 0.94),
+            child: Material(
+              color: t.sheet,
+              clipBehavior: Clip.antiAlias,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(Kit.rSheetTop))),
+              child: KitSheet(
+                title: l.phoneSendReviewTitle,
+                primary: actions,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: body),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
+
+  /// [body] under the step's top bar. The bar sits at the page's top edge: the shell draws no
+  /// second header over it.
+  Widget _page(Widget body) => Column(
+    children: [
+      SafeArea(bottom: false, child: _bar ?? const SizedBox.shrink()),
+      Expanded(child: MediaQuery.removePadding(context: context, removeTop: true, child: body)),
+    ],
+  );
 
   Widget _emptyState(BuildContext context) {
     final request = _activeRequest;
@@ -2618,70 +2699,34 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
+  /// The page's top bar, set by the step being built ([_header]) and drawn by [build] above the
+  /// step, outside the scrolling body.
+  Widget? _bar;
+
+  /// Sets the top bar of the step: [onBack] a back arrow, else [onClose] a ×, else no button.
+  /// [onHelp] is the "?"; by default the payment's "How it works".
   Widget _header(
     BuildContext context,
     String title, {
-    int? step,
     VoidCallback? onBack,
-    Widget? extra,
+    VoidCallback? onClose,
+    VoidCallback? onHelp,
+    bool help = true,
+    Widget? avatar,
   }) {
-    final l = context.l10n;
-    final theme = Theme.of(context);
-    final t = context.tokens;
-    final counterStyle = theme.textTheme.bodySmall?.copyWith(color: t.dim);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: LayoutBuilder(
-        builder: (context, box) {
-          // At a large text size or on a narrow phone the step counter goes under the
-          // title, so the title still breaks by word, never by letter.
-          final scale = MediaQuery.textScalerOf(context).scale(1);
-          final stacked = step != null && (scale >= 1.5 || box.maxWidth < 340);
-          final heading = Semantics(
-            header: true,
-            child: Text(title, style: theme.textTheme.titleLarge),
-          );
-          return Row(
-            crossAxisAlignment: stacked ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-            children: [
-              if (onBack != null)
-                IconButton(
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  icon: TrustId(TrustIds.sendBack, child: const Icon(Icons.arrow_back)),
-                  onPressed: _busy || _estimating ? null : onBack,
-                ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    start: onBack == null ? 0 : 4,
-                  ),
-                  child: stacked
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            heading,
-                            Text(l.sendStepOf(step, 3), style: counterStyle),
-                          ],
-                        )
-                      : heading,
-                ),
-              ),
-              if (step != null && !stacked)
-                Text(l.sendStepOf(step, 3), style: counterStyle),
-              // One help icon per header: a step with its own help shows that.
-              if (extra != null)
-                extra
-              else
-                IconButton(
-                  tooltip: l.sendHowItWorks,
-                  icon: const Icon(Icons.info_outline),
-                  onPressed: () => showHandshakeSheet(context, flow: _howFlow),
-                ),
-            ],
-          );
-        },
-      ),
+    final busy = _busy || _estimating;
+    final leading = onBack ?? onClose;
+    _bar = KitFlowHeader(
+      title: title,
+      avatar: avatar,
+      showLeading: leading != null,
+      back: onBack != null,
+      onLeading: leading == null || busy ? null : leading,
+      leadingId: onBack != null ? TrustIds.sendBack : TrustIds.sendClose,
+      onHelp: !help ? null : (onHelp ?? () => showHandshakeSheet(context, flow: _howFlow)),
+      helpId: TrustIds.sendHelp,
     );
+    return const SizedBox.shrink();
   }
 
   /// The "How it works" tab of the way this payment goes: its own method's, never Epicbox's
@@ -2798,13 +2843,11 @@ class _SendViewState extends ConsumerState<SendView> {
     // Kept alive while the step shows: the own-address check reads it.
     ref.watch(addressProvider);
     final pairing = _toPairing();
-    final hosts = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
-    final epicboxNamed = ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed));
     final stepTitle = l.homeSendButton;
     if (pairing != null) {
       final name = _pairingNameOf(pairing.id);
       return [
-        _header(context, stepTitle, step: 1),
+        _header(context, stepTitle, onClose: _done),
         Semantics(
           label: l.sendToLabel,
           container: true,
@@ -2818,15 +2861,13 @@ class _SendViewState extends ConsumerState<SendView> {
             MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: pairing.id, recheck: true)),
           ),
         ),
-        const SizedBox(height: 4),
-        _recipientButtons(scan),
       ];
     }
     final hold = _hold;
     final valid = read.isAddress && _recipientProblem(_recipient.text) == null;
-    final recent = recentRecipients(
-      ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
-    );
+    final transactions = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
+    final recent = recentRecipients(transactions);
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final matches = contact == null && read.kind == RecipientInputKind.text ? _nameMatches(text) : const <Contact>[];
     final target = _reachTarget(read, hold);
     if (target != null) _askReach(target);
@@ -2836,53 +2877,71 @@ class _SendViewState extends ConsumerState<SendView> {
     final epicboxDown = hold == null &&
         read.kind == RecipientInputKind.epicbox &&
         (epicboxState == null || epicboxState == EpicboxState.offline);
-    // Level 1 does not name Epicbox: no method line for it, unless Change is needed.
-    final several = contact != null && contact.addresses.length > 1;
     // An http(s) address names its method from the scheme on, while the host is still typed.
-    final routeShown = (read.isAddress && (epicboxNamed || read.kind != RecipientInputKind.epicbox || several)) || read.typing != null;
-    // Without a method line (level 1's Epicbox), the address as it will be contacted.
-    final preview = contact == null && !routeShown && read.isAddress && read.address != text;
+    final routeShown = read.isAddress || read.typing != null;
     final saveable = valid && contact == null && _contactName(read.address) == null;
+    // A complete address, pasted, scanned or left: shown whole in its box (Send-5).
+    final settled = valid && (_touched || contact != null) && contact == null;
+    final empty = text.isEmpty && contact == null;
     const indent = EdgeInsetsDirectional.only(start: 42);
     return [
-      _header(context, stepTitle, step: 1),
+      _header(context, stepTitle, onClose: _done),
       if (contact != null)
         _contactChip(context, contact)
+      else if (settled)
+        KitAddressBox(
+          onClear: _clearRecipient,
+          clearId: TrustIds.sendClear,
+          clearKey: sendRecipientClearKey,
+          child: TrustId(
+            TrustIds.sendTo,
+            child: TextField(
+              key: sendRecipientFieldKey,
+              controller: _recipient,
+              focusNode: _recipientFocus,
+              autocorrect: false,
+              enableSuggestions: false,
+              // Grows to show the whole address, so its start can be checked.
+              minLines: 1,
+              maxLines: null,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.next,
+              onEditingComplete: _toAmount,
+              style: KitType.address.copyWith(color: t.text),
+              cursorColor: t.accent,
+              onChanged: _recipientChanged,
+              decoration: const InputDecoration(
+                isCollapsed: true,
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+          ),
+        )
       else
         PhoneTourTarget(
           id: 'tour-send-recipient',
-          child: TrustId(TrustIds.sendTo, child: TextField(
-            key: sendRecipientFieldKey,
+          child: KitSearchField(
+            margin: EdgeInsets.zero,
             controller: _recipient,
             focusNode: _recipientFocus,
-            autocorrect: false,
-            enableSuggestions: false,
-            // Grows to show the whole address, so its start can be checked.
-            minLines: 1,
-            maxLines: null,
+            hint: l.phoneSendSearchHint,
+            fieldKey: sendRecipientFieldKey,
+            semanticsId: TrustIds.sendTo,
             keyboardType: TextInputType.url,
             textInputAction: TextInputAction.next,
-            onEditingComplete: _toAmount,
-            style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
             onChanged: _recipientChanged,
-            decoration: InputDecoration(
-              labelText: l.sendToLabel,
-              hintText: l.sendToHint,
-              // The hint is words; what is typed is an address, in the mono face.
-              hintStyle: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: _recipient.text.isEmpty
-                  ? null
-                  : IconButton(
-                      key: sendRecipientClearKey,
-                      tooltip: l.sendClearRecipient,
-                      icon: TrustId(TrustIds.sendClear, child: const Icon(Icons.close)),
-                      onPressed: _clearRecipient,
-                    ),
-              error: _recipientError == null ? null : LiveFieldError(_recipientError!),
-            ),
-          )),
+            onSubmitted: (_) => _toAmount(),
+            onPaste: _paste,
+            onScan: scan ? _scan : null,
+            pasteId: TrustIds.sendPaste,
+            scanId: TrustIds.sendScan,
+          ),
         ),
+      if (_recipientError != null)
+        Padding(padding: const EdgeInsets.only(top: 8), child: LiveFieldError(_recipientError!)),
       if (_recipientError != null && _recipientError == l.deskE1ModeEpic1Link)
         Align(
           alignment: AlignmentDirectional.centerStart,
@@ -2907,31 +2966,27 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       ],
-      if (routeShown) _routeLine(context, read, contact: contact, hold: hold),
-      if (preview)
-        Padding(
-          padding: indent.add(const EdgeInsets.only(top: 4)),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: '${l.sendSendsTo} '),
-                TextSpan(text: read.address, style: TextStyle(fontFamily: t.monoFamily)),
-              ],
-            ),
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-          ),
+      if (routeShown || saveable) ...[
+        const SizedBox(height: 14),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          children: [
+            if (routeShown) _routeRow(context, read, contact: contact, hold: hold),
+            if (saveable)
+              KitRow(
+                leading: KitIconWell(KitIcons.contact, color: t.accentText),
+                title: l.phoneSendAddContact,
+                titleColor: t.accentText,
+                onTap: () => _saveContact(read.address),
+                semanticsId: TrustIds.sendAddcontact,
+              ),
+          ],
         ),
-      if (saveable)
+      ],
+      if (settled)
         Padding(
-          padding: indent,
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: InlineTextButton(
-              icon: const Icon(Icons.person_add_alt, size: 18),
-              onPressed: () => _saveContact(read.address),
-              child: Text(l.sendSaveContact),
-            ),
-          ),
+          padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
+          child: Text(l.phoneSendAddressCheck, style: KitType.rowSub.copyWith(color: t.dim)),
         ),
       // A saved contact, paired: its trust and the seal, and the mailbox switch.
       if (valid)
@@ -2985,52 +3040,162 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ],
       _TorNotice(way: _wayOf(_toRoute)),
-      const SizedBox(height: 4),
-      _recipientButtons(scan),
       if (matches.isNotEmpty) ...[
-        const SizedBox(height: 8),
-        Text(
-          l.sendContactsButton,
-          style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
+        KitGroupLabel(l.sendContactsButton, inset: 4),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          children: [
+            for (final c in matches)
+              _WhoRow(
+                address: _contactRowAddress(c),
+                name: c.name,
+                // A contact with no address: through its pairing, never an empty address.
+                subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name, l.sendRoutePairedInline),
+                onTap: () => _useContact(c),
+              ),
+          ],
         ),
-        const SizedBox(height: 4),
-        for (final c in matches)
-          _RecentRow(
-            address: _contactRowAddress(c),
-            name: c.name,
-            relay: hosts,
-            // A contact with no address: through its pairing, never an empty address.
-            subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name, l.sendRoutePairedInline),
-            onTap: () => _useContact(c),
-          ),
       ],
-      if (text.isEmpty) ...[
-        ?_directWays(context, lead: l.sendNoAddress),
+      if (empty) ...[
+        const SizedBox(height: 8),
+        ..._faces(context, contacts, recent),
         if (recent.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            l.sendRecent,
-            style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
+          KitGroupLabel(l.sendRecent, inset: 4),
+          KitGroup(
+            margin: EdgeInsets.zero,
+            children: [
+              for (final address in recent.take(5))
+                _WhoRow(
+                  address: address,
+                  name: _contactName(address),
+                  subtitle: _contactName(address) != null
+                      ? null
+                      : l.phoneSendNotSavedPaid(shortDate(l, localTime(_lastPaidTime(transactions, address)), DateTime.now())),
+                  onTap: () {
+                    final saved = contactFor(contacts, address);
+                    if (saved != null) {
+                      _useContact(saved, address: address);
+                    } else {
+                      _setRecipient(address);
+                    }
+                    _toAmount();
+                  },
+                ),
+            ],
           ),
-          const SizedBox(height: 4),
-          for (final address in recent)
-            _RecentRow(
-              address: address,
-              name: _contactName(address),
-              relay: hosts,
-              onTap: () {
-                final saved = contactFor(ref.read(contactsProvider).value ?? const <Contact>[], address);
-                if (saved != null) {
-                  _useContact(saved, address: address);
-                } else {
-                  _setRecipient(address);
-                }
-                _toAmount();
-              },
-            ),
+        ],
+        if (_qrOffered || _fileOffered) ...[
+          const SizedBox(height: 18),
+          KitGroup(
+            margin: EdgeInsets.zero,
+            children: [
+              KitRow(
+                leading: KitIconWell(KitIcons.qr),
+                title: l.sendNoAddress,
+                subtitle: l.phoneSendNoAddressSub,
+                chevron: true,
+                onTap: _busy || _estimating ? null : () => _noAddressSheet(context),
+                semanticsId: TrustIds.sendNoaddress,
+              ),
+            ],
+          ),
         ],
       ],
     ];
+  }
+
+  /// When the newest payment to [address] was made.
+  int _lastPaidTime(List<TxEntry> transactions, String address) {
+    var newest = 0;
+    for (final tx in transactions) {
+      if (tx.kind == TxKind.sent && tx.counterparty == address && tx.timeUnix > newest) newest = tx.timeUnix;
+    }
+    return newest;
+  }
+
+  /// The faces under the Who field: people paid lately, then the other contacts.
+  List<Widget> _faces(BuildContext context, List<Contact> contacts, List<String> recent) {
+    final seen = <String>{};
+    final people = <Contact>[];
+    for (final address in recent) {
+      final c = contactFor(contacts, address);
+      if (c != null && seen.add(c.id)) people.add(c);
+    }
+    for (final c in [...contacts]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()))) {
+      if (seen.add(c.id)) people.add(c);
+    }
+    if (people.isEmpty) return const [];
+    return [
+      KitFacesStrip(
+        bleed: Kit.gutter,
+        faces: [
+          for (final c in people.take(10))
+            KitFace(
+              label: c.name,
+              initials: nameInitials(c.name),
+              semanticsId: TrustIds.sendFace,
+              onTap: () {
+                _useContact(c);
+                if (_pairingTo == null) _toAmount();
+              },
+            ),
+        ],
+      ),
+    ];
+  }
+
+  /// "No address?": pay in person (a code) or with a file, today's two ways.
+  Future<void> _noAddressSheet(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return showKitSheet<void>(
+      context: context,
+      builder: (sheet) => KitSheet(
+        title: l.phoneSendNoAddressTitle,
+        secondaryLabel: l.commonCancel,
+        onSecondary: () => Navigator.of(sheet).pop(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              child: Text(l.phoneSendNoAddressBody, style: KitType.body.copyWith(color: t.dim)),
+            ),
+            KitGroup(
+              onSheet: true,
+              dividerInset: Kit.dividerInsetList,
+              children: [
+                if (_qrOffered)
+                  KitRow(
+                    leading: KitIconWell(MethodIcons.qr),
+                    title: l.phoneSendInPerson,
+                    subtitle: l.phoneSendInPersonSub,
+                    chevron: true,
+                    onTap: () {
+                      Navigator.of(sheet).pop();
+                      _toFileRoute(qr: true);
+                    },
+                    semanticsId: TrustIds.sendNoaddressPerson,
+                  ),
+                if (_fileOffered)
+                  KitRow(
+                    leading: KitIconWell(MethodIcons.file),
+                    title: l.phoneSendWithFile,
+                    subtitle: l.phoneSendWithFileSub,
+                    chevron: true,
+                    onTap: () {
+                      Navigator.of(sheet).pop();
+                      _toFileRoute();
+                    },
+                    semanticsId: TrustIds.sendNoaddressFile,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// The address a contact row shows: the one Send would use.
@@ -3068,29 +3233,17 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     return Semantics(
       container: true,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: l.sendToLabel,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          contentPadding: const EdgeInsetsDirectional.fromSTEB(8, 6, 4, 6),
-        ),
+      label: l.sendToLabel,
+      child: KitAddressBox(
+        onClear: _clearRecipient,
+        clearId: TrustIds.sendClear,
+        clearKey: sendRecipientClearKey,
         child: Row(
           children: [
-            _Initial(name: contact.name, size: 32),
-            const SizedBox(width: 10),
+            KitAvatar(initials: nameInitials(contact.name)),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                contact.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.tokens.text),
-              ),
-            ),
-            IconButton(
-              key: sendRecipientClearKey,
-              tooltip: l.sendClearRecipient,
-              icon: TrustId(TrustIds.sendClear, child: const Icon(Icons.close)),
-              onPressed: _clearRecipient,
+              child: Text(contact.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: context.tokens.text)),
             ),
           ],
         ),
@@ -3098,13 +3251,26 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
-  /// The method line under To: the method's icon and name, where it goes (this phone, your
-  /// network, over Tor), and the host exactly as it will be contacted. A contact with more
-  /// than one address gets Change, a menu of them.
-  Widget _routeLine(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold}) {
+  /// The name Review and Amount show after "To": the contact, the pairing, else the short address.
+  String _toName(AppLocalizations l) {
+    if (_pairingTo != null) return _pairingNameOf(_pairingTo!);
+    final contact = _contact;
+    if (contact != null) return contact.name;
+    final address = _read.address;
+    return _contactName(address) ?? shortAddress(address);
+  }
+
+  Widget _toAvatar() {
+    final named = _pairingTo != null || _contact != null || _contactName(_read.address) != null;
+    return named ? KitAvatar(initials: nameInitials(_toName(context.l10n))) : const KitAvatar(icon: KitIcons.contact, neutral: true);
+  }
+
+  /// The method row under To: the method's icon and name, whether their wallet can be offline,
+  /// the host exactly as it will be contacted, and the way it goes (this phone, your network,
+  /// over Tor). A contact with more than one address gets a chevron: a sheet of them.
+  Widget _routeRow(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold}) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final mode = AdvancedOptions.of(context).networkMode;
     final torOn = ref.watch(phoneTorProvider.select((s) => s.receiving));
     final overTor = sendOverTor(to, mode: mode, torOn: torOn);
@@ -3114,6 +3280,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final torStarts = torBuilt && to.kind == RecipientInputKind.onion && !torOn && mode != NetworkMode.torOnly && hold == null && _watchedPayments.linkTor;
     final dim = TextStyle(color: t.dim);
     final strong = TextStyle(color: t.text, fontWeight: FontWeight.w600);
+    final epicbox = to.kind == RecipientInputKind.epicbox;
     final where = switch (to.urlKind ?? to.kind) {
       RecipientInputKind.https || RecipientInputKind.http => TextSpan(
         children: [
@@ -3122,154 +3289,85 @@ class _SendViewState extends ConsumerState<SendView> {
           TextSpan(text: ':${to.port}${to.path}', style: dim),
         ],
       ),
-      // An onion's ends marked, as every address of its kind.
       RecipientInputKind.onion => addressSpan(
         to.host,
         style: TextStyle(color: t.text),
         mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
         quiet: dim,
       ),
-      _ => TextSpan(text: to.host, style: strong),
+      _ => null,
     };
+    final line = metaLine([
+      if (contact == null) l.phoneSendNewToYou,
+      epicbox ? l.phoneSendTheirOffline : l.phoneSendTheirOnline,
+      if (torStarts) l.sendRouteTorStarts,
+    ]);
     final several = contact != null && contact.addresses.length > 1;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Semantics(
-              container: true,
-              label: metaLine([
-                l.sendRouteSemantics(name, sendContactedText(to)),
-                ?tag,
-                if (torStarts) l.sendRouteTorStarts,
-              ]),
-              excludeSemantics: true,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: t.surface,
-                      border: Border.all(color: t.line),
-                      borderRadius: BorderRadius.circular(t.radiusSmall),
-                    ),
-                    child: Icon(MethodIcons.of(kind), size: 18, color: t.accentText),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 2,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(name, style: theme.textTheme.titleSmall?.copyWith(color: t.text, fontWeight: FontWeight.w600)),
-                            if (tag != null)
-                              overTor ? EBadge.tor(tag, way: TorWay.overTor) : EBadge(tag),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text.rich(
-                          where,
-                          style: theme.textTheme.bodySmall?.copyWith(fontFamily: t.monoFamily, height: 1.35),
-                        ),
-                        if (torStarts)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(l.sendRouteTorStarts, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (several) _changeMenu(context, contact, to),
-        ],
-      ),
-    );
-  }
-
-  /// Change on the method line: "`name`’s addresses", each with its method and a short form,
-  /// the one in use checked, those the mode holds greyed with the reason.
-  Widget _changeMenu(BuildContext context, Contact contact, RecipientInput current) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final first = contact.name.trim().split(RegExp(r'\s+')).first;
-    return MenuAnchor(
-      style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(t.surface),
-        side: WidgetStatePropertyAll(BorderSide(color: t.line)),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radiusSmall))),
-      ),
-      menuChildren: [
-        Semantics(
-          header: true,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 10, 16, 4),
-            child: Text(l.sendRouteAddressesOf(first), style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
-          ),
-        ),
-        for (final address in contact.addresses)
-          if (_readOf(address) case final to when to.isAddress) _addressItem(context, to, current: to.address == current.address),
-      ],
-      builder: (context, controller, _) => Semantics(
-        expanded: controller.isOpen,
-        child: TextButton(
-          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
-          child: Text(l.sendRouteChange, semanticsLabel: l.sendRouteChangeSem(contact.addresses.length - 1)),
-        ),
-      ),
-    );
-  }
-
-  Widget _addressItem(BuildContext context, RecipientInput to, {required bool current}) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final hold = _holdOf(to);
-    final kind = sendMethodKind(to)!;
-    final off = hold == null && !_watchedPayments.offers(kind);
-    final reason = hold != null ? sendHoldReason(l, hold) : (off ? methodOffReason(l, kind) : null);
-    final name = sendMethodName(l, to);
-    final short = to.isUrl ? to.address : shortAddress(to.address);
-    return Semantics(
-      checked: current,
-      inMutuallyExclusiveGroup: true,
-      child: MenuItemButton(
-        leadingIcon: Icon(MethodIcons.of(kind), size: 18),
-        trailingIcon: current ? Icon(Icons.check, size: 18, color: t.ok) : null,
-        onPressed: reason != null ? null : () => _pickAddress(to.address),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 240),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
+    final row = KitRow(
+      leading: KitIconWell(MethodIcons.of(kind), color: t.accentText),
+      title: name,
+      subtitle: where == null ? line : null,
+      subtitleLines: 2,
+      subtitleWidget: where == null
+          ? null
+          : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                Text(
-                  short,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(fontFamily: t.monoFamily, color: t.dim),
-                ),
-                if (reason != null)
-                  Text(reason, style: theme.textTheme.bodySmall?.copyWith(color: t.dim, fontStyle: FontStyle.italic)),
+                Text(line, style: KitType.rowSub.copyWith(color: t.dim), maxLines: 2, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 2),
+                Text.rich(where, style: KitType.address.copyWith(color: t.dim), maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
             ),
-          ),
-        ),
-      ),
+      trailing: tag == null ? null : (overTor ? EBadge.tor(tag, way: TorWay.overTor) : EBadge(tag)),
+      chevron: several,
+      onTap: several ? () => _addressesSheet(context, contact, to) : null,
+      semanticsId: several ? TrustIds.sendRoute : null,
+      semanticsLabel: l.sendRouteChange,
+    );
+    if (several) return row;
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: metaLine([l.sendRouteSemantics(name, sendContactedText(to)), ?tag, if (torStarts) l.sendRouteTorStarts]),
+      child: row,
+    );
+  }
+
+  /// The contact's addresses in a picker: each with its method and short form, the one in use
+  /// ticked, those the mode holds greyed with the reason (the row is not offered then).
+  Future<void> _addressesSheet(BuildContext context, Contact contact, RecipientInput current, {bool review = false}) {
+    final l = context.l10n;
+    final first = contact.name.trim().split(RegExp(r'\s+')).first;
+    final choices = <KitChoice<String>>[];
+    for (final address in contact.addresses) {
+      final to = _readOf(address);
+      if (!to.isAddress) continue;
+      final hold = _holdOf(to);
+      final kind = sendMethodKind(to)!;
+      final off = hold == null && !_watchedPayments.offers(kind);
+      final reason = hold != null ? sendHoldReason(l, hold) : (off ? methodOffReason(l, kind) : null);
+      final short = to.isUrl ? to.address : shortAddress(to.address);
+      choices.add(KitChoice<String>(
+        value: to.address,
+        title: sendMethodName(l, to),
+        subtitle: reason ?? short,
+        leading: KitIconWell(MethodIcons.of(kind)),
+        semanticsId: TrustIds.sendAddressPick,
+      ));
+    }
+    return KitPickerSheet.show<String>(
+      context: context,
+      title: l.sendRouteAddressesOf(first),
+      choices: choices,
+      selected: current.address,
+      // From the review the other address takes the form back to the amount: the fee and the
+      // way it goes are worked out again for it.
+      onSelected: review
+          ? (address) {
+              _pickAddress(address);
+              _toAmount(focus: false);
+            }
+          : _pickAddress,
     );
   }
 
@@ -3383,32 +3481,6 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
-  /// Paste, Scan (where the phone scans) and Contacts under the recipient.
-  Widget _recipientButtons(bool scan) {
-    final l = context.l10n;
-    return Wrap(
-      spacing: 8,
-      children: [
-        TextButton.icon(
-          icon: const Icon(Icons.content_paste),
-          label: Text(l.commonPaste),
-          onPressed: _paste,
-        ),
-        if (scan)
-          TextButton.icon(
-            icon: const Icon(Icons.qr_code_scanner),
-            label: Text(l.sendScanButton),
-            onPressed: _scan,
-          ),
-        TextButton.icon(
-          icon: const Icon(Icons.contacts),
-          label: Text(l.sendContactsButton),
-          onPressed: _pickContact,
-        ),
-      ],
-    );
-  }
-
   /// A pairing recipient can be paid while paired or verified and its wallet opens sealed
   /// messages; keys that changed meanwhile hold Continue until the words are checked.
   bool get _hasRecipient => _pairingTo != null
@@ -3423,9 +3495,46 @@ class _SendViewState extends ConsumerState<SendView> {
         : _toAmount,
   );
 
-  /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
-  List<Widget> _amountFields(BuildContext context, {required bool file}) {
-    // A note the code or a service rule expects is not folded behind "Add a message".
+  /// The decimal mark the keypad writes: the language's, as Max and the unit switch write it.
+  String _point(AppLocalizations l) => localDecimal(l, '.');
+
+  void _setAmountText(String text) {
+    _amount.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+    _onAmountChanged(text);
+  }
+
+  void _keyDigit(String digit) {
+    if (_busy) return;
+    final l = context.l10n;
+    final text = _amount.text;
+    final at = text.indexOf(_point(l));
+    // EPIC has eight decimals, a currency two; the field never holds more.
+    if (at >= 0 && text.length - at - 1 >= (_fiatEntry ? 2 : 8)) return;
+    if (text.length >= 16) return;
+    _setAmountText(text == '0' ? digit : text + digit);
+  }
+
+  void _keyPoint() {
+    if (_busy) return;
+    final l = context.l10n;
+    final text = _amount.text;
+    final mark = _point(l);
+    if (text.contains(mark) || text.contains('.')) return;
+    _setAmountText(text.isEmpty ? '0$mark' : text + mark);
+  }
+
+  void _keyDelete() {
+    if (_busy) return;
+    final text = _amount.text;
+    if (text.isEmpty) return;
+    _setAmountText(text.substring(0, text.length - 1));
+  }
+
+  /// The amount page's body (HANDOFF 9, Send): the figure, what is left, the Available bar with
+  /// Max, the note, and the notices that hold the payment. The keypad and the button are
+  /// [_amountKeys]. The real text field sits hidden: a hardware keyboard, a paste and the tests
+  /// type into it, and the keypad edits the same controller.
+  List<Widget> _amountBody(BuildContext context, {required bool file}) {
     final noteOpen = _noteOpen ||
         (!file &&
             _note.text.isEmpty &&
@@ -3434,211 +3543,167 @@ class _SendViewState extends ConsumerState<SendView> {
               codeNote: _activeRequest?.noteRequired ?? false,
             ));
     final l = context.l10n;
-    final theme = Theme.of(context);
     final t = context.tokens;
     final summary = ref.watch(homeProvider).value?.summary;
     final price = ref.watch(priceProvider).value;
-    final currency =
-        ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+    final currency = ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final amount = _parsedAmount;
     final estimate = _estimate;
     final gate = _gate;
-    String? amountHelper;
-    if (amount != null && price != null) {
-      amountHelper = _fiatEntry
-          ? approxText(epicText(l, amount))
-          : approxText(localDigits(l, fiatText(amount, price, currency)));
+    // The other unit under the figure.
+    String? fiat;
+    if (price != null) {
+      // With nothing typed yet the line still shows (at zero), so the unit can be switched first.
+      final shown = amount ?? BigInt.zero;
+      fiat = _fiatEntry ? approxText(epicText(l, shown)) : approxText(localDigits(l, fiatText(shown, price, currency)));
     }
-    // A code's amount: "Requested by the code" while the field holds it, what it asked for
-    // once changed.
+    // A code's amount: "Requested by the code" while the field holds it, what it asked for once
+    // changed; and its minimum.
     final asked = file ? null : _activeRequest?.amount;
     final fromCode = asked != null && amount == asked;
-    if (asked != null) {
-      final marker = fromCode
-          ? l.sendAmountFromCode
-          : l.sendAmountCodeAsked(epicText(l, asked));
-      amountHelper = amountHelper == null ? marker : metaLine([marker, amountHelper]);
-    }
+    final markers = [
+      if (asked != null) fromCode ? l.sendAmountFromCode : l.sendAmountCodeAsked(epicText(l, asked)),
+      if (!file && _activeRequest?.minimum != null) l.sendMinimumAmount(epicText(l, _activeRequest!.minimum!)),
+    ];
     final minimum = file ? null : _activeRequest?.minimum;
-    if (minimum != null) {
-      final line = l.sendMinimumAmount(epicText(l, minimum));
-      amountHelper = amountHelper == null ? line : metaLine([line, amountHelper]);
-    }
-    // Why nothing is available yet, in the header's words.
     final held = [
       if (summary != null && summary.spendable == BigInt.zero) ...[
-        if (summary.locked > BigInt.zero)
-          l.balanceLineOnHold(epicText(l, summary.locked)),
-        if (comingIn(summary) > BigInt.zero)
-          l.balanceLineComingIn(epicText(l, comingIn(summary))),
+        if (summary.locked > BigInt.zero) l.balanceLineOnHold(epicText(l, summary.locked)),
+        if (comingIn(summary) > BigInt.zero) l.balanceLineComingIn(epicText(l, comingIn(summary))),
       ],
     ];
-    return [
-      TrustId(file ? null : TrustIds.sendAmount, child: TextField(
-        key: file ? sendFileAmountFieldKey : sendAmountFieldKey,
-        controller: _amount,
-        focusNode: _amountFocus,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        textInputAction: TextInputAction.next,
-        textAlign: TextAlign.center,
-        onEditingComplete: () {
-          if (noteOpen) {
-            _noteFocus.requestFocus();
-          } else {
-            _submitAmount(file: file);
-          }
-        },
-        onChanged: _onAmountChanged,
-        style: theme.textTheme.displaySmall?.copyWith(
-          fontFamily: t.monoFamily,
-          color: t.text,
-        ),
-        decoration: InputDecoration(
-          labelText: l.sendAmountLabel(
-            _fiatEntry ? currency.toUpperCase() : epicUnit,
+    // What is left, or why not: the line under the figure.
+    Widget? status;
+    if (_estimateError != null) {
+      status = ErrorText(_estimateError!);
+    } else if (gate.notEnough && summary != null) {
+      final need = (estimate != null && estimate.amount == amount ? estimate.amount + estimate.fee : amount) ?? BigInt.zero;
+      final over = need - summary.spendable;
+      status = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: Semantics(
+          liveRegion: true,
+          child: Text(
+            over > BigInt.zero ? l.phoneSendOver(epicText(l, over)) : l.errorNotEnoughFunds,
+            key: sendNotEnoughKey,
+            textAlign: TextAlign.center,
+            style: KitType.rowSub.copyWith(color: t.risk),
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          floatingLabelAlignment: FloatingLabelAlignment.center,
-          hintText: '0',
-          // Max and the unit live in the field's trailing slot, as the desktop's (UP-020):
-          // the unit is a tap to the other one.
-          suffixIcon: Row(
-            key: amountSuffixKey,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (price != null || _fiatEntry)
-                Tip(
-                  l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(44, 44),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      foregroundColor: t.dim,
-                    ),
-                    onPressed: _toggleUnit,
-                    child: Semantics(
-                      label: l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
-                      excludeSemantics: true,
-                      child: Text(_fiatEntry ? currency.toUpperCase() : epicUnit),
-                    ),
-                  ),
-                ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(44, 44),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                ),
-                onPressed: _busy ? null : _max,
-                child: TrustId(TrustIds.sendMax, child: Text(l.sendMax)),
+        ),
+      );
+    } else if (estimate != null && amount != null && summary != null) {
+      status = _maxUsed
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(l.phoneSendMaxNote(epicText(l, estimate.fee)), textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
               ),
-              const SizedBox(width: 4),
-            ],
+            )
+          : KitLeavesLine(
+              amount: epicText(l, summary.spendable - estimate.amount - estimate.fee),
+              fee: epicText(l, estimate.fee),
+            );
+    } else if (_amountError != null && !_amount.text.endsWith(_point(l))) {
+      status = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: LiveFieldError(_amountError!),
+      );
+    }
+    final unit = _fiatEntry ? currency.toUpperCase() : epicUnit;
+    final noteText = _note.text.trim();
+    return [
+      const SizedBox(height: 18),
+      KitAmountDisplay(
+        amount: _amount.text,
+        unit: unit,
+        fiat: fiat,
+        over: gate.notEnough,
+        onSwap: price != null || _fiatEntry ? _toggleUnit : null,
+        swapId: file ? null : TrustIds.sendSwap,
+        semanticsId: file ? null : TrustIds.sendAmount,
+      ),
+      // The real field: hidden, never focused by the page itself.
+      ExcludeSemantics(
+        child: SizedBox(
+          width: 1,
+          height: 1,
+          child: Opacity(
+            opacity: 0,
+            child: TextField(
+              key: file ? sendFileAmountFieldKey : sendAmountFieldKey,
+              controller: _amount,
+              focusNode: _amountFocus,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              onChanged: _onAmountChanged,
+              onSubmitted: (_) => _submitAmount(file: file),
+              decoration: const InputDecoration(isCollapsed: true, border: InputBorder.none),
+            ),
           ),
-          suffixIconConstraints: const BoxConstraints(minHeight: 48),
-          helperText: amountHelper,
-          helperStyle: fromCode
-              ? theme.textTheme.bodySmall?.copyWith(color: t.info)
-              : null,
-          helperMaxLines: 2,
-          error: _amountError == null ? null : LiveFieldError(_amountError!),
         ),
-      )),
+      ),
+      const SizedBox(height: 14),
+      ?status,
       if (!file)
         if (_activeLink case final link? when amountEdited(link, _parsedAmount))
-          const Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote()),
+          const Padding(padding: EdgeInsets.only(top: 8), child: Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote())),
+      for (final line in markers)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(line, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: fromCode && line == markers.first ? t.info : t.dim)),
+        ),
       if (minimum != null && amount != null && amount < minimum) ...[
         const SizedBox(height: 8),
         InlineNotice(key: sendBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
       ],
-      const SizedBox(height: 12),
+      const SizedBox(height: 16),
       if (summary != null)
-        Text(
-          l.sendAvailable(epicText(l, summary.spendable)),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+        KitAvailableBar(
+          available: epicText(l, summary.spendable),
+          over: gate.notEnough,
+          maxOn: _maxUsed,
+          onMax: _busy ? null : _max,
+          maxId: TrustIds.sendMax,
+          margin: EdgeInsets.zero,
         ),
       for (final line in held)
         Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            line,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(line, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
         ),
-      if (estimate != null && _estimateError == null)
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: Semantics(
-            liveRegion: true,
-            child: Text(
-              l.sendFeeQuiet(epicText(l, estimate.fee)),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
-          ),
-        ),
-      if (_estimateError != null)
-        ErrorText(_estimateError!)
-      // More than can be spent: said on the keystroke, before any estimate.
-      else if (gate.notEnough)
-        ErrorText(l.errorNotEnoughFunds, key: sendNotEnoughKey),
       // Coins another linked device is spending: why the amount does not fit.
       if (_estimateError != null || gate.notEnough) ..._heldLines(context),
       // A device is linked and nothing goes over Epicbox: it does not see this payment.
       if (ref.watch(phoneDevices.view)?.book.linked case final linked? when ref.watch(phoneDevicesEpicboxOffProvider))
         Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: Text(l.devicesEpicboxOff(linked.name), key: const ValueKey('send-devices-epicbox-off'), style: theme.textTheme.bodySmall?.copyWith(color: t.warn)),
+          child: Text(l.devicesEpicboxOff(linked.name), key: const ValueKey('send-devices-epicbox-off'), style: KitType.rowSub.copyWith(color: t.warn)),
         ),
-      if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions))
-        _strategyPicker(context),
-      const SizedBox(height: 12),
-      Divider(color: t.line, height: 1),
+      if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions)) _strategyPicker(context),
       if (!file)
         if (_noteWarning(l) case final warning?)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: warning),
           ),
-      if (!noteOpen && _note.text.isNotEmpty)
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          minTileHeight: 56,
-          title: Text(l.sendNoteLabel, style: theme.textTheme.bodyMedium),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _note.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-              ),
-              if (_activeRequest case final request? when request.noteRequired && _note.text == request.note)
-                Text(l.sendNoteRequiredHelper, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-            ],
+      if (!noteOpen)
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Center(
+            child: KitChip(
+              noteText.isEmpty ? l.sendAddNote : noteText,
+              icon: noteText.isEmpty ? KitIcons.add : KitIcons.edit,
+              semanticsId: file ? null : TrustIds.sendNote,
+              onTap: () {
+                setState(() => _noteOpen = true);
+                _noteFocus.requestFocus();
+              },
+            ),
           ),
-          trailing: Icon(Icons.edit_outlined, color: t.dim),
-          onTap: () {
-            setState(() => _noteOpen = true);
-            _noteFocus.requestFocus();
-          },
-        )
-      else if (!noteOpen)
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          minTileHeight: 56,
-          title: Text(l.sendAddNote, style: theme.textTheme.bodyMedium),
-          trailing: Icon(Icons.expand_more, color: t.dim),
-          onTap: () {
-            setState(() => _noteOpen = true);
-            _noteFocus.requestFocus();
-          },
         )
       else
         Padding(
-          padding: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.only(top: 14),
           child: TextField(
             key: file ? sendFileNoteFieldKey : sendNoteFieldKey,
             controller: _note,
@@ -3647,26 +3712,15 @@ class _SendViewState extends ConsumerState<SendView> {
             inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
             // The field stays open under the fingers, however it came open.
             onChanged: (_) => setState(() => _noteOpen = true),
-            buildCounter:
-                (
-                  context, {
-                  required currentLength,
-                  required isFocused,
-                  maxLength,
-                }) => Text(
-                  l.sendMessageCounter(
-                    utf8Length(_note.text),
-                    slateMessageMaxBytes,
-                  ),
-                  style: theme.textTheme.bodySmall,
-                ),
+            buildCounter: (context, {required currentLength, required isFocused, maxLength}) => Text(
+              l.sendMessageCounter(utf8Length(_note.text), slateMessageMaxBytes),
+              style: KitType.rowSub.copyWith(color: t.dim),
+            ),
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _submitAmount(file: file),
             decoration: InputDecoration(
               labelText: l.sendNoteLabel,
-              helperText:
-                  _activeRequest?.note != null &&
-                      _note.text == _activeRequest?.note
+              helperText: _activeRequest?.note != null && _note.text == _activeRequest?.note
                   ? _activeRequest!.noteRequired ? l.sendNoteRequiredHelper : l.sendNoteFromCodeHelper
                   : l.sendNoteHelper,
               helperMaxLines: 2,
@@ -3675,6 +3729,26 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
     ];
   }
+
+  /// The keypad and the page's button, pinned under the body.
+  Widget _amountKeys(BuildContext context, {required Widget button}) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      KitKeypad(
+        onDigit: _keyDigit,
+        onDelete: _keyDelete,
+        onDeleteLong: () {
+          if (_busy) return;
+          _setAmountText('');
+        },
+        onPoint: _keyPoint,
+        idFor: sendKeyId,
+      ),
+      const SizedBox(height: 4),
+      button,
+    ],
+  );
 
   void _submitAmount({required bool file}) {
     if (!_amountReady || _busy) return;
@@ -3692,10 +3766,9 @@ class _SendViewState extends ConsumerState<SendView> {
 
   List<Widget> _amountStep(BuildContext context) {
     final l = context.l10n;
-    final address = parseRecipient(_recipient.text).address;
     final request = _activeRequest;
     return [
-      _header(context, l.sendStepAmount, step: 2, onBack: _toRecipient),
+      _header(context, l.sendTo(_toName(l)), onBack: _toRecipient, avatar: _toAvatar()),
       if (request != null && request.problems.isNotEmpty)
         RequestBanner(
           open: _requestBanner,
@@ -3703,39 +3776,34 @@ class _SendViewState extends ConsumerState<SendView> {
           problems: request.problems,
           onDismiss: () => setState(() => _requestBanner = false),
         ),
-      Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: _ToChip(
-          address: address,
-          name: _pairingTo == null ? _contactName(address) : _pairingNameOf(_pairingTo!),
-        ),
-      ),
       if (_activeLink case final link?) LinkTrustLine(link: link),
       _TorNotice(way: _wayOf(_toRoute)),
-      const SizedBox(height: 20),
-      ..._amountFields(context, file: false),
+      ..._amountBody(context, file: false),
     ];
   }
 
-  /// Continue to the review; it waits while the payment's connection waits for Tor.
+  /// Review, which waits while the payment's connection waits for Tor.
   Widget _amountAction() {
     final way = _wayOf(_toRoute);
-    return BusyButton(
-      semanticsId: TrustIds.commonContinue,
-      label: way == TorWay.wait
-          ? context.l10n.torWaiting
-          : context.l10n.commonContinue,
-      busy: _estimating,
-      onPressed:
-          _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null
-          ? _toReview
-          : null,
+    return _amountKeys(
+      context,
+      button: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: KitButton(
+          key: sendReviewButtonKey,
+          semanticsId: TrustIds.sendReview,
+          label: way == TorWay.wait ? context.l10n.torWaiting : context.l10n.phoneSendReviewTitle,
+          onPressed: _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null ? _toReview : null,
+        ),
+      ),
     );
   }
 
+
+  /// The review's content (HANDOFF 9, Send-3), the inside of the sheet over the amount: who it
+  /// goes to, the sums, the notes, the way it goes. The buttons are [_reviewAction].
   List<Widget> _reviewStep(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
     final t = context.tokens;
     final estimate = _estimate!;
     final total = estimate.amount + estimate.fee;
@@ -3785,185 +3853,275 @@ class _SendViewState extends ConsumerState<SendView> {
           : l.sendRelayRefused(sendTtlDays, relayName);
     }
     return [
-      // After a failed send the payment exists: no way back to send it again.
-      _header(
-        context,
-        l.sendStepReview,
-        step: 3,
-        onBack: _sendFailed ? null : _backToAmount,
-      ),
       if (_activeOrigin case final origin?) ...[
-        const SizedBox(height: 8),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: OriginPill(origin: origin),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Align(alignment: AlignmentDirectional.centerStart, child: OriginPill(origin: origin)),
         ),
         const SizedBox(height: 12),
       ],
       if (_activeLink case final link?) ...[
-        LinkTrustLine(link: link),
-        if (amountEdited(link, estimate.amount)) const LinkAmountNote(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: LinkTrustLine(link: link),
+        ),
+        if (amountEdited(link, estimate.amount))
+          const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: LinkAmountNote()),
         const SizedBox(height: 8),
       ],
       if (pairing != null) ...[
         // The mailbox is never shown as an address.
-        PairingRecipientCard(pairing: pairing, name: _pairingNameOf(pairing.id)),
-        const SizedBox(height: 8),
-        SendPairingMailbox(
-          pairing: pairing,
-          name: _pairingNameOf(pairing.id),
-          onCheck: () => Navigator.of(context).push<void>(
-            MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: pairing.id, recheck: true)),
-          ),
-        ),
-      ] else
-        RecipientCard(
-          address: to.address,
-          name: _contactName(to.address),
-          // An http(s) address has its Host row below.
-          host: _activeOrigin != null && to.kind == RecipientKind.tor
-              ? directHostBesideOf(to.address)
-              : null,
-        ),
-      // The message the code or the address expects is empty: a warning, the user may send.
-      if (_noteWarning(l) case final warning? when !_sendFailed) ...[
-        const SizedBox(height: 8),
-        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: warning),
-      ],
-      // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
-      if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[
-        const SizedBox(height: 8),
-        InlineNotice(key: sendReviewBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
-      ],
-      const SizedBox(height: 20),
-      // The review commits the money: every amount on it exact ([AmountSurface.exact]), as on
-      // the desktop's and in the payment's details; mono, as every amount but the headline.
-      AmountText(
-        epicExact(l, estimate.amount),
-        style: theme.textTheme.headlineMedium?.copyWith(color: t.text),
-      ),
-      const SizedBox(height: 12),
-      // How it goes: the method, the host as contacted, a plain http connection, Tor to start.
-      // Level 1 does not name Epicbox: it is just how sending works, so no Via row.
-      ..._reviewFacts(context, way: way, torState: torState),
-      // What the recipient will read, as entered; the history keeps it as the private note.
-      if (_noteText.isNotEmpty)
         Padding(
-          key: sendReviewMessageKey,
-          padding: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                l.sendNoteLabel,
-                style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                _noteText,
-                style: theme.textTheme.bodyMedium?.copyWith(color: t.text),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                l.sendReviewMessageKept,
-                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              PairingRecipientCard(pairing: pairing, name: _pairingNameOf(pairing.id)),
+              const SizedBox(height: 8),
+              SendPairingMailbox(
+                pairing: pairing,
+                name: _pairingNameOf(pairing.id),
+                onCheck: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: pairing.id, recheck: true)),
+                ),
               ),
             ],
           ),
         ),
-      _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
-      // Strategy All is a consolidating send: its change is one output, never split.
-      if (_sendOptions?.strategy == SelectionStrategy.all &&
-          estimate.change > BigInt.zero)
-        Text(
-          l.sendUsesAllOutputs(estimate.inputCount),
-          key: sendUsesAllOutputsKey,
-          style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-        ),
-      // The amount, then the fiat estimate of the total (fee included) dim on its own line
-      // under it, as the amount step and the list rows show them (UP-005, A-05).
-      _Row(
-        label: l.sendReviewTotal,
-        value: epicExact(l, total),
-        sub: price == null ? null : approxText(localDigits(l, fiatText(total, price, currency))),
-        strong: true,
-      ),
-      // What stays after this send: the balance once it is out, and,
-      // while the change confirms, only the outputs the send does not lock.
-      if (spendable != null && spendable >= total) ...[
-        _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
-        // The change locks outputs: only said where Outputs shows (Advanced).
-        if (outputsShown(context, ref) &&
-            estimate.locked > total &&
-            estimate.locked <= spendable) ...[
-          _Row(
-            label: l.sendAvailableWhileConfirms,
-            value: epicExact(l, spendable - estimate.locked),
+      ] else
+        _reviewTo(context),
+      const SizedBox(height: 12),
+      KitGroup(
+        onSheet: true,
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          _sumRow(l.sendStepAmount, epicExact(l, estimate.amount)),
+          _sumRow(l.sendNetworkFee, epicExact(l, estimate.fee)),
+          // The amount, then the fiat estimate of the total (fee included) dim under it.
+          _sumRow(
+            l.sendReviewTotal,
+            epicExact(l, total),
+            sub: price == null ? null : approxText(localDigits(l, fiatText(total, price, currency))),
+            strong: true,
           ),
-          Text(
-            l.sendSpendableUntilChangeHint,
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          // What the recipient will read, as entered; the history keeps it as the private note.
+          if (_noteText.isNotEmpty)
+            KitRow(
+              key: sendReviewMessageKey,
+              title: l.sendNoteLabel,
+              titleColor: t.dim,
+              size: KitRowSize.sheet,
+              subtitle: l.sendReviewMessageKept,
+              trailing: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 180),
+                child: Text(
+                  _noteText,
+                  textAlign: TextAlign.end,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: KitType.rowTitle.copyWith(color: t.text),
+                ),
+              ),
+            ),
+          TrustId(
+            TrustIds.sendReviewMore,
+            child: KitRow(
+              title: l.phoneSendMoreDetails,
+              titleColor: t.dim,
+              size: KitRowSize.sheet,
+              chevron: !_reviewMore,
+              trailing: _reviewMore ? Icon(KitIcons.expandLess, size: 22, color: t.faint) : null,
+              onTap: () => setState(() => _reviewMore = !_reviewMore),
+            ),
+          ),
+          if (_reviewMore) ..._reviewMoreRows(
+            context,
+            way: way,
+            torState: torState,
+            balanceAfter: spendable != null && spendable >= total ? spendable - total : null,
+            locked: spendable != null &&
+                    spendable >= total &&
+                    outputsShown(context, ref) &&
+                    estimate.locked > total &&
+                    estimate.locked <= spendable
+                ? spendable - estimate.locked
+                : null,
           ),
         ],
+      ),
+      // Strategy All is a consolidating send: its change is one output, never split.
+      if (_sendOptions?.strategy == SelectionStrategy.all && estimate.change > BigInt.zero)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+          child: Text(
+            l.sendUsesAllOutputs(estimate.inputCount),
+            key: sendUsesAllOutputsKey,
+            style: KitType.rowSub.copyWith(color: t.dim),
+          ),
+        ),
+      // The message the code or the address expects is empty: a warning, the user may send.
+      if (_noteWarning(l) case final warning? when !_sendFailed) ...[
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+          child: InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: warning),
+        ),
+      ],
+      // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
+      if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+          child: InlineNotice(key: sendReviewBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
+        ),
       ],
       const SizedBox(height: 8),
-      Divider(color: t.line, height: 1),
-      const SizedBox(height: 8),
-      _ReadyLine(
-        checks: checks,
-        sending: _busy,
-        failed: failed,
-        tor: tor,
-        http: overHttp,
-        way: way,
-        queued: queued,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: _ReadyLine(
+          checks: checks,
+          sending: _busy,
+          failed: failed,
+          tor: tor,
+          http: overHttp,
+          way: way,
+          queued: queued,
+        ),
       ),
       // An address whose relay the app does not know may be mistyped: a warning, not a block.
       if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
         const SizedBox(height: 8),
-        InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+          child: InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
+        ),
       ],
       // The cancel rule for this method, with the way to the Help topic (CancelNote). After a
       // failed delivery the actions below carry their own line, so this one steps aside.
       if (!_sendFailed) ...[
         const SizedBox(height: 4),
-        CancelNote(
-          text: to.kind == RecipientKind.epicbox
-              ? l.sendCancelRuleEpicbox
-              : l.sendCancelRuleDirect,
-          anchor: HelpAnchor.sending,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: CancelNote(
+            text: to.kind == RecipientKind.epicbox ? l.sendCancelRuleEpicbox : l.sendCancelRuleDirect,
+            anchor: HelpAnchor.sending,
+          ),
         ),
       ],
       // Epicbox off: the mailbox payment waits in the outbox until it is on again.
       if (queued && !_sendFailed) ...[
         const SizedBox(height: 12),
-        InlineNotice(key: sendQueuedCardKey, level: NoticeLevel.info, text: l.sendQueuedEpicboxOff),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+          child: InlineNotice(key: sendQueuedCardKey, level: NoticeLevel.info, text: l.sendQueuedEpicboxOff),
+        ),
       ],
     ];
   }
 
-  /// The review's facts of the way: Via (with what it asks of their wallet), Host for http(s),
-  /// Connection for plain http to another device (a fact, no warning), Tor when it starts on
-  /// the tap.
-  List<Widget> _reviewFacts(BuildContext context, {required TorWay way, required TorState torState}) {
+  /// One sum of the review: a dim label, the figure in the mono face, an optional dim line under
+  /// it (the fiat estimate). The total is [strong].
+  Widget _sumRow(String label, String value, {String? sub, bool strong = false}) {
+    final t = context.tokens;
+    return KitRow(
+      title: label,
+      titleColor: strong ? t.text : t.dim,
+      size: KitRowSize.sheet,
+      // At large text the figure shrinks to its share of the row; the label keeps the rest.
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 170),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(value, maxLines: 1, textAlign: TextAlign.end, style: KitType.rowAmount.copyWith(color: t.text)),
+            ),
+            if (sub != null) Text(sub, textAlign: TextAlign.end, style: KitType.rowSub.copyWith(color: t.dim)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Who it goes to: the face, the name, the short address and the route's tag. A contact with
+  /// more than one address gets a chevron and a sheet of them.
+  Widget _reviewTo(BuildContext context) {
     final l = context.l10n;
+    final to = _read;
+    final t = context.tokens;
+    final contact = _contact;
+    final mode = AdvancedOptions.of(context).networkMode;
+    final torOn = ref.watch(phoneTorProvider.select((s) => s.receiving));
+    final tag = to.isAddress ? sendRouteTag(l, to, phone: true, overTor: sendOverTor(to, mode: mode, torOn: torOn)) : null;
+    final name = _toName(l);
+    final short = to.isUrl ? to.address : shortAddress(to.address);
+    final several = contact != null && contact.addresses.length > 1 && !_sendFailed && !_busy;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: TrustId(
+        TrustIds.sendReviewTo,
+        child: KitRow(
+          leading: _toAvatar(),
+          title: name,
+          subtitleWidget: name == short ? null : Text(short, style: KitType.address.copyWith(color: t.accentText), maxLines: 1, overflow: TextOverflow.ellipsis),
+          // An onion always goes over Tor, whether or not the switch is on.
+          trailing: to.kind == RecipientInputKind.onion && torBuilt
+              ? EBadge.tor(l.sendOverTor, way: TorWay.overTor)
+              : (tag == null ? null : EBadge(tag)),
+          chevron: several,
+          onTap: several ? () => _addressesSheet(context, contact, to, review: true) : null,
+          semanticsLabel: l.sendRouteChange,
+        ),
+      ),
+    );
+  }
+
+  /// The rows "More details" opens: the method (with what it asks of their wallet), the host as
+  /// contacted, a plain http connection, Tor to start, and what stays after this send.
+  List<Widget> _reviewMoreRows(
+    BuildContext context, {
+    required TorWay way,
+    required TorState torState,
+    BigInt? balanceAfter,
+    BigInt? locked,
+  }) {
+    final l = context.l10n;
+    final t = context.tokens;
     final read = _pairingTo != null ? null : _read;
     final epicbox = read == null || read.kind == RecipientInputKind.epicbox;
     final mode = AdvancedOptions.of(context).networkMode;
     final name = read == null ? l.methodEpicbox : sendMethodName(l, read);
-    return [
-      if (ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed)) || !epicbox)
-        _Row(
-          label: l.sendFactVia,
-          value: way == TorWay.overTor && read?.kind != RecipientInputKind.onion ? metaLine([name, l.sendRouteOverTor]) : name,
-          sub: epicbox ? l.sendFactOffline : l.sendFactOnline,
-          mono: false,
+    Widget fact(String label, String value, {String? sub, bool mono = false}) => KitRow(
+      title: label,
+      titleColor: t.dim,
+      size: KitRowSize.sheet,
+      subtitle: sub,
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 190),
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: (mono ? KitType.rowAmount : KitType.rowTitle).copyWith(color: t.text),
         ),
-      if (read != null && read.isUrl) _Row(label: l.sendFactHost, value: read.contacted),
-      if (read != null && read.plainHttpToOther)
-        _Row(label: l.sendFactConnection, value: l.sendFactNotEncrypted, mono: false),
+      ),
+    );
+    return [
+      fact(
+        l.sendFactVia,
+        way == TorWay.overTor && read?.kind != RecipientInputKind.onion ? metaLine([name, l.sendRouteOverTor]) : name,
+        sub: epicbox ? l.sendFactOffline : l.sendFactOnline,
+      ),
+      if (read != null && read.isUrl) fact(l.sendFactHost, read.contacted, mono: true),
+      if (read != null && read.plainHttpToOther) fact(l.sendFactConnection, l.sendFactNotEncrypted),
       if (torBuilt && read?.kind == RecipientInputKind.onion && torState == TorState.off && mode != NetworkMode.torOnly)
-        _Row(label: l.sendFactTor, value: l.sendFactTorStarts, mono: false),
+        fact(l.sendFactTor, l.sendFactTorStarts),
+      if (balanceAfter != null) fact(l.sendBalanceAfter, epicExact(l, balanceAfter), mono: true),
+      if (locked != null) fact(l.sendAvailableWhileConfirms, epicExact(l, locked), sub: l.sendSpendableUntilChangeHint, mono: true),
     ];
   }
 
@@ -4107,7 +4265,7 @@ class _SendViewState extends ConsumerState<SendView> {
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _backToAmount,
-            child: Text(l.sendReviewEdit),
+            child: TrustId(TrustIds.sendReviewEdit, child: Text(l.sendReviewEdit)),
           ),
         ],
       ],
@@ -4117,9 +4275,10 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _doneAction() =>
       BusyButton(semanticsId: TrustIds.commonDone, label: context.l10n.commonDone, onPressed: _done);
 
+  /// The Sent page (HANDOFF 9, Send-4): "On its way to Tom", the payment's own steps as the
+  /// payment page lists them, and what to do when it does not finish.
   List<Widget> _trackerStep(BuildContext context, _Sent sent) {
     final l = context.l10n;
-    final theme = Theme.of(context);
     final t = context.tokens;
     final live =
         ref
@@ -4135,6 +4294,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (track == SendTrack.notPosted) {
       // Finished but not taken by the network: no way back to the form, so it cannot be
       // sent twice.
+      _header(context, '', onClose: _done);
       return [NotPostedNotice(tx: live)];
     }
     final pairingId = sent.pairingId;
@@ -4142,23 +4302,20 @@ class _SendViewState extends ConsumerState<SendView> {
     final who = name ?? shortAddress(sent.to.address);
     final confirmations = txConfirmations(live, tip) ?? 0;
     final waiting = track == SendTrack.waitingRecipient;
-    // The payment's own steps, as its detail lists them (A-03); the wallet waited on is the
-    // current step's sub-line. Through a paired contact's mailbox, the mailbox steps; queued
-    // while Epicbox is off, the send itself is the step under way.
-    final style = ref.watch(levelFeaturesProvider.select((f) => f.timeline));
-    final mailbox = pairingId == null || name == null
-        ? null
-        : (
-            name: name,
-            relay: ref.watch(pairingByIdProvider(pairingId))?.homeRelay ?? '',
-            paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
-          );
-    final waitingLine = name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name);
-    final steps =
-        (style == TimelineStyle.technicalSteps
-            ? txTimeline(l, live, tip, target: target, mailbox: mailbox, waiting: waitingLine)
-            : paymentSteps(l, live, tip, target: target, who: name, mailbox: mailbox, waiting: waitingLine)) ??
-        const <TimelineStep>[];
+    // The payment's own steps; the wallet waited on is the current step's line. Queued while
+    // Epicbox is off, the send itself is the step under way.
+    final fee = live.fee ?? sent.tx.fee ?? BigInt.zero;
+    final progress = paymentProgress(
+      l,
+      live,
+      tip,
+      now: DateTime.now(),
+      who: name,
+      target: target,
+      reserved: epicText(l, sent.amount + fee),
+      paused: pairingId != null && ref.watch(pairNetProvider) == PairNet.epicboxOff,
+      killSwitch: NetGate.killSwitch,
+    );
     final unknown = name == null;
     // Over HTTP or Tor their wallet took it in the exchange itself: past cancelling, and
     // waiting only for a block.
@@ -4167,43 +4324,36 @@ class _SendViewState extends ConsumerState<SendView> {
         track == SendTrack.confirming &&
         !live.posting &&
         confirmations == 0;
+    final declined = track == SendTrack.cancelled && receiverDeclined(live);
+    final cancelled = track == SendTrack.cancelled;
+    final noteText = _noteText;
+    _header(context, '', onClose: _done);
     return [
-      Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: IconButton(
-          tooltip: l.sendHowItWorks,
-          icon: const Icon(Icons.info_outline),
-          onPressed: () => showHandshakeSheet(context, flow: _howFlow),
+      const SizedBox(height: 8),
+      Center(child: KitResultMark(ok: !cancelled)),
+      const SizedBox(height: 20),
+      Semantics(
+        header: true,
+        liveRegion: true,
+        child: Text(
+          declined
+              ? l.txStatusReceiverDeclined
+              : cancelled
+              ? l.sendTrackCancelled
+              : l.phoneSendOnItsWayTo(who),
+          textAlign: TextAlign.center,
+          style: KitType.pageTitle.copyWith(color: t.text),
         ),
       ),
-      Center(
-        child: Text(
-          epicText(l, sent.amount),
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontFamily: t.monoFamily,
-            color: t.text,
-          ),
-        ),
-      ),
-      Center(
-        child: Text(
-          l.sendTo(who),
-          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-        ),
+      const SizedBox(height: 8),
+      Text(
+        declined
+            ? l.txDetailsReceiverDeclined
+            : metaLine([epicText(l, sent.amount), if (noteText.isNotEmpty) noteText]),
+        textAlign: TextAlign.center,
+        style: (declined ? KitType.body : KitType.address).copyWith(color: t.dim),
       ),
       const SizedBox(height: 24),
-      if (style == TimelineStyle.liveSentence) ...[
-        Center(child: Text(l.lvPayOnItsWay, style: theme.textTheme.titleMedium)),
-        const SizedBox(height: 4),
-        Center(
-          child: Text(
-            l.lvPayCloseNote,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
       // Made while Epicbox was off: it waits in the outbox.
       if (sent.queued && name != null && waiting) ...[
         Semantics(
@@ -4211,100 +4361,92 @@ class _SendViewState extends ConsumerState<SendView> {
           child: Text(
             l.sendQueuedHeadline,
             key: sendQueuedHeadlineKey,
-            style: theme.textTheme.titleMedium?.copyWith(color: t.text),
+            style: KitType.rowTitle.copyWith(color: t.text),
           ),
         ),
         const SizedBox(height: 4),
-        Text(l.sendQueuedBody(name), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+        Text(l.sendQueuedBody(name), style: KitType.rowSub.copyWith(color: t.dim)),
         const SizedBox(height: 16),
       ],
       if (delivered) ...[
         Semantics(
           liveRegion: true,
-          child: Text(
-            l.sendDeliveredWaitingBlock,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: t.text,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: Text(l.sendDeliveredWaitingBlock, style: KitType.rowTitle.copyWith(color: t.text)),
         ),
         const SizedBox(height: 12),
       ],
-      if (track == SendTrack.cancelled && receiverDeclined(live))
-        // The row's word and its explanation, as the details screen says it.
-        Semantics(
-          liveRegion: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l.txStatusReceiverDeclined, style: theme.textTheme.bodyLarge),
-              const SizedBox(height: 4),
-              Text(l.txDetailsReceiverDeclined, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-            ],
-          ),
-        )
-      else if (track == SendTrack.cancelled)
-        Semantics(
-          liveRegion: true,
-          child: Text(l.sendTrackCancelled, style: theme.textTheme.bodyLarge),
-        )
-      else
-        RoundSteps(steps: steps),
-      if (waiting)
-        Text(
-          l.sendTrackOffline(
-            epicText(l, sent.amount + (live.fee ?? sent.tx.fee ?? BigInt.zero)),
-          ),
-          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-        ),
+      if (!cancelled && progress != null) KitSteps(steps: progress.steps),
       if (sent.changedFee case final fee?) ...[
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
-          l.sendResultFeeChanged(
-            epicText(l, fee),
-            epicText(l, sent.reviewedFee!),
-          ),
-          style: theme.textTheme.bodyMedium,
+          l.sendResultFeeChanged(epicText(l, fee), epicText(l, sent.reviewedFee!)),
+          style: KitType.rowSub.copyWith(color: t.dim),
         ),
       ],
       if (!sent.noteSaved) ...[
-        const SizedBox(height: 8),
-        Text(l.sendResultNoteNotSaved, style: theme.textTheme.bodyMedium),
+        const SizedBox(height: 12),
+        Text(l.sendResultNoteNotSaved, style: KitType.rowSub.copyWith(color: t.dim)),
       ],
-      if (waiting) ...[
-        const SizedBox(height: 8),
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          childrenPadding: const EdgeInsets.only(bottom: 8),
-          expandedCrossAxisAlignment: CrossAxisAlignment.start,
-          shape: const Border(),
-          title: Text(l.sendTrackIfNot, style: theme.textTheme.bodyMedium),
+      if (waiting || unknown) ...[
+        const SizedBox(height: 12),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          dividerInset: Kit.dividerInsetPlain,
           children: [
-            Text(
-              l.sendResultAutoCancel(sendTtlDays),
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-            ),
-            TextButton.icon(
-              icon: const Icon(Icons.help_outline),
-              label: Text(l.sendHelp),
-              onPressed: () => openHelp(context, HelpId.send),
-            ),
+            if (waiting) KitRow(title: l.sendTrackIfNot, chevron: true, onTap: () => _ifNotSheet(context)),
+            if (unknown)
+              KitRow(
+                title: l.phoneSendAddContact,
+                leading: KitIconWell(KitIcons.add, color: t.accentText),
+                chevron: true,
+                onTap: () => _saveContact(sent.to.address, name: sent.linkLabel),
+              ),
           ],
         ),
       ],
-      if (unknown) ...[
-        const SizedBox(height: 8),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: InlineTextButton(
-            icon: const Icon(Icons.person_add_alt),
-            onPressed: () => _saveContact(sent.to.address, name: sent.linkLabel),
-            child: Text(l.sendSaveContact),
+    ];
+  }
+
+  /// "What if it never finishes?": the payment is cancelled by itself after a while, and the help
+  /// topic says more.
+  Future<void> _ifNotSheet(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return showKitSheet<void>(
+      context: context,
+      builder: (sheet) => KitSheet(
+        title: l.sendTrackIfNot,
+        primaryLabel: l.sendHelp,
+        onPrimary: () {
+          Navigator.of(sheet).pop();
+          openHelp(context, HelpId.send);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(l.sendResultAutoCancel(sendTtlDays), style: KitType.body.copyWith(color: t.dim)),
+        ),
+      ),
+    );
+  }
+
+  /// Done, and a quiet way to the payment's own page.
+  Widget _sentAction(_Sent sent) {
+    final l = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done),
+        const SizedBox(height: 4),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(Kit.hitMin)),
+          onPressed: () => Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: sent.tx.key)),
           ),
+          child: TrustId(TrustIds.sendViewpayment, child: Text(l.phoneSendViewPayment)),
         ),
       ],
-    ];
+    );
   }
 
   List<Widget> _fileAmountStep(BuildContext context) {
@@ -4314,29 +4456,13 @@ class _SendViewState extends ConsumerState<SendView> {
         context,
         _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle,
         onBack: _toRecipient,
-        // The file way has its own help; the QR way keeps the ⓘ.
-        extra: _viaQr
-            ? null
-            : IconButton(
-                tooltip: l.sendFileHelpTooltip,
-                icon: const Icon(Icons.help_outline),
-                onPressed: () => showFileExchangeHelp(
-                  context,
-                  role: FileExchangeRole.sender,
-                ),
-              ),
+        // The file way has its own help; the QR way keeps the "How it works".
+        onHelp: _viaQr ? null : () => showFileExchangeHelp(context, role: FileExchangeRole.sender),
       ),
       // The strip that says what the way means; no method selector: the back arrow goes to
       // the recipient, whose field picks the method.
-      if (ref.watch(levelFeaturesProvider.select((f) => f.methodStrip))) ...[
-        DismissibleTip(
-          id: sendMethodTipId,
-          child: MethodStrip(method: _viaQr ? TransferMethod.qr : TransferMethod.file),
-        ),
-        const SizedBox(height: 16),
-      ],
       ..._sealChoice(context),
-      ..._amountFields(context, file: true),
+      ..._amountBody(context, file: true),
       const SizedBox(height: 12),
       CancelNote(
         text: _viaQr ? l.sendCancelRuleQr : l.sendCancelRuleFile,
@@ -4345,10 +4471,15 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  Widget _fileAmountAction() => BusyButton(
-    label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
-    busy: _busy,
-    onPressed: _amountReady ? _createFile : null,
+  Widget _fileAmountAction() => _amountKeys(
+    context,
+    button: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+      child: KitButton(
+        label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
+        onPressed: _amountReady && !_busy ? _createFile : null,
+      ),
+    ),
   );
 
   /// The file and QR ways' steps, the payment's own five as its detail lists them (A-03):
@@ -4385,11 +4516,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // The code has its own screen; this step is where the send waits for the reply.
       return [
         // Finished from the header: Scan their reply stays the one primary at the foot.
-        _header(
-          context,
-          MethodIcons.fullName(l, MethodKind.directQr),
-          extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
-        ),
+        _header(context, MethodIcons.fullName(l, MethodKind.directQr), onClose: _done),
         _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
         Semantics(
           liveRegion: true,
@@ -4419,11 +4546,7 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       // Done is in the header; one primary at a time (UP-008): Save to device until the file
       // is handed over, then Open response file at the foot.
-      _header(
-        context,
-        l.sendFileTitle,
-        extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
-      ),
+      _header(context, l.sendFileTitle, onClose: _done),
       KitStepStrip(labels: [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone], current: _fileHandedOver ? 1 : 0),
       const SizedBox(height: 18),
       KitHeroAmount(amount: epicFor(l, _parsedAmount ?? BigInt.zero, surface: AmountSurface.exact, unit: false), unit: epicUnit),
@@ -4497,24 +4620,28 @@ class _SendViewState extends ConsumerState<SendView> {
                 ],
               ),
             ),
+            // The rows are list tiles: they paint their ink on a Material, not on the card's box.
             RadioGroup<bool>(
               groupValue: _filePlain,
               onChanged: (v) => setState(() => _filePlain = v ?? false),
-              child: Column(
-                children: [
-                  RadioRow<bool>(
-                    key: sendSealedOptionKey,
-                    value: false,
-                    title: l.sendSealedOption,
-                    subtitle: l.sendSealedOptionHint(name),
-                  ),
-                  RadioRow<bool>(
-                    key: sendPlainOptionKey,
-                    value: true,
-                    title: l.sendPlainOption,
-                    subtitle: l.sendPlainOptionHint,
-                  ),
-                ],
+              child: Material(
+                type: MaterialType.transparency,
+                child: Column(
+                  children: [
+                    RadioRow<bool>(
+                      key: sendSealedOptionKey,
+                      value: false,
+                      title: l.sendSealedOption,
+                      subtitle: l.sendSealedOptionHint(name),
+                    ),
+                    RadioRow<bool>(
+                      key: sendPlainOptionKey,
+                      value: true,
+                      title: l.sendPlainOption,
+                      subtitle: l.sendPlainOptionHint,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -4554,7 +4681,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final name = pairingName(r, ref.watch(contactsProvider).value ?? const <Contact>[]);
     final file = sealedFileName(slate.slateId, text: sealed);
     return [
-      _header(context, l.sendFileTitle),
+      _header(context, l.sendFileTitle, onClose: _done),
       _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
       Row(
         children: [
@@ -4658,7 +4785,7 @@ class _SendViewState extends ConsumerState<SendView> {
       return [NotPostedNotice(tx: posted)];
     }
     return [
-      _header(context, _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle),
+      _header(context, _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle, onClose: _done),
       _fileSteps(context, 3, _parsedAmount ?? BigInt.zero, posted: posted),
     ];
   }
@@ -4839,11 +4966,28 @@ class _TorPill extends StatelessWidget {
 
 /// The contact's avatar ([PairAvatar], as in Contacts and on the contact page), or a person
 /// in the same tile for a new recipient.
+/// The trust id of a key of the amount keypad (digits, [KitKey.point], [KitKey.delete]).
+String? sendKeyId(String key) => switch (key) {
+  '0' => TrustIds.sendKey0,
+  '1' => TrustIds.sendKey1,
+  '2' => TrustIds.sendKey2,
+  '3' => TrustIds.sendKey3,
+  '4' => TrustIds.sendKey4,
+  '5' => TrustIds.sendKey5,
+  '6' => TrustIds.sendKey6,
+  '7' => TrustIds.sendKey7,
+  '8' => TrustIds.sendKey8,
+  '9' => TrustIds.sendKey9,
+  KitKey.point => TrustIds.sendKeyPoint,
+  KitKey.delete => TrustIds.sendKeyDelete,
+  _ => null,
+};
+
 class _Initial extends StatelessWidget {
-  const _Initial({this.name, this.size = 40});
+  const _Initial({this.name});
 
   final String? name;
-  final double size;
+  static const double size = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -4858,108 +5002,30 @@ class _Initial extends StatelessWidget {
   }
 }
 
-/// "To Bob" above the amount.
-class _ToChip extends StatelessWidget {
-  const _ToChip({required this.address, this.name});
+/// One person or address in the Who lists: the name where known, else the short address, a
+/// round avatar before it, a chevron after.
+class _WhoRow extends StatelessWidget {
+  const _WhoRow({required this.address, this.name, this.subtitle, required this.onTap});
 
   final String address;
   final String? name;
 
-  /// "To Alice", or the sentence in the sans face with the short address in it as a mono span,
-  /// its ends marked (address_format.dart); shrunk rather than cut, so no host is cut short.
-  Widget _toChipText(BuildContext context, WalletTokens t) {
-    final l = context.l10n;
-    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text);
-    final name = this.name;
-    if (name != null) return Text(l.sendTo(name), overflow: TextOverflow.ellipsis, style: style);
-    // The sentence around a marker, so the address sits where the language puts it.
-    const marker = '\u0000';
-    final sentence = l.sendTo(marker);
-    final at = sentence.indexOf(marker);
-    final shown = shortAddress(address);
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: AlignmentDirectional.centerStart,
-      child: Text.rich(
-        TextSpan(
-          style: style,
-          children: [
-            TextSpan(text: at < 0 ? '$sentence ' : sentence.substring(0, at)),
-            addressSpan(
-              shown,
-              style: TextStyle(fontFamily: t.monoFamily),
-              mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
-              quiet: TextStyle(color: t.dim),
-            ),
-            if (at >= 0) TextSpan(text: sentence.substring(at + marker.length)),
-          ],
-        ),
-        maxLines: 1,
-        softWrap: false,
-        semanticsLabel: l.sendTo(shown),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 14, 4),
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.scale(scale: 0.8, child: _Initial(name: name)),
-          const SizedBox(width: 6),
-          Flexible(child: _toChipText(context, t)),
-        ],
-      ),
-    );
-  }
-}
-
-/// One recent recipient: their name where known, else the short address.
-class _RecentRow extends StatelessWidget {
-  const _RecentRow({required this.address, this.name, this.subtitle, this.relay = true, required this.onTap});
-
-  final String address;
-  final String? name;
-
-  /// False at level 1: the address without its server.
-  final bool relay;
-
-  /// Words in place of the short address (a contact paid through its pairing).
+  /// Words in place of the short address (a contact paid through its pairing, "Not saved").
   final String? subtitle;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      minTileHeight: 52,
-      leading: _Initial(name: name),
-      // No name: the short address is the title, in the mono face as every address.
-      title: name == null
-          ? ShortAddressText(address, relay: relay, style: theme.textTheme.bodyMedium)
-          : Text(
-              name!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
-            ),
-      subtitle: name == null
-          ? null
-          : subtitle != null
-          ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
-          : ShortAddressText(address, relay: relay, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+    final mono = KitType.address.copyWith(color: t.dim, fontSize: KitType.rowSub.fontSize);
+    return KitRow(
+      leading: name == null ? const KitAvatar(icon: KitIcons.contact, neutral: true) : KitAvatar(initials: nameInitials(name!)),
+      title: name ?? shortAddress(address),
+      subtitle: subtitle,
+      subtitleWidget: name != null && subtitle == null ? ShortAddressText(address, style: mono) : null,
+      chevron: true,
       onTap: onTap,
+      semanticsId: TrustIds.sendRecent,
     );
   }
 }
@@ -5105,67 +5171,6 @@ class _ReadyLine extends ConsumerWidget {
               TextButton(onPressed: retry, child: Text(l.commonRetry)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  const _Row({
-    required this.label,
-    required this.value,
-    this.sub,
-    this.strong = false,
-    this.mono = true,
-  });
-
-  final String label;
-  final String value;
-
-  /// A dim second line under the value (the fiat estimate).
-  final String? sub;
-
-  final bool strong;
-
-  /// The value is a figure, in the mono face; false for words.
-  final bool mono;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final t = context.tokens;
-    final style = theme.textTheme.bodyMedium?.copyWith(
-      color: strong ? t.text : t.dim,
-      fontWeight: strong ? FontWeight.w600 : null,
-    );
-    final figure = Text(
-      value,
-      textAlign: TextAlign.end,
-      style: mono ? amountStyle(context, style) : style,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: Text(label, style: style)),
-          const SizedBox(width: 12),
-          Flexible(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                figure,
-                if (sub case final sub?)
-                  Text(
-                    sub,
-                    textAlign: TextAlign.end,
-                    style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                  ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

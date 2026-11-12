@@ -23604,6 +23604,77 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneAcceptNotNow => 'Не сейчас';
 
   @override
+  String get phoneSendSearchHint => 'Имя, адрес или ссылка';
+
+  @override
+  String get phoneSendNewToYou => 'Новый для вас';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Не сохранён · оплачен $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub => 'Оплатить лично или файлом';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Оплата без адреса';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'Вы создаёте платёж здесь, получатель отвечает на него, и всё готово. Пока ответ не пришёл, можно отменить.';
+
+  @override
+  String get phoneSendInPerson => 'Лично';
+
+  @override
+  String get phoneSendInPersonSub => 'Покажите код телефону рядом';
+
+  @override
+  String get phoneSendWithFile => 'Файлом';
+
+  @override
+  String get phoneSendWithFileSub =>
+      'Отправьте в любом приложении; получатель пришлёт файл в ответ';
+
+  @override
+  String get phoneSendAddContact => 'Добавить контакт';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Сверьте первые и последние шесть символов с тем, кому платите.';
+
+  @override
+  String get phoneSendReviewTitle => 'Проверка';
+
+  @override
+  String get phoneSendMoreDetails => 'Подробнее';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return 'На $amount больше, чем можно отправить. Нажмите «Макс», чтобы отправить всё.';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'Всё, что у вас есть, за вычетом комиссии $fee';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'Открыть платёж';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'Отправлено: $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'их кошелёк может быть офлайн';
+
+  @override
+  String get phoneSendTheirOnline => 'их кошелёк должен быть открыт';
+
+  @override
   String get phoneAboutProtocol => 'Платёжный протокол';
 
   @override
@@ -23624,15 +23695,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'Что нового в $version';
   }
-
-  @override
-  String get phoneLinkScanSub => 'Отсканируйте код на другом устройстве';
-
-  @override
-  String get phoneLinkShowSub => 'Другое устройство отсканирует его';
-
-  @override
-  String get phoneLinkPasteSub => 'Вставьте полученный код или ссылку';
 
   @override
   String get phoneContactsSearchHint => 'Поиск или вставьте адрес';
@@ -23658,60 +23720,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneContactRequest => 'Запросить';
 
   @override
-  String get phoneTabHome => 'Главная';
+  String get phoneLinkScanSub => 'Отсканируйте код на другом устройстве';
 
   @override
-  String get phoneTabScan => 'Сканировать';
+  String get phoneLinkShowSub => 'Другое устройство отсканирует его';
 
   @override
-  String get phoneReview => 'Проверить';
-
-  @override
-  String get phoneLater => 'Позже';
-
-  @override
-  String get phoneHomeRecent => 'Недавние';
-
-  @override
-  String get phoneHomeSeeAll => 'Все';
-
-  @override
-  String phoneHomeArriving(String amount) {
-    return '+$amount поступает';
-  }
-
-  @override
-  String phoneHomeInSends(String amount) {
-    return '$amount в отправках';
-  }
-
-  @override
-  String phoneHomeSyncing(String percent) {
-    return 'Синхронизация $percent%';
-  }
-
-  @override
-  String get phoneHomeOffline => 'Не в сети';
-
-  @override
-  String phoneHomeInvoiceTitle(String name) {
-    return 'Счёт от $name';
-  }
-
-  @override
-  String phoneHomeInvoiceBody(String amount) {
-    return '$amount. Ничего не оплачивается, пока вы не подтвердите.';
-  }
-
-  @override
-  String get phoneHomeBalanceLastKnown => 'Доступно · последнее известное';
-
-  @override
-  String get phoneHomeBalanceSheetHint => 'Подробности баланса';
-
-  @override
-  String get phoneHomeEmpty =>
-      'Платежей пока нет. Получите немного EPIC, чтобы начать.';
+  String get phoneLinkPasteSub => 'Вставьте полученный код или ссылку';
 
   @override
   String get phoneRecvTitle => 'Получить';
@@ -23818,6 +23833,62 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'от $name';
   }
+
+  @override
+  String get phoneTabHome => 'Главная';
+
+  @override
+  String get phoneTabScan => 'Сканировать';
+
+  @override
+  String get phoneReview => 'Проверить';
+
+  @override
+  String get phoneLater => 'Позже';
+
+  @override
+  String get phoneHomeRecent => 'Недавние';
+
+  @override
+  String get phoneHomeSeeAll => 'Все';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount поступает';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount в отправках';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Синхронизация $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Не в сети';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Счёт от $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Ничего не оплачивается, пока вы не подтвердите.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Доступно · последнее известное';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Подробности баланса';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Платежей пока нет. Получите немного EPIC, чтобы начать.';
 
   @override
   String get phoneTourOffer => 'Показать, как устроен кошелёк?';

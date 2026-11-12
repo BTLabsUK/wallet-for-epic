@@ -154,24 +154,26 @@ class _Tab extends StatelessWidget {
                   ],
                 ),
               ),
-              // `.tab .bdg`: 17 tall, top -3 of the tab, 6 right of its centre.
+              // `.tab .bdg`: 17 tall, left edge 6 right of the tab's centre, top -3 of the tab (which starts 9 down).
               if (item.badge > 0)
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Transform.translate(
-                      offset: const Offset(6, -3),
+                      offset: const Offset(6, 6),
                       child: FractionalTranslation(
                         translation: const Offset(0.5, 0),
                         child: Container(
                           constraints: const BoxConstraints(minWidth: 17),
                           height: 17,
                           padding: const EdgeInsets.symmetric(horizontal: 5),
-                          alignment: Alignment.center,
                           decoration: BoxDecoration(color: t.accent, borderRadius: BorderRadius.circular(9)),
-                          child: Text(
-                            '${item.badge}',
-                            style: KitType.tabLabel.copyWith(fontWeight: FontWeight.w600, color: t.accentInk, height: 1),
+                          child: Center(
+                            widthFactor: 1,
+                            child: Text(
+                              '${item.badge}',
+                              style: KitType.tabLabel.copyWith(fontWeight: FontWeight.w600, color: t.accentInk, height: 1),
+                            ),
                           ),
                         ),
                       ),

@@ -12,10 +12,13 @@ import 'kit_tokens.dart';
 
 /// The page dots under Home's slot card: 4 px dots, the current one 14 × 4 in gold.
 class KitPageDots extends StatelessWidget {
-  const KitPageDots({super.key, required this.count, required this.index});
+  const KitPageDots({super.key, required this.count, required this.index, this.top = 12});
 
   final int count;
   final int index;
+
+  /// Space above: 12 under a card, less where the card's own corner-mark margin adds to it.
+  final double top;
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +26,14 @@ class KitPageDots extends StatelessWidget {
     if (count < 2) return const SizedBox.shrink();
     return ExcludeSemantics(
       child: Padding(
-        padding: const EdgeInsets.only(top: 10),
+        padding: EdgeInsets.only(top: top),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var i = 0; i < count; i++)
               AnimatedContainer(
                 duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 160),
-                margin: const EdgeInsets.symmetric(horizontal: 2),
+                margin: const EdgeInsets.symmetric(horizontal: 2.5),
                 width: i == index ? 14 : 4,
                 height: 4,
                 decoration: BoxDecoration(color: i == index ? t.accent : t.hair2, borderRadius: BorderRadius.circular(2)),
@@ -196,7 +199,7 @@ class KitNeedsYouCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter - 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -242,7 +245,7 @@ class KitNeedsYouCard extends StatelessWidget {
               ),
             ),
           ),
-          KitPageDots(count: pages, index: page),
+          KitPageDots(count: pages, index: page, top: 6),
         ],
       ),
     );
