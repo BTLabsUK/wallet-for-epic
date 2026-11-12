@@ -429,19 +429,31 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // The frame's `.bar`: 44 high, the pill centred in it.
+                  // The frame's `.bar`: 44 high, the pill centred in it. The pill's touch box is
+                  // 48 (Android's guideline): it hangs 2 px over each edge of the bar, and
+                  // KitHitReach lets those 2 px take taps, so nothing below moves.
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-                    child: SizedBox(
-                    height: Kit.flowHeader,
-                    child: Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    // The way to the servers before a wallet is open; the app is ready to open
-                    // the wallet without them. Always Ready: node and relay state (walletStatusProvider)
-                    // come from the open wallet's tip and listener, so nothing is known before unlock.
-                    child: KitStatusPill(ready: true, onTap: _busy ? null : () => showNetworkMenu(context), semanticsId: TrustIds.unlockServers),
-                  ),
-                  ),
+                    child: KitHitReach(
+                      min: Kit.touchMin,
+                      child: SizedBox(
+                        height: Kit.flowHeader,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            PositionedDirectional(
+                              end: 0,
+                              top: (Kit.flowHeader - Kit.touchMin) / 2,
+                              height: Kit.touchMin,
+                              // The way to the servers before a wallet is open; the app is ready to open
+                              // the wallet without them. Always Ready: node and relay state (walletStatusProvider)
+                              // come from the open wallet's tip and listener, so nothing is known before unlock.
+                              child: KitStatusPill(ready: true, onTap: _busy ? null : () => showNetworkMenu(context), semanticsId: TrustIds.unlockServers),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                   Expanded(child: content),
                 ],

@@ -554,8 +554,9 @@ void main() {
       expect(first, findsOneWidget);
       expect(second, findsOneWidget);
       // The off method's reason sits in the choice, which is dimmed, disabled and does nothing.
+      // KitRow carries the flag itself (its Semantics sits under the keyed row).
       bool enabledFlag(Finder f) => tester
-          .widgetList<Semantics>(find.ancestor(of: f, matching: find.byType(Semantics)))
+          .widgetList<Semantics>(find.descendant(of: f, matching: find.byType(Semantics)))
           .any((w) => w.properties.enabled == false);
       expect(enabledFlag(first), isTrue);
       expect(enabledFlag(second), isFalse);
