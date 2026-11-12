@@ -487,7 +487,7 @@ Future<bool> showPinBiometricsOffer(BuildContext context) async {
       return KitSheet(
         primaryLabel: l.pinBiometricsEnable,
         onPrimary: () => Navigator.pop(sheet, true),
-        buttonsTop: 24,
+        actionsTop: 24,
         buttonsGap: 4,
         secondary: SizedBox(
           height: 44,

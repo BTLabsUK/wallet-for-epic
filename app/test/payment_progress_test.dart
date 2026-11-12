@@ -50,11 +50,12 @@ void main() {
   group('sending', () {
     test('waits for the other wallet, with the reason by transport', () {
       final p = _go(_sent(TxStatus.awaitingRecipient), reserved: '12.508 EPIC')!;
-      expect(_labels(p), ['Sent', 'Waiting for Tom', 'In the network, waiting for a block', 'Confirmed']);
-      expect(_states(p), [KitStepState.done, KitStepState.now, KitStepState.later, KitStepState.later]);
+      // The network step only shows once the payment is there (the frame's three steps).
+      expect(_labels(p), ['Sent', "Waiting for Tom's wallet to answer", 'Confirmed']);
+      expect(_states(p), [KitStepState.done, KitStepState.now, KitStepState.later]);
       expect(p.current, 1);
       expect(p.network, isFalse);
-      expect(p.reason, 'Epicbox keeps it until Tom opens their wallet. 12.508 EPIC is set aside until then.');
+      expect(p.reason, 'It answers when Tom next opens it. 12.508 EPIC is set aside until then.');
       expect(p.steps[1].detail, p.reason);
       expect(p.steps[0].detail, isNotNull, reason: 'a done step shows its time');
       expect(_go(_sent(TxStatus.awaitingRecipient, transport: 'file'), who: null)!.reason, 'It continues when the answer file comes back.');
@@ -112,7 +113,7 @@ void main() {
   group('receiving', () {
     test('arrives, then the sender finishes', () {
       final p = _go(_received(TxStatus.awaitingConfirmation), who: 'Anna')!;
-      expect(_labels(p), ['Arriving', 'Sender finished', 'In the network, waiting for a block', 'Confirmed']);
+      expect(_labels(p), ['Arriving', 'Sender finished', 'Confirmed']);
       expect(p.current, 0);
       expect(p.reason, 'Waiting for Anna to finish the payment');
     });

@@ -93,7 +93,7 @@ class KitKeypad extends StatelessWidget {
             children: [
               bottomLeft,
               digit('0'),
-              key(KitKey.delete, Icon(KitIcons.backspace, size: 24, color: t.dim), onDelete, l.phoneKitDeleteDigit, onLong: onDeleteLong),
+              key(KitKey.delete, Icon(KitIcons.backspace, size: 26, color: t.text), onDelete, l.phoneKitDeleteDigit, onLong: onDeleteLong),
             ],
           ),
         ],

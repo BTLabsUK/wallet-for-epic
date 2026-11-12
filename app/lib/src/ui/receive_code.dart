@@ -20,6 +20,8 @@ import 'kit/kit_button.dart';
 import 'kit/kit_corner_marks.dart';
 import 'kit/kit_headers.dart';
 import 'kit/kit_help_sheet.dart';
+import 'kit/kit_hero_amount.dart';
+import 'kit/kit_icons.dart';
 import 'kit/kit_tokens.dart';
 import 'theme/tokens.dart';
 
@@ -108,7 +110,7 @@ class RequestCodePage extends ConsumerWidget {
     final currency = ref.watch(appSettingsProvider.select((s) => s.value?.fiatCurrency)) ?? 'usd';
     final figure = epicExact(l, amount);
     final number = figure.endsWith(epicUnit) ? figure.substring(0, figure.length - epicUnit.length).trimRight() : figure;
-    final fiat = price == null ? null : approxText(localDigits(l, fiatText(amount, price, currency)));
+    final fiat = price == null ? null : phoneFiat(l, amount, (hidden: false, price: price, currency: currency), approx: true);
     final note = message == null || message!.isEmpty ? null : message;
     final detail = [?note, ?fiat].join(' · ');
     return SlotScaffold(
@@ -131,34 +133,22 @@ class RequestCodePage extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        KitHeroAmount(amount: number, unit: epicUnit, incoming: true),
+                        if (detail.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Text(detail, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.body.copyWith(color: t.dim)),
+                        ],
+                        const SizedBox(height: 34),
                         card,
-                        const SizedBox(height: 18),
-                        Semantics(
-                          container: true,
-                          label: figure,
-                          excludeSemantics: true,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Flexible(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(number, style: KitType.amountOnPage.copyWith(color: t.txReceived), maxLines: 1),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(epicUnit, style: KitType.unit.copyWith(color: t.accentText)),
-                            ],
+                        const SizedBox(height: 32),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Text(
+                            lead ?? l.phoneRecvCodeLead(figure),
+                            textAlign: TextAlign.center,
+                            style: KitType.body.copyWith(color: t.dim, height: 1.45),
                           ),
                         ),
-                        if (detail.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(detail, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.dim)),
-                        ],
-                        const SizedBox(height: 14),
-                        Text(lead ?? l.phoneRecvCodeLead(figure), textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.dim)),
                         const SizedBox(height: 18),
                         Row(
                           children: [
@@ -166,6 +156,7 @@ class RequestCodePage extends ConsumerWidget {
                               child: KitButton(
                                 label: l.commonCopy,
                                 kind: KitButtonKind.quiet,
+                                icon: KitIcons.copy,
                                 semanticsId: TrustIds.receiveCodeCopy,
                                 onPressed: () => copySecretText(context, json, l.slateCopied),
                               ),
@@ -175,6 +166,7 @@ class RequestCodePage extends ConsumerWidget {
                               Expanded(
                                 child: KitButton(
                                   label: l.commonShare,
+                                  icon: KitIcons.share,
                                   semanticsId: TrustIds.receiveCodeShare,
                                   onPressed: () => _hand(context, ref, (f) => f.share(name: fileName, json: json)),
                                 ),
@@ -182,11 +174,16 @@ class RequestCodePage extends ConsumerWidget {
                             ],
                           ],
                         ),
+                        for (final a in actions) ...[const SizedBox(height: 10), a],
+                        const SizedBox(height: 16),
+                        Center(child: status),
                         if (saveFile) ...[
-                          const SizedBox(height: 10),
+                          // The frame has only Copy and Share and the status; saving the file stays one
+                          // quiet line after the status (without Share it is the main button).
+                          SizedBox(height: files.canShare ? 18 : 10),
                           KitButton(
                             label: l.slateSaveToDevice,
-                            kind: files.canShare ? KitButtonKind.quiet : KitButtonKind.gold,
+                            kind: files.canShare ? KitButtonKind.ghost : KitButtonKind.gold,
                             onPressed: () => _hand(context, ref, (f) async {
                               final ok = await f.save(name: fileName, json: json, dialogTitle: l.slateSaveDialogTitle);
                               if (ok) ref.read(noticeProvider.notifier).show(l.slateSaved(fileName), level: NoticeLevel.success);
@@ -194,14 +191,13 @@ class RequestCodePage extends ConsumerWidget {
                             }),
                           ),
                         ],
-                        for (final a in actions) ...[const SizedBox(height: 10), a],
-                        const SizedBox(height: 18),
-                        Center(child: status),
-                        const SizedBox(height: 14),
-                        KitButton(label: l.commonDone, kind: KitButtonKind.quiet, semanticsId: TrustIds.receiveCodeDone, onPressed: busy ? null : onDone),
                       ],
                     ),
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, 0),
+                  child: KitButton(label: l.commonDone, kind: KitButtonKind.quiet, semanticsId: TrustIds.receiveCodeDone, onPressed: busy ? null : onDone),
                 ),
               ],
             ),

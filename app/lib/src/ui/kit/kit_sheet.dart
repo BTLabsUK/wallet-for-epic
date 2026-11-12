@@ -47,7 +47,8 @@ class KitSheet extends StatelessWidget {
     this.primaryId,
     this.secondaryId,
     this.primaryKind = KitButtonKind.gold,
-    this.buttonsTop = 18,
+    this.actionsTop = 18,
+    this.titleGap = 14,
     this.buttonsGap = 10,
   });
 
@@ -65,8 +66,9 @@ class KitSheet extends StatelessWidget {
   final String? secondaryId;
   final KitButtonKind primaryKind;
 
-  /// The room above the buttons and between them.
-  final double buttonsTop;
+  /// The space above the buttons, and under the title.
+  final double actionsTop;
+  final double titleGap;
   final double buttonsGap;
 
   @override
@@ -86,8 +88,9 @@ class KitSheet extends StatelessWidget {
         top: false,
         child: SingleChildScrollView(
           // `.sheet` padding-bottom 34 is the home-indicator zone: the inset the SafeArea gives
-          // is part of it. The sheet's own SafeArea has used the inset by now: read it above the route.
-          padding: EdgeInsets.only(bottom: (34 - MediaQuery.viewPaddingOf(Navigator.of(context).context).bottom).clamp(0, 34)),
+          // is part of it, a phone with no inset keeps 16. The inset is read from the view: the
+          // SafeArea of [showPhoneSheet] above has already taken it out of the MediaQuery.
+          padding: EdgeInsets.only(bottom: _viewInsetBottom(context) > 0 ? 0 : 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,13 +98,13 @@ class KitSheet extends StatelessWidget {
               const KitGrabber(),
               if (title != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, titleGap),
                   child: Semantics(header: true, child: Text(title!, style: KitType.sheetTitle.copyWith(color: t.text))),
                 ),
               ?child,
               if (primaryButton != null || secondaryButton != null)
                 Padding(
-                  padding: EdgeInsets.fromLTRB(Kit.gutter, buttonsTop, Kit.gutter, 0),
+                  padding: EdgeInsets.fromLTRB(Kit.gutter, actionsTop, Kit.gutter, 0),
                   child: Column(
                     children: [
                       ?primaryButton,
@@ -116,6 +119,11 @@ class KitSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+double _viewInsetBottom(BuildContext context) {
+  final view = View.maybeOf(context);
+  return view == null ? MediaQuery.viewPaddingOf(context).bottom : view.padding.bottom / view.devicePixelRatio;
 }
 
 /// Opens [builder]'s content as a redesign sheet over [showPhoneSheet], so the bottom inset

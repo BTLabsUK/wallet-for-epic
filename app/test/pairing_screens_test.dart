@@ -660,7 +660,11 @@ void main() {
         ..seedPaired(id: 'e', name: 'Eve', contactId: 'c5');
       h.api.changeKeys('e');
       await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.byKey(contactsMoreKey));
+      await tester.pumpAndSettle();
       expect(find.byKey(contactsPairKey), findsOneWidget);
+      await tester.tapAt(const Offset(2, 2));
+      await tester.pumpAndSettle();
       expect(find.text(_l.contactsPairHint), findsNothing);
       expect(find.text(_l.pendingTitle), findsNothing);
       for (final t in [_l.trustVerified, _l.trustPairedShort, _l.trustWaiting, _l.trustKeysChanged, _l.trustEnded]) {
@@ -825,7 +829,11 @@ void main() {
       final h = _Harness(prefs: 'outputs|standard');
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
       await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.byKey(contactsMoreKey));
+      await tester.pumpAndSettle();
       expect(find.byKey(contactsPairKey), findsOneWidget);
+      await tester.tapAt(const Offset(2, 2));
+      await tester.pumpAndSettle();
       await h.pump(tester, const ContactPage(contactId: 'c1'));
       expect(find.byKey(contactPagePairKey), findsOneWidget);
     });

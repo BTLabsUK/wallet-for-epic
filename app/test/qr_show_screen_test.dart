@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/qr_slate.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -155,7 +156,7 @@ void main() {
       findsNothing,
     );
     expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
-    expect(find.text(_l.qrHoldHint), findsOneWidget);
+    expect(find.text(_l.phoneQrHoldHint), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
     await tester.pump(const Duration(milliseconds: qrFrameMs));
     expect(find.textContaining('Part 2 of 3'), findsOneWidget);
@@ -248,8 +249,13 @@ void main() {
     expect(h.secure, [true]);
     await tester.tap(show());
     await _tick(tester, 3);
-    // The line about screenshots shows with the code, on Android only.
+    // The line about screenshots is in the help of the page, on Android only.
+    expect(find.text(_l.qrSecureLine), findsNothing);
+    await tester.tap(find.byTooltip(_l.sendHelp));
+    await tester.pumpAndSettle();
     expect(find.text(_l.qrSecureLine), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(h.secure, [true, false]);
@@ -371,7 +377,7 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byKey(qrCardKey), findsOneWidget);
     final card = tester.getSize(find.byKey(qrCardKey));
-    expect(card.width, 270);
+    expect(card.width, Kit.qr);
     // The seconds and the part stay reachable: the body scrolls, the title is not clipped.
     await tester.dragUntilVisible(
       find.textContaining('Part '),

@@ -46,6 +46,7 @@ class KitRow extends StatelessWidget {
     this.isChoice,
     this.minHeight,
     this.valueIcon,
+    this.compact = false,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -102,6 +103,9 @@ class KitRow extends StatelessWidget {
   final String? subtitle;
   final Widget? leading;
 
+  /// A row taller than its [size]'s (the frames' 72 for rows with a two-line sheet reading).
+  final double? minHeight;
+
   /// A dim value before the chevron ("Dark", "After 15 minutes").
   final String? value;
   final Widget? trailing;
@@ -131,11 +135,11 @@ class KitRow extends StatelessWidget {
   /// Set by [KitRow.radio]: whether this choice is the chosen one (read as selected).
   final bool? isChoice;
 
-  /// A taller floor than [size] gives (the hub's wallet row).
-  final double? minHeight;
-
   /// A small icon before the [value] (the tick of "Backed up").
   final IconData? valueIcon;
+
+  /// A tighter row (padding 8, 54 high) for the list of ways in a sheet.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -159,12 +163,12 @@ class KitRow extends StatelessWidget {
         ),
       ?trailing,
       if (selected) Icon(KitIcons.check, size: 22, color: t.accentText),
-      if (chevron) Icon(KitIcons.chevron, size: 22, color: t.faint),
+      if (chevron) Icon(KitIcons.chevron, size: 18, color: t.faint),
     ];
     final body = ConstrainedBox(
-      constraints: BoxConstraints(minHeight: minHeight ?? size.height),
+      constraints: BoxConstraints(minHeight: minHeight ?? (compact ? 54 : size.height)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: compact ? 8 : 10),
         child: Row(
           children: [
             if (leading != null) ...[leading!, const SizedBox(width: 12)],
@@ -214,13 +218,17 @@ class KitIconWell extends StatelessWidget {
   const KitIconWell.child(Widget this.child, {super.key, this.size = Kit.avatar, this.radius = Kit.rAvatar})
     : icon = null,
       color = null,
-      iconSize = 22;
+      iconSize = 22,
+      radius = Kit.rAvatar;
 
   final IconData? icon;
   final Widget? child;
   final Color? color;
   final double size;
   final double iconSize;
+  final double radius;
+
+  /// The corner radius: 13 for the 40 well, 15 for the 46 one of the file cards.
   final double radius;
 
   @override

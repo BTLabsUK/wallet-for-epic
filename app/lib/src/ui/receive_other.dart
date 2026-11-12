@@ -71,6 +71,8 @@ class _OtherWaysSheet extends ConsumerWidget {
       TrustIds.receiveOtherSheet,
       child: KitSheet(
         title: l.phoneRecvOther,
+        titleGap: 8,
+        actionsTop: 14,
         secondary: KitButton(
           label: l.commonCancel,
           kind: KitButtonKind.ghost,
@@ -81,7 +83,7 @@ class _OtherWaysSheet extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
               child: Text(l.phoneRecvOtherSheetLine, style: KitType.rowSub.copyWith(color: t.dim)),
             ),
             KitGroup(
@@ -90,7 +92,8 @@ class _OtherWaysSheet extends ConsumerWidget {
                 if (ways.inPerson)
                   KitRow(
                     size: KitRowSize.sheet,
-                    leading: KitIconWell(KitIcons.qr),
+                    minHeight: 72,
+                    leading: KitIconWell(KitIcons.qr, color: t.accentText),
                     title: l.phoneSettingsInPerson,
                     subtitle: l.phoneRecvInPersonLine,
                     chevron: true,
@@ -100,7 +103,8 @@ class _OtherWaysSheet extends ConsumerWidget {
                 if (ways.file)
                   KitRow(
                     size: KitRowSize.sheet,
-                    leading: KitIconWell(KitIcons.invoice),
+                    minHeight: 72,
+                    leading: KitIconWell(KitIcons.fileUp, color: t.accentText),
                     title: l.phoneSettingsWithFile,
                     subtitle: l.phoneRecvFileLine,
                     chevron: true,
@@ -110,7 +114,8 @@ class _OtherWaysSheet extends ConsumerWidget {
                 if (ways.tor)
                   KitRow(
                     size: KitRowSize.sheet,
-                    leading: KitIconWell(MethodIcons.of(MethodKind.linkTor)),
+                    minHeight: 72,
+                    leading: KitIconWell(KitIcons.link),
                     title: l.phoneSettingsTorAddress,
                     subtitle: l.phoneRecvTorLine,
                     value: torOff ? l.phoneRecvOff : null,

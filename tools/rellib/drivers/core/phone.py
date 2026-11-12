@@ -45,7 +45,7 @@ UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
 UNLOCK_RETRY = T("g4.unlock.retry")
 
-FLOW_CLOSE = T("g4.flow.close")   # Send and Receive open as flows over the tab bar, with a close button
+RECEIVE_CLOSE = T("g4.receive.close")   # Receive opens as a flow over the tab bar, with its own close button
 SETTINGS = T("g4.tab.settings")
 TAB_SEND = T("g4.tab.send")
 TAB_WALLET = T("g4.tab.home")
@@ -88,6 +88,7 @@ SERVER = {
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
 CONTACTS = T("g4.tab.contacts")
 CONTACTS_ADD = T("g4.contacts.add")
+CONTACTS_MORE = T("g4.contacts.more")  # the gold "+" in the title: Add, Pair, Import, Export
 SWITCH = T("g4.server.switch")
 CLEAR = T("g4.server.clear")
 SERVER_ROW = T("g4.server.row")
@@ -568,7 +569,7 @@ class Phone:
         self._wait_home("home", 30)
 
     def contacts(self):
-        """Home › Contacts, until the Contacts page shows (its Add contact), then back to Home. A build
+        """Home › Contacts, until the Contacts page shows (its "+" menu), then back to Home. A build
         before the entry (26.11.2 and older had Contacts in Settings › This wallet at level 1) has none
         on Home: logged, nothing pressed."""
         d = self.d
@@ -576,13 +577,13 @@ class Phone:
         if not d.seen(CONTACTS):
             self.log("no Contacts on Home: a build before the entry")
             return False
-        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_ADD), timeout=20)
+        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_MORE), timeout=20)
         self.log("Home › Contacts: the Contacts page")
         self.home()
         return True
 
     def tab(self, target):
-        """Send or Receive: Home's two buttons open the flow over the tab bar (its close button
+        """Send or Receive: Home's two buttons open the flow over the tab bar (its own close button
         marks it). Any other target is a tab of the bar."""
         d = self.d
         self.home()
@@ -592,7 +593,7 @@ class Phone:
                     then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
             return
         if target == TAB_RECEIVE:
-            d.press(target, step="tab-receive", timeout=20, then=shows(FLOW_CLOSE))
+            d.press(target, step="tab-receive", timeout=20, then=shows(RECEIVE_CLOSE))
             return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))

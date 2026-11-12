@@ -25,14 +25,13 @@ import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
 import 'home_tab.dart';
-import 'kit/kit_headers.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_tab_bar.dart';
 import 'invoices_screen.dart' show InvoicesEntry;
 import 'tx_details_screen.dart';
 import 'history_screen.dart';
 import 'pairing/pairing_notices.dart';
-import 'receive_screen.dart' show ReceiveView;
+import 'receive_screen.dart' show ReceiveScreen;
 import 'scan_route.dart';
 import '../devices/phone_devices.dart' show DeviceLifecycle;
 import 'scan_screen.dart' show ScanCode, qrScannerProvider;
@@ -789,7 +788,6 @@ class ShellFlowRoute extends ConsumerStatefulWidget {
 class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
   final _sendBack = SendBack();
 
-  void _close() => Navigator.of(context).maybePop();
 
   /// A payment is done: the route closes, and the next Send starts with a fresh form.
   void _done() {
@@ -799,7 +797,6 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
     final send = widget.flow == ShellFlow.send;
     final touring = ref.watch(phoneTourProvider.select((s) => s.open));
     return PopScope(
@@ -816,24 +813,11 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
         Navigator.of(context).pop();
       },
       child: _Backdrop(
-        child: SlotScaffold(
-          body: SafeArea(
-            // Send draws its own header per step (close on Who, back later), as the frames do.
-            child: send
-                ? SendView(onDone: _done, back: _sendBack)
-                : Column(
-                    children: [
-                      KitFlowHeader(
-                        title: l.homeReceiveButton,
-                        onLeading: _close,
-                        leadingId: TrustIds.flowClose,
-                      ),
-                      const BalanceHeader(),
-                      const Expanded(child: ReceiveView()),
-                    ],
-                  ),
-          ),
-        ),
+        // Receive is the page the frames draw: its own header (close, title, help), no balance
+        // bar. Send draws its own header per step (close on Who, back later), as the frames do.
+        child: send
+            ? SlotScaffold(body: SafeArea(child: SendView(onDone: _done, back: _sendBack)))
+            : const ReceiveScreen(),
       ),
     );
   }

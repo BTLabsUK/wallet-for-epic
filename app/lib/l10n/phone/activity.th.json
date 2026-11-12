@@ -82,5 +82,7 @@
   "phonePayRouteSubEpic1": "จ่ายจากลิงก์ชำระเงิน",
   "phonePayRouteSubInPerson": "โทรศัพท์สองเครื่องแสดงโค้ดให้กัน",
   "phonePayRouteSubFile": "ไฟล์การชำระเงินที่ส่งไปมา",
-  "phonePayRouteSubTor": "ตรงถึงกระเป๋าของอีกฝั่ง ผ่าน Tor"
+  "phonePayRouteSubTor": "ตรงถึงกระเป๋าของอีกฝั่ง ผ่าน Tor",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

@@ -28,9 +28,13 @@ class MarkedAddress extends StatelessWidget {
     this.selectable = false,
     this.onTap,
     this.center = false,
+    this.flat = false,
   });
 
   final String address;
+
+  /// The designer frames' look: the marked parts in regular weight, `@server` faint.
+  final bool flat;
 
   /// The size and colour of the key; the face is always mono. bodyMedium by default.
   final TextStyle? style;
@@ -46,8 +50,8 @@ class MarkedAddress extends StatelessWidget {
     final base = (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
         .merge(style)
         .copyWith(fontFamily: t.monoFamily, color: style?.color ?? t.text);
-    final mark = TextStyle(color: t.accentText, fontWeight: FontWeight.w600);
-    final quiet = TextStyle(color: t.dim, fontWeight: FontWeight.w400);
+    final mark = TextStyle(color: t.accentText, fontWeight: flat ? FontWeight.w400 : FontWeight.w600);
+    final quiet = TextStyle(color: flat ? t.faint : t.dim, fontWeight: FontWeight.w400);
     final align = center ? TextAlign.center : TextAlign.start;
     final lines = addressLines(addressParts(address));
     if (lines.isEmpty) return const SizedBox.shrink();

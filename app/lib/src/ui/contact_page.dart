@@ -69,6 +69,7 @@ import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 /// Keys of the contact page, for tests.
 const Key contactPageSendKey = ValueKey('contact-page-send');
 const Key contactPageEditKey = ValueKey('contact-page-edit');
+const Key contactPageCodeKey = ValueKey('contact-page-code');
 const Key contactPageMoreKey = ValueKey('contact-page-more');
 const Key contactPageBackKey = ValueKey('contact-page-back');
 const Key contactPageDeleteKey = ValueKey('contact-page-delete');
@@ -228,6 +229,8 @@ class _PaymentBubble extends ConsumerWidget {
       bottomEnd: Radius.circular(outgoing ? 7 : 20),
     );
     final statusStyle = KitType.rowSub.copyWith(color: inProgress ? t.info : t.dim, fontSize: 12.5);
+    // A bubble that is finished says so, whichever way the money went.
+    final done = tx.status == TxStatus.confirmed ? l.phonePayCompleted : step;
     return Align(
       alignment: outgoing ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
       child: Padding(
@@ -282,7 +285,7 @@ class _PaymentBubble extends ConsumerWidget {
                         ],
                         if (progress != null) ...[
                           const SizedBox(height: 10),
-                          _BubbleSteps(progress.steps),
+                          _BubbleSteps(progress.steps, waiting: tx.status == TxStatus.awaitingRecipient && name != null ? (reason: progress.reason, text: l.phoneContactsWaitingAnswer(name)) : null),
                         ] else ...[
                           const SizedBox(height: 6),
                           Row(
@@ -292,7 +295,7 @@ class _PaymentBubble extends ConsumerWidget {
                               const SizedBox(width: 5),
                               Flexible(
                                 child: Text(
-                                  sealed ? '$step$metaSeparator${l.phoneActSealed}' : step,
+                                  sealed ? '$done$metaSeparator${l.phoneActSealed}' : done,
                                   style: statusStyle,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -317,9 +320,12 @@ class _PaymentBubble extends ConsumerWidget {
 /// `.steps`: a payment still under way as a short list, a dot and a line each; the finished
 /// steps in the text colour with a filled dot, the current one in the info colour with a halo.
 class _BubbleSteps extends StatelessWidget {
-  const _BubbleSteps(this.steps);
+  const _BubbleSteps(this.steps, {this.waiting});
 
   final List<KitStep> steps;
+
+  /// The wording of the waiting-for-their-wallet step here: the page names the person.
+  final ({String? reason, String text})? waiting;
 
   @override
   Widget build(BuildContext context) {
@@ -341,7 +347,7 @@ class _BubbleSteps extends StatelessWidget {
                   child: Text(
                     switch (steps[i].state) {
                       KitStepState.done => steps[i].detail == null ? steps[i].title : '${steps[i].title} ${steps[i].detail}',
-                      KitStepState.now => steps[i].detail ?? steps[i].title,
+                      KitStepState.now => waiting != null && steps[i].detail == waiting!.reason ? waiting!.text : (steps[i].detail ?? steps[i].title),
                       KitStepState.later => steps[i].title,
                     },
                     style: style.copyWith(
@@ -602,6 +608,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                     onSelected: (v) => switch (v) {
                       'edit' => _edit(contact),
                       'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
+                      'code' when contact.addresses.isNotEmpty => _showCode(contact),
                       'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
                       'delete' => _delete(contact, pairing),
                       _ => null,
@@ -619,6 +626,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                           leading: Icon(starred ? Icons.star_rounded : Icons.star_outline_rounded),
                           title: Text(starred ? l.contactUnstar : l.contactStar),
                         ),
+                      ),
+                      PopupMenuItem(
+                        key: contactPageCodeKey,
+                        value: 'code',
+                        enabled: contact.addresses.isNotEmpty,
+                        child: ListTile(enabled: contact.addresses.isNotEmpty, leading: const Icon(KitIcons.qr), title: Text(l.contactsShowCode)),
                       ),
                       if (pairing != null && !pairing.ended && pairing.sas.isNotEmpty)
                         PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.pairCheckWords))),
@@ -847,11 +860,21 @@ class _Header extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(height: 4),
-        AvatarLabelMark(
-          avatar: _FaceAvatar(contactInitials(contact.name)),
-          size: _FaceAvatar.side,
-          label: contact.label,
-          onTap: () => _pickLabel(context, ref, contact),
+        // The label mark's touch box reaches below the avatar: overlaid, not laid out, so the
+        // name sits where the frame has it.
+        SizedBox(
+          height: _FaceAvatar.side,
+          child: OverflowBox(
+            alignment: Alignment.topCenter,
+            minHeight: 0,
+            maxHeight: double.infinity,
+            child: AvatarLabelMark(
+              avatar: _FaceAvatar(contactInitials(contact.name)),
+              size: _FaceAvatar.side,
+              label: contact.label,
+              onTap: () => _pickLabel(context, ref, contact),
+            ),
+          ),
         ),
         const SizedBox(height: 10),
         Semantics(
@@ -921,6 +944,7 @@ class _Header extends ConsumerWidget {
           ),
         ],
         // Labelled buttons only (UP-028): the row wraps where the words need it (Russian at 360 dp).
+        if (onPair != null || onPending != null) ...[
         const SizedBox(height: 12),
         Wrap(
           alignment: WrapAlignment.center,
@@ -956,16 +980,9 @@ class _Header extends ConsumerWidget {
                 expand: false,
                 onPressed: onPending,
               ),
-            KitButton(
-              label: l.contactsShowCode,
-              icon: KitIcons.qr,
-              kind: KitButtonKind.quiet,
-              small: true,
-              expand: false,
-              onPressed: contact.addresses.isEmpty ? null : onCode,
-            ),
           ],
         ),
+        ],
         // A contact with only a pairing that cannot take a payment now: why Send is off.
         if (!noPayments && !classicOnly && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
           const SizedBox(height: 8),

@@ -13,6 +13,10 @@ const double _frameInsetBottom = 34;
 /// come out as drawn.
 final DateTime frameNow = DateTime(2026, 11, 12, 14, 52);
 
+/// What the clock says now: [frameNow], unless a visit sets another time (the file pages say when
+/// the file was made).
+DateTime frameClockAt = frameNow;
+
 /// The frames' rate: 1,284.7321 EPIC is $1,327.13, 25.0 is $25.82, 42.5 is $43.90.
 class _FramePrice implements PriceSource {
   @override
@@ -65,13 +69,16 @@ TxEntry _fTx(
   required int at,
   String? who,
   String? note,
+  String? label,
   bool sealed = false,
   TxStatus status = TxStatus.confirmed,
   int depth = 6000,
+  bool pending = false,
   BigInt? height,
 }) {
   final fee = out ? _epic(0.008) : BigInt.zero;
-  final confirmed = status == TxStatus.confirmed;
+  // Awaiting confirmation: [depth] blocks under the tip (1: two confirmations), or (pending) not on chain yet.
+  final onChain = !pending && status != TxStatus.cancelled && status != TxStatus.awaitingRecipient;
   return fakeTx(
     id: id,
     slateId: 'f0000000-0000-4000-8000-${id.toString().padLeft(12, '0')}',
@@ -79,14 +86,15 @@ TxEntry _fTx(
     status: status,
     createdAtUnix: at,
     timeUnix: at,
-    blockHeight: height ?? (confirmed ? _tip - BigInt.from(depth) : null),
-    blockTimeUnix: confirmed ? at : null,
+    blockHeight: height ?? (onChain ? _tip - BigInt.from(depth) : null),
+    blockTimeUnix: status == TxStatus.confirmed ? at : null,
     amountDebited: out ? _epic(amount) + fee : BigInt.zero,
     amountCredited: out ? BigInt.zero : _epic(amount),
     fee: out ? fee : null,
     numInputs: out ? 1 : 0,
     counterparty: who,
     note: note,
+    label: label,
     epic1Via: sealed ? Epic1Via.link : null,
   );
 }

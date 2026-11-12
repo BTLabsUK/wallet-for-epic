@@ -10,7 +10,7 @@ import 'kit_tokens.dart';
 /// A 28 px pill that names a state or a count ("+37.0 arriving", "Epicbox"). [info] is the blue
 /// tint, quiet the neutral fill.
 class KitChip extends StatelessWidget {
-  const KitChip(this.label, {super.key, this.icon, this.leading, this.iconSize = 15, this.info = false, this.onTap, this.semanticsId, this.semanticsLabel});
+  const KitChip(this.label, {super.key, this.icon, this.leading, this.iconSize = 15, this.info = false, this.onTap, this.semanticsId, this.semanticsLabel, this.tall = false});
 
   final String label;
   final IconData? icon;
@@ -25,18 +25,21 @@ class KitChip extends StatelessWidget {
   /// What a screen reader says when the text leaves something out (the unit).
   final String? semanticsLabel;
 
+  /// The note chip of the amount pages: 34 tall, in the text colour, a 14 icon (`.chip.q` at 34).
+  final bool tall;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final color = info ? t.info : t.dim;
+    final color = info ? t.info : (tall ? t.text : t.dim);
     final chip = Container(
-      height: Kit.chip,
-      padding: const EdgeInsetsDirectional.only(start: 9, end: 11),
+      height: tall ? 34 : Kit.chip,
+      padding: EdgeInsetsDirectional.only(start: tall ? 12 : 9, end: tall ? 14 : 11),
       decoration: BoxDecoration(color: info ? t.infoSoft : t.fill, borderRadius: BorderRadius.circular(Kit.rPill)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leading != null) ...[leading!, const SizedBox(width: 6)] else if (icon != null) ...[Icon(icon, size: iconSize, color: color), const SizedBox(width: 6)],
+          if (leading != null) ...[leading!, const SizedBox(width: 6)] else if (icon != null) ...[Icon(icon, size: tall ? 14 : iconSize, color: color), const SizedBox(width: 6)],
           Flexible(child: Text(label, style: KitType.chip.copyWith(color: color), maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),

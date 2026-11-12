@@ -22432,11 +22432,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneProgAnswersEpicbox =>
-      'Epicbox keeps it until the recipient opens their wallet.';
+      'It answers when the recipient next opens it.';
 
   @override
   String phoneProgAnswersEpicboxNamed(String who) {
-    return 'Epicbox keeps it until $who opens their wallet.';
+    return 'It answers when $who next opens it.';
   }
 
   @override
@@ -22897,76 +22897,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneAcceptNotNow => 'Not now';
 
   @override
-  String get phoneSendSearchHint => 'Name, address or link';
-
-  @override
-  String get phoneSendNewToYou => 'New to you';
-
-  @override
-  String phoneSendNotSavedPaid(Object date) {
-    return 'Not saved · paid $date';
-  }
-
-  @override
-  String get phoneSendNoAddressSub => 'Pay in person, or with a file';
-
-  @override
-  String get phoneSendNoAddressTitle => 'Pay without an address';
-
-  @override
-  String get phoneSendNoAddressBody =>
-      'You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.';
-
-  @override
-  String get phoneSendInPerson => 'In person';
-
-  @override
-  String get phoneSendInPersonSub => 'Show a code to the phone next to you';
-
-  @override
-  String get phoneSendWithFile => 'With a file';
-
-  @override
-  String get phoneSendWithFileSub => 'Send it in any app; they send one back';
-
-  @override
-  String get phoneSendAddContact => 'Add a contact';
-
-  @override
-  String get phoneSendAddressCheck =>
-      'Check the first and last six characters with the person you are paying.';
-
-  @override
-  String get phoneSendReviewTitle => 'Review';
-
-  @override
-  String get phoneSendMoreDetails => 'More details';
-
-  @override
-  String phoneSendOver(Object amount) {
-    return '$amount more than you can send. Tap Max to send it all.';
-  }
-
-  @override
-  String phoneSendMaxNote(Object fee) {
-    return 'Everything you have, less the $fee fee';
-  }
-
-  @override
-  String get phoneSendViewPayment => 'View payment';
-
-  @override
-  String phoneSendOnItsWayTo(Object name) {
-    return 'On its way to $name';
-  }
-
-  @override
-  String get phoneSendTheirOffline => 'their wallet can be offline';
-
-  @override
-  String get phoneSendTheirOnline => 'their wallet has to be open';
-
-  @override
   String get phoneAboutProtocol => 'Payment protocol';
 
   @override
@@ -22987,6 +22917,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'What is new in $version';
   }
+
+  @override
+  String get phoneLinkScanSub => 'Scan the code on your other device';
+
+  @override
+  String get phoneLinkShowSub => 'Your other device scans it';
+
+  @override
+  String get phoneLinkPasteSub => 'Paste a code or link you were sent';
 
   @override
   String get phoneContactsSearchHint => 'Search, or paste an address';
@@ -23012,13 +22951,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneContactRequest => 'Request';
 
   @override
-  String get phoneLinkScanSub => 'Scan the code on your other device';
+  String get phoneTabHome => 'Home';
 
   @override
-  String get phoneLinkShowSub => 'Your other device scans it';
+  String get phoneTabScan => 'Scan';
 
   @override
-  String get phoneLinkPasteSub => 'Paste a code or link you were sent';
+  String get phoneReview => 'Review';
+
+  @override
+  String get phoneLater => 'Later';
+
+  @override
+  String get phoneHomeRecent => 'Recent';
+
+  @override
+  String get phoneHomeSeeAll => 'See all';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount arriving';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount in sends';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Syncing $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Offline';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Invoice from $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Nothing is paid until you approve.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Available · last known';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Balance details';
+
+  @override
+  String get phoneHomeEmpty => 'No payments yet. Receive some EPIC to begin.';
 
   @override
   String get phoneRecvTitle => 'Receive';
@@ -23124,65 +23109,138 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get phoneTabHome => 'Home';
+  String get phoneQrHoldHint => 'Hold their camera to this code.';
 
   @override
-  String get phoneTabScan => 'Scan';
+  String get phoneQrReplyShowing =>
+      'The payment is made when they scan it. It then shows in Activity.';
 
   @override
-  String get phoneReview => 'Review';
+  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
 
   @override
-  String get phoneLater => 'Later';
+  String get phoneSendSearchHint => 'Name, address or link';
 
   @override
-  String get phoneHomeRecent => 'Recent';
+  String get phoneSendNewToYou => 'New to you';
 
   @override
-  String get phoneHomeSeeAll => 'See all';
-
-  @override
-  String phoneHomeArriving(String amount) {
-    return '+$amount arriving';
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Not saved · paid $date';
   }
 
   @override
-  String phoneHomeInSends(String amount) {
-    return '$amount in sends';
+  String get phoneSendNoAddressSub => 'Pay in person, or with a file';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Pay without an address';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.';
+
+  @override
+  String get phoneSendInPerson => 'In person';
+
+  @override
+  String get phoneSendInPersonSub => 'Show a code to the phone next to you';
+
+  @override
+  String get phoneSendWithFile => 'With a file';
+
+  @override
+  String get phoneSendWithFileSub => 'Send it in any app; they send one back';
+
+  @override
+  String get phoneSendAddContact => 'Add a contact';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Check the first and last six characters with the person you are paying.';
+
+  @override
+  String get phoneSendReviewTitle => 'Review';
+
+  @override
+  String get phoneSendMoreDetails => 'More details';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return '$amount more than you can send. Tap Max to send it all.';
   }
 
   @override
-  String phoneHomeSyncing(String percent) {
-    return 'Syncing $percent%';
+  String phoneSendMaxNote(Object fee) {
+    return 'Everything you have, less the $fee fee';
   }
 
   @override
-  String get phoneHomeOffline => 'Offline';
+  String get phoneSendViewPayment => 'View payment';
 
   @override
-  String phoneHomeInvoiceTitle(String name) {
-    return 'Invoice from $name';
+  String phoneSendOnItsWayTo(Object name) {
+    return 'On its way to $name';
   }
 
   @override
-  String phoneHomeInvoiceBody(String amount) {
-    return '$amount. Nothing is paid until you approve.';
-  }
+  String get phoneSendTheirOffline => 'their wallet can be offline';
 
   @override
-  String get phoneHomeBalanceLastKnown => 'Available · last known';
-
-  @override
-  String get phoneHomeBalanceSheetHint => 'Balance details';
-
-  @override
-  String get phoneHomeEmpty => 'No payments yet. Receive some EPIC to begin.';
+  String get phoneSendTheirOnline => 'their wallet has to be open';
 
   @override
   String get phoneTourOffer => 'Want a quick tour of the wallet?';
 
   @override
   String get phoneTourOfferShow => 'Show me';
+
+  @override
+  String get phoneQrDoneScanned => 'Your code was scanned';
+
+  @override
+  String get phoneQrDoneAnswerRead => 'Their answer was read';
+
+  @override
+  String get phoneQrDoneCodeRead => 'You scanned their code';
+
+  @override
+  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+
+  @override
+  String get phoneQrDoneFinishes =>
+      'It finishes by itself. You can put the phone away.';
+
+  @override
+  String phoneRecvFileLead(String amount) {
+    return 'Share this file. Whoever opens it is asked for $amount.';
+  }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
+
+  @override
+  String get phoneContactsYouPaid => 'You paid';
+
+  @override
+  String get phoneContactsPaidYou => 'Paid you';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count payments arriving';
+  }
+
+  @override
+  String get phoneContactsNow => 'Now';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'Waiting for $who\'s wallet to answer';
+  }
 
   @override
   String get phoneSettingsFailover => 'Switch node by itself';

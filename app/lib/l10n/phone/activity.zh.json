@@ -82,5 +82,7 @@
   "phonePayRouteSubEpic1": "通过付款链接支付",
   "phonePayRouteSubInPerson": "两部手机互相出示二维码",
   "phonePayRouteSubFile": "来回传递的付款文件",
-  "phonePayRouteSubTor": "通过 Tor 直连对方钱包"
+  "phonePayRouteSubTor": "通过 Tor 直连对方钱包",
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
 }

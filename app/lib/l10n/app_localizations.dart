@@ -35043,13 +35043,13 @@ abstract class AppLocalizations {
   /// Reason line of a sent payment that waits for the other wallet, sent through Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox keeps it until the recipient opens their wallet.'**
+  /// **'It answers when the recipient next opens it.'**
   String get phoneProgAnswersEpicbox;
 
   /// Reason line of a sent payment that waits for the other wallet, sent through Epicbox. {who} is the recipient's name.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox keeps it until {who} opens their wallet.'**
+  /// **'It answers when {who} next opens it.'**
   String phoneProgAnswersEpicboxNamed(String who);
 
   /// Reason line of a sent payment that travels as a file and waits for the answer file.
@@ -35832,126 +35832,6 @@ abstract class AppLocalizations {
   /// **'Not now'**
   String get phoneAcceptNotNow;
 
-  /// Hint of the Who field on the Send page.
-  ///
-  /// In en, this message translates to:
-  /// **'Name, address or link'**
-  String get phoneSendSearchHint;
-
-  /// First part of the line under a pasted address that is not a saved contact.
-  ///
-  /// In en, this message translates to:
-  /// **'New to you'**
-  String get phoneSendNewToYou;
-
-  /// Line of a Recent row whose address is not a saved contact; {date} is when it was last paid.
-  ///
-  /// In en, this message translates to:
-  /// **'Not saved · paid {date}'**
-  String phoneSendNotSavedPaid(Object date);
-
-  /// Subtitle of the No address row on the Who step.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay in person, or with a file'**
-  String get phoneSendNoAddressSub;
-
-  /// Title of the sheet that opens from No address.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay without an address'**
-  String get phoneSendNoAddressTitle;
-
-  /// Text of the No address sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.'**
-  String get phoneSendNoAddressBody;
-
-  /// Row of the No address sheet: pay by showing a code.
-  ///
-  /// In en, this message translates to:
-  /// **'In person'**
-  String get phoneSendInPerson;
-
-  /// Subtitle of the In person row.
-  ///
-  /// In en, this message translates to:
-  /// **'Show a code to the phone next to you'**
-  String get phoneSendInPersonSub;
-
-  /// Row of the No address sheet: pay by sending a file.
-  ///
-  /// In en, this message translates to:
-  /// **'With a file'**
-  String get phoneSendWithFile;
-
-  /// Subtitle of the With a file row.
-  ///
-  /// In en, this message translates to:
-  /// **'Send it in any app; they send one back'**
-  String get phoneSendWithFileSub;
-
-  /// Row that saves a pasted address as a contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a contact'**
-  String get phoneSendAddContact;
-
-  /// Hint under a pasted address.
-  ///
-  /// In en, this message translates to:
-  /// **'Check the first and last six characters with the person you are paying.'**
-  String get phoneSendAddressCheck;
-
-  /// Title of the Review sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Review'**
-  String get phoneSendReviewTitle;
-
-  /// Row of the Review sheet that opens the full details.
-  ///
-  /// In en, this message translates to:
-  /// **'More details'**
-  String get phoneSendMoreDetails;
-
-  /// Line under the red Available bar; {amount} is how much the amount is over.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} more than you can send. Tap Max to send it all.'**
-  String phoneSendOver(Object amount);
-
-  /// Line shown after Max: everything, less the fee.
-  ///
-  /// In en, this message translates to:
-  /// **'Everything you have, less the {fee} fee'**
-  String phoneSendMaxNote(Object fee);
-
-  /// Quiet button on the Sent page.
-  ///
-  /// In en, this message translates to:
-  /// **'View payment'**
-  String get phoneSendViewPayment;
-
-  /// Title of the Sent page; {name} is the person paid.
-  ///
-  /// In en, this message translates to:
-  /// **'On its way to {name}'**
-  String phoneSendOnItsWayTo(Object name);
-
-  /// Second part of the line under the method of a payment: the other wallet need not be open.
-  ///
-  /// In en, this message translates to:
-  /// **'their wallet can be offline'**
-  String get phoneSendTheirOffline;
-
-  /// Second part of the line under the method of a payment: the other wallet must be open.
-  ///
-  /// In en, this message translates to:
-  /// **'their wallet has to be open'**
-  String get phoneSendTheirOnline;
-
   /// Row in About: the payment protocol the wallet speaks.
   ///
   /// In en, this message translates to:
@@ -35987,6 +35867,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What is new in {version}'**
   String phoneAboutNotesTitle(String version);
+
+  /// Subtitle of the Scan row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on your other device'**
+  String get phoneLinkScanSub;
+
+  /// Subtitle of the Show my code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other device scans it'**
+  String get phoneLinkShowSub;
+
+  /// Subtitle of the Paste code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a code or link you were sent'**
+  String get phoneLinkPasteSub;
 
   /// Placeholder of the search field on the Contacts tab; typing filters by name, note or address
   ///
@@ -36030,23 +35928,95 @@ abstract class AppLocalizations {
   /// **'Request'**
   String get phoneContactRequest;
 
-  /// Subtitle of the Scan row in Link a device.
+  /// Tab bar: the first tab, the wallet's home screen. One word.
   ///
   /// In en, this message translates to:
-  /// **'Scan the code on your other device'**
-  String get phoneLinkScanSub;
+  /// **'Home'**
+  String get phoneTabHome;
 
-  /// Subtitle of the Show my code row in Link a device.
+  /// Screen reader label of the round button in the middle of the tab bar that opens the QR scanner.
   ///
   /// In en, this message translates to:
-  /// **'Your other device scans it'**
-  String get phoneLinkShowSub;
+  /// **'Scan'**
+  String get phoneTabScan;
 
-  /// Subtitle of the Paste code row in Link a device.
+  /// Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking
   ///
   /// In en, this message translates to:
-  /// **'Paste a code or link you were sent'**
-  String get phoneLinkPasteSub;
+  /// **'Review'**
+  String get phoneReview;
+
+  /// Quiet button that puts a needs-you card away for now
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get phoneLater;
+
+  /// Heading over the latest payments on Home
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get phoneHomeRecent;
+
+  /// Link at the end of Home's Recent heading; opens the Activity tab
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get phoneHomeSeeAll;
+
+  /// Info chip under Home's balance: the amount that is on its way in
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} arriving'**
+  String phoneHomeArriving(String amount);
+
+  /// Quiet chip under Home's balance: the amount held by payments being sent
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} in sends'**
+  String phoneHomeInSends(String amount);
+
+  /// The status pill on Home while the node is catching up
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing {percent}%'**
+  String phoneHomeSyncing(String percent);
+
+  /// The status pill on Home when the wallet reaches neither the node nor Epicbox
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get phoneHomeOffline;
+
+  /// Title of the card on Home when an invoice waits for the user's approval
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice from {name}'**
+  String phoneHomeInvoiceTitle(String name);
+
+  /// Body of the invoice card on Home; the amount may include a fiat value
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}. Nothing is paid until you approve.'**
+  String phoneHomeInvoiceBody(String amount);
+
+  /// Caption over Home's balance when the figure is the last one known (no connection)
+  ///
+  /// In en, this message translates to:
+  /// **'Available · last known'**
+  String get phoneHomeBalanceLastKnown;
+
+  /// Spoken name of Home's balance, which opens the sheet with every part of the balance
+  ///
+  /// In en, this message translates to:
+  /// **'Balance details'**
+  String get phoneHomeBalanceSheetHint;
+
+  /// Empty Home: what stands under the Recent heading before the first payment
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet. Receive some EPIC to begin.'**
+  String get phoneHomeEmpty;
 
   /// Title of the Receive screen.
   ///
@@ -36228,95 +36198,143 @@ abstract class AppLocalizations {
   /// **'from {name}'**
   String phoneRecvArrivalFrom(String name);
 
-  /// Tab bar: the first tab, the wallet's home screen. One word.
+  /// Line under a shown QR code: where to point the other phone.
   ///
   /// In en, this message translates to:
-  /// **'Home'**
-  String get phoneTabHome;
+  /// **'Hold their camera to this code.'**
+  String get phoneQrHoldHint;
 
-  /// Screen reader label of the round button in the middle of the tab bar that opens the QR scanner.
+  /// Dim line under the receiver's answer code while it is shown.
   ///
   /// In en, this message translates to:
-  /// **'Scan'**
-  String get phoneTabScan;
+  /// **'The payment is made when they scan it. It then shows in Activity.'**
+  String get phoneQrReplyShowing;
 
-  /// Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking
+  /// Line under the camera when the payer scans the answer on the other phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Point at the answer on their phone.'**
+  String get phoneQrAimAnswer;
+
+  /// Hint of the Who field on the Send page.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, address or link'**
+  String get phoneSendSearchHint;
+
+  /// First part of the line under a pasted address that is not a saved contact.
+  ///
+  /// In en, this message translates to:
+  /// **'New to you'**
+  String get phoneSendNewToYou;
+
+  /// Line of a Recent row whose address is not a saved contact; {date} is when it was last paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved · paid {date}'**
+  String phoneSendNotSavedPaid(Object date);
+
+  /// Subtitle of the No address row on the Who step.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in person, or with a file'**
+  String get phoneSendNoAddressSub;
+
+  /// Title of the sheet that opens from No address.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay without an address'**
+  String get phoneSendNoAddressTitle;
+
+  /// Text of the No address sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.'**
+  String get phoneSendNoAddressBody;
+
+  /// Row of the No address sheet: pay by showing a code.
+  ///
+  /// In en, this message translates to:
+  /// **'In person'**
+  String get phoneSendInPerson;
+
+  /// Subtitle of the In person row.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a code to the phone next to you'**
+  String get phoneSendInPersonSub;
+
+  /// Row of the No address sheet: pay by sending a file.
+  ///
+  /// In en, this message translates to:
+  /// **'With a file'**
+  String get phoneSendWithFile;
+
+  /// Subtitle of the With a file row.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it in any app; they send one back'**
+  String get phoneSendWithFileSub;
+
+  /// Row that saves a pasted address as a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a contact'**
+  String get phoneSendAddContact;
+
+  /// Hint under a pasted address.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the first and last six characters with the person you are paying.'**
+  String get phoneSendAddressCheck;
+
+  /// Title of the Review sheet.
   ///
   /// In en, this message translates to:
   /// **'Review'**
-  String get phoneReview;
+  String get phoneSendReviewTitle;
 
-  /// Quiet button that puts a needs-you card away for now
+  /// Row of the Review sheet that opens the full details.
   ///
   /// In en, this message translates to:
-  /// **'Later'**
-  String get phoneLater;
+  /// **'More details'**
+  String get phoneSendMoreDetails;
 
-  /// Heading over the latest payments on Home
+  /// Line under the red Available bar; {amount} is how much the amount is over.
   ///
   /// In en, this message translates to:
-  /// **'Recent'**
-  String get phoneHomeRecent;
+  /// **'{amount} more than you can send. Tap Max to send it all.'**
+  String phoneSendOver(Object amount);
 
-  /// Link at the end of Home's Recent heading; opens the Activity tab
+  /// Line shown after Max: everything, less the fee.
   ///
   /// In en, this message translates to:
-  /// **'See all'**
-  String get phoneHomeSeeAll;
+  /// **'Everything you have, less the {fee} fee'**
+  String phoneSendMaxNote(Object fee);
 
-  /// Info chip under Home's balance: the amount that is on its way in
+  /// Quiet button on the Sent page.
   ///
   /// In en, this message translates to:
-  /// **'+{amount} arriving'**
-  String phoneHomeArriving(String amount);
+  /// **'View payment'**
+  String get phoneSendViewPayment;
 
-  /// Quiet chip under Home's balance: the amount held by payments being sent
+  /// Title of the Sent page; {name} is the person paid.
   ///
   /// In en, this message translates to:
-  /// **'{amount} in sends'**
-  String phoneHomeInSends(String amount);
+  /// **'On its way to {name}'**
+  String phoneSendOnItsWayTo(Object name);
 
-  /// The status pill on Home while the node is catching up
+  /// Second part of the line under the method of a payment: the other wallet need not be open.
   ///
   /// In en, this message translates to:
-  /// **'Syncing {percent}%'**
-  String phoneHomeSyncing(String percent);
+  /// **'their wallet can be offline'**
+  String get phoneSendTheirOffline;
 
-  /// The status pill on Home when the wallet reaches neither the node nor Epicbox
+  /// Second part of the line under the method of a payment: the other wallet must be open.
   ///
   /// In en, this message translates to:
-  /// **'Offline'**
-  String get phoneHomeOffline;
-
-  /// Title of the card on Home when an invoice waits for the user's approval
-  ///
-  /// In en, this message translates to:
-  /// **'Invoice from {name}'**
-  String phoneHomeInvoiceTitle(String name);
-
-  /// Body of the invoice card on Home; the amount may include a fiat value
-  ///
-  /// In en, this message translates to:
-  /// **'{amount}. Nothing is paid until you approve.'**
-  String phoneHomeInvoiceBody(String amount);
-
-  /// Caption over Home's balance when the figure is the last one known (no connection)
-  ///
-  /// In en, this message translates to:
-  /// **'Available · last known'**
-  String get phoneHomeBalanceLastKnown;
-
-  /// Spoken name of Home's balance, which opens the sheet with every part of the balance
-  ///
-  /// In en, this message translates to:
-  /// **'Balance details'**
-  String get phoneHomeBalanceSheetHint;
-
-  /// Empty Home: what stands under the Recent heading before the first payment
-  ///
-  /// In en, this message translates to:
-  /// **'No payments yet. Receive some EPIC to begin.'**
-  String get phoneHomeEmpty;
+  /// **'their wallet has to be open'**
+  String get phoneSendTheirOnline;
 
   /// Toast shown once after the first unlock: offers the wallet tour. Short question.
   ///
@@ -36329,6 +36347,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show me'**
   String get phoneTourOfferShow;
+
+  /// A step of the finished in-person payment: the other phone read this phone's code.
+  ///
+  /// In en, this message translates to:
+  /// **'Your code was scanned'**
+  String get phoneQrDoneScanned;
+
+  /// A step of the finished in-person payment: this phone read the other phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Their answer was read'**
+  String get phoneQrDoneAnswerRead;
+
+  /// A step of the finished in-person payment: this phone read the other phone's code.
+  ///
+  /// In en, this message translates to:
+  /// **'You scanned their code'**
+  String get phoneQrDoneCodeRead;
+
+  /// A step of the finished in-person payment: the other phone read this phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'They scanned your answer'**
+  String get phoneQrDoneAnswerSeen;
+
+  /// The line under the step in progress on the finished in-person payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'It finishes by itself. You can put the phone away.'**
+  String get phoneQrDoneFinishes;
+
+  /// Lead on the screen that shows a request as a file. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this file. Whoever opens it is asked for {amount}.'**
+  String phoneRecvFileLead(String amount);
+
+  /// Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for their wallet to answer'**
+  String get phoneProgWaitingAnswer;
+
+  /// Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet. {name} is the recipient's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}\'s wallet to answer'**
+  String phoneProgWaitingAnswerNamed(String name);
+
+  /// Start of a contact row's second line on the Contacts tab when the user's latest payment to them is done; the note or Sealed follows after a dot
+  ///
+  /// In en, this message translates to:
+  /// **'You paid'**
+  String get phoneContactsYouPaid;
+
+  /// Start of a contact row's second line on the Contacts tab when the contact's latest payment to the user is done; the note or Sealed follows after a dot
+  ///
+  /// In en, this message translates to:
+  /// **'Paid you'**
+  String get phoneContactsPaidYou;
+
+  /// Second line of a contact row on the Contacts tab when two or more payments from them are still on their way. {count} is the number, 2 or more
+  ///
+  /// In en, this message translates to:
+  /// **'{count} payments arriving'**
+  String phoneContactsArriving(int count);
+
+  /// Time under the amount of a contact row on the Contacts tab when the payment is less than a minute old
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get phoneContactsNow;
+
+  /// A payment bubble on a contact's page while their wallet has not answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {who}\'s wallet to answer'**
+  String phoneContactsWaitingAnswer(String who);
 
   /// Switch in Network & privacy: use another node when the chosen one stops answering.
   ///

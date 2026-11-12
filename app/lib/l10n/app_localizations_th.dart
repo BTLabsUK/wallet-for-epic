@@ -22428,76 +22428,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneAcceptNotNow => 'ไว้ก่อน';
 
   @override
-  String get phoneSendSearchHint => 'ชื่อ ที่อยู่ หรือลิงก์';
-
-  @override
-  String get phoneSendNewToYou => 'ใหม่สำหรับคุณ';
-
-  @override
-  String phoneSendNotSavedPaid(Object date) {
-    return 'ยังไม่บันทึก · จ่ายเมื่อ $date';
-  }
-
-  @override
-  String get phoneSendNoAddressSub => 'จ่ายต่อหน้า หรือด้วยไฟล์';
-
-  @override
-  String get phoneSendNoAddressTitle => 'จ่ายโดยไม่มีที่อยู่';
-
-  @override
-  String get phoneSendNoAddressBody =>
-      'คุณสร้างการจ่ายเงินที่นี่ อีกฝ่ายตอบกลับ แล้วก็เสร็จ ยกเลิกได้จนกว่าคำตอบจะกลับมา';
-
-  @override
-  String get phoneSendInPerson => 'ต่อหน้า';
-
-  @override
-  String get phoneSendInPersonSub => 'แสดงรหัสให้โทรศัพท์ที่อยู่ข้าง ๆ';
-
-  @override
-  String get phoneSendWithFile => 'ด้วยไฟล์';
-
-  @override
-  String get phoneSendWithFileSub => 'ส่งในแอปใดก็ได้ อีกฝ่ายจะส่งไฟล์กลับมา';
-
-  @override
-  String get phoneSendAddContact => 'เพิ่มผู้ติดต่อ';
-
-  @override
-  String get phoneSendAddressCheck =>
-      'ตรวจอักขระหกตัวแรกและหกตัวสุดท้ายกับคนที่คุณจ่ายให้';
-
-  @override
-  String get phoneSendReviewTitle => 'ตรวจสอบ';
-
-  @override
-  String get phoneSendMoreDetails => 'รายละเอียดเพิ่มเติม';
-
-  @override
-  String phoneSendOver(Object amount) {
-    return 'เกินที่ส่งได้ $amount แตะ สูงสุด เพื่อส่งทั้งหมด';
-  }
-
-  @override
-  String phoneSendMaxNote(Object fee) {
-    return 'ทั้งหมดที่คุณมี หักค่าธรรมเนียม $fee';
-  }
-
-  @override
-  String get phoneSendViewPayment => 'ดูการจ่ายเงิน';
-
-  @override
-  String phoneSendOnItsWayTo(Object name) {
-    return 'กำลังไปยัง $name';
-  }
-
-  @override
-  String get phoneSendTheirOffline => 'กระเป๋าของเขาออฟไลน์ได้';
-
-  @override
-  String get phoneSendTheirOnline => 'กระเป๋าของเขาต้องเปิดอยู่';
-
-  @override
   String get phoneAboutProtocol => 'โปรโตคอลการชำระเงิน';
 
   @override
@@ -22518,6 +22448,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'มีอะไรใหม่ใน $version';
   }
+
+  @override
+  String get phoneLinkScanSub => 'สแกนรหัสบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get phoneLinkShowSub => 'อุปกรณ์อีกเครื่องสแกนรหัสนี้';
+
+  @override
+  String get phoneLinkPasteSub => 'วางรหัสหรือลิงก์ที่ได้รับ';
 
   @override
   String get phoneContactsSearchHint => 'ค้นหา หรือวางที่อยู่';
@@ -22544,13 +22483,59 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneContactRequest => 'ขอเงิน';
 
   @override
-  String get phoneLinkScanSub => 'สแกนรหัสบนอุปกรณ์อีกเครื่อง';
+  String get phoneTabHome => 'หน้าแรก';
 
   @override
-  String get phoneLinkShowSub => 'อุปกรณ์อีกเครื่องสแกนรหัสนี้';
+  String get phoneTabScan => 'สแกน';
 
   @override
-  String get phoneLinkPasteSub => 'วางรหัสหรือลิงก์ที่ได้รับ';
+  String get phoneReview => 'ตรวจสอบ';
+
+  @override
+  String get phoneLater => 'ภายหลัง';
+
+  @override
+  String get phoneHomeRecent => 'ล่าสุด';
+
+  @override
+  String get phoneHomeSeeAll => 'ดูทั้งหมด';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount กำลังเข้า';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount ในการส่ง';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'กำลังซิงก์ $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => 'ออฟไลน์';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'ใบแจ้งหนี้จาก $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount จะไม่มีการชำระเงินจนกว่าคุณจะอนุมัติ';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'ใช้ได้ · ล่าสุดที่ทราบ';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'รายละเอียดยอดเงิน';
+
+  @override
+  String get phoneHomeEmpty => 'ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น';
 
   @override
   String get phoneRecvTitle => 'รับ';
@@ -22654,65 +22639,138 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get phoneTabHome => 'หน้าแรก';
+  String get phoneQrHoldHint => 'Hold their camera to this code.';
 
   @override
-  String get phoneTabScan => 'สแกน';
+  String get phoneQrReplyShowing =>
+      'The payment is made when they scan it. It then shows in Activity.';
 
   @override
-  String get phoneReview => 'ตรวจสอบ';
+  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
 
   @override
-  String get phoneLater => 'ภายหลัง';
+  String get phoneSendSearchHint => 'ชื่อ ที่อยู่ หรือลิงก์';
 
   @override
-  String get phoneHomeRecent => 'ล่าสุด';
+  String get phoneSendNewToYou => 'ใหม่สำหรับคุณ';
 
   @override
-  String get phoneHomeSeeAll => 'ดูทั้งหมด';
-
-  @override
-  String phoneHomeArriving(String amount) {
-    return '+$amount กำลังเข้า';
+  String phoneSendNotSavedPaid(Object date) {
+    return 'ยังไม่บันทึก · จ่ายเมื่อ $date';
   }
 
   @override
-  String phoneHomeInSends(String amount) {
-    return '$amount ในการส่ง';
+  String get phoneSendNoAddressSub => 'จ่ายต่อหน้า หรือด้วยไฟล์';
+
+  @override
+  String get phoneSendNoAddressTitle => 'จ่ายโดยไม่มีที่อยู่';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'คุณสร้างการจ่ายเงินที่นี่ อีกฝ่ายตอบกลับ แล้วก็เสร็จ ยกเลิกได้จนกว่าคำตอบจะกลับมา';
+
+  @override
+  String get phoneSendInPerson => 'ต่อหน้า';
+
+  @override
+  String get phoneSendInPersonSub => 'แสดงรหัสให้โทรศัพท์ที่อยู่ข้าง ๆ';
+
+  @override
+  String get phoneSendWithFile => 'ด้วยไฟล์';
+
+  @override
+  String get phoneSendWithFileSub => 'ส่งในแอปใดก็ได้ อีกฝ่ายจะส่งไฟล์กลับมา';
+
+  @override
+  String get phoneSendAddContact => 'เพิ่มผู้ติดต่อ';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'ตรวจอักขระหกตัวแรกและหกตัวสุดท้ายกับคนที่คุณจ่ายให้';
+
+  @override
+  String get phoneSendReviewTitle => 'ตรวจสอบ';
+
+  @override
+  String get phoneSendMoreDetails => 'รายละเอียดเพิ่มเติม';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return 'เกินที่ส่งได้ $amount แตะ สูงสุด เพื่อส่งทั้งหมด';
   }
 
   @override
-  String phoneHomeSyncing(String percent) {
-    return 'กำลังซิงก์ $percent%';
+  String phoneSendMaxNote(Object fee) {
+    return 'ทั้งหมดที่คุณมี หักค่าธรรมเนียม $fee';
   }
 
   @override
-  String get phoneHomeOffline => 'ออฟไลน์';
+  String get phoneSendViewPayment => 'ดูการจ่ายเงิน';
 
   @override
-  String phoneHomeInvoiceTitle(String name) {
-    return 'ใบแจ้งหนี้จาก $name';
+  String phoneSendOnItsWayTo(Object name) {
+    return 'กำลังไปยัง $name';
   }
 
   @override
-  String phoneHomeInvoiceBody(String amount) {
-    return '$amount จะไม่มีการชำระเงินจนกว่าคุณจะอนุมัติ';
-  }
+  String get phoneSendTheirOffline => 'กระเป๋าของเขาออฟไลน์ได้';
 
   @override
-  String get phoneHomeBalanceLastKnown => 'ใช้ได้ · ล่าสุดที่ทราบ';
-
-  @override
-  String get phoneHomeBalanceSheetHint => 'รายละเอียดยอดเงิน';
-
-  @override
-  String get phoneHomeEmpty => 'ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น';
+  String get phoneSendTheirOnline => 'กระเป๋าของเขาต้องเปิดอยู่';
 
   @override
   String get phoneTourOffer => 'ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม';
 
   @override
   String get phoneTourOfferShow => 'ดูเลย';
+
+  @override
+  String get phoneQrDoneScanned => 'Your code was scanned';
+
+  @override
+  String get phoneQrDoneAnswerRead => 'Their answer was read';
+
+  @override
+  String get phoneQrDoneCodeRead => 'You scanned their code';
+
+  @override
+  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+
+  @override
+  String get phoneQrDoneFinishes =>
+      'It finishes by itself. You can put the phone away.';
+
+  @override
+  String phoneRecvFileLead(String amount) {
+    return 'แชร์ไฟล์นี้ ใครเปิดจะถูกขอ $amount';
+  }
+
+  @override
+  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+
+  @override
+  String phoneProgWaitingAnswerNamed(String name) {
+    return 'Waiting for $name\'s wallet to answer';
+  }
+
+  @override
+  String get phoneContactsYouPaid => 'คุณจ่ายแล้ว';
+
+  @override
+  String get phoneContactsPaidYou => 'จ่ายให้คุณแล้ว';
+
+  @override
+  String phoneContactsArriving(int count) {
+    return '$count การชำระเงินกำลังมา';
+  }
+
+  @override
+  String get phoneContactsNow => 'ตอนนี้';
+
+  @override
+  String phoneContactsWaitingAnswer(String who) {
+    return 'กำลังรอกระเป๋าของ $who ตอบกลับ';
+  }
 
   @override
   String get phoneSettingsFailover => 'Switch node by itself';

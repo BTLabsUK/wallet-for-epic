@@ -342,7 +342,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             backId: TrustIds.activityBack,
             helpId: TrustIds.activityHelp,
           )
-        : KitTabTitle(l.historyTitle, trailing: _menu(context));
+        // `.ttl` is 44 tall; the kit's title is 56 so the menu button keeps its touch target.
+        : SizedBox(
+            height: 44,
+            child: OverflowBox(maxHeight: Kit.flowHeader + 12, child: KitTabTitle(l.historyTitle, trailing: _menu(context))),
+          );
 
     return SlotScaffold(
       // Only the first load shows the bar: a refresh runs in the background, often during a
@@ -361,6 +365,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     SliverToBoxAdapter(child: header),
                     SliverToBoxAdapter(
                       child: KitSearchField(
+                        // `.search` margin 14 above its 42 pill, which sits 3 inside the 48 field.
+                        margin: const EdgeInsets.fromLTRB(Kit.gutter, 11, Kit.gutter, 0),
                         controller: _search,
                         hint: l.phoneActSearchHint,
                         onChanged: _onSearchChanged,
@@ -369,7 +375,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     ),
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 12),
+                        padding: const EdgeInsets.only(top: 9),
                         child: KitSegmented<HistoryFilter>(
                           value: _filter,
                           onChanged: (filter) => setState(() => _filter = filter),
@@ -480,11 +486,12 @@ class _GroupSegment extends StatelessWidget {
             type: MaterialType.transparency,
             child: Stack(
               children: [
-                child,
+                // `.grp`'s 1 px border is outside its rows.
+                Padding(padding: EdgeInsets.fromLTRB(1, first ? 1 : 0, 1, last ? 1 : 0), child: child),
                 if (!last)
                   Positioned(
-                    left: Kit.dividerInsetList,
-                    right: 0,
+                    left: Kit.dividerInsetList + 1,
+                    right: 1,
                     bottom: 0,
                     child: const KitHairline(),
                   ),
@@ -578,62 +585,79 @@ class _NeedsYouCard extends StatelessWidget {
       MaterialPageRoute<void>(builder: (_) => InvoiceReviewScreen(invoice: invoice)),
     );
     final initials = nameInitials(who, count: 2);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, 8),
+    // `.grp` with one `.row` on --gold-soft: avatar, name over a gold line with a 6 px dot, and
+    // the small gold Review button.
+    return _GroupSegment(
+      first: true,
+      last: true,
       child: Semantics(
         container: true,
         label: [who, l.phoneActInvoiceFor(amount)].join(', '),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: t.goldSoft,
-            borderRadius: BorderRadius.circular(Kit.rGroup),
-            border: Border.all(color: t.goldLine),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-            child: Row(
-              children: [
-                ExcludeSemantics(
-                  child: initials.isEmpty ? const KitAvatar(icon: KitIcons.invoice) : KitAvatar(initials: initials),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ExcludeSemantics(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(who, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: t.text)),
-                        const SizedBox(height: 2),
-                        Row(
+        child: ColoredBox(
+          color: t.goldSoft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: Kit.rowList),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8.25),
+              child: Row(
+                children: [
+                  ExcludeSemantics(
+                    child: initials.isEmpty ? const KitAvatar(icon: KitIcons.invoice) : KitAvatar(initials: initials),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ExcludeSemantics(
+                      child: Transform.translate(
+                        offset: const Offset(0, -1.6),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(color: t.info, shape: BoxShape.circle),
-                            ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                l.phoneActInvoiceFor(amount),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: KitType.rowSub.copyWith(color: t.info),
+                            SizedBox(
+                              height: 26,
+                              child: Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Text(
+                                  who,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: KitType.rowTitle.copyWith(color: t.text),
+                                ),
                               ),
+                            ),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(color: t.accentText, shape: BoxShape.circle),
+                                ),
+                                const SizedBox(width: 5),
+                                Flexible(
+                                  child: Text(
+                                    l.phoneActInvoiceFor(amount),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: KitType.rowSub.copyWith(color: t.accentText),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                KitButton(
-                  label: l.phoneActReview,
-                  onPressed: open,
-                  small: true,
-                  semanticsId: TrustIds.activityReview,
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  KitButton(
+                    label: l.phoneActReview,
+                    onPressed: open,
+                    small: true,
+                    expand: false,
+                    semanticsId: TrustIds.activityReview,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
