@@ -483,8 +483,9 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     fontFamilyFallback: phoneFontFallback,
   );
   final applied = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
-  // The frames' body carries tnum and cv11 (wallet.css `.w`), so every text style does.
-  TextStyle? withFeatures(TextStyle? s) => s?.copyWith(fontFeatures: interFeatures);
+  // The frames' body carries tnum and cv11 (wallet.css `.w`), so every text style does, and no
+  // letter-spacing: Material's defaults (0.1 to 0.5) would widen every line by up to 7%.
+  TextStyle? withFeatures(TextStyle? s) => s?.copyWith(fontFeatures: interFeatures, letterSpacing: 0);
   final text = TextTheme(
     displayLarge: withFeatures(applied.displayLarge),
     displayMedium: withFeatures(applied.displayMedium),

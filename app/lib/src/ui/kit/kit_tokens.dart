@@ -135,6 +135,8 @@ abstract final class KitType {
     fontSize: size,
     fontWeight: weight,
     height: height,
+    // wallet.css sets none on the body; without it the theme's Material spacing leaks in.
+    letterSpacing: 0,
     fontFeatures: interFeatures,
   );
 
