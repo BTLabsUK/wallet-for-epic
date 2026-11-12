@@ -3,8 +3,7 @@
 /// service and level: a header with the service's tile (the server's operator icon or
 /// initials as the server lists show it, or the service's glyph on a gold-ticked tile for Tor
 /// and Link), the name with its state as a badge and the server under it; the facts as a
-/// strip of aligned cells; a footer band with the actions. The phone's sheets draw the same
-/// anatomy in their own tokens (`ui/levels/status_parts.dart`).
+/// strip of aligned cells; a footer band with the actions.
 library;
 
 import 'package:flutter/material.dart';
