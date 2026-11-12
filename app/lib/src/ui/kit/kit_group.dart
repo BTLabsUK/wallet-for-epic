@@ -61,9 +61,13 @@ class KitGroup extends StatelessWidget {
           borderRadius: BorderRadius.circular(Kit.rGroup),
           border: Border.all(color: t.hair),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Kit.rGroup - 1),
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: kids),
+        // `.grp` is content-box: the 1 px border sits outside the rows, as in the frames.
+        child: Padding(
+          padding: const EdgeInsets.all(1),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(Kit.rGroup - 1),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: kids),
+          ),
         ),
       ),
     );
@@ -82,16 +86,19 @@ class KitHairline extends StatelessWidget {
 
 /// The small dim label above a group: 13/500, 20 px in, 18 above and 8 below.
 class KitGroupLabel extends StatelessWidget {
-  const KitGroupLabel(this.text, {super.key, this.inset = Kit.gutter + 4});
+  const KitGroupLabel(this.text, {super.key, this.inset = Kit.gutter + 4, this.top = 18});
 
   final String text;
 
   /// The side inset: 20 on a page, less where the page already pads.
   final double inset;
 
+  /// The space above: 18, or 0 for the first label of a page, whose header leaves the gap.
+  final double top;
+
   @override
   Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.fromLTRB(inset, 18, inset, 8),
+    padding: EdgeInsets.fromLTRB(inset, top, inset, 8),
     child: Semantics(
       header: true,
       child: Epic1Text(text, style: KitType.groupLabel.copyWith(color: context.tokens.dim)),

@@ -28,7 +28,6 @@ import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../restore_scan.dart' show restoreScanProvider;
 import '../settings.dart';
-import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../help/help_content.dart' show HelpId;
@@ -134,13 +133,13 @@ String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
 
 /// The group's glyph on the hub.
 IconData settingsSectionIcon(SettingsSection section) => switch (section) {
-  SettingsSection.security => Icons.shield_outlined,
-  SettingsSection.privacyNetwork => Icons.hub_outlined,
-  SettingsSection.wallet => Icons.account_balance_wallet_outlined,
-  SettingsSection.transactions => Icons.swap_horiz,
-  SettingsSection.display => Icons.tune,
-  SettingsSection.advanced => Icons.terminal,
-  SettingsSection.about => Icons.info_outline,
+  SettingsSection.security => KitIcons.security,
+  SettingsSection.privacyNetwork => KitIcons.network,
+  SettingsSection.wallet => KitIcons.wallet,
+  SettingsSection.transactions => KitIcons.exchange,
+  SettingsSection.display => KitIcons.tuning,
+  SettingsSection.advanced => KitIcons.code,
+  SettingsSection.about => KitIcons.info,
 };
 
 /// A feature's name as the Advanced page shows it (the hub's state line reuses it).
@@ -554,10 +553,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         dividerInset: Kit.dividerInsetPlain,
         children: [
           KitRow(
-            size: KitRowSize.settings,
+            size: KitRowSize.list,
             title: l.backupTitle,
             subtitle: l.phoneSettingsPhraseLine,
             value: backedUp ? l.phoneSettingsBackedUp : l.settingsStateNotBackedUp,
+            valueIcon: backedUp ? KitIcons.check : null,
             valueColor: backedUp ? t.ok : t.warn,
             chevron: true,
             semanticsId: TrustIds.backupRow,
@@ -596,7 +596,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
           if (!previewNoLock)
             KitRow(
-              size: KitRowSize.settings,
+              size: KitRowSize.list,
               title: l.phoneSettingsPassphrase,
               subtitle: l.phoneSettingsPassphraseLine,
               value: (ref.watch(usesPassphraseProvider).value ?? false) ? l.netStatusOn : l.netStatusOff,
@@ -608,7 +608,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       if (minutes != null) KitFootnote(l.phoneSettingsAutoLockFootnote(autoLockDuration(l, minutes))),
       if (!previewNoLock) ...[
-        const SettingsGap(),
+        const SizedBox(height: 22),
         KitGroup(
           dividerInset: Kit.dividerInsetPlain,
           children: [
@@ -641,10 +641,21 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     // One page for how the wallet reaches the network (B-03): the servers (Epicbox and Node
     // with their host and health, each opening its picker; with no wallet open, plain rows
     // open the same pickers), Node failover, the mode, then the status site.
+    // On by default: the one switch here that keeps the simple app working.
+    final failover = KitRow.toggle(
+      key: advNodeFailoverKey,
+      title: l.phoneSettingsFailover,
+      subtitle: l.phoneSettingsFailoverLine,
+      subtitleLines: 3,
+      size: KitRowSize.list,
+      value: s.advanced.nodeFailover,
+      onChanged: _settings.setNodeFailover,
+      semanticsId: TrustIds.networkFailover,
+    );
     return [
-      KitGroupLabel(l.netPageServers, key: settingsServersKey),
+      KitGroupLabel(l.netPageServers, key: settingsServersKey, top: 0),
       if (walletOpen)
-        const PhoneTourTarget(id: 'tour-privacy-servers', child: NetworkStatusCard(showTor: false))
+        PhoneTourTarget(id: 'tour-privacy-servers', child: NetworkStatusCard(showTor: false, extraRows: [failover]))
       else
         KitGroup(
           dividerInset: Kit.dividerInsetPlain,
@@ -676,34 +687,22 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
               semanticsId: TrustIds.networkNode,
               onTap: () => showNodePicker(context),
             ),
+            failover,
           ],
         ),
-      const SettingsGap(),
-      // On by default: the one switch here that keeps the simple app working.
-      KitGroup(
-        dividerInset: Kit.dividerInsetPlain,
-        children: [
-          KitRow.toggle(
-            key: advNodeFailoverKey,
-            title: l.advNodeFailover,
-            subtitle: l.phoneSettingsFailoverLine,
-            value: s.advanced.nodeFailover,
-            onChanged: _settings.setNodeFailover,
-            semanticsId: TrustIds.networkFailover,
-          ),
-        ],
-      ),
       NetworkModeSection(
         headerKey: _networkKey,
         tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
       ),
       // No status site in app-config.toml: no switch.
       if (statusSiteConfigured) ...[
-        const SettingsGap(),
+        const SizedBox(height: 14),
         KitGroup(
           dividerInset: Kit.dividerInsetPlain,
           children: [
             KitRow.toggle(
+              size: KitRowSize.list,
+              subtitleLines: 3,
               title: l.phoneSettingsServerStatus,
               subtitle: l.phoneSettingsServerStatusLine(statusSiteHost),
               value: s.useStatusSite,
@@ -736,11 +735,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   /// This wallet: the phrase, the data files, the upkeep (recheck, outputs, restore) and Delete
   /// on its own at the end.
   List<Widget> _wallet(AppLocalizations l) {
-    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
-    final walletOpen = ref.watch(sessionProvider) != null;
     final scan = ref.watch(scanProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
-    final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
     final t = context.tokens;
     // Recheck balance asks the node only: Node only lets it run.
     final block = watchNetBlock(context, ref, node: true);
@@ -750,10 +746,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         dividerInset: Kit.dividerInsetPlain,
         children: [
           KitRow(
-            size: KitRowSize.settings,
+            size: KitRowSize.list,
             title: l.backupTitle,
             subtitle: l.phoneSettingsPhraseLine,
             value: backedUp ? l.phoneSettingsBackedUp : l.settingsStateNotBackedUp,
+            valueIcon: backedUp ? KitIcons.check : null,
             valueColor: backedUp ? t.ok : t.warn,
             chevron: true,
             semanticsId: TrustIds.walletPhrase,
@@ -766,7 +763,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         dividerInset: Kit.dividerInsetPlain,
         children: [
           KitRow(
-            size: KitRowSize.settings,
+            size: KitRowSize.list,
             title: l.phoneSettingsExport,
             subtitle: l.phoneSettingsExportLine,
             chevron: true,
@@ -781,7 +778,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             onTap: _busy ? null : () => _run(() => importHistoryBackup(context, ref)),
           ),
           KitRow(
-            size: KitRowSize.settings,
+            size: KitRowSize.list,
             title: l.phoneSettingsCsv,
             subtitle: l.phoneSettingsCsvLine,
             chevron: true,
@@ -797,7 +794,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
           // It reads the chain, so it waits for the network.
           KitRow(
-            size: KitRowSize.settings,
+            size: KitRowSize.list,
             title: l.settingsRescan,
             subtitle: block == NetBlock.none
                 ? l.phoneSettingsRecheckLine
@@ -810,15 +807,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           // in use).
           if (outputsShown(context, ref))
             KitRow(
-              size: KitRowSize.settings,
+              size: KitRowSize.list,
               title: l.outputsTitle,
-              subtitle: outputs == null
-                  ? l.phoneSettingsOutputsLine
-                  : l.outputsSettingsSubtitle(
-                      outputs.where((o) => outputWord(o) != OutputLabel.spent).length,
-                      s.sendStrategy == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll,
-                    ),
-              chevron: true,
+              subtitle: l.phoneSettingsOutputsLine,
+                            chevron: true,
               semanticsId: TrustIds.walletOutputs,
               onTap: () => _push(const OutputsScreen()),
             ),
@@ -826,7 +818,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           // warning and PIN once the phrase checks out. Help names this place.
           KitRow(
             key: settingsRestoreKey,
-            size: KitRowSize.settings,
+            size: KitRowSize.list,
             title: l.phoneSettingsRestore,
             subtitle: l.phoneSettingsRestoreLine,
             subtitleLines: 2,
@@ -836,7 +828,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ),
         ],
       ),
-      const SettingsGap(),
+      const SizedBox(height: 14),
       KitGroup(
         dividerInset: Kit.dividerInsetPlain,
         children: [
@@ -951,8 +943,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       };
       return KitRow.toggle(
         key: txMethodKey(m),
-        leading: KitIconWell(MethodIcons.of(m)),
+        leading: KitIconWell(
+          switch (m) { MethodKind.directQr => KitIcons.qr, MethodKind.directFile => KitIcons.file, _ => MethodIcons.of(m) },
+          color: context.tokens.accentText,
+          iconSize: 20,
+        ),
         title: title,
+        size: KitRowSize.list,
         subtitle: line,
         subtitleLines: 2,
         value: payments.offers(m),
@@ -966,7 +963,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         if (shown(m)) m,
     ];
     return [
-      KitGroupLabel(l.phoneSettingsPayWays, key: const ValueKey('tx-methods')),
+      KitGroupLabel(l.phoneSettingsPayWays, key: const ValueKey('tx-methods'), top: 0),
       KitGroup(children: [for (final m in methods) methodRow(m)]),
       // Tor for payments (item 2): its state, never a "turn Tor on" card.
       if (payments.linkTor && showTor) const _TorPayLine(),
@@ -997,12 +994,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ],
       ...epic1Rows,
       if (invoices) ...[
-        const SettingsGap(),
+        const SizedBox(height: 14),
         KitGroup(
           dividerInset: Kit.dividerInsetPlain,
           children: [
             KitRow(
-              size: KitRowSize.settings,
+              size: KitRowSize.list,
               title: l.settingsInvoices,
               subtitle: l.phoneSettingsInvoicesLine,
               subtitleLines: 2,
@@ -1047,14 +1044,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       key: ValueKey('adv-${f.name}'),
       title: title,
       subtitle: line,
+      size: KitRowSize.list,
       subtitleLines: 2,
       value: adv.has(f),
       onChanged: (on) => _settings.setFeature(f, on),
       semanticsId: id,
     );
     return [
-      PhoneTourTarget(id: 'tour-advanced-top', child: KitLead(l.advIntro)),
-      KitGroupLabel(l.advShowsHeader),
+      PhoneTourTarget(id: 'tour-advanced-top', child: KitLead(l.phoneSettingsAdvIntro)),
+      KitGroupLabel(l.phoneSettingsAdvShows),
       KitGroup(
         dividerInset: Kit.dividerInsetPlain,
         children: [
@@ -1063,8 +1061,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           feature(AdvancedFeature.sendOptions, l.advSendOptions, l.phoneSettingsAdvSendLine, TrustIds.advancedSendOptions),
           feature(AdvancedFeature.serverDetails, l.advServerDetails, l.phoneSettingsAdvServersLine, TrustIds.advancedServerDetails),
           feature(AdvancedFeature.recheckFromHeight, l.advRecheckHeight, l.phoneSettingsAdvRecheckLine, TrustIds.advancedRecheck),
-          feature(AdvancedFeature.transactionFiles, l.advTransactionFiles, l.phoneSettingsAdvFilesLine, TrustIds.advancedFiles),
         ],
+      ),
+      // The wallet's own count, stored in the core: how long received coins wait.
+      KitGroupLabel(l.advBalanceHeader),
+      ConfirmationsRow(subtitle: l.phoneSettingsConfirmationsLine, showDefaultTag: false),
+      // The frame draws five switches: this one is a group of its own below Balance.
+      const SizedBox(height: 14),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [feature(AdvancedFeature.transactionFiles, l.advTransactionFiles, l.phoneSettingsAdvFilesLine, TrustIds.advancedFiles)],
       ),
       // As on the desktop: the way back (GP-038).
       if (adv.shownFeatures.isNotEmpty)
@@ -1079,9 +1085,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
           ),
         ),
-      // The wallet's own count, stored in the core: how long received coins wait.
-      KitGroupLabel(l.advBalanceHeader),
-      const ConfirmationsRow(),
     ];
   }
 
@@ -1121,12 +1124,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
         ],
       ),
-      const SettingsGap(),
+      const SizedBox(height: 14),
       KitGroup(
         dividerInset: Kit.dividerInsetPlain,
         children: [
           if (prices)
             KitRow.toggle(
+              size: KitRowSize.list,
+              subtitleLines: 2,
               title: l.settingsShowPrices,
               subtitle: l.phoneSettingsShowPricesLine,
               value: s.showFiat,
@@ -1134,6 +1139,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
               semanticsId: TrustIds.appearanceShowPrices,
             ),
           KitRow.toggle(
+            size: KitRowSize.list,
+            subtitleLines: 2,
             title: l.phoneSettingsHideAmounts,
             subtitle: l.phoneSettingsHideAmountsLine,
             value: s.hideBalances,
@@ -1231,8 +1238,9 @@ class _TorPayLine extends ConsumerWidget {
 
 /// A web link row. The app has no browser launcher, so tapping copies the address.
 class LinkTile extends StatelessWidget {
-  const LinkTile({super.key, required this.title, required this.url, this.id});
+  const LinkTile({super.key, required this.title, required this.url, this.id, this.minHeight});
 
+  final double? minHeight;
   final String title;
   final String url;
   final String? id;
@@ -1242,8 +1250,9 @@ class LinkTile extends StatelessWidget {
     final l = context.l10n;
     return KitRow(
       size: KitRowSize.settings,
+      minHeight: minHeight,
       title: title,
-      trailing: Icon(KitIcons.external, size: 18, color: context.tokens.dim, semanticLabel: l.settingsCopyLink),
+      trailing: Icon(KitIcons.external, size: 16, color: context.tokens.dim, semanticLabel: l.settingsCopyLink),
       semanticsId: id,
       onTap: () => copyText(context, url, l.settingsLinkCopied),
     );

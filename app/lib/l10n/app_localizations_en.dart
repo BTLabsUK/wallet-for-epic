@@ -22095,7 +22095,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneSettingsPhraseLine => 'The only way to get this wallet back';
 
   @override
-  String get phoneSettingsBackedUp => '✓ Backed up';
+  String get phoneSettingsBackedUp => 'Backed up';
 
   @override
   String get phoneSettingsPhraseBackedUp => 'Recovery phrase backed up';
@@ -22119,7 +22119,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String phoneSettingsAutoLockFootnote(String time) {
-    return 'The wallet locks after $time away from the app.';
+    return 'The wallet locks by itself after $time away from the app.';
   }
 
   @override
@@ -22151,7 +22151,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneSettingsPassphraseLine =>
-      'Extra words on top of the recovery phrase';
+      'A longer secret in place of the PIN';
 
   @override
   String get phoneSettingsSecurityHelp1 =>
@@ -22181,7 +22181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneSettingsPayments => 'Payments';
 
   @override
-  String get phoneSettingsPayWays => 'Ways to pay';
+  String get phoneSettingsPayWays => 'Ways to pay and be paid';
 
   @override
   String get phoneSettingsPaymentsHelp1 =>
@@ -22196,107 +22196,118 @@ class AppLocalizationsEn extends AppLocalizations {
       'Coin choice sets which coins a payment spends.';
 
   @override
-  String get phoneSettingsEpicboxLine => 'Both phones online';
+  String get phoneSettingsEpicboxLine =>
+      'The usual way. Their wallet can be offline.';
 
   @override
   String get phoneSettingsInPerson => 'In person';
 
   @override
-  String get phoneSettingsInPersonLine => 'QR codes shown between two phones';
+  String get phoneSettingsInPersonLine =>
+      'Two phones showing each other a code';
 
   @override
   String get phoneSettingsWithFile => 'With a file';
 
   @override
-  String get phoneSettingsWithFileLine => 'A file passed by any app';
+  String get phoneSettingsWithFileLine =>
+      'A payment file passed back and forth';
 
   @override
   String get phoneSettingsTorAddress => 'Tor address';
 
   @override
-  String get phoneSettingsTorAddressLine => 'Receive at an .onion address';
+  String get phoneSettingsTorAddressLine =>
+      'Straight to this phone. Needs Tor.';
 
   @override
   String get phoneSettingsSplitLine => 'Keeps change in several coins';
 
   @override
-  String get phoneSettingsInvoicesLine => 'Requests you made and their state';
+  String get phoneSettingsInvoicesLine =>
+      'Who may ask you to pay, and for how long';
 
   @override
   String get phoneSettingsFailoverLine =>
-      'Switch to another node when one stops';
+      'If the node stops answering, use another one';
 
   @override
   String get phoneSettingsServerStatus => 'Server status';
 
   @override
   String phoneSettingsServerStatusLine(String host) {
-    return 'Opens $host';
+    return 'Ask $host which servers are up';
   }
 
   @override
   String get phoneSettingsExport => 'Export wallet data';
 
   @override
-  String get phoneSettingsExportLine => 'Save payments and contacts to a file';
+  String get phoneSettingsExportLine =>
+      'History, contacts and settings in one file';
 
   @override
   String get phoneSettingsImport => 'Import wallet data';
 
   @override
-  String get phoneSettingsCsv => 'Export as CSV';
+  String get phoneSettingsCsv => 'Export a spreadsheet';
 
   @override
-  String get phoneSettingsCsvLine => 'Payments as a spreadsheet';
+  String get phoneSettingsCsvLine => 'Payments as a CSV file';
 
   @override
   String get phoneSettingsUpkeep => 'Upkeep';
 
   @override
-  String get phoneSettingsRecheckLine => 'Look for payments the wallet missed';
+  String get phoneSettingsRecheckLine =>
+      'Look through the chain again for your coins';
 
   @override
-  String get phoneSettingsOutputsLine => 'Coins the wallet holds';
+  String get phoneSettingsOutputsLine => 'The coins your balance is made of';
 
   @override
-  String get phoneSettingsRestore => 'Restore from phrase';
+  String get phoneSettingsRestore => 'Restore another wallet';
 
   @override
   String get phoneSettingsRestoreLine =>
-      'Rebuild the wallet from the recovery phrase';
+      'Replaces this one, after its phrase checks out';
 
   @override
   String get phoneSettingsAdvancedLine =>
       'Outputs, technical details, coin choice';
 
   @override
-  String get phoneSettingsAdvOutputsLine => 'Show the coins the wallet holds';
+  String get phoneSettingsAdvOutputsLine =>
+      'The coins your balance is made of; split or combine them';
 
   @override
   String get phoneSettingsAdvTechnicalLine =>
-      'Show ids, heights and raw states';
+      'Kernel, slate ID and block height on a payment';
 
   @override
-  String get phoneSettingsAdvSendLine => 'Show coin choice when sending';
+  String get phoneSettingsAdvSendLine => 'Choose which coins a payment spends';
 
   @override
   String get phoneSettingsAdvServersLine =>
-      'Show addresses and health of servers';
+      'Hosts, latency and block height in server lists';
 
   @override
-  String get phoneSettingsAdvRecheckLine => 'Choose where a recheck starts';
+  String get phoneSettingsAdvRecheckLine =>
+      'Start a balance recheck from a block or a date';
 
   @override
   String get phoneSettingsAdvFilesLine => 'Show payment files to save or open';
 
   @override
-  String get phoneSettingsShowPricesLine => 'Show a value in your currency';
+  String get phoneSettingsShowPricesLine =>
+      'The value in your currency under each amount';
 
   @override
   String get phoneSettingsHideAmounts => 'Hide amounts';
 
   @override
-  String get phoneSettingsHideAmountsLine => 'Show dots instead of balances';
+  String get phoneSettingsHideAmountsLine =>
+      'Dots in place of every figure until you tap';
 
   @override
   String get phoneSettingsAppearanceHelp1 =>
@@ -23230,6 +23241,80 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return 'Waiting for $who\'s wallet to answer';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return 'at $time';
+  }
+
+  @override
+  String get phoneSettingsFailover => 'Switch node by itself';
+
+  @override
+  String get phoneSettingsModeNormalLine =>
+      'Connects directly to the node, Epicbox and other services';
+
+  @override
+  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+
+  @override
+  String get phoneSettingsModeNodeLine =>
+      'Only the node connects. Epicbox, links and price checks are off.';
+
+  @override
+  String get phoneSettingsModeKillLine =>
+      'Nothing connects. Payments are finished offline and posted from another device.';
+
+  @override
+  String get phoneSettingsAdvIntro =>
+      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+
+  @override
+  String get phoneSettingsAdvShows => 'Show more';
+
+  @override
+  String get phoneSettingsConfirmationsLine =>
+      'Blocks before a payment counts as yours to spend';
+
+  @override
+  String get phoneSettingsEpic1Line =>
+      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+
+  @override
+  String get phoneHelpSecStart => 'Getting started';
+
+  @override
+  String get phoneHelpSecHow => 'How payments work';
+
+  @override
+  String get phoneHelpSecNetwork => 'Networks and privacy';
+
+  @override
+  String get phoneHelpSecSafety => 'Keeping it safe';
+
+  @override
+  String get phoneHelpSecMaintenance => 'Upkeep';
+
+  @override
+  String get phoneHelpSecTrouble => 'When something is wrong';
+
+  @override
+  String get phoneRestoreTitle => 'Restore a wallet';
+
+  @override
+  String phoneRestoreWordsHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words so far.',
+      one: '1 word so far.',
+    );
+    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+  }
+
+  @override
+  String get phoneRestoreStartNote =>
+      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox address';

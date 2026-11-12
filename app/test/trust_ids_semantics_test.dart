@@ -338,7 +338,7 @@ void main() {
         tester,
         () => _openPhone(tester, const SettingsSectionScreen(section: SettingsSection.advanced)),
         () => _closePhone(tester),
-        ['g4.advanced.level', 'g4.advanced.technical', 'g4.confirmations.fewer', 'g4.confirmations.more'],
+        ['g4.advanced.technical', 'g4.confirmations.fewer', 'g4.confirmations.more'],
       );
     });
 

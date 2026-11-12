@@ -78,18 +78,39 @@ List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang
 
 /// The sections in [lang], in the order the index shows them: Pairing before "When something
 /// goes wrong", and only when a topic uses it. The network lede names Tor only beside its topic.
-List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
+List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang, [Map<String, String> titles = const {}]) {
   final l = helpStrings(lang);
   final used = topics.map((t) => t.section).toSet();
   final tor = topics.any((t) => t.id == HelpId.tor);
+  final all = {for (final s in localizedHelpSections(lang, tor: tor)) s.id: s};
   final out = <HelpSection>[];
-  for (final s in localizedHelpSections(lang, tor: tor)) {
-    if (s.id == 'trouble' && used.contains(pairingHelpSection)) {
-      out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
-    }
-    if (used.contains(s.id)) out.add(s);
+  // The phone's order and names; Pairing, which the index has no place for, goes last.
+  for (final id in ['start', 'how', 'network', 'safety', 'maintenance', 'trouble']) {
+    final s = all[id];
+    if (s == null || !used.contains(id)) continue;
+    out.add((id: s.id, title: titles[id] ?? s.title, lede: s.lede, art: s.art));
+  }
+  for (final s in all.values) {
+    if (!out.any((o) => o.id == s.id) && used.contains(s.id)) out.add(s);
+  }
+  if (used.contains(pairingHelpSection)) {
+    out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
   }
   return out;
+}
+
+/// The phone's names for the index sections, in the app's language when the help is in it.
+Map<String, String> _phoneSectionTitles(BuildContext context, String lang) {
+  if (lang != Localizations.localeOf(context).languageCode) return const {};
+  final l = context.l10n;
+  return {
+    'start': l.phoneHelpSecStart,
+    'how': l.phoneHelpSecHow,
+    'network': l.phoneHelpSecNetwork,
+    'safety': l.phoneHelpSecSafety,
+    'maintenance': l.phoneHelpSecMaintenance,
+    'trouble': l.phoneHelpSecTrouble,
+  };
 }
 
 /// The words of a search, lowercased, empty for a blank query.
@@ -181,7 +202,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
       MaterialPageRoute<void>(
         builder: (_) => HelpTopicScreen(
           topic: topic,
-          section: _sectionsFor(all, lang).firstWhere((s) => s.id == topic.section),
+          section: _sectionsFor(all, lang, _phoneSectionTitles(context, lang)).firstWhere((s) => s.id == topic.section),
           related: [for (final t in all) if (t.section == topic.section && t != topic) t],
           anchor: anchor,
           backLabel: backLabel,
@@ -208,7 +229,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final t = context.tokens;
     final lang = phoneHelpLanguage(ref, context);
     final topics = phoneHelpTopics(context, ref, lang);
-    final sections = _sectionsFor(topics, lang);
+    final sections = _sectionsFor(topics, lang, _phoneSectionTitles(context, lang));
     if (!_opened && widget.topic != null) {
       // The topic's page goes over the index on arrival, so Back lands on the index.
       _opened = true;
@@ -253,10 +274,10 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
         : [
             KitGroup(
               children: [
-                for (final s in sections)
+                for (final s in sections.where((s) => s.id != pairingHelpSection))
                   KitRow(
-                    size: KitRowSize.list,
-                    leading: KitIconWell(_sectionIcon(s.id), color: t.accent),
+                    size: KitRowSize.settings,
+                    leading: KitIconWell(_sectionIcon(s.id), color: t.accentText, iconSize: 20),
                     title: s.title,
                     chevron: true,
                     semanticsId: TrustIds.helpSection,
@@ -267,31 +288,31 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
             const SizedBox(height: Kit.groupGap),
             KitGroup(
               children: [
+                KitRow(
+                  key: helpShowTourKey,
+                  size: KitRowSize.settings,
+                  leading: KitIconWell(Icons.play_circle_outline_rounded, color: t.accentText, iconSize: 20),
+                  title: l.tourPhoneShowAgain,
+                  chevron: true,
+                  semanticsId: TrustIds.helpTour,
+                  onTap: () => startPhoneTour(ref),
+                ),
                 PhoneTourTarget(
                   id: 'tour-help-feedback',
                   child: KitRow(
                     key: helpFeedbackKey,
-                    size: KitRowSize.list,
-                    leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accent),
+                    size: KitRowSize.settings,
+                    leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accentText, iconSize: 20),
                     title: l.settingsSendFeedback,
                     chevron: true,
                     semanticsId: TrustIds.helpReport,
                     onTap: () => openFeedback(context),
                   ),
                 ),
-                KitRow(
-                  key: helpShowTourKey,
-                  size: KitRowSize.list,
-                  leading: KitIconWell(Icons.play_circle_outline_rounded, color: t.accent),
-                  title: l.tourPhoneShowAgain,
-                  chevron: true,
-                  semanticsId: TrustIds.helpTour,
-                  onTap: () => startPhoneTour(ref),
-                ),
                 if (tipsHidden)
                   KitRow(
                     key: helpShowTipsKey,
-                    size: KitRowSize.list,
+                    size: KitRowSize.settings,
                     leading: KitIconWell(Icons.lightbulb_outline_rounded, color: t.accent),
                     title: l.settingsShowTipsAgain,
                     semanticsId: TrustIds.helpTips,
@@ -306,7 +327,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
             KitGroup(
               children: [
                 KitRow(
-                  size: KitRowSize.list,
+                  size: KitRowSize.settings,
                   title: l.phoneSettingsAboutRow,
                   value: version.hasValue ? version.value : null,
                   chevron: true,
@@ -314,6 +335,33 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   onTap: () => openSettingsSection(context, SettingsSection.about, backLabel: l.helpTitle),
                 ),
               ],
+            ),
+            // The index has no place for these in the design: Pairing's page and the help's
+            // language sit last.
+            if (sections.any((s) => s.id == pairingHelpSection)) ...[
+              const SizedBox(height: Kit.groupGap),
+              KitGroup(
+                children: [
+                  for (final s in sections.where((s) => s.id == pairingHelpSection))
+                    KitRow(
+                      size: KitRowSize.settings,
+                      leading: KitIconWell(_sectionIcon(s.id), color: t.accentText, iconSize: 20),
+                      title: s.title,
+                      chevron: true,
+                      semanticsId: TrustIds.helpSection,
+                      onTap: () => _openSection(s, topics, lang),
+                    ),
+                ],
+              ),
+            ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter / 2, 0),
+              child: Row(
+                children: [
+                  Expanded(child: english ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim)) : const SizedBox.shrink()),
+                  kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
+                ],
+              ),
             ),
           ];
 
@@ -329,6 +377,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   backLabel: widget.backLabel ?? l.phoneKitBack,
                   onBack: () => Navigator.of(context).maybePop(),
                   title: l.helpTitle,
+                  bottomGap: 11,
                   onHelp: () => showKitHelp(
                     context,
                     title: l.helpTitle,
@@ -346,19 +395,6 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                     hint: l.helpSearchHint,
                     onChanged: (_) => setState(() {}),
                     semanticsId: TrustIds.helpSearch,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 4, Kit.gutter / 2, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: english
-                            ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim))
-                            : const SizedBox.shrink(),
-                      ),
-                      kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
-                    ],
                   ),
                 ),
                 Expanded(
@@ -504,7 +540,7 @@ class _ReportRow extends StatelessWidget {
       children: [
         KitRow(
           size: KitRowSize.list,
-          leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accent),
+          leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accentText, iconSize: 20),
           title: l.settingsSendFeedback,
           chevron: true,
           semanticsId: TrustIds.helpReport,

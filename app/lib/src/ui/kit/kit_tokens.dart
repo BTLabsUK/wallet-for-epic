@@ -94,8 +94,10 @@ abstract final class Kit {
   /// The radio ring and its dot, and the stepper's pill.
   static const double radio = 26;
   static const double radioDot = 12;
-  static const double stepperWidth = 128;
+  // `.stepper`: 38 tall, 3 in, 36 wide ends around a 24 count; the layout box is 44 tall to touch.
+  static const double stepperWidth = 102;
   static const double stepperHeight = 44;
+  static const double stepperDrawn = 38;
 
   // Row heights.
   static const double rowList = 62;
@@ -135,6 +137,8 @@ abstract final class KitType {
     fontSize: size,
     fontWeight: weight,
     height: height,
+    // wallet.css sets none on the body; without it the theme's Material spacing leaks in.
+    letterSpacing: 0,
     fontFeatures: interFeatures,
   );
 
@@ -177,8 +181,17 @@ abstract final class KitType {
   /// `.rt b`.
   static final TextStyle rowTitle = _body(15, weight: FontWeight.w500);
 
+  /// `.val`.
+  static final TextStyle rowValue = _body(15);
+
   /// `.rt span`.
   static final TextStyle rowSub = _body(13);
+
+  /// A subtitle allowed to wrap (`.rt.multi span`): line-height 1.4.
+  static final TextStyle rowSubMulti = _body(13, height: 1.4);
+
+  /// The stepper's count (`.stepper b`): Montserrat 600, 15.
+  static final TextStyle stepperValue = _head(15, 0);
 
   /// `.glabel`.
   static final TextStyle groupLabel = _body(13, weight: FontWeight.w500);

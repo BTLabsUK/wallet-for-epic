@@ -54,6 +54,18 @@ Future<void> _see(WidgetTester tester, Finder finder) async {
   expect(finder, findsOneWidget);
 }
 
+/// The phone index names the six sections as the design does; any other keeps its title.
+String _phoneTitle(String id, String fallback) =>
+    const {
+      'start': 'Getting started',
+      'how': 'How payments work',
+      'network': 'Networks and privacy',
+      'safety': 'Keeping it safe',
+      'maintenance': 'Upkeep',
+      'trouble': 'When something is wrong',
+    }[id] ??
+    fallback;
+
 void main() {
   group('shared help content', () {
     test('the phone and the desktop share the structure and most of the words', () {
@@ -161,16 +173,17 @@ void main() {
       // The phone's index skips a section none of its topics uses.
       final used = helpTopics(3, platform: HelpPlatform.phone).map((t) => t.section).toSet();
       for (final s in helpSections.where((s) => used.contains(s.id))) {
-        await tester.scrollUntilVisible(find.text(s.title), 300, scrollable: _list.last);
-        expect(find.text(s.title), findsOneWidget);
+        final title = _phoneTitle(s.id, s.title);
+        await tester.scrollUntilVisible(find.text(title), 300, scrollable: _list.last);
+        expect(find.text(title), findsOneWidget);
       }
-      final trouble = helpSections.firstWhere((s) => s.id == 'trouble').title;
+      final trouble = _phoneTitle('trouble', '');
       await tester.scrollUntilVisible(find.text(trouble), -300, scrollable: _list.last);
       await tester.ensureVisible(find.text(trouble));
       await tester.pumpAndSettle();
       await tester.tap(find.text(trouble));
       await tester.pumpAndSettle();
-      await _see(tester, find.text('Troubleshooting'));
+      await _see(tester, find.text(trouble));
       await tester.scrollUntilVisible(find.text('Payments by another wallet'), 300, scrollable: _list.last);
     });
 
@@ -200,10 +213,10 @@ void main() {
     testWidgets('a topic opens as a page with its section, body and the related rows', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      await tester.scrollUntilVisible(find.text('How Epic Cash works'), 300, scrollable: _list.last);
-      await tester.ensureVisible(find.text('How Epic Cash works'));
+      await tester.scrollUntilVisible(find.text('How payments work'), 300, scrollable: _list.last);
+      await tester.ensureVisible(find.text('How payments work'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('How Epic Cash works'));
+      await tester.tap(find.text('How payments work'));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Fees'), 300, scrollable: _list.last);
       await tester.ensureVisible(find.text('Fees'));

@@ -49,6 +49,7 @@ class KitSheet extends StatelessWidget {
     this.primaryKind = KitButtonKind.gold,
     this.actionsTop = 18,
     this.titleGap = 14,
+    this.buttonsGap = 10,
   });
 
   final String? title;
@@ -70,6 +71,7 @@ class KitSheet extends StatelessWidget {
 
   /// Under the title; a sheet whose first row carries its own top padding takes less.
   final double titleGap;
+  final double buttonsGap;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +110,7 @@ class KitSheet extends StatelessWidget {
                   child: Column(
                     children: [
                       ?primaryButton,
-                      if (primaryButton != null && secondaryButton != null) const SizedBox(height: 10),
+                      if (primaryButton != null && secondaryButton != null) SizedBox(height: buttonsGap),
                       ?secondaryButton,
                     ],
                   ),

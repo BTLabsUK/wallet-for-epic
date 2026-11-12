@@ -268,7 +268,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         children: [
           // Sticky: the list scrolls under it.
           Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 4),
+            padding: const EdgeInsets.only(top: 7, bottom: 4),
             child: KitSearchField(
               controller: _search,
               hint: l.phoneContactsSearchHint,
@@ -441,6 +441,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       children.add(
         KitSectionHead(
           az ? l.phoneContactsAtoZ : l.phoneHomeRecent,
+          // `.sec` with margin-top 24 under the strip.
+          top: 24,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -514,7 +516,9 @@ class _Faces extends StatelessWidget {
         height: Kit.avatarStrip + 40,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.fromLTRB(Kit.gutter - 6, 14, Kit.gutter - 6, 0),
+          // `.people`: 10 in, faces 68 wide 6 apart; each item here is 74 with the gap split
+          // around it, so 7 puts the first face's centre at 44 as drawn.
+          padding: const EdgeInsets.fromLTRB(7, 14, 7, 0),
           itemCount: contacts.length,
           itemBuilder: (context, i) {
             final c = contacts[i];
@@ -554,7 +558,7 @@ class _Faces extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: KitType.rowSub.copyWith(color: needs ? t.text : t.dim, fontSize: 12.5),
+                        style: KitType.rowSub.copyWith(color: needs ? t.text : t.dim, fontSize: 12),
                       ),
                     ],
                   ),

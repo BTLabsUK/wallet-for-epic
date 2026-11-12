@@ -150,8 +150,14 @@ class NetworkModeSection extends ConsumerWidget {
         key: networkModeRowKey(m),
         semanticsId: _modeId[m],
         title: networkModeName(l, m),
-        subtitle: networkModeHint(l, m),
+        subtitle: switch (m) {
+          NetworkMode.standard => l.phoneSettingsModeNormalLine,
+          NetworkMode.torOnly => l.phoneSettingsModeTorLine,
+          NetworkMode.nodeOnly => l.phoneSettingsModeNodeLine,
+          NetworkMode.killSwitch => l.phoneSettingsModeKillLine,
+        },
         subtitleLines: 3,
+        size: KitRowSize.list,
         selected: mode == m,
         onChanged: enabled ? () => chooseNetworkMode(context, ref, m) : null,
       );

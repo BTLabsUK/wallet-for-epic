@@ -134,7 +134,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     Widget place(SettingsSection section, {Widget? sub, String? line, Widget? trailing}) => KitRow(
       key: settingsGroupKey(section),
       size: KitRowSize.list,
-      leading: KitIconWell(settingsSectionIcon(section), color: t.accent),
+      leading: KitIconWell(settingsSectionIcon(section), color: t.accent, iconSize: 20),
       title: settingsSectionTitle(l, section),
       subtitle: line,
       subtitleWidget: sub,
@@ -148,7 +148,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (!scan.running && scan.error != null)
         Padding(padding: const EdgeInsets.all(Kit.gutter), child: ErrorText(describeError(l, scan.error!))),
       Padding(
-        padding: const EdgeInsets.only(bottom: Kit.groupGap),
+        padding: const EdgeInsets.only(top: 6, bottom: 18),
         child: KitSearchField(
           key: settingsSearchKey,
           controller: _search,
@@ -166,7 +166,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               KitRow(
                 key: settingsGroupKey(SettingsSection.wallet),
                 size: KitRowSize.list,
-                leading: KitIconWell.child(EpicMark(size: 28, color: t.accent)),
+                minHeight: 72,
+                leading: KitIconWell.child(EpicMark(size: 28, color: t.accent), size: 46, radius: 15),
                 title: settingsSectionTitle(l, SettingsSection.wallet),
                 subtitleWidget: _PhraseLine(backedUp: backedUp),
                 chevron: true,
@@ -175,7 +176,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ],
           ),
-          const SettingsGap(),
+          const SizedBox(height: 14),
           KitGroup(
             children: [
               place(SettingsSection.security, line: lockLine),
@@ -183,7 +184,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               place(SettingsSection.display, line: lookLine),
             ],
           ),
-          const SettingsGap(),
+          const SizedBox(height: 14),
         ],
         KitGroup(
           children: [
@@ -193,7 +194,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               KitRow(
                 key: settingsLinkedDevicesKey,
                 size: KitRowSize.list,
-                leading: KitIconWell(KitIcons.devices, color: t.accent),
+                leading: KitIconWell(KitIcons.devices, color: t.accent, iconSize: 20),
                 title: l.expLinkedDevices,
                 subtitle: deviceLinked ? l.phoneSettingsOneLinked : l.phoneSettingsNoneLinked,
                 trailing: KitTag(l.settingsExperimentTag),
@@ -203,13 +204,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
           ],
         ),
-        const SettingsGap(),
+        const SizedBox(height: 14),
         KitGroup(
           children: [
             KitRow(
               key: settingsHelpKey,
               size: KitRowSize.list,
-              leading: KitIconWell(KitIcons.help, color: t.accent),
+              leading: KitIconWell(KitIcons.help, color: t.accent, iconSize: 20),
               title: l.settingsSectionHelpFeedback,
               subtitle: l.phoneSettingsHelpLine,
               chevron: true,

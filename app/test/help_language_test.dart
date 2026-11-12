@@ -350,16 +350,14 @@ void main() {
     });
 
     testWidgets(
-      'the switch sits at the top of the page and the topics stay reachable at 360 dp',
+      'the switch sits at the end of the index and the topics stay reachable at 360 dp',
       (tester) async {
         await _pump(tester, locale: const Locale('ru'));
         tester.view.physicalSize = const Size(360 * 3, 640 * 3);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        expect(
-          tester.getTopLeft(find.byKey(helpLanguageKey)).dy,
-          lessThan(160),
-        );
+        await tester.scrollUntilVisible(find.byKey(helpLanguageKey), 300, scrollable: find.byType(Scrollable).last);
+        expect(find.byKey(helpLanguageKey), findsOneWidget);
       },
     );
   });

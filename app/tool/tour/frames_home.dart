@@ -8,6 +8,8 @@ final List<(String, _Start, _Visit)> _framesHome = [
     'fr-Contacts',
     _Start.home,
     (t) async {
+      // Anna's second payment came in this minute: her row says Now, as drawn.
+      frameClockAt = DateTime(2026, 11, 12, 18, 13, 20);
       final container = ProviderScope.containerOf(t.tester.element(find.byType(Navigator).first));
       await container.read(pendingInvoicesProvider.notifier).refresh();
       await t.tap(find.descendant(of: find.byType(KitTabBar), matching: find.text(t.l.contactsTitle)));

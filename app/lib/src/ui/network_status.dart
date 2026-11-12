@@ -86,9 +86,12 @@ TorWay nodeTorWay(String? nodeUrl, TorState state) =>
 /// The node, Epicbox and Tor rows in a hairline card. With [showTor] false the Tor row is
 /// left out: right above the Tor switch (Settings › Privacy & network) it would repeat it.
 class NetworkStatusCard extends ConsumerWidget {
-  const NetworkStatusCard({super.key, this.showTor = true});
+  const NetworkStatusCard({super.key, this.showTor = true, this.extraRows = const []});
 
   final bool showTor;
+
+  /// Rows that belong to the servers but are not a status (the node failover switch).
+  final List<Widget> extraRows;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -164,6 +167,7 @@ class NetworkStatusCard extends ConsumerWidget {
           face: torNetFace(context, tor),
           onTap: () => openPrivacySettings(context),
         ),
+      ...extraRows,
     ];
     return Semantics(
       container: true,
@@ -215,7 +219,7 @@ class _StatusRow extends StatelessWidget {
     final color = torOnly ? tor.color : face.color;
     final lines = <Widget>[
       if (host.isNotEmpty)
-        Text(host, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.dim)),
+        Text(host, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.dim, fontSize: 12.5)),
       if (note != null) Text(note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.dim)),
       if (tor != null && !torOnly)
         Row(
@@ -250,7 +254,7 @@ class _StatusRow extends StatelessWidget {
         value: word,
         valueColor: color,
         chevron: true,
-        size: KitRowSize.settings,
+        size: KitRowSize.list,
         onTap: onTap,
       ),
     );

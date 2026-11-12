@@ -438,5 +438,14 @@
   "phonePayRouteSubTor": "Straight to their wallet, over Tor",
   "@phonePayRouteSubTor": {
     "description": "One line under the Tor route in the route sheet."
+  },
+  "phoneProgAtTime": "at {time}",
+  "@phoneProgAtTime": {
+    "description": "Payment steps on a contact's page: the clock time of a step done today, after the step word (Sent at 18:12). {time} is the clock.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

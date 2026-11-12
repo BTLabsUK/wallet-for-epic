@@ -281,10 +281,11 @@ class _Balance extends ConsumerWidget {
       id: 'tour-balance',
       // `.bal` after a 26 gap under the bar: caption 16, amount +8, fiat +8, buttons +24, the
       // section 34 below. The caption's target is 48 tall, so everything under it is pulled up
-      // by 16, the 10 above is what the 26 leaves, and the section head gives back the 16.
+      // by 16, the 13 above is what the 26 leaves under the 44 bar's 48 pill target (measured
+      // against the frame), and the section head gives back the 16.
       child: Padding(
         // With chips the frame lifts the block by 10 (`margin-top: 16` instead of 26).
-        padding: EdgeInsets.fromLTRB(Kit.gutter, chips.isEmpty ? 10 : 0, Kit.gutter, 0),
+        padding: EdgeInsets.fromLTRB(Kit.gutter, chips.isEmpty ? 13 : 3, Kit.gutter, 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
