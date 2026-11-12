@@ -3211,7 +3211,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 if (_qrOffered)
                   KitRow(
                     leading: KitIconWell(MethodIcons.qr, color: t.accent, size: 40, iconSize: 20),
-                    minHeight: 72,
+                    minHeight: 73,
                     title: l.phoneSendInPerson,
                     subtitle: l.phoneSendInPersonSub,
                     chevron: true,
@@ -3224,7 +3224,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 if (_fileOffered)
                   KitRow(
                     leading: KitIconWell(MethodIcons.file, color: t.accent, size: 40, iconSize: 20),
-                    minHeight: 72,
+                    minHeight: 73,
                     title: l.phoneSendWithFile,
                     subtitle: l.phoneSendWithFileSub,
                     chevron: true,
@@ -4361,7 +4361,7 @@ class _SendViewState extends ConsumerState<SendView> {
       l,
       live,
       tip,
-      now: DateTime.now(),
+      now: ref.read(clockProvider)(),
       who: name,
       target: target,
       reserved: epicText(l, sent.amount + fee),
@@ -4428,7 +4428,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         const SizedBox(height: 12),
       ],
-      if (!cancelled && progress != null) KitSteps(steps: progress.steps),
+      if (!cancelled && progress != null) KitSteps(steps: progress.steps, margin: EdgeInsets.zero),
       if (sent.changedFee case final fee?) ...[
         const SizedBox(height: 12),
         Text(

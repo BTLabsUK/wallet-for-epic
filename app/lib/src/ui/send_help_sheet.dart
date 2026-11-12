@@ -70,7 +70,7 @@ Future<void> showSendHelpSheet(
               ],
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 15, 16, 0),
               child: KitButton(label: l.commonDone, kind: KitButtonKind.quiet, onPressed: () => Navigator.of(sheet).pop()),
             ),
           ],
@@ -143,7 +143,7 @@ class _HelpStep extends StatelessWidget {
   }
 }
 
-/// A plain-group row at the frame's 52: a 15/500 title and a chevron.
+/// A plain-group row at the frame's 52.5: a 15/500 title and a chevron.
 class _HelpRow extends StatelessWidget {
   const _HelpRow({required this.label, required this.onTap});
 
@@ -159,7 +159,7 @@ class _HelpRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52),
+          constraints: const BoxConstraints(minHeight: 53),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(

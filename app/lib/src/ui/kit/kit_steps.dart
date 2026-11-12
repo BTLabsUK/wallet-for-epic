@@ -34,12 +34,15 @@ class KitStep {
 /// [footer] (one more row of the panel, as the "What if it never finishes?" line) goes after the
 /// last step. A screen reader hears each step with its state.
 class KitSteps extends StatelessWidget {
-  const KitSteps({super.key, required this.steps, this.card = true, this.semanticsId, this.footer});
+  const KitSteps({super.key, required this.steps, this.card = true, this.semanticsId, this.footer, this.margin = const EdgeInsets.symmetric(horizontal: Kit.gutter)});
 
   final List<KitStep> steps;
   final bool card;
   final String? semanticsId;
   final Widget? footer;
+
+  /// The card's side margins: the gutter, or none where the page already has its own.
+  final EdgeInsetsGeometry margin;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +107,7 @@ class KitSteps extends StatelessWidget {
     );
     final body = card
         ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+            padding: margin,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: t.group,
