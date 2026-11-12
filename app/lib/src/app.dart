@@ -7,10 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
-import 'connection_grace.dart';
 import 'connection_state.dart';
 import 'l10n.dart';
-import 'node_failover.dart' show NodeFailover;
 import 'node_failover_phone.dart';
 import 'price.dart' show priceProvider;
 import 'levels/level_providers.dart' show effectiveAdvancedProvider;
@@ -25,7 +23,6 @@ import 'ui/kit/kit_tokens.dart' show Kit;
 import 'ui/more_below.dart';
 import 'ui/launch_screen.dart';
 import 'ui/phone_frame.dart';
-import 'ui/status.dart' show serverHost;
 import 'ui/theme/advanced.dart';
 import 'ui/theme/tokens.dart';
 import 'updater.dart';
@@ -72,41 +69,9 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // Alive for the app's life: a node that read offline is asked again when the network
     // returns and on resume.
     ref.listenManual(nodeRecheckProvider, (_, _) {});
-    // Alive for the app's life: a node that stops answering is left for the next working one
-    // of the list for this session, and the notice says so wherever the user is.
+    // Alive for the app's life: a node that stops answering is left for the best working one
+    // of the list for this session; the status card names the node in use.
     ref.listenManual(nodeFailoverWatchProvider, (_, _) {});
-    // Item 11: during the connection grace after start and resume the notice waits, and shows
-    // once the grace is over if that node is still the one in use.
-    void sayFailover(NodeFailover now) {
-      final context = _navigator.currentContext;
-      if (context == null) return;
-      ref
-          .read(noticeProvider.notifier)
-          .show(
-            now.behind
-                ? context.l10n.deskNodeFailoverBehind(serverHost(now.inUse))
-                : context.l10n.nodeFailoverSwitched(serverHost(now.inUse)),
-            level: NoticeLevel.info,
-          );
-    }
-    NodeFailover? heldFailover;
-    ref.listenManual(nodeFailoverProvider, (before, now) {
-      if (now == null || now == before) {
-        if (now == null) heldFailover = null;
-        return;
-      }
-      if (ref.read(connectionGraceProvider)) {
-        heldFailover = now;
-        return;
-      }
-      sayFailover(now);
-    });
-    ref.listenManual<bool>(connectionGraceProvider, (_, grace) {
-      final held = heldFailover;
-      if (grace || held == null) return;
-      heldFailover = null;
-      if (ref.read(nodeFailoverProvider) == held) sayFailover(held);
-    });
     // A wallet rebuilt from its phrase finishes its scan from block 0 by itself, after every
     // unlock (restore_scan.dart); Home shows where it stands.
     ref.listenManual(restoreScanProvider, (_, _) {});
