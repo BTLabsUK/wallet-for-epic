@@ -34482,10 +34482,10 @@ abstract class AppLocalizations {
   /// **'The only way to get this wallet back'**
   String get phoneSettingsPhraseLine;
 
-  /// Value on the recovery phrase row when the phrase is backed up. Starts with a check mark.
+  /// Value on the recovery phrase row when the phrase is backed up. A check icon is drawn before it.
   ///
   /// In en, this message translates to:
-  /// **'✓ Backed up'**
+  /// **'Backed up'**
   String get phoneSettingsBackedUp;
 
   /// Line on the Settings hub: the recovery phrase is backed up.
@@ -34527,7 +34527,7 @@ abstract class AppLocalizations {
   /// Note under the auto-lock row in Security. {time} is a duration like '5 minutes'.
   ///
   /// In en, this message translates to:
-  /// **'The wallet locks after {time} away from the app.'**
+  /// **'The wallet locks by itself after {time} away from the app.'**
   String phoneSettingsAutoLockFootnote(String time);
 
   /// Row in Security that locks the wallet at once.
@@ -34569,7 +34569,7 @@ abstract class AppLocalizations {
   /// Line under the Passphrase row.
   ///
   /// In en, this message translates to:
-  /// **'Extra words on top of the recovery phrase'**
+  /// **'A longer secret in place of the PIN'**
   String get phoneSettingsPassphraseLine;
 
   /// Help sheet of Security, first paragraph.
@@ -34617,7 +34617,7 @@ abstract class AppLocalizations {
   /// Group label in Payments above the ways to pay.
   ///
   /// In en, this message translates to:
-  /// **'Ways to pay'**
+  /// **'Ways to pay and be paid'**
   String get phoneSettingsPayWays;
 
   /// Help sheet of Payments, first paragraph.
@@ -34641,7 +34641,7 @@ abstract class AppLocalizations {
   /// Line under the Epicbox row in Payments.
   ///
   /// In en, this message translates to:
-  /// **'Both phones online'**
+  /// **'The usual way. Their wallet can be offline.'**
   String get phoneSettingsEpicboxLine;
 
   /// Payments row: paying with a QR code shown face to face.
@@ -34653,7 +34653,7 @@ abstract class AppLocalizations {
   /// Line under the In person row.
   ///
   /// In en, this message translates to:
-  /// **'QR codes shown between two phones'**
+  /// **'Two phones showing each other a code'**
   String get phoneSettingsInPersonLine;
 
   /// Payments row: paying by passing a file.
@@ -34665,7 +34665,7 @@ abstract class AppLocalizations {
   /// Line under the With a file row.
   ///
   /// In en, this message translates to:
-  /// **'A file passed by any app'**
+  /// **'A payment file passed back and forth'**
   String get phoneSettingsWithFileLine;
 
   /// Payments row: receiving at a Tor address.
@@ -34677,7 +34677,7 @@ abstract class AppLocalizations {
   /// Line under the Tor address row.
   ///
   /// In en, this message translates to:
-  /// **'Receive at an .onion address'**
+  /// **'Straight to this phone. Needs Tor.'**
   String get phoneSettingsTorAddressLine;
 
   /// Line under the Split change row in Payments.
@@ -34689,13 +34689,13 @@ abstract class AppLocalizations {
   /// Line under the Invoices row in Payments.
   ///
   /// In en, this message translates to:
-  /// **'Requests you made and their state'**
+  /// **'Who may ask you to pay, and for how long'**
   String get phoneSettingsInvoicesLine;
 
   /// Line under the Node failover row in Network.
   ///
   /// In en, this message translates to:
-  /// **'Switch to another node when one stops'**
+  /// **'If the node stops answering, use another one'**
   String get phoneSettingsFailoverLine;
 
   /// Row in Network that opens the service status website.
@@ -34707,7 +34707,7 @@ abstract class AppLocalizations {
   /// Line under the Server status row. {host} is a web address like status.example.org.
   ///
   /// In en, this message translates to:
-  /// **'Opens {host}'**
+  /// **'Ask {host} which servers are up'**
   String phoneSettingsServerStatusLine(String host);
 
   /// Row in This wallet: save the wallet's data to a file.
@@ -34719,7 +34719,7 @@ abstract class AppLocalizations {
   /// Line under the Export row.
   ///
   /// In en, this message translates to:
-  /// **'Save payments and contacts to a file'**
+  /// **'History, contacts and settings in one file'**
   String get phoneSettingsExportLine;
 
   /// Row in This wallet: load wallet data from a file.
@@ -34731,13 +34731,13 @@ abstract class AppLocalizations {
   /// Row in This wallet: save payments as a spreadsheet file.
   ///
   /// In en, this message translates to:
-  /// **'Export as CSV'**
+  /// **'Export a spreadsheet'**
   String get phoneSettingsCsv;
 
   /// Line under the CSV row.
   ///
   /// In en, this message translates to:
-  /// **'Payments as a spreadsheet'**
+  /// **'Payments as a CSV file'**
   String get phoneSettingsCsvLine;
 
   /// Group label in This wallet above the upkeep rows.
@@ -34749,25 +34749,25 @@ abstract class AppLocalizations {
   /// Line under the Recheck balance row.
   ///
   /// In en, this message translates to:
-  /// **'Look for payments the wallet missed'**
+  /// **'Look through the chain again for your coins'**
   String get phoneSettingsRecheckLine;
 
   /// Line under the Outputs row when no count is known.
   ///
   /// In en, this message translates to:
-  /// **'Coins the wallet holds'**
+  /// **'The coins your balance is made of'**
   String get phoneSettingsOutputsLine;
 
   /// Row in This wallet: restore from the recovery phrase.
   ///
   /// In en, this message translates to:
-  /// **'Restore from phrase'**
+  /// **'Restore another wallet'**
   String get phoneSettingsRestore;
 
   /// Line under the Restore row.
   ///
   /// In en, this message translates to:
-  /// **'Rebuild the wallet from the recovery phrase'**
+  /// **'Replaces this one, after its phrase checks out'**
   String get phoneSettingsRestoreLine;
 
   /// Line under the Advanced row on the Settings hub.
@@ -34779,31 +34779,31 @@ abstract class AppLocalizations {
   /// Line under the Outputs switch in Advanced.
   ///
   /// In en, this message translates to:
-  /// **'Show the coins the wallet holds'**
+  /// **'The coins your balance is made of; split or combine them'**
   String get phoneSettingsAdvOutputsLine;
 
   /// Line under the Technical details switch in Advanced.
   ///
   /// In en, this message translates to:
-  /// **'Show ids, heights and raw states'**
+  /// **'Kernel, slate ID and block height on a payment'**
   String get phoneSettingsAdvTechnicalLine;
 
   /// Line under the Send options switch in Advanced.
   ///
   /// In en, this message translates to:
-  /// **'Show coin choice when sending'**
+  /// **'Choose which coins a payment spends'**
   String get phoneSettingsAdvSendLine;
 
   /// Line under the Server details switch in Advanced.
   ///
   /// In en, this message translates to:
-  /// **'Show addresses and health of servers'**
+  /// **'Hosts, latency and block height in server lists'**
   String get phoneSettingsAdvServersLine;
 
   /// Line under the Recheck from height switch in Advanced.
   ///
   /// In en, this message translates to:
-  /// **'Choose where a recheck starts'**
+  /// **'Start a balance recheck from a block or a date'**
   String get phoneSettingsAdvRecheckLine;
 
   /// Line under the Transaction files switch in Advanced.
@@ -34815,7 +34815,7 @@ abstract class AppLocalizations {
   /// Line under the Show prices switch in Appearance.
   ///
   /// In en, this message translates to:
-  /// **'Show a value in your currency'**
+  /// **'The value in your currency under each amount'**
   String get phoneSettingsShowPricesLine;
 
   /// Switch in Appearance: hide balances.
@@ -34827,7 +34827,7 @@ abstract class AppLocalizations {
   /// Line under the Hide amounts switch.
   ///
   /// In en, this message translates to:
-  /// **'Show dots instead of balances'**
+  /// **'Dots in place of every figure until you tap'**
   String get phoneSettingsHideAmountsLine;
 
   /// Help sheet of Appearance, first paragraph.
@@ -36329,6 +36329,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show me'**
   String get phoneTourOfferShow;
+
+  /// Switch in Network & privacy: use another node when the chosen one stops answering.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch node by itself'**
+  String get phoneSettingsFailover;
+
+  /// Line under the Normal connection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly to the node, Epicbox and other services'**
+  String get phoneSettingsModeNormalLine;
+
+  /// Line under the Tor only connection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything goes through Tor. Slower.'**
+  String get phoneSettingsModeTorLine;
+
+  /// Line under the Node only connection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the node connects. Epicbox, links and price checks are off.'**
+  String get phoneSettingsModeNodeLine;
+
+  /// Line under the Kill switch connection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing connects. Payments are finished offline and posted from another device.'**
+  String get phoneSettingsModeKillLine;
+
+  /// Note under the Advanced title on the phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.'**
+  String get phoneSettingsAdvIntro;
+
+  /// Label above the switches on the Advanced page.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get phoneSettingsAdvShows;
+
+  /// Line under the Confirmations stepper.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks before a payment counts as yours to spend'**
+  String get phoneSettingsConfirmationsLine;
+
+  /// No description provided for @phoneSettingsEpic1Line.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.'**
+  String get phoneSettingsEpic1Line;
+
+  /// No description provided for @phoneHelpSecStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get phoneHelpSecStart;
+
+  /// No description provided for @phoneHelpSecHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How payments work'**
+  String get phoneHelpSecHow;
+
+  /// No description provided for @phoneHelpSecNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Networks and privacy'**
+  String get phoneHelpSecNetwork;
+
+  /// No description provided for @phoneHelpSecSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping it safe'**
+  String get phoneHelpSecSafety;
+
+  /// No description provided for @phoneHelpSecMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Upkeep'**
+  String get phoneHelpSecMaintenance;
+
+  /// No description provided for @phoneHelpSecTrouble.
+  ///
+  /// In en, this message translates to:
+  /// **'When something is wrong'**
+  String get phoneHelpSecTrouble;
 }
 
 class _AppLocalizationsDelegate

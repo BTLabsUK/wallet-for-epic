@@ -12,11 +12,14 @@ import '../l10n.dart';
 import '../providers.dart';
 import 'common.dart';
 import 'help_screen.dart';
+import 'kit/kit_group.dart' show KitGroupLabel;
+import 'kit/kit_settings.dart' show KitLead;
 import 'kit/kit_headers.dart';
 import 'kit/kit_help_sheet.dart';
 import 'kit/kit_tokens.dart';
 import 'phone_frame.dart' show phoneFrameBreakpoint;
 import 'restore_screen.dart' show ScanSlotLine;
+import 'tour/tour_target.dart' show PhoneTourTarget;
 
 /// What a page's "?" shows: a title, the lines that were behind the page's ⓘ icons, and the
 /// Help page "More in Help" opens ([topic], else the Help index).
@@ -89,6 +92,12 @@ class SettingsPhonePage extends ConsumerWidget {
                   onHelp: help == null ? null : () => help!.show(context),
                   helpId: helpId,
                   backId: backId,
+                  // A page that opens with a group label (its own top 0) sits 4 px closer to the title.
+                  bottomGap: switch (children.firstOrNull) {
+                    KitGroupLabel() => 16,
+                    PhoneTourTarget(child: KitLead()) => 2,
+                    _ => 20,
+                  },
                 ),
                 Expanded(
                   child: ListView(

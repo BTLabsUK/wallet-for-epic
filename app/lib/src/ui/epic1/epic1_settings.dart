@@ -23,7 +23,6 @@ import '../kit/kit_row.dart';
 import '../kit/kit_tokens.dart';
 import '../status.dart';
 import '../theme/tokens.dart';
-import '../theme/epic1_mark.dart';
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
@@ -108,9 +107,8 @@ class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
             KitRow.toggle(
               key: epic1SwitchKey,
               title: l.deskE1PhSwitch,
-              subtitle: l.deskE1PhSwitchHint,
+              subtitle: l.phoneSettingsEpic1Line,
               subtitleLines: 3,
-              leading: const Epic1Glyph(size: 24),
               value: stored,
               onChanged: _busy ? null : (on) => _set(epic1, on),
               semanticsId: TrustIds.paymentsExperimental,

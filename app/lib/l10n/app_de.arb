@@ -6050,5 +6050,20 @@
   "phoneHomeBalanceSheetHint": "Details zum Guthaben",
   "phoneHomeEmpty": "Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.",
   "phoneTourOffer": "Kurze Tour durch die Wallet?",
-  "phoneTourOfferShow": "Zeig mir"
+  "phoneTourOfferShow": "Zeig mir",
+  "phoneSettingsFailover": "Switch node by itself",
+  "phoneSettingsModeNormalLine": "Connects directly to the node, Epicbox and other services",
+  "phoneSettingsModeTorLine": "Everything goes through Tor. Slower.",
+  "phoneSettingsModeNodeLine": "Only the node connects. Epicbox, links and price checks are off.",
+  "phoneSettingsModeKillLine": "Nothing connects. Payments are finished offline and posted from another device.",
+  "phoneSettingsAdvIntro": "Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.",
+  "phoneSettingsAdvShows": "Show more",
+  "phoneSettingsConfirmationsLine": "Blocks before a payment counts as yours to spend",
+  "phoneSettingsEpic1Line": "Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.",
+  "phoneHelpSecStart": "Getting started",
+  "phoneHelpSecHow": "How payments work",
+  "phoneHelpSecNetwork": "Networks and privacy",
+  "phoneHelpSecSafety": "Keeping it safe",
+  "phoneHelpSecMaintenance": "Upkeep",
+  "phoneHelpSecTrouble": "When something is wrong"
 }

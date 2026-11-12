@@ -177,6 +177,9 @@ abstract final class KitType {
   /// `.rt b`.
   static final TextStyle rowTitle = _body(15, weight: FontWeight.w500);
 
+  /// `.val`.
+  static final TextStyle rowValue = _body(15);
+
   /// `.rt span`.
   static final TextStyle rowSub = _body(13);
 

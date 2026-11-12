@@ -1393,11 +1393,11 @@ void main() {
         await h.openSettings(tester, SettingsSection.wallet);
         await _reveal(tester, find.byKey(settingsRestoreKey));
         // Next to Delete, in the row's normal colour.
-        expect(find.text(_l.firstRunRestore), findsOneWidget);
+        expect(find.text(_l.phoneSettingsRestore), findsOneWidget);
         expect(find.text(_l.settingsDeleteWallet), findsOneWidget);
 
         // The phrase first; Back leaves the wallet as it is.
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.phoneSettingsRestore);
         expect(find.byType(RestoreScreen), findsOneWidget);
         expect(find.byType(DeleteWalletDialog), findsNothing);
         await tester.tap(find.byIcon(KitIcons.back));
@@ -1407,7 +1407,7 @@ void main() {
         expect(h.container.read(sessionProvider), isNotNull);
 
         // A phrase that does not check out never reaches the warning.
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.phoneSettingsRestore);
         await _enter(tester, 'Recovery phrase', 'abandon abandon abandon');
         await _tapText(tester, 'Continue');
         expect(find.textContaining('This phrase has 3 words.'), findsOneWidget);

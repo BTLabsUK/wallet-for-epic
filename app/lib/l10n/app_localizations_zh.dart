@@ -21871,4 +21871,55 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => '带我看看';
+
+  @override
+  String get phoneSettingsFailover => 'Switch node by itself';
+
+  @override
+  String get phoneSettingsModeNormalLine =>
+      'Connects directly to the node, Epicbox and other services';
+
+  @override
+  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+
+  @override
+  String get phoneSettingsModeNodeLine =>
+      'Only the node connects. Epicbox, links and price checks are off.';
+
+  @override
+  String get phoneSettingsModeKillLine =>
+      'Nothing connects. Payments are finished offline and posted from another device.';
+
+  @override
+  String get phoneSettingsAdvIntro =>
+      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+
+  @override
+  String get phoneSettingsAdvShows => 'Show more';
+
+  @override
+  String get phoneSettingsConfirmationsLine =>
+      'Blocks before a payment counts as yours to spend';
+
+  @override
+  String get phoneSettingsEpic1Line =>
+      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+
+  @override
+  String get phoneHelpSecStart => 'Getting started';
+
+  @override
+  String get phoneHelpSecHow => 'How payments work';
+
+  @override
+  String get phoneHelpSecNetwork => 'Networks and privacy';
+
+  @override
+  String get phoneHelpSecSafety => 'Keeping it safe';
+
+  @override
+  String get phoneHelpSecMaintenance => 'Upkeep';
+
+  @override
+  String get phoneHelpSecTrouble => 'When something is wrong';
 }

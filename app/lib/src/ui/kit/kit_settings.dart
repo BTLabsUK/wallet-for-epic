@@ -20,8 +20,8 @@ class KitFootnote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 10, Kit.gutter + 4, 0),
-    child: Text(text, style: KitType.rowSub.copyWith(color: color ?? context.tokens.dim)),
+    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
+    child: Text(text, style: KitType.rowSub.copyWith(color: color ?? context.tokens.faint, height: 1.45)),
   );
 }
 
@@ -34,8 +34,8 @@ class KitLead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 0, Kit.gutter + 4, 6),
-    child: Text(text, style: KitType.body.copyWith(color: context.tokens.dim)),
+    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 6, Kit.gutter + 4, 0),
+    child: Text(text, style: KitType.body.copyWith(color: context.tokens.dim, fontSize: 14, height: 1.45)),
   );
 }
 

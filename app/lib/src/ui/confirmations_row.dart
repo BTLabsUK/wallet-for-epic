@@ -31,7 +31,13 @@ const confirmationsResetKey = ValueKey('adv-confirmations-reset');
 const confirmationsNoteKey = ValueKey('adv-confirmations-note');
 
 class ConfirmationsRow extends ConsumerWidget {
-  const ConfirmationsRow({super.key});
+  const ConfirmationsRow({super.key, this.subtitle, this.showDefaultTag = true});
+
+  /// A phone line in place of the hint with the range.
+  final String? subtitle;
+
+  /// The "Default" tag under the row at the default count; the phone's Advanced page leaves it out.
+  final bool showDefaultTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -63,9 +69,9 @@ class ConfirmationsRow extends ConsumerWidget {
               key: confirmationsRowKey,
               title: l.advConfirmations,
               // The count's meaning; the default shows as a tag, any other count offers Reset.
-              subtitle: l.advConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
+              subtitle: subtitle ?? l.advConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
               subtitleLines: 3,
-              size: KitRowSize.settings,
+              size: subtitle == null ? KitRowSize.settings : KitRowSize.list,
               trailing: KitStepper(
                 value: shown,
                 valueKey: confirmationsValueKey,
@@ -82,7 +88,7 @@ class ConfirmationsRow extends ConsumerWidget {
             ),
           ],
         ),
-        if (ready)
+        if (ready && !(atDefault && !showDefaultTag))
           Padding(
             padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 10, Kit.gutter + 4, 0),
             child: Align(

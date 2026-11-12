@@ -11,9 +11,9 @@
   "@phoneSettingsPhraseLine": {
     "description": "Line under the recovery phrase row in This wallet."
   },
-  "phoneSettingsBackedUp": "✓ Backed up",
+  "phoneSettingsBackedUp": "Backed up",
   "@phoneSettingsBackedUp": {
-    "description": "Value on the recovery phrase row when the phrase is backed up. Starts with a check mark."
+    "description": "Value on the recovery phrase row when the phrase is backed up. A check icon is drawn before it."
   },
   "phoneSettingsPhraseBackedUp": "Recovery phrase backed up",
   "@phoneSettingsPhraseBackedUp": {
@@ -45,7 +45,7 @@
       }
     }
   },
-  "phoneSettingsAutoLockFootnote": "The wallet locks after {time} away from the app.",
+  "phoneSettingsAutoLockFootnote": "The wallet locks by itself after {time} away from the app.",
   "@phoneSettingsAutoLockFootnote": {
     "description": "Note under the auto-lock row in Security. {time} is a duration like '5 minutes'.",
     "placeholders": {
@@ -85,7 +85,7 @@
   "@phoneSettingsPassphrase": {
     "description": "Row title in Security: an extra word set added to the recovery phrase."
   },
-  "phoneSettingsPassphraseLine": "Extra words on top of the recovery phrase",
+  "phoneSettingsPassphraseLine": "A longer secret in place of the PIN",
   "@phoneSettingsPassphraseLine": {
     "description": "Line under the Passphrase row."
   },
@@ -117,7 +117,7 @@
   "@phoneSettingsPayments": {
     "description": "Title of the Payments page and its row in Settings."
   },
-  "phoneSettingsPayWays": "Ways to pay",
+  "phoneSettingsPayWays": "Ways to pay and be paid",
   "@phoneSettingsPayWays": {
     "description": "Group label in Payments above the ways to pay."
   },
@@ -133,7 +133,7 @@
   "@phoneSettingsPaymentsHelp3": {
     "description": "Help sheet of Payments, third paragraph."
   },
-  "phoneSettingsEpicboxLine": "Both phones online",
+  "phoneSettingsEpicboxLine": "The usual way. Their wallet can be offline.",
   "@phoneSettingsEpicboxLine": {
     "description": "Line under the Epicbox row in Payments."
   },
@@ -141,7 +141,7 @@
   "@phoneSettingsInPerson": {
     "description": "Payments row: paying with a QR code shown face to face."
   },
-  "phoneSettingsInPersonLine": "QR codes shown between two phones",
+  "phoneSettingsInPersonLine": "Two phones showing each other a code",
   "@phoneSettingsInPersonLine": {
     "description": "Line under the In person row."
   },
@@ -149,7 +149,7 @@
   "@phoneSettingsWithFile": {
     "description": "Payments row: paying by passing a file."
   },
-  "phoneSettingsWithFileLine": "A file passed by any app",
+  "phoneSettingsWithFileLine": "A payment file passed back and forth",
   "@phoneSettingsWithFileLine": {
     "description": "Line under the With a file row."
   },
@@ -157,7 +157,7 @@
   "@phoneSettingsTorAddress": {
     "description": "Payments row: receiving at a Tor address."
   },
-  "phoneSettingsTorAddressLine": "Receive at an .onion address",
+  "phoneSettingsTorAddressLine": "Straight to this phone. Needs Tor.",
   "@phoneSettingsTorAddressLine": {
     "description": "Line under the Tor address row."
   },
@@ -165,19 +165,39 @@
   "@phoneSettingsSplitLine": {
     "description": "Line under the Split change row in Payments."
   },
-  "phoneSettingsInvoicesLine": "Requests you made and their state",
+  "phoneSettingsInvoicesLine": "Who may ask you to pay, and for how long",
   "@phoneSettingsInvoicesLine": {
     "description": "Line under the Invoices row in Payments."
   },
-  "phoneSettingsFailoverLine": "Switch to another node when one stops",
+  "phoneSettingsFailover": "Switch node by itself",
+  "@phoneSettingsFailover": {
+    "description": "Switch in Network & privacy: use another node when the chosen one stops answering."
+  },
+  "phoneSettingsFailoverLine": "If the node stops answering, use another one",
   "@phoneSettingsFailoverLine": {
     "description": "Line under the Node failover row in Network."
+  },
+  "phoneSettingsModeNormalLine": "Connects directly to the node, Epicbox and other services",
+  "@phoneSettingsModeNormalLine": {
+    "description": "Line under the Normal connection mode."
+  },
+  "phoneSettingsModeTorLine": "Everything goes through Tor. Slower.",
+  "@phoneSettingsModeTorLine": {
+    "description": "Line under the Tor only connection mode."
+  },
+  "phoneSettingsModeNodeLine": "Only the node connects. Epicbox, links and price checks are off.",
+  "@phoneSettingsModeNodeLine": {
+    "description": "Line under the Node only connection mode."
+  },
+  "phoneSettingsModeKillLine": "Nothing connects. Payments are finished offline and posted from another device.",
+  "@phoneSettingsModeKillLine": {
+    "description": "Line under the Kill switch connection mode."
   },
   "phoneSettingsServerStatus": "Server status",
   "@phoneSettingsServerStatus": {
     "description": "Row in Network that opens the service status website."
   },
-  "phoneSettingsServerStatusLine": "Opens {host}",
+  "phoneSettingsServerStatusLine": "Ask {host} which servers are up",
   "@phoneSettingsServerStatusLine": {
     "description": "Line under the Server status row. {host} is a web address like status.example.org.",
     "placeholders": {
@@ -191,7 +211,7 @@
   "@phoneSettingsExport": {
     "description": "Row in This wallet: save the wallet's data to a file."
   },
-  "phoneSettingsExportLine": "Save payments and contacts to a file",
+  "phoneSettingsExportLine": "History, contacts and settings in one file",
   "@phoneSettingsExportLine": {
     "description": "Line under the Export row."
   },
@@ -199,11 +219,11 @@
   "@phoneSettingsImport": {
     "description": "Row in This wallet: load wallet data from a file."
   },
-  "phoneSettingsCsv": "Export as CSV",
+  "phoneSettingsCsv": "Export a spreadsheet",
   "@phoneSettingsCsv": {
     "description": "Row in This wallet: save payments as a spreadsheet file."
   },
-  "phoneSettingsCsvLine": "Payments as a spreadsheet",
+  "phoneSettingsCsvLine": "Payments as a CSV file",
   "@phoneSettingsCsvLine": {
     "description": "Line under the CSV row."
   },
@@ -211,19 +231,19 @@
   "@phoneSettingsUpkeep": {
     "description": "Group label in This wallet above the upkeep rows."
   },
-  "phoneSettingsRecheckLine": "Look for payments the wallet missed",
+  "phoneSettingsRecheckLine": "Look through the chain again for your coins",
   "@phoneSettingsRecheckLine": {
     "description": "Line under the Recheck balance row."
   },
-  "phoneSettingsOutputsLine": "Coins the wallet holds",
+  "phoneSettingsOutputsLine": "The coins your balance is made of",
   "@phoneSettingsOutputsLine": {
     "description": "Line under the Outputs row when no count is known."
   },
-  "phoneSettingsRestore": "Restore from phrase",
+  "phoneSettingsRestore": "Restore another wallet",
   "@phoneSettingsRestore": {
     "description": "Row in This wallet: restore from the recovery phrase."
   },
-  "phoneSettingsRestoreLine": "Rebuild the wallet from the recovery phrase",
+  "phoneSettingsRestoreLine": "Replaces this one, after its phrase checks out",
   "@phoneSettingsRestoreLine": {
     "description": "Line under the Restore row."
   },
@@ -231,23 +251,23 @@
   "@phoneSettingsAdvancedLine": {
     "description": "Line under the Advanced row on the Settings hub."
   },
-  "phoneSettingsAdvOutputsLine": "Show the coins the wallet holds",
+  "phoneSettingsAdvOutputsLine": "The coins your balance is made of; split or combine them",
   "@phoneSettingsAdvOutputsLine": {
     "description": "Line under the Outputs switch in Advanced."
   },
-  "phoneSettingsAdvTechnicalLine": "Show ids, heights and raw states",
+  "phoneSettingsAdvTechnicalLine": "Kernel, slate ID and block height on a payment",
   "@phoneSettingsAdvTechnicalLine": {
     "description": "Line under the Technical details switch in Advanced."
   },
-  "phoneSettingsAdvSendLine": "Show coin choice when sending",
+  "phoneSettingsAdvSendLine": "Choose which coins a payment spends",
   "@phoneSettingsAdvSendLine": {
     "description": "Line under the Send options switch in Advanced."
   },
-  "phoneSettingsAdvServersLine": "Show addresses and health of servers",
+  "phoneSettingsAdvServersLine": "Hosts, latency and block height in server lists",
   "@phoneSettingsAdvServersLine": {
     "description": "Line under the Server details switch in Advanced."
   },
-  "phoneSettingsAdvRecheckLine": "Choose where a recheck starts",
+  "phoneSettingsAdvRecheckLine": "Start a balance recheck from a block or a date",
   "@phoneSettingsAdvRecheckLine": {
     "description": "Line under the Recheck from height switch in Advanced."
   },
@@ -255,7 +275,19 @@
   "@phoneSettingsAdvFilesLine": {
     "description": "Line under the Transaction files switch in Advanced."
   },
-  "phoneSettingsShowPricesLine": "Show a value in your currency",
+  "phoneSettingsAdvIntro": "Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.",
+  "@phoneSettingsAdvIntro": {
+    "description": "Note under the Advanced title on the phone."
+  },
+  "phoneSettingsAdvShows": "Show more",
+  "@phoneSettingsAdvShows": {
+    "description": "Label above the switches on the Advanced page."
+  },
+  "phoneSettingsConfirmationsLine": "Blocks before a payment counts as yours to spend",
+  "@phoneSettingsConfirmationsLine": {
+    "description": "Line under the Confirmations stepper."
+  },
+  "phoneSettingsShowPricesLine": "The value in your currency under each amount",
   "@phoneSettingsShowPricesLine": {
     "description": "Line under the Show prices switch in Appearance."
   },
@@ -263,7 +295,7 @@
   "@phoneSettingsHideAmounts": {
     "description": "Switch in Appearance: hide balances."
   },
-  "phoneSettingsHideAmountsLine": "Show dots instead of balances",
+  "phoneSettingsHideAmountsLine": "Dots in place of every figure until you tap",
   "@phoneSettingsHideAmountsLine": {
     "description": "Line under the Hide amounts switch."
   },
@@ -342,5 +374,12 @@
   "phoneSettingsLinkDevice": "Link a device",
   "@phoneSettingsLinkDevice": {
     "description": "Button on Linked devices: start linking another device."
-  }
+  },
+  "phoneSettingsEpic1Line": "Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.",
+  "phoneHelpSecStart": "Getting started",
+  "phoneHelpSecHow": "How payments work",
+  "phoneHelpSecNetwork": "Networks and privacy",
+  "phoneHelpSecSafety": "Keeping it safe",
+  "phoneHelpSecMaintenance": "Upkeep",
+  "phoneHelpSecTrouble": "When something is wrong"
 }
