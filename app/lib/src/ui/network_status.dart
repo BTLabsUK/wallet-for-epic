@@ -223,28 +223,36 @@ class _StatusRow extends StatelessWidget {
           children: [
             Icon(torIcon, size: 14, color: tor.color),
             const SizedBox(width: 4),
-            Text(tor.word, maxLines: 1, style: KitType.rowSub.copyWith(color: tor.color)),
+            Flexible(child: Text(tor.word, style: KitType.rowSub.copyWith(color: tor.color))),
           ],
         ),
     ];
-    return KitRow(
-      key: key,
-      title: title,
-      subtitleWidget: lines.isEmpty
-          ? null
-          : Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: lines),
-      value: word,
-      valueColor: color,
-      chevron: true,
-      size: KitRowSize.settings,
-      onTap: onTap,
-      semanticsLabel: [
+    // The row reads as one button: "Node online, node.example.org, Synced", the state's
+    // explanation as its hint.
+    return Semantics(
+      button: true,
+      liveRegion: true,
+      label: [
         spoken ?? title,
         if (host.isNotEmpty) host,
         ?note,
         if (!torOnly) face.word,
         if (torWay == TorWay.overTor) l.netStatusOverTor else ?tor?.word,
       ].join(', '),
+      hint: [?tor?.detail, detail ?? l.netStatusOpenHint].join('\n'),
+      excludeSemantics: true,
+      onTap: onTap,
+      child: KitRow(
+        title: title,
+        subtitleWidget: lines.isEmpty
+            ? null
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: lines),
+        value: word,
+        valueColor: color,
+        chevron: true,
+        size: KitRowSize.settings,
+        onTap: onTap,
+      ),
     );
   }
 }

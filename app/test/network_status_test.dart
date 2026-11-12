@@ -195,7 +195,7 @@ void main() {
         tester.getSemantics(find.byKey(netStatusNodeKey)).hint,
         contains('Node: node.example.org'),
       );
-      expect(tester.getSize(find.byKey(netStatusNodeKey)).height, 56);
+      expect(tester.getSize(find.byKey(netStatusNodeKey)).height, greaterThanOrEqualTo(56));
     });
 
     testWidgets('syncing with a percent', (tester) async {
@@ -276,8 +276,8 @@ void main() {
       await _pump(tester);
       expect(find.byKey(netStatusTorKey), findsOneWidget);
       expect(_in(netStatusTorKey, _l.torNetworkLabel), findsOneWidget);
-      // The explanation is the info icon's tooltip, not a line of the row.
-      expect(find.descendant(of: find.byKey(netStatusTorKey), matching: find.byType(InfoHint)), findsOneWidget);
+      // The explanation is the row's spoken hint, not a line of it and not an info icon.
+      expect(find.descendant(of: find.byKey(netStatusTorKey), matching: find.byType(InfoHint)), findsNothing);
       expect(find.textContaining('go through Tor'), findsNothing);
       final word = tester.widget<Text>(_in(netStatusTorKey, 'Off'));
       final t = tester.element(find.byKey(netStatusTorKey)).tokens;
