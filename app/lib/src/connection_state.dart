@@ -13,6 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'net/tor_switch.dart';
+import 'node_failover_engine.dart' show FailoverSearch;
+import 'node_failover_phone.dart' show nodeFailoverWatchProvider;
 import 'phone_tor.dart';
 import 'tor_phone.dart' show phoneTorState;
 import 'tor_routes.dart';
@@ -49,7 +51,24 @@ final rawWalletStatusProvider = Provider<WalletStatus>((ref) {
   );
 });
 
-/// [rawWalletStatusProvider], settled by [statusSettle].
+/// What node failover is doing for the open wallet (`node_failover_phone.dart` writes it): while
+/// it searches, a node that reads offline is shown as connecting.
+final nodeFailoverSearchProvider = NotifierProvider<NodeFailoverSearchState, FailoverSearch>(
+  NodeFailoverSearchState.new,
+);
+
+class NodeFailoverSearchState extends Notifier<FailoverSearch> {
+  @override
+  FailoverSearch build() {
+    ref.watch(sessionProvider);
+    return FailoverSearch.idle;
+  }
+
+  void set(FailoverSearch to) => state = to;
+}
+
+/// [rawWalletStatusProvider], settled by [statusSettle]. While node failover searches
+/// ([nodeFailoverSearchProvider]), a settled offline node reads connecting.
 final walletStatusProvider =
     NotifierProvider<WalletStatusNotifier, WalletStatus>(
       WalletStatusNotifier.new,
@@ -72,6 +91,9 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
   /// after a new wallet replaced a build: a settle queued by the old one checks this.
   int _build = 0;
 
+  /// The settled status before the failover search is laid over it ([_overlay]).
+  late WalletStatus _base;
+
   @override
   WalletStatus build() {
     // A new wallet starts over; within one, the raw status only feeds this.
@@ -92,20 +114,49 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
         if (gen == _build && ref.mounted) _settle(_heldForTor(raw));
       }),
     );
+    ref.listen(
+      nodeFailoverSearchProvider,
+      (_, _) => scheduleMicrotask(() {
+        if (gen == _build && ref.mounted) _publish();
+      }),
+    );
     final raw = _heldForTor(ref.read(rawWalletStatusProvider));
     // Nothing shown yet: what waits for the settle time starts as connecting.
     final first = _settle(raw, (
       node: NodeStatus(NodeState.connecting, height: raw.node.height),
       epicbox: raw.epicbox == null ? null : EpicboxState.connecting,
     ));
+    _base = first;
     _loggedEpicbox = first.epicbox;
-    return first;
+    return _overlay(first);
+  }
+
+  /// A search for a node that answers reads connecting, not offline: one is about to be used.
+  /// A node behind stays as it is (it answers), and so does a search that found nothing.
+  WalletStatus _overlay(WalletStatus settled) {
+    final node = settled.node;
+    if (node.state != NodeState.offline ||
+        node.behind != null ||
+        ref.read(nodeFailoverSearchProvider) != FailoverSearch.searching) {
+      return settled;
+    }
+    return (
+      node: NodeStatus(NodeState.connecting, tip: node.tip, height: node.height),
+      epicbox: settled.epicbox,
+    );
+  }
+
+  /// Shows the settled status with the search laid over it.
+  void _publish() {
+    final next = _overlay(_base);
+    _logFlips(state, next);
+    state = next;
   }
 
   /// Shows [raw] where it may show now, keeps [shown] (the current state) where it must
   /// first last, and starts or stops the timers to match. Returns the new state.
   WalletStatus _settle(WalletStatus raw, [WalletStatus? shown]) {
-    final before = shown ?? state;
+    final before = shown ?? _base;
     final node = _waits(raw.node.state, before.node.state)
         ? before.node
         : raw.node;
@@ -137,8 +188,10 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     }
 
     final next = (node: node, epicbox: epicbox);
-    if (shown == null) _logFlips(before, next);
-    if (shown == null) state = next;
+    if (shown == null) {
+      _base = next;
+      _publish();
+    }
     return next;
   }
 
@@ -177,12 +230,11 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
   }
 
   void _show({NodeStatus? node, EpicboxState? epicbox}) {
-    final next = (
-      node: node ?? state.node,
-      epicbox: node != null ? state.epicbox : epicbox,
+    _base = (
+      node: node ?? _base.node,
+      epicbox: node != null ? _base.epicbox : epicbox,
     );
-    _logFlips(state, next);
-    state = next;
+    _publish();
   }
 
   /// A node status that must last before it shows: offline or syncing, while the shown one is
@@ -271,7 +323,10 @@ class NodeRecheckNotifier extends Notifier<void> {
 
   /// [evenOnline]: asks a node that reads online too.
   Future<void> recheck(String why, {bool evenOnline = false}) async {
-    if (ref.read(sessionProvider) == null || !(evenOnline || _offline)) return;
+    if (ref.read(sessionProvider) == null) return;
+    // A failover round waiting for its backoff runs now (`node_failover_phone.dart`).
+    if (ref.exists(nodeFailoverWatchProvider)) ref.read(nodeFailoverWatchProvider.notifier).kick(why);
+    if (!(evenOnline || _offline)) return;
     final run = ++_run;
     logInfo('status', 'node recheck on $why');
     for (final delay in nodeRecheckDelays) {

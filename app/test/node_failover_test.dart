@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Node failover (Settings › Advanced, on by default): the shared rules, the stored switch, and
-// the phone's watcher on a fake clock. When the node in use has not answered for 30 s the
-// wallet moves to the next working node of the list for this session; the chosen node and the
-// list stay as saved.
+// the phone's adapter on the engine, on a fake clock. When the node in use stops answering the
+// wallet asks the list at once and moves to the best node that answers for this session; the
+// chosen node and the list stay as saved.
 
 import 'dart:async';
 
@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/node_failover.dart';
+import 'package:epic_wallet/src/node_failover_engine.dart' show FailoverSearch;
 import 'package:epic_wallet/src/node_failover_phone.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -18,6 +19,7 @@ import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/server_list_file.dart';
 import 'package:epic_wallet/src/server_list_store.dart';
+import 'package:epic_wallet/src/server_switch.dart' show ServerSwitcher;
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -116,27 +118,23 @@ void main() {
     });
   });
 
-  test('the notice text', () {
+  test('the failover texts', () {
     final l = lookupAppLocalizations(const Locale('en'));
-    expect(l.nodeFailoverSwitched('c.example'), 'Node not answering. Switched to c.example.');
-    expect(l.deskNodeFailoverBehind('c.example'), 'Node behind. Switched to c.example.');
     expect(l.nodeFailoverInsteadOf('a.example'), 'Instead of a.example');
     expect(l.advNodeFailoverHint, 'When your node stops answering, the wallet uses the next working node in your list for this session.');
   });
 
   group('phone watcher', () {
-    test('moves after 30 s of no answer, not before, to the next healthy node; nothing saved', () {
+    test('a node that stops answering: the list is asked at once, the best answer is used; nothing saved', () {
       fakeAsync((async) {
         final h = _Harness(async);
         h.nodeDown();
-        h.elapse(const Duration(seconds: 28));
-        expect(h.session.serverSwitches, isEmpty);
-        expect(h.failover, isNull);
-        h.elapse(const Duration(seconds: 4));
+        h.elapse(const Duration(seconds: 1));
         // b is down on the monitor; c is the first healthy one.
         expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_c]);
         expect(h.failover, const NodeFailover(chosen: _a, inUse: _c));
         expect(h.container.read(walletConfigProvider)?.nodeUrl, _c);
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.idle);
         // Saved choice and list as they were.
         expect(h.container.read(hostSettingsProvider).nodeUse, _a);
         expect(serverListOf(h.container.read(hostSettingsProvider), ServerKind.node).entries, [_a, _b, _c, _d]);
@@ -158,10 +156,9 @@ void main() {
       });
     });
 
-    test('a node that never answered since the wallet opened: moves as soon as it reads offline', () {
+    test('a node that never answered since the wallet opened: left as soon as it reads offline', () {
       fakeAsync((async) {
         final h = _Harness(async, answered: false);
-        // Offline shows after the settle time; the move follows without the 30 s wait.
         h.elapse(const Duration(seconds: 1));
         expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_c]);
         expect(h.failover, const NodeFailover(chosen: _a, inUse: _c));
@@ -173,93 +170,133 @@ void main() {
       fakeAsync((async) {
         final h = _Harness(async, deadNodes: {_a, _c});
         h.nodeDown();
-        h.elapse(const Duration(seconds: 50));
+        h.elapse(const Duration(seconds: 1));
         expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_d]);
         h.dispose();
       });
     });
 
-    test('nothing working: stays, says nothing', () {
+    test('a node that never returns its answer is counted failed at the probe budget', () {
+      fakeAsync((async) {
+        final h = _Harness(async, hungNodes: {_c});
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 1));
+        // d answered at once; c, ranked above it, still has its budget.
+        expect(h.session.serverSwitches, isEmpty);
+        h.elapse(const Duration(seconds: 1));
+        // The prefer window after the first good answer is over: d is used.
+        expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_d]);
+        h.dispose();
+      });
+    });
+
+    test('searching reads connecting, a round that found nothing reads offline', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a}, hungNodes: {_c, _d});
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 6));
+        // Offline has lasted the settle time, but a node is still being looked for.
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.searching);
+        expect(h.shown, NodeState.connecting);
+        h.elapse(const Duration(seconds: 3));
+        // Every probe ran out its budget (8 s): the truth is offline.
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.noneAnswer);
+        expect(h.shown, NodeState.offline);
+        h.dispose();
+      });
+    });
+
+    test('nothing working: stays, says nothing, and keeps asking with a backoff up to a minute', () {
       fakeAsync((async) {
         final h = _Harness(async, deadNodes: {_a, _c, _d});
         h.nodeDown();
-        h.elapse(const Duration(minutes: 3));
+        h.elapse(const Duration(milliseconds: 100));
+        expect(h.asked(_c), 1);
+        // The first wait is 2 s, +-20 %.
+        h.elapse(const Duration(milliseconds: 1400));
+        expect(h.asked(_c), 1);
+        h.elapse(const Duration(seconds: 1));
+        expect(h.asked(_c), 2);
+        h.elapse(const Duration(minutes: 10));
         expect(h.session.serverSwitches, isEmpty);
         expect(h.failover, isNull);
+        // Never more than a minute (+-20 %) apart, and it never stops.
+        final before = h.asked(_c);
+        h.elapse(const Duration(seconds: 73));
+        expect(h.asked(_c), greaterThan(before));
+        expect(h.asked(_c), lessThan(before + 4));
         h.dispose();
       });
     });
 
-    test('nothing working: tries again after 30 s, then 1, 2 and 5 minutes', () {
+    test('a node that comes back ends the search; nothing more is asked', () {
       fakeAsync((async) {
         final h = _Harness(async, deadNodes: {_a, _c, _d});
-        int tries() => h.session.nodeTipsFor.where((c) => c.nodeUrl == _c).length;
         h.nodeDown();
-        h.elapse(const Duration(seconds: 31));
-        expect(tries(), 1);
-        for (final (wait, after) in [(30, 2), (60, 3), (120, 4), (300, 5), (300, 6)]) {
-          h.elapse(Duration(seconds: wait - 2));
-          expect(tries(), after - 1, reason: 'before the ${wait}s wait ends');
-          h.elapse(const Duration(seconds: 2));
-          expect(tries(), after, reason: 'after the ${wait}s wait');
-        }
-        h.dispose();
-      });
-    });
-
-    test('off screen: nothing is asked; back on screen it tries after 30 s', () {
-      fakeAsync((async) {
-        final h = _Harness(async, deadNodes: {_a, _c, _d});
-        int tries() => h.session.nodeTipsFor.where((c) => c.nodeUrl == _c).length;
-        h.nodeDown();
-        h.elapse(const Duration(seconds: 31));
-        expect(tries(), 1);
-        final watch = h.container.read(nodeFailoverWatchProvider.notifier);
-        watch.paused();
-        h.elapse(const Duration(minutes: 10));
-        expect(tries(), 1);
-        watch.resumed();
-        h.elapse(const Duration(seconds: 29));
-        expect(tries(), 1);
-        h.elapse(const Duration(seconds: 2));
-        expect(tries(), 2);
-        h.dispose();
-      });
-    });
-
-    test('a node that answers again in time: no move', () {
-      fakeAsync((async) {
-        final h = _Harness(async);
-        h.nodeDown();
-        h.elapse(const Duration(seconds: 20));
+        h.elapse(const Duration(seconds: 1));
+        expect(h.asked(_c), 1);
         h.nodeUp();
-        h.elapse(const Duration(minutes: 1));
+        h.elapse(const Duration(minutes: 2));
+        expect(h.asked(_c), 1);
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.idle);
         expect(h.session.serverSwitches, isEmpty);
         h.dispose();
       });
     });
 
-    test('switch off: never', () {
+    test('off screen: nothing is asked; back on screen it asks at once', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a, _c, _d});
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 1));
+        final watch = h.container.read(nodeFailoverWatchProvider.notifier);
+        watch.paused();
+        final before = h.asked(_c);
+        h.elapse(const Duration(minutes: 10));
+        expect(h.asked(_c), before);
+        watch.resumed();
+        h.elapse(Duration.zero);
+        expect(h.asked(_c), before + 1);
+        h.dispose();
+      });
+    });
+
+    test('a network change or a resume (the recheck) runs a waiting round now', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a, _c, _d});
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 30));
+        final before = h.asked(_c);
+        unawaited(h.container.read(nodeRecheckProvider.notifier).recheck('network'));
+        h.elapse(Duration.zero);
+        expect(h.asked(_c), before + 1);
+        h.dispose();
+      });
+    });
+
+    test('switch off: the node in use is asked again, the wallet never moves', () {
       fakeAsync((async) {
         final h = _Harness(async, prefs: AdvancedPrefs.none.withNodeFailover(false));
         h.nodeDown();
         h.elapse(const Duration(minutes: 2));
         expect(h.session.serverSwitches, isEmpty);
+        expect(h.asked(_c), 0);
         h.dispose();
       });
     });
 
-    test('Offline: never', () {
+    test('Node only: never moves', () {
       fakeAsync((async) {
         final h = _Harness(async, prefs: AdvancedPrefs.none.withMode(NetworkMode.nodeOnly));
         h.nodeDown();
         h.elapse(const Duration(minutes: 2));
         expect(h.session.serverSwitches, isEmpty);
+        expect(h.asked(_c), 0);
         h.dispose();
       });
     });
 
-    test('a node on this computer: never', () {
+    test('a node on this computer: never left', () {
       fakeAsync((async) {
         final h = _Harness(async, inUse: _local);
         h.nodeDown();
@@ -269,14 +306,15 @@ void main() {
       });
     });
 
-    test('Tor only: not while Tor is not up, over Tor once it is', () {
+    test('Tor only: nothing asked while Tor is not up, moved over Tor once it is', () {
       fakeAsync((async) {
         final h = _Harness(async, prefs: AdvancedPrefs.none.withMode(NetworkMode.torOnly), tor: true);
         h.nodeDown();
         h.elapse(const Duration(minutes: 1));
         expect(h.session.serverSwitches, isEmpty);
+        expect(h.asked(_c), 0);
         h.torUp();
-        h.elapse(const Duration(seconds: 35));
+        h.elapse(const Duration(seconds: 1));
         expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_c]);
         h.dispose();
       });
@@ -291,7 +329,7 @@ void main() {
         h.elapse(const Duration(minutes: 1));
         expect(h.session.serverSwitches, isEmpty);
         sending.complete();
-        h.elapse(const Duration(seconds: 35));
+        h.elapse(const Duration(seconds: 1));
         expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_c]);
         h.dispose();
       });
@@ -301,7 +339,7 @@ void main() {
       fakeAsync((async) {
         final h = _Harness(async);
         h.nodeDown();
-        h.elapse(const Duration(seconds: 35));
+        h.elapse(const Duration(seconds: 2));
         expect(h.failover?.inUse, _c);
         // The user picks d: saved and switched (what switchServersLive does).
         unawaited(h.container.read(networkChoiceProvider.notifier).save(mainnetPreset, _d));
@@ -312,7 +350,7 @@ void main() {
         // Lock and unlock: the failover is gone; the next open reads the saved choice.
         final h2 = _Harness(async);
         h2.nodeDown();
-        h2.elapse(const Duration(seconds: 35));
+        h2.elapse(const Duration(seconds: 2));
         expect(h2.failover?.inUse, _c);
         h2.container.read(sessionProvider.notifier).unlocked(FakeWalletSession()..openedConfig = h2.config(_a));
         h2.elapse(Duration.zero);
@@ -321,6 +359,58 @@ void main() {
         h.dispose();
         h2.dispose();
       });
+    });
+  });
+
+  group('server switcher', () {
+    test('switches run one at a time; only the latest waiting pick runs; failover gives way to a pick', () async {
+      final s = ServerSwitcher();
+      final ran = <String>[];
+      final first = Completer<bool>();
+      final a = s.user(() {
+        ran.add('a');
+        return first.future;
+      });
+      await Future<void>.delayed(Duration.zero);
+      final b = s.user(() async {
+        ran.add('b');
+        return true;
+      });
+      final c = s.user(() async {
+        ran.add('c');
+        return true;
+      });
+      // A failover switch asked while picks wait is dropped.
+      final f = s.failover(() async {
+        ran.add('f');
+        return true;
+      });
+      await Future<void>.delayed(Duration.zero);
+      expect(ran, ['a']);
+      first.complete(true);
+      expect(await a, isTrue);
+      expect(await b, isTrue, reason: 'replaced by c: nothing to do');
+      expect(await c, isTrue);
+      expect(await f, isFalse);
+      expect(ran, ['a', 'c']);
+
+      // A failover switch waiting behind another is dropped when the user picks meanwhile.
+      final hold = Completer<bool>();
+      final g = s.failover(() => hold.future);
+      await Future<void>.delayed(Duration.zero);
+      final f2 = s.failover(() async {
+        ran.add('f2');
+        return true;
+      });
+      final d = s.user(() async {
+        ran.add('d');
+        return true;
+      });
+      hold.complete(true);
+      expect(await g, isTrue);
+      expect(await f2, isFalse);
+      expect(await d, isTrue);
+      expect(ran, ['a', 'c', 'd']);
     });
   });
 }
@@ -332,7 +422,13 @@ class _Raw extends Notifier<WalletStatus> {
   void set(NodeState s) => state = (node: NodeStatus(s), epicbox: null);
 
   void behind(int blocks) => state = (
-    node: NodeStatus(NodeState.offline, validated: false, behind: blocks),
+    // The node in use answers that many blocks below the others (2 500 000).
+    node: NodeStatus(
+      NodeState.offline,
+      tip: NodeTip(height: BigInt.from(2500000 - blocks), nodeVersion: '3.6.0'),
+      validated: false,
+      behind: blocks,
+    ),
     epicbox: null,
   );
 }
@@ -346,14 +442,16 @@ class _Tor extends PhoneTor {
   void up() => state = const PhoneTorState(phase: PhoneTorPhase.connected, receiving: true);
 }
 
-/// Nodes in [dead] give no answer.
+/// Nodes in [dead] give no answer; nodes in [hung] never answer at all.
 class _Service extends FakeWalletService {
-  _Service(this.dead) : super(existingWallets: {_dir});
+  _Service(this.dead, this.hung) : super(existingWallets: {_dir});
 
   final Set<String> dead;
+  final Set<String> hung;
 
   @override
   Future<NodeTip> nodeAnswer(WalletConfig config) async {
+    if (hung.contains(config.nodeUrl)) return Completer<NodeTip>().future;
     if (dead.contains(config.nodeUrl)) throw const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'no answer');
     return NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
   }
@@ -374,7 +472,7 @@ class _Directory implements dir.RelayDirectory, dir.NodeDirectory {
 /// An open mainnet wallet on [inUse] (the saved choice a), the list a, b, c, d, the monitor
 /// saying b is down and c, d healthy, and the failover watcher alive.
 class _Harness {
-  _Harness(this._async, {Set<String> deadNodes = const {_a}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false, bool answered = true}) {
+  _Harness(this._async, {Set<String> deadNodes = const {_a}, Set<String> hungNodes = const {}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false, bool answered = true}) {
     // The node in use and the Node list: the settings file's.
     hostSettings = testSettings().withValues({
       'node.servers': [_a, _b, _c, _d],
@@ -383,7 +481,7 @@ class _Harness {
       store.values['app.advanced_prefs'] = prefs.encode();
       useNetworkModeFile(prefs.networkMode);
     }
-    final service = _Service(deadNodes);
+    final service = _Service(deadNodes, hungNodes);
     session = service.session;
     container = ProviderContainer(
       retry: (_, _) => null,
@@ -418,6 +516,11 @@ class _Harness {
   WalletConfig config(String nodeUrl) => mainnetPreset.config(dataDir: _dir, nodeUrl: nodeUrl);
 
   NodeFailover? get failover => container.read(nodeFailoverProvider);
+
+  /// How often [url] was asked its tip.
+  int asked(String url) => session.nodeTipsFor.where((c) => c.nodeUrl == url).length;
+
+  NodeState get shown => container.read(walletStatusProvider).node.state;
 
   void nodeDown() {
     container.read(_raw.notifier).set(NodeState.offline);
