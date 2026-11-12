@@ -158,7 +158,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     try {
       await _answerFirstStep();
       if (!mounted) return;
-      if (restore) {
+      // A fresh install comes here from the launch before a wallet config is chosen (nothing
+      // connects until the first step is answered): the launch chooses it, then opens the step.
+      if (ref.read(walletConfigProvider) == null) {
+        _leave(LaunchScreen(start: restore ? FirstRunStart.restore : FirstRunStart.create));
+      } else if (restore) {
         _leave(const RestoreScreen());
       } else {
         setState(() => _creating = true);

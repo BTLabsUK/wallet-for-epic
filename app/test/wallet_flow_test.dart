@@ -42,6 +42,7 @@ import 'package:epic_wallet/src/settings_file/settings_providers.dart' show host
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/shell_where.dart';
 
@@ -368,6 +369,24 @@ void main() {
         expect(device.bio.values, {'wallet.mainnet.pin': _pin});
       },
     );
+
+    // A fresh install opens Welcome before the launch has chosen a wallet config (nothing
+    // connects until the first step is answered). Create then went to a PIN step with no config,
+    // and the second PIN entry did nothing.
+    testWidgets('a fresh install: Create, the PIN twice, then Home', (tester) async {
+      NetGate.holdFirstStart();
+      addTearDown(NetGate.releaseFirstStart);
+      final service = FakeWalletService();
+      final device = _Device();
+      await _pumpApp(tester, service, device);
+      await _tapText(tester, _l.firstRunCreate);
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, _l.pinRepeatLabel, _pin);
+      await tester.pumpAndSettle();
+      expect(find.byKey(homeFigureKey), findsOneWidget);
+      expect(service.createdConfig?.dataDir, _mainnetDir);
+      expect(service.createdPin, _pin);
+    });
 
     testWidgets('skips the biometric question where there are none', (
       tester,
