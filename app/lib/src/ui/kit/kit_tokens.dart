@@ -46,6 +46,9 @@ abstract final class Kit {
   static const double rSheetTop = 28;
   static const double rQr = 22;
   static const double rBrandTile = 26;
+
+  /// The 64 px brand tile (`.tile.s`).
+  static const double rBrandTileSmall = 19;
   static const double rPill = 999;
 
   // Sizes.
@@ -70,6 +73,10 @@ abstract final class Kit {
   static const double announcementImage = 64;
   static const double qr = 212;
   static const double brandTile = 96;
+  static const double brandTileSmall = 64;
+
+  /// The tick disc of a finished flow (`.okring`).
+  static const double okRing = 76;
   static const double flowHeader = 44;
   static const double pageTitleHeader = 48;
   static const double searchField = 42;
@@ -155,6 +162,12 @@ abstract final class KitType {
 
   /// `.ptitle`.
   static final TextStyle pageTitle = _head(28, -0.025);
+
+  /// The unlock title (Start-4): 24, -.02 em.
+  static final TextStyle unlockTitle = _head(24, -0.02);
+
+  /// The restore-done title (Gap-10): 26, -.02 em.
+  static final TextStyle doneTitle = _head(26, -0.02);
 
   /// `.hdr .t`.
   static final TextStyle flowTitle = _head(17, -0.01);
