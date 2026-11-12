@@ -117,6 +117,7 @@ SEND_KEYS = {"0": T("g4.send.key.0"), "1": T("g4.send.key.1"), "2": T("g4.send.k
              "8": T("g4.send.key.8"), "9": T("g4.send.key.9"), ".": T("g4.send.key.point")}
 SEND_CONFIRM = T("g4.send.confirm")  # sendReviewSendButton "Send {amount}"
 SEND_BACK = T("g4.send.back")
+SEND_CLOSE = T("g4.send.close")
 SEND_REVIEW_EDIT = T("g4.send.review.edit")  # the Review sheet's way back to the amount
 SEND_FAILED = T("g4.send.failed")
 
@@ -585,9 +586,13 @@ class Phone:
         marks it). Any other target is a tab of the bar."""
         d = self.d
         self.home()
-        if target in (TAB_SEND, TAB_RECEIVE):
-            d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
-                    then=shows(FLOW_CLOSE))
+        if target == TAB_SEND:
+            # Send draws its own header: × on its first step, ‹ on a send left half-way.
+            d.press(target, step="tab-send", timeout=20,
+                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
+            return
+        if target == TAB_RECEIVE:
+            d.press(target, step="tab-receive", timeout=20, then=shows(FLOW_CLOSE))
             return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))
