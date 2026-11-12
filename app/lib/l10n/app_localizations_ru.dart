@@ -23820,14 +23820,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get phoneQrHoldHint => 'Hold their camera to this code.';
+  String get phoneQrHoldHint => 'Поднесите их камеру к этому коду.';
 
   @override
   String get phoneQrReplyShowing =>
-      'The payment is made when they scan it. It then shows in Activity.';
+      'Оплата пройдёт, когда они отсканируют код. Затем она появится в Активности.';
 
   @override
-  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+  String get phoneQrAimAnswer => 'Наведите на ответ на их телефоне.';
 
   @override
   String get phoneSendSearchHint => 'Имя, адрес или ссылка';
@@ -23907,20 +23907,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneTourOfferShow => 'Показать';
 
   @override
-  String get phoneQrDoneScanned => 'Your code was scanned';
+  String get phoneQrDoneScanned => 'Ваш код отсканирован';
 
   @override
-  String get phoneQrDoneAnswerRead => 'Their answer was read';
+  String get phoneQrDoneAnswerRead => 'Их ответ прочитан';
 
   @override
-  String get phoneQrDoneCodeRead => 'You scanned their code';
+  String get phoneQrDoneCodeRead => 'Вы отсканировали их код';
 
   @override
-  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+  String get phoneQrDoneAnswerSeen => 'Они отсканировали ваш ответ';
 
   @override
-  String get phoneQrDoneFinishes =>
-      'It finishes by itself. You can put the phone away.';
+  String get phoneQrDoneFinishes => 'Завершится само. Можно убрать телефон.';
 
   @override
   String phoneRecvFileLead(String amount) {
@@ -23928,11 +23927,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+  String get phoneProgWaitingAnswer => 'Ждём ответа их кошелька';
 
   @override
   String phoneProgWaitingAnswerNamed(String name) {
-    return 'Waiting for $name\'s wallet to answer';
+    return 'Ждём ответа кошелька $name';
   }
 
   @override
@@ -23967,73 +23966,75 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get phoneSettingsFailover => 'Switch node by itself';
+  String get phoneSettingsFailover => 'Менять узел самостоятельно';
 
   @override
   String get phoneSettingsModeNormalLine =>
-      'Connects directly to the node, Epicbox and other services';
+      'Подключается напрямую к узлу, Epicbox и другим службам';
 
   @override
-  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+  String get phoneSettingsModeTorLine => 'Всё идёт через Tor. Медленнее.';
 
   @override
   String get phoneSettingsModeNodeLine =>
-      'Only the node connects. Epicbox, links and price checks are off.';
+      'Подключается только узел. Epicbox, ссылки и проверка цен отключены.';
 
   @override
   String get phoneSettingsModeKillLine =>
-      'Nothing connects. Payments are finished offline and posted from another device.';
+      'Ничего не подключается. Платежи завершаются офлайн и отправляются с другого устройства.';
 
   @override
   String get phoneSettingsAdvIntro =>
-      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+      'Каждый переключатель показывает ещё одну часть кошелька на её месте. Сохранённое не меняется.';
 
   @override
-  String get phoneSettingsAdvShows => 'Show more';
+  String get phoneSettingsAdvShows => 'Показать больше';
 
   @override
   String get phoneSettingsConfirmationsLine =>
-      'Blocks before a payment counts as yours to spend';
+      'Блоков до того, как платёж можно тратить';
 
   @override
   String get phoneSettingsEpic1Line =>
-      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+      'Платите и получайте по ссылкам epic1 и личным кодам. Обычные платежи по-прежнему приходят.';
 
   @override
-  String get phoneHelpSecStart => 'Getting started';
+  String get phoneHelpSecStart => 'Начало работы';
 
   @override
-  String get phoneHelpSecHow => 'How payments work';
+  String get phoneHelpSecHow => 'Как работают платежи';
 
   @override
-  String get phoneHelpSecNetwork => 'Networks and privacy';
+  String get phoneHelpSecNetwork => 'Сети и приватность';
 
   @override
-  String get phoneHelpSecSafety => 'Keeping it safe';
+  String get phoneHelpSecSafety => 'Безопасность';
 
   @override
   String get phoneHelpSecMaintenance => 'Upkeep';
 
   @override
-  String get phoneHelpSecTrouble => 'When something is wrong';
+  String get phoneHelpSecTrouble => 'Если что-то не так';
 
   @override
-  String get phoneRestoreTitle => 'Restore a wallet';
+  String get phoneRestoreTitle => 'Восстановить кошелёк';
 
   @override
   String phoneRestoreWordsHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words so far.',
-      one: '1 word so far.',
+      other: 'Пока $count слова.',
+      many: 'Пока $count слов.',
+      few: 'Пока $count слова.',
+      one: 'Пока $count слово.',
     );
-    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+    return '$_temp0 В фразе восстановления 12, 15, 18, 21 или 24.';
   }
 
   @override
   String get phoneRestoreStartNote =>
-      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+      'Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты.';
 
   @override
   String get phoneSendRouteEpicbox => 'Адрес Epicbox';
@@ -24076,12 +24077,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Через несколько блоков получатель сможет их потратить.';
 
   @override
-  String get phoneProgArrived => 'Arrived';
+  String get phoneProgArrived => 'Получено';
 
   @override
   String get phoneProgFinishesByItself =>
-      'It finishes by itself. You can leave this screen.';
+      'Завершится само. Можно закрыть этот экран.';
 
   @override
-  String get phoneProgReadyToSpend => 'Ready to spend';
+  String get phoneProgReadyToSpend => 'Готово к трате';
 }

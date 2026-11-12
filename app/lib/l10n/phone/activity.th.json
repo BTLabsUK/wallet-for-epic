@@ -83,10 +83,10 @@
   "phonePayRouteSubInPerson": "โทรศัพท์สองเครื่องแสดงโค้ดให้กัน",
   "phonePayRouteSubFile": "ไฟล์การชำระเงินที่ส่งไปมา",
   "phonePayRouteSubTor": "ตรงถึงกระเป๋าของอีกฝั่ง ผ่าน Tor",
-  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneProgWaitingAnswer": "รอกระเป๋าของเขาตอบกลับ",
+  "phoneProgWaitingAnswerNamed": "รอกระเป๋าของ {name} ตอบกลับ",
   "phoneProgAtTime": "เวลา {time}",
-  "phoneProgArrived": "Arrived",
-  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
-  "phoneProgReadyToSpend": "Ready to spend"
+  "phoneProgArrived": "มาถึงแล้ว",
+  "phoneProgFinishesByItself": "เสร็จเองโดยอัตโนมัติ ออกจากหน้านี้ได้เลย",
+  "phoneProgReadyToSpend": "พร้อมใช้จ่าย"
 }

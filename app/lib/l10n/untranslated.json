@@ -1,67 +1,7 @@
 {
-  "de": [
-    "phoneProgArrived",
-    "phoneProgFinishesByItself",
-    "phoneProgReadyToSpend",
-    "phoneQrAimAnswer",
-    "phoneQrDoneAnswerRead",
-    "phoneQrDoneAnswerSeen",
-    "phoneQrDoneCodeRead",
-    "phoneQrDoneFinishes",
-    "phoneQrDoneScanned",
-    "phoneQrHoldHint",
-    "phoneQrReplyShowing"
-  ],
-  "pl": [
-    "phoneProgArrived",
-    "phoneProgFinishesByItself",
-    "phoneProgReadyToSpend",
-    "phoneQrAimAnswer",
-    "phoneQrDoneAnswerRead",
-    "phoneQrDoneAnswerSeen",
-    "phoneQrDoneCodeRead",
-    "phoneQrDoneFinishes",
-    "phoneQrDoneScanned",
-    "phoneQrHoldHint",
-    "phoneQrReplyShowing"
-  ],
-  "ru": [
-    "phoneProgArrived",
-    "phoneProgFinishesByItself",
-    "phoneProgReadyToSpend",
-    "phoneQrAimAnswer",
-    "phoneQrDoneAnswerRead",
-    "phoneQrDoneAnswerSeen",
-    "phoneQrDoneCodeRead",
-    "phoneQrDoneFinishes",
-    "phoneQrDoneScanned",
-    "phoneQrHoldHint",
-    "phoneQrReplyShowing"
-  ],
-  "th": [
-    "phoneProgArrived",
-    "phoneProgFinishesByItself",
-    "phoneProgReadyToSpend",
-    "phoneQrAimAnswer",
-    "phoneQrDoneAnswerRead",
-    "phoneQrDoneAnswerSeen",
-    "phoneQrDoneCodeRead",
-    "phoneQrDoneFinishes",
-    "phoneQrDoneScanned",
-    "phoneQrHoldHint",
-    "phoneQrReplyShowing"
-  ],
-  "zh": [
-    "phoneProgArrived",
-    "phoneProgFinishesByItself",
-    "phoneProgReadyToSpend",
-    "phoneQrAimAnswer",
-    "phoneQrDoneAnswerRead",
-    "phoneQrDoneAnswerSeen",
-    "phoneQrDoneCodeRead",
-    "phoneQrDoneFinishes",
-    "phoneQrDoneScanned",
-    "phoneQrHoldHint",
-    "phoneQrReplyShowing"
-  ]
+  "de": [],
+  "pl": [],
+  "ru": [],
+  "th": [],
+  "zh": []
 }
