@@ -3187,11 +3187,9 @@
   "advConfirmationsMore": "Больше подтверждений",
   "advConfirmationsCount": "{count, plural, one{{count} подтверждение} few{{count} подтверждения} many{{count} подтверждений} other{{count} подтверждения}}",
   "advConfirmationsLowNote": "Меньше подтверждений — быстрее, но менее надёжно.",
-  "nodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
   "nodeFailoverInsteadOf": "Вместо {host}",
   "deskSetAdvNodeFailover": "Автопереключение узла",
   "deskSetAdvNodeFailoverHint": "Когда ваш узел перестаёт отвечать или отстаёт, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.",
-  "deskNodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
   "deskNodeFailoverInsteadOf": "Вместо {host}",
   "netOfflineNoPeers": "У вашего узла нет пиров: платёж ждёт в его пуле, пока он не подключится снова.",
   "netOfflineNodeHint": "Использует узел для чтения цепочки и отправки. Для наибольшей приватности используйте локальный узел.",
@@ -4883,7 +4881,6 @@
   "deskUpdStripAct": "Обновить",
   "deskUpdStripHide": "Скрыть до следующей версии",
   "deskTorAddressChangedTitle": "Ваш адрес Tor изменился",
-  "deskNodeFailoverBehind": "Узел отстаёт. Переключено на {host}.",
   "noticeEventsMissed": "Часть обновлений пропущена. Списки прочитаны заново.",
   "msgChecking": "Проверка сообщений",
   "msgCheckFailed": "Последняя проверка сообщений не удалась",
@@ -5602,5 +5599,6 @@
   "phoneProgReadyToSpend": "Готово к трате",
   "phoneKitPickerSaveFailed": "Не сохранено. Попробуйте ещё раз.",
   "phoneTxCancelledByUser": "Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.",
-  "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит."
+  "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит.",
+  "phoneHomeEmpty": "Платежей пока нет. Получите немного EPIC, чтобы начать."
 }

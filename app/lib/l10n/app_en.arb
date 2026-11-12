@@ -16249,16 +16249,6 @@
   "@advConfirmationsLowNote": {
     "description": "Quiet note under the Confirmations row while the count is below the default. Factual, no alarm."
   },
-  "nodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "@nodeFailoverSwitched": {
-    "description": "Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "epic.node.example"
-      }
-    }
-  },
   "nodeFailoverInsteadOf": "Instead of {host}",
   "@nodeFailoverInsteadOf": {
     "description": "Under the node's address on the status card while node failover uses another node: host is the chosen node.",
@@ -16276,16 +16266,6 @@
   "deskSetAdvNodeFailoverHint": "When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.",
   "@deskSetAdvNodeFailoverHint": {
     "description": "Hover card of the Node failover switch on Settings › Advanced."
-  },
-  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "@deskNodeFailoverSwitched": {
-    "description": "Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "epic.node.example"
-      }
-    }
   },
   "deskNodeFailoverInsteadOf": "Instead of {host}",
   "@deskNodeFailoverInsteadOf": {
@@ -25999,16 +25979,6 @@
   "@deskTorAddressChangedTitle": {
     "description": "Desktop Overview: the one-line, one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
   },
-  "deskNodeFailoverBehind": "Node behind. Switched to {host}.",
-  "@deskNodeFailoverBehind": {
-    "description": "Toast when the node in use fell behind the network and the wallet moved to a node of the list that is ahead, for this session. host: the new node's address.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "epic.node.example"
-      }
-    }
-  },
   "sasAllowOffLine": "Invoices from {name} are off.",
   "@sasAllowOffLine": {
     "description": "Under Allow invoices on the result while it is off.",
@@ -29219,5 +29189,9 @@
   "phoneTxCancelledIncoming": "If the sender posts it later, it still arrives.",
   "@phoneTxCancelledIncoming": {
     "description": "Payment details of a cancelled receive, under the Cancelled chip: no repeated word."
+  },
+  "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
+  "@phoneHomeEmpty": {
+    "description": "Empty Home: what stands under the Recent heading before the first payment"
   }
 }

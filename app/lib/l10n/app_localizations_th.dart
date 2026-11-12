@@ -11922,11 +11922,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ปลอดภัยน้อยลง';
 
   @override
-  String nodeFailoverSwitched(String host) {
-    return 'โหนดไม่ตอบสนอง สลับไปที่ $host แล้ว';
-  }
-
-  @override
   String nodeFailoverInsteadOf(String host) {
     return 'แทน $host';
   }
@@ -11937,11 +11932,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetAdvNodeFailoverHint =>
       'เมื่อโหนดของคุณไม่ตอบสนองหรือตามหลังเครือข่าย กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้';
-
-  @override
-  String deskNodeFailoverSwitched(String host) {
-    return 'โหนดไม่ตอบสนอง สลับไปที่ $host แล้ว';
-  }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
@@ -18774,11 +18764,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTorAddressChangedTitle => 'ที่อยู่ Tor ของคุณเปลี่ยนแล้ว';
 
   @override
-  String deskNodeFailoverBehind(String host) {
-    return 'โหนดตามหลังอยู่ สลับไปที่ $host แล้ว';
-  }
-
-  @override
   String sasAllowOffLine(String name) {
     return 'ใบแจ้งหนี้จาก $name ปิดอยู่';
   }
@@ -21087,4 +21072,7 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
+
+  @override
+  String get phoneHomeEmpty => 'ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น';
 }

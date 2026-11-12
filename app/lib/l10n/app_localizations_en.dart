@@ -12211,11 +12211,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Fewer confirmations are faster but less safe.';
 
   @override
-  String nodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
-  }
-
-  @override
   String nodeFailoverInsteadOf(String host) {
     return 'Instead of $host';
   }
@@ -12226,11 +12221,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetAdvNodeFailoverHint =>
       'When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.';
-
-  @override
-  String deskNodeFailoverSwitched(String host) {
-    return 'Node not answering. Switched to $host.';
-  }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
@@ -19154,11 +19144,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTorAddressChangedTitle => 'Your Tor address changed';
 
   @override
-  String deskNodeFailoverBehind(String host) {
-    return 'Node behind. Switched to $host.';
-  }
-
-  @override
   String sasAllowOffLine(String name) {
     return 'Invoices from $name are off.';
   }
@@ -21503,4 +21488,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'If the sender posts it later, it still arrives.';
+
+  @override
+  String get phoneHomeEmpty => 'No payments yet. Receive some EPIC to begin.';
 }

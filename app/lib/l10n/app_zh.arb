@@ -3187,11 +3187,9 @@
   "advConfirmationsMore": "增加确认数",
   "advConfirmationsCount": "{count, plural, other{{count} 个确认}}",
   "advConfirmationsLowNote": "确认数越少越快，但越不安全。",
-  "nodeFailoverSwitched": "节点无响应。已切换到 {host}。",
   "nodeFailoverInsteadOf": "代替 {host}",
   "deskSetAdvNodeFailover": "节点故障切换",
   "deskSetAdvNodeFailoverHint": "当你的节点不再响应或落后时，钱包在本次会话中改用列表里下一个可用的节点。",
-  "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
   "deskNodeFailoverInsteadOf": "代替 {host}",
   "netOfflineNoPeers": "你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。",
   "netOfflineNodeHint": "使用节点读取链并广播。为了最大限度的隐私，请使用本地节点。",
@@ -4883,7 +4881,6 @@
   "deskUpdStripAct": "更新",
   "deskUpdStripHide": "隐藏至下一版本",
   "deskTorAddressChangedTitle": "你的 Tor 地址已更改",
-  "deskNodeFailoverBehind": "节点已落后。已切换到 {host}。",
   "noticeEventsMissed": "部分更新已错过。列表已重新读取。",
   "msgChecking": "正在检查消息",
   "msgCheckFailed": "上次消息检查失败",
@@ -5602,5 +5599,6 @@
   "phoneProgReadyToSpend": "可以花费",
   "phoneKitPickerSaveFailed": "未保存。请重试。",
   "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
-  "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。"
+  "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。",
+  "phoneHomeEmpty": "还没有付款。先收一些 EPIC 开始吧。"
 }

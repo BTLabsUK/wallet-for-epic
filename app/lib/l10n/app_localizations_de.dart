@@ -12355,11 +12355,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Weniger Bestätigungen sind schneller, aber weniger sicher.';
 
   @override
-  String nodeFailoverSwitched(String host) {
-    return 'Node antwortet nicht. Gewechselt zu $host.';
-  }
-
-  @override
   String nodeFailoverInsteadOf(String host) {
     return 'Statt $host';
   }
@@ -12370,11 +12365,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetAdvNodeFailoverHint =>
       'Antwortet Ihr Node nicht mehr oder fällt er zurück, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.';
-
-  @override
-  String deskNodeFailoverSwitched(String host) {
-    return 'Node antwortet nicht. Gewechselt zu $host.';
-  }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
@@ -19385,11 +19375,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskTorAddressChangedTitle => 'Ihre Tor-Adresse hat sich geändert';
 
   @override
-  String deskNodeFailoverBehind(String host) {
-    return 'Node liegt zurück. Gewechselt zu $host.';
-  }
-
-  @override
   String sasAllowOffLine(String name) {
     return 'Rechnungen von $name sind aus.';
   }
@@ -21751,4 +21736,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
 }

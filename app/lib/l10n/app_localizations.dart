@@ -19261,12 +19261,6 @@ abstract class AppLocalizations {
   /// **'Fewer confirmations are faster but less safe.'**
   String get advConfirmationsLowNote;
 
-  /// Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
-  ///
-  /// In en, this message translates to:
-  /// **'Node not answering. Switched to {host}.'**
-  String nodeFailoverSwitched(String host);
-
   /// Under the node's address on the status card while node failover uses another node: host is the chosen node.
   ///
   /// In en, this message translates to:
@@ -19284,12 +19278,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.'**
   String get deskSetAdvNodeFailoverHint;
-
-  /// Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
-  ///
-  /// In en, this message translates to:
-  /// **'Node not answering. Switched to {host}.'**
-  String deskNodeFailoverSwitched(String host);
 
   /// Second line of the sidebar Node status and the Settings › Node head while node failover uses another node: host is the chosen node.
   ///
@@ -29749,12 +29737,6 @@ abstract class AppLocalizations {
   /// **'Your Tor address changed'**
   String get deskTorAddressChangedTitle;
 
-  /// Toast when the node in use fell behind the network and the wallet moved to a node of the list that is ahead, for this session. host: the new node's address.
-  ///
-  /// In en, this message translates to:
-  /// **'Node behind. Switched to {host}.'**
-  String deskNodeFailoverBehind(String host);
-
   /// Under Allow invoices on the result while it is off.
   ///
   /// In en, this message translates to:
@@ -33690,6 +33672,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If the sender posts it later, it still arrives.'**
   String get phoneTxCancelledIncoming;
+
+  /// Empty Home: what stands under the Recent heading before the first payment
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet. Receive some EPIC to begin.'**
+  String get phoneHomeEmpty;
 }
 
 class _AppLocalizationsDelegate

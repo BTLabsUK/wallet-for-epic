@@ -12621,11 +12621,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Меньше подтверждений — быстрее, но менее надёжно.';
 
   @override
-  String nodeFailoverSwitched(String host) {
-    return 'Узел не отвечает. Переключено на $host.';
-  }
-
-  @override
   String nodeFailoverInsteadOf(String host) {
     return 'Вместо $host';
   }
@@ -12636,11 +12631,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetAdvNodeFailoverHint =>
       'Когда ваш узел перестаёт отвечать или отстаёт, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.';
-
-  @override
-  String deskNodeFailoverSwitched(String host) {
-    return 'Узел не отвечает. Переключено на $host.';
-  }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
@@ -19763,11 +19753,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTorAddressChangedTitle => 'Ваш адрес Tor изменился';
 
   @override
-  String deskNodeFailoverBehind(String host) {
-    return 'Узел отстаёт. Переключено на $host.';
-  }
-
-  @override
   String sasAllowOffLine(String name) {
     return 'Счета от $name выключены.';
   }
@@ -22125,4 +22110,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'Если отправитель опубликует платёж позже, он всё равно поступит.';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Платежей пока нет. Получите немного EPIC, чтобы начать.';
 }

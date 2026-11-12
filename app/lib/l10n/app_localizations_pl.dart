@@ -12644,11 +12644,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.';
 
   @override
-  String nodeFailoverSwitched(String host) {
-    return 'Węzeł nie odpowiada. Przełączono na $host.';
-  }
-
-  @override
   String nodeFailoverInsteadOf(String host) {
     return 'Zamiast $host';
   }
@@ -12659,11 +12654,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetAdvNodeFailoverHint =>
       'Gdy twój węzeł przestaje odpowiadać lub zostaje w tyle, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.';
-
-  @override
-  String deskNodeFailoverSwitched(String host) {
-    return 'Węzeł nie odpowiada. Przełączono na $host.';
-  }
 
   @override
   String deskNodeFailoverInsteadOf(String host) {
@@ -19777,11 +19767,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTorAddressChangedTitle => 'Twój adres Tor się zmienił';
 
   @override
-  String deskNodeFailoverBehind(String host) {
-    return 'Węzeł jest w tyle. Przełączono na $host.';
-  }
-
-  @override
   String sasAllowOffLine(String name) {
     return 'Faktury od $name są wyłączone.';
   }
@@ -22131,4 +22116,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneTxCancelledIncoming =>
       'Jeśli nadawca opublikuje płatność później, i tak dotrze.';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Brak płatności. Odbierz trochę EPIC, aby zacząć.';
 }

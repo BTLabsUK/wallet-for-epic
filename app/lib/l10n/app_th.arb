@@ -3187,11 +3187,9 @@
   "advConfirmationsMore": "เพิ่มการยืนยัน",
   "advConfirmationsCount": "{count, plural, other{ยืนยัน {count} ครั้ง}}",
   "advConfirmationsLowNote": "ยิ่งยืนยันน้อยยิ่งเร็ว แต่ปลอดภัยน้อยลง",
-  "nodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
   "nodeFailoverInsteadOf": "แทน {host}",
   "deskSetAdvNodeFailover": "สลับโหนดอัตโนมัติ",
   "deskSetAdvNodeFailoverHint": "เมื่อโหนดของคุณไม่ตอบสนองหรือตามหลังเครือข่าย กระเป๋าเงินจะใช้โหนดถัดไปที่ใช้งานได้ในรายการของคุณตลอดช่วงนี้",
-  "deskNodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
   "deskNodeFailoverInsteadOf": "แทน {host}",
   "netOfflineNoPeers": "โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่",
   "netOfflineNodeHint": "ใช้โหนดเพื่ออ่านเชนและส่ง หากต้องการความเป็นส่วนตัวสูงสุด ให้ใช้โหนดในพื้นที่",
@@ -4883,7 +4881,6 @@
   "deskUpdStripAct": "อัปเดต",
   "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป",
   "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
-  "deskNodeFailoverBehind": "โหนดตามหลังอยู่ สลับไปที่ {host} แล้ว",
   "noticeEventsMissed": "พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว",
   "msgChecking": "กำลังตรวจสอบข้อความ",
   "msgCheckFailed": "การตรวจสอบข้อความครั้งล่าสุดล้มเหลว",
@@ -5602,5 +5599,6 @@
   "phoneProgReadyToSpend": "พร้อมใช้จ่าย",
   "phoneKitPickerSaveFailed": "ไม่ได้บันทึก ลองอีกครั้ง",
   "phoneTxCancelledByUser": "ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ",
-  "phoneTxCancelledIncoming": "ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า"
+  "phoneTxCancelledIncoming": "ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า",
+  "phoneHomeEmpty": "ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น"
 }

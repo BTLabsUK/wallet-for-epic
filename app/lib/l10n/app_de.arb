@@ -3187,11 +3187,9 @@
   "advConfirmationsMore": "Mehr Bestätigungen",
   "advConfirmationsCount": "{count, plural, one{{count} Bestätigung} other{{count} Bestätigungen}}",
   "advConfirmationsLowNote": "Weniger Bestätigungen sind schneller, aber weniger sicher.",
-  "nodeFailoverSwitched": "Node antwortet nicht. Gewechselt zu {host}.",
   "nodeFailoverInsteadOf": "Statt {host}",
   "deskSetAdvNodeFailover": "Automatischer Node-Wechsel",
   "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr oder fällt er zurück, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
-  "deskNodeFailoverSwitched": "Node antwortet nicht. Gewechselt zu {host}.",
   "deskNodeFailoverInsteadOf": "Statt {host}",
   "netOfflineNoPeers": "Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.",
   "netOfflineNodeHint": "Nutzt den Node, um die Chain zu lesen und zu senden. Für die größte Privatsphäre einen lokalen Node verwenden.",
@@ -4883,7 +4881,6 @@
   "deskUpdStripAct": "Aktualisieren",
   "deskUpdStripHide": "Bis zur nächsten Version ausblenden",
   "deskTorAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
-  "deskNodeFailoverBehind": "Node liegt zurück. Gewechselt zu {host}.",
   "noticeEventsMissed": "Einige Updates wurden verpasst. Die Listen wurden neu geladen.",
   "msgChecking": "Nachrichten werden geprüft",
   "msgCheckFailed": "Die letzte Nachrichtenprüfung ist fehlgeschlagen",
@@ -5602,5 +5599,6 @@
   "phoneProgReadyToSpend": "Bereit zum Ausgeben",
   "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal.",
   "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
-  "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein."
+  "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
+  "phoneHomeEmpty": "Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen."
 }

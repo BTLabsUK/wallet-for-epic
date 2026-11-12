@@ -3187,11 +3187,9 @@
   "advConfirmationsMore": "Więcej potwierdzeń",
   "advConfirmationsCount": "{count, plural, one{{count} potwierdzenie} few{{count} potwierdzenia} many{{count} potwierdzeń} other{{count} potwierdzenia}}",
   "advConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.",
-  "nodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
   "nodeFailoverInsteadOf": "Zamiast {host}",
   "deskSetAdvNodeFailover": "Automatyczna zmiana węzła",
   "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać lub zostaje w tyle, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
-  "deskNodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
   "deskNodeFailoverInsteadOf": "Zamiast {host}",
   "netOfflineNoPeers": "Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.",
   "netOfflineNodeHint": "Używa węzła do odczytu łańcucha i wysłania. Dla największej prywatności użyj lokalnego węzła.",
@@ -4883,7 +4881,6 @@
   "deskUpdStripAct": "Aktualizuj",
   "deskUpdStripHide": "Ukryj do następnej wersji",
   "deskTorAddressChangedTitle": "Twój adres Tor się zmienił",
-  "deskNodeFailoverBehind": "Węzeł jest w tyle. Przełączono na {host}.",
   "noticeEventsMissed": "Pominięto część aktualizacji. Listy zostały odczytane ponownie.",
   "msgChecking": "Sprawdzanie wiadomości",
   "msgCheckFailed": "Ostatnie sprawdzenie wiadomości nie powiodło się",
@@ -5602,5 +5599,6 @@
   "phoneProgReadyToSpend": "Gotowe do wydania",
   "phoneKitPickerSaveFailed": "Nie zapisano. Spróbuj ponownie.",
   "phoneTxCancelledByUser": "Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą.",
-  "phoneTxCancelledIncoming": "Jeśli nadawca opublikuje płatność później, i tak dotrze."
+  "phoneTxCancelledIncoming": "Jeśli nadawca opublikuje płatność później, i tak dotrze.",
+  "phoneHomeEmpty": "Brak płatności. Odbierz trochę EPIC, aby zacząć."
 }
