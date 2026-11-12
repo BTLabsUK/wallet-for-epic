@@ -23614,4 +23614,75 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneAcceptNotNow => 'Nie teraz';
+
+  @override
+  String get phoneSendSearchHint => 'Nazwa, adres lub link';
+
+  @override
+  String get phoneSendNewToYou => 'Nowy dla Ciebie';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Niezapisany · zapłacono $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub => 'Zapłać osobiście lub plikiem';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Zapłać bez adresu';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'Tworzysz płatność tutaj, odbiorca na nią odpowiada i gotowe. Możesz anulować, zanim wróci odpowiedź.';
+
+  @override
+  String get phoneSendInPerson => 'Osobiście';
+
+  @override
+  String get phoneSendInPersonSub => 'Pokaż kod telefonowi obok';
+
+  @override
+  String get phoneSendWithFile => 'Plikiem';
+
+  @override
+  String get phoneSendWithFileSub =>
+      'Wyślij w dowolnej aplikacji; odbiorca odeśle plik';
+
+  @override
+  String get phoneSendAddContact => 'Dodaj kontakt';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Sprawdź pierwsze i ostatnie sześć znaków z osobą, której płacisz.';
+
+  @override
+  String get phoneSendReviewTitle => 'Sprawdź';
+
+  @override
+  String get phoneSendMoreDetails => 'Więcej szczegółów';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return 'O $amount więcej, niż możesz wysłać. Dotknij Maks, by wysłać wszystko.';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'Wszystko, co masz, minus opłata $fee';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'Zobacz płatność';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'W drodze do $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'ich portfel może być offline';
+
+  @override
+  String get phoneSendTheirOnline => 'ich portfel musi być otwarty';
 }

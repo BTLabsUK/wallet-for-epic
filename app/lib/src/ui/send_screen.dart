@@ -5,7 +5,15 @@ import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import '../trust_ids.dart';
 import 'file_flow_pages.dart';
+import 'kit/kit_avatar.dart';
 import 'kit/kit_button.dart';
+import 'kit/kit_faces.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_search_field.dart';
+import 'kit/kit_sheet.dart';
+import 'kit/kit_tokens.dart';
+import 'kit/kit_headers.dart';
 import 'kit/kit_hero_amount.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_step_strip.dart';
@@ -865,15 +873,10 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The way a connection problem leaves: Pay in person (a QR Payment, where this phone
   /// offers it) and Pay with a file, each while its method is on.
-  bool get _qrOffered =>
-      _watchedPayments.directQr &&
-      offersQrPayment(ref) &&
-      ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directQr);
+  bool get _qrOffered => _watchedPayments.directQr && offersQrPayment(ref);
 
   bool get _fileOffered =>
-      (_watchedPayments.directFile &&
-          ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directFile)) ||
-      hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions)));
+      _watchedPayments.directFile || hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions)));
 
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scanCode(context);
@@ -1001,16 +1004,6 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
-  Future<void> _pickContact() async {
-    final contact = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(
-        builder: (_) => const ContactsScreen(pick: true, forPayment: true),
-      ),
-    );
-    if (contact == null || !mounted) return;
-    _useContact(contact);
-  }
-
   /// The pairing a contact with no address is paid through, when the wallet pairs.
   PairingRecord? _pairingOnly(Contact contact, {bool watch = false}) {
     if (contact.addresses.isNotEmpty) return null;
@@ -1035,9 +1028,18 @@ class _SendViewState extends ConsumerState<SendView> {
     return kind != null && !(watch ? _watchedPayments : _payments.copyWith(linkHttp: true)).offers(kind);
   }
 
-  /// The index in [contact]'s addresses Send uses first ([bestAddressIndex]).
-  int _bestIndex(Contact contact, {bool watch = true}) =>
-      bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
+  /// The index in [contact]'s addresses Send uses first: the one last paid successfully
+  /// ([lastPaidAddress]) when it can be paid now, else the best by method ([bestAddressIndex]).
+  int _bestIndex(Contact contact, {bool watch = true}) {
+    final txs = (watch ? ref.watch(homeProvider) : ref.read(homeProvider)).value?.transactions ?? const <TxEntry>[];
+    final paid = contact.addresses.length > 1 ? lastPaidAddress(contact, txs) : null;
+    if (paid != null) {
+      final i = contact.addresses.indexOf(paid);
+      final to = _readOf(paid);
+      if (i >= 0 && to.isAddress && !_heldNow(to, watch: watch)) return i;
+    }
+    return bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
+  }
 
   /// A classic address, request or file text, refused in epic1 mode's field.
   bool _classicCode(String text) {
@@ -2421,6 +2423,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   @override
   Widget build(BuildContext context) {
+    _bar = null;
     // A method off in Settings › Transactions holds the send too: Epicbox, or the Link method
     // the address picks (a pasted onion with Link · Tor off says so, never a silent refusal).
     // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
@@ -2498,18 +2501,20 @@ class _SendViewState extends ConsumerState<SendView> {
 
     // epic1 mode: one field for an epic1 link or a contact; a contact paid goes on as a pairing.
     if (_stage == SendStage.recipient && _pairingTo == null && ref.watch(paymentModeProvider) == PaymentMode.epic1) {
-      return ScreenBody(
-        children: [
-          PhoneTourTarget(
-            id: 'tour-send-recipient',
-            child: Epic1SendStart(
-              header: _header(context, context.l10n.homeSendButton, step: 1),
-              classicCode: _classicCode,
-              onContact: _useEpic1Contact,
-              onDone: () {},
+      return _page(
+        ScreenBody(
+          children: [
+            PhoneTourTarget(
+              id: 'tour-send-recipient',
+              child: Epic1SendStart(
+                header: _header(context, context.l10n.homeSendButton, onClose: _done),
+                classicCode: _classicCode,
+                onContact: _useEpic1Contact,
+                onDone: () {},
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -2543,7 +2548,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ref.watch(offlineNodePeersProvider).value == 0;
     // Offline on a node that is not local: the file steps say the node is used.
     final offlineNode = _offlineNode && note == NetBlock.none && (_stage == SendStage.fileAmount || _stage == SendStage.fileMade);
-    return ScreenBody(
+    return _page(ScreenBody(
       bottom: note != NetBlock.none || noPeers || offlineNode
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -2583,8 +2588,17 @@ class _SendViewState extends ConsumerState<SendView> {
         else if (_stage == SendStage.review && !_sendFailed && _gate.notEnough)
           ErrorText(context.l10n.errorNotEnoughFunds),
       ],
-    );
+    ));
   }
+
+  /// [body] under the step's top bar. The bar sits at the page's top edge: the shell draws no
+  /// second header over it.
+  Widget _page(Widget body) => Column(
+    children: [
+      SafeArea(bottom: false, child: _bar ?? const SizedBox.shrink()),
+      Expanded(child: MediaQuery.removePadding(context: context, removeTop: true, child: body)),
+    ],
+  );
 
   Widget _emptyState(BuildContext context) {
     final request = _activeRequest;
@@ -2618,70 +2632,34 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
+  /// The page's top bar, set by the step being built ([_header]) and drawn by [build] above the
+  /// step, outside the scrolling body.
+  Widget? _bar;
+
+  /// Sets the top bar of the step: [onBack] a back arrow, else [onClose] a ×, else no button.
+  /// [onHelp] is the "?"; by default the payment's "How it works".
   Widget _header(
     BuildContext context,
     String title, {
-    int? step,
     VoidCallback? onBack,
-    Widget? extra,
+    VoidCallback? onClose,
+    VoidCallback? onHelp,
+    bool help = true,
+    Widget? avatar,
   }) {
-    final l = context.l10n;
-    final theme = Theme.of(context);
-    final t = context.tokens;
-    final counterStyle = theme.textTheme.bodySmall?.copyWith(color: t.dim);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: LayoutBuilder(
-        builder: (context, box) {
-          // At a large text size or on a narrow phone the step counter goes under the
-          // title, so the title still breaks by word, never by letter.
-          final scale = MediaQuery.textScalerOf(context).scale(1);
-          final stacked = step != null && (scale >= 1.5 || box.maxWidth < 340);
-          final heading = Semantics(
-            header: true,
-            child: Text(title, style: theme.textTheme.titleLarge),
-          );
-          return Row(
-            crossAxisAlignment: stacked ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-            children: [
-              if (onBack != null)
-                IconButton(
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  icon: TrustId(TrustIds.sendBack, child: const Icon(Icons.arrow_back)),
-                  onPressed: _busy || _estimating ? null : onBack,
-                ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    start: onBack == null ? 0 : 4,
-                  ),
-                  child: stacked
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            heading,
-                            Text(l.sendStepOf(step, 3), style: counterStyle),
-                          ],
-                        )
-                      : heading,
-                ),
-              ),
-              if (step != null && !stacked)
-                Text(l.sendStepOf(step, 3), style: counterStyle),
-              // One help icon per header: a step with its own help shows that.
-              if (extra != null)
-                extra
-              else
-                IconButton(
-                  tooltip: l.sendHowItWorks,
-                  icon: const Icon(Icons.info_outline),
-                  onPressed: () => showHandshakeSheet(context, flow: _howFlow),
-                ),
-            ],
-          );
-        },
-      ),
+    final busy = _busy || _estimating;
+    final leading = onBack ?? onClose;
+    _bar = KitFlowHeader(
+      title: title,
+      avatar: avatar,
+      showLeading: leading != null,
+      back: onBack != null,
+      onLeading: leading == null || busy ? null : leading,
+      leadingId: onBack != null ? TrustIds.sendBack : TrustIds.sendClose,
+      onHelp: !help ? null : (onHelp ?? () => showHandshakeSheet(context, flow: _howFlow)),
+      helpId: TrustIds.sendHelp,
     );
+    return const SizedBox.shrink();
   }
 
   /// The "How it works" tab of the way this payment goes: its own method's, never Epicbox's
@@ -2798,13 +2776,11 @@ class _SendViewState extends ConsumerState<SendView> {
     // Kept alive while the step shows: the own-address check reads it.
     ref.watch(addressProvider);
     final pairing = _toPairing();
-    final hosts = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
-    final epicboxNamed = ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed));
     final stepTitle = l.homeSendButton;
     if (pairing != null) {
       final name = _pairingNameOf(pairing.id);
       return [
-        _header(context, stepTitle, step: 1),
+        _header(context, stepTitle, onClose: _done),
         Semantics(
           label: l.sendToLabel,
           container: true,
@@ -2818,15 +2794,13 @@ class _SendViewState extends ConsumerState<SendView> {
             MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: pairing.id, recheck: true)),
           ),
         ),
-        const SizedBox(height: 4),
-        _recipientButtons(scan),
       ];
     }
     final hold = _hold;
     final valid = read.isAddress && _recipientProblem(_recipient.text) == null;
-    final recent = recentRecipients(
-      ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
-    );
+    final transactions = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
+    final recent = recentRecipients(transactions);
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final matches = contact == null && read.kind == RecipientInputKind.text ? _nameMatches(text) : const <Contact>[];
     final target = _reachTarget(read, hold);
     if (target != null) _askReach(target);
@@ -2836,53 +2810,71 @@ class _SendViewState extends ConsumerState<SendView> {
     final epicboxDown = hold == null &&
         read.kind == RecipientInputKind.epicbox &&
         (epicboxState == null || epicboxState == EpicboxState.offline);
-    // Level 1 does not name Epicbox: no method line for it, unless Change is needed.
-    final several = contact != null && contact.addresses.length > 1;
     // An http(s) address names its method from the scheme on, while the host is still typed.
-    final routeShown = (read.isAddress && (epicboxNamed || read.kind != RecipientInputKind.epicbox || several)) || read.typing != null;
-    // Without a method line (level 1's Epicbox), the address as it will be contacted.
-    final preview = contact == null && !routeShown && read.isAddress && read.address != text;
+    final routeShown = read.isAddress || read.typing != null;
     final saveable = valid && contact == null && _contactName(read.address) == null;
+    // A complete address, pasted, scanned or left: shown whole in its box (Send-5).
+    final settled = valid && (_touched || contact != null) && contact == null;
+    final empty = text.isEmpty && contact == null;
     const indent = EdgeInsetsDirectional.only(start: 42);
     return [
-      _header(context, stepTitle, step: 1),
+      _header(context, stepTitle, onClose: _done),
       if (contact != null)
         _contactChip(context, contact)
+      else if (settled)
+        KitAddressBox(
+          onClear: _clearRecipient,
+          clearId: TrustIds.sendClear,
+          clearKey: sendRecipientClearKey,
+          child: TrustId(
+            TrustIds.sendTo,
+            child: TextField(
+              key: sendRecipientFieldKey,
+              controller: _recipient,
+              focusNode: _recipientFocus,
+              autocorrect: false,
+              enableSuggestions: false,
+              // Grows to show the whole address, so its start can be checked.
+              minLines: 1,
+              maxLines: null,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.next,
+              onEditingComplete: _toAmount,
+              style: KitType.address.copyWith(color: t.text),
+              cursorColor: t.accent,
+              onChanged: _recipientChanged,
+              decoration: const InputDecoration(
+                isCollapsed: true,
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+            ),
+          ),
+        )
       else
         PhoneTourTarget(
           id: 'tour-send-recipient',
-          child: TrustId(TrustIds.sendTo, child: TextField(
-            key: sendRecipientFieldKey,
+          child: KitSearchField(
+            margin: EdgeInsets.zero,
             controller: _recipient,
             focusNode: _recipientFocus,
-            autocorrect: false,
-            enableSuggestions: false,
-            // Grows to show the whole address, so its start can be checked.
-            minLines: 1,
-            maxLines: null,
+            hint: l.phoneSendSearchHint,
+            fieldKey: sendRecipientFieldKey,
+            semanticsId: TrustIds.sendTo,
             keyboardType: TextInputType.url,
             textInputAction: TextInputAction.next,
-            onEditingComplete: _toAmount,
-            style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
             onChanged: _recipientChanged,
-            decoration: InputDecoration(
-              labelText: l.sendToLabel,
-              hintText: l.sendToHint,
-              // The hint is words; what is typed is an address, in the mono face.
-              hintStyle: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: _recipient.text.isEmpty
-                  ? null
-                  : IconButton(
-                      key: sendRecipientClearKey,
-                      tooltip: l.sendClearRecipient,
-                      icon: TrustId(TrustIds.sendClear, child: const Icon(Icons.close)),
-                      onPressed: _clearRecipient,
-                    ),
-              error: _recipientError == null ? null : LiveFieldError(_recipientError!),
-            ),
-          )),
+            onSubmitted: (_) => _toAmount(),
+            onPaste: _paste,
+            onScan: scan ? _scan : null,
+            pasteId: TrustIds.sendPaste,
+            scanId: TrustIds.sendScan,
+          ),
         ),
+      if (_recipientError != null)
+        Padding(padding: const EdgeInsets.only(top: 8), child: LiveFieldError(_recipientError!)),
       if (_recipientError != null && _recipientError == l.deskE1ModeEpic1Link)
         Align(
           alignment: AlignmentDirectional.centerStart,
@@ -2907,31 +2899,27 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       ],
-      if (routeShown) _routeLine(context, read, contact: contact, hold: hold),
-      if (preview)
-        Padding(
-          padding: indent.add(const EdgeInsets.only(top: 4)),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: '${l.sendSendsTo} '),
-                TextSpan(text: read.address, style: TextStyle(fontFamily: t.monoFamily)),
-              ],
-            ),
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-          ),
+      if (routeShown || saveable) ...[
+        const SizedBox(height: 14),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          children: [
+            if (routeShown) _routeRow(context, read, contact: contact, hold: hold),
+            if (saveable)
+              KitRow(
+                leading: KitIconWell(KitIcons.contact, color: t.accentText),
+                title: l.phoneSendAddContact,
+                titleColor: t.accentText,
+                onTap: () => _saveContact(read.address),
+                semanticsId: TrustIds.sendAddcontact,
+              ),
+          ],
         ),
-      if (saveable)
+      ],
+      if (settled)
         Padding(
-          padding: indent,
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: InlineTextButton(
-              icon: const Icon(Icons.person_add_alt, size: 18),
-              onPressed: () => _saveContact(read.address),
-              child: Text(l.sendSaveContact),
-            ),
-          ),
+          padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
+          child: Text(l.phoneSendAddressCheck, style: KitType.rowSub.copyWith(color: t.dim)),
         ),
       // A saved contact, paired: its trust and the seal, and the mailbox switch.
       if (valid)
@@ -2985,52 +2973,162 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ],
       _TorNotice(way: _wayOf(_toRoute)),
-      const SizedBox(height: 4),
-      _recipientButtons(scan),
       if (matches.isNotEmpty) ...[
-        const SizedBox(height: 8),
-        Text(
-          l.sendContactsButton,
-          style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
+        KitGroupLabel(l.sendContactsButton, inset: 4),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          children: [
+            for (final c in matches)
+              _WhoRow(
+                address: _contactRowAddress(c),
+                name: c.name,
+                // A contact with no address: through its pairing, never an empty address.
+                subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name, l.sendRoutePairedInline),
+                onTap: () => _useContact(c),
+              ),
+          ],
         ),
-        const SizedBox(height: 4),
-        for (final c in matches)
-          _RecentRow(
-            address: _contactRowAddress(c),
-            name: c.name,
-            relay: hosts,
-            // A contact with no address: through its pairing, never an empty address.
-            subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name, l.sendRoutePairedInline),
-            onTap: () => _useContact(c),
-          ),
       ],
-      if (text.isEmpty) ...[
-        ?_directWays(context, lead: l.sendNoAddress),
+      if (empty) ...[
+        const SizedBox(height: 8),
+        ..._faces(context, contacts, recent),
         if (recent.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            l.sendRecent,
-            style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
+          KitGroupLabel(l.sendRecent, inset: 4),
+          KitGroup(
+            margin: EdgeInsets.zero,
+            children: [
+              for (final address in recent.take(5))
+                _WhoRow(
+                  address: address,
+                  name: _contactName(address),
+                  subtitle: _contactName(address) != null
+                      ? null
+                      : l.phoneSendNotSavedPaid(shortDate(l, localTime(_lastPaidTime(transactions, address)), DateTime.now())),
+                  onTap: () {
+                    final saved = contactFor(contacts, address);
+                    if (saved != null) {
+                      _useContact(saved, address: address);
+                    } else {
+                      _setRecipient(address);
+                    }
+                    _toAmount();
+                  },
+                ),
+            ],
           ),
-          const SizedBox(height: 4),
-          for (final address in recent)
-            _RecentRow(
-              address: address,
-              name: _contactName(address),
-              relay: hosts,
-              onTap: () {
-                final saved = contactFor(ref.read(contactsProvider).value ?? const <Contact>[], address);
-                if (saved != null) {
-                  _useContact(saved, address: address);
-                } else {
-                  _setRecipient(address);
-                }
-                _toAmount();
-              },
-            ),
+        ],
+        if (_qrOffered || _fileOffered) ...[
+          const SizedBox(height: 18),
+          KitGroup(
+            margin: EdgeInsets.zero,
+            children: [
+              KitRow(
+                leading: KitIconWell(KitIcons.qr),
+                title: l.sendNoAddress,
+                subtitle: l.phoneSendNoAddressSub,
+                chevron: true,
+                onTap: _busy || _estimating ? null : () => _noAddressSheet(context),
+                semanticsId: TrustIds.sendNoaddress,
+              ),
+            ],
+          ),
         ],
       ],
     ];
+  }
+
+  /// When the newest payment to [address] was made.
+  int _lastPaidTime(List<TxEntry> transactions, String address) {
+    var newest = 0;
+    for (final tx in transactions) {
+      if (tx.kind == TxKind.sent && tx.counterparty == address && tx.timeUnix > newest) newest = tx.timeUnix;
+    }
+    return newest;
+  }
+
+  /// The faces under the Who field: people paid lately, then the other contacts.
+  List<Widget> _faces(BuildContext context, List<Contact> contacts, List<String> recent) {
+    final seen = <String>{};
+    final people = <Contact>[];
+    for (final address in recent) {
+      final c = contactFor(contacts, address);
+      if (c != null && seen.add(c.id)) people.add(c);
+    }
+    for (final c in [...contacts]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()))) {
+      if (seen.add(c.id)) people.add(c);
+    }
+    if (people.isEmpty) return const [];
+    return [
+      KitFacesStrip(
+        bleed: Kit.gutter,
+        faces: [
+          for (final c in people.take(10))
+            KitFace(
+              label: c.name,
+              initials: nameInitials(c.name),
+              semanticsId: TrustIds.sendFace,
+              onTap: () {
+                _useContact(c);
+                if (_pairingTo == null) _toAmount();
+              },
+            ),
+        ],
+      ),
+    ];
+  }
+
+  /// "No address?": pay in person (a code) or with a file, today's two ways.
+  Future<void> _noAddressSheet(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return showKitSheet<void>(
+      context: context,
+      builder: (sheet) => KitSheet(
+        title: l.phoneSendNoAddressTitle,
+        secondaryLabel: l.commonCancel,
+        onSecondary: () => Navigator.of(sheet).pop(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              child: Text(l.phoneSendNoAddressBody, style: KitType.body.copyWith(color: t.dim)),
+            ),
+            KitGroup(
+              onSheet: true,
+              dividerInset: Kit.dividerInsetList,
+              children: [
+                if (_qrOffered)
+                  KitRow(
+                    leading: KitIconWell(MethodIcons.qr),
+                    title: l.phoneSendInPerson,
+                    subtitle: l.phoneSendInPersonSub,
+                    chevron: true,
+                    onTap: () {
+                      Navigator.of(sheet).pop();
+                      _toFileRoute(qr: true);
+                    },
+                    semanticsId: TrustIds.sendNoaddressPerson,
+                  ),
+                if (_fileOffered)
+                  KitRow(
+                    leading: KitIconWell(MethodIcons.file),
+                    title: l.phoneSendWithFile,
+                    subtitle: l.phoneSendWithFileSub,
+                    chevron: true,
+                    onTap: () {
+                      Navigator.of(sheet).pop();
+                      _toFileRoute();
+                    },
+                    semanticsId: TrustIds.sendNoaddressFile,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// The address a contact row shows: the one Send would use.
@@ -3068,29 +3166,17 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     return Semantics(
       container: true,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: l.sendToLabel,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          contentPadding: const EdgeInsetsDirectional.fromSTEB(8, 6, 4, 6),
-        ),
+      label: l.sendToLabel,
+      child: KitAddressBox(
+        onClear: _clearRecipient,
+        clearId: TrustIds.sendClear,
+        clearKey: sendRecipientClearKey,
         child: Row(
           children: [
-            _Initial(name: contact.name, size: 32),
-            const SizedBox(width: 10),
+            KitAvatar(initials: nameInitials(contact.name)),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                contact.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.tokens.text),
-              ),
-            ),
-            IconButton(
-              key: sendRecipientClearKey,
-              tooltip: l.sendClearRecipient,
-              icon: TrustId(TrustIds.sendClear, child: const Icon(Icons.close)),
-              onPressed: _clearRecipient,
+              child: Text(contact.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: context.tokens.text)),
             ),
           ],
         ),
@@ -3098,13 +3184,26 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
-  /// The method line under To: the method's icon and name, where it goes (this phone, your
-  /// network, over Tor), and the host exactly as it will be contacted. A contact with more
-  /// than one address gets Change, a menu of them.
-  Widget _routeLine(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold}) {
+  /// The name Review and Amount show after "To": the contact, the pairing, else the short address.
+  String _toName(AppLocalizations l) {
+    if (_pairingTo != null) return _pairingNameOf(_pairingTo!);
+    final contact = _contact;
+    if (contact != null) return contact.name;
+    final address = _read.address;
+    return _contactName(address) ?? shortAddress(address);
+  }
+
+  Widget _toAvatar() {
+    final named = _pairingTo != null || _contact != null || _contactName(_read.address) != null;
+    return named ? KitAvatar(initials: nameInitials(_toName(context.l10n))) : const KitAvatar(icon: KitIcons.contact, neutral: true);
+  }
+
+  /// The method row under To: the method's icon and name, whether their wallet can be offline,
+  /// the host exactly as it will be contacted, and the way it goes (this phone, your network,
+  /// over Tor). A contact with more than one address gets a chevron: a sheet of them.
+  Widget _routeRow(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold}) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final mode = AdvancedOptions.of(context).networkMode;
     final torOn = ref.watch(phoneTorProvider.select((s) => s.receiving));
     final overTor = sendOverTor(to, mode: mode, torOn: torOn);
@@ -3114,6 +3213,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final torStarts = torBuilt && to.kind == RecipientInputKind.onion && !torOn && mode != NetworkMode.torOnly && hold == null && _watchedPayments.linkTor;
     final dim = TextStyle(color: t.dim);
     final strong = TextStyle(color: t.text, fontWeight: FontWeight.w600);
+    final epicbox = to.kind == RecipientInputKind.epicbox;
     final where = switch (to.urlKind ?? to.kind) {
       RecipientInputKind.https || RecipientInputKind.http => TextSpan(
         children: [
@@ -3122,154 +3222,78 @@ class _SendViewState extends ConsumerState<SendView> {
           TextSpan(text: ':${to.port}${to.path}', style: dim),
         ],
       ),
-      // An onion's ends marked, as every address of its kind.
       RecipientInputKind.onion => addressSpan(
         to.host,
         style: TextStyle(color: t.text),
         mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
         quiet: dim,
       ),
-      _ => TextSpan(text: to.host, style: strong),
+      _ => null,
     };
+    final line = metaLine([
+      if (contact == null) l.phoneSendNewToYou,
+      epicbox ? l.phoneSendTheirOffline : l.phoneSendTheirOnline,
+      if (torStarts) l.sendRouteTorStarts,
+    ]);
     final several = contact != null && contact.addresses.length > 1;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Semantics(
-              container: true,
-              label: metaLine([
-                l.sendRouteSemantics(name, sendContactedText(to)),
-                ?tag,
-                if (torStarts) l.sendRouteTorStarts,
-              ]),
-              excludeSemantics: true,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: t.surface,
-                      border: Border.all(color: t.line),
-                      borderRadius: BorderRadius.circular(t.radiusSmall),
-                    ),
-                    child: Icon(MethodIcons.of(kind), size: 18, color: t.accentText),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 2,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(name, style: theme.textTheme.titleSmall?.copyWith(color: t.text, fontWeight: FontWeight.w600)),
-                            if (tag != null)
-                              overTor ? EBadge.tor(tag, way: TorWay.overTor) : EBadge(tag),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text.rich(
-                          where,
-                          style: theme.textTheme.bodySmall?.copyWith(fontFamily: t.monoFamily, height: 1.35),
-                        ),
-                        if (torStarts)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(l.sendRouteTorStarts, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (several) _changeMenu(context, contact, to),
-        ],
-      ),
-    );
-  }
-
-  /// Change on the method line: "`name`’s addresses", each with its method and a short form,
-  /// the one in use checked, those the mode holds greyed with the reason.
-  Widget _changeMenu(BuildContext context, Contact contact, RecipientInput current) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final first = contact.name.trim().split(RegExp(r'\s+')).first;
-    return MenuAnchor(
-      style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(t.surface),
-        side: WidgetStatePropertyAll(BorderSide(color: t.line)),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radiusSmall))),
-      ),
-      menuChildren: [
-        Semantics(
-          header: true,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 10, 16, 4),
-            child: Text(l.sendRouteAddressesOf(first), style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
-          ),
-        ),
-        for (final address in contact.addresses)
-          if (_readOf(address) case final to when to.isAddress) _addressItem(context, to, current: to.address == current.address),
-      ],
-      builder: (context, controller, _) => Semantics(
-        expanded: controller.isOpen,
-        child: TextButton(
-          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
-          child: Text(l.sendRouteChange, semanticsLabel: l.sendRouteChangeSem(contact.addresses.length - 1)),
-        ),
-      ),
-    );
-  }
-
-  Widget _addressItem(BuildContext context, RecipientInput to, {required bool current}) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final hold = _holdOf(to);
-    final kind = sendMethodKind(to)!;
-    final off = hold == null && !_watchedPayments.offers(kind);
-    final reason = hold != null ? sendHoldReason(l, hold) : (off ? methodOffReason(l, kind) : null);
-    final name = sendMethodName(l, to);
-    final short = to.isUrl ? to.address : shortAddress(to.address);
-    return Semantics(
-      checked: current,
-      inMutuallyExclusiveGroup: true,
-      child: MenuItemButton(
-        leadingIcon: Icon(MethodIcons.of(kind), size: 18),
-        trailingIcon: current ? Icon(Icons.check, size: 18, color: t.ok) : null,
-        onPressed: reason != null ? null : () => _pickAddress(to.address),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 240),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
+    final row = KitRow(
+      leading: KitIconWell(MethodIcons.of(kind), color: t.accentText),
+      title: name,
+      subtitle: where == null ? line : null,
+      subtitleLines: 2,
+      subtitleWidget: where == null
+          ? null
+          : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                Text(
-                  short,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(fontFamily: t.monoFamily, color: t.dim),
-                ),
-                if (reason != null)
-                  Text(reason, style: theme.textTheme.bodySmall?.copyWith(color: t.dim, fontStyle: FontStyle.italic)),
+                Text(line, style: KitType.rowSub.copyWith(color: t.dim), maxLines: 2, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 2),
+                Text.rich(where, style: KitType.address.copyWith(color: t.dim), maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
             ),
-          ),
-        ),
-      ),
+      trailing: tag == null ? null : (overTor ? EBadge.tor(tag, way: TorWay.overTor) : EBadge(tag)),
+      chevron: several,
+      onTap: several ? () => _addressesSheet(context, contact, to) : null,
+      semanticsId: several ? TrustIds.sendRoute : null,
+      semanticsLabel: l.sendRouteChange,
+    );
+    if (several) return row;
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: metaLine([l.sendRouteSemantics(name, sendContactedText(to)), ?tag, if (torStarts) l.sendRouteTorStarts]),
+      child: row,
+    );
+  }
+
+  /// The contact's addresses in a picker: each with its method and short form, the one in use
+  /// ticked, those the mode holds greyed with the reason (the row is not offered then).
+  Future<void> _addressesSheet(BuildContext context, Contact contact, RecipientInput current) {
+    final l = context.l10n;
+    final first = contact.name.trim().split(RegExp(r'\s+')).first;
+    final choices = <KitChoice<String>>[];
+    for (final address in contact.addresses) {
+      final to = _readOf(address);
+      if (!to.isAddress) continue;
+      final hold = _holdOf(to);
+      final kind = sendMethodKind(to)!;
+      final off = hold == null && !_watchedPayments.offers(kind);
+      final reason = hold != null ? sendHoldReason(l, hold) : (off ? methodOffReason(l, kind) : null);
+      final short = to.isUrl ? to.address : shortAddress(to.address);
+      choices.add(KitChoice<String>(
+        value: to.address,
+        title: sendMethodName(l, to),
+        subtitle: reason ?? short,
+        leading: KitIconWell(MethodIcons.of(kind)),
+        semanticsId: TrustIds.sendAddressPick,
+      ));
+    }
+    return KitPickerSheet.show<String>(
+      context: context,
+      title: l.sendRouteAddressesOf(first),
+      choices: choices,
+      selected: current.address,
+      onSelected: _pickAddress,
     );
   }
 
@@ -3380,32 +3404,6 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ],
       ),
-    );
-  }
-
-  /// Paste, Scan (where the phone scans) and Contacts under the recipient.
-  Widget _recipientButtons(bool scan) {
-    final l = context.l10n;
-    return Wrap(
-      spacing: 8,
-      children: [
-        TextButton.icon(
-          icon: const Icon(Icons.content_paste),
-          label: Text(l.commonPaste),
-          onPressed: _paste,
-        ),
-        if (scan)
-          TextButton.icon(
-            icon: const Icon(Icons.qr_code_scanner),
-            label: Text(l.sendScanButton),
-            onPressed: _scan,
-          ),
-        TextButton.icon(
-          icon: const Icon(Icons.contacts),
-          label: Text(l.sendContactsButton),
-          onPressed: _pickContact,
-        ),
-      ],
     );
   }
 
@@ -3695,7 +3693,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final address = parseRecipient(_recipient.text).address;
     final request = _activeRequest;
     return [
-      _header(context, l.sendStepAmount, step: 2, onBack: _toRecipient),
+      _header(context, l.sendTo(_toName(l)), onBack: _toRecipient, avatar: _toAvatar()),
       if (request != null && request.problems.isNotEmpty)
         RequestBanner(
           open: _requestBanner,
@@ -3786,12 +3784,7 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     return [
       // After a failed send the payment exists: no way back to send it again.
-      _header(
-        context,
-        l.sendStepReview,
-        step: 3,
-        onBack: _sendFailed ? null : _backToAmount,
-      ),
+      _header(context, l.sendTo(_toName(l)), onBack: _sendFailed ? null : _backToAmount, avatar: _toAvatar()),
       if (_activeOrigin case final origin?) ...[
         const SizedBox(height: 8),
         Align(
@@ -3952,8 +3945,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final mode = AdvancedOptions.of(context).networkMode;
     final name = read == null ? l.methodEpicbox : sendMethodName(l, read);
     return [
-      if (ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed)) || !epicbox)
-        _Row(
+      _Row(
           label: l.sendFactVia,
           value: way == TorWay.overTor && read?.kind != RecipientInputKind.onion ? metaLine([name, l.sendRouteOverTor]) : name,
           sub: epicbox ? l.sendFactOffline : l.sendFactOnline,
@@ -4314,27 +4306,11 @@ class _SendViewState extends ConsumerState<SendView> {
         context,
         _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle,
         onBack: _toRecipient,
-        // The file way has its own help; the QR way keeps the ⓘ.
-        extra: _viaQr
-            ? null
-            : IconButton(
-                tooltip: l.sendFileHelpTooltip,
-                icon: const Icon(Icons.help_outline),
-                onPressed: () => showFileExchangeHelp(
-                  context,
-                  role: FileExchangeRole.sender,
-                ),
-              ),
+        // The file way has its own help; the QR way keeps the "How it works".
+        onHelp: _viaQr ? null : () => showFileExchangeHelp(context, role: FileExchangeRole.sender),
       ),
       // The strip that says what the way means; no method selector: the back arrow goes to
       // the recipient, whose field picks the method.
-      if (ref.watch(levelFeaturesProvider.select((f) => f.methodStrip))) ...[
-        DismissibleTip(
-          id: sendMethodTipId,
-          child: MethodStrip(method: _viaQr ? TransferMethod.qr : TransferMethod.file),
-        ),
-        const SizedBox(height: 16),
-      ],
       ..._sealChoice(context),
       ..._amountFields(context, file: true),
       const SizedBox(height: 12),
@@ -4385,11 +4361,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // The code has its own screen; this step is where the send waits for the reply.
       return [
         // Finished from the header: Scan their reply stays the one primary at the foot.
-        _header(
-          context,
-          MethodIcons.fullName(l, MethodKind.directQr),
-          extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
-        ),
+        _header(context, MethodIcons.fullName(l, MethodKind.directQr), onClose: _done),
         _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
         Semantics(
           liveRegion: true,
@@ -4419,11 +4391,7 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       // Done is in the header; one primary at a time (UP-008): Save to device until the file
       // is handed over, then Open response file at the foot.
-      _header(
-        context,
-        l.sendFileTitle,
-        extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
-      ),
+      _header(context, l.sendFileTitle, onClose: _done),
       KitStepStrip(labels: [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone], current: _fileHandedOver ? 1 : 0),
       const SizedBox(height: 18),
       KitHeroAmount(amount: epicFor(l, _parsedAmount ?? BigInt.zero, surface: AmountSurface.exact, unit: false), unit: epicUnit),
@@ -4554,7 +4522,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final name = pairingName(r, ref.watch(contactsProvider).value ?? const <Contact>[]);
     final file = sealedFileName(slate.slateId, text: sealed);
     return [
-      _header(context, l.sendFileTitle),
+      _header(context, l.sendFileTitle, onClose: _done),
       _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
       Row(
         children: [
@@ -4658,7 +4626,7 @@ class _SendViewState extends ConsumerState<SendView> {
       return [NotPostedNotice(tx: posted)];
     }
     return [
-      _header(context, _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle),
+      _header(context, _viaQr ? MethodIcons.fullName(l, MethodKind.directQr) : l.sendFileTitle, onClose: _done),
       _fileSteps(context, 3, _parsedAmount ?? BigInt.zero, posted: posted),
     ];
   }
@@ -4923,43 +4891,30 @@ class _ToChip extends StatelessWidget {
   }
 }
 
-/// One recent recipient: their name where known, else the short address.
-class _RecentRow extends StatelessWidget {
-  const _RecentRow({required this.address, this.name, this.subtitle, this.relay = true, required this.onTap});
+/// One person or address in the Who lists: the name where known, else the short address, a
+/// round avatar before it, a chevron after.
+class _WhoRow extends StatelessWidget {
+  const _WhoRow({required this.address, this.name, this.subtitle, required this.onTap});
 
   final String address;
   final String? name;
 
-  /// False at level 1: the address without its server.
-  final bool relay;
-
-  /// Words in place of the short address (a contact paid through its pairing).
+  /// Words in place of the short address (a contact paid through its pairing, "Not saved").
   final String? subtitle;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      minTileHeight: 52,
-      leading: _Initial(name: name),
-      // No name: the short address is the title, in the mono face as every address.
-      title: name == null
-          ? ShortAddressText(address, relay: relay, style: theme.textTheme.bodyMedium)
-          : Text(
-              name!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
-            ),
-      subtitle: name == null
-          ? null
-          : subtitle != null
-          ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
-          : ShortAddressText(address, relay: relay, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+    final mono = KitType.address.copyWith(color: t.dim, fontSize: KitType.rowSub.fontSize);
+    return KitRow(
+      leading: name == null ? const KitAvatar(icon: KitIcons.contact, neutral: true) : KitAvatar(initials: nameInitials(name!)),
+      title: name ?? shortAddress(address),
+      subtitle: subtitle,
+      subtitleWidget: name != null && subtitle == null ? ShortAddressText(address, style: mono) : null,
+      chevron: true,
       onTap: onTap,
+      semanticsId: TrustIds.sendRecent,
     );
   }
 }

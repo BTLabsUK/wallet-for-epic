@@ -386,5 +386,17 @@
 {"id": "g4.file.finish", "screen": "file", "family": ["android"], "keys": ["slateFinishPayment"], "names": ["Finish payment"], "match": "exact", "driver": false},
 {"id": "g4.file.scanagain", "screen": "file", "family": ["android"], "keys": ["qrScanAgain"], "names": ["Scan again"], "match": "exact", "driver": false},
 {"id": "g4.file.open", "screen": "file", "family": ["android"], "keys": ["phoneFileOpenFile"], "names": ["Open a file"], "match": "exact", "driver": false},
-{"id": "g4.file.paste", "screen": "file", "family": ["android"], "keys": ["phoneFilePasteText"], "names": ["Paste its text"], "match": "exact", "driver": false}
+{"id": "g4.file.paste", "screen": "file", "family": ["android"], "keys": ["phoneFilePasteText"], "names": ["Paste its text"], "match": "exact", "driver": false},
+{"id": "g4.send.close", "screen": "send", "role": "control", "keys": ["commonClose"], "driver": false},
+{"id": "g4.send.help", "screen": "send", "role": "control", "keys": ["sendHelp"], "driver": false},
+{"id": "g4.send.paste", "screen": "send", "role": "control", "keys": ["commonPaste"], "driver": false},
+{"id": "g4.send.scan", "screen": "send", "role": "control", "keys": ["sendScanButton"], "driver": false},
+{"id": "g4.send.face", "screen": "send", "role": "control", "keys": ["phoneSendSearchHint"], "driver": false},
+{"id": "g4.send.recent", "screen": "send", "role": "control", "keys": ["sendRecent"], "driver": false},
+{"id": "g4.send.noaddress", "screen": "send", "role": "control", "keys": ["sendNoAddress"], "driver": false},
+{"id": "g4.send.noaddress.person", "screen": "send", "role": "control", "keys": ["phoneSendInPerson"], "driver": false},
+{"id": "g4.send.noaddress.file", "screen": "send", "role": "control", "keys": ["phoneSendWithFile"], "driver": false},
+{"id": "g4.send.addcontact", "screen": "send", "role": "control", "keys": ["phoneSendAddContact"], "driver": false},
+{"id": "g4.send.route", "screen": "send", "role": "control", "keys": ["sendRouteChange"], "driver": false},
+{"id": "g4.send.address.pick", "screen": "send", "role": "control", "keys": ["sendRouteAddressesOf"], "driver": false}
 ]}

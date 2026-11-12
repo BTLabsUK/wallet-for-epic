@@ -344,6 +344,18 @@ abstract final class TrustIds {
   static const fileScanagain = 'g4.file.scanagain';
   static const fileOpen = 'g4.file.open';
   static const filePaste = 'g4.file.paste';
+  static const sendClose = 'g4.send.close';
+  static const sendHelp = 'g4.send.help';
+  static const sendPaste = 'g4.send.paste';
+  static const sendScan = 'g4.send.scan';
+  static const sendFace = 'g4.send.face';
+  static const sendRecent = 'g4.send.recent';
+  static const sendNoaddress = 'g4.send.noaddress';
+  static const sendNoaddressPerson = 'g4.send.noaddress.person';
+  static const sendNoaddressFile = 'g4.send.noaddress.file';
+  static const sendAddcontact = 'g4.send.addcontact';
+  static const sendRoute = 'g4.send.route';
+  static const sendAddressPick = 'g4.send.address.pick';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -698,5 +710,17 @@ abstract final class TrustIds {
     'g4.file.scanagain',
     'g4.file.open',
     'g4.file.paste',
+    'g4.send.close',
+    'g4.send.help',
+    'g4.send.paste',
+    'g4.send.scan',
+    'g4.send.face',
+    'g4.send.recent',
+    'g4.send.noaddress',
+    'g4.send.noaddress.person',
+    'g4.send.noaddress.file',
+    'g4.send.addcontact',
+    'g4.send.route',
+    'g4.send.address.pick',
   ];
 }
