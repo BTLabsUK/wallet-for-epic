@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/ui/epic1/epic1_common.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_settings.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
@@ -126,7 +127,7 @@ Finder _key(Key key) => find.byKey(key);
 Finder _e1(String text) => find.byWidgetPredicate((w) => w is Epic1Text && w.text == text);
 
 bool _switchOn(WidgetTester tester) =>
-    tester.widget<Switch>(find.descendant(of: _key(epic1SwitchKey), matching: find.byType(Switch))).value;
+    tester.widget<KitSwitch>(find.descendant(of: _key(epic1SwitchKey), matching: find.byType(KitSwitch))).value;
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
