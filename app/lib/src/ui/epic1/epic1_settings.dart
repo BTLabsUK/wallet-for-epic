@@ -107,6 +107,7 @@ class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
             KitRow.toggle(
               key: epic1SwitchKey,
               title: l.deskE1PhSwitch,
+              titleMarks: true,
               subtitle: l.phoneSettingsEpic1Line,
               subtitleLines: 3,
               value: stored,

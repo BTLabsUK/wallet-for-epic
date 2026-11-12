@@ -439,6 +439,7 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
         ? [l.phoneStepPayShow, l.phoneStepPayScan, l.commonDone]
         : [l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone];
 
+    final footBottom = (34 - MediaQuery.viewPaddingOf(context).bottom).clamp(0, 34).toDouble();
     return Scaffold(
       backgroundColor: dark.bg,
       body: SafeArea(
@@ -566,7 +567,9 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, Kit.gutter),
+              // `.foot`: 34 above the screen's edge, of which the phone's own bottom inset counts
+              // (read outside the SafeArea, as on Restore).
+              padding: EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, footBottom),
               child: reply
                   ? KitButton(
                       label: l.phoneQrShowMine,

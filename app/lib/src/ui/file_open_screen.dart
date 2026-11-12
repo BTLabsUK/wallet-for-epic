@@ -17,6 +17,8 @@ import 'kit/kit_headers.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_step_strip.dart';
+import 'kit/kit_tokens.dart';
+import 'theme/tokens.dart';
 import 'net_block.dart' show OfflineNodeNote, watchOfflineUsesNode;
 import 'receive_screen.dart' show pasteSlate;
 import 'slate_file_screen.dart' show openSlateFile;
@@ -47,16 +49,25 @@ class FileOpenScreen extends ConsumerWidget {
             Expanded(
               child: ScreenBody(
                 children: [
-                  const SizedBox(height: 4),
-                  FileInfoLine(l.phoneFileOpenIntro, bare: true),
-                  const SizedBox(height: 20),
+                  // `.lead`, 34 under the strip: 15 dim, centred, 40 in from the screen's edges.
+                  const SizedBox(height: 18),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40 - Kit.gutter),
+                    child: Text(
+                      l.phoneFileOpenIntro,
+                      textAlign: TextAlign.center,
+                      style: KitType.body.copyWith(color: context.tokens.dim, height: 1.45),
+                    ),
+                  ),
+                  const SizedBox(height: 26),
                   KitGroup(
                     margin: EdgeInsets.zero,
                     children: [
                       KitRow(
                         title: l.phoneFileOpenFile,
                         subtitle: l.phoneFileOpenFileSub,
-                        leading: const KitIconWell(Icons.file_open_outlined),
+                        leading: KitIconWell(KitIcons.file, color: context.tokens.accentText),
+                        minHeight: 72,
                         chevron: true,
                         semanticsId: TrustIds.fileOpen,
                         onTap: () => openSlateFile(context, ref),
@@ -64,15 +75,17 @@ class FileOpenScreen extends ConsumerWidget {
                       KitRow(
                         title: l.phoneFilePasteText,
                         subtitle: l.phoneFilePasteTextSub,
-                        leading: const KitIconWell(KitIcons.paste),
+                        leading: KitIconWell(KitIcons.paste, color: context.tokens.accentText),
+                        minHeight: 72,
                         chevron: true,
                         semanticsId: TrustIds.filePaste,
                         onTap: () => pasteSlate(context, ref),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  FileInfoLine(l.phoneFileOpenNote),
+                  // `.note`: 8 under the group.
+                  const SizedBox(height: 8),
+                  FileInfoLine(l.phoneFileOpenNote, bare: true),
                   // Opening a file needs the node; offline, say so before the user picks one.
                   if (watchOfflineUsesNode(context, ref)) const Padding(padding: EdgeInsets.only(top: 12), child: OfflineNodeNote()),
                 ],

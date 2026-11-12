@@ -839,6 +839,8 @@ class SlateFileButtons extends ConsumerWidget {
     this.framed = false,
     this.reply = false,
     this.hint,
+    this.saveApart = false,
+    this.saveOnly = false,
   });
 
   final String name;
@@ -860,6 +862,14 @@ class SlateFileButtons extends ConsumerWidget {
 
   /// With [framed]: the line under the buttons; "Save to device" follows it.
   final Widget? hint;
+
+  /// With [framed]: leave "Save to device" out where a share sheet exists; the page draws it
+  /// lower with [saveOnly], where its frame has room.
+  final bool saveApart;
+
+  /// With [framed]: only the quiet "Save to device" of a [saveApart] page; nothing where the
+  /// platform has no share sheet (Save is then the button beside Copy).
+  final bool saveOnly;
 
   Future<void> _out(
     BuildContext context,
@@ -920,6 +930,7 @@ class SlateFileButtons extends ConsumerWidget {
       semanticsId: TrustIds.fileSave,
       onPressed: save,
     );
+    if (framed && saveOnly) return share == null ? const SizedBox.shrink() : Padding(padding: const EdgeInsets.only(top: 12), child: saveButton);
     if (framed && copy != null) {
       // The frame: Copy as text beside the gold share, the hint, and Save to device last (the
       // frame has no room for it, so it is a quiet line under the hint).
@@ -929,7 +940,7 @@ class SlateFileButtons extends ConsumerWidget {
         children: [
           Row(children: [Expanded(child: copy), const SizedBox(width: 10), Expanded(child: share ?? saveButton)]),
           if (hint != null) ...[const SizedBox(height: 16), hint!],
-          if (!noShare) ...[const SizedBox(height: 22), saveButton],
+          if (!noShare && !saveApart) ...[const SizedBox(height: 22), saveButton],
         ],
       );
     }

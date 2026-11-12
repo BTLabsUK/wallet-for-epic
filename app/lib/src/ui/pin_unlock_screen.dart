@@ -456,16 +456,23 @@ class _ForgotSheetState extends State<_ForgotSheet> {
         kind: _understood ? KitButtonKind.danger : KitButtonKind.off,
         onPressed: _understood ? () => Navigator.pop(context, true) : null,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l.phoneUnlockResetBody, style: KitType.body.copyWith(color: t.dim)),
-            const SizedBox(height: 18),
-            KitCheckRow(label: l.pinResetConfirm, value: _understood, onChanged: (v) => setState(() => _understood = v)),
-          ],
-        ),
+      // The frame: a 14 px `.hint` 10 under the title, the check in a `.grp` 16 below, the
+      // buttons 18 below and 6 apart.
+      titleGap: 10,
+      buttonsGap: 6,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(l.phoneUnlockResetBody, style: KitType.body.copyWith(color: t.dim, fontSize: 14, height: 1.45)),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+            child: KitCheckRow(label: l.pinResetConfirm, value: _understood, onChanged: (v) => setState(() => _understood = v)),
+          ),
+        ],
       ),
     );
   }

@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../theme/epic1_mark.dart' show Epic1Text;
 import '../theme/tokens.dart';
 import 'kit_icons.dart';
 import 'kit_support.dart';
@@ -48,6 +49,7 @@ class KitRow extends StatelessWidget {
     this.minHeight,
     this.valueIcon,
     this.compact = false,
+    this.titleMarks = false,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -61,14 +63,24 @@ class KitRow extends StatelessWidget {
     KitRowSize size = KitRowSize.settings,
     String? semanticsId,
     int subtitleLines = 1,
+    bool titleMarks = false,
   }) => KitRow(
     key: key,
     title: title,
+    titleMarks: titleMarks,
     subtitle: subtitle,
     subtitleLines: subtitleLines,
     leading: leading,
     size: size,
-    trailing: IgnorePointer(child: ExcludeSemantics(child: KitSwitch(value: value, onChanged: onChanged))),
+    // The row is the tap target: the switch's own 44 hit box overlays the row, never makes it taller.
+    trailing: SizedBox(
+      width: Kit.switchWidth,
+      height: Kit.switchHeight,
+      child: OverflowBox(
+        maxHeight: Kit.hitMin,
+        child: IgnorePointer(child: ExcludeSemantics(child: KitSwitch(value: value, onChanged: onChanged))),
+      ),
+    ),
     onTap: onChanged == null ? null : () => onChanged(!value),
     semanticsId: semanticsId,
     toggled: value,
@@ -145,6 +157,9 @@ class KitRow extends StatelessWidget {
   /// A tighter row (padding 8, 54 high) for the list of ways in a sheet.
   final bool compact;
 
+  /// The title draws "epic1" as its brand mark (the epic1 payments switch).
+  final bool titleMarks;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -181,7 +196,10 @@ class KitRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text).merge(titleStyle), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  if (titleMarks)
+                    Epic1Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text).merge(titleStyle), maxLines: 2, overflow: TextOverflow.ellipsis)
+                  else
+                    Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text).merge(titleStyle), maxLines: 2, overflow: TextOverflow.ellipsis),
                   if (subtitleWidget != null || subtitle != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 3),

@@ -4,7 +4,6 @@ library;
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
-import 'kit_icons.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
@@ -31,7 +30,8 @@ class KitCheckRow extends StatelessWidget {
         radius: Kit.rGroup,
         button: false,
         child: Container(
-          constraints: const BoxConstraints(minHeight: Kit.rowSheet + 8),
+          // `.sheet .grp` holding one `.row`: padding 10 14, min-height 62, gap 12.
+          constraints: const BoxConstraints(minHeight: Kit.rowList),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: t.fill,
@@ -40,19 +40,21 @@ class KitCheckRow extends StatelessWidget {
           ),
           child: Row(
             children: [
+              // `.rad` with border-radius 7: a rounded box, an 11 dot when ticked.
               Container(
-                width: 26,
-                height: 26,
+                width: 22,
+                height: 22,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: value ? t.text : Colors.transparent,
                   border: Border.all(color: value ? t.text : t.faint, width: 1.5),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(7),
                 ),
-                child: value ? Icon(KitIcons.check, size: 18, color: t.bg) : null,
+                child: value
+                    ? Container(width: 11, height: 11, decoration: BoxDecoration(color: t.text, shape: BoxShape.circle))
+                    : null,
               ),
-              const SizedBox(width: 14),
-              Expanded(child: Text(label, style: KitType.rowTitle.copyWith(color: t.text, fontSize: 16))),
+              const SizedBox(width: 12),
+              Expanded(child: Text(label, style: KitType.rowTitle.copyWith(color: t.text, fontWeight: FontWeight.w400))),
             ],
           ),
         ),

@@ -792,7 +792,8 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           child: Column(
             children: [
               if (showing || counting)
-                Text(l.phoneQrHoldHint, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.text)),
+                // A plain `p`: the page's 1.3 line.
+                Text(l.phoneQrHoldHint, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.text, height: 1.3)),
               // The frame draws no line while a payment code is up (the step strip and the button
               // say what comes next) and a plain one under the reply code.
               if ((showing || counting) && !(showing && status.text == l.qrStatusSendShowing))

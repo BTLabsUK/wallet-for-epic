@@ -78,6 +78,8 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   onBack: () => Navigator.of(context).maybePop(),
                   title: l.expLinkedDevices,
                   tag: l.settingsExperimentTag,
+                  // The empty page's 70 is measured from the title line itself (`.ptitle` has no margin).
+                  bottomGap: loaded && empty ? 1 : 20,
                   backId: TrustIds.devicesBack,
                   helpId: TrustIds.devicesHelp,
                   onHelp: () => showKitHelp(
@@ -104,7 +106,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                               height: 72,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(22)),
-                              child: ExcludeSemantics(child: Icon(KitIcons.devices, size: 34, color: t.accentText)),
+                              child: ExcludeSemantics(child: CustomPaint(size: const Size.square(34), painter: _DevicesGlyph(t.accentText))),
                             ),
                             const SizedBox(height: 24),
                             Semantics(
@@ -363,4 +365,29 @@ class _HeldRow extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// The empty page's devices mark as the frame draws it (24 grid, stroke 1.6): a screen, its
+/// stand line and a phone.
+class _DevicesGlyph extends CustomPainter {
+  const _DevicesGlyph(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final k = size.width / 24;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6 * k
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(2 * k, 4 * k, 14 * k, 10 * k), Radius.circular(2 * k)), paint);
+    canvas.drawLine(Offset(2 * k, 18 * k), Offset(12 * k, 18 * k), paint);
+    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(16 * k, 9 * k, 6 * k, 12 * k), Radius.circular(1.5 * k)), paint);
+  }
+
+  @override
+  bool shouldRepaint(_DevicesGlyph old) => old.color != color;
 }

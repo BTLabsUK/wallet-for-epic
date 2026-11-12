@@ -26,7 +26,8 @@ class FileCard extends StatelessWidget {
       label: '$title. $sub',
       excludeSemantics: true,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 72),
+        // `.grp` around a 72 `.row`: its 1 px border sits outside the row's height.
+        constraints: const BoxConstraints(minHeight: 74),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: t.group,
@@ -56,7 +57,8 @@ class FileCard extends StatelessWidget {
 }
 
 /// A line of guidance under a card: an info mark and [text] in the dim colour, one voice for
-/// every "what happens next" line of the file and accept pages. [bare] drops the mark.
+/// every "what happens next" line of the file and accept pages. [bare] is the frames' `.note`:
+/// no mark, in the faint colour.
 class FileInfoLine extends StatelessWidget {
   const FileInfoLine(this.text, {super.key, this.bare = false});
 
@@ -79,7 +81,7 @@ class FileInfoLine extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ],
-          Expanded(child: Text(text, style: KitType.rowSub.copyWith(color: t.dim, height: 1.45))),
+          Expanded(child: Text(text, style: KitType.rowSub.copyWith(color: bare ? t.faint : t.dim, height: 1.45))),
         ],
       ),
     );

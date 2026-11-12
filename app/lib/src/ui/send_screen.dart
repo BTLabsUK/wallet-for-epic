@@ -4604,6 +4604,11 @@ class _SendViewState extends ConsumerState<SendView> {
       return _sealedFileStep(context, slate, sealed, sealedFor);
     }
     final amountText = epicExact(l, _parsedAmount ?? BigInt.zero);
+    // What waits for the reply is the amount and its fee, as the frame writes it (12.508).
+    final estimate = _estimate;
+    final heldText = estimate != null && estimate.amount == _parsedAmount
+        ? epicExact(l, estimate.amount + estimate.fee)
+        : amountText;
     return [
       // Back leaves, as on the frame; Share file is the one primary until the file is handed
       // over, then Open their reply (a row, not a foot button) is the way on.
@@ -4614,7 +4619,7 @@ class _SendViewState extends ConsumerState<SendView> {
         strip: KitStepStrip(labels: [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone], current: _fileHandedOver ? 1 : 0),
       ),
       // The body's own 16 above, then to the frame's 22 under the strip.
-      const SizedBox(height: 6),
+      const SizedBox(height: 8),
       KitHeroAmount(amount: epicFor(l, _parsedAmount ?? BigInt.zero, surface: AmountSurface.exact, unit: false), unit: epicUnit),
       const SizedBox(height: 28),
       FileCard(
@@ -4627,6 +4632,7 @@ class _SendViewState extends ConsumerState<SendView> {
         json: _plainCopy ?? slate.json,
         primary: !_fileHandedOver,
         framed: true,
+        saveApart: true,
         hint: FileInfoLine(l.phoneFileSendHint),
         onHandedOver: () {
           if (!_fileHandedOver) setState(() => _fileHandedOver = true);
@@ -4648,8 +4654,11 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ],
       ),
-      const SizedBox(height: 12),
-      FileInfoLine(l.phoneFileHeld(amountText), bare: true),
+      // `.note`: 8 under the group.
+      const SizedBox(height: 8),
+      FileInfoLine(l.phoneFileHeld(heldText), bare: true),
+      // Save to device under the frame's last line: its frame has no room above.
+      SlateFileButtons(name: name, json: _plainCopy ?? slate.json, framed: true, saveOnly: true),
       const SizedBox(height: 8),
       // The text itself is a detail for those who copy it by hand.
       ExpansionTile(
