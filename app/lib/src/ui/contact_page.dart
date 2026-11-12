@@ -802,7 +802,7 @@ class _Header extends ConsumerWidget {
               KitButton(
                 key: contactPageHeaderPairKey,
                 label: l.trustWaiting,
-                icon: Icons.hourglass_empty_rounded,
+                icon: KitIcons.hourglass,
                 kind: KitButtonKind.quiet,
                 small: true,
                 expand: false,

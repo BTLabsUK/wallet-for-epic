@@ -104,16 +104,16 @@ class HomeTab extends ConsumerWidget {
                     slivers: [
                       SliverToBoxAdapter(child: _Balance(summary: data?.summary, transactions: transactions)),
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, 16),
+                        padding: const EdgeInsets.only(bottom: 16),
                         sliver: SliverList.list(
                           children: [
-                            const HomeSlot(),
+                            const Padding(padding: EdgeInsets.symmetric(horizontal: Kit.gutter), child: HomeSlot()),
                             // An unfinished restore: its own card, with the scan in it.
                             if (restoreUnfinished || importOffer)
-                              const Padding(padding: EdgeInsets.only(bottom: homeCardGap), child: RestoreCard())
+                              const Padding(padding: EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, homeCardGap), child: RestoreCard())
                             else if (scan.running || scan.error != null)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: homeCardGap),
+                                padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, homeCardGap),
                                 child: Container(
                                   padding: const EdgeInsets.all(Kit.gutter),
                                   decoration: BoxDecoration(color: t.group, borderRadius: BorderRadius.circular(Kit.rGroup)),
@@ -123,7 +123,7 @@ class HomeTab extends ConsumerWidget {
                             // The recovery phrase reminder is a notice (the shell), not a card.
                             if (home.hasError && !home.isLoading)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: homeCardGap),
+                                padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, homeCardGap),
                                 child: ErrorText(describeError(l, home.error!)),
                               ),
                             _Recent(loaded: data != null, recent: recent),
@@ -171,12 +171,16 @@ class _HomeHeader extends ConsumerWidget {
             Flexible(
               child: Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: KitStatusPill(
-                  key: homePillKey,
-                  ready: state == HomeConnection.ready,
-                  label: label,
-                  onTap: () => showConnectionsSheet(context),
-                  semanticsId: TrustIds.homeStatus,
+                // The bar is 44 as drawn; the pill's 48 tall target reaches past it.
+                child: OverflowBox(
+                  maxHeight: 48,
+                  child: KitStatusPill(
+                    key: homePillKey,
+                    ready: state == HomeConnection.ready,
+                    label: label,
+                    onTap: () => showConnectionsSheet(context),
+                    semanticsId: TrustIds.homeStatus,
+                  ),
                 ),
               ),
             ),
@@ -228,23 +232,26 @@ class _Balance extends ConsumerWidget {
           child: SizedBox(
             width: Kit.touchMin,
             height: Kit.touchMin,
-            child: Icon(hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20, color: t.dim),
+            child: Icon(hidden ? KitIcons.eyeOff : KitIcons.eye, size: 14, color: t.dim),
           ),
         ),
       ),
     );
+    // `.lbl`: the word at 13 and the 14 eye 6 after it. The eye's target is 48 wide and tall,
+    // so the eye is pulled 11 back and a 28 spacer at the start keeps the line centred.
     final caption = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (summary != null) const SizedBox(width: 28),
         Flexible(
           child: Text(
             lastKnown ? l.phoneHomeBalanceLastKnown : l.phoneKitAvailable,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: KitType.rowTitle.copyWith(color: t.dim, fontWeight: FontWeight.w400),
+            style: KitType.rowSub.copyWith(color: t.dim),
           ),
         ),
-        if (summary != null) eye,
+        if (summary != null) Transform.translate(offset: const Offset(-11, 0), child: eye),
       ],
     );
     final Widget figureWidget = figure == null
@@ -257,53 +264,65 @@ class _Balance extends ConsumerWidget {
     ];
     return PhoneTourTarget(
       id: 'tour-balance',
+      // `.bal` after a 26 gap under the bar: caption 16, amount +8, fiat +8, buttons +24, the
+      // section 34 below. The caption's target is 48 tall, so everything under it is pulled up
+      // by 16, the 10 above is what the 26 leaves, and the section head gives back the 16.
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(Kit.gutter, 14, Kit.gutter, 18),
+        padding: const EdgeInsets.fromLTRB(Kit.gutter, 10, Kit.gutter, 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(child: caption),
-            figureWidget,
-            if (fiat != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  fiat,
-                  key: fiatValueKey,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: KitType.rowTitle.copyWith(color: t.dim, fontWeight: FontWeight.w400, fontSize: 16),
-                ),
-              ),
-            if (chips.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: chips),
-              ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: KitButton(
-                    label: l.homeSendButton,
-                    icon: KitIcons.send,
-                    onPressed: () => showShellFlow(context, ShellFlow.send),
-                    semanticsId: TrustIds.tabSend,
+            Transform.translate(
+              offset: const Offset(0, -16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(padding: const EdgeInsets.only(top: 8), child: figureWidget),
+                  if (fiat != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        fiat,
+                        key: fiatValueKey,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: KitType.body.copyWith(color: t.dim, height: 1.3),
+                      ),
+                    ),
+                  if (chips.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: chips),
+                    ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: KitButton(
+                          label: l.homeSendButton,
+                          icon: KitIcons.send,
+                          onPressed: () => showShellFlow(context, ShellFlow.send),
+                          semanticsId: TrustIds.tabSend,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: KitButton(
+                          label: l.homeReceiveButton,
+                          icon: KitIcons.receive,
+                          kind: KitButtonKind.quiet,
+                          onPressed: () => showShellFlow(context, ShellFlow.receive),
+                          semanticsId: TrustIds.tabReceive,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: Kit.groupGap),
-                Expanded(
-                  child: KitButton(
-                    label: l.homeReceiveButton,
-                    icon: KitIcons.receive,
-                    kind: KitButtonKind.quiet,
-                    onPressed: () => showShellFlow(context, ShellFlow.receive),
-                    semanticsId: TrustIds.tabReceive,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -361,7 +380,7 @@ class _Figure extends StatelessWidget {
         child: kitId(
           TrustIds.homeBalance,
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: EdgeInsets.zero,
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Row(
@@ -466,6 +485,7 @@ class _Recent extends ConsumerWidget {
       children: [
         KitSectionHead(
           l.phoneHomeRecent,
+          top: 18,
           trailing: kitId(
             TrustIds.homeSeeall,
             KitPress(

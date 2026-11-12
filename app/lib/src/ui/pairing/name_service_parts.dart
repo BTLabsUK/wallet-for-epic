@@ -17,6 +17,7 @@ import '../../trust_ids.dart';
 import '../common.dart';
 import '../info_hint.dart';
 import '../kit/kit_button.dart';
+import '../kit/kit_icons.dart';
 import '../kit/kit_sheet.dart';
 import '../kit/kit_tokens.dart';
 import '../status_icons.dart' show EpicGlyphs;
@@ -177,7 +178,7 @@ class NameServiceWaiting extends StatelessWidget {
             height: Kit.emptyWell,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: t.fill, shape: BoxShape.circle),
-            child: ExcludeSemantics(child: Icon(Icons.hourglass_empty_rounded, size: 34, color: t.info)),
+            child: ExcludeSemantics(child: Icon(KitIcons.hourglass, size: 34, color: t.info)),
           ),
         ),
         const PairGap(18),

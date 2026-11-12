@@ -34,7 +34,7 @@ class KitStatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           KitConnectionDot(ready: ready),
-          const SizedBox(width: 11),
+          const SizedBox(width: 8),
           Flexible(child: Text(word, style: KitType.pill.copyWith(color: t.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
         ],
       ),
