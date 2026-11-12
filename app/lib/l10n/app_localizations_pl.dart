@@ -23906,4 +23906,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'Pokaż';
+
+  @override
+  String get phoneSendNoteLabel => 'Notatka';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'Portfel $name może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.';
+  }
 }

@@ -31476,5 +31476,18 @@
   },
   "@phoneTourOfferShow": {
     "description": "Button on the tour offer toast: starts the tour. One or two words."
+  },
+  "phoneSendNoteLabel": "Note",
+  "@phoneSendNoteLabel": {
+    "description": "Label of the note row on the Send review sheet."
+  },
+  "phoneSendReviewHintOffline": "{name}'s wallet can be offline. The payment finishes when it next opens.",
+  "@phoneSendReviewHintOffline": {
+    "description": "Hint under the Send review sheet's rows when the other wallet need not be open; {name} is the person paid.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

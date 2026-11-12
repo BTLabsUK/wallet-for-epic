@@ -18,5 +18,7 @@
   "phoneSendViewPayment": "Открыть платёж",
   "phoneSendOnItsWayTo": "Отправлено: {name}",
   "phoneSendTheirOffline": "их кошелёк может быть офлайн",
-  "phoneSendTheirOnline": "их кошелёк должен быть открыт"
+  "phoneSendTheirOnline": "их кошелёк должен быть открыт",
+  "phoneSendNoteLabel": "Заметка",
+  "phoneSendReviewHintOffline": "Кошелёк {name} может быть не в сети. Платёж завершится, когда он снова откроется."
 }

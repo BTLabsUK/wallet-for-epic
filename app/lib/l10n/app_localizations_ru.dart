@@ -23895,4 +23895,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'Показать';
+
+  @override
+  String get phoneSendNoteLabel => 'Заметка';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'Кошелёк $name может быть не в сети. Платёж завершится, когда он снова откроется.';
+  }
 }

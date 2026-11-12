@@ -21871,4 +21871,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => '带我看看';
+
+  @override
+  String get phoneSendNoteLabel => '备注';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return '$name 的钱包可以离线。钱包下次打开时，付款即完成。';
+  }
 }

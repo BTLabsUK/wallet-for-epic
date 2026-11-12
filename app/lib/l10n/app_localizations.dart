@@ -36329,6 +36329,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show me'**
   String get phoneTourOfferShow;
+
+  /// Label of the note row on the Send review sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get phoneSendNoteLabel;
+
+  /// Hint under the Send review sheet's rows when the other wallet need not be open; {name} is the person paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s wallet can be offline. The payment finishes when it next opens.'**
+  String phoneSendReviewHintOffline(String name);
 }
 
 class _AppLocalizationsDelegate

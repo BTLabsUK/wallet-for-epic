@@ -13,9 +13,12 @@ import 'kit_tokens.dart';
 
 /// One face of a [KitFacesStrip]: a person or a shop, with the name under it.
 class KitFace {
-  const KitFace({required this.label, this.initials, this.icon, required this.onTap, this.semanticsId});
+  const KitFace({required this.label, this.caption, this.initials, this.icon, required this.onTap, this.semanticsId});
 
   final String label;
+
+  /// The shorter name drawn under the face; [label] (the whole name) is what a screen reader hears.
+  final String? caption;
   final String? initials;
   final IconData? icon;
   final VoidCallback onTap;
@@ -33,18 +36,20 @@ class KitFacesStrip extends StatelessWidget {
   /// screen edge.
   final double bleed;
 
-  static const double _cell = 72;
+  static const double _cell = 68;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    const stripHeight = Kit.avatarStrip + 34;
+    // 54 avatar, 7 gap, the 12 label (about 15 tall).
+    const stripHeight = Kit.avatarStrip + 7 + 16;
     final strip = SizedBox(
       height: stripHeight,
-      child: ListView.builder(
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: bleed + Kit.gutter - 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         itemCount: faces.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
         itemBuilder: (context, i) {
           final f = faces[i];
           return kitId(
@@ -62,17 +67,16 @@ class KitFacesStrip extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 2),
                       if (f.initials != null && f.initials!.isNotEmpty)
-                        KitAvatar(initials: f.initials, large: true)
+                        KitAvatar(initials: f.initials, large: true, initialsSize: 16)
                       else
-                        KitAvatar(icon: f.icon ?? KitIcons.contact, large: true),
-                      const SizedBox(height: 6),
+                        KitAvatar(icon: f.icon ?? KitIcons.contact, large: true, neutral: true, iconSize: 24),
+                      const SizedBox(height: 7),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: EdgeInsets.zero,
                         child: Text(
-                          f.label,
-                          style: KitType.rowSub.copyWith(color: t.dim),
+                          f.caption ?? f.label,
+                          style: KitType.rowSub.copyWith(color: t.dim, fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,

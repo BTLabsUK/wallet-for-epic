@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "Szczegóły salda",
   "phoneHomeEmpty": "Brak płatności. Odbierz trochę EPIC, aby zacząć.",
   "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
-  "phoneTourOfferShow": "Pokaż"
+  "phoneTourOfferShow": "Pokaż",
+  "phoneSendNoteLabel": "Notatka",
+  "phoneSendReviewHintOffline": "Portfel {name} może być offline. Płatność zakończy się, gdy portfel zostanie otwarty."
 }

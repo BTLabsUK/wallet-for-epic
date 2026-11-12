@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "余额详情",
   "phoneHomeEmpty": "还没有付款。先收一些 EPIC 开始吧。",
   "phoneTourOffer": "要不要快速看看钱包的功能?",
-  "phoneTourOfferShow": "带我看看"
+  "phoneTourOfferShow": "带我看看",
+  "phoneSendNoteLabel": "备注",
+  "phoneSendReviewHintOffline": "{name} 的钱包可以离线。钱包下次打开时，付款即完成。"
 }

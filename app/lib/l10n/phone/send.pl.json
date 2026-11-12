@@ -18,5 +18,7 @@
   "phoneSendViewPayment": "Zobacz płatność",
   "phoneSendOnItsWayTo": "W drodze do {name}",
   "phoneSendTheirOffline": "ich portfel może być offline",
-  "phoneSendTheirOnline": "ich portfel musi być otwarty"
+  "phoneSendTheirOnline": "ich portfel musi być otwarty",
+  "phoneSendNoteLabel": "Notatka",
+  "phoneSendReviewHintOffline": "Portfel {name} może być offline. Płatność zakończy się, gdy portfel zostanie otwarty."
 }

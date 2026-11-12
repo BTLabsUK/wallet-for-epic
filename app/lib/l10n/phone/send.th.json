@@ -18,5 +18,7 @@
   "phoneSendViewPayment": "ดูการจ่ายเงิน",
   "phoneSendOnItsWayTo": "กำลังไปยัง {name}",
   "phoneSendTheirOffline": "กระเป๋าของเขาออฟไลน์ได้",
-  "phoneSendTheirOnline": "กระเป๋าของเขาต้องเปิดอยู่"
+  "phoneSendTheirOnline": "กระเป๋าของเขาต้องเปิดอยู่",
+  "phoneSendNoteLabel": "บันทึก",
+  "phoneSendReviewHintOffline": "กระเป๋าของ {name} ออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง"
 }

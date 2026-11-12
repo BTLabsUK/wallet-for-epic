@@ -13,7 +13,7 @@ import 'kit_tokens.dart';
 
 /// The round-cornered icon button of the headers (`.ib`): a 40 px square on the quiet fill, 48 px to touch.
 class KitIconButton extends StatelessWidget {
-  const KitIconButton({super.key, required this.icon, required this.label, required this.onPressed, this.color, this.semanticsId, this.filled = false});
+  const KitIconButton({super.key, required this.icon, required this.label, required this.onPressed, this.color, this.semanticsId, this.filled = false, this.bare = false, this.glyphSize});
 
   final IconData icon;
 
@@ -26,13 +26,19 @@ class KitIconButton extends StatelessWidget {
   /// A [Kit.scanButton] sized button with the quiet fill (the scan button next to a field).
   final bool filled;
 
+  /// No fill under the glyph (the scan mark inside the address field); the target stays 48.
+  final bool bare;
+
+  /// The glyph's size where the frame draws it other than 20.
+  final double? glyphSize;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     // `.ib`: 40 x 40 on the quiet fill, radius 14, the glyph 20 (the back chevron 21). The
     // touch target is [Kit.hitTarget]; the filled one is the scan button's 50.
     final size = filled ? Kit.scanButton : Kit.hitTarget;
-    final glyph = icon == KitIcons.back ? 21.0 : 20.0;
+    final glyph = glyphSize ?? (icon == KitIcons.back ? 21.0 : 20.0);
     return kitId(
       semanticsId,
       Semantics(
@@ -60,7 +66,7 @@ class KitIconButton extends StatelessWidget {
                           width: 40,
                           height: 40,
                           alignment: Alignment.center,
-                          decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
+                          decoration: bare ? null : BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
                           child: Icon(icon, size: glyph, color: color ?? t.text),
                         ),
                       ),
@@ -275,10 +281,13 @@ class KitTabTitle extends StatelessWidget {
 /// [trailing] action is 48 tall to reach (the line is 32 in the frames), so the space around
 /// the line gives back the 8 above and below. [top] is the space above the line.
 class KitSectionHead extends StatelessWidget {
-  const KitSectionHead(this.title, {super.key, this.trailing, this.top = 22});
+  const KitSectionHead(this.title, {super.key, this.trailing, this.top = 22, this.inset = Kit.gutter});
 
   final String title;
   final double top;
+
+  /// The space before the tick: the gutter, or 0 inside a body that is padded already.
+  final double inset;
 
   /// A quiet text action at the end ("See all").
   final Widget? trailing;
@@ -288,7 +297,7 @@ class KitSectionHead extends StatelessWidget {
     final t = context.tokens;
     final give = trailing == null ? 0.0 : 8.0;
     return Padding(
-      padding: EdgeInsets.fromLTRB(Kit.gutter, top - give, 18, 10 - give),
+      padding: EdgeInsets.fromLTRB(inset, top - give, inset + 2, 10 - give),
       child: Row(
         children: [
           Expanded(

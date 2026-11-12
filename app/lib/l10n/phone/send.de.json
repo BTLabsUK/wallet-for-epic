@@ -18,5 +18,7 @@
   "phoneSendViewPayment": "Zahlung ansehen",
   "phoneSendOnItsWayTo": "Unterwegs zu {name}",
   "phoneSendTheirOffline": "ihr Wallet kann offline sein",
-  "phoneSendTheirOnline": "ihr Wallet muss geöffnet sein"
+  "phoneSendTheirOnline": "ihr Wallet muss geöffnet sein",
+  "phoneSendNoteLabel": "Notiz",
+  "phoneSendReviewHintOffline": "Die Wallet von {name} darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet."
 }

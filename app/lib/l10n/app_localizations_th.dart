@@ -22713,4 +22713,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'ดูเลย';
+
+  @override
+  String get phoneSendNoteLabel => 'บันทึก';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'กระเป๋าของ $name ออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง';
+  }
 }

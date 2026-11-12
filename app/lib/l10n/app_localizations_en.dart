@@ -23172,4 +23172,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneTourOfferShow => 'Show me';
+
+  @override
+  String get phoneSendNoteLabel => 'Note';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return '$name\'s wallet can be offline. The payment finishes when it next opens.';
+  }
 }

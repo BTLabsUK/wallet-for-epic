@@ -6050,5 +6050,7 @@
   "phoneHomeBalanceSheetHint": "Подробности баланса",
   "phoneHomeEmpty": "Платежей пока нет. Получите немного EPIC, чтобы начать.",
   "phoneTourOffer": "Показать, как устроен кошелёк?",
-  "phoneTourOfferShow": "Показать"
+  "phoneTourOfferShow": "Показать",
+  "phoneSendNoteLabel": "Заметка",
+  "phoneSendReviewHintOffline": "Кошелёк {name} может быть не в сети. Платёж завершится, когда он снова откроется."
 }

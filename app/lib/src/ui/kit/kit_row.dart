@@ -44,6 +44,7 @@ class KitRow extends StatelessWidget {
     this.subtitleWidget,
     this.valueColor,
     this.isChoice,
+    this.titleStyle,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -129,6 +130,9 @@ class KitRow extends StatelessWidget {
   /// Set by [KitRow.radio]: whether this choice is the chosen one (read as selected).
   final bool? isChoice;
 
+  /// Changes of the title's style (an address in the mono face), over the 15/500 default.
+  final TextStyle? titleStyle;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -157,7 +161,7 @@ class KitRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text).merge(titleStyle), maxLines: 2, overflow: TextOverflow.ellipsis),
                   if (subtitleWidget != null || subtitle != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
