@@ -579,8 +579,8 @@ class _NoteSheetState extends State<_NoteSheet> {
   }
 }
 
-/// The payment request file, made (DESIGN §3.2): the file as the card, Copy, Share and Save to
-/// device. Done goes to Requests sent, where it waits.
+/// The payment request, made (Gap-1): its code (the animated I1 payment QR), Copy and Share
+/// hand the request over as a file. Done goes to Requests sent, where it waits.
 class RequestFileSavedScreen extends StatelessWidget {
   const RequestFileSavedScreen({super.key, required this.slate, required this.amount, this.message});
 
@@ -591,35 +591,16 @@ class RequestFileSavedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final name = sendFileName(slate.slateId);
     return RequestCodePage(
       amount: amount,
       message: message,
       json: slate.json,
-      fileName: name,
-      saveFile: true,
-      lead: l.phoneRecvFileLead(epicExact(l, amount)),
+      fileName: sendFileName(slate.slateId),
       status: const RequestStatusLine(),
       onDone: () => Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),
       ),
-      card: RequestCodeCard(
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rQr)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(KitIcons.invoice, size: 56, color: t.accentText),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(name, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.dim)),
-              ),
-            ],
-          ),
-        ),
-      ),
+      card: RequestQrCard(json: slate.json, label: l.deskKitQrOf(l.qrShowTitleRequest)),
     );
   }
 }

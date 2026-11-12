@@ -4,6 +4,8 @@
 /// use it; each brings its own card and its own steps after the payment.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +13,8 @@ import '../amount.dart' show epicUnit;
 import '../app_log.dart';
 import '../l10n.dart';
 import '../price.dart';
+import '../providers.dart';
+import '../qr_slate.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../trust_ids.dart';
@@ -23,6 +27,7 @@ import 'kit/kit_help_sheet.dart';
 import 'kit/kit_hero_amount.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_tokens.dart';
+import 'theme/logo_qr.dart';
 import 'theme/tokens.dart';
 
 /// Opens the short help of the Ask pages.
@@ -56,7 +61,7 @@ class RequestCodeCard extends StatelessWidget {
 
 /// A request page: back header, the card, the amount and what it is for, the lead, Copy and
 /// Share, [status] and Done. [json] is the request's text; [fileName] names it when it is shared
-/// or saved. [saveFile] adds "Save to device" for a request that is a file.
+/// or saved.
 class RequestCodePage extends ConsumerWidget {
   const RequestCodePage({
     super.key,
@@ -67,7 +72,6 @@ class RequestCodePage extends ConsumerWidget {
     required this.status,
     required this.onDone,
     this.message,
-    this.saveFile = false,
     this.lead,
     this.actions = const [],
     this.busy = false,
@@ -80,7 +84,6 @@ class RequestCodePage extends ConsumerWidget {
   final Widget card;
   final Widget status;
   final VoidCallback onDone;
-  final bool saveFile;
 
   /// Replaces the lead line.
   final String? lead;
@@ -177,20 +180,6 @@ class RequestCodePage extends ConsumerWidget {
                         for (final a in actions) ...[const SizedBox(height: 10), a],
                         const SizedBox(height: 16),
                         Center(child: status),
-                        if (saveFile) ...[
-                          // The frame has only Copy and Share and the status; saving the file stays one
-                          // quiet line after the status (without Share it is the main button).
-                          SizedBox(height: files.canShare ? 18 : 10),
-                          KitButton(
-                            label: l.slateSaveToDevice,
-                            kind: files.canShare ? KitButtonKind.ghost : KitButtonKind.gold,
-                            onPressed: () => _hand(context, ref, (f) async {
-                              final ok = await f.save(name: fileName, json: json, dialogTitle: l.slateSaveDialogTitle);
-                              if (ok) ref.read(noticeProvider.notifier).show(l.slateSaved(fileName), level: NoticeLevel.success);
-                              return ok;
-                            }),
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -277,3 +266,99 @@ class RequestPlainPage extends StatelessWidget {
     ),
   );
 }
+
+
+/// The request as its animated QR (the payment code the in-person and QR screens draw): the
+/// request text cut into [qrFragmentLen]-byte parts, drawn in one version and mask, dark modules
+/// on white with the epic1 mark, in the gold corner marks. A request that fits one part stands
+/// still. While the parts are made the card shows a quiet spinner; a request too large for a
+/// code shows [failed].
+class RequestQrCard extends ConsumerStatefulWidget {
+  const RequestQrCard({super.key, required this.json, required this.label});
+
+  /// The request's text (an I1 slate).
+  final String json;
+
+  /// What a screen reader says for the code.
+  final String label;
+
+  @override
+  ConsumerState<RequestQrCard> createState() => _RequestQrCardState();
+}
+
+class _RequestQrCardState extends ConsumerState<RequestQrCard> {
+  QrFrames? _frames;
+  Object? _error;
+  int _frame = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_encode());
+  }
+
+  Future<void> _encode() async {
+    try {
+      final texts = await ref
+          .read(walletServiceProvider)
+          .encodeQrSlate(json: widget.json, maxFragmentLen: qrFragmentLen, singleCodeMaxLen: qrSingleCodeMaxLen);
+      final frames = QrFrames.of(texts);
+      if (!mounted) return;
+      setState(() => _frames = frames);
+      if (frames.length > 1) {
+        _timer = Timer.periodic(const Duration(milliseconds: qrFrameMs), (_) {
+          if (mounted) setState(() => _frame = (_frame + 1) % frames.length);
+        });
+      }
+    } catch (error) {
+      logWarn('invoices', 'request code not drawn: $error');
+      if (mounted) setState(() => _error = error);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final frames = _frames;
+    final Widget inner;
+    if (frames != null) {
+      inner = TrustId(
+        TrustIds.receiveCodeQr,
+        child: Semantics(
+          label: widget.label,
+          image: true,
+          child: Container(
+            key: requestQrCardKey,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              // Dark modules on white scan reliably in either theme.
+              color: protocolLight.surface,
+              borderRadius: BorderRadius.circular(Kit.rQr),
+              boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.22 : 0.12), blurRadius: 40)],
+            ),
+            child: LayoutBuilder(
+              builder: (context, box) =>
+                  LogoQrImage(image: frames.images[_frame % frames.length], size: box.biggest.shortestSide, logo: QrLogo.epic1),
+            ),
+          ),
+        ),
+      );
+    } else if (_error != null) {
+      inner = Center(child: Icon(KitIcons.qr, size: 48, color: t.dim));
+    } else {
+      inner = const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)));
+    }
+    return RequestCodeCard(child: inner);
+  }
+}
+
+/// The drawn request code, for tests and the tour.
+const Key requestQrCardKey = ValueKey('request-code-qr');

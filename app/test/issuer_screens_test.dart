@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
+import 'package:epic_wallet/src/ui/receive_code.dart' show requestQrCardKey;
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
@@ -245,13 +246,15 @@ void main() {
       await h.type(tester, '2.5');
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
-      // The request file, to save or share (DESIGN §3.2).
+      // The request as its code, to show or share (Gap-1); Share hands over the file.
       // The lead names the amount; match its words before it.
-      expect(find.textContaining('Share this file. Whoever opens it is asked for'), findsOneWidget);
-      await tester.tap(find.text(_l.slateSaveToDevice));
+      expect(find.textContaining('Show this code or share it. Whoever opens it is asked for'), findsOneWidget);
+      expect(find.byKey(requestQrCardKey), findsOneWidget);
+      expect(find.text(_l.slateSaveToDevice), findsNothing);
+      await tester.tap(find.text(_l.commonShare));
       await tester.pumpAndSettle();
-      expect(h.files.saved, hasLength(1));
-      expect(_notice(tester), _l.slateSaved(h.files.saved.single.name));
+      expect(h.files.shared, hasLength(1));
+      expect(h.files.shared.single.name, endsWith('.tx'));
     });
 
     testWidgets('a wallet that asks paired contacts only offers no file', (tester) async {

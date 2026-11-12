@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
+import 'package:epic_wallet/src/ui/receive_code.dart' show requestQrCardKey;
 import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
 import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -203,7 +204,7 @@ void main() {
       expect(find.text(_l.phoneRecvAnyoneFile), findsNothing);
     });
 
-    testWidgets('Save as file shows the request file to save; it waits in Requests sent, By file', (tester) async {
+    testWidgets('Save as file shows the request code to show or share; it waits in Requests sent, By file', (tester) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen());
       await _type(tester, '42.5');
@@ -214,13 +215,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.phoneRecvFileLead(epicExact(_l, _epic(42.5)))), findsOneWidget);
+      expect(find.text(_l.phoneRecvCodeLead(epicExact(_l, _epic(42.5)))), findsOneWidget);
       final issued = h.session.issuedRequests.single;
       expect(issued.amount, _epic(42.5));
       expect(issued.message, 'Beans');
-      await tester.tap(find.text(_l.slateSaveToDevice));
+      expect(find.byKey(requestQrCardKey), findsOneWidget);
+      await tester.tap(find.text(_l.commonShare));
       await tester.pumpAndSettle();
-      final saved = h.files.saved.single;
+      final saved = h.files.shared.single;
       expect(saved.name, endsWith('.tx'));
       expect((jsonDecode(saved.json) as Map)['fake_invoice'], 'issued-1');
       await tester.tap(find.text(_l.commonDone));

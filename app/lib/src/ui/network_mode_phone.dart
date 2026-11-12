@@ -17,9 +17,6 @@ import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
 import 'network_mode_text.dart';
-import '../help/help_content.dart' show HelpId;
-import 'help/network_modes_diagram.dart';
-import 'help_screen.dart' show openHelp;
 import 'kit/kit_group.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_tokens.dart';
@@ -175,80 +172,6 @@ class NetworkModeSection extends ConsumerWidget {
         ),
         tourId == null ? rows : tourId!(rows),
       ],
-    );
-  }
-}
-
-/// The ⓘ at the Network section's heading: the picture of the modes.
-const Key networkModesHintKey = ValueKey('adv-modes-hint');
-
-/// The key of the sheet that shows the picture of the modes.
-const Key networkModesSheetKey = ValueKey('net-modes-sheet');
-
-/// Opens the picture of the connection modes ([NetworkModesDiagram]) in a sheet, at [initial]:
-/// the title, the picture (it scrolls on a short screen), More in Help and Close. It explains
-/// only; nothing in it changes the wallet's mode.
-Future<void> showNetworkModesSheet(BuildContext context, NetworkMode initial) => showPhoneSheet<void>(
-  context: context,
-  showDragHandle: true,
-  isScrollControlled: true,
-  useSafeArea: true,
-  builder: (context) => NetworkModesSheet(initial: initial),
-);
-
-/// The sheet of [showNetworkModesSheet], in the info sheet's shape ([InfoSheet]).
-class NetworkModesSheet extends StatelessWidget {
-  const NetworkModesSheet({super.key = networkModesSheetKey, required this.initial});
-
-  final NetworkMode initial;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              // About every mode, not the one it opened at: the info glyph.
-              Icon(Icons.info_outline, size: 22, color: t.accentText),
-              const SizedBox(width: 10),
-              Expanded(child: Semantics(header: true, child: Text(l.netModesTitle, style: theme.textTheme.titleMedium))),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Flexible(
-            child: SingleChildScrollView(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 720),
-                  child: NetworkModesDiagram(initial: initial),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              TextButton(
-                key: const ValueKey('net-modes-sheet-help'),
-                onPressed: () {
-                  Navigator.pop(context);
-                  openHelp(context, HelpId.modes);
-                },
-                child: Text(l.deskKitMoreInHelp),
-              ),
-              const Spacer(),
-              TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonClose)),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

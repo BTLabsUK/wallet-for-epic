@@ -566,6 +566,7 @@ abstract final class TrustIds {
   static const sendTrackAddContact = 'g4.send.track.addContact';
   static const qrscanHelp = 'g4.qrscan.help';
   static const restoreScanClose = 'g4.restore.scan-close';
+  static const receiveCodeQr = 'g4.receive.code-qr';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
   static String securityAutoLockChoiceAt(Object value) => 'g4.security.autoLock.choice.$value';
@@ -1145,5 +1146,6 @@ abstract final class TrustIds {
     'g4.send.track.addContact',
     'g4.qrscan.help',
     'g4.restore.scan-close',
+    'g4.receive.code-qr',
   ];
 }
