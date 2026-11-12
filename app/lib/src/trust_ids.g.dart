@@ -207,6 +207,42 @@ abstract final class TrustIds {
   static const e1Send = 'g4.e1.send';
   static const e1CancelUnlock = 'g4.e1.cancel_unlock';
   static const e1TryNext = 'g4.e1.try_next';
+  static const activityBack = 'g4.activity.back';
+  static const activityFilterAll = 'g4.activity.filter-all';
+  static const activityFilterSent = 'g4.activity.filter-sent';
+  static const activityFilterReceived = 'g4.activity.filter-received';
+  static const activityFilterPending = 'g4.activity.filter-pending';
+  static const activityFilterCancelled = 'g4.activity.filter-cancelled';
+  static const activitySearch = 'g4.activity.search';
+  static const activityClearSearch = 'g4.activity.clear-search';
+  static const activityReview = 'g4.activity.review';
+  static const activityHelp = 'g4.activity.help';
+  static const activityHelpSheet = 'g4.activity.help-sheet';
+  static const activityHelpMore = 'g4.activity.help-more';
+  static const payBack = 'g4.pay.back';
+  static const payHelp = 'g4.pay.help';
+  static const payHelpSheet = 'g4.pay.help-sheet';
+  static const payHelpMore = 'g4.pay.help-more';
+  static const payRoute = 'g4.pay.route';
+  static const paySteps = 'g4.pay.steps';
+  static const payCompleted = 'g4.pay.completed';
+  static const payNever = 'g4.pay.never';
+  static const payNeverDone = 'g4.pay.never-done';
+  static const payNote = 'g4.pay.note';
+  static const payNoteSave = 'g4.pay.note-save';
+  static const payNoteCancel = 'g4.pay.note-cancel';
+  static const payLabel = 'g4.pay.label';
+  static const payMore = 'g4.pay.more';
+  static const payMoreDone = 'g4.pay.more-done';
+  static const payCoinsDone = 'g4.pay.coins-done';
+  static const payTechnical = 'g4.pay.technical';
+  static const payViaDone = 'g4.pay.via-done';
+  static const payRepost = 'g4.pay.repost';
+  static const paySendAgainUndelivered = 'g4.pay.send-again-undelivered';
+  static const payDeviceRelease = 'g4.pay.device-release';
+  static const payRelease = 'g4.pay.release';
+  static const payCancel = 'g4.pay.cancel';
+  static const paySendAgain = 'g4.pay.send-again';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -424,5 +460,41 @@ abstract final class TrustIds {
     'g4.e1.send',
     'g4.e1.cancel_unlock',
     'g4.e1.try_next',
+    'g4.activity.back',
+    'g4.activity.filter-all',
+    'g4.activity.filter-sent',
+    'g4.activity.filter-received',
+    'g4.activity.filter-pending',
+    'g4.activity.filter-cancelled',
+    'g4.activity.search',
+    'g4.activity.clear-search',
+    'g4.activity.review',
+    'g4.activity.help',
+    'g4.activity.help-sheet',
+    'g4.activity.help-more',
+    'g4.pay.back',
+    'g4.pay.help',
+    'g4.pay.help-sheet',
+    'g4.pay.help-more',
+    'g4.pay.route',
+    'g4.pay.steps',
+    'g4.pay.completed',
+    'g4.pay.never',
+    'g4.pay.never-done',
+    'g4.pay.note',
+    'g4.pay.note-save',
+    'g4.pay.note-cancel',
+    'g4.pay.label',
+    'g4.pay.more',
+    'g4.pay.more-done',
+    'g4.pay.coins-done',
+    'g4.pay.technical',
+    'g4.pay.via-done',
+    'g4.pay.repost',
+    'g4.pay.send-again-undelivered',
+    'g4.pay.device-release',
+    'g4.pay.release',
+    'g4.pay.cancel',
+    'g4.pay.send-again',
   ];
 }

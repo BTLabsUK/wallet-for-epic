@@ -32,7 +32,7 @@ import 'payment_progress.dart' show paymentRowWord;
 import 'theme/epic1_mark.dart' show Epic1Glyph;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart' show TxDetailsScreen;
-import 'tx_label.dart' show TxLabelEditor;
+import 'tx_label.dart' show ManualTag, TxLabelEditor;
 
 /// The mark before an open payment's status word: [fraction] of a ring filled (a payment
 /// confirming, or arriving), or an hourglass when the other side is awaited ([fraction] null).
@@ -253,14 +253,26 @@ class PhoneTxRow extends ConsumerWidget {
                               child: ExcludeSemantics(
                                 child: Align(
                                   alignment: AlignmentDirectional.centerStart,
-                                  child: addressTitle
-                                      ? ShortAddressText(counterparty, ownServer: own, style: KitType.address.copyWith(fontSize: 14))
-                                      : Text(
-                                          title,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: KitType.rowTitle.copyWith(color: cancelled ? t.dim : t.text),
-                                        ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: addressTitle
+                                            ? ShortAddressText(counterparty, ownServer: own, style: KitType.address.copyWith(fontSize: 14))
+                                            : Text(
+                                                title,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: KitType.rowTitle.copyWith(color: cancelled ? t.dim : t.text),
+                                              ),
+                                      ),
+                                      // What the user typed is marked, as in the old list.
+                                      if (tx.manualFields.isNotEmpty) ...[
+                                        const SizedBox(width: 6),
+                                        ManualTag(editedAtUnix: tx.manualEditedAtUnix, compact: true),
+                                      ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );

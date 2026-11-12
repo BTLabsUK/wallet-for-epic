@@ -28,7 +28,7 @@ class KitIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final size = filled ? Kit.scanButton : Kit.hitMin;
+    final size = filled ? Kit.scanButton : Kit.hitTarget;
     return kitId(
       semanticsId,
       Semantics(
@@ -121,11 +121,13 @@ class KitFlowHeader extends StatelessWidget {
 /// The header of a page inside a tab (HANDOFF 7.4): a gold back link named after the page it
 /// returns to ("‹ Settings"), a "?" on the right, then the 28 [title].
 class KitPageHeader extends StatelessWidget {
-  const KitPageHeader({super.key, required this.backLabel, required this.onBack, required this.title, this.onHelp, this.backId, this.helpId});
+  const KitPageHeader({super.key, required this.backLabel, required this.onBack, this.title, this.onHelp, this.backId, this.helpId});
 
   final String backLabel;
   final VoidCallback? onBack;
-  final String title;
+
+  /// The 28 title under the back link; null for a page that opens with its own content.
+  final String? title;
   final VoidCallback? onHelp;
   final String? backId;
   final String? helpId;
@@ -154,7 +156,7 @@ class KitPageHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(Kit.rIconButton),
                       onTap: onBack,
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: Kit.hitMin, minWidth: Kit.hitMin),
+                        constraints: const BoxConstraints(minHeight: Kit.hitTarget, minWidth: Kit.hitMin),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4, right: 10),
                           child: Row(
@@ -176,10 +178,11 @@ class KitPageHeader extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 2, Kit.gutter + 4, 14),
-          child: Semantics(header: true, child: Text(title, style: KitType.pageTitle.copyWith(color: t.text))),
-        ),
+        if (title != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 2, Kit.gutter + 4, 14),
+            child: Semantics(header: true, child: Text(title!, style: KitType.pageTitle.copyWith(color: t.text))),
+          ),
       ],
     );
   }

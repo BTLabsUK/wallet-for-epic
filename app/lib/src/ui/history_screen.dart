@@ -30,6 +30,7 @@ import 'kit/kit_search_field.dart';
 import 'kit/kit_segmented.dart';
 import 'kit/kit_tokens.dart';
 import 'levels/quiet_invoices.dart' show quietInvoiceKey;
+import '../trust_ids.dart';
 import 'phone_tx_row.dart';
 import 'post_finished_screen.dart' show openPostFinished;
 import 'tour/tour_target.dart';
@@ -181,8 +182,14 @@ const Key historyMenuKey = ValueKey('history-menu');
 /// The key of the menu's Post a finished payment entry, for tests.
 const Key historyPostFinishedKey = ValueKey('history-post-finished');
 
-/// The ids a driver finds the Activity controls by.
-const String historyFilterIdPrefix = 'g4.activity.filter-';
+/// The id a driver finds a filter segment by.
+String historyFilterId(HistoryFilter filter) => switch (filter) {
+  HistoryFilter.all => TrustIds.activityFilterAll,
+  HistoryFilter.sent => TrustIds.activityFilterSent,
+  HistoryFilter.received => TrustIds.activityFilterReceived,
+  HistoryFilter.pending => TrustIds.activityFilterPending,
+  HistoryFilter.cancelled => TrustIds.activityFilterCancelled,
+};
 
 /// Every transaction, searchable and filtered, grouped by day (the Activity frame): the title
 /// and the "…" menu, the search field, the All / Received / Sent control, the invoices that need
@@ -280,8 +287,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       context,
       title: l.phoneActHelpTitle,
       lines: [l.phoneActHelp1, l.phoneActHelp2, l.phoneActHelp3],
-      sheetId: 'g4.activity.help-sheet',
-      moreId: 'g4.activity.help-more',
+      sheetId: TrustIds.activityHelpSheet,
+      moreId: TrustIds.activityHelpMore,
     );
   }
 
@@ -333,8 +340,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             onBack: () => Navigator.of(context).maybePop(),
             title: l.historyTitle,
             onHelp: _help,
-            backId: 'g4.activity.back',
-            helpId: 'g4.activity.help',
+            backId: TrustIds.activityBack,
+            helpId: TrustIds.activityHelp,
           )
         : KitTabTitle(l.historyTitle, trailing: _menu(context));
 
@@ -358,7 +365,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         controller: _search,
                         hint: l.phoneActSearchHint,
                         onChanged: _onSearchChanged,
-                        semanticsId: 'g4.activity.search',
+                        semanticsId: TrustIds.activitySearch,
                       ),
                     ),
                     SliverToBoxAdapter(
@@ -372,7 +379,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                               KitSegment(
                                 value: filter,
                                 label: historyFilterLabel(l, filter),
-                                semanticsId: '$historyFilterIdPrefix${filter.name}',
+                                semanticsId: historyFilterId(filter),
                               ),
                           ],
                         ),
@@ -413,7 +420,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           // The way out of a search that matches nothing, as on the desktop.
                           actionLabel: searching ? l.historyClearSearch : null,
                           onAction: searching ? _clearSearch : null,
-                          actionId: 'g4.activity.clear-search',
+                          actionId: TrustIds.activityClearSearch,
                             ),
                           ),
                         ),
@@ -622,7 +629,7 @@ class _NeedsYouCard extends StatelessWidget {
                   label: l.phoneActReview,
                   onPressed: open,
                   small: true,
-                  semanticsId: 'g4.activity.review',
+                  semanticsId: TrustIds.activityReview,
                 ),
               ],
             ),
