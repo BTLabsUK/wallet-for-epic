@@ -107,7 +107,8 @@ class HomeTab extends ConsumerWidget {
                         padding: const EdgeInsets.only(bottom: 16),
                         sliver: SliverList.list(
                           children: [
-                            const Padding(padding: EdgeInsets.symmetric(horizontal: Kit.gutter), child: HomeSlot()),
+                            // The cards carry the gutter themselves.
+                            const HomeSlot(),
                             // An unfinished restore: its own card, with the scan in it.
                             if (restoreUnfinished || importOffer)
                               const Padding(padding: EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, homeCardGap), child: RestoreCard())
@@ -259,8 +260,21 @@ class _Balance extends ConsumerWidget {
         : _Figure(balance: figure, hidden: hidden, onTap: openSheet, label: l.phoneHomeBalanceSheetHint);
     final chips = <Widget>[
       if (!hidden && arriving > BigInt.zero)
-        KitChip(l.phoneHomeArriving(shownEpic(l, arriving, hidden: false)), info: true, onTap: openSheet),
-      if (!hidden && inSends > BigInt.zero) KitChip(l.phoneHomeInSends(shownEpic(l, inSends, hidden: false)), onTap: openSheet),
+        KitChip(
+          l.phoneHomeArriving(epicFor(l, arriving, unit: false)),
+          leading: const PhoneProgressMark(fraction: 2 / 3, size: 13),
+          info: true,
+          onTap: openSheet,
+          semanticsLabel: l.phoneHomeArriving(epicText(l, arriving)),
+        ),
+      if (!hidden && inSends > BigInt.zero)
+        KitChip(
+          l.phoneHomeInSends(epicFor(l, inSends, unit: false)),
+          icon: KitIcons.lock,
+          iconSize: 12,
+          onTap: openSheet,
+          semanticsLabel: l.phoneHomeInSends(epicText(l, inSends)),
+        ),
     ];
     return PhoneTourTarget(
       id: 'tour-balance',
@@ -268,7 +282,8 @@ class _Balance extends ConsumerWidget {
       // section 34 below. The caption's target is 48 tall, so everything under it is pulled up
       // by 16, the 10 above is what the 26 leaves, and the section head gives back the 16.
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(Kit.gutter, 10, Kit.gutter, 0),
+        // With chips the frame lifts the block by 10 (`margin-top: 16` instead of 26).
+        padding: EdgeInsets.fromLTRB(Kit.gutter, chips.isEmpty ? 10 : 0, Kit.gutter, 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -293,12 +308,14 @@ class _Balance extends ConsumerWidget {
                         style: KitType.body.copyWith(color: t.dim, height: 1.3),
                       ),
                     ),
+                  // `.chips`: 12 below the fiat, 28 tall, 18 above the buttons. The chips' target is
+                  // 48 tall, so 10 comes off each side and the spacing is what is left.
                   if (chips.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: chips),
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Wrap(alignment: WrapAlignment.center, spacing: 8, children: chips),
                     ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: chips.isEmpty ? 24 : 8),
                   Row(
                     children: [
                       Expanded(

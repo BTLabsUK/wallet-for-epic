@@ -72,7 +72,7 @@ class InvoiceSlotItem extends HomeSlotItem {
     final display = amountDisplay(ref);
     final who = invoiceSenderName(l, pairings, contacts, invoice.pairingId);
     final amount = shownEpic(l, invoice.amount, hidden: display.hidden);
-    final fiat = approxFiat(l, invoice.amount, display, short: true);
+    final fiat = phoneFiat(l, invoice.amount, display, approx: true);
     return KitNeedsYouCard(
       title: l.phoneHomeInvoiceTitle(who),
       subtitle: l.phoneHomeInvoiceBody(fiat == null ? amount : '$amount · $fiat'),
