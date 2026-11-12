@@ -417,7 +417,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       void open() => _open(c);
       if (!pick) {
         if (a?.asks != null) return _AsksRow(contact: c, invoice: a!.asks!, onTap: open);
-        if (!az && a?.latest != null) return PhoneTxRow(tx: a!.latest!, name: c.name, onOpen: open);
+        if (!az && a?.latest != null) return PhoneTxRow(tx: a!.latest!, name: c.name, onOpen: open, dated: true);
       }
       return _ContactRow(contact: c, onTap: open, forPayment: pick && widget.forPayment, noPaymentsYet: !pick && !az && a?.latest == null);
     }

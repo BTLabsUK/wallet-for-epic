@@ -476,7 +476,7 @@ void main() {
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
       expect(find.textContaining('arriving'), findsNothing);
-      expect(find.textContaining(l.txStatusReceived), findsOneWidget);
+      expect(_rowLabel(tester), contains('received,'));
     });
 
     testWidgets('a tip ahead of the summary does not complete a row early', (

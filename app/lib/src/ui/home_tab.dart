@@ -480,7 +480,7 @@ class _Recent extends ConsumerWidget {
             ),
           ),
         ),
-        KitGroup(children: [for (final tx in recent) PhoneTxRow(tx: tx)]),
+        KitGroup(children: [for (final tx in recent) PhoneTxRow(tx: tx, dated: true)]),
       ],
     );
   }

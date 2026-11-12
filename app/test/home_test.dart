@@ -822,15 +822,10 @@ void main() {
       expect(tester.widget<PhoneTxRow>(tiles.first).tx.slateId, 'send-bob');
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
       expect(find.text('≈\u00a02.50\u00a0USD'), findsOneWidget);
-      expect(find.textContaining('09:00'), findsOneWidget);
+      // The waiting send says so in its own row; the open row shows no time.
       expect(find.textContaining('Yesterday, 18:00'), findsOneWidget);
-
-      // The waiting send also gets a card that says what it means.
-      expect(
-        find.text('A payment is waiting for the recipient'),
-        findsOneWidget,
-      );
-      await _tap(tester, find.text('View payment'));
+      expect(find.text('A payment is waiting for the recipient'), findsNothing);
+      await _tap(tester, find.textContaining('Waiting for recipient'));
       expect(find.byType(TxDetailsScreen), findsOneWidget);
       expect(find.textContaining('in about 2 hours'), findsOneWidget);
       await _back(tester);
@@ -853,8 +848,8 @@ void main() {
       );
       await h.pump(tester);
       expect(find.byType(PhoneTxRow), findsNWidgets(recentActivityCount));
-      expect(find.text('+7.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('+2.0\u00a0EPIC'), findsNothing);
+      expect(find.text('+7.0'), findsOneWidget);
+      expect(find.text('+2.0'), findsNothing);
       await _tap(tester, find.text(_l.phoneHomeSeeAll));
       expect(_selectedTab(tester), ShellWhere.activity);
     });
@@ -1027,13 +1022,18 @@ void main() {
       );
       expect(row('Confirming 1 of 3'), findsOneWidget);
 
-      for (final (blocks, word) in [(1, 'Confirming 2 of 3'), (2, 'Sent')]) {
+      for (final (blocks, word) in [(1, 'Confirming 2 of 3'), (2, null)]) {
         final height = _tip + BigInt.from(blocks);
         h.service.nodeTipValue = NodeTip(height: height, nodeVersion: '3.6.0');
         h.session.summaryValue = at(height);
         await tester.pump(tipCheckInterval);
         await tester.pumpAndSettle();
-        expect(row(word), findsOneWidget, reason: 'at ${blocks + 1} confirmations');
+        // A finished payment drops the status word and shows its time.
+        if (word != null) {
+          expect(row(word), findsOneWidget, reason: 'at ${blocks + 1} confirmations');
+        } else {
+          expect(row('Confirming'), findsNothing, reason: 'at ${blocks + 1} confirmations');
+        }
       }
 
       // No new block: the tip checks refresh nothing.
@@ -2123,24 +2123,9 @@ void main() {
       );
       await h.pump(tester);
       expect(find.text('A payment is waiting for the recipient'), findsNothing);
-      expect(
-        find.textContaining(_l.txStatusFromBackup),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('the pending card keeps both buttons on one row', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      // The test font draws every glyph 1 em wide, about twice Roboto's width, so check the
-      // layout on a wider view; the screenshot tour checks a phone with real fonts.
-      tester.view.physicalSize = const Size(1800, 7200);
-      await tester.pumpAndSettle();
-      final why = tester.getCenter(find.text(_l.homePendingWhy));
-      final view = tester.getCenter(find.text('View payment'));
-      expect(why.dy, view.dy);
+      // It is a row of Recent, not an open payment.
+      expect(find.byType(PhoneTxRow), findsOneWidget);
+      expect(find.textContaining('Waiting for'), findsNothing);
     });
 
     testWidgets('cancelled rows show no fiat value', (tester) async {
@@ -2341,18 +2326,6 @@ void main() {
         txExplanation(englishStrings, finished(repostable: false), _tip),
         startsWith('Published to the network'),
       );
-    });
-
-    testWidgets('the pending card says the payment waits for an answer', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      expect(
-        find.text('2.0\u00a0EPIC stays locked until the recipient’s wallet answers.'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('on its way'), findsNothing);
     });
 
     testWidgets('details of a 16-day-old send say to cancel and send again', (
@@ -3184,19 +3157,15 @@ void main() {
 
   group('shots-4', () {
     testWidgets(
-      'the balance stays on top; the reminder sits by the waiting card',
+      'the balance stays on top; the reminder sits above Recent',
       (tester) async {
         final h = _Harness(transactions: _backlog());
         _reminderDue(h);
         await h.pump(tester);
         double top(Finder f) => tester.getTopLeft(f).dy;
         final balance = top(find.byKey(homeFigureKey));
-        final waiting = top(
-          find.text('A payment is waiting for the recipient'),
-        );
         final reminder = top(find.textContaining('not in your exported wallet data'));
-        expect(balance, lessThan(waiting));
-        expect(waiting, lessThan(reminder));
+        expect(balance, lessThan(reminder));
         expect(reminder, lessThan(top(find.text(_l.phoneHomeRecent))));
       },
     );

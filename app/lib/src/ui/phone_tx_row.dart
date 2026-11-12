@@ -119,7 +119,7 @@ bool paymentInProgress(TxEntry tx, BigInt? tip, {int? target}) => switch (txPhas
 /// Contacts tab shows a contact by its latest payment: [onOpen] then opens the contact and
 /// [name] is the contact's.
 class PhoneTxRow extends ConsumerWidget {
-  const PhoneTxRow({super.key, required this.tx, this.onOpen, this.name});
+  const PhoneTxRow({super.key, required this.tx, this.onOpen, this.name, this.dated = false});
 
   final TxEntry tx;
 
@@ -128,6 +128,10 @@ class PhoneTxRow extends ConsumerWidget {
 
   /// The row's name when the caller knows it better than the payment does.
   final String? name;
+
+  /// The time with its day (Home and Contacts, which have no day headers); else the clock only,
+  /// as under Activity's day headers.
+  final bool dated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -139,7 +143,7 @@ class PhoneTxRow extends ConsumerWidget {
     final target = confirmationsTargetOf(ref);
     final (:amount, :outgoing) = txAmount(tx);
     final cancelled = tx.status == TxStatus.cancelled;
-    final open = isPending(tx);
+    final open = paymentInProgress(tx, tip, target: target);
     final name = this.name ?? txPartyName(ref, tx);
     final counterparty = tx.counterparty;
     final own = ownEpicboxServer(ref);
@@ -148,7 +152,7 @@ class PhoneTxRow extends ConsumerWidget {
     final addressTitle =
         counterparty != null && name == null && title == shortAddress(counterparty, ownServer: own);
     final aside = txTitleAside(tx, contactName: name, ownServer: own);
-    final time = localClock(l, localTime(tx.timeUnix));
+    final time = dated ? shortDate(l, localTime(tx.timeUnix), now) : localClock(l, localTime(tx.timeUnix));
     final sealed = phoneShowsSealed(ref, tx);
     final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
     final status = open
