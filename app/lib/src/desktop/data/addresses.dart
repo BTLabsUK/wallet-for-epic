@@ -7,7 +7,6 @@ import '../../recipient.dart' show RecipientKind, httpAddressComplete, parseReci
 import '../../scan/scan_router.dart';
 import 'api.dart' show DeskWalletApi;
 import 'http_address.dart';
-import 'models.dart' show TxMethod;
 
 enum AddressKind { epicbox, http, tor, none }
 
@@ -36,14 +35,6 @@ ParsedAddress parseAddress(String text, DeskWalletApi api) => _parse(text, api);
 
 /// The kind of [text] by its shape alone (no checksum): what a saved contact's address is.
 AddressKind addressKindOf(String text) => _parse(text, null).kind;
-
-/// The Send method for an address kind; null for [AddressKind.none].
-TxMethod? methodForKind(AddressKind k) => switch (k) {
-  AddressKind.epicbox => TxMethod.epicbox,
-  AddressKind.http => TxMethod.http,
-  AddressKind.tor => TxMethod.tor,
-  AddressKind.none => null,
-};
 
 ParsedAddress _parse(String text, DeskWalletApi? api) {
   final r = parseRecipient(text);

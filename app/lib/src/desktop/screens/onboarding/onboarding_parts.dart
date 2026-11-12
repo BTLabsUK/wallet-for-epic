@@ -133,10 +133,6 @@ List<ESelectItem<String>> deskLanguageItems(AppLocalizations l) => [
   for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14)),
 ];
 
-/// The name the language pickers show for the setting [code] (null: the system's).
-String deskLanguageName(AppLocalizations l, String? code) =>
-    appLanguages.where((a) => a.code == code).firstOrNull?.name ?? l.languageSystem;
-
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {
   const UnlockAdded(this.name, {this.id, this.notice});

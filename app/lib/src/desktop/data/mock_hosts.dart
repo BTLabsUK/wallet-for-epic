@@ -41,9 +41,6 @@ String mockIconUrl(String hash, int px) =>
 /// An onion address for [name] (56 letters and digits, padded with `a`), built at run time.
 String mockOnion(String name) => '${name.padRight(56, 'a')}.${'onion'}';
 
-/// A host of the status site's own (a page address), read from the settings.
-String get mockStatusUrl => hostSettings.statusDirectory ?? '';
-
 /// The onion the fake and mock wallets answer for their own address.
 String get fakeWalletOnion =>
     mockOnion('wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid');

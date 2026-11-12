@@ -34,9 +34,6 @@ AdvancedPrefs advancedOf(WidgetRef ref) =>
 bool advancedHas(WidgetRef ref, AdvancedFeature feature, {bool keep = false}) =>
     keep || advancedOf(ref).has(feature);
 
-/// Opens Settings › Advanced (a line elsewhere that names it links here).
-void openAdvanced(WidgetRef ref) => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsAdvanced);
-
 /// A feature's name as the Advanced page shows it.
 String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
   AdvancedFeature.outputs => l.deskSetAdvOutputs,
