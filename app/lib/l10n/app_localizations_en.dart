@@ -23096,4 +23096,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'from $name';
   }
+
+  @override
+  String get phoneTourOffer => 'Want a quick tour of the wallet?';
+
+  @override
+  String get phoneTourOfferShow => 'Show me';
 }

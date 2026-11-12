@@ -6028,5 +6028,7 @@
   "phoneRecvWaitingPaid": "Czeka na zapłatę",
   "phoneRecvViewPayment": "Zobacz płatność",
   "phoneRecvShowCode": "Pokaż kod",
-  "phoneRecvArrivalFrom": "od {name}"
+  "phoneRecvArrivalFrom": "od {name}",
+  "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
+  "phoneTourOfferShow": "Pokaż"
 }

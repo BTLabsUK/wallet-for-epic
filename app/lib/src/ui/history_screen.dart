@@ -29,7 +29,6 @@ import 'kit/kit_icons.dart';
 import 'kit/kit_search_field.dart';
 import 'kit/kit_segmented.dart';
 import 'kit/kit_tokens.dart';
-import 'levels/quiet_invoices.dart' show quietInvoiceKey;
 import '../trust_ids.dart';
 import 'phone_tx_row.dart';
 import 'post_finished_screen.dart' show openPostFinished;
@@ -532,6 +531,9 @@ class _SegmentPainter extends CustomPainter {
       old.fill != fill || old.edge != edge || old.first != first || old.last != last;
 }
 
+/// The key of an invoice's Needs-you card.
+Key needsYouInvoiceKey(String slateId) => ValueKey('quiet-invoice-$slateId');
+
 /// The invoices waiting for the user, a gold-tinted card each with a Review button: the one
 /// gold button of Activity. Nothing when none waits.
 class _NeedsYou extends ConsumerWidget {
@@ -551,7 +553,7 @@ class _NeedsYou extends ConsumerWidget {
         KitGroupLabel(l.phoneActNeedsYou),
         for (final invoice in invoices)
           _NeedsYouCard(
-            key: quietInvoiceKey(invoice.slateId),
+            key: needsYouInvoiceKey(invoice.slateId),
             invoice: invoice,
             who: invoiceSenderName(l, pairings, contacts, invoice.pairingId),
             amount: shownEpic(l, invoice.amount, hidden: display.hidden),

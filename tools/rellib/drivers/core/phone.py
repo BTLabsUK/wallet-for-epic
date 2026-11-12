@@ -26,8 +26,11 @@ T = tg.T_phone
 
 WELCOME_CREATE = T("g4.welcome.create")
 TOR_ONLY = T("g4.welcome.toronly")
-LEVEL_PICK = T("g4.level.stop.3")
-DEEP_END = T("g4.level.stop.3")
+# The phone has no levels now (the id is the desktop's); the previous release, which the update lanes
+# start from, still asks for one on a fresh install: found by the names that build has.
+DEEP_END = tg.Target("g4.level.stop.3", role="checkbox", keys=("lvPickStopThree",), names=("Deep end",),
+                     match="line", screen="level", family=("android",))
+LEVEL_PICK = DEEP_END
 TOUR_SKIP = T("g4.tour.skip")
 BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 
@@ -49,7 +52,6 @@ TAB_WALLET = T("g4.tab.home")
 TAB_RECEIVE = T("g4.tab.receive")
 CLOSE = T("g4.common.close")
 DONE = T("g4.common.done")
-SAVE = T("g4.common.save")
 CONTINUE = T("g4.common.continue")
 
 SECTION = {
@@ -82,7 +84,6 @@ SERVER = {
     "relay": {"status": T("g4.status.epicbox"),
               "field": T("g4.server.relay.field")},
 }
-STATUS_ANY = T("g4.status.network")  # level 1's Network icon ("Network · OK")
 # Home › Contacts: level 1's one entry under the balance, the Contacts tile of the destinations row at
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
 CONTACTS = T("g4.tab.contacts")
@@ -714,7 +715,7 @@ class Phone:
         over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again);
         still not up is InfraFault tor. -> "skipped" | "done"."""
         d = self.d
-        self._view_deep_end()   # the Network section shows from level 2
+        self._view_deep_end() 
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
         chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
         self._look_up(EPICBOX_ROW, 3)
@@ -787,8 +788,7 @@ class Phone:
             if d.find_in(field, tree):
                 return
             screen = tuple(sorted(n.name for n in tree))
-            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed] or \
-                   [n for n in d.find_in(STATUS_ANY, tree) if (n.name, screen) not in pressed]
+            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed]
             if not hits:
                 break
             pressed.append((hits[0].name, screen))
