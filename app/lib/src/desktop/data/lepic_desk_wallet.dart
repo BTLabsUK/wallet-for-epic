@@ -66,7 +66,7 @@ import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmation
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
-import '../../recipient.dart' show parseRecipient;
+import '../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../send_route.dart' show plainHttpHeldNow;
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
@@ -2670,7 +2670,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   bool isEpicboxAddress(String to) {
-    final t = to.trim();
+    // A chat-linked address (`https://<address>@<relay>/`) is the address.
+    final read = parseRecipient(to);
+    final t = read.kind == RecipientKind.epicbox ? read.address : to.trim();
     // `es` on mainnet, `zz` on a test network (LNX-6).
     if (!RegExp(r'^(es|zz)[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(t)) return false;
     // LEPIC checks the key's checksum; it wants the server: an address without one names the
