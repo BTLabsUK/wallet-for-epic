@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
@@ -147,62 +148,70 @@ class _Harness {
   }
 }
 
+/// Types [amount] on the Ask page's keypad.
+Future<void> _type(WidgetTester tester, String amount) async {
+  for (final c in amount.split('')) {
+    await tester.tap(find.descendant(of: find.byType(KitKeypad), matching: find.text(c)));
+    await tester.pump();
+  }
+}
+
 String? _notice(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
 void main() {
   group('issuer: Save as a file for anyone', () {
-    testWidgets('with no paying contact the file is the choice, and the summary says who can pay', (tester) async {
+    testWidgets('with no paying contact the file is the choice, and the button saves it', (tester) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen());
-      // No paired contact pays requests: the file is chosen, and the button saves it.
-      expect(find.text(_l.reqToFile), findsOneWidget);
+      // Nobody is chosen yet, so the request is for anyone: a file, and the button saves it.
+      expect(find.text(_l.phoneRecvFromAnyone), findsOneWidget);
       expect(find.byKey(requestSaveFileKey), findsOneWidget);
-      expect(find.text(_l.reqSaveFile), findsOneWidget);
-      await tester.enterText(find.byKey(requestAmountKey), '42.5');
-      await tester.pump();
-      expect(find.text(_l.reqFileSummary(epicExact(_l, _epic(42.5)))), findsOneWidget);
+      expect(find.text(_l.phoneRecvAsk), findsWidgets);
+      await _type(tester, '42.5');
+      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(42.5)))), findsOneWidget);
     });
 
-    testWidgets('with a paying contact the file is the picker\'s last row; the contact means Send request', (tester) async {
+    testWidgets('with a paying contact "From anyone" stays the default; the contact means Send request', (tester) async {
       final h = _Harness();
       h.session.pairing.seedPaired(name: 'Anna', paymentsAddress: 'es${'P' * 50}@epicbox.epiccash.com');
       await h.pump(tester, const InvoiceRequestScreen());
-      expect(find.byKey(requestSaveFileKey), findsNothing);
-      await tester.tap(find.byKey(requestPayerKey));
-      await tester.pumpAndSettle();
-      expect(find.byKey(requestToFileKey), findsOneWidget);
-      await tester.tap(find.byKey(requestToFileKey));
-      await tester.pumpAndSettle();
       expect(find.byKey(requestSaveFileKey), findsOneWidget);
       await tester.tap(find.byKey(requestPayerKey));
       await tester.pumpAndSettle();
+      expect(find.text(_l.phoneRecvAnyoneFile), findsOneWidget);
       await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text('Anna')));
       await tester.pumpAndSettle();
       expect(find.byKey(requestSaveFileKey), findsNothing);
-      expect(find.text(_l.reqNewSend), findsOneWidget);
+      expect(find.text(_l.phoneRecvFromName('Anna')), findsOneWidget);
+      await tester.tap(find.byKey(requestPayerKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.phoneRecvAnyoneFile));
+      await tester.pumpAndSettle();
+      expect(find.byKey(requestSaveFileKey), findsOneWidget);
     });
 
     testWidgets('a wallet without request files offers no file', (tester) async {
       final h = _Harness();
       h.session.requestFilesSupported = false;
       await h.pump(tester, const InvoiceRequestScreen());
-      expect(find.text(_l.reqToFile), findsNothing);
       expect(find.byKey(requestSaveFileKey), findsNothing);
       await tester.tap(find.byKey(requestPayerKey));
       await tester.pumpAndSettle();
-      expect(find.byKey(requestToFileKey), findsNothing);
+      expect(find.text(_l.phoneRecvAnyoneFile), findsNothing);
     });
 
     testWidgets('Save as file shows the request file to save; it waits in Requests sent, By file', (tester) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen());
-      await tester.enterText(find.byKey(requestAmountKey), '42.5');
+      await _type(tester, '42.5');
+      await tester.tap(find.text(_l.phonePayAddNote));
+      await tester.pumpAndSettle();
       await tester.enterText(find.byKey(requestMessageKey), 'Beans');
-      await tester.pump();
+      await tester.tap(find.text(_l.commonDone));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.reqFileTitle), findsOneWidget);
       expect(find.text(_l.reqFileLead), findsOneWidget);
       final issued = h.session.issuedRequests.single;
       expect(issued.amount, _epic(42.5));

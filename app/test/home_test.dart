@@ -4396,39 +4396,16 @@ void main() {
       expect(_toField(tester), payee);
     });
 
-    testWidgets('Receive keeps its tab across a tab change', (tester) async {
+    testWidgets('Receive still shows the address after a tab change', (tester) async {
       final h = _Harness(still: true);
       await h.pump(tester);
       await _tab(tester, _l.homeReceiveButton);
-      // Epicbox address by default.
       expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
-      expect(find.text(_l.receiveFileTitle), findsNothing);
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          // The tab's whole name (since the methods split); its label may wrap.
-          matching: find.byTooltip(_l.methodShortFile),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
-      expect(find.byKey(receiveAddressKey), findsNothing);
       for (final tab in ['Wallet', 'Send', 'Receive']) {
         await _tab(tester, tab);
       }
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
-      expect(find.byKey(receiveAddressKey), findsNothing);
-      // And back.
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip('Epicbox'),
-        ),
-      );
-      await tester.pumpAndSettle();
-      await _tab(tester, 'Wallet');
-      await _tab(tester, 'Receive');
       expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
+      expect(find.text(_l.receiveFileTitle), findsNothing);
     });
 
     testWidgets('Done after a payment goes to Wallet with a fresh form', (

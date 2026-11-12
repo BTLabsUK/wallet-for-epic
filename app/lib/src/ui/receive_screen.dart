@@ -548,7 +548,6 @@ class _EpicboxLine extends ConsumerWidget {
             child: KitButton(
               label: l.commonRetry,
               kind: KitButtonKind.quiet,
-              small: true,
               expand: false,
               icon: Icons.refresh,
               onPressed: () => ref.read(listenerProvider.notifier).restart(),

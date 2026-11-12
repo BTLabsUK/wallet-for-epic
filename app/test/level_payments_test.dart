@@ -209,7 +209,6 @@ void main() {
 
   testWidgets('Receive at level 1 shows New today and the server line after a server move', (tester) async {
     await _pump(tester, const SlotScaffold(body: ReceiveView()), moved: true);
-    expect(find.byKey(receiveTabsKey), findsNothing);
     expect(find.text(_l.lvPayNewToday), findsOneWidget);
     expect(find.text('Epicbox server: Stack Wallet.'), findsOneWidget);
     expect(find.text('Anyone with the old address needs the new one.'), findsOneWidget);

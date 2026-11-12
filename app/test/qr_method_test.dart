@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/net_block.dart' show offlineNodeNoteKey;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
@@ -186,6 +187,14 @@ Future<void> _openHow(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Receive › Other ways to receive › In person.
+Future<void> _openInPerson(WidgetTester tester) async {
+  await tester.tap(find.text(_l.phoneRecvOther));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(_l.phoneSettingsInPerson));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('How it works opens the explanation of the method', () {
     testWidgets(
@@ -244,14 +253,9 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
+      await _openInPerson(tester);
+      await tester.tap(find.byTooltip(_l.sendHelp));
       await tester.pumpAndSettle();
-      await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeQrR1}');
       expect(find.textContaining('relay'), findsNothing);
       expect(find.text(_l.handshakeRelay), findsNothing);
@@ -297,14 +301,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const ReceiveView());
-      expect(find.byKey(receiveTabsKey), findsOneWidget);
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
+      await _openInPerson(tester);
       expect(find.text(_l.receiveQrTitle), findsOneWidget);
       expect(find.byKey(receiveScanQrKey), findsOneWidget);
       // Asking for an amount, shown as a QR, sits under the scan.
@@ -323,15 +321,9 @@ void main() {
           const ReceiveView(),
           advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly),
         );
-        await tester.tap(
-          find.descendant(
-            of: find.byKey(receiveTabsKey),
-            matching: find.byTooltip(_l.methodShortQr),
-          ),
-        );
-        await tester.pumpAndSettle();
+        await _openInPerson(tester);
         expect(
-          tester.widget<FilledButton>(find.byKey(receiveScanQrKey)).onPressed,
+          tester.widget<KitButton>(find.byKey(receiveScanQrKey)).onPressed,
           isNotNull,
         );
         expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
@@ -595,13 +587,7 @@ void main() {
         stage: SlateStage.send,
       );
       await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await _openInPerson(tester);
       await tester.tap(find.byKey(receiveScanQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -626,13 +612,7 @@ void main() {
         stage: SlateStage.send,
       );
       await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await _openInPerson(tester);
       await tester.tap(find.byKey(receiveScanQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));

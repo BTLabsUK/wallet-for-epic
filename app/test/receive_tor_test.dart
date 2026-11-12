@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-// Receive's Link tab: receiving straight to this wallet at its onion address, over Tor
+// Receive's Tor address page: receiving straight to this wallet at its onion address, over Tor
 //. With the Tor switch off it says Link · Tor receiving needs Tor, with Turn on Tor; with Tor
 // on, the onion address in the same card as the epicbox address, a QR code of it dimmed until
 // reachable, and Tor's state in the same words as everywhere (Starting, Connected, Not connected
 // with the reason and Retry). The switch itself lives in Settings › Privacy. Where the app
-// has no Tor the tab does not exist.
+// has no Tor the row does not exist.
 
 import 'dart:async';
 
@@ -26,7 +26,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:epic_wallet/src/ui/info_hint.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
@@ -136,17 +136,14 @@ class _Harness {
     });
   }
 
+  /// Opens "Other ways to receive" and the Tor address page.
   Future<void> torTab(WidgetTester tester) async {
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(receiveTabsKey),
-        // Under 360 dp the tabs are icons alone: the name is the tooltip.
-        matching: find.byTooltip('Link'),
-      ),
-    );
-    // Bounded frames: the Link · HTTP card's Starting spinner never settles while the fake
-    // session leaves the listener unanswered.
-    for (var i = 0; i < 8; i++) {
+    await tester.ensureVisible(find.text(_l.phoneRecvOther));
+    await tester.tap(find.text(_l.phoneRecvOther));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.phoneSettingsTorAddress));
+    // Bounded frames: the page's progress bar never settles while Tor starts.
+    for (var i = 0; i < 16; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
   }
@@ -190,7 +187,16 @@ class _Harness {
     await tester.pumpAndSettle();
   }
 
-  /// Turn on Tor, on the Link tab with Tor off.
+  /// Opens "Other ways to receive" and With a file.
+  Future<void> fileTab(WidgetTester tester) async {
+    await tester.ensureVisible(find.text(_l.phoneRecvOther));
+    await tester.tap(find.text(_l.phoneRecvOther));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.phoneSettingsWithFile));
+    await tester.pumpAndSettle();
+  }
+
+  /// Turn on Tor, on the Tor address page with Tor off.
   Future<void> switchOn(WidgetTester tester) async {
     await tester.tap(find.byKey(receiveTurnOnTorKey));
     await tester.pumpAndSettle();
@@ -215,138 +221,59 @@ void main() {
     test('Tor', () {}, skip: 'no Tor in this build');
     return;
   }
-  group('tabs', () {
-    testWidgets('Epicbox, Link and File from the start; Link on fills the Link tab', (
-      tester,
-    ) async {
+  group('Other ways', () {
+    testWidgets('Tor address is listed where the app has Tor; off, it says Off and offers Turn on', (tester) async {
       final plain = _Harness();
       await plain.pump(tester);
-      // The Link tab stays whatever Settings says; off, it offers Turn on.
-      expect(
-        [
-          for (final s in tester
-              .widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey))
-              .segments)
-            s.value,
-        ],
-        [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file],
-      );
-      await plain.torTab(tester);
+      await tester.tap(find.text(_l.phoneRecvOther));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneSettingsTorAddress), findsOneWidget);
+      expect(find.text(_l.phoneSettingsWithFile), findsOneWidget);
+      expect(find.text(_l.phoneRecvOff), findsOneWidget);
+      await tester.tap(find.text(_l.phoneSettingsTorAddress));
+      await tester.pumpAndSettle();
       expect(find.byKey(receiveTurnOnLinkTorKey), findsOneWidget);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       await tester.pumpWidget(const SizedBox());
       final h = _Harness(payments: _directOn);
       await h.pump(tester);
-      final tabs = tester.widget<SegmentedButton<ReceiveTab>>(
-        find.byKey(receiveTabsKey),
-      );
-      expect(tabs.selected, {ReceiveTab.epicbox});
-      expect(
-        [
-          for (final s in tabs.segments)
-            // The whole name: a long one wraps in two lines on the tab (PH-1).
-            (s.value, s.tooltip),
-        ],
-        [
-          (ReceiveTab.epicbox, 'Epicbox'),
-          (ReceiveTab.direct, 'Link'),
-          (ReceiveTab.file, 'Direct · File'),
-        ],
-      );
       // Epicbox stays the main one: its card is what shows first.
       expect(find.byKey(receiveAddressKey), findsOneWidget);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
+      await tester.tap(find.text(_l.phoneRecvOther));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneSettingsTorAddress), findsOneWidget);
+      // Link · Tor is on but Tor itself is not running: the row still says Off.
+      expect(find.text(_l.phoneRecvOff), findsOneWidget);
     });
 
     testWidgets('Epicbox off: Link · Tor needing Tor does not point to the Epicbox address', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, linkTor: true));
       await h.pump(tester);
+      await h.torTab(tester);
       expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);
       expect(find.text(_l.receiveDirectMeanwhile), findsNothing);
     });
 
-    testWidgets('no Link tab where the app has no Tor: the phone only sends over Link · HTTP', (tester) async {
+    testWidgets('no Tor address where the app has no Tor: the phone only sends over Link · HTTP', (tester) async {
       final h = _Harness(bundle: null);
       await h.pump(tester);
       expect(h.tor.phase, PhoneTorPhase.unavailable);
-      final tabs = tester.widget<SegmentedButton<ReceiveTab>>(
-        find.byKey(receiveTabsKey),
-      );
-      expect(
-        [for (final s in tabs.segments) s.value],
-        [ReceiveTab.epicbox, ReceiveTab.file],
-      );
+      await tester.tap(find.text(_l.phoneRecvOther));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneSettingsTorAddress), findsNothing);
+      expect(find.text(_l.phoneSettingsWithFile), findsOneWidget);
       // No Tor to turn on.
       expect(find.byKey(receiveTurnOnLinkTorKey), findsNothing);
     });
-  });
 
-  group('File follows Settings › Transactions', () {
-    List<ReceiveTab> tabsOf(WidgetTester tester) => [
-      for (final s in tester
-          .widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey))
-          .segments)
-        s.value,
-    ];
-
-    testWidgets('File off: its tab goes; Link on keeps the choice', (tester) async {
+    testWidgets('With a file is always listed, whatever Settings › Transactions says', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(linkTor: true, directFile: false));
       await h.pump(tester);
-      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
-    });
-
-    testWidgets('File off and nothing else: Epicbox and the Link tab', (tester) async {
-      final h = _Harness(payments: const PaymentPrefs(directFile: false));
-      await h.pump(tester);
-      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
-      expect(find.byKey(receiveAddressKey), findsOneWidget);
-    });
-
-    testWidgets('the File tab in use stays when the switch goes off', (tester) async {
-      final h = _Harness(payments: const PaymentPrefs(linkTor: true, directFile: false));
-      await h.pump(tester);
-      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.file);
+      await tester.tap(find.text(_l.phoneRecvOther));
       await tester.pumpAndSettle();
-      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file]);
-      expect(tester.widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey)).selected, {ReceiveTab.file});
-    });
-
-    testWidgets('a file payment waiting for its reply keeps File', (tester) async {
-      final h = _Harness(payments: const PaymentPrefs(linkTor: true, directFile: false));
-      h.session.transactionsValue = [
-        fakeTx(
-          id: 1,
-          slateId: 'waiting',
-          kind: TxKind.sent,
-          status: TxStatus.awaitingRecipient,
-          transport: 'file',
-          amountDebited: BigInt.from(10000000000),
-        ),
-      ];
-      await h.pump(tester);
-      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file]);
-    });
-
-    testWidgets('a finished or Epicbox payment does not keep it', (tester) async {
-      final h = _Harness(payments: const PaymentPrefs(linkTor: true, directFile: false));
-      h.session.transactionsValue = [
-        fakeTx(
-          id: 1,
-          slateId: 'done',
-          kind: TxKind.sent,
-          status: TxStatus.awaitingConfirmation,
-          transport: 'file',
-        ),
-        fakeTx(
-          id: 2,
-          slateId: 'box',
-          kind: TxKind.sent,
-          status: TxStatus.awaitingRecipient,
-          transport: 'epicbox',
-        ),
-      ];
-      await h.pump(tester);
-      expect(tabsOf(tester), [ReceiveTab.epicbox, ReceiveTab.direct]);
+      expect(find.text(_l.phoneSettingsWithFile), findsOneWidget);
+      expect(find.text(_l.phoneSettingsTorAddress), findsOneWidget);
     });
   });
 
@@ -382,12 +309,11 @@ void main() {
     testWidgets('File: Open file and Paste run, with the note that the node is used', (tester) async {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
-      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.file);
-      await tester.pumpAndSettle();
+      await h.fileTab(tester);
       for (final label in ['Open file', 'Paste']) {
         expect(
           tester
-              .widget<OutlinedButton>(find.widgetWithText(OutlinedButton, label))
+              .widget<KitButton>(find.widgetWithText(KitButton, label))
               .onPressed,
           isNotNull,
           reason: label,
@@ -397,21 +323,20 @@ void main() {
       expect(find.text(_l.netOfflineNodeLine), findsWidgets);
     });
 
-    testWidgets('Epicbox off: no Epicbox tab, the first method that is on shows', (tester) async {
+    testWidgets('Epicbox off: no address on the screen, the other ways stay in the sheet', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, linkTor: true));
       await h.pump(tester);
       expect(find.byKey(receiveAddressKey), findsNothing);
-      expect(find.byKey(receiveTurnOnTorKey), findsOneWidget, reason: 'the Link tab is first');
-      final tabs = tester.widget<SegmentedButton<ReceiveTab>>(find.byKey(receiveTabsKey));
-      expect(tabs.segments.map((s) => s.value), isNot(contains(ReceiveTab.epicbox)));
+      expect(find.byType(LogoQr), findsNothing);
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
     });
 
-    testWidgets('every method off: the Link tab alone, offering to turn its methods on', (tester) async {
+    testWidgets('every method off: no address, and With a file still opens', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, directFile: false, directQr: false));
       await h.pump(tester);
-      // One tab is no choice: the strip is gone, the Link page shows the switches.
-      expect(find.byKey(receiveTabsKey), findsNothing);
       expect(find.byKey(receiveAddressKey), findsNothing);
+      await h.fileTab(tester);
+      expect(find.text(_l.receiveFileOpen), findsOneWidget);
     });
 
     testWidgets('Standard: no offline line', (tester) async {
@@ -422,7 +347,7 @@ void main() {
     });
   });
 
-  group('Link tab', () {
+  group('Tor address page', () {
     testWidgets('Tor off: Link receiving needs Tor; no switch on Receive', (
       tester,
     ) async {
@@ -458,12 +383,11 @@ void main() {
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.receiving, isTrue);
       expect(_status('Tor\u00A0· Starting'), findsOneWidget);
-      expect(find.text(_l.receiveTorAddressLabel), findsOneWidget);
+      expect(find.bySemanticsLabel(_l.receiveTorAddressLabel), findsOne);
       expect(find.text(h.session.onion), findsOneWidget);
       final qr = tester.widget<LogoQr>(find.byType(LogoQr));
       expect(qr.data, h.session.onion);
       expect(find.bySemanticsLabel(_l.receiveTorQrLabel), findsOne);
-      expect(find.byWidgetPredicate((w) => w is InfoHint && w.text == 'Works while the app is open.'), findsOneWidget);
       expect(
         find.text(
           _l.receiveTorCaption,
