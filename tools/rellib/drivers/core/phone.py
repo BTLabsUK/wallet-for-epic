@@ -26,8 +26,11 @@ T = tg.T_phone
 
 WELCOME_CREATE = T("g4.welcome.create")
 TOR_ONLY = T("g4.welcome.toronly")
-LEVEL_PICK = T("g4.level.stop.3")
-DEEP_END = T("g4.level.stop.3")
+# The phone has no levels now (the id is the desktop's); the previous release, which the update lanes
+# start from, still asks for one on a fresh install: found by the names that build has.
+DEEP_END = tg.Target("g4.level.stop.3", role="checkbox", keys=("lvPickStopThree",), names=("Deep end",),
+                     match="line", screen="level", family=("android",))
+LEVEL_PICK = DEEP_END
 TOUR_SKIP = T("g4.tour.skip")
 BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 
@@ -42,14 +45,13 @@ UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
 UNLOCK_RETRY = T("g4.unlock.retry")
 
-FLOW_CLOSE = T("g4.flow.close")   # Send and Receive open as flows over the tab bar, with a close button
+RECEIVE_CLOSE = T("g4.receive.close")   # Receive opens as a flow over the tab bar, with its own close button
 SETTINGS = T("g4.tab.settings")
 TAB_SEND = T("g4.tab.send")
 TAB_WALLET = T("g4.tab.home")
 TAB_RECEIVE = T("g4.tab.receive")
 CLOSE = T("g4.common.close")
 DONE = T("g4.common.done")
-SAVE = T("g4.common.save")
 CONTINUE = T("g4.common.continue")
 
 SECTION = {
@@ -82,7 +84,6 @@ SERVER = {
     "relay": {"status": T("g4.status.epicbox"),
               "field": T("g4.server.relay.field")},
 }
-STATUS_ANY = T("g4.status.network")  # level 1's Network icon ("Network · OK")
 # Home › Contacts: level 1's one entry under the balance, the Contacts tile of the destinations row at
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
 CONTACTS = T("g4.tab.contacts")
@@ -110,8 +111,14 @@ ROUTE_WAIT_S = 4    # for the address selector after To is filled
 SEND_CLEAR = T("g4.send.clear")
 SEND_AMOUNT = T("g4.send.amount")
 SEND_MAX = T("g4.send.max")
+SEND_REVIEW = T("g4.send.review")
+SEND_KEYS = {"0": T("g4.send.key.0"), "1": T("g4.send.key.1"), "2": T("g4.send.key.2"), "3": T("g4.send.key.3"),
+             "4": T("g4.send.key.4"), "5": T("g4.send.key.5"), "6": T("g4.send.key.6"), "7": T("g4.send.key.7"),
+             "8": T("g4.send.key.8"), "9": T("g4.send.key.9"), ".": T("g4.send.key.point")}
 SEND_CONFIRM = T("g4.send.confirm")  # sendReviewSendButton "Send {amount}"
 SEND_BACK = T("g4.send.back")
+SEND_CLOSE = T("g4.send.close")
+SEND_REVIEW_EDIT = T("g4.send.review.edit")  # the Review sheet's way back to the amount
 SEND_FAILED = T("g4.send.failed")
 
 MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
@@ -177,6 +184,15 @@ def bare_host(v):
 def same_host(a, b):
     a, b = bare_host(a), bare_host(b)
     return a == b or a == b + ":443" or a + ":443" == b
+
+
+def _amount_shown(node):
+    """The figure of the Send amount display ("12.5 EPIC"); 0 when there is none."""
+    m = re.match(r"\s*(\d[\d.,]*)", (node.name or node.value or "") if node else "")
+    try:
+        return float(m.group(1).replace(",", ".")) if m else 0.0
+    except ValueError:
+        return 0.0
 
 
 class Phone:
@@ -566,13 +582,17 @@ class Phone:
         return True
 
     def tab(self, target):
-        """Send or Receive: Home's two buttons open the flow over the tab bar (its close button
+        """Send or Receive: Home's two buttons open the flow over the tab bar (its own close button
         marks it). Any other target is a tab of the bar."""
         d = self.d
         self.home()
-        if target in (TAB_SEND, TAB_RECEIVE):
-            d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
-                    then=shows(FLOW_CLOSE))
+        if target == TAB_SEND:
+            # Send draws its own header: × on its first step, ‹ on a send left half-way.
+            d.press(target, step="tab-send", timeout=20,
+                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
+            return
+        if target == TAB_RECEIVE:
+            d.press(target, step="tab-receive", timeout=20, then=shows(RECEIVE_CLOSE))
             return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))
@@ -714,7 +734,7 @@ class Phone:
         over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again);
         still not up is InfraFault tor. -> "skipped" | "done"."""
         d = self.d
-        self._view_deep_end()   # the Network section shows from level 2
+        self._view_deep_end() 
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
         chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
         self._look_up(EPICBOX_ROW, 3)
@@ -787,8 +807,7 @@ class Phone:
             if d.find_in(field, tree):
                 return
             screen = tuple(sorted(n.name for n in tree))
-            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed] or \
-                   [n for n in d.find_in(STATUS_ANY, tree) if (n.name, screen) not in pressed]
+            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed]
             if not hits:
                 break
             pressed.append((hits[0].name, screen))
@@ -977,16 +996,22 @@ class Phone:
             lambda dd, tree: next((n for n in dd.find_in(SEND_ROUTE_PUBLIC, tree) if "selected" in n.states), None)))
 
     def send(self, to, amount=None):
-        """Sends `amount` (None: Max) to `to` by Epicbox: Send tab › Epicbox › To › Continue › amount ›
-        Continue › Send <amount> › PIN. True when the app took it; its progress is read from the
+        """Sends `amount` (None: Max) to `to` by Epicbox: Send › To › Continue › amount (keypad or Max) ›
+        Review › Send <amount> (the Review sheet) › PIN. True when the app took it; its progress is read from the
         wallet's files by the checks, never from these screens."""
         d = self.d
         self.restore_finish()
         self.tab(TAB_SEND)
         for _ in range(4):  # a send left half-way: back to its first step
-            if d.wait(shows(SEND_TO), 3) or not d.seen(SEND_BACK):
+            if d.wait(shows(SEND_TO), 3):
                 break
-            d.press(SEND_BACK, step="send-back", timeout=10)
+            # The Review sheet covers the amount page: Edit closes it; else the header's Back.
+            if d.seen(SEND_REVIEW_EDIT):
+                d.press(SEND_REVIEW_EDIT, step="send-review-edit", timeout=10)
+            elif d.seen(SEND_BACK):
+                d.press(SEND_BACK, step="send-back", timeout=10)
+            else:
+                break
         if d.seen(SEND_CLEAR):
             d.press(SEND_CLEAR, step="send-clear", timeout=10, then=Expect("the recipient cleared", lambda dd, tree: True))
         d.fill(SEND_TO, to, step="send-to")
@@ -1001,14 +1026,14 @@ class Phone:
         if amount is None:
             d.press(SEND_MAX, step="send-max", timeout=20,
                     then=Expect("an amount filled", lambda dd, tree: next((n for n in dd.find_in(SEND_AMOUNT, tree)
-                                                                          if re.match(r"\d", (n.value or "").strip())), None)))
-            amount = (d.seen(SEND_AMOUNT).value or "").strip()
+                                                                          if _amount_shown(n) > 0), None)))
+            amount = ("%.8f" % _amount_shown(d.seen(SEND_AMOUNT))).rstrip("0").rstrip(".")
         else:
-            d.fill(SEND_AMOUNT, amount, step="send-amount")
-        if hasattr(d.s, "hide_keyboard"):
-            d.s.hide_keyboard()
+            # The keypad: one key per character of the amount (a comma counts as the point).
+            for c in str(amount).replace(",", "."):
+                d.press(SEND_KEYS[c], step="send-amount-key", timeout=10)
         d.shot("send-filled")
-        d.press(CONTINUE, step="send-amount-continue", then=shows(SEND_CONFIRM), timeout=60)
+        d.press(SEND_REVIEW, step="send-amount-review", then=shows(SEND_CONFIRM), timeout=60)
         d.shot("send-review")
         d.press(SEND_CONFIRM, step="send-confirm", then=either(shows(PIN_FIELD), gone(SEND_CONFIRM), shows(SEND_FAILED)),
                 timeout=60)

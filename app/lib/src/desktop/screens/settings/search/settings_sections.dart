@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../advanced.dart';
 import '../../../../levels/wallet_level.dart';
-import '../../../../ui/levels/level_picker.dart' show levelStopName;
+import '../../../../ui/levels/level_names.dart' show levelStopName;
 import '../../../data/desk_levels.dart' show deskLevelProvider;
 import '../../../desk_l10n.dart';
 import '../../../widgets/kit.dart';

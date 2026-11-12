@@ -13,5 +13,7 @@
   "phoneHomeInvoiceBody": "{amount}. Es wird erst bezahlt, wenn du bestätigst.",
   "phoneHomeBalanceLastKnown": "Verfügbar · zuletzt bekannt",
   "phoneHomeBalanceSheetHint": "Details zum Guthaben",
-  "phoneHomeEmpty": "Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen."
+  "phoneHomeEmpty": "Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.",
+  "phoneTourOffer": "Kurze Tour durch die Wallet?",
+  "phoneTourOfferShow": "Zeig mir"
 }

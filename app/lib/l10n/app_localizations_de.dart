@@ -23384,4 +23384,82 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+
+  @override
+  String get phoneSendSearchHint => 'Name, Adresse oder Link';
+
+  @override
+  String get phoneSendNewToYou => 'Neu für dich';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Nicht gespeichert · bezahlt am $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub =>
+      'Persönlich oder mit einer Datei bezahlen';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Ohne Adresse bezahlen';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'Du erstellst die Zahlung hier, die andere Person antwortet darauf, und es ist erledigt. Bis die Antwort zurückkommt, kannst du abbrechen.';
+
+  @override
+  String get phoneSendInPerson => 'Persönlich';
+
+  @override
+  String get phoneSendInPersonSub => 'Zeige einem Handy neben dir einen Code';
+
+  @override
+  String get phoneSendWithFile => 'Mit einer Datei';
+
+  @override
+  String get phoneSendWithFileSub =>
+      'In einer beliebigen App senden; die andere Person schickt eine zurück';
+
+  @override
+  String get phoneSendAddContact => 'Kontakt hinzufügen';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Prüfe die ersten und letzten sechs Zeichen mit der Person, die du bezahlst.';
+
+  @override
+  String get phoneSendReviewTitle => 'Prüfen';
+
+  @override
+  String get phoneSendMoreDetails => 'Mehr Details';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return '$amount mehr, als du senden kannst. Tippe auf Max, um alles zu senden.';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'Alles, was du hast, abzüglich $fee Gebühr';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'Zahlung ansehen';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'Unterwegs zu $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'ihr Wallet kann offline sein';
+
+  @override
+  String get phoneSendTheirOnline => 'ihr Wallet muss geöffnet sein';
+
+  @override
+  String get phoneTourOffer => 'Kurze Tour durch die Wallet?';
+
+  @override
+  String get phoneTourOfferShow => 'Zeig mir';
 }

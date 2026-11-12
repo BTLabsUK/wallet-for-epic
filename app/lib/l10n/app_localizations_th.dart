@@ -22647,4 +22647,80 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+
+  @override
+  String get phoneSendSearchHint => 'ชื่อ ที่อยู่ หรือลิงก์';
+
+  @override
+  String get phoneSendNewToYou => 'ใหม่สำหรับคุณ';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'ยังไม่บันทึก · จ่ายเมื่อ $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub => 'จ่ายต่อหน้า หรือด้วยไฟล์';
+
+  @override
+  String get phoneSendNoAddressTitle => 'จ่ายโดยไม่มีที่อยู่';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'คุณสร้างการจ่ายเงินที่นี่ อีกฝ่ายตอบกลับ แล้วก็เสร็จ ยกเลิกได้จนกว่าคำตอบจะกลับมา';
+
+  @override
+  String get phoneSendInPerson => 'ต่อหน้า';
+
+  @override
+  String get phoneSendInPersonSub => 'แสดงรหัสให้โทรศัพท์ที่อยู่ข้าง ๆ';
+
+  @override
+  String get phoneSendWithFile => 'ด้วยไฟล์';
+
+  @override
+  String get phoneSendWithFileSub => 'ส่งในแอปใดก็ได้ อีกฝ่ายจะส่งไฟล์กลับมา';
+
+  @override
+  String get phoneSendAddContact => 'เพิ่มผู้ติดต่อ';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'ตรวจอักขระหกตัวแรกและหกตัวสุดท้ายกับคนที่คุณจ่ายให้';
+
+  @override
+  String get phoneSendReviewTitle => 'ตรวจสอบ';
+
+  @override
+  String get phoneSendMoreDetails => 'รายละเอียดเพิ่มเติม';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return 'เกินที่ส่งได้ $amount แตะ สูงสุด เพื่อส่งทั้งหมด';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'ทั้งหมดที่คุณมี หักค่าธรรมเนียม $fee';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'ดูการจ่ายเงิน';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'กำลังไปยัง $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'กระเป๋าของเขาออฟไลน์ได้';
+
+  @override
+  String get phoneSendTheirOnline => 'กระเป๋าของเขาต้องเปิดอยู่';
+
+  @override
+  String get phoneTourOffer => 'ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม';
+
+  @override
+  String get phoneTourOfferShow => 'ดูเลย';
 }

@@ -25,14 +25,13 @@ import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
 import 'home_tab.dart';
-import 'kit/kit_headers.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_tab_bar.dart';
 import 'invoices_screen.dart' show InvoicesEntry;
 import 'tx_details_screen.dart';
 import 'history_screen.dart';
 import 'pairing/pairing_notices.dart';
-import 'receive_screen.dart' show ReceiveScreen, ReceiveView;
+import 'receive_screen.dart' show ReceiveScreen;
 import 'scan_route.dart';
 import '../devices/phone_devices.dart' show DeviceLifecycle;
 import 'scan_screen.dart' show ScanCode, qrScannerProvider;
@@ -44,7 +43,6 @@ import 'status.dart';
 import 'theme/brand.dart' show ProtocolBackdrop, topGlow;
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
-import 'levels/shell_pairing.dart' show offerPairRequest;
 import '../settings_file/host_settings.dart' show appConfig;
 import '../log.dart' show logWarn;
 import '../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;
@@ -510,8 +508,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _openLinkText(String text) async {
-    // Level 1: a pairing invite is a notice with See request, not a sheet over the screen.
-    if (await offerPairRequest(context, ref, text) || !mounted) return;
+    if (!mounted) return;
     if (ModalRoute.of(context)?.isCurrent ?? true) {
       unawaited(openScannedText(context, ref, text, origin: CodeOrigin.link));
       return;
@@ -791,7 +788,6 @@ class ShellFlowRoute extends ConsumerStatefulWidget {
 class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
   final _sendBack = SendBack();
 
-  void _close() => Navigator.of(context).maybePop();
 
   /// A payment is done: the route closes, and the next Send starts with a fresh form.
   void _done() {
@@ -801,7 +797,6 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
     final send = widget.flow == ShellFlow.send;
     final touring = ref.watch(phoneTourProvider.select((s) => s.open));
     return PopScope(
@@ -818,22 +813,11 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
         Navigator.of(context).pop();
       },
       child: _Backdrop(
-        // Receive is the page the frames draw: its own header (close, title, help), no balance bar.
-        child: !send ? const ReceiveScreen() : SlotScaffold(
-          body: SafeArea(
-            child: Column(
-              children: [
-                KitFlowHeader(
-                  title: send ? l.homeSendButton : l.homeReceiveButton,
-                  onLeading: _close,
-                  leadingId: TrustIds.flowClose,
-                ),
-                const BalanceHeader(),
-                Expanded(child: send ? SendView(onDone: _done, back: _sendBack) : const ReceiveView()),
-              ],
-            ),
-          ),
-        ),
+        // Receive is the page the frames draw: its own header (close, title, help), no balance
+        // bar. Send draws its own header per step (close on Who, back later), as the frames do.
+        child: send
+            ? SlotScaffold(body: SafeArea(child: SendView(onDone: _done, back: _sendBack)))
+            : const ReceiveScreen(),
       ),
     );
   }

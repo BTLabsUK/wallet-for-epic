@@ -23106,4 +23106,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+
+  @override
+  String get phoneSendSearchHint => 'Name, address or link';
+
+  @override
+  String get phoneSendNewToYou => 'New to you';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Not saved · paid $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub => 'Pay in person, or with a file';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Pay without an address';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.';
+
+  @override
+  String get phoneSendInPerson => 'In person';
+
+  @override
+  String get phoneSendInPersonSub => 'Show a code to the phone next to you';
+
+  @override
+  String get phoneSendWithFile => 'With a file';
+
+  @override
+  String get phoneSendWithFileSub => 'Send it in any app; they send one back';
+
+  @override
+  String get phoneSendAddContact => 'Add a contact';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Check the first and last six characters with the person you are paying.';
+
+  @override
+  String get phoneSendReviewTitle => 'Review';
+
+  @override
+  String get phoneSendMoreDetails => 'More details';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return '$amount more than you can send. Tap Max to send it all.';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'Everything you have, less the $fee fee';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'View payment';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'On its way to $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'their wallet can be offline';
+
+  @override
+  String get phoneSendTheirOnline => 'their wallet has to be open';
+
+  @override
+  String get phoneTourOffer => 'Want a quick tour of the wallet?';
+
+  @override
+  String get phoneTourOfferShow => 'Show me';
 }

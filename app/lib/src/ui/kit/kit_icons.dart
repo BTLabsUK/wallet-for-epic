@@ -24,6 +24,7 @@ abstract final class KitIcons {
   static const IconData chevron = IconData(0xe06f, fontFamily: family); // chevron-right
   static const IconData chevronDown = IconData(0xe06d, fontFamily: family); // chevron-down
   static const IconData chevronUp = IconData(0xe070, fontFamily: family); // chevron-up
+  static const IconData expandLess = IconData(0xe070, fontFamily: family); // chevron-up
   static const IconData help = IconData(0xe082, fontFamily: family); // circle-help
   static const IconData more = IconData(0xe0b6, fontFamily: family); // ellipsis
 

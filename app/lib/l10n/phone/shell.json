@@ -88,5 +88,13 @@
   "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
   "@phoneHomeEmpty": {
     "description": "Empty Home: what stands under the Recent heading before the first payment"
+  },
+  "phoneTourOffer": "Want a quick tour of the wallet?",
+  "phoneTourOfferShow": "Show me",
+  "@phoneTourOffer": {
+    "description": "Toast shown once after the first unlock: offers the wallet tour. Short question."
+  },
+  "@phoneTourOfferShow": {
+    "description": "Button on the tour offer toast: starts the tour. One or two words."
   }
 }

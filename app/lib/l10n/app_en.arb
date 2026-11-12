@@ -31400,5 +31400,93 @@
   "phoneQrAimAnswer": "Point at the answer on their phone.",
   "@phoneQrAimAnswer": {
     "description": "Line under the camera when the payer scans the answer on the other phone."
+  },
+  "phoneSendSearchHint": "Name, address or link",
+  "@phoneSendSearchHint": {
+    "description": "Hint of the Who field on the Send page."
+  },
+  "phoneSendNewToYou": "New to you",
+  "@phoneSendNewToYou": {
+    "description": "First part of the line under a pasted address that is not a saved contact."
+  },
+  "phoneSendNotSavedPaid": "Not saved · paid {date}",
+  "@phoneSendNotSavedPaid": {
+    "description": "Line of a Recent row whose address is not a saved contact; {date} is when it was last paid."
+  },
+  "phoneSendNoAddressSub": "Pay in person, or with a file",
+  "@phoneSendNoAddressSub": {
+    "description": "Subtitle of the No address row on the Who step."
+  },
+  "phoneSendNoAddressTitle": "Pay without an address",
+  "@phoneSendNoAddressTitle": {
+    "description": "Title of the sheet that opens from No address."
+  },
+  "phoneSendNoAddressBody": "You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.",
+  "@phoneSendNoAddressBody": {
+    "description": "Text of the No address sheet."
+  },
+  "phoneSendInPerson": "In person",
+  "@phoneSendInPerson": {
+    "description": "Row of the No address sheet: pay by showing a code."
+  },
+  "phoneSendInPersonSub": "Show a code to the phone next to you",
+  "@phoneSendInPersonSub": {
+    "description": "Subtitle of the In person row."
+  },
+  "phoneSendWithFile": "With a file",
+  "@phoneSendWithFile": {
+    "description": "Row of the No address sheet: pay by sending a file."
+  },
+  "phoneSendWithFileSub": "Send it in any app; they send one back",
+  "@phoneSendWithFileSub": {
+    "description": "Subtitle of the With a file row."
+  },
+  "phoneSendAddContact": "Add a contact",
+  "@phoneSendAddContact": {
+    "description": "Row that saves a pasted address as a contact."
+  },
+  "phoneSendAddressCheck": "Check the first and last six characters with the person you are paying.",
+  "@phoneSendAddressCheck": {
+    "description": "Hint under a pasted address."
+  },
+  "phoneSendReviewTitle": "Review",
+  "@phoneSendReviewTitle": {
+    "description": "Title of the Review sheet."
+  },
+  "phoneSendMoreDetails": "More details",
+  "@phoneSendMoreDetails": {
+    "description": "Row of the Review sheet that opens the full details."
+  },
+  "phoneSendOver": "{amount} more than you can send. Tap Max to send it all.",
+  "@phoneSendOver": {
+    "description": "Line under the red Available bar; {amount} is how much the amount is over."
+  },
+  "phoneSendMaxNote": "Everything you have, less the {fee} fee",
+  "@phoneSendMaxNote": {
+    "description": "Line shown after Max: everything, less the fee."
+  },
+  "phoneSendViewPayment": "View payment",
+  "@phoneSendViewPayment": {
+    "description": "Quiet button on the Sent page."
+  },
+  "phoneSendOnItsWayTo": "On its way to {name}",
+  "@phoneSendOnItsWayTo": {
+    "description": "Title of the Sent page; {name} is the person paid."
+  },
+  "phoneSendTheirOffline": "their wallet can be offline",
+  "@phoneSendTheirOffline": {
+    "description": "Second part of the line under the method of a payment: the other wallet need not be open."
+  },
+  "phoneSendTheirOnline": "their wallet has to be open",
+  "@phoneSendTheirOnline": {
+    "description": "Second part of the line under the method of a payment: the other wallet must be open."
+  },
+  "phoneTourOffer": "Want a quick tour of the wallet?",
+  "phoneTourOfferShow": "Show me",
+  "@phoneTourOffer": {
+    "description": "Toast shown once after the first unlock: offers the wallet tour. Short question."
+  },
+  "@phoneTourOfferShow": {
+    "description": "Button on the tour offer toast: starts the tour. One or two words."
   }
 }

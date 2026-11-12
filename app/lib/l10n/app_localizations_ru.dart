@@ -23828,4 +23828,81 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+
+  @override
+  String get phoneSendSearchHint => 'Имя, адрес или ссылка';
+
+  @override
+  String get phoneSendNewToYou => 'Новый для вас';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Не сохранён · оплачен $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub => 'Оплатить лично или файлом';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Оплата без адреса';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'Вы создаёте платёж здесь, получатель отвечает на него, и всё готово. Пока ответ не пришёл, можно отменить.';
+
+  @override
+  String get phoneSendInPerson => 'Лично';
+
+  @override
+  String get phoneSendInPersonSub => 'Покажите код телефону рядом';
+
+  @override
+  String get phoneSendWithFile => 'Файлом';
+
+  @override
+  String get phoneSendWithFileSub =>
+      'Отправьте в любом приложении; получатель пришлёт файл в ответ';
+
+  @override
+  String get phoneSendAddContact => 'Добавить контакт';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Сверьте первые и последние шесть символов с тем, кому платите.';
+
+  @override
+  String get phoneSendReviewTitle => 'Проверка';
+
+  @override
+  String get phoneSendMoreDetails => 'Подробнее';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return 'На $amount больше, чем можно отправить. Нажмите «Макс», чтобы отправить всё.';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'Всё, что у вас есть, за вычетом комиссии $fee';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'Открыть платёж';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'Отправлено: $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'их кошелёк может быть офлайн';
+
+  @override
+  String get phoneSendTheirOnline => 'их кошелёк должен быть открыт';
+
+  @override
+  String get phoneTourOffer => 'Показать, как устроен кошелёк?';
+
+  @override
+  String get phoneTourOfferShow => 'Показать';
 }
