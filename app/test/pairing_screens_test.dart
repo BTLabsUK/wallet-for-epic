@@ -38,6 +38,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/contact_pairing.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -513,6 +514,7 @@ void main() {
 
     testWidgets('a pairing that proves the contact\'s address: no line, no Pair again', (tester) async {
       await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      await openContactPairing(tester);
       expect(find.textContaining(_l.trustVerified, findRichText: true), findsWidgets);
       expect(find.byKey(contactPageUnprovenKey), findsNothing);
       expect(find.byKey(contactPagePairAgainUnprovenKey), findsNothing);
@@ -568,12 +570,16 @@ void main() {
       expect(seal.onChanged, isNull, reason: 'nothing is sealed to a wallet not heard');
       h.api.hear(h.api.records.single.id);
       await _frames(tester);
+      // Heard, the pairing is settled: it moves to the menu's Pairing sheet.
+      expect(find.byKey(contactPageSealKey), findsNothing);
+      await openContactPairing(tester);
       expect(find.text(_l.trustPaired), findsWidgets);
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
     });
 
     testWidgets('verified: the date, "confirmed too" once the verdict came, both switches', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      await openContactPairing(tester);
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
       h.api.peerMatch('p');
       await tester.pumpAndSettle();

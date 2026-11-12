@@ -58,6 +58,22 @@ const Key contactPageDomainRowKey = ValueKey('contact-page-domain-row');
 
 /// The Pairing section of [contact]: [pairing] is the record the contact uses (null for
 /// none), [pending] a request sent or an answer waiting for its confirm.
+/// Whether the pairing asks something of the user now: not paired, waiting, ended, or a notice
+/// to act on. The page shows the block then; a settled pairing sits behind the "…" menu's
+/// Pairing sheet, as the contact frame shows only the name, the Paired line and the payments.
+bool pairingNeedsPage(WidgetRef ref, Contact contact, PairingRecord? p, PairingRecord? q) {
+  if (p == null || q != null || p.state == PairingState.ended) return true;
+  final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
+  final moveOpen = p.requestedRelay != null && (p.relayMove == RelayMoveState.ask || p.relayMove == RelayMoveState.open);
+  return p.state == PairingState.keysChanged ||
+      p.state == PairingState.waiting ||
+      ref.watch(keysBackProvider).contains(p.id) ||
+      (!paused && (p.relayDown || p.notAnswering || moveOpen)) ||
+      (p.paymentsAddress != null && contact.epicbox != null && !pairingVouchesFor(p, contact.epicbox)) ||
+      p.seal == SealMode.degraded ||
+      ((p.state == PairingState.verified || p.state == PairingState.paired) && p.paymentsAddress == null);
+}
+
 class ContactPairingBlock extends ConsumerWidget {
   const ContactPairingBlock({
     super.key,

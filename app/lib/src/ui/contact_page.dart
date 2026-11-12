@@ -82,6 +82,7 @@ const Key contactPageNoPaymentsKey = ValueKey('contact-page-no-payments');
 const Key contactPageSendReasonKey = ValueKey('contact-page-send-reason');
 const Key contactPageAddressesKey = ValueKey('contact-page-addresses');
 const Key contactPageViaPairingKey = ValueKey('contact-page-via-pairing');
+const Key contactPagePairingKey = ValueKey('contact-page-pairing');
 
 /// Two letters for [name] ([nameInitials]: letters and digits only), `?` for a name with
 /// none.
@@ -418,6 +419,9 @@ class ContactPage extends ConsumerStatefulWidget {
 class _ContactPageState extends ConsumerState<ContactPage> {
   bool _busy = false;
 
+  /// [_busy] for the Pairing sheet, which the page's setState does not rebuild.
+  final _busyNote = ValueNotifier<bool>(false);
+
   /// The page shows this contact's relay and keys itself.
   bool _shows(PairingEvent e) =>
       const {PairingEventKind.homeRelayUnreachable, PairingEventKind.keysChanged, PairingEventKind.keysRestored}.contains(e.kind) &&
@@ -426,6 +430,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   @override
   void dispose() {
+    _busyNote.dispose();
     pairingNewsOnScreen.remove(_shows);
     _notices.dismissTag(_pausedTag);
     super.dispose();
@@ -524,12 +529,14 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   Future<void> _run(Future<void> Function() call) async {
     if (_busy) return;
     setState(() => _busy = true);
+    _busyNote.value = true;
     try {
       await call();
     } catch (error) {
       if (mounted) ref.read(noticeProvider.notifier).show(describeError(context.l10n, error), level: NoticeLevel.error);
     } finally {
       if (mounted) setState(() => _busy = false);
+      _busyNote.value = false;
     }
   }
 
@@ -554,6 +561,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
     final t = context.tokens;
     final classicOnly = ref.watch(classicOnlyProvider(contact.id));
+    final pairingOnPage = pairs && pairingNeedsPage(ref, contact, pairing, pending);
     final canAsk = pairing != null && !pairing.ended && pairing.state.isPaired && ref.watch(invoicesShownProvider);
     final showSend = !noPayments;
     final sendOn = !classicOnly && !(contact.addresses.isEmpty && !(pairing?.paysByMailbox ?? false));
@@ -618,6 +626,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                       'label' => _pickLabel(context, ref, contact),
                       'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
                       'addresses' => _showAddresses(contact, pairing),
+                      'pairing' => _showPairing(contact),
                       'code' when contact.addresses.isNotEmpty => _showCode(contact),
                       'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
                       'delete' => _delete(contact, pairing),
@@ -647,6 +656,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                         value: 'addresses',
                         child: ListTile(leading: const Icon(Icons.alternate_email), title: Text(l.contactAddresses)),
                       ),
+                      if (pairs && !pairingOnPage)
+                        PopupMenuItem(
+                          key: contactPagePairingKey,
+                          value: 'pairing',
+                          child: ListTile(leading: const Icon(EpicGlyphs.paired), title: Text(l.contactPairing)),
+                        ),
                       PopupMenuItem(
                         key: contactPageCodeKey,
                         value: 'code',
@@ -693,7 +708,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                             const SizedBox(height: 8),
                             // A contact that takes no payments: its own card first, then Pairing. Addresses are in the menu.
                             if (noPayments && pairs && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
-                            if (pairs) ...[
+                            // A settled pairing is in the menu's Pairing sheet; one that asks something stays here.
+                            if (pairingOnPage) ...[
                               PairSection(l.contactPairing),
                               ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
                               // A service the user paired with and took a name from: Pay me as @name · since, the
@@ -729,6 +745,39 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       builder: (sheet) => KitSheet(
         title: sheet.l10n.contactAddresses,
         child: _Addresses(contact: contact, pairing: pairing),
+      ),
+    );
+  }
+
+  /// The pairing as a sheet from the "…" menu: the block and, for a contact that takes payments,
+  /// its name-service card. It follows the providers, so a removed pairing shows Pair again.
+  void _showPairing(Contact contact) {
+    showKitSheet<void>(
+      context: context,
+      builder: (sheet) => KitSheet(
+        title: sheet.l10n.contactPairing,
+        child: Consumer(
+          builder: (context, ref, _) {
+            final c = ref.watch(contactsProvider).value?.where((e) => e.id == contact.id).firstOrNull ?? contact;
+            final pairing = ref.watch(contactPairingProvider(c.id));
+            final pending = pairing == null || pairing.ended ? ref.watch(contactPendingPairingProvider(c.id)) : null;
+            final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: c.epicbox);
+            return ValueListenableBuilder<bool>(
+              valueListenable: _busyNote,
+              builder: (context, busy, _) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ContactPairingBlock(contact: c, pairing: pairing, pending: pending, busy: busy, run: _run, onPair: () => _pair(c)),
+                    if (!noPayments && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: c.name),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

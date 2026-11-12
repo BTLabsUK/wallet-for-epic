@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/contact_pairing.dart';
 
 
 final AppLocalizations _l = englishStrings;
@@ -109,6 +110,7 @@ void main() {
       ..anna()
       ..pair(domain: 'anna.example', status: DomainStatus.proven);
     await h.pump(tester, const ContactPage(contactId: 'c1'));
+    await openContactPairing(tester);
 
     expect(find.byKey(contactPageDomainKey), findsOneWidget);
     expect(find.descendant(of: find.byKey(contactPageDomainKey), matching: find.text('anna.example')), findsOneWidget);
@@ -122,6 +124,7 @@ void main() {
         ..anna()
         ..pair(domain: 'anna.example', status: status);
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+    await openContactPairing(tester);
 
       expect(find.byKey(contactPageDomainKey), findsNothing);
       expect(_row(tester).textSpan!.toPlainText(), allOf(contains('anna.example'), contains(word)));
@@ -133,6 +136,7 @@ void main() {
       ..anna()
       ..pair();
     await h.pump(tester, const ContactPage(contactId: 'c1'));
+    await openContactPairing(tester);
 
     expect(find.byKey(contactPageDomainKey), findsNothing);
     expect(find.byKey(contactPageDomainRowKey), findsNothing);

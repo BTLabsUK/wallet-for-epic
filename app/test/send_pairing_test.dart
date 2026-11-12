@@ -32,6 +32,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
+import 'support/contact_pairing.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -418,6 +419,7 @@ void main() {
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
       await h.session.pairing.refuseRelayMove('p1', moved);
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await openContactPairing(tester);
       await _reach(tester, find.byKey(contactPageMoveLineKey));
       expect(find.text(_l.contactMoveRefused(moved)), findsOneWidget);
       expect(find.byKey(contactPageMoveAskedKey), findsNothing);
@@ -429,6 +431,7 @@ void main() {
       final h = _Harness();
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, requestedRelay: '192.168.1.20');
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await openContactPairing(tester);
       await _reach(tester, find.byKey(contactPageMoveLineKey));
       expect(find.text(_l.contactMoveNotPublic('192.168.1.20')), findsOneWidget);
       expect(find.byKey(contactPageMoveAcceptKey), findsNothing);
@@ -441,6 +444,7 @@ void main() {
       expect(p.homeRelay, moved);
       final date = localDayMonth(_l, p.movedAt!);
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await openContactPairing(tester);
       await _reach(tester, find.byKey(contactPageMoveLineKey));
       expect(find.text(_l.contactMovedOn(date)), findsOneWidget);
       expect(find.byKey(contactPageMoveAskedKey), findsNothing);
