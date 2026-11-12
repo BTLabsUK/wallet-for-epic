@@ -614,10 +614,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get txDetailsCancelledByUser =>
-      'ยกเลิกแล้ว ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ';
-
-  @override
   String get txDetailsCancelledReleased =>
       'เครือข่ายไม่รับรายการนี้ จึงปลดยอดเงินแล้ว ตรวจสอบว่าผู้รับไม่ได้รับเงินก่อนส่งใหม่';
 

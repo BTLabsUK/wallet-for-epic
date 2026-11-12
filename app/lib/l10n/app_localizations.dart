@@ -1027,12 +1027,6 @@ abstract class AppLocalizations {
   /// **'Completed in block {height}.'**
   String txDetailsCompletedInBlock(String height);
 
-  /// Payment details, why a send is cancelled: the user cancelled it. The slate may have reached the recipient, so it never says nothing was sent.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.'**
-  String get txDetailsCancelledByUser;
-
   /// Payment details, why a send is cancelled: the user released the funds of a send the network refused.
   ///
   /// In en, this message translates to:

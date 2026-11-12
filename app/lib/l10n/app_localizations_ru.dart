@@ -651,10 +651,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get txDetailsCancelledByUser =>
-      'Отменено. Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.';
-
-  @override
   String get txDetailsCancelledReleased =>
       'Сеть так и не приняла этот платёж, поэтому его средства разблокированы. Прежде чем отправлять снова, убедитесь, что получатель его не получил.';
 
