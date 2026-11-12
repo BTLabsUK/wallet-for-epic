@@ -548,7 +548,7 @@ void main() {
     expect(find.text(_l.outputsWaitLocked(3)), findsOneWidget);
   });
 
-  testWidgets('Settings › Wallet lists Outputs with its count and strategy', (
+  testWidgets('Settings › Wallet lists Outputs with its line', (
     tester,
   ) async {
     final h = _Harness();
@@ -563,9 +563,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(
-      find.text(_l.outputsSettingsSubtitle(5, _l.outputsAll)),
-      findsOneWidget,
-    );
+    // The phone row carries one line; the strategy moved to Payments.
+    expect(find.text(_l.phoneSettingsOutputsLine), findsOneWidget);
   });
 }

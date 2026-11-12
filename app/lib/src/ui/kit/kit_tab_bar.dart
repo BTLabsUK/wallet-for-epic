@@ -95,9 +95,9 @@ class KitTabBar extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.only(bottom: bottom > _inset ? bottom : _inset, left: 6, right: 6),
-        // At a large text size the labels grow the bar, they are not cut.
+        // At a large text size the labels grow the bar, they are not cut (13.65 = the label's 10.5 x 1.3 line).
         child: SizedBox(
-          height: Kit.tabBar - _inset - 1 + (MediaQuery.textScalerOf(context).scale(13) - 13).clamp(0, 40),
+          height: Kit.tabBar - _inset - 1 + (MediaQuery.textScalerOf(context).scale(13.65) - 13.65).clamp(0, 40),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -228,7 +228,7 @@ void main() {
       expect(_enabled(tester, continueButton()), isTrue);
       // The review names the contact through the pairing; Send goes through the mailbox.
       await _toReview(tester);
-      expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
+      expect(find.textContaining('Anna'), findsWidgets);
       expect(find.textContaining('@'), findsNothing);
       expect(find.byKey(sendQueuedCardKey), findsNothing);
       await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC'));

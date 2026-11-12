@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// The labelled network settings button on first run and unlock.
+// The network entry on first run and unlock (the unlock screen's Ready pill).
 //
 // The owner, 2026-10-05: the icon alone was impossible to spot, and on first run it hid behind
 // Advanced options, so a new install could not reach floonet. The label gives way to the
@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_status_pill.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
@@ -110,11 +111,8 @@ Future<void> _pump(
   await tester.pumpAndSettle();
 }
 
-/// The labelled button when it fits, otherwise the icon with [label] as its tooltip.
-Finder _button(String label) {
-  final labelled = find.widgetWithText(TextButton, label);
-  return labelled.evaluate().isNotEmpty ? labelled : find.byTooltip(label);
-}
+/// The unlock screen's Ready pill: the way to the servers before a wallet is open.
+Finder _pill() => find.byType(KitStatusPill);
 
 /// The button opens the menu; each of its items opens its picker sheet.
 Future<void> _opensSheets(WidgetTester tester, Finder button) async {
@@ -140,74 +138,51 @@ Future<void> _opensSheets(WidgetTester tester, Finder button) async {
 void main() {
   setUpAll(_loadFonts);
 
-  for (final MapEntry(key: screen, value: make) in _screens.entries) {
-    group(screen, () {
-      testWidgets('labels it with Advanced off and opens the Node and Epicbox sheets', (
-        tester,
-      ) async {
-        final start = make();
-        expect(start.store.values['app.advanced'], isNull);
-        await _pump(tester, start);
-        final button = find.widgetWithText(TextButton, 'Node and Epicbox');
-        expect(button, findsOneWidget);
-        expect(
-          find.descendant(
-            of: button,
-            matching: find.byIcon(Icons.settings_ethernet),
-          ),
-          findsOneWidget,
-        );
-        expect(tester.getSize(button).height, greaterThanOrEqualTo(48));
-        await _opensSheets(tester, button);
-      });
+  // The phone's first-run Welcome has no network button; the unlock screen's Ready pill opens
+  // the Node and Epicbox choice (the redesign replaced the labelled button on both).
+  testWidgets('first run shows no network button', (tester) async {
+    await _pump(tester, _screens['first run']!());
+    expect(tester.takeException(), isNull);
+    expect(_pill(), findsNothing);
+    expect(find.byTooltip('Node and Epicbox'), findsNothing);
+    expect(find.widgetWithText(TextButton, 'Node and Epicbox'), findsNothing);
+  });
 
-      testWidgets('meets the tap target guidelines', (tester) async {
-        final handle = tester.ensureSemantics();
-        await _pump(tester, make());
-        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-        handle.dispose();
-      });
-
-      // The label stays while the measured button fits the width less 72 dp, for a back
-      // arrow and the inset. German keeps it on 320 dp up to 1.3 and gives way at 2.0;
-      // on 360 dp both languages keep it even at 2.0.
-      const narrow = Size(960, 2080);
-      const usual = Size(1080, 2340);
-      for (final (language, label, physicalSize, scale, labelled) in [
-        ('de', 'Node und Epicbox', usual, 1.0, true),
-        ('de', 'Node und Epicbox', usual, 1.3, true),
-        ('de', 'Node und Epicbox', narrow, 1.0, true),
-        ('de', 'Node und Epicbox', narrow, 1.3, true),
-        ('en', 'Node and Epicbox', usual, 1.3, true),
-        ('en', 'Node and Epicbox', usual, 2.0, true),
-        ('de', 'Node und Epicbox', narrow, 2.0, false),
-        ('de', 'Node und Epicbox', usual, 2.0, true),
-      ]) {
-        final dp = physicalSize.width ~/ 3;
-        final form = labelled ? 'the label' : 'the icon';
-        testWidgets('shows $form in $language at $dp dp and scale $scale', (
-          tester,
-        ) async {
-          await _pump(
-            tester,
-            make(),
-            physicalSize: physicalSize,
-            textScale: scale,
-            language: language,
-          );
-          expect(tester.takeException(), isNull);
-          final button = _button(label);
-          expect(button, findsOneWidget);
-          expect(
-            find.widgetWithText(TextButton, label),
-            labelled ? findsOneWidget : findsNothing,
-          );
-          final width = tester.getSize(button).width;
-          expect(width, lessThanOrEqualTo(physicalSize.width / 3 - 72));
-          await _opensSheets(tester, button);
-        });
-      }
+  group('unlock', () {
+    testWidgets('the Ready pill opens the Node and Epicbox sheets', (tester) async {
+      final start = _screens['unlock']!();
+      expect(start.store.values['app.advanced'], isNull);
+      await _pump(tester, start);
+      expect(_pill(), findsOneWidget);
+      expect(tester.getSize(_pill()).height, greaterThanOrEqualTo(48));
+      await _opensSheets(tester, _pill());
     });
-  }
+
+    testWidgets('meets the tap target guidelines', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester, _screens['unlock']!());
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+    });
+
+    // The pill is short and fits every size and language.
+    const narrow = Size(960, 2080);
+    const usual = Size(1080, 2340);
+    for (final (language, physicalSize, scale) in [
+      ('de', usual, 1.0),
+      ('de', narrow, 1.3),
+      ('de', narrow, 2.0),
+      ('en', usual, 2.0),
+    ]) {
+      final dp = physicalSize.width ~/ 3;
+      testWidgets('shows the pill in $language at $dp dp and scale $scale', (tester) async {
+        await _pump(tester, _screens['unlock']!(), physicalSize: physicalSize, textScale: scale, language: language);
+        expect(tester.takeException(), isNull);
+        expect(_pill(), findsOneWidget);
+        expect(tester.getSize(_pill()).width, lessThanOrEqualTo(physicalSize.width / 3 - 32));
+        await _opensSheets(tester, _pill());
+      });
+    }
+  });
 }

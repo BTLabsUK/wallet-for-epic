@@ -321,7 +321,12 @@ void main() {
     testWidgets('Home with the tour: Lock, Settings, Contacts, Skip', (tester) async {
       await _same(
         tester,
-        () => _openPhone(tester, const HomeScreen(), tour: true),
+        () async {
+          await _openPhone(tester, const HomeScreen(), tour: true);
+          // The tour is offered in a toast; its card (and Skip) opens on "Show me".
+          await tester.tap(find.text(AppLocalizations.of(tester.element(find.byType(HomeScreen))).phoneTourOfferShow));
+          await tester.pumpAndSettle();
+        },
         () => _closePhone(tester),
         ['g4.tab.home', 'g4.tab.settings', 'g4.tab.contacts', 'g4.tour.skip'],
       );
