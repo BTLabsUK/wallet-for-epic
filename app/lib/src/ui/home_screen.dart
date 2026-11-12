@@ -32,7 +32,7 @@ import 'invoices_screen.dart' show InvoicesEntry;
 import 'tx_details_screen.dart';
 import 'history_screen.dart';
 import 'pairing/pairing_notices.dart';
-import 'receive_screen.dart' show ReceiveView;
+import 'receive_screen.dart' show ReceiveScreen, ReceiveView;
 import 'scan_route.dart';
 import '../devices/phone_devices.dart' show DeviceLifecycle;
 import 'scan_screen.dart' show ScanCode, qrScannerProvider;
@@ -818,7 +818,8 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
         Navigator.of(context).pop();
       },
       child: _Backdrop(
-        child: SlotScaffold(
+        // Receive is the page the frames draw: its own header (close, title, help), no balance bar.
+        child: !send ? const ReceiveScreen() : SlotScaffold(
           body: SafeArea(
             child: Column(
               children: [

@@ -47,6 +47,8 @@ class KitSheet extends StatelessWidget {
     this.primaryId,
     this.secondaryId,
     this.primaryKind = KitButtonKind.gold,
+    this.actionsTop = 18,
+    this.titleGap = 14,
   });
 
   final String? title;
@@ -62,6 +64,10 @@ class KitSheet extends StatelessWidget {
   final String? primaryId;
   final String? secondaryId;
   final KitButtonKind primaryKind;
+
+  /// The space above the buttons, and under the title.
+  final double actionsTop;
+  final double titleGap;
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +93,13 @@ class KitSheet extends StatelessWidget {
               const KitGrabber(),
               if (title != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, titleGap),
                   child: Semantics(header: true, child: Text(title!, style: KitType.sheetTitle.copyWith(color: t.text))),
                 ),
               ?child,
               if (primaryButton != null || secondaryButton != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 18, Kit.gutter, 0),
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, actionsTop, Kit.gutter, 0),
                   child: Column(
                     children: [
                       ?primaryButton,
