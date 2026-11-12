@@ -801,10 +801,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           KitRow(
             size: KitRowSize.list,
             title: l.settingsRescan,
-            subtitle: block == NetBlock.none
-                ? l.phoneSettingsRecheckLine
-                : (block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
+            subtitle: scan.running
+                ? l.workChecking
+                : block == NetBlock.none
+                    ? l.phoneSettingsRecheckLine
+                    : (block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
             subtitleLines: 2,
+            trailing: scan.running
+                ? SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, value: MediaQuery.disableAnimationsOf(context) ? 0.3 : null),
+                  )
+                : null,
             semanticsId: TrustIds.walletRecheck,
             enabled: !recheckOff,
             onTap: recheckOff ? null : _rescan,
