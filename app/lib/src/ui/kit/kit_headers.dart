@@ -177,11 +177,12 @@ class KitPageHeader extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // The frame's nav row sits 4 px above the safe area and its title starts 6 px higher: a
-        // 42 px row, drawn 2.5 px up, keeps the content below where it was.
+        // 42 px row, drawn 0.5 px up (measured against the frames), keeps the content below where
+        // it was.
         SizedBox(
           height: Kit.pageTitleHeader - 6,
           child: Transform.translate(
-            offset: const Offset(0, -2.5),
+            offset: const Offset(0, -0.5),
             child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
@@ -233,7 +234,7 @@ class KitPageHeader extends StatelessWidget {
         ),
         if (title != null)
           Padding(
-            padding: EdgeInsets.fromLTRB(Kit.gutter, 2, Kit.gutter, bottomGap),
+            padding: EdgeInsets.fromLTRB(Kit.gutter, 4, Kit.gutter, bottomGap - 1),
             child: tag == null
                 ? Semantics(header: true, child: Text(title!, style: KitType.pageTitle.copyWith(color: t.text)))
                 : Row(
@@ -265,7 +266,8 @@ class KitTabTitle extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     height: Kit.flowHeader + 7,
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, 10, 0),
+      // The trailing button's 40 square sits 4 inside its 48 target, so 12 puts it 16 in.
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, 12, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

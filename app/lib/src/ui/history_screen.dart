@@ -297,7 +297,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return PopupMenuButton<String>(
       key: historyMenuKey,
       tooltip: l.phoneActMenu,
-      icon: Icon(KitIcons.more, color: t.text),
+      // `.ib`: the 40 square on the quiet fill, radius 14, inside the 48 touch target.
+      padding: const EdgeInsets.all(4),
+      iconSize: 40,
+      icon: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
+        child: Icon(KitIcons.more, size: 20, color: t.text),
+      ),
       onSelected: (value) => value == 'help' ? _help() : openPostFinished(context),
       itemBuilder: (_) => [
         PopupMenuItem<String>(value: 'help', child: Text(l.sendHelp)),
@@ -342,9 +351,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             backId: TrustIds.activityBack,
             helpId: TrustIds.activityHelp,
           )
-        // `.ttl` is 44 tall; the kit's title is 56 so the menu button keeps its touch target.
-        : SizedBox(
+        // `.ttl` is 44 tall at 4 below the safe area; the kit's title is taller so the menu
+        // button keeps its touch target.
+        : Container(
             height: 44,
+            margin: const EdgeInsets.only(top: 4),
             child: OverflowBox(maxHeight: Kit.flowHeader + 12, child: KitTabTitle(l.historyTitle, trailing: _menu(context))),
           );
 

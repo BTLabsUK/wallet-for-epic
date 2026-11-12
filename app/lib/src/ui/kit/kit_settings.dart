@@ -34,7 +34,8 @@ class KitLead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 6, Kit.gutter + 4, 0),
+    // `.note`: 8 above, 20 in.
+    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
     child: Text(text, style: KitType.body.copyWith(color: context.tokens.dim, fontSize: 14, height: 1.45)),
   );
 }
@@ -91,6 +92,8 @@ class KitStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // `.stepper button`: 36 wide; with the pill's 3 px end padding each end is 39 to touch,
+    // the full 44 tall.
     Widget end(Key? key, IconData icon, String label, VoidCallback? onTap, String? id) => kitId(
       id,
       Semantics(
@@ -104,33 +107,41 @@ class KitStepper extends StatelessWidget {
           borderRadius: BorderRadius.circular(Kit.rButtonSmall),
           onTap: onTap,
           child: SizedBox(
-            width: Kit.hitMin,
+            width: (Kit.stepperWidth - 24) / 2,
             height: Kit.stepperHeight,
-            child: Icon(icon, size: 20, color: onTap == null ? t.faint : t.text),
+            child: Icon(icon, size: 18, color: onTap == null ? t.faint : t.text),
           ),
         ),
       ),
     );
-    return Container(
+    return SizedBox(
       width: Kit.stepperWidth,
       height: Kit.stepperHeight,
-      decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rButtonSmall)),
-      child: Material(
-        type: MaterialType.transparency,
-        child: Row(
-          children: [
-            end(minusKey, KitIcons.remove, minusLabel, onMinus, minusId),
-            Expanded(
-              child: Semantics(
-                label: valueLabel,
-                liveRegion: true,
-                excludeSemantics: true,
-                child: Text('$value', key: valueKey, textAlign: TextAlign.center, style: KitType.rowTitle.copyWith(color: t.text, fontFeatures: const [FontFeature.tabularFigures()])),
-              ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: Kit.stepperDrawn,
+            decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rButtonSmall)),
+          ),
+          Material(
+            type: MaterialType.transparency,
+            child: Row(
+              children: [
+                end(minusKey, KitIcons.remove, minusLabel, onMinus, minusId),
+                Expanded(
+                  child: Semantics(
+                    label: valueLabel,
+                    liveRegion: true,
+                    excludeSemantics: true,
+                    child: Text('$value', key: valueKey, textAlign: TextAlign.center, style: KitType.stepperValue.copyWith(color: t.text)),
+                  ),
+                ),
+                end(plusKey, KitIcons.add, plusLabel, onPlus, plusId),
+              ],
             ),
-            end(plusKey, KitIcons.add, plusLabel, onPlus, plusId),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

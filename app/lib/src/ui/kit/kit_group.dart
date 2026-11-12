@@ -61,9 +61,13 @@ class KitGroup extends StatelessWidget {
           borderRadius: BorderRadius.circular(Kit.rGroup),
           border: Border.all(color: t.hair),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Kit.rGroup - 1),
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: kids),
+        // `.grp` is content-box: the 1 px border sits outside the rows, as in the frames.
+        child: Padding(
+          padding: const EdgeInsets.all(1),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(Kit.rGroup - 1),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: kids),
+          ),
         ),
       ),
     );

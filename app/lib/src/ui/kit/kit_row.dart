@@ -183,7 +183,7 @@ class KitRow extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 3),
                       child:
                           subtitleWidget ??
-                          Text(subtitle!, style: KitType.rowSub.copyWith(color: t.dim), maxLines: subtitleLines, overflow: TextOverflow.ellipsis),
+                          Text(subtitle!, style: (subtitleLines > 1 ? KitType.rowSubMulti : KitType.rowSub).copyWith(color: t.dim), maxLines: subtitleLines, overflow: TextOverflow.ellipsis),
                     ),
                 ],
               ),
