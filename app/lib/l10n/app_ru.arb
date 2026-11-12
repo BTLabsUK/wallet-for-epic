@@ -6028,5 +6028,8 @@
   "phoneRecvWaitingPaid": "Ожидает оплаты",
   "phoneRecvViewPayment": "Открыть платёж",
   "phoneRecvShowCode": "Показать код",
-  "phoneRecvArrivalFrom": "от {name}"
+  "phoneRecvArrivalFrom": "от {name}",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone."
 }

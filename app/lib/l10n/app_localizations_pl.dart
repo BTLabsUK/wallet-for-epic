@@ -23829,4 +23829,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'od $name';
   }
+
+  @override
+  String get phoneQrHoldHint => 'Hold their camera to this code.';
+
+  @override
+  String get phoneQrReplyShowing =>
+      'The payment is made when they scan it. It then shows in Activity.';
+
+  @override
+  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
 }

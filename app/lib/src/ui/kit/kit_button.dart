@@ -12,7 +12,7 @@ import 'kit_tokens.dart';
 /// cannot be taken back (red text on the quiet ground), [off] a button that is not ready.
 enum KitButtonKind { gold, quiet, ghost, danger, off }
 
-/// The redesign's button: 52 tall, radius 16 (the small one 36 and 12). It fills the width of
+/// The redesign's button: 52 tall (a ghost one 44, as the frames draw it), radius 16 (the small one 36 and 12). It fills the width of
 /// its parent unless [expand] is false. Without [onPressed], or as [KitButtonKind.off], it is
 /// shown as off and does not react.
 class KitButton extends StatelessWidget {
@@ -79,7 +79,7 @@ class KitButton extends StatelessWidget {
         child: InkWell(
           onTap: off ? null : onPressed,
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: small ? Kit.buttonSmall : Kit.button, minWidth: small ? 0 : 64),
+            constraints: BoxConstraints(minHeight: small ? Kit.buttonSmall : (kind == KitButtonKind.ghost ? Kit.hitMin : Kit.button), minWidth: small ? 0 : 64),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: small ? 16 : 20),
               child: Center(widthFactor: expand ? null : 1, child: content),

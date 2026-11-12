@@ -155,7 +155,7 @@ void main() {
       findsNothing,
     );
     expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
-    expect(find.text(_l.qrHoldHint), findsOneWidget);
+    expect(find.text(_l.phoneQrHoldHint), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
     await tester.pump(const Duration(milliseconds: qrFrameMs));
     expect(find.textContaining('Part 2 of 3'), findsOneWidget);

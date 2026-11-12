@@ -36197,6 +36197,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'from {name}'**
   String phoneRecvArrivalFrom(String name);
+
+  /// Line under a shown QR code: where to point the other phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold their camera to this code.'**
+  String get phoneQrHoldHint;
+
+  /// Dim line under the receiver's answer code while it is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment is made when they scan it. It then shows in Activity.'**
+  String get phoneQrReplyShowing;
+
+  /// Line under the camera when the payer scans the answer on the other phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Point at the answer on their phone.'**
+  String get phoneQrAimAnswer;
 }
 
 class _AppLocalizationsDelegate

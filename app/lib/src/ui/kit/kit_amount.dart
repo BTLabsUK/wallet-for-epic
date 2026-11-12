@@ -59,12 +59,15 @@ class KitAmountDisplay extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
+                  // `.big u`: 13, aligned to the top of the line and 10 down, 10 after the figure.
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(amount.isEmpty ? '0' : amount, style: style, textScaler: TextScaler.noScaling),
-                    const SizedBox(width: 8),
-                    Text(unit, style: KitType.unit.copyWith(color: t.accentText), textScaler: TextScaler.noScaling),
+                    const SizedBox(width: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(unit, style: KitType.unit.copyWith(color: t.accentText, fontSize: 13, height: 1), textScaler: TextScaler.noScaling),
+                    ),
                   ],
                 ),
               ),

@@ -147,7 +147,7 @@ class KitRow extends StatelessWidget {
         ),
       ?trailing,
       if (selected) Icon(KitIcons.check, size: 22, color: t.accentText),
-      if (chevron) Icon(KitIcons.chevron, size: 22, color: t.faint),
+      if (chevron) Icon(KitIcons.chevron, size: 18, color: t.faint),
     ];
     final body = ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight ?? size.height),

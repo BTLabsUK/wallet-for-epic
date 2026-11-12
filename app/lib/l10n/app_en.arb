@@ -31388,5 +31388,17 @@
         "example": "Bob"
       }
     }
+  },
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "@phoneQrHoldHint": {
+    "description": "Line under a shown QR code: where to point the other phone."
+  },
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "@phoneQrReplyShowing": {
+    "description": "Dim line under the receiver's answer code while it is shown."
+  },
+  "phoneQrAimAnswer": "Point at the answer on their phone.",
+  "@phoneQrAimAnswer": {
+    "description": "Line under the camera when the payer scans the answer on the other phone."
   }
 }

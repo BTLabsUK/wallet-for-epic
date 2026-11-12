@@ -304,8 +304,7 @@ class _StatusLine extends StatelessWidget {
               child: Text(
                 status.text,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(color: color),
+                style: KitType.rowSub.copyWith(color: color),
               ),
             ),
           ],
@@ -672,23 +671,32 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           reveal: _revealCurve,
           reduced: MediaQuery.disableAnimationsOf(context),
         ),
-      if (showing) ...[
+      // One part has no sequence to show: the frame leaves the pips and the part line out.
+      if (showing && _frames!.partCount > 1) ...[
         const SizedBox(height: 18),
         _Pips(frames: _frames!, frame: _frame, reduced: _reduced),
         const SizedBox(height: 8),
         _PartLine(frames: _frames!, frame: _frame),
       ],
       if (!done) ...[
-        SizedBox(height: showing ? 14 : 34),
+        SizedBox(height: showing && _frames!.partCount > 1 ? 14 : 34),
         // What to do now, and where the payment stands.
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
           child: Column(
             children: [
               if (showing || counting)
-                Text(l.qrHoldHint, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.text)),
+                Text(l.phoneQrHoldHint, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.text)),
               if (showing || counting) const SizedBox(height: 6),
-              _StatusLine(key: qrStatusKey, status: status),
+              // The frame draws no line while a payment code is up (the step strip and the button
+              // say what comes next) and a plain one under the reply code.
+              if (!(showing && status.text == l.qrStatusSendShowing))
+                _StatusLine(
+                  key: qrStatusKey,
+                  status: showing && status.text == l.qrStatusReplyShowing
+                      ? (text: l.phoneQrReplyShowing, tone: QrStatusTone.plain)
+                      : status,
+                ),
             ],
           ),
         ),

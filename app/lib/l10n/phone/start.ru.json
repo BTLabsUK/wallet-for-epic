@@ -62,5 +62,8 @@
   "phoneAcceptHintQr": "Примите платёж и покажите ответ. Ничего не придёт, пока его не отсканируют.",
   "phoneAcceptHintFile": "Примите платёж и отправьте ответ. Ничего не придёт, пока его не откроют.",
   "phoneAcceptAccept": "Принять",
-  "phoneAcceptNotNow": "Не сейчас"
+  "phoneAcceptNotNow": "Не сейчас",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone."
 }

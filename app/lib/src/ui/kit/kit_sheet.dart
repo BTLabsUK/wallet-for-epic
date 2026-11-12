@@ -85,7 +85,6 @@ class KitSheet extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,13 +92,13 @@ class KitSheet extends StatelessWidget {
               const KitGrabber(),
               if (title != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, titleGap),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, titleGap),
                   child: Semantics(header: true, child: Text(title!, style: KitType.sheetTitle.copyWith(color: t.text))),
                 ),
               ?child,
               if (primaryButton != null || secondaryButton != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, actionsTop, Kit.gutter, 0),
+                  padding: EdgeInsets.fromLTRB(Kit.gutter, actionsTop, Kit.gutter, 0),
                   child: Column(
                     children: [
                       ?primaryButton,

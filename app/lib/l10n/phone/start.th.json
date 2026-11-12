@@ -62,5 +62,8 @@
   "phoneAcceptHintQr": "ยอมรับ แล้วแสดงคำตอบให้เขา จะไม่มีอะไรเข้าจนกว่าเขาจะสแกน",
   "phoneAcceptHintFile": "ยอมรับ แล้วส่งคำตอบของคุณ จะไม่มีอะไรเข้าจนกว่าเขาจะเปิด",
   "phoneAcceptAccept": "ยอมรับ",
-  "phoneAcceptNotNow": "ไว้ก่อน"
+  "phoneAcceptNotNow": "ไว้ก่อน",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone."
 }

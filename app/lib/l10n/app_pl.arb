@@ -6028,5 +6028,8 @@
   "phoneRecvWaitingPaid": "Czeka na zapłatę",
   "phoneRecvViewPayment": "Zobacz płatność",
   "phoneRecvShowCode": "Pokaż kod",
-  "phoneRecvArrivalFrom": "od {name}"
+  "phoneRecvArrivalFrom": "od {name}",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone."
 }

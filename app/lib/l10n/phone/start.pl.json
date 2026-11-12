@@ -62,5 +62,8 @@
   "phoneAcceptHintQr": "Przyjmij ją, a potem pokaż im swoją odpowiedź. Nic nie dotrze, dopóki jej nie zeskanują.",
   "phoneAcceptHintFile": "Przyjmij ją, a potem wyślij odpowiedź. Nic nie dotrze, dopóki jej nie otworzą.",
   "phoneAcceptAccept": "Przyjmij",
-  "phoneAcceptNotNow": "Nie teraz"
+  "phoneAcceptNotNow": "Nie teraz",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone."
 }

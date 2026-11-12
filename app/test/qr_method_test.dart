@@ -651,7 +651,7 @@ void main() {
       expect(find.text(_l.qrStatusReplyHidden), findsOneWidget);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
-      expect(find.text(_l.qrStatusReplyShowing), findsOneWidget);
+      expect(find.text(_l.phoneQrReplyShowing), findsOneWidget);
 
       // The received payment shows in the wallet's history, then the sender posts it.
       h.session.transactionsValue = [

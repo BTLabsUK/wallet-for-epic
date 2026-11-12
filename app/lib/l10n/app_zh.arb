@@ -6028,5 +6028,8 @@
   "phoneRecvWaitingPaid": "等待付款",
   "phoneRecvViewPayment": "查看付款",
   "phoneRecvShowCode": "显示码",
-  "phoneRecvArrivalFrom": "来自 {name}"
+  "phoneRecvArrivalFrom": "来自 {name}",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone."
 }

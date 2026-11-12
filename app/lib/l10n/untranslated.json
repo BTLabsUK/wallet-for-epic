@@ -1,7 +1,27 @@
 {
-  "de": [],
-  "pl": [],
-  "ru": [],
-  "th": [],
-  "zh": []
+  "de": [
+    "phoneQrAimAnswer",
+    "phoneQrHoldHint",
+    "phoneQrReplyShowing"
+  ],
+  "pl": [
+    "phoneQrAimAnswer",
+    "phoneQrHoldHint",
+    "phoneQrReplyShowing"
+  ],
+  "ru": [
+    "phoneQrAimAnswer",
+    "phoneQrHoldHint",
+    "phoneQrReplyShowing"
+  ],
+  "th": [
+    "phoneQrAimAnswer",
+    "phoneQrHoldHint",
+    "phoneQrReplyShowing"
+  ],
+  "zh": [
+    "phoneQrAimAnswer",
+    "phoneQrHoldHint",
+    "phoneQrReplyShowing"
+  ]
 }
