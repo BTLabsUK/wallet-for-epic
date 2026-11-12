@@ -3966,19 +3966,6 @@ class UnmatchedNotice {
   final String notice;
 }
 
-/// A second answer to an invite already used, kept only to show it (C-15): nothing is stored.
-class PairingStray {
-  const PairingStray({required this.id, required this.inviteId, required this.name});
-
-  final String id;
-
-  /// The pairing that took the invite.
-  final String inviteId;
-
-  /// The name the second answer claimed.
-  final String name;
-}
-
 /// What a slate that came through a pairing was for (RFC 3.3, TLV `04`).
 enum SlatePurpose { payment, deposit, withdrawal, refund, request }
 

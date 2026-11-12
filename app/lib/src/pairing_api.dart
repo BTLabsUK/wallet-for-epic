@@ -53,12 +53,6 @@ abstract interface class PairingApi {
   /// to say.
   Future<PairingRecord?> pairingForContact(String contactId);
 
-  /// Second answers to used codes, shown until removed (C-15).
-  Future<List<PairingStray>> strays();
-
-  /// Forgets the stray [id].
-  Future<void> removeStray(String id);
-
   /// Sets the Epicbox servers (`host[:port]`, up to three) of Settings › Advanced › Connection
   /// servers. Kept for the core's sake; the code carries the wallet's own relay.
   void setConnectionServers(List<String>? hosts);
@@ -386,12 +380,6 @@ class NoPairing implements PairingApi {
 
   @override
   Future<PairingRecord?> pairingForContact(String contactId) async => null;
-
-  @override
-  Future<List<PairingStray>> strays() async => const [];
-
-  @override
-  Future<void> removeStray(String id) async => throw pairingUnsupported('removeStray');
 
   @override
   Future<PairingRecord> standingCode({required String name}) async => throw pairingUnsupported('standingCode');
