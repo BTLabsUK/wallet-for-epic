@@ -141,10 +141,7 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await _fInScanned(t);
     await t.tapText(t.l.phoneAcceptAccept);
     await t.tap(find.byKey(showReplyQrKey));
-    await t.tap(find.byKey(qrShowButtonKey));
-    await t.elapse(1300);
-    await t.elapse(700);
-    await t.elapse(1000);
+    // The reply code shows at once.
     await t.elapse(1000);
     await t.shot('fr-InPerson-4-Answer');
   }),

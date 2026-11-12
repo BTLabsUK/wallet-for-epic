@@ -962,7 +962,7 @@
   "@txDetailsMessageHintFromRecipient": {
     "description": "Small line under a payment's Message in its details: the recipient wrote it into their answer."
   },
-  "txDetailsMessageHintToSender": "Sent to the sender",
+  "txDetailsMessageHintToSender": "Sent to the payer",
   "@txDetailsMessageHintToSender": {
     "description": "Small line under a payment's Message in its details: this wallet, the recipient, wrote it (an invoice) and the sender sees it."
   },
@@ -3142,10 +3142,6 @@
   "qrHiddenBodyPayment": "Whoever scans it first can accept this payment. Show it only to the person you are paying.",
   "@qrHiddenBodyPayment": {
     "description": "Body on the covered payment QR card: why it stays hidden."
-  },
-  "qrHiddenBodyReply": "Show it to the sender’s phone. Only their wallet can use it.",
-  "@qrHiddenBodyReply": {
-    "description": "Body on the covered reply QR card: why it stays hidden."
   },
   "qrShow": "Show QR",
   "@qrShow": {

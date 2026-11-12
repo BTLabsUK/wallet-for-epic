@@ -2378,9 +2378,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qrHiddenBodyPayment => '谁先扫到，谁就能接受这笔付款。只给你要付款的那个人看。';
 
   @override
-  String get qrHiddenBodyReply => '只给发送方的手机看。只有对方的钱包能使用它。';
-
-  @override
   String get qrShow => '显示二维码';
 
   @override

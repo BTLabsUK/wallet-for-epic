@@ -94,7 +94,7 @@ class WithdrawalBlock extends ConsumerWidget {
     final posted = confirmations != null;
     final confirmed = posted && confirmations >= target;
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -873,7 +873,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsMessageHintFromRecipient => 'От получателя';
 
   @override
-  String get txDetailsMessageHintToSender => 'Отправлено отправителю';
+  String get txDetailsMessageHintToSender => 'Отправлено плательщику';
 
   @override
   String get txDetailsNoNote => 'Заметки нет';
@@ -2599,10 +2599,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get qrHiddenBodyPayment =>
       'Тот, кто отсканирует его первым, сможет принять этот платёж. Показывайте его только тому, кому платите.';
-
-  @override
-  String get qrHiddenBodyReply =>
-      'Покажите его телефону отправителя. Использовать его сможет только его кошелёк.';
 
   @override
   String get qrShow => 'Показать QR';

@@ -714,9 +714,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text(_l.phoneQrTitleReceive), findsWidgets);
-      expect(find.text(_l.qrStatusReplyHidden), findsOneWidget);
-      await tester.tap(find.byKey(qrShowButtonKey));
-      await _tick(tester, 3);
+      // The receiver's reply code shows at once: no cover, no Show QR, no countdown.
+      expect(find.text(_l.qrHiddenTitle), findsNothing);
+      expect(find.byKey(qrShowButtonKey), findsNothing);
+      await tester.pump(const Duration(milliseconds: 400));
       expect(find.text(_l.phoneQrReplyShowing), findsOneWidget);
 
       // The received payment shows in the wallet's history, then the sender posts it.

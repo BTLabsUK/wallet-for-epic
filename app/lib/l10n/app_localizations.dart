@@ -1372,7 +1372,7 @@ abstract class AppLocalizations {
   /// Small line under a payment's Message in its details: this wallet, the recipient, wrote it (an invoice) and the sender sees it.
   ///
   /// In en, this message translates to:
-  /// **'Sent to the sender'**
+  /// **'Sent to the payer'**
   String get txDetailsMessageHintToSender;
 
   /// No description provided for @txDetailsNoNote.
@@ -3996,12 +3996,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Whoever scans it first can accept this payment. Show it only to the person you are paying.'**
   String get qrHiddenBodyPayment;
-
-  /// Body on the covered reply QR card: why it stays hidden.
-  ///
-  /// In en, this message translates to:
-  /// **'Show it to the sender’s phone. Only their wallet can use it.'**
-  String get qrHiddenBodyReply;
 
   /// Button that starts the countdown and then shows the QR code.
   ///

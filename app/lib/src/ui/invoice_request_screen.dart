@@ -653,7 +653,8 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
     final slateId = widget.tx.slateId;
     if (slateId == null) return const SizedBox.shrink();
     final invoice = ref.watch(issuedInvoiceProvider(slateId)).value;
-    if (invoice == null) return const SizedBox.shrink();
+    // A paid request is told by the payment's own steps (Requested, Paid, Confirmed): no block.
+    if (invoice == null || invoice.state == IssuedInvoiceState.paid) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
@@ -698,7 +699,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
     };
 
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

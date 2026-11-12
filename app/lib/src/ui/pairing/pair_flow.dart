@@ -292,7 +292,11 @@ Future<bool> confirmPairSheet(
           semanticsId: cancelId,
           onPressed: () => Navigator.of(ctx).pop(false),
         ),
-        child: kitId(sheetId, Text(body, style: KitType.body.copyWith(color: t.dim))),
+        // Text sits at the title's 20; a group would take the gutter.
+        child: Padding(
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+          child: kitId(sheetId, Text(body, style: KitType.body.copyWith(color: t.dim))),
+        ),
       );
     },
   );

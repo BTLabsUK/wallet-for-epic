@@ -206,15 +206,15 @@ void main() {
       await tester.tap(find.byKey(requestShowQrKey));
       await tester.pumpAndSettle();
 
-      // The code opens by itself, hidden until shown.
+      // The code opens by itself, shown at once: an invoice code only lets the payer pay.
       expect(find.byType(QrShowScreen), findsOneWidget);
       expect(find.text(_l.qrShowTitleRequest), findsOneWidget);
-      expect(find.text(_l.qrStatusRequestHidden), findsOneWidget);
+      expect(find.text(_l.qrHiddenTitle), findsNothing);
+      expect(find.byKey(qrShowButtonKey), findsNothing);
       final request = tester.widget<RequestQrScreen>(find.byType(RequestQrScreen, skipOffstage: false));
       expect(request.amount, _epic(12.5));
       expect(h.session.issuedRequests.single.message, 'Table 4');
 
-      await h.showCode(tester);
       expect(find.text(_l.qrStatusRequestShowing), findsOneWidget);
 
       // The payer pays it (another wallet; the same fake core here) and shows the answer.

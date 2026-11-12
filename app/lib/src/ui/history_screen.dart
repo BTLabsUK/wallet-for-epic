@@ -569,9 +569,11 @@ class _NeedsYou extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         KitGroupLabel(l.phoneActNeedsYou),
-        for (final invoice in invoices)
+        for (final (i, invoice) in invoices.indexed)
           _NeedsYouCard(
             key: needsYouInvoiceKey(invoice.slateId),
+            first: i == 0,
+            last: i == invoices.length - 1,
             invoice: invoice,
             who: invoiceSenderName(l, pairings, contacts, invoice.pairingId),
             amount: shownEpic(l, invoice.amount, hidden: display.hidden),
@@ -582,8 +584,11 @@ class _NeedsYou extends ConsumerWidget {
 }
 
 class _NeedsYouCard extends StatelessWidget {
-  const _NeedsYouCard({super.key, required this.invoice, required this.who, required this.amount});
+  const _NeedsYouCard({super.key, required this.first, required this.last, required this.invoice, required this.who, required this.amount});
 
+  /// Where the card sits in the group: the frame's one `.grp`, rows divided by a hair.
+  final bool first;
+  final bool last;
   final PendingInvoice invoice;
   final String who;
   final String amount;
@@ -599,8 +604,8 @@ class _NeedsYouCard extends StatelessWidget {
     // `.grp` with one `.row` on --gold-soft: avatar, name over a gold line with a 6 px dot, and
     // the small gold Review button.
     return _GroupSegment(
-      first: true,
-      last: true,
+      first: first,
+      last: last,
       child: Semantics(
         container: true,
         label: [who, l.phoneActInvoiceFor(amount)].join(', '),

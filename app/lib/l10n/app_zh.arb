@@ -646,7 +646,6 @@
   "qrShowSubReply": "发给 {amount} 的发送方",
   "qrHiddenTitle": "点击后才会显示",
   "qrHiddenBodyPayment": "谁先扫到，谁就能接受这笔付款。只给你要付款的那个人看。",
-  "qrHiddenBodyReply": "只给发送方的手机看。只有对方的钱包能使用它。",
   "qrShow": "显示二维码",
   "qrShowAgain": "再次显示",
   "qrHide": "隐藏",

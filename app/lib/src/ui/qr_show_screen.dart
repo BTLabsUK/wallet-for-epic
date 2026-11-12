@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Shows a payment file, or the reply to one, as an animated QR code for a phone next to this
-/// one. The code stays hidden until the user shows it, then counts 3, 2, 1, shows for
+/// one. A receiver's code (an invoice or a reply) shows at once. Any other code stays hidden
+/// until the user shows it, then counts 3, 2, 1, shows for
 /// [qrShowSeconds] with a time line, and hides again; it also hides the moment the app leaves
 /// the screen. While the code shows, the screen is at full brightness ([QrBrightness]). The
 /// whole route blocks screenshots where the phone can.
@@ -395,6 +396,11 @@ class QrShowScreen extends ConsumerStatefulWidget {
   /// True for a code that answers one the other phone showed: the reply, or a paid answer.
   bool get reply => role.answers;
 
+  /// The code is shown at once, with no cover, countdown or timer: what a receiver shows (an
+  /// invoice or a reply) can only let the other phone pay them. Only a code that would let
+  /// someone else take money stays covered until it is shown.
+  bool get open => role == QrShowRole.request || role == QrShowRole.reply;
+
   /// Whether the payment's "Scan their reply" works: the network mode may stop it.
   final bool scanEnabled;
 
@@ -459,7 +465,9 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           singleCodeMaxLen: qrSingleCodeMaxLen,
         );
       final frames = QrFrames.of(texts);
-      if (mounted) setState(() => _frames = frames);
+      if (!mounted) return;
+      setState(() => _frames = frames);
+      if (widget.open) _showOpen();
     } catch (error) {
       if (mounted) setState(() => _encodeError = error);
     }
@@ -483,7 +491,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // The app switcher's picture is taken at inactive, so hide then, and stay hidden.
-    if (state == AppLifecycleState.resumed) return;
+    if (state == AppLifecycleState.resumed || widget.open) return;
     if (_phase == QrShowPhase.countdown || _phase == QrShowPhase.showing) {
       _cover(QrShowPhase.away);
     }
@@ -517,6 +525,17 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
         _countTimer = null;
         _show();
       }
+    });
+  }
+
+  /// A receiver's code: showing from the first frame, to the end of the screen.
+  void _showOpen() {
+    unawaited(QrBrightness.holdFullBrightness());
+    _frame.value = 0;
+    setState(() => _phase = QrShowPhase.showing);
+    _reveal.value = 1;
+    _frameTimer = Timer.periodic(const Duration(milliseconds: qrFrameMs), (_) {
+      _frame.value++;
     });
   }
 
@@ -569,7 +588,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     }
     // The scanner goes over this screen, so the code goes away first: coming back, the user
     // shows it again if the scan did not work.
-    if (_phase == QrShowPhase.countdown || _phase == QrShowPhase.showing) {
+    if (!widget.open && (_phase == QrShowPhase.countdown || _phase == QrShowPhase.showing)) {
       _cover(QrShowPhase.away);
     }
     final result = await scanQrSlate(
@@ -807,7 +826,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           ),
         ),
       ],
-      if (showing) ...[
+      if (showing && !widget.open) ...[
         const SizedBox(height: 12),
         _HidesChip(secondsLeft: _secondsLeft),
       ],
@@ -818,6 +837,14 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     final nextId = reply ? TrustIds.qrshowDone : TrustIds.qrshowNext;
     final Widget bottom = done
         ? const SizedBox.shrink()
+        : widget.open
+        ? KitButton(
+            key: qrNextButtonKey,
+            label: nextLabel,
+            icon: reply ? null : KitIcons.scan,
+            semanticsId: nextId,
+            onPressed: widget.scanEnabled ? _next : null,
+          )
         : switch (_phase) {
             QrShowPhase.hidden => KitButton(
               key: qrShowButtonKey,
@@ -893,7 +920,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   onHelp: () => showKitHelp(
                     context,
                     title: l.phoneQrHelpTitle,
-                    lines: [status.text, l.qrHoldHint, l.qrHiddenBodyPayment, if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) l.qrSecureLine],
+                    lines: [status.text, l.qrHoldHint, if (!widget.open) l.qrHiddenBodyPayment, if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) l.qrSecureLine],
                   ),
                   helpId: TrustIds.qrshowHelp,
                 ),
@@ -1048,24 +1075,21 @@ class _Card extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(Kit.rQr - 1),
+            // At least the square; a cover with long words (or large text) makes the card taller.
             child: SizedBox(
               width: side,
-              height: side,
               child: Stack(
-                fit: StackFit.expand,
                 children: [
+                  SizedBox.square(dimension: side),
                   if (r < 1)
-                  Opacity(
-                    opacity: 1 - r,
-                    child: _Cover(
-                      phase: phase,
-                      reply: reply,
-                      numeral: numeral,
-                      reduced: reduced,
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: side, maxWidth: side, minHeight: side),
+                      child: Opacity(
+                        opacity: 1 - r,
+                        child: _Cover(phase: phase, reply: reply, numeral: numeral, reduced: reduced),
+                      ),
                     ),
-                  ),
-                  if (code != null)
-                    r < 1 ? Opacity(opacity: r, child: code) : code,
+                  if (code != null) Positioned(left: 0, top: 0, width: side, height: side, child: r < 1 ? Opacity(opacity: r, child: code) : code),
                 ],
               ),
             ),
@@ -1109,17 +1133,18 @@ class _Cover extends StatelessWidget {
         body = l.qrAwayBody;
       case QrShowPhase.hidden:
       case QrShowPhase.showing:
+        final role = context.findAncestorStateOfType<_QrShowScreenState>()!.widget.role;
+        // A receiver's code has no cover: until it is drawn, the card waits.
+        if (role == QrShowRole.request || role == QrShowRole.reply) {
+          return const Center(child: SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 2)));
+        }
         icon = Icons.qr_code_2;
         title = l.qrHiddenTitle;
-        body = switch (context
-            .findAncestorStateOfType<_QrShowScreenState>()!
-            .widget
-            .role) {
+        body = switch (role) {
           QrShowRole.payment => l.qrHiddenBodyPayment,
-          QrShowRole.reply => l.qrHiddenBodyReply,
-          QrShowRole.request => l.qrHiddenBodyRequest,
           QrShowRole.paid => l.qrHiddenBodyPaid,
           QrShowRole.finished => l.qrHiddenBodyFinished,
+          QrShowRole.reply || QrShowRole.request => '',
         };
       case QrShowPhase.countdown:
         return Center(
@@ -1138,14 +1163,13 @@ class _Cover extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Center(
-        child: SingleChildScrollView(
-          child: Semantics(
+        child: Semantics(
             liveRegion: true,
             container: true,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 72, color: t.faint),
+                Icon(icon, size: 56, color: t.faint),
                 const SizedBox(height: 8),
                 Text(
                   title,
@@ -1161,7 +1185,6 @@ class _Cover extends StatelessWidget {
               ],
             ),
           ),
-        ),
       ),
     );
   }

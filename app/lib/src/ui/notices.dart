@@ -664,6 +664,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             firstLine: 14.5 * 1.3 + 2 * _wordsPad,
             textEnd: 0,
             minHeight: Kit.toastMin,
+            centered: true,
           ),
           ?unfold,
         ],
@@ -855,6 +856,7 @@ class NoticeParts extends StatelessWidget {
       firstLine: line + 2 * wordsPad,
       textEnd: 12,
       minHeight: 48,
+      centered: true,
     );
   }
 }

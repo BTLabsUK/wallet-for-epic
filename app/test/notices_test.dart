@@ -643,6 +643,21 @@ void main() {
       expect(find.byTooltip(_l.commonClose), findsNothing);
     });
 
+    testWidgets('wrapped text keeps a short action beside it, the icon level with the whole row (frame 7.6)', (tester) async {
+      final c = await _pump(tester);
+      const text = 'An invoice is waiting for your approval.';
+      c.notices.show(text, level: NoticeLevel.info, action: NoticeAction('View', () {}));
+      await tester.pumpAndSettle();
+      expect(layout(tester).actionsBeside, isTrue);
+      final words = tester.getRect(find.text(text));
+      final button = tester.getRect(find.widgetWithText(TextButton, 'View'));
+      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(KitIcons.info)));
+      expect(words.height, greaterThan(30));
+      expect(button.left, greaterThan(words.right));
+      expect(button.center.dy, moreOrLessEquals(words.center.dy, epsilon: 1));
+      expect(icon.center.dy, moreOrLessEquals(words.center.dy, epsilon: 1));
+    });
+
     testWidgets('a second action goes with the first: beside when short, under when not', (tester) async {
       final c = await _pump(tester);
       c.notices.show('Down', level: NoticeLevel.warning, action: NoticeAction('Go', () {}), secondary: NoticeAction('No', () {}));
@@ -694,7 +709,8 @@ void main() {
       );
       expect(tester.renderObject<RenderParagraph>(find.text(long)).didExceedMaxLines, isFalse);
       expect(tester.widget<Text>(find.text(long)).maxLines, isNull);
-      expect(tester.getRect(find.text('OK')).top, greaterThan(tester.getRect(find.text(long)).bottom));
+      // The short action stays beside the wrapped words (frame 7.6), not alone on a row.
+      expect(tester.getRect(find.text('OK')).left, greaterThan(tester.getRect(find.text(long)).right));
     });
   });
 

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import '../../l10n.dart';
 import '../motion_switches.dart' show paymentNetworkMoves;
 import '../theme/tokens.dart';
-import 'kit_icons.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
@@ -150,7 +149,7 @@ class _Dot extends StatelessWidget {
   }
 }
 
-/// The dot of the step in progress on the network: a network icon in a ring, with a second ring
+/// The dot of the step in progress on the network: a ringed dot of the same 10 px as the others, with a second ring
 /// that spreads out and fades, over and over. Takes the same 10 px as the other dots; its ring overflows it.
 class _NetworkDot extends StatefulWidget {
   const _NetworkDot();
@@ -207,16 +206,15 @@ class _NetworkDotState extends State<_NetworkDot> with SingleTickerProviderState
                     Opacity(
                       opacity: (1 - v) * 0.5,
                       child: Container(
-                        width: 18 * (0.7 + 0.3 * v),
-                        height: 18 * (0.7 + 0.3 * v),
+                        width: Kit.stepDot * 1.8 * (0.7 + 0.3 * v),
+                        height: Kit.stepDot * 1.8 * (0.7 + 0.3 * v),
                         decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: t.info, width: 1.5)),
                       ),
                     ),
                   Container(
-                    width: 14,
-                    height: 14,
+                    width: Kit.stepDot,
+                    height: Kit.stepDot,
                     decoration: BoxDecoration(shape: BoxShape.circle, color: t.infoSoft, border: Border.all(color: t.info, width: 1.5)),
-                    child: Icon(KitIcons.network, size: 9, color: t.info),
                   ),
                 ],
               );

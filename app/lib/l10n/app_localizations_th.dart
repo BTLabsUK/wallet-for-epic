@@ -827,7 +827,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsMessageHintFromRecipient => 'จากผู้รับ';
 
   @override
-  String get txDetailsMessageHintToSender => 'ส่งถึงผู้ส่งแล้ว';
+  String get txDetailsMessageHintToSender => 'ส่งถึงผู้จ่ายเงินแล้ว';
 
   @override
   String get txDetailsNoNote => 'ไม่มีบันทึก';
@@ -2474,10 +2474,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get qrHiddenBodyPayment =>
       'ใครสแกนก่อนจะรับรายการนี้ได้ แสดงให้เฉพาะคนที่คุณจ่ายให้เท่านั้น';
-
-  @override
-  String get qrHiddenBodyReply =>
-      'แสดงให้โทรศัพท์ของผู้ส่ง เฉพาะกระเป๋าของเขาเท่านั้นที่ใช้ได้';
 
   @override
   String get qrShow => 'แสดง QR';

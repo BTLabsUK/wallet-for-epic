@@ -10,6 +10,10 @@ import 'kit_icons.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
+/// One fixed line box for a field's text and hint, so the glyphs sit on the icon's centre line in
+/// every renderer (the web's text metrics lower them otherwise).
+StrutStyle _strut(double size) => StrutStyle(fontSize: size, height: 1.25, forceStrutHeight: true, leading: 0);
+
 /// The search or address field (HANDOFF 7.4): 42 tall, radius 13, the quiet fill, a search
 /// glyph, a [hint], and optionally a "Paste" text button and a scan icon at the end. The paste
 /// and scan buttons show when their callbacks are set.
@@ -89,6 +93,7 @@ class KitSearchField extends StatelessWidget {
                   onChanged: onChanged,
                   onSubmitted: onSubmitted,
                   style: KitType.body.copyWith(color: t.text),
+                  strutStyle: _strut(KitType.body.fontSize ?? 15),
                   cursorColor: t.accent,
                   expands: true,
                   maxLines: null,
@@ -218,6 +223,7 @@ class KitAddressField extends StatelessWidget {
                     onChanged: onChanged,
                     onSubmitted: onSubmitted,
                     style: text,
+                    strutStyle: _strut(16),
                     cursorColor: t.accent,
                     expands: true,
                     maxLines: null,

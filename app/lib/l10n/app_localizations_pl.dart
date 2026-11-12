@@ -877,7 +877,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsMessageHintFromRecipient => 'Od odbiorcy';
 
   @override
-  String get txDetailsMessageHintToSender => 'Wysłana do nadawcy';
+  String get txDetailsMessageHintToSender => 'Wysłana do płatnika';
 
   @override
   String get txDetailsNoNote => 'Brak notatki';
@@ -2618,10 +2618,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get qrHiddenBodyPayment =>
       'Kto zeskanuje go pierwszy, może przyjąć tę płatność. Pokaż go tylko osobie, której płacisz.';
-
-  @override
-  String get qrHiddenBodyReply =>
-      'Pokaż go telefonowi nadawcy. Tylko jego portfel może go użyć.';
 
   @override
   String get qrShow => 'Pokaż QR';

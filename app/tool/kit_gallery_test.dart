@@ -154,6 +154,12 @@ Widget _page1(AppLocalizations l) => Column(
       const KitTabTitle('Contacts', trailing: Icon(KitIcons.add)),
       const SizedBox(height: 8),
       KitSearchField(hint: 'Search or paste an address', onPaste: _noop, onScan: _noop),
+      const SizedBox(height: 8),
+      KitSearchField(hint: 'Search', controller: TextEditingController(text: 'Northwind')),
+      const SizedBox(height: 8),
+      KitAddressField(hint: 'Search, or paste an address', onPaste: _noop, onScan: _noop),
+      const SizedBox(height: 8),
+      KitAddressField(hint: 'Search', controller: TextEditingController(text: 'Anna Kowalska')),
     ]),
   ],
 );
@@ -298,6 +304,11 @@ Widget _page3(AppLocalizations l) => Column(
         Notice(4, 'Version 26.11.4 is ready', level: NoticeLevel.info, persistent: true, action: NoticeAction('Install', _noop)),
         Notice(5, 'The coins are back in your balance', level: NoticeLevel.warning, title: 'Payment to Tom expired', action: NoticeAction('View', _noop)),
         Notice(6, 'Could not reach the node', level: NoticeLevel.error, action: NoticeAction('Try again', _noop)),
+        Notice(7, 'An invoice is waiting for your approval.', level: NoticeLevel.info, action: NoticeAction('View', _noop)),
+        Notice(8, 'Your Epicbox server is not reachable.', level: NoticeLevel.warning, action: NoticeAction('Switch', _noop)),
+        Notice(9, 'Your Epicbox server is not reachable. Your payments wait until it is back or you switch.', level: NoticeLevel.warning, action: NoticeAction('Switch', _noop)),
+        Notice(10, 'Could not reach the node, so nothing was sent.', level: NoticeLevel.error, action: NoticeAction('Try again', _noop), secondary: NoticeAction('Later', _noop)),
+        Notice(11, 'A long note without any action that runs over two lines of the toast to see the wrap', level: NoticeLevel.info),
       ])
         Padding(
           padding: const EdgeInsets.fromLTRB(Kit.toastSide, 0, Kit.toastSide, 10),
@@ -327,6 +338,12 @@ Future<void> _loadFonts() async {
     thai.addFont(read('assets/fonts/NotoSansThai-$weight.ttf'));
   }
   await thai.load();
+  final inter = FontLoader('Inter');
+  for (final face in ['Regular', 'Medium', 'SemiBold']) {
+    inter.addFont(read('assets/fonts/Inter-$face.ttf'));
+  }
+  await inter.load();
+  await (FontLoader('Lucide')..addFont(read('assets/fonts/Lucide.ttf'))).load();
   await (FontLoader('NotoSansSCSubset')..addFont(read('assets/fonts/NotoSansSCSubset.otf'))).load();
   await (FontLoader('MaterialIcons')..addFont(read('$dir/MaterialIcons-Regular.otf'))).load();
 }
