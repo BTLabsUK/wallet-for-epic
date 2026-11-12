@@ -7,6 +7,7 @@ import '../../l10n.dart';
 import '../theme/tokens.dart';
 import '../tip.dart';
 import 'kit_icons.dart';
+import 'kit_settings.dart' show KitTag;
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
@@ -121,7 +122,7 @@ class KitFlowHeader extends StatelessWidget {
 /// The header of a page inside a tab (HANDOFF 7.4): a gold back link named after the page it
 /// returns to ("‹ Settings"), a "?" on the right, then the 28 [title].
 class KitPageHeader extends StatelessWidget {
-  const KitPageHeader({super.key, required this.backLabel, required this.onBack, required this.title, this.onHelp, this.backId, this.helpId});
+  const KitPageHeader({super.key, required this.backLabel, required this.onBack, required this.title, this.onHelp, this.backId, this.helpId, this.tag});
 
   final String backLabel;
   final VoidCallback? onBack;
@@ -129,6 +130,9 @@ class KitPageHeader extends StatelessWidget {
   final VoidCallback? onHelp;
   final String? backId;
   final String? helpId;
+
+  /// A small tag beside the title (the Experiment tag of Linked devices).
+  final String? tag;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +147,10 @@ class KitPageHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
               children: [
-                kitId(
+                Expanded(
+                  child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: kitId(
                   backId,
                   Semantics(
                     button: true,
@@ -161,7 +168,14 @@ class KitPageHeader extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(KitIcons.backLink, size: 28, color: t.accentText),
-                              Text(backLabel, style: KitType.navLink.copyWith(color: t.accentText)),
+                              Flexible(
+                                child: Text(
+                                  backLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: KitType.navLink.copyWith(color: t.accentText),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -169,7 +183,8 @@ class KitPageHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Spacer(),
+                ),
+                ),
                 if (onHelp != null)
                   KitIconButton(icon: KitIcons.help, label: context.l10n.sendHelp, onPressed: onHelp, color: t.dim, semanticsId: helpId),
               ],
@@ -178,7 +193,15 @@ class KitPageHeader extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 2, Kit.gutter + 4, 14),
-          child: Semantics(header: true, child: Text(title, style: KitType.pageTitle.copyWith(color: t.text))),
+          child: tag == null
+              ? Semantics(header: true, child: Text(title, style: KitType.pageTitle.copyWith(color: t.text)))
+              : Row(
+                  children: [
+                    Flexible(child: Semantics(header: true, child: Text(title, style: KitType.pageTitle.copyWith(color: t.text)))),
+                    const SizedBox(width: 12),
+                    KitTag(tag!),
+                  ],
+                ),
         ),
       ],
     );

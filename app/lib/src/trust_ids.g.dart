@@ -76,7 +76,6 @@ abstract final class TrustIds {
   static const settingsSectionSecurity = 'g4.settings.section.security';
   static const settingsSectionDisplay = 'g4.settings.section.display';
   static const appearanceTheme = 'g4.appearance.theme';
-  static const advancedLevel = 'g4.advanced.level';
   static const restorePhrase = 'g4.restore.phrase';
   static const restoreStart = 'g4.restore.start';
   static const restoreInfo = 'g4.restore.info';
@@ -207,6 +206,69 @@ abstract final class TrustIds {
   static const e1Send = 'g4.e1.send';
   static const e1CancelUnlock = 'g4.e1.cancel_unlock';
   static const e1TryNext = 'g4.e1.try_next';
+  static const settingsPageBack = 'g4.settings.page.back';
+  static const settingsPageHelp = 'g4.settings.page.help';
+  static const settingsHelpSheet = 'g4.settings.help.sheet';
+  static const settingsHelpMore = 'g4.settings.help.more';
+  static const securityBiometrics = 'g4.security.biometrics';
+  static const securityAutoLock = 'g4.security.autoLock';
+  static const securityChangePin = 'g4.security.changePin';
+  static const securityPassphrase = 'g4.security.passphrase';
+  static const networkEpicbox = 'g4.network.epicbox';
+  static const networkNode = 'g4.network.node';
+  static const networkFailover = 'g4.network.failover';
+  static const networkStatusSite = 'g4.network.statusSite';
+  static const networkChooser = 'g4.network.chooser';
+  static const paymentsEpicbox = 'g4.payments.epicbox';
+  static const paymentsInPerson = 'g4.payments.inPerson';
+  static const paymentsFile = 'g4.payments.file';
+  static const paymentsTor = 'g4.payments.tor';
+  static const paymentsHttp = 'g4.payments.http';
+  static const paymentsStrategy = 'g4.payments.strategy';
+  static const paymentsStrategySmallest = 'g4.payments.strategy.smallest';
+  static const paymentsStrategyAll = 'g4.payments.strategy.all';
+  static const paymentsSplit = 'g4.payments.split';
+  static const paymentsInvoices = 'g4.payments.invoices';
+  static const paymentsExperimental = 'g4.payments.experimental';
+  static const advancedOutputs = 'g4.advanced.outputs';
+  static const advancedSendOptions = 'g4.advanced.sendOptions';
+  static const advancedServerDetails = 'g4.advanced.serverDetails';
+  static const advancedRecheck = 'g4.advanced.recheck';
+  static const advancedFiles = 'g4.advanced.files';
+  static const appearanceLanguage = 'g4.appearance.language';
+  static const appearanceCurrency = 'g4.appearance.currency';
+  static const appearanceShowPrices = 'g4.appearance.showPrices';
+  static const appearanceHideAmounts = 'g4.appearance.hideAmounts';
+  static const walletPhrase = 'g4.wallet.phrase';
+  static const walletExport = 'g4.wallet.export';
+  static const walletImport = 'g4.wallet.import';
+  static const walletCsv = 'g4.wallet.csv';
+  static const walletRecheck = 'g4.wallet.recheck';
+  static const walletOutputs = 'g4.wallet.outputs';
+  static const walletRestore = 'g4.wallet.restore';
+  static const walletDelete = 'g4.wallet.delete';
+  static const aboutUpdates = 'g4.about.updates';
+  static const aboutLicences = 'g4.about.licences';
+  static const aboutSite = 'g4.about.site';
+  static const aboutSource = 'g4.about.source';
+  static const aboutPrivacy = 'g4.about.privacy';
+  static const settingsSearch = 'g4.settings.search';
+  static const settingsResult = 'g4.settings.result';
+  static const settingsLinkedDevices = 'g4.settings.linkedDevices';
+  static const settingsHelp = 'g4.settings.help';
+  static const helpSearch = 'g4.help.search';
+  static const helpSection = 'g4.help.section';
+  static const helpTopic = 'g4.help.topic';
+  static const helpTour = 'g4.help.tour';
+  static const helpTips = 'g4.help.tips';
+  static const helpReport = 'g4.help.report';
+  static const helpAbout = 'g4.help.about';
+  static const helpLanguage = 'g4.help.language';
+  static const helpBack = 'g4.help.back';
+  static const helpHelp = 'g4.help.help';
+  static const devicesLink = 'g4.devices.link';
+  static const devicesBack = 'g4.devices.back';
+  static const devicesHelp = 'g4.devices.help';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -293,7 +355,6 @@ abstract final class TrustIds {
     'g4.settings.section.security',
     'g4.settings.section.display',
     'g4.appearance.theme',
-    'g4.advanced.level',
     'g4.restore.phrase',
     'g4.restore.start',
     'g4.restore.info',
@@ -424,5 +485,68 @@ abstract final class TrustIds {
     'g4.e1.send',
     'g4.e1.cancel_unlock',
     'g4.e1.try_next',
+    'g4.settings.page.back',
+    'g4.settings.page.help',
+    'g4.settings.help.sheet',
+    'g4.settings.help.more',
+    'g4.security.biometrics',
+    'g4.security.autoLock',
+    'g4.security.changePin',
+    'g4.security.passphrase',
+    'g4.network.epicbox',
+    'g4.network.node',
+    'g4.network.failover',
+    'g4.network.statusSite',
+    'g4.network.chooser',
+    'g4.payments.epicbox',
+    'g4.payments.inPerson',
+    'g4.payments.file',
+    'g4.payments.tor',
+    'g4.payments.http',
+    'g4.payments.strategy',
+    'g4.payments.strategy.smallest',
+    'g4.payments.strategy.all',
+    'g4.payments.split',
+    'g4.payments.invoices',
+    'g4.payments.experimental',
+    'g4.advanced.outputs',
+    'g4.advanced.sendOptions',
+    'g4.advanced.serverDetails',
+    'g4.advanced.recheck',
+    'g4.advanced.files',
+    'g4.appearance.language',
+    'g4.appearance.currency',
+    'g4.appearance.showPrices',
+    'g4.appearance.hideAmounts',
+    'g4.wallet.phrase',
+    'g4.wallet.export',
+    'g4.wallet.import',
+    'g4.wallet.csv',
+    'g4.wallet.recheck',
+    'g4.wallet.outputs',
+    'g4.wallet.restore',
+    'g4.wallet.delete',
+    'g4.about.updates',
+    'g4.about.licences',
+    'g4.about.site',
+    'g4.about.source',
+    'g4.about.privacy',
+    'g4.settings.search',
+    'g4.settings.result',
+    'g4.settings.linkedDevices',
+    'g4.settings.help',
+    'g4.help.search',
+    'g4.help.section',
+    'g4.help.topic',
+    'g4.help.tour',
+    'g4.help.tips',
+    'g4.help.report',
+    'g4.help.about',
+    'g4.help.language',
+    'g4.help.back',
+    'g4.help.help',
+    'g4.devices.link',
+    'g4.devices.back',
+    'g4.devices.help',
   ];
 }

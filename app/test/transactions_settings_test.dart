@@ -13,7 +13,8 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
-import 'package:epic_wallet/src/ui/info_hint.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
+import 'package:epic_wallet/src/ui/method_icons.dart' show MethodIcons;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -23,7 +24,6 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -121,55 +121,40 @@ MemorySecretStore _store([Map<String, String> values = const {}]) =>
 Finder _row(String key) => find.byKey(ValueKey(key));
 
 Finder _switchOf(String key) =>
-    find.descendant(of: _row(key), matching: find.byType(Switch));
+    find.descendant(of: _row(key), matching: find.byType(KitSwitch));
 
 /// The page's rows from the Payment methods header down, as keys: family heads and switches.
 List<String> _methodRows(WidgetTester tester) => [
   for (final e in find.byWidgetPredicate((w) {
     final k = w.key;
     return k is ValueKey<String> &&
-        (k.value.startsWith('tx-family-') ||
-            const {'tx-epicbox', 'tx-http', 'tx-tor', 'tx-qr', 'tx-file'}.contains(k.value));
+        const {'tx-epicbox', 'tx-http', 'tx-tor', 'tx-qr', 'tx-file'}.contains(k.value);
   }).evaluate())
     (e.widget.key! as ValueKey<String>).value,
 ];
 
-/// The title a method's switch shows.
-String? _titleOf(WidgetTester tester, String key) => tester
-    .widget<TitleWithHint>(find.descendant(of: _row(key), matching: find.byType(TitleWithHint)))
-    .title;
+/// The title a method's row shows.
+bool _hasTitle(String key, String title) =>
+    find.descendant(of: _row(key), matching: find.text(title)).evaluate().isNotEmpty;
 
 PaymentPrefs _payments(ProviderContainer c) =>
     c.read(appSettingsProvider).value!.payments;
 
 void main() {
-  testWidgets('methods: one switch each, grouped by family; Epicbox on by default', (tester) async {
+  testWidgets('methods: one switch each, Epicbox on by default', (tester) async {
     await _pump(tester, _store());
-    expect(find.text(_l.txMethodsHeader), findsOneWidget);
-    // Epicbox alone, then Link › HTTP, Tor, then Direct › File Transfer (QR is the phone's).
-    expect(_methodRows(tester), [
-      'tx-epicbox',
-      'tx-family-link',
-      'tx-http',
-      'tx-tor',
-      'tx-family-direct',
-      'tx-file',
-    ]);
-    // A family head: its name only.
-    expect(find.descendant(of: _row('tx-family-link'), matching: find.text(_l.methodDirect)), findsOneWidget);
-    expect(find.descendant(of: _row('tx-family-direct'), matching: find.text(_l.methodDirectFamily)), findsOneWidget);
-    // Under its family a method goes by its own name: Epicbox, HTTP, Tor, File Transfer.
-    expect(_titleOf(tester, 'tx-epicbox'), _l.methodEpicbox);
-    expect(_titleOf(tester, 'tx-http'), _l.methodGroupHttp);
-    expect(_titleOf(tester, 'tx-tor'), 'Tor');
-    expect(_titleOf(tester, 'tx-file'), _l.methodFile);
-    // Epicbox: a switch, on; the row is the label only, the explanation behind its info icon.
-    expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxHint)), findsNothing);
-    expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
+    expect(find.text(_l.phoneSettingsPayWays), findsOneWidget);
+    // Epicbox, then File, Tor and HTTP in the page's order (QR is the phone's).
+    expect(_methodRows(tester), ['tx-epicbox', 'tx-file', 'tx-tor', 'tx-http']);
+    expect(_hasTitle('tx-epicbox', MethodIcons.groupName(_l, MethodKind.epicbox)), isTrue);
+    expect(_hasTitle('tx-file', _l.phoneSettingsWithFile), isTrue);
+    expect(_hasTitle('tx-tor', _l.phoneSettingsTorAddress), isTrue);
+    expect(_hasTitle('tx-http', MethodIcons.fullName(_l, MethodKind.linkHttp)), isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-epicbox')).value, isTrue);
     // Link is off by default, File Transfer on.
-    expect(tester.widget<Switch>(_switchOf('tx-http')).value, isFalse);
-    expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isFalse);
-    expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-http')).value, isFalse);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-tor')).value, isFalse);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-file')).value, isTrue);
     // Off, Link · Tor says nothing about Tor.
     expect(find.byKey(txTorPayLineKey), findsNothing);
   }, skip: !torBuilt);
@@ -182,8 +167,8 @@ void main() {
 
   testWidgets('a phone has no Tor: Link · Tor on keeps its row, so it can be turned off', (tester) async {
     final c = await _pump(tester, _store({'app.payment_prefs': 'v2,tor,file|epicbox'}), tor: _noTor);
-    expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isTrue);
-    await tester.tap(_switchOf('tx-tor'));
+    expect(tester.widget<KitSwitch>(_switchOf('tx-tor')).value, isTrue);
+    await tester.tap(_row('tx-tor'));
     await tester.pumpAndSettle();
     expect(_payments(c).linkTor, isFalse);
     expect(_row('tx-tor'), findsOneWidget, reason: 'a row shown stays while the page is open');
@@ -191,7 +176,7 @@ void main() {
 
   testWidgets('Link · Tor on with Tor off: a state line, no "turn Tor on" card (item 2)', (tester) async {
     final c = await _pump(tester, _store());
-    await tester.tap(_switchOf('tx-tor'));
+    await tester.tap(_row('tx-tor'));
     await tester.pumpAndSettle();
     expect(_payments(c).linkTor, isTrue);
     expect(find.byKey(txTorPayLineKey), findsOneWidget);
@@ -200,7 +185,7 @@ void main() {
 
   testWidgets('Link · Tor on with Tor on: the state line, no "turn Tor on" card', (tester) async {
     await _pump(tester, _store({'app.payment_prefs': 'v2,tor,file|epicbox'}), tor: _torOn);
-    expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-tor')).value, isTrue);
     expect(find.byKey(txTorPayLineKey), findsOneWidget);
     expect(find.text(_l.txLinkTorNeedsTorNet), findsNothing);
   }, skip: !torBuilt);
@@ -210,22 +195,22 @@ void main() {
     // Epicbox alone (File Transfer and QR Payment off).
     final store = _store({'app.payment_prefs': 'v2,noqr|epicbox'});
     final c = await _pump(tester, store);
-    await tester.tap(_switchOf('tx-epicbox'));
+    await tester.tap(_row('tx-epicbox'));
     await tester.pumpAndSettle();
     expect(_payments(c).epicbox, isTrue);
-    expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-epicbox')).value, isTrue);
     expect(c.read(noticeProvider)?.text, _l.txLastMethodNotice);
     expect(c.read(noticeProvider)?.level, NoticeLevel.warning);
     expect(store.values['app.payment_prefs'], 'v2,noqr|epicbox');
     c.read(noticeProvider.notifier).clear();
     // Another one on: now Epicbox can go, and that one is the last.
-    await tester.tap(_switchOf('tx-http'));
+    await tester.tap(_row('tx-http'));
     await tester.pumpAndSettle();
-    await tester.tap(_switchOf('tx-epicbox'));
+    await tester.tap(_row('tx-epicbox'));
     await tester.pumpAndSettle();
     expect(_payments(c).epicbox, isFalse);
     expect(c.read(noticeProvider), isNull);
-    await tester.tap(_switchOf('tx-http'));
+    await tester.tap(_row('tx-http'));
     await tester.pumpAndSettle();
     expect(_payments(c).linkHttp, isTrue);
     expect(c.read(noticeProvider)?.text, _l.txLastMethodNotice);
@@ -233,43 +218,18 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('each method has an info sheet in plain words', (tester) async {
-    await _pump(tester, _store());
-    // The sheet carries the full name (no family header around it).
-    for (final (title, text) in [
-      (_l.methodEpicbox, _l.txEpicboxHint),
-      (_l.methodDirectHttp, _l.txLinkHttpHint('${appConfig.httpListenPort}')),
-      (_l.methodDirectTor, _l.deskSetRowTorPayInfo),
-      (_l.methodDirectFile, _l.txFileHint),
-    ]) {
-      await tester.tap(
-        find.byWidgetPredicate((w) => w is InfoHint && w.title == title),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.descendant(of: find.byType(InfoSheet), matching: find.text(text)),
-        findsOneWidget,
-        reason: title,
-      );
-      await tester.tap(find.widgetWithText(TextButton, _l.commonClose));
-      await tester.pumpAndSettle();
-    }
-  }, skip: !torBuilt);
-
   testWidgets('the Epicbox switch saves, reaches the gate, and comes back on', (tester) async {
     addTearDown(() => NetGate.setEpicbox(true));
     final store = _store();
     final c = await _pump(tester, store);
-    await tester.tap(_switchOf('tx-epicbox'));
+    await tester.tap(_row('tx-epicbox'));
     await tester.pumpAndSettle();
     expect(_payments(c).epicbox, isFalse);
     expect(store.values['app.payment_prefs'], 'v2,file,noqr,noepicbox|epicbox');
     expect(NetGate.epicbox, isFalse);
     // Nothing waited for a reply: no confirm.
     expect(find.text(_l.txEpicboxOffTitle), findsNothing);
-    // Send starts on: Epicbox is not offered while it is off.
-    expect(find.byKey(const ValueKey('tx-start-epicbox')), findsNothing);
-    await tester.tap(_switchOf('tx-epicbox'));
+    await tester.tap(_row('tx-epicbox'));
     await tester.pumpAndSettle();
     expect(_payments(c).epicbox, isTrue);
     expect(NetGate.epicbox, isTrue);
@@ -279,14 +239,14 @@ void main() {
     addTearDown(() => NetGate.setEpicbox(true));
     final store = _store();
     final c = await _pump(tester, store, transactions: [_waitingEpicboxSend]);
-    await tester.tap(_switchOf('tx-epicbox'));
+    await tester.tap(_row('tx-epicbox'));
     await tester.pumpAndSettle();
     expect(find.text(_l.txEpicboxOffTitle), findsOneWidget);
     expect(find.text(_l.txEpicboxOffPending(1)), findsOneWidget);
     await tester.tap(find.text(_l.commonCancel));
     await tester.pumpAndSettle();
     expect(_payments(c).epicbox, isTrue, reason: 'Cancel keeps it on');
-    await tester.tap(_switchOf('tx-epicbox'));
+    await tester.tap(_row('tx-epicbox'));
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.txEpicboxOffAction));
     await tester.pumpAndSettle();
@@ -296,61 +256,19 @@ void main() {
   testWidgets('the switches save', (tester) async {
     final store = _store();
     final c = await _pump(tester, store);
-    await tester.tap(_switchOf('tx-http'));
+    await tester.tap(_row('tx-http'));
     await tester.pumpAndSettle();
     expect(_payments(c), const PaymentPrefs(linkHttp: true, directQr: false));
     expect(store.values['app.payment_prefs'], 'v2,http,file,noqr|epicbox');
-    await tester.tap(_switchOf('tx-tor'));
+    await tester.tap(_row('tx-tor'));
     await tester.pumpAndSettle();
     expect(_payments(c), const PaymentPrefs(linkHttp: true, linkTor: true, directQr: false));
     expect(store.values['app.payment_prefs'], 'v2,http,tor,file,noqr|epicbox');
-    await tester.tap(_switchOf('tx-file'));
+    await tester.tap(_row('tx-file'));
     await tester.pumpAndSettle();
     expect(_payments(c), const PaymentPrefs(linkHttp: true, linkTor: true, directFile: false, directQr: false));
-    expect(tester.widget<Switch>(_switchOf('tx-file')).value, isFalse);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-file')).value, isFalse);
   }, skip: !torBuilt);
-
-  testWidgets('Send starts on: only the methods offered, and a saved choice', (tester) async {
-    final c = await _pump(tester, _store());
-    // Epicbox and Direct · File (the default set), by their short names.
-    expect(_row('tx-start-epicbox'), findsOneWidget);
-    expect(_row('tx-start-file'), findsOneWidget);
-    expect(_row('tx-start-link'), findsNothing);
-    expect(find.descendant(of: _row('tx-start-file'), matching: find.text(_l.methodShortFile)), findsOneWidget);
-    await tester.tap(_row('tx-start-file'));
-    await tester.pumpAndSettle();
-    expect(_payments(c).defaultMethod, MethodKind.directFile);
-    // Link · HTTP on adds Link, once, named for the family.
-    await tester.tap(_switchOf('tx-http'));
-    await tester.pumpAndSettle();
-    expect(_row('tx-start-link'), findsOneWidget);
-    expect(find.descendant(of: _row('tx-start-link'), matching: find.text(_l.methodDirect)), findsOneWidget);
-    await tester.tap(_row('tx-start-link'));
-    await tester.pumpAndSettle();
-    expect(_payments(c).defaultMethod, MethodKind.linkHttp);
-    expect(_payments(c).startMethod, MethodKind.linkHttp);
-    // Link · Tor on too: still one Link choice, still chosen.
-    await tester.tap(_switchOf('tx-tor'));
-    await tester.pumpAndSettle();
-    expect(_row('tx-start-link'), findsOneWidget);
-    expect(tester.widget<RadioGroup<MethodKind>>(find.byType(RadioGroup<MethodKind>)).groupValue, MethodKind.linkHttp);
-    // HTTP off: Link stays chosen through Tor.
-    await tester.tap(_switchOf('tx-http'));
-    await tester.pumpAndSettle();
-    expect(_payments(c).startMethod, MethodKind.linkTor);
-    expect(tester.widget<RadioGroup<MethodKind>>(find.byType(RadioGroup<MethodKind>)).groupValue, MethodKind.linkTor);
-    // Both off: the choice is no longer offered and Send starts on Epicbox.
-    await tester.tap(_switchOf('tx-tor'));
-    await tester.pumpAndSettle();
-    expect(_row('tx-start-link'), findsNothing);
-    expect(_payments(c).startMethod, MethodKind.epicbox);
-  }, skip: !torBuilt);
-
-  testWidgets('with Epicbox alone there is nothing to choose', (tester) async {
-    await _pump(tester, _store({'app.payment_prefs': 'v2,noqr|epicbox'}));
-    expect(find.text(_l.txStartHeader), findsNothing);
-    expect(_row('tx-start-epicbox'), findsNothing);
-  });
 
   testWidgets('Send defaults: nothing about them without Send options', (tester) async {
     await _pump(tester, _store());
@@ -366,11 +284,11 @@ void main() {
     expect(find.descendant(of: _row('tx-strategy'), matching: find.text(_l.outputsSmallest)), findsOneWidget);
     await tester.tap(_row('tx-strategy'));
     await tester.pumpAndSettle();
-    await tester.tap(_row('tx-strategy-all'));
+    await tester.tap(find.text(_l.outputsAll));
     await tester.pumpAndSettle();
     expect(c.read(appSettingsProvider).value?.sendStrategy, SelectionStrategy.all);
     expect(store.values['app.send_strategy'], 'all');
-    expect(tester.widget<Switch>(_switchOf('tx-split')).value, isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-split')).value, isTrue);
     await tester.tap(_row('tx-split'));
     await tester.pumpAndSettle();
     expect(c.read(appSettingsProvider).value?.splitChange, isFalse);
@@ -389,15 +307,15 @@ void main() {
     // Send options off: the defaults show only because they are changed.
     final store = _store({'app.send_strategy': 'all', 'app.split_change': 'false'});
     final c = await _pump(tester, store);
-    expect(tester.widget<Switch>(_switchOf('tx-split')).value, isFalse);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-split')).value, isFalse);
     await tester.tap(_row('tx-split'));
     await tester.pumpAndSettle();
     expect(c.read(appSettingsProvider).value?.splitChange, isTrue);
     expect(_row('tx-split'), findsOneWidget, reason: 'the row stays, with its new value');
-    expect(tester.widget<Switch>(_switchOf('tx-split')).value, isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-split')).value, isTrue);
     await tester.tap(_row('tx-strategy'));
     await tester.pumpAndSettle();
-    await tester.tap(_row('tx-strategy-smallest'));
+    await tester.tap(find.text(_l.outputsSmallest).last);
     await tester.pumpAndSettle();
     expect(c.read(appSettingsProvider).value?.sendStrategy, SelectionStrategy.smallest);
     expect(find.descendant(of: _row('tx-strategy'), matching: find.text(_l.outputsSmallest)), findsOneWidget);
@@ -415,13 +333,13 @@ void main() {
     for (final f in AdvancedFeature.values) {
       final row = _row('adv-${f.name}');
       if (row.evaluate().isEmpty) continue;
-      final before = tester.widget<Switch>(find.descendant(of: row, matching: find.byType(Switch))).value;
+      final before = tester.widget<KitSwitch>(find.descendant(of: row, matching: find.byType(KitSwitch))).value;
       await tester.ensureVisible(row);
       await tester.pumpAndSettle();
-      await tester.tap(find.descendant(of: row, matching: find.byType(Switch)));
+      await tester.tap(find.descendant(of: row, matching: find.byType(KitSwitch)));
       await tester.pumpAndSettle();
       expect(row, findsOneWidget, reason: f.name);
-      expect(tester.widget<Switch>(find.descendant(of: row, matching: find.byType(Switch))).value, !before, reason: f.name);
+      expect(tester.widget<KitSwitch>(find.descendant(of: row, matching: find.byType(KitSwitch))).value, !before, reason: f.name);
     }
   });
 
@@ -436,7 +354,7 @@ void main() {
     final store = _store({'app.advanced_prefs': 'directReceiving|standard'});
     final c = await _pump(tester, store, phone: true);
     expect(_payments(c).linkTor, isTrue);
-    expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isTrue);
+    expect(tester.widget<KitSwitch>(_switchOf('tx-tor')).value, isTrue);
   }, skip: !torBuilt);
 
   group('on a phone: QR for everyone, File behind Advanced', () {
@@ -445,28 +363,19 @@ void main() {
     testWidgets('a new phone: QR is on, there is no File row', (tester) async {
       await _pump(tester, _store(), phone: true);
       // The phone only sends over Link · HTTP: no switch for it.
-      expect(_methodRows(tester), [
-        'tx-epicbox',
-        'tx-family-link',
-        'tx-tor',
-        'tx-family-direct',
-        'tx-qr',
-      ]);
-      expect(_titleOf(tester, 'tx-qr'), _l.methodQr);
-      expect(tester.widget<Switch>(_switchOf('tx-qr')).value, isTrue);
+      expect(_methodRows(tester), ['tx-epicbox', 'tx-qr', 'tx-tor']);
+      expect(_hasTitle('tx-qr', _l.phoneSettingsInPerson), isTrue);
+      expect(tester.widget<KitSwitch>(_switchOf('tx-qr')).value, isTrue);
       expect(_row('tx-file'), findsNothing);
-      expect(_row('tx-start-qr'), findsOneWidget);
-      expect(_row('tx-start-file'), findsNothing);
     }, skip: !torBuilt);
 
     testWidgets('Advanced › Transaction files brings the File switch, off', (tester) async {
       final store = _store({'app.advanced_prefs': files.encode()});
       final c = await _pump(tester, store, phone: true);
-      expect(tester.widget<Switch>(_switchOf('tx-file')).value, isFalse);
-      await tester.tap(_switchOf('tx-file'));
+      expect(tester.widget<KitSwitch>(_switchOf('tx-file')).value, isFalse);
+      await tester.tap(_row('tx-file'));
       await tester.pumpAndSettle();
       expect(_payments(c).directFile, isTrue);
-      expect(_row('tx-start-file'), findsOneWidget);
     });
 
     testWidgets('a phone that has File on keeps the row, so it can switch it off', (
@@ -477,39 +386,22 @@ void main() {
         _store({'app.payment_prefs': 'v2,file|epicbox'}),
         phone: true,
       );
-      expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
-      await tester.tap(_switchOf('tx-file'));
+      expect(tester.widget<KitSwitch>(_switchOf('tx-file')).value, isTrue);
+      await tester.tap(_row('tx-file'));
       await tester.pumpAndSettle();
       expect(_payments(c).directFile, isFalse);
       // It stays on the page, so a changed setting does not vanish under the finger.
       expect(_row('tx-file'), findsOneWidget);
     });
 
-    testWidgets('the QR switch saves, and Send starts on QR when chosen', (tester) async {
+    testWidgets('the QR switch saves', (tester) async {
       final store = _store();
       final c = await _pump(tester, store, phone: true);
-      await tester.tap(_row('tx-start-qr'));
-      await tester.pumpAndSettle();
-      expect(_payments(c).startMethod, MethodKind.directQr);
-      await tester.tap(_switchOf('tx-qr'));
+      await tester.tap(_row('tx-qr'));
       await tester.pumpAndSettle();
       expect(_payments(c).directQr, isFalse);
       expect(store.values['app.payment_prefs'], contains('noqr'));
-      // Off: it is no longer a choice and Send starts on Epicbox.
-      expect(_row('tx-start-qr'), findsNothing);
       expect(_payments(c).startMethod, MethodKind.epicbox);
-    });
-
-    testWidgets('the QR switch has an info sheet', (tester) async {
-      await _pump(tester, _store(), phone: true);
-      await tester.tap(
-        find.byWidgetPredicate((w) => w is InfoHint && w.title == _l.methodDirectQr),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.descendant(of: find.byType(InfoSheet), matching: find.text(_l.txQrHint)),
-        findsOneWidget,
-      );
     });
 
     testWidgets('the Advanced page has the Transaction files switch', (tester) async {

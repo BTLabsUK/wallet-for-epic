@@ -29,11 +29,13 @@ abstract final class KitIcons {
   static const IconData scan = Icons.qr_code_scanner_rounded;
   static const IconData qr = Icons.qr_code_2_rounded;
   static const IconData send = Icons.north_east_rounded;
+  static const IconData external = Icons.north_east_rounded;
   static const IconData receive = Icons.south_west_rounded;
   static const IconData copy = Icons.content_copy_rounded;
   static const IconData paste = Icons.content_paste_rounded;
   static const IconData share = Icons.ios_share_rounded;
   static const IconData add = Icons.add_rounded;
+  static const IconData remove = Icons.remove_rounded;
   static const IconData edit = Icons.edit_outlined;
   static const IconData delete = Icons.delete_outline_rounded;
   static const IconData search = Icons.search_rounded;

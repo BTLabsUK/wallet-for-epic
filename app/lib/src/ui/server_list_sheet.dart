@@ -59,6 +59,7 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
 import '../settings_file/status_site.dart' show statusSiteHost;
 import 'inline_button.dart';
+import 'kit/kit_tokens.dart';
 
 // The sheet.
 
@@ -704,7 +705,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
+    final t = context.tokens;
     final choice = ref.watch(networkChoiceProvider).value;
     final title = _sel?.title ?? (_node ? l.serverNodeTitle : l.serverEpicboxTitle);
     final media = MediaQuery.of(context);
@@ -720,7 +721,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 Expanded(
                   child: Semantics(
                     header: true,
-                    child: Text(title, style: theme.textTheme.titleLarge),
+                    child: Text(title, style: KitType.sheetTitle.copyWith(color: t.text)),
                   ),
                 ),
                 if (_sel == null) HelpButton(_node ? HelpId.node : HelpId.epicbox),
@@ -1014,7 +1015,6 @@ class _ServerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final e = entry;
     final state = e.state;
     final down = state == NodeHealthState.down;
@@ -1050,7 +1050,7 @@ class _ServerRow extends StatelessWidget {
         l.serverUptime(localDigits(l, (e.relay!.uptime24h! * 100).toStringAsFixed(1))),
     ];
     final words = down ? t.faint : t.text;
-    final small = theme.textTheme.bodySmall?.copyWith(color: down ? t.faint : t.dim);
+    final small = KitType.rowSub.copyWith(color: down ? t.faint : t.dim);
     final label = l.serverRowLabel(
       e.host,
       [
@@ -1072,12 +1072,12 @@ class _ServerRow extends StatelessWidget {
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(t.radiusSmall),
+          borderRadius: BorderRadius.circular(Kit.rButton),
           child: Ink(
             decoration: BoxDecoration(
               color: selected ? t.selected : null,
               border: Border.all(color: selected ? t.selectedLine : Colors.transparent),
-              borderRadius: BorderRadius.circular(t.radiusSmall),
+              borderRadius: BorderRadius.circular(Kit.rButton),
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 56),
@@ -1110,7 +1110,7 @@ class _ServerRow extends StatelessWidget {
                                 children: [
                                   // Shrunk rather than cut: a host is read whole.
                                   Flexible(
-                                    child: HostText(e.host, style: TextStyle(fontSize: 13, color: words)),
+                                    child: HostText(e.host, style: KitType.rowSub.copyWith(color: words)),
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
@@ -1181,7 +1181,6 @@ class _AddRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     return Semantics(
       button: true,
       label: l.slAddRow(host),
@@ -1190,11 +1189,11 @@ class _AddRow extends StatelessWidget {
         child: InkWell(
           key: serverListAddKey,
           onTap: busy ? null : onTap,
-          borderRadius: BorderRadius.circular(t.radiusSmall),
+          borderRadius: BorderRadius.circular(Kit.rButton),
           child: Ink(
             decoration: BoxDecoration(
               border: Border.all(color: t.lineStrong),
-              borderRadius: BorderRadius.circular(t.radiusSmall),
+              borderRadius: BorderRadius.circular(Kit.rButton),
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 56),
@@ -1232,13 +1231,10 @@ class _AddRow extends StatelessWidget {
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: t.text,
-                              ),
+                              style: KitType.rowTitle.copyWith(color: t.text),
                             ),
                             const SizedBox(height: 2),
-                            Text(note, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                            Text(note, style: KitType.rowSub.copyWith(color: t.dim)),
                           ],
                         ),
                       ),
@@ -1298,7 +1294,7 @@ class _SelectionNote extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(note, key: serverListNoteKey, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
+            child: Text(note, key: serverListNoteKey, style: KitType.rowSub.copyWith(color: t.dim)),
           ),
           const SizedBox(width: 8),
           EBadge(
@@ -1619,7 +1615,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
         decoration: BoxDecoration(
           color: t.surface,
           border: Border.all(color: t.line),
-          borderRadius: BorderRadius.circular(t.radiusSmall),
+          borderRadius: BorderRadius.circular(Kit.rButton),
         ),
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -1670,7 +1666,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
       decoration: BoxDecoration(
         color: t.surface,
         border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
+        borderRadius: BorderRadius.circular(Kit.rButton),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(

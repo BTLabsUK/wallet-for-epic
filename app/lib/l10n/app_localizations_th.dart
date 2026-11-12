@@ -21637,4 +21637,276 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'ปิด';
+
+  @override
+  String get phoneSettingsSearchHint => 'ค้นหาการตั้งค่า';
+
+  @override
+  String get phoneSettingsNoMatch => 'ไม่พบรายการ';
+
+  @override
+  String get phoneSettingsPhraseLine => 'วิธีเดียวที่จะกู้กระเป๋าเงินนี้คืน';
+
+  @override
+  String get phoneSettingsBackedUp => '✓ สำรองแล้ว';
+
+  @override
+  String get phoneSettingsPhraseBackedUp => 'สำรองวลีกู้คืนแล้ว';
+
+  @override
+  String get phoneSettingsUnlocking => 'การปลดล็อก';
+
+  @override
+  String get phoneSettingsBiometrics => 'ชีวมิติ';
+
+  @override
+  String get phoneSettingsBiometricsLine => 'ใบหน้าหรือลายนิ้วมือ';
+
+  @override
+  String get phoneSettingsPinWord => 'PIN';
+
+  @override
+  String phoneSettingsLocksAfter(String time) {
+    return 'ล็อกหลัง $time';
+  }
+
+  @override
+  String phoneSettingsAutoLockFootnote(String time) {
+    return 'กระเป๋าเงินจะล็อกเมื่อไม่ได้เปิดแอปเป็นเวลา $time';
+  }
+
+  @override
+  String get phoneSettingsLockNow => 'ล็อกตอนนี้';
+
+  @override
+  String phoneSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count นาที',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneSettingsOneHour => '1 ชั่วโมง';
+
+  @override
+  String get phoneSettingsAutoLockSub => 'ล็อกกระเป๋าเงินเมื่อไม่มีการใช้งาน';
+
+  @override
+  String get phoneSettingsPickerNote => 'บันทึกเมื่อแตะ';
+
+  @override
+  String get phoneSettingsPassphrase => 'วลีผ่านเพิ่มเติม';
+
+  @override
+  String get phoneSettingsPassphraseLine => 'คำเพิ่มเติมจากวลีกู้คืน';
+
+  @override
+  String get phoneSettingsSecurityHelp1 =>
+      'PIN หรือชีวมิติใช้ปลดล็อกกระเป๋าเงินบนโทรศัพท์เครื่องนี้';
+
+  @override
+  String get phoneSettingsSecurityHelp2 =>
+      'วลีกู้คืนเป็นวิธีเดียวที่จะกู้กระเป๋าเงินบนโทรศัพท์เครื่องอื่น';
+
+  @override
+  String get phoneSettingsSecurityHelp3 =>
+      'วลีผ่านเปลี่ยนกระเป๋าเงินที่วลีกู้คืนเปิดได้ หากไม่มีจะเปิดกระเป๋าเงินเปล่า';
+
+  @override
+  String get phoneSettingsNetworkHelp =>
+      'โหมดการเชื่อมต่อกำหนดว่าจะซ่อนข้อมูลของกระเป๋าเงินมากเพียงใดและใช้เซิร์ฟเวอร์ใด';
+
+  @override
+  String get phoneSettingsWalletHelp1 =>
+      'การส่งออกบันทึกข้อมูลกระเป๋าเงินลงในไฟล์ที่คุณเก็บไว้';
+
+  @override
+  String get phoneSettingsWalletHelp2 =>
+      'การลบกระเป๋าเงินจะนำออกจากโทรศัพท์เครื่องนี้ มีเพียงวลีกู้คืนที่นำกลับมาได้';
+
+  @override
+  String get phoneSettingsPayments => 'การชำระเงิน';
+
+  @override
+  String get phoneSettingsPayWays => 'วิธีชำระเงิน';
+
+  @override
+  String get phoneSettingsPaymentsHelp1 =>
+      'วิธีชำระเงินที่ปิดอยู่จะไม่แสดงเมื่อส่งหรือขอจำนวนเงิน';
+
+  @override
+  String get phoneSettingsPaymentsHelp2 =>
+      'Epicbox ต้องให้ทั้งสองเครื่องออนไลน์ แบบพบกันและแบบไฟล์ใช้ได้โดยไม่ต้องมีเซิร์ฟเวอร์';
+
+  @override
+  String get phoneSettingsPaymentsHelp3 =>
+      'การเลือกเหรียญกำหนดว่าการชำระเงินจะใช้เหรียญใด';
+
+  @override
+  String get phoneSettingsEpicboxLine => 'ทั้งสองเครื่องออนไลน์';
+
+  @override
+  String get phoneSettingsInPerson => 'พบกันตัวต่อตัว';
+
+  @override
+  String get phoneSettingsInPersonLine => 'แสดงคิวอาร์โค้ดระหว่างสองเครื่อง';
+
+  @override
+  String get phoneSettingsWithFile => 'ด้วยไฟล์';
+
+  @override
+  String get phoneSettingsWithFileLine => 'ไฟล์ที่ส่งผ่านแอปใดก็ได้';
+
+  @override
+  String get phoneSettingsTorAddress => 'ที่อยู่ Tor';
+
+  @override
+  String get phoneSettingsTorAddressLine => 'รับที่ที่อยู่ .onion';
+
+  @override
+  String get phoneSettingsSplitLine => 'แบ่งเงินทอนเป็นหลายเหรียญ';
+
+  @override
+  String get phoneSettingsInvoicesLine => 'คำขอที่คุณสร้างและสถานะ';
+
+  @override
+  String get phoneSettingsFailoverLine =>
+      'สลับไปโหนดอื่นเมื่อโหนดหนึ่งหยุดทำงาน';
+
+  @override
+  String get phoneSettingsServerStatus => 'สถานะเซิร์ฟเวอร์';
+
+  @override
+  String phoneSettingsServerStatusLine(String host) {
+    return 'เปิด $host';
+  }
+
+  @override
+  String get phoneSettingsExport => 'ส่งออกข้อมูลกระเป๋าเงิน';
+
+  @override
+  String get phoneSettingsExportLine =>
+      'บันทึกรายการชำระเงินและผู้ติดต่อลงไฟล์';
+
+  @override
+  String get phoneSettingsImport => 'นำเข้าข้อมูลกระเป๋าเงิน';
+
+  @override
+  String get phoneSettingsCsv => 'ส่งออกเป็น CSV';
+
+  @override
+  String get phoneSettingsCsvLine => 'รายการชำระเงินเป็นสเปรดชีต';
+
+  @override
+  String get phoneSettingsUpkeep => 'การบำรุงรักษา';
+
+  @override
+  String get phoneSettingsRecheckLine => 'ค้นหารายการที่กระเป๋าเงินพลาดไป';
+
+  @override
+  String get phoneSettingsOutputsLine => 'เหรียญที่อยู่ในกระเป๋าเงิน';
+
+  @override
+  String get phoneSettingsRestore => 'กู้คืนจากวลี';
+
+  @override
+  String get phoneSettingsRestoreLine => 'สร้างกระเป๋าเงินใหม่จากวลีกู้คืน';
+
+  @override
+  String get phoneSettingsAdvancedLine =>
+      'เหรียญ รายละเอียดทางเทคนิค การเลือกเหรียญ';
+
+  @override
+  String get phoneSettingsAdvOutputsLine => 'แสดงเหรียญที่อยู่ในกระเป๋าเงิน';
+
+  @override
+  String get phoneSettingsAdvTechnicalLine =>
+      'แสดงรหัส ความสูงบล็อก และสถานะดิบ';
+
+  @override
+  String get phoneSettingsAdvSendLine => 'แสดงการเลือกเหรียญเมื่อส่ง';
+
+  @override
+  String get phoneSettingsAdvServersLine => 'แสดงที่อยู่และสถานะของเซิร์ฟเวอร์';
+
+  @override
+  String get phoneSettingsAdvRecheckLine => 'เลือกจุดที่การตรวจสอบซ้ำเริ่มต้น';
+
+  @override
+  String get phoneSettingsAdvFilesLine =>
+      'แสดงไฟล์การชำระเงินให้บันทึกหรือเปิด';
+
+  @override
+  String get phoneSettingsShowPricesLine => 'แสดงมูลค่าในสกุลเงินของคุณ';
+
+  @override
+  String get phoneSettingsHideAmounts => 'ซ่อนจำนวนเงิน';
+
+  @override
+  String get phoneSettingsHideAmountsLine => 'แสดงจุดแทนยอดเงิน';
+
+  @override
+  String get phoneSettingsAppearanceHelp1 =>
+      'ธีม ภาษา และสกุลเงินใช้เฉพาะบนโทรศัพท์เครื่องนี้';
+
+  @override
+  String get phoneSettingsAppearanceHelp2 =>
+      'ราคาเป็นค่าประมาณจากแหล่งภายนอก และไม่เปลี่ยนการชำระเงิน';
+
+  @override
+  String get phoneSettingsHubInPerson => 'พบกัน';
+
+  @override
+  String get phoneSettingsHubFile => 'ไฟล์';
+
+  @override
+  String get phoneSettingsHubTor => 'Tor';
+
+  @override
+  String get phoneSettingsConnected => 'เชื่อมต่อแล้ว';
+
+  @override
+  String get phoneSettingsNotConnected => 'ไม่ได้เชื่อมต่อ';
+
+  @override
+  String get phoneSettingsNoneLinked => 'ยังไม่ได้เชื่อมโยง';
+
+  @override
+  String get phoneSettingsOneLinked => 'เชื่อมโยง 1 เครื่อง';
+
+  @override
+  String get phoneSettingsHelpLine => 'คู่มือ ทัวร์ แจ้งปัญหา';
+
+  @override
+  String get phoneSettingsMadeBy => 'ผู้พัฒนา';
+
+  @override
+  String get phoneSettingsProtocol => 'โปรโตคอล';
+
+  @override
+  String get phoneSettingsEngine => 'เอนจิน';
+
+  @override
+  String get phoneSettingsAboutRow => 'เกี่ยวกับ BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'คู่มือ อธิบายวิธีการทำงานของกระเป๋าเงิน การค้นหาจะค้นทุกคู่มือ';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'แสดงคู่มือเป็นภาษาอื่นที่ไม่ใช่ภาษาของแอปได้ เลือกด้วยธงใต้ช่องค้นหา';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'ยังไม่มีอุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'กู้คืนกระเป๋าเงินนี้บนอุปกรณ์เครื่องอื่น แล้วเชื่อมโยงทั้งสองเครื่องที่นี่ รายการที่ทำบนเครื่องหนึ่งจะแสดงบนอีกเครื่องด้วย';
+
+  @override
+  String get phoneSettingsLinkDevice => 'เชื่อมโยงอุปกรณ์';
 }

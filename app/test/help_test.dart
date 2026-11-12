@@ -155,17 +155,22 @@ void main() {
       expect(find.text('Contact'), findsNothing);
     });
 
-    testWidgets('the index lists every section with a phone topic, and its topics', (tester) async {
+    testWidgets('the index lists every section with a phone topic; a section lists its topics', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
       // The phone's index skips a section none of its topics uses.
       final used = helpTopics(3, platform: HelpPlatform.phone).map((t) => t.section).toSet();
       for (final s in helpSections.where((s) => used.contains(s.id))) {
-        await tester.scrollUntilVisible(find.text(s.title), 300, scrollable: _list);
+        await tester.scrollUntilVisible(find.text(s.title), 300, scrollable: _list.last);
         expect(find.text(s.title), findsOneWidget);
       }
-      // The loop ended at the foot of the page, below the topics: scroll up to them.
-      await tester.scrollUntilVisible(find.text('Troubleshooting'), -300, scrollable: _list.last);
+      final trouble = helpSections.firstWhere((s) => s.id == 'trouble').title;
+      await tester.scrollUntilVisible(find.text(trouble), -300, scrollable: _list.last);
+      await tester.ensureVisible(find.text(trouble));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(trouble));
+      await tester.pumpAndSettle();
+      await _see(tester, find.text('Troubleshooting'));
       await tester.scrollUntilVisible(find.text('Payments by another wallet'), 300, scrollable: _list.last);
     });
 
@@ -195,13 +200,17 @@ void main() {
     testWidgets('a topic opens as a page with its section, body and the related rows', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      await tester.scrollUntilVisible(find.text('Fees'), 300, scrollable: _list);
+      await tester.scrollUntilVisible(find.text('How Epic Cash works'), 300, scrollable: _list.last);
+      await tester.ensureVisible(find.text('How Epic Cash works'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('How Epic Cash works'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Fees'), 300, scrollable: _list.last);
       await tester.ensureVisible(find.text('Fees'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Fees'));
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsOneWidget);
-      expect(find.text('How Epic Cash works'), findsOneWidget);
       await _see(tester, find.textContaining('Network fee'));
       await _see(tester, find.text(_l.helpMoreInSection));
       await _see(tester, find.text('Confirmations'));
@@ -213,7 +222,7 @@ void main() {
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('Your recovery phrase'), findsOneWidget);
       await _see(tester, find.textContaining('your PIN'));
-      await tester.pageBack();
+      await tester.tap(find.bySemanticsLabel(_l.helpTitle).first);
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsNothing);
       expect(find.byKey(helpSearchKey), findsOneWidget);

@@ -22084,4 +22084,279 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Dismiss';
+
+  @override
+  String get phoneSettingsSearchHint => 'Search settings';
+
+  @override
+  String get phoneSettingsNoMatch => 'Nothing found';
+
+  @override
+  String get phoneSettingsPhraseLine => 'The only way to get this wallet back';
+
+  @override
+  String get phoneSettingsBackedUp => '✓ Backed up';
+
+  @override
+  String get phoneSettingsPhraseBackedUp => 'Recovery phrase backed up';
+
+  @override
+  String get phoneSettingsUnlocking => 'Unlocking';
+
+  @override
+  String get phoneSettingsBiometrics => 'Biometrics';
+
+  @override
+  String get phoneSettingsBiometricsLine => 'Face or fingerprint';
+
+  @override
+  String get phoneSettingsPinWord => 'PIN';
+
+  @override
+  String phoneSettingsLocksAfter(String time) {
+    return 'Locks after $time';
+  }
+
+  @override
+  String phoneSettingsAutoLockFootnote(String time) {
+    return 'The wallet locks after $time away from the app.';
+  }
+
+  @override
+  String get phoneSettingsLockNow => 'Lock now';
+
+  @override
+  String phoneSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '$count minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneSettingsOneHour => '1 hour';
+
+  @override
+  String get phoneSettingsAutoLockSub =>
+      'Lock the wallet after it is left alone';
+
+  @override
+  String get phoneSettingsPickerNote => 'Saved when you tap.';
+
+  @override
+  String get phoneSettingsPassphrase => 'Passphrase';
+
+  @override
+  String get phoneSettingsPassphraseLine =>
+      'Extra words on top of the recovery phrase';
+
+  @override
+  String get phoneSettingsSecurityHelp1 =>
+      'The PIN or biometrics unlock the wallet on this phone.';
+
+  @override
+  String get phoneSettingsSecurityHelp2 =>
+      'The recovery phrase is the only way to get the wallet back on another phone.';
+
+  @override
+  String get phoneSettingsSecurityHelp3 =>
+      'A passphrase changes which wallet the phrase opens. Without it the phrase opens an empty one.';
+
+  @override
+  String get phoneSettingsNetworkHelp =>
+      'Connection mode sets how much of the wallet\'s traffic is hidden and which servers it uses.';
+
+  @override
+  String get phoneSettingsWalletHelp1 =>
+      'Export saves the wallet\'s data to a file you keep.';
+
+  @override
+  String get phoneSettingsWalletHelp2 =>
+      'Delete wallet removes it from this phone. Only the recovery phrase brings it back.';
+
+  @override
+  String get phoneSettingsPayments => 'Payments';
+
+  @override
+  String get phoneSettingsPayWays => 'Ways to pay';
+
+  @override
+  String get phoneSettingsPaymentsHelp1 =>
+      'A way to pay that is off is not offered when sending or asking for an amount.';
+
+  @override
+  String get phoneSettingsPaymentsHelp2 =>
+      'Epicbox needs both phones online. In person and With a file work without a server.';
+
+  @override
+  String get phoneSettingsPaymentsHelp3 =>
+      'Coin choice sets which coins a payment spends.';
+
+  @override
+  String get phoneSettingsEpicboxLine => 'Both phones online';
+
+  @override
+  String get phoneSettingsInPerson => 'In person';
+
+  @override
+  String get phoneSettingsInPersonLine => 'QR codes shown between two phones';
+
+  @override
+  String get phoneSettingsWithFile => 'With a file';
+
+  @override
+  String get phoneSettingsWithFileLine => 'A file passed by any app';
+
+  @override
+  String get phoneSettingsTorAddress => 'Tor address';
+
+  @override
+  String get phoneSettingsTorAddressLine => 'Receive at an .onion address';
+
+  @override
+  String get phoneSettingsSplitLine => 'Keeps change in several coins';
+
+  @override
+  String get phoneSettingsInvoicesLine => 'Requests you made and their state';
+
+  @override
+  String get phoneSettingsFailoverLine =>
+      'Switch to another node when one stops';
+
+  @override
+  String get phoneSettingsServerStatus => 'Server status';
+
+  @override
+  String phoneSettingsServerStatusLine(String host) {
+    return 'Opens $host';
+  }
+
+  @override
+  String get phoneSettingsExport => 'Export wallet data';
+
+  @override
+  String get phoneSettingsExportLine => 'Save payments and contacts to a file';
+
+  @override
+  String get phoneSettingsImport => 'Import wallet data';
+
+  @override
+  String get phoneSettingsCsv => 'Export as CSV';
+
+  @override
+  String get phoneSettingsCsvLine => 'Payments as a spreadsheet';
+
+  @override
+  String get phoneSettingsUpkeep => 'Upkeep';
+
+  @override
+  String get phoneSettingsRecheckLine => 'Look for payments the wallet missed';
+
+  @override
+  String get phoneSettingsOutputsLine => 'Coins the wallet holds';
+
+  @override
+  String get phoneSettingsRestore => 'Restore from phrase';
+
+  @override
+  String get phoneSettingsRestoreLine =>
+      'Rebuild the wallet from the recovery phrase';
+
+  @override
+  String get phoneSettingsAdvancedLine =>
+      'Outputs, technical details, coin choice';
+
+  @override
+  String get phoneSettingsAdvOutputsLine => 'Show the coins the wallet holds';
+
+  @override
+  String get phoneSettingsAdvTechnicalLine =>
+      'Show ids, heights and raw states';
+
+  @override
+  String get phoneSettingsAdvSendLine => 'Show coin choice when sending';
+
+  @override
+  String get phoneSettingsAdvServersLine =>
+      'Show addresses and health of servers';
+
+  @override
+  String get phoneSettingsAdvRecheckLine => 'Choose where a recheck starts';
+
+  @override
+  String get phoneSettingsAdvFilesLine => 'Show payment files to save or open';
+
+  @override
+  String get phoneSettingsShowPricesLine => 'Show a value in your currency';
+
+  @override
+  String get phoneSettingsHideAmounts => 'Hide amounts';
+
+  @override
+  String get phoneSettingsHideAmountsLine => 'Show dots instead of balances';
+
+  @override
+  String get phoneSettingsAppearanceHelp1 =>
+      'Theme, language and currency apply on this phone only.';
+
+  @override
+  String get phoneSettingsAppearanceHelp2 =>
+      'Prices are an estimate from an outside source. They never change a payment.';
+
+  @override
+  String get phoneSettingsHubInPerson => 'in person';
+
+  @override
+  String get phoneSettingsHubFile => 'file';
+
+  @override
+  String get phoneSettingsHubTor => 'Tor';
+
+  @override
+  String get phoneSettingsConnected => 'connected';
+
+  @override
+  String get phoneSettingsNotConnected => 'not connected';
+
+  @override
+  String get phoneSettingsNoneLinked => 'None linked';
+
+  @override
+  String get phoneSettingsOneLinked => '1 linked';
+
+  @override
+  String get phoneSettingsHelpLine => 'Guides, the tour, report a problem';
+
+  @override
+  String get phoneSettingsMadeBy => 'Made by';
+
+  @override
+  String get phoneSettingsProtocol => 'Protocol';
+
+  @override
+  String get phoneSettingsEngine => 'Engine';
+
+  @override
+  String get phoneSettingsAboutRow => 'About BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'The guides explain how the wallet works. Search looks through all of them.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'The guides can be shown in a language other than the app\'s. Pick it with the flag under the search.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'No devices linked';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Restore this wallet on your other device, then link the two here. Payments made on one then show on the other.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Link a device';
 }

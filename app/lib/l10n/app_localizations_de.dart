@@ -22348,4 +22348,288 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Schließen';
+
+  @override
+  String get phoneSettingsSearchHint => 'Einstellungen durchsuchen';
+
+  @override
+  String get phoneSettingsNoMatch => 'Nichts gefunden';
+
+  @override
+  String get phoneSettingsPhraseLine =>
+      'Der einzige Weg, dieses Wallet zurückzubekommen';
+
+  @override
+  String get phoneSettingsBackedUp => '✓ Gesichert';
+
+  @override
+  String get phoneSettingsPhraseBackedUp =>
+      'Wiederherstellungsphrase gesichert';
+
+  @override
+  String get phoneSettingsUnlocking => 'Entsperren';
+
+  @override
+  String get phoneSettingsBiometrics => 'Biometrie';
+
+  @override
+  String get phoneSettingsBiometricsLine => 'Gesicht oder Fingerabdruck';
+
+  @override
+  String get phoneSettingsPinWord => 'PIN';
+
+  @override
+  String phoneSettingsLocksAfter(String time) {
+    return 'Sperrt nach $time';
+  }
+
+  @override
+  String phoneSettingsAutoLockFootnote(String time) {
+    return 'Das Wallet sperrt, wenn die App $time nicht geöffnet war.';
+  }
+
+  @override
+  String get phoneSettingsLockNow => 'Jetzt sperren';
+
+  @override
+  String phoneSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Minuten',
+      one: '$count Minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneSettingsOneHour => '1 Stunde';
+
+  @override
+  String get phoneSettingsAutoLockSub =>
+      'Das Wallet sperren, wenn es unbenutzt bleibt';
+
+  @override
+  String get phoneSettingsPickerNote => 'Wird beim Antippen gespeichert.';
+
+  @override
+  String get phoneSettingsPassphrase => 'Passphrase';
+
+  @override
+  String get phoneSettingsPassphraseLine =>
+      'Zusätzliche Wörter zur Wiederherstellungsphrase';
+
+  @override
+  String get phoneSettingsSecurityHelp1 =>
+      'Die PIN oder die Biometrie entsperren das Wallet auf diesem Telefon.';
+
+  @override
+  String get phoneSettingsSecurityHelp2 =>
+      'Die Wiederherstellungsphrase ist der einzige Weg, das Wallet auf einem anderen Telefon zurückzubekommen.';
+
+  @override
+  String get phoneSettingsSecurityHelp3 =>
+      'Eine Passphrase ändert, welches Wallet die Phrase öffnet. Ohne sie öffnet die Phrase ein leeres.';
+
+  @override
+  String get phoneSettingsNetworkHelp =>
+      'Der Verbindungsmodus legt fest, wie viel vom Datenverkehr des Wallets verborgen wird und welche Server es nutzt.';
+
+  @override
+  String get phoneSettingsWalletHelp1 =>
+      'Der Export speichert die Daten des Wallets in einer Datei, die du aufbewahrst.';
+
+  @override
+  String get phoneSettingsWalletHelp2 =>
+      'Wallet löschen entfernt es von diesem Telefon. Nur die Wiederherstellungsphrase bringt es zurück.';
+
+  @override
+  String get phoneSettingsPayments => 'Zahlungen';
+
+  @override
+  String get phoneSettingsPayWays => 'Zahlungswege';
+
+  @override
+  String get phoneSettingsPaymentsHelp1 =>
+      'Ein ausgeschalteter Zahlungsweg wird beim Senden und beim Anfordern eines Betrags nicht angeboten.';
+
+  @override
+  String get phoneSettingsPaymentsHelp2 =>
+      'Epicbox braucht beide Telefone online. Persönlich und Mit einer Datei funktionieren ohne Server.';
+
+  @override
+  String get phoneSettingsPaymentsHelp3 =>
+      'Die Münzauswahl legt fest, welche Münzen eine Zahlung ausgibt.';
+
+  @override
+  String get phoneSettingsEpicboxLine => 'Beide Telefone online';
+
+  @override
+  String get phoneSettingsInPerson => 'Persönlich';
+
+  @override
+  String get phoneSettingsInPersonLine => 'QR-Codes zwischen zwei Telefonen';
+
+  @override
+  String get phoneSettingsWithFile => 'Mit einer Datei';
+
+  @override
+  String get phoneSettingsWithFileLine => 'Eine Datei über eine beliebige App';
+
+  @override
+  String get phoneSettingsTorAddress => 'Tor-Adresse';
+
+  @override
+  String get phoneSettingsTorAddressLine => 'An einer .onion-Adresse empfangen';
+
+  @override
+  String get phoneSettingsSplitLine =>
+      'Teilt das Wechselgeld auf mehrere Münzen auf';
+
+  @override
+  String get phoneSettingsInvoicesLine => 'Deine Anfragen und ihr Stand';
+
+  @override
+  String get phoneSettingsFailoverLine =>
+      'Zu einem anderen Node wechseln, wenn einer ausfällt';
+
+  @override
+  String get phoneSettingsServerStatus => 'Serverstatus';
+
+  @override
+  String phoneSettingsServerStatusLine(String host) {
+    return 'Öffnet $host';
+  }
+
+  @override
+  String get phoneSettingsExport => 'Wallet-Daten exportieren';
+
+  @override
+  String get phoneSettingsExportLine =>
+      'Zahlungen und Kontakte in einer Datei sichern';
+
+  @override
+  String get phoneSettingsImport => 'Wallet-Daten importieren';
+
+  @override
+  String get phoneSettingsCsv => 'Als CSV exportieren';
+
+  @override
+  String get phoneSettingsCsvLine => 'Zahlungen als Tabelle';
+
+  @override
+  String get phoneSettingsUpkeep => 'Pflege';
+
+  @override
+  String get phoneSettingsRecheckLine =>
+      'Nach Zahlungen suchen, die das Wallet verpasst hat';
+
+  @override
+  String get phoneSettingsOutputsLine => 'Münzen im Wallet';
+
+  @override
+  String get phoneSettingsRestore => 'Aus Phrase wiederherstellen';
+
+  @override
+  String get phoneSettingsRestoreLine =>
+      'Das Wallet aus der Wiederherstellungsphrase neu aufbauen';
+
+  @override
+  String get phoneSettingsAdvancedLine =>
+      'Münzen, technische Details, Münzauswahl';
+
+  @override
+  String get phoneSettingsAdvOutputsLine => 'Die Münzen im Wallet anzeigen';
+
+  @override
+  String get phoneSettingsAdvTechnicalLine =>
+      'IDs, Höhen und Rohzustände anzeigen';
+
+  @override
+  String get phoneSettingsAdvSendLine => 'Münzauswahl beim Senden anzeigen';
+
+  @override
+  String get phoneSettingsAdvServersLine =>
+      'Adressen und Zustand der Server anzeigen';
+
+  @override
+  String get phoneSettingsAdvRecheckLine =>
+      'Festlegen, wo eine Neuprüfung beginnt';
+
+  @override
+  String get phoneSettingsAdvFilesLine =>
+      'Zahlungsdateien zum Sichern oder Öffnen anzeigen';
+
+  @override
+  String get phoneSettingsShowPricesLine =>
+      'Einen Wert in deiner Währung anzeigen';
+
+  @override
+  String get phoneSettingsHideAmounts => 'Beträge ausblenden';
+
+  @override
+  String get phoneSettingsHideAmountsLine => 'Punkte statt Kontostände zeigen';
+
+  @override
+  String get phoneSettingsAppearanceHelp1 =>
+      'Design, Sprache und Währung gelten nur auf diesem Telefon.';
+
+  @override
+  String get phoneSettingsAppearanceHelp2 =>
+      'Preise sind eine Schätzung aus einer externen Quelle. Sie ändern nie eine Zahlung.';
+
+  @override
+  String get phoneSettingsHubInPerson => 'persönlich';
+
+  @override
+  String get phoneSettingsHubFile => 'Datei';
+
+  @override
+  String get phoneSettingsHubTor => 'Tor';
+
+  @override
+  String get phoneSettingsConnected => 'verbunden';
+
+  @override
+  String get phoneSettingsNotConnected => 'nicht verbunden';
+
+  @override
+  String get phoneSettingsNoneLinked => 'Keines verknüpft';
+
+  @override
+  String get phoneSettingsOneLinked => '1 verknüpft';
+
+  @override
+  String get phoneSettingsHelpLine =>
+      'Anleitungen, die Tour, ein Problem melden';
+
+  @override
+  String get phoneSettingsMadeBy => 'Von';
+
+  @override
+  String get phoneSettingsProtocol => 'Protokoll';
+
+  @override
+  String get phoneSettingsEngine => 'Engine';
+
+  @override
+  String get phoneSettingsAboutRow => 'Über BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'Die Anleitungen erklären, wie das Wallet funktioniert. Die Suche durchsucht alle.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'Die Anleitungen lassen sich in einer anderen Sprache als die der App anzeigen. Sie wählst du mit der Flagge unter der Suche.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'Keine Geräte verknüpft';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Stelle dieses Wallet auf deinem anderen Gerät wieder her und verknüpfe beide hier. Zahlungen, die auf einem erfolgen, erscheinen dann auch auf dem anderen.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Gerät verknüpfen';
 }

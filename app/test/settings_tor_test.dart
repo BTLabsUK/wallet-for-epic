@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_location.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey;
@@ -135,16 +136,18 @@ void main() {
     return;
   }
   group('network modes', () {
-    ListTile row(WidgetTester tester, NetworkMode m) =>
-        tester.widget<ListTile>(find.byKey(networkModeRowKey(m)));
-    NetworkMode? selected(WidgetTester tester) =>
-        tester.widget<RadioGroup<NetworkMode>>(find.byType(RadioGroup<NetworkMode>)).groupValue;
+    KitRow row(WidgetTester tester, NetworkMode m) =>
+        tester.widget<KitRow>(find.byKey(networkModeRowKey(m)));
+    NetworkMode? selected(WidgetTester tester) => [
+      for (final m in NetworkMode.values)
+        if (find.byKey(networkModeRowKey(m)).evaluate().isNotEmpty && row(tester, m).isChoice == true) m,
+    ].singleOrNull;
 
     testWidgets('Standard: Tor only is one of the rows, off, and there is no Tor switch', (tester) async {
       final h = _Harness();
       await h.pump(tester, privacy: true);
       await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.torOnly)));
-      expect(row(tester, NetworkMode.torOnly).enabled, isTrue);
+      expect(row(tester, NetworkMode.torOnly).onTap, isNotNull);
       expect(selected(tester), NetworkMode.standard);
       expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(find.byKey(torLockedLineKey), findsNothing);
@@ -192,7 +195,7 @@ void main() {
     final h = _Harness(bundle: null);
     await h.pump(tester, privacy: true);
     expect(find.byKey(torReceivingSwitchKey), findsNothing);
-    final tile = tester.widget<ListTile>(find.byKey(networkModeRowKey(NetworkMode.torOnly)));
-    expect(tile.enabled, isFalse, reason: 'Tor only is disabled while Tor is unavailable');
+    final tile = tester.widget<KitRow>(find.byKey(networkModeRowKey(NetworkMode.torOnly)));
+    expect(tile.onTap, isNull, reason: 'Tor only is disabled while Tor is unavailable');
   });
 }

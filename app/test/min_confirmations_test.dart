@@ -80,7 +80,7 @@ Future<void> _tap(WidgetTester tester, Key key, {int times = 1}) async {
   await tester.pumpAndSettle();
 }
 
-bool _enabled(WidgetTester tester, Key key) => tester.widget<IconButton>(find.byKey(key)).onPressed != null;
+bool _enabled(WidgetTester tester, Key key) => tester.widget<InkWell>(find.byKey(key)).onTap != null;
 
 void main() {
   testWidgets('6 is marked Default, with no Reset and no note', (tester) async {
@@ -89,8 +89,8 @@ void main() {
     expect(find.text(_l.advConfirmationsDefault), findsOneWidget);
     expect(find.byKey(confirmationsResetKey), findsNothing);
     expect(find.byKey(confirmationsNoteKey), findsNothing);
-    expect(find.byTooltip(_l.advConfirmationsFewer), findsOneWidget);
-    expect(find.byTooltip(_l.advConfirmationsMore), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.advConfirmationsFewer), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.advConfirmationsMore), findsOneWidget);
   });
 
   testWidgets('+ stores 7 in the wallet and re-splits the balance at once', (tester) async {

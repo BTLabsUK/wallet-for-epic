@@ -350,7 +350,7 @@ void main() {
     });
 
     testWidgets(
-      'the switch sits in the header and the topics stay reachable at 360 dp',
+      'the switch sits at the top of the page and the topics stay reachable at 360 dp',
       (tester) async {
         await _pump(tester, locale: const Locale('ru'));
         tester.view.physicalSize = const Size(360 * 3, 640 * 3);
@@ -358,7 +358,7 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(
           tester.getTopLeft(find.byKey(helpLanguageKey)).dy,
-          lessThan(kToolbarHeight),
+          lessThan(160),
         );
       },
     );

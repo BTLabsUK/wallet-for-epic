@@ -22811,4 +22811,283 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Zamknij';
+
+  @override
+  String get phoneSettingsSearchHint => 'Szukaj w ustawieniach';
+
+  @override
+  String get phoneSettingsNoMatch => 'Nic nie znaleziono';
+
+  @override
+  String get phoneSettingsPhraseLine =>
+      'Jedyny sposób na odzyskanie tego portfela';
+
+  @override
+  String get phoneSettingsBackedUp => '✓ Zapisana';
+
+  @override
+  String get phoneSettingsPhraseBackedUp => 'Fraza odzyskiwania zapisana';
+
+  @override
+  String get phoneSettingsUnlocking => 'Odblokowanie';
+
+  @override
+  String get phoneSettingsBiometrics => 'Biometria';
+
+  @override
+  String get phoneSettingsBiometricsLine => 'Twarz lub odcisk palca';
+
+  @override
+  String get phoneSettingsPinWord => 'PIN';
+
+  @override
+  String phoneSettingsLocksAfter(String time) {
+    return 'Blokada po $time';
+  }
+
+  @override
+  String phoneSettingsAutoLockFootnote(String time) {
+    return 'Portfel blokuje się, gdy aplikacja jest nieużywana przez $time.';
+  }
+
+  @override
+  String get phoneSettingsLockNow => 'Zablokuj teraz';
+
+  @override
+  String phoneSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minuty',
+      many: '$count minut',
+      few: '$count minuty',
+      one: '$count minuta',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneSettingsOneHour => '1 godzina';
+
+  @override
+  String get phoneSettingsAutoLockSub =>
+      'Blokuj portfel, gdy nikt go nie używa';
+
+  @override
+  String get phoneSettingsPickerNote => 'Zapisuje się po dotknięciu.';
+
+  @override
+  String get phoneSettingsPassphrase => 'Hasło dodatkowe';
+
+  @override
+  String get phoneSettingsPassphraseLine =>
+      'Dodatkowe słowa do frazy odzyskiwania';
+
+  @override
+  String get phoneSettingsSecurityHelp1 =>
+      'PIN lub biometria odblokowują portfel na tym telefonie.';
+
+  @override
+  String get phoneSettingsSecurityHelp2 =>
+      'Fraza odzyskiwania to jedyny sposób na odzyskanie portfela na innym telefonie.';
+
+  @override
+  String get phoneSettingsSecurityHelp3 =>
+      'Hasło dodatkowe zmienia portfel otwierany frazą. Bez niego fraza otwiera pusty portfel.';
+
+  @override
+  String get phoneSettingsNetworkHelp =>
+      'Tryb połączenia określa, ile ruchu portfela jest ukryte i z jakich serwerów korzysta.';
+
+  @override
+  String get phoneSettingsWalletHelp1 =>
+      'Eksport zapisuje dane portfela w pliku, który przechowujesz.';
+
+  @override
+  String get phoneSettingsWalletHelp2 =>
+      'Usunięcie portfela usuwa go z tego telefonu. Przywróci go tylko fraza odzyskiwania.';
+
+  @override
+  String get phoneSettingsPayments => 'Płatności';
+
+  @override
+  String get phoneSettingsPayWays => 'Sposoby płatności';
+
+  @override
+  String get phoneSettingsPaymentsHelp1 =>
+      'Wyłączony sposób płatności nie jest oferowany przy wysyłaniu ani prośbie o kwotę.';
+
+  @override
+  String get phoneSettingsPaymentsHelp2 =>
+      'Epicbox wymaga, by oba telefony były online. Osobiście i Plikiem działają bez serwera.';
+
+  @override
+  String get phoneSettingsPaymentsHelp3 =>
+      'Wybór monet określa, które monety wydaje płatność.';
+
+  @override
+  String get phoneSettingsEpicboxLine => 'Oba telefony online';
+
+  @override
+  String get phoneSettingsInPerson => 'Osobiście';
+
+  @override
+  String get phoneSettingsInPersonLine => 'Kody QR między dwoma telefonami';
+
+  @override
+  String get phoneSettingsWithFile => 'Plikiem';
+
+  @override
+  String get phoneSettingsWithFileLine => 'Plik przekazany dowolną aplikacją';
+
+  @override
+  String get phoneSettingsTorAddress => 'Adres Tor';
+
+  @override
+  String get phoneSettingsTorAddressLine => 'Odbieraj pod adresem .onion';
+
+  @override
+  String get phoneSettingsSplitLine => 'Dzieli resztę na kilka monet';
+
+  @override
+  String get phoneSettingsInvoicesLine => 'Twoje prośby i ich stan';
+
+  @override
+  String get phoneSettingsFailoverLine =>
+      'Przełącz na inny węzeł, gdy jeden przestanie działać';
+
+  @override
+  String get phoneSettingsServerStatus => 'Stan serwerów';
+
+  @override
+  String phoneSettingsServerStatusLine(String host) {
+    return 'Otwiera $host';
+  }
+
+  @override
+  String get phoneSettingsExport => 'Eksportuj dane portfela';
+
+  @override
+  String get phoneSettingsExportLine => 'Zapisz płatności i kontakty do pliku';
+
+  @override
+  String get phoneSettingsImport => 'Importuj dane portfela';
+
+  @override
+  String get phoneSettingsCsv => 'Eksportuj jako CSV';
+
+  @override
+  String get phoneSettingsCsvLine => 'Płatności jako arkusz';
+
+  @override
+  String get phoneSettingsUpkeep => 'Konserwacja';
+
+  @override
+  String get phoneSettingsRecheckLine =>
+      'Szukaj płatności, które portfel pominął';
+
+  @override
+  String get phoneSettingsOutputsLine => 'Monety w portfelu';
+
+  @override
+  String get phoneSettingsRestore => 'Odtwórz z frazy';
+
+  @override
+  String get phoneSettingsRestoreLine => 'Odbuduj portfel z frazy odzyskiwania';
+
+  @override
+  String get phoneSettingsAdvancedLine =>
+      'Monety, szczegóły techniczne, wybór monet';
+
+  @override
+  String get phoneSettingsAdvOutputsLine => 'Pokaż monety w portfelu';
+
+  @override
+  String get phoneSettingsAdvTechnicalLine =>
+      'Pokaż identyfikatory, wysokości i surowe stany';
+
+  @override
+  String get phoneSettingsAdvSendLine => 'Pokaż wybór monet przy wysyłaniu';
+
+  @override
+  String get phoneSettingsAdvServersLine => 'Pokaż adresy i stan serwerów';
+
+  @override
+  String get phoneSettingsAdvRecheckLine =>
+      'Wybierz, od którego miejsca zaczyna się ponowne sprawdzenie';
+
+  @override
+  String get phoneSettingsAdvFilesLine =>
+      'Pokaż pliki płatności do zapisania lub otwarcia';
+
+  @override
+  String get phoneSettingsShowPricesLine => 'Pokaż wartość w twojej walucie';
+
+  @override
+  String get phoneSettingsHideAmounts => 'Ukryj kwoty';
+
+  @override
+  String get phoneSettingsHideAmountsLine => 'Pokaż kropki zamiast sald';
+
+  @override
+  String get phoneSettingsAppearanceHelp1 =>
+      'Motyw, język i waluta dotyczą tylko tego telefonu.';
+
+  @override
+  String get phoneSettingsAppearanceHelp2 =>
+      'Ceny to szacunek z zewnętrznego źródła. Nigdy nie zmieniają płatności.';
+
+  @override
+  String get phoneSettingsHubInPerson => 'osobiście';
+
+  @override
+  String get phoneSettingsHubFile => 'plik';
+
+  @override
+  String get phoneSettingsHubTor => 'Tor';
+
+  @override
+  String get phoneSettingsConnected => 'połączono';
+
+  @override
+  String get phoneSettingsNotConnected => 'brak połączenia';
+
+  @override
+  String get phoneSettingsNoneLinked => 'Brak połączonych';
+
+  @override
+  String get phoneSettingsOneLinked => '1 połączone';
+
+  @override
+  String get phoneSettingsHelpLine => 'Poradniki, wycieczka, zgłoś problem';
+
+  @override
+  String get phoneSettingsMadeBy => 'Autor';
+
+  @override
+  String get phoneSettingsProtocol => 'Protokół';
+
+  @override
+  String get phoneSettingsEngine => 'Silnik';
+
+  @override
+  String get phoneSettingsAboutRow => 'O BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'Poradniki wyjaśniają, jak działa portfel. Wyszukiwanie przeszukuje je wszystkie.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'Poradniki można pokazać w innym języku niż aplikacja. Wybierz go flagą pod wyszukiwaniem.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'Brak połączonych urządzeń';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Odtwórz ten portfel na drugim urządzeniu, a potem połącz oba tutaj. Płatności z jednego pojawią się wtedy na drugim.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Połącz urządzenie';
 }

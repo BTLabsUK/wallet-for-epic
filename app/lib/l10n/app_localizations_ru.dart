@@ -22797,4 +22797,285 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneKitDismiss => 'Закрыть';
+
+  @override
+  String get phoneSettingsSearchHint => 'Поиск по настройкам';
+
+  @override
+  String get phoneSettingsNoMatch => 'Ничего не найдено';
+
+  @override
+  String get phoneSettingsPhraseLine =>
+      'Единственный способ вернуть этот кошелёк';
+
+  @override
+  String get phoneSettingsBackedUp => '✓ Сохранена';
+
+  @override
+  String get phoneSettingsPhraseBackedUp => 'Фраза восстановления сохранена';
+
+  @override
+  String get phoneSettingsUnlocking => 'Разблокировка';
+
+  @override
+  String get phoneSettingsBiometrics => 'Биометрия';
+
+  @override
+  String get phoneSettingsBiometricsLine => 'Лицо или отпечаток';
+
+  @override
+  String get phoneSettingsPinWord => 'PIN-код';
+
+  @override
+  String phoneSettingsLocksAfter(String time) {
+    return 'Блокировка через $time';
+  }
+
+  @override
+  String phoneSettingsAutoLockFootnote(String time) {
+    return 'Кошелёк блокируется, если приложение не используется $time.';
+  }
+
+  @override
+  String get phoneSettingsLockNow => 'Заблокировать';
+
+  @override
+  String phoneSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count минуты',
+      many: '$count минут',
+      few: '$count минуты',
+      one: '$count минута',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get phoneSettingsOneHour => '1 час';
+
+  @override
+  String get phoneSettingsAutoLockSub =>
+      'Блокировать кошелёк, если им не пользуются';
+
+  @override
+  String get phoneSettingsPickerNote => 'Сохраняется при нажатии.';
+
+  @override
+  String get phoneSettingsPassphrase => 'Кодовая фраза';
+
+  @override
+  String get phoneSettingsPassphraseLine =>
+      'Дополнительные слова к фразе восстановления';
+
+  @override
+  String get phoneSettingsSecurityHelp1 =>
+      'PIN-код или биометрия разблокируют кошелёк на этом телефоне.';
+
+  @override
+  String get phoneSettingsSecurityHelp2 =>
+      'Фраза восстановления — единственный способ вернуть кошелёк на другом телефоне.';
+
+  @override
+  String get phoneSettingsSecurityHelp3 =>
+      'Кодовая фраза меняет кошелёк, который открывает фраза. Без неё фраза откроет пустой кошелёк.';
+
+  @override
+  String get phoneSettingsNetworkHelp =>
+      'Режим соединения определяет, какая часть трафика кошелька скрыта и какие серверы он использует.';
+
+  @override
+  String get phoneSettingsWalletHelp1 =>
+      'Экспорт сохраняет данные кошелька в файл, который хранится у вас.';
+
+  @override
+  String get phoneSettingsWalletHelp2 =>
+      'Удаление кошелька убирает его с этого телефона. Вернуть его может только фраза восстановления.';
+
+  @override
+  String get phoneSettingsPayments => 'Платежи';
+
+  @override
+  String get phoneSettingsPayWays => 'Способы оплаты';
+
+  @override
+  String get phoneSettingsPaymentsHelp1 =>
+      'Отключённый способ оплаты не предлагается при отправке и запросе суммы.';
+
+  @override
+  String get phoneSettingsPaymentsHelp2 =>
+      'Epicbox требует, чтобы оба телефона были в сети. Лично и Файлом работают без сервера.';
+
+  @override
+  String get phoneSettingsPaymentsHelp3 =>
+      'Выбор монет определяет, какие монеты тратит платёж.';
+
+  @override
+  String get phoneSettingsEpicboxLine => 'Оба телефона в сети';
+
+  @override
+  String get phoneSettingsInPerson => 'Лично';
+
+  @override
+  String get phoneSettingsInPersonLine => 'QR-коды между двумя телефонами';
+
+  @override
+  String get phoneSettingsWithFile => 'Файлом';
+
+  @override
+  String get phoneSettingsWithFileLine => 'Файл, переданный любым приложением';
+
+  @override
+  String get phoneSettingsTorAddress => 'Адрес Tor';
+
+  @override
+  String get phoneSettingsTorAddressLine => 'Приём на адрес .onion';
+
+  @override
+  String get phoneSettingsSplitLine => 'Делит сдачу на несколько монет';
+
+  @override
+  String get phoneSettingsInvoicesLine => 'Ваши запросы и их состояние';
+
+  @override
+  String get phoneSettingsFailoverLine =>
+      'Переключаться на другой узел, если один перестал работать';
+
+  @override
+  String get phoneSettingsServerStatus => 'Состояние серверов';
+
+  @override
+  String phoneSettingsServerStatusLine(String host) {
+    return 'Открывает $host';
+  }
+
+  @override
+  String get phoneSettingsExport => 'Экспорт данных кошелька';
+
+  @override
+  String get phoneSettingsExportLine => 'Сохранить платежи и контакты в файл';
+
+  @override
+  String get phoneSettingsImport => 'Импорт данных кошелька';
+
+  @override
+  String get phoneSettingsCsv => 'Экспорт в CSV';
+
+  @override
+  String get phoneSettingsCsvLine => 'Платежи в виде таблицы';
+
+  @override
+  String get phoneSettingsUpkeep => 'Обслуживание';
+
+  @override
+  String get phoneSettingsRecheckLine =>
+      'Найти платежи, которые кошелёк пропустил';
+
+  @override
+  String get phoneSettingsOutputsLine => 'Монеты в кошельке';
+
+  @override
+  String get phoneSettingsRestore => 'Восстановить из фразы';
+
+  @override
+  String get phoneSettingsRestoreLine =>
+      'Заново собрать кошелёк из фразы восстановления';
+
+  @override
+  String get phoneSettingsAdvancedLine =>
+      'Монеты, технические сведения, выбор монет';
+
+  @override
+  String get phoneSettingsAdvOutputsLine => 'Показывать монеты кошелька';
+
+  @override
+  String get phoneSettingsAdvTechnicalLine =>
+      'Показывать идентификаторы, высоты и сырые состояния';
+
+  @override
+  String get phoneSettingsAdvSendLine => 'Показывать выбор монет при отправке';
+
+  @override
+  String get phoneSettingsAdvServersLine =>
+      'Показывать адреса и состояние серверов';
+
+  @override
+  String get phoneSettingsAdvRecheckLine =>
+      'Выбирать, с какого места начинается перепроверка';
+
+  @override
+  String get phoneSettingsAdvFilesLine =>
+      'Показывать файлы платежей для сохранения или открытия';
+
+  @override
+  String get phoneSettingsShowPricesLine => 'Показывать сумму в вашей валюте';
+
+  @override
+  String get phoneSettingsHideAmounts => 'Скрыть суммы';
+
+  @override
+  String get phoneSettingsHideAmountsLine => 'Показывать точки вместо баланса';
+
+  @override
+  String get phoneSettingsAppearanceHelp1 =>
+      'Тема, язык и валюта действуют только на этом телефоне.';
+
+  @override
+  String get phoneSettingsAppearanceHelp2 =>
+      'Цены — оценка из внешнего источника. Они никогда не меняют платёж.';
+
+  @override
+  String get phoneSettingsHubInPerson => 'лично';
+
+  @override
+  String get phoneSettingsHubFile => 'файл';
+
+  @override
+  String get phoneSettingsHubTor => 'Tor';
+
+  @override
+  String get phoneSettingsConnected => 'подключено';
+
+  @override
+  String get phoneSettingsNotConnected => 'нет соединения';
+
+  @override
+  String get phoneSettingsNoneLinked => 'Нет связанных';
+
+  @override
+  String get phoneSettingsOneLinked => '1 связано';
+
+  @override
+  String get phoneSettingsHelpLine => 'Руководства, тур, сообщить о проблеме';
+
+  @override
+  String get phoneSettingsMadeBy => 'Разработчик';
+
+  @override
+  String get phoneSettingsProtocol => 'Протокол';
+
+  @override
+  String get phoneSettingsEngine => 'Движок';
+
+  @override
+  String get phoneSettingsAboutRow => 'О BT Wallet';
+
+  @override
+  String get phoneSettingsHelpHelp1 =>
+      'Руководства объясняют, как работает кошелёк. Поиск идёт по всем.';
+
+  @override
+  String get phoneSettingsHelpHelp2 =>
+      'Руководства можно показать на другом языке, чем приложение. Выберите его флагом под поиском.';
+
+  @override
+  String get phoneSettingsDevicesEmpty => 'Нет связанных устройств';
+
+  @override
+  String get phoneSettingsDevicesEmptyLine =>
+      'Восстановите этот кошелёк на другом устройстве, затем свяжите их здесь. Платежи, сделанные на одном, появятся на другом.';
+
+  @override
+  String get phoneSettingsLinkDevice => 'Связать устройство';
 }

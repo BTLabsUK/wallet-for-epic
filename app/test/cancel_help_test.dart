@@ -120,6 +120,11 @@ void main() {
     testWidgets('the phone Help lists the topic under When something goes wrong', (tester) async {
       await _pump(tester, const HelpScreen());
       final list = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable));
+      await tester.scrollUntilVisible(find.text('When something goes wrong'), 300, scrollable: list.last);
+      await tester.ensureVisible(find.text('When something goes wrong'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('When something goes wrong'));
+      await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Cancelling a payment'), 300, scrollable: list.last);
       expect(find.text('Cancelling a payment'), findsOneWidget);
     });
