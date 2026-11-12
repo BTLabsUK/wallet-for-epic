@@ -505,7 +505,7 @@ class PairSwitchRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-        final on = onChanged;
+    final on = onChanged;
     // Not merged: a screen reader reaches the info button on its own, and the switch carries
     // the row's label and hint.
     return ConstrainedBox(

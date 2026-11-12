@@ -352,6 +352,26 @@ abstract final class TrustIds {
   static const pairflowResultClose = 'g4.pairflow.result_close';
   static const pairflowResultDone = 'g4.pairflow.result_done';
   static const pairflowResultLabel = 'g4.pairflow.result_label';
+  static const pairflowRelayAccept = 'g4.pairflow.relay_accept';
+  static const pairflowRelayRefuse = 'g4.pairflow.relay_refuse';
+  static const pairflowCpPair = 'g4.pairflow.cp_pair';
+  static const pairflowCpPairAgain = 'g4.pairflow.cp_pair_again';
+  static const pairflowCpShowCode = 'g4.pairflow.cp_show_code';
+  static const pairflowCpCancel = 'g4.pairflow.cp_cancel';
+  static const pairflowCpRemove = 'g4.pairflow.cp_remove';
+  static const pairflowCpCheck = 'g4.pairflow.cp_check';
+  static const pairflowCpKeysCheck = 'g4.pairflow.cp_keys_check';
+  static const pairflowCpKeepOld = 'g4.pairflow.cp_keep_old';
+  static const pairflowCpUseNew = 'g4.pairflow.cp_use_new';
+  static const pairflowCpKeysOk = 'g4.pairflow.cp_keys_ok';
+  static const pairflowCpUpdateAddress = 'g4.pairflow.cp_update_address';
+  static const pairflowCpDetach = 'g4.pairflow.cp_detach';
+  static const pairflowCpMoveAccept = 'g4.pairflow.cp_move_accept';
+  static const pairflowCpMoveRefuse = 'g4.pairflow.cp_move_refuse';
+  static const pairflowCpMoveRetry = 'g4.pairflow.cp_move_retry';
+  static const pairflowCpPairAgainUnproven = 'g4.pairflow.cp_pair_again_unproven';
+  static const pairflowCpHeldCancel = 'g4.pairflow.cp_held_cancel';
+  static const pairflowSendCheck = 'g4.pairflow.send_check';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -714,5 +734,25 @@ abstract final class TrustIds {
     'g4.pairflow.result_close',
     'g4.pairflow.result_done',
     'g4.pairflow.result_label',
+    'g4.pairflow.relay_accept',
+    'g4.pairflow.relay_refuse',
+    'g4.pairflow.cp_pair',
+    'g4.pairflow.cp_pair_again',
+    'g4.pairflow.cp_show_code',
+    'g4.pairflow.cp_cancel',
+    'g4.pairflow.cp_remove',
+    'g4.pairflow.cp_check',
+    'g4.pairflow.cp_keys_check',
+    'g4.pairflow.cp_keep_old',
+    'g4.pairflow.cp_use_new',
+    'g4.pairflow.cp_keys_ok',
+    'g4.pairflow.cp_update_address',
+    'g4.pairflow.cp_detach',
+    'g4.pairflow.cp_move_accept',
+    'g4.pairflow.cp_move_refuse',
+    'g4.pairflow.cp_move_retry',
+    'g4.pairflow.cp_pair_again_unproven',
+    'g4.pairflow.cp_held_cancel',
+    'g4.pairflow.send_check',
   ];
 }

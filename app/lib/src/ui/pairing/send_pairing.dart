@@ -22,6 +22,9 @@ import '../../trust/trust_providers.dart' show mailboxDefaultFor;
 import '../../trust_ids.dart';
 import '../../wallet_service.dart';
 import '../badge.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_tokens.dart';
 import '../method_names.dart';
 import '../net_block.dart' show methodOffReason;
 import '../status_icons.dart' show EpicGlyphs;
@@ -103,14 +106,14 @@ class SendPairingLine extends ConsumerWidget {
     // Amber: why the rule picked the public address (gone once the user picks the paired one),
     // or the server both addresses use not answering (on either option).
     final warn = pairing == null ? null : !on && viaMailbox == null ? sendRouteReasonText(l, contact.name, pairing, d) : sendRouteServerDownText(l, pairing, d);
-    final small = Theme.of(context).textTheme.bodySmall;
+    final small = KitType.rowSub;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (showVia && kinds.length > 1) ...[
-            Text(l.sendVia, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: t.dim)),
+            Text(l.sendVia, style: KitType.groupLabel.copyWith(color: t.dim)),
             const SizedBox(height: 4),
             SegmentedButton<RecipientKind>(
               key: sendViaKey,
@@ -154,11 +157,11 @@ class SendPairingLine extends ConsumerWidget {
             ),
             if (line != null) ...[
               const SizedBox(height: 6),
-              Text(line, style: small?.copyWith(color: t.dim)),
+              Text(line, style: small.copyWith(color: t.dim)),
             ],
             if (warn != null) ...[
               const SizedBox(height: 4),
-              Text(warn, key: sendRouteWarnKey, style: small?.copyWith(color: t.warn)),
+              Text(warn, key: sendRouteWarnKey, style: small.copyWith(color: t.warn)),
             ],
           ],
         ],
@@ -187,14 +190,13 @@ class PairingRecipientCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     return Container(
       key: sendPairingCardKey,
       padding: EdgeInsetsDirectional.fromSTEB(12, 10, onClear == null ? 12 : 0, 10),
       decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
+        color: t.group,
+        border: Border.all(color: t.hair),
+        borderRadius: BorderRadius.circular(Kit.rGroup),
       ),
       child: Row(
         children: [
@@ -209,12 +211,12 @@ class PairingRecipientCard extends StatelessWidget {
                   runSpacing: 4,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Text(name, style: theme.textTheme.titleSmall?.copyWith(color: t.text)),
+                    Text(name, style: KitType.rowTitle.copyWith(color: t.text)),
                     TrustBadge(pairing, short: true),
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(l.sendRecipientPairing(name, l.sendRoutePairedInline), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                Text(l.sendRecipientPairing(name, l.sendRoutePairedInline), style: KitType.rowSub.copyWith(color: t.dim)),
               ],
             ),
           ),
@@ -222,7 +224,7 @@ class PairingRecipientCard extends StatelessWidget {
             IconButton(
               key: sendPairingClearKey,
               tooltip: l.sendClearRecipient,
-              icon: TrustId(TrustIds.sendClear, child: Icon(Icons.close, color: t.dim)),
+              icon: TrustId(TrustIds.sendClear, child: Icon(KitIcons.close, color: t.dim)),
               onPressed: clear,
             ),
         ],
@@ -243,11 +245,10 @@ class PairReadoutRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
     return Semantics(
       container: true,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
+        constraints: const BoxConstraints(minHeight: Kit.rowSettings),
         child: Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
           child: Row(
@@ -259,8 +260,8 @@ class PairReadoutRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: t.text)),
-                    Text(hint, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                    Text(label, style: KitType.rowTitle.copyWith(color: t.text)),
+                    Text(hint, style: KitType.rowSub.copyWith(color: t.dim)),
                   ],
                 ),
               ),
@@ -294,7 +295,7 @@ class SendPairingMailbox extends ConsumerWidget {
         title: changed ? l.contactKeysChangedTitle(name) : l.contactSendNoSealed(name),
         body: changed ? l.contactKeysChangedBody : null,
         actions: [
-          if (changed) OutlinedButton(key: sendPairingCheckKey, onPressed: onCheck, child: Text(l.noticeCheckWords)),
+          if (changed) KitButton(key: sendPairingCheckKey, label: l.noticeCheckWords, small: true, semanticsId: TrustIds.pairflowSendCheck, onPressed: onCheck),
         ],
       );
     }

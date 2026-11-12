@@ -21,7 +21,10 @@ import '../../pairing_text.dart';
 import '../../providers.dart';
 import '../../relay_moves.dart' show relayLabelOf;
 import '../../wallet_service.dart';
+import '../../trust_ids.dart';
 import '../common.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_tokens.dart';
 import '../status_icons.dart' show EpicGlyphs;
 import '../theme/tokens.dart';
 import 'pair_check.dart';
@@ -95,7 +98,6 @@ class ContactPairingBlock extends ConsumerWidget {
 
   Widget _notPaired(BuildContext context, AppLocalizations l) {
     final t = context.tokens;
-    final theme = Theme.of(context);
     return PairCard(
       children: [
         Padding(
@@ -108,13 +110,13 @@ class ContactPairingBlock extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.pairNotPaired, style: theme.textTheme.bodyLarge),
-                    Text(l.pairNotPairedHint, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                    Text(l.pairNotPaired, style: KitType.rowTitle.copyWith(color: t.text)),
+                    Text(l.pairNotPairedHint, style: KitType.rowSub.copyWith(color: t.dim)),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              OutlinedButton(key: contactPagePairKey, style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)), onPressed: onPair, child: Text(l.pairTitle)),
+              KitButton(key: contactPagePairKey, label: l.pairTitle, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpPair, onPressed: onPair),
             ],
           ),
         ),
@@ -127,7 +129,6 @@ class ContactPairingBlock extends ConsumerWidget {
   Widget _pendingBlock(BuildContext context, WidgetRef ref, PairingRecord q, DateTime now) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final expired = q.state == PairingState.pendingInvite && q.expiredAt(now);
     final name = contact.name;
     Future<void> cancel() async {
@@ -145,17 +146,17 @@ class ContactPairingBlock extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Row(
                 children: [
-                  if (expired) Icon(Icons.schedule, color: t.warn, size: 22) else const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                  if (expired) Icon(Icons.schedule, color: t.warn, size: 22) else SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: t.info)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(expired ? l.pairNoAnswerFrom(name) : l.pairWaitingFor(name), style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                        Text(expired ? l.pairNoAnswerFrom(name) : l.pairWaitingFor(name), style: KitType.rowTitle.copyWith(color: t.text)),
                         if (q.state == PairingState.pendingInvite)
-                          Text(l.pairRequestSent(localDayMonth(l, q.createdAt)), style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
+                          Text(l.pairRequestSent(localDayMonth(l, q.createdAt)), style: KitType.rowSub.copyWith(color: t.dim))
                         else
-                          Text(l.pairPairingWith(name), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                          Text(l.pairPairingWith(name), style: KitType.rowSub.copyWith(color: t.dim)),
                       ],
                     ),
                   ),
@@ -170,14 +171,16 @@ class ContactPairingBlock extends ConsumerWidget {
           runSpacing: 8,
           children: [
             if (expired)
-              FilledButton.tonal(key: contactPagePairAgainKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairAgain))
+              KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context))
             else
-              OutlinedButton(key: contactPageShowCodeKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairShowMyCode)),
-            TextButton(
+              KitButton(key: contactPageShowCodeKey, label: l.pairShowMyCode, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpShowCode, onPressed: busy ? null : () => _showCode(context)),
+            KitButton(
               key: contactPageCancelPairingKey,
-              style: TextButton.styleFrom(foregroundColor: t.risk),
+              label: expired ? l.contactRemove : l.commonCancel,
+              small: true,
+              kind: KitButtonKind.danger,
+              semanticsId: TrustIds.pairflowCpCancel,
               onPressed: busy ? null : cancel,
-              child: Text(expired ? l.contactRemove : l.commonCancel),
             ),
           ],
         ),
@@ -189,7 +192,6 @@ class ContactPairingBlock extends ConsumerWidget {
   Widget _ended(BuildContext context, WidgetRef ref, PairingRecord p) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final name = contact.name;
     final held = ref.watch(heldSendsProvider(p.id));
     final session = ref.read(sessionProvider);
@@ -220,8 +222,8 @@ class ContactPairingBlock extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(l.pairEndedShort, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
-                        Text(pairingEndedText(l, p.endedReason ?? PairingEndReason.neverFinished, name), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                        Text(l.pairEndedShort, style: KitType.rowTitle.copyWith(color: t.text)),
+                        Text(pairingEndedText(l, p.endedReason ?? PairingEndReason.neverFinished, name), style: KitType.rowSub.copyWith(color: t.dim)),
                       ],
                     ),
                   ),
@@ -238,12 +240,12 @@ class ContactPairingBlock extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(epicFor(l, -tx.amountDebited), style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily)),
-                          Text(l.pairHeldSend, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                          Text(epicFor(l, -tx.amountDebited), style: KitType.body.copyWith(color: t.text, fontFamily: t.monoFamily)),
+                          Text(l.pairHeldSend, style: KitType.rowSub.copyWith(color: t.dim)),
                         ],
                       ),
                     ),
-                    TextButton(style: TextButton.styleFrom(foregroundColor: t.risk), onPressed: busy ? null : () => cancelSend(tx), child: Text(l.commonCancel)),
+                    KitButton(label: l.commonCancel, small: true, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpHeldCancel, onPressed: busy ? null : () => cancelSend(tx)),
                   ],
                 ),
               ),
@@ -254,8 +256,8 @@ class ContactPairingBlock extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            FilledButton.tonal(key: contactPagePairAgainKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairAgain)),
-            TextButton(key: contactPageRemovePairingKey, style: TextButton.styleFrom(foregroundColor: t.risk), onPressed: busy ? null : remove, child: Text(l.contactRemovePairing)),
+            KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context)),
+            KitButton(key: contactPageRemovePairingKey, label: l.contactRemovePairing, small: true, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpRemove, onPressed: busy ? null : remove),
           ],
         ),
       ],
@@ -266,7 +268,6 @@ class ContactPairingBlock extends ConsumerWidget {
   Widget _live(BuildContext context, WidgetRef ref, PairingRecord p) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final name = contact.name;
     final net = ref.watch(pairNetProvider);
     final paused = net == PairNet.epicboxOff;
@@ -330,7 +331,7 @@ class ContactPairingBlock extends ConsumerWidget {
       child: Row(
         children: [
           if (waiting)
-            const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+            SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: t.info))
           else
             Icon(
               changed ? EpicGlyphs.keysChanged : (verified ? EpicGlyphs.verified : EpicGlyphs.paired),
@@ -345,23 +346,25 @@ class ContactPairingBlock extends ConsumerWidget {
                 Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: statusText, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      TextSpan(text: statusText),
                       if (verified && p.verifiedAt != null)
-                        TextSpan(text: '  ${localDayMonth(l, p.verifiedAt!)}', style: TextStyle(color: t.dim, fontFamily: t.monoFamily, fontSize: 12)),
+                        TextSpan(text: '  ${localDayMonth(l, p.verifiedAt!)}', style: KitType.rowSub.copyWith(color: t.dim, fontFamily: t.monoFamily)),
                     ],
                   ),
-                  style: theme.textTheme.bodyLarge,
+                  style: KitType.rowTitle.copyWith(color: t.text),
                 ),
-                Text(statusLine, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                Text(statusLine, style: KitType.rowSub.copyWith(color: t.dim)),
               ],
             ),
           ),
           if ((p.state == PairingState.paired || waiting) && p.sas.isNotEmpty)
-            OutlinedButton(
+            KitButton(
               key: contactPageCheckKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 40)),
+              label: l.pairCheckWords,
+              small: true,
+              kind: KitButtonKind.quiet,
+              semanticsId: TrustIds.pairflowCpCheck,
               onPressed: () => _check(context, p),
-              child: Text(l.pairCheckWords),
             ),
         ],
       ),
@@ -392,15 +395,15 @@ class ContactPairingBlock extends ConsumerWidget {
               children: [
                 Text(
                   paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                  style: KitType.body.copyWith(color: t.dim),
                 ),
                 if (moveLine != null)
-                  Text(moveLine, key: contactPageMoveLineKey, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  Text(moveLine, key: contactPageMoveLineKey, style: KitType.rowSub.copyWith(color: t.dim)),
               ],
             ),
           ),
           if (!paused && asked != null && p.relayMove == RelayMoveState.refused)
-            TextButton(key: contactPageMoveAcceptKey, onPressed: busy ? null : acceptMove, child: Text(l.relayMoveAccept)),
+            KitButton(key: contactPageMoveAcceptKey, label: l.relayMoveAccept, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpMoveRetry, onPressed: busy ? null : acceptMove),
         ],
       ),
     );
@@ -419,7 +422,7 @@ class ContactPairingBlock extends ConsumerWidget {
                     TextSpan(
                       text: '${l.contactDomain}: ',
                       children: [
-                        TextSpan(text: p.peerDomain, style: TextStyle(color: theme.colorScheme.onSurface)),
+                        TextSpan(text: p.peerDomain, style: TextStyle(color: t.text)),
                         TextSpan(
                           text: ' · ${switch (p.domainStatus) {
                             DomainStatus.proven => l.contactDomainVerified,
@@ -429,7 +432,7 @@ class ContactPairingBlock extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                    style: KitType.body.copyWith(color: t.dim),
                   ),
                 ),
               ],
@@ -447,9 +450,9 @@ class ContactPairingBlock extends ConsumerWidget {
             body: l.contactKeysChangedBody,
             stretchActions: true,
             actions: [
-              FilledButton(onPressed: busy ? null : () => _check(context, p), child: Text(l.pairCheckWords)),
-              OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.keepOld), child: Text(l.contactKeepOldKeys)),
-              OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.useNew), child: Text(l.contactUseNewKeys)),
+              KitButton(label: l.pairCheckWords, small: true, semanticsId: TrustIds.pairflowCpKeysCheck, onPressed: busy ? null : () => _check(context, p)),
+              KitButton(label: l.contactKeepOldKeys, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpKeepOld, onPressed: busy ? null : () => keys(KeysChoice.keepOld)),
+              KitButton(label: l.contactUseNewKeys, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpUseNew, onPressed: busy ? null : () => keys(KeysChoice.useNew)),
             ],
           ),
           const SizedBox(height: 12),
@@ -459,7 +462,7 @@ class ContactPairingBlock extends ConsumerWidget {
             tone: BadgeTone.ok,
             title: l.contactKeysBack(name),
             body: l.contactKeysBackBody,
-            actions: [TextButton(onPressed: () => ref.read(keysBackProvider.notifier).close(p.id), child: Text(l.commonOk))],
+            actions: [KitButton(label: l.commonOk, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpKeysOk, onPressed: () => ref.read(keysBackProvider.notifier).close(p.id))],
           ),
           const SizedBox(height: 12),
         ],
@@ -474,7 +477,7 @@ class ContactPairingBlock extends ConsumerWidget {
             tone: BadgeTone.warn,
             title: l.trustNotAnswering,
             body: l.contactNotAnsweringBody,
-            actions: [FilledButton.tonal(key: contactPagePairAgainKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairAgain))],
+            actions: [KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context))],
           ),
           const SizedBox(height: 12),
         ],
@@ -484,8 +487,8 @@ class ContactPairingBlock extends ConsumerWidget {
             title: l.pairProvesOther(name),
             body: p.paymentsAddress,
             actions: [
-              FilledButton.tonal(key: contactPageUpdateAddressKey, onPressed: busy ? null : updateAddress, child: Text(l.pairUpdateAddress)),
-              OutlinedButton(key: contactPageDetachKey, onPressed: busy ? null : detach, child: Text(l.pairDetach)),
+              KitButton(key: contactPageUpdateAddressKey, label: l.pairUpdateAddress, small: true, semanticsId: TrustIds.pairflowCpUpdateAddress, onPressed: busy ? null : updateAddress),
+              KitButton(key: contactPageDetachKey, label: l.pairDetach, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpDetach, onPressed: busy ? null : detach),
             ],
           ),
           const SizedBox(height: 12),
@@ -497,8 +500,8 @@ class ContactPairingBlock extends ConsumerWidget {
             title: l.contactMoveAsked(moveShown!),
             body: l.relayMoveBody(name, moveShown),
             actions: [
-              FilledButton.tonal(key: contactPageMoveAcceptKey, onPressed: busy ? null : acceptMove, child: Text(l.relayMoveAccept)),
-              OutlinedButton(key: contactPageMoveRefuseKey, onPressed: busy ? null : refuseMove, child: Text(l.relayMoveRefuse)),
+              KitButton(key: contactPageMoveAcceptKey, label: l.relayMoveAccept, small: true, semanticsId: TrustIds.pairflowCpMoveAccept, onPressed: busy ? null : acceptMove),
+              KitButton(key: contactPageMoveRefuseKey, label: l.relayMoveRefuse, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpMoveRefuse, onPressed: busy ? null : refuseMove),
             ],
           ),
           const SizedBox(height: 12),
@@ -512,7 +515,7 @@ class ContactPairingBlock extends ConsumerWidget {
             status,
             // A contact that takes no payments has nothing to seal or invoice.
             if (!noPayments)
-            PairSwitchRow(
+              PairSwitchRow(
               switchKey: contactPageSealKey,
               label: l.contactSealPayments,
               info: sealInfo,
@@ -536,20 +539,18 @@ class ContactPairingBlock extends ConsumerWidget {
         if (unproven)
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
-            child: Text(l.pairAddressNotConfirmed, key: contactPageUnprovenKey, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+            child: Text(l.pairAddressNotConfirmed, key: contactPageUnprovenKey, style: KitType.rowSub.copyWith(color: t.dim)),
           ),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
+          runSpacing: 8,
           children: [
             if (unproven)
-              OutlinedButton(key: contactPagePairAgainUnprovenKey, onPressed: busy ? null : onPair, child: Text(l.pairAgain)),
-            if (waiting) OutlinedButton(key: contactPageShowCodeKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairShowMyCode)),
-            TextButton(
-              key: contactPageRemovePairingKey,
-              style: TextButton.styleFrom(foregroundColor: t.risk, minimumSize: const Size(0, 48)),
-              onPressed: busy ? null : remove,
-              child: Text(l.contactRemovePairing),
-            ),
+              KitButton(key: contactPagePairAgainUnprovenKey, label: l.pairAgain, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpPairAgainUnproven, onPressed: busy ? null : onPair),
+            if (waiting)
+              KitButton(key: contactPageShowCodeKey, label: l.pairShowMyCode, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpShowCode, onPressed: busy ? null : () => _showCode(context)),
+            KitButton(key: contactPageRemovePairingKey, label: l.contactRemovePairing, small: true, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpRemove, onPressed: busy ? null : remove),
           ],
         ),
       ],
