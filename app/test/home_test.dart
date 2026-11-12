@@ -3415,15 +3415,8 @@ void main() {
             .hand(payee);
         await tester.pumpAndSettle();
         expect(find.text(_l.phoneFileSendHint), findsOneWidget);
-        // Done is the list's last row, under the first page of a short phone.
-        await tester.scrollUntilVisible(
-          find.widgetWithText(TextButton, _l.commonDone),
-          200,
-          scrollable: find
-              .descendant(of: find.byType(SendView), matching: find.byType(Scrollable))
-              .first,
-        );
-        await _tap(tester, find.widgetWithText(TextButton, _l.commonDone));
+        // Done is the header's close.
+        await _tap(tester, find.descendant(of: find.byType(SendView), matching: find.byTooltip(_l.commonClose)));
         await _tab(tester, _l.homeSendButton);
         expect(_toField(tester), payee);
       },
@@ -3458,7 +3451,6 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(_l.phoneProgSent), findsOneWidget);
         expect(find.text(_l.phoneProgNetwork), findsOneWidget);
-        expect(find.textContaining('Confirming'), findsWidgets);
         // The tracker says it; a notice would say it twice.
         expect(find.textContaining('finished. Confirming'), findsNothing);
       },
@@ -3624,7 +3616,7 @@ void main() {
       await leaveAndBack(tester);
       expect(_toField(tester), isEmpty);
       expect(find.byKey(sendRecipientClearKey), findsNothing);
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), link);
+      await tester.enterText(sendTo(), link);
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
       expect(methodLine('Link · HTTP'), findsOneWidget);

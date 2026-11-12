@@ -4620,24 +4620,28 @@ class _SendViewState extends ConsumerState<SendView> {
                 ],
               ),
             ),
+            // The rows are list tiles: they paint their ink on a Material, not on the card's box.
             RadioGroup<bool>(
               groupValue: _filePlain,
               onChanged: (v) => setState(() => _filePlain = v ?? false),
-              child: Column(
-                children: [
-                  RadioRow<bool>(
-                    key: sendSealedOptionKey,
-                    value: false,
-                    title: l.sendSealedOption,
-                    subtitle: l.sendSealedOptionHint(name),
-                  ),
-                  RadioRow<bool>(
-                    key: sendPlainOptionKey,
-                    value: true,
-                    title: l.sendPlainOption,
-                    subtitle: l.sendPlainOptionHint,
-                  ),
-                ],
+              child: Material(
+                type: MaterialType.transparency,
+                child: Column(
+                  children: [
+                    RadioRow<bool>(
+                      key: sendSealedOptionKey,
+                      value: false,
+                      title: l.sendSealedOption,
+                      subtitle: l.sendSealedOptionHint(name),
+                    ),
+                    RadioRow<bool>(
+                      key: sendPlainOptionKey,
+                      value: true,
+                      title: l.sendPlainOption,
+                      subtitle: l.sendPlainOptionHint,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

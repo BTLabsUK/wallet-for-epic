@@ -309,7 +309,8 @@ void main() {
       await answerPin(tester);
       expect(session.epicboxSends, hasLength(1));
       expect(session.recorded.map((r) => toHex(r.reqid)), [toHex(vectors.request('req-basic').reqid)]);
-      expect(find.text(_l.sendSaveContact), findsOneWidget);
+      await buildInPage(tester, find.text(_l.phoneSendAddContact));
+      expect(find.text(_l.phoneSendAddContact), findsOneWidget);
       expect(session.recordedTxIds.single, isNotNull, reason: 'the slate id of the payment, for the receipt line');
     });
 

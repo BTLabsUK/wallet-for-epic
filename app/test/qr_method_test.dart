@@ -195,8 +195,8 @@ Future<void> _tick(WidgetTester tester, int seconds) async {
 String _howCaption(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(handshakeCaptionKey)).data!;
 
-Future<void> _openHow(WidgetTester tester, {String? tooltip}) async {
-  await tester.tap(find.byTooltip(tooltip ?? _l.sendHelp));
+Future<void> _openHow(WidgetTester tester) async {
+  await tester.tap(find.byTooltip(_l.sendHelp));
   await tester.pumpAndSettle();
 }
 
@@ -269,7 +269,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const ReceiveView());
       await _openInPerson(tester);
-      await _openHow(tester, tooltip: _l.sendHowItWorks);
+      await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeQrR1}');
       expect(find.textContaining('relay'), findsNothing);
       expect(find.text(_l.handshakeRelay), findsNothing);
