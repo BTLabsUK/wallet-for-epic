@@ -80,7 +80,7 @@ void main() {
     expect(_title, findsOneWidget);
   });
 
-  testWidgets('compact: title, one line, Switch, no Not now; close waits', (tester) async {
+  testWidgets('compact: title, one line, Switch, no Not now; swiped away, it waits', (tester) async {
     final c = await _pump(tester, grace: false);
     final offer = c.read(relaySwitchProvider.notifier) as _Offer;
     offer.show();
@@ -89,7 +89,8 @@ void main() {
     expect(find.text(_l.lvShellRelayDownShort(_to)), findsOneWidget);
     expect(find.widgetWithText(TextButton, _l.lvShellSwitch), findsOneWidget);
     expect(find.text(_l.pairNotNow), findsNothing);
-    await tester.tap(find.byTooltip(_l.commonClose));
+    // A toast has no close button; swiping it away is Not now.
+    await tester.drag(find.byKey(noticeKey), const Offset(0, -80));
     await tester.pumpAndSettle();
     expect(offer.waited, 1);
   });

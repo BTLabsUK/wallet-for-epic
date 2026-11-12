@@ -127,7 +127,7 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
       },
     );
     final l = context.l10n;
-    // Compact: a title, one line and Switch; it hides by itself, the close button is Not now.
+    // Compact: a title, one line and Switch; it hides by itself, and swiping it away is Not now.
     notices.show(
       l.lvShellRelayDownShort(offer.name),
       title: l.lvShellRelayDownTitle,
