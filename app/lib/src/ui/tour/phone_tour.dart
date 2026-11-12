@@ -31,6 +31,8 @@ import '../devices/linked_devices_screen.dart';
 import '../help_screen.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_tokens.dart';
 import '../receive_screen.dart' show ReceiveTab, receiveTabProvider;
 import '../settings_sections.dart';
 import '../theme/tokens.dart';
@@ -42,6 +44,9 @@ export 'tour_target.dart';
 
 /// The visible card, for tests.
 const Key phoneTourCardKey = ValueKey('phone-tour-card');
+
+/// The close mark on the tour offer, for tests.
+const Key phoneTourOfferCloseKey = ValueKey('phone-tour-offer-close');
 
 /// Tests: the steps the overlay shows instead of [phoneTourSteps].
 @visibleForTesting
@@ -162,26 +167,53 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
     unawaited(_offer());
   }
 
-  /// Once, when the saved flag says unseen: a toast asks, with "Show me". It is marked seen as it
-  /// shows, so it never comes again; Help › Show the tour again opens the tour any time.
+  /// Once, when the saved flag says unseen: a toast asks, with "Show me" and a close mark. It is
+  /// marked seen as it shows, so it never comes again; left alone it goes by itself. Help ›
+  /// Show the tour again opens the tour any time.
   Future<void> _offer() async {
     final messenger = ScaffoldMessenger.maybeOf(context);
     if (messenger == null || !await _tour.offerIfUnseen() || !mounted) return;
     final l = context.l10n;
+    // The close mark is a quieter shade of the toast's own text colour, in both themes.
+    final ink = Theme.of(context).snackBarTheme.contentTextStyle?.color ?? context.tokens.text;
     messenger.showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 12),
+        // The close mark's target reaches the toast's edge; the words keep their 16. With the
+        // 44 tall buttons, 6 above and below make the toast's 56.
+        padding: const EdgeInsetsDirectional.only(start: 16, end: 4, top: (Kit.toastMin - Kit.hitMin) / 2, bottom: (Kit.toastMin - Kit.hitMin) / 2),
         content: Row(
           children: [
-            Expanded(child: Text(l.phoneTourOffer)),
+            Expanded(
+              // The kit's toast type, over the theme's style so the fallback fonts (Thai, Chinese) stay.
+              child: Text(l.phoneTourOffer, style: Theme.of(context).textTheme.bodyMedium?.merge(KitType.toast).copyWith(color: ink)),
+            ),
             trustId(
               TrustIds.tourOfferShow,
               TextButton(
+                // As the kit toast's button: 8 in at the sides, so the question keeps one line.
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge?.merge(KitType.toastAction),
+                  minimumSize: const Size(0, Kit.hitMin),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 onPressed: () {
                   messenger.hideCurrentSnackBar();
                   _tour.open();
                 },
                 child: Text(l.phoneTourOfferShow),
+              ),
+            ),
+            trustId(
+              TrustIds.tourOfferClose,
+              IconButton(
+                key: phoneTourOfferCloseKey,
+                tooltip: l.commonClose,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: Kit.hitMin, minHeight: Kit.hitMin),
+                icon: Icon(KitIcons.close, size: 18, color: ink.withValues(alpha: 0.6)),
+                onPressed: () => messenger.hideCurrentSnackBar(reason: SnackBarClosedReason.dismiss),
               ),
             ),
           ],
