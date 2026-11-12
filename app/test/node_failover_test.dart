@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/connection_state.dart';
+import 'package:epic_wallet/src/devices/phone_devices.dart' show deviceServiceProvider;
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/node_failover.dart';
 import 'package:epic_wallet/src/node_failover_engine.dart' show FailoverSearch;
@@ -490,6 +491,8 @@ class _Harness {
         secretStoreProvider.overrideWithValue(store),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         rawWalletStatusProvider.overrideWith((ref) => ref.watch(_raw)),
+        // No linked devices: their service reads the app's lifecycle, which a plain test has not.
+        deviceServiceProvider.overrideWithValue(null),
         if (tor) phoneTorProvider.overrideWith(_Tor.new),
       ],
     );
