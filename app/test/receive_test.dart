@@ -217,7 +217,7 @@ void main() {
       await _tap(tester, find.text(_l.phoneRecvOther));
       expect(find.text(_l.phoneSettingsWithFile), findsOneWidget);
       await _tap(tester, find.text(_l.phoneSettingsWithFile));
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
+      expect(find.text(_l.phoneFileTitleReceive), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
       expect(find.byType(LogoQr), findsNothing);
       await tester.tap(find.byTooltip(_l.sendHelp));
@@ -642,9 +642,9 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
-      expect(find.text(_l.receiveFileOpen), findsOneWidget);
-      expect(find.text(_l.commonPaste), findsOneWidget);
+      expect(find.text(_l.phoneFileTitleReceive), findsOneWidget);
+      expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
+      expect(find.text(_l.phoneFilePasteText), findsOneWidget);
       // The sheet loops its animation, so it never settles.
       await tester.tap(find.byTooltip(_l.sendHelp));
       await tester.pump();
@@ -662,7 +662,7 @@ void main() {
       await h.pump(tester);
       await h.byFile(tester);
       h.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
-      await _tap(tester, find.text(_l.receiveFileOpen));
+      await _tap(tester, find.text(_l.phoneFileOpenFile));
       expect(find.text(_l.slateNotTransactionFile), findsOneWidget);
       await tester.pageBack();
       await tester.pumpAndSettle();
@@ -675,7 +675,7 @@ void main() {
         stage: SlateStage.send,
       );
       h.files.picks.add(const SlateFile(name: 'from-bob.tx', json: incoming));
-      await _tap(tester, find.text(_l.receiveFileOpen));
+      await _tap(tester, find.text(_l.phoneFileOpenFile));
       expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
       await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming]);
@@ -693,13 +693,15 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      await _tap(tester, find.text(_l.commonPaste));
+      await _tap(tester, find.text(_l.phoneFilePasteText));
       expect(
         find.text(_l.receivePasteEmpty),
         findsOneWidget,
       );
       h.clipboard = 'hello';
-      await _tap(tester, find.text(_l.commonPaste));
+      // The first toast floats over the page's top rows: it leaves before the next tap.
+      await _toastGone(tester);
+      await _tap(tester, find.text(_l.phoneFilePasteText));
       expect(find.text(_l.slateNotTransactionFile), findsOneWidget);
       expect(find.byType(SlateFileScreen), findsNothing);
     });
@@ -718,7 +720,7 @@ void main() {
         stage: SlateStage.send,
       );
       h.clipboard = '  $incoming\n';
-      await _tap(tester, find.text(_l.commonPaste));
+      await _tap(tester, find.text(_l.phoneFilePasteText));
       expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
       await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming]);
@@ -749,7 +751,7 @@ void main() {
         expect(tester.takeException(), isNull);
         await h.byFile(tester);
         expect(tester.takeException(), isNull);
-        expect(find.text(_l.receiveFileOpen), findsOneWidget);
+        expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
       });
 
       testWidgets('tap targets and contrast, ${state.name}', (tester) async {

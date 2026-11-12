@@ -26,7 +26,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
@@ -310,11 +310,9 @@ void main() {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
       await h.fileTab(tester);
-      for (final label in ['Open file', 'Paste']) {
+      for (final label in [_l.phoneFileOpenFile, _l.phoneFilePasteText]) {
         expect(
-          tester
-              .widget<KitButton>(find.widgetWithText(KitButton, label))
-              .onPressed,
+          tester.widget<KitRow>(find.ancestor(of: find.text(label), matching: find.byType(KitRow))).onTap,
           isNotNull,
           reason: label,
         );
@@ -336,7 +334,7 @@ void main() {
       await h.pump(tester);
       expect(find.byKey(receiveAddressKey), findsNothing);
       await h.fileTab(tester);
-      expect(find.text(_l.receiveFileOpen), findsOneWidget);
+      expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
     });
 
     testWidgets('Standard: no offline line', (tester) async {
