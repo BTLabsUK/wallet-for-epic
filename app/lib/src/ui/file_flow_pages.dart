@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'kit/kit_icons.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_tokens.dart';
 import 'theme/tokens.dart';
@@ -11,7 +12,7 @@ import 'theme/tokens.dart';
 /// file glyph, the [title] ("Payment file") and one [sub] line ("For 12.5 EPIC · made 18:12").
 /// A screen reader hears it as one block.
 class FileCard extends StatelessWidget {
-  const FileCard({super.key, required this.title, required this.sub, this.icon = Icons.insert_drive_file_outlined});
+  const FileCard({super.key, required this.title, required this.sub, this.icon = KitIcons.file});
 
   final String title;
   final String sub;
@@ -25,7 +26,8 @@ class FileCard extends StatelessWidget {
       label: '$title. $sub',
       excludeSemantics: true,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        constraints: const BoxConstraints(minHeight: 72),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: t.group,
           borderRadius: BorderRadius.circular(Kit.rGroup),
@@ -33,14 +35,14 @@ class FileCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            KitIconWell(icon, color: t.accentText, size: 46, iconSize: 24),
-            const SizedBox(width: 14),
+            KitIconWell(icon, color: t.accentText, size: 46, iconSize: 22, radius: 15),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(title, style: KitType.rowTitle.copyWith(fontSize: 17, color: t.text)),
+                  Text(title, style: KitType.rowTitle.copyWith(color: t.text)),
                   const SizedBox(height: 3),
                   Text(sub, style: KitType.rowSub.copyWith(color: t.dim)),
                 ],
@@ -64,6 +66,7 @@ class FileInfoLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // `.hint`: 13 on 1.45, 20 in from the edge, a 16 mark 8 before the words.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
@@ -71,12 +74,12 @@ class FileInfoLine extends StatelessWidget {
         children: [
           if (!bare) ...[
             Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: ExcludeSemantics(child: Icon(Icons.info_outline_rounded, size: 18, color: t.dim)),
+              padding: const EdgeInsets.only(top: 1),
+              child: ExcludeSemantics(child: Icon(KitIcons.info, size: 16, color: t.dim)),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
           ],
-          Expanded(child: Text(text, style: KitType.body.copyWith(color: t.dim))),
+          Expanded(child: Text(text, style: KitType.rowSub.copyWith(color: t.dim, height: 1.45))),
         ],
       ),
     );

@@ -73,10 +73,11 @@ class KitSteps extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: last ? 0 : 16),
+                    // `.step`: 12 above and below, the line between two rows 24 apart.
+                    padding: EdgeInsets.only(bottom: last ? 0 : 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -87,7 +88,7 @@ class KitSteps extends StatelessWidget {
                         if (s.detail != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 3),
-                            child: Text(s.detail!, style: KitType.rowSub.copyWith(color: s.state == KitStepState.now ? t.info : t.dim)),
+                            child: Text(s.detail!, style: KitType.rowSub.copyWith(color: t.dim)),
                           ),
                       ],
                     ),
@@ -109,7 +110,7 @@ class KitSteps extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Kit.rGroup),
                 border: Border.all(color: t.hair),
               ),
-              child: Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), child: column),
+              child: Padding(padding: const EdgeInsets.fromLTRB(10, 16, 14, 16), child: column),
             ),
           )
         : column;

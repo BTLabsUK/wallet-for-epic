@@ -190,14 +190,12 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
             child: Column(
               children: [
                 ReceiveQr(address: value),
-                const SizedBox(height: 32),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: ReceiveAddressBlock(
-                    address: value,
-                    label: relayMove != null ? l.lvPayNewAddress : l.receiveAddressLabel,
-                    cardKey: receiveAddressKey,
-                  ),
+                // Frame: the address 32 under the QR, in 40-wide side padding.
+                const SizedBox(height: 18),
+                ReceiveAddressBlock(
+                  address: value,
+                  label: relayMove != null ? l.lvPayNewAddress : l.receiveAddressLabel,
+                  cardKey: receiveAddressKey,
                 ),
               ],
             ),
@@ -215,7 +213,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
     final rows = [
       if (invoices)
         KitRow(
-          leading: KitIconWell(KitIcons.invoice),
+          leading: KitIconWell(KitIcons.invoice, color: context.tokens.accentText),
           title: l.phoneRecvAsk,
           subtitle: l.phoneRecvAskLine,
           chevron: true,
@@ -225,7 +223,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
         ),
       if (ways.any)
         KitRow(
-          leading: KitIconWell(KitIcons.qr),
+          leading: KitIconWell(KitIcons.qr, color: context.tokens.accentText),
           title: l.phoneRecvOther,
           subtitle: l.phoneRecvOtherLine,
           chevron: true,
@@ -241,7 +239,8 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 24, Kit.gutter, 24),
+              // Frame: the QR 34 under the header; its corner marks take the 14 above it.
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 20, Kit.gutter, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -291,7 +290,7 @@ class ReceiveQr extends StatelessWidget {
               // Dark modules on white scan reliably in either theme.
               color: protocolLight.surface,
               borderRadius: BorderRadius.circular(Kit.rQr),
-              boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.22 : 0.12), blurRadius: 40)],
+              boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.13 : 0.12), blurRadius: dark ? 70 : 40)],
             ),
             child: Semantics(
               label: semanticsLabel ?? l.receiveQrLabel,
@@ -364,36 +363,45 @@ class _ReceiveAddressBlockState extends ConsumerState<ReceiveAddressBlock> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final files = ref.watch(slateFilesProvider);
     final canShare = files.canShare || files.canShareText;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
-          key: widget.cardKey,
-          container: true,
-          button: true,
-          label: widget.label,
-          value: widget.address,
-          onTapHint: l.commonCopy,
-          onTap: _copy,
-          excludeSemantics: true,
-          child: InkWell(
+        Padding(
+          // Frame: the address sits in 40-wide side padding; the buttons take the gutter.
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Semantics(
+            key: widget.cardKey,
+            container: true,
+            button: true,
+            label: widget.label,
+            value: widget.address,
+            onTapHint: l.commonCopy,
             onTap: _copy,
-            borderRadius: BorderRadius.circular(Kit.rButtonSmall),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: Kit.hitTarget),
-              child: Center(
-                // Selectable for a long press; a tap copies. The server on its own line, shrunk
-                // rather than broken inside its name on a narrow phone at a large text size.
-                child: MarkedAddress(widget.address, center: true, selectable: true, onTap: _copy),
+            excludeSemantics: true,
+            child: InkWell(
+              onTap: _copy,
+              borderRadius: BorderRadius.circular(Kit.rButtonSmall),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: Kit.hitTarget),
+                child: Center(
+                  // Selectable for a long press; a tap copies. The server on its own line, shrunk
+                  // rather than broken inside its name on a narrow phone at a large text size.
+                  child: MarkedAddress(
+                    widget.address,
+                    center: true,
+                    selectable: true,
+                    flat: true,
+                    // Frame .addr: mono 14 on 1.55; its glyph pitch measures 7.87 px (the line breaks after 39 characters).
+                    style: const TextStyle(fontSize: 14, height: 1.55, letterSpacing: -0.5),
+                    onTap: _copy,
+                  ),
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        Text(l.phoneRecvCheck, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.faint)),
         const SizedBox(height: 18),
         Row(
           children: [
@@ -521,13 +529,18 @@ class _EpicboxLine extends ConsumerWidget {
             children: [
               ExcludeSemantics(
                 child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: color.withValues(alpha: .16), spreadRadius: 3)],
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: color))),
+              const SizedBox(width: 9),
+              // Frame: the dot carries the state's colour, the words stay dim.
+              Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color))),
             ],
           ),
         )),

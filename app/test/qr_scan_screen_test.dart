@@ -125,7 +125,7 @@ void main() {
     await h.pump(tester, kind: QrScanKind.reply);
     expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
     expect(
-      find.text('Point the camera at the reply on their phone.'),
+      find.text(_l.phoneQrAimAnswer),
       findsOneWidget,
     );
     await h.see(tester, 'https://example.com');

@@ -121,6 +121,16 @@
       }
     }
   },
+  "phoneRecvFileLead": "Share this file. Whoever opens it is asked for {amount}.",
+  "@phoneRecvFileLead": {
+    "description": "Lead on the screen that shows a request as a file. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
+  },
   "phoneRecvWaitingPaid": "Waiting to be paid",
   "@phoneRecvWaitingPaid": {
     "description": "Status line under a request code that nobody has paid yet."

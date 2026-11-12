@@ -25,6 +25,7 @@
   "phoneRecvAnyoneFileLine": "Zapisuje plik do przekazania",
   "phoneRecvAskFor": "Poproś o {amount}",
   "phoneRecvCodeLead": "Pokaż ten kod lub go udostępnij. Kto go otworzy, zostanie poproszony o {amount}.",
+  "phoneRecvFileLead": "Udostępnij ten plik. Kto go otworzy, zostanie poproszony o {amount}.",
   "phoneRecvWaitingPaid": "Czeka na zapłatę",
   "phoneRecvViewPayment": "Zobacz płatność",
   "phoneRecvShowCode": "Pokaż kod",

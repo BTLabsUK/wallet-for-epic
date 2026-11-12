@@ -88,12 +88,12 @@ class KitKeypad extends StatelessWidget {
             ['4', '5', '6'],
             ['7', '8', '9'],
           ])
-            Padding(padding: const EdgeInsets.only(bottom: 10), child: Row(children: [for (final d in row) digit(d)])),
+            Row(children: [for (final d in row) digit(d)]),
           Row(
             children: [
               bottomLeft,
               digit('0'),
-              key(KitKey.delete, Icon(KitIcons.backspace, size: 24, color: t.dim), onDelete, l.phoneKitDeleteDigit, onLong: onDeleteLong),
+              key(KitKey.delete, Icon(KitIcons.backspace, size: 26, color: t.text), onDelete, l.phoneKitDeleteDigit, onLong: onDeleteLong),
             ],
           ),
         ],

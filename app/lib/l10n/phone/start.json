@@ -151,6 +151,18 @@
       }
     }
   },
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "@phoneQrHoldHint": {
+    "description": "Line under a shown QR code: where to point the other phone."
+  },
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "@phoneQrReplyShowing": {
+    "description": "Dim line under the receiver's answer code while it is shown."
+  },
+  "phoneQrAimAnswer": "Point at the answer on their phone.",
+  "@phoneQrAimAnswer": {
+    "description": "Line under the camera when the payer scans the answer on the other phone."
+  },
   "phoneQrScanAnswer": "Scan their answer",
   "@phoneQrScanAnswer": {
     "description": "Button on the payer's QR screen: scan the answer on the other phone."
@@ -166,6 +178,26 @@
   "phoneQrDoneTitleReceived": "Received in person",
   "@phoneQrDoneTitleReceived": {
     "description": "Headline once the payment received with QR codes is posted."
+  },
+  "phoneQrDoneScanned": "Your code was scanned",
+  "@phoneQrDoneScanned": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's code."
+  },
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "@phoneQrDoneAnswerRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's answer."
+  },
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "@phoneQrDoneCodeRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's code."
+  },
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "@phoneQrDoneAnswerSeen": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's answer."
+  },
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "@phoneQrDoneFinishes": {
+    "description": "The line under the step in progress on the finished in-person payment page."
   },
   "phoneQrPaidWhen": "{amount} is paid when the answer is read.",
   "@phoneQrPaidWhen": {

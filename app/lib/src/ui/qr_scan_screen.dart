@@ -418,7 +418,7 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       dockText = l.qrScanSteady;
       tone = _DockTone.warn;
     } else if (_received == 0) {
-      dockText = finished ? l.qrScanAimFinished : (reply ? l.qrScanAimReply : l.qrScanAimPayment);
+      dockText = finished ? l.qrScanAimFinished : (reply ? l.phoneQrAimAnswer : l.qrScanAimPayment);
       tone = _DockTone.plain;
     } else {
       dockText = l.qrScanProgress(_received, _count);
@@ -452,105 +452,117 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
               leadingId: TrustIds.qrscanBack,
             ),
             if (steps != null) KitStepStrip(labels: steps, current: reply ? 1 : 0),
+            // The camera card is as tall as the frame draws it (420) and shorter on a small
+            // screen; the line about what to do sits right under it.
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(Kit.gutter, 18, Kit.gutter, 0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(Kit.rSheetTop),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(color: t.hair),
-                      borderRadius: BorderRadius.circular(Kit.rSheetTop),
-                    ),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final size = constraints.biggest;
-                        final side = math.min(size.width - 64, size.height - 90).clamp(0.0, 280.0);
-                        final center = Offset(size.width / 2, size.height * 0.46);
-                        final finder = Rect.fromCenter(center: center, width: side, height: side);
-                        final ring = finder.inflate(14);
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            _camera.preview(context),
-                            IgnorePointer(child: CustomPaint(painter: _ScrimPainter(finder: finder))),
-                            IgnorePointer(
-                              child: CustomPaint(
-                                painter: _FramePainter(
-                                  finder: finder,
-                                  ring: ring,
-                                  received: _received,
-                                  count: _count,
-                                  complete: _complete,
-                                  corners: corners,
-                                  info: dark.info,
-                                  ok: dark.ok,
+              child: Column(
+                children: [
+                  Flexible(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 442),
+                      child:
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(Kit.gutter, 22, Kit.gutter, 0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(Kit.rSheetTop),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  border: Border.all(color: t.hair),
+                                  borderRadius: BorderRadius.circular(Kit.rSheetTop),
+                                ),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final size = constraints.biggest;
+                                    final side = math.min(size.width - 64, size.height - 90).clamp(0.0, 190.0);
+                                    final center = Offset(size.width / 2, size.height / 2);
+                                    final finder = Rect.fromCenter(center: center, width: side, height: side);
+                                    final ring = finder.inflate(14);
+                                    return Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        _camera.preview(context),
+                                        IgnorePointer(child: CustomPaint(painter: _ScrimPainter(finder: finder))),
+                                        IgnorePointer(
+                                          child: CustomPaint(
+                                            painter: _FramePainter(
+                                              finder: finder,
+                                              ring: ring,
+                                              received: _received,
+                                              count: _count,
+                                              complete: _complete,
+                                              corners: corners,
+                                              info: dark.info,
+                                              ok: dark.ok,
+                                            ),
+                                          ),
+                                        ),
+                                        if (_complete)
+                                          Positioned.fromRect(
+                                            rect: finder,
+                                            child: Center(child: _CheckTile(animate: !reduced, color: dark.ok)),
+                                          ),
+                                        if (_count > 0)
+                                          Positioned(
+                                            left: 0,
+                                            right: 0,
+                                            top: ring.bottom + 12,
+                                            child: Semantics(
+                                              liveRegion: true,
+                                              label: '${l.qrScanCountLabel}: ${l.qrScanCount(_spoken, _count)}',
+                                              excludeSemantics: true,
+                                              child: Text(
+                                                l.qrScanCount(_received, _count),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontFamily: dark.monoFamily,
+                                                  fontSize: 15,
+                                                  color: _complete ? dark.ok : Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        Positioned(
+                                          top: 6,
+                                          right: 6,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              _ZoomChip(
+                                                zoomed: camera.zoomed,
+                                                onPressed: () => _camera.setZoom(twice: !camera.zoomed),
+                                              ),
+                                              if (camera.torchAvailable)
+                                                IconButton(
+                                                  tooltip: l.qrScanTorch,
+                                                  isSelected: camera.torchOn,
+                                                  icon: const Icon(Icons.flashlight_off),
+                                                  selectedIcon: const Icon(Icons.flashlight_on),
+                                                  onPressed: _camera.toggleTorch,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                             ),
-                            if (_complete)
-                              Positioned.fromRect(
-                                rect: finder,
-                                child: Center(child: _CheckTile(animate: !reduced, color: dark.ok)),
-                              ),
-                            if (_count > 0)
-                              Positioned(
-                                left: 0,
-                                right: 0,
-                                top: ring.bottom + 12,
-                                child: Semantics(
-                                  liveRegion: true,
-                                  label: '${l.qrScanCountLabel}: ${l.qrScanCount(_spoken, _count)}',
-                                  excludeSemantics: true,
-                                  child: Text(
-                                    l.qrScanCount(_received, _count),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: dark.monoFamily,
-                                      fontSize: 15,
-                                      color: _complete ? dark.ok : Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            Positioned(
-                              top: 6,
-                              right: 6,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  _ZoomChip(
-                                    zoomed: camera.zoomed,
-                                    onPressed: () => _camera.setZoom(twice: !camera.zoomed),
-                                  ),
-                                  if (camera.torchAvailable)
-                                    IconButton(
-                                      tooltip: l.qrScanTorch,
-                                      isSelected: camera.torchOn,
-                                      icon: const Icon(Icons.flashlight_off),
-                                      selectedIcon: const Icon(Icons.flashlight_on),
-                                      onPressed: _camera.toggleTorch,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      },
+                          ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, 0),
-              child: _Dock(
-                text: dockText,
-                tone: tone,
-                sub: reply && widget.amount != null && tone == _DockTone.plain
-                    ? l.phoneQrPaidWhen(epicFor(l, widget.amount!, surface: AmountSurface.exact))
-                    : null,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(Kit.gutter, 22, Kit.gutter, 0),
+                      child: _Dock(
+                        text: dockText,
+                        tone: tone,
+                        sub: reply && widget.amount != null && tone == _DockTone.plain
+                            ? l.phoneQrPaidWhen(epicFor(l, widget.amount!, surface: AmountSurface.exact))
+                            : null,
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
@@ -609,13 +621,13 @@ class _Dock extends StatelessWidget {
                 child: Text(
                   text,
                   textAlign: TextAlign.center,
-                  style: KitType.body.copyWith(color: tone == _DockTone.plain ? t.text : color, fontSize: 16),
+                  style: KitType.body.copyWith(color: tone == _DockTone.plain ? t.text : color),
                 ),
               ),
             ],
           ),
           if (sub != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(sub!, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
           ],
         ],
@@ -793,7 +805,8 @@ class _FramePainter extends CustomPainter {
     final metric = path.computeMetrics().first;
     final length = metric.length;
     if (count <= 1) {
-      canvas.drawPath(path, complete ? (track..color = ok) : track);
+      // One part has nothing to count: the frame draws no ring until the read is done.
+      if (complete) canvas.drawPath(path, track..color = ok);
     } else {
       final gap = length * 0.006;
       final each = length / count;
@@ -810,45 +823,41 @@ class _FramePainter extends CustomPainter {
         );
       }
     }
+    // Square corner marks, as the frame draws them: arms of 26, 2.5 thick, inside the box.
     final bracket = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.butt
+      ..strokeJoin = StrokeJoin.miter
       ..color = corners;
-    const r = 18.0;
-    const len = 28.0;
-    final f = finder;
-    final r0 = Radius.circular(r);
+    const len = 26.0;
+    final f = finder.deflate(1.25);
     canvas
       ..drawPath(
         Path()
           ..moveTo(f.left, f.top + len)
-          ..lineTo(f.left, f.top + r)
-          ..arcToPoint(Offset(f.left + r, f.top), radius: r0)
+          ..lineTo(f.left, f.top)
           ..lineTo(f.left + len, f.top),
         bracket,
       )
       ..drawPath(
         Path()
           ..moveTo(f.right - len, f.top)
-          ..lineTo(f.right - r, f.top)
-          ..arcToPoint(Offset(f.right, f.top + r), radius: r0)
+          ..lineTo(f.right, f.top)
           ..lineTo(f.right, f.top + len),
         bracket,
       )
       ..drawPath(
         Path()
           ..moveTo(f.right, f.bottom - len)
-          ..lineTo(f.right, f.bottom - r)
-          ..arcToPoint(Offset(f.right - r, f.bottom), radius: r0)
+          ..lineTo(f.right, f.bottom)
           ..lineTo(f.right - len, f.bottom),
         bracket,
       )
       ..drawPath(
         Path()
           ..moveTo(f.left + len, f.bottom)
-          ..lineTo(f.left + r, f.bottom)
-          ..arcToPoint(Offset(f.left, f.bottom - r), radius: r0)
+          ..lineTo(f.left, f.bottom)
           ..lineTo(f.left, f.bottom - len),
         bracket,
       );

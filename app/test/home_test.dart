@@ -3415,8 +3415,8 @@ void main() {
             .hand(payee);
         await tester.pumpAndSettle();
         expect(find.text(_l.phoneFileSendHint), findsOneWidget);
-        // Done is the header's close.
-        await _tap(tester, find.descendant(of: find.byType(SendView), matching: find.byTooltip(_l.commonClose)));
+        // Done is the header's back arrow (the frame has no close on this page).
+        await _tap(tester, find.descendant(of: find.byType(SendView), matching: find.byTooltip(_l.phoneKitBack)));
         await _tab(tester, _l.homeSendButton);
         expect(_toField(tester), payee);
       },

@@ -62,5 +62,13 @@
   "phoneAcceptHintQr": "Nimm sie an und zeige ihnen dann deine Antwort. Es kommt nichts an, bevor sie gescannt wird.",
   "phoneAcceptHintFile": "Nimm sie an und schick dann deine Antwort. Es kommt nichts an, bevor sie geöffnet wird.",
   "phoneAcceptAccept": "Annehmen",
-  "phoneAcceptNotNow": "Nicht jetzt"
+  "phoneAcceptNotNow": "Nicht jetzt",
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrAimAnswer": "Point at the answer on their phone.",
+  "phoneQrDoneScanned": "Your code was scanned",
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away."
 }
