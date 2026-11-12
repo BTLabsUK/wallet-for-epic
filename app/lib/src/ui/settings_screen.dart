@@ -148,7 +148,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (!scan.running && scan.error != null)
         Padding(padding: const EdgeInsets.all(Kit.gutter), child: ErrorText(describeError(l, scan.error!))),
       Padding(
-        padding: const EdgeInsets.only(bottom: 18),
+        padding: const EdgeInsets.only(top: 6, bottom: 18),
         child: KitSearchField(
           key: settingsSearchKey,
           controller: _search,
