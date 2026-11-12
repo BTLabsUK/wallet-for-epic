@@ -79,11 +79,6 @@ const double figureSize = 60, figureMinSize = 34;
 /// The size the figure never scales under: its unit goes first.
 const double figureFloorSize = 14;
 
-/// How far the header is open, from the shell's page position: 1 on Wallet, 0 on Send and
-/// Receive, in between while a swipe or a tap moves the page.
-double headerOpenness(double page) =>
-    (1 - (page - ShellTab.wallet.index).abs()).clamp(0.0, 1.0);
-
 /// A layer's opacity at [share] of the way to it: out of sight until 0.4, full from 0.6, so
 /// the two layers of a cross-fade barely show at once.
 double shellFade(double share) => ((share - 0.4) / 0.2).clamp(0.0, 1.0);

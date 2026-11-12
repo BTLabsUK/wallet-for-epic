@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -169,7 +170,10 @@ Future<void> _toReview(WidgetTester tester) async {
   await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
 }
 
-bool _enabled(WidgetTester tester, Finder button) => tester.widget<ButtonStyleButton>(button).onPressed != null;
+bool _enabled(WidgetTester tester, Finder button) {
+  final w = tester.widget(button);
+  return w is KitButton ? w.onPressed != null : (w as ButtonStyleButton).onPressed != null;
+}
 
 void main() {
   group('contact page of a contact with only a pairing', () {

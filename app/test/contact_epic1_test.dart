@@ -276,6 +276,9 @@ void main() {
       final h = _Harness();
       await h.session.saveContact(contact: Contact(id: '', name: 'Eve', epic1: _link));
       await h.pump(tester, const ContactsScreen());
+      // Recent says "No payments yet"; A to Z shows how each is reached.
+      await tester.tap(find.text(_l.phoneContactsAtoZ));
+      await tester.pumpAndSettle();
       expect(find.byWidgetPredicate((w) => w is EBadge && w.icon == MethodIcons.ofRecipient(RecipientKind.epic1)), findsOneWidget);
       expect(find.byWidgetPredicate((w) => w is ShortAddressText && w.address == _link), findsOneWidget);
     });

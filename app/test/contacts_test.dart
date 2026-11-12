@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/trust/policy.dart' show profileAutomated, profil
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -169,7 +170,7 @@ void main() {
       expect(find.text(_l.contactsEmptyCaption), findsOneWidget);
       expect(find.byType(TextField), findsNothing);
       expect(find.byType(FloatingActionButton), findsNothing);
-      await tester.tap(find.widgetWithText(FilledButton, _l.contactsAdd));
+      await tester.tap(find.widgetWithText(KitButton, _l.contactsAdd));
       await tester.pumpAndSettle();
       expect(find.text(_l.contactsNewTitle), findsOneWidget);
     });
@@ -183,8 +184,13 @@ void main() {
       await h.add('Tor friend', _onion);
       await h.pump(tester, const ContactsScreen());
       expect(find.byTooltip(_l.contactsAdd), findsOneWidget);
-      expect(find.text('BB'), findsOneWidget);
-      expect(find.text('AL'), findsOneWidget);
+      // The faces strip and the row each show the initials.
+      expect(find.text('BB'), findsNWidgets(2));
+      expect(find.text('AL'), findsNWidgets(2));
+      // Without a payment the row says so; A to Z shows how each is reached.
+      expect(find.text(_l.phoneContactsNoPayments), findsNWidgets(3));
+      await tester.tap(find.text(_l.phoneContactsAtoZ));
+      await tester.pumpAndSettle();
       // Not paired: the method badge after the name.
       expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
       expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
@@ -201,7 +207,7 @@ void main() {
       // Sorted by name, whatever the case.
       final names = [
         for (final name in ['alice', 'Bob Builder', 'Tor friend'])
-          tester.getTopLeft(find.text(name)).dy,
+          tester.getTopLeft(find.text(name).last).dy,
       ];
       expect(names, [...names]..sort());
       // Eight or fewer: no letter headers.
@@ -224,6 +230,8 @@ void main() {
       }
       await h.add('9 lives', _alice);
       await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.text(_l.phoneContactsAtoZ));
+      await tester.pumpAndSettle();
       for (final letter in ['#', 'A', 'B']) {
         expect(find.text(letter), findsOneWidget, reason: letter);
       }
@@ -242,10 +250,11 @@ void main() {
       await tester.enterText(find.byType(TextField), 'xyz');
       await tester.pump();
       expect(find.text(_l.contactsNoMatchQuery('xyz')), findsOneWidget);
-      await tester.tap(find.byTooltip(_l.commonClose));
+      await tester.enterText(find.byType(TextField), '');
       await tester.pump();
-      expect(find.text('Alice'), findsOneWidget);
-      expect(find.text('Bob'), findsOneWidget);
+      // The faces strip and the row.
+      expect(find.text('Alice'), findsNWidgets(2));
+      expect(find.text('Bob'), findsNWidgets(2));
     });
 
     testWidgets('picker mode returns the tapped contact', (tester) async {
@@ -346,7 +355,7 @@ void main() {
       final h = _Harness(refusals: refusals);
       await h.add('Alice Smith', _alice, note: 'Coffee club');
       await h.pump(tester, const ContactsScreen());
-      await tester.tap(find.text('Alice Smith'));
+      await tester.tap(find.text('Alice Smith').last);
       await tester.pumpAndSettle();
       expect(find.byType(ContactPage), findsOneWidget);
       return h;
@@ -381,7 +390,7 @@ void main() {
       expect(find.textContaining('a' * 50, findRichText: true), findsWidgets);
     });
 
-    testWidgets('on a phone Send sits above the navigation bar, 48 dp tall', (
+    testWidgets('on a phone Send is a full-height button in the header, clear of the system bars', (
       tester,
     ) async {
       tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 48 * 3);
@@ -389,17 +398,20 @@ void main() {
       await open(tester);
       final limit = tester.view.physicalSize.height / tester.view.devicePixelRatio - 48;
       final rect = tester.getRect(find.byKey(contactPageSendKey));
-      expect(rect.height, greaterThanOrEqualTo(48));
+      expect(rect.height, greaterThanOrEqualTo(44));
       expect(rect.bottom, lessThanOrEqualTo(limit));
-      expect(tester.getRect(find.byKey(contactPageEditKey)).height, greaterThanOrEqualTo(48));
+      // Edit lives in the menu, a tap away.
+      await tester.tap(find.byKey(contactPageMoreKey));
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(contactPageEditKey)).height, greaterThanOrEqualTo(44));
     });
 
-    testWidgets('Send hands the address to the Send tab', (tester) async {
+    testWidgets('Send hands the address to the Send flow', (tester) async {
       final h = await open(tester);
       await tester.tap(find.byKey(contactPageSendKey));
       await tester.pumpAndSettle();
       final c = h.container(tester);
-      expect(c.read(shellTabProvider), ShellTab.send);
+      expect(c.read(shellFlowProvider), ShellFlow.send);
       expect(c.read(sendRecipientProvider)?.text, _alice);
       expect(find.byType(ContactPage), findsNothing);
     });
@@ -436,6 +448,8 @@ void main() {
 
     testWidgets('Edit opens the edit screen', (tester) async {
       await open(tester);
+      await tester.tap(find.byKey(contactPageMoreKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPageEditKey));
       await tester.pumpAndSettle();
       expect(find.text(_l.contactsEditTitle), findsOneWidget);

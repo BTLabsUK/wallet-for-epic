@@ -23633,4 +23633,83 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneLinkPasteSub => 'Вставьте полученный код или ссылку';
+
+  @override
+  String get phoneContactsSearchHint => 'Поиск или вставьте адрес';
+
+  @override
+  String get phoneContactsAtoZ => 'А–Я';
+
+  @override
+  String get phoneContactsNoPayments => 'Платежей пока нет';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return 'Просит $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => 'Контакты';
+
+  @override
+  String get phoneContactPaired => 'Связаны · платежи между вами запечатаны';
+
+  @override
+  String get phoneContactRequest => 'Запросить';
+
+  @override
+  String get phoneTabHome => 'Главная';
+
+  @override
+  String get phoneTabScan => 'Сканировать';
+
+  @override
+  String get phoneReview => 'Проверить';
+
+  @override
+  String get phoneLater => 'Позже';
+
+  @override
+  String get phoneHomeRecent => 'Недавние';
+
+  @override
+  String get phoneHomeSeeAll => 'Все';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount поступает';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount в отправках';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Синхронизация $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Не в сети';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Счёт от $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Ничего не оплачивается, пока вы не подтвердите.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Доступно · последнее известное';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Подробности баланса';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Платежей пока нет. Получите немного EPIC, чтобы начать.';
 }

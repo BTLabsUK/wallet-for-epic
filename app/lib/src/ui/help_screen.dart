@@ -847,9 +847,9 @@ void openHelpPlace(BuildContext context, String place) {
     case null:
       return;
     case HelpPhonePlace.receive:
-      showShellTab(context, ShellTab.receive);
+      showShellFlow(context, ShellFlow.receive);
     case HelpPhonePlace.send:
-      showShellTab(context, ShellTab.send);
+      showShellFlow(context, ShellFlow.send);
     case HelpPhonePlace.activity:
       navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const HistoryScreen()));
     case HelpPhonePlace.outputs:

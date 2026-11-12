@@ -23188,4 +23188,84 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneLinkPasteSub => 'Einen erhaltenen Code oder Link einfügen';
+
+  @override
+  String get phoneContactsSearchHint => 'Suchen oder Adresse einfügen';
+
+  @override
+  String get phoneContactsAtoZ => 'A bis Z';
+
+  @override
+  String get phoneContactsNoPayments => 'Noch keine Zahlungen';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return 'Verlangt $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => 'Kontakte';
+
+  @override
+  String get phoneContactPaired =>
+      'Gekoppelt · Zahlungen zwischen euch sind versiegelt';
+
+  @override
+  String get phoneContactRequest => 'Anfordern';
+
+  @override
+  String get phoneTabHome => 'Start';
+
+  @override
+  String get phoneTabScan => 'Scannen';
+
+  @override
+  String get phoneReview => 'Prüfen';
+
+  @override
+  String get phoneLater => 'Später';
+
+  @override
+  String get phoneHomeRecent => 'Zuletzt';
+
+  @override
+  String get phoneHomeSeeAll => 'Alle anzeigen';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount kommt an';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount in Zahlungen';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Synchronisiert $percent %';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Offline';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Rechnung von $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Es wird erst bezahlt, wenn du bestätigst.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Verfügbar · zuletzt bekannt';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Details zum Guthaben';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
 }

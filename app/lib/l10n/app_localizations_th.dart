@@ -22457,4 +22457,83 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneLinkPasteSub => 'วางรหัสหรือลิงก์ที่ได้รับ';
+
+  @override
+  String get phoneContactsSearchHint => 'ค้นหา หรือวางที่อยู่';
+
+  @override
+  String get phoneContactsAtoZ => 'ก ถึง ฮ';
+
+  @override
+  String get phoneContactsNoPayments => 'ยังไม่มีการชำระเงิน';
+
+  @override
+  String phoneContactsAsks(String amount) {
+    return 'ขอ $amount';
+  }
+
+  @override
+  String get phoneContactsFaces => 'ผู้ติดต่อ';
+
+  @override
+  String get phoneContactPaired =>
+      'จับคู่แล้ว · การชำระเงินระหว่างคุณถูกปิดผนึก';
+
+  @override
+  String get phoneContactRequest => 'ขอเงิน';
+
+  @override
+  String get phoneTabHome => 'หน้าแรก';
+
+  @override
+  String get phoneTabScan => 'สแกน';
+
+  @override
+  String get phoneReview => 'ตรวจสอบ';
+
+  @override
+  String get phoneLater => 'ภายหลัง';
+
+  @override
+  String get phoneHomeRecent => 'ล่าสุด';
+
+  @override
+  String get phoneHomeSeeAll => 'ดูทั้งหมด';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount กำลังเข้า';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount ในการส่ง';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'กำลังซิงก์ $percent%';
+  }
+
+  @override
+  String get phoneHomeOffline => 'ออฟไลน์';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'ใบแจ้งหนี้จาก $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount จะไม่มีการชำระเงินจนกว่าคุณจะอนุมัติ';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'ใช้ได้ · ล่าสุดที่ทราบ';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'รายละเอียดยอดเงิน';
+
+  @override
+  String get phoneHomeEmpty => 'ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น';
 }

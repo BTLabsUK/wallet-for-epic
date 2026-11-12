@@ -218,14 +218,17 @@ class KitNeedsYouCard extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10, left: 52),
-                      child: Row(
-                        children: [
-                          KitButton(label: reviewLabel, onPressed: onReview, small: true, expand: false, semanticsId: reviewId),
-                          if (onLater != null) ...[
-                            const SizedBox(width: 6),
-                            KitButton(label: laterLabel, onPressed: onLater, kind: KitButtonKind.ghost, small: true, expand: false, semanticsId: laterId),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            KitButton(label: reviewLabel, onPressed: onReview, small: true, expand: false, semanticsId: reviewId),
+                            if (onLater != null)
+                              KitButton(label: laterLabel, onPressed: onLater, kind: KitButtonKind.ghost, small: true, expand: false, semanticsId: laterId),
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ],

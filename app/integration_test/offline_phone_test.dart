@@ -205,7 +205,7 @@ void main() {
       await push(tester, const ContactsScreen());
       await look(tester, 'Contacts', waitS: 6);
       await toShell(tester);
-      c.read(shellTabProvider.notifier).go(ShellTab.wallet);
+      c.read(shellTabProvider.notifier).go(ShellTab.home);
       await look(tester, 'Wallet after the visits', waitS: 30);
 
       // ---- Back online: the host turns airplane mode off when it sees want-up.

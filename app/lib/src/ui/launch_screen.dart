@@ -90,7 +90,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
         ? await vault.unlock(config, _previewPin)
         : (await vault.create(config, pin: _previewPin)).session;
     await ref.read(sessionProvider.notifier).open(session);
-    ref.read(shellTabProvider.notifier).go(ShellTab.wallet);
+    ref.read(shellTabProvider.notifier).go(ShellTab.home);
     return const HomeScreen();
   }
 

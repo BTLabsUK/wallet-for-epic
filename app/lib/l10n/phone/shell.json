@@ -1,0 +1,92 @@
+{
+  "phoneTabHome": "Home",
+  "@phoneTabHome": {
+    "description": "Tab bar: the first tab, the wallet's home screen. One word."
+  },
+  "phoneTabScan": "Scan",
+  "@phoneTabScan": {
+    "description": "Screen reader label of the round button in the middle of the tab bar that opens the QR scanner."
+  },
+  "phoneReview": "Review",
+  "@phoneReview": {
+    "description": "Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking"
+  },
+  "phoneLater": "Later",
+  "@phoneLater": {
+    "description": "Quiet button that puts a needs-you card away for now"
+  },
+  "phoneHomeRecent": "Recent",
+  "@phoneHomeRecent": {
+    "description": "Heading over the latest payments on Home"
+  },
+  "phoneHomeSeeAll": "See all",
+  "@phoneHomeSeeAll": {
+    "description": "Link at the end of Home's Recent heading; opens the Activity tab"
+  },
+  "phoneHomeArriving": "+{amount} arriving",
+  "@phoneHomeArriving": {
+    "description": "Info chip under Home's balance: the amount that is on its way in",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "37.0"
+      }
+    }
+  },
+  "phoneHomeInSends": "{amount} in sends",
+  "@phoneHomeInSends": {
+    "description": "Quiet chip under Home's balance: the amount held by payments being sent",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "15.713"
+      }
+    }
+  },
+  "phoneHomeSyncing": "Syncing {percent}%",
+  "@phoneHomeSyncing": {
+    "description": "The status pill on Home while the node is catching up",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "phoneHomeOffline": "Offline",
+  "@phoneHomeOffline": {
+    "description": "The status pill on Home when the wallet reaches neither the node nor Epicbox"
+  },
+  "phoneHomeInvoiceTitle": "Invoice from {name}",
+  "@phoneHomeInvoiceTitle": {
+    "description": "Title of the card on Home when an invoice waits for the user's approval",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Northwind Exchange"
+      }
+    }
+  },
+  "phoneHomeInvoiceBody": "{amount}. Nothing is paid until you approve.",
+  "@phoneHomeInvoiceBody": {
+    "description": "Body of the invoice card on Home; the amount may include a fiat value",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "42.5 EPIC"
+      }
+    }
+  },
+  "phoneHomeBalanceLastKnown": "Available · last known",
+  "@phoneHomeBalanceLastKnown": {
+    "description": "Caption over Home's balance when the figure is the last one known (no connection)"
+  },
+  "phoneHomeBalanceSheetHint": "Balance details",
+  "@phoneHomeBalanceSheetHint": {
+    "description": "Spoken name of Home's balance, which opens the sheet with every part of the balance"
+  },
+  "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
+  "@phoneHomeEmpty": {
+    "description": "Empty Home: what stands under the Recent heading before the first payment"
+  }
+}

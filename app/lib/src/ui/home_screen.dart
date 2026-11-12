@@ -5,16 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactNameFor, contactsProvider;
-import '../recent_activity.dart';
 import '../epic1.dart' show PaymentMode;
-import '../errors.dart';
 import '../l10n.dart';
 import '../btlabs_onions.dart';
 import '../net/tor_net.dart';
 import '../phone_tor.dart';
 import '../tor_phone.dart';
 import '../providers.dart';
-import '../restore_scan.dart';
 import '../scan/incoming_link.dart';
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../settings.dart';
@@ -27,35 +24,27 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
-import 'help_screen.dart';
+import 'home_tab.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_tab_bar.dart';
+import 'invoices_screen.dart' show InvoicesEntry;
+import 'tx_details_screen.dart';
 import 'history_screen.dart';
-import 'home_parts.dart';
-import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
 import 'pairing/pairing_notices.dart';
-import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
-import 'restore_card.dart';
-import 'restore_screen.dart' show ScanProgressView;
 import 'scan_route.dart';
-import '../devices/phone_devices.dart' show DeviceLifecycle, watchHistory;
-import 'scan_screen.dart' show ScanCode, offersQrScan, qrScannerProvider;
+import '../devices/phone_devices.dart' show DeviceLifecycle;
+import 'scan_screen.dart' show ScanCode, qrScannerProvider;
 import 'send_screen.dart' show SendBack, SendView, trackedSendProvider;
 import 'shell_header.dart';
-import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
 import 'slate_file_screen.dart';
 import 'status.dart';
-import 'theme/brand.dart';
-import 'theme/lattice.dart';
-import 'theme/tokens.dart' show WalletTokensOf;
-import 'theme/protocol.dart';
+import 'theme/brand.dart' show ProtocolBackdrop, topGlow;
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
 import 'levels/shell_pairing.dart' show offerPairRequest;
-import '../levels/level_features.dart' show BalancePresentation, LevelWording;
-import '../levels/level_providers.dart' show levelFeaturesProvider;
-import 'tx_details_screen.dart';
-import 'levels/quiet_invoices.dart';
 import '../settings_file/host_settings.dart' show appConfig;
 import '../log.dart' show logWarn;
 import '../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;
@@ -221,8 +210,11 @@ bool _syncing(AsyncValue<HomeData> home) {
   return data != null && (home.isLoading || data.syncing);
 }
 
-/// The wallet shell: Send, Wallet and Receive as three tabs under one app bar and balance
-/// header, with a tab bar below. Swiping or tapping changes only the page between them.
+
+/// The wallet shell: the tab bar (Home, Activity, Scan, Contacts, Settings) under the current
+/// tab. Scan opens the scanner as a flow; Send and Receive open as full-screen routes over the
+/// tab bar, asked for through [shellFlowProvider]. The shell also owns the timers, the notices
+/// and the hosts that listen for events (invoices, pairing, linked devices, relay).
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -244,26 +236,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Payments whose "could not reach the node" notice was already shown.
   final Set<String> _delayedShown = {};
-
-  late final PageController _pages = PageController(
-    initialPage: ref.read(shellTabProvider).index,
-  );
-
-  /// Bumped when a payment is done, so the Send tab starts a fresh form.
-  int _sendForm = 0;
-  final _sendBack = SendBack();
-
-  /// The page position as [headerOpenness] reads it: 1 on Wallet, 0 on Send and Receive. A tap
-  /// from Send to Receive stays at 0, rather than opening and closing on the way.
-  double _openness() {
-    final tab = ref.read(shellTabProvider);
-    if (_tapPassesWallet) return 0;
-    return headerOpenness(
-      _pages.hasClients && _pages.position.haveDimensions
-          ? _pages.page ?? tab.index.toDouble()
-          : tab.index.toDouble(),
-    );
-  }
 
   @override
   void initState() {
@@ -384,7 +356,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _timer?.cancel();
     _tipPace.stop();
     _lifecycle.dispose();
-    _pages.dispose();
     super.dispose();
   }
 
@@ -554,51 +525,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }, pairing: pairingLinkKind(text) != null);
   }
 
-  void _goTab(ShellTab tab) => ref.read(shellTabProvider.notifier).go(tab);
-
-  /// Moves the pages to [tab], unless a swipe already brought them there.
-  void _showTab(ShellTab tab) {
-    if (!_pages.hasClients || _pages.page?.round() == tab.index) return;
-    if (MediaQuery.of(context).disableAnimations) {
-      _pages.jumpToPage(tab.index);
-      return;
-    }
-    // Send to Receive passes Wallet; the tab bar keeps marking the tab that was tapped.
-    _tapMove++;
-    final move = _tapMove;
-    final from = ShellTab.values[(_pages.page ?? tab.index.toDouble()).round()];
-    _tapPassesWallet = from != ShellTab.wallet && tab != ShellTab.wallet;
-    _pages
-        .animateToPage(
-          tab.index,
-          duration: shellTabDuration,
-          curve: Curves.easeOutCubic,
-        )
-        .whenComplete(() {
-          if (move == _tapMove) {
-            _tapMove = 0;
-            _tapPassesWallet = false;
-          }
-        });
-  }
-
-  /// Nonzero while a tap moves the pages, so the pages passed on the way change no tab.
-  int _tapMove = 0;
-
-  /// Whether the running tap moves between Send and Receive, past Wallet. The header then
-  /// stays closed instead of opening and closing again on the way, which flickered.
-  bool _tapPassesWallet = false;
-
-  void _pageChanged(int index) {
-    if (_tapMove == 0) _goTab(ShellTab.values[index]);
-  }
-
-  /// A payment is done: back to Wallet, with a fresh Send form for next time.
-  void _sendDone() {
-    ref.read(sendRecipientProvider.notifier).clear();
-    setState(() => _sendForm++);
-    _goTab(ShellTab.wallet);
-  }
 
   /// Tells the user what the listener just did, in words, with a way to the transaction.
   Future<void> _notify(ListenerEvent event) async {
@@ -626,7 +552,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (event.kind == ListenerEventKind.finalized &&
         tx != null &&
         tx.key == ref.read(trackedSendProvider) &&
-        ref.read(shellTabProvider) == ShellTab.send) {
+        _sendOpen) {
       return;
     }
     // The scanned payment's own screen says it is accepted; the notice would cover that.
@@ -703,6 +629,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
   }
 
+
+  /// Opens the Send or Receive route over the tab bar, after anything over the shell is closed.
+  /// A second request replaces the first: Send's "Receive" button, a scanned code.
+  void _openFlow(ShellFlow flow) {
+    if (!mounted) return;
+    final navigator = Navigator.of(context);
+    navigator.popUntil((route) => route.isFirst);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (flow == ShellFlow.send) _sendRoutes++;
+      navigator
+          .push(MaterialPageRoute<void>(builder: (_) => ShellFlowRoute(flow: flow)))
+          .whenComplete(() {
+            if (flow == ShellFlow.send) _sendRoutes--;
+          });
+    });
+  }
+
+  int _sendRoutes = 0;
+
+  bool get _sendOpen => _sendRoutes > 0;
+
+  void _goTab(int index) => ref.read(shellTabProvider.notifier).go(ShellTab.values[index]);
+
   @override
   Widget build(BuildContext context) {
     ref.listen(incomingSlateProvider, (_, file) {
@@ -735,7 +685,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     ref.listen(phoneTorProvider, (_, s) => follow(s));
     follow(ref.read(phoneTorProvider));
-    ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
+    // A request for Send or Receive (a button, a scanned code, a notification): take it and
+    // open the route.
+    ref.listen(shellFlowProvider, (_, flow) {
+      if (flow == null) return;
+      ref.read(shellFlowProvider.notifier).taken();
+      _openFlow(flow);
+    });
     // Once per phase, and per whole percent while downloading.
     ref.listen(
       updateProvider.select(
@@ -750,281 +706,133 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
-    final scan = offersQrScan(ref);
 
-    // The Android back: Send takes its own steps back first, then Send and Receive go to
-    // Wallet; on Wallet the app leaves, as the system does. Screens over the shell pop first.
-    // Invites the system opened (pairing, device link) go to their feature's confirm sheet.
+    // The Android back: a tab other than Home goes to Home first; on Home the app leaves, as
+    // the system does. Screens over the shell pop first. Invites the system opened (pairing,
+    // device link) go to their feature's confirm sheet.
     return InviteLinkGate(
       onUnreadable: (context) => _showNotice(context.l10n.inviteLinkUnreadable, level: NoticeLevel.warning),
       onNoHandler: (context, kind) => _showNotice(inviteNoHandlerText(context.l10n, kind), level: NoticeLevel.info),
       child: PopScope(
-      canPop: tab == ShellTab.wallet,
-      onPopInvokedWithResult: (didPop, _) {
-        // The tour takes back for its own steps.
-        if (didPop || ref.read(phoneTourProvider).open) return;
-        if (ref.read(shellTabProvider) == ShellTab.send && _sendBack.stepBack()) return;
-        _goTab(ShellTab.wallet);
-      },
-      child: PhoneTourAnchor(
-      child: _Backdrop(
-      child: SlotScaffold(
-        idle: const ShellEdge(),
-        appBar: AppBar(
-          leadingWidth: shellLeadingWidth,
-          leading: Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(end: 10),
-              // The logo is the mark alone: it names the app to a screen reader.
-              child: Semantics(label: l.shellTitle, image: true, excludeSemantics: true, child: const EpicMark(size: 26)),
+        canPop: tab == ShellTab.home,
+        onPopInvokedWithResult: (didPop, _) {
+          // The tour takes back for its own steps.
+          if (didPop || ref.read(phoneTourProvider).open) return;
+          ref.read(shellTabProvider.notifier).go(ShellTab.home);
+        },
+        child: PhoneTourAnchor(
+          child: _Backdrop(
+            child: SlotScaffold(
+              idle: const ShellEdge(),
+              // Read below the body's hosts: their invoice events listen before the first
+              // collect of the mailboxes starts.
+              bottomNavigationBar: Consumer(
+                builder: (context, ref, _) => KitTabBar(
+                selected: tab.index,
+                onSelect: _goTab,
+                onScan: _scan,
+                scanLabel: l.phoneTabScan,
+                scanId: TrustIds.tabScan,
+                items: [
+                  KitTabItem(icon: KitIcons.home, iconOn: KitIcons.homeOn, label: l.phoneTabHome, semanticsId: TrustIds.tabHome),
+                  KitTabItem(
+                    icon: KitIcons.activity,
+                    iconOn: KitIcons.activityOn,
+                    label: l.historyTitle,
+                    badge: ref.watch(pendingInvoiceCountProvider),
+                    semanticsId: TrustIds.tabActivity,
+                  ),
+                  KitTabItem(icon: KitIcons.contacts, iconOn: KitIcons.contactsOn, label: l.contactsTitle, semanticsId: TrustIds.tabContacts),
+                  KitTabItem(icon: KitIcons.settings, iconOn: KitIcons.settingsOn, label: l.settingsTitle, semanticsId: TrustIds.tabSettings),
+                ],
+              ),
+              ),
+              body: Stack(
+                children: [
+                  // Hosts that listen for events; they draw nothing.
+                  // Invoices keep their event wiring (a new invoice is a notice).
+                  const InvoicesEntry(visible: false),
+                  // Pairing events as notices.
+                  const PairingNotices(),
+                  // Linked devices' runs (resume, the 5 s reads while on screen).
+                  const DeviceLifecycle(child: SizedBox.shrink()),
+                  // The Epicbox relay offer as a notice.
+                  const RelayDownNotices(),
+                  Positioned.fill(
+                    child: switch (tab) {
+                      ShellTab.home => HomeTab(onRefresh: _refresh),
+                      ShellTab.activity => const HistoryScreen(),
+                      ShellTab.contacts => const ContactsScreen(),
+                      ShellTab.settings => const SettingsScreen(),
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-          titleSpacing: 0,
-          // The mark on every tab; Send and Receive carry the balance in their header below.
-          title: const ShellTitle(),
-          actions: [
-            // Invoices moved to the destinations row; the entry keeps its event wiring.
-            const InvoicesEntry(visible: false),
-            // Pairing events as notices; draws nothing.
-            const PairingNotices(),
-            // Linked devices' runs (resume, the 5 s reads while on screen); draws nothing.
-            const DeviceLifecycle(child: SizedBox.shrink()),
-            // Level 1: the Epicbox relay offer as a notice; draws nothing.
-            const RelayDownNotices(),
-            if (scan)
-              IconButton(
-                tooltip: l.scanQrTooltip,
-                icon: const Icon(Icons.qr_code_scanner),
-                onPressed: _scan,
-              ),
-            if (!previewNoLock)
-            IconButton(
-              tooltip: l.homeLockTooltip,
-              icon: trustId(TrustIds.homeLock, const Icon(Icons.lock_outline)),
-              onPressed: () => lockWallet(context, ref),
-            ),
-            _SettingsButton(onPressed: () => _open(const SettingsScreen())),
-          ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: tab.index,
-          onDestinationSelected: (i) => _goTab(ShellTab.values[i]),
-          // Each tab shows its label, so none has a tooltip, which stayed over the main
-          // button after a click.
-          destinations: [
-            NavigationDestination(
-              icon: TrustId(TrustIds.tabSend, child: const Icon(Icons.north_east)),
-              label: l.homeSendButton,
-              tooltip: '',
-            ),
-            NavigationDestination(
-              icon: TrustId(TrustIds.tabWallet, child: const Icon(Icons.account_balance_wallet_outlined)),
-              selectedIcon: TrustId(TrustIds.tabWallet, child: const Icon(Icons.account_balance_wallet)),
-              label: l.shellWalletTab,
-              tooltip: '',
-            ),
-            NavigationDestination(
-              icon: TrustId(TrustIds.tabReceive, child: const Icon(Icons.south_west)),
-              label: l.homeReceiveButton,
-              tooltip: '',
-            ),
-          ],
-        ),
-        body: PageView(
-          controller: _pages,
-          onPageChanged: _pageChanged,
-          children: [
-            _KeepAlive(
-              child: _withBalanceHeader(
-                SendView(
-                  key: ValueKey('send-$_sendForm'),
-                  onDone: _sendDone,
-                  back: _sendBack,
-                ),
-              ),
-            ),
-            _KeepAlive(child: _walletTab(context)),
-            _KeepAlive(child: _withBalanceHeader(const ReceiveView())),
-          ],
-        ),
-      ),
-    ),
-    ),
-    ));
-  }
-
-  /// A balance tile opens Outputs, filtered to that balance (Total: every output).
-  void _openOutputs(BalanceKind kind) => _open(
-    OutputsScreen(
-      filter: switch (kind) {
-        BalanceKind.confirming => OutputsFilter.confirming,
-        BalanceKind.immature => OutputsFilter.immature,
-        BalanceKind.waitingSender || BalanceKind.senderPosted => OutputsFilter.confirming,
-        BalanceKind.locked => OutputsFilter.locked,
-        BalanceKind.total || BalanceKind.calm => null,
-      },
-    ),
-  );
-
-  /// A destination tile opens its screen.
-  void _openDestination(HomeDestination destination) => _open(switch (destination) {
-    HomeDestination.activity => const HistoryScreen(),
-    HomeDestination.outputs => const OutputsScreen(),
-    HomeDestination.contacts => const ContactsScreen(),
-    HomeDestination.invoices => const InvoicesScreen(),
-  });
-
-  /// The middle tab: the balance tiles, the destinations, reminders,
-  /// pending sends and recent activity, with pull to refresh.
-  /// Send and Receive under the balance header ([BalanceHeader]): the figure with its
-  /// details and the status icons, pinned above the page.
-  Widget _withBalanceHeader(Widget page) => Column(
-    children: [
-      const BalanceHeader(),
-      Expanded(child: page),
-    ],
-  );
-
-  Widget _walletTab(BuildContext context) {
-    final config = ref.watch(walletConfigProvider);
-    final home = ref.watch(homeProvider);
-    final scan = ref.watch(scanProvider);
-    final restoreUnfinished = ref.watch(restoreScanProvider.select((r) => r.required));
-    final importOffer = ref.watch(historyImportOfferProvider);
-    final l = context.l10n;
-    final data = home.value;
-    final backedUp = ref.watch(backedUpProvider).value ?? true;
-    final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
-    // Level 1: no tiles (the balance sheet has every amount), and of the destinations only
-    // Contacts, as one entry; View all stands for Activity.
-    final tiles = ref.watch(levelFeaturesProvider.select((f) => f.balanceTiles)) == BalancePresentation.tiles;
-    final plain = ref.watch(levelFeaturesProvider.select((f) => f.wording)) == LevelWording.plain;
-    Widget column(Widget child) => Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: child,
       ),
     );
-    return SafeArea(
-      top: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // The balance stays put above the list; a swipe fades it with the page position,
-          // and off Wallet its line stops scrolling.
-          AnimatedBuilder(
-            animation: _pages,
-            builder: (context, child) {
-              final t = _openness();
-              return TickerMode(
-                enabled: t > 0,
-                child: Opacity(opacity: shellFade(t), child: child),
-              );
-            },
-            child: column(
-              const PhoneTourTarget(id: 'tour-balance', child: WalletBalance()),
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _refresh,
-              child: column(
-                CustomScrollView(
-                  // Pull to refresh works on a short list too.
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                      sliver: SliverList.list(
-                  children: [
-                    // The desktop Overview's tiles, then its sidebar's destinations. The
-                    // statuses are the icons in the balance area above; the full card is in
-                    // Settings. One gap between every card on the tab, the tiles' own.
-                    if (tiles) ...[
-                      BalanceTiles(onTap: _openOutputs),
-                      const SizedBox(height: homeCardGap),
-                      HomeDestinations(onOpen: _openDestination),
-                    ] else
-                      HomeContactsEntry(onTap: () => _openDestination(HomeDestination.contacts)),
-                    // An unfinished restore: its own card, with the scan in it.
-                    if (restoreUnfinished || importOffer)
-                      const Padding(
-                        padding: EdgeInsets.only(top: homeCardGap),
-                        child: RestoreCard(),
-                      )
-                    else if (scan.running || scan.error != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: homeCardGap),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: ScanProgressView(scan: scan),
-                          ),
-                        ),
-                      ),
-                    // The recovery phrase reminder is a notice (_offerBackup), not a card.
-                    if (home.hasError && !home.isLoading)
-                      Padding(
-                        padding: const EdgeInsets.only(top: homeCardGap),
-                        child: ErrorText(describeError(l, home.error!)),
-                      ),
-                    // Level 1: the rows already say "Waiting for <name>"; no card about it.
-                    if (!plain)
-                      _PendingSendsCard(transactions: transactions, open: _open),
-                    // It waits until the phrase is written down: that backup comes first.
-                    if (backedUp && config != null)
-                      _HistoryBackupCard(
-                        chain: config.chain,
-                        transactions: transactions,
-                      ),
-                    const SizedBox(height: 16),
+  }
+}
 
-                    // No title over the empty state: it comes back with the first payment.
-                    if (data == null || transactions.isNotEmpty)
-                      ProtocolSectionHead(
-                        l.homeRecentActivity,
-                        trailing: !showViewAll(transactions.length)
-                            ? null
-                            : TextButton(
-                                onPressed: () => _open(const HistoryScreen()),
-                                child: Text(l.homeViewAll(transactions.length)),
-                              ),
-                      ),
-                    if (data != null && transactions.isEmpty)
-                      EmptyState(
-                        icon: const Icon(Icons.south_west),
-                        message: l.homeNoPayments,
-                        // The one primary on an empty Home, as the desktop's (UP-034).
-                        action: FilledButton(
-                          onPressed: () => _goTab(ShellTab.receive),
-                          child: Text(l.homeReceiveEpicButton),
-                        ),
-                      ),
-                    // Level 1: an invoice waiting is a row here, not a notice.
-                    const QuietInvoiceRows(),
-                    for (final tx in pendingFirst(
-                      transactions,
-                    ).take(recentActivityCount))
-                      TxTile(tx: tx),
-                  ],
-                      ),
-                    ),
-                    // The BT Labs lattice in the room a short list leaves, fading as rows come.
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: BrandLattice(
-                        color: context.tokens.text,
-                        strength: latticeStrength(data == null ? null : transactions.length),
-                      ),
-                    ),
-                  ],
+/// Send or Receive as a full-screen route over the tab bar: a close button, the balance header
+/// and today's screen. A finished payment closes the route. The Android back takes Send's own
+/// steps back first.
+class ShellFlowRoute extends ConsumerStatefulWidget {
+  const ShellFlowRoute({super.key, required this.flow});
+
+  final ShellFlow flow;
+
+  @override
+  ConsumerState<ShellFlowRoute> createState() => _ShellFlowRouteState();
+}
+
+class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
+  final _sendBack = SendBack();
+
+  void _close() => Navigator.of(context).maybePop();
+
+  /// A payment is done: the route closes, and the next Send starts with a fresh form.
+  void _done() {
+    ref.read(sendRecipientProvider.notifier).clear();
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final send = widget.flow == ShellFlow.send;
+    final touring = ref.watch(phoneTourProvider.select((s) => s.open));
+    return PopScope(
+      canPop: !send && !touring,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        // The tour opened this route: Back is its step back, not the route's own.
+        if (touring) {
+          final tour = ref.read(phoneTourProvider.notifier);
+          (tour.back ?? tour.close)();
+          return;
+        }
+        if (_sendBack.stepBack()) return;
+        Navigator.of(context).pop();
+      },
+      child: _Backdrop(
+        child: SlotScaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                KitFlowHeader(
+                  title: send ? l.homeSendButton : l.homeReceiveButton,
+                  onLeading: _close,
+                  leadingId: TrustIds.flowClose,
                 ),
-              ),
+                const BalanceHeader(),
+                Expanded(child: send ? SendView(onDone: _done, back: _sendBack) : const ReceiveView()),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1045,52 +853,6 @@ class _Backdrop extends ConsumerWidget {
   );
 }
 
-/// The app bar's Settings button.
-class _SettingsButton extends ConsumerWidget {
-  const _SettingsButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    // No update dot: the update notice is the one place an update is offered.
-    return IconButton(
-      key: settingsButtonKey,
-      tooltip: l.homeSettingsTooltip,
-      icon: trustId(TrustIds.homeSettings, const Icon(Icons.settings_outlined)),
-      onPressed: onPressed,
-    );
-  }
-}
-
-/// The app bar's Settings button, for tests.
-const Key settingsButtonKey = ValueKey('settings-button');
-
-/// How long a tap on the tab bar takes to move the pages.
-const Duration shellTabDuration = Duration(milliseconds: 250);
-
-/// Keeps a tab's state (a half-filled form, a scroll position) while another tab is shown.
-class _KeepAlive extends StatefulWidget {
-  const _KeepAlive({required this.child});
-
-  final Widget child;
-
-  @override
-  State<_KeepAlive> createState() => _KeepAliveState();
-}
-
-class _KeepAliveState extends State<_KeepAlive>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
-  }
-}
 
 /// The notice tag of the update phases, so each phase replaces the one before.
 const String updateNoticeTag = 'update';
@@ -1178,67 +940,6 @@ void showUpdateNotice(
   }
 }
 
-/// Reminds the user to export a history backup, which a restore from the phrase cannot replace.
-class _HistoryBackupCard extends ConsumerWidget {
-  const _HistoryBackupCard({required this.chain, required this.transactions});
-
-  final Chain chain;
-  final List<TxEntry> transactions;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(appSettingsProvider).value;
-    if (settings == null) return const SizedBox.shrink();
-    final now = ref.watch(clockProvider)();
-    final exportedAt = settings.historyExportedAt[chain.name];
-    final firstSeenAt = settings.historyReminderFirstSeenAt[chain.name];
-    if (firstSeenAt == null &&
-        unbackedPayments(
-              transactions,
-              exportedAt: exportedAt,
-              snapshot: settings.historyExportSnapshots[chain.name],
-            ) >
-            0) {
-      // The 30 days of a wallet with no export and no dismissal start here.
-      final notifier = ref.read(appSettingsProvider.notifier);
-      Future.microtask(() => notifier.markHistoryReminderSeen(chain, now));
-    }
-    final count = paymentsNotInBackup(
-      transactions,
-      now: now,
-      exportedAt: exportedAt,
-      dismissedAt: settings.historyReminderDismissedAt[chain.name],
-      firstSeenAt: firstSeenAt,
-      snapshot: settings.historyExportSnapshots[chain.name],
-    );
-    if (count == null) return const SizedBox.shrink();
-    final l = context.l10n;
-    // Before any export nothing is in a backup; after one, some payments may only have changed.
-    final text = exportedAt == null
-        ? l.homeHistoryNotBackedUp(count)
-        : l.homeHistoryChangedSinceBackup(count);
-    return Padding(
-      padding: const EdgeInsets.only(top: homeCardGap),
-      child: InlineNotice(
-        level: NoticeLevel.warning,
-        text: text,
-        actions: [
-          TextButton(
-            onPressed: () => ref
-                .read(appSettingsProvider.notifier)
-                .dismissHistoryReminder(chain, now),
-            child: Text(l.homeHistoryReminderNotNow),
-          ),
-          TextButton(
-            onPressed: () => exportHistoryBackup(context, ref),
-            child: Text(l.homeHistoryExportButton),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// The recovery phrase reminder comes back on a later opening of home, at most this often.
 const Duration backupNoticeEvery = Duration(days: 1);
 
@@ -1253,59 +954,3 @@ const String onionNoticeTag = 'onion-notice';
 /// wallet forgets it too.
 String backupNoticeKey(Chain chain) => 'wallet.${chain.name}.backupNoticeAt';
 
-/// Sends the recipient has not answered yet, with what that means.
-class _PendingSendsCard extends ConsumerWidget {
-  const _PendingSendsCard({required this.transactions, required this.open});
-
-  static final ButtonStyle _compact = TextButton.styleFrom(
-    padding: const EdgeInsets.symmetric(horizontal: 8),
-  );
-
-  final List<TxEntry> transactions;
-  final Future<void> Function(Widget screen) open;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final waiting = transactions
-        .where(
-          (t) =>
-              // Another linked device's payment is that device's to follow, not this one's.
-              t.status == TxStatus.awaitingRecipient && !isFromBackupUnknown(t) && t.origin != TxOrigin.linkedDevice,
-        )
-        .toList();
-    if (waiting.isEmpty) return const SizedBox.shrink();
-    final hidden = amountDisplay(ref).hidden;
-    final total = waiting.fold(
-      BigInt.zero,
-      (sum, t) => sum + txAmount(t).amount,
-    );
-    final l = context.l10n;
-    final count = waiting.length;
-    return Padding(
-      padding: const EdgeInsets.only(top: homeCardGap),
-      // In progress, not a warning: the blue edge. One line; "Why is it waiting?" has the rest.
-      child: InlineNotice(
-        level: NoticeLevel.info,
-        title: l.homePendingTitle(count),
-        text: l.homePendingShort(shownEpic(l, total, hidden: hidden)),
-        actions: [
-                  TextButton(
-                    style: _compact,
-                    onPressed: () =>
-                        openHelp(context, HelpId.send),
-                    child: Text(l.homePendingWhy),
-                  ),
-                  TextButton(
-                    style: _compact,
-                    onPressed: () => open(
-                      count == 1
-                          ? TxDetailsScreen(txKey: waiting.single.key)
-                          : const HistoryScreen(filter: HistoryFilter.pending),
-                    ),
-                    child: Text(l.homePendingView(count)),
-                  ),
-        ],
-      ),
-    );
-  }
-}

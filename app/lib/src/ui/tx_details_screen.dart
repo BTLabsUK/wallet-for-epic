@@ -681,7 +681,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       ref
           .read(sendRecipientProvider.notifier)
           .handRequest(PaymentRequest(recipient: parseRecipient(address ?? ''), amount: rec.amount), CodeOrigin.link);
-      showShellTab(context, ShellTab.send);
+      showShellFlow(context, ShellFlow.send);
     } catch (error) {
       if (!mounted) return;
       _showMessage(describeError(context.l10n, error), level: NoticeLevel.error);
@@ -1215,7 +1215,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           label: l.txDetailsSendAgain,
           icon: Icons.arrow_forward_rounded,
           kind: KitButtonKind.quiet,
-          onPressed: () => showShellTab(context, ShellTab.send, recipient: counterparty),
+          onPressed: () => showShellFlow(context, ShellFlow.send, recipient: counterparty),
           semanticsId: TrustIds.paySendAgain,
         ),
     ];

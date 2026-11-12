@@ -30,6 +30,7 @@ import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tour/phone_tour.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'support/shell_where.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -267,13 +268,12 @@ void main() {
       final rig = await _pump(tester);
       rig.container.read(incomingLinkProvider.notifier).deliver('epic:${'b' * 52}@epicbox.epiccash.com?amount=0.4');
       await tester.pumpAndSettle();
-      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      expect(shellWhere(tester), ShellWhere.send);
       await _startAuto(tester);
       expect(_overlay, findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      expect(shellWhere(tester), ShellWhere.send);
       // Back on Wallet, Home is idle again: the tour opens.
-      rig.container.read(shellTabProvider.notifier).go(ShellTab.wallet);
-      await tester.pumpAndSettle();
+      await closeShellFlow(tester);
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
       expect(_overlay, findsOneWidget);
@@ -304,7 +304,7 @@ void main() {
       await _tap(tester, _l.tourPhoneNext);
       await _tap(tester, _l.tourPhoneSkip);
       expect(_overlay, findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
       expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
       // Another unlock: a new Home, the saved flag says seen.
       goHome(tester.element(find.byType(HomeScreen)));
@@ -316,7 +316,7 @@ void main() {
 
   group('steps open the right screens', () {
     testWidgets('Next walks all nine, Back walks back, Done lands on Wallet', (tester) async {
-      final rig = await _pump(tester);
+      await _pump(tester);
       await _startAuto(tester);
       final steps = phoneTourSteps(invoices: true);
 
@@ -346,14 +346,14 @@ void main() {
       }
 
       expectStep(0);
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
       expect(_button('Back'), findsNothing, reason: 'nothing before the first step');
       await _tap(tester, _l.tourPhoneNext);
       expectStep(1);
-      expect(rig.container.read(shellTabProvider), ShellTab.send);
+      expect(shellWhere(tester), ShellWhere.send);
       await _tap(tester, _l.tourPhoneNext);
       expectStep(2);
-      expect(rig.container.read(shellTabProvider), ShellTab.receive);
+      expect(shellWhere(tester), ShellWhere.receive);
       for (var i = 3; i < steps.length; i++) {
         await _tap(tester, _l.tourPhoneNext);
         expectStep(i);
@@ -371,12 +371,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(_overlay, findsNothing);
       expect(find.byType(HelpScreen), findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
     testWidgets('Back from a screen step closes that screen and returns to the tab', (tester) async {
-      final rig = await _pump(tester);
+      await _pump(tester);
       await _startAuto(tester);
       for (var i = 0; i < 3; i++) {
         await _tap(tester, _l.tourPhoneNext);
@@ -384,7 +384,7 @@ void main() {
       expect(find.byType(HistoryScreen), findsOneWidget);
       await _tap(tester, _l.tourPhoneBack);
       expect(find.byType(HistoryScreen), findsNothing);
-      expect(rig.container.read(shellTabProvider), ShellTab.receive);
+      expect(shellWhere(tester), ShellWhere.receive);
       expect(_counter(tester), '3 of 9');
     });
 
@@ -470,7 +470,7 @@ void main() {
 
   group('Show the tour again', () {
     testWidgets('Help starts it from the first step, also when it was seen', (tester) async {
-      final rig = await _pump(tester, seen: true);
+      await _pump(tester, seen: true);
       await _startAuto(tester);
       expect(_overlay, findsNothing);
       unawaited(openHelp(tester.element(find.byType(HomeScreen))));
@@ -484,7 +484,7 @@ void main() {
       expect(_overlay, findsOneWidget);
       expect(_counter(tester), '1 of 9');
       expect(find.byType(HelpScreen), findsNothing, reason: 'the tour starts on Home');
-      expect(rig.container.read(shellTabProvider), ShellTab.wallet);
+      expect(shellWhere(tester), ShellWhere.home);
     });
   });
 

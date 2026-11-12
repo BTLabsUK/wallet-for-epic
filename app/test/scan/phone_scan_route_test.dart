@@ -34,6 +34,9 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart' show kitScanButtonKey;
+import '../support/shell_where.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -237,7 +240,7 @@ class _Harness {
   /// Home's scan button, with [text] as what the camera reads.
   Future<void> scan(WidgetTester tester, String text) async {
     scanner.codes.add(text);
-    await _tap(tester, find.byTooltip(_l.scanQrTooltip));
+    await _tap(tester, find.byKey(kitScanButtonKey));
   }
 }
 
@@ -254,10 +257,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 String _field(WidgetTester tester, Key key) =>
     tester.widget<TextField>(find.byKey(key)).controller!.text;
 
-ShellTab _tab(WidgetTester tester) =>
-    ShellTab.values[tester
-        .widget<NavigationBar>(find.byType(NavigationBar))
-        .selectedIndex];
+ShellWhere _tab(WidgetTester tester) => shellWhere(tester);
 
 Finder _inBanner(String text) => find.descendant(
   of: find.byKey(sendRequestBannerKey),
@@ -292,7 +292,7 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, _lunch);
 
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(find.byType(SendView), findsOneWidget);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
@@ -338,7 +338,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, locale: const Locale('pl'));
       h.scanner.codes.add(_lunch);
-      await _tap(tester, find.byIcon(Icons.qr_code_scanner).first);
+      await _tap(tester, find.byKey(kitScanButtonKey));
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1,5');
     });
@@ -490,7 +490,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, _e);
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_onAmount(), isFalse);
       expect(_field(tester, sendRecipientFieldKey), _e);
       expect(find.byKey(payeeClaimsKey), findsNothing);
@@ -519,7 +519,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       h.scanner.codes.add(part);
-      await tester.tap(find.byTooltip(_l.scanQrTooltip));
+      await tester.tap(find.byKey(kitScanButtonKey));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 200));
       }
@@ -545,18 +545,18 @@ void main() {
       await _tap(tester, find.byKey(scanResultCopyKey));
       expect(h.copied, [text]);
       expect(find.byKey(scanResultSheetKey), findsNothing);
-      expect(_tab(tester), ShellTab.wallet);
+      expect(_tab(tester), ShellWhere.home);
     });
 
     testWidgets('Scan again opens the scanner again', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       h.scanner.codes.addAll(['hello there', _e]);
-      await _tap(tester, find.byTooltip(_l.scanQrTooltip));
+      await _tap(tester, find.byKey(kitScanButtonKey));
       expect(find.byKey(scanResultSheetKey), findsOneWidget);
       await _tap(tester, find.byKey(scanResultPrimaryKey));
       expect(h.scanner.codes, isEmpty);
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_field(tester, sendRecipientFieldKey), _e);
     });
 
@@ -568,7 +568,7 @@ void main() {
       await h.scan(tester, 'epic:$_floonet?amount=1');
       expect(find.text(_l.scanWrongNetworkTitle), findsOneWidget);
       expect(find.text(_floonet), findsOneWidget);
-      expect(_tab(tester), ShellTab.wallet);
+      expect(_tab(tester), ShellWhere.home);
     });
 
     testWidgets('a transaction file\'s text opens in the File flow', (
@@ -640,7 +640,7 @@ void main() {
     testWidgets('Send › Scan of the inviter\'s QR opens the invite', (tester) async {
       final h = levelOne();
       await h.pump(tester);
-      await _tap(tester, find.descendant(of: find.byType(NavigationBar), matching: find.text(_l.homeSendButton)));
+      await _tap(tester, find.widgetWithText(KitButton, _l.homeSendButton));
       h.scanner.codes.add(pageLink(h));
       await _tap(tester, find.text(_l.sendScanButton));
       expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
@@ -648,16 +648,16 @@ void main() {
     });
   });
 
-  group('a Send tab kept alive', () {
+  group('a scan after the Send flow was open', () {
     testWidgets('an address scanned after Send was opened keeps its origin', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text(_l.homeSendButton).last);
-      await _tap(tester, find.text(_l.shellWalletTab).last);
+      await _tap(tester, find.widgetWithText(KitButton, _l.homeSendButton));
+      await closeShellFlow(tester);
       await h.scan(tester, _e);
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_field(tester, sendRecipientFieldKey), _e);
       await _continue(tester);
       await tester.enterText(find.byKey(sendAmountFieldKey), '1');
@@ -674,7 +674,7 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, 'epic:$_e?amount=5&message=Table%204');
       expect(_field(tester, sendAmountFieldKey), '5');
-      await _tap(tester, find.text(_l.shellWalletTab).last);
+      await closeShellFlow(tester);
       await h.scan(tester, 'epic:$_e?label=Bob');
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), isEmpty);
@@ -742,7 +742,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, 'epic:$_e?require=message');
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(find.text(_l.sendNoteMissingCode), findsOneWidget);
     });
 
@@ -795,7 +795,7 @@ void main() {
       await linked.pump(tester);
       linked.container.read(incomingLinkProvider.notifier).deliver(link);
       await tester.pumpAndSettle();
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_noteTile(note), findsOneWidget);
       expect(find.textContaining('Minimum'), findsOneWidget);
       await tester.enterText(find.byKey(sendAmountFieldKey), '1');
@@ -808,7 +808,7 @@ void main() {
     testWidgets('pasted over the address field', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.descendant(of: find.byType(NavigationBar), matching: find.text(_l.homeSendButton)));
+      await _tap(tester, find.widgetWithText(KitButton, _l.homeSendButton));
       await tester.enterText(find.byKey(sendRecipientFieldKey), deposit);
       await tester.pumpAndSettle();
       expect(_noteTile(note), findsOneWidget);
@@ -864,10 +864,7 @@ void main() {
     Future<void> paste(WidgetTester tester, _Harness h, String text) async {
       await _tap(
         tester,
-        find.descendant(
-          of: find.byType(NavigationBar),
-          matching: find.text(_l.homeSendButton),
-        ),
+        find.widgetWithText(KitButton, _l.homeSendButton),
       );
       h.clipboard = text;
       await _tap(tester, find.widgetWithText(TextButton, _l.commonPaste));
@@ -918,7 +915,7 @@ void main() {
       await h.pump(tester);
       h.container.read(incomingLinkProvider.notifier).deliver(_lunch);
       await tester.pumpAndSettle();
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
       expect(find.byKey(sendRequestBannerKey), findsNothing);
@@ -949,7 +946,7 @@ void main() {
         find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.commonOpen)),
       );
       expect(find.text('another screen'), findsNothing);
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_field(tester, sendAmountFieldKey), '1.5');
     });
 
@@ -991,7 +988,7 @@ void main() {
       h.container.read(incomingLinkProvider.notifier).deliver(_lunch);
       await tester.pumpAndSettle();
       expect(find.text(_l.linkFinishCurrentFirst), findsOneWidget);
-      expect(_tab(tester), ShellTab.wallet);
+      expect(_tab(tester), ShellWhere.home);
       expect(h.container.read(incomingLinkProvider), isNull);
       expect(h.container.read(sendRecipientProvider), isNull);
     });
@@ -1005,7 +1002,7 @@ void main() {
       expect(find.text('locked'), findsOneWidget);
       h.unlocked.value = true;
       await tester.pumpAndSettle();
-      expect(_tab(tester), ShellTab.send);
+      expect(_tab(tester), ShellWhere.send);
       expect(_field(tester, sendAmountFieldKey), '1.5');
       expect(h.container.read(incomingLinkProvider), isNull);
     });

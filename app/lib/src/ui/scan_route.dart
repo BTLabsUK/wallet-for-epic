@@ -280,9 +280,9 @@ Future<void> _showSlateText(BuildContext context, String text) async {
   );
 }
 
-/// The Send tab, with every screen over the shell closed.
+/// The Send flow over the shell, with every screen over the shell closed first.
 void showSendTab(BuildContext context, WidgetRef ref) {
-  ref.read(shellTabProvider.notifier).go(ShellTab.send);
+  ref.read(shellFlowProvider.notifier).open(ShellFlow.send);
   Navigator.of(context).popUntil((route) => route.isFirst);
 }
 

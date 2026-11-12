@@ -1,0 +1,36 @@
+{
+  "phoneContactsSearchHint": "Search, or paste an address",
+  "@phoneContactsSearchHint": {
+    "description": "Placeholder of the search field on the Contacts tab; typing filters by name, note or address"
+  },
+  "phoneContactsAtoZ": "A to Z",
+  "@phoneContactsAtoZ": {
+    "description": "Link and heading on the Contacts tab: lists the contacts alphabetically instead of by latest payment"
+  },
+  "phoneContactsNoPayments": "No payments yet",
+  "@phoneContactsNoPayments": {
+    "description": "State line of a contact's row when nothing was paid to or by them yet"
+  },
+  "phoneContactsAsks": "Asks for {amount}",
+  "@phoneContactsAsks": {
+    "description": "State line of a contact's row when they sent an invoice that waits for the user. {amount} is the amount with the unit, e.g. 42.5 EPIC",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "42.5 EPIC"
+      }
+    }
+  },
+  "phoneContactsFaces": "Contacts",
+  "@phoneContactsFaces": {
+    "description": "Screen reader label of the strip of contact faces above the list on the Contacts tab"
+  },
+  "phoneContactPaired": "Paired · payments between you are sealed",
+  "@phoneContactPaired": {
+    "description": "Line under a paired contact's name on its page; shown only when the pairing is active"
+  },
+  "phoneContactRequest": "Request",
+  "@phoneContactRequest": {
+    "description": "Button at the bottom of a contact's page that opens the form to ask this contact for an amount. One word."
+  }
+}
