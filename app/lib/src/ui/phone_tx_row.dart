@@ -167,7 +167,7 @@ class PhoneTxRow extends ConsumerWidget {
             paused: paused,
           )
         : txStatusLabel(l, tx, tip, target: target, now: now, paused: paused);
-    final fiat = cancelled ? null : approxFiat(l, amount, display, short: true);
+    final fiat = cancelled ? null : phoneFiat(l, amount, display);
     final sign = outgoing ? minusSign : '+';
     final amountText = display.hidden ? hiddenAmount : '$sign${displayEpic(amount)}';
     final note = tx.note?.trim() ?? '';

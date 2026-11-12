@@ -157,27 +157,31 @@ class _HomeHeader extends ConsumerWidget {
       HomeConnection.reconnecting => l.phoneKitReconnecting,
       HomeConnection.offline => l.phoneHomeOffline,
     };
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 2, Kit.gutter, 0),
-      child: Row(
-        children: [
-          // The logo is the mark alone: it names the app to a screen reader.
-          Semantics(label: l.shellTitle, image: true, excludeSemantics: true, child: const EpicMark(size: 26)),
-          const SizedBox(width: 12),
-          // Flexible: at large text the word ellipsizes beside the logo instead of overflowing.
-          Flexible(
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: KitStatusPill(
-                key: homePillKey,
-                ready: state == HomeConnection.ready,
-                label: label,
-                onTap: () => showConnectionsSheet(context),
-                semanticsId: TrustIds.homeStatus,
+    // `.bar`: 44 tall at the safe area's top, 16 in; the logo, a spacer, the pill.
+    return SizedBox(
+      height: 44,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: Row(
+          children: [
+            // The logo is the mark alone: it names the app to a screen reader.
+            Semantics(label: l.shellTitle, image: true, excludeSemantics: true, child: const EpicMark(size: 26)),
+            const SizedBox(width: 10),
+            // Flexible: at large text the word ellipsizes beside the logo instead of overflowing.
+            Flexible(
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: KitStatusPill(
+                  key: homePillKey,
+                  ready: state == HomeConnection.ready,
+                  label: label,
+                  onTap: () => showConnectionsSheet(context),
+                  semanticsId: TrustIds.homeStatus,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -203,7 +207,7 @@ class _Balance extends ConsumerWidget {
     final summary = this.summary;
     final own = ownChangeOffChain(transactions);
     final figure = summary == null ? null : walletFigure(summary, own);
-    final fiat = figure == null ? null : approxFiat(l, figure, display, short: true);
+    final fiat = figure == null ? null : phoneFiat(l, figure, display, approx: true);
     final arriving = summary == null ? BigInt.zero : comingIn(summary);
     final inSends = summary?.locked ?? BigInt.zero;
     void openSheet() {
