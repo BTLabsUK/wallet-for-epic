@@ -33,6 +33,7 @@ import 'request_qr_screen.dart' show openQrRequest;
 import 'settings_screen.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import 'kit/kit_qr_glyph.dart';
 
 /// Which of the other ways are offered, from the settings and the device.
 class OtherWays {
@@ -93,7 +94,7 @@ class _OtherWaysSheet extends ConsumerWidget {
                   KitRow(
                     size: KitRowSize.sheet,
                     minHeight: 72,
-                    leading: KitIconWell(KitIcons.qr, color: t.accentText),
+                    leading: KitIconWell.child(KitQrGlyph(color: t.accentText)),
                     title: l.phoneSettingsInPerson,
                     subtitle: l.phoneRecvInPersonLine,
                     chevron: true,

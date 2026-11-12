@@ -33,6 +33,7 @@ import '../theme/tokens.dart';
 import '../theme/epic1_mark.dart';
 import '../tour/tour_target.dart';
 import 'epic1_common.dart';
+import '../kit/kit_qr_glyph.dart';
 
 /// Keys for tests and the screenshot tour.
 const Key epic1LinkCardKey = ValueKey('epic1-link-card');
@@ -176,7 +177,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
                         ),
                       KitRow(
                         key: epic1RequestInPersonKey,
-                        leading: KitIconWell(KitIcons.qr, color: context.tokens.accentText),
+                        leading: KitIconWell.child(KitQrGlyph(color: context.tokens.accentText)),
                         title: l.phoneRecvOther,
                         subtitle: l.deskE1PhInPerson,
                         chevron: true,

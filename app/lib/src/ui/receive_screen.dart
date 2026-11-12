@@ -57,6 +57,7 @@ import 'theme/logo_qr.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tour/tour_target.dart';
+import 'kit/kit_qr_glyph.dart';
 
 /// The ways Receive used to offer as tabs. The phone has one screen now, with the other ways
 /// in a sheet; the choice stays so that places that point at a way (relay-down, the tour, the
@@ -223,7 +224,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
         ),
       if (ways.any)
         KitRow(
-          leading: KitIconWell(KitIcons.qr, color: context.tokens.accentText),
+          leading: KitIconWell.child(KitQrGlyph(color: context.tokens.accentText)),
           title: l.phoneRecvOther,
           subtitle: l.phoneRecvOtherLine,
           chevron: true,

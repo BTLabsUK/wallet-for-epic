@@ -71,6 +71,8 @@ const Key restoreOpenKey = ValueKey('restore-open');
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
+  // The phrase box takes the gold edge while it has the caret (`.field.on`).
+  final _phraseFocus = FocusNode();
   _RestoreStep _step = _RestoreStep.phrase;
 
   /// Where the scan starts, at every level: restore is a one-off, so the height is not behind
@@ -102,6 +104,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   @override
   void initState() {
     super.initState();
+    _phraseFocus.addListener(() => setState(() {}));
     // The typed phrase stays out of the app switcher's preview.
     unawaited(hidePreview(true));
     _restoreScan = ref.read(restoreScanProvider.notifier)..hold();
@@ -121,6 +124,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     unawaited(hidePreview(false));
     // Drop the phrase from the controller and the state, so they no longer point at it.
     _phrase.clear();
+    _phraseFocus.dispose();
     _validPhrase = '';
     _phrase.dispose();
     _scanStart.dispose();
@@ -456,7 +460,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               RestoreWordCheck(text: _phrase.text),
               if (_error != null)
                 Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0), child: ErrorText(_error!)),
-              KitGroupLabel(l.phoneRestoreStartGroup, top: 26),
+              KitGroupLabel(l.phoneRestoreStartGroup, top: 29),
               ScanStart(controller: _scanStart, ids: ScanStartIds.restore, rowTitle: l.phoneRestoreCreated, note: l.phoneRestoreStartNote, rowMinHeight: 62),
             ],
           ),
@@ -482,7 +486,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       decoration: BoxDecoration(
         color: t.field,
         borderRadius: BorderRadius.circular(Kit.rField),
-        border: Border.all(color: t.line),
+        border: Border.all(color: _phraseFocus.hasFocus ? t.goldLine : t.line),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 168),
@@ -498,6 +502,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                   label: l.restorePhraseLabel,
                   child: TextField(
                     controller: _phrase,
+                    focusNode: _phraseFocus,
                     // A phrase error is about the words as they were: an edit takes it away; the
                     // count line under the box follows every keystroke.
                     onChanged: (_) => setState(() => _error = null),

@@ -117,6 +117,7 @@ import 'tour/tour_target.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 import 'settings_rows.dart' show RadioRow;
 import 'inline_button.dart';
+import 'kit/kit_qr_glyph.dart';
 
 export '../utf8_limit.dart';
 
@@ -3161,7 +3162,7 @@ class _SendViewState extends ConsumerState<SendView> {
             margin: EdgeInsets.zero,
             children: [
               KitRow(
-                leading: KitIconWell(KitIcons.qr, color: t.accentText),
+                leading: KitIconWell.child(KitQrGlyph(color: t.accentText)),
                 title: l.sendNoAddress,
                 subtitle: l.phoneSendNoAddressSub,
                 chevron: true,
@@ -3242,7 +3243,7 @@ class _SendViewState extends ConsumerState<SendView> {
               children: [
                 if (_qrOffered)
                   KitRow(
-                    leading: KitIconWell(MethodIcons.qr, color: t.accent, size: 40, iconSize: 20),
+                    leading: KitIconWell.child(KitQrGlyph(color: t.accent), size: 40),
                     minHeight: 72,
                     title: l.phoneSendInPerson,
                     subtitle: l.phoneSendInPersonSub,
