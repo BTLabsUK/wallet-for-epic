@@ -2,14 +2,10 @@
 // Item 11: the Epicbox switch offer waits for the connection grace after start and resume,
 // shows only while the shell is the screen on top, and is compact (a title, one line, Switch,
 // and the close button for Not now).
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/connection_grace.dart';
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/level_features.dart';
-import 'package:epic_wallet/src/levels/level_providers.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network.dart' show EpicboxRelay;
 import 'package:epic_wallet/src/ui/common.dart' show SlotScaffold;
 import 'package:epic_wallet/src/ui/levels/relay_down.dart';
@@ -47,9 +43,6 @@ Future<ProviderContainer> _pump(WidgetTester tester, {required bool grace}) asyn
       overrides: [
         relaySwitchProvider.overrideWith(_Offer.new),
         connectionGraceLengthProvider.overrideWithValue(grace ? const Duration(seconds: 20) : Duration.zero),
-        levelFeaturesProvider.overrideWithValue(
-          LevelFeatures.of(WalletLevel.justSendReceive, AdvancedPrefs.none, torBuilt: true),
-        ),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -6,11 +6,8 @@
 
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/connection_state.dart';
-import 'package:epic_wallet/src/levels/level_features.dart';
-import 'package:epic_wallet/src/levels/level_providers.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -74,9 +71,6 @@ class _Harness {
         listenerProvider.overrideWith(_Listener.new),
         clockProvider.overrideWithValue(() => start.add(async.elapsed)),
         networkModeProvider.overrideWithValue(NetworkMode.standard),
-        levelFeaturesProvider.overrideWithValue(
-          LevelFeatures.of(WalletLevel.justSendReceive, AdvancedPrefs.none, torBuilt: true),
-        ),
         relayStatusProvider.overrideWith((ref, _) async {
           siteAsks++;
           await Future<void>.delayed(siteAnswersAfter);
