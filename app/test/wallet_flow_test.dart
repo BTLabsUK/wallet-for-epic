@@ -43,6 +43,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
 import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
@@ -806,13 +808,13 @@ void main() {
       await _unlockToHome(tester);
 
       await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
-      // No address was recorded, so this is a send by transaction file.
-      expect(find.textContaining('response file'), findsOneWidget);
-      // The label tile above the rows pushes the fee below a short screen's first page.
-      await _reveal(tester, find.text('Fee'));
-      expect(find.text('Fee'), findsOneWidget);
+      // No address was recorded: the steps wait for the recipient.
+      expect(find.text(_l.txStatusWaitingRecipient), findsOneWidget);
+      // The fee sits below a short screen's first page.
+      await _reveal(tester, find.text(_l.phonePayFee));
+      expect(find.text(_l.phonePayFee), findsOneWidget);
       expect(find.text('0.008\u00a0EPIC'), findsOneWidget);
-      final cancel = find.widgetWithText(DangerButton, 'Cancel payment');
+      final cancel = find.widgetWithText(KitButton, 'Cancel payment');
       await _tap(tester, cancel.first);
       await _tapText(tester, 'Keep');
       expect(session.cancelledTxIds, isEmpty);
@@ -823,10 +825,10 @@ void main() {
 
       // A confirmed receive has no cancel.
       await _clearNotices(tester);
-      await tester.pageBack();
+      await tester.tap(find.byIcon(KitIcons.backLink).first);
       await tester.pumpAndSettle();
       await _tap(tester, find.byKey(const ValueKey('tx-s:a')));
-      expect(find.text(_l.txDetailsCompleted), findsOneWidget);
+      expect(find.textContaining(_l.phonePayCompleted), findsWidgets);
       expect(cancel, findsNothing);
     });
 

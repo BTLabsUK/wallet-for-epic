@@ -23,6 +23,7 @@ import 'support/test_settings.dart';
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   txEdgeRunMoves = false;
   sendPulseMoves = false;
+  paymentNetworkMoves = false;
   hostSettings = testSettings();
   goldenFileComparator = _GoldenHint(goldenFileComparator);
   // A test that changes the settings (a pick, a switch) does not leak into the next one.

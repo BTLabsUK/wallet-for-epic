@@ -758,7 +758,7 @@ void main() {
       expect(find.text(_l.txDetailsWaitingEpicbox), findsNothing);
       expect(find.text(_l.txDetailsCancelPayment), findsNothing, reason: 'Cancel comes once its time runs out');
       // Named by its pairing, never by the mailbox it was paid to.
-      expect(find.descendant(of: find.byType(AppBar), matching: find.textContaining('Floo C')), findsOneWidget);
+      expect(find.textContaining('To Floo C'), findsOneWidget, reason: 'the hero line');
     });
 
     testWidgets('show the service and message, waiting for the receipt', (

@@ -4,7 +4,9 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../l10n.dart';
+import '../motion_switches.dart' show paymentNetworkMoves;
 import '../theme/tokens.dart';
+import 'kit_icons.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
@@ -13,11 +15,16 @@ enum KitStepState { done, now, later }
 /// One step of a [KitSteps]: a [title], a state, and one dim [detail] line (a time on a done
 /// step, the reason on the step in progress).
 class KitStep {
-  const KitStep({required this.title, required this.state, this.detail});
+  const KitStep({required this.title, required this.state, this.detail, this.network = false});
 
   final String title;
   final KitStepState state;
   final String? detail;
+
+  /// The step is the one on the network (posted, waiting for a block): while it is the step in
+  /// progress its dot is a small network icon with a ring that spreads and fades, still under
+  /// the platform's reduced motion and in tests (`paymentNetworkMoves`).
+  final bool network;
 }
 
 /// A payment's three steps (HANDOFF 7.9): done is a filled ok dot, now is a ringed info dot
@@ -57,7 +64,7 @@ class KitSteps extends StatelessWidget {
                   child: Column(
                     children: [
                       const SizedBox(height: 5),
-                      _Dot(s.state),
+                      s.network && s.state == KitStepState.now ? const _NetworkDot() : _Dot(s.state),
                       Expanded(
                         child: last
                             ? const SizedBox.shrink()
@@ -135,5 +142,81 @@ class _Dot extends StatelessWidget {
         decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: t.faint, width: 1.5)),
       ),
     };
+  }
+}
+
+/// The dot of the step in progress on the network: a network icon in a ring, with a second ring
+/// that spreads out and fades, over and over. Sits in the same 18 px column as the other dots.
+class _NetworkDot extends StatefulWidget {
+  const _NetworkDot();
+
+  @override
+  State<_NetworkDot> createState() => _NetworkDotState();
+}
+
+class _NetworkDotState extends State<_NetworkDot> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
+  bool _running = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final move = paymentNetworkMoves && !MediaQuery.disableAnimationsOf(context);
+    if (move && !_running) {
+      _running = true;
+      _controller.repeat();
+    } else if (!move && _running) {
+      _running = false;
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    // The layout is as tall as the other dots; the icon's ring overflows it evenly.
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: 18,
+        height: Kit.stepDot,
+        child: OverflowBox(
+          minHeight: 18,
+          maxHeight: 18,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              final v = _controller.value;
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (_running)
+                    Opacity(
+                      opacity: (1 - v) * 0.5,
+                      child: Container(
+                        width: 18 * (0.7 + 0.3 * v),
+                        height: 18 * (0.7 + 0.3 * v),
+                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: t.info, width: 1.5)),
+                      ),
+                    ),
+                  Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: t.infoSoft, border: Border.all(color: t.info, width: 1.5)),
+                    child: Icon(KitIcons.network, size: 9, color: t.info),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

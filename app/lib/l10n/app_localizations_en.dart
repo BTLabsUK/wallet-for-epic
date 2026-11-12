@@ -22359,4 +22359,308 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneSettingsLinkDevice => 'Link a device';
+
+  @override
+  String get phoneProgSent => 'Sent';
+
+  @override
+  String get phoneProgNetwork => 'In the network, waiting for a block';
+
+  @override
+  String get phoneProgSenderFinished => 'Sender finished';
+
+  @override
+  String get phoneProgPayerPending => 'Waiting for the payer';
+
+  @override
+  String phoneProgPayerPendingNamed(String name) {
+    return 'Waiting for $name to pay';
+  }
+
+  @override
+  String get phoneProgSenderPending =>
+      'Waiting for the sender to finish the payment';
+
+  @override
+  String phoneProgSenderPendingNamed(String name) {
+    return 'Waiting for $name to finish the payment';
+  }
+
+  @override
+  String get phoneProgReported => 'The sender says it is on the network';
+
+  @override
+  String phoneProgReportedNamed(String name) {
+    return '$name says it is on the network';
+  }
+
+  @override
+  String get phoneProgPostElsewhere =>
+      'Finished but not posted. Post it from another connection.';
+
+  @override
+  String get phoneProgPosting => 'Posting to the network';
+
+  @override
+  String get phoneProgKillSwitch => 'Held back while all connections are off';
+
+  @override
+  String get phoneProgNotPosted => 'Not posted yet. Post it again.';
+
+  @override
+  String get phoneProgNoNewBlock =>
+      'No new block yet. The network is slow right now.';
+
+  @override
+  String get phoneProgNotInBlock =>
+      'On the network, but no block has taken it yet';
+
+  @override
+  String get phoneProgInNetwork =>
+      'On the network. A block will include it soon.';
+
+  @override
+  String get phoneProgAnswersEpicbox =>
+      'Epicbox keeps it until the recipient opens their wallet.';
+
+  @override
+  String phoneProgAnswersEpicboxNamed(String who) {
+    return 'Epicbox keeps it until $who opens their wallet.';
+  }
+
+  @override
+  String get phoneProgAnswersFile =>
+      'It continues when the answer file comes back.';
+
+  @override
+  String phoneProgAnswersFileNamed(String who) {
+    return 'It continues when the answer file from $who comes back.';
+  }
+
+  @override
+  String get phoneProgAnswersLive => 'Their wallet has not answered yet.';
+
+  @override
+  String phoneProgAnswersLiveNamed(String who) {
+    return '$who\'s wallet has not answered yet.';
+  }
+
+  @override
+  String phoneProgSetAside(String amount) {
+    return '$amount is set aside until then.';
+  }
+
+  @override
+  String get phoneActSearchHint => 'Name, note or amount';
+
+  @override
+  String get phoneActNeedsYou => 'Needs you';
+
+  @override
+  String get phoneActInProgress => 'In progress';
+
+  @override
+  String get phoneActSealed => 'Sealed';
+
+  @override
+  String get phoneActCancelledNothing => 'Cancelled, nothing was sent';
+
+  @override
+  String get phoneActReview => 'Review';
+
+  @override
+  String phoneActInvoiceFor(String amount) {
+    return 'Invoice for $amount';
+  }
+
+  @override
+  String get phoneActEmptyTitle => 'No payments yet';
+
+  @override
+  String get phoneActNoneTitle => 'Nothing to show';
+
+  @override
+  String get phoneActMenu => 'More';
+
+  @override
+  String get phoneActHelpTitle => 'Activity';
+
+  @override
+  String get phoneActHelp1 =>
+      'Every payment you send or receive is listed here, newest first.';
+
+  @override
+  String get phoneActHelp2 =>
+      'Payments that are not finished yet stay at the top, under In progress.';
+
+  @override
+  String get phoneActHelp3 =>
+      'Tap a payment to see where it stands and what you can do with it.';
+
+  @override
+  String get phonePayHelpTitle => 'About a payment';
+
+  @override
+  String get phonePayHelp1 =>
+      'The steps show where the payment is and why it is there.';
+
+  @override
+  String get phonePayHelp2 =>
+      'While a payment waits, its coins stay set aside. If it never finishes, you can cancel it.';
+
+  @override
+  String get phonePayHelp3 =>
+      'More details has the address, the block and the payment ID.';
+
+  @override
+  String phonePayTo(String name) {
+    return 'To $name';
+  }
+
+  @override
+  String phonePayFrom(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String get phonePayCompleted => 'Completed';
+
+  @override
+  String phonePayCompletedOn(String date) {
+    return 'Completed $date';
+  }
+
+  @override
+  String get phonePayNever => 'What if it never finishes?';
+
+  @override
+  String get phonePayNeverSend =>
+      'While a payment waits, its coins stay set aside and nothing is lost. If it never finishes, cancel it and the coins return to your balance.';
+
+  @override
+  String get phonePayNeverReceive =>
+      'Nothing is added to your balance until the payment is confirmed. If it never finishes, you can cancel it here and it is dropped.';
+
+  @override
+  String get phonePayNote => 'Note';
+
+  @override
+  String get phonePayAddNote => 'Add a note';
+
+  @override
+  String get phonePayLabel => 'Label';
+
+  @override
+  String get phonePayAddLabel => 'Add a label';
+
+  @override
+  String get phonePayFee => 'Network fee';
+
+  @override
+  String get phonePayMore => 'More details';
+
+  @override
+  String get phonePaySentThrough => 'Sent through';
+
+  @override
+  String get phonePayReceivedThrough => 'Received through';
+
+  @override
+  String get phonePayTotal => 'Total with fee';
+
+  @override
+  String get phonePayBlock => 'Block';
+
+  @override
+  String get phonePayId => 'Payment ID';
+
+  @override
+  String get phonePayCoins => 'Coins used';
+
+  @override
+  String get phonePayOutputsOne => '1 output';
+
+  @override
+  String phonePayOutputsMany(String count) {
+    return '$count outputs';
+  }
+
+  @override
+  String phonePayViaSent(String route) {
+    return 'Sent through $route';
+  }
+
+  @override
+  String phonePayViaReceived(String route) {
+    return 'Received through $route';
+  }
+
+  @override
+  String get phonePayRouteEpicbox => 'Epicbox';
+
+  @override
+  String get phonePayRouteEpic1 => 'epic1 link';
+
+  @override
+  String get phonePayRouteInPerson => 'In person';
+
+  @override
+  String get phonePayRouteFile => 'File';
+
+  @override
+  String get phonePayRouteTor => 'Link · Tor';
+
+  @override
+  String get phonePayRouteHttp => 'Link';
+
+  @override
+  String phonePayViaEpicboxOutNamed(String name) {
+    return 'The payment waited on an Epicbox server until $name\'s wallet collected it. $name did not need to be online when you sent it.';
+  }
+
+  @override
+  String get phonePayViaEpicboxOut =>
+      'The payment waited on an Epicbox server until the other wallet collected it. They did not need to be online when you sent it.';
+
+  @override
+  String get phonePayViaEpicboxIn =>
+      'The payment waited on an Epicbox server until your wallet collected it. You did not need to be online when it was sent.';
+
+  @override
+  String get phonePayViaEpic1 =>
+      'The payment was sealed in a link and handed over by you. Whoever opened the link in Epic Wallet received it.';
+
+  @override
+  String get phonePayViaInPerson =>
+      'The two phones showed each other a code. Nothing waited on a server.';
+
+  @override
+  String get phonePayViaFile =>
+      'The payment was passed back and forth as a file. Nothing waited on a server.';
+
+  @override
+  String get phonePayViaTor =>
+      'The payment went straight to the other wallet over Tor. Both wallets had to be online.';
+
+  @override
+  String get phonePayViaHttp =>
+      'The payment went straight to the other wallet over a live connection. Both wallets had to be online.';
+
+  @override
+  String get phonePayViaServer => 'Server';
+
+  @override
+  String get phonePayViaOther => 'Other ways a payment can travel';
+
+  @override
+  String get phonePayRouteSubEpic1 => 'Paid from a payment link';
+
+  @override
+  String get phonePayRouteSubInPerson => 'Two phones showing each other a code';
+
+  @override
+  String get phonePayRouteSubFile => 'A payment file passed back and forth';
+
+  @override
+  String get phonePayRouteSubTor => 'Straight to their wallet, over Tor';
 }

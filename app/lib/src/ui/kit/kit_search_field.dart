@@ -43,17 +43,27 @@ class KitSearchField extends StatelessWidget {
   final String? scanId;
   final EdgeInsetsGeometry margin;
 
+  static const double _hit = 48;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = context.l10n;
     return Padding(
       padding: margin,
-      child: Container(
-        height: Kit.searchField,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rSearch)),
-        child: Row(
+      // The pill is 42 tall; the row around it is 48, so the field is a full touch target.
+      child: SizedBox(
+        height: _hit,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              top: (_hit - Kit.searchField) / 2,
+              bottom: (_hit - Kit.searchField) / 2,
+              child: DecoratedBox(decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rSearch))),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
           children: [
             ExcludeSemantics(child: Icon(icon, size: 20, color: t.faint)),
             const SizedBox(width: 9),
@@ -67,7 +77,9 @@ class KitSearchField extends StatelessWidget {
                   onSubmitted: onSubmitted,
                   style: KitType.body.copyWith(color: t.text),
                   cursorColor: t.accent,
-                  maxLines: 1,
+                  expands: true,
+                  maxLines: null,
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     isCollapsed: true,
                     filled: false,
@@ -103,6 +115,9 @@ class KitSearchField extends StatelessWidget {
               ),
             if (onScan != null)
               KitIconButton(icon: KitIcons.scan, label: l.sendScanButton, onPressed: onScan, color: t.dim, semanticsId: scanId),
+          ],
+        ),
+            ),
           ],
         ),
       ),

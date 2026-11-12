@@ -18,8 +18,12 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
+import 'package:epic_wallet/src/ui/phone_tx_row.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -595,6 +599,17 @@ Future<void> _sendOne(WidgetTester tester, String to) async {
   await tester.pumpAndSettle();
 }
 
+/// The payment page's back link (the kit's page header has no Cupertino back button).
+Future<void> _back(WidgetTester tester) async {
+  await tester.tap(find.byIcon(KitIcons.backLink).first);
+  await tester.pumpAndSettle();
+}
+
+/// Opens the payment page's More sheet (who, route, date, ids), where the detail rows live.
+Future<void> _openMore(WidgetTester tester) async {
+  await _tap(tester, find.byKey(txDetailsMoreKey));
+}
+
 /// Scrolls to [finder] when it is out of sight, then taps it. A control already in sight is
 /// not scrolled to, so the shell's pages stay on their tab.
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -819,34 +834,35 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
 
-      expect(find.text('Pending'), findsWidgets);
+      expect(find.text('In progress'), findsOneWidget);
       expect(find.text('Yesterday'), findsOneWidget);
       expect(find.text('Found on the chain'), findsOneWidget);
-      expect(find.text('Cancelled'), findsWidgets);
+      // The cancelled send stays in the list, greyed.
+      expect(find.text('\u22121.0'), findsOneWidget);
 
-      await tester.enterText(find.widgetWithText(TextField, _l.historySearchLabel), 'rent');
+      await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'rent');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.text('+5.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('\u22122.0\u00a0EPIC'), findsNothing);
+      expect(find.text('+5.0'), findsOneWidget);
+      expect(find.text('\u22122.0'), findsNothing);
 
-      await tester.enterText(find.widgetWithText(TextField, _l.historySearchLabel), 'zzz');
+      await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'zzz');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
       expect(find.text('Nothing matches “zzz”.'), findsOneWidget);
 
-      await _tap(tester, find.byTooltip(_l.historyClearSearch));
-      await _tap(tester, find.widgetWithText(ChoiceChip, 'Sent'));
-      expect(find.text('\u22122.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('+5.0\u00a0EPIC'), findsNothing);
-      // The cancelled send has its own filter.
-      expect(find.text('\u22121.0\u00a0EPIC'), findsNothing);
-      await _tap(tester, find.widgetWithText(ChoiceChip, 'Cancelled'));
-      expect(find.text('\u22121.0\u00a0EPIC'), findsOneWidget);
+      await _tap(tester, find.text(_l.historyClearSearch));
+      await _tap(tester, find.text('Sent'));
+      expect(find.text('\u22122.0'), findsOneWidget);
+      expect(find.text('+5.0'), findsNothing);
+      // A cancelled send is in All only.
+      expect(find.text('\u22121.0'), findsNothing);
+      // Pending and Cancelled are not filters of the screen any more.
+      expect(find.text('Cancelled'), findsNothing);
 
-      await _tap(tester, find.widgetWithText(ChoiceChip, 'Received'));
-      expect(find.text('+5.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('+7.25\u00a0EPIC'), findsOneWidget);
+      await _tap(tester, find.text('Received'));
+      expect(find.text('+5.0'), findsOneWidget);
+      expect(find.text('+7.25'), findsOneWidget);
     });
 
     testWidgets('empty states in plain words', (tester) async {
@@ -893,8 +909,7 @@ void main() {
       await _tap(tester, find.text('View payment'));
       expect(find.byType(TxDetailsScreen), findsOneWidget);
       expect(find.textContaining('in about 2 hours'), findsOneWidget);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await _back(tester);
 
       // Four payments are all on Home: no "View all" to the same rows.
       expect(find.textContaining('View all'), findsNothing);
@@ -1009,8 +1024,7 @@ void main() {
       await _tap(tester, find.byKey(const ValueKey('tx-s:from-alice')));
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await _back(tester);
       expect(_figure(tester), '20.0');
 
       h.session.summaryValue = _summary(spendable: _epic(30));
@@ -1048,11 +1062,8 @@ void main() {
         );
         await h.pump(tester);
         await _tap(tester, find.byKey(ValueKey('tx-s:$slate')));
-        Finder chip(String text) => find.descendant(
-          of: find.byType(TxStatusChip),
-          matching: find.text(text),
-        );
-        expect(chip('Confirming 1/3'), findsOneWidget);
+        // The page's steps carry the count; a finished payment folds them into one line.
+        expect(find.text(_l.lvPayConfirming(1, 3)), findsOneWidget);
 
         // The core confirms it and the chain grows two blocks, all while the details are open.
         h.session
@@ -1073,10 +1084,8 @@ void main() {
           );
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
-        expect(
-          chip(kind == TxKind.sent ? _l.txStatusSent : _l.txStatusReceived),
-          findsOneWidget,
-        );
+        expect(find.text(_l.lvPayConfirming(1, 3)), findsNothing);
+        expect(find.textContaining('Completed '), findsOneWidget);
       });
     }
 
@@ -1265,22 +1274,25 @@ void main() {
 
       // The details say the exact amount.
       expect(find.text('+5.0\u00a0EPIC'), findsOneWidget);
-      expect(find.text('≈\u00a02.50\u00a0USD'), findsOneWidget);
-      expect(find.text('Completed in block 2,499,300.'), findsOneWidget);
+      expect(find.textContaining('≈\u00a02.50\u00a0USD'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
+      expect(find.text('08commit'), findsNothing);
+      await _openMore(tester);
+      expect(find.text('2,499,300'), findsOneWidget);
       expect(
         find.text(hostSettings.explorerBlock(2499300)!),
         findsOneWidget,
       );
       expect(find.text('08commit'), findsNothing);
-      await _tap(tester, find.byKey(txDetailsMoreKey));
+      await _tap(tester, find.byKey(txDetailsTechnicalKey));
       expect(find.text('08commit'), findsOneWidget);
       expect(find.text('from-alice'), findsOneWidget);
+      await _tap(tester, find.text(_l.commonDone));
 
-      await _tap(tester, find.byTooltip(_l.txDetailsEditNote));
+      await _tap(tester, find.byKey(txPrivateNoteKey));
       await tester.enterText(
         find.descendant(
-          of: find.byType(AlertDialog),
+          of: find.byType(KitSheet),
           matching: find.byType(TextField),
         ),
         '  Rent for September ',
@@ -1313,9 +1325,12 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
       // One label for the message, whoever wrote it (GP-011).
       expect(find.text(_l.txDetailsMessageFromSender), findsOneWidget);
-      expect(find.text('September rent'), findsOneWidget);
-      expect(find.text(_l.txDetailsMessageHintFromSender), findsOneWidget);
-      expect(find.text(_l.txDetailsPrivateNoteLabel), findsOneWidget);
+      expect(find.textContaining('September rent'), findsOneWidget);
+      expect(find.textContaining(_l.txDetailsMessageHintFromSender), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(txPrivateNoteKey), matching: find.text(_l.phonePayNote)),
+        findsOneWidget,
+      );
       expect(find.text('Rent share'), findsOneWidget);
     });
 
@@ -1348,41 +1363,33 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.descendant(of: message, matching: find.text('For rent')),
+          find.descendant(of: message, matching: find.textContaining('For rent')),
           findsOneWidget,
         );
         expect(
           find.descendant(
             of: message,
-            matching: find.text(_l.txDetailsMessageHintToRecipient),
+            matching: find.textContaining(_l.txDetailsMessageHintToRecipient),
           ),
           findsOneWidget,
         );
         final note = find.byKey(txPrivateNoteKey);
         expect(
-          find.descendant(of: note, matching: find.text(_l.txDetailsPrivateNoteLabel)),
+          find.descendant(of: note, matching: find.text(_l.phonePayNote)),
           findsOneWidget,
         );
-        expect(
-          find.descendant(
-            of: note,
-            matching: find.text(
-              _l.txDetailsNoteHelper,
-            ),
-          ),
-          findsOneWidget,
-        );
+        expect(find.descendant(of: note, matching: find.text('For rent')), findsOneWidget);
         expect(find.text('Your message'), findsNothing);
-        expect(find.text(_l.contactsNoteHeading), findsNothing);
         // The private note stays editable, under its own name.
-        await _tap(tester, find.byTooltip(_l.txDetailsEditNote));
+        await _tap(tester, note);
         expect(
           find.descendant(
-            of: find.byType(AlertDialog),
-            matching: find.text('Private note'),
+            of: find.byType(KitSheet),
+            matching: find.text(_l.txDetailsNoteDialogTitle),
           ),
           findsWidgets,
         );
+        expect(find.text(_l.txDetailsNoteHelper), findsOneWidget);
       },
     );
 
@@ -1409,10 +1416,10 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       // One label for both; the line under each says which way it went.
       expect(find.text('Message'), findsNWidgets(2));
-      expect(find.text('for the pizza'), findsOneWidget);
-      expect(find.text(_l.txDetailsMessageHintToRecipient), findsOneWidget);
-      expect(find.text('thanks!'), findsOneWidget);
-      expect(find.text(_l.txDetailsMessageHintFromRecipient), findsOneWidget);
+      expect(find.textContaining('for the pizza'), findsOneWidget);
+      expect(find.textContaining(_l.txDetailsMessageHintToRecipient), findsOneWidget);
+      expect(find.textContaining('thanks!'), findsOneWidget);
+      expect(find.textContaining(_l.txDetailsMessageHintFromRecipient), findsOneWidget);
     });
 
     testWidgets('a payment without messages shows none', (tester) async {
@@ -1429,28 +1436,18 @@ void main() {
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
 
-      expect(find.text(_l.txDetailsSentTo), findsOneWidget);
-      expect(find.text('Bob'), findsWidgets);
-      expect(find.text(_l.txDetailsAddToContacts), findsNothing);
-      // Once in the status chip, once as the timeline's current step.
-      expect(
-        find.descendant(
-          of: find.byType(TxStatusChip),
-          matching: find.text(_l.txStatusWaitingRecipient),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: find.byType(StatusTimeline),
-          matching: find.text(_l.txStepAccepted),
-        ),
-        findsOneWidget,
-      );
-      expect(find.text(_l.txStepStarted), findsOneWidget);
+      // The recipient reads in the line under the amount and in the steps; the More sheet has
+      // the rest.
+      expect(find.textContaining('To Bob'), findsOneWidget);
+      expect(find.text(_l.txStatusWaitingFor('Bob')), findsOneWidget);
+      expect(find.text(_l.phoneProgNetwork), findsOneWidget);
       expect(find.textContaining('by block 2,500,120'), findsOneWidget);
+      await _openMore(tester);
+      expect(find.text(_l.txDetailsSentTo), findsOneWidget);
+      expect(find.text(_l.txDetailsAddToContacts), findsNothing);
+      await _tap(tester, find.text(_l.commonDone));
 
-      final cancel = find.widgetWithText(DangerButton, 'Cancel payment').first;
+      final cancel = find.widgetWithText(KitButton, 'Cancel payment').first;
       await _tap(tester, cancel);
       await _tap(tester, find.text(_l.txDetailsCancelKeep));
       expect(h.session.cancelledTxIds, isEmpty);
@@ -1472,16 +1469,10 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       expect(h.session.resentEpicboxKeys, isEmpty);
       h.session.resendEpicboxError = null;
-      expect(
-        find.descendant(
-          of: find.byType(TxStatusChip),
-          matching: find.text(_l.txStatusNotDelivered),
-        ),
-        findsOneWidget,
-      );
-      await _tap(tester, find.widgetWithText(FilledButton, _l.txDetailsSendAgain));
+      expect(find.text(_l.txStatusNotDelivered), findsOneWidget);
+      await _tap(tester, find.widgetWithText(KitButton, _l.txDetailsSendAgain));
       expect(h.session.resentEpicboxKeys, ['s:send-bob']);
-      expect(find.widgetWithText(FilledButton, _l.txDetailsSendAgain), findsNothing);
+      expect(find.widgetWithText(KitButton, _l.txDetailsSendAgain), findsNothing);
       expect(find.text(_l.txDetailsCancelPayment), findsOneWidget);
     });
 
@@ -1498,7 +1489,7 @@ void main() {
         find.textContaining('did not answer, so the recipient has not received this payment'),
         findsOneWidget,
       );
-      await _tap(tester, find.widgetWithText(FilledButton, _l.txDetailsSendAgain));
+      await _tap(tester, find.widgetWithText(KitButton, _l.txDetailsSendAgain));
       expect(
         find.descendant(
           of: find.byKey(noticeKey),
@@ -1506,7 +1497,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.widgetWithText(FilledButton, _l.txDetailsSendAgain), findsOneWidget);
+      expect(find.widgetWithText(KitButton, _l.txDetailsSendAgain), findsOneWidget);
     });
 
     testWidgets('a send that is not undelivered has no Send again', (
@@ -1538,7 +1529,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.widgetWithText(DangerButton, 'Cancel payment'),
+        find.widgetWithText(KitButton, 'Cancel payment'),
         findsNothing,
       );
     });
@@ -1546,6 +1537,7 @@ void main() {
     testWidgets('an unknown address offers to save it', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      await _openMore(tester);
       // The key, then its server whole on its own line.
       expect(find.text(_bob.split('@').first), findsOneWidget);
       expect(find.text('@${_bob.split('@').last}'), findsOneWidget);
@@ -1574,13 +1566,9 @@ void main() {
         expect(isStuck(h.session.transactionsValue.single), isTrue);
 
         await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
-        expect(find.text(_l.txStatusNotPosted), findsWidgets);
+        expect(find.text(_l.phoneProgNotPosted), findsOneWidget);
         expect(find.textContaining('Published to the network'), findsNothing);
         expect(find.textContaining('Confirming 0'), findsNothing);
-        expect(
-          find.textContaining('The network has not taken this payment.'),
-          findsOneWidget,
-        );
         await _tap(tester, find.text(_l.txDetailsBroadcastAgain));
         expect(h.session.repostedKeys, contains('s:refused'));
         expect(
@@ -2211,7 +2199,7 @@ void main() {
     testWidgets('cancelling a send keeps the send wording', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      await _tap(tester, find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first);
+      await _tap(tester, find.widgetWithText(KitButton, _l.txDetailsCancelPayment).first);
       expect(find.textContaining('cancelling is free and certain'), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       expect(find.textContaining('rescan'), findsNothing);
     });
@@ -2273,20 +2261,18 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester, const HistoryScreen());
       // The cancelled 1\u00a0EPIC send would be 0.50\u00a0USD.
-      expect(find.text('\u22121.0\u00a0EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0'), findsOneWidget);
       expect(find.text('≈\u00a00.50\u00a0USD'), findsNothing);
       expect(find.text('≈\u00a01.00\u00a0USD'), findsOneWidget);
       // Cancelled is said by the chip, not the title.
       expect(find.text(_l.txOutgoingPayment), findsOneWidget);
     });
 
-    testWidgets('filter chips scroll on one row', (tester) async {
+    testWidgets('the three filters sit on one row', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      final first = tester.getCenter(find.widgetWithText(ChoiceChip, 'All'));
-      final last = tester.getCenter(
-        find.widgetWithText(ChoiceChip, 'Cancelled'),
-      );
+      final first = tester.getCenter(find.text('All'));
+      final last = tester.getCenter(find.text('Sent'));
       expect(first.dy, last.dy);
     });
 
@@ -2295,22 +2281,23 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
-        expect(find.text(_l.txDetailsTechnical), findsNothing);
+        expect(find.text(_l.txDetailsKernel), findsNothing);
+        expect(find.text(_l.phonePayMore), findsOneWidget);
+        await _openMore(tester);
         expect(find.text('08commit'), findsNothing);
         expect(find.text(_l.txDetailsKernel), findsNothing);
-        expect(find.text(_l.txDetailsMore), findsOneWidget);
-        await _tap(tester, find.byKey(txDetailsMoreKey));
-        // The rows show, with the fold open, and the link is gone.
-        expect(find.text(_l.txDetailsTechnical), findsOneWidget);
+        await _tap(tester, find.byKey(txDetailsTechnicalKey));
+        // The rows show, and the row is gone.
         expect(find.text('08commit'), findsOneWidget);
-        expect(find.byTooltip(_l.txDetailsKernelCopy), findsOneWidget);
-        expect(find.byKey(txDetailsMoreKey), findsNothing);
+        expect(find.text(_l.txDetailsKernel), findsOneWidget);
+        expect(find.byKey(txDetailsTechnicalKey), findsNothing);
         // Only this view: a new one starts hidden again.
         await tester.pumpWidget(const SizedBox());
         final again = _Harness();
         await again.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+        await _openMore(tester);
         expect(find.text('08commit'), findsNothing);
-        expect(find.byKey(txDetailsMoreKey), findsOneWidget);
+        expect(find.byKey(txDetailsTechnicalKey), findsOneWidget);
       },
     );
 
@@ -2323,9 +2310,9 @@ void main() {
         ),
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
-      expect(find.text(_l.txDetailsTechnical), findsOneWidget);
+      await _openMore(tester);
       expect(find.text('08commit'), findsOneWidget);
-      expect(find.byKey(txDetailsMoreKey), findsNothing);
+      expect(find.byKey(txDetailsTechnicalKey), findsNothing);
     });
 
     testWidgets('details copy only what is worth copying', (tester) async {
@@ -2341,20 +2328,20 @@ void main() {
       );
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      await _openMore(tester);
+      // Rows copy on a tap; there are no tooltips on them.
       expect(find.byTooltip('Copy date'), findsNothing);
-      expect(find.byTooltip('Copy explorer link'), findsOneWidget);
-      expect(find.text('Copy explorer link'), findsOneWidget);
       expect(find.byTooltip(_l.txDetailsCopyAddress), findsNothing);
-      await _tap(tester, find.byKey(txDetailsMoreKey));
-      expect(find.byTooltip(_l.txDetailsSlateIdCopy), findsOneWidget);
-      expect(find.byTooltip(_l.txDetailsKernelCopy), findsOneWidget);
       expect(find.byTooltip('Copy block height'), findsNothing);
-      expect(find.text(_l.txDetailsLocalId), findsOneWidget);
       expect(find.byTooltip('Copy local id'), findsNothing);
+      expect(find.text(_l.txDetailsExplorerLink), findsOneWidget);
+      expect(find.text(_l.phonePayId), findsOneWidget);
       expect(find.text('Wallet log id'), findsNothing);
+      await _tap(tester, find.byKey(txDetailsTechnicalKey));
+      expect(find.text(_l.txDetailsLocalId), findsOneWidget);
 
-      // A tap on the explorer row copies it too.
-      await _tap(tester, find.text('Copy explorer link'));
+      // A tap on the explorer row copies it.
+      await _tap(tester, find.text(_l.txDetailsExplorerLink));
       expect(find.text(_l.txDetailsLinkCopied), findsOneWidget);
       // In the notice slot, not a snack bar.
       expect(find.byKey(noticeKey), findsOneWidget);
@@ -2368,8 +2355,10 @@ void main() {
         await h.pump(tester);
         expect(find.text('esBobA…567890'), findsOneWidget);
         await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
-        expect(find.text(_l.txOutgoingPayment), findsOneWidget);
-        expect(find.textContaining('esBobA…'), findsNothing);
+        // The line under the amount names the short address; the sheet has it whole.
+        expect(find.textContaining('To esBobA…'), findsOneWidget);
+        expect(find.text(_bob.split('@').first), findsNothing);
+        await _openMore(tester);
         expect(find.text(_bob.split('@').first), findsOneWidget);
         expect(find.byTooltip(_l.txDetailsCopyAddress), findsOneWidget);
       },
@@ -2384,19 +2373,27 @@ void main() {
   });
 
   group('polish', () {
-    testWidgets('the chip row fades where more chips lie beyond the edge', (
+    testWidgets('a scrolling row fades where more lies beyond the edge', (
       tester,
     ) async {
-      final h = _Harness();
-      await h.pump(tester, const HistoryScreen());
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Center(
+            child: SizedBox(
+              width: 200,
+              child: FadingRow(
+                children: [
+                  for (var i = 0; i < 5; i++) SizedBox(width: 90, child: Text('chip $i')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
       final row = tester.state<FadingRowState>(find.byType(FadingRow));
-      // The test font is wide, so the five chips do not fit 360 dp.
       expect(row.moreRight, isTrue);
       expect(row.moreLeft, isFalse);
-      await tester.drag(
-        find.widgetWithText(ChoiceChip, 'All'),
-        const Offset(-2000, 0),
-      );
+      await tester.drag(find.text('chip 0'), const Offset(-2000, 0));
       await tester.pumpAndSettle();
       expect(row.moreRight, isFalse);
       expect(row.moreLeft, isTrue);
@@ -2493,7 +2490,7 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:old'));
       expect(find.textContaining('can no longer complete'), findsOneWidget);
       expect(
-        find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first,
+        find.widgetWithText(KitButton, _l.txDetailsCancelPayment).first,
         findsOneWidget,
       );
     });
@@ -2516,7 +2513,7 @@ void main() {
         ],
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
-      final release = find.widgetWithText(OutlinedButton, _l.txDetailsReleaseFunds);
+      final release = find.widgetWithText(KitButton, _l.txDetailsReleaseFunds);
       await _tap(tester, release);
       // One calm sentence, the two-line comparison, the choices named by outcome (B-04).
       expect(find.text(_l.txDetailsReleaseBody), findsOneWidget);
@@ -2557,18 +2554,18 @@ void main() {
     ) async {
       final h = _Harness(transactions: many(2000));
       await h.pump(tester, const HistoryScreen(), 1, const Size(1080, 2340));
-      final built = find.byType(TxTile).evaluate().length;
+      final built = find.byType(PhoneTxRow).evaluate().length;
       expect(built, greaterThan(0));
       expect(built, lessThan(40));
       // Search still reaches a row far down the list.
       await tester.enterText(
-        find.widgetWithText(TextField, _l.historySearchLabel),
+        find.widgetWithText(TextField, _l.phoneActSearchHint),
         'needle',
       );
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.byType(TxTile), findsOneWidget);
-      expect(find.text('+1,501.0\u00a0EPIC'), findsOneWidget);
+      expect(find.byType(PhoneTxRow), findsOneWidget);
+      expect(find.text('+1,501.0'), findsOneWidget);
     });
 
     testWidgets('2,000 payments: home shows five', (tester) async {
@@ -2580,13 +2577,13 @@ void main() {
     testWidgets('search waits for typing to pause', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HistoryScreen());
-      await tester.enterText(find.widgetWithText(TextField, _l.historySearchLabel), 'rent');
+      await tester.enterText(find.widgetWithText(TextField, _l.phoneActSearchHint), 'rent');
       await tester.pump(const Duration(milliseconds: 100));
       // Still the whole list: the filter has not run yet.
-      expect(find.byType(TxTile), findsNWidgets(4));
+      expect(find.byType(PhoneTxRow), findsNWidgets(4));
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.byType(TxTile), findsOneWidget);
+      expect(find.byType(PhoneTxRow), findsOneWidget);
     });
 
     test('a row is one sentence', () {
@@ -3318,7 +3315,7 @@ void main() {
       },
     );
 
-    testWidgets('add to contacts and send again share one row and style', (
+    testWidgets('send again is a button, add to contacts a row in More', (
       tester,
     ) async {
       final h = _Harness(
@@ -3341,16 +3338,15 @@ void main() {
         1,
         const Size(1800, 7200),
       );
-      final add = find.widgetWithText(TextButton, _l.txDetailsAddToContacts);
-      final again = find.widgetWithText(TextButton, _l.txDetailsSendAgain);
-      expect(add, findsOneWidget);
+      final again = find.widgetWithText(KitButton, _l.txDetailsSendAgain);
       expect(again, findsOneWidget);
-      expect(tester.getCenter(add).dy, tester.getCenter(again).dy);
       expect(find.byType(FilledButton), findsNothing);
-      // Both lie between the address and the fee.
+      // The address, with its Add to contacts row, is in the More sheet.
+      expect(find.text(_l.txDetailsAddToContacts), findsNothing);
+      await _openMore(tester);
+      expect(find.text(_l.txDetailsAddToContacts), findsOneWidget);
       final sentTo = tester.getTopLeft(find.text(_l.txDetailsSentTo)).dy;
-      final fee = tester.getTopLeft(find.text(_l.txDetailsFee)).dy;
-      expect(tester.getCenter(add).dy, inExclusiveRange(sentTo, fee));
+      expect(tester.getTopLeft(find.text(_l.txDetailsAddToContacts)).dy, greaterThan(sentTo));
     });
   });
 

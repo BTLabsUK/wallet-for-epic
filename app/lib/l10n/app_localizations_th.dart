@@ -21909,4 +21909,301 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneSettingsLinkDevice => 'เชื่อมโยงอุปกรณ์';
+
+  @override
+  String get phoneProgSent => 'ส่งแล้ว';
+
+  @override
+  String get phoneProgNetwork => 'อยู่ในเครือข่าย รอบล็อก';
+
+  @override
+  String get phoneProgSenderFinished => 'ผู้ส่งดำเนินการเสร็จ';
+
+  @override
+  String get phoneProgPayerPending => 'รอผู้จ่าย';
+
+  @override
+  String phoneProgPayerPendingNamed(String name) {
+    return 'รอ $name จ่าย';
+  }
+
+  @override
+  String get phoneProgSenderPending => 'รอผู้ส่งทำรายการให้เสร็จ';
+
+  @override
+  String phoneProgSenderPendingNamed(String name) {
+    return 'รอ $name ทำรายการให้เสร็จ';
+  }
+
+  @override
+  String get phoneProgReported => 'ผู้ส่งแจ้งว่าอยู่ในเครือข่ายแล้ว';
+
+  @override
+  String phoneProgReportedNamed(String name) {
+    return '$name แจ้งว่าอยู่ในเครือข่ายแล้ว';
+  }
+
+  @override
+  String get phoneProgPostElsewhere =>
+      'เสร็จแล้วแต่ยังไม่ได้ส่งเข้าเครือข่าย ส่งผ่านการเชื่อมต่ออื่น';
+
+  @override
+  String get phoneProgPosting => 'กำลังส่งเข้าเครือข่าย';
+
+  @override
+  String get phoneProgKillSwitch => 'ถูกระงับขณะปิดการเชื่อมต่อทั้งหมด';
+
+  @override
+  String get phoneProgNotPosted => 'ยังไม่ได้ส่ง ส่งอีกครั้ง';
+
+  @override
+  String get phoneProgNoNewBlock => 'ยังไม่มีบล็อกใหม่ เครือข่ายช้าอยู่';
+
+  @override
+  String get phoneProgNotInBlock => 'อยู่ในเครือข่าย แต่ยังไม่มีบล็อกรับไว้';
+
+  @override
+  String get phoneProgInNetwork => 'อยู่ในเครือข่าย อีกไม่นานบล็อกจะรับไว้';
+
+  @override
+  String get phoneProgAnswersEpicbox =>
+      'Epicbox เก็บไว้จนกว่าผู้รับจะเปิดกระเป๋า';
+
+  @override
+  String phoneProgAnswersEpicboxNamed(String who) {
+    return 'Epicbox เก็บไว้จนกว่า $who จะเปิดกระเป๋า';
+  }
+
+  @override
+  String get phoneProgAnswersFile => 'ดำเนินการต่อเมื่อไฟล์ตอบกลับมา';
+
+  @override
+  String phoneProgAnswersFileNamed(String who) {
+    return 'ดำเนินการต่อเมื่อไฟล์ตอบกลับจาก $who มาถึง';
+  }
+
+  @override
+  String get phoneProgAnswersLive => 'กระเป๋าของเขายังไม่ตอบกลับ';
+
+  @override
+  String phoneProgAnswersLiveNamed(String who) {
+    return 'กระเป๋าของ $who ยังไม่ตอบกลับ';
+  }
+
+  @override
+  String phoneProgSetAside(String amount) {
+    return '$amount ถูกกันไว้ก่อน';
+  }
+
+  @override
+  String get phoneActSearchHint => 'ชื่อ บันทึก หรือจำนวน';
+
+  @override
+  String get phoneActNeedsYou => 'รอคุณอยู่';
+
+  @override
+  String get phoneActInProgress => 'กำลังดำเนินการ';
+
+  @override
+  String get phoneActSealed => 'ปิดผนึก';
+
+  @override
+  String get phoneActCancelledNothing => 'ยกเลิกแล้ว ไม่ได้ส่งอะไร';
+
+  @override
+  String get phoneActReview => 'ตรวจสอบ';
+
+  @override
+  String phoneActInvoiceFor(String amount) {
+    return 'ใบแจ้งหนี้ $amount';
+  }
+
+  @override
+  String get phoneActEmptyTitle => 'ยังไม่มีการชำระเงิน';
+
+  @override
+  String get phoneActNoneTitle => 'ไม่มีสิ่งที่จะแสดง';
+
+  @override
+  String get phoneActMenu => 'เพิ่มเติม';
+
+  @override
+  String get phoneActHelpTitle => 'กิจกรรม';
+
+  @override
+  String get phoneActHelp1 =>
+      'ที่นี่แสดงทุกการชำระเงินที่คุณส่งหรือรับ ล่าสุดอยู่บนสุด';
+
+  @override
+  String get phoneActHelp2 =>
+      'การชำระเงินที่ยังไม่เสร็จจะอยู่ด้านบนในส่วนกำลังดำเนินการ';
+
+  @override
+  String get phoneActHelp3 => 'แตะการชำระเงินเพื่อดูสถานะและสิ่งที่ทำได้';
+
+  @override
+  String get phonePayHelpTitle => 'เกี่ยวกับการชำระเงิน';
+
+  @override
+  String get phonePayHelp1 => 'ขั้นตอนแสดงว่าการชำระเงินอยู่ตรงไหนและเพราะอะไร';
+
+  @override
+  String get phonePayHelp2 =>
+      'ระหว่างที่การชำระเงินรออยู่ เหรียญจะถูกกันไว้ หากไม่เสร็จสักที คุณยกเลิกได้';
+
+  @override
+  String get phonePayHelp3 =>
+      'รายละเอียดเพิ่มเติมมีที่อยู่ บล็อก และรหัสการชำระเงิน';
+
+  @override
+  String phonePayTo(String name) {
+    return 'ถึง $name';
+  }
+
+  @override
+  String phonePayFrom(String name) {
+    return 'จาก $name';
+  }
+
+  @override
+  String get phonePayCompleted => 'เสร็จสมบูรณ์';
+
+  @override
+  String phonePayCompletedOn(String date) {
+    return 'เสร็จสมบูรณ์ $date';
+  }
+
+  @override
+  String get phonePayNever => 'ถ้าไม่เสร็จสักทีล่ะ?';
+
+  @override
+  String get phonePayNeverSend =>
+      'ระหว่างที่การชำระเงินรออยู่ เหรียญจะถูกกันไว้และไม่สูญหาย หากไม่เสร็จสักที ให้ยกเลิก แล้วเหรียญจะกลับเข้ายอดของคุณ';
+
+  @override
+  String get phonePayNeverReceive =>
+      'ยอดของคุณจะไม่เปลี่ยนจนกว่าการชำระเงินจะได้รับการยืนยัน หากไม่เสร็จสักที คุณยกเลิกได้ที่นี่และรายการจะถูกทิ้ง';
+
+  @override
+  String get phonePayNote => 'บันทึก';
+
+  @override
+  String get phonePayAddNote => 'เพิ่มบันทึก';
+
+  @override
+  String get phonePayLabel => 'ป้ายกำกับ';
+
+  @override
+  String get phonePayAddLabel => 'เพิ่มป้ายกำกับ';
+
+  @override
+  String get phonePayFee => 'ค่าธรรมเนียมเครือข่าย';
+
+  @override
+  String get phonePayMore => 'รายละเอียดเพิ่มเติม';
+
+  @override
+  String get phonePaySentThrough => 'ส่งผ่าน';
+
+  @override
+  String get phonePayReceivedThrough => 'รับผ่าน';
+
+  @override
+  String get phonePayTotal => 'รวมค่าธรรมเนียม';
+
+  @override
+  String get phonePayBlock => 'บล็อก';
+
+  @override
+  String get phonePayId => 'รหัสการชำระเงิน';
+
+  @override
+  String get phonePayCoins => 'เหรียญที่ใช้';
+
+  @override
+  String get phonePayOutputsOne => '1 เอาต์พุต';
+
+  @override
+  String phonePayOutputsMany(String count) {
+    return '$count เอาต์พุต';
+  }
+
+  @override
+  String phonePayViaSent(String route) {
+    return 'ส่งผ่าน $route';
+  }
+
+  @override
+  String phonePayViaReceived(String route) {
+    return 'รับผ่าน $route';
+  }
+
+  @override
+  String get phonePayRouteEpicbox => 'Epicbox';
+
+  @override
+  String get phonePayRouteEpic1 => 'ลิงก์ epic1';
+
+  @override
+  String get phonePayRouteInPerson => 'ต่อหน้า';
+
+  @override
+  String get phonePayRouteFile => 'ไฟล์';
+
+  @override
+  String get phonePayRouteTor => 'ลิงก์ · Tor';
+
+  @override
+  String get phonePayRouteHttp => 'ตรง';
+
+  @override
+  String phonePayViaEpicboxOutNamed(String name) {
+    return 'การชำระเงินรออยู่บนเซิร์ฟเวอร์ Epicbox จนกว่ากระเป๋าของ $name จะมารับ $name ไม่ต้องออนไลน์ตอนที่คุณส่ง';
+  }
+
+  @override
+  String get phonePayViaEpicboxOut =>
+      'การชำระเงินรออยู่บนเซิร์ฟเวอร์ Epicbox จนกว่ากระเป๋าอีกฝั่งจะมารับ อีกฝั่งไม่ต้องออนไลน์ตอนที่คุณส่ง';
+
+  @override
+  String get phonePayViaEpicboxIn =>
+      'การชำระเงินรออยู่บนเซิร์ฟเวอร์ Epicbox จนกว่ากระเป๋าของคุณจะมารับ คุณไม่ต้องออนไลน์ตอนที่ส่งมา';
+
+  @override
+  String get phonePayViaEpic1 =>
+      'การชำระเงินถูกปิดผนึกไว้ในลิงก์และคุณเป็นผู้ส่งต่อ ผู้ที่เปิดลิงก์ใน Epic Wallet จะได้รับ';
+
+  @override
+  String get phonePayViaInPerson =>
+      'โทรศัพท์สองเครื่องแสดงโค้ดให้กันและกัน ไม่มีอะไรรออยู่บนเซิร์ฟเวอร์';
+
+  @override
+  String get phonePayViaFile =>
+      'การชำระเงินถูกส่งไปมาในรูปแบบไฟล์ ไม่มีอะไรรออยู่บนเซิร์ฟเวอร์';
+
+  @override
+  String get phonePayViaTor =>
+      'การชำระเงินส่งตรงไปยังกระเป๋าอีกฝั่งผ่าน Tor กระเป๋าทั้งสองต้องออนไลน์';
+
+  @override
+  String get phonePayViaHttp =>
+      'การชำระเงินส่งตรงไปยังกระเป๋าอีกฝั่งผ่านการเชื่อมต่อโดยตรง กระเป๋าทั้งสองต้องออนไลน์';
+
+  @override
+  String get phonePayViaServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get phonePayViaOther => 'เส้นทางอื่นของการชำระเงิน';
+
+  @override
+  String get phonePayRouteSubEpic1 => 'จ่ายจากลิงก์ชำระเงิน';
+
+  @override
+  String get phonePayRouteSubInPerson => 'โทรศัพท์สองเครื่องแสดงโค้ดให้กัน';
+
+  @override
+  String get phonePayRouteSubFile => 'ไฟล์การชำระเงินที่ส่งไปมา';
+
+  @override
+  String get phonePayRouteSubTor => 'ตรงถึงกระเป๋าของอีกฝั่ง ผ่าน Tor';
 }

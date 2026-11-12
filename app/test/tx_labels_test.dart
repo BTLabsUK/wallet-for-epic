@@ -158,6 +158,15 @@ Future<void> _openLabel(WidgetTester tester, [String key = 's:plain']) async {
   await tester.pumpAndSettle();
 }
 
+/// The edit row sits below the status on the page: scroll it in, then open the sheet.
+Future<void> _tapEdit(WidgetTester tester) async {
+  final row = find.text(_l.txEditAdd);
+  await tester.ensureVisible(row);
+  await tester.pumpAndSettle();
+  await tester.tap(row);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('title rule', () {
     testWidgets('label, else contact, else short address, else the word', (
@@ -197,7 +206,7 @@ void main() {
       h.session.labels['s:plain'] = 'Rent, September';
       await h.pump(tester, const HistoryScreen());
       await tester.enterText(
-        find.widgetWithText(TextField, _l.historySearchLabel),
+        find.widgetWithText(TextField, _l.phoneActSearchHint),
         'septem',
       );
       await tester.pump(searchDebounce);
@@ -360,16 +369,16 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:plain'));
-      expect(find.text(_l.txLabelAdd), findsOneWidget);
-      await tester.tap(find.text(_l.txLabelAdd));
+      expect(find.text(_l.phonePayAddLabel), findsOneWidget);
+      await tester.tap(find.text(_l.phonePayAddLabel));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Rent');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       expect(h.session.labels, {'s:plain': 'Rent'});
       // With a label the tile reads Label, the value and the tag.
-      expect(find.text(_l.txLabel), findsOneWidget);
-      expect(find.text(_l.txManualTag), findsOneWidget);
+      expect(find.text(_l.phonePayLabel), findsOneWidget);
+      expect(find.byType(ManualTag), findsOneWidget);
       expect(find.text('Rent'), findsWidgets);
     });
 
@@ -385,11 +394,11 @@ void main() {
     testWidgets('the sheet saves the sender, method and note', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      await tester.tap(find.text(_l.txEditAdd));
+      await _tapEdit(tester);
       await tester.pumpAndSettle();
       expect(find.text(_l.commonCancel), findsOneWidget);
       // The date is a line, not a field.
-      expect(find.text(_l.txDetailsDate), findsWidgets);
+      expect(find.textContaining(_l.txDetailsDate), findsWidgets);
       await tester.tap(find.widgetWithText(ChoiceChip, 'Link · Tor'));
       await tester.pump();
       await tester.enterText(find.widgetWithText(TextField, 'Private note'), 'Pool');
@@ -402,16 +411,21 @@ void main() {
       ));
       expect(find.text(_l.txEditAddedNotice), findsOneWidget);
       expect(find.text(_l.txEditEdit), findsOneWidget);
-      // The method row and the tag follow.
+      // The method row and the tag follow, in the More sheet.
+      final more = find.byKey(txDetailsMoreKey);
+      await tester.ensureVisible(more);
+      await tester.pumpAndSettle();
+      await tester.tap(more);
+      await tester.pumpAndSettle();
       expect(find.text(_l.sendMethodLabel), findsOneWidget);
-      expect(find.text('Link · Tor'), findsOneWidget);
-      expect(find.text(_l.txManualTag), findsWidgets);
+      expect(find.text('Link · Tor'), findsWidgets);
+      expect(find.byType(ManualTag), findsWidgets);
     });
 
     testWidgets('a sender that is no address is refused', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      await tester.tap(find.text(_l.txEditAdd));
+      await _tapEdit(tester);
       await tester.pumpAndSettle();
       await tester.enterText(
         find.widgetWithText(TextField, _l.txEditFrom),
@@ -426,7 +440,7 @@ void main() {
     testWidgets('Cancel writes nothing', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      await tester.tap(find.text(_l.txEditAdd));
+      await _tapEdit(tester);
       await tester.pumpAndSettle();
       await tester.enterText(find.widgetWithText(TextField, 'Private note'), 'Pool');
       await tester.tap(find.text(_l.commonCancel));
