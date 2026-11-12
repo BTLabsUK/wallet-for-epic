@@ -20902,10 +20902,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneSettingsOneHour => '1 小时';
 
   @override
-  String get phoneSettingsAutoLockSub => '无人使用时锁定钱包';
+  String get phoneSettingsAutoLockSub => '离开应用这么久后锁定钱包。';
 
   @override
-  String get phoneSettingsPickerNote => '点按即保存。';
+  String get phoneSettingsPickerNote => '点按一个选项即可保存并关闭此面板。';
 
   @override
   String get phoneSettingsPassphrase => '附加口令';

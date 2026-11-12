@@ -35,7 +35,7 @@
   "@phoneSettingsPinWord": {
     "description": "Word on the Settings hub line when the wallet unlocks with the PIN."
   },
-  "phoneSettingsLocksAfter": "Locks after {time}",
+  "phoneSettingsLocksAfter": "locks after {time}",
   "@phoneSettingsLocksAfter": {
     "description": "Part of the Security line on the Settings hub. {time} is a duration like '5 minutes'.",
     "placeholders": {
@@ -73,11 +73,11 @@
   "@phoneSettingsOneHour": {
     "description": "Auto-lock choice: one hour."
   },
-  "phoneSettingsAutoLockSub": "Lock the wallet after it is left alone",
+  "phoneSettingsAutoLockSub": "Lock the wallet after this long away from the app.",
   "@phoneSettingsAutoLockSub": {
     "description": "Line under the title of the auto-lock picker."
   },
-  "phoneSettingsPickerNote": "Saved when you tap.",
+  "phoneSettingsPickerNote": "Tapping a choice saves it and closes this sheet.",
   "@phoneSettingsPickerNote": {
     "description": "Note under the choices of a picker: the choice is saved when tapped."
   },

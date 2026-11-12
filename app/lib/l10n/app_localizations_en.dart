@@ -22114,7 +22114,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String phoneSettingsLocksAfter(String time) {
-    return 'Locks after $time';
+    return 'locks after $time';
   }
 
   @override
@@ -22141,10 +22141,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneSettingsAutoLockSub =>
-      'Lock the wallet after it is left alone';
+      'Lock the wallet after this long away from the app.';
 
   @override
-  String get phoneSettingsPickerNote => 'Saved when you tap.';
+  String get phoneSettingsPickerNote =>
+      'Tapping a choice saves it and closes this sheet.';
 
   @override
   String get phoneSettingsPassphrase => 'Passphrase';

@@ -22407,10 +22407,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneSettingsAutoLockSub =>
-      'Das Wallet sperren, wenn es unbenutzt bleibt';
+      'Das Wallet sperren, wenn du so lange nicht in der App warst.';
 
   @override
-  String get phoneSettingsPickerNote => 'Wird beim Antippen gespeichert.';
+  String get phoneSettingsPickerNote =>
+      'Ein Antippen speichert die Auswahl und schließt dieses Blatt.';
 
   @override
   String get phoneSettingsPassphrase => 'Passphrase';

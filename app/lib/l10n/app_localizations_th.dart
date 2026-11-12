@@ -21692,10 +21692,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneSettingsOneHour => '1 ชั่วโมง';
 
   @override
-  String get phoneSettingsAutoLockSub => 'ล็อกกระเป๋าเงินเมื่อไม่มีการใช้งาน';
+  String get phoneSettingsAutoLockSub =>
+      'ล็อกกระเป๋าเงินเมื่อไม่ได้เปิดแอปนานเท่านี้';
 
   @override
-  String get phoneSettingsPickerNote => 'บันทึกเมื่อแตะ';
+  String get phoneSettingsPickerNote => 'แตะตัวเลือกเพื่อบันทึกและปิดแผ่นนี้';
 
   @override
   String get phoneSettingsPassphrase => 'วลีผ่านเพิ่มเติม';
