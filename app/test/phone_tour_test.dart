@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_sections.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';

@@ -31,6 +31,7 @@ import 'package:epic_wallet/src/ui/scan_result_sheet.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import '../support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';

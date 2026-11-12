@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';

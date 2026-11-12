@@ -30,6 +30,7 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';

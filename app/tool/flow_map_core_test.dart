@@ -68,6 +68,7 @@ import 'package:epic_wallet/src/settings_file/network_mode_file.dart' show netwo
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/ui/outputs_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import '../test/support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/fonts.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart'
