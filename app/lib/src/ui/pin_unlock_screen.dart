@@ -338,6 +338,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           kind: KitButtonKind.ghost,
           onPressed: _busy ? null : () => _forgotPin(),
           semanticsId: TrustIds.unlockForgot,
+          tall: true,
         ),
       // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
       if (canSwitch)

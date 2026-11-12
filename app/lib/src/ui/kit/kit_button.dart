@@ -25,6 +25,7 @@ class KitButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.semanticsId,
+    this.tall = false,
   });
 
   final String label;
@@ -38,6 +39,10 @@ class KitButton extends StatelessWidget {
 
   /// The test drivers' name (`TrustIds.*`).
   final String? semanticsId;
+
+  /// A ghost at the 48 touch size instead of the frames' 44: a ghost alone at a page's foot
+  /// (the unlock page's Forgot PIN), where the extra height moves nothing.
+  final bool tall;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +84,7 @@ class KitButton extends StatelessWidget {
         child: InkWell(
           onTap: off ? null : onPressed,
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: small ? Kit.buttonSmall : (kind == KitButtonKind.ghost ? Kit.touchMin : Kit.button), minWidth: small ? 0 : 64),
+            constraints: BoxConstraints(minHeight: small ? Kit.buttonSmall : (kind == KitButtonKind.ghost ? (tall ? Kit.touchMin : Kit.hitMin) : Kit.button), minWidth: small ? 0 : 64),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: small ? 16 : 20),
               child: Center(widthFactor: expand ? null : 1, child: content),

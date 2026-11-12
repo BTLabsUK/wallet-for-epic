@@ -1445,9 +1445,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       await _openMore(tester);
-      // The key, then its server whole on its own line.
-      expect(find.text(_bob.split('@').first), findsOneWidget);
-      expect(find.text('@${_bob.split('@').last}'), findsOneWidget);
+      // The whole address as one text, the server straight after the key (the frame's sheet).
+      expect(find.text(_bob), findsOneWidget);
       expect(find.text(_l.txDetailsAddToContacts), findsOneWidget);
     });
 
@@ -2242,7 +2241,7 @@ void main() {
         expect(find.textContaining('To esBobA…'), findsOneWidget);
         expect(find.text(_bob.split('@').first), findsNothing);
         await _openMore(tester);
-        expect(find.text(_bob.split('@').first), findsOneWidget);
+        expect(find.text(_bob), findsOneWidget);
         expect(find.text(_l.txDetailsCopyAddress), findsOneWidget);
       },
     );
