@@ -8,6 +8,11 @@ import '../l10n.dart';
 import '../providers.dart';
 import 'app_dialog.dart';
 import 'common.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_tokens.dart';
+import 'theme/tokens.dart';
+import 'phone_frame.dart' show phoneFrameBreakpoint;
 import 'pin.dart';
 import '../phrase_clipboard.dart';
 import '../secure_screen.dart' show hidePreview;
@@ -103,14 +108,33 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return SlotScaffold(
-      appBar: AppBar(title: Text(context.l10n.backupTitle)),
-      body: _asked && _words.isNotEmpty
-          ? _phrase(context)
-          : ScreenBody(
-              // The PIN dialog is the whole state: no progress line behind it (UP-031).
-              children: _asked ? const [] : _consent(context),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KitPageHeader(
+                  backLabel: l.phoneKitBack,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  title: l.backupTitle,
+                ),
+                Expanded(
+                  child: _asked && _words.isNotEmpty
+                      ? _phrase(context)
+                      : ScreenBody(
+                          // The PIN dialog is the whole state: no progress line behind it (UP-031).
+                          children: _asked ? const [] : _consent(context),
+                        ),
+                ),
+              ],
             ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -132,11 +156,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         title: trustId(TrustIds.backupAgree, Text(l.backupCopyAgree)),
       ),
       const SizedBox(height: 16),
-      FilledButton(
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: _agreed ? _load : null,
-        child: trustId(TrustIds.backupShow, Text(l.backupShowPhrase)),
-      ),
+      KitButton(label: l.backupShowPhrase, onPressed: _agreed ? _load : null, semanticsId: TrustIds.backupShow),
     ];
   }
 
@@ -149,31 +169,19 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       const SizedBox(height: 8),
       Align(
         alignment: AlignmentDirectional.centerEnd,
-        // Moved out by its end padding: the label, not the button's box, ends at the words' edge.
-        child: Transform.translate(
-          offset: Offset(Directionality.of(context) == TextDirection.rtl ? -_copyPad : _copyPad, 0),
-          child: TextButton.icon(
-            style: TextButton.styleFrom(
-              minimumSize: const Size(48, 48),
-              padding: const EdgeInsets.symmetric(horizontal: _copyPad),
-            ),
-            onPressed: _copy,
-            icon: const Icon(Icons.copy),
-            label: Text(l.commonCopy),
-          ),
-        ),
+        child: KitButton(label: l.commonCopy, icon: Icons.copy, kind: KitButtonKind.quiet, small: true, expand: false, onPressed: _copy),
       ),
       const SizedBox(height: 8),
     ];
     return ScreenBody(
-      bottom: BusyButton(label: l.commonDone, onPressed: _done, semanticsId: TrustIds.backupDone),
+      bottom: KitButton(label: l.commonDone, onPressed: _done, semanticsId: TrustIds.backupDone),
       scrolling: _grid(context),
       children: top,
     );
   }
 
   Widget _grid(BuildContext context) {
-    final theme = Theme.of(context);
+    final t = context.tokens;
     final l = context.l10n;
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -193,14 +201,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                   width: width,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                    color: t.fill,
+                    borderRadius: BorderRadius.circular(Kit.rButtonSmall),
                   ),
                   // Long words shrink instead of being cut off.
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
-                    child: Text('${i + 1}. ${_words[i]}', style: theme.textTheme.bodyLarge),
+                    child: Text('${i + 1}. ${_words[i]}', style: KitType.body.copyWith(color: t.text)),
                   ),
                 ),
               ),
@@ -210,9 +218,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     );
   }
 }
-
-/// The Copy button's side padding.
-const double _copyPad = 12;
 
 /// Copies the recovery phrase, cleared after [phraseClipboardLifetime] and on lock, as on the
 /// desktop. False when the clipboard refused the text.
