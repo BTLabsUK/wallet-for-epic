@@ -1180,10 +1180,9 @@ void main() {
       expect(find.text('08commit'), findsNothing);
       await _openMore(tester);
       expect(find.text('2,499,300'), findsOneWidget);
-      expect(
-        find.text(hostSettings.explorerBlock(2499300)!),
-        findsOneWidget,
-      );
+      // The explorer link is a row that copies it; the address is not printed.
+      expect(find.text(_l.txDetailsExplorerLink), findsOneWidget);
+      expect(find.text(hostSettings.explorerBlock(2499300)!), findsNothing);
       expect(find.text('08commit'), findsNothing);
       await _tap(tester, find.byKey(txDetailsTechnicalKey));
       expect(find.text('08commit'), findsOneWidget);
@@ -2231,7 +2230,7 @@ void main() {
         expect(find.text(_bob.split('@').first), findsNothing);
         await _openMore(tester);
         expect(find.text(_bob.split('@').first), findsOneWidget);
-        expect(find.byTooltip(_l.txDetailsCopyAddress), findsOneWidget);
+        expect(find.text(_l.txDetailsCopyAddress), findsOneWidget);
       },
     );
 
