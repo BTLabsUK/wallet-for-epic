@@ -266,7 +266,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       // The system's Back and the header's arrow return to the choice.
       body = Column(
         children: [
-          KitFlowHeader(title: '', back: true, onLeading: _backFromPin, onHelp: _pinHelp),
+          KitFlowHeader(title: '', back: true, onLeading: _backFromPin, onHelp: _pinHelp, leadingId: TrustIds.welcomePinBack, helpId: TrustIds.welcomePinHelp),
           Expanded(
             child: Padding(
               padding: EdgeInsets.zero,
@@ -355,7 +355,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               ] else ...[
                 ErrorText(_error!),
                 const SizedBox(height: 12),
-                KitButton(label: l.firstRunTryAgain, onPressed: _retry),
+                KitButton(label: l.firstRunTryAgain, onPressed: _retry, semanticsId: TrustIds.welcomeRetry),
               ],
             ],
           ),

@@ -58,6 +58,7 @@ abstract final class KitIcons {
   static const IconData check = IconData(0xe06c, fontFamily: family); // check
   static const IconData download = IconData(0xe0b2, fontFamily: family); // download
   static const IconData link = IconData(0xe102, fontFamily: family); // link
+  static const IconData refresh = IconData(0xe145, fontFamily: family); // refresh-cw
   static const IconData exchange = IconData(0xe24a, fontFamily: family); // arrow-left-right
   static const IconData fileUp = IconData(0xe32a, fontFamily: family); // file-up
   static const IconData fileDown = IconData(0xe318, fontFamily: family); // file-down

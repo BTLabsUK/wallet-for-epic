@@ -149,7 +149,7 @@ class _WayPage extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             children: [
-              KitFlowHeader(title: title, back: true, onLeading: () => Navigator.of(context).maybePop(), onHelp: onHelp),
+              KitFlowHeader(title: title, back: true, onLeading: () => Navigator.of(context).maybePop(), onHelp: onHelp, leadingId: TrustIds.receiveWayBack, helpId: TrustIds.receiveWayHelp),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(Kit.gutter, 20, Kit.gutter, 24),

@@ -348,6 +348,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           small: true,
           expand: false,
           onPressed: _busy ? null : () => _switchMode(!passphrase),
+          semanticsId: TrustIds.unlockSwitchMode,
         ),
     ];
     final Widget content = passphrase
@@ -451,11 +452,13 @@ class _ForgotSheetState extends State<_ForgotSheet> {
     return KitSheet(
       title: l.pinResetTitle,
       primaryLabel: l.pinResetKeep,
+      primaryId: TrustIds.unlockResetKeep,
       onPrimary: () => Navigator.pop(context, false),
       secondary: KitButton(
         label: l.pinResetDelete,
         kind: _understood ? KitButtonKind.danger : KitButtonKind.off,
         onPressed: _understood ? () => Navigator.pop(context, true) : null,
+        semanticsId: TrustIds.unlockResetDelete,
       ),
       // The frame: a 14 px `.hint` 10 under the title, the check in a `.grp` 16 below, the
       // buttons 18 below and 6 apart.
@@ -471,7 +474,7 @@ class _ForgotSheetState extends State<_ForgotSheet> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-            child: KitCheckRow(label: l.pinResetConfirm, value: _understood, onChanged: (v) => setState(() => _understood = v)),
+            child: KitCheckRow(label: l.pinResetConfirm, value: _understood, onChanged: (v) => setState(() => _understood = v), semanticsId: TrustIds.unlockResetCheck),
           ),
         ],
       ),

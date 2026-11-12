@@ -442,7 +442,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final t = context.tokens;
     return Column(
       children: [
-        KitFlowHeader(title: l.phoneRestoreTitle, back: true, onLeading: _back, onHelp: _phraseHelp),
+        KitFlowHeader(title: l.phoneRestoreTitle, back: true, onLeading: _back, onHelp: _phraseHelp, leadingId: TrustIds.restoreBack, helpId: TrustIds.restoreHelp),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.only(bottom: Kit.gutter),
@@ -528,7 +528,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _PhraseLink(label: l.commonPaste, onPressed: _pastePhrase),
+                  TrustId(TrustIds.restorePaste, child: _PhraseLink(label: l.commonPaste, onPressed: _pastePhrase)),
                   // The phrase as a QR code (Show QR on the backup screen).
                   if (offersQrScan(ref)) ...[
                     const SizedBox(width: 4),
@@ -554,6 +554,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           // Not while the wallet is made, and not once the old wallet is gone.
           onLeading: _canPop ? _backToPhrase : null,
           onHelp: _pinHelp,
+          leadingId: TrustIds.restoreBack,
+          helpId: TrustIds.restoreHelp,
         ),
         if (_error != null)
           Padding(
@@ -562,7 +564,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ErrorText(_error!),
-                KitButton(label: l.restoreBackToPhrase, kind: KitButtonKind.ghost, onPressed: _backToPhrase),
+                KitButton(label: l.restoreBackToPhrase, kind: KitButtonKind.ghost, onPressed: _backToPhrase, semanticsId: TrustIds.restoreBackToPhrase),
               ],
             ),
           ),
@@ -611,7 +613,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final running = scan.running;
     return Column(
       children: [
-        KitFlowHeader(title: l.phoneRestoreRestoring, showLeading: false, onLeading: null, onHelp: _phraseHelp),
+        KitFlowHeader(title: l.phoneRestoreRestoring, showLeading: false, onLeading: null, onHelp: _phraseHelp, helpId: TrustIds.restoreHelp),
         Expanded(
           child: running
               ? ListView(
@@ -700,7 +702,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final t = context.tokens;
     return Column(
       children: [
-        KitFlowHeader(title: '', onLeading: _openWallet),
+        KitFlowHeader(title: '', onLeading: _openWallet, leadingId: TrustIds.restoreClose),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(Kit.gutter, 24, Kit.gutter, Kit.gutter),

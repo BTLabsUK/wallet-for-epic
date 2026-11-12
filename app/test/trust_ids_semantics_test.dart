@@ -392,6 +392,7 @@ void main() {
 
       await _same(tester, open, () => _closePhone(tester), [
         'g4.restore.phrase', 'g4.restore.start', 'g4.restore.info', 'g4.restore.continue',
+        'g4.restore.paste', 'g4.restore.back', 'g4.restore.help',
       ]);
       await _same(tester, () => open(start: true), () => _closePhone(tester), [
         'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month',

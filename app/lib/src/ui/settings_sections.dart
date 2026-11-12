@@ -269,7 +269,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       context: context,
       title: l.settingsCurrency,
       selected: s.fiatCurrency,
-      choices: [for (final c in fiatCurrencies) KitChoice(value: c, title: currencyLabel(l, c))],
+      choices: [for (final c in fiatCurrencies) KitChoice(value: c, title: currencyLabel(l, c), semanticsId: TrustIds.appearanceCurrencyChoiceAt(c))],
       onSelected: _settings.setFiatCurrency,
     );
   }
@@ -307,10 +307,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         KitChoice(
           value: system,
           title: context.l10n.languageSystem,
+          semanticsId: TrustIds.appearanceLanguageChoiceAt('system'),
           // A neutral globe, as wide as a flag, so the names line up.
           leading: SizedBox(width: 16 * 4 / 3, child: Icon(KitIcons.language, size: 16, color: context.tokens.dim)),
         ),
-        for (final a in appLanguages) KitChoice(value: a.code, title: a.name, leading: LanguageFlag(a.code)),
+        for (final a in appLanguages) KitChoice(value: a.code, title: a.name, leading: LanguageFlag(a.code), semanticsId: TrustIds.appearanceLanguageChoiceAt(a.code)),
       ],
       onSelected: (code) => _settings.setLanguage(code == system ? null : code),
     );
@@ -334,7 +335,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       subtitle: l.phoneSettingsAutoLockSub,
       note: l.phoneSettingsPickerNote,
       selected: current == null ? null : autoLockChoice(current),
-      choices: [for (final m in autoLockChoices) KitChoice(value: m, title: autoLockDuration(l, m))],
+      choices: [for (final m in autoLockChoices) KitChoice(value: m, title: autoLockDuration(l, m), semanticsId: TrustIds.securityAutoLockChoiceAt(m))],
       onSelected: _settings.setAutoLockMinutes,
     );
   }
@@ -1078,10 +1079,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           alignment: AlignmentDirectional.centerEnd,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-            child: TextButton(
-              key: const ValueKey('adv-reset'),
-              onPressed: () => _settings.setAdvanced(adv.withoutShown()),
-              child: Text(l.advReset, style: KitType.navLink.copyWith(color: t.accentText)),
+            child: TrustId(
+              TrustIds.advancedReset,
+              child: TextButton(
+                key: const ValueKey('adv-reset'),
+                onPressed: () => _settings.setAdvanced(adv.withoutShown()),
+                child: Text(l.advReset, style: KitType.navLink.copyWith(color: t.accentText)),
+              ),
             ),
           ),
         ),

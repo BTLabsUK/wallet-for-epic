@@ -4,6 +4,7 @@
 // Receive, the link flow on Send with the unknown server question, Try next and Sent, the
 // mode lines for the other mode's codes, "Classic only" contacts, and the setting kept per
 // wallet across lock and unlock.
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -25,6 +26,8 @@ import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, WalletStatus;
+import 'package:epic_wallet/src/ui/status.dart' as status show NodeStatus;
 import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
@@ -32,6 +35,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_pin.dart';
@@ -88,7 +92,23 @@ final _forty = WalletSummary(
 /// A session with 40 EPIC, in epic1 mode when [on].
 FakeWalletSession _session({bool on = false}) => FakeWalletSession(summary: _forty)..epic1Fake = FakeEpic1(on: on);
 
-Future<ProviderContainer> _pump(WidgetTester tester, FakeWalletSession session, Widget home, {FakeWalletService? service}) async {
+/// The shown status with Epicbox in [epicbox] and the node online.
+class _Epicbox extends WalletStatusNotifier {
+  _Epicbox(this.epicbox);
+
+  final EpicboxState? epicbox;
+
+  @override
+  WalletStatus build() => (node: const status.NodeStatus(NodeState.online), epicbox: epicbox);
+}
+
+Future<ProviderContainer> _pump(
+  WidgetTester tester,
+  FakeWalletSession session,
+  Widget home, {
+  FakeWalletService? service,
+  List<Override> extra = const [],
+}) async {
   allowPinCheck(session, service);
   tester.view.physicalSize = const Size(1080, 3300);
   tester.view.devicePixelRatio = 3;
@@ -108,6 +128,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, FakeWalletSession session, 
         backedUpProvider.overrideWith((ref) async => true),
         sessionProvider.overrideWith(() => _Open(session)),
         walletConfigProvider.overrideWith(_Config.new),
+        ...extra,
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -268,6 +289,22 @@ void main() {
       // The tour's Receive step lights the link card.
       expect(_tourTarget('tour-receive-address', _key(epic1LinkCardKey)), findsOneWidget);
       expect(session.epic1Fake.calls, contains('makeLink'));
+    });
+
+    testWidgets('epic1: the listening line follows Epicbox', (tester) async {
+      String line(WidgetTester tester) =>
+          tester.widget<Text>(find.descendant(of: _key(epic1ListeningKey), matching: find.byType(Text))).data!;
+      for (final (state, word) in [
+        (EpicboxState.online, _l.phoneRecvListening),
+        (EpicboxState.connecting, _l.statusEpicboxConnecting),
+        (EpicboxState.offline, _l.statusEpicboxOffline),
+        (null, _l.statusEpicboxOffline),
+        (EpicboxState.blocked, _l.statusEpicboxBlocked),
+      ]) {
+        await _pump(tester, _session(on: true), receive, extra: [walletStatusProvider.overrideWith(() => _Epicbox(state))]);
+        expect(line(tester), word, reason: '$state');
+        await tester.pumpWidget(const SizedBox());
+      }
     });
 
     testWidgets('classic: no link card', (tester) async {

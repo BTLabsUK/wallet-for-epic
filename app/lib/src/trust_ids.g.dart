@@ -542,8 +542,30 @@ abstract final class TrustIds {
   static const payCopyAddress = 'g4.pay.copy-address';
   static const payCopyExplorer = 'g4.pay.copy-explorer';
   static const tourOfferShow = 'g4.tour.offer.show';
+  static const pinCancel = 'g4.pin.cancel';
+  static const pinChooseDifferent = 'g4.pin.choose-different';
+  static const unlockSwitchMode = 'g4.unlock.switch-mode';
+  static const unlockResetKeep = 'g4.unlock.reset-keep';
+  static const unlockResetDelete = 'g4.unlock.reset-delete';
+  static const unlockResetCheck = 'g4.unlock.reset-check';
+  static const restorePaste = 'g4.restore.paste';
+  static const restoreBackToPhrase = 'g4.restore.back-to-phrase';
+  static const restoreBack = 'g4.restore.back';
+  static const restoreHelp = 'g4.restore.help';
+  static const restoreClose = 'g4.restore.close';
+  static const receiveRetry = 'g4.receive.retry';
+  static const receiveAskCancel = 'g4.receive.ask-cancel';
+  static const receiveWayBack = 'g4.receive.way-back';
+  static const receiveWayHelp = 'g4.receive.way-help';
+  static const welcomeRetry = 'g4.welcome.retry';
+  static const welcomePinBack = 'g4.welcome.pin-back';
+  static const welcomePinHelp = 'g4.welcome.pin-help';
+  static const advancedReset = 'g4.advanced.reset';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
+  static String securityAutoLockChoiceAt(Object value) => 'g4.security.autoLock.choice.$value';
+  static String appearanceCurrencyChoiceAt(Object value) => 'g4.appearance.currency.choice.$value';
+  static String appearanceLanguageChoiceAt(Object value) => 'g4.appearance.language.choice.$value';
 
   static const nodeList = TrustServerIds(picker: serverNode, field: serverSearch, row: serverNodeRow, add: serverNodeAdd);
   static const epicboxList = TrustServerIds(picker: serverEpicbox, field: serverSearch, row: serverEpicboxRow, add: serverEpicboxAdd);
@@ -1094,5 +1116,24 @@ abstract final class TrustIds {
     'g4.pay.copy-address',
     'g4.pay.copy-explorer',
     'g4.tour.offer.show',
+    'g4.pin.cancel',
+    'g4.pin.choose-different',
+    'g4.unlock.switch-mode',
+    'g4.unlock.reset-keep',
+    'g4.unlock.reset-delete',
+    'g4.unlock.reset-check',
+    'g4.restore.paste',
+    'g4.restore.back-to-phrase',
+    'g4.restore.back',
+    'g4.restore.help',
+    'g4.restore.close',
+    'g4.receive.retry',
+    'g4.receive.ask-cancel',
+    'g4.receive.way-back',
+    'g4.receive.way-help',
+    'g4.welcome.retry',
+    'g4.welcome.pin-back',
+    'g4.welcome.pin-help',
+    'g4.advanced.reset',
   ];
 }

@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
+import '../../connection_state.dart' show walletStatusProvider;
+import '../../trust_ids.dart';
 import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
@@ -25,6 +27,7 @@ import '../kit/kit_row.dart';
 import '../kit/kit_sheet.dart';
 import '../kit/kit_tokens.dart';
 import '../settings_sections.dart';
+import '../status.dart' show EpicboxState;
 import '../theme/logo_qr.dart';
 import '../theme/tokens.dart';
 import '../theme/epic1_mark.dart';
@@ -42,6 +45,7 @@ const Key epic1MessageFieldKey = ValueKey('epic1-message-field');
 const Key epic1MakeLinkKey = ValueKey('epic1-make-link');
 const Key epic1RelaySettingsKey = ValueKey('epic1-relay-settings');
 const Key epic1RequestInPersonKey = ValueKey('epic1-request-in-person');
+const Key epic1ListeningKey = ValueKey('epic1-listening');
 
 class Epic1ReceiveView extends ConsumerStatefulWidget {
   const Epic1ReceiveView({super.key});
@@ -282,16 +286,28 @@ class _LinkCard extends StatelessWidget {
   }
 }
 
-/// "Listening for payments" under the buttons, as on Receive.
-class _ListeningLine extends StatelessWidget {
+/// The listener's state under the buttons, as Receive's line says it: "Listening for payments"
+/// with a green dot only while Epicbox listens; connecting, offline or blocked otherwise.
+class _ListeningLine extends ConsumerWidget {
   const _ListeningLine();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final t = context.tokens;
+    // As the header shows it: offline only once it lasts; a stopped listener (null) at once.
+    final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+    final (String word, Color color) = switch (epicbox) {
+      EpicboxState.online => (l.phoneRecvListening, t.ok),
+      EpicboxState.blocked => (l.statusEpicboxBlocked, t.risk),
+      null || EpicboxState.offline => (l.statusEpicboxOffline, t.risk),
+      EpicboxState.connecting => (l.statusEpicboxConnecting, t.dim),
+    };
     return Semantics(
       container: true,
+      liveRegion: true,
       child: Row(
+        key: epic1ListeningKey,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ExcludeSemantics(
@@ -300,13 +316,13 @@ class _ListeningLine extends StatelessWidget {
               height: 7,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: t.ok,
-                boxShadow: [BoxShadow(color: t.ok.withValues(alpha: .16), spreadRadius: 3)],
+                color: color,
+                boxShadow: [BoxShadow(color: color.withValues(alpha: .16), spreadRadius: 3)],
               ),
             ),
           ),
           const SizedBox(width: 9),
-          Text(context.l10n.phoneRecvListening, style: KitType.rowSub.copyWith(color: t.dim)),
+          Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color))),
         ],
       ),
     );
@@ -353,7 +369,7 @@ class _AskAmountSheetState extends State<_AskAmountSheet> {
       child: KitSheet(
         title: l.phoneRecvAsk,
         primary: KitButton(key: epic1MakeLinkKey, label: l.deskE1PhMakeLink, onPressed: _done),
-        secondary: KitButton(label: l.commonCancel, kind: KitButtonKind.ghost, onPressed: () => Navigator.pop(context)),
+        secondary: KitButton(label: l.commonCancel, kind: KitButtonKind.ghost, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.receiveAskCancel),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
           child: Column(

@@ -466,7 +466,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
       below: PinMessage(
         _mismatch ? l.pinMismatch : null,
         child: !choose && !_asking
-            ? KitButton(label: l.pinChooseDifferent, onPressed: _chooseDifferent, kind: KitButtonKind.ghost, small: true, expand: false)
+            ? KitButton(label: l.pinChooseDifferent, onPressed: _chooseDifferent, kind: KitButtonKind.ghost, small: true, expand: false, semanticsId: TrustIds.pinChooseDifferent)
             : null,
       ),
     );
@@ -906,16 +906,19 @@ class _PinSheetState<T extends Object> extends ConsumerState<_PinSheet<T>> {
                   ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: t.dim,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      minimumSize: const Size.fromHeight(44),
-                      textStyle: KitType.button.copyWith(fontWeight: FontWeight.w500),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Kit.rButton)),
+                  child: TrustId(
+                    TrustIds.pinCancel,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: t.dim,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: const Size.fromHeight(44),
+                        textStyle: KitType.button.copyWith(fontWeight: FontWeight.w500),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Kit.rButton)),
+                      ),
+                      onPressed: _busy ? null : () => Navigator.pop(context),
+                      child: Text(l.commonCancel),
                     ),
-                    onPressed: _busy ? null : () => Navigator.pop(context),
-                    child: Text(l.commonCancel),
                   ),
                 ),
               ],
