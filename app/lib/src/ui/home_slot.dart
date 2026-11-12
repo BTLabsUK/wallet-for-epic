@@ -235,18 +235,15 @@ class _HomeSlotState extends ConsumerState<HomeSlot> {
               if (v.abs() < 200) return;
               turn((v < 0) != rtl ? 1 : -1);
             },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: KeyedSubtree(
-          key: ValueKey('home-slot-${item.id}'),
-          child: item.build(
-            context,
-            ref,
-            HomeSlotPage(
-              pages: items.length,
-              page: page,
-              onLater: () => ref.read(homeSlotLaterProvider.notifier).put(item.id),
-            ),
+      child: KeyedSubtree(
+        key: ValueKey('home-slot-${item.id}'),
+        child: item.build(
+          context,
+          ref,
+          HomeSlotPage(
+            pages: items.length,
+            page: page,
+            onLater: () => ref.read(homeSlotLaterProvider.notifier).put(item.id),
           ),
         ),
       ),

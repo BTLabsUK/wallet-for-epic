@@ -203,8 +203,10 @@ class KitNeedsYouCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Room for the corner marks (`.brk`, 6 out); 4 on top keeps the card 20 under the
+          // buttons as `.need{margin-top:20px}`, the marks reaching 2 into that gap.
           Padding(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
             child: KitCornerMarks(
               child: Container(
                 constraints: const BoxConstraints(minHeight: Kit.slotCard),

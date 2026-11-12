@@ -504,7 +504,8 @@ class _Recent extends ConsumerWidget {
       children: [
         KitSectionHead(
           l.phoneHomeRecent,
-          top: 18,
+          // `.sec` sits 34 under the buttons, 14 under the slot's page dots (Home-busy).
+          top: ref.watch(homeSlotVisibleProvider).isEmpty ? 18 : 13,
           trailing: kitId(
             TrustIds.homeSeeall,
             KitPress(
