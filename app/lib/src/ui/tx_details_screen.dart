@@ -1534,7 +1534,7 @@ class _PayHero extends StatelessWidget {
     final t = context.tokens;
     final (:amount, :outgoing) = txAmount(tx);
     final cancelled = tx.status == TxStatus.cancelled;
-    final initials = name == null || name!.isEmpty ? '' : nameInitials(name!, count: 2);
+    final initials = name == null || name!.isEmpty ? '' : nameInitials(name!, count: 2, phone: true);
     final color = cancelled ? t.txCancelled : (outgoing ? t.text : t.txReceived);
     final full = signedEpic(l, tx, hidden: hidden, exact: true);
     final split = !hidden && full.endsWith(epicUnit);

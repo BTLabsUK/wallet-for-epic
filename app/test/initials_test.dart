@@ -17,6 +17,18 @@ void main() {
     expect(nameInitials('🙂 !!'), '');
   });
 
+  test('the phone rule: one word is its first and last letter', () {
+    expect(nameInitials('Tom', phone: true), 'TM');
+    expect(nameInitials('Bob', phone: true), 'BO');
+    expect(nameInitials('Anna', phone: true), 'AN');
+    expect(nameInitials('Mira Novak', phone: true), 'MN');
+    expect(nameInitials('Northwind Exchange', phone: true), 'NE');
+    expect(nameInitials('X', phone: true), 'X');
+    expect(nameInitials('🙂 !!', phone: true), '');
+    expect(nameInitials('Tom'), 'TO');
+    expect(contactInitials('Tom'), 'TM');
+  });
+
   test('the desktop avatar and the phone contact tile use them', () {
     expect(EAvatar.initials('Wallet (epic program)'), 'WE');
     expect(EAvatar.initials('Anna Kowalska'), 'AK');

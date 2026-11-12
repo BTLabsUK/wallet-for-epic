@@ -3190,7 +3190,7 @@ class _SendViewState extends ConsumerState<SendView> {
               label: c.name,
               // The frame draws the first name under the face.
               caption: c.name.trim().split(RegExp(r'\s+')).first,
-              initials: nameInitials(c.name),
+              initials: nameInitials(c.name, phone: true),
               semanticsId: TrustIds.sendFace,
               onTap: () {
                 _useContact(c);
@@ -3311,7 +3311,7 @@ class _SendViewState extends ConsumerState<SendView> {
         clearKey: sendRecipientClearKey,
         child: Row(
           children: [
-            KitAvatar(initials: nameInitials(contact.name)),
+            KitAvatar(initials: nameInitials(contact.name, phone: true)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(contact.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: context.tokens.text)),
@@ -3333,7 +3333,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   Widget _toAvatar({bool small = false}) {
     final named = _pairingTo != null || _contact != null || _contactName(_read.address) != null;
-    return named ? KitAvatar(small: small, initials: nameInitials(_toName(context.l10n))) : KitAvatar(small: small, icon: KitIcons.contact, neutral: true);
+    return named ? KitAvatar(small: small, initials: nameInitials(_toName(context.l10n), phone: true)) : KitAvatar(small: small, icon: KitIcons.contact, neutral: true);
   }
 
   /// The method row under To: the method's icon and name, whether their wallet can be offline,
@@ -5200,7 +5200,7 @@ class _Initial extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = this.name;
     // Brackets, punctuation and emoji never show: a name without letters gets the person.
-    final named = name != null && nameInitials(name).isNotEmpty;
+    final named = name != null && nameInitials(name, phone: true).isNotEmpty;
     return ExcludeSemantics(
       child: named
           ? PairAvatar(name: name, size: size)
@@ -5263,7 +5263,7 @@ class _WhoRow extends StatelessWidget {
     // `.rt .mono`: 12.5 under a name; the title of a row with no name is the address, 14.
     final mono = KitType.address.copyWith(color: t.dim, fontSize: 12.5);
     return KitRow(
-      leading: name == null ? const KitAvatar(icon: KitIcons.contact, neutral: true) : KitAvatar(initials: nameInitials(name!)),
+      leading: name == null ? const KitAvatar(icon: KitIcons.contact, neutral: true) : KitAvatar(initials: nameInitials(name!, phone: true)),
       title: name ?? shortAddress(address, ownServer: ownServer),
       titleStyle: name == null ? KitType.address.copyWith(fontSize: 14) : null,
       subtitle: subtitle,

@@ -595,7 +595,7 @@ class _NeedsYouCard extends StatelessWidget {
     void open() => Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => InvoiceReviewScreen(invoice: invoice)),
     );
-    final initials = nameInitials(who, count: 2);
+    final initials = nameInitials(who, count: 2, phone: true);
     // `.grp` with one `.row` on --gold-soft: avatar, name over a gold line with a 6 px dot, and
     // the small gold Review button.
     return _GroupSegment(

@@ -32,6 +32,7 @@ import 'kit/kit_chip.dart';
 import 'kit/kit_group.dart';
 import 'kit/kit_headers.dart' show KitIconButton;
 import 'kit/kit_icons.dart';
+import 'kit/kit_sheet.dart' show KitSheet, showKitSheet;
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
 import 'kit/kit_steps.dart' show KitStep, KitStepState;
@@ -79,12 +80,13 @@ const Key contactPageHeaderPairKey = ValueKey('contact-page-header-pair');
 const Key contactPageStarKey = ValueKey('contact-page-star');
 const Key contactPageNoPaymentsKey = ValueKey('contact-page-no-payments');
 const Key contactPageSendReasonKey = ValueKey('contact-page-send-reason');
+const Key contactPageAddressesKey = ValueKey('contact-page-addresses');
 const Key contactPageViaPairingKey = ValueKey('contact-page-via-pairing');
 
 /// Two letters for [name] ([nameInitials]: letters and digits only), `?` for a name with
 /// none.
 String contactInitials(String name) {
-  final letters = nameInitials(name);
+  final letters = nameInitials(name, phone: true);
   return letters.isEmpty ? '?' : letters;
 }
 
@@ -615,6 +617,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                       'edit' => _edit(contact),
                       'label' => _pickLabel(context, ref, contact),
                       'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
+                      'addresses' => _showAddresses(contact, pairing),
                       'code' when contact.addresses.isNotEmpty => _showCode(contact),
                       'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
                       'delete' => _delete(contact, pairing),
@@ -638,6 +641,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                           leading: Icon(starred ? Icons.star_rounded : Icons.star_outline_rounded),
                           title: Text(starred ? l.contactUnstar : l.contactStar),
                         ),
+                      ),
+                      PopupMenuItem(
+                        key: contactPageAddressesKey,
+                        value: 'addresses',
+                        child: ListTile(leading: const Icon(Icons.alternate_email), title: Text(l.contactAddresses)),
                       ),
                       PopupMenuItem(
                         key: contactPageCodeKey,
@@ -683,9 +691,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                             ),
                             _Payments(contact: contact, pairing: pairing),
                             const SizedBox(height: 8),
-                            // A contact that takes no payments: its own card first, then Pairing, Addresses last.
+                            // A contact that takes no payments: its own card first, then Pairing. Addresses are in the menu.
                             if (noPayments && pairs && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
-                            if (!noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
                             if (pairs) ...[
                               PairSection(l.contactPairing),
                               ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
@@ -693,7 +700,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                               // picture code and Leave, or the button that turns it on.
                               if (!noPayments && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
                             ],
-                            if (noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
                             // The compatibility line (trust policy): one sentence, never a badge; a plain
                             // contact's key can answer as another wallet app with pairing off too.
                             ContactTrustLine(contactId: contact.id, name: contact.name),
@@ -712,6 +718,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             if (showSend || canAsk) bar(),
           ],
         ),
+      ),
+    );
+  }
+
+  /// The addresses in full, with Copy, or the line that payments go through the pairing.
+  void _showAddresses(Contact contact, PairingRecord? pairing) {
+    showKitSheet<void>(
+      context: context,
+      builder: (sheet) => KitSheet(
+        title: sheet.l10n.contactAddresses,
+        child: _Addresses(contact: contact, pairing: pairing),
       ),
     );
   }
@@ -916,7 +933,7 @@ class _Header extends ConsumerWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ExcludeSemantics(child: Epic1Glyph(size: 14, color: t.accentText)),
+              ExcludeSemantics(child: Epic1Glyph(size: 14, columns: 7, color: t.accentText)),
               const SizedBox(width: 6),
               Flexible(child: Text(l.phoneContactPaired, style: dim, textAlign: TextAlign.center)),
             ],

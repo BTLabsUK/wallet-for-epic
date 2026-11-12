@@ -108,7 +108,7 @@ String phoneRowDay(AppLocalizations l, DateTime t, DateTime now) {
 String? _initialsOf(TxEntry tx, String title, {required bool named}) {
   final label = tx.label?.trim() ?? '';
   if (!named && label.isEmpty) return null;
-  final text = nameInitials(title, count: 2);
+  final text = nameInitials(title, count: 2, phone: true);
   return text.isEmpty ? null : text;
 }
 

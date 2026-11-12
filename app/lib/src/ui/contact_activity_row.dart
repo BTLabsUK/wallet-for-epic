@@ -120,7 +120,7 @@ class ContactActivityRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             children: [
-              ExcludeSemantics(child: KitAvatar(initials: nameInitials(name))),
+              ExcludeSemantics(child: KitAvatar(initials: nameInitials(name, phone: true))),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

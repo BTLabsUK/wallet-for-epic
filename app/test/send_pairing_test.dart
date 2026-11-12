@@ -177,6 +177,14 @@ bool _enabled(WidgetTester tester, Finder button) {
   return w is KitButton ? w.onPressed != null : (w as ButtonStyleButton).onPressed != null;
 }
 
+/// The "…" menu, then Addresses: the sheet that holds them.
+Future<void> _openAddresses(WidgetTester tester) async {
+  await tester.tap(find.byKey(contactPageMoreKey));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(contactPageAddressesKey));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('contact page of a contact with only a pairing', () {
     for (final (name, state, caps, net, on, reason) in [
@@ -192,6 +200,8 @@ void main() {
         h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', state: state, caps: caps);
         await h.pump(tester, const ContactPage(contactId: 'c1'), net: net);
         expect(_enabled(tester, find.byKey(contactPageSendKey)), on);
+        expect(find.byKey(contactPageViaPairingKey), findsNothing);
+        await _openAddresses(tester);
         expect(find.byKey(contactPageViaPairingKey), findsOneWidget);
         expect(find.text(_l.contactNoAddressPaired), findsOneWidget);
         expect(find.text(_l.contactNoAddresses), findsNothing);
@@ -207,6 +217,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const ContactPage(contactId: 'c1'));
       expect(_enabled(tester, find.byKey(contactPageSendKey)), isFalse);
+      expect(find.text(_l.contactNoAddresses), findsNothing);
+      await _openAddresses(tester);
       expect(find.text(_l.contactNoAddresses), findsOneWidget);
       expect(find.byKey(contactPageViaPairingKey), findsNothing);
     });

@@ -247,7 +247,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           KitChoice(
             value: r.id,
             title: pairingName(r, contacts),
-            leading: KitAvatar(initials: nameInitials(pairingName(r, contacts), count: 2)),
+            leading: KitAvatar(initials: nameInitials(pairingName(r, contacts), count: 2, phone: true)),
           ),
         if (byQr)
           KitChoice(

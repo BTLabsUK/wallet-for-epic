@@ -537,7 +537,7 @@ class _Faces extends StatelessWidget {
                         clipBehavior: Clip.none,
                         children: [
                           AvatarLabelMark(
-                            avatar: KitAvatar(initials: nameInitials(c.name), large: true),
+                            avatar: KitAvatar(initials: nameInitials(c.name, phone: true), large: true),
                             size: Kit.avatarStrip,
                             label: c.label.listMark,
                           ),
@@ -599,7 +599,7 @@ class _AsksRow extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
               children: [
-                AvatarLabelMark(avatar: KitAvatar(initials: nameInitials(contact.name)), size: Kit.avatar, label: contact.label.listMark),
+                AvatarLabelMark(avatar: KitAvatar(initials: nameInitials(contact.name, phone: true)), size: Kit.avatar, label: contact.label.listMark),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -735,7 +735,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
           padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
           child: Row(
             children: [
-              KitAvatar(initials: nameInitials(name), neutral: r.state.isPending),
+              KitAvatar(initials: nameInitials(name, phone: true), neutral: r.state.isPending),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -869,7 +869,7 @@ class _ContactRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             children: [
-              AvatarLabelMark(avatar: KitAvatar(initials: nameInitials(contact.name)), size: Kit.avatar, label: contact.label.listMark),
+              AvatarLabelMark(avatar: KitAvatar(initials: nameInitials(contact.name, phone: true)), size: Kit.avatar, label: contact.label.listMark),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

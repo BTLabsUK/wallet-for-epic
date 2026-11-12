@@ -62,7 +62,7 @@ class ReceiveArrivalSheet extends ConsumerWidget {
       paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
       killSwitch: NetGate.killSwitch,
     );
-    final initials = who == null || who.isEmpty ? '' : nameInitials(who, count: 2);
+    final initials = who == null || who.isEmpty ? '' : nameInitials(who, count: 2, phone: true);
     final amount = signedEpic(l, tx, hidden: hidden);
     final number = amount.endsWith(epicUnit) ? amount.substring(0, amount.length - epicUnit.length).trimRight() : amount;
     return TrustId(

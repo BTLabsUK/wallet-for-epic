@@ -138,7 +138,7 @@ void main() {
     });
 
     test('else the first two letters, or ? for nothing', () {
-      expect(contactInitials('alice'), 'AL');
+      expect(contactInitials('alice'), 'AE');
       expect(contactInitials('Q'), 'Q');
       expect(contactInitials('   '), '?');
     });
@@ -187,7 +187,7 @@ void main() {
       expect(find.byKey(contactsMoreKey), findsOneWidget);
       // The faces strip and the row each show the initials.
       expect(find.text('BB'), findsNWidgets(2));
-      expect(find.text('AL'), findsNWidgets(2));
+      expect(find.text('AE'), findsNWidgets(2));
       // Without a payment the row says so; A to Z shows how each is reached.
       expect(find.text(_l.phoneContactsNoPayments), findsNWidgets(3));
       await tester.tap(find.text(_l.phoneContactsAtoZ));
@@ -374,17 +374,18 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      // In full on the page, and again under Show code.
-      expect(
-        find.descendant(
-          of: find.byType(ContactPage),
-          matching: find.textContaining('a' * 50, findRichText: true),
-        ),
-        findsWidgets,
-      );
+      // Not on the page: in full in the Addresses sheet, and again under Show code.
       expect(find.text('Coffee club'), findsOneWidget);
-      expect(find.text(_l.contactAddresses), findsOneWidget);
+      expect(find.text(_l.contactAddresses), findsNothing);
+      expect(find.textContaining('a' * 50, findRichText: true), findsNothing);
       expect(find.byType(LogoQr), findsNothing);
+      await tester.tap(find.byKey(contactPageMoreKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(contactPageAddressesKey));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('a' * 50, findRichText: true), findsWidgets);
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPageMoreKey));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPageCodeKey));
