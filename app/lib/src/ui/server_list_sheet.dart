@@ -1470,7 +1470,7 @@ class NotConnectedLine extends StatelessWidget {
               ),
             ),
           ),
-          KitButton(label: l.commonRetry, kind: KitButtonKind.ghost, small: true, icon: Icons.refresh_rounded, onPressed: onRetry),
+          KitButton(label: l.commonRetry, kind: KitButtonKind.ghost, small: true, expand: false, icon: Icons.refresh_rounded, onPressed: onRetry),
         ],
       ),
     );
@@ -1519,7 +1519,7 @@ class _FootLine extends StatelessWidget {
               ),
             ),
             if (action != null)
-              KitButton(label: actionLabel, kind: KitButtonKind.ghost, small: true, onPressed: action)
+              KitButton(label: actionLabel, kind: KitButtonKind.ghost, small: true, expand: false, onPressed: action)
             else
               const SizedBox(height: 44),
           ],

@@ -116,7 +116,7 @@ class ContactPairingBlock extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              KitButton(key: contactPagePairKey, label: l.pairTitle, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpPair, onPressed: onPair),
+              KitButton(key: contactPagePairKey, label: l.pairTitle, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpPair, onPressed: onPair),
             ],
           ),
         ),
@@ -171,13 +171,13 @@ class ContactPairingBlock extends ConsumerWidget {
           runSpacing: 8,
           children: [
             if (expired)
-              KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context))
+              KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, expand: false, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context))
             else
-              KitButton(key: contactPageShowCodeKey, label: l.pairShowMyCode, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpShowCode, onPressed: busy ? null : () => _showCode(context)),
+              KitButton(key: contactPageShowCodeKey, label: l.pairShowMyCode, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpShowCode, onPressed: busy ? null : () => _showCode(context)),
             KitButton(
               key: contactPageCancelPairingKey,
               label: expired ? l.contactRemove : l.commonCancel,
-              small: true,
+              small: true, expand: false,
               kind: KitButtonKind.danger,
               semanticsId: TrustIds.pairflowCpCancel,
               onPressed: busy ? null : cancel,
@@ -245,7 +245,7 @@ class ContactPairingBlock extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    KitButton(label: l.commonCancel, small: true, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpHeldCancel, onPressed: busy ? null : () => cancelSend(tx)),
+                    KitButton(label: l.commonCancel, small: true, expand: false, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpHeldCancel, onPressed: busy ? null : () => cancelSend(tx)),
                   ],
                 ),
               ),
@@ -256,8 +256,8 @@ class ContactPairingBlock extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context)),
-            KitButton(key: contactPageRemovePairingKey, label: l.contactRemovePairing, small: true, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpRemove, onPressed: busy ? null : remove),
+            KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, expand: false, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context)),
+            KitButton(key: contactPageRemovePairingKey, label: l.contactRemovePairing, small: true, expand: false, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpRemove, onPressed: busy ? null : remove),
           ],
         ),
       ],
@@ -361,7 +361,7 @@ class ContactPairingBlock extends ConsumerWidget {
             KitButton(
               key: contactPageCheckKey,
               label: l.pairCheckWords,
-              small: true,
+              small: true, expand: false,
               kind: KitButtonKind.quiet,
               semanticsId: TrustIds.pairflowCpCheck,
               onPressed: () => _check(context, p),
@@ -403,7 +403,7 @@ class ContactPairingBlock extends ConsumerWidget {
             ),
           ),
           if (!paused && asked != null && p.relayMove == RelayMoveState.refused)
-            KitButton(key: contactPageMoveAcceptKey, label: l.relayMoveAccept, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpMoveRetry, onPressed: busy ? null : acceptMove),
+            KitButton(key: contactPageMoveAcceptKey, label: l.relayMoveAccept, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpMoveRetry, onPressed: busy ? null : acceptMove),
         ],
       ),
     );
@@ -450,9 +450,9 @@ class ContactPairingBlock extends ConsumerWidget {
             body: l.contactKeysChangedBody,
             stretchActions: true,
             actions: [
-              KitButton(label: l.pairCheckWords, small: true, semanticsId: TrustIds.pairflowCpKeysCheck, onPressed: busy ? null : () => _check(context, p)),
-              KitButton(label: l.contactKeepOldKeys, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpKeepOld, onPressed: busy ? null : () => keys(KeysChoice.keepOld)),
-              KitButton(label: l.contactUseNewKeys, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpUseNew, onPressed: busy ? null : () => keys(KeysChoice.useNew)),
+              KitButton(label: l.pairCheckWords, small: true, expand: false, semanticsId: TrustIds.pairflowCpKeysCheck, onPressed: busy ? null : () => _check(context, p)),
+              KitButton(label: l.contactKeepOldKeys, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpKeepOld, onPressed: busy ? null : () => keys(KeysChoice.keepOld)),
+              KitButton(label: l.contactUseNewKeys, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpUseNew, onPressed: busy ? null : () => keys(KeysChoice.useNew)),
             ],
           ),
           const SizedBox(height: 12),
@@ -462,7 +462,7 @@ class ContactPairingBlock extends ConsumerWidget {
             tone: BadgeTone.ok,
             title: l.contactKeysBack(name),
             body: l.contactKeysBackBody,
-            actions: [KitButton(label: l.commonOk, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpKeysOk, onPressed: () => ref.read(keysBackProvider.notifier).close(p.id))],
+            actions: [KitButton(label: l.commonOk, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpKeysOk, onPressed: () => ref.read(keysBackProvider.notifier).close(p.id))],
           ),
           const SizedBox(height: 12),
         ],
@@ -477,7 +477,7 @@ class ContactPairingBlock extends ConsumerWidget {
             tone: BadgeTone.warn,
             title: l.trustNotAnswering,
             body: l.contactNotAnsweringBody,
-            actions: [KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context))],
+            actions: [KitButton(key: contactPagePairAgainKey, label: l.pairAgain, small: true, expand: false, semanticsId: TrustIds.pairflowCpPairAgain, onPressed: busy ? null : () => _showCode(context))],
           ),
           const SizedBox(height: 12),
         ],
@@ -487,8 +487,8 @@ class ContactPairingBlock extends ConsumerWidget {
             title: l.pairProvesOther(name),
             body: p.paymentsAddress,
             actions: [
-              KitButton(key: contactPageUpdateAddressKey, label: l.pairUpdateAddress, small: true, semanticsId: TrustIds.pairflowCpUpdateAddress, onPressed: busy ? null : updateAddress),
-              KitButton(key: contactPageDetachKey, label: l.pairDetach, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpDetach, onPressed: busy ? null : detach),
+              KitButton(key: contactPageUpdateAddressKey, label: l.pairUpdateAddress, small: true, expand: false, semanticsId: TrustIds.pairflowCpUpdateAddress, onPressed: busy ? null : updateAddress),
+              KitButton(key: contactPageDetachKey, label: l.pairDetach, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpDetach, onPressed: busy ? null : detach),
             ],
           ),
           const SizedBox(height: 12),
@@ -500,8 +500,8 @@ class ContactPairingBlock extends ConsumerWidget {
             title: l.contactMoveAsked(moveShown!),
             body: l.relayMoveBody(name, moveShown),
             actions: [
-              KitButton(key: contactPageMoveAcceptKey, label: l.relayMoveAccept, small: true, semanticsId: TrustIds.pairflowCpMoveAccept, onPressed: busy ? null : acceptMove),
-              KitButton(key: contactPageMoveRefuseKey, label: l.relayMoveRefuse, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpMoveRefuse, onPressed: busy ? null : refuseMove),
+              KitButton(key: contactPageMoveAcceptKey, label: l.relayMoveAccept, small: true, expand: false, semanticsId: TrustIds.pairflowCpMoveAccept, onPressed: busy ? null : acceptMove),
+              KitButton(key: contactPageMoveRefuseKey, label: l.relayMoveRefuse, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpMoveRefuse, onPressed: busy ? null : refuseMove),
             ],
           ),
           const SizedBox(height: 12),
@@ -547,10 +547,10 @@ class ContactPairingBlock extends ConsumerWidget {
           runSpacing: 8,
           children: [
             if (unproven)
-              KitButton(key: contactPagePairAgainUnprovenKey, label: l.pairAgain, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpPairAgainUnproven, onPressed: busy ? null : onPair),
+              KitButton(key: contactPagePairAgainUnprovenKey, label: l.pairAgain, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpPairAgainUnproven, onPressed: busy ? null : onPair),
             if (waiting)
-              KitButton(key: contactPageShowCodeKey, label: l.pairShowMyCode, small: true, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpShowCode, onPressed: busy ? null : () => _showCode(context)),
-            KitButton(key: contactPageRemovePairingKey, label: l.contactRemovePairing, small: true, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpRemove, onPressed: busy ? null : remove),
+              KitButton(key: contactPageShowCodeKey, label: l.pairShowMyCode, small: true, expand: false, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowCpShowCode, onPressed: busy ? null : () => _showCode(context)),
+            KitButton(key: contactPageRemovePairingKey, label: l.contactRemovePairing, small: true, expand: false, kind: KitButtonKind.danger, semanticsId: TrustIds.pairflowCpRemove, onPressed: busy ? null : remove),
           ],
         ),
       ],

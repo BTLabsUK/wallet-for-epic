@@ -295,7 +295,7 @@ class SendPairingMailbox extends ConsumerWidget {
         title: changed ? l.contactKeysChangedTitle(name) : l.contactSendNoSealed(name),
         body: changed ? l.contactKeysChangedBody : null,
         actions: [
-          if (changed) KitButton(key: sendPairingCheckKey, label: l.noticeCheckWords, small: true, semanticsId: TrustIds.pairflowSendCheck, onPressed: onCheck),
+          if (changed) KitButton(key: sendPairingCheckKey, label: l.noticeCheckWords, small: true, expand: false, semanticsId: TrustIds.pairflowSendCheck, onPressed: onCheck),
         ],
       );
     }
