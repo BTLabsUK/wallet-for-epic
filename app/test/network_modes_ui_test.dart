@@ -14,7 +14,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/finished_not_posted.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
-import 'package:epic_wallet/src/ui/info_hint.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRadio;
 import 'package:epic_wallet/src/ui/network_mode_phone.dart';
 import 'package:epic_wallet/src/ui/network_mode_text.dart';
 import 'package:epic_wallet/src/ui/post_finished_screen.dart';
@@ -116,6 +116,10 @@ Future<ProviderContainer> _pump(
   return container;
 }
 
+/// The radio of [m]'s row in the Network section.
+KitRadio _radio(WidgetTester tester, NetworkMode m) =>
+    tester.widget<KitRadio>(find.descendant(of: find.byKey(networkModeRowKey(m)), matching: find.byType(KitRadio)));
+
 Future<void> _tapKey(WidgetTester tester, Key key) async {
   await tester.ensureVisible(find.byKey(key));
   await tester.tap(find.byKey(key));
@@ -153,7 +157,7 @@ void main() {
   });
 
   group('the Network section', () {
-    testWidgets('a row per mode: just its name and its ⓘ, which opens the picture of the modes at that mode', (tester) async {
+    testWidgets('a row per mode: its name, its one line and its radio, the chosen one marked', (tester) async {
       await _pump(tester, const NetworkModeSection());
       final modes = offeredNetworkModes();
       expect(modes.length, torBuilt ? 4 : 3);
@@ -161,20 +165,15 @@ void main() {
       for (final m in modes) {
         expect(find.byKey(networkModeRowKey(m)), findsOneWidget, reason: m.name);
         expect(find.text(networkModeName(l, m)), findsWidgets);
-        expect(find.byKey(networkModeHintKey(m)), findsOneWidget);
+        final line = switch (m) {
+          NetworkMode.standard => l.phoneSettingsModeNormalLine,
+          NetworkMode.torOnly => l.phoneSettingsModeTorLine,
+          NetworkMode.nodeOnly => l.phoneSettingsModeNodeLine,
+          NetworkMode.killSwitch => l.phoneSettingsModeKillLine,
+        };
+        expect(find.descendant(of: find.byKey(networkModeRowKey(m)), matching: find.text(line)), findsOneWidget, reason: m.name);
+        expect(_radio(tester, m).selected, m == NetworkMode.standard, reason: m.name);
       }
-      await _tapKey(tester, networkModeHintKey(NetworkMode.killSwitch));
-      expect(find.byKey(networkModesSheetKey), findsOneWidget);
-      expect(find.text(l.netModesDescKillSwitch), findsOneWidget);
-      await tester.tap(find.text(_l.commonClose));
-      await tester.pumpAndSettle();
-      expect(tester.widget<Radio<NetworkMode>>(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>))).value, NetworkMode.standard);
-      // No explanation in the list: the rows carry no subtitle; the heading's ⓘ opens the picture.
-      for (final m in modes) {
-        expect(tester.widget<ListTile>(find.byKey(networkModeRowKey(m))).subtitle, isNull, reason: m.name);
-      }
-      expect(find.byType(InfoHint), findsNWidgets(modes.length + 1));
-      expect(find.byKey(networkModesHintKey), findsOneWidget);
     });
 
     testWidgets('Node only switches at once with no question', (tester) async {
@@ -215,9 +214,7 @@ void main() {
       await container.read(appSettingsProvider.future);
       await container.read(appSettingsProvider.notifier).setNetworkMode(NetworkMode.killSwitch);
       await tester.pumpAndSettle();
-      // On its radio: the row's middle is its ⓘ at this width.
-      await tester.tap(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>)));
-      await tester.pumpAndSettle();
+      await _tapKey(tester, networkModeRowKey(NetworkMode.standard));
       expect(find.byKey(networkModeConfirmKey), findsNothing);
       expect(NetGate.mode, NetworkMode.standard);
     });
