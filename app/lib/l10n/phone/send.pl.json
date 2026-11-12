@@ -20,5 +20,12 @@
   "phoneSendTheirOffline": "ich portfel może być offline",
   "phoneSendTheirOnline": "ich portfel musi być otwarty",
   "phoneSendNoteLabel": "Notatka",
-  "phoneSendReviewHintOffline": "Portfel {name} może być offline. Płatność zakończy się, gdy portfel zostanie otwarty."
+  "phoneSendReviewHintOffline": "Portfel {name} może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.",
+  "phoneSendHelpTitle": "Jak działa wysyłanie",
+  "phoneSendHelpStep1": "Wybierasz, do kogo i ile",
+  "phoneSendHelpStep1Sub": "Nic nie wychodzi, zanim sprawdzisz płatność i wpiszesz PIN.",
+  "phoneSendHelpStep2": "Ich portfel odpowiada",
+  "phoneSendHelpStep2Sub": "Płatność wymaga obu portfeli. Przez Epicbox ich portfel może odpowiedzieć później, przy następnym otwarciu.",
+  "phoneSendHelpStep3": "Sieć ją potwierdza",
+  "phoneSendHelpStep3Sub": "Po kilku blokach mogą ją wydać."
 }

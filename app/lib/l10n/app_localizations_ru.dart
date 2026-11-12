@@ -23903,4 +23903,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneSendReviewHintOffline(String name) {
     return 'Кошелёк $name может быть не в сети. Платёж завершится, когда он снова откроется.';
   }
+
+  @override
+  String get phoneSendHelpTitle => 'Как работает отправка';
+
+  @override
+  String get phoneSendHelpStep1 => 'Вы выбираете, кому и сколько';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'Ничто не уходит, пока вы не проверите платёж и не введёте PIN.';
+
+  @override
+  String get phoneSendHelpStep2 => 'Их кошелёк отвечает';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'Платёж требует обоих кошельков. Через Epicbox их кошелёк может ответить позже, при следующем открытии.';
+
+  @override
+  String get phoneSendHelpStep3 => 'Сеть подтверждает его';
+
+  @override
+  String get phoneSendHelpStep3Sub =>
+      'Через несколько блоков получатель сможет их потратить.';
 }

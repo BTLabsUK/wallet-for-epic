@@ -23180,4 +23180,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneSendReviewHintOffline(String name) {
     return '$name\'s wallet can be offline. The payment finishes when it next opens.';
   }
+
+  @override
+  String get phoneSendHelpTitle => 'How sending works';
+
+  @override
+  String get phoneSendHelpStep1 => 'You choose who and how much';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'Nothing leaves before you review it and enter your PIN.';
+
+  @override
+  String get phoneSendHelpStep2 => 'Their wallet answers';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'A payment needs both wallets. With Epicbox theirs can answer later, when it next opens.';
+
+  @override
+  String get phoneSendHelpStep3 => 'The network confirms it';
+
+  @override
+  String get phoneSendHelpStep3Sub =>
+      'After a few blocks it is theirs to spend.';
 }

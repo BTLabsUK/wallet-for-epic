@@ -20,5 +20,12 @@
   "phoneSendTheirOffline": "ihr Wallet kann offline sein",
   "phoneSendTheirOnline": "ihr Wallet muss geöffnet sein",
   "phoneSendNoteLabel": "Notiz",
-  "phoneSendReviewHintOffline": "Die Wallet von {name} darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet."
+  "phoneSendReviewHintOffline": "Die Wallet von {name} darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.",
+  "phoneSendHelpTitle": "So funktioniert das Senden",
+  "phoneSendHelpStep1": "Du wählst, an wen und wie viel",
+  "phoneSendHelpStep1Sub": "Nichts verlässt das Gerät, bevor du es prüfst und deine PIN eingibst.",
+  "phoneSendHelpStep2": "Ihre Wallet antwortet",
+  "phoneSendHelpStep2Sub": "Eine Zahlung braucht beide Wallets. Mit Epicbox kann ihre später antworten, wenn sie das nächste Mal geöffnet wird.",
+  "phoneSendHelpStep3": "Das Netzwerk bestätigt sie",
+  "phoneSendHelpStep3Sub": "Nach ein paar Blöcken kann sie ausgegeben werden."
 }

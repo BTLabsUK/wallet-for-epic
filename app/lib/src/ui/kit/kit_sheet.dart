@@ -47,6 +47,7 @@ class KitSheet extends StatelessWidget {
     this.primaryId,
     this.secondaryId,
     this.primaryKind = KitButtonKind.gold,
+    this.titleGap = 14,
   });
 
   final String? title;
@@ -62,6 +63,9 @@ class KitSheet extends StatelessWidget {
   final String? primaryId;
   final String? secondaryId;
   final KitButtonKind primaryKind;
+
+  /// Under the title; a sheet whose first row carries its own top padding takes less.
+  final double titleGap;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +93,7 @@ class KitSheet extends StatelessWidget {
               const KitGrabber(),
               if (title != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, titleGap),
                   child: Semantics(header: true, child: Text(title!, style: KitType.sheetTitle.copyWith(color: t.text))),
                 ),
               ?child,

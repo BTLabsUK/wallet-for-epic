@@ -24,6 +24,7 @@ import 'kit/kit_result_mark.dart';
 import 'kit/kit_step_strip.dart';
 import 'kit/kit_steps.dart';
 import 'payment_progress.dart';
+import 'send_help_sheet.dart';
 import 'tx_details_screen.dart';
 import 'app_dialog.dart';
 import 'cancel_note.dart';
@@ -2657,6 +2658,7 @@ class _SendViewState extends ConsumerState<SendView> {
               shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(Kit.rSheetTop))),
               child: KitSheet(
                 title: l.phoneSendReviewTitle,
+                titleGap: 0,
                 primary: actions,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: body),
               ),
@@ -2672,13 +2674,14 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _page(Widget body) => Column(
     children: [
       SafeArea(bottom: false, child: _bar ?? const SizedBox.shrink()),
-      Expanded(child: MediaQuery.removePadding(context: context, removeTop: true, child: body)),
+      // The host leaves Send's insets to it: the review's sheet runs to the screen's edge.
+      Expanded(child: SafeArea(top: false, child: MediaQuery.removePadding(context: context, removeTop: true, child: body))),
     ],
   );
 
   Widget _emptyState(BuildContext context) {
     final request = _activeRequest;
-    return CenteredScroll(
+    return SafeArea(child: CenteredScroll(
       child: CenteredBody(
         children: [
           // A code or link that came in still shows it did; the form takes it once coins arrive.
@@ -2705,7 +2708,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   /// The page's top bar, set by the step being built ([_header]) and drawn by [build] above the
@@ -2732,10 +2735,24 @@ class _SendViewState extends ConsumerState<SendView> {
       back: onBack != null,
       onLeading: leading == null || busy ? null : leading,
       leadingId: onBack != null ? TrustIds.sendBack : TrustIds.sendClose,
-      onHelp: !help ? null : (onHelp ?? () => showHandshakeSheet(context, flow: _howFlow)),
+      onHelp: !help ? null : (onHelp ?? _showHowItWorks),
       helpId: TrustIds.sendHelp,
     );
     return const SizedBox.shrink();
+  }
+
+  /// The "?" of Send: the frame's help sheet for the payment way; the file, QR and direct ways
+  /// keep the animated hand-over of their own.
+  void _showHowItWorks() {
+    if (_howFlow != HandshakeFlow.payment) {
+      showHandshakeSheet(context, flow: _howFlow);
+      return;
+    }
+    showSendHelpSheet(
+      context,
+      onNeverFinishes: () => _ifNotSheet(context),
+      onMore: () => openHelp(context, HelpId.send),
+    );
   }
 
   /// The "How it works" tab of the way this payment goes: its own method's, never Epicbox's
@@ -4147,7 +4164,7 @@ class _SendViewState extends ConsumerState<SendView> {
         _gate.ready;
     // The Send button names the exact amount, as the review above it (a commit surface).
     final amount = epicExact(l, _estimate!.amount);
-    final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
+    final quiet = _ghostStyle(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -4165,7 +4182,7 @@ class _SendViewState extends ConsumerState<SendView> {
             busy: _busy,
             onPressed: _resendDirect,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           // The one destructive look (UP-012): gold says go, not stop.
           DangerButton(
             key: sendCancelPaymentKey,
@@ -4180,7 +4197,7 @@ class _SendViewState extends ConsumerState<SendView> {
             busy: _busy,
             onPressed: _send,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _done,
@@ -4195,7 +4212,7 @@ class _SendViewState extends ConsumerState<SendView> {
             busy: _busy,
             onPressed: _sendPublicFallback,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           if (_undelivered != null)
             TextButton(
               style: quiet,
@@ -4219,7 +4236,7 @@ class _SendViewState extends ConsumerState<SendView> {
             busy: _busy,
             onPressed: _cancelAndFile,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _done,
@@ -4231,7 +4248,7 @@ class _SendViewState extends ConsumerState<SendView> {
             label: l.sendPayWithFile,
             onPressed: _busy ? null : _toFileRoute,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _done,
@@ -4245,7 +4262,7 @@ class _SendViewState extends ConsumerState<SendView> {
             label: l.sendPayWithFile,
             onPressed: _busy ? null : _toFileRoute,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           TextButton(
             style: quiet,
             onPressed: canSend ? _send : null,
@@ -4264,7 +4281,7 @@ class _SendViewState extends ConsumerState<SendView> {
             busy: _busy,
             onPressed: canSend ? _send : null,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           TextButton(
             style: quiet,
             onPressed: _busy ? null : _backToAmount,
@@ -4332,9 +4349,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final noteText = _noteText;
     _header(context, '', onClose: _done);
     return [
-      const SizedBox(height: 8),
+      // Send-4: the ring 36 under the bar (the body's 14 is part of it), the title 28 under it.
+      const SizedBox(height: 22),
       Center(child: KitResultMark(ok: !cancelled)),
-      const SizedBox(height: 20),
+      const SizedBox(height: 28),
       Semantics(
         header: true,
         liveRegion: true,
@@ -4345,7 +4363,7 @@ class _SendViewState extends ConsumerState<SendView> {
               ? l.sendTrackCancelled
               : l.phoneSendOnItsWayTo(who),
           textAlign: TextAlign.center,
-          style: KitType.pageTitle.copyWith(color: t.text),
+          style: KitType.pageTitle.copyWith(fontSize: 26, letterSpacing: -0.52, color: t.text),
         ),
       ),
       const SizedBox(height: 8),
@@ -4354,9 +4372,9 @@ class _SendViewState extends ConsumerState<SendView> {
             ? l.txDetailsReceiverDeclined
             : metaLine([epicText(l, sent.amount), if (noteText.isNotEmpty) noteText]),
         textAlign: TextAlign.center,
-        style: (declined ? KitType.body : KitType.address).copyWith(color: t.dim),
+        style: (declined ? KitType.body : KitType.address.copyWith(fontSize: 17)).copyWith(color: t.dim),
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: 32),
       // Made while Epicbox was off: it waits in the outbox.
       if (sent.queued && name != null && waiting) ...[
         Semantics(
@@ -4432,6 +4450,14 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
+  /// `.btn.ghost` at the frames' 44: dim text, weight 500, no ground.
+  ButtonStyle _ghostStyle(BuildContext context) => TextButton.styleFrom(
+    foregroundColor: context.tokens.dim,
+    minimumSize: const Size.fromHeight(44),
+    textStyle: KitType.button.copyWith(fontWeight: FontWeight.w500),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Kit.rButton)),
+  );
+
   /// Done, and a quiet way to the payment's own page.
   Widget _sentAction(_Sent sent) {
     final l = context.l10n;
@@ -4440,9 +4466,9 @@ class _SendViewState extends ConsumerState<SendView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(Kit.hitMin)),
+          style: _ghostStyle(context),
           onPressed: () => Navigator.of(context).push<void>(
             MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: sent.tx.key)),
           ),

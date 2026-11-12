@@ -36341,6 +36341,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}\'s wallet can be offline. The payment finishes when it next opens.'**
   String phoneSendReviewHintOffline(String name);
+
+  /// Title of the help sheet behind the Send page's question mark.
+  ///
+  /// In en, this message translates to:
+  /// **'How sending works'**
+  String get phoneSendHelpTitle;
+
+  /// First step in the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'You choose who and how much'**
+  String get phoneSendHelpStep1;
+
+  /// Line under the first step of the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing leaves before you review it and enter your PIN.'**
+  String get phoneSendHelpStep1Sub;
+
+  /// Second step in the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet answers'**
+  String get phoneSendHelpStep2;
+
+  /// Line under the second step of the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment needs both wallets. With Epicbox theirs can answer later, when it next opens.'**
+  String get phoneSendHelpStep2Sub;
+
+  /// Third step in the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The network confirms it'**
+  String get phoneSendHelpStep3;
+
+  /// Line under the third step of the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'After a few blocks it is theirs to spend.'**
+  String get phoneSendHelpStep3Sub;
 }
 
 class _AppLocalizationsDelegate

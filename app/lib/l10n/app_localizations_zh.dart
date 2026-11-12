@@ -21879,4 +21879,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneSendReviewHintOffline(String name) {
     return '$name 的钱包可以离线。钱包下次打开时，付款即完成。';
   }
+
+  @override
+  String get phoneSendHelpTitle => '发送如何运作';
+
+  @override
+  String get phoneSendHelpStep1 => '你选择发给谁、发多少';
+
+  @override
+  String get phoneSendHelpStep1Sub => '在你检查并输入 PIN 之前，不会有任何内容发出。';
+
+  @override
+  String get phoneSendHelpStep2 => '对方的钱包回应';
+
+  @override
+  String get phoneSendHelpStep2Sub => '一笔付款需要双方钱包。使用 Epicbox 时，对方可以稍后在下次打开时回应。';
+
+  @override
+  String get phoneSendHelpStep3 => '网络确认';
+
+  @override
+  String get phoneSendHelpStep3Sub => '几个区块之后，对方就可以花费这笔钱。';
 }

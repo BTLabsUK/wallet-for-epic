@@ -6052,5 +6052,12 @@
   "phoneTourOffer": "ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม",
   "phoneTourOfferShow": "ดูเลย",
   "phoneSendNoteLabel": "บันทึก",
-  "phoneSendReviewHintOffline": "กระเป๋าของ {name} ออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง"
+  "phoneSendReviewHintOffline": "กระเป๋าของ {name} ออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง",
+  "phoneSendHelpTitle": "การส่งทำงานอย่างไร",
+  "phoneSendHelpStep1": "คุณเลือกผู้รับและจำนวน",
+  "phoneSendHelpStep1Sub": "จะไม่มีอะไรออกไปจนกว่าคุณจะตรวจสอบและใส่ PIN",
+  "phoneSendHelpStep2": "กระเป๋าของเขาตอบกลับ",
+  "phoneSendHelpStep2Sub": "การชำระเงินต้องใช้กระเป๋าทั้งสองใบ ผ่าน Epicbox กระเป๋าของเขาตอบทีหลังได้ เมื่อเปิดครั้งถัดไป",
+  "phoneSendHelpStep3": "เครือข่ายยืนยันรายการ",
+  "phoneSendHelpStep3Sub": "หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้"
 }

@@ -23914,4 +23914,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneSendReviewHintOffline(String name) {
     return 'Portfel $name może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.';
   }
+
+  @override
+  String get phoneSendHelpTitle => 'Jak działa wysyłanie';
+
+  @override
+  String get phoneSendHelpStep1 => 'Wybierasz, do kogo i ile';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'Nic nie wychodzi, zanim sprawdzisz płatność i wpiszesz PIN.';
+
+  @override
+  String get phoneSendHelpStep2 => 'Ich portfel odpowiada';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'Płatność wymaga obu portfeli. Przez Epicbox ich portfel może odpowiedzieć później, przy następnym otwarciu.';
+
+  @override
+  String get phoneSendHelpStep3 => 'Sieć ją potwierdza';
+
+  @override
+  String get phoneSendHelpStep3Sub => 'Po kilku blokach mogą ją wydać.';
 }

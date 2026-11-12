@@ -818,7 +818,10 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
       child: _Backdrop(
         child: SlotScaffold(
           body: SafeArea(
-            // Send draws its own header per step (close on Who, back later), as the frames do.
+            // Send draws its own header per step (close on Who, back later), as the frames do,
+            // and keeps its own insets: the review's sheet runs to the screen's edge.
+            top: !send,
+            bottom: !send,
             child: send
                 ? SendView(onDone: _done, back: _sendBack)
                 : Column(

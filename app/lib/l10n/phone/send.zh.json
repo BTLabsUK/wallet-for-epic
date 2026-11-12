@@ -20,5 +20,12 @@
   "phoneSendTheirOffline": "对方钱包可以离线",
   "phoneSendTheirOnline": "对方钱包必须打开",
   "phoneSendNoteLabel": "备注",
-  "phoneSendReviewHintOffline": "{name} 的钱包可以离线。钱包下次打开时，付款即完成。"
+  "phoneSendReviewHintOffline": "{name} 的钱包可以离线。钱包下次打开时，付款即完成。",
+  "phoneSendHelpTitle": "发送如何运作",
+  "phoneSendHelpStep1": "你选择发给谁、发多少",
+  "phoneSendHelpStep1Sub": "在你检查并输入 PIN 之前，不会有任何内容发出。",
+  "phoneSendHelpStep2": "对方的钱包回应",
+  "phoneSendHelpStep2Sub": "一笔付款需要双方钱包。使用 Epicbox 时，对方可以稍后在下次打开时回应。",
+  "phoneSendHelpStep3": "网络确认",
+  "phoneSendHelpStep3Sub": "几个区块之后，对方就可以花费这笔钱。"
 }

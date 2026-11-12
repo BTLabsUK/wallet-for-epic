@@ -31489,5 +31489,33 @@
         "type": "String"
       }
     }
+  },
+  "phoneSendHelpTitle": "How sending works",
+  "@phoneSendHelpTitle": {
+    "description": "Title of the help sheet behind the Send page's question mark."
+  },
+  "phoneSendHelpStep1": "You choose who and how much",
+  "@phoneSendHelpStep1": {
+    "description": "First step in the Send help sheet."
+  },
+  "phoneSendHelpStep1Sub": "Nothing leaves before you review it and enter your PIN.",
+  "@phoneSendHelpStep1Sub": {
+    "description": "Line under the first step of the Send help sheet."
+  },
+  "phoneSendHelpStep2": "Their wallet answers",
+  "@phoneSendHelpStep2": {
+    "description": "Second step in the Send help sheet."
+  },
+  "phoneSendHelpStep2Sub": "A payment needs both wallets. With Epicbox theirs can answer later, when it next opens.",
+  "@phoneSendHelpStep2Sub": {
+    "description": "Line under the second step of the Send help sheet."
+  },
+  "phoneSendHelpStep3": "The network confirms it",
+  "@phoneSendHelpStep3": {
+    "description": "Third step in the Send help sheet."
+  },
+  "phoneSendHelpStep3Sub": "After a few blocks it is theirs to spend.",
+  "@phoneSendHelpStep3Sub": {
+    "description": "Line under the third step of the Send help sheet."
   }
 }
