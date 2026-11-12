@@ -83,7 +83,9 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       ref
           .read(noticeProvider.notifier)
           .show(
-            context.l10n.nodeFailoverSwitched(serverHost(now.inUse)),
+            now.behind
+                ? context.l10n.deskNodeFailoverBehind(serverHost(now.inUse))
+                : context.l10n.nodeFailoverSwitched(serverHost(now.inUse)),
             level: NoticeLevel.info,
           );
     }

@@ -119,6 +119,7 @@ void main() {
   test('the notice text', () {
     final l = lookupAppLocalizations(const Locale('en'));
     expect(l.nodeFailoverSwitched('c.example'), 'Node not answering. Switched to c.example.');
+    expect(l.deskNodeFailoverBehind('c.example'), 'Node behind. Switched to c.example.');
     expect(l.nodeFailoverInsteadOf('a.example'), 'Instead of a.example');
     expect(l.advNodeFailoverHint, 'When your node stops answering, the wallet uses the next working node in your list for this session.');
   });
@@ -139,6 +140,20 @@ void main() {
         // Saved choice and list as they were.
         expect(h.container.read(hostSettingsProvider).nodeUse, _a);
         expect(serverListOf(h.container.read(hostSettingsProvider), ServerKind.node).entries, [_a, _b, _c, _d]);
+        h.dispose();
+      });
+    });
+
+    test('a node that answers behind the wallet is left after 30 s, as behind', () {
+      fakeAsync((async) {
+        final h = _Harness(async);
+        h.nodeBehind(504);
+        h.elapse(const Duration(seconds: 28));
+        expect(h.failover, isNull);
+        h.elapse(const Duration(seconds: 4));
+        expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_c]);
+        expect(h.failover?.inUse, _c);
+        expect(h.failover?.behind, isTrue);
         h.dispose();
       });
     });
@@ -315,6 +330,11 @@ class _Raw extends Notifier<WalletStatus> {
   WalletStatus build() => (node: const NodeStatus(NodeState.online), epicbox: null);
 
   void set(NodeState s) => state = (node: NodeStatus(s), epicbox: null);
+
+  void behind(int blocks) => state = (
+    node: NodeStatus(NodeState.offline, validated: false, behind: blocks),
+    epicbox: null,
+  );
 }
 
 final _raw = NotifierProvider<_Raw, WalletStatus>(_Raw.new);
@@ -401,6 +421,11 @@ class _Harness {
 
   void nodeDown() {
     container.read(_raw.notifier).set(NodeState.offline);
+    elapse(Duration.zero);
+  }
+
+  void nodeBehind(int blocks) {
+    container.read(_raw.notifier).behind(blocks);
     elapse(Duration.zero);
   }
 

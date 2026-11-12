@@ -208,6 +208,8 @@ class NodeFailoverWatch extends Notifier<void> {
           _ => FailoverHealth.unknown,
         },
       );
+      // A node that answers below what the wallet checked is left as behind, not as down.
+      final behind = ref.read(walletStatusProvider).node.behind != null;
       for (final url in candidates) {
         if (!_current(gen) || ref.read(sessionProvider) != session) return false;
         // Still not answering, and nothing being sent: a payment going out waits for no move.
@@ -221,7 +223,7 @@ class NodeFailoverWatch extends Notifier<void> {
           logWarn('network', 'node failover refused: ${e.runtimeType}');
           continue;
         }
-        ref.read(nodeFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url));
+        ref.read(nodeFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url, behind: behind));
         return false;
       }
       logInfo('network', 'node failover: no other node answers; staying');
