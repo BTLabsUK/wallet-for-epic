@@ -12,6 +12,7 @@ abstract final class KitIcons {
   static const IconData backLink = Icons.chevron_left_rounded;
   static const IconData close = Icons.close_rounded;
   static const IconData chevron = Icons.chevron_right_rounded;
+  static const IconData expandLess = Icons.expand_less_rounded;
   static const IconData help = Icons.help_outline_rounded;
   static const IconData more = Icons.more_horiz_rounded;
 

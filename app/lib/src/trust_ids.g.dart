@@ -60,6 +60,10 @@ abstract final class TrustIds {
   static const sendAmount = 'g4.send.amount';
   static const sendSwap = 'g4.send.swap';
   static const sendNote = 'g4.send.note';
+  static const sendReviewTo = 'g4.send.review.to';
+  static const sendReviewEdit = 'g4.send.review.edit';
+  static const sendReviewMore = 'g4.send.review.more';
+  static const sendViewpayment = 'g4.send.viewpayment';
   static const sendKey0 = 'g4.send.key.0';
   static const sendKey1 = 'g4.send.key.1';
   static const sendKey2 = 'g4.send.key.2';
@@ -440,6 +444,10 @@ abstract final class TrustIds {
     'g4.send.amount',
     'g4.send.swap',
     'g4.send.note',
+    'g4.send.review.to',
+    'g4.send.review.edit',
+    'g4.send.review.more',
+    'g4.send.viewpayment',
     'g4.send.key.0',
     'g4.send.key.1',
     'g4.send.key.2',
