@@ -28,8 +28,12 @@ poll_s = 30                    # desktop: new block check
 refresh_s = 60                 # full refresh
 recheck_s = 60                 # heights in the Node list
 stale_after_s = 180            # a height older than this is not shown as current
-failover_after_s = 30          # the node in use silent this long: try the next in the list
-failover_probe_s = 15
+failover_after_s = 30          # the node in use behind this long: a node ahead in the list is used
+failover_probe_s = 8           # one tip ask of a node (the node in use, and each failover probe), direct
+failover_tor_probe_s = 30      # the same over Tor
+failover_prefer_ms = 1500      # after the first good answer, how long a better-ranked node may still answer
+failover_retry_min_s = 2       # no node answered: the first wait before the next round, doubling...
+failover_retry_max_s = 60      # ...up to this, each wait +-20 %
 own_node_ask_s = 15            # a node of your own is asked directly this often
 
 [node.local]

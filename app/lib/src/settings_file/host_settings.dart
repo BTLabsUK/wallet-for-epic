@@ -194,6 +194,10 @@ class AppConfig {
   Duration get nodeStaleAfter => _s('node.stale_after_s');
   Duration get nodeFailoverAfter => _s('node.failover_after_s');
   Duration get nodeFailoverProbe => _s('node.failover_probe_s');
+  Duration get nodeFailoverTorProbe => _s('node.failover_tor_probe_s');
+  Duration get nodeFailoverPrefer => Duration(milliseconds: _int('node.failover_prefer_ms'));
+  Duration get nodeFailoverRetryMin => _s('node.failover_retry_min_s');
+  Duration get nodeFailoverRetryMax => _s('node.failover_retry_max_s');
   Duration get ownNodeAsk => _s('node.own_node_ask_s');
 
   // [contacts]

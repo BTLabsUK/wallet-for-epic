@@ -13,26 +13,50 @@
 /// starting (the node waits for Tor, it is not gone), and in Tor only only to a node reachable
 /// over Tor. Epicbox has no failover: another relay is another address.
 ///
-/// Pure Dart: the phone (`node_failover_phone.dart`) and the desktop
-/// (`desktop/data/desk_failover.dart`) watch their own status and call these.
+/// Pure Dart: the engine (`node_failover_engine.dart`) runs the rounds; the phone
+/// (`node_failover_phone.dart`) and the desktop feed it and call these.
 library;
 
 import 'dart:math' show min;
 
 import 'advanced.dart';
 import 'network_gate.dart';
+import 'node_failover_engine.dart' show FailoverScope, FailoverTimings;
 import 'node/local_node_state.dart' show syncedWithinBlocks;
 import 'server_list.dart';
 import 'tor_routes.dart';
 import 'settings_file/host_settings.dart' show appConfig;
 
-/// How long the node in use must have stopped answering before the wallet moves on to the
-/// next of the Node list (`node.failover_after_s`).
+/// How long the node in use may be behind before a node ahead of it is used
+/// (`node.failover_after_s`).
 Duration get nodeFailoverAfter => appConfig.nodeFailoverAfter;
 
-/// How long a node the wallet may move to has to answer a tip request (`node.failover_probe_s`).
+/// How long one tip ask of a node may take, direct (`node.failover_probe_s`).
 Duration get nodeFailoverProbe => appConfig.nodeFailoverProbe;
 
+/// How long one tip ask of [url] may take: over Tor while the switch is on and the node is not
+/// on this computer (`node.failover_tor_probe_s`), else direct (`node.failover_probe_s`).
+Duration nodeProbeBudget(String url, {required bool torOn}) =>
+    torOn && !isLocalNodeUrl(url) ? appConfig.nodeFailoverTorProbe : appConfig.nodeFailoverProbe;
+
+/// The engine's waits, from the app config.
+FailoverTimings get failoverTimings => FailoverTimings(
+  probe: appConfig.nodeFailoverProbe,
+  torProbe: appConfig.nodeFailoverTorProbe,
+  prefer: appConfig.nodeFailoverPrefer,
+  retryMin: appConfig.nodeFailoverRetryMin,
+  retryMax: appConfig.nodeFailoverRetryMax,
+  behindAfter: appConfig.nodeFailoverAfter,
+);
+
+/// What a round may ask under [hold] in [mode]: nothing in Kill switch or while the node waits
+/// for Tor; only the node in use while held otherwise; the whole list when nothing holds.
+FailoverScope failoverScope(FailoverHold? hold, NetworkMode mode) {
+  if (netModeOf(mode) == NetworkMode.killSwitch || hold == FailoverHold.waitingForTor) return FailoverScope.none;
+  return hold == null ? FailoverScope.all : FailoverScope.inUseOnly;
+}
+
+// desktop: goes with the desktop adapter (the engine's retry_min/max backoff replaces it).
 /// The waits after the first retry while no other node answers either: each try asks the
 /// whole list, so a wallet with no network does not ask it every 30 s for hours.
 const List<Duration> nodeFailoverBackoff = [
@@ -41,6 +65,7 @@ const List<Duration> nodeFailoverBackoff = [
   Duration(minutes: 5),
 ];
 
+// desktop: goes with the desktop adapter.
 /// How long to wait before the next try after [failed] tries in a row found no node:
 /// [first] (`node.failover_after_s`) after one, then [nodeFailoverBackoff], its last at most.
 /// A new network, the app's return or the node's answer starts over.
