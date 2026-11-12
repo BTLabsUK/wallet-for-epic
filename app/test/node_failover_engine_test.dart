@@ -134,6 +134,9 @@ void main() {
       async.elapse(const Duration(seconds: 1));
       expect(h.switched, isEmpty);
       expect(h.stays, 1);
+      // The status is about to confirm the answer: connecting until it does.
+      expect(h.engine.state, FailoverSearch.searching);
+      h.engine.nodeAnswered();
       expect(h.engine.state, FailoverSearch.idle);
     });
   });
@@ -179,6 +182,46 @@ void main() {
       async.elapse(const Duration(seconds: 40));
       expect(g.switched, isEmpty);
       expect(g.engine.state, FailoverSearch.idle);
+    });
+  });
+
+  test('a failing node that answers again but behind: the search ends, the behind wait starts', () {
+    fakeAsync((async) {
+      final h = _Harness()..height = 100;
+      h.engine.nodeFailed();
+      async.elapse(const Duration(seconds: 9));
+      expect(h.engine.state, FailoverSearch.noneAnswer);
+      h.nodes[_c] = _Node.answers(150);
+      h.engine.nodeBehind();
+      expect(h.engine.state, FailoverSearch.idle, reason: 'it answers: not offline');
+      async.elapse(const Duration(seconds: 29));
+      expect(h.switched, isEmpty);
+      async.elapse(const Duration(seconds: 3));
+      expect(h.switched, [_c]);
+    });
+  });
+
+  test('a move the status does not confirm is no fresh failure: the next round waits the backoff', () {
+    fakeAsync((async) {
+      final h = _Harness();
+      h.nodes[_b] = _Node.answers(100);
+      h.nodes[_c] = _Node.answers(100);
+      h.engine.nodeFailed();
+      async.elapse(const Duration(seconds: 2));
+      expect(h.switched, [_b]);
+      // Every refresh fails at once (not the node's fault): no hot loop between the nodes.
+      for (var i = 0; i < 15; i++) {
+        h.engine.nodeFailed();
+        h.engine.refreshEnded(validated: false);
+        async.elapse(const Duration(milliseconds: 100));
+      }
+      expect(h.switched, [_b]);
+      async.elapse(const Duration(seconds: 3));
+      expect(h.switched.length, lessThanOrEqualTo(2));
+      h.engine.nodeAnswered();
+      h.engine.nodeFailed();
+      async.flushMicrotasks();
+      expect(h.engine.running, isTrue, reason: 'after an answer a failure is fresh: a round at once');
     });
   });
 

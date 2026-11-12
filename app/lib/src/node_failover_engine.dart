@@ -178,7 +178,8 @@ class FailoverEngine {
   /// It has been behind for the whole wait: rounds may look for a node ahead.
   bool _behindRipe = false;
 
-  /// Rounds in a row that found nothing, for the backoff.
+  /// Rounds since the node last answered (none found, a stay, or a move the status has not
+  /// confirmed yet), for the backoff.
   int _failed = 0;
 
   /// Refreshes in a row that ended unvalidated while the tip answered.
@@ -205,8 +206,13 @@ class FailoverEngine {
       return;
     }
     _failing = true;
-    _failed = 0;
     _cancelBehind();
+    if (_failed > 0) {
+      // A move or a stay since the last answer did not bring the node back: the backoff goes
+      // on, so a wallet whose refresh fails on every node never loops between them.
+      if (!_running && _retry == null) _scheduleRetry();
+      return;
+    }
     _roundNow('node not answering');
   }
 
@@ -226,16 +232,25 @@ class FailoverEngine {
     if (!_failing) {
       nodeFailed();
     } else if (_skipInUse && !_running) {
-      _retry?.cancel();
-      _retry = null;
-      _roundNow('refresh failed');
+      if (_failed == 0) {
+        _retry?.cancel();
+        _retry = null;
+        _roundNow('refresh failed');
+      } else if (_retry == null) {
+        _scheduleRetry();
+      }
     }
   }
 
   /// The node in use answers but is behind. After [FailoverTimings.behindAfter] a round looks for
   /// a node ahead of it.
   void nodeBehind() {
-    if (_disposed || _failing || _behind) return;
+    if (_disposed) return;
+    if (_failing) {
+      // It answers again: the failure is over, the behind wait starts.
+      nodeAnswered();
+    }
+    if (_behind) return;
     _behind = true;
     _behindRipe = false;
     _failed = 0;
@@ -393,7 +408,9 @@ class FailoverEngine {
     for (final url in best) {
       if (sameServer(ServerKind.node, url, p.inUse) && !behindRound) {
         _running = false;
-        _set(FailoverSearch.idle);
+        // It answered the probe and the status is about to confirm it: connecting is the truth
+        // until nodeAnswered ends the search (or a later round finds nothing).
+        _set(_failing ? FailoverSearch.searching : FailoverSearch.idle);
         log?.call('node failover: stay on ${_host(url)}');
         stay?.call();
         // The node answered the round; the status confirms it. Until then the next round waits.
@@ -412,7 +429,8 @@ class FailoverEngine {
         _running = false;
         _failing = false;
         _cancelBehind();
-        _failed = 0;
+        // Counted until the new node answers (nodeAnswered starts the backoff over).
+        _failed++;
         _set(FailoverSearch.idle);
         log?.call('node failover: moved to ${_host(url)}');
         return;
