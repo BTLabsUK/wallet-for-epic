@@ -6,6 +6,7 @@
 //   flutter test tool/flow_map_desk_settings_test.dart
 // (DESK_SHOTS_OUT, DESK_SHOTS_SIZE, DESK_SHOTS_LANG, SHOTS_META, LAYOUT_AUDIT as in the tour.)
 import 'package:epic_wallet/src/desktop/app/desk_window.dart' show PictureDeskWindow, deskWindowProvider;
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -99,9 +100,19 @@ Future<void> _type(WidgetTester t, int index, String text) async {
   await t.pump(const Duration(milliseconds: 100));
 }
 
+/// [label] and what it reads in the shot language: the value of every key whose English text is
+/// [label], from `lib/l10n/app_<lang>.arb` (one label can come from several keys).
+Set<String> _labels(String label) {
+  if (_lang == 'en') return {label};
+  Map<String, dynamic> arb(String l) => jsonDecode(File('lib/l10n/app_$l.arb').readAsStringSync()) as Map<String, dynamic>;
+  final en = arb('en'), loc = arb(_lang);
+  return {label, for (final e in en.entries) if (e.value == label && loc[e.key] is String) loc[e.key] as String};
+}
+
 /// Presses the button labelled [label] (the last one on stage when several carry it).
 Future<void> _press(WidgetTester t, String label, {bool first = false}) async {
-  final f = find.byWidgetPredicate((w) => w is EButton && w.label == label);
+  final labels = _labels(label);
+  final f = find.byWidgetPredicate((w) => w is EButton && labels.contains(w.label));
   expect(f, findsWidgets, reason: 'a button "$label"');
   await t.tap(first ? f.first : f.last);
   await t.pump(const Duration(milliseconds: 100));
