@@ -147,6 +147,8 @@ void main() {
       final observer = _Observer(pushed);
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           navigatorObservers: [observer],
           home: Builder(
             builder: (c) {
