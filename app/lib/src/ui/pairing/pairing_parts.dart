@@ -18,13 +18,13 @@ import '../../contact_label.dart';
 import '../contact_label_mark.dart';
 import '../contact_page.dart' show contactInitials;
 import '../info_hint.dart';
+import '../kit/kit_avatar.dart';
 import '../kit/kit_group.dart';
 import '../kit/kit_row.dart';
 import '../kit/kit_tokens.dart';
 import '../notices.dart' show InlineNotice, NoticeLevel;
 import '../sas_picture.dart';
 import '../status_icons.dart';
-import '../theme/brand.dart';
 import '../theme/epic1_mark.dart' show Epic1Text;
 import '../theme/tokens.dart';
 
@@ -314,7 +314,7 @@ class SealedBadge extends StatelessWidget {
   }
 }
 
-/// A contact's avatar: its initials in a corner-ticked tile, in the accent's text colour.
+/// A contact's avatar: the frames' plain initials tile ([KitAvatar]) at [size], with the label mark.
 class PairAvatar extends StatelessWidget {
   const PairAvatar({
     super.key,
@@ -341,19 +341,7 @@ class PairAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    final tile = GlyphTile(
-      size: size,
-      child: Text(
-        contactInitials(name),
-        style: TextStyle(
-          fontFamily: t.headFamily,
-          fontSize: size * 0.35,
-          fontWeight: FontWeight.w600,
-          color: t.accentText,
-        ),
-      ),
-    );
+    final tile = KitAvatar(initials: contactInitials(name), size: size);
     return AvatarLabelMark(avatar: tile, size: size, label: label, onTap: onLabelTap, hit: labelHit, tip: labelTip);
   }
 }

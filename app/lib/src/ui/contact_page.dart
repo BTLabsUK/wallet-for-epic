@@ -27,6 +27,7 @@ import 'app_dialog.dart';
 import 'common.dart';
 import 'inline_button.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
+import 'kit/kit_avatar.dart';
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
 import 'kit/kit_corner_marks.dart';
@@ -887,25 +888,7 @@ class _MoreMark extends StatelessWidget {
 }
 
 /// `.av` on the contact page: 56 square, radius 18, initials 17.
-class _FaceAvatar extends StatelessWidget {
-  const _FaceAvatar(this.initials);
-
-  final String initials;
-
-  static const double side = 56;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      width: side,
-      height: side,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(18)),
-      child: Text(initials, style: KitType.initials.copyWith(color: t.accentText, fontSize: 17), maxLines: 1, textScaler: TextScaler.noScaling),
-    );
-  }
-}
+const double _faceSide = 56;
 
 class _Header extends ConsumerWidget {
   const _Header({
@@ -947,14 +930,14 @@ class _Header extends ConsumerWidget {
         // The label mark's touch box reaches below the avatar: overlaid, not laid out, so the
         // name sits where the frame has it.
         SizedBox(
-          height: _FaceAvatar.side,
+          height: _faceSide,
           child: OverflowBox(
             alignment: Alignment.topCenter,
             minHeight: 0,
             maxHeight: double.infinity,
             child: AvatarLabelMark(
-              avatar: _FaceAvatar(contactInitials(contact.name)),
-              size: _FaceAvatar.side,
+              avatar: KitAvatar(initials: contactInitials(contact.name), size: _faceSide, initialsSize: 17),
+              size: _faceSide,
               // The plain wallet draws no mark (the frame has none); Label in the menu sets it.
               label: contact.label.listMark,
               onTap: () => _pickLabel(context, ref, contact),
