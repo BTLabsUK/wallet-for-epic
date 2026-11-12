@@ -20301,5 +20301,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneTxCancelledIncoming => '如果发送方之后广播这笔付款，它仍会到账。';
 
   @override
-  String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
+  String get phoneHomeFirstPayment => '你的第一笔付款';
+
+  @override
+  String get phoneHomeFirstPaymentHint => '到账后显示在这里';
 }

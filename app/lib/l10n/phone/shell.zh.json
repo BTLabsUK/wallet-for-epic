@@ -13,7 +13,8 @@
   "phoneHomeInvoiceBody": "{amount}。在你批准之前不会付款。",
   "phoneHomeBalanceLastKnown": "可用 · 最近已知",
   "phoneHomeBalanceSheetHint": "余额详情",
-  "phoneHomeEmpty": "还没有付款。先收一些 EPIC 开始吧。",
+  "phoneHomeFirstPayment": "你的第一笔付款",
+  "phoneHomeFirstPaymentHint": "到账后显示在这里",
   "phoneTourOffer": "要不要快速看看钱包的功能?",
   "phoneTourOfferShow": "带我看看"
 }

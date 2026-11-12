@@ -22112,6 +22112,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Если отправитель опубликует платёж позже, он всё равно поступит.';
 
   @override
-  String get phoneHomeEmpty =>
-      'Платежей пока нет. Получите немного EPIC, чтобы начать.';
+  String get phoneHomeFirstPayment => 'Ваш первый платёж';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Появится здесь, когда поступит';
 }

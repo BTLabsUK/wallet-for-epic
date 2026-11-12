@@ -276,6 +276,18 @@ void main() {
       expect(_overlay, findsNothing);
     });
 
+    testWidgets('the close mark puts the offer away; the tour stays unopened and seen', (tester) async {
+      final rig = await _pump(tester);
+      await _startAuto(tester);
+      expect(_offer, findsOneWidget);
+      await tester.tap(find.byKey(phoneTourOfferCloseKey));
+      await tester.pumpAndSettle();
+      expect(_offer, findsNothing);
+      expect(_overlay, findsNothing);
+      expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('no offer when it was seen', (tester) async {
       await _pump(tester, seen: true);
       await _startAuto(tester);

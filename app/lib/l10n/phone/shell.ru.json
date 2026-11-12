@@ -13,7 +13,8 @@
   "phoneHomeInvoiceBody": "{amount}. Ничего не оплачивается, пока вы не подтвердите.",
   "phoneHomeBalanceLastKnown": "Доступно · последнее известное",
   "phoneHomeBalanceSheetHint": "Подробности баланса",
-  "phoneHomeEmpty": "Платежей пока нет. Получите немного EPIC, чтобы начать.",
+  "phoneHomeFirstPayment": "Ваш первый платёж",
+  "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит",
   "phoneTourOffer": "Показать, как устроен кошелёк?",
   "phoneTourOfferShow": "Показать"
 }

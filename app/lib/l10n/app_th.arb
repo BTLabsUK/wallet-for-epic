@@ -5600,5 +5600,6 @@
   "phoneKitPickerSaveFailed": "ไม่ได้บันทึก ลองอีกครั้ง",
   "phoneTxCancelledByUser": "ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ",
   "phoneTxCancelledIncoming": "ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า",
-  "phoneHomeEmpty": "ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น"
+  "phoneHomeFirstPayment": "การชำระเงินครั้งแรกของคุณ",
+  "phoneHomeFirstPaymentHint": "จะแสดงที่นี่เมื่อมาถึง"
 }

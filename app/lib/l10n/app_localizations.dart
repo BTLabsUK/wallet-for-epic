@@ -33673,11 +33673,17 @@ abstract class AppLocalizations {
   /// **'If the sender posts it later, it still arrives.'**
   String get phoneTxCancelledIncoming;
 
-  /// Empty Home: what stands under the Recent heading before the first payment
+  /// Empty Home, under the Recent heading: the title of the first, still empty row of the payment list. Names what will stand there. Two or three words, no full stop.
   ///
   /// In en, this message translates to:
-  /// **'No payments yet. Receive some EPIC to begin.'**
-  String get phoneHomeEmpty;
+  /// **'Your first payment'**
+  String get phoneHomeFirstPayment;
+
+  /// Empty Home: the line under 'Your first payment' in the empty row. Says the payment shows in this place once it comes in. Short, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears here when it arrives'**
+  String get phoneHomeFirstPaymentHint;
 }
 
 class _AppLocalizationsDelegate

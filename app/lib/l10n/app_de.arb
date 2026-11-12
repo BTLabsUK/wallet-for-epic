@@ -5600,5 +5600,6 @@
   "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal.",
   "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
   "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
-  "phoneHomeEmpty": "Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen."
+  "phoneHomeFirstPayment": "Deine erste Zahlung",
+  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt"
 }

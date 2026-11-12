@@ -21738,6 +21738,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
 
   @override
-  String get phoneHomeEmpty =>
-      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
+  String get phoneHomeFirstPayment => 'Deine erste Zahlung';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Erscheint hier, sobald sie ankommt';
 }

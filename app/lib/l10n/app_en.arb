@@ -29190,8 +29190,12 @@
   "@phoneTxCancelledIncoming": {
     "description": "Payment details of a cancelled receive, under the Cancelled chip: no repeated word."
   },
-  "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
-  "@phoneHomeEmpty": {
-    "description": "Empty Home: what stands under the Recent heading before the first payment"
+  "phoneHomeFirstPayment": "Your first payment",
+  "@phoneHomeFirstPayment": {
+    "description": "Empty Home, under the Recent heading: the title of the first, still empty row of the payment list. Names what will stand there. Two or three words, no full stop."
+  },
+  "phoneHomeFirstPaymentHint": "Appears here when it arrives",
+  "@phoneHomeFirstPaymentHint": {
+    "description": "Empty Home: the line under 'Your first payment' in the empty row. Says the payment shows in this place once it comes in. Short, no full stop."
   }
 }

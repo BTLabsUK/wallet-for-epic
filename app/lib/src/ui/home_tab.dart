@@ -84,6 +84,15 @@ class HomeTab extends ConsumerWidget {
     final data = home.value;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
     final recent = pendingFirst(transactions).take(recentActivityCount).toList();
+    // A wallet before its first payment, at rest: nothing found yet and no search under way.
+    final fresh =
+        data != null &&
+        transactions.isEmpty &&
+        !restoreUnfinished &&
+        !importOffer &&
+        !scan.running &&
+        scan.error == null &&
+        !home.hasError;
     final t = context.tokens;
     return SafeArea(
       bottom: false,
@@ -101,7 +110,7 @@ class HomeTab extends ConsumerWidget {
                     // Pull to refresh works on a short list too.
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                      SliverToBoxAdapter(child: _Balance(summary: data?.summary, transactions: transactions)),
+                      SliverToBoxAdapter(child: _Balance(summary: data?.summary, transactions: transactions, fresh: fresh)),
                       SliverPadding(
                         padding: const EdgeInsets.only(bottom: 16),
                         sliver: SliverList.list(
@@ -126,7 +135,7 @@ class HomeTab extends ConsumerWidget {
                                 padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, homeCardGap),
                                 child: ErrorText(describeError(l, home.error!)),
                               ),
-                            _Recent(loaded: data != null, recent: recent),
+                            _Recent(loaded: data != null, recent: recent, fresh: fresh),
                           ],
                         ),
                       ),
@@ -195,12 +204,17 @@ class _HomeHeader extends ConsumerWidget {
 /// The balance block: the caption with the eye, the figure with its unit, the fiat line, the
 /// chips for money on its way, and Send and Receive. A tap on the figure opens the balance
 /// sheet. With no balance yet a placeholder holds the figure's place; with no connection the
-/// last known figure shows and the caption says so.
+/// last known figure shows and the caption says so. A [fresh] wallet with nothing in it has
+/// nothing to send: Receive is the gold button there, and Send takes it back with the first
+/// payment.
 class _Balance extends ConsumerWidget {
-  const _Balance({required this.summary, required this.transactions});
+  const _Balance({required this.summary, required this.transactions, required this.fresh});
 
   final WalletSummary? summary;
   final List<TxEntry> transactions;
+
+  /// No payment yet and nothing being searched for (see [HomeTab]).
+  final bool fresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -215,6 +229,7 @@ class _Balance extends ConsumerWidget {
     final fiat = figure == null ? null : phoneFiat(l, figure, display, approx: true);
     final arriving = summary == null ? BigInt.zero : comingIn(summary);
     final inSends = summary?.locked ?? BigInt.zero;
+    final receiveFirst = fresh && figure == BigInt.zero;
     void openSheet() {
       final s = summary;
       if (s == null) return;
@@ -323,6 +338,7 @@ class _Balance extends ConsumerWidget {
                         child: KitButton(
                           label: l.homeSendButton,
                           icon: KitIcons.send,
+                          kind: receiveFirst ? KitButtonKind.quiet : KitButtonKind.gold,
                           onPressed: () => showShellFlow(context, ShellFlow.send),
                           semanticsId: TrustIds.tabSend,
                         ),
@@ -332,7 +348,7 @@ class _Balance extends ConsumerWidget {
                         child: KitButton(
                           label: l.homeReceiveButton,
                           icon: KitIcons.receive,
-                          kind: KitButtonKind.quiet,
+                          kind: receiveFirst ? KitButtonKind.gold : KitButtonKind.quiet,
                           onPressed: () => showShellFlow(context, ShellFlow.receive),
                           semanticsId: TrustIds.tabReceive,
                         ),
@@ -468,19 +484,22 @@ class BalanceSheet extends StatelessWidget {
   }
 }
 
-/// The "Recent" heading and its rows, or nothing before the first payment. [loaded] is false until the first read.
+/// The "Recent" heading and its rows. Before the first payment a [fresh] wallet shows the list
+/// as empty slots ([_RecentSlots]); a wallet that is being restored or searched shows nothing.
+/// [loaded] is false until the first read.
 class _Recent extends ConsumerWidget {
-  const _Recent({required this.loaded, required this.recent});
+  const _Recent({required this.loaded, required this.recent, required this.fresh});
 
   final bool loaded;
   final List<TxEntry> recent;
+  final bool fresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
     if (!loaded) return const SizedBox.shrink();
-    if (recent.isEmpty) return const SizedBox.shrink();
+    if (recent.isEmpty) return fresh ? const _RecentSlots() : const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -510,4 +529,145 @@ class _Recent extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Recent before the first payment: the heading, and the list drawn as empty slots that fade
+/// out downwards. The first slot says what lands in it. Nothing here takes a tap, and the first
+/// payment's row takes the first slot's place without moving the list.
+class _RecentSlots extends ConsumerWidget {
+  const _RecentSlots();
+
+  /// The lines that stand in for a name, a date and an amount, one set per empty slot.
+  static const List<(double, double, double)> _lines = [(132, 84, 52), (108, 96, 44), (120, 72, 48)];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        KitSectionHead(
+          l.phoneHomeRecent,
+          top: ref.watch(homeSlotVisibleProvider).isEmpty ? 18 : 13,
+          // No "See all" yet. Its height stays, so the heading and the list sit where they
+          // will when the first payment lands.
+          trailing: const SizedBox(height: Kit.touchMin),
+        ),
+        ShaderMask(
+          blendMode: BlendMode.dstIn,
+          // Only the alpha counts: whole at the top, gone at the bottom.
+          shaderCallback: (rect) => LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [t.bg, t.bg.withValues(alpha: 0)],
+            stops: const [0.36, 1],
+          ).createShader(rect),
+          child: KitGroup(
+            children: [
+              KitRow(
+                leading: const _Slot(icon: KitIcons.receive),
+                title: l.phoneHomeFirstPayment,
+                subtitle: l.phoneHomeFirstPaymentHint,
+                subtitleLines: 2,
+              ),
+              for (final (name, date, amount) in _lines)
+                ExcludeSemantics(child: _SlotRow(name: name, date: date, amount: amount)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// An avatar's place with nothing in it yet: 40, radius 13, a dashed outline, and the [icon] of
+/// what will fill it on the first one.
+class _Slot extends StatelessWidget {
+  const _Slot({this.icon});
+
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return CustomPaint(
+      painter: _DashedOutline(t.faint.withValues(alpha: 0.5)),
+      child: SizedBox.square(
+        dimension: Kit.avatar,
+        child: icon == null ? null : Center(child: ExcludeSemantics(child: Icon(icon, size: 18, color: t.dim))),
+      ),
+    );
+  }
+}
+
+/// One empty slot of the list: the avatar's outline and three quiet lines where a payment's
+/// name, date and amount go. The height and the padding are a list row's.
+class _SlotRow extends StatelessWidget {
+  const _SlotRow({required this.name, required this.date, required this.amount});
+
+  final double name;
+  final double date;
+  final double amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    Widget line(double width) => Container(
+      width: width,
+      height: 8,
+      decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(4)),
+    );
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: Kit.rowList),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          children: [
+            const _Slot(),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [line(name), const SizedBox(height: 9), line(date)],
+              ),
+            ),
+            line(amount),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A dashed rounded square, the outline of an avatar that is not there yet.
+class _DashedOutline extends CustomPainter {
+  const _DashedOutline(this.color);
+
+  final Color color;
+
+  static const double _stroke = 1.5;
+  static const double _dash = 4;
+  static const double _gap = 3;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _stroke
+      ..strokeCap = StrokeCap.round;
+    final outline = Path()
+      ..addRRect(RRect.fromRectAndRadius((Offset.zero & size).deflate(_stroke / 2), const Radius.circular(Kit.rAvatar)));
+    for (final metric in outline.computeMetrics()) {
+      for (var at = 0.0; at < metric.length; at += _dash + _gap) {
+        final end = at + _dash;
+        canvas.drawPath(metric.extractPath(at, end > metric.length ? metric.length : end), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedOutline old) => old.color != color;
 }

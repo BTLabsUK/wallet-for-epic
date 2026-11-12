@@ -22118,6 +22118,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Jeśli nadawca opublikuje płatność później, i tak dotrze.';
 
   @override
-  String get phoneHomeEmpty =>
-      'Brak płatności. Odbierz trochę EPIC, aby zacząć.';
+  String get phoneHomeFirstPayment => 'Twoja pierwsza płatność';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Pojawi się tutaj, gdy dotrze';
 }

@@ -21074,5 +21074,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
-  String get phoneHomeEmpty => 'ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น';
+  String get phoneHomeFirstPayment => 'การชำระเงินครั้งแรกของคุณ';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'จะแสดงที่นี่เมื่อมาถึง';
 }

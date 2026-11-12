@@ -21490,5 +21490,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'If the sender posts it later, it still arrives.';
 
   @override
-  String get phoneHomeEmpty => 'No payments yet. Receive some EPIC to begin.';
+  String get phoneHomeFirstPayment => 'Your first payment';
+
+  @override
+  String get phoneHomeFirstPaymentHint => 'Appears here when it arrives';
 }

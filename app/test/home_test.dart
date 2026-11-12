@@ -17,7 +17,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
-import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton, KitButtonKind;
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
 import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/kit/kit_steps.dart' show KitSteps;
@@ -112,6 +112,19 @@ WalletSummary _summary({BigInt? spendable}) => WalletSummary(
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
   locked: _epic(2),
+  validatedWithNode: true,
+);
+
+/// A new wallet: nothing in it, nothing on its way.
+WalletSummary _emptySummary() => WalletSummary(
+  lastConfirmedHeight: _tip,
+  minimumConfirmations: BigInt.from(3),
+  total: BigInt.zero,
+  spendable: BigInt.zero,
+  awaitingConfirmation: BigInt.zero,
+  awaitingFinalization: BigInt.zero,
+  immature: BigInt.zero,
+  locked: BigInt.zero,
   validatedWithNode: true,
 );
 
@@ -2032,16 +2045,30 @@ void main() {
   });
 
   group('first run', () {
-    testWidgets('an empty wallet shows nothing under the buttons', (
+    testWidgets('an empty wallet shows Recent as empty slots, and Receive is the gold button', (
       tester,
     ) async {
-      final h = _Harness(transactions: const []);
+      final h = _Harness(session: FakeWalletSession(summary: _emptySummary(), transactions: const []));
       await h.pump(tester);
       expect(find.text('No payments yet'), findsNothing);
-      expect(find.text(_l.phoneHomeRecent), findsNothing);
+      expect(find.text(_l.phoneHomeRecent), findsOneWidget);
+      expect(find.text(_l.phoneHomeFirstPayment), findsOneWidget);
+      expect(find.text(_l.phoneHomeFirstPaymentHint), findsOneWidget);
       expect(find.textContaining('while this app is open'), findsNothing);
       expect(find.text('See all'), findsNothing);
       expect(find.text('Show my address'), findsNothing);
+      KitButtonKind kind(String label) => tester.widget<KitButton>(find.widgetWithText(KitButton, label)).kind;
+      expect(kind(_l.homeReceiveButton), KitButtonKind.gold);
+      expect(kind(_l.homeSendButton), KitButtonKind.quiet);
+    });
+
+    testWidgets('with money or a payment, Send is the gold button and the slots are gone', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(find.text(_l.phoneHomeFirstPayment), findsNothing);
+      KitButtonKind kind(String label) => tester.widget<KitButton>(find.widgetWithText(KitButton, label)).kind;
+      expect(kind(_l.homeSendButton), KitButtonKind.gold);
+      expect(kind(_l.homeReceiveButton), KitButtonKind.quiet);
     });
   });
 
