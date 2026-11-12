@@ -143,6 +143,7 @@ class DeskFailoverWatch extends Notifier<void> {
         if (_current(gen)) ref.read(deskFailoverSearchProvider.notifier).set(s);
       },
       log: (line) => logInfo('desk', line),
+      freshConnections: () => ref.read(deskApiProvider).dropNodeConnections(),
     );
     _engine = engine;
     ref.onDispose(engine.dispose);

@@ -235,11 +235,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // The clipboard is never read here: a pairing link is pasted on the Pair page by a press.
     _focus = AppLifecycleListener(
       onResume: () {
+        // First, so no request below goes out on a node connection the system cut: kept-open ones
+        // are dropped, and a node still not answering is asked again at once.
+        ref.read(deskFailoverWatchProvider.notifier).resumed();
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
         unawaited(ref.read(deskNameServiceProvider)?.sync(NameServiceSyncTrigger.resume));
-        // A node still not answering is asked again at once.
-        ref.read(deskFailoverWatchProvider.notifier).resumed();
         // The contacts' mailboxes too, as the phone does on resume (the shell exists only
         // unlocked; the collect itself stays off in Node only, Kill switch and with Epicbox off).
         if (mounted) _collect(PairingCollectTrigger.open);

@@ -442,6 +442,9 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
       _inner.setServers(config: config);
 
   @override
+  void dropNodeConnections() => _inner.dropNodeConnections();
+
+  @override
   Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
       _inner.nodeTipFor(config: config);
 

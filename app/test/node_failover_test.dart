@@ -275,6 +275,37 @@ void main() {
       });
     });
 
+    test('a resume or a network change with a session open asks the wallet for fresh connections', () {
+      fakeAsync((async) {
+        final h = _Harness(async);
+        final before = h.session.nodeConnectionDrops;
+        h.container.read(nodeFailoverWatchProvider.notifier).resumed();
+        h.elapse(Duration.zero);
+        expect(h.session.nodeConnectionDrops, before + 1);
+        unawaited(h.container.read(nodeRecheckProvider.notifier).recheck('network'));
+        h.elapse(Duration.zero);
+        expect(h.session.nodeConnectionDrops, before + 2);
+        h.dispose();
+      });
+    });
+
+    test('a node that stops answering: fresh connections once, before the first probe', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a, _c, _d});
+        final before = h.session.nodeConnectionDrops;
+        var atProbe = -1;
+        h.session.onNodeTipFor = () {
+          if (atProbe < 0) atProbe = h.session.nodeConnectionDrops;
+        };
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 1));
+        expect(atProbe, before + 1, reason: 'dropped before the first node was asked');
+        h.elapse(const Duration(seconds: 30));
+        expect(h.session.nodeConnectionDrops, before + 1, reason: 'later rounds do not');
+        h.dispose();
+      });
+    });
+
     test('switch off: the node in use is asked again, the wallet never moves', () {
       fakeAsync((async) {
         final h = _Harness(async, prefs: AdvancedPrefs.none.withNodeFailover(false));

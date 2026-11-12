@@ -113,8 +113,9 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         _awayTimer = null;
         // An update that waited for the install permission carries on, lock or no lock.
         unawaited(ref.read(updateProvider.notifier).resumed());
-        _resumeScan();
+        // First: the scan's first request must not go out on a connection the system cut.
         ref.read(nodeFailoverWatchProvider.notifier).resumed();
+        _resumeScan();
         ref.read(relaySwitchProvider.notifier).resumed();
         if (ref.exists(priceProvider)) ref.read(priceProvider.notifier).resumed();
         if (ref.read(autoLockHoldProvider) > 0) {

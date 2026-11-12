@@ -101,6 +101,7 @@ class NodeFailoverWatch extends Notifier<void> {
         if (_current(gen)) ref.read(nodeFailoverSearchProvider.notifier).set(s);
       },
       log: (line) => logInfo('network', line),
+      freshConnections: () => ref.read(sessionProvider)?.dropNodeConnections(),
     );
     _engine = engine;
     if (!_onScreen) engine.pause();

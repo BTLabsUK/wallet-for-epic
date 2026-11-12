@@ -343,6 +343,10 @@ abstract interface class DeskWalletApi {
   /// moves to the new address when it is on the built-in node, else nothing happens.
   Future<void> followBuiltInNode();
   Future<NodeServer> checkNode(String url);
+
+  /// Kept-open node connections of the open wallet are not reused. Never throws; no I/O; nothing
+  /// with no wallet open.
+  void dropNodeConnections();
   Future<void> addNode(NodeServer node);
   Future<void> useEpicbox(String domain);
 

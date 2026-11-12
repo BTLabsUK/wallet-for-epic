@@ -360,6 +360,10 @@ abstract interface class WalletSession {
   /// [WalletErrorKind.nodeUnreachable] when the node does not answer.
   Future<NodeTip> nodeTipFor({required WalletConfig config});
 
+  /// Kept-open node connections are not reused: the next node request opens a new one. Never
+  /// throws; no I/O.
+  void dropNodeConnections();
+
   Future<void> stopListener();
 
   /// Sends to the wallet listening at [url], `http(s)://host[:port][/path]`, then finalizes
@@ -1892,6 +1896,12 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
 
   @override
   Future<void> stopListener() async => listenerStops++;
+
+  /// Every [dropNodeConnections] call.
+  int nodeConnectionDrops = 0;
+
+  @override
+  void dropNodeConnections() => nodeConnectionDrops++;
 
   /// Every [nodeTipFor] call, in order.
   final List<WalletConfig> nodeTipsFor = [];

@@ -59,6 +59,7 @@ class _Harness {
       plan: () => FailoverPlan(inUse: inUse, chosen: chosen, candidates: candidates, scope: scope, height: height),
       timings: () => _t,
       stay: () => stays++,
+      freshConnections: () => dropsAt.add(asked.length),
       onState: states.add,
       log: (line) {
         lines.add(line);
@@ -82,6 +83,9 @@ class _Harness {
   final roundsAt = <Duration>[];
   final Duration Function()? clock;
   int stays = 0;
+
+  /// How many nodes had been asked at each ask for fresh connections.
+  final dropsAt = <int>[];
 }
 
 void main() {
@@ -264,6 +268,38 @@ void main() {
       expect(h.lines, contains('node failover: kick (network)'));
       async.elapse(const Duration(seconds: 1));
       expect(h.lines.last, matches(RegExp(r'next in [12]s')), reason: 'backoff starts over');
+    });
+  });
+
+  test('a kick, a resume and the start of a search ask for fresh connections; later rounds of the same search do not', () {
+    fakeAsync((async) {
+      final h = _Harness();
+      h.engine.kick('network');
+      expect(h.dropsAt, [0], reason: 'a kick asks, also when nothing runs');
+      h.engine.pause();
+      h.engine.resume();
+      expect(h.dropsAt, [0, 0]);
+      h.dropsAt.clear();
+
+      h.engine.nodeFailed();
+      async.flushMicrotasks();
+      expect(h.dropsAt, [0], reason: 'once, before the first round asks any node');
+      expect(h.asked, isNotEmpty);
+      // Later rounds of the same search: backoff rounds, a second failure signal.
+      h.engine.nodeFailed();
+      for (var i = 0; i < 4; i++) {
+        async.elapse(const Duration(seconds: 61));
+      }
+      expect(h.asked.length, greaterThan(4), reason: 'more rounds ran');
+      expect(h.dropsAt, [0]);
+
+      // An unvalidated refresh starts a search too.
+      final g = _Harness();
+      g.engine.refreshEnded(validated: false);
+      async.flushMicrotasks();
+      expect(g.dropsAt, [0]);
+      g.engine.refreshEnded(validated: false);
+      expect(g.dropsAt, [0], reason: 'the same search');
     });
   });
 

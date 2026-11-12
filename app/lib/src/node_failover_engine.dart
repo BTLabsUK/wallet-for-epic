@@ -132,6 +132,7 @@ class FailoverEngine {
     this.stay,
     this.onState,
     this.log,
+    this.freshConnections,
     Timer Function(Duration wait, void Function() run)? timer,
     Random? random,
   }) : _timer = timer ?? Timer.new,
@@ -157,6 +158,9 @@ class FailoverEngine {
 
   /// One log line (hosts only).
   final void Function(String line)? log;
+
+  /// Asks the wallet to stop reusing kept-open node connections.
+  final void Function()? freshConnections;
 
   final Timer Function(Duration wait, void Function() run) _timer;
   final Random _random;
@@ -206,6 +210,8 @@ class FailoverEngine {
       return;
     }
     _failing = true;
+    // A search begins: its first round must not ask on a connection the system cut.
+    _fresh();
     _cancelBehind();
     if (_failed > 0) {
       // A move or a stay since the last answer did not bring the node back: the backoff goes
@@ -285,6 +291,8 @@ class FailoverEngine {
   /// waiting round runs now and the backoff starts over.
   void kick(String why) {
     if (_disposed) return;
+    // The network may have changed, whether or not a search runs.
+    _fresh();
     _failed = 0;
     if (!_failing && !(_behind && _behindRipe)) return;
     log?.call('node failover: kick ($why)');
@@ -323,7 +331,9 @@ class FailoverEngine {
 
   /// The app is back: a round runs at once if the node was failing or behind.
   void resume() {
-    if (_disposed || !_paused) return;
+    if (_disposed) return;
+    _fresh();
+    if (!_paused) return;
     _paused = false;
     _failed = 0;
     if (_failing || (_behind && _behindRipe)) {
@@ -339,6 +349,12 @@ class FailoverEngine {
     _gen++;
     _retry?.cancel();
     _behindTimer?.cancel();
+  }
+
+  void _fresh() {
+    try {
+      freshConnections?.call();
+    } catch (_) {}
   }
 
   void _cancelBehind() {

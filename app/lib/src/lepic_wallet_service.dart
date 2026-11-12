@@ -2352,6 +2352,15 @@ class LepicWalletSession
   });
 
   @override
+  void dropNodeConnections() {
+    try {
+      _wallet.dropNodeConnections();
+    } catch (_) {
+      // A locked wallet has nothing to drop.
+    }
+  }
+
+  @override
   Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
       _guard(() async {
         // Node only: the node in use alone, not the others of the list (their checks).

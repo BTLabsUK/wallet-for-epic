@@ -79,9 +79,13 @@ class _Wallet extends MockDeskWallet {
   /// Every node [checkNode] asked, in order.
   final List<String> checked = [];
 
+  /// How many fresh-connection asks had been made when the first node was asked.
+  int? dropsAtFirstCheck;
+
   @override
   Future<NodeServer> checkNode(String url) async {
     checked.add(url);
+    dropsAtFirstCheck ??= nodeConnectionDrops;
     final hold = held[url];
     if (hold != null) return hold.future;
     return NodeServer(url: url, label: url, height: heights[url] ?? height, health: dead.contains(url) ? ServiceHealth.down : ServiceHealth.ok);
@@ -288,6 +292,30 @@ void main() {
       h.watch.resumed();
       h.elapse(const Duration(seconds: 1));
       expect(tries(), after + 1);
+      h.dispose();
+    });
+  });
+
+  test('the window coming back asks the wallet for fresh connections', () {
+    fakeAsync((async) {
+      final h = _Harness(async);
+      h.elapse(const Duration(seconds: 1));
+      final before = h.wallet.nodeConnectionDrops;
+      h.watch.resumed();
+      h.elapse(Duration.zero);
+      expect(h.wallet.nodeConnectionDrops, before + 1);
+      h.dispose();
+    });
+  });
+
+  test('a node that stops answering: fresh connections once, before the first node is asked', () {
+    fakeAsync((async) {
+      final h = _Harness(async, dead: {_a, _c, _d});
+      h.elapse(const Duration(seconds: 1));
+      expect(h.wallet.dropsAtFirstCheck, greaterThanOrEqualTo(1), reason: 'dropped before the first ask (the wallet-opened kick and the search start)');
+      final settled = h.wallet.nodeConnectionDrops;
+      h.elapse(const Duration(seconds: 150));
+      expect(h.wallet.nodeConnectionDrops, settled, reason: 'later rounds of the same search do not');
       h.dispose();
     });
   });

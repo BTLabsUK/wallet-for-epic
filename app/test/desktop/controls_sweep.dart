@@ -104,6 +104,9 @@ class _Recorder implements DeskWalletApi, MockBacked {
   final List<String> calls = [];
 
   @override
+  void dropNodeConnections() => _m.dropNodeConnections();
+
+  @override
   Future<void> useNodeForSession(String url) => _r('useNodeForSession', () => _m.useNodeForSession(url));
 
   T _r<T>(String name, T Function() f) {

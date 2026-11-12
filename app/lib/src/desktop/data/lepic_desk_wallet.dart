@@ -4014,6 +4014,13 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  void dropNodeConnections() {
+    try {
+      _session?.dropNodeConnections();
+    } catch (_) {}
+  }
+
+  @override
   Future<NodeServer> checkNode(String url) async {
     final known = (await _listed()).where((n) => n.url == url).firstOrNull;
     final base = known ?? NodeServer(url: url, label: Uri.tryParse(url)?.host ?? url, own: true);

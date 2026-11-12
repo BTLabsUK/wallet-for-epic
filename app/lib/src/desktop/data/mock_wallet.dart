@@ -1189,6 +1189,12 @@ class MockDeskWallet implements DeskWalletApi {
     if (_node.startsWith('http://127.0.0.1:')) _node = 'http://127.0.0.1:${hostSettings.localNodeApiPort}';
   }
 
+  /// Every [dropNodeConnections] call.
+  int nodeConnectionDrops = 0;
+
+  @override
+  void dropNodeConnections() => nodeConnectionDrops++;
+
   @override
   Future<NodeServer> checkNode(String url) async {
     await _wait(3);
