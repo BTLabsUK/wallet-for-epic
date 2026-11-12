@@ -33,6 +33,7 @@ import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'method_names.dart' show methodKindOfTransport;
+import 'kit/kit_ground.dart' show KitGround;
 import 'kit/kit_tokens.dart' show Kit, KitType;
 import 'motion_switches.dart';
 import 'notices.dart';
@@ -186,8 +187,8 @@ class SlotProgress extends StatelessWidget {
 /// A [Scaffold] with a [ProgressSlot] under the app bar and the [NoticeDock] under that. With
 /// [centered], [body] sits in the middle of the space left (and scrolls when it does not fit);
 /// otherwise it starts right below the dock, which moves it down while a notice shows. [idle]
-/// is what the slot shows, such as a [SlotProgress]. With [glow], the screen gets the lit
-/// Protocol backdrop, its light at that point.
+/// is what the slot shows, such as a [SlotProgress]. Every phone page stands on the [KitGround]
+/// (the frames' glow and grid); under the home shell it keeps the shell's.
 class SlotScaffold extends StatefulWidget {
   const SlotScaffold({
     super.key,
@@ -195,7 +196,6 @@ class SlotScaffold extends StatefulWidget {
     required this.body,
     this.centered = false,
     this.idle,
-    this.glow,
     this.breathing = false,
     this.floatingActionButton,
     this.bottomNavigationBar,
@@ -205,9 +205,8 @@ class SlotScaffold extends StatefulWidget {
   final Widget body;
   final bool centered;
   final Widget? idle;
-  final Alignment? glow;
 
-  /// With [glow]: the light swells and fades slowly ([ProtocolBackdrop.breathing]).
+  /// The ground's light swells and fades slowly ([ProtocolBackdrop.breathing]).
   final bool breathing;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
@@ -247,14 +246,7 @@ class _SlotScaffoldState extends State<SlotScaffold> {
         ],
       ),
     );
-    final glow = widget.glow;
-    return glow == null
-        ? scaffold
-        : ProtocolBackdrop(
-            focus: glow,
-            breathing: widget.breathing,
-            child: scaffold,
-          );
+    return KitGround(breathing: widget.breathing, child: scaffold);
   }
 }
 

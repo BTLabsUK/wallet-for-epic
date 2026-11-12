@@ -303,8 +303,6 @@ class BrandHero extends StatelessWidget {
   }
 }
 
-/// Where the backdrop's light sits on a centred hero screen: on the tile above the middle.
-const Alignment heroGlow = Alignment(0, -0.4);
 
 /// Where it sits on a screen that leads with its top, such as Home's balance.
 const Alignment topGlow = Alignment(0, -0.9);

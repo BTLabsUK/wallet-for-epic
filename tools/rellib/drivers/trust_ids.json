@@ -609,5 +609,7 @@
 {"id": "g4.advanced.reset", "screen": "advanced", "family": ["android"], "keys": ["advReset"], "driver": false},
 {"id": "g4.send.noAddress.cancel", "screen": "send", "role": "control", "keys": ["commonCancel"], "driver": false},
 {"id": "g4.send.track.ifNot", "screen": "send", "role": "control", "keys": ["sendTrackIfNot"], "driver": false},
-{"id": "g4.send.track.addContact", "screen": "send", "role": "control", "keys": ["phoneSendAddContact"], "driver": false}
+{"id": "g4.send.track.addContact", "screen": "send", "role": "control", "keys": ["phoneSendAddContact"], "driver": false},
+{"id": "g4.qrscan.help", "screen": "qrscan", "family": ["android"], "keys": ["sendHelp"], "many": true, "driver": false},
+{"id": "g4.restore.scan-close", "screen": "restore", "family": ["android"], "keys": ["commonClose"], "driver": false}
 ]}

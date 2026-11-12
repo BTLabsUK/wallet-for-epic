@@ -17,6 +17,7 @@ import '../../trust_ids.dart';
 import '../qr_camera.dart';
 import '../qr_common.dart';
 import '../kit/kit_button.dart';
+import '../kit/kit_ground.dart' show KitGround;
 import '../kit/kit_headers.dart';
 import '../kit/kit_icons.dart';
 import '../kit/kit_step_strip.dart';
@@ -126,7 +127,7 @@ class _InPersonScanScreenState extends ConsumerState<InPersonScanScreen> {
         : [l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone];
     return Theme(
       data: _scannerTheme,
-      child: ListenableBuilder(
+      child: KitGround(child: ListenableBuilder(
         listenable: _camera,
         builder: (context, _) {
           final problem = _camera.value.problem;
@@ -136,7 +137,6 @@ class _InPersonScanScreenState extends ConsumerState<InPersonScanScreen> {
             null => _count > 0 ? l.qrScanProgress(_received, _count) : l.deskIpScanAim,
           };
           return Scaffold(
-            backgroundColor: dark.bg,
             body: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -206,7 +206,7 @@ class _InPersonScanScreenState extends ConsumerState<InPersonScanScreen> {
             ),
           );
         },
-      ),
+      )),
     );
   }
 }

@@ -25,7 +25,6 @@ import 'theme/tokens.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
-import 'theme/brand.dart' show heroGlow;
 import 'wallet_delete.dart';
 
 /// Opens the wallet with the PIN or biometrics.
@@ -419,7 +418,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             ],
           );
     return SlotScaffold(
-      glow: heroGlow,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(

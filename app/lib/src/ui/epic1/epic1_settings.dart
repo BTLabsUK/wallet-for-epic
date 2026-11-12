@@ -18,6 +18,7 @@ import '../app_dialog.dart';
 import '../common.dart';
 import '../network_mode_text.dart' show statusOffByModeWord;
 import '../server_picker.dart' show showEpicboxPicker;
+import '../kit/kit_ground.dart' show KitGround;
 import '../kit/kit_group.dart';
 import '../kit/kit_row.dart';
 import '../kit/kit_tokens.dart';
@@ -226,7 +227,7 @@ class PrintedCodesScreen extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final codes = ref.watch(epic1PrintedProvider);
-    return Scaffold(
+    return KitGround(child: Scaffold(
       appBar: AppBar(title: Text(l.deskE1PhPrinted)),
       body: SafeArea(
         child: switch (codes) {
@@ -264,6 +265,6 @@ class PrintedCodesScreen extends ConsumerWidget {
           _ => const Center(child: CircularProgressIndicator()),
         },
       ),
-    );
+    ));
   }
 }

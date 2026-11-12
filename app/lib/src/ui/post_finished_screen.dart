@@ -21,6 +21,7 @@ import 'common.dart';
 import 'net_block.dart';
 import 'pairing/pairing_parts.dart' show PairCard;
 import 'qr_scan_screen.dart';
+import 'kit/kit_ground.dart' show KitGround;
 import 'theme/tokens.dart';
 
 /// The key of the Open file button, for tests.
@@ -225,7 +226,7 @@ class _PostFinishedScreenState extends ConsumerState<PostFinishedScreen> {
         ],
       ];
     }
-    return Scaffold(
+    return KitGround(child: Scaffold(
       appBar: AppBar(title: Text(l.postFinishedTitle)),
       body: ScreenBody(
         bottom: _posted
@@ -244,6 +245,6 @@ class _PostFinishedScreenState extends ConsumerState<PostFinishedScreen> {
               ),
         children: children,
       ),
-    );
+    ));
   }
 }

@@ -1606,6 +1606,9 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
+  /// True while the PIN sheet asks: the review sheet and its dim hide under it (Start-5).
+  bool _pinShowing = false;
+
   /// Every send asks the PIN right before money moves (the desktop asks the password). True
   /// once it checked out; false when the user cancelled or the wallet is gone.
   Future<bool> _pinGate(String reason) async {
@@ -1613,14 +1616,21 @@ class _SendViewState extends ConsumerState<SendView> {
     final config = ref.read(walletConfigProvider);
     if (session == null || config == null) return false;
     final vault = ref.read(vaultProvider);
-    final ok = await showPinSheet<bool>(
-      context,
-      reason: reason,
-      action: (pin) async {
-        await vault.checkPin(session, config, pin);
-        return true;
-      },
-    );
+    // Start-5: the PIN sheet stands alone over the dimmed amount; the review sheet steps aside.
+    setState(() => _pinShowing = true);
+    final bool? ok;
+    try {
+      ok = await showPinSheet<bool>(
+        context,
+        reason: reason,
+        action: (pin) async {
+          await vault.checkPin(session, config, pin);
+          return true;
+        },
+      );
+    } finally {
+      if (mounted) setState(() => _pinShowing = false);
+    }
     return ok == true && mounted;
   }
 
@@ -2659,15 +2669,20 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         // The dim is a touch target only; the system back is the way out for a screen reader.
         Positioned.fill(
-          child: ExcludeSemantics(
+          child: Offstage(
+            offstage: _pinShowing,
+            child: ExcludeSemantics(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: canLeave ? _backToAmount : null,
               child: ColoredBox(color: t.scrim),
             ),
           ),
+          ),
         ),
-        Align(
+        Offstage(
+          offstage: _pinShowing,
+          child: Align(
           alignment: Alignment.bottomCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 600, maxHeight: height * 0.94),
@@ -2682,6 +2697,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: body),
               ),
             ),
+          ),
           ),
         ),
       ],

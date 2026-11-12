@@ -27,7 +27,7 @@ import 'launch_screen.dart';
 import 'levels/tor_wait_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
-import 'theme/brand.dart' show BrandVariant, BrandWordmark, heroGlow;
+import 'theme/brand.dart' show BrandVariant, BrandWordmark;
 import 'theme/tokens.dart';
 import 'work_status.dart';
 
@@ -369,7 +369,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         if (!didPop) _backFromPin();
       },
       child: SlotScaffold(
-        glow: heroGlow,
         body: SafeArea(
           child: Center(
             child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: body),

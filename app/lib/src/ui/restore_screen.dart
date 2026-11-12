@@ -37,7 +37,6 @@ import 'settings_history.dart';
 import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
 import 'work_status.dart';
-import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
 
@@ -352,7 +351,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _RestoreStep.importOffer => _doneStep(context),
     };
     final scaffold = SlotScaffold(
-      glow: _step == _RestoreStep.importOffer ? heroGlow : null,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: body),
@@ -613,7 +611,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final running = scan.running;
     return Column(
       children: [
-        KitFlowHeader(title: l.phoneRestoreRestoring, showLeading: false, onLeading: null, onHelp: _phraseHelp, helpId: TrustIds.restoreHelp),
+        // The frame's ✕ stops the search, as Stop does; once stopped, the page offers Try again and Open wallet.
+        KitFlowHeader(
+          title: l.phoneRestoreRestoring,
+          showLeading: running,
+          onLeading: running ? () => ref.read(scanProvider.notifier).stop() : null,
+          leadingId: TrustIds.restoreScanClose,
+          onHelp: _phraseHelp,
+          helpId: TrustIds.restoreHelp,
+        ),
         Expanded(
           child: running
               ? ListView(

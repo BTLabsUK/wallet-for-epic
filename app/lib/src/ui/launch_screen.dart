@@ -98,7 +98,6 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   Widget build(BuildContext context) {
     return SlotScaffold(
       centered: true,
-      glow: heroGlow,
       body: CenteredBody(
         children: [
           const BrandHero(),

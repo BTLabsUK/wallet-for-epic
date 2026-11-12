@@ -127,7 +127,6 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
     final usesPassphrase = ref.watch(usesPassphraseProvider).value ?? false;
     return SlotScaffold(
       centered: true,
-      glow: heroGlow,
       appBar: AppBar(
         title: Text(
           !widget.passphrase

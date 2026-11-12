@@ -35,7 +35,6 @@ import 'kit/kit_steps.dart';
 import 'kit/kit_tokens.dart';
 import 'qr_common.dart';
 import 'qr_scan_screen.dart';
-import 'theme/brand.dart';
 import 'theme/logo_qr.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart' show TxDetailsScreen;
@@ -617,7 +616,6 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
       ),
     ];
     return SlotScaffold(
-      glow: heroGlow,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -879,7 +877,6 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     if (done) return _doneScreen(context, role: role, status: status, tx: tx!);
 
     return SlotScaffold(
-      glow: heroGlow,
       breathing: showing,
       body: SafeArea(
         child: Center(

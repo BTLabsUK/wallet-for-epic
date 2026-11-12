@@ -40,7 +40,7 @@ import 'shell_header.dart';
 import 'settings_screen.dart';
 import 'slate_file_screen.dart';
 import 'status.dart';
-import 'theme/brand.dart' show ProtocolBackdrop, topGlow;
+import 'kit/kit_ground.dart' show KitGround;
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
 import '../settings_file/host_settings.dart' show appConfig;
@@ -835,8 +835,7 @@ class _Backdrop extends ConsumerWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ProtocolBackdrop(
-    focus: topGlow,
+  Widget build(BuildContext context, WidgetRef ref) => KitGround(
     breathing: watchWalletStatus(ref).node.state == NodeState.syncing,
     child: child,
   );
