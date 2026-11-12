@@ -314,6 +314,20 @@ void main() {
     });
   });
 
+  test('a hold that ends without a kick: the plan is read again after the backoff', () {
+    fakeAsync((async) {
+      final h = _Harness(scope: FailoverScope.none);
+      h.nodes[_b] = _Node.answers(100);
+      h.engine.nodeFailed();
+      async.elapse(const Duration(minutes: 5));
+      expect(h.asked, isEmpty);
+      expect(h.engine.state, FailoverSearch.noneAnswer);
+      h.scope = FailoverScope.all;
+      async.elapse(const Duration(seconds: 75));
+      expect(h.switched, [_b]);
+    });
+  });
+
   test('paused: no probes; resumed: a round', () {
     fakeAsync((async) {
       final h = _Harness();

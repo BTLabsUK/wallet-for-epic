@@ -392,10 +392,14 @@ class FailoverEngine {
     }
     if (gen != _gen) return;
     if (p == null || p.scope == FailoverScope.none) {
-      // Nothing may be asked now: wait for a kick (Tor up, mode changed, resume).
+      // Nothing may be asked now. A kick (Tor up, mode changed, resume) runs the next round at
+      // once; without one the plan is read again after the backoff, so a hold that ended
+      // unseen is not a dead end. No plan (a switch the user started runs) is not "none answer".
       _running = false;
-      if (_failing) _set(FailoverSearch.noneAnswer);
-      log?.call('node failover: round ($why) held, waiting');
+      if (_failing && p != null) _set(FailoverSearch.noneAnswer);
+      if (_failed == 0) log?.call('node failover: round ($why) held, waiting');
+      _failed++;
+      _scheduleRetry();
       return;
     }
 
