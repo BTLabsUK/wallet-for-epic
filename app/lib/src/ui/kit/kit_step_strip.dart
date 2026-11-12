@@ -28,53 +28,96 @@ class KitStepStrip extends StatelessWidget {
     final l = context.l10n;
     final n = labels.length;
     final shown = current.clamp(0, n - 1);
-    final cells = <Widget>[];
-    for (var i = 0; i < n; i++) {
-      final done = i < current;
-      final now = i == shown && current < n;
-      final bar = now ? t.accent : (done ? t.goldDeep : t.hair);
-      final color = now ? t.text : (done ? t.dim : t.faint);
-      if (i > 0) cells.add(const SizedBox(width: 6));
-      cells.add(
-        Flexible(
-          flex: labels[i].length + 4,
-          child: Semantics(
-            container: true,
-            excludeSemantics: true,
-            label: l.phoneStepOf(i + 1, n, labels[i]),
-            value: now ? l.phoneKitStepNow : (done ? l.phoneKitStepDone : null),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(color: bar, borderRadius: BorderRadius.circular(2)),
-                ),
-                const SizedBox(height: 6),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    '${i + 1} · ${labels[i]}',
-                    maxLines: 1,
-                    softWrap: false,
-                    textScaler: TextScaler.noScaling,
-                    style: KitType.tag.copyWith(fontSize: 12, color: color),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    final style = KitType.tag.copyWith(fontSize: 12);
+    final texts = [for (var i = 0; i < n; i++) '${i + 1} · ${labels[i]}'];
     return kitId(
       semanticsId,
       Padding(
         padding: const EdgeInsets.fromLTRB(Kit.gutter, 10, Kit.gutter, 0),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: cells),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final widths = _widths(texts, style, box.maxWidth - 6.0 * (n - 1));
+            final cells = <Widget>[];
+            for (var i = 0; i < n; i++) {
+              final done = i < current;
+              final now = i == shown && current < n;
+              final bar = now ? t.accent : (done ? t.goldDeep : t.hair);
+              final color = now ? t.text : (done ? t.dim : t.faint);
+              if (i > 0) cells.add(const SizedBox(width: 6));
+              cells.add(
+                SizedBox(
+                  width: widths[i],
+                  child: Semantics(
+                    container: true,
+                    excludeSemantics: true,
+                    label: l.phoneStepOf(i + 1, n, labels[i]),
+                    value: now ? l.phoneKitStepNow : (done ? l.phoneKitStepDone : null),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          height: 3,
+                          decoration: BoxDecoration(color: bar, borderRadius: BorderRadius.circular(2)),
+                        ),
+                        const SizedBox(height: 6),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            texts[i],
+                            maxLines: 1,
+                            softWrap: false,
+                            textScaler: TextScaler.noScaling,
+                            style: style.copyWith(color: color),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return Row(crossAxisAlignment: CrossAxisAlignment.start, children: cells);
+          },
+        ),
       ),
     );
+  }
+
+  /// The CSS `.steps3 span{flex:1;white-space:nowrap}` sizing: equal shares, but a step whose
+  /// label is wider than its share keeps the label's width and the others split what is left.
+  /// When the labels together do not fit, each takes its share of the room by label width.
+  static List<double> _widths(List<String> texts, TextStyle style, double room) {
+    final n = texts.length;
+    final need = [
+      for (final s in texts)
+        (TextPainter(
+          text: TextSpan(text: s, style: style),
+          textDirection: TextDirection.ltr,
+          maxLines: 1,
+          textScaler: TextScaler.noScaling,
+        )..layout()).width.ceilToDouble(),
+    ];
+    final total = need.fold<double>(0, (a, b) => a + b);
+    if (total >= room) return [for (final w in need) room * w / total];
+    final widths = List<double?>.filled(n, null);
+    var left = room;
+    var free = n;
+    var changed = true;
+    while (changed) {
+      changed = false;
+      final share = left / free;
+      for (var i = 0; i < n; i++) {
+        if (widths[i] == null && need[i] > share) {
+          widths[i] = need[i];
+          left -= need[i];
+          free--;
+          changed = true;
+        }
+      }
+    }
+    final share = free > 0 ? left / free : 0.0;
+    return [for (final w in widths) w ?? share];
   }
 }

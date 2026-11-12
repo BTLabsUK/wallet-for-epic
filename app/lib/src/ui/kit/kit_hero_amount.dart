@@ -42,7 +42,11 @@ class KitHeroAmount extends StatelessWidget {
                 textScaler: TextScaler.noScaling,
               ),
               const SizedBox(width: 10),
-              Text(unit, style: KitType.unit.copyWith(color: t.accentText), textScaler: TextScaler.noScaling),
+              // `.hero .a small{position:relative;top:-6px}`: raised off the figure's baseline.
+              Transform.translate(
+                offset: const Offset(0, -6),
+                child: Text(unit, style: KitType.unit.copyWith(color: t.accentText), textScaler: TextScaler.noScaling),
+              ),
             ],
           ),
         ),

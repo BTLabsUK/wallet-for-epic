@@ -793,9 +793,10 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
             children: [
               if (showing || counting)
                 Text(l.phoneQrHoldHint, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.text)),
-              if (showing || counting) const SizedBox(height: 6),
               // The frame draws no line while a payment code is up (the step strip and the button
               // say what comes next) and a plain one under the reply code.
+              if ((showing || counting) && !(showing && status.text == l.qrStatusSendShowing))
+                const SizedBox(height: 6),
               if (!(showing && status.text == l.qrStatusSendShowing))
                 _StatusLine(
                   key: qrStatusKey,
@@ -840,7 +841,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   onPressed: widget.scanEnabled ? _next : null,
                 ),
                 if (!reply) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 KitButton(
                   key: qrHideButtonKey,
                   label: l.qrHide,
@@ -862,7 +863,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   semanticsId: nextId,
                   onPressed: widget.scanEnabled ? _next : null,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 KitButton(
                   key: qrShowButtonKey,
                   label: l.qrShowAgain,

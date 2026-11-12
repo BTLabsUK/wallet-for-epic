@@ -29,6 +29,7 @@ import 'kit/kit_group.dart';
 import 'kit/kit_headers.dart';
 import 'kit/kit_hero_amount.dart';
 import 'kit/kit_icons.dart';
+import 'kit/kit_kv.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_step_strip.dart';
 import 'kit/kit_tokens.dart';
@@ -588,17 +589,42 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         receiving ? SlateRole.sender : SlateRole.receiver,
       );
       final amount = epicFor(l, info.amount, surface: AmountSurface.exact, unit: false);
+      final fiat = receiving ? phoneFiat(l, info.amount, amountDisplay(ref), approx: true) : null;
       body = [
-        // Where it came from: the file's name, or what kind of text it was.
-        Text(
-          receiving
-              ? l.phoneAcceptTitle
-              : (widget.scanned ? l.slateScannedReplyTitle : widget.pasted ? l.slatePastedTitle : _file.name),
-          style: KitType.rowTitle.copyWith(fontSize: 20, color: t.text),
+        // Where it came from: the file's name, or what kind of text it was. A payment to us
+        // reads as the frame's sheet (InPerson-3): `.sheet h2`, 4 further in than the page.
+        Padding(
+          padding: EdgeInsets.only(left: receiving ? 4 : 0, top: receiving ? 14 : 0),
+          child: Text(
+            receiving
+                ? l.phoneAcceptTitle
+                : (widget.scanned ? l.slateScannedReplyTitle : widget.pasted ? l.slatePastedTitle : _file.name),
+            style: receiving ? KitType.sheetTitle.copyWith(color: t.text) : KitType.rowTitle.copyWith(fontSize: 20, color: t.text),
+          ),
         ),
-        const SizedBox(height: 14),
-        KitHeroAmount(amount: receiving ? '+$amount' : amount, unit: epicUnit, incoming: receiving),
-        if (!receiving) ...[
+        if (receiving) ...[
+          // The amount in the figure face at 40, the unit and value on a line under it.
+          const SizedBox(height: 18),
+          Semantics(
+            label: '+$amount $epicUnit',
+            excludeSemantics: true,
+            child: Text(
+              '+$amount',
+              textAlign: TextAlign.center,
+              textScaler: TextScaler.noScaling,
+              style: KitType.amountOnPage.copyWith(fontSize: 40, letterSpacing: -1.6, height: 1, color: t.ok),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            fiat == null ? epicUnit : '$epicUnit · $fiat',
+            textAlign: TextAlign.center,
+            style: KitType.body.copyWith(color: t.dim),
+          ),
+          const SizedBox(height: 18),
+        ] else ...[
+          const SizedBox(height: 14),
+          KitHeroAmount(amount: amount, unit: epicUnit),
           const SizedBox(height: 10),
           FileInfoLine(
             info.stage == SlateStage.requestAnswer
@@ -606,25 +632,24 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
                 : l.slateIncomingResponse(epicExact(l, info.amount), epicExact(l, info.fee)),
             bare: true,
           ),
+          const SizedBox(height: 16),
         ],
-        const SizedBox(height: 16),
         if (message != null) ...[
           KitGroup(
             margin: EdgeInsets.zero,
             children: [
-              KitRow(
-                title: receiving
-                    ? l.phoneAcceptNote
-                    // A request's answer carries the issuer's own message: it is this wallet's.
-                    : info.stage == SlateStage.requestAnswer
-                    ? l.invoicesMessage
-                    : l.txDetailsMessageFromRecipient,
-                value: message,
-                size: KitRowSize.settings,
-              ),
+              if (receiving)
+                KitKvRow(label: l.phoneAcceptNote, value: message)
+              else
+                KitRow(
+                  // A request's answer carries the issuer's own message: it is this wallet's.
+                  title: info.stage == SlateStage.requestAnswer ? l.invoicesMessage : l.txDetailsMessageFromRecipient,
+                  value: message,
+                  size: KitRowSize.settings,
+                ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: receiving ? 14 : 4),
         ],
         // What to do next, only while it can be done: never above a refusal.
         if (_error == null)

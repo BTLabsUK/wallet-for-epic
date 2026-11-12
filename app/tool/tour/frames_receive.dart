@@ -56,6 +56,9 @@ Future<void> _fPayShow(_Tour t) async {
   // The frame shows the code 2 s into its 40 s countdown ("Hides in 38 s").
   await t.elapse(1300);
   await t.elapse(700);
+  // The 3-2-1 count runs first; two more seconds take "Hides in 40 s" to the frame's 38.
+  await t.elapse(1000);
+  await t.elapse(1000);
 }
 
 Future<void> _frameReceive(_Tour t) async {
