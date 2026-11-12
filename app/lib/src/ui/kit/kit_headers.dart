@@ -89,13 +89,15 @@ class KitFlowHeader extends StatelessWidget {
             if (showLeading)
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: KitIconButton(
-                icon: back ? KitIcons.back : KitIcons.close,
-                label: back ? l.phoneKitBack : l.commonClose,
-                onPressed: onLeading,
-                semanticsId: leadingId,
+                child: _reach(
+                  KitIconButton(
+                    icon: back ? KitIcons.back : KitIcons.close,
+                    label: back ? l.phoneKitBack : l.commonClose,
+                    onPressed: onLeading,
+                    semanticsId: leadingId,
+                  ),
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 52),
               child: Row(
@@ -114,13 +116,20 @@ class KitFlowHeader extends StatelessWidget {
             if (onHelp != null)
               Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: KitIconButton(icon: KitIcons.help, label: l.sendHelp, onPressed: onHelp, color: t.dim, semanticsId: helpId),
+                child: _reach(KitIconButton(icon: KitIcons.help, label: l.sendHelp, onPressed: onHelp, color: t.dim, semanticsId: helpId)),
               ),
           ],
         ),
       ),
     );
   }
+
+  /// The 48 target of a button in the 44 bar: it reaches 2 past the bar on each side.
+  static Widget _reach(Widget button) => SizedBox(
+    width: Kit.hitTarget,
+    height: Kit.flowHeader,
+    child: OverflowBox(minHeight: Kit.hitTarget, maxHeight: Kit.hitTarget, child: button),
+  );
 }
 
 /// The header of a page inside a tab (HANDOFF 7.4): a gold back link named after the page it

@@ -73,11 +73,17 @@ class KitAmountDisplay extends StatelessWidget {
         ),
         if (fiat != null)
           Padding(
-            padding: const EdgeInsets.only(top: 6),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 6, Kit.gutter, 0),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(fiat!, style: KitType.rowTitle.copyWith(color: t.dim, fontWeight: FontWeight.w400)),
+                // Larger text shrinks the figure to fit beside the swap button.
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(fiat!, maxLines: 1, style: KitType.rowTitle.copyWith(color: t.dim, fontWeight: FontWeight.w400)),
+                  ),
+                ),
                 if (onSwap != null) KitIconButton(icon: KitIcons.swap, label: context.l10n.phoneKitSwapCurrency, onPressed: onSwap, color: t.dim, semanticsId: swapId),
               ],
             ),
@@ -121,19 +127,18 @@ class KitAvailableBar extends StatelessWidget {
                 container: true,
                 label: '${l.phoneKitAvailable} $available',
                 excludeSemantics: true,
-                child: Row(
-                  children: [
-                    Text(l.phoneKitAvailable, style: KitType.body.copyWith(color: over ? t.risk : t.dim, fontSize: 14)),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        available,
-                        style: KitType.rowAmount.copyWith(color: over ? t.risk : t.text),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                // Larger text shrinks the pair to fit beside Max rather than overflowing.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l.phoneKitAvailable, style: KitType.body.copyWith(color: over ? t.risk : t.dim, fontSize: 14)),
+                      const SizedBox(width: 8),
+                      Text(available, style: KitType.rowAmount.copyWith(color: over ? t.risk : t.text), maxLines: 1),
+                    ],
+                  ),
                 ),
               ),
             ),

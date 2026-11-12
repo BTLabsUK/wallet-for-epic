@@ -38,8 +38,9 @@ class KitFacesStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    const stripHeight = Kit.avatarStrip + 34;
     final strip = SizedBox(
-      height: Kit.avatarStrip + 34,
+      height: stripHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: bleed + Kit.gutter - 6),
@@ -88,7 +89,16 @@ class KitFacesStrip extends StatelessWidget {
     );
     if (bleed == 0) return strip;
     return LayoutBuilder(
-      builder: (context, box) => OverflowBox(minWidth: box.maxWidth + 2 * bleed, maxWidth: box.maxWidth + 2 * bleed, child: strip),
+      builder: (context, box) => SizedBox(
+        height: stripHeight,
+        child: OverflowBox(
+          minWidth: box.maxWidth + 2 * bleed,
+          maxWidth: box.maxWidth + 2 * bleed,
+          minHeight: stripHeight,
+          maxHeight: stripHeight,
+          child: strip,
+        ),
+      ),
     );
   }
 }
