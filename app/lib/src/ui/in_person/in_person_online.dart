@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../kit/kit_button.dart';
 import '../../l10n.dart';
 import '../common.dart' show tipHeight;
 import '../method_icons.dart';
@@ -212,14 +213,14 @@ class _OnlineSheet extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               if (cancellable) ...[
-                OutlinedButton(
+                KitButton(
                   key: inPersonOnlineCancelKey,
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  kind: KitButtonKind.quiet,
+                  label: l.deskIpOnlineCancel,
                   onPressed: () {
                     online.cancelOnline();
                     Navigator.of(context).pop();
                   },
-                  child: Text(l.deskIpOnlineCancel),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -228,11 +229,7 @@ class _OnlineSheet extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
               ],
-              TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l.commonClose),
-              ),
+              KitButton(kind: KitButtonKind.ghost, label: l.commonClose, onPressed: () => Navigator.of(context).pop()),
             ],
           ),
         );

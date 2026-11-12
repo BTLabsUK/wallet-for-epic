@@ -16,6 +16,11 @@ import '../../settings.dart';
 import '../../trust_ids.dart';
 import '../qr_camera.dart';
 import '../qr_common.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_headers.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_step_strip.dart';
+import '../kit/kit_tokens.dart';
 import '../qr_scan_screen.dart' show QrFinderOverlay;
 import '../theme/tokens.dart';
 
@@ -116,83 +121,95 @@ class _InPersonScanScreenState extends ConsumerState<InPersonScanScreen> {
     final l = context.l10n;
     const dark = protocolDark;
     final title = widget.answer ? l.deskIpScanAnswer : l.deskIpScanTitle;
-    return ListenableBuilder(
-      listenable: _camera,
-      builder: (context, _) {
-        final problem = _camera.value.problem;
-        final String dock = switch (problem) {
-          QrCameraProblem.denied => l.qrScanCameraDenied,
-          QrCameraProblem() => l.qrScanCameraFailed,
-          null => _count > 0 ? l.qrScanProgress(_received, _count) : l.deskIpScanAim,
-        };
-        return Scaffold(
-          backgroundColor: dark.bg,
-          appBar: AppBar(
+    final steps = widget.answer
+        ? [l.phoneStepPayShow, l.phoneStepPayScan, l.commonDone]
+        : [l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone];
+    return Theme(
+      data: _scannerTheme,
+      child: ListenableBuilder(
+        listenable: _camera,
+        builder: (context, _) {
+          final problem = _camera.value.problem;
+          final String dock = switch (problem) {
+            QrCameraProblem.denied => l.qrScanCameraDenied,
+            QrCameraProblem() => l.qrScanCameraFailed,
+            null => _count > 0 ? l.qrScanProgress(_received, _count) : l.deskIpScanAim,
+          };
+          return Scaffold(
             backgroundColor: dark.bg,
-            foregroundColor: dark.text,
-            systemOverlayStyle: SystemUiOverlayStyle.light,
-            title: Text(title),
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: problem != null
-                    ? const SizedBox.shrink()
-                    : Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          _camera.preview(context),
-                          QrFinderOverlay(received: _received, count: _count),
-                        ],
-                      ),
-              ),
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          dock,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: problem == null ? dark.text : dark.warn, fontSize: 15),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (problem != null) ...[
-                        FilledButton(
-                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                          onPressed: _start,
-                          child: Text(l.commonRetry),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      TrustId(
-                        TrustIds.txIpScanpaste,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                            foregroundColor: dark.text,
-                            side: BorderSide(color: dark.line),
-                          ),
-                          icon: const Icon(Icons.content_paste),
-                          label: Text(l.commonPaste),
-                          onPressed: _paste,
-                        ),
-                      ),
-                    ],
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  KitFlowHeader(
+                    title: title,
+                    back: widget.answer,
+                    onLeading: () => Navigator.of(context).maybePop(),
+                    leadingId: TrustIds.qrscanBack,
                   ),
-                ),
+                  KitStepStrip(labels: steps, current: widget.answer ? 1 : 0),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(Kit.gutter, 18, Kit.gutter, 0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(Kit.rSheetTop),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            border: Border.all(color: dark.hair),
+                            borderRadius: BorderRadius.circular(Kit.rSheetTop),
+                          ),
+                          child: problem != null
+                              ? const SizedBox.expand()
+                              : Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    _camera.preview(context),
+                                    QrFinderOverlay(received: _received, count: _count),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, Kit.gutter),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            dock,
+                            textAlign: TextAlign.center,
+                            style: KitType.body.copyWith(color: problem == null ? dark.text : dark.warn),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (problem != null) ...[
+                          KitButton(label: l.commonRetry, onPressed: _start),
+                          const SizedBox(height: 8),
+                        ],
+                        KitButton(
+                          kind: problem != null ? KitButtonKind.quiet : KitButtonKind.gold,
+                          icon: KitIcons.paste,
+                          label: l.commonPaste,
+                          onPressed: _paste,
+                          semanticsId: TrustIds.txIpScanpaste,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 }
+
+/// The scanner's theme: Protocol dark whatever the app's.
+final ThemeData _scannerTheme = buildWalletTheme(protocolDark, Brightness.dark);
