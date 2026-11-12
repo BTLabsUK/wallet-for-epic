@@ -571,8 +571,6 @@ const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 const Key receiveScanQrKey = ValueKey('receive-scan-qr');
 const Key receiveQrRequestKey = ValueKey('receive-qr-request');
 
-/// The key of Receive's empty state when every method is off, for tests.
-const Key receiveNoMethodsKey = ValueKey('receive-no-methods');
 
 /// The key of the Ask for an amount row, for tests.
 const Key receiveRequestKey = ValueKey('receive-request');
