@@ -1647,7 +1647,7 @@ class _SendViewState extends ConsumerState<SendView> {
         if (!await confirmChangedWallet(context, link) || !mounted) return;
       }
       final amountText = epicText(l, reviewed.amount);
-      if (!await _pinGate(usesPassphrase(ref) ? l.sendPassphraseReason(amountText) : l.sendPinReason(amountText))) {
+      if (!await _pinGate(usesPassphrase(ref) ? l.sendPassphraseReason(amountText) : l.phoneSendPinReason(amountText, _toName(l)))) {
         return;
       }
     } finally {
@@ -2521,7 +2521,9 @@ class _SendViewState extends ConsumerState<SendView> {
     // epic1 mode: one field for an epic1 link or a contact; a contact paid goes on as a pairing.
     if (_stage == SendStage.recipient && _pairingTo == null && ref.watch(paymentModeProvider) == PaymentMode.epic1) {
       return _page(
-        ScreenBody(
+        SafeArea(
+          top: false,
+          child: ScreenBody(
           children: [
             PhoneTourTarget(
               id: 'tour-send-recipient',
@@ -2533,6 +2535,7 @@ class _SendViewState extends ConsumerState<SendView> {
               ),
             ),
           ],
+        ),
         ),
       );
     }
@@ -2674,8 +2677,9 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget _page(Widget body) => Column(
     children: [
       SafeArea(bottom: false, child: _bar ?? const SizedBox.shrink()),
-      // The host leaves Send's insets to it: the review's sheet runs to the screen's edge.
-      Expanded(child: SafeArea(top: false, child: MediaQuery.removePadding(context: context, removeTop: true, child: body))),
+      // The host leaves Send's insets to it: the review's sheet runs to the screen's edge, and
+      // each body keeps the bottom inset clear itself.
+      Expanded(child: MediaQuery.removePadding(context: context, removeTop: true, child: body)),
     ],
   );
 
@@ -2908,6 +2912,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final saveable = valid && contact == null && _contactName(read.address) == null;
     // A complete address, pasted, scanned or left: shown whole in its box (Send-5).
     final settled = valid && (_touched || contact != null) && contact == null;
+    // The settled address shows its first and last six in gold and its server faint (`.addr em`, `i`).
+    _recipient
+      ..mark = settled ? TextStyle(color: t.accentText) : null
+      ..quiet = settled ? TextStyle(color: t.faint) : null;
     final empty = text.isEmpty && contact == null;
     final ownServer = ownEpicboxServer(ref);
     const indent = EdgeInsetsDirectional.only(start: 42);
@@ -3000,7 +3008,9 @@ class _SendViewState extends ConsumerState<SendView> {
             if (routeShown) _routeRow(context, read, contact: contact, hold: hold),
             if (saveable)
               KitRow(
-                leading: KitIconWell(KitIcons.contact, color: t.accentText),
+                // No well, the gold glyph alone, on a 54 row (`.av.n` with no background).
+                leading: SizedBox.square(dimension: 40, child: Icon(KitIcons.addContact, size: 20, color: t.accentText)),
+                minHeight: 54,
                 title: l.phoneSendAddContact,
                 titleColor: t.accentText,
                 onTap: () => _saveContact(read.address),
@@ -3011,8 +3021,8 @@ class _SendViewState extends ConsumerState<SendView> {
       ],
       if (settled)
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
-          child: Text(l.phoneSendAddressCheck, style: KitType.rowSub.copyWith(color: t.dim)),
+          padding: const EdgeInsets.only(top: 16),
+          child: KitHint(l.phoneSendAddressCheck, inset: 4),
         ),
       // A saved contact, paired: its trust and the seal, and the mailbox switch.
       if (valid)
@@ -3181,23 +3191,24 @@ class _SendViewState extends ConsumerState<SendView> {
       context: context,
       builder: (sheet) => KitSheet(
         title: l.phoneSendNoAddressTitle,
-        secondaryLabel: l.commonCancel,
-        onSecondary: () => Navigator.of(sheet).pop(),
+        titleGap: 8,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-              child: Text(l.phoneSendNoAddressBody, style: KitType.body.copyWith(color: t.dim)),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(l.phoneSendNoAddressBody, style: KitType.body.copyWith(fontSize: 13, height: 1.45, color: t.dim)),
             ),
+            const SizedBox(height: 16),
             KitGroup(
               onSheet: true,
               dividerInset: Kit.dividerInsetList,
               children: [
                 if (_qrOffered)
                   KitRow(
-                    leading: KitIconWell(MethodIcons.qr),
+                    leading: KitIconWell(MethodIcons.qr, color: t.accent, size: 40, iconSize: 20),
+                    minHeight: 72,
                     title: l.phoneSendInPerson,
                     subtitle: l.phoneSendInPersonSub,
                     chevron: true,
@@ -3209,7 +3220,8 @@ class _SendViewState extends ConsumerState<SendView> {
                   ),
                 if (_fileOffered)
                   KitRow(
-                    leading: KitIconWell(MethodIcons.file),
+                    leading: KitIconWell(MethodIcons.file, color: t.accent, size: 40, iconSize: 20),
+                    minHeight: 72,
                     title: l.phoneSendWithFile,
                     subtitle: l.phoneSendWithFileSub,
                     chevron: true,
@@ -3220,6 +3232,14 @@ class _SendViewState extends ConsumerState<SendView> {
                     semanticsId: TrustIds.sendNoaddressFile,
                   ),
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: TextButton(
+                style: _ghostStyle(context),
+                onPressed: () => Navigator.of(sheet).pop(),
+                child: Text(l.commonCancel),
+              ),
             ),
           ],
         ),
@@ -3334,7 +3354,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final several = contact != null && contact.addresses.length > 1;
     final row = KitRow(
       leading: KitIconWell(MethodIcons.of(kind), color: t.accentText),
-      title: name,
+      title: epicbox ? l.phoneSendRouteEpicbox : name,
       subtitle: where == null ? line : null,
       subtitleLines: 2,
       subtitleWidget: where == null
@@ -3517,6 +3537,7 @@ class _SendViewState extends ConsumerState<SendView> {
       : _read.isAddress;
 
   Widget _recipientAction() => BusyButton(
+    kit: true,
     semanticsId: TrustIds.commonContinue,
     label: context.l10n.commonContinue,
     onPressed: !_hasRecipient || _block != NetBlock.none || _hold != null
@@ -4171,12 +4192,13 @@ class _SendViewState extends ConsumerState<SendView> {
       children: [
         // The send failed and LEPIC holds the payment: never a second send from here.
         if (_sendFailed && _cancelFailed)
-          BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done)
+          BusyButton(kit: true, semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done)
         // Over Tor or HTTP the waiting payment is delivered again, or cancelled.
         else if (_sendFailed &&
             (_overTor || _overHttp) &&
             _undelivered != null) ...[
           BusyButton(
+            kit: true,
             key: sendTryAgainKey,
             label: l.sendTryAgain,
             busy: _busy,
@@ -4192,6 +4214,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ] else if (_sendFailed && _overTor) ...[
           // Tor did not connect, nothing was sent: the same send again.
           BusyButton(
+            kit: true,
             key: sendTryAgainKey,
             label: l.sendTryAgain,
             busy: _busy,
@@ -4207,6 +4230,7 @@ class _SendViewState extends ConsumerState<SendView> {
           // The pairing's relay did not take it: the same payment to the contact's public
           // Epicbox address, the one in To. A held payment is cancelled first.
           BusyButton(
+            kit: true,
             key: sendPublicFallbackKey,
             label: l.sendPublicFallback,
             busy: _busy,
@@ -4232,6 +4256,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ] else if (_sendFailed && _undelivered != null) ...[
           BusyButton(
+            kit: true,
             label: l.sendCancelAndFile,
             busy: _busy,
             onPressed: _cancelAndFile,
@@ -4245,6 +4270,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ] else if (_sendFailed && _nothingStored) ...[
           // Nothing is held, so a file is the one payment.
           BusyButton(
+            kit: true,
             label: l.sendPayWithFile,
             onPressed: _busy ? null : _toFileRoute,
           ),
@@ -4255,10 +4281,11 @@ class _SendViewState extends ConsumerState<SendView> {
             child: TrustId(TrustIds.commonDone, child: Text(l.commonDone)),
           ),
         ] else if (_sendFailed)
-          BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done)
+          BusyButton(kit: true, semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done)
         // Their relay is down before any attempt: nothing is stored yet.
         else if (relayDown) ...[
           BusyButton(
+            kit: true,
             label: l.sendPayWithFile,
             onPressed: _busy ? null : _toFileRoute,
           ),
@@ -4275,6 +4302,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ] else ...[
           BusyButton(
+            kit: true,
             semanticsId: TrustIds.sendConfirm,
             label: _queues() ? l.sendQueue : l.sendReviewSendButton(amount),
             busyLabel: l.sendSending,
@@ -4293,7 +4321,7 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   Widget _doneAction() =>
-      BusyButton(semanticsId: TrustIds.commonDone, label: context.l10n.commonDone, onPressed: _done);
+      BusyButton(kit: true, semanticsId: TrustIds.commonDone, label: context.l10n.commonDone, onPressed: _done);
 
   /// The Sent page (HANDOFF 9, Send-4): "On its way to Tom", the payment's own steps as the
   /// payment page lists them, and what to do when it does not finish.
@@ -4453,6 +4481,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// `.btn.ghost` at the frames' 44: dim text, weight 500, no ground.
   ButtonStyle _ghostStyle(BuildContext context) => TextButton.styleFrom(
     foregroundColor: context.tokens.dim,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     minimumSize: const Size.fromHeight(44),
     textStyle: KitType.button.copyWith(fontWeight: FontWeight.w500),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Kit.rButton)),
@@ -4465,7 +4494,7 @@ class _SendViewState extends ConsumerState<SendView> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        BusyButton(semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done),
+        BusyButton(kit: true, semanticsId: TrustIds.commonDone, label: l.commonDone, onPressed: _done),
         const SizedBox(height: 6),
         TextButton(
           style: _ghostStyle(context),

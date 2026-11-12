@@ -35895,7 +35895,7 @@ abstract class AppLocalizations {
   /// Row that saves a pasted address as a contact.
   ///
   /// In en, this message translates to:
-  /// **'Add a contact'**
+  /// **'Save as a contact'**
   String get phoneSendAddContact;
 
   /// Hint under a pasted address.
@@ -36383,6 +36383,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'After a few blocks it is theirs to spend.'**
   String get phoneSendHelpStep3Sub;
+
+  /// Title of the method row under an Epicbox address on the Send page.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address'**
+  String get phoneSendRouteEpicbox;
+
+  /// The PIN sheet's line before a send; {amount} is the exact amount, {name} the person paid.
+  ///
+  /// In en, this message translates to:
+  /// **'To send {amount} to {name}'**
+  String phoneSendPinReason(String amount, String name);
 }
 
 class _AppLocalizationsDelegate

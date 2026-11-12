@@ -5978,7 +5978,7 @@
   "phoneSendInPersonSub": "Покажите код телефону рядом",
   "phoneSendWithFile": "Файлом",
   "phoneSendWithFileSub": "Отправьте в любом приложении; получатель пришлёт файл в ответ",
-  "phoneSendAddContact": "Добавить контакт",
+  "phoneSendAddContact": "Сохранить как контакт",
   "phoneSendAddressCheck": "Сверьте первые и последние шесть символов с тем, кому платите.",
   "phoneSendReviewTitle": "Проверка",
   "phoneSendMoreDetails": "Подробнее",
@@ -6059,5 +6059,7 @@
   "phoneSendHelpStep2": "Их кошелёк отвечает",
   "phoneSendHelpStep2Sub": "Платёж требует обоих кошельков. Через Epicbox их кошелёк может ответить позже, при следующем открытии.",
   "phoneSendHelpStep3": "Сеть подтверждает его",
-  "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить."
+  "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить.",
+  "phoneSendRouteEpicbox": "Адрес Epicbox",
+  "phoneSendPinReason": "Чтобы отправить {amount} — {name}"
 }

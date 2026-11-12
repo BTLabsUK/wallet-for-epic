@@ -23650,7 +23650,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wyślij w dowolnej aplikacji; odbiorca odeśle plik';
 
   @override
-  String get phoneSendAddContact => 'Dodaj kontakt';
+  String get phoneSendAddContact => 'Zapisz jako kontakt';
 
   @override
   String get phoneSendAddressCheck =>
@@ -23937,4 +23937,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneSendHelpStep3Sub => 'Po kilku blokach mogą ją wydać.';
+
+  @override
+  String get phoneSendRouteEpicbox => 'Adres Epicbox';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return 'Aby wysłać $amount do $name';
+  }
 }

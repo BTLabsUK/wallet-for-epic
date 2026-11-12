@@ -45,6 +45,7 @@ class KitRow extends StatelessWidget {
     this.valueColor,
     this.isChoice,
     this.titleStyle,
+    this.minHeight,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -133,6 +134,9 @@ class KitRow extends StatelessWidget {
   /// Changes of the title's style (an address in the mono face), over the 15/500 default.
   final TextStyle? titleStyle;
 
+  /// A row taller than its [size] (a sheet's rows that stand 72).
+  final double? minHeight;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -150,7 +154,7 @@ class KitRow extends StatelessWidget {
       if (chevron) Icon(KitIcons.chevron, size: 22, color: t.faint),
     ];
     final body = ConstrainedBox(
-      constraints: BoxConstraints(minHeight: size.height),
+      constraints: BoxConstraints(minHeight: minHeight ?? size.height),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: Row(

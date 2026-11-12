@@ -5978,7 +5978,7 @@
   "phoneSendInPersonSub": "Pokaż kod telefonowi obok",
   "phoneSendWithFile": "Plikiem",
   "phoneSendWithFileSub": "Wyślij w dowolnej aplikacji; odbiorca odeśle plik",
-  "phoneSendAddContact": "Dodaj kontakt",
+  "phoneSendAddContact": "Zapisz jako kontakt",
   "phoneSendAddressCheck": "Sprawdź pierwsze i ostatnie sześć znaków z osobą, której płacisz.",
   "phoneSendReviewTitle": "Sprawdź",
   "phoneSendMoreDetails": "Więcej szczegółów",
@@ -6059,5 +6059,7 @@
   "phoneSendHelpStep2": "Ich portfel odpowiada",
   "phoneSendHelpStep2Sub": "Płatność wymaga obu portfeli. Przez Epicbox ich portfel może odpowiedzieć później, przy następnym otwarciu.",
   "phoneSendHelpStep3": "Sieć ją potwierdza",
-  "phoneSendHelpStep3Sub": "Po kilku blokach mogą ją wydać."
+  "phoneSendHelpStep3Sub": "Po kilku blokach mogą ją wydać.",
+  "phoneSendRouteEpicbox": "Adres Epicbox",
+  "phoneSendPinReason": "Aby wysłać {amount} do {name}"
 }

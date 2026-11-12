@@ -22461,7 +22461,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneSendWithFileSub => 'ส่งในแอปใดก็ได้ อีกฝ่ายจะส่งไฟล์กลับมา';
 
   @override
-  String get phoneSendAddContact => 'เพิ่มผู้ติดต่อ';
+  String get phoneSendAddContact => 'บันทึกเป็นผู้ติดต่อ';
 
   @override
   String get phoneSendAddressCheck =>
@@ -22744,4 +22744,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneSendHelpStep3Sub => 'หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้';
+
+  @override
+  String get phoneSendRouteEpicbox => 'ที่อยู่ Epicbox';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return 'เพื่อส่ง $amount ให้ $name';
+  }
 }

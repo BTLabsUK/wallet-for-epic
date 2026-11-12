@@ -21625,7 +21625,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneSendWithFileSub => '用任意应用发送,对方会回传一个文件';
 
   @override
-  String get phoneSendAddContact => '添加联系人';
+  String get phoneSendAddContact => '保存为联系人';
 
   @override
   String get phoneSendAddressCheck => '请与收款人核对前六位和后六位字符。';
@@ -21900,4 +21900,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSendHelpStep3Sub => '几个区块之后，对方就可以花费这笔钱。';
+
+  @override
+  String get phoneSendRouteEpicbox => 'Epicbox 地址';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return '向 $name 发送 $amount';
+  }
 }

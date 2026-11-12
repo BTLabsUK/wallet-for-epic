@@ -5978,7 +5978,7 @@
   "phoneSendInPersonSub": "แสดงรหัสให้โทรศัพท์ที่อยู่ข้าง ๆ",
   "phoneSendWithFile": "ด้วยไฟล์",
   "phoneSendWithFileSub": "ส่งในแอปใดก็ได้ อีกฝ่ายจะส่งไฟล์กลับมา",
-  "phoneSendAddContact": "เพิ่มผู้ติดต่อ",
+  "phoneSendAddContact": "บันทึกเป็นผู้ติดต่อ",
   "phoneSendAddressCheck": "ตรวจอักขระหกตัวแรกและหกตัวสุดท้ายกับคนที่คุณจ่ายให้",
   "phoneSendReviewTitle": "ตรวจสอบ",
   "phoneSendMoreDetails": "รายละเอียดเพิ่มเติม",
@@ -6059,5 +6059,7 @@
   "phoneSendHelpStep2": "กระเป๋าของเขาตอบกลับ",
   "phoneSendHelpStep2Sub": "การชำระเงินต้องใช้กระเป๋าทั้งสองใบ ผ่าน Epicbox กระเป๋าของเขาตอบทีหลังได้ เมื่อเปิดครั้งถัดไป",
   "phoneSendHelpStep3": "เครือข่ายยืนยันรายการ",
-  "phoneSendHelpStep3Sub": "หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้"
+  "phoneSendHelpStep3Sub": "หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้",
+  "phoneSendRouteEpicbox": "ที่อยู่ Epicbox",
+  "phoneSendPinReason": "เพื่อส่ง {amount} ให้ {name}"
 }

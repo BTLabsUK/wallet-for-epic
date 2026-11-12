@@ -808,6 +808,7 @@ class _PinSheetState<T extends Object> extends ConsumerState<_PinSheet<T>> {
     final checkAt = _checkAt;
     final passphrase = ref.watch(usesPassphraseProvider).value ?? false;
     final reason = widget.reason;
+    final viewInset = MediaQuery.viewPaddingOf(context).bottom;
     final head = <Widget>[
       Semantics(
         header: true,
@@ -819,9 +820,13 @@ class _PinSheetState<T extends Object> extends ConsumerState<_PinSheet<T>> {
       ),
       if (reason != null) ...[
         const SizedBox(height: 6),
-        Text(reason, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+        // `.lead`: 15 at 1.45, 40 in from the sides.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(reason, style: KitType.body.copyWith(color: t.dim, height: 1.45), textAlign: TextAlign.center),
+        ),
       ],
-      const SizedBox(height: 24),
+      const SizedBox(height: 26),
     ];
     final progress = _busy
         ? Column(mainAxisSize: MainAxisSize.min, children: [
@@ -837,7 +842,7 @@ class _PinSheetState<T extends Object> extends ConsumerState<_PinSheet<T>> {
         child: SafeArea(
           top: false,
           child: SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: 12 + MediaQuery.viewInsetsOf(context).bottom),
+            padding: EdgeInsets.only(bottom: (viewInset > 0 ? 0 : 16) + MediaQuery.viewInsetsOf(context).bottom),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -858,26 +863,31 @@ class _PinSheetState<T extends Object> extends ConsumerState<_PinSheet<T>> {
                   ),
                   if (progress != null) Padding(padding: const EdgeInsets.only(top: 8, left: Kit.gutter, right: Kit.gutter), child: progress),
                 ] else
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-                    child: PinPad(
-                      top: head,
-                      digits: _digits,
-                      enabled: !_busy,
-                      error: _error != null,
-                      onChanged: (v) => setState(() => _digits = v),
-                      onCompleted: _run,
-                      onBiometrics: _biometrics ? _useBiometrics : null,
-                      below: PinMessage(_error, child: progress),
-                    ),
+                  // The keys stand 28 from the sides (the pad's own inset); the title and the
+                  // hint keep the gutter. The message and the check take room only when there
+                  // is something to say, so the pad is the frame's height when quiet.
+                  PinPad(
+                    top: [for (final w in head) Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: w)],
+                    digits: _digits,
+                    enabled: !_busy,
+                    error: _error != null,
+                    onChanged: (v) => setState(() => _digits = v),
+                    onCompleted: _run,
+                    onBiometrics: _biometrics ? _useBiometrics : null,
+                    below: (_error != null || progress != null) ? PinMessage(_error, child: progress) : null,
                   ),
-                const SizedBox(height: 8),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-                  child: KitButton(
-                    label: l.commonCancel,
-                    kind: KitButtonKind.quiet,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.dim,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      minimumSize: const Size.fromHeight(44),
+                      textStyle: KitType.button.copyWith(fontWeight: FontWeight.w500),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Kit.rButton)),
+                    ),
                     onPressed: _busy ? null : () => Navigator.pop(context),
+                    child: Text(l.commonCancel),
                   ),
                 ),
               ],

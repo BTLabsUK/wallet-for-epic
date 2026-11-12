@@ -5978,7 +5978,7 @@
   "phoneSendInPersonSub": "向旁边的手机出示二维码",
   "phoneSendWithFile": "用文件",
   "phoneSendWithFileSub": "用任意应用发送,对方会回传一个文件",
-  "phoneSendAddContact": "添加联系人",
+  "phoneSendAddContact": "保存为联系人",
   "phoneSendAddressCheck": "请与收款人核对前六位和后六位字符。",
   "phoneSendReviewTitle": "核对",
   "phoneSendMoreDetails": "更多详情",
@@ -6059,5 +6059,7 @@
   "phoneSendHelpStep2": "对方的钱包回应",
   "phoneSendHelpStep2Sub": "一笔付款需要双方钱包。使用 Epicbox 时，对方可以稍后在下次打开时回应。",
   "phoneSendHelpStep3": "网络确认",
-  "phoneSendHelpStep3Sub": "几个区块之后，对方就可以花费这笔钱。"
+  "phoneSendHelpStep3Sub": "几个区块之后，对方就可以花费这笔钱。",
+  "phoneSendRouteEpicbox": "Epicbox 地址",
+  "phoneSendPinReason": "向 {name} 发送 {amount}"
 }

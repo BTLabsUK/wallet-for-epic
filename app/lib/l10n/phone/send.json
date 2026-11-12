@@ -39,9 +39,27 @@
   "@phoneSendWithFileSub": {
     "description": "Subtitle of the With a file row."
   },
-  "phoneSendAddContact": "Add a contact",
+  "phoneSendAddContact": "Save as a contact",
   "@phoneSendAddContact": {
     "description": "Row that saves a pasted address as a contact."
+  },
+  "phoneSendRouteEpicbox": "Epicbox address",
+  "@phoneSendRouteEpicbox": {
+    "description": "Title of the method row under an Epicbox address on the Send page."
+  },
+  "phoneSendPinReason": "To send {amount} to {name}",
+  "@phoneSendPinReason": {
+    "description": "The PIN sheet's line before a send; {amount} is the exact amount, {name} the person paid.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      },
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
   },
   "phoneSendAddressCheck": "Check the first and last six characters with the person you are paying.",
   "@phoneSendAddressCheck": {

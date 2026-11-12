@@ -93,17 +93,19 @@ class KitKv extends StatelessWidget {
   }
 }
 
-/// `.hint`: an info glyph and 13 px dim text at 1.45, padding 0 20, 8 between.
+/// `.hint`: an info glyph and 13 px dim text at 1.45, padding 0 20, 8 between. [inset] is the
+/// side padding where the page already has its own 16 (4 there).
 class KitHint extends StatelessWidget {
-  const KitHint(this.text, {super.key});
+  const KitHint(this.text, {super.key, this.inset = 20});
 
   final String text;
+  final double inset;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: inset),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

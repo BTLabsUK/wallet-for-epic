@@ -127,7 +127,7 @@ class _HelpStep extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: KitType.body.copyWith(color: t.text, height: 1.4)),
+                    Text(title, style: KitType.body.copyWith(color: t.text, height: 1.3)),
                     Padding(
                       padding: const EdgeInsets.only(top: 3),
                       child: Text(sub, style: KitType.body.copyWith(fontSize: 13, height: 1.45, color: t.dim)),
