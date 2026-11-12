@@ -221,6 +221,18 @@ abstract final class TrustIds {
   static const pinKeyBio = 'g4.pin.key.bio';
   static const unlockForgot = 'g4.unlock.forgot';
   static const unlockServers = 'g4.unlock.servers';
+  static const qrshowBack = 'g4.qrshow.back';
+  static const qrshowHelp = 'g4.qrshow.help';
+  static const qrshowShow = 'g4.qrshow.show';
+  static const qrshowAgain = 'g4.qrshow.again';
+  static const qrshowHide = 'g4.qrshow.hide';
+  static const qrshowNext = 'g4.qrshow.next';
+  static const qrshowDone = 'g4.qrshow.done';
+  static const qrscanBack = 'g4.qrscan.back';
+  static const qrscanAgain = 'g4.qrscan.again';
+  static const qrscanSettings = 'g4.qrscan.settings';
+  static const qrscanRetry = 'g4.qrscan.retry';
+  static const qrscanFile = 'g4.qrscan.file';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -452,5 +464,17 @@ abstract final class TrustIds {
     'g4.pin.key.bio',
     'g4.unlock.forgot',
     'g4.unlock.servers',
+    'g4.qrshow.back',
+    'g4.qrshow.help',
+    'g4.qrshow.show',
+    'g4.qrshow.again',
+    'g4.qrshow.hide',
+    'g4.qrshow.next',
+    'g4.qrshow.done',
+    'g4.qrscan.back',
+    'g4.qrscan.again',
+    'g4.qrscan.settings',
+    'g4.qrscan.retry',
+    'g4.qrscan.file',
   ];
 }

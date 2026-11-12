@@ -22885,4 +22885,64 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneRestoreDoneBody =>
       'Fraza odzyskiwania przywróciła saldo. Historia, kontakty i ustawienia wracają z pliku danych portfela, jeśli go wyeksportowano.';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'Krok $n z $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'Pokaż swój kod';
+
+  @override
+  String get phoneStepPayScan => 'Zeskanuj odpowiedź';
+
+  @override
+  String get phoneStepPayFileSend => 'Wyślij plik';
+
+  @override
+  String get phoneStepPayFileReply => 'Otwórz odpowiedź';
+
+  @override
+  String get phoneStepRecvScan => 'Zeskanuj kod';
+
+  @override
+  String get phoneStepRecvShow => 'Pokaż swoją odpowiedź';
+
+  @override
+  String get phoneStepRecvFileOpen => 'Otwórz plik';
+
+  @override
+  String get phoneStepRecvFileReply => 'Wyślij odpowiedź';
+
+  @override
+  String get phoneQrTitlePay => 'Zapłać osobiście';
+
+  @override
+  String get phoneQrTitleReceive => 'Odbierz osobiście';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'Ukryje się za $seconds s';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'Zeskanuj odpowiedź';
+
+  @override
+  String get phoneQrHelpTitle => 'Płatność osobista';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'Zapłacono osobiście';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'Odebrano osobiście';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount zostanie zapłacone po odczytaniu odpowiedzi.';
+  }
+
+  @override
+  String get phoneQrShowMine => 'Pokaż mój kod ponownie';
 }

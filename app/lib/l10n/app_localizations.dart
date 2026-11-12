@@ -34589,6 +34589,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.'**
   String get phoneRestoreDoneBody;
+
+  /// Screen reader label of one step in the three-step strip of a two-phone or file payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}: {title}'**
+  String phoneStepOf(int n, int total, String title);
+
+  /// Step 1 of paying in person: the payer shows a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your code'**
+  String get phoneStepPayShow;
+
+  /// Step 2 of paying in person: the payer scans the other phone's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their answer'**
+  String get phoneStepPayScan;
+
+  /// Step 1 of paying with a file: the payer sends the payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the file'**
+  String get phoneStepPayFileSend;
+
+  /// Step 2 of paying with a file: the payer opens the file that comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'Open their reply'**
+  String get phoneStepPayFileReply;
+
+  /// Step 1 of getting paid in person: scan the payer's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their code'**
+  String get phoneStepRecvScan;
+
+  /// Step 2 of getting paid in person: show a QR code with the answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your answer'**
+  String get phoneStepRecvShow;
+
+  /// Step 1 of getting paid with a file: open the payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open their file'**
+  String get phoneStepRecvFileOpen;
+
+  /// Step 2 of getting paid with a file: send the reply file back.
+  ///
+  /// In en, this message translates to:
+  /// **'Send your reply'**
+  String get phoneStepRecvFileReply;
+
+  /// Title of the screen that shows the payer's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in person'**
+  String get phoneQrTitlePay;
+
+  /// Title of the screen that shows the receiver's answer as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive in person'**
+  String get phoneQrTitleReceive;
+
+  /// Chip under a shown QR code: seconds left before it hides.
+  ///
+  /// In en, this message translates to:
+  /// **'Hides in {seconds} s'**
+  String phoneQrHidesIn(int seconds);
+
+  /// Button on the payer's QR screen: scan the answer on the other phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan their answer'**
+  String get phoneQrScanAnswer;
+
+  /// Title of the help sheet of the QR screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying in person'**
+  String get phoneQrHelpTitle;
+
+  /// Headline once the payment made with QR codes is posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in person'**
+  String get phoneQrDoneTitlePaid;
+
+  /// Headline once the payment received with QR codes is posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Received in person'**
+  String get phoneQrDoneTitleReceived;
+
+  /// Dim line under the camera when the payer scans the answer: what happens on a good read.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is paid when the answer is read.'**
+  String phoneQrPaidWhen(String amount);
+
+  /// Quiet button on the payer's scan screen: go back to the QR code that was shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my code again'**
+  String get phoneQrShowMine;
 }
 
 class _AppLocalizationsDelegate

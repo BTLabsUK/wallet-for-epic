@@ -22158,4 +22158,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneRestoreDoneBody =>
       'The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'Step $n of $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'Show your code';
+
+  @override
+  String get phoneStepPayScan => 'Scan their answer';
+
+  @override
+  String get phoneStepPayFileSend => 'Send the file';
+
+  @override
+  String get phoneStepPayFileReply => 'Open their reply';
+
+  @override
+  String get phoneStepRecvScan => 'Scan their code';
+
+  @override
+  String get phoneStepRecvShow => 'Show your answer';
+
+  @override
+  String get phoneStepRecvFileOpen => 'Open their file';
+
+  @override
+  String get phoneStepRecvFileReply => 'Send your reply';
+
+  @override
+  String get phoneQrTitlePay => 'Pay in person';
+
+  @override
+  String get phoneQrTitleReceive => 'Receive in person';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'Hides in $seconds s';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'Scan their answer';
+
+  @override
+  String get phoneQrHelpTitle => 'Paying in person';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'Paid in person';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'Received in person';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount is paid when the answer is read.';
+  }
+
+  @override
+  String get phoneQrShowMine => 'Show my code again';
 }

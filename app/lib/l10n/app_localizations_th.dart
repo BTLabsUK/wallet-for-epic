@@ -21710,4 +21710,64 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneRestoreDoneBody =>
       'วลีกู้คืนนำยอดเงินกลับมาแล้ว ประวัติ รายชื่อติดต่อ และการตั้งค่าจะกลับมาจากไฟล์ข้อมูลกระเป๋า หากคุณเคยส่งออกไว้';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'ขั้นที่ $n จาก $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'แสดงโค้ดของคุณ';
+
+  @override
+  String get phoneStepPayScan => 'สแกนคำตอบของเขา';
+
+  @override
+  String get phoneStepPayFileSend => 'ส่งไฟล์';
+
+  @override
+  String get phoneStepPayFileReply => 'เปิดคำตอบของเขา';
+
+  @override
+  String get phoneStepRecvScan => 'สแกนโค้ดของเขา';
+
+  @override
+  String get phoneStepRecvShow => 'แสดงคำตอบของคุณ';
+
+  @override
+  String get phoneStepRecvFileOpen => 'เปิดไฟล์ของเขา';
+
+  @override
+  String get phoneStepRecvFileReply => 'ส่งคำตอบของคุณ';
+
+  @override
+  String get phoneQrTitlePay => 'จ่ายต่อหน้า';
+
+  @override
+  String get phoneQrTitleReceive => 'รับต่อหน้า';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'ซ่อนใน $seconds วิ';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'สแกนคำตอบของเขา';
+
+  @override
+  String get phoneQrHelpTitle => 'การจ่ายต่อหน้า';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'จ่ายต่อหน้าแล้ว';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'รับต่อหน้าแล้ว';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount จะจ่ายเมื่ออ่านคำตอบแล้ว';
+  }
+
+  @override
+  String get phoneQrShowMine => 'แสดงโค้ดของฉันอีกครั้ง';
 }

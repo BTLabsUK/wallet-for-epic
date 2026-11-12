@@ -22871,4 +22871,64 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneRestoreDoneBody =>
       'Фраза восстановления вернула баланс. История, контакты и настройки возвращаются из файла данных кошелька, если вы его экспортировали.';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return 'Шаг $n из $total: $title';
+  }
+
+  @override
+  String get phoneStepPayShow => 'Покажите свой код';
+
+  @override
+  String get phoneStepPayScan => 'Отсканируйте ответ';
+
+  @override
+  String get phoneStepPayFileSend => 'Отправьте файл';
+
+  @override
+  String get phoneStepPayFileReply => 'Откройте ответ';
+
+  @override
+  String get phoneStepRecvScan => 'Отсканируйте код';
+
+  @override
+  String get phoneStepRecvShow => 'Покажите свой ответ';
+
+  @override
+  String get phoneStepRecvFileOpen => 'Откройте файл';
+
+  @override
+  String get phoneStepRecvFileReply => 'Отправьте ответ';
+
+  @override
+  String get phoneQrTitlePay => 'Оплатить лично';
+
+  @override
+  String get phoneQrTitleReceive => 'Получить лично';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return 'Скроется через $seconds с';
+  }
+
+  @override
+  String get phoneQrScanAnswer => 'Отсканировать ответ';
+
+  @override
+  String get phoneQrHelpTitle => 'Оплата лично';
+
+  @override
+  String get phoneQrDoneTitlePaid => 'Оплачено лично';
+
+  @override
+  String get phoneQrDoneTitleReceived => 'Получено лично';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '$amount будет оплачено, когда ответ прочитан.';
+  }
+
+  @override
+  String get phoneQrShowMine => 'Показать мой код снова';
 }

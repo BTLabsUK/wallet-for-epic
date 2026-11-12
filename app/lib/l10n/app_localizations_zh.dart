@@ -20911,4 +20911,64 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneRestoreDoneBody => '恢复短语已找回余额。历史、联系人和设置可从钱包数据文件恢复（如果你导出过）。';
+
+  @override
+  String phoneStepOf(int n, int total, String title) {
+    return '第 $n 步，共 $total 步：$title';
+  }
+
+  @override
+  String get phoneStepPayShow => '出示你的码';
+
+  @override
+  String get phoneStepPayScan => '扫描对方的回复';
+
+  @override
+  String get phoneStepPayFileSend => '发送文件';
+
+  @override
+  String get phoneStepPayFileReply => '打开对方的回复';
+
+  @override
+  String get phoneStepRecvScan => '扫描对方的码';
+
+  @override
+  String get phoneStepRecvShow => '出示你的回复';
+
+  @override
+  String get phoneStepRecvFileOpen => '打开对方的文件';
+
+  @override
+  String get phoneStepRecvFileReply => '发送你的回复';
+
+  @override
+  String get phoneQrTitlePay => '当面支付';
+
+  @override
+  String get phoneQrTitleReceive => '当面收款';
+
+  @override
+  String phoneQrHidesIn(int seconds) {
+    return '$seconds 秒后隐藏';
+  }
+
+  @override
+  String get phoneQrScanAnswer => '扫描对方的回复';
+
+  @override
+  String get phoneQrHelpTitle => '当面支付';
+
+  @override
+  String get phoneQrDoneTitlePaid => '已当面支付';
+
+  @override
+  String get phoneQrDoneTitleReceived => '已当面收款';
+
+  @override
+  String phoneQrPaidWhen(String amount) {
+    return '读取回复后即支付 $amount。';
+  }
+
+  @override
+  String get phoneQrShowMine => '再次出示我的码';
 }

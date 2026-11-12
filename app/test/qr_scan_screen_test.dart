@@ -123,7 +123,7 @@ void main() {
   testWidgets('the reply scanner words its hints for a reply', (tester) async {
     final h = _Harness();
     await h.pump(tester, kind: QrScanKind.reply);
-    expect(find.text(_l.qrScanReply), findsOneWidget);
+    expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
     expect(
       find.text('Point the camera at the reply on their phone.'),
       findsOneWidget,
@@ -248,7 +248,7 @@ void main() {
     expect(find.textContaining('Camera access is off'), findsOneWidget);
     expect(find.text(_l.qrScanOpenSettings), findsOneWidget);
     expect(find.text(_l.qrScanOpenFileInstead), findsOneWidget);
-    expect(find.text(_l.scanQrBack), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.commonClose), findsWidgets);
     await tester.tap(find.text('Open a file instead'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(h.result, isA<QrScanOpenFile>());

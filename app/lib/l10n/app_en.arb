@@ -30084,5 +30084,103 @@
   "phoneRestoreDoneBody": "The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.",
   "@phoneRestoreDoneBody": {
     "description": "Text under the Your wallet is restored heading."
+  },
+  "phoneStepOf": "Step {n} of {total}: {title}",
+  "@phoneStepOf": {
+    "description": "Screen reader label of one step in the three-step strip of a two-phone or file payment.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "3"
+      },
+      "title": {
+        "type": "String",
+        "example": "Scan their answer"
+      }
+    }
+  },
+  "phoneStepPayShow": "Show your code",
+  "@phoneStepPayShow": {
+    "description": "Step 1 of paying in person: the payer shows a QR code."
+  },
+  "phoneStepPayScan": "Scan their answer",
+  "@phoneStepPayScan": {
+    "description": "Step 2 of paying in person: the payer scans the other phone's answer."
+  },
+  "phoneStepPayFileSend": "Send the file",
+  "@phoneStepPayFileSend": {
+    "description": "Step 1 of paying with a file: the payer sends the payment file."
+  },
+  "phoneStepPayFileReply": "Open their reply",
+  "@phoneStepPayFileReply": {
+    "description": "Step 2 of paying with a file: the payer opens the file that comes back."
+  },
+  "phoneStepRecvScan": "Scan their code",
+  "@phoneStepRecvScan": {
+    "description": "Step 1 of getting paid in person: scan the payer's QR code."
+  },
+  "phoneStepRecvShow": "Show your answer",
+  "@phoneStepRecvShow": {
+    "description": "Step 2 of getting paid in person: show a QR code with the answer."
+  },
+  "phoneStepRecvFileOpen": "Open their file",
+  "@phoneStepRecvFileOpen": {
+    "description": "Step 1 of getting paid with a file: open the payment file."
+  },
+  "phoneStepRecvFileReply": "Send your reply",
+  "@phoneStepRecvFileReply": {
+    "description": "Step 2 of getting paid with a file: send the reply file back."
+  },
+  "phoneQrTitlePay": "Pay in person",
+  "@phoneQrTitlePay": {
+    "description": "Title of the screen that shows the payer's QR code."
+  },
+  "phoneQrTitleReceive": "Receive in person",
+  "@phoneQrTitleReceive": {
+    "description": "Title of the screen that shows the receiver's answer as a QR code."
+  },
+  "phoneQrHidesIn": "Hides in {seconds} s",
+  "@phoneQrHidesIn": {
+    "description": "Chip under a shown QR code: seconds left before it hides.",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "38"
+      }
+    }
+  },
+  "phoneQrScanAnswer": "Scan their answer",
+  "@phoneQrScanAnswer": {
+    "description": "Button on the payer's QR screen: scan the answer on the other phone."
+  },
+  "phoneQrHelpTitle": "Paying in person",
+  "@phoneQrHelpTitle": {
+    "description": "Title of the help sheet of the QR screens."
+  },
+  "phoneQrDoneTitlePaid": "Paid in person",
+  "@phoneQrDoneTitlePaid": {
+    "description": "Headline once the payment made with QR codes is posted."
+  },
+  "phoneQrDoneTitleReceived": "Received in person",
+  "@phoneQrDoneTitleReceived": {
+    "description": "Headline once the payment received with QR codes is posted."
+  },
+  "phoneQrPaidWhen": "{amount} is paid when the answer is read.",
+  "@phoneQrPaidWhen": {
+    "description": "Dim line under the camera when the payer scans the answer: what happens on a good read.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      }
+    }
+  },
+  "phoneQrShowMine": "Show my code again",
+  "@phoneQrShowMine": {
+    "description": "Quiet button on the payer's scan screen: go back to the QR code that was shown."
   }
 }
