@@ -53,9 +53,9 @@ Future<void> _fPayMake(_Tour t) async {
 Future<void> _fPayShow(_Tour t) async {
   await _fPayMake(t);
   await t.tap(find.byKey(qrShowButtonKey));
+  // The frame shows the code 2 s into its 40 s countdown ("Hides in 38 s").
   await t.elapse(1300);
-  await t.elapse(2400);
-  await t.elapse(5000);
+  await t.elapse(700);
 }
 
 Future<void> _frameReceive(_Tour t) async {
@@ -124,8 +124,8 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await t.tapText(t.l.phoneAcceptAccept);
     await t.tap(find.byKey(showReplyQrKey));
     await t.tap(find.byKey(qrShowButtonKey));
-    await t.elapse(3600);
-    await t.elapse(5000);
+    await t.elapse(1300);
+    await t.elapse(700);
     await t.shot('fr-InPerson-4-Answer');
   }),
   ('fr-Gap-3-InPerson-Done', _Start.home, (t) async {

@@ -174,13 +174,13 @@ class RequestCodePage extends ConsumerWidget {
                             ],
                           ],
                         ),
-                        // The frame has only Copy and Share: with Share, saving is the share sheet's
-                        // own; without it, Save is the main button.
-                        if (saveFile && !files.canShare) ...[
-                          const SizedBox(height: 10),
+                        if (saveFile) ...[
+                          // The frame has only Copy and Share; saving the file stays one quiet line
+                          // under them (without Share it is the main button).
+                          SizedBox(height: files.canShare ? 4 : 10),
                           KitButton(
                             label: l.slateSaveToDevice,
-                            kind: KitButtonKind.gold,
+                            kind: files.canShare ? KitButtonKind.ghost : KitButtonKind.gold,
                             onPressed: () => _hand(context, ref, (f) async {
                               final ok = await f.save(name: fileName, json: json, dialogTitle: l.slateSaveDialogTitle);
                               if (ok) ref.read(noticeProvider.notifier).show(l.slateSaved(fileName), level: NoticeLevel.success);

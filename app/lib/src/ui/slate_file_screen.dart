@@ -891,19 +891,20 @@ class SlateFileButtons extends ConsumerWidget {
     final saveButton = KitButton(
       icon: Icons.save_alt_rounded,
       label: saveLabel,
-      kind: share == null && primary ? KitButtonKind.gold : KitButtonKind.quiet,
+      kind: framed && share != null ? KitButtonKind.ghost : (share == null && primary ? KitButtonKind.gold : KitButtonKind.quiet),
       semanticsId: TrustIds.fileSave,
       onPressed: save,
     );
     if (framed && copy != null) {
-      // The frame: Copy as text beside the gold share, then the hint.
+      // The frame: Copy as text beside the gold share, the hint, and Save to device last (the
+      // frame has no room for it, so it is a quiet line under the hint).
+      final noShare = share == null;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(children: [Expanded(child: copy), const SizedBox(width: 10), Expanded(child: share ?? saveButton)]),
           if (hint != null) ...[const SizedBox(height: 16), hint!],
-          // Save to device is the system share sheet's own "Save to Files" here; the button is
-          // only on a device that cannot share.
+          if (!noShare) ...[const SizedBox(height: 4), saveButton],
         ],
       );
     }

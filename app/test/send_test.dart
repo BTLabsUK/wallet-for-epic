@@ -1411,7 +1411,7 @@ void main() {
       await tester.pumpAndSettle();
       await _tap(tester, find.text(_l.phoneFileShare));
       expect(h.files.shared.single.name, 'slate-1.tx');
-      expect(find.text(_l.sendOpenReply), findsOneWidget);
+      expect(find.text(_l.phoneStepPayFileReply), findsOneWidget);
 
       // A response for another transaction is refused before anything is signed.
       h.files.picks.add(
@@ -1423,7 +1423,7 @@ void main() {
         fee: BigInt.one,
         stage: SlateStage.response,
       );
-      await _tap(tester, find.text(_l.sendOpenReply));
+      await _tap(tester, find.text(_l.phoneStepPayFileReply));
       expect(find.textContaining('for a different payment'), findsOneWidget);
       expect(find.text(_l.slateFinishPayment), findsNothing);
       // The error notice goes first, so the screen is back in its own place.
@@ -1447,7 +1447,7 @@ void main() {
         fee: h.session.fee,
         stage: SlateStage.response,
       );
-      await _tap(tester, find.text(_l.sendOpenReply));
+      await _tap(tester, find.text(_l.phoneStepPayFileReply));
       expect(
         find.textContaining('answer to your send of 1.5\u00a0EPIC'),
         findsOneWidget,
@@ -1462,7 +1462,7 @@ void main() {
       await _tap(tester, find.widgetWithText(KitButton, _l.commonDone));
       expect(find.text(_l.sendFileWaitingReply), findsNothing);
       expect(find.text(_l.txStepAccepted), findsOneWidget);
-      expect(find.text(_l.sendOpenReply), findsNothing);
+      expect(find.text(_l.phoneStepPayFileReply), findsNothing);
     });
 
     testWidgets('where files cannot be shared, only Save to device shows', (
@@ -1655,7 +1655,7 @@ void main() {
       await h.open(tester, _receiveTab());
       await _tap(tester, find.text(_l.phoneRecvOther));
       await _tap(tester, find.text(_l.phoneSettingsWithFile));
-      await _tap(tester, find.text(_l.receiveFileOpen));
+      await _tap(tester, find.text(_l.phoneFileOpenFile));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
       await h.finishTrip(tester);

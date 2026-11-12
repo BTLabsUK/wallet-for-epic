@@ -926,7 +926,7 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);
       await _tap(tester, makeFile());
-      expect(find.text(_l.sendOpenReply), findsOneWidget);
+      expect(find.text(_l.phoneStepPayFileReply), findsOneWidget);
       expect(find.byKey(offlineNoPeersKey), findsOneWidget);
       expect(find.text(_l.netOfflineNoPeers), findsOneWidget);
     });
@@ -1059,8 +1059,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, body: const ReceiveView(), height: 3600, payments: _directOn);
       await openWay(tester, _l.phoneSettingsWithFile);
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
-      expect(find.text(_l.receiveFileOpen), findsOneWidget);
+      expect(find.text(_l.phoneFileTitleReceive), findsOneWidget);
+      expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
     });
 
     testWidgets('receiving help opens the Receive topic', (

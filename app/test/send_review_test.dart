@@ -567,10 +567,11 @@ void main() {
       // No review checks: nothing goes over a relay.
       expect(h.service.tipCalls, tipsBefore);
       // The tracker: made, waiting for the reply, then the network.
-      expect(find.text(_l.sendFileTitle), findsOneWidget);
+      expect(find.text(_l.sendPayByFile), findsOneWidget);
       expect(find.text(_l.phoneFilePayCard), findsOneWidget);
       expect(find.textContaining(_l.phoneStepPayFileSend), findsOneWidget);
-      expect(find.textContaining(_l.phoneStepPayFileReply), findsOneWidget);
+      // The strip's step 2 and the row that opens the reply.
+      expect(find.textContaining(_l.phoneStepPayFileReply), findsNWidgets(2));
       expect(find.textContaining('slate'), findsNothing);
 
       await _tap(tester, find.text(_l.sendCopyPasteInstead));

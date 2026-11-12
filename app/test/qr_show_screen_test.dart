@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/qr_slate.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -376,7 +377,7 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byKey(qrCardKey), findsOneWidget);
     final card = tester.getSize(find.byKey(qrCardKey));
-    expect(card.width, 270);
+    expect(card.width, Kit.qr);
     // The seconds and the part stay reachable: the body scrolls, the title is not clipped.
     await tester.dragUntilVisible(
       find.textContaining('Part '),
