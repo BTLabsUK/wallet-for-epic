@@ -134,6 +134,9 @@ const Key sendEpicboxDownKey = ValueKey('send-epicbox-down');
 /// multi-line one into a number input.
 const Key sendRecipientFieldKey = ValueKey('send-recipient-field');
 const Key sendAmountFieldKey = ValueKey('send-amount-field');
+
+/// The amount page's Review button, for tests.
+const Key sendReviewButtonKey = ValueKey('send-review-button');
 const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
 
 /// "Not enough spendable EPIC…" under the amount, said on the keystroke.
@@ -3544,8 +3547,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final gate = _gate;
     // The other unit under the figure.
     String? fiat;
-    if (amount != null && price != null) {
-      fiat = _fiatEntry ? approxText(epicText(l, amount)) : approxText(localDigits(l, fiatText(amount, price, currency)));
+    if (price != null) {
+      // With nothing typed yet the line still shows (at zero), so the unit can be switched first.
+      final shown = amount ?? BigInt.zero;
+      fiat = _fiatEntry ? approxText(epicText(l, shown)) : approxText(localDigits(l, fiatText(shown, price, currency)));
     }
     // A code's amount: "Requested by the code" while the field holds it, what it asked for once
     // changed; and its minimum.
@@ -3780,6 +3785,7 @@ class _SendViewState extends ConsumerState<SendView> {
       button: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
         child: KitButton(
+          key: sendReviewButtonKey,
           semanticsId: TrustIds.sendReview,
           label: way == TorWay.wait ? context.l10n.torWaiting : context.l10n.phoneSendReviewTitle,
           onPressed: _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null ? _toReview : null,
