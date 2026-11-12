@@ -79,7 +79,9 @@ class KitSheet extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 24),
+          // `.sheet` padding-bottom 34 is the home-indicator zone: the inset the SafeArea gives
+          // is part of it, a phone with no inset keeps 16.
+          padding: EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom > 0 ? 0 : 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -74,6 +74,8 @@ words in the data; the app's own words stay the app's.
 | `.bub` max 268, radius 20 with a 7 tail, `.a` mono 21, `.s` 12.5 | `_PaymentBubble` |
 | `.steps` 8 px dots, gap 7 and 9 | `_BubbleSteps`, `_StepDot` |
 | `.act` padding 12 16 34, gap 10 | contact page `bar()` |
+| `.sheet` #15151A, radius 28, hair2 top, padding 10 0 34; `.grab` 36 x 5; `h2` 20 | `bottomSheetTheme` (`tokens.dart`), `KitSheet`, `KitGrabber` |
+| `.toast` inset 12, min 56, radius 20, rgba(34,34,43,.95), hair2, 14.5 | `snackBarTheme` (`tokens.dart`, dark) |
 | `.w::before` gold pool + 28 px grid | `ProtocolBackdropPainter` (`theme/brand.dart`) |
 
 Where a target must stay 48 tall for touch (the eye, "See all", the pill) the layout keeps the
