@@ -95,8 +95,9 @@ Finder sendSwapButton() => find.byTooltip(englishStrings.phoneKitSwapCurrency);
 /// The Max button of the Available bar.
 Finder sendMaxButton() => find.text(englishStrings.sendMax);
 
-/// The network fee as the amount page shows it (in the "Leaves … after the … fee" line).
-Finder feeShown(String fee) => find.textContaining('$fee\u00a0EPIC', findRichText: true);
+/// The network fee as the amount page shows it (in the "Leaves … after the … fee" line, the
+/// figure without its unit).
+Finder feeShown(String fee) => find.textContaining('after the $fee fee', findRichText: true);
 
 /// The forward button's onPressed (null while the page is not ready), whichever widget it is.
 VoidCallback? continueOnPressed(WidgetTester tester) {

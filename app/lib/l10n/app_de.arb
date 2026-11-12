@@ -6042,7 +6042,7 @@
   "phoneSendInPersonSub": "Zeige einem Handy neben dir einen Code",
   "phoneSendWithFile": "Mit einer Datei",
   "phoneSendWithFileSub": "In einer beliebigen App senden; die andere Person schickt eine zurück",
-  "phoneSendAddContact": "Kontakt hinzufügen",
+  "phoneSendAddContact": "Als Kontakt speichern",
   "phoneSendAddressCheck": "Prüfe die ersten und letzten sechs Zeichen mit der Person, die du bezahlst.",
   "phoneSendReviewTitle": "Prüfen",
   "phoneSendMoreDetails": "Mehr Details",
@@ -6085,5 +6085,16 @@
   "phoneHelpSecTrouble": "When something is wrong",
   "phoneRestoreTitle": "Restore a wallet",
   "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
-  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins."
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "phoneSendRouteEpicbox": "Epicbox-Adresse",
+  "phoneSendPinReason": "Um {amount} an {name} zu senden",
+  "phoneSendNoteLabel": "Notiz",
+  "phoneSendReviewHintOffline": "Die Wallet von {name} darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.",
+  "phoneSendHelpTitle": "So funktioniert das Senden",
+  "phoneSendHelpStep1": "Du wählst, an wen und wie viel",
+  "phoneSendHelpStep1Sub": "Nichts verlässt das Gerät, bevor du es prüfst und deine PIN eingibst.",
+  "phoneSendHelpStep2": "Ihre Wallet antwortet",
+  "phoneSendHelpStep2Sub": "Eine Zahlung braucht beide Wallets. Mit Epicbox kann ihre später antworten, wenn sie das nächste Mal geöffnet wird.",
+  "phoneSendHelpStep3": "Das Netzwerk bestätigt sie",
+  "phoneSendHelpStep3Sub": "Nach ein paar Blöcken kann sie ausgegeben werden."
 }

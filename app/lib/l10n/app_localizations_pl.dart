@@ -23875,7 +23875,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wyślij w dowolnej aplikacji; odbiorca odeśle plik';
 
   @override
-  String get phoneSendAddContact => 'Dodaj kontakt';
+  String get phoneSendAddContact => 'Zapisz jako kontakt';
 
   @override
   String get phoneSendAddressCheck =>
@@ -24038,4 +24038,43 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneRestoreStartNote =>
       'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+
+  @override
+  String get phoneSendRouteEpicbox => 'Adres Epicbox';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return 'Aby wysłać $amount do $name';
+  }
+
+  @override
+  String get phoneSendNoteLabel => 'Notatka';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'Portfel $name może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.';
+  }
+
+  @override
+  String get phoneSendHelpTitle => 'Jak działa wysyłanie';
+
+  @override
+  String get phoneSendHelpStep1 => 'Wybierasz, do kogo i ile';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'Nic nie wychodzi, zanim sprawdzisz płatność i wpiszesz PIN.';
+
+  @override
+  String get phoneSendHelpStep2 => 'Ich portfel odpowiada';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'Płatność wymaga obu portfeli. Przez Epicbox ich portfel może odpowiedzieć później, przy następnym otwarciu.';
+
+  @override
+  String get phoneSendHelpStep3 => 'Sieć ją potwierdza';
+
+  @override
+  String get phoneSendHelpStep3Sub => 'Po kilku blokach mogą ją wydać.';
 }

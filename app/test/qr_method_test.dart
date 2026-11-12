@@ -237,8 +237,10 @@ void main() {
       final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
       await _openHow(tester);
-      expect(_howCaption(tester), '1. ${_l.handshakePay1}');
-      await tester.tap(find.text(_l.commonClose));
+      // The payment way's help is the frame's sheet: the three steps, then Done.
+      expect(find.text(_l.phoneSendHelpTitle), findsOneWidget);
+      expect(find.byType(HandshakeSheet), findsNothing);
+      await tester.tap(find.text(_l.commonDone));
       await tester.pumpAndSettle();
 
       await tester.enterText(sendTo(), _linkAddress);
@@ -751,7 +753,7 @@ void main() {
       // One frame: inside the estimate's debounce, nothing asked of the wallet yet.
       await tester.pump();
       expect(find.byKey(sendNotEnoughKey), findsOneWidget);
-      expect(tester.widget<Text>(find.byKey(sendNotEnoughKey)).data, contains('4.108'));
+      expect(tester.widget<Text>(find.byKey(sendNotEnoughKey)).textSpan!.toPlainText(), contains('4.108'));
       expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.tap(make(), warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 500));

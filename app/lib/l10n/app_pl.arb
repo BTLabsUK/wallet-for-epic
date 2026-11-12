@@ -6042,7 +6042,7 @@
   "phoneSendInPersonSub": "Pokaż kod telefonowi obok",
   "phoneSendWithFile": "Plikiem",
   "phoneSendWithFileSub": "Wyślij w dowolnej aplikacji; odbiorca odeśle plik",
-  "phoneSendAddContact": "Dodaj kontakt",
+  "phoneSendAddContact": "Zapisz jako kontakt",
   "phoneSendAddressCheck": "Sprawdź pierwsze i ostatnie sześć znaków z osobą, której płacisz.",
   "phoneSendReviewTitle": "Sprawdź",
   "phoneSendMoreDetails": "Więcej szczegółów",
@@ -6085,5 +6085,16 @@
   "phoneHelpSecTrouble": "When something is wrong",
   "phoneRestoreTitle": "Restore a wallet",
   "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
-  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins."
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "phoneSendRouteEpicbox": "Adres Epicbox",
+  "phoneSendPinReason": "Aby wysłać {amount} do {name}",
+  "phoneSendNoteLabel": "Notatka",
+  "phoneSendReviewHintOffline": "Portfel {name} może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.",
+  "phoneSendHelpTitle": "Jak działa wysyłanie",
+  "phoneSendHelpStep1": "Wybierasz, do kogo i ile",
+  "phoneSendHelpStep1Sub": "Nic nie wychodzi, zanim sprawdzisz płatność i wpiszesz PIN.",
+  "phoneSendHelpStep2": "Ich portfel odpowiada",
+  "phoneSendHelpStep2Sub": "Płatność wymaga obu portfeli. Przez Epicbox ich portfel może odpowiedzieć później, przy następnym otwarciu.",
+  "phoneSendHelpStep3": "Sieć ją potwierdza",
+  "phoneSendHelpStep3Sub": "Po kilku blokach mogą ją wydać."
 }

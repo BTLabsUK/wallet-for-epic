@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/motion_switches.dart';
-import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/send_tracker.dart';
@@ -288,16 +287,14 @@ void main() {
       // The tracker: no step count, no way back to a form that could send twice.
       expect(find.byTooltip(_l.scanQrBack), findsNothing);
       expect(_steps(tester, KitStepState.done), [_l.phoneProgSent]);
-      expect(_steps(tester, KitStepState.now), [_l.txStatusWaitingRecipient]);
-      expect(_steps(tester, KitStepState.later), [
-        _l.phoneProgNetwork,
-        _l.txStepConfirmed,
-      ]);
+      expect(_steps(tester, KitStepState.now), [_l.phoneProgWaitingAnswer]);
+      // The network step shows once the payment is on the network.
+      expect(_steps(tester, KitStepState.later), [_l.txStepConfirmed]);
       await _tap(tester, find.text(_l.commonDone));
       expect(h.done, 1);
     });
 
-    testWidgets('How it works opens the handshake from every step', (
+    testWidgets('How it works opens the help sheet from every step', (
       tester,
     ) async {
       final h = _Harness();
@@ -308,8 +305,8 @@ void main() {
       await tester.tap(info);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.byType(HandshakeSheet), findsOneWidget);
-      Navigator.of(tester.element(find.byType(HandshakeSheet))).pop();
+      expect(find.text(_l.phoneSendHelpTitle), findsOneWidget);
+      await tester.tap(find.text(_l.commonDone));
       await tester.pumpAndSettle();
 
       await _enter(tester, 'To', _bob);
@@ -329,13 +326,13 @@ void main() {
       await h.pump(tester);
       await _send(tester);
       await h.payment(tester, TxStatus.awaitingRecipient);
-      expect(_steps(tester, KitStepState.now), [_l.txStatusWaitingRecipient]);
+      expect(_steps(tester, KitStepState.now), [_l.phoneProgWaitingAnswer]);
 
       // Their wallet signed; ours finished it and handed it to the network.
       await h.payment(tester, TxStatus.awaitingConfirmation);
       expect(_steps(tester, KitStepState.done), [
         _l.phoneProgSent,
-        _l.txStatusWaitingRecipient,
+        _l.phoneProgWaitingAnswer,
       ]);
       expect(_steps(tester, KitStepState.now), [_l.phoneProgNetwork]);
       expect(find.text(_l.sendTrackIfNot), findsNothing);
@@ -343,7 +340,7 @@ void main() {
       await h.payment(tester, TxStatus.confirmed, height: BigInt.one);
       expect(_steps(tester, KitStepState.done), [
         _l.phoneProgSent,
-        _l.txStatusWaitingRecipient,
+        _l.phoneProgWaitingAnswer,
         _l.phoneProgNetwork,
         _l.txStepConfirmed,
       ]);
@@ -359,7 +356,7 @@ void main() {
       for (var i = 0; i < 3; i++) {
         await tester.pump(const Duration(minutes: 1));
         await h.payment(tester, TxStatus.awaitingRecipient);
-        expect(_steps(tester, KitStepState.now), [_l.txStatusWaitingRecipient]);
+        expect(_steps(tester, KitStepState.now), [_l.phoneProgWaitingAnswer]);
       }
       // The one-day rule waits behind the expandable.
       expect(find.textContaining('after 1 day'), findsNothing);
@@ -383,10 +380,10 @@ void main() {
       await _send(tester);
       expect(find.bySemanticsLabel(RegExp('^${_l.phoneProgSent}, ${_l.phoneKitStepDone}')), findsOneWidget);
       expect(
-        find.bySemanticsLabel(RegExp('^${_l.txStatusWaitingRecipient}, ${_l.phoneKitStepNow}')),
+        find.bySemanticsLabel(RegExp('^${_l.phoneProgWaitingAnswer}, ${_l.phoneKitStepNow}')),
         findsOneWidget,
       );
-      expect(find.bySemanticsLabel(RegExp('^${_l.phoneProgNetwork}, ${_l.phoneKitStepLater}')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^${_l.phoneProgNetwork}')), findsNothing);
       expect(find.bySemanticsLabel(RegExp('^${_l.txStepConfirmed}, ${_l.phoneKitStepLater}')), findsOneWidget);
       handle.dispose();
     });

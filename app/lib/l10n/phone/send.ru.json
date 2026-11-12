@@ -9,7 +9,9 @@
   "phoneSendInPersonSub": "Покажите код телефону рядом",
   "phoneSendWithFile": "Файлом",
   "phoneSendWithFileSub": "Отправьте в любом приложении; получатель пришлёт файл в ответ",
-  "phoneSendAddContact": "Добавить контакт",
+  "phoneSendRouteEpicbox": "Адрес Epicbox",
+  "phoneSendPinReason": "Чтобы отправить {amount} — {name}",
+  "phoneSendAddContact": "Сохранить как контакт",
   "phoneSendAddressCheck": "Сверьте первые и последние шесть символов с тем, кому платите.",
   "phoneSendReviewTitle": "Проверка",
   "phoneSendMoreDetails": "Подробнее",
@@ -18,5 +20,14 @@
   "phoneSendViewPayment": "Открыть платёж",
   "phoneSendOnItsWayTo": "Отправлено: {name}",
   "phoneSendTheirOffline": "их кошелёк может быть офлайн",
-  "phoneSendTheirOnline": "их кошелёк должен быть открыт"
+  "phoneSendTheirOnline": "их кошелёк должен быть открыт",
+  "phoneSendNoteLabel": "Заметка",
+  "phoneSendReviewHintOffline": "Кошелёк {name} может быть не в сети. Платёж завершится, когда он снова откроется.",
+  "phoneSendHelpTitle": "Как работает отправка",
+  "phoneSendHelpStep1": "Вы выбираете, кому и сколько",
+  "phoneSendHelpStep1Sub": "Ничто не уходит, пока вы не проверите платёж и не введёте PIN.",
+  "phoneSendHelpStep2": "Их кошелёк отвечает",
+  "phoneSendHelpStep2Sub": "Платёж требует обоих кошельков. Через Epicbox их кошелёк может ответить позже, при следующем открытии.",
+  "phoneSendHelpStep3": "Сеть подтверждает его",
+  "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить."
 }

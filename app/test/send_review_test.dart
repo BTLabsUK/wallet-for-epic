@@ -638,7 +638,7 @@ void main() {
   });
 
   group('review checks', () {
-    testWidgets('all pass: one "Ready to send" line, and the send goes', (
+    testWidgets('all pass: no check line, and the send goes', (
       tester,
     ) async {
       final h = _Harness();
@@ -646,7 +646,8 @@ void main() {
       await h.pump(tester);
       await h.connect(tester);
       await _review(tester, _bob);
-      expect(find.text(_l.sendReady), findsOneWidget);
+      // The phone's review has no "Ready to send" line (the frame shows none): Send itself says it.
+      expect(find.text(_l.sendReady), findsNothing);
       expect(find.text(_l.commonRetry), findsNothing);
       expect(_fileButton, findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
@@ -677,7 +678,7 @@ void main() {
         // The message is there as typed, with where it goes.
         final block = find.byKey(sendReviewMessageKey);
         expect(
-          find.descendant(of: block, matching: find.text(_l.sendNoteLabel)),
+          find.descendant(of: block, matching: find.text(_l.phoneSendNoteLabel)),
           findsOneWidget,
         );
         expect(
@@ -789,7 +790,8 @@ void main() {
 
       h.service.error = null;
       await _tap(tester, find.text(_l.commonRetry));
-      expect(find.text(_l.sendReady), findsOneWidget);
+      // The phone's review has no "Ready to send" line (the frame shows none): Send itself says it.
+      expect(find.text(_l.sendReady), findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
       await _tap(tester, _sendButton);
       expect(h.session.epicboxSends, hasLength(1));
@@ -1148,7 +1150,7 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       slow.gate.complete();
       await tester.pumpAndSettle();
-      expect(find.text(_l.txStatusWaitingRecipient), findsOneWidget);
+      expect(find.text(_l.phoneProgWaitingAnswer), findsOneWidget);
     });
 
     testWidgets('other send errors stay in words, without the file offer', (
@@ -1176,7 +1178,8 @@ void main() {
       await h.pump(tester);
       await h.connect(tester);
       await _review(tester, _bob);
-      expect(find.text(_l.sendReady), findsOneWidget);
+      // The phone's review has no "Ready to send" line (the frame shows none): Send itself says it.
+      expect(find.text(_l.sendReady), findsNothing);
       expect(probe.probed, isEmpty);
     });
 
@@ -1189,7 +1192,8 @@ void main() {
       await h.connect(tester);
       await _review(tester, _carol);
       expect(probe.probed, [const EpicboxRelay(host: 'relay.example.org')]);
-      expect(find.text(_l.sendReady), findsOneWidget);
+      // The phone's review has no "Ready to send" line (the frame shows none): Send itself says it.
+      expect(find.text(_l.sendReady), findsNothing);
       expect(_fileButton, findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
       // linux-14: a relay the app does not know is named in a warning, and does not block.
@@ -1261,7 +1265,8 @@ void main() {
       expect(_enabled(tester, _sendButton), isFalse);
       probe.answer.complete(true);
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendReady), findsOneWidget);
+      // The phone's review has no "Ready to send" line (the frame shows none): Send itself says it.
+      expect(find.text(_l.sendReady), findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
     });
 

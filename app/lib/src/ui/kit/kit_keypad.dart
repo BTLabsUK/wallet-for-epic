@@ -22,7 +22,7 @@ abstract final class KitKey {
 /// set, else empty; the bottom-right key deletes. Each key gives a light tap. [idFor] names a
 /// key for the test drivers by its [KitKey] name or digit.
 class KitKeypad extends StatelessWidget {
-  const KitKeypad({super.key, required this.onDigit, required this.onDelete, this.onPoint, this.onBiometrics, this.idFor, this.onDeleteLong});
+  const KitKeypad({super.key, required this.onDigit, required this.onDelete, this.onPoint, this.onBiometrics, this.idFor, this.onDeleteLong, this.inset = 23});
 
   final ValueChanged<String> onDigit;
   final VoidCallback onDelete;
@@ -35,13 +35,16 @@ class KitKeypad extends StatelessWidget {
   final VoidCallback? onBiometrics;
   final String? Function(String key)? idFor;
 
+  /// Space either side of the grid: the keys stand 5 further in, so 23 puts them 28 from the edge.
+  final double inset;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = context.l10n;
     Widget cell(Widget? child) => Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
         child: SizedBox(height: Kit.key, child: child),
       ),
     );
@@ -76,10 +79,10 @@ class KitKeypad extends StatelessWidget {
     final bottomLeft = onPoint != null
         ? key(KitKey.point, Text('.', style: KitType.keypad.copyWith(color: t.text), textScaler: TextScaler.noScaling), onPoint, '.')
         : onBiometrics != null
-        ? key(KitKey.biometrics, Icon(KitIcons.fingerprint, size: 28, color: t.dim), onBiometrics, l.pinUseBiometrics)
+        ? key(KitKey.biometrics, Icon(KitIcons.fingerprint, size: 28, color: t.accentText), onBiometrics, l.pinUseBiometrics)
         : cell(null);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 23),
+      padding: EdgeInsets.symmetric(horizontal: inset),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -88,7 +91,7 @@ class KitKeypad extends StatelessWidget {
             ['4', '5', '6'],
             ['7', '8', '9'],
           ])
-            Row(children: [for (final d in row) digit(d)]),
+            Padding(padding: const EdgeInsets.only(bottom: 2), child: Row(children: [for (final d in row) digit(d)])),
           Row(
             children: [
               bottomLeft,

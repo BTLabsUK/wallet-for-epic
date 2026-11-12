@@ -12,9 +12,20 @@ import 'address_format.dart';
 class AddressFieldController extends TextEditingController {
   AddressFieldController({super.text});
 
+  /// With both set, an address is drawn in its parts: the first and last characters to check in
+  /// [mark], the server in [quiet] (the phone's To field once the address is settled).
+  TextStyle? mark;
+  TextStyle? quiet;
+
   @override
   TextSpan buildTextSpan({required BuildContext context, TextStyle? style, required bool withComposing}) {
     final shown = displayCase(text);
+    final m = mark, q = quiet;
+    if (m != null && q != null && !(withComposing && value.isComposingRangeValid) && shown == shown.trim()) {
+      // Only when the parts spell the text exactly: the cursor and the selection stay put.
+      final span = addressSpan(shown, style: style, mark: m, quiet: q);
+      if (span.children!.length > 1 && span.toPlainText() == shown) return span;
+    }
     if (shown == text) return super.buildTextSpan(context: context, style: style, withComposing: withComposing);
     // [displayCase] keeps the length, so the cursor, the selection and the composing range
     // still fall on the same characters.

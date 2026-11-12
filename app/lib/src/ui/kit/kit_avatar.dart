@@ -18,7 +18,7 @@ enum KitDirection { out, incoming, pending, outLive, incomingLive }
 /// 18). Shows [initials] in gold, or [icon]. [neutral] makes the figure dim, for a thing that
 /// is not a person. A [direction] adds the 19 px badge at the bottom-right corner.
 class KitAvatar extends StatelessWidget {
-  const KitAvatar({super.key, this.initials, this.icon, this.large = false, this.neutral = false, this.direction, this.semanticsLabel})
+  const KitAvatar({super.key, this.initials, this.icon, this.large = false, this.small = false, this.neutral = false, this.direction, this.semanticsLabel, this.initialsSize, this.iconSize})
     : assert(initials != null || icon != null);
 
   final String? initials;
@@ -26,15 +26,23 @@ class KitAvatar extends StatelessWidget {
 
   /// The 54 px strip size.
   final bool large;
+
+  /// The 26 px size of a flow's header (`.hdr .t .av`: radius 9, initials 10).
+  final bool small;
   final bool neutral;
   final KitDirection? direction;
   final String? semanticsLabel;
 
+  /// The initials' size and the icon's, where a frame draws a large avatar with its own (the
+  /// faces under Send's Who field: 16 and 24).
+  final double? initialsSize;
+  final double? iconSize;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final size = large ? Kit.avatarStrip : Kit.avatar;
-    final radius = large ? Kit.rAvatarStrip : Kit.rAvatar;
+    final size = small ? 26.0 : (large ? Kit.avatarStrip : Kit.avatar);
+    final radius = small ? 9.0 : (large ? Kit.rAvatarStrip : Kit.rAvatar);
     final ink = neutral ? t.dim : t.accentText;
     final face = Container(
       width: size,
@@ -44,11 +52,11 @@ class KitAvatar extends StatelessWidget {
       child: initials != null
           ? Text(
               initials!,
-              style: KitType.initials.copyWith(color: ink, fontSize: large ? 18 : 13),
+              style: KitType.initials.copyWith(color: ink, fontSize: initialsSize ?? (small ? 10 : (large ? 18 : 13))),
               maxLines: 1,
               textScaler: TextScaler.noScaling,
             )
-          : Icon(icon, size: large ? 26 : 22, color: ink),
+          : Icon(icon, size: iconSize ?? (small ? 16 : (large ? 26 : 22)), color: ink),
     );
     final d = direction;
     return Semantics(

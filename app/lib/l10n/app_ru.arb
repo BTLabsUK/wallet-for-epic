@@ -6042,7 +6042,7 @@
   "phoneSendInPersonSub": "Покажите код телефону рядом",
   "phoneSendWithFile": "Файлом",
   "phoneSendWithFileSub": "Отправьте в любом приложении; получатель пришлёт файл в ответ",
-  "phoneSendAddContact": "Добавить контакт",
+  "phoneSendAddContact": "Сохранить как контакт",
   "phoneSendAddressCheck": "Сверьте первые и последние шесть символов с тем, кому платите.",
   "phoneSendReviewTitle": "Проверка",
   "phoneSendMoreDetails": "Подробнее",
@@ -6085,5 +6085,16 @@
   "phoneHelpSecTrouble": "When something is wrong",
   "phoneRestoreTitle": "Restore a wallet",
   "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
-  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins."
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "phoneSendRouteEpicbox": "Адрес Epicbox",
+  "phoneSendPinReason": "Чтобы отправить {amount} — {name}",
+  "phoneSendNoteLabel": "Заметка",
+  "phoneSendReviewHintOffline": "Кошелёк {name} может быть не в сети. Платёж завершится, когда он снова откроется.",
+  "phoneSendHelpTitle": "Как работает отправка",
+  "phoneSendHelpStep1": "Вы выбираете, кому и сколько",
+  "phoneSendHelpStep1Sub": "Ничто не уходит, пока вы не проверите платёж и не введёте PIN.",
+  "phoneSendHelpStep2": "Их кошелёк отвечает",
+  "phoneSendHelpStep2Sub": "Платёж требует обоих кошельков. Через Epicbox их кошелёк может ответить позже, при следующем открытии.",
+  "phoneSendHelpStep3": "Сеть подтверждает его",
+  "phoneSendHelpStep3Sub": "Через несколько блоков получатель сможет их потратить."
 }

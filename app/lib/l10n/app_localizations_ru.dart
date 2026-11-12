@@ -23864,7 +23864,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправьте в любом приложении; получатель пришлёт файл в ответ';
 
   @override
-  String get phoneSendAddContact => 'Добавить контакт';
+  String get phoneSendAddContact => 'Сохранить как контакт';
 
   @override
   String get phoneSendAddressCheck =>
@@ -24034,4 +24034,44 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneRestoreStartNote =>
       'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+
+  @override
+  String get phoneSendRouteEpicbox => 'Адрес Epicbox';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return 'Чтобы отправить $amount — $name';
+  }
+
+  @override
+  String get phoneSendNoteLabel => 'Заметка';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'Кошелёк $name может быть не в сети. Платёж завершится, когда он снова откроется.';
+  }
+
+  @override
+  String get phoneSendHelpTitle => 'Как работает отправка';
+
+  @override
+  String get phoneSendHelpStep1 => 'Вы выбираете, кому и сколько';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'Ничто не уходит, пока вы не проверите платёж и не введёте PIN.';
+
+  @override
+  String get phoneSendHelpStep2 => 'Их кошелёк отвечает';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'Платёж требует обоих кошельков. Через Epicbox их кошелёк может ответить позже, при следующем открытии.';
+
+  @override
+  String get phoneSendHelpStep3 => 'Сеть подтверждает его';
+
+  @override
+  String get phoneSendHelpStep3Sub =>
+      'Через несколько блоков получатель сможет их потратить.';
 }

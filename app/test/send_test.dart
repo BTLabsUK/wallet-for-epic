@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_amount.dart' show KitAvailableBar;
 import 'package:epic_wallet/src/ui/kit/kit_empty_state.dart';
 import 'package:epic_wallet/src/ui/kit/kit_search_field.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
@@ -335,6 +336,9 @@ const String _address = 'To';
 Finder get _useUnit => sendSwapButton();
 
 Finder get _maxButton => sendMaxButton();
+
+/// The figure in the amount step's Available bar.
+Finder _available(String figure) => find.descendant(of: find.byType(KitAvailableBar), matching: find.text(figure));
 
 Finder get _continue => continueButton();
 
@@ -731,20 +735,20 @@ void main() {
         await h.pump(tester, _sendTab());
         expect(find.text(_l.homeSendButton), findsOneWidget);
         expect(sendTo(), findsOneWidget);
-        // Continue waits for an address.
-        expect(continueOnPressed(tester), isNull);
+        // Continue shows once there is an address.
+        expect(continueButton(), findsNothing);
         await _enter(tester, _address, 'esBare');
         FocusManager.instance.primaryFocus?.unfocus();
         await tester.pumpAndSettle();
-        expect(continueOnPressed(tester), isNull);
+        expect(continueButton(), findsNothing);
         expect(sendAmount(), findsNothing);
 
         await _enter(tester, _address, _bob);
-        expect(find.text(_l.methodEpicbox), findsOneWidget);
+        expect(find.text(_l.phoneSendRouteEpicbox), findsOneWidget);
         expect(find.text(_l.phoneSendAddContact), findsOneWidget);
         await _tap(tester, _continue);
         expect(sendAmount(), findsOneWidget);
-        expect(find.text('40.0\u00a0EPIC'), findsOneWidget);
+        expect(_available('40.0'), findsOneWidget);
         await _enter(tester, 'Amount (EPIC)', '1.5');
         // The fee is a quiet figure, not a sentence about what Bob gets.
         expect(feeShown('0.008'), findsOneWidget);
@@ -807,7 +811,7 @@ void main() {
       await _enter(tester, _address, 'https://');
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      expect(continueOnPressed(tester), isNull);
+      expect(continueButton(), findsNothing);
       expect(find.byType(LiveFieldError), findsOneWidget);
       expect(sendAmount(), findsNothing);
 
@@ -992,7 +996,7 @@ void main() {
       await _tap(tester, _useUnit);
       await _tap(tester, find.text('Max'));
       expect(_fieldText(tester, 'Amount (EPIC)'), '39.992');
-      expect(feeShown('0.008'), findsOneWidget);
+      expect(find.textContaining('less the 0.008 fee', findRichText: true), findsOneWidget);
       await _tap(tester, _continue);
       await _tap(tester, find.text('Send 39.992\u00a0EPIC'));
       expect(h.session.epicboxSends.single.amount, _epic(39.992));
@@ -1005,7 +1009,7 @@ void main() {
       h.session.summaryValue = _tenEpic(confirmed: false);
       await h.pump(tester, _sendTab());
       await _toAmount(tester);
-      expect(find.text('0.0\u00a0EPIC'), findsOneWidget);
+      expect(_available('0.0'), findsOneWidget);
       expect(find.text('+10.0\u00a0EPIC coming in'), findsOneWidget);
       await _tap(tester, find.text('Max'));
       expect(find.textContaining('Not enough spendable EPIC'), findsOneWidget);
@@ -1237,7 +1241,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         await tester.pumpAndSettle();
 
-        expect(find.text('10.0\u00a0EPIC'), findsOneWidget);
+        expect(_available('10.0'), findsOneWidget);
         expect(find.byKey(sendNotEnoughKey), findsNothing);
         expect(h.session.estimateCalls, greaterThan(calls));
         expect(feeShown('0.008'), findsOneWidget);
@@ -1249,9 +1253,9 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester, _sendTab());
       await _toAmount(tester);
-      expect(find.text('40.0\u00a0EPIC'), findsOneWidget);
+      expect(_available('40.0'), findsOneWidget);
       await _enter(tester, 'Amount (EPIC)', '3');
-      expect(find.text('≈\u00a01.50\u00a0USD'), findsOneWidget);
+      expect(find.text('≈\u00a0\$1.50'), findsOneWidget);
 
       await _tap(tester, _useUnit);
       expect(sendAmount(), findsOneWidget);
@@ -1261,7 +1265,7 @@ void main() {
       await _tap(tester, _continue);
       expect(find.text('20.0\u00a0EPIC'), findsOneWidget);
       expect(find.text('20.008\u00a0EPIC'), findsOneWidget);
-      expect(find.text('≈\u00a010.00\u00a0USD'), findsOneWidget);
+      expect(find.text('≈\u00a0\$10.00'), findsOneWidget);
       await _tap(tester, find.text('Send 20.0\u00a0EPIC'));
       expect(h.session.epicboxSends.single.amount, _epic(20));
     });

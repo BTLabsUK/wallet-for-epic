@@ -23421,7 +23421,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'In einer beliebigen App senden; die andere Person schickt eine zurück';
 
   @override
-  String get phoneSendAddContact => 'Kontakt hinzufügen';
+  String get phoneSendAddContact => 'Als Kontakt speichern';
 
   @override
   String get phoneSendAddressCheck =>
@@ -23584,4 +23584,44 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneRestoreStartNote =>
       'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+
+  @override
+  String get phoneSendRouteEpicbox => 'Epicbox-Adresse';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return 'Um $amount an $name zu senden';
+  }
+
+  @override
+  String get phoneSendNoteLabel => 'Notiz';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'Die Wallet von $name darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.';
+  }
+
+  @override
+  String get phoneSendHelpTitle => 'So funktioniert das Senden';
+
+  @override
+  String get phoneSendHelpStep1 => 'Du wählst, an wen und wie viel';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'Nichts verlässt das Gerät, bevor du es prüfst und deine PIN eingibst.';
+
+  @override
+  String get phoneSendHelpStep2 => 'Ihre Wallet antwortet';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'Eine Zahlung braucht beide Wallets. Mit Epicbox kann ihre später antworten, wenn sie das nächste Mal geöffnet wird.';
+
+  @override
+  String get phoneSendHelpStep3 => 'Das Netzwerk bestätigt sie';
+
+  @override
+  String get phoneSendHelpStep3Sub =>
+      'Nach ein paar Blöcken kann sie ausgegeben werden.';
 }

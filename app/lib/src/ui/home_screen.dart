@@ -814,9 +814,10 @@ class _ShellFlowRouteState extends ConsumerState<ShellFlowRoute> {
       },
       child: _Backdrop(
         // Receive is the page the frames draw: its own header (close, title, help), no balance
-        // bar. Send draws its own header per step (close on Who, back later), as the frames do.
+        // bar. Send draws its own header per step (close on Who, back later), as the frames do,
+        // and keeps its own insets: the review's sheet runs to the screen's edge.
         child: send
-            ? SlotScaffold(body: SafeArea(child: SendView(onDone: _done, back: _sendBack)))
+            ? SlotScaffold(body: SendView(onDone: _done, back: _sendBack))
             : const ReceiveScreen(),
       ),
     );

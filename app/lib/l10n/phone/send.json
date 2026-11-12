@@ -39,9 +39,27 @@
   "@phoneSendWithFileSub": {
     "description": "Subtitle of the With a file row."
   },
-  "phoneSendAddContact": "Add a contact",
+  "phoneSendAddContact": "Save as a contact",
   "@phoneSendAddContact": {
     "description": "Row that saves a pasted address as a contact."
+  },
+  "phoneSendRouteEpicbox": "Epicbox address",
+  "@phoneSendRouteEpicbox": {
+    "description": "Title of the method row under an Epicbox address on the Send page."
+  },
+  "phoneSendPinReason": "To send {amount} to {name}",
+  "@phoneSendPinReason": {
+    "description": "The PIN sheet's line before a send; {amount} is the exact amount, {name} the person paid.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      },
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
   },
   "phoneSendAddressCheck": "Check the first and last six characters with the person you are paying.",
   "@phoneSendAddressCheck": {
@@ -78,5 +96,46 @@
   "phoneSendTheirOnline": "their wallet has to be open",
   "@phoneSendTheirOnline": {
     "description": "Second part of the line under the method of a payment: the other wallet must be open."
+  },
+  "phoneSendNoteLabel": "Note",
+  "@phoneSendNoteLabel": {
+    "description": "Label of the note row on the Send review sheet."
+  },
+  "phoneSendReviewHintOffline": "{name}'s wallet can be offline. The payment finishes when it next opens.",
+  "@phoneSendReviewHintOffline": {
+    "description": "Hint under the Send review sheet's rows when the other wallet need not be open; {name} is the person paid.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "phoneSendHelpTitle": "How sending works",
+  "@phoneSendHelpTitle": {
+    "description": "Title of the help sheet behind the Send page's question mark."
+  },
+  "phoneSendHelpStep1": "You choose who and how much",
+  "@phoneSendHelpStep1": {
+    "description": "First step in the Send help sheet."
+  },
+  "phoneSendHelpStep1Sub": "Nothing leaves before you review it and enter your PIN.",
+  "@phoneSendHelpStep1Sub": {
+    "description": "Line under the first step of the Send help sheet."
+  },
+  "phoneSendHelpStep2": "Their wallet answers",
+  "@phoneSendHelpStep2": {
+    "description": "Second step in the Send help sheet."
+  },
+  "phoneSendHelpStep2Sub": "A payment needs both wallets. With Epicbox theirs can answer later, when it next opens.",
+  "@phoneSendHelpStep2Sub": {
+    "description": "Line under the second step of the Send help sheet."
+  },
+  "phoneSendHelpStep3": "The network confirms it",
+  "@phoneSendHelpStep3": {
+    "description": "Third step in the Send help sheet."
+  },
+  "phoneSendHelpStep3Sub": "After a few blocks it is theirs to spend.",
+  "@phoneSendHelpStep3Sub": {
+    "description": "Line under the third step of the Send help sheet."
   }
 }

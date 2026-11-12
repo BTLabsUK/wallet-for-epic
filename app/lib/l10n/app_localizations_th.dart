@@ -22682,7 +22682,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneSendWithFileSub => 'ส่งในแอปใดก็ได้ อีกฝ่ายจะส่งไฟล์กลับมา';
 
   @override
-  String get phoneSendAddContact => 'เพิ่มผู้ติดต่อ';
+  String get phoneSendAddContact => 'บันทึกเป็นผู้ติดต่อ';
 
   @override
   String get phoneSendAddressCheck =>
@@ -22845,4 +22845,43 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneRestoreStartNote =>
       'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+
+  @override
+  String get phoneSendRouteEpicbox => 'ที่อยู่ Epicbox';
+
+  @override
+  String phoneSendPinReason(String amount, String name) {
+    return 'เพื่อส่ง $amount ให้ $name';
+  }
+
+  @override
+  String get phoneSendNoteLabel => 'บันทึก';
+
+  @override
+  String phoneSendReviewHintOffline(String name) {
+    return 'กระเป๋าของ $name ออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง';
+  }
+
+  @override
+  String get phoneSendHelpTitle => 'การส่งทำงานอย่างไร';
+
+  @override
+  String get phoneSendHelpStep1 => 'คุณเลือกผู้รับและจำนวน';
+
+  @override
+  String get phoneSendHelpStep1Sub =>
+      'จะไม่มีอะไรออกไปจนกว่าคุณจะตรวจสอบและใส่ PIN';
+
+  @override
+  String get phoneSendHelpStep2 => 'กระเป๋าของเขาตอบกลับ';
+
+  @override
+  String get phoneSendHelpStep2Sub =>
+      'การชำระเงินต้องใช้กระเป๋าทั้งสองใบ ผ่าน Epicbox กระเป๋าของเขาตอบทีหลังได้ เมื่อเปิดครั้งถัดไป';
+
+  @override
+  String get phoneSendHelpStep3 => 'เครือข่ายยืนยันรายการ';
+
+  @override
+  String get phoneSendHelpStep3Sub => 'หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้';
 }

@@ -66,8 +66,10 @@ class KitSheet extends StatelessWidget {
   final String? secondaryId;
   final KitButtonKind primaryKind;
 
-  /// The space above the buttons, and under the title.
+  /// The space above the buttons.
   final double actionsTop;
+
+  /// Under the title; a sheet whose first row carries its own top padding takes less.
   final double titleGap;
   final double buttonsGap;
 
@@ -139,7 +141,20 @@ Future<T?> showKitSheet<T>({
   useSafeArea: true,
   isDismissible: isDismissible,
   enableDrag: enableDrag,
-  builder: builder,
+  builder: (route) {
+    // The phone sheet's SafeArea has taken the bottom inset; the sheet still sees it as view
+    // padding, so its own 16 for a phone with no inset is not added on top (`.sheet` 34).
+    final inset = MediaQuery.viewPaddingOf(route).bottom;
+    return Builder(
+      builder: (below) {
+        final mq = MediaQuery.of(below);
+        return MediaQuery(
+          data: mq.copyWith(viewPadding: mq.viewPadding.copyWith(bottom: inset)),
+          child: builder(below),
+        );
+      },
+    );
+  },
 );
 
 /// One choice of a [KitPickerSheet].

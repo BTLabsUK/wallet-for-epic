@@ -496,7 +496,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                           child: KitChip(
                             _note.isEmpty ? l.phonePayAddNote : _note,
                             icon: _note.isEmpty ? KitIcons.add : KitIcons.message,
-                            tall: _note.isNotEmpty,
+                            large: _note.isNotEmpty,
                             onTap: _editNote,
                           ),
                         ),

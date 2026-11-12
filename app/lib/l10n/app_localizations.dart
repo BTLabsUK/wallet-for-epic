@@ -36279,7 +36279,7 @@ abstract class AppLocalizations {
   /// Row that saves a pasted address as a contact.
   ///
   /// In en, this message translates to:
-  /// **'Add a contact'**
+  /// **'Save as a contact'**
   String get phoneSendAddContact;
 
   /// Hint under a pasted address.
@@ -36539,6 +36539,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.'**
   String get phoneRestoreStartNote;
+
+  /// Title of the method row under an Epicbox address on the Send page.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address'**
+  String get phoneSendRouteEpicbox;
+
+  /// The PIN sheet's line before a send; {amount} is the exact amount, {name} the person paid.
+  ///
+  /// In en, this message translates to:
+  /// **'To send {amount} to {name}'**
+  String phoneSendPinReason(String amount, String name);
+
+  /// Label of the note row on the Send review sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get phoneSendNoteLabel;
+
+  /// Hint under the Send review sheet's rows when the other wallet need not be open; {name} is the person paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s wallet can be offline. The payment finishes when it next opens.'**
+  String phoneSendReviewHintOffline(String name);
+
+  /// Title of the help sheet behind the Send page's question mark.
+  ///
+  /// In en, this message translates to:
+  /// **'How sending works'**
+  String get phoneSendHelpTitle;
+
+  /// First step in the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'You choose who and how much'**
+  String get phoneSendHelpStep1;
+
+  /// Line under the first step of the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing leaves before you review it and enter your PIN.'**
+  String get phoneSendHelpStep1Sub;
+
+  /// Second step in the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet answers'**
+  String get phoneSendHelpStep2;
+
+  /// Line under the second step of the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment needs both wallets. With Epicbox theirs can answer later, when it next opens.'**
+  String get phoneSendHelpStep2Sub;
+
+  /// Third step in the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'The network confirms it'**
+  String get phoneSendHelpStep3;
+
+  /// Line under the third step of the Send help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'After a few blocks it is theirs to spend.'**
+  String get phoneSendHelpStep3Sub;
 }
 
 class _AppLocalizationsDelegate

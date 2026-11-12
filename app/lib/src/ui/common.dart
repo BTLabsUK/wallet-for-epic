@@ -33,6 +33,7 @@ import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'method_names.dart' show methodKindOfTransport;
+import 'kit/kit_tokens.dart' show Kit, KitType;
 import 'motion_switches.dart';
 import 'notices.dart';
 import 'badge.dart';
@@ -2147,12 +2148,16 @@ class BusyButton extends StatelessWidget {
     this.busy = false,
     this.busyLabel,
     this.semanticsId,
+    this.kit = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool busy;
   final String? busyLabel;
+
+  /// The phone's button: 52 tall, the kit's 16 px label (`.btn`).
+  final bool kit;
 
   /// The button's id for the drivers ([TrustId]).
   final String? semanticsId;
@@ -2161,7 +2166,9 @@ class BusyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
       onPressed: busy ? null : onPressed,
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+      style: kit
+          ? FilledButton.styleFrom(minimumSize: const Size.fromHeight(Kit.button), textStyle: KitType.button)
+          : FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
       child: TrustId(semanticsId, child: busy
           ? Row(
               mainAxisSize: MainAxisSize.min,
