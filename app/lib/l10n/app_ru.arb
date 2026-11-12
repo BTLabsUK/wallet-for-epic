@@ -5819,5 +5819,11 @@
   "phoneSettingsHelpHelp2": "Руководства можно показать на другом языке, чем приложение. Выберите его флагом под поиском.",
   "phoneSettingsDevicesEmpty": "Нет связанных устройств",
   "phoneSettingsDevicesEmptyLine": "Восстановите этот кошелёк на другом устройстве, затем свяжите их здесь. Платежи, сделанные на одном, появятся на другом.",
-  "phoneSettingsLinkDevice": "Связать устройство"
+  "phoneSettingsLinkDevice": "Связать устройство",
+  "phoneAboutProtocol": "Платёжный протокол",
+  "phoneAboutWhatsNew": "Что нового",
+  "phoneAboutHelpTitle": "О BT Wallet",
+  "phoneAboutHelp1": "BT Wallet создан BT Labs. Он работает на собственном движке LEPIC и отправляет платежи по протоколу epic1.",
+  "phoneAboutHelp2": "Ссылки на этой странице копируются, поэтому их можно открыть в браузере, которому вы доверяете.",
+  "phoneAboutNotesTitle": "Что нового в {version}"
 }

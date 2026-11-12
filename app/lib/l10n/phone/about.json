@@ -1,0 +1,32 @@
+{
+  "phoneAboutProtocol": "Payment protocol",
+  "@phoneAboutProtocol": {
+    "description": "Row in About: the payment protocol the wallet speaks."
+  },
+  "phoneAboutWhatsNew": "What is new",
+  "@phoneAboutWhatsNew": {
+    "description": "Row in About that shows the notes of this version."
+  },
+  "phoneAboutHelpTitle": "About BT Wallet",
+  "@phoneAboutHelpTitle": {
+    "description": "Title of the About page's help sheet."
+  },
+  "phoneAboutHelp1": "BT Wallet is made by BT Labs. It runs its own engine, LEPIC, and sends payments over the epic1 protocol.",
+  "@phoneAboutHelp1": {
+    "description": "First line of the About help sheet."
+  },
+  "phoneAboutHelp2": "Links on this page are copied, so you can open them in a browser you trust.",
+  "@phoneAboutHelp2": {
+    "description": "Second line of the About help sheet."
+  },
+  "phoneAboutNotesTitle": "What is new in {version}",
+  "@phoneAboutNotesTitle": {
+    "description": "Title of the sheet with the release notes. {version} is the app version like 26.11.1.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "26.11.1"
+      }
+    }
+  }
+}

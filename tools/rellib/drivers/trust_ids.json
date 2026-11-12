@@ -311,5 +311,11 @@
 {"id": "g4.help.help", "screen": "help", "family": ["android"], "driver": false},
 {"id": "g4.devices.link", "screen": "devices", "family": ["android"], "driver": false},
 {"id": "g4.devices.back", "screen": "devices", "family": ["android"], "driver": false, "many": true},
-{"id": "g4.devices.help", "screen": "devices", "family": ["android"], "driver": false}
+{"id": "g4.devices.help", "screen": "devices", "family": ["android"], "driver": false},
+{"id": "g4.about.back", "screen": "about", "family": ["android"], "driver": false},
+{"id": "g4.about.help", "screen": "about", "family": ["android"], "driver": false},
+{"id": "g4.about.help_sheet", "screen": "about", "family": ["android"], "driver": false},
+{"id": "g4.about.whats_new", "screen": "about", "family": ["android"], "driver": false},
+{"id": "g4.about.notes_sheet", "screen": "about", "family": ["android"], "driver": false},
+{"id": "g4.about.notes_done", "screen": "about", "family": ["android"], "driver": false}
 ]}

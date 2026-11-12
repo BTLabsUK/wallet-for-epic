@@ -5819,5 +5819,11 @@
   "phoneSettingsHelpHelp2": "แสดงคู่มือเป็นภาษาอื่นที่ไม่ใช่ภาษาของแอปได้ เลือกด้วยธงใต้ช่องค้นหา",
   "phoneSettingsDevicesEmpty": "ยังไม่มีอุปกรณ์ที่เชื่อมโยง",
   "phoneSettingsDevicesEmptyLine": "กู้คืนกระเป๋าเงินนี้บนอุปกรณ์เครื่องอื่น แล้วเชื่อมโยงทั้งสองเครื่องที่นี่ รายการที่ทำบนเครื่องหนึ่งจะแสดงบนอีกเครื่องด้วย",
-  "phoneSettingsLinkDevice": "เชื่อมโยงอุปกรณ์"
+  "phoneSettingsLinkDevice": "เชื่อมโยงอุปกรณ์",
+  "phoneAboutProtocol": "โปรโตคอลการชำระเงิน",
+  "phoneAboutWhatsNew": "มีอะไรใหม่",
+  "phoneAboutHelpTitle": "เกี่ยวกับ BT Wallet",
+  "phoneAboutHelp1": "BT Wallet สร้างโดย BT Labs ทำงานบนเอนจินของตัวเองชื่อ LEPIC และส่งการชำระเงินผ่านโปรโตคอล epic1",
+  "phoneAboutHelp2": "ลิงก์ในหน้านี้จะถูกคัดลอก คุณจึงเปิดในเบราว์เซอร์ที่ไว้ใจได้",
+  "phoneAboutNotesTitle": "มีอะไรใหม่ใน {version}"
 }

@@ -269,6 +269,12 @@ abstract final class TrustIds {
   static const devicesLink = 'g4.devices.link';
   static const devicesBack = 'g4.devices.back';
   static const devicesHelp = 'g4.devices.help';
+  static const aboutBack = 'g4.about.back';
+  static const aboutHelp = 'g4.about.help';
+  static const aboutHelpSheet = 'g4.about.help_sheet';
+  static const aboutWhatsNew = 'g4.about.whats_new';
+  static const aboutNotesSheet = 'g4.about.notes_sheet';
+  static const aboutNotesDone = 'g4.about.notes_done';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -548,5 +554,11 @@ abstract final class TrustIds {
     'g4.devices.link',
     'g4.devices.back',
     'g4.devices.help',
+    'g4.about.back',
+    'g4.about.help',
+    'g4.about.help_sheet',
+    'g4.about.whats_new',
+    'g4.about.notes_sheet',
+    'g4.about.notes_done',
   ];
 }

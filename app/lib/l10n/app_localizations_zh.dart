@@ -21101,4 +21101,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSettingsLinkDevice => '关联设备';
+
+  @override
+  String get phoneAboutProtocol => '支付协议';
+
+  @override
+  String get phoneAboutWhatsNew => '新内容';
+
+  @override
+  String get phoneAboutHelpTitle => '关于 BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet 由 BT Labs 制作，运行在自有引擎 LEPIC 上，通过 epic1 协议发送付款。';
+
+  @override
+  String get phoneAboutHelp2 => '此页的链接会被复制，你可以在信任的浏览器中打开。';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return '$version 的新内容';
+  }
 }

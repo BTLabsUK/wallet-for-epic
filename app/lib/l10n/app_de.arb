@@ -5819,5 +5819,11 @@
   "phoneSettingsHelpHelp2": "Die Anleitungen lassen sich in einer anderen Sprache als die der App anzeigen. Sie wählst du mit der Flagge unter der Suche.",
   "phoneSettingsDevicesEmpty": "Keine Geräte verknüpft",
   "phoneSettingsDevicesEmptyLine": "Stelle dieses Wallet auf deinem anderen Gerät wieder her und verknüpfe beide hier. Zahlungen, die auf einem erfolgen, erscheinen dann auch auf dem anderen.",
-  "phoneSettingsLinkDevice": "Gerät verknüpfen"
+  "phoneSettingsLinkDevice": "Gerät verknüpfen",
+  "phoneAboutProtocol": "Zahlungsprotokoll",
+  "phoneAboutWhatsNew": "Was ist neu",
+  "phoneAboutHelpTitle": "Über BT Wallet",
+  "phoneAboutHelp1": "BT Wallet stammt von BT Labs. Es läuft auf einer eigenen Engine, LEPIC, und sendet Zahlungen über das Protokoll epic1.",
+  "phoneAboutHelp2": "Links auf dieser Seite werden kopiert, damit du sie in einem Browser deiner Wahl öffnen kannst.",
+  "phoneAboutNotesTitle": "Neu in {version}"
 }

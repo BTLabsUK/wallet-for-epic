@@ -5819,5 +5819,11 @@
   "phoneSettingsHelpHelp2": "指南可以用与应用不同的语言显示。点搜索框下方的旗帜选择。",
   "phoneSettingsDevicesEmpty": "没有已关联的设备",
   "phoneSettingsDevicesEmptyLine": "在你的另一台设备上恢复此钱包，然后在此关联两台设备。在其中一台上的付款会显示在另一台上。",
-  "phoneSettingsLinkDevice": "关联设备"
+  "phoneSettingsLinkDevice": "关联设备",
+  "phoneAboutProtocol": "支付协议",
+  "phoneAboutWhatsNew": "新内容",
+  "phoneAboutHelpTitle": "关于 BT Wallet",
+  "phoneAboutHelp1": "BT Wallet 由 BT Labs 制作，运行在自有引擎 LEPIC 上，通过 epic1 协议发送付款。",
+  "phoneAboutHelp2": "此页的链接会被复制，你可以在信任的浏览器中打开。",
+  "phoneAboutNotesTitle": "{version} 的新内容"
 }

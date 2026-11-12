@@ -23078,4 +23078,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneSettingsLinkDevice => 'Связать устройство';
+
+  @override
+  String get phoneAboutProtocol => 'Платёжный протокол';
+
+  @override
+  String get phoneAboutWhatsNew => 'Что нового';
+
+  @override
+  String get phoneAboutHelpTitle => 'О BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet создан BT Labs. Он работает на собственном движке LEPIC и отправляет платежи по протоколу epic1.';
+
+  @override
+  String get phoneAboutHelp2 =>
+      'Ссылки на этой странице копируются, поэтому их можно открыть в браузере, которому вы доверяете.';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return 'Что нового в $version';
+  }
 }

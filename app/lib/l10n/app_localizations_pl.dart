@@ -23090,4 +23090,26 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneSettingsLinkDevice => 'Połącz urządzenie';
+
+  @override
+  String get phoneAboutProtocol => 'Protokół płatności';
+
+  @override
+  String get phoneAboutWhatsNew => 'Co nowego';
+
+  @override
+  String get phoneAboutHelpTitle => 'O BT Wallet';
+
+  @override
+  String get phoneAboutHelp1 =>
+      'BT Wallet tworzy BT Labs. Działa na własnym silniku, LEPIC, i wysyła płatności protokołem epic1.';
+
+  @override
+  String get phoneAboutHelp2 =>
+      'Linki na tej stronie są kopiowane, więc możesz je otworzyć w przeglądarce, której ufasz.';
+
+  @override
+  String phoneAboutNotesTitle(String version) {
+    return 'Co nowego w $version';
+  }
 }

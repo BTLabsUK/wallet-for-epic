@@ -34943,6 +34943,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link a device'**
   String get phoneSettingsLinkDevice;
+
+  /// Row in About: the payment protocol the wallet speaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment protocol'**
+  String get phoneAboutProtocol;
+
+  /// Row in About that shows the notes of this version.
+  ///
+  /// In en, this message translates to:
+  /// **'What is new'**
+  String get phoneAboutWhatsNew;
+
+  /// Title of the About page's help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'About BT Wallet'**
+  String get phoneAboutHelpTitle;
+
+  /// First line of the About help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'BT Wallet is made by BT Labs. It runs its own engine, LEPIC, and sends payments over the epic1 protocol.'**
+  String get phoneAboutHelp1;
+
+  /// Second line of the About help sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Links on this page are copied, so you can open them in a browser you trust.'**
+  String get phoneAboutHelp2;
+
+  /// Title of the sheet with the release notes. {version} is the app version like 26.11.1.
+  ///
+  /// In en, this message translates to:
+  /// **'What is new in {version}'**
+  String phoneAboutNotesTitle(String version);
 }
 
 class _AppLocalizationsDelegate
