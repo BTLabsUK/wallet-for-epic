@@ -37,6 +37,8 @@ fi
 echo "== flutter build linux --release -t $target"
 cd /work/app
 flutter pub get
+# The bundle with Tor takes the one fetched on the host (app/linux/CMakeLists.txt).
+[[ ${#notor[@]} -eq 0 ]] && export WFE_TOR_BUNDLE=/work/tor-bundle
 flutter build linux --release -t "$target" ${WFE_BUILD_ID:+--dart-define=WFE_BUILD_ID="$WFE_BUILD_ID"} \
   ${WFE_BUILD_TAG:+--dart-define=WFE_BUILD_TAG="$WFE_BUILD_TAG"} ${notor[@]+"${notor[@]}"} "$@"
 
@@ -49,12 +51,6 @@ cp -a "$bundle/." "$appdir/usr/bin/"
 if [[ -s /work/node-bin/epic ]]; then
   mkdir -p "$appdir/usr/bin/bin"
   install -m 755 /work/node-bin/epic "$appdir/usr/bin/bin/epic"
-fi
-# Tor (lib/src/tor_location.dart) runs <exe dir>/bin/tor-bundle/tor; its licence goes with it.
-if [[ -x /work/tor-bundle/tor ]]; then
-  mkdir -p "$appdir/usr/bin/bin/tor-bundle"
-  cp -a /work/tor-bundle/. "$appdir/usr/bin/bin/tor-bundle/"
-  echo "tor bundle: $(cat /work/tor-bundle/VERSION)"
 fi
 cat > "$appdir/AppRun" <<'RUN'
 #!/bin/sh

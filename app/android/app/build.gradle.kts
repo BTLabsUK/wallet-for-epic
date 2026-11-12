@@ -49,6 +49,19 @@ val dartDefines: List<String> = (project.findProperty("dart-defines") as String?
 // (or 0, off) no tor is packed, even when tools/fetch-tor.sh left one in src/main/tor-jniLibs.
 val torBuilt = dartDefines.none { it in setOf("WFE_TOR=false", "WFE_TOR=0", "WFE_TOR=off") }
 
+// A build with Tor packs tor for every ABI it builds, whatever started Gradle (tools/rel, the
+// shared test builds, a plain `flutter build apk`): it is fetched here (tools/fetch-tor.sh,
+// pinned hashes), F-Droid's comes from source (tools/build-tor-android.sh,
+// run before). The build fails when one is still missing, when LEPIC was built without its tor
+// feature, or when the finished APK or bundle has no libtor.so.
+val torJniLibs: File = file("src/main/tor-jniLibs")
+val abiOf = mapOf("android-arm64" to "arm64-v8a", "android-x64" to "x86_64",
+    "android-arm" to "armeabi-v7a", "android-x86" to "x86")
+val torAbis: List<String> = (project.findProperty("target-platform") as String?)
+    ?.split(",")?.mapNotNull { abiOf[it.trim()] }?.takeIf { it.isNotEmpty() }
+    ?.let { abis -> if (dist == "play") abis.filter { it == "arm64-v8a" } else abis }
+    ?: listOf("arm64-v8a", "x86_64")
+
 // Where the build is distributed (lib/src/dist_build.dart, https://docs.btlabs.uk/developers/build/variants/): web (unset, our
 // own download page), play (Google Play) or fdroid (F-Droid, IzzyOnDroid). Only web has the
 // in-app updater and its install permissions (src/updater/). msstore is the Windows build only.
@@ -171,3 +184,49 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+val ensureTor by tasks.registering {
+    onlyIf { torBuilt }
+    doLast {
+        // Fetched every time (cached and hash-checked), so a tor of an older pin never stays.
+        if (dist != "fdroid") {
+            val repo = rootDir.parentFile.parentFile
+            val pb = ProcessBuilder(File(repo, "tools/fetch-tor.sh").path, "android", torJniLibs.path)
+                .inheritIO()
+            pb.environment()["TOR_ANDROID_ABIS"] = torAbis.joinToString(" ")
+            if (pb.start().waitFor() != 0) throw GradleException("tools/fetch-tor.sh android failed")
+        }
+        val still = torAbis.filter { !File(torJniLibs, "$it/libtor.so").isFile }
+        if (still.isNotEmpty()) {
+            throw GradleException("Tor build without libtor.so for ${still.joinToString()} in $torJniLibs")
+        }
+        // LEPIC's Android libraries (tools/lepic.sh build android) name their features beside them.
+        val native = File(rootDir.parentFile, "third_party/lepic-flutter/native")
+        native.listFiles()?.filter { it.name.endsWith("-android") || it.name.endsWith("-androideabi") }
+            ?.map { File(it, "FEATURES") }?.filter { it.isFile }
+            ?.filter { f -> f.readLines().none { it.trim() == "tor" } }
+            ?.let { bad ->
+                if (bad.isNotEmpty()) throw GradleException(
+                    "Tor build, but LEPIC was built without tor: ${bad.joinToString()} " +
+                        "(rebuild it: tools/lepic.sh build android, without WFE_TOR=0)")
+            }
+    }
+}
+tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(ensureTor) }
+
+// The end of every build with Tor: the APK or bundle it wrote has libtor.so for each ABI.
+tasks.matching { Regex("^(package|sign)\\w*(Debug|Profile|Release)(Bundle)?$").matches(it.name) }
+    .configureEach {
+        doLast {
+            if (!torBuilt) return@doLast
+            outputs.files.asFileTree.filter { it.name.endsWith(".apk") || it.name.endsWith(".aab") }
+                .forEach { pkg ->
+                    val entries = java.util.zip.ZipFile(pkg).use { z -> z.entries().toList().map { it.name } }
+                    val abis = entries.mapNotNull { Regex("^(?:base/)?lib/([^/]+)/libflutter\\.so$").find(it)?.groupValues?.get(1) }
+                    val lacking = abis.filter { a -> entries.none { it.endsWith("lib/$a/libtor.so") } }
+                    if (abis.isEmpty() || lacking.isNotEmpty()) throw GradleException(
+                        "Tor build, but ${pkg.name} has no libtor.so for ${lacking.ifEmpty { listOf("any ABI") }.joinToString()}")
+                    logger.lifecycle("Tor check: ${pkg.name} has libtor.so for ${abis.joinToString()}")
+                }
+        }
+    }
