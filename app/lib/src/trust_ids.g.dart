@@ -483,6 +483,7 @@ abstract final class TrustIds {
   static const contactPayment = 'g4.contact.payment';
   static const homeBackupExport = 'g4.home.backup_export';
   static const homeBackupNotNow = 'g4.home.backup_not_now';
+  static const contactCopyAddress = 'g4.contact.copy_address';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -976,5 +977,6 @@ abstract final class TrustIds {
     'g4.contact.payment',
     'g4.home.backup_export',
     'g4.home.backup_not_now',
+    'g4.contact.copy_address',
   ];
 }

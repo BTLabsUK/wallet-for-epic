@@ -28,6 +28,9 @@ import 'inline_button.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'kit/kit_avatar.dart';
 import 'kit/kit_button.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart' show KitIconButton;
 import 'kit/kit_icons.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
@@ -561,7 +564,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                             ContactTrustLine(contactId: contact.id, name: contact.name),
                             if (contact.note?.trim() case final note? when note.isNotEmpty) ...[
                               PairSection(l.contactsNoteHeading),
-                              Text(note, style: Theme.of(context).textTheme.bodyMedium),
+                              Text(note, style: KitType.body.copyWith(color: context.tokens.text)),
                             ],
                           ],
                         ),
@@ -858,7 +861,7 @@ class _Addresses extends StatelessWidget {
                 children: [
                   Icon(EpicGlyphs.sealed, size: 20, color: t.dim),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(l.contactNoAddressPaired, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color))),
+                  Expanded(child: Text(l.contactNoAddressPaired, style: KitType.rowTitle.copyWith(color: color))),
                 ],
               ),
             ),
@@ -866,23 +869,27 @@ class _Addresses extends StatelessWidget {
         ],
       );
     }
-    if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: TextStyle(color: t.dim));
-    return PairCard(
+    if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: KitType.body.copyWith(color: t.dim));
+    return KitGroup(
+      margin: EdgeInsets.zero,
+      dividerInset: Kit.dividerInsetPlain,
       children: [
         // Each address in full, its method chip and Copy on the label row above it.
         for (final kind in contact.kinds)
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 4, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 4, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    EBadge.kind(kind, l: l),
+                    KitChip(recipientMethodWord(l, kind)),
                     const Spacer(),
-                    IconButton(
-                      tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
-                      icon: Icon(Icons.copy, size: 20, color: t.accentText),
+                    KitIconButton(
+                      icon: KitIcons.copy,
+                      label: l.contactCopyAddress(recipientMethodWord(l, kind)),
+                      color: t.accentText,
+                      semanticsId: TrustIds.contactCopyAddress,
                       onPressed: () => copyText(context, contact.addressOf(kind)!, l.contactsCopied),
                     ),
                   ],
