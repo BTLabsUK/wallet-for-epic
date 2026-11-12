@@ -24,6 +24,8 @@ import 'secret_store.dart';
 import 'advanced.dart' show NetworkMode;
 import 'net/node_peers.dart';
 import 'network_gate.dart';
+import 'net/tor_switch.dart';
+import 'node_failover.dart' show nodeProbeBudget;
 import 'relay_block.dart';
 import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
 import 'cancel_final.dart';
@@ -702,7 +704,9 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   if (ref.watch(networkModeProvider) == NetworkMode.killSwitch) {
     throw const NetBlocked(NetworkMode.killSwitch, 'node tip');
   }
-  return session.nodeTipFor(config: config);
+  // Bounded like a failover probe: a node that went silent reads offline within the budget,
+  // not after the transport gives up.
+  return session.nodeTipFor(config: config).timeout(nodeProbeBudget(config.nodeUrl, torOn: TorSwitch.on));
 });
 
 /// The tip of the node [config] names, for a test of a node typed in: through the open

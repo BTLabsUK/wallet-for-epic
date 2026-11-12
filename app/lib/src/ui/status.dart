@@ -97,6 +97,11 @@ WalletStatus walletStatus({
   // refresh runs against it: that refresh only retries a node it can't reach, and as "syncing
   // 0 %" it hid the outage from node failover for good (26.10.26, a network filtering the node).
   final unreachable = tip.hasError && (!tip.isLoading || answer == null);
+  final lag = summary == null || answer == null ? null : (summary.lastConfirmedHeight - answer.height).toInt();
+  final behind = lag != null && lag >= behindAfter ? lag : null;
+  // A stored summary not yet checked against the node, while a refresh checks it, is not
+  // offline by itself: it reads as the node answers (a node behind the wallet still reads so).
+  final unchecked = summary != null && !summary.validatedWithNode && (!syncing || behind != null);
   final NodeStatus node;
   if (unreachable) {
     node = NodeStatus(NodeState.offline, height: checked);
@@ -107,14 +112,13 @@ WalletStatus walletStatus({
       tip: answer,
       height: checked,
     );
-  } else if (summary != null && !summary.validatedWithNode) {
-    final lag = answer == null ? null : (summary.lastConfirmedHeight - answer.height).toInt();
+  } else if (unchecked) {
     node = NodeStatus(
       NodeState.offline,
       tip: answer,
       height: checked,
       validated: false,
-      behind: lag != null && lag >= behindAfter ? lag : null,
+      behind: behind,
     );
   } else if (answer != null) {
     node = NodeStatus(NodeState.online, tip: answer, height: checked);

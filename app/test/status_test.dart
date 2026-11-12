@@ -128,6 +128,26 @@ void main() {
       expect(s.epicbox, EpicboxState.offline);
     });
 
+    test('a stored summary not yet checked while the first refresh runs is not offline', () {
+      // A routine refresh at the tip, 0 % scanned: it reads as the node answers.
+      final answered = walletStatus(
+        tip: AsyncData(_tip),
+        syncing: true,
+        percent: 0,
+        summary: _summary(validated: false, height: 2500000),
+        listener: _connected,
+      );
+      expect(answered.node.state, NodeState.online);
+      final asking = walletStatus(
+        tip: const AsyncLoading(),
+        syncing: true,
+        percent: 0,
+        summary: _summary(validated: false, height: 2500000),
+        listener: _connected,
+      );
+      expect(asking.node.state, NodeState.syncing, reason: 'no answer yet: the refresh reads, not offline');
+    });
+
     test('a node answering below the checked height is behind, not unreachable', () {
       // The wallet checked block 2 499 990; the node picked next answers 2 499 486 and the
       // refresh skips it (a node 504 blocks behind, 2026-11-12).
