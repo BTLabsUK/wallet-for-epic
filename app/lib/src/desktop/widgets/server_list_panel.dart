@@ -100,11 +100,9 @@ class PanelServer {
 String panelHost(ServerKind kind, String value) =>
     kind == ServerKind.node ? value.replaceFirst(RegExp('^[a-z]+://'), '').replaceFirst(RegExp(r'/+$'), '') : value;
 
-/// The rows of the wallet's node list: health from the wallet's own checks, behind from the
-/// highest height, older from [released] (else the newest version listed). [labels] are the old
-/// My nodes' labels, shown as the operator of an own node.
-/// [ownLabel] gives an own node's row its "Your node · home network" in the operator's place.
-List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}, String? Function(String url)? ownLabel}) {
+/// What a node list's rows measure against: the highest height of the nodes not down ([tip]),
+/// and [released] when known, else the newest version listed ([newest]).
+({int? tip, String? newest}) nodeListMarks(List<NodeServer> nodes, {String? released}) {
   final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
   final tip = heights.isEmpty ? null : heights.reduce(math.max);
   var newest = released;
@@ -114,6 +112,15 @@ List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<S
       if (v != null && (newest == null || (compareVersions(v, newest) ?? 0) > 0)) newest = v;
     }
   }
+  return (tip: tip, newest: newest);
+}
+
+/// The rows of the wallet's node list: health from the wallet's own checks, behind from the
+/// highest height, older from [released] (else the newest version listed). [labels] are the old
+/// My nodes' labels, shown as the operator of an own node.
+/// [ownLabel] gives an own node's row its "Your node · home network" in the operator's place.
+List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}, String? Function(String url)? ownLabel}) {
+  final (:tip, :newest) = nodeListMarks(nodes, released: released);
   return [
     for (final n in nodes)
       () {
