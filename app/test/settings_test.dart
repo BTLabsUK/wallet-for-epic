@@ -307,7 +307,7 @@ Future<void> _lockFromSettings(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(settingsGroupKey(SettingsSection.security)));
   await tester.pumpAndSettle();
-  await _tapText(tester, _l.settingsLockWallet);
+  await _tapText(tester, _l.phoneSettingsLockNow);
 }
 
 Future<void> _tapText(WidgetTester tester, String text) async {
