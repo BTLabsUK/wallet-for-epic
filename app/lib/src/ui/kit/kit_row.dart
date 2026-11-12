@@ -218,15 +218,13 @@ class KitIconWell extends StatelessWidget {
   const KitIconWell.child(Widget this.child, {super.key, this.size = Kit.avatar, this.radius = Kit.rAvatar})
     : icon = null,
       color = null,
-      iconSize = 22,
-      radius = Kit.rAvatar;
+      iconSize = 22;
 
   final IconData? icon;
   final Widget? child;
   final Color? color;
   final double size;
   final double iconSize;
-  final double radius;
 
   /// The corner radius: 13 for the 40 well, 15 for the 46 one of the file cards.
   final double radius;
