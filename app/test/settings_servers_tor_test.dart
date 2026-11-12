@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
@@ -162,6 +163,8 @@ void main() {
     ]) {
       testWidgets('${kind.name}: a tap opens its picker sheet, not a page', (tester) async {
         await openPage(tester);
+        await tester.ensureVisible(find.byKey(key));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(key));
         await tester.pumpAndSettle();
         final sheet = find.byType(ServerListSheet);
@@ -191,7 +194,10 @@ void main() {
           200,
           scrollable: find.byType(Scrollable).first,
         );
-        final row = find.widgetWithText(ListTile, 'Network');
+        // The page is a lazy list: scroll to its end so the row is built where there is one.
+        await tester.fling(find.byType(Scrollable).first, const Offset(0, -3000), 3000);
+        await tester.pumpAndSettle();
+        final row = find.widgetWithText(KitRow, _l.settingsAboutNetwork);
         expect(row, dev && advanced ? findsOneWidget : findsNothing);
         if (dev && advanced) {
           await tester.tap(row);

@@ -532,7 +532,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tap(tester, find.widgetWithText(OutlinedButton, 'Report a problem'));
+      await tap(tester, find.byKey(helpFeedbackKey));
       expect(find.byType(FeedbackScreen), findsOneWidget);
     });
   });
