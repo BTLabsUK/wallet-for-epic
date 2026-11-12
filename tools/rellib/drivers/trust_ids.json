@@ -539,7 +539,6 @@
 {"id": "g4.home.seeall", "screen": "home", "keys": ["phoneHomeSeeAll"], "family": ["android"], "names": ["See all"], "match": "exact", "driver": false},
 {"id": "g4.home.review", "screen": "home", "keys": ["phoneReview"], "family": ["android"], "names": ["Review"], "match": "exact", "driver": false},
 {"id": "g4.home.later", "screen": "home", "keys": ["phoneLater"], "family": ["android"], "names": ["Later"], "match": "exact", "driver": false},
-{"id": "g4.home.receive-empty", "screen": "home", "keys": ["homeReceiveEpicButton"], "family": ["android"], "names": ["Receive"], "match": "exact", "driver": false},
 {"id": "g4.contacts.search", "screen": "contacts", "family": ["android"], "role": "text_field", "keys": ["phoneContactsSearchHint"], "driver": false},
 {"id": "g4.contacts.atoz", "screen": "contacts", "family": ["android"], "keys": ["phoneContactsAtoZ"], "driver": false},
 {"id": "g4.contacts.review", "screen": "contacts", "family": ["android"], "keys": ["phoneReview"], "driver": false},

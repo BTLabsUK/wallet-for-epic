@@ -22393,10 +22393,6 @@
   "@deskKitMoreInHelp": {
     "description": "Link at the end of an info popover that opens the Help topic saying more (WD2-063)."
   },
-  "homeReceiveEpicButton": "Receive EPIC",
-  "@homeReceiveEpicButton": {
-    "description": "Empty Home: the primary button to the Receive tab (UP-034), the desktop's words."
-  },
   "txDeviceStatusMadeOn": "Made on {device}.",
   "@txDeviceStatusMadeOn": {
     "description": "Status card line of a payment another linked device made (UP-007).",
@@ -28774,10 +28770,6 @@
   "phoneHomeBalanceSheetHint": "Balance details",
   "@phoneHomeBalanceSheetHint": {
     "description": "Spoken name of Home's balance, which opens the sheet with every part of the balance"
-  },
-  "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
-  "@phoneHomeEmpty": {
-    "description": "Empty Home: what stands under the Recent heading before the first payment"
   },
   "phoneRecvTitle": "Receive",
   "@phoneRecvTitle": {

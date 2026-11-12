@@ -25627,12 +25627,6 @@ abstract class AppLocalizations {
   /// **'More in Help'**
   String get deskKitMoreInHelp;
 
-  /// Empty Home: the primary button to the Receive tab (UP-034), the desktop's words.
-  ///
-  /// In en, this message translates to:
-  /// **'Receive EPIC'**
-  String get homeReceiveEpicButton;
-
   /// Status card line of a payment another linked device made (UP-007).
   ///
   /// In en, this message translates to:
@@ -33090,12 +33084,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Balance details'**
   String get phoneHomeBalanceSheetHint;
-
-  /// Empty Home: what stands under the Recent heading before the first payment
-  ///
-  /// In en, this message translates to:
-  /// **'No payments yet. Receive some EPIC to begin.'**
-  String get phoneHomeEmpty;
 
   /// Title of the Receive screen.
   ///

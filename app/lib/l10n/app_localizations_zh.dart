@@ -15679,9 +15679,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitMoreInHelp => '更多见帮助';
 
   @override
-  String get homeReceiveEpicButton => '接收 EPIC';
-
-  @override
   String txDeviceStatusMadeOn(String device) {
     return '在 $device 上发起。';
   }
@@ -19978,9 +19975,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneHomeBalanceSheetHint => '余额详情';
-
-  @override
-  String get phoneHomeEmpty => '还没有付款。先收一些 EPIC 开始吧。';
 
   @override
   String get phoneRecvTitle => '收款';

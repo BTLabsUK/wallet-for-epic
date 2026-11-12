@@ -496,7 +496,6 @@ abstract final class TrustIds {
   static const homeSeeall = 'g4.home.seeall';
   static const homeReview = 'g4.home.review';
   static const homeLater = 'g4.home.later';
-  static const homeReceiveEmpty = 'g4.home.receive-empty';
   static const contactsSearch = 'g4.contacts.search';
   static const contactsAtoz = 'g4.contacts.atoz';
   static const contactsReview = 'g4.contacts.review';
@@ -1075,7 +1074,6 @@ abstract final class TrustIds {
     'g4.home.seeall',
     'g4.home.review',
     'g4.home.later',
-    'g4.home.receive-empty',
     'g4.contacts.search',
     'g4.contacts.atoz',
     'g4.contacts.review',

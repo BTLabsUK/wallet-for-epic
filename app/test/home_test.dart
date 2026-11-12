@@ -2017,12 +2017,12 @@ void main() {
   });
 
   group('first run', () {
-    testWidgets('an empty wallet has one line; Receive is the tab beside it', (
+    testWidgets('an empty wallet shows nothing under the buttons', (
       tester,
     ) async {
       final h = _Harness(transactions: const []);
       await h.pump(tester);
-      expect(find.text(_l.phoneHomeEmpty), findsOneWidget);
+      expect(find.text('No payments yet'), findsNothing);
       expect(find.text(_l.phoneHomeRecent), findsNothing);
       expect(find.textContaining('while this app is open'), findsNothing);
       expect(find.text('See all'), findsNothing);

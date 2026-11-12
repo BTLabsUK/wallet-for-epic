@@ -28,7 +28,6 @@ import 'home_slot.dart';
 import 'home_status.dart' show showConnectionsSheet;
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
-import 'kit/kit_empty_state.dart';
 import 'kit/kit_group.dart';
 import 'kit/kit_headers.dart';
 import 'kit/kit_icons.dart';
@@ -469,8 +468,7 @@ class BalanceSheet extends StatelessWidget {
   }
 }
 
-/// The "Recent" heading and its rows, or the line that stands for them before the first
-/// payment. [loaded] is false until the first read.
+/// The "Recent" heading and its rows, or nothing before the first payment. [loaded] is false until the first read.
 class _Recent extends ConsumerWidget {
   const _Recent({required this.loaded, required this.recent});
 
@@ -482,23 +480,7 @@ class _Recent extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     if (!loaded) return const SizedBox.shrink();
-    if (recent.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Column(
-          children: [
-            KitEmptyState(
-              icon: KitIcons.receive,
-              title: l.phoneHomeEmpty,
-              actionLabel: l.homeReceiveEpicButton,
-              onAction: () => showShellFlow(context, ShellFlow.receive),
-              actionId: TrustIds.homeReceiveEmpty,
-              actionKind: KitButtonKind.quiet,
-            ),
-          ],
-        ),
-      );
-    }
+    if (recent.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

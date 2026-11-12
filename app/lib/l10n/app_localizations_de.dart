@@ -16796,9 +16796,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitMoreInHelp => 'Mehr in der Hilfe';
 
   @override
-  String get homeReceiveEpicButton => 'EPIC empfangen';
-
-  @override
   String txDeviceStatusMadeOn(String device) {
     return 'Erstellt auf $device.';
   }
@@ -21388,10 +21385,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneHomeBalanceSheetHint => 'Details zum Guthaben';
-
-  @override
-  String get phoneHomeEmpty =>
-      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
 
   @override
   String get phoneRecvTitle => 'Empfangen';

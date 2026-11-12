@@ -16238,9 +16238,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitMoreInHelp => 'ดูเพิ่มเติมในความช่วยเหลือ';
 
   @override
-  String get homeReceiveEpicButton => 'รับ EPIC';
-
-  @override
   String txDeviceStatusMadeOn(String device) {
     return 'ทำบน $device';
   }
@@ -20736,9 +20733,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneHomeBalanceSheetHint => 'รายละเอียดยอดเงิน';
-
-  @override
-  String get phoneHomeEmpty => 'ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น';
 
   @override
   String get phoneRecvTitle => 'รับ';

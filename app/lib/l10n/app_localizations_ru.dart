@@ -17180,9 +17180,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitMoreInHelp => 'Подробнее в справке';
 
   @override
-  String get homeReceiveEpicButton => 'Получить EPIC';
-
-  @override
   String txDeviceStatusMadeOn(String device) {
     return 'Создан на $device.';
   }
@@ -21756,10 +21753,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneHomeBalanceSheetHint => 'Подробности баланса';
-
-  @override
-  String get phoneHomeEmpty =>
-      'Платежей пока нет. Получите немного EPIC, чтобы начать.';
 
   @override
   String get phoneRecvTitle => 'Получить';
