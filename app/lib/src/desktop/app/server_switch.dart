@@ -145,8 +145,11 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
         final relay = EpicboxRelay.parse(s.value);
         if (relay != null) await relays.moveTo(RelayCandidate(relay: relay, name: s.name));
       } else {
-        await desk.useNode(s.value);
-        if (prefs.builtin) prefsOf.set(prefs.copyWith(builtin: false));
+        final moving = desk.useNode(s.value);
+        final pick = desk.picks;
+        await moving;
+        // A later pick stands: this one's result changes nothing.
+        if (prefs.builtin && pick == desk.picks) prefsOf.set(prefs.copyWith(builtin: false));
       }
     } on Object catch (e) {
       final at = deskNavigatorKey.currentContext;

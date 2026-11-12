@@ -76,6 +76,7 @@ import '../../secret_store_api.dart';
 import '../../server_list.dart' show ServerKind;
 import '../../server_list_file.dart';
 import '../../server_list_store.dart' show builtInRelaysFor;
+import '../../node_failover.dart' show nodeProbeBudget;
 import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
@@ -364,6 +365,10 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Every move of the wallet's node runs alone, in call order ([_nodeLock]): the user's picks,
   /// the built-in node on and off, the fallback.
   Future<void> _nodeMoves = Future<void>.value();
+
+  /// Counts the user's node picks: a pick or a failover move that a later pick overtook while
+  /// it waited for [_nodeLock] does not run.
+  int _picks = 0;
 
   /// Set while [_switchTo] reopens the wallet: a send or a scan starting then waits for it.
   Completer<void>? _switching;
@@ -1282,7 +1287,9 @@ class LepicDeskWallet implements DeskWalletApi {
     // so a steady stream of them cannot hold it off. Those under way end, then it runs.
     final switching = _switching = Completer<void>();
     try {
-      while (_busy > 0) {
+      // A scan told to stop ends between pages, so a page held by a node that went silent
+      // would hold the switch: it is not waited for, the reopen ends it.
+      while (_busy > 0 && !(_busy == 1 && _rescanning && _rescanStopAsked)) {
         await whenIdle();
       }
       await _reopenOn(nodeUrl: nodeUrl, relay: relay, keep: save);
@@ -2076,24 +2083,27 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       // Locked meanwhile: the session is gone, and a call on it would fail outside any catch.
       if (_session != session) return;
+      // A stored summary (not validated with the node) shows while the refresh runs; only how
+      // the refresh ends says whether the node answered.
+      bool? validated;
       await for (final p in session.refresh(minimumConfirmations: _minConf)) {
         if (_session != session) return;
         _syncProgress = 0.5 + p.percent / 200;
         final summary = p.summary;
         if (summary != null) {
           _summary = summary;
-          if (summary.validatedWithNode) _nodeReachedAt = DateTime.now();
-          _nodeHealth = !summary.validatedWithNode
-              ? ServiceHealth.down
-              : _nodeNotReady
-              ? ServiceHealth.slow
-              : ServiceHealth.ok;
+          validated = summary.validatedWithNode;
+          if (summary.validatedWithNode) {
+            _nodeReachedAt = DateTime.now();
+            _nodeHealth = _nodeNotReady ? ServiceHealth.slow : ServiceHealth.ok;
+          }
           final h = summary.lastConfirmedHeight.toInt();
           if (h > _tip) _tip = h;
         }
         _changed();
       }
       if (_session != session) return;
+      if (validated == false) _nodeHealth = ServiceHealth.down;
       await _importHistoryOnce(session, key);
       if (_session != session) return;
       final run = ++_reloads;
@@ -2220,7 +2230,9 @@ class LepicDeskWallet implements DeskWalletApi {
     final overTor = _nodeOverTor(config.nodeUrl);
     _tipBusy = true;
     try {
-      final tip = await _nodeTip(config);
+      // The node in use is asked within the failover's probe budget: a node that stopped
+      // answering reads so as soon as a round would count it out.
+      final tip = await _nodeTip(config, wait: nodeProbeBudget(config.nodeUrl, torOn: overTor));
       if (tip == null) return;
       _nodeReachedAt = DateTime.now();
       // Back after failing: the payments it refused meanwhile are posted again at once.
@@ -3783,7 +3795,10 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   Future<void> _useNode(String url) async {
+    final pick = ++_picks;
     final stopping = await _nodeLock(() async {
+      // A later pick waits behind this one: only the latest runs.
+      if (pick != _picks) return null;
       logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
       final relay = await _relay();
       if (_session != null && _config?.nodeUrl == url) {
@@ -3806,12 +3821,17 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> useNodeForSession(String url) => _nodeLock(() async {
-    if (_session == null || NetGate.restricted || await _builtInOn()) return;
-    if (_config?.nodeUrl == url) return;
-    logInfo('desk', 'node failover: ${Uri.tryParse(url)?.host ?? '?'} for this session');
-    await _switchTo(nodeUrl: url, relay: await _relay(), save: false);
-  });
+  Future<void> useNodeForSession(String url) {
+    final picks = _picks;
+    return _nodeLock(() async {
+      // The user picked a node meanwhile: that one stands.
+      if (picks != _picks) return;
+      if (_session == null || NetGate.restricted || await _builtInOn()) return;
+      if (_config?.nodeUrl == url) return;
+      logInfo('desk', 'node failover: ${Uri.tryParse(url)?.host ?? '?'} for this session');
+      await _switchTo(nodeUrl: url, relay: await _relay(), save: false);
+    });
+  }
 
   String get _beforeBuiltInKey => 'app.node.$_chain.beforeBuiltIn';
 
@@ -3829,6 +3849,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useBuiltInNode(bool on) async {
+    // A pick too: a failover move or an older pick still waiting does not run after it.
+    _picks++;
     // The built-in node would not be the node in use before it runs: Node only and Kill switch
     // refuse it.
     if (on && NetGate.restricted) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
@@ -3976,10 +3998,11 @@ class LepicDeskWallet implements DeskWalletApi {
   /// (LEPIC's nodeTipFor), which takes it over Tor while Tor is on. With none open, the core's
   /// own nodeTip always goes directly, so with the Tor switch on nothing is asked (null, shown
   /// as not known yet) unless the node is on this computer.
-  Future<core.NodeTip?> _nodeTip(core.WalletConfig config) async {
+  /// [wait] bounds the ask through the wallet instead of the check timeouts.
+  Future<core.NodeTip?> _nodeTip(core.WalletConfig config, {Duration? wait}) async {
     final session = _session;
     if (session != null) {
-      final wait = _nodeOverTor(config.nodeUrl) && nodeTorTimeout > nodeTimeout ? nodeTorTimeout : nodeTimeout;
+      wait ??= _nodeOverTor(config.nodeUrl) && nodeTorTimeout > nodeTimeout ? nodeTorTimeout : nodeTimeout;
       return session.nodeTipFor(config: config).timeout(wait);
     }
     // No wallet open, so no tor: with the Tor switch on (or Tor only, before it is saved) a

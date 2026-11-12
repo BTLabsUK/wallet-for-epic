@@ -434,6 +434,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
         if (!mounted) return;
       }
       if (!mounted) return;
+      final pick = ++_pickSeq;
       setState(() {
         _saving = true;
         _target = null;
@@ -442,14 +443,14 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       try {
         await ref.read(deskProvider.notifier).useBuiltInNode(true);
       } on Object catch (e) {
-        if (!mounted) return;
+        if (!mounted || pick != _pickSeq) return;
         setState(() {
           _saving = false;
           _error = deskErrorText(e, l);
         });
         return;
       }
-      if (!mounted) return;
+      if (!mounted || pick != _pickSeq) return;
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
       if (started) {
@@ -476,9 +477,15 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     return null;
   }
 
+  /// Counts the picks: the answer of an older one is dropped, the latest pick shows.
+  int _pickSeq = 0;
+
   Future<void> _useRemote(String value) async {
     final l = context.l10n;
     final url = nodeUrlOf(value);
+    final pick = ++_pickSeq;
+    // What node failover was doing is dropped from the press on, not once the node answered.
+    ref.read(deskNodePicksProvider.notifier).bump();
     setState(() {
       _saving = true;
       _target = url;
@@ -486,7 +493,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     });
     final known = (ref.read(deskProvider).nodes ?? const <NodeServer>[]).any((n) => n.url == url);
     final r = await ref.read(deskApiProvider).checkNode(url);
-    if (!mounted) return;
+    if (!mounted || pick != _pickSeq) return;
     if (r.health == ServiceHealth.down) {
       setState(() {
         _saving = false;
@@ -497,14 +504,14 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     try {
       await ref.read(deskProvider.notifier).useNode(url);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || pick != _pickSeq) return;
       setState(() {
         _saving = false;
         _error = deskErrorText(e, l);
       });
       return;
     }
-    if (!mounted) return;
+    if (!mounted || pick != _pickSeq) return;
     ref.read(settingsPrefsProvider.notifier).set(ref.read(settingsPrefsProvider).copyWith(builtin: false, typedNode: known ? null : r, clearTyped: known));
     setState(() => _saving = false);
   }
@@ -552,7 +559,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     final listed = list == null ? all : [for (final n in all) if (list.has(ServerKind.node, n.url)) n];
 
     // The word and state of the head: the same the rail shows.
-    final nodeHealth = downShot ? ServiceHealth.down : status.nodeHealth;
+    final nodeHealth = downShot ? ServiceHealth.down : ref.watch(deskNodeHealthProvider) ?? status.nodeHealth;
     // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
     // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin

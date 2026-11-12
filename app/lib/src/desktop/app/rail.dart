@@ -312,7 +312,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     } else {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
-      final health = _settledHealth(status.nodeHealth);
+      final health = _settledHealth(ref.watch(deskNodeHealthProvider) ?? status.nodeHealth);
       final torState = netTorState(settings, status);
       final info = ref.watch(deskNodeInfoProvider(url)).value;
       final v = remoteNodeView(

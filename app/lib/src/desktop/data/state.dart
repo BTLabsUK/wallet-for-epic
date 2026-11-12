@@ -14,7 +14,7 @@ import 'api.dart';
 import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
 import 'mock_wallet.dart';
-import 'node_switch.dart' show NodeSwitchStep, deskNodeSwitchProvider;
+import 'node_switch.dart' show NodeSwitchStep, deskNodePicksProvider, deskNodeSwitchProvider;
 import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations, messageCheckStream;
 import '../../relay_directory.dart' show statusSite;
@@ -458,16 +458,27 @@ class DeskController extends Notifier<DeskState> {
     return s;
   }
 
-  /// The switch says what happens from the first moment ([deskNodeSwitchProvider]).
-  Future<void> useNode(String url) =>
-      ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.connecting, url, () => _reopening(() => api.useNode(url)));
+  /// The switch says what happens from the first moment ([deskNodeSwitchProvider]). A pick
+  /// drops what node failover was doing; the latest pick wins.
+  Future<void> useNode(String url) {
+    _picked();
+    return ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.connecting, url, () => _reopening(() => api.useNode(url)));
+  }
+
+  /// Counts the node picks: a caller tells by it whether a later pick overtook its own.
+  int get picks => ref.read(deskNodePicksProvider);
+
+  void _picked() => ref.read(deskNodePicksProvider.notifier).bump();
 
   /// Node failover's move: [url] for this session, the chosen node kept (`desk_failover.dart`).
   Future<void> useNodeForSession(String url) => _reopening(() => api.useNodeForSession(url));
 
-  Future<void> useBuiltInNode(bool on) => on
+  Future<void> useBuiltInNode(bool on) {
+    _picked();
+    return on
       ? ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.starting, null, () => _reopening(() => api.useBuiltInNode(on)))
       : _reopening(() => api.useBuiltInNode(on));
+  }
 
   Future<void> followBuiltInNode() => _reopening(() => api.followBuiltInNode());
 

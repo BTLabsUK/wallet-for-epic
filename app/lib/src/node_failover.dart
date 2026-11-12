@@ -17,8 +17,6 @@
 /// (`node_failover_phone.dart`) and the desktop feed it and call these.
 library;
 
-import 'dart:math' show min;
-
 import 'advanced.dart';
 import 'network_gate.dart';
 import 'node_failover_engine.dart' show FailoverScope, FailoverTimings;
@@ -55,23 +53,6 @@ FailoverScope failoverScope(FailoverHold? hold, NetworkMode mode) {
   if (netModeOf(mode) == NetworkMode.killSwitch || hold == FailoverHold.waitingForTor) return FailoverScope.none;
   return hold == null ? FailoverScope.all : FailoverScope.inUseOnly;
 }
-
-// desktop: goes with the desktop adapter (the engine's retry_min/max backoff replaces it).
-/// The waits after the first retry while no other node answers either: each try asks the
-/// whole list, so a wallet with no network does not ask it every 30 s for hours.
-const List<Duration> nodeFailoverBackoff = [
-  Duration(minutes: 1),
-  Duration(minutes: 2),
-  Duration(minutes: 5),
-];
-
-// desktop: goes with the desktop adapter.
-/// How long to wait before the next try after [failed] tries in a row found no node:
-/// [first] (`node.failover_after_s`) after one, then [nodeFailoverBackoff], its last at most.
-/// A new network, the app's return or the node's answer starts over.
-Duration failoverRetryAfter(int failed, Duration first) => failed <= 1
-    ? first
-    : nodeFailoverBackoff[min(failed - 1, nodeFailoverBackoff.length) - 1];
 
 /// Whether a node [blocksBehind] the network's tip counts as behind: the rail's word.
 bool failoverBehind(int? blocksBehind) => blocksBehind != null && blocksBehind > syncedWithinBlocks;

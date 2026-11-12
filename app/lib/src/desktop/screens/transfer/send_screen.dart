@@ -39,6 +39,7 @@ import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../send_amount_gate.dart';
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
+import '../../app/desk_failover.dart' show deskNodeHealthProvider;
 import '../../app/shell.dart' show outputsShown;
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
@@ -623,8 +624,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     return s.nodeHealth == ServiceHealth.ok || s.nodeHealth == ServiceHealth.slow ? null : -1;
   }
 
-  /// The node in use does not answer (as opposed to answering while it syncs).
-  bool _nodeDown(DeskState st) => st.status?.nodeHealth == ServiceHealth.down;
+  /// The node in use does not answer (as opposed to answering while it syncs, or while node
+  /// failover looks for one that does).
+  bool _nodeDown(DeskState st) => st.status != null && ref.read(deskNodeHealthProvider) == ServiceHealth.down;
 
   /// The Node list of the settings file is empty.
   bool get _noNode => ref.read(hostSettingsProvider).nodeUrls.isEmpty;

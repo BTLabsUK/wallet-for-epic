@@ -125,6 +125,26 @@ void main() {
     expect(service.nodeTipCalls, 1);
   });
 
+  test('the node in use is asked within the failover\'s probe budget, not the short check wait', () async {
+    // A node that answers in 300 ms with checks cut at 50 ms: the tip ask of the node in use
+    // waits as long as a failover round would, so a slow node does not read Not answering.
+    await wallet.dispose();
+    wallet = LepicDeskWallet(
+      service: service,
+      walletDir: (chain) async => WalletRegistry.firstWalletDir(support.path, chain),
+      secrets: secrets,
+      filesDir: () async => support,
+      nodePoll: const Duration(hours: 1),
+      nodeTimeout: const Duration(milliseconds: 50),
+      torBundle: () async => _bundle,
+      torFeature: true,
+    );
+    service.delay = const Duration(milliseconds: 300);
+    expect(await wallet.unlock(_password), isTrue);
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    expect((await wallet.status()).nodeHealth, ServiceHealth.ok);
+  });
+
   group('a tor restart', () {
     // The tester killed tor; it came back after 2 s, and the status said Not answering for
     // minutes while the wallet synced over Tor: a check timed for direct connections, counted
