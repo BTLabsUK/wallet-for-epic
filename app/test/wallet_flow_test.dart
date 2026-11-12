@@ -509,6 +509,12 @@ void main() {
       // into view may push it out of sight, so look past the viewport).
       expect(find.text('Not in the word list: not (1), a (2).', skipOffstage: false), findsNothing);
       // The start choice is offered to everyone behind the calendar button.
+      // The phrase step's own list scrolls to the start row (the phrase box has a scrollable too).
+      await tester.scrollUntilVisible(
+        find.byKey(ScanStart.changeKey),
+        200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first,
+      );
       await _tap(tester, find.byKey(ScanStart.changeKey));
       await _tapText(tester, _l.restoreStartByHeight);
       await _enter(tester, 'Start height (optional)', '1000');
@@ -793,8 +799,8 @@ void main() {
       expect(find.text(_l.txIncomingPayment), findsOneWidget);
       expect(find.text('\u22121.0'), findsOneWidget);
       expect(find.textContaining(_l.txStatusWaitingRecipient), findsOneWidget);
-      // A received row shows its date in place of a status word.
-      expect(find.textContaining(_l.txStatusReceived), findsNothing);
+      // A received row shows its date and the word: "21 Sep · Received".
+      expect(find.textContaining('\u00b7 ${_l.txStatusReceived}'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
       expect(find.byTooltip('Cancel payment'), findsNothing);
     });
@@ -810,8 +816,8 @@ void main() {
 
       await _clearNotices(tester);
       await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
-      // No address was recorded: the steps wait for the recipient.
-      expect(find.text(_l.txStatusWaitingRecipient), findsOneWidget);
+      // No address was recorded: the steps wait for the recipient's answer.
+      expect(find.textContaining(_l.phoneProgAnswersLive), findsOneWidget);
       // The fee sits below a short screen's first page.
       await _reveal(tester, find.text(_l.phonePayFee));
       expect(find.text(_l.phonePayFee), findsOneWidget);

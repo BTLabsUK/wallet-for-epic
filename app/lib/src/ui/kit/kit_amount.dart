@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../l10n.dart';
+import '../tip.dart';
 import '../theme/tokens.dart';
 import 'kit_icons.dart';
 import 'kit_support.dart';
@@ -117,8 +118,8 @@ class KitAmountDisplay extends StatelessWidget {
         if (fiat != null)
           kitId(
               swapId,
-              Tooltip(
-                message: context.l10n.phoneKitSwapCurrency,
+              Tip(
+                context.l10n.phoneKitSwapCurrency,
                 excludeFromSemantics: true,
                 child: Semantics(
                 button: onSwap != null,

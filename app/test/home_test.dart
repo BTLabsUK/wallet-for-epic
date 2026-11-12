@@ -3593,7 +3593,8 @@ void main() {
   group('Send recipient Clear', () {
     // The method line under the To field names the way the address takes (the field picks it).
     Finder methodLine(String name) => find.descendant(of: find.byType(SendView), matching: find.text(name));
-    bool canContinue(WidgetTester tester) => continueOnPressed(tester) != null;
+    // The Who step has no button until an address is in (Send-1), so none counts as off.
+    bool canContinue(WidgetTester tester) => continueButton().evaluate().isNotEmpty && continueOnPressed(tester) != null;
 
     /// Wallet, then Receive, then back to Send.
     Future<void> leaveAndBack(WidgetTester tester) async {

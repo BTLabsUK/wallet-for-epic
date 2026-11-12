@@ -246,7 +246,8 @@ void main() {
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
       // The request file, to save or share (DESIGN §3.2).
-      expect(find.text(_l.reqFileLead), findsOneWidget);
+      // The lead names the amount; match its words before it.
+      expect(find.textContaining('Share this file. Whoever opens it is asked for'), findsOneWidget);
       await tester.tap(find.text(_l.slateSaveToDevice));
       await tester.pumpAndSettle();
       expect(h.files.saved, hasLength(1));
