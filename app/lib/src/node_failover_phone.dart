@@ -10,6 +10,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart';
@@ -138,6 +139,10 @@ class NodeFailoverWatch extends Notifier<void> {
       if ((before ?? 0) > 0 && now == 0) later(() => _engine?.kick('payment done'));
     });
     ref.listen(networkModeProvider, (_, _) => later(() => _engine?.kick('network mode')));
+    // A node added or taken out, here or in the settings file: a waiting round runs now.
+    ref.listen(serverListProvider((ServerKind.node, session.chain)).select((l) => l.value?.entries), (before, now) {
+      if (before != null && now != null && !listEquals(before, now)) later(() => _engine?.kick('node list'));
+    });
     later(() {
       _feed();
       _engine?.kick('wallet opened');

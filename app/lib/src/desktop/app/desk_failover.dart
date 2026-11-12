@@ -22,6 +22,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../log.dart';
@@ -169,6 +170,10 @@ class DeskFailoverWatch extends Notifier<void> {
     ref.listen(deskProvider.select((s) => s.settings.advanced.networkMode), (_, _) => later(() => _engine?.kick('network mode'))); // l10n-ok
     ref.listen(deskProvider.select((s) => s.settings.advanced.nodeFailover), (was, now) {
       if (was == false && now) later(() => _engine?.kick('failover on')); // l10n-ok
+    });
+    // A node added or taken out, here or in the settings file: a waiting round runs now.
+    ref.listen(deskServerListProvider(ServerKind.node).select((l) => l?.entries), (was, now) {
+      if (was != null && now != null && !listEquals(was, now)) later(() => _engine?.kick('node list')); // l10n-ok
     });
     later(() {
       _feed();

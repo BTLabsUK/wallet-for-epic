@@ -39,6 +39,7 @@ const _a = 'https://a.example';
 const _b = 'https://b.example';
 const _c = 'https://c.example';
 const _d = 'https://d.example';
+const _e = 'https://e.example';
 const _local = 'http://127.0.0.1:3413';
 const _dir = '/fake/wallets/mainnet';
 
@@ -271,6 +272,22 @@ void main() {
         unawaited(h.container.read(nodeRecheckProvider.notifier).recheck('network'));
         h.elapse(Duration.zero);
         expect(h.asked(_c), before + 1);
+        h.dispose();
+      });
+    });
+
+    test('a node added to the list while nothing works: a round runs now and moves to it', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a, _c, _d});
+        h.nodeDown();
+        // Far into the backoff: the next round is a minute away.
+        h.elapse(const Duration(minutes: 3));
+        expect(h.session.serverSwitches, isEmpty);
+        unawaited(h.container.read(serverListProvider((ServerKind.node, h.session.chain)).notifier).add(_e));
+        h.elapse(const Duration(milliseconds: 500));
+        expect(h.asked(_e), greaterThan(0));
+        expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_e]);
+        expect(h.failover, const NodeFailover(chosen: _a, inUse: _e));
         h.dispose();
       });
     });

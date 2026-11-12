@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/app/desk_failover.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
+import 'package:epic_wallet/src/desktop/data/server_lists.dart' show ServerKind, deskServerListProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -24,6 +25,7 @@ const _a = 'https://a.example';
 const _b = 'https://b.example';
 const _c = 'https://c.example';
 const _d = 'https://d.example';
+const _e = 'https://e.example';
 const _local = 'http://127.0.0.1:3413';
 const _home = 'http://192.168.1.5:3413';
 
@@ -292,6 +294,26 @@ void main() {
       h.watch.resumed();
       h.elapse(const Duration(seconds: 1));
       expect(tries(), after + 1);
+      h.dispose();
+    });
+  });
+
+  test('a node added to the list while nothing works: a round runs now and moves to it', () {
+    fakeAsync((async) {
+      final h = _Harness(async, dead: {_a, _c, _d});
+      int tries() => h.wallet.checked.where((u) => u == _c).length;
+      // Just after a round, past the first waits: the next is up to a minute away.
+      h.elapse(const Duration(minutes: 3));
+      final settled = tries();
+      while (tries() == settled) {
+        h.elapse(const Duration(seconds: 1));
+      }
+      expect(h.wallet.sessionNodes, isEmpty);
+      unawaited(h.container.read(deskServerListProvider(ServerKind.node).notifier).add(_e));
+      h.elapse(const Duration(seconds: 1));
+      expect(h.wallet.checked, contains(_e));
+      expect(h.wallet.sessionNodes, [_e]);
+      expect(h.failover, const NodeFailover(chosen: _a, inUse: _e));
       h.dispose();
     });
   });
