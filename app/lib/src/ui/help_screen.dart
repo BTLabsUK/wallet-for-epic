@@ -177,7 +177,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     super.dispose();
   }
 
-  void _openTopic(HelpTopic topic, List<HelpTopic> all, String lang, {String? anchor}) {
+  void _openTopic(HelpTopic topic, List<HelpTopic> all, String lang, {String? anchor, String? backLabel}) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => HelpTopicScreen(
@@ -185,6 +185,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
           section: _sectionsFor(all, lang).firstWhere((s) => s.id == topic.section),
           related: [for (final t in all) if (t.section == topic.section && t != topic) t],
           anchor: anchor,
+          backLabel: backLabel,
         ),
       ),
     );
@@ -215,7 +216,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
       final t = topics.where((t) => t.id == widget.topic).firstOrNull;
       if (t != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _openTopic(t, topics, lang, anchor: widget.anchor);
+          if (mounted) _openTopic(t, topics, lang, anchor: widget.anchor, backLabel: context.l10n.helpTitle);
         });
       }
     }
@@ -245,7 +246,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                       x,
                       words: words,
                       overline: sections.firstWhere((s) => s.id == x.section).title,
-                      onTap: () => _openTopic(x, topics, lang),
+                      onTap: () => _openTopic(x, topics, lang, backLabel: l.helpTitle),
                     ),
                 ],
               ),
@@ -519,12 +520,15 @@ class _ReportRow extends StatelessWidget {
 /// the handshake sheet for the handshake topic, then the section's other topics. With [anchor],
 /// the page arrives scrolled to that heading ([HelpBlock.anchor]).
 class HelpTopicScreen extends StatefulWidget {
-  const HelpTopicScreen({super.key, required this.topic, required this.section, this.related = const [], this.anchor});
+  const HelpTopicScreen({super.key, required this.topic, required this.section, this.related = const [], this.anchor, this.backLabel});
 
   final HelpTopic topic;
   final HelpSection section;
   final List<HelpTopic> related;
   final String? anchor;
+
+  /// Where Back goes, in words: the section's title unless the topic opened from the index.
+  final String? backLabel;
 
   @override
   State<HelpTopicScreen> createState() => _HelpTopicScreenState();
@@ -586,7 +590,7 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 KitPageHeader(
-                  backLabel: section.title,
+                  backLabel: widget.backLabel ?? section.title,
                   onBack: () => Navigator.of(context).maybePop(),
                   title: l.helpTitle,
                   backId: TrustIds.helpBack,
@@ -649,6 +653,7 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
                                         topic: r,
                                         section: section,
                                         related: [topic, for (final x in related) if (x != r) x],
+                                        backLabel: widget.backLabel,
                                       ),
                                     ),
                                   ),
