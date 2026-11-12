@@ -326,6 +326,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   // Security.
 
+  /// The picker's value for Never (no minutes).
+  static const int _autoLockNever = 0;
+
   Future<void> _pickAutoLock(AppSettings s) {
     final l = context.l10n;
     final current = s.autoLockMinutes;
@@ -334,9 +337,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       title: l.settingsAutoLock,
       subtitle: l.phoneSettingsAutoLockSub,
       note: l.phoneSettingsPickerNote,
-      selected: current == null ? null : autoLockChoice(current),
-      choices: [for (final m in autoLockChoices) KitChoice(value: m, title: autoLockDuration(l, m), semanticsId: TrustIds.securityAutoLockChoiceAt(m))],
-      onSelected: _settings.setAutoLockMinutes,
+      // Never is the stored "none" (`autoLockMinutes` null), as on main and the desktop; 0 stands for it in the list.
+      selected: current == null ? _autoLockNever : autoLockChoice(current),
+      choices: [
+        for (final m in autoLockChoices) KitChoice(value: m, title: autoLockDuration(l, m), semanticsId: TrustIds.securityAutoLockChoiceAt(m)),
+        KitChoice(value: _autoLockNever, title: l.autoLockNever, semanticsId: TrustIds.securityAutoLockChoiceAt('never')),
+      ],
+      onSelected: (m) => _settings.setAutoLockMinutes(m == _autoLockNever ? null : m),
     );
   }
 

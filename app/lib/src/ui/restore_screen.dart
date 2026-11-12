@@ -705,27 +705,32 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         KitFlowHeader(title: '', onLeading: _openWallet, leadingId: TrustIds.restoreClose),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(Kit.gutter, 24, Kit.gutter, Kit.gutter),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 36, Kit.gutter, Kit.gutter),
             children: [
               Center(
                 child: Semantics(
                   label: l.restoreDoneIconLabel,
                   image: true,
+                  // The frame's `.okring`: a 76 disc at 12 % with a 10 px ring at 5 % around it.
                   child: Container(
-                    width: Kit.brandTile,
-                    height: Kit.brandTile,
+                    width: Kit.okRing,
+                    height: Kit.okRing,
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(color: t.okSoft, shape: BoxShape.circle),
-                    child: Icon(KitIcons.check, size: 44, color: t.ok),
+                    decoration: BoxDecoration(
+                      color: t.okSoft,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: t.ok.withValues(alpha: 0.05), spreadRadius: 10)],
+                    ),
+                    child: Icon(KitIcons.check, size: 36, color: t.ok),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 28),
               Semantics(
                 header: true,
-                child: Text(l.restoreDoneTitle, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center),
+                child: Text(l.restoreDoneTitle, style: KitType.doneTitle.copyWith(color: t.text), textAlign: TextAlign.center),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(l.phoneRestoreDoneBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),

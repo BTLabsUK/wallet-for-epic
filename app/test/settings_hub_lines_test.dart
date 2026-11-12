@@ -7,7 +7,12 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart';
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart';
+import 'package:epic_wallet/src/ui/settings_phone.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -143,5 +148,37 @@ void main() {
     await _pump(tester);
     final wallet = find.byKey(settingsGroupKey(SettingsSection.wallet));
     expect(find.descendant(of: wallet, matching: find.text(_l.phoneSettingsPhraseBackedUp)), findsOneWidget);
+  });
+  testWidgets('Auto-lock: Never is the last choice, ticked when stored, and saves the stored "none"', (tester) async {
+    await _pump(tester);
+    final container = ProviderScope.containerOf(tester.element(find.byType(SettingsScreen)));
+    Future<int?> stored() async => (await container.read(appSettingsProvider.future)).autoLockMinutes;
+    expect(await stored(), 15);
+    // The hub line reads on after the dot, in lower case.
+    expect(find.textContaining('· locks after 15 minutes'), findsOneWidget);
+
+    await tester.tap(find.byKey(settingsGroupKey(SettingsSection.security)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(_l.settingsAutoLock));
+    await tester.pumpAndSettle();
+
+    final sheet = find.byType(KitPickerSheet<int>);
+    expect(sheet, findsOneWidget);
+    expect(find.text(_l.phoneSettingsAutoLockSub), findsOneWidget);
+    expect(find.text(_l.phoneSettingsPickerNote), findsOneWidget);
+    final never = find.descendant(of: sheet, matching: find.text(_l.autoLockNever));
+    expect(never, findsOneWidget);
+    // Last: below the longest duration.
+    expect(tester.getTopLeft(never).dy, greaterThan(tester.getTopLeft(find.descendant(of: sheet, matching: find.text(autoLockDuration(_l, 60)))).dy));
+
+    await tester.tap(never);
+    await tester.pumpAndSettle();
+    expect(await stored(), isNull);
+
+    // Open again: Never is the ticked row.
+    await tester.tap(find.text(_l.settingsAutoLock));
+    await tester.pumpAndSettle();
+    final row = find.ancestor(of: find.descendant(of: find.byType(KitPickerSheet<int>), matching: find.text(_l.autoLockNever)), matching: find.byType(KitRow));
+    expect(find.descendant(of: row.first, matching: find.byIcon(KitIcons.check)), findsOneWidget);
   });
 }

@@ -34521,7 +34521,7 @@ abstract class AppLocalizations {
   /// Part of the Security line on the Settings hub. {time} is a duration like '5 minutes'.
   ///
   /// In en, this message translates to:
-  /// **'Locks after {time}'**
+  /// **'locks after {time}'**
   String phoneSettingsLocksAfter(String time);
 
   /// Note under the auto-lock row in Security. {time} is a duration like '5 minutes'.
@@ -34551,13 +34551,13 @@ abstract class AppLocalizations {
   /// Line under the title of the auto-lock picker.
   ///
   /// In en, this message translates to:
-  /// **'Lock the wallet after it is left alone'**
+  /// **'Lock the wallet after this long away from the app.'**
   String get phoneSettingsAutoLockSub;
 
   /// Note under the choices of a picker: the choice is saved when tapped.
   ///
   /// In en, this message translates to:
-  /// **'Saved when you tap.'**
+  /// **'Tapping a choice saves it and closes this sheet.'**
   String get phoneSettingsPickerNote;
 
   /// Row title in Security: an extra word set added to the recovery phrase.

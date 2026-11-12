@@ -15,9 +15,8 @@ import '../settings_file/host_settings.dart' show hostSettings;
 import '../trust_ids.dart';
 import '../updater.dart';
 import 'common.dart' show copyText;
-import 'kit/kit_corner_marks.dart';
+import 'kit/kit_brand_tile.dart';
 import 'kit/kit_group.dart';
-import 'kit/kit_icons.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_sheet.dart';
 import 'kit/kit_support.dart' show kitId;
@@ -27,7 +26,7 @@ import 'notices.dart' show NoticeLevel, noticeProvider;
 import 'net_block.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
 import 'settings_sections.dart' show LinkTile, appVersionProvider, epicCashUrl, privacyPolicyUrl, projectRepoUrl, settingsLicencesKey;
-import 'theme/brand.dart' show BrandVariant, BrandWordmark, EpicMark;
+import 'theme/brand.dart' show BrandVariant, BrandWordmark;
 import 'theme/epic1_mark.dart' show Epic1Mark;
 import 'theme/tokens.dart';
 
@@ -63,18 +62,11 @@ class AboutPhoneBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 16),
-        Center(
-          child: KitCornerMarks(
-            inset: 8,
-            child: SizedBox(
-              width: Kit.brandTile,
-              height: Kit.brandTile,
-              child: Center(child: EpicMark(size: Kit.brandTile * 0.6, color: t.accentText)),
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
+        // The frame's `.tile.brk` at `margin-top: 36`; the tile's box carries 9 px of corner-mark
+        // room on every side.
+        const SizedBox(height: 7),
+        const Center(child: KitBrandTile()),
+        const SizedBox(height: 30 - 9),
         const Center(child: BrandWordmark(variant: BrandVariant.mobile, size: 24)),
         const SizedBox(height: 30),
         KitGroup(
@@ -101,9 +93,9 @@ class AboutPhoneBody extends ConsumerWidget {
                 size: KitRowSize.settings,
                 minHeight: 54,
                 title: l.phoneAboutWhatsNew,
-                // Notes open in a sheet; the release page is copied, as every link here.
-                chevron: notes != null,
-                trailing: notes != null ? null : Icon(KitIcons.external, size: 18, color: t.dim, semanticLabel: l.settingsCopyLink),
+                // Notes open in a sheet; the release page is copied, as every link here. The frame
+                // ends the row in a chevron either way.
+                chevron: true,
                 semanticsId: TrustIds.aboutWhatsNew,
                 onTap: () => notes != null
                     ? _showNotes(context, l.phoneAboutNotesTitle(installed ?? ''), notes)

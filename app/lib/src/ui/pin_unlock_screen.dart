@@ -305,12 +305,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final canSwitch = ref.watch(passphraseEverUsedProvider).value ?? false;
     final title = config != null && ref.watch(devNetworksProvider) ? '${l.unlockTitle}${networkSuffix(l, config.chain)}' : l.unlockTitle;
     final top = <Widget>[
-      const KitBrandTile(size: 64),
-      const SizedBox(height: 20),
-      Semantics(header: true, child: Text(title, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center)),
-      const SizedBox(height: 24),
+      // The frame: tile `margin-top: 40`, title 34 below it, dots 30 below the title. The tile's
+      // box carries its 9 px of corner-mark room, so 9 comes off each gap beside it.
+      const KitBrandTile(size: Kit.brandTileSmall),
+      const SizedBox(height: 34 - 9),
+      Semantics(header: true, child: Text(title, style: KitType.unlockTitle.copyWith(color: t.text), textAlign: TextAlign.center)),
+      const SizedBox(height: 30),
       if (widget.stranded) ...[
-        ErrorText(l.unlockStranded),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: ErrorText(l.unlockStranded)),
         const SizedBox(height: 16),
       ],
     ];
@@ -333,12 +335,17 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (_keyRefused)
         KitButton(label: l.unlockTryAgain, onPressed: _busy || _reading ? null : _tryAgain, semanticsId: TrustIds.unlockRetry)
       else
-        KitButton(
-          label: passphrase ? l.passphraseForgot : l.pinForgot,
-          kind: KitButtonKind.ghost,
-          onPressed: _busy ? null : () => _forgotPin(),
-          semanticsId: TrustIds.unlockForgot,
-          tall: true,
+        // The frame draws Forgot PIN in gold (`color: var(--gold)`); the ghost takes its text from
+        // the dim token, so it reads the gold one here.
+        Theme(
+          data: Theme.of(context).copyWith(extensions: [t.copyWith(dim: t.accentText)]),
+          child: KitButton(
+            label: passphrase ? l.passphraseForgot : l.pinForgot,
+            kind: KitButtonKind.ghost,
+            onPressed: _busy ? null : () => _forgotPin(),
+            semanticsId: TrustIds.unlockForgot,
+            tall: true,
+          ),
         ),
       // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
       if (canSwitch)
@@ -351,8 +358,13 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           semanticsId: TrustIds.unlockSwitchMode,
         ),
     ];
+    // The page keeps no side padding of its own: the keys stand 28 from the sides (the pad's own inset), as in
+    // the frame, and everything else takes the gutter.
+    Widget gutter(Widget w) => Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: w);
     final Widget content = passphrase
-        ? Column(
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
@@ -378,7 +390,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               ),
               ...footer,
             ],
-          )
+          ))
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -386,6 +398,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 child: PinPad(
                   key: const ValueKey('unlock-pin'),
                   fill: true,
+                  topGap: 40 - 9,
                   top: top,
                   digits: _digits,
                   enabled: !_busy && !_keyRefused,
@@ -397,11 +410,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                   }),
                   onCompleted: _unlockWithPin,
                   onBiometrics: _biometrics && !_busy && !_reading ? _unlockWithBiometrics : null,
-                  below: PinMessage(message, child: progress),
+                  below: gutter(PinMessage(message, child: progress)),
                 ),
               ),
-              const SizedBox(height: 4),
-              ...footer,
+              // The frame leaves 20 between the keys and the ghost's text line (the ghost is 48 here).
+              const SizedBox(height: 16),
+              for (final w in footer) gutter(w),
             ],
           );
     return SlotScaffold(
@@ -411,16 +425,23 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, 12),
+              padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom > 0 ? 0 : 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Align(
+                  // The frame's `.bar`: 44 high, the pill centred in it.
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                    child: SizedBox(
+                    height: Kit.flowHeader,
+                    child: Align(
                     alignment: AlignmentDirectional.centerEnd,
                     // The way to the servers before a wallet is open; the app is ready to open
                     // the wallet without them. Always Ready: node and relay state (walletStatusProvider)
                     // come from the open wallet's tip and listener, so nothing is known before unlock.
                     child: KitStatusPill(ready: true, onTap: _busy ? null : () => showNetworkMenu(context), semanticsId: TrustIds.unlockServers),
+                  ),
+                  ),
                   ),
                   Expanded(child: content),
                 ],

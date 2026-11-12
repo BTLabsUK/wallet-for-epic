@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 import 'kit_tokens.dart';
 
-/// A progress ring with the figure inside (HANDOFF 7.8, the restore search): a 128 px gold arc in a 132 px box on
+/// A progress ring with the figure inside (HANDOFF 7.8, the restore search): a 122 px gold arc (a 116 px circle, 6 px stroke) in a 132 px box on
 /// the quiet track, [label] in the page-title type at its centre. [value] 0 to 1; null draws the
 /// empty track. [semanticsLabel] and [semanticsValue] (a number) are what a screen reader says.
 class KitProgressRing extends StatelessWidget {
@@ -34,7 +34,8 @@ class KitProgressRing extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             SizedBox.square(
-              dimension: size - 4,
+              // The stroke is centred on the circle's edge: a 116 px circle draws 122 px across, as the frame's r=58.
+              dimension: size - 16,
               child: CircularProgressIndicator(
                 value: value ?? 0,
                 strokeWidth: stroke,

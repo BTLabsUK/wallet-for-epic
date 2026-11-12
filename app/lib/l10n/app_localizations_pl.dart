@@ -22871,10 +22871,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneSettingsAutoLockSub =>
-      'Blokuj portfel, gdy nikt go nie używa';
+      'Zablokuj portfel po takim czasie poza aplikacją.';
 
   @override
-  String get phoneSettingsPickerNote => 'Zapisuje się po dotknięciu.';
+  String get phoneSettingsPickerNote =>
+      'Dotknięcie wyboru zapisuje go i zamyka ten arkusz.';
 
   @override
   String get phoneSettingsPassphrase => 'Hasło dodatkowe';

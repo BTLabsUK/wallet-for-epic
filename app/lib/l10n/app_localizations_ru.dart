@@ -22857,10 +22857,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneSettingsAutoLockSub =>
-      'Блокировать кошелёк, если им не пользуются';
+      'Блокировать кошелёк после такого времени вне приложения.';
 
   @override
-  String get phoneSettingsPickerNote => 'Сохраняется при нажатии.';
+  String get phoneSettingsPickerNote =>
+      'Нажатие на вариант сохраняет его и закрывает это окно.';
 
   @override
   String get phoneSettingsPassphrase => 'Кодовая фраза';
