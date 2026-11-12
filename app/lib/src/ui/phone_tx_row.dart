@@ -195,14 +195,20 @@ class PhoneTxRow extends ConsumerWidget {
       sub = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(child: Text(time, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
+          // One text: the date and time first, so the ellipsis cuts the detail, not the time.
+          Flexible(
+            child: Text(
+              (!(sealed && !cancelled) && detail != null && detail.isNotEmpty) ? '$time · $detail' : time,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: mono.copyWith(color: t.dim),
+            ),
+          ),
           if (sealed && !cancelled) ...[
             Text(' · ', style: mono.copyWith(color: t.dim)),
             ExcludeSemantics(child: Epic1Glyph(size: 16, color: t.accentText)),
             const SizedBox(width: 3),
             Flexible(child: Text(l.phoneActSealed, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
-          ] else if (detail != null && detail.isNotEmpty) ...[
-            Flexible(child: Text(' · $detail', maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
           ],
         ],
       );
