@@ -55,14 +55,13 @@ class LinkedDevicesScreen extends ConsumerWidget {
     final loaded = view != null && view.loaded;
     // Nothing linked, nothing waiting: the empty state with Link a device under it.
     final empty = loaded && linked == null && view.supported && view.book.removedBy == null && view.book.removing.isEmpty && view.held.isEmpty;
-    final Widget link = PhoneTourTarget(
-      id: 'tour-devices-link',
-      child: KitButton(
-        key: devicesLinkKey,
-        label: l.phoneSettingsLinkDevice,
-        semanticsId: TrustIds.devicesLink,
-        onPressed: loaded && view.supported && !epicboxOff ? () => openLinkDevice(context, ref) : null,
-      ),
+    // The button sits at the bottom edge, where the tour's card is: the tour lights the empty
+    // state above it, which says what linking does.
+    final Widget link = KitButton(
+      key: devicesLinkKey,
+      label: l.phoneSettingsLinkDevice,
+      semanticsId: TrustIds.devicesLink,
+      onPressed: loaded && view.supported && !epicboxOff ? () => openLinkDevice(context, ref) : null,
     );
     return SlotScaffold(
       body: SafeArea(
@@ -92,10 +91,13 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   const Expanded(child: SizedBox.shrink())
                 else if (empty)
                   Expanded(
-                    child: KitEmptyState(
-                      icon: KitIcons.devices,
-                      title: l.phoneSettingsDevicesEmpty,
-                      message: l.phoneSettingsDevicesEmptyLine,
+                    child: PhoneTourTarget(
+                      id: 'tour-devices-link',
+                      child: KitEmptyState(
+                        icon: KitIcons.devices,
+                        title: l.phoneSettingsDevicesEmpty,
+                        message: l.phoneSettingsDevicesEmptyLine,
+                      ),
                     ),
                   )
                 else
