@@ -513,19 +513,17 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         id: HelpId.cleanup,
       ),
     HelpTopic(
-      'maintenance',
-      'Die Einstellungsdatei',
-      'Eine Datei enthält Ihre Node- und Epicbox-Listen. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
+      phone ? 'network' : 'maintenance',
+      phone ? 'Serverlisten' : 'Die Einstellungsdatei',
+      phone ? 'Welchen Node und Epicbox-Server die Wallet nutzt.' : 'Eine Datei enthält Ihre Node- und Epicbox-Listen. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Die App führt eine Datei mit Ihren Node- und Epicbox-Listen und drei Schaltern: Statusseite, Update-Prüfung und Preise. Alles andere kommt mit der App. Die Datei wird in der App geändert, zum Beispiel unter $nodePlace und $epicboxPlace, nicht von Hand.',
+            'Ihre Node- und Epicbox-Listen ändern Sie unter $nodePlace und $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**Der erste Server jeder Liste ist der verwendete.** Wählen Sie einen Server, rückt er nach oben; eine neue Reihenfolge ändert den verwendeten. Antwortet der erste Node nicht, wird der nächste versucht.',
             '**Der erste Epicbox-Server steht in der Epicbox-Adresse jeder Wallet.** Rückt ein anderer nach oben, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
-            '**Eine Datei, die sich nicht lesen lässt:** Die letzten guten Einstellungen bleiben in Gebrauch. Bevor die App eine neue Datei schreibt, speichert sie die alte als **settings.toml.bad-<time>**.',
-            'Eine gelöschte Datei wird neu geschrieben.',
           ]),
         ] else ...[
           HelpBlock.p(

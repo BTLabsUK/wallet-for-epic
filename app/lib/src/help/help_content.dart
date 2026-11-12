@@ -702,19 +702,17 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         id: HelpId.cleanup,
       ),
     HelpTopic(
-      'maintenance',
-      'The settings file',
-      'One file holds your Node and Epicbox lists. A mistake in it never costs the last good settings.',
+      phone ? 'network' : 'maintenance',
+      phone ? 'Server lists' : 'The settings file',
+      phone ? 'Which node and Epicbox server the wallet uses.' : 'One file holds your Node and Epicbox lists. A mistake in it never costs the last good settings.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'The app keeps a file of your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. The file is changed in the app, for example under $nodePlace and $epicboxPlace, not by hand.',
+            'Your Node and Epicbox lists are changed under $nodePlace and $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**The first server of each list is the one in use.** Picking a server moves it to the top; reordering the list changes the one in use. When the first node does not answer, the next one is tried.',
             '**The first Epicbox server is in the Epicbox address of every wallet.** Moving another one to the top gives each wallet a new address; payments sent to an old address do not arrive.',
-            '**A file that cannot be read:** the last good settings stay in use. Before the app writes a new file, it saves the old one as **settings.toml.bad-<time>**.',
-            'A deleted file is written again.',
           ]),
         ] else ...[
           HelpBlock.p(

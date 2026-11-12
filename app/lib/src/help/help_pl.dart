@@ -513,19 +513,17 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         id: HelpId.cleanup,
       ),
     HelpTopic(
-      'maintenance',
-      'Plik ustawień',
-      'Jeden plik zawiera Twoje listy węzłów i serwerów Epicbox. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
+      phone ? 'network' : 'maintenance',
+      phone ? 'Listy serwerów' : 'Plik ustawień',
+      phone ? 'Z którego węzła i serwera Epicbox korzysta portfel.' : 'Jeden plik zawiera Twoje listy węzłów i serwerów Epicbox. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Aplikacja prowadzi plik z Twoimi listami węzłów i serwerów Epicbox oraz trzema przełącznikami: strona stanu, sprawdzanie aktualizacji i ceny. Wszystko inne przychodzi z aplikacją. Plik zmienia się w aplikacji, na przykład w $nodePlace i $epicboxPlace, nie ręcznie.',
+            'Listy węzłów i serwerów Epicbox zmienia się w $nodePlace i $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**Pierwszy serwer każdej listy jest tym używanym.** Wybrany serwer przechodzi na górę; zmiana kolejności zmienia używany. Gdy pierwszy węzeł nie odpowiada, próbowany jest następny.',
             '**Pierwszy serwer Epicbox jest w adresie Epicbox każdego portfela.** Gdy na górę trafi inny, każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
-            '**Plik, którego nie da się odczytać:** ostatnie dobre ustawienia pozostają w użyciu. Zanim aplikacja zapisze nowy plik, zachowuje stary jako **settings.toml.bad-<time>**.',
-            'Usunięty plik jest zapisywany ponownie.',
           ]),
         ] else ...[
           HelpBlock.p(

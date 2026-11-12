@@ -510,16 +510,15 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
-    HelpTopic('maintenance', '设置文件', '一个文件保存你的节点和 Epicbox 服务器列表。文件出错不会丢掉上一次可用的设置。', [
+    HelpTopic(phone ? 'network' : 'maintenance', phone ? '服务器列表' : '设置文件',
+      phone ? '钱包使用哪个节点和 Epicbox 服务器。' : '一个文件保存你的节点和 Epicbox 服务器列表。文件出错不会丢掉上一次可用的设置。', [
       if (phone) ...[
         HelpBlock.p(
-          '应用保存一个文件，其中有你的节点和 Epicbox 服务器列表，以及三个开关：状态网站、更新检查和价格。其余设置随应用提供。该文件在应用中修改，例如在 $nodePlace 和 $epicboxPlace，不用手动编辑。',
+          '节点和 Epicbox 服务器列表在 $nodePlace 和 $epicboxPlace 中修改。',
         ),
         HelpBlock.ul([
           '**每个列表的第一个服务器就是正在使用的。**选择某个服务器会把它移到最上面；调整顺序会改变正在使用的服务器。第一个节点没有响应时，会尝试下一个。',
           '**第一个 Epicbox 服务器出现在每个钱包的 Epicbox 地址中。**把另一个移到最上面，每个钱包都会得到新地址；发到旧地址的付款不会到账。',
-          '**无法读取的文件：**继续使用上一次可用的设置。应用写入新文件之前，会把旧文件另存为 **settings.toml.bad-<time>**。',
-          '被删除的文件会重新写出。',
         ]),
       ] else ...[
         HelpBlock.p(
