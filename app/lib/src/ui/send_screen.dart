@@ -3211,7 +3211,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 if (_qrOffered)
                   KitRow(
                     leading: KitIconWell(MethodIcons.qr, color: t.accent, size: 40, iconSize: 20),
-                    minHeight: 73,
+                    minHeight: 72,
                     title: l.phoneSendInPerson,
                     subtitle: l.phoneSendInPersonSub,
                     chevron: true,
@@ -3224,7 +3224,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 if (_fileOffered)
                   KitRow(
                     leading: KitIconWell(MethodIcons.file, color: t.accent, size: 40, iconSize: 20),
-                    minHeight: 73,
+                    minHeight: 72,
                     title: l.phoneSendWithFile,
                     subtitle: l.phoneSendWithFileSub,
                     chevron: true,

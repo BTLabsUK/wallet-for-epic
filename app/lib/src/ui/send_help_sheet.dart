@@ -34,7 +34,7 @@ Future<void> showSendHelpSheet(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,7 +143,7 @@ class _HelpStep extends StatelessWidget {
   }
 }
 
-/// A plain-group row at the frame's 52.5: a 15/500 title and a chevron.
+/// A plain-group row at the frame's 52 (the group's border sits outside the rows): a 15/500 title and a chevron.
 class _HelpRow extends StatelessWidget {
   const _HelpRow({required this.label, required this.onTap});
 
@@ -159,7 +159,7 @@ class _HelpRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 53),
+          constraints: const BoxConstraints(minHeight: 52),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
