@@ -324,7 +324,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _name.substring(2));
-      await _tap(tester, _continue);
+      // The Who step offers no Continue until the address reads.
+      expect(_continue, findsNothing);
       expect(sendAmount(), findsNothing);
       expect(find.text('Over Tor'), findsNothing);
     });
@@ -360,7 +361,7 @@ void main() {
       expect(h.session.torStarts, hasLength(1));
       await h.emit(tester, TorEventKind.starting, progress: 60);
       await h.emit(tester, TorEventKind.ready);
-      expect(find.text(_l.sendOverTor), findsOneWidget);
+      // An onion needs no "Over Tor" word on the review: the Tor-ready line says it.
       expect(find.text(_l.sendTorReady), findsOneWidget);
       // No epicbox check on a Tor payment.
       expect(find.text(_l.sendListenerDown), findsNothing);
@@ -386,7 +387,7 @@ void main() {
       // Their wallet signed and the payment is out: it is confirming already.
       expect(_steps(tester, KitStepState.done), [
         _l.phoneProgSent,
-        _l.txStatusWaitingRecipient,
+        _l.phoneProgWaitingAnswer,
       ]);
       expect(_steps(tester, KitStepState.now), [_l.phoneProgNetwork]);
       expect(find.text('1.0\u00a0EPIC'), findsOneWidget);

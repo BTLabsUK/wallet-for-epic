@@ -127,7 +127,7 @@ void main() {
       expect(h.container.read(sessionProvider), isNotNull);
 
       await h.openSecurity(tester);
-      expect(find.text(_l.settingsUsePassphrase), findsOneWidget);
+      expect(find.text(_l.phoneSettingsPassphrase), findsOneWidget);
       await _tapText(tester, 'Change PIN');
       expect(find.text('Enter your current PIN'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current PIN'), findsOneWidget);
@@ -138,7 +138,7 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'PIN', _pin);
       await h.openSecurity(tester);
-      await _tapText(tester, _l.settingsUsePassphrase);
+      await _tapText(tester, _l.phoneSettingsPassphrase);
       await _enter(tester, _l.settingsPinCurrentLabel, _pin);
 
       expect(find.text(_l.passphraseChooseTitle), findsOneWidget);
@@ -188,7 +188,7 @@ void main() {
       expect(h.store.values['wallet.mainnet.pinSealed'], fakeSealedPassword(_passphrase));
       expect(h.store.values['wallet.mainnet.pinPassphrase'], '1');
       expect(h.store.values['wallet.mainnet.pinPassphraseEver'], '1');
-      expect(find.text('Change passphrase'), findsOneWidget);
+      expect(find.text(_l.netStatusOn), findsOneWidget);
     });
   });
 
@@ -224,7 +224,7 @@ void main() {
       await _submit(tester, _l.passphraseLabel, _passphrase);
       await h.openSecurity(tester);
 
-      await _tapText(tester, _l.settingsBackupPhrase);
+      await _tapText(tester, _l.backupTitle);
       await _tapText(tester, _l.backupCopyAgree);
       await tester.tap(find.text('Show recovery phrase'));
       // The PIN dialog never settles (wallet_flow_test pumps frames too).
@@ -240,7 +240,7 @@ void main() {
       expect(find.text('Enter your passphrase'), findsNothing);
       // Cancelled, the backup screen leaves by itself.
 
-      await _tapText(tester, 'Change passphrase');
+      await _tapText(tester, _l.phoneSettingsPassphrase);
       expect(find.text('Enter your current passphrase'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current passphrase'), findsOneWidget);
     });
