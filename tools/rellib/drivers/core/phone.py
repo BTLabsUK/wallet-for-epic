@@ -189,9 +189,22 @@ def same_host(a, b):
 
 def _amount_shown(node):
     """The figure of the Send amount display ("12.5 EPIC"); 0 when there is none."""
-    m = re.match(r"\s*(\d[\d.,]*)", (node.name or node.value or "") if node else "")
+    m = re.match(r"\s*(\d[\d.,\u00a0\u202f ]*)", (node.name or node.value or "") if node else "")
+    return _figure(m.group(1)) if m else 0.0
+
+
+def _figure(text):
+    """A shown figure as a number, grouped or not: "1,334.73", "1.334,73", "1 334,73" and "12,5".
+    The last separator is the decimal point when both kinds appear or its kind appears once;
+    a kind that appears more than once only groups."""
+    t = re.sub(r"[\s\u00a0\u202f]", "", text).rstrip(".,")
+    last = max(t.rfind("."), t.rfind(","))
+    if last >= 0 and t.count(t[last]) == 1:
+        t = re.sub(r"[.,]", "", t[:last]) + "." + t[last + 1:]
+    else:
+        t = re.sub(r"[.,]", "", t)
     try:
-        return float(m.group(1).replace(",", ".")) if m else 0.0
+        return float(t) if t else 0.0
     except ValueError:
         return 0.0
 
