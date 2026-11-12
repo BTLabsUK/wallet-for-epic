@@ -23100,4 +23100,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'Что нового в $version';
   }
+
+  @override
+  String get phoneLinkScanSub => 'Отсканируйте код на другом устройстве';
+
+  @override
+  String get phoneLinkShowSub => 'Другое устройство отсканирует его';
+
+  @override
+  String get phoneLinkPasteSub => 'Вставьте полученный код или ссылку';
 }

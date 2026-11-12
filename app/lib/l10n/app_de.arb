@@ -5825,5 +5825,8 @@
   "phoneAboutHelpTitle": "Über BT Wallet",
   "phoneAboutHelp1": "BT Wallet stammt von BT Labs. Es läuft auf einer eigenen Engine, LEPIC, und sendet Zahlungen über das Protokoll epic1.",
   "phoneAboutHelp2": "Links auf dieser Seite werden kopiert, damit du sie in einem Browser deiner Wahl öffnen kannst.",
-  "phoneAboutNotesTitle": "Neu in {version}"
+  "phoneAboutNotesTitle": "Neu in {version}",
+  "phoneLinkScanSub": "Code auf dem anderen Gerät scannen",
+  "phoneLinkShowSub": "Das andere Gerät scannt ihn",
+  "phoneLinkPasteSub": "Einen erhaltenen Code oder Link einfügen"
 }

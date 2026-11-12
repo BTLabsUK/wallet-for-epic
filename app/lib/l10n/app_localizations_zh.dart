@@ -21122,4 +21122,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return '$version 的新内容';
   }
+
+  @override
+  String get phoneLinkScanSub => '扫描另一台设备上的代码';
+
+  @override
+  String get phoneLinkShowSub => '由另一台设备扫描';
+
+  @override
+  String get phoneLinkPasteSub => '粘贴收到的代码或链接';
 }

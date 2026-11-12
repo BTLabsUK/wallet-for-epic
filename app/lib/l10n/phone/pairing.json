@@ -1,0 +1,14 @@
+{
+  "phoneLinkScanSub": "Scan the code on your other device",
+  "@phoneLinkScanSub": {
+    "description": "Subtitle of the Scan row in Link a device."
+  },
+  "phoneLinkShowSub": "Your other device scans it",
+  "@phoneLinkShowSub": {
+    "description": "Subtitle of the Show my code row in Link a device."
+  },
+  "phoneLinkPasteSub": "Paste a code or link you were sent",
+  "@phoneLinkPasteSub": {
+    "description": "Subtitle of the Paste code row in Link a device."
+  }
+}

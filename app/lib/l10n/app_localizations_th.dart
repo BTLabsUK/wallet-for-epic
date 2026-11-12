@@ -21931,4 +21931,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'มีอะไรใหม่ใน $version';
   }
+
+  @override
+  String get phoneLinkScanSub => 'สแกนรหัสบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get phoneLinkShowSub => 'อุปกรณ์อีกเครื่องสแกนรหัสนี้';
+
+  @override
+  String get phoneLinkPasteSub => 'วางรหัสหรือลิงก์ที่ได้รับ';
 }

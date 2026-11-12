@@ -34979,6 +34979,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What is new in {version}'**
   String phoneAboutNotesTitle(String version);
+
+  /// Subtitle of the Scan row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code on your other device'**
+  String get phoneLinkScanSub;
+
+  /// Subtitle of the Show my code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other device scans it'**
+  String get phoneLinkShowSub;
+
+  /// Subtitle of the Paste code row in Link a device.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a code or link you were sent'**
+  String get phoneLinkPasteSub;
 }
 
 class _AppLocalizationsDelegate

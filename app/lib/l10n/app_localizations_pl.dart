@@ -23112,4 +23112,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'Co nowego w $version';
   }
+
+  @override
+  String get phoneLinkScanSub => 'Zeskanuj kod na drugim urządzeniu';
+
+  @override
+  String get phoneLinkShowSub => 'Drugie urządzenie go zeskanuje';
+
+  @override
+  String get phoneLinkPasteSub => 'Wklej otrzymany kod lub link';
 }

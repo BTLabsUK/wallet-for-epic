@@ -275,6 +275,23 @@ abstract final class TrustIds {
   static const aboutWhatsNew = 'g4.about.whats_new';
   static const aboutNotesSheet = 'g4.about.notes_sheet';
   static const aboutNotesDone = 'g4.about.notes_done';
+  static const linkdevClose = 'g4.linkdev.close';
+  static const linkdevConfirm = 'g4.linkdev.confirm';
+  static const linkdevConfirmCancel = 'g4.linkdev.confirm_cancel';
+  static const linkdevScan = 'g4.linkdev.scan';
+  static const linkdevShow = 'g4.linkdev.show';
+  static const linkdevPasteOpen = 'g4.linkdev.paste_open';
+  static const linkdevPasteField = 'g4.linkdev.paste_field';
+  static const linkdevPasteGo = 'g4.linkdev.paste_go';
+  static const linkdevCopy = 'g4.linkdev.copy';
+  static const linkdevCancel = 'g4.linkdev.cancel';
+  static const linkdevReplace = 'g4.linkdev.replace';
+  static const linkdevReplaceSheet = 'g4.linkdev.replace_sheet';
+  static const linkdevReplaceYes = 'g4.linkdev.replace_yes';
+  static const linkdevReplaceKeep = 'g4.linkdev.replace_keep';
+  static const linkdevPasteAnother = 'g4.linkdev.paste_another';
+  static const linkdevRetry = 'g4.linkdev.retry';
+  static const linkdevCloseFailed = 'g4.linkdev.close_failed';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -560,5 +577,22 @@ abstract final class TrustIds {
     'g4.about.whats_new',
     'g4.about.notes_sheet',
     'g4.about.notes_done',
+    'g4.linkdev.close',
+    'g4.linkdev.confirm',
+    'g4.linkdev.confirm_cancel',
+    'g4.linkdev.scan',
+    'g4.linkdev.show',
+    'g4.linkdev.paste_open',
+    'g4.linkdev.paste_field',
+    'g4.linkdev.paste_go',
+    'g4.linkdev.copy',
+    'g4.linkdev.cancel',
+    'g4.linkdev.replace',
+    'g4.linkdev.replace_sheet',
+    'g4.linkdev.replace_yes',
+    'g4.linkdev.replace_keep',
+    'g4.linkdev.paste_another',
+    'g4.linkdev.retry',
+    'g4.linkdev.close_failed',
   ];
 }

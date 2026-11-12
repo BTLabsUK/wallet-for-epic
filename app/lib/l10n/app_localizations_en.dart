@@ -22381,4 +22381,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'What is new in $version';
   }
+
+  @override
+  String get phoneLinkScanSub => 'Scan the code on your other device';
+
+  @override
+  String get phoneLinkShowSub => 'Your other device scans it';
+
+  @override
+  String get phoneLinkPasteSub => 'Paste a code or link you were sent';
 }

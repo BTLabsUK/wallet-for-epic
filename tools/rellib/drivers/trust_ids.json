@@ -317,5 +317,22 @@
 {"id": "g4.about.help_sheet", "screen": "about", "family": ["android"], "driver": false},
 {"id": "g4.about.whats_new", "screen": "about", "family": ["android"], "driver": false},
 {"id": "g4.about.notes_sheet", "screen": "about", "family": ["android"], "driver": false},
-{"id": "g4.about.notes_done", "screen": "about", "family": ["android"], "driver": false}
+{"id": "g4.about.notes_done", "screen": "about", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.close", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.confirm", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.confirm_cancel", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.scan", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.show", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.paste_open", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.paste_field", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.paste_go", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.copy", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.cancel", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.replace", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.replace_sheet", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.replace_yes", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.replace_keep", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.paste_another", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.retry", "screen": "linkdev", "family": ["android"], "driver": false},
+{"id": "g4.linkdev.close_failed", "screen": "linkdev", "family": ["android"], "driver": false}
 ]}
