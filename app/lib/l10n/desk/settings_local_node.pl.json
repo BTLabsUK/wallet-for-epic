@@ -64,7 +64,6 @@
   "deskSetLnodeStartedAgo": "uruchomiony {duration} temu",
   "deskSetLnodeSettingsChanged": "Zmieniono ustawienia.",
   "deskSetLnodeSettingsChangedText": "Zadziałają po następnym uruchomieniu.",
-  "deskSetLnodeRestartNow": "Uruchom ponownie teraz",
   "deskSetLnodeSampled": "Odczyt co 30 s, gdy ta strona jest otwarta.",
   "deskSetLnodeTomlEdited": "Plik epic-server.toml zmieniono ręcznie; ustawienia peerów i folderu z tego miejsca nie działają.",
   "deskSetLnodeSyncProgress": "Postęp synchronizacji",

@@ -19,10 +19,6 @@
   "@phoneRecvHelp3": {
     "description": "Receive help, third line."
   },
-  "phoneRecvCheck": "Check the first and last six characters with the person paying you.",
-  "@phoneRecvCheck": {
-    "description": "Hint under the full address on Receive: how the payer checks it is the right one."
-  },
   "phoneRecvListening": "Listening for payments",
   "@phoneRecvListening": {
     "description": "Status line on Receive while the wallet is connected and waiting for payments."
@@ -114,16 +110,6 @@
   "phoneRecvCodeLead": "Show this code or share it. Whoever opens it is asked for {amount}.",
   "@phoneRecvCodeLead": {
     "description": "Lead on the screen that shows a request as a code. {amount} is the amount with its unit.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "25 EPIC"
-      }
-    }
-  },
-  "phoneRecvFileLead": "Share this file. Whoever opens it is asked for {amount}.",
-  "@phoneRecvFileLead": {
-    "description": "Lead on the screen that shows a request as a file. {amount} is the amount with its unit.",
     "placeholders": {
       "amount": {
         "type": "String",

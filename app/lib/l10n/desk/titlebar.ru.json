@@ -27,6 +27,5 @@
   "deskBarKeySearchHere": "Поиск, когда открыты Настройки",
   "deskBarCopyBuild": "Скопировать сведения о сборке",
   "deskBarBuildCopied": "Сведения о сборке скопированы",
-  "deskBarKeyMenu": "Открыть меню приложения",
-  "deskBarTurnOnHint": "Выключено. Включите в «Настройки › Транзакции»."
+  "deskBarKeyMenu": "Открыть меню приложения"
 }

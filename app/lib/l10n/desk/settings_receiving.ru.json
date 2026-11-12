@@ -18,7 +18,6 @@
   "deskSetRecvHttpText": "Напрямую из другого кошелька на веб-адрес этого компьютера, пока этот кошелёк открыт.",
   "deskSetRecvHttpOffTitle": "Выключен, пока включён Tor",
   "deskSetRecvHttpOffText": "Платежи напрямую из другого кошелька вместо этого приходят на адрес Ссылка · Tor.",
-  "deskSetRecvPrivacySettings": "Настройки приватности",
   "deskSetHttpNotChanged": "Не изменено",
   "deskSetHttpPortError": "Порт должен быть от 1024 до 65535",
   "deskSetHttpGuideHelp": "Приём из интернета: как это работает",
@@ -38,6 +37,5 @@
   "deskSetHttpNoRouterText": "Tor работает откуда угодно, ничего перенаправлять не нужно.",
   "deskSetHttpTurnOnTor": "Включить Tor",
   "deskSetHttpExposed": "Открыт только API приёма. Обычный HTTP не шифруется.",
-  "deskSetHttpBackLocal": "Вернуть «Только локально»",
-  "deskSetRecvTorText": "Напрямую из другого кошелька на адрес Tor этого кошелька, пока он открыт."
+  "deskSetHttpBackLocal": "Вернуть «Только локально»"
 }

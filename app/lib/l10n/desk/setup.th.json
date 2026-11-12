@@ -30,7 +30,6 @@
   "deskSetupLocalNodeText": "รันบนคอมพิวเตอร์นี้: เป็นส่วนตัว แต่ต้องใช้พื้นที่ดิสก์และการซิงก์ครั้งแรก",
   "deskSetupEpicboxText": "เซิร์ฟเวอร์ Epicbox เก็บรายการไว้จนกว่ากระเป๋าเงินจะเปิด",
   "deskSetupEpicboxServer": "เซิร์ฟเวอร์ Epicbox",
-  "deskSetupExistingNode": "โหนดที่มีอยู่ที่ {host}",
   "deskSetupSaveStartsFallback": "บันทึก จะเริ่มโหนด และใช้ {node} แทนจนกว่าจะซิงก์เสร็จ",
   "deskSetupSaveStarts": "บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดใช้ได้",
   "deskSetupSaveFailedTitle": "ไม่ได้บันทึกการตั้งค่า",

@@ -224,16 +224,6 @@
   "@deskEpicboxBlockedWord": {
     "description": "The word of the Epicbox state line when this network ends the TLS handshake with the relay (a network filter answers for it), in the state colour, before the sentence."
   },
-  "deskEpicboxBlockedText": "This network blocks {host}. Choose another Epicbox server or use a private DNS.",
-  "@deskEpicboxBlockedText": {
-    "description": "Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "epicbox.example.org"
-      }
-    }
-  },
   "deskEpicboxBlockedShort": "This network blocks {host}. Try another server or a private DNS.",
   "@deskEpicboxBlockedShort": {
     "description": "Epicbox state line detail, rail tooltip line and notice text when the network blocks the relay. {host} is the relay's host name. Short, two lines at most; never names a provider.",

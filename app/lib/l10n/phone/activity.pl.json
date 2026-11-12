@@ -1,7 +1,6 @@
 {
   "phoneProgSent": "Wysłano",
   "phoneProgNetwork": "W sieci, czeka na blok",
-  "phoneProgSenderFinished": "Nadawca skończył",
   "phoneProgPayerPending": "Czeka na płacącego",
   "phoneProgPayerPendingNamed": "Czeka na płatność od {name}",
   "phoneProgSenderPending": "Czeka, aż nadawca dokończy płatność",

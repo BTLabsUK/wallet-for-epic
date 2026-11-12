@@ -64,7 +64,6 @@
   "deskSetLnodeStartedAgo": "เริ่มเมื่อ {duration} ที่แล้ว",
   "deskSetLnodeSettingsChanged": "การตั้งค่าเปลี่ยนแล้ว",
   "deskSetLnodeSettingsChangedText": "จะมีผลเมื่อเริ่มใหม่ครั้งถัดไป",
-  "deskSetLnodeRestartNow": "เริ่มใหม่ตอนนี้",
   "deskSetLnodeSampled": "อัปเดตทุก 30 วินาทีขณะเปิดหน้านี้",
   "deskSetLnodeTomlEdited": "epic-server.toml ถูกแก้ด้วยมือ การตั้งค่า peer และโฟลเดอร์ที่นี่จึงไม่มีผล",
   "deskSetLnodeSyncProgress": "ความคืบหน้าการซิงก์",

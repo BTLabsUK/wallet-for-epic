@@ -343,10 +343,6 @@
   "@phoneSettingsMadeBy": {
     "description": "Row in About: who makes the app."
   },
-  "phoneSettingsProtocol": "Protocol",
-  "@phoneSettingsProtocol": {
-    "description": "Row in About: the payment protocol the wallet speaks."
-  },
   "phoneSettingsEngine": "Engine",
   "@phoneSettingsEngine": {
     "description": "Row in About: the wallet engine."

@@ -1,8 +1,4 @@
 {
-  "deskNodeSynced": "Synced",
-  "@deskNodeSynced": {
-    "description": "Node status word: the node is at the chain tip. Short, in the status rail and node panels."
-  },
   "deskNodeBehind": "Behind",
   "@deskNodeBehind": {
     "description": "Node status word: the node is behind the network. Short."
@@ -18,10 +14,6 @@
   "deskNodeStarting": "Starting",
   "@deskNodeStarting": {
     "description": "Local node status word: the node program is starting. Short."
-  },
-  "deskNodeSyncing": "Syncing",
-  "@deskNodeSyncing": {
-    "description": "Local node status word: the node is downloading the chain. Short."
   },
   "deskNodeStalled": "Stalled",
   "@deskNodeStalled": {
@@ -418,22 +410,6 @@
   "deskTorNetworkHint": "Network activity goes through the Tor network.",
   "@deskTorNetworkHint": {
     "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
-  },
-  "deskTorOff": "Off",
-  "@deskTorOff": {
-    "description": "Tor state word: the switch is off. Short."
-  },
-  "deskTorStarting": "Starting…",
-  "@deskTorStarting": {
-    "description": "Tor state word: Tor is connecting. Short."
-  },
-  "deskTorOn": "On",
-  "@deskTorOn": {
-    "description": "Tor state word: Tor is connected. Short."
-  },
-  "deskTorNotConnected": "Not connected",
-  "@deskTorNotConnected": {
-    "description": "Tor state word: Tor stopped or could not connect. Short."
   },
   "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
   "@deskTorCoverage": {

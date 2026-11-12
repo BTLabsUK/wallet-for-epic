@@ -14,7 +14,6 @@
   "deskSetAcctNetwork": "Сеть",
   "deskSetAcctNetworkHint": "Задаётся при создании кошелька.",
   "deskSetAcctRunSetup": "Запустить…",
-  "deskSetAcctSecurity": "Безопасность",
   "deskSetAcctRemembered": "Запомнен на этом компьютере",
   "deskSetAcctRememberedHint": "Открывается при запуске без пароля в течение 30 дней с момента настройки. Для отправки пароль всё равно нужен. {who}",
   "deskSetAcctForget": "Забыть на этом компьютере",

@@ -1,7 +1,6 @@
 {
   "phoneProgSent": "已发送",
   "phoneProgNetwork": "在网络中，等待区块",
-  "phoneProgSenderFinished": "发送方已完成",
   "phoneProgPayerPending": "等待付款人",
   "phoneProgPayerPendingNamed": "等待 {name} 付款",
   "phoneProgSenderPending": "等待发送方完成付款",

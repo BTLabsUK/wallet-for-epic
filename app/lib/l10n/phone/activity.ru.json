@@ -1,7 +1,6 @@
 {
   "phoneProgSent": "Отправлено",
   "phoneProgNetwork": "В сети, ждёт блока",
-  "phoneProgSenderFinished": "Отправитель завершил",
   "phoneProgPayerPending": "Ждём плательщика",
   "phoneProgPayerPendingNamed": "Ждём оплаты от {name}",
   "phoneProgSenderPending": "Ждём, пока отправитель завершит платёж",

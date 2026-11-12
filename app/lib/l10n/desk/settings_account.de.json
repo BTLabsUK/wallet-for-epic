@@ -14,7 +14,6 @@
   "deskSetAcctNetwork": "Netzwerk",
   "deskSetAcctNetworkHint": "Beim Erstellen der Wallet festgelegt.",
   "deskSetAcctRunSetup": "Einrichtung starten…",
-  "deskSetAcctSecurity": "Sicherheit",
   "deskSetAcctRemembered": "Auf diesem Computer gemerkt",
   "deskSetAcctRememberedHint": "Öffnet beim Start ohne Passwort, 30 Tage ab dem Einrichten. Zahlungen fragen das Passwort weiterhin ab. {who}",
   "deskSetAcctForget": "Diesen Computer vergessen",

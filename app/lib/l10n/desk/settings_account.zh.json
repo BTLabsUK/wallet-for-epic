@@ -14,7 +14,6 @@
   "deskSetAcctNetwork": "网络",
   "deskSetAcctNetworkHint": "在创建钱包时设定。",
   "deskSetAcctRunSetup": "运行设置向导…",
-  "deskSetAcctSecurity": "安全",
   "deskSetAcctRemembered": "已在这台电脑上记住",
   "deskSetAcctRememberedHint": "启动时无需密码即可打开，从设定起保留 30 天。发送时仍会要求输入密码。{who}",
   "deskSetAcctForget": "忘记这台电脑",

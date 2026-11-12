@@ -4,7 +4,6 @@
   "phoneRecvHelp1": "Поделитесь адресом или кодом. Кто его имеет, тот может вам заплатить.",
   "phoneRecvHelp2": "Запрос суммы создаёт код, который просит заданную сумму.",
   "phoneRecvHelp3": "Другие способы нужны, когда плательщик не может использовать ваш адрес.",
-  "phoneRecvCheck": "Сверьте первые и последние шесть символов с тем, кто вам платит.",
   "phoneRecvListening": "Ожидает платежи",
   "phoneRecvAsk": "Запросить сумму",
   "phoneRecvAskLine": "Плательщик видит, сколько и за что",
@@ -25,7 +24,6 @@
   "phoneRecvAnyoneFileLine": "Сохраняет файл, который можно передать",
   "phoneRecvAskFor": "Запросить {amount}",
   "phoneRecvCodeLead": "Покажите этот код или поделитесь им. Кто его откроет, увидит запрос на {amount}.",
-  "phoneRecvFileLead": "Поделитесь этим файлом. Кто его откроет, увидит запрос на {amount}.",
   "phoneRecvWaitingPaid": "Ожидает оплаты",
   "phoneRecvViewPayment": "Открыть платёж",
   "phoneRecvArrivalFrom": "от {name}"

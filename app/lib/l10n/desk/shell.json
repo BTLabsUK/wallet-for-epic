@@ -3,10 +3,6 @@
   "@deskRailWaitingTor": {
     "description": "Status word on the sidebar's Epicbox row while the app waits for Tor to connect first. Narrow: one short phrase."
   },
-  "deskRailOn": "On",
-  "@deskRailOn": {
-    "description": "Status word on a sidebar service row (Epicbox, HTTP): the service is running. One short word."
-  },
   "deskRailConnecting": "Connecting",
   "@deskRailConnecting": {
     "description": "Status word on the sidebar's Epicbox row: connecting to the Epicbox server. One short word."
@@ -14,18 +10,6 @@
   "deskRailSlow": "Slow",
   "@deskRailSlow": {
     "description": "Status word on the sidebar's Epicbox row: the server answers slowly. One short word."
-  },
-  "deskRailNotAnswering": "Not answering",
-  "@deskRailNotAnswering": {
-    "description": "Status word on the sidebar's Epicbox row: the server does not answer. Short phrase."
-  },
-  "deskRailOff": "Off",
-  "@deskRailOff": {
-    "description": "Status word on a sidebar service row (Epicbox, HTTP): the service is turned off. One short word."
-  },
-  "deskRailChecking": "Checking",
-  "@deskRailChecking": {
-    "description": "Status word on a sidebar row (Node, Epicbox) while its state is not known yet. One short word."
   },
   "deskRailOverTor": "Over Tor",
   "@deskRailOverTor": {
@@ -46,18 +30,6 @@
   "deskRailStarting": "Starting",
   "@deskRailStarting": {
     "description": "Status word on a sidebar row (HTTP): the service is starting. One short word."
-  },
-  "deskRailNotReceiving": "Not receiving",
-  "@deskRailNotReceiving": {
-    "description": "Status word on the sidebar's HTTP row: the HTTP listener failed and nothing can be received that way. Short phrase."
-  },
-  "deskRailOnInternet": "On · internet",
-  "@deskRailOnInternet": {
-    "description": "Second line of the sidebar's HTTP row: running and reachable from the internet. Narrow: keep the · separator."
-  },
-  "deskRailOnLocal": "On · local",
-  "@deskRailOnLocal": {
-    "description": "Second line of the sidebar's HTTP row: running and reachable on this computer's network only. Narrow: keep the · separator."
   },
   "deskRailReceivingInternet": "Receiving · internet",
   "@deskRailReceivingInternet": {
@@ -117,10 +89,6 @@
   "deskRailTorNoAddress": "Tor address not published",
   "@deskRailTorNoAddress": {
     "description": "Short reason shown in the sidebar Tor hover card when Tor runs but the receiving address is not published yet."
-  },
-  "deskRailOpenPrivacy": "Open Privacy settings",
-  "@deskRailOpenPrivacy": {
-    "description": "Last line of the sidebar Tor hover card: a click opens the Privacy settings."
   },
   "deskRailOpenNetworkPrivacy": "Open Network & privacy",
   "@deskRailOpenNetworkPrivacy": {
@@ -343,10 +311,6 @@
   "deskTourAdvancedTitle": "Advanced",
   "@deskTourAdvancedTitle": {
     "description": "Title of the Settings › Advanced step of the first-run tour."
-  },
-  "deskTourAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
-  "@deskTourAdvancedText": {
-    "description": "Text of the Settings › Advanced step of the first-run tour. The tour switches nothing on."
   },
   "deskAppFirstScanProgress": "Scanning the chain · {percent}%",
   "@deskAppFirstScanProgress": {

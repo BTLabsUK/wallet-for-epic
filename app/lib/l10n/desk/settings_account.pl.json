@@ -14,7 +14,6 @@
   "deskSetAcctNetwork": "Sieć",
   "deskSetAcctNetworkHint": "Ustalona przy tworzeniu portfela.",
   "deskSetAcctRunSetup": "Uruchom asystenta…",
-  "deskSetAcctSecurity": "Bezpieczeństwo",
   "deskSetAcctRemembered": "Zapamiętany na tym komputerze",
   "deskSetAcctRememberedHint": "Otwiera się przy starcie bez hasła przez 30 dni od ustawienia. Wysyłki nadal proszą o hasło. {who}",
   "deskSetAcctForget": "Zapomnij ten komputer",

@@ -189,10 +189,6 @@
   "@deskOnbCreateShowQr": {
     "description": "Button that shows the recovery phrase as a QR code."
   },
-  "deskOnbCreateHideQr": "Hide QR code",
-  "@deskOnbCreateHideQr": {
-    "description": "Button that hides the recovery phrase QR code."
-  },
   "deskOnbCreateQrWarn": "Anyone who scans this code can take the coins",
   "@deskOnbCreateQrWarn": {
     "description": "Warning title above the recovery phrase QR code."

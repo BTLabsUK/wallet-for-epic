@@ -64,7 +64,6 @@
   "deskSetLnodeStartedAgo": "{duration}前启动",
   "deskSetLnodeSettingsChanged": "设置已更改。",
   "deskSetLnodeSettingsChangedText": "下次重启时生效。",
-  "deskSetLnodeRestartNow": "立即重启",
   "deskSetLnodeSampled": "此页面打开期间每 30 秒采样一次。",
   "deskSetLnodeTomlEdited": "epic-server.toml 被手动编辑过；这里的对等节点和文件夹设置不会生效。",
   "deskSetLnodeSyncProgress": "同步进度",

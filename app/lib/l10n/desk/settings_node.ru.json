@@ -13,7 +13,6 @@
   "deskSetNodeGroupComputer": "Этот компьютер",
   "deskSetNodeServer": "Сервер узла",
   "deskSetNodeServerHint": "Узел, через который кошелёк читает блокчейн и отправляет платежи.",
-  "deskSetNodeChecking": "Проверка узла…",
   "deskSetNodeBackground": "Синхронизация в фоне",
   "deskSetNodeBackgroundHint": "После закрытия окна узел продолжает синхронизацию. Приложение остаётся в области уведомлений.",
   "deskNodeSwitchConnecting": "Подключение к {host}…",

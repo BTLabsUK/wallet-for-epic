@@ -93,22 +93,6 @@
   "@deskLvSendPayFiles": {
     "description": "Heading of the file card on Receive at the Deeper level."
   },
-  "deskLvSendSignFile": "Sign a payment file",
-  "@deskLvSendSignFile": {
-    "description": "Title of the row on Receive at the Deeper level that opens the sender's payment file to sign."
-  },
-  "deskLvSendSignFileText": "Open the file the sender gave you and save your reply.",
-  "@deskLvSendSignFileText": {
-    "description": "Text of the Sign a payment file row on Receive at the Deeper level."
-  },
-  "deskLvSendFinishFile": "Finish a reply file",
-  "@deskLvSendFinishFile": {
-    "description": "Title of the row on Receive at the Deeper level that opens the reply file of a recipient to post the payment."
-  },
-  "deskLvSendFinishFileText": "Open the reply you got back to post the payment.",
-  "@deskLvSendFinishFileText": {
-    "description": "Text of the Finish a reply file row on Receive at the Deeper level."
-  },
   "deskLvSendPrevAddress": "Previous address",
   "@deskLvSendPrevAddress": {
     "description": "Title of the collapsed row on Receive after the Epicbox server moved, holding what is left of the old address."

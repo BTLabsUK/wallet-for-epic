@@ -4,7 +4,6 @@
   "phoneRecvHelp1": "แชร์ที่อยู่หรือโค้ดของคุณ ใครมีก็จ่ายให้คุณได้",
   "phoneRecvHelp2": "ขอจำนวนเงินสร้างโค้ดที่ขอจำนวนที่กำหนด",
   "phoneRecvHelp3": "วิธีอื่นไว้ใช้เมื่อผู้จ่ายใช้ที่อยู่ของคุณไม่ได้",
-  "phoneRecvCheck": "ตรวจอักขระหกตัวแรกและหกตัวท้ายกับคนที่จ่ายให้คุณ",
   "phoneRecvListening": "กำลังรอรับการชำระเงิน",
   "phoneRecvAsk": "ขอจำนวนเงิน",
   "phoneRecvAskLine": "ผู้จ่ายเห็นว่าเท่าไรและเพื่ออะไร",
@@ -25,7 +24,6 @@
   "phoneRecvAnyoneFileLine": "บันทึกไฟล์ไว้ส่งต่อ",
   "phoneRecvAskFor": "ขอ {amount}",
   "phoneRecvCodeLead": "แสดงโค้ดนี้หรือแชร์ ใครเปิดจะถูกขอ {amount}",
-  "phoneRecvFileLead": "แชร์ไฟล์นี้ ใครเปิดจะถูกขอ {amount}",
   "phoneRecvWaitingPaid": "รอการชำระเงิน",
   "phoneRecvViewPayment": "ดูการชำระเงิน",
   "phoneRecvArrivalFrom": "จาก {name}"

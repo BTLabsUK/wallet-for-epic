@@ -7,10 +7,6 @@
   "@deskE1PhSwitch": {
     "description": "Settings switch that turns on the epic1 payment format. \"epic1\" is a name; keep it as is."
   },
-  "deskE1PhSwitchHint": "Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.",
-  "@deskE1PhSwitchHint": {
-    "description": "Explanation behind the info icon of the epic1 payments switch."
-  },
   "deskE1PhConfirmTitle": "Use epic1 payments?",
   "@deskE1PhConfirmTitle": {
     "description": "Title of the dialog shown when turning on epic1 payments."
@@ -106,10 +102,6 @@
   "@deskE1PhLinkCopied": {
     "description": "Notice after copying the epic1 link."
   },
-  "deskE1PhAskAmount": "Ask an amount",
-  "@deskE1PhAskAmount": {
-    "description": "Button and sheet title: make a link that asks a set amount."
-  },
   "deskE1PhAmount": "Amount",
   "@deskE1PhAmount": {
     "description": "Field label: the amount the link asks."
@@ -135,17 +127,9 @@
   "@deskE1PhAnyAmount": {
     "description": "Button that goes back to a link without a set amount."
   },
-  "deskE1PhOtherWays": "Other ways to receive",
-  "@deskE1PhOtherWays": {
-    "description": "Receive: header above the in-person way."
-  },
   "deskE1PhInPerson": "In person",
   "@deskE1PhInPerson": {
     "description": "Receive: a payment from a phone next to this one."
-  },
-  "deskE1PhRequestInPerson": "Request in person",
-  "@deskE1PhRequestInPerson": {
-    "description": "Button that starts an in-person request."
   },
   "deskE1PhSettings": "Settings",
   "@deskE1PhSettings": {

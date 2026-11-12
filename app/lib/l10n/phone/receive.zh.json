@@ -4,7 +4,6 @@
   "phoneRecvHelp1": "分享你的地址或二维码，拿到的人都可以向你付款。",
   "phoneRecvHelp2": "指定金额会生成一个要求固定金额的码。",
   "phoneRecvHelp3": "当付款人无法使用你的地址时，可以用其他方式。",
-  "phoneRecvCheck": "与向你付款的人核对地址的前六位和后六位字符。",
   "phoneRecvListening": "正在等待付款",
   "phoneRecvAsk": "指定金额",
   "phoneRecvAskLine": "对方会看到金额和用途",
@@ -25,7 +24,6 @@
   "phoneRecvAnyoneFileLine": "保存一个文件，交给对方",
   "phoneRecvAskFor": "收 {amount}",
   "phoneRecvCodeLead": "出示此码或分享它。打开的人会被要求支付 {amount}。",
-  "phoneRecvFileLead": "分享此文件。打开的人会被要求支付 {amount}。",
   "phoneRecvWaitingPaid": "等待付款",
   "phoneRecvViewPayment": "查看付款",
   "phoneRecvArrivalFrom": "来自 {name}"

@@ -351,10 +351,6 @@
   "@deskSetLnodeSettingsChangedText": {
     "description": "Local node panel: notice text when node settings changed."
   },
-  "deskSetLnodeRestartNow": "Restart now",
-  "@deskSetLnodeRestartNow": {
-    "description": "Local node panel: notice button that restarts the node."
-  },
   "deskSetLnodeSampled": "Sampled every 30 s while this page is open.",
   "@deskSetLnodeSampled": {
     "description": "Local node panel: note under the tiles."

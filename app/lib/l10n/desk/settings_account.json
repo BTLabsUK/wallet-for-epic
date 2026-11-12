@@ -59,10 +59,6 @@
   "@deskSetAcctRunSetup": {
     "description": "Settings > This wallet: button that opens the setup assistant."
   },
-  "deskSetAcctSecurity": "Security",
-  "@deskSetAcctSecurity": {
-    "description": "Settings > This wallet: title of the group with password and delete rows."
-  },
   "deskSetAcctRemembered": "Remembered on this computer",
   "@deskSetAcctRemembered": {
     "description": "Settings > This wallet: row title shown when the wallet opens without a password."

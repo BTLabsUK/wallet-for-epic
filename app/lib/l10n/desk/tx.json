@@ -401,10 +401,6 @@
   "@deskTxFactMessage": {
     "description": "Label in the facts list on the transaction detail: the note attached to the payment. Narrow label column."
   },
-  "deskTxSignedByRecipient": "Recipient signed",
-  "@deskTxSignedByRecipient": {
-    "description": "Payment proof line on the transaction detail, and a step of the timeline."
-  },
   "deskTxTechTitle": "Technical details",
   "@deskTxTechTitle": {
     "description": "Collapsible section on the transaction detail with technical identifiers."
@@ -427,47 +423,9 @@
       }
     }
   },
-  "deskTxStepReceivedSlate": "Payment arrived",
-  "@deskTxStepReceivedSlate": {
-    "description": "Timeline step of an incoming payment: the sender's first message arrived."
-  },
-  "deskTxStepCreated": "Payment started",
-  "@deskTxStepCreated": {
-    "description": "Timeline step of an outgoing payment."
-  },
-  "deskTxStepSignedReturned": "Signed and returned",
-  "@deskTxStepSignedReturned": {
-    "description": "Timeline step of an incoming payment: this wallet signed and sent it back."
-  },
   "deskTxStepWaitingFile": "Waiting for the response file",
   "@deskTxStepWaitingFile": {
     "description": "Small line under a timeline step of an outgoing file payment."
-  },
-  "deskTxStepWaitingRecipient": "Waiting for recipient",
-  "@deskTxStepWaitingRecipient": {
-    "description": "Small line under a timeline step of an outgoing payment."
-  },
-  "deskTxStepPosted": "Posted to the network",
-  "@deskTxStepPosted": {
-    "description": "Timeline step: the payment was sent to the network."
-  },
-  "deskTxStepConfirming": "Confirming",
-  "@deskTxStepConfirming": {
-    "description": "Timeline step: the payment is in a block and collecting confirmations."
-  },
-  "deskTxStepProgress": "{confirmations} of {needed}",
-  "@deskTxStepProgress": {
-    "description": "Small line under the Confirming step: confirmations so far of how many are needed.",
-    "placeholders": {
-      "confirmations": {
-        "type": "int",
-        "example": "1"
-      },
-      "needed": {
-        "type": "int",
-        "example": "3"
-      }
-    }
   },
   "deskTxCancelIncomingTitle": "Cancel this payment?",
   "@deskTxCancelIncomingTitle": {

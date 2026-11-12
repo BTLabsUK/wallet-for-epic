@@ -1,7 +1,6 @@
 {
   "phoneProgSent": "ส่งแล้ว",
   "phoneProgNetwork": "อยู่ในเครือข่าย รอบล็อก",
-  "phoneProgSenderFinished": "ผู้ส่งดำเนินการเสร็จ",
   "phoneProgPayerPending": "รอผู้จ่าย",
   "phoneProgPayerPendingNamed": "รอ {name} จ่าย",
   "phoneProgSenderPending": "รอผู้ส่งทำรายการให้เสร็จ",

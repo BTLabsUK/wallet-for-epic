@@ -6,8 +6,6 @@
   "deskSetTxFileHint": "Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Przesyłanie pliku do Wyślij, a kroki z plikami do Odbierz. Wszystkie portfele.",
   "deskSetTxStart": "Domyślna metoda",
   "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij. Wszystkie portfele.",
-  "deskSetTxTorHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.",
-  "deskSetTxTorNeedsTor": "Tor jest wyłączony. Włącz go w Prywatności, aby przyjmować płatności na adres Tor.",
   "deskSetTxLastMethod": "Przynajmniej jedna metoda płatności musi zostać włączona.",
   "deskSetTxSending": "Wysyłanie",
   "deskSetTxTorPayHint": "Tor działa tylko do wysyłania i odbierania płatności pod adresem Tor. Węzeł, kursy i aktualizacje zachowują ustawienie z sekcji Sieć i prywatność. Wszystkie portfele."

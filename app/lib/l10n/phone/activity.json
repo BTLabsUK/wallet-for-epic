@@ -19,10 +19,6 @@
   "@phoneProgReadyToSpend": {
     "description": "Last step of a payment you receive: the money can be spent."
   },
-  "phoneProgSenderFinished": "Sender finished",
-  "@phoneProgSenderFinished": {
-    "description": "Payment steps of a payment you receive: the sender has completed their part."
-  },
   "phoneProgPayerPending": "Waiting for the payer",
   "@phoneProgPayerPending": {
     "description": "Reason line under the current step of a request you sent that is not paid yet."

@@ -64,7 +64,6 @@
   "deskSetLnodeStartedAgo": "vor {duration} gestartet",
   "deskSetLnodeSettingsChanged": "Einstellungen geändert.",
   "deskSetLnodeSettingsChangedText": "Sie gelten ab dem nächsten Neustart.",
-  "deskSetLnodeRestartNow": "Jetzt neu starten",
   "deskSetLnodeSampled": "Alle 30 s gemessen, solange diese Seite geöffnet ist.",
   "deskSetLnodeTomlEdited": "epic-server.toml wurde von Hand bearbeitet; die Peer- und Ordnereinstellungen hier gelten nicht.",
   "deskSetLnodeSyncProgress": "Fortschritt der Synchronisierung",

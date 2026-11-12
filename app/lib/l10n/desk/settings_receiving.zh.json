@@ -18,7 +18,6 @@
   "deskSetRecvHttpText": "本钱包打开时，直接从另一个钱包经此电脑的网址接收。",
   "deskSetRecvHttpOffTitle": "Tor 开启时关闭",
   "deskSetRecvHttpOffText": "直接来自另一个钱包的付款会改为发送到 链接 · Tor 地址。",
-  "deskSetRecvPrivacySettings": "隐私设置",
   "deskSetHttpNotChanged": "未更改",
   "deskSetHttpPortError": "端口必须在 1024 到 65535 之间",
   "deskSetHttpGuideHelp": "从互联网接收：如何操作",
@@ -38,6 +37,5 @@
   "deskSetHttpNoRouterText": "Tor 在任何地方都能用，无需转发任何端口。",
   "deskSetHttpTurnOnTor": "开启 Tor",
   "deskSetHttpExposed": "只开放接收 API。明文 HTTP 不加密。",
-  "deskSetHttpBackLocal": "改回仅限本机",
-  "deskSetRecvTorText": "钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。"
+  "deskSetHttpBackLocal": "改回仅限本机"
 }

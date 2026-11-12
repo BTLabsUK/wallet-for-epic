@@ -95,10 +95,6 @@
   "@deskE1CopyLink": {
     "description": "Receive: copies the epic1 payment link."
   },
-  "deskE1LinkCopied": "Link copied",
-  "@deskE1LinkCopied": {
-    "description": "Toast after the epic1 link is copied."
-  },
   "deskE1AskAmount": "Ask an amount",
   "@deskE1AskAmount": {
     "description": "Receive: opens a form to make a link that asks an amount."

@@ -4,7 +4,6 @@
   "phoneRecvHelp1": "Teile deine Adresse oder einen Code. Wer ihn hat, kann dich bezahlen.",
   "phoneRecvHelp2": "Betrag anfragen erzeugt einen Code, der einen festen Betrag verlangt.",
   "phoneRecvHelp3": "Andere Wege helfen, wenn die zahlende Person deine Adresse nicht nutzen kann.",
-  "phoneRecvCheck": "Prüfe die ersten und letzten sechs Zeichen mit der Person, die dich bezahlt.",
   "phoneRecvListening": "Wartet auf Zahlungen",
   "phoneRecvAsk": "Betrag anfragen",
   "phoneRecvAskLine": "Die Person sieht, wie viel und wofür",
@@ -25,7 +24,6 @@
   "phoneRecvAnyoneFileLine": "Speichert eine Datei zum Weitergeben",
   "phoneRecvAskFor": "{amount} anfragen",
   "phoneRecvCodeLead": "Zeige diesen Code oder teile ihn. Wer ihn öffnet, wird um {amount} gebeten.",
-  "phoneRecvFileLead": "Teile diese Datei. Wer sie öffnet, wird um {amount} gebeten.",
   "phoneRecvWaitingPaid": "Wartet auf Zahlung",
   "phoneRecvViewPayment": "Zahlung ansehen",
   "phoneRecvArrivalFrom": "von {name}"

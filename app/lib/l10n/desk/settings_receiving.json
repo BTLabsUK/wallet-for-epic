@@ -106,10 +106,6 @@
   "@deskSetRecvHttpOffText": {
     "description": "Settings > Receiving: notice text in the HTTP group when Tor is on."
   },
-  "deskSetRecvPrivacySettings": "Privacy settings",
-  "@deskSetRecvPrivacySettings": {
-    "description": "Settings > Receiving: notice button that jumps to the Tor switch in Settings > Privacy."
-  },
   "deskSetHttpNotChanged": "Not changed",
   "@deskSetHttpNotChanged": {
     "description": "Toast title when changing an HTTP receiving option failed. The error follows as text."
@@ -210,9 +206,5 @@
   "deskSetHttpBackLocal": "Back to local only",
   "@deskSetHttpBackLocal": {
     "description": "Internet guide dialog: button that goes back to local only."
-  },
-  "deskSetRecvTorText": "Straight from another wallet at this wallet’s Tor address, while it is open.",
-  "@deskSetRecvTorText": {
-    "description": "Description row of the Link · Tor group on Settings › Transactions."
   }
 }

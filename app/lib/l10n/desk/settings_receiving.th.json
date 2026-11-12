@@ -18,7 +18,6 @@
   "deskSetRecvHttpText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่เว็บของคอมพิวเตอร์เครื่องนี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskSetRecvHttpOffTitle": "ปิดอยู่ขณะเปิด Tor",
   "deskSetRecvHttpOffText": "รายการตรงจากกระเป๋าเงินอื่นจะเข้าที่ที่อยู่ ลิงก์ · Tor แทน",
-  "deskSetRecvPrivacySettings": "การตั้งค่าความเป็นส่วนตัว",
   "deskSetHttpNotChanged": "ไม่ได้เปลี่ยน",
   "deskSetHttpPortError": "พอร์ตต้องอยู่ระหว่าง 1024 ถึง 65535",
   "deskSetHttpGuideHelp": "รับจากอินเทอร์เน็ต: ทำงานอย่างไร",
@@ -38,6 +37,5 @@
   "deskSetHttpNoRouterText": "Tor ใช้ได้จากทุกที่โดยไม่ต้อง forward อะไร",
   "deskSetHttpTurnOnTor": "เปิด Tor",
   "deskSetHttpExposed": "เปิดเฉพาะ API สำหรับรับเงิน HTTP ธรรมดาไม่ได้เข้ารหัส",
-  "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น",
-  "deskSetRecvTorText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่ Tor ของกระเป๋าเงินนี้ ขณะที่เปิดอยู่"
+  "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น"
 }
