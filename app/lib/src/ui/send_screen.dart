@@ -2597,7 +2597,7 @@ class _SendViewState extends ConsumerState<SendView> {
                   const SizedBox(height: 8),
                 ],
               ],
-              bottom,
+              ?bottom,
             ],
           )
         : bottom;
@@ -2608,7 +2608,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ? ErrorText(context.l10n.errorNotEnoughFunds)
         : null;
     if (_stage == SendStage.review) {
-      return _reviewPage(context, [...children, ?problem], bottomWithNotes);
+      return _reviewPage(context, [...children, ?problem], bottomWithNotes!);
     }
     // The Who step has no button until an address is in: its list is the way on (Send-1).
     final foot = _stage == SendStage.recipient && !_hasRecipient && _pairingTo == null && note == NetBlock.none ? null : bottomWithNotes;
@@ -2729,10 +2729,11 @@ class _SendViewState extends ConsumerState<SendView> {
     VoidCallback? onHelp,
     bool help = true,
     Widget? avatar,
+    Widget? strip,
   }) {
     final busy = _busy || _estimating;
     final leading = onBack ?? onClose;
-    _bar = KitFlowHeader(
+    final bar = KitFlowHeader(
       title: title,
       avatar: avatar,
       showLeading: leading != null,
@@ -2742,6 +2743,8 @@ class _SendViewState extends ConsumerState<SendView> {
       onHelp: !help ? null : (onHelp ?? _showHowItWorks),
       helpId: TrustIds.sendHelp,
     );
+    // A step strip sits under the bar, on the page's own gutter (not the body's).
+    _bar = strip == null ? bar : Column(mainAxisSize: MainAxisSize.min, children: [bar, strip]);
     return const SizedBox.shrink();
   }
 
@@ -4599,17 +4602,23 @@ class _SendViewState extends ConsumerState<SendView> {
     if (sealed != null && sealedFor != null && _plainCopy == null) {
       return _sealedFileStep(context, slate, sealed, sealedFor);
     }
+    final amountText = epicExact(l, _parsedAmount ?? BigInt.zero);
     return [
-      // Done is in the header; one primary at a time (UP-008): Save to device until the file
-      // is handed over, then Open response file at the foot.
-      _header(context, l.sendFileTitle, onClose: _done),
-      KitStepStrip(labels: [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone], current: _fileHandedOver ? 1 : 0),
-      const SizedBox(height: 18),
+      // Back leaves, as on the frame; Share file is the one primary until the file is handed
+      // over, then Open their reply (a row, not a foot button) is the way on.
+      _header(
+        context,
+        l.sendPayByFile,
+        onBack: _done,
+        strip: KitStepStrip(labels: [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone], current: _fileHandedOver ? 1 : 0),
+      ),
+      // The body's own 16 above, then to the frame's 22 under the strip.
+      const SizedBox(height: 6),
       KitHeroAmount(amount: epicFor(l, _parsedAmount ?? BigInt.zero, surface: AmountSurface.exact, unit: false), unit: epicUnit),
-      const SizedBox(height: 18),
+      const SizedBox(height: 28),
       FileCard(
         title: l.phoneFilePayCard,
-        sub: l.phoneFileMadeSub(epicExact(l, _parsedAmount ?? BigInt.zero), fileMadeTime(context, _fileMadeAt ??= DateTime.now())),
+        sub: l.phoneFileMadeSub(amountText, fileMadeTime(context, _fileMadeAt ??= ref.read(clockProvider)())),
       ),
       const SizedBox(height: 12),
       SlateFileButtons(
@@ -4617,14 +4626,29 @@ class _SendViewState extends ConsumerState<SendView> {
         json: _plainCopy ?? slate.json,
         primary: !_fileHandedOver,
         framed: true,
+        hint: FileInfoLine(l.phoneFileSendHint),
         onHandedOver: () {
           if (!_fileHandedOver) setState(() => _fileHandedOver = true);
         },
       ),
-      const SizedBox(height: 14),
-      FileInfoLine(l.phoneFileSendHint),
-      const SizedBox(height: 14),
-      FileInfoLine(l.phoneFileHeld(epicExact(l, _parsedAmount ?? BigInt.zero)), bare: true),
+      const SizedBox(height: 26),
+      FileNextLabel(l.phoneFileWhenReply),
+      KitGroup(
+        margin: EdgeInsets.zero,
+        children: [
+          KitRow(
+            key: sendOpenReplyKey,
+            title: l.phoneStepPayFileReply,
+            subtitle: l.phoneFileOpenReplySub,
+            leading: const KitIconWell(KitIcons.fileUp, iconSize: 20),
+            chevron: true,
+            semanticsId: TrustIds.fileReply,
+            onTap: _busy || _postBlock != NetBlock.none ? null : _openReply,
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      FileInfoLine(l.phoneFileHeld(amountText), bare: true),
       const SizedBox(height: 8),
       // The text itself is a detail for those who copy it by hand.
       ExpansionTile(
@@ -4799,9 +4823,12 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  Widget _openReplyAction() {
+  /// The foot of the file-made step. The plain file route has none: Open their reply is a row
+  /// on the page.
+  Widget? _openReplyAction() {
     final l = context.l10n;
     final off = _busy || _postBlock != NetBlock.none;
+    if (!_viaQr && !(_sealedText != null && _sealedFor != null && _plainCopy == null)) return null;
     if (_viaQr) {
       return KitButton(
         key: sendScanReplyKey,

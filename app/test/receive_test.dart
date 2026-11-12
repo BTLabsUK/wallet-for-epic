@@ -684,7 +684,8 @@ void main() {
       await _toastGone(tester);
       await _tap(tester, find.text(_l.phoneFileShareReply));
       expect(h.files.shared.single.name, 'from-bob.tx.response');
-      expect(find.text(_l.phoneFileCopyText), findsNothing);
+      // The frame has Copy as text beside Share reply, for a file as for pasted text.
+      expect(find.text(_l.phoneFileCopyText), findsOneWidget);
     });
 
     testWidgets('paste: an empty clipboard and text that is no payment', (

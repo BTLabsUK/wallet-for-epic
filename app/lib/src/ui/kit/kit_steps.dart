@@ -27,15 +27,19 @@ class KitStep {
   final bool network;
 }
 
-/// A payment's three steps (HANDOFF 7.9): done is a filled ok dot, now is a ringed info dot
-/// with a one-line reason, later is an empty dot. A hair line joins the dots. Drawn in a group
-/// panel unless [card] is false. A screen reader hears each step with its state.
+/// A payment's steps (`.step`): done is a filled ok dot, now is a ringed info dot with a dim
+/// reason under the title, later is an empty dot; a short hair line joins one dot to the next.
+/// Each step is 12 above and below and 14 in, the title 15 (dim until it is done or current),
+/// the detail 13. Drawn in a group panel with 4 above and below unless [card] is false; a
+/// [footer] (one more row of the panel, as the "What if it never finishes?" line) goes after the
+/// last step. A screen reader hears each step with its state.
 class KitSteps extends StatelessWidget {
-  const KitSteps({super.key, required this.steps, this.card = true, this.semanticsId});
+  const KitSteps({super.key, required this.steps, this.card = true, this.semanticsId, this.footer});
 
   final List<KitStep> steps;
   final bool card;
   final String? semanticsId;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +48,6 @@ class KitSteps extends StatelessWidget {
     final rows = <Widget>[];
     for (var i = 0; i < steps.length; i++) {
       final s = steps[i];
-      final last = i == steps.length - 1;
       final state = switch (s.state) {
         KitStepState.done => l.phoneKitStepDone,
         KitStepState.now => l.phoneKitStepNow,
@@ -55,51 +58,50 @@ class KitSteps extends StatelessWidget {
           container: true,
           label: '${s.title}, $state${s.detail == null ? '' : ', ${s.detail}'}',
           excludeSemantics: true,
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  width: 18,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 5),
-                      s.network && s.state == KitStepState.now ? const _NetworkDot() : _Dot(s.state),
-                      Expanded(
-                        child: last
-                            ? const SizedBox.shrink()
-                            : Container(width: 1.5, margin: const EdgeInsets.symmetric(vertical: 4), color: t.hair2),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: last ? 0 : 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          s.title,
-                          style: KitType.rowTitle.copyWith(color: s.state == KitStepState.later ? t.faint : t.text),
-                        ),
-                        if (s.detail != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 3),
-                            child: Text(s.detail!, style: KitType.rowSub.copyWith(color: s.state == KitStepState.now ? t.info : t.dim)),
-                          ),
-                      ],
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: s.network && s.state == KitStepState.now ? const _NetworkDot() : _Dot(s.state),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            s.title,
+                            style: KitType.body.copyWith(color: s.state == KitStepState.later ? t.dim : t.text, height: 1.3),
+                          ),
+                          if (s.detail != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Text(s.detail!, style: KitType.rowSub.copyWith(color: t.dim, height: 1.45)),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              // `.step + .step::before`: 1.5 wide, 24 tall, from 14 above the step.
+              if (i > 0) Positioned(left: 18.5, top: -14, child: Container(width: 1.5, height: 24, color: t.hair2)),
+            ],
           ),
         ),
       );
     }
-    final column = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows);
+    final column = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [...rows, ?footer],
+    );
     final body = card
         ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
@@ -109,7 +111,7 @@ class KitSteps extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Kit.rGroup),
                 border: Border.all(color: t.hair),
               ),
-              child: Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), child: column),
+              child: Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: column),
             ),
           )
         : column;
@@ -146,7 +148,7 @@ class _Dot extends StatelessWidget {
 }
 
 /// The dot of the step in progress on the network: a network icon in a ring, with a second ring
-/// that spreads out and fades, over and over. Sits in the same 18 px column as the other dots.
+/// that spreads out and fades, over and over. Takes the same 10 px as the other dots; its ring overflows it.
 class _NetworkDot extends StatefulWidget {
   const _NetworkDot();
 
@@ -184,9 +186,11 @@ class _NetworkDotState extends State<_NetworkDot> with SingleTickerProviderState
     // The layout is as tall as the other dots; the icon's ring overflows it evenly.
     return ExcludeSemantics(
       child: SizedBox(
-        width: 18,
+        width: Kit.stepDot,
         height: Kit.stepDot,
         child: OverflowBox(
+          minWidth: 18,
+          maxWidth: 18,
           minHeight: 18,
           maxHeight: 18,
           child: AnimatedBuilder(

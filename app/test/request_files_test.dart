@@ -214,7 +214,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.reqFileLead), findsOneWidget);
+      expect(find.text(_l.phoneRecvFileLead(epicExact(_l, _epic(42.5)))), findsOneWidget);
       final issued = h.session.issuedRequests.single;
       expect(issued.amount, _epic(42.5));
       expect(issued.message, 'Beans');

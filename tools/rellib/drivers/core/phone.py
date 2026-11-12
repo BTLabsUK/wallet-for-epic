@@ -45,7 +45,7 @@ UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
 UNLOCK_RETRY = T("g4.unlock.retry")
 
-FLOW_CLOSE = T("g4.flow.close")   # Send and Receive open as flows over the tab bar, with a close button
+RECEIVE_CLOSE = T("g4.receive.close")   # Receive opens as a flow over the tab bar, with its own close button
 SETTINGS = T("g4.tab.settings")
 TAB_SEND = T("g4.tab.send")
 TAB_WALLET = T("g4.tab.home")
@@ -582,7 +582,7 @@ class Phone:
         return True
 
     def tab(self, target):
-        """Send or Receive: Home's two buttons open the flow over the tab bar (its close button
+        """Send or Receive: Home's two buttons open the flow over the tab bar (its own close button
         marks it). Any other target is a tab of the bar."""
         d = self.d
         self.home()
@@ -592,7 +592,7 @@ class Phone:
                     then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
             return
         if target == TAB_RECEIVE:
-            d.press(target, step="tab-receive", timeout=20, then=shows(FLOW_CLOSE))
+            d.press(target, step="tab-receive", timeout=20, then=shows(RECEIVE_CLOSE))
             return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))

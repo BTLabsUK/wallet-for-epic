@@ -389,7 +389,7 @@ void main() {
       expect(find.text(_l.invoicesNewRequest), findsNWidgets(2));
       await tester.tap(find.byKey(invoicesNewRequestKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.reqNewTitle), findsOneWidget);
+      expect(find.text(_l.phoneRecvAsk), findsOneWidget);
     });
 
     testWidgets('counts each segment', (tester) async {

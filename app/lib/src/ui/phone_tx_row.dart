@@ -223,7 +223,7 @@ class PhoneTxRow extends ConsumerWidget {
           ),
           if (sealed && !cancelled) ...[
             Text(' · ', style: mono.copyWith(color: t.dim)),
-            ExcludeSemantics(child: Epic1Glyph(size: 16, color: t.accentText)),
+            ExcludeSemantics(child: Epic1Glyph(size: 12.5, columns: 5, color: t.accent)),
             const SizedBox(width: 3),
             Flexible(child: Text(l.phoneActSealed, maxLines: 1, overflow: TextOverflow.ellipsis, style: mono.copyWith(color: t.dim))),
           ],
@@ -233,7 +233,7 @@ class PhoneTxRow extends ConsumerWidget {
 
     final initials = _initialsOf(tx, title, named: name != null);
     final direction = open
-        ? KitDirection.pending
+        ? (outgoing ? KitDirection.outLive : KitDirection.incomingLive)
         : (outgoing ? KitDirection.out : KitDirection.incoming);
     final avatar = KitAvatar(
       initials: initials,

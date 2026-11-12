@@ -85,6 +85,7 @@ class Notice {
     this.tag,
     this.onClose,
     this.items = const [],
+    this.icon,
   });
 
   /// Distinct per notice, so the card animates when another one takes its place.
@@ -118,13 +119,12 @@ class Notice {
   /// a tap on the card or its chevron unfolds them, each a way to its own place. A digest.
   final List<NoticeAction> items;
 
-  /// Has a close button: warnings, errors, persistent notices and any with an action.
-  bool get closable =>
-      persistent ||
-      action != null ||
-      items.isNotEmpty ||
-      level == NoticeLevel.warning ||
-      level == NoticeLevel.error;
+  /// A drawn mark of the notice's own (an arrival's arrow) in place of its level's.
+  final IconData? icon;
+
+  /// Has a close button: the ones that stay until closed (the frame draws the × there only);
+  /// the others leave on their own, by a swipe, or by their action.
+  bool get closable => persistent || items.isNotEmpty;
 }
 
 /// The visible notice; every [NoticeDock] shows it.
@@ -169,6 +169,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     String? tag,
     VoidCallback? onClose,
     List<NoticeAction> items = const [],
+    IconData? icon,
   }) {
     Notice make(int id) => Notice(
       id,
@@ -183,6 +184,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       tag: tag,
       onClose: onClose,
       items: items,
+      icon: icon,
     );
     final visible = state;
     if (visible != null &&
@@ -371,7 +373,7 @@ class _NoticeDockState extends ConsumerState<NoticeDock> with SingleTickerProvid
     final still = MediaQuery.disableAnimationsOf(context);
     // The status bar, or 50 dp, whichever is lower on the screen.
     final inset = MediaQueryData.fromView(View.of(context)).padding.top;
-    final top = inset + 8 > Kit.toastTop ? inset + 8 : Kit.toastTop;
+    final top = inset > Kit.toastTop ? inset : Kit.toastTop;
     final card = AnimatedSwitcher(
       duration: still ? Duration.zero : const Duration(milliseconds: 150),
       switchInCurve: Curves.easeOutCubic,
@@ -485,8 +487,8 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
         foregroundColor: primary ? t.accentText : t.dim,
         // From the theme's label style, so the fallback fonts (Thai, Chinese) stay.
         textStyle: Theme.of(context).textTheme.labelLarge?.merge(KitType.toastAction),
-        minimumSize: const Size(44, Kit.hitMin),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        minimumSize: const Size(0, 40), // `.ta` min-height
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: Text(a.label),
@@ -500,9 +502,9 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     final l = context.l10n;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final (_, color) = noticeLook(t, notice.level);
-    final icon = switch (notice.level) {
+    final icon = notice.icon ?? switch (notice.level) {
       NoticeLevel.info => KitIcons.info,
-      NoticeLevel.success => KitIcons.success,
+      NoticeLevel.success => KitIcons.check,
       NoticeLevel.warning => KitIcons.warning,
       NoticeLevel.error => KitIcons.error,
     };
@@ -524,8 +526,17 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (title != null) Text(title, maxLines: lines, overflow: cut, style: KitType.toast.copyWith(color: t.text, fontWeight: FontWeight.w600)),
-            Text(text, maxLines: lines, overflow: cut, style: KitType.toast.copyWith(color: title == null ? t.text : t.dim, fontSize: title == null ? 14.5 : 13)),
+            // `.tt` is weight 500; its `small` is 12.5 regular, dim, 2 below.
+            if (title != null) Text(title, maxLines: lines, overflow: cut, style: KitType.toast.copyWith(color: t.text, fontWeight: FontWeight.w500)),
+            if (title != null) const SizedBox(height: 2),
+            Text(
+              text,
+              maxLines: lines,
+              overflow: cut,
+              style: title == null
+                  ? KitType.toast.copyWith(color: t.text, fontWeight: FontWeight.w500)
+                  : KitType.toast.copyWith(color: t.dim, fontSize: 12.5),
+            ),
           ],
         ),
       ),
@@ -549,8 +560,9 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
         ? IconButton(
             tooltip: l.commonClose,
             visualDensity: VisualDensity.compact,
-            constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-            icon: Icon(KitIcons.close, size: 20, color: t.dim),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+            icon: Icon(KitIcons.close, size: 16, color: t.faint),
             onPressed: () {
               _notices.dismiss(notice.id);
               notice.onClose?.call();
@@ -595,7 +607,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
 
     final trailing = [?chevron, ?close];
     final body = Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(11, 0, 4, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(11, 0, 10, 0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -607,7 +619,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
                 height: Kit.toastIcon,
                 decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: dark ? 0.16 : 0.14)),
                 alignment: Alignment.center,
-                child: Icon(icon, size: 20, color: color),
+                child: Icon(icon, size: 18, color: color),
               ),
             ),
             words: Padding(
@@ -619,14 +631,14 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
                   wordsTap,
                   if (progress != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.only(top: 7),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(2),
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 3,
-                          color: t.info,
-                          backgroundColor: t.hair2,
+                          color: t.accentText,
+                          backgroundColor: t.fill,
                           semanticsLabel: notice.progressLabel,
                         ),
                       ),
@@ -641,11 +653,16 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
                     spacing: 4,
                     children: [if (secondary != null) _textButton(secondary, primary: false), _textButton(action, primary: true)],
                   ),
-            close: trailing.isEmpty ? null : Row(mainAxisSize: MainAxisSize.min, children: trailing),
-            iconGap: 12,
-            actionGap: 4,
+            close: trailing.isEmpty
+                ? null
+                : Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 11),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: trailing),
+                  ),
+            iconGap: 11,
+            actionGap: 11,
             firstLine: 14.5 * 1.3 + 2 * _wordsPad,
-            textEnd: 12,
+            textEnd: 0,
             minHeight: Kit.toastMin,
           ),
           ?unfold,
@@ -708,7 +725,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
 const double _wordsPad = 10;
 
 /// Where the words start inside the card's body: the level's icon and the gap after it.
-const double _wordsStart = 11 + Kit.toastIcon + 12;
+const double _wordsStart = 11 + Kit.toastIcon + 11;
 
 /// How long a digest takes to unfold its items, and to fold them.
 const Duration noticeUnfoldDuration = Motion.expand;

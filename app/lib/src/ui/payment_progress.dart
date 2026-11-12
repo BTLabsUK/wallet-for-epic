@@ -80,7 +80,13 @@ PaymentProgress? paymentProgress(
   if (request) {
     labels = [l.txStepRequested, l.txStepPaid, l.phoneProgNetwork, l.txStepConfirmed];
   } else if (outgoing) {
-    labels = [l.phoneProgSent, name == null ? l.txStatusWaitingRecipient : l.txStatusWaitingFor(name), l.phoneProgNetwork, l.txStepConfirmed];
+    labels = [
+      l.phoneProgSent,
+      // The frame's words for the second step: it is the other wallet that answers.
+      name == null ? l.phoneProgWaitingAnswer : l.phoneProgWaitingAnswerNamed(name),
+      l.phoneProgNetwork,
+      l.txStepConfirmed,
+    ];
   } else {
     labels = [l.lvPayArriving, l.phoneProgSenderFinished, l.phoneProgNetwork, l.txStepConfirmed];
   }
@@ -149,8 +155,12 @@ PaymentProgress? paymentProgress(
 
   // The times the wallet knows: the first step when the record began, the network step when
   // this wallet finalized the send, the last when its block was found.
-  String? time(int? unix) =>
-      unix == null || unix <= 0 ? null : shortDate(l, localTime(unix), now);
+  String? time(int? unix) {
+    if (unix == null || unix <= 0) return null;
+    final at = localTime(unix);
+    // "Today 18:12", as the frames print it.
+    return daysAgo(at, now) == 0 ? '${l.dateToday} ${localClock(l, at)}' : shortDate(l, at, now);
+  }
   final times = <String?>[
     time(tx.createdAtUnix),
     null,
@@ -160,7 +170,10 @@ PaymentProgress? paymentProgress(
 
   return PaymentProgress(
     steps: [
+      // The frames draw three steps until the payment is on the network; the network step
+      // joins when it is the current one or past.
       for (var i = 0; i < 4; i++)
+        if (i != 2 || at >= 2)
         KitStep(
           title: labels[i],
           state: i < at ? KitStepState.done : (i == at ? KitStepState.now : KitStepState.later),

@@ -523,10 +523,8 @@ void main() {
       expect(h.session.sentAmounts, [_epic(1)]);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
-      expect(
-        find.text('Waiting for the recipient to scan. Then scan their reply.'),
-        findsOneWidget,
-      );
+      // The frame's line under the code; the step strip says what comes after.
+      expect(find.text(_l.phoneQrHoldHint), findsOneWidget);
 
       await tester.tap(find.byKey(qrNextButtonKey));
       await tester.pump();
@@ -669,7 +667,7 @@ void main() {
       expect(find.text(_l.qrStatusReplyHidden), findsOneWidget);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
-      expect(find.text(_l.qrStatusReplyShowing), findsOneWidget);
+      expect(find.text(_l.phoneQrReplyShowing), findsOneWidget);
 
       // The received payment shows in the wallet's history, then the sender posts it.
       h.session.transactionsValue = [

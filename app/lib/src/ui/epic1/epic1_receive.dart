@@ -151,7 +151,8 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 24, Kit.gutter, 24),
+              // Frame: the QR 34 under the header; its corner marks take the 14 above it.
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 20, Kit.gutter, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -163,7 +164,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
                       if (linkShown)
                         KitRow(
                           key: epic1AskAmountKey,
-                          leading: KitIconWell(KitIcons.invoice),
+                          leading: KitIconWell(KitIcons.invoice, color: context.tokens.accentText),
                           title: l.phoneRecvAsk,
                           subtitle: l.phoneRecvAskLineLink,
                           chevron: true,
@@ -171,7 +172,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
                         ),
                       KitRow(
                         key: epic1RequestInPersonKey,
-                        leading: KitIconWell(KitIcons.qr),
+                        leading: KitIconWell(KitIcons.qr, color: context.tokens.accentText),
                         title: l.phoneRecvOther,
                         subtitle: l.deskE1PhInPerson,
                         chevron: true,
@@ -255,8 +256,8 @@ class _LinkCard extends StatelessWidget {
           key: epic1QrKey,
           child: ReceiveQr(address: link, semanticsLabel: l.deskE1PhLinkQrLabel, logo: QrLogo.epic1),
         ),
-        const SizedBox(height: 22),
-        Center(child: Epic1Text(l.deskE1PhLinkTitle, style: KitType.flowTitle.copyWith(color: t.text))),
+        const SizedBox(height: 18),
+        Center(child: Epic1Text(l.deskE1PhLinkTitle, style: KitType.flowTitle.copyWith(color: t.text, fontSize: 18))),
         const SizedBox(height: 12),
         Center(child: KitChip(amount == null ? l.deskE1PhAnyAmount : l.deskE1PhLinkAsks(epicFor(l, amount!)))),
         const SizedBox(height: 20),
@@ -293,9 +294,17 @@ class _ListeningLine extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ExcludeSemantics(
-            child: Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: t.ok)),
+            child: Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: t.ok,
+                boxShadow: [BoxShadow(color: t.ok.withValues(alpha: .16), spreadRadius: 3)],
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 9),
           Text(context.l10n.phoneRecvListening, style: KitType.rowSub.copyWith(color: t.dim)),
         ],
       ),

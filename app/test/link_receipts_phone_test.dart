@@ -221,7 +221,7 @@ void main() {
       final h = _Harness();
       final tx = h.waiting(const Duration(hours: 2));
       await h.pump(tester, TxDetailsScreen(txKey: tx.key));
-      expect(find.text(_l.txStatusWaitingFor('Corner Shop')), findsWidgets);
+      expect(find.text(_l.phoneProgWaitingAnswerNamed('Corner Shop')), findsWidgets);
       expect(find.byKey(mailboxResendCardKey), findsNothing);
     });
 
@@ -229,7 +229,7 @@ void main() {
       final h = _Harness(label: null);
       final tx = h.waiting(const Duration(hours: 2));
       await h.pump(tester, TxDetailsScreen(txKey: tx.key));
-      expect(find.text('Waiting for recipient'), findsWidgets);
+      expect(find.text(_l.phoneProgWaitingAnswer), findsWidgets);
       expect(find.byKey(mailboxResendCardKey), findsNothing);
     });
 

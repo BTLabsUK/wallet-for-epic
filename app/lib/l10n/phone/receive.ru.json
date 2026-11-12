@@ -25,6 +25,7 @@
   "phoneRecvAnyoneFileLine": "Сохраняет файл, который можно передать",
   "phoneRecvAskFor": "Запросить {amount}",
   "phoneRecvCodeLead": "Покажите этот код или поделитесь им. Кто его откроет, увидит запрос на {amount}.",
+  "phoneRecvFileLead": "Поделитесь этим файлом. Кто его откроет, увидит запрос на {amount}.",
   "phoneRecvWaitingPaid": "Ожидает оплаты",
   "phoneRecvViewPayment": "Открыть платёж",
   "phoneRecvShowCode": "Показать код",

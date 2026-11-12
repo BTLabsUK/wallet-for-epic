@@ -36,6 +36,7 @@ import 'kit/kit_amount.dart';
 import 'kit/kit_avatar.dart';
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
+import 'kit/kit_fiat_swap.dart';
 import 'kit/kit_row.dart' show KitIconWell;
 import 'kit/kit_headers.dart';
 import 'kit/kit_icons.dart';
@@ -455,7 +456,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Flexible(child: Text(chip, style: KitType.flowTitle.copyWith(color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                      Icon(Icons.expand_more_rounded, size: 22, color: t.dim),
+                                      Padding(padding: const EdgeInsets.only(left: 8), child: Icon(KitIcons.chevronDown, size: 16, color: t.dim)),
                                     ],
                                   ),
                                 ),
@@ -475,20 +476,29 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 58),
                         KeyedSubtree(
                           key: requestAmountKey,
                           child: KitAmountDisplay(
                             amount: localDecimal(l, _digits),
                             unit: unit,
-                            fiat: fiat,
-                            onSwap: price == null ? null : _swap,
                           ),
                         ),
-                        const SizedBox(height: 14),
+                        // Frame: the line 14 under the figure, 22 high, in a 44 tap target.
+                        if (fiat != null) ...[
+                          const SizedBox(height: 3),
+                          KitFiatSwap(text: fiat, onSwap: price == null ? null : _swap),
+                        ],
+                        // The chip sits in a 48 tap target: 13 to the frame's chip top, less the 7 it adds.
+                        SizedBox(height: _note.isEmpty ? 3 : 6),
                         TrustId(
                           TrustIds.receiveAskNote,
-                          child: KitChip(_note.isEmpty ? l.phonePayAddNote : _note, icon: _note.isEmpty ? KitIcons.add : null, onTap: _editNote),
+                          child: KitChip(
+                            _note.isEmpty ? l.phonePayAddNote : _note,
+                            icon: _note.isEmpty ? KitIcons.add : KitIcons.message,
+                            large: _note.isNotEmpty,
+                            onTap: _editNote,
+                          ),
                         ),
                         if (_payerError != null) ...[
                           const SizedBox(height: 10),
@@ -505,7 +515,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                 ),
                 KitKeypad(onDigit: _digit, onDelete: _delete, onPoint: _point, idFor: (k) => 'request-key-$k'),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 10, Kit.gutter, 16),
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 17, Kit.gutter, 0),
                   child: KitButton(
                     key: toQr ? requestShowQrKey : (toFile ? requestSaveFileKey : null),
                     label: amount == null ? l.phoneRecvAsk : l.phoneRecvAskFor(epicExact(l, amount)),
@@ -589,7 +599,7 @@ class RequestFileSavedScreen extends StatelessWidget {
       json: slate.json,
       fileName: name,
       saveFile: true,
-      lead: l.reqFileLead,
+      lead: l.phoneRecvFileLead(epicExact(l, amount)),
       status: const RequestStatusLine(),
       onDone: () => Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),

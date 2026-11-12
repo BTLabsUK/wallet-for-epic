@@ -46,6 +46,7 @@ class KitRow extends StatelessWidget {
     this.isChoice,
     this.titleStyle,
     this.minHeight,
+    this.compact = false,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -102,6 +103,9 @@ class KitRow extends StatelessWidget {
   final String? subtitle;
   final Widget? leading;
 
+  /// A row taller than its [size]'s (the frames' 72 for rows with a two-line sheet reading).
+  final double? minHeight;
+
   /// A dim value before the chevron ("Dark", "After 15 minutes").
   final String? value;
   final Widget? trailing;
@@ -134,8 +138,8 @@ class KitRow extends StatelessWidget {
   /// Changes of the title's style (an address in the mono face), over the 15/500 default.
   final TextStyle? titleStyle;
 
-  /// A row taller than its [size] (a sheet's rows that stand 72).
-  final double? minHeight;
+  /// A tighter row (padding 8, 54 high) for the list of ways in a sheet.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -151,12 +155,12 @@ class KitRow extends StatelessWidget {
         ),
       ?trailing,
       if (selected) Icon(KitIcons.check, size: 22, color: t.accentText),
-      if (chevron) Icon(KitIcons.chevron, size: 22, color: t.faint),
+      if (chevron) Icon(KitIcons.chevron, size: 18, color: t.faint),
     ];
     final body = ConstrainedBox(
-      constraints: BoxConstraints(minHeight: minHeight ?? size.height),
+      constraints: BoxConstraints(minHeight: minHeight ?? (compact ? 54 : size.height)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: compact ? 8 : 10),
         child: Row(
           children: [
             if (leading != null) ...[leading!, const SizedBox(width: 12)],
@@ -200,19 +204,23 @@ class KitRow extends StatelessWidget {
 
 /// The rounded square behind a row's icon: 40 px, radius 13, the quiet fill.
 class KitIconWell extends StatelessWidget {
-  const KitIconWell(IconData this.icon, {super.key, this.color, this.size = Kit.avatar, this.iconSize = 22}) : child = null;
+  const KitIconWell(IconData this.icon, {super.key, this.color, this.size = Kit.avatar, this.iconSize = 22, this.radius = Kit.rAvatar}) : child = null;
 
   /// A well around any mark (the brand's, on the hub's wallet card).
   const KitIconWell.child(Widget this.child, {super.key, this.size = Kit.avatar})
     : icon = null,
       color = null,
-      iconSize = 22;
+      iconSize = 22,
+      radius = Kit.rAvatar;
 
   final IconData? icon;
   final Widget? child;
   final Color? color;
   final double size;
   final double iconSize;
+
+  /// The corner radius: 13 for the 40 well, 15 for the 46 one of the file cards.
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +229,7 @@ class KitIconWell extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(Kit.rAvatar)),
+      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(radius)),
       child: ExcludeSemantics(child: child ?? Icon(icon, size: iconSize, color: color ?? t.dim)),
     );
   }
