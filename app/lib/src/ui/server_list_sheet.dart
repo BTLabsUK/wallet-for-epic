@@ -1127,10 +1127,10 @@ class _ServerRow extends StatelessWidget {
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
-                                    KitTag(l.serverDefault),
+                                    Flexible(child: KitTag(l.serverDefault)),
                                   ] else if (addedByYou) ...[
                                     const SizedBox(width: 8),
-                                    KitTag(l.slAddedByYou),
+                                    Flexible(child: KitTag(l.slAddedByYou)),
                                   ],
                                 ],
                               ),
@@ -1694,7 +1694,8 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
                     style: KitType.rowTitle.copyWith(color: t.text),
                   ),
                 ),
-                Text(face.word, style: KitType.rowSub.copyWith(color: face.color)),
+                const SizedBox(width: 8),
+                Flexible(child: Text(face.word, style: KitType.rowSub.copyWith(color: face.color), textAlign: TextAlign.end)),
               ],
             ),
           ),

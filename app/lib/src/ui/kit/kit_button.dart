@@ -79,7 +79,7 @@ class KitButton extends StatelessWidget {
         child: InkWell(
           onTap: off ? null : onPressed,
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: small ? Kit.buttonSmall : (kind == KitButtonKind.ghost ? Kit.hitMin : Kit.button), minWidth: small ? 0 : 64),
+            constraints: BoxConstraints(minHeight: small ? Kit.buttonSmall : (kind == KitButtonKind.ghost ? Kit.touchMin : Kit.button), minWidth: small ? 0 : 64),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: small ? 16 : 20),
               child: Center(widthFactor: expand ? null : 1, child: content),

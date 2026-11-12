@@ -219,7 +219,8 @@ void main() {
         ..pair();
       final tx = h.waiting(_ago(const Duration(hours: 20)));
       await h.pump(tester, TxDetailsScreen(txKey: tx.key));
-      expect(find.text(_l.txStatusWaitingFor('Anna')), findsWidgets);
+      // The steps say whose answer it waits for.
+      expect(find.textContaining(_l.phoneProgAnswersEpicboxNamed('Anna')), findsWidgets);
       expect(find.byKey(mailboxResendCardKey), findsNothing);
     });
 
