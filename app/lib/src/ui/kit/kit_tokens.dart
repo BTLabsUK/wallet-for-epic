@@ -78,7 +78,7 @@ abstract final class Kit {
   static const double pill = 32;
   static const double chip = 28;
   static const double stepDot = 10;
-  static const double availableBar = 46;
+  static const double availableBar = 48;
   static const double maxPill = 34;
   static const double emptyWell = 72;
   static const double switchWidth = 50;

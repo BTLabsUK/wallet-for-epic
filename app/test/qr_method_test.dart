@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/file_exchange_help.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/net_block.dart' show offlineNodeNoteKey;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
@@ -33,6 +34,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/send_finders.dart';
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -168,8 +170,19 @@ class _Harness {
   }
 }
 
-/// The ways under an empty To field: Pay in person (QR) and Pay with a file.
-Finder _way(String label) => find.widgetWithText(TextButton, label);
+/// The ways in the "No address?" sheet: In person (QR) and With a file.
+Finder _way(String label) => find.text(switch (label) {
+  'Pay in person' => _l.phoneSendInPerson,
+  _ => _l.phoneSendWithFile,
+});
+
+Future<void> _openWays(WidgetTester tester) async {
+  // Neither way offered: there is no entry to open.
+  if (find.text(_l.sendNoAddress).evaluate().isEmpty) return;
+  await tester.tap(find.text(_l.sendNoAddress));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
+}
 
 const _linkAddress = 'https://wallet.example.com:3415';
 
@@ -182,8 +195,8 @@ Future<void> _tick(WidgetTester tester, int seconds) async {
 String _howCaption(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(handshakeCaptionKey)).data!;
 
-Future<void> _openHow(WidgetTester tester) async {
-  await tester.tap(find.byTooltip(_l.sendHowItWorks));
+Future<void> _openHow(WidgetTester tester, {String? tooltip}) async {
+  await tester.tap(find.byTooltip(tooltip ?? _l.sendHelp));
   await tester.pumpAndSettle();
 }
 
@@ -194,7 +207,7 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, SendView(onDone: () {}));
-        await tester.tap(_way('Pay in person'));
+        await chooseWay(tester, qr: true);
         await tester.pumpAndSettle();
         await _openHow(tester);
         expect(find.byType(HandshakeSheet), findsOneWidget);
@@ -220,7 +233,7 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), _linkAddress);
+      await tester.enterText(sendTo(), _linkAddress);
       await tester.pumpAndSettle();
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeLink1}');
@@ -231,11 +244,13 @@ void main() {
       // The file way has its own help in the header instead (one help icon per header).
       await tester.tap(find.byKey(sendRecipientClearKey));
       await tester.pumpAndSettle();
-      await tester.tap(_way('Pay with a file'));
+      await chooseWay(tester);
       await tester.pumpAndSettle();
-      expect(find.byTooltip(_l.sendHowItWorks), findsNothing);
-      await tester.tap(find.byTooltip(_l.sendFileHelpTooltip));
-      await tester.pumpAndSettle();
+      // The one help icon opens the file way's own help, not the handshake.
+      await tester.tap(find.byTooltip(_l.sendHelp));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(FileExchangeHelp), findsOneWidget);
       expect(find.byType(HandshakeSheet), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -252,7 +267,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await _openHow(tester);
+      await _openHow(tester, tooltip: _l.sendHowItWorks);
       expect(_howCaption(tester), '1. ${_l.handshakeQrR1}');
       expect(find.textContaining('relay'), findsNothing);
       expect(find.text(_l.handshakeRelay), findsNothing);
@@ -266,7 +281,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
       expect(find.byKey(sendMethodsKey), findsNothing);
-      expect(_way(_l.sendPayInPerson), findsOneWidget);
+      await _openWays(tester);
+      expect(_way('Pay in person'), findsOneWidget);
       expect(_way('Pay with a file'), findsNothing);
     });
 
@@ -275,8 +291,9 @@ void main() {
     ) async {
       final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
+      await _openWays(tester);
       final names = ['Pay in person', 'Pay with a file'];
-      final xs = [for (final n in names) tester.getTopLeft(_way(n)).dx];
+      final xs = [for (final n in names) tester.getTopLeft(_way(n)).dy];
       expect(xs, [...xs]..sort());
     });
 
@@ -285,11 +302,13 @@ void main() {
       (tester) async {
         var h = _Harness(scanner: false);
         await h.pump(tester, SendView(onDone: () {}));
+        await _openWays(tester);
         expect(_way('Pay in person'), findsNothing);
         h = _Harness(prefs: 'file,noqr|epicbox');
         await h.pump(tester, SendView(onDone: () {}));
+        await _openWays(tester);
         expect(_way('Pay in person'), findsNothing);
-        expect(_way(_l.sendPayByFile), findsOneWidget);
+        expect(_way('Pay with a file'), findsOneWidget);
       },
     );
 
@@ -495,7 +514,7 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_way('Pay in person'));
+      await chooseWay(tester, qr: true);
       await tester.pumpAndSettle();
       expect(find.text(_l.methodDirectQr), findsOneWidget);
 
@@ -554,7 +573,7 @@ void main() {
           stage: SlateStage.response,
         );
         await h.pump(tester, SendView(onDone: () {}));
-        await tester.tap(_way('Pay in person'));
+        await chooseWay(tester, qr: true);
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
         // Past the fee estimate's debounce: Make payment QR waits for it.
@@ -735,8 +754,8 @@ void main() {
   // next-fixes 12: 5 EPIC with 0.892 available, and "Make payment QR" took the tap before the
   // fee estimate came back.
   group('Make payment QR waits for the amount check', () {
-    Finder make() => find.widgetWithText(FilledButton, 'Make payment QR');
-    Finder amount() => find.widgetWithText(TextField, 'Amount (EPIC)');
+    Finder make() => find.widgetWithText(KitButton, 'Make payment QR');
+    Finder amount() => sendAmount();
 
     testWidgets('more than spendable: off on the keystroke, with the reason', (tester) async {
       final h = _Harness(prefs: '|qr');
@@ -756,14 +775,14 @@ void main() {
       // One frame: inside the estimate's debounce, nothing asked of the wallet yet.
       await tester.pump();
       expect(find.byKey(sendNotEnoughKey), findsOneWidget);
-      expect(find.text(_l.errorNotEnoughFunds), findsOneWidget);
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<Text>(find.byKey(sendNotEnoughKey)).data, contains('4.108'));
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.tap(make(), warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       expect(find.widgetWithText(TextField, _l.pinLabel), findsNothing);
       expect(h.session.sentAmounts, isEmpty);
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
     });
 
     testWidgets('within the balance: off until the estimate for it has come', (tester) async {
@@ -772,17 +791,17 @@ void main() {
       await tester.enterText(amount(), '0.5');
       await tester.pump();
       expect(find.byKey(sendNotEnoughKey), findsNothing);
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(tester.widget<FilledButton>(make()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNotNull);
       // A new amount waits again.
       await tester.enterText(amount(), '0.6');
       await tester.pump();
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(tester.widget<FilledButton>(make()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNotNull);
     });
   });
 }

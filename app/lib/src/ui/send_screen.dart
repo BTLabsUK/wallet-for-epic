@@ -610,6 +610,8 @@ class _SendViewState extends ConsumerState<SendView> {
       } else {
         _origin = handoff.origin;
         _requestAddress = handoff.origin == null ? null : to.address;
+        // An address handed over whole is as settled as one pasted: it shows in its box.
+        _touched = recipientShaped(to);
       }
     }
     ref.listenManual(
@@ -2626,11 +2628,14 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ),
         ),
+        // The dim is a touch target only; the system back is the way out for a screen reader.
         Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: canLeave ? _backToAmount : null,
-            child: ColoredBox(color: t.scrim),
+          child: ExcludeSemantics(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: canLeave ? _backToAmount : null,
+              child: ColoredBox(color: t.scrim),
+            ),
           ),
         ),
         Align(
@@ -4022,13 +4027,21 @@ class _SendViewState extends ConsumerState<SendView> {
       title: label,
       titleColor: strong ? t.text : t.dim,
       size: KitRowSize.sheet,
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(value, textAlign: TextAlign.end, style: KitType.rowAmount.copyWith(color: t.text)),
-          if (sub != null) Text(sub, textAlign: TextAlign.end, style: KitType.rowSub.copyWith(color: t.dim)),
-        ],
+      // At large text the figure shrinks to its share of the row; the label keeps the rest.
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 170),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(value, maxLines: 1, textAlign: TextAlign.end, style: KitType.rowAmount.copyWith(color: t.text)),
+            ),
+            if (sub != null) Text(sub, textAlign: TextAlign.end, style: KitType.rowSub.copyWith(color: t.dim)),
+          ],
+        ),
       ),
     );
   }
@@ -4054,7 +4067,10 @@ class _SendViewState extends ConsumerState<SendView> {
           leading: _toAvatar(),
           title: name,
           subtitleWidget: name == short ? null : Text(short, style: KitType.address.copyWith(color: t.accentText), maxLines: 1, overflow: TextOverflow.ellipsis),
-          trailing: tag == null ? null : (to.kind == RecipientInputKind.onion ? EBadge.tor(tag, way: TorWay.overTor) : EBadge(tag)),
+          // An onion always goes over Tor, whether or not the switch is on.
+          trailing: to.kind == RecipientInputKind.onion && torBuilt
+              ? EBadge.tor(l.sendOverTor, way: TorWay.overTor)
+              : (tag == null ? null : EBadge(tag)),
           chevron: several,
           onTap: several ? () => _addressesSheet(context, contact, to, review: true) : null,
           semanticsLabel: l.sendRouteChange,

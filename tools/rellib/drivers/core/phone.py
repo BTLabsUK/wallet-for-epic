@@ -117,6 +117,7 @@ SEND_KEYS = {"0": T("g4.send.key.0"), "1": T("g4.send.key.1"), "2": T("g4.send.k
              "8": T("g4.send.key.8"), "9": T("g4.send.key.9"), ".": T("g4.send.key.point")}
 SEND_CONFIRM = T("g4.send.confirm")  # sendReviewSendButton "Send {amount}"
 SEND_BACK = T("g4.send.back")
+SEND_REVIEW_EDIT = T("g4.send.review.edit")  # the Review sheet's way back to the amount
 SEND_FAILED = T("g4.send.failed")
 
 MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
@@ -988,16 +989,22 @@ class Phone:
             lambda dd, tree: next((n for n in dd.find_in(SEND_ROUTE_PUBLIC, tree) if "selected" in n.states), None)))
 
     def send(self, to, amount=None):
-        """Sends `amount` (None: Max) to `to` by Epicbox: Send tab › Epicbox › To › Continue › amount ›
-        Continue › Send <amount> › PIN. True when the app took it; its progress is read from the
+        """Sends `amount` (None: Max) to `to` by Epicbox: Send › To › Continue › amount (keypad or Max) ›
+        Review › Send <amount> (the Review sheet) › PIN. True when the app took it; its progress is read from the
         wallet's files by the checks, never from these screens."""
         d = self.d
         self.restore_finish()
         self.tab(TAB_SEND)
         for _ in range(4):  # a send left half-way: back to its first step
-            if d.wait(shows(SEND_TO), 3) or not d.seen(SEND_BACK):
+            if d.wait(shows(SEND_TO), 3):
                 break
-            d.press(SEND_BACK, step="send-back", timeout=10)
+            # The Review sheet covers the amount page: Edit closes it; else the header's Back.
+            if d.seen(SEND_REVIEW_EDIT):
+                d.press(SEND_REVIEW_EDIT, step="send-review-edit", timeout=10)
+            elif d.seen(SEND_BACK):
+                d.press(SEND_BACK, step="send-back", timeout=10)
+            else:
+                break
         if d.seen(SEND_CLEAR):
             d.press(SEND_CLEAR, step="send-clear", timeout=10, then=Expect("the recipient cleared", lambda dd, tree: True))
         d.fill(SEND_TO, to, step="send-to")

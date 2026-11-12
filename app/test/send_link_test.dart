@@ -23,6 +23,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/send_finders.dart';
+
 import 'support/link_support.dart';
 import 'support/send_pin.dart';
 
@@ -162,7 +164,7 @@ void main() {
   Finder trust() => find.byKey(linkTrustLineKey);
   String trustText(WidgetTester tester) =>
       tester.widget<Text>(find.descendant(of: trust(), matching: find.byType(Text)).first).data!;
-  Finder amountField() => find.widgetWithText(TextField, 'Amount (EPIC)');
+  Finder amountField() => sendAmount();
 
   group('trust line', () {
     testWidgets('a name service in use: the name, its label and the code pictures', (tester) async {
@@ -268,15 +270,15 @@ void main() {
       await pump(tester, refusals: _Refuses(address));
       await paste(tester, address);
       expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
-      await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
+      await tester.tap(continueButton());
       await tester.pumpAndSettle();
       expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
-      expect(find.widgetWithText(FilledButton, _l.commonContinue), findsOneWidget);
-      await tester.enterText(find.byType(TextField).first, 'es${'m' * 50}@epicbox.epiccash.com');
+      expect(continueButton(), findsOneWidget);
+      await tester.enterText(sendTo(), 'es${'m' * 50}@epicbox.epiccash.com');
       await tester.pumpAndSettle();
       expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsNothing);
-      await tester.enterText(find.byType(TextField).first, address);
-      await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
+      await tester.enterText(sendTo(), address);
+      await tester.tap(continueButton());
       await tester.pumpAndSettle();
       expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
     });
@@ -284,7 +286,18 @@ void main() {
 
   group('sending', () {
     Future<void> toReview(WidgetTester tester) async {
-      await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
+      // Who step -> amount page -> Review sheet: the forward button is tapped until the sheet shows.
+      for (var i = 0; i < 3 && find.textContaining('Send 2.5').evaluate().isEmpty; i++) {
+        await tester.tap(continueButton());
+        await tester.pumpAndSettle();
+      }
+    }
+
+    /// The Review sheet scrolls; with its notes the Send button sits below the fold.
+    Future<void> tapSend(WidgetTester tester) async {
+      await tester.ensureVisible(find.textContaining('Send 2.5'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Send 2.5'));
       await tester.pumpAndSettle();
     }
 
@@ -292,8 +305,7 @@ void main() {
       await pump(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
       await toReview(tester);
-      await tester.tap(find.textContaining('Send 2.5'));
-      await tester.pumpAndSettle();
+      await tapSend(tester);
       await answerPin(tester);
       expect(session.epicboxSends, hasLength(1));
       expect(session.recorded.map((r) => toHex(r.reqid)), [toHex(vectors.request('req-basic').reqid)]);
@@ -315,8 +327,7 @@ void main() {
       await pump(tester);
       await paste(tester, vectors.https('req-basic'));
       await toReview(tester);
-      await tester.tap(find.textContaining('Send 2.5'));
-      await tester.pumpAndSettle();
+      await tapSend(tester);
       expect(find.text(_l.linkChangedConfirmTitle), findsOneWidget);
       await tester.tap(find.text(_l.commonCancel));
       await tester.pumpAndSettle();

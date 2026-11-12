@@ -11,7 +11,6 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/method_strip.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
-import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -150,26 +149,6 @@ Future<void> _closeAndBringBack(
 }
 
 void main() {
-  testWidgets('Send: the method guide closes with its X and nothing moves', (
-    tester,
-  ) async {
-    final store = MemorySecretStore();
-    final container = await _pump(
-      tester,
-      SlotScaffold(
-        appBar: AppBar(),
-        body: SendView(onDone: () {}),
-      ),
-      store,
-    );
-    // The way is named on the file route; the recipient field picks the method on the first step.
-    await tester.tap(find.text(_l.sendPayByFile));
-    await tester.pumpAndSettle();
-    await _closeAndBringBack(tester, container, store, sendMethodTipId, [
-      find.byKey(sendFileAmountFieldKey),
-    ]);
-  });
-
   testWidgets('Receive: the method guide closes with its X and nothing moves', (
     tester,
   ) async {

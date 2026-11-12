@@ -49,7 +49,7 @@
 {"id": "g4.send.swap", "screen": "send", "family": ["android"], "keys": ["phoneKitSwapCurrency"], "driver": false},
 {"id": "g4.send.note", "screen": "send", "family": ["android"], "keys": ["sendAddNote"], "driver": false},
 {"id": "g4.send.review.to", "screen": "send", "family": ["android"], "keys": ["sendToLabel"], "driver": false},
-{"id": "g4.send.review.edit", "screen": "send", "family": ["android"], "keys": ["sendReviewEdit"], "driver": false},
+{"id": "g4.send.review.edit", "screen": "send", "family": ["android"], "keys": ["sendReviewEdit"]},
 {"id": "g4.send.review.more", "screen": "send", "family": ["android"], "keys": ["phoneSendMoreDetails"], "driver": false},
 {"id": "g4.send.viewpayment", "screen": "send", "family": ["android"], "keys": ["phoneSendViewPayment"], "driver": false},
 {"id": "g4.send.key.0", "screen": "send", "family": ["android"], "names": ["0"], "match": "exact"},
