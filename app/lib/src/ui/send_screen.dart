@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import '../trust_ids.dart';
 import 'file_flow_pages.dart';
+import 'kit/kit_amount.dart';
 import 'kit/kit_avatar.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_keypad.dart';
 import 'kit/kit_button.dart';
 import 'kit/kit_faces.dart';
 import 'kit/kit_group.dart';
@@ -81,7 +84,6 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
-import 'tip.dart';
 import '../levels/level_features.dart' show TimelineStyle;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'levels/payment_steps.dart';
@@ -339,7 +341,7 @@ class _SendViewState extends ConsumerState<SendView> {
   final _note = TextEditingController();
   final _response = TextEditingController();
   final _recipientFocus = FocusNode();
-  final _amountFocus = FocusNode();
+  final _amountFocus = FocusNode(skipTraversal: true);
   final _noteFocus = FocusNode();
 
   /// The [RecipientHandoff.id] this form took last.
@@ -1182,7 +1184,6 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
       if (problem == null && !held && (_pairingTo != null || read.isAddress)) _stage = SendStage.amount;
     });
-    if (problem == null && focus && _stage == SendStage.amount) _amountFocus.requestFocus();
   }
 
   /// The Android back: the step the header's arrow goes to, held like the arrow while the
@@ -3421,9 +3422,46 @@ class _SendViewState extends ConsumerState<SendView> {
         : _toAmount,
   );
 
-  /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
-  List<Widget> _amountFields(BuildContext context, {required bool file}) {
-    // A note the code or a service rule expects is not folded behind "Add a message".
+  /// The decimal mark the keypad writes: the language's, as Max and the unit switch write it.
+  String _point(AppLocalizations l) => localDecimal(l, '.');
+
+  void _setAmountText(String text) {
+    _amount.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+    _onAmountChanged(text);
+  }
+
+  void _keyDigit(String digit) {
+    if (_busy) return;
+    final l = context.l10n;
+    final text = _amount.text;
+    final at = text.indexOf(_point(l));
+    // EPIC has eight decimals, a currency two; the field never holds more.
+    if (at >= 0 && text.length - at - 1 >= (_fiatEntry ? 2 : 8)) return;
+    if (text.length >= 16) return;
+    _setAmountText(text == '0' ? digit : text + digit);
+  }
+
+  void _keyPoint() {
+    if (_busy) return;
+    final l = context.l10n;
+    final text = _amount.text;
+    final mark = _point(l);
+    if (text.contains(mark) || text.contains('.')) return;
+    _setAmountText(text.isEmpty ? '0$mark' : text + mark);
+  }
+
+  void _keyDelete() {
+    if (_busy) return;
+    final text = _amount.text;
+    if (text.isEmpty) return;
+    _setAmountText(text.substring(0, text.length - 1));
+  }
+
+  /// The amount page's body (HANDOFF 9, Send): the figure, what is left, the Available bar with
+  /// Max, the note, and the notices that hold the payment. The keypad and the button are
+  /// [_amountKeys]. The real text field sits hidden: a hardware keyboard, a paste and the tests
+  /// type into it, and the keypad edits the same controller.
+  List<Widget> _amountBody(BuildContext context, {required bool file}) {
     final noteOpen = _noteOpen ||
         (!file &&
             _note.text.isEmpty &&
@@ -3432,211 +3470,165 @@ class _SendViewState extends ConsumerState<SendView> {
               codeNote: _activeRequest?.noteRequired ?? false,
             ));
     final l = context.l10n;
-    final theme = Theme.of(context);
     final t = context.tokens;
     final summary = ref.watch(homeProvider).value?.summary;
     final price = ref.watch(priceProvider).value;
-    final currency =
-        ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+    final currency = ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final amount = _parsedAmount;
     final estimate = _estimate;
     final gate = _gate;
-    String? amountHelper;
+    // The other unit under the figure.
+    String? fiat;
     if (amount != null && price != null) {
-      amountHelper = _fiatEntry
-          ? approxText(epicText(l, amount))
-          : approxText(localDigits(l, fiatText(amount, price, currency)));
+      fiat = _fiatEntry ? approxText(epicText(l, amount)) : approxText(localDigits(l, fiatText(amount, price, currency)));
     }
-    // A code's amount: "Requested by the code" while the field holds it, what it asked for
-    // once changed.
+    // A code's amount: "Requested by the code" while the field holds it, what it asked for once
+    // changed; and its minimum.
     final asked = file ? null : _activeRequest?.amount;
     final fromCode = asked != null && amount == asked;
-    if (asked != null) {
-      final marker = fromCode
-          ? l.sendAmountFromCode
-          : l.sendAmountCodeAsked(epicText(l, asked));
-      amountHelper = amountHelper == null ? marker : metaLine([marker, amountHelper]);
-    }
+    final markers = [
+      if (asked != null) fromCode ? l.sendAmountFromCode : l.sendAmountCodeAsked(epicText(l, asked)),
+      if (!file && _activeRequest?.minimum != null) l.sendMinimumAmount(epicText(l, _activeRequest!.minimum!)),
+    ];
     final minimum = file ? null : _activeRequest?.minimum;
-    if (minimum != null) {
-      final line = l.sendMinimumAmount(epicText(l, minimum));
-      amountHelper = amountHelper == null ? line : metaLine([line, amountHelper]);
-    }
-    // Why nothing is available yet, in the header's words.
     final held = [
       if (summary != null && summary.spendable == BigInt.zero) ...[
-        if (summary.locked > BigInt.zero)
-          l.balanceLineOnHold(epicText(l, summary.locked)),
-        if (comingIn(summary) > BigInt.zero)
-          l.balanceLineComingIn(epicText(l, comingIn(summary))),
+        if (summary.locked > BigInt.zero) l.balanceLineOnHold(epicText(l, summary.locked)),
+        if (comingIn(summary) > BigInt.zero) l.balanceLineComingIn(epicText(l, comingIn(summary))),
       ],
     ];
-    return [
-      TrustId(file ? null : TrustIds.sendAmount, child: TextField(
-        key: file ? sendFileAmountFieldKey : sendAmountFieldKey,
-        controller: _amount,
-        focusNode: _amountFocus,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        textInputAction: TextInputAction.next,
-        textAlign: TextAlign.center,
-        onEditingComplete: () {
-          if (noteOpen) {
-            _noteFocus.requestFocus();
-          } else {
-            _submitAmount(file: file);
-          }
-        },
-        onChanged: _onAmountChanged,
-        style: theme.textTheme.displaySmall?.copyWith(
-          fontFamily: t.monoFamily,
-          color: t.text,
-        ),
-        decoration: InputDecoration(
-          labelText: l.sendAmountLabel(
-            _fiatEntry ? currency.toUpperCase() : epicUnit,
+    // What is left, or why not: the line under the figure.
+    Widget? status;
+    if (_estimateError != null) {
+      status = ErrorText(_estimateError!);
+    } else if (gate.notEnough && summary != null) {
+      final need = (estimate != null && estimate.amount == amount ? estimate.amount + estimate.fee : amount) ?? BigInt.zero;
+      final over = need - summary.spendable;
+      status = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: Semantics(
+          liveRegion: true,
+          child: Text(
+            over > BigInt.zero ? l.phoneSendOver(epicText(l, over)) : l.errorNotEnoughFunds,
+            key: sendNotEnoughKey,
+            textAlign: TextAlign.center,
+            style: KitType.rowSub.copyWith(color: t.risk),
           ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          floatingLabelAlignment: FloatingLabelAlignment.center,
-          hintText: '0',
-          // Max and the unit live in the field's trailing slot, as the desktop's (UP-020):
-          // the unit is a tap to the other one.
-          suffixIcon: Row(
-            key: amountSuffixKey,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (price != null || _fiatEntry)
-                Tip(
-                  l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(44, 44),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      foregroundColor: t.dim,
-                    ),
-                    onPressed: _toggleUnit,
-                    child: Semantics(
-                      label: l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
-                      excludeSemantics: true,
-                      child: Text(_fiatEntry ? currency.toUpperCase() : epicUnit),
-                    ),
-                  ),
-                ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(44, 44),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                ),
-                onPressed: _busy ? null : _max,
-                child: TrustId(TrustIds.sendMax, child: Text(l.sendMax)),
+        ),
+      );
+    } else if (estimate != null && amount != null && summary != null) {
+      status = _maxUsed
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(l.phoneSendMaxNote(epicText(l, estimate.fee)), textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
               ),
-              const SizedBox(width: 4),
-            ],
+            )
+          : KitLeavesLine(
+              amount: epicText(l, summary.spendable - estimate.amount - estimate.fee),
+              fee: epicText(l, estimate.fee),
+            );
+    } else if (_amountError != null && !_amount.text.endsWith(_point(l))) {
+      status = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: LiveFieldError(_amountError!),
+      );
+    }
+    final unit = _fiatEntry ? currency.toUpperCase() : epicUnit;
+    final noteText = _note.text.trim();
+    return [
+      const SizedBox(height: 18),
+      KitAmountDisplay(
+        amount: _amount.text,
+        unit: unit,
+        fiat: fiat,
+        over: gate.notEnough,
+        onSwap: price != null || _fiatEntry ? _toggleUnit : null,
+        swapId: file ? null : TrustIds.sendSwap,
+        semanticsId: file ? null : TrustIds.sendAmount,
+      ),
+      // The real field: hidden, never focused by the page itself.
+      ExcludeSemantics(
+        child: SizedBox(
+          width: 1,
+          height: 1,
+          child: Opacity(
+            opacity: 0,
+            child: TextField(
+              key: file ? sendFileAmountFieldKey : sendAmountFieldKey,
+              controller: _amount,
+              focusNode: _amountFocus,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              onChanged: _onAmountChanged,
+              onSubmitted: (_) => _submitAmount(file: file),
+              decoration: const InputDecoration(isCollapsed: true, border: InputBorder.none),
+            ),
           ),
-          suffixIconConstraints: const BoxConstraints(minHeight: 48),
-          helperText: amountHelper,
-          helperStyle: fromCode
-              ? theme.textTheme.bodySmall?.copyWith(color: t.info)
-              : null,
-          helperMaxLines: 2,
-          error: _amountError == null ? null : LiveFieldError(_amountError!),
         ),
-      )),
+      ),
+      const SizedBox(height: 14),
+      ?status,
       if (!file)
         if (_activeLink case final link? when amountEdited(link, _parsedAmount))
-          const Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote()),
+          const Padding(padding: EdgeInsets.only(top: 8), child: Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote())),
+      for (final line in markers)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(line, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: fromCode && line == markers.first ? t.info : t.dim)),
+        ),
       if (minimum != null && amount != null && amount < minimum) ...[
         const SizedBox(height: 8),
         InlineNotice(key: sendBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
       ],
-      const SizedBox(height: 12),
+      const SizedBox(height: 16),
       if (summary != null)
-        Text(
-          l.sendAvailable(epicText(l, summary.spendable)),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+        KitAvailableBar(
+          available: epicText(l, summary.spendable),
+          over: gate.notEnough,
+          maxOn: _maxUsed,
+          onMax: _busy ? null : _max,
+          maxId: TrustIds.sendMax,
+          margin: EdgeInsets.zero,
         ),
       for (final line in held)
         Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            line,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(line, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
         ),
-      if (estimate != null && _estimateError == null)
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: Semantics(
-            liveRegion: true,
-            child: Text(
-              l.sendFeeQuiet(epicText(l, estimate.fee)),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
-          ),
-        ),
-      if (_estimateError != null)
-        ErrorText(_estimateError!)
-      // More than can be spent: said on the keystroke, before any estimate.
-      else if (gate.notEnough)
-        ErrorText(l.errorNotEnoughFunds, key: sendNotEnoughKey),
       // Coins another linked device is spending: why the amount does not fit.
       if (_estimateError != null || gate.notEnough) ..._heldLines(context),
       // A device is linked and nothing goes over Epicbox: it does not see this payment.
       if (ref.watch(phoneDevices.view)?.book.linked case final linked? when ref.watch(phoneDevicesEpicboxOffProvider))
         Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: Text(l.devicesEpicboxOff(linked.name), key: const ValueKey('send-devices-epicbox-off'), style: theme.textTheme.bodySmall?.copyWith(color: t.warn)),
+          child: Text(l.devicesEpicboxOff(linked.name), key: const ValueKey('send-devices-epicbox-off'), style: KitType.rowSub.copyWith(color: t.warn)),
         ),
-      if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions))
-        _strategyPicker(context),
-      const SizedBox(height: 12),
-      Divider(color: t.line, height: 1),
+      if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions)) _strategyPicker(context),
       if (!file)
         if (_noteWarning(l) case final warning?)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: warning),
           ),
-      if (!noteOpen && _note.text.isNotEmpty)
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          minTileHeight: 56,
-          title: Text(l.sendNoteLabel, style: theme.textTheme.bodyMedium),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _note.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-              ),
-              if (_activeRequest case final request? when request.noteRequired && _note.text == request.note)
-                Text(l.sendNoteRequiredHelper, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-            ],
+      if (!noteOpen)
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Center(
+            child: KitChip(
+              noteText.isEmpty ? l.sendAddNote : noteText,
+              icon: noteText.isEmpty ? KitIcons.add : KitIcons.edit,
+              semanticsId: file ? null : TrustIds.sendNote,
+              onTap: () {
+                setState(() => _noteOpen = true);
+                _noteFocus.requestFocus();
+              },
+            ),
           ),
-          trailing: Icon(Icons.edit_outlined, color: t.dim),
-          onTap: () {
-            setState(() => _noteOpen = true);
-            _noteFocus.requestFocus();
-          },
-        )
-      else if (!noteOpen)
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          minTileHeight: 56,
-          title: Text(l.sendAddNote, style: theme.textTheme.bodyMedium),
-          trailing: Icon(Icons.expand_more, color: t.dim),
-          onTap: () {
-            setState(() => _noteOpen = true);
-            _noteFocus.requestFocus();
-          },
         )
       else
         Padding(
-          padding: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.only(top: 14),
           child: TextField(
             key: file ? sendFileNoteFieldKey : sendNoteFieldKey,
             controller: _note,
@@ -3645,26 +3637,15 @@ class _SendViewState extends ConsumerState<SendView> {
             inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
             // The field stays open under the fingers, however it came open.
             onChanged: (_) => setState(() => _noteOpen = true),
-            buildCounter:
-                (
-                  context, {
-                  required currentLength,
-                  required isFocused,
-                  maxLength,
-                }) => Text(
-                  l.sendMessageCounter(
-                    utf8Length(_note.text),
-                    slateMessageMaxBytes,
-                  ),
-                  style: theme.textTheme.bodySmall,
-                ),
+            buildCounter: (context, {required currentLength, required isFocused, maxLength}) => Text(
+              l.sendMessageCounter(utf8Length(_note.text), slateMessageMaxBytes),
+              style: KitType.rowSub.copyWith(color: t.dim),
+            ),
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _submitAmount(file: file),
             decoration: InputDecoration(
               labelText: l.sendNoteLabel,
-              helperText:
-                  _activeRequest?.note != null &&
-                      _note.text == _activeRequest?.note
+              helperText: _activeRequest?.note != null && _note.text == _activeRequest?.note
                   ? _activeRequest!.noteRequired ? l.sendNoteRequiredHelper : l.sendNoteFromCodeHelper
                   : l.sendNoteHelper,
               helperMaxLines: 2,
@@ -3673,6 +3654,26 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
     ];
   }
+
+  /// The keypad and the page's button, pinned under the body.
+  Widget _amountKeys(BuildContext context, {required Widget button}) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      KitKeypad(
+        onDigit: _keyDigit,
+        onDelete: _keyDelete,
+        onDeleteLong: () {
+          if (_busy) return;
+          _setAmountText('');
+        },
+        onPoint: _keyPoint,
+        idFor: sendKeyId,
+      ),
+      const SizedBox(height: 4),
+      button,
+    ],
+  );
 
   void _submitAmount({required bool file}) {
     if (!_amountReady || _busy) return;
@@ -3690,7 +3691,6 @@ class _SendViewState extends ConsumerState<SendView> {
 
   List<Widget> _amountStep(BuildContext context) {
     final l = context.l10n;
-    final address = parseRecipient(_recipient.text).address;
     final request = _activeRequest;
     return [
       _header(context, l.sendTo(_toName(l)), onBack: _toRecipient, avatar: _toAvatar()),
@@ -3701,35 +3701,28 @@ class _SendViewState extends ConsumerState<SendView> {
           problems: request.problems,
           onDismiss: () => setState(() => _requestBanner = false),
         ),
-      Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: _ToChip(
-          address: address,
-          name: _pairingTo == null ? _contactName(address) : _pairingNameOf(_pairingTo!),
-        ),
-      ),
       if (_activeLink case final link?) LinkTrustLine(link: link),
       _TorNotice(way: _wayOf(_toRoute)),
-      const SizedBox(height: 20),
-      ..._amountFields(context, file: false),
+      ..._amountBody(context, file: false),
     ];
   }
 
-  /// Continue to the review; it waits while the payment's connection waits for Tor.
+  /// Review, which waits while the payment's connection waits for Tor.
   Widget _amountAction() {
     final way = _wayOf(_toRoute);
-    return BusyButton(
-      semanticsId: TrustIds.commonContinue,
-      label: way == TorWay.wait
-          ? context.l10n.torWaiting
-          : context.l10n.commonContinue,
-      busy: _estimating,
-      onPressed:
-          _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null
-          ? _toReview
-          : null,
+    return _amountKeys(
+      context,
+      button: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: KitButton(
+          semanticsId: TrustIds.sendReview,
+          label: way == TorWay.wait ? context.l10n.torWaiting : context.l10n.phoneSendReviewTitle,
+          onPressed: _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null ? _toReview : null,
+        ),
+      ),
     );
   }
+
 
   List<Widget> _reviewStep(BuildContext context) {
     final l = context.l10n;
@@ -4312,7 +4305,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // The strip that says what the way means; no method selector: the back arrow goes to
       // the recipient, whose field picks the method.
       ..._sealChoice(context),
-      ..._amountFields(context, file: true),
+      ..._amountBody(context, file: true),
       const SizedBox(height: 12),
       CancelNote(
         text: _viaQr ? l.sendCancelRuleQr : l.sendCancelRuleFile,
@@ -4321,10 +4314,15 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  Widget _fileAmountAction() => BusyButton(
-    label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
-    busy: _busy,
-    onPressed: _amountReady ? _createFile : null,
+  Widget _fileAmountAction() => _amountKeys(
+    context,
+    button: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+      child: KitButton(
+        label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
+        onPressed: _amountReady && !_busy ? _createFile : null,
+      ),
+    ),
   );
 
   /// The file and QR ways' steps, the payment's own five as its detail lists them (A-03):
@@ -4807,11 +4805,28 @@ class _TorPill extends StatelessWidget {
 
 /// The contact's avatar ([PairAvatar], as in Contacts and on the contact page), or a person
 /// in the same tile for a new recipient.
+/// The trust id of a key of the amount keypad (digits, [KitKey.point], [KitKey.delete]).
+String? sendKeyId(String key) => switch (key) {
+  '0' => TrustIds.sendKey0,
+  '1' => TrustIds.sendKey1,
+  '2' => TrustIds.sendKey2,
+  '3' => TrustIds.sendKey3,
+  '4' => TrustIds.sendKey4,
+  '5' => TrustIds.sendKey5,
+  '6' => TrustIds.sendKey6,
+  '7' => TrustIds.sendKey7,
+  '8' => TrustIds.sendKey8,
+  '9' => TrustIds.sendKey9,
+  KitKey.point => TrustIds.sendKeyPoint,
+  KitKey.delete => TrustIds.sendKeyDelete,
+  _ => null,
+};
+
 class _Initial extends StatelessWidget {
-  const _Initial({this.name, this.size = 40});
+  const _Initial({this.name});
 
   final String? name;
-  final double size;
+  static const double size = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -4822,71 +4837,6 @@ class _Initial extends StatelessWidget {
       child: named
           ? PairAvatar(name: name, size: size)
           : GlyphTile(size: size, child: Icon(Icons.person_outline, size: size / 2, color: context.tokens.dim)),
-    );
-  }
-}
-
-/// "To Bob" above the amount.
-class _ToChip extends StatelessWidget {
-  const _ToChip({required this.address, this.name});
-
-  final String address;
-  final String? name;
-
-  /// "To Alice", or the sentence in the sans face with the short address in it as a mono span,
-  /// its ends marked (address_format.dart); shrunk rather than cut, so no host is cut short.
-  Widget _toChipText(BuildContext context, WalletTokens t) {
-    final l = context.l10n;
-    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text);
-    final name = this.name;
-    if (name != null) return Text(l.sendTo(name), overflow: TextOverflow.ellipsis, style: style);
-    // The sentence around a marker, so the address sits where the language puts it.
-    const marker = '\u0000';
-    final sentence = l.sendTo(marker);
-    final at = sentence.indexOf(marker);
-    final shown = shortAddress(address);
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: AlignmentDirectional.centerStart,
-      child: Text.rich(
-        TextSpan(
-          style: style,
-          children: [
-            TextSpan(text: at < 0 ? '$sentence ' : sentence.substring(0, at)),
-            addressSpan(
-              shown,
-              style: TextStyle(fontFamily: t.monoFamily),
-              mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
-              quiet: TextStyle(color: t.dim),
-            ),
-            if (at >= 0) TextSpan(text: sentence.substring(at + marker.length)),
-          ],
-        ),
-        maxLines: 1,
-        softWrap: false,
-        semanticsLabel: l.sendTo(shown),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 14, 4),
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.scale(scale: 0.8, child: _Initial(name: name)),
-          const SizedBox(width: 6),
-          Flexible(child: _toChipText(context, t)),
-        ],
-      ),
     );
   }
 }

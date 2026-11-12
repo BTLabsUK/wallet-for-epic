@@ -58,6 +58,20 @@ abstract final class TrustIds {
   static const receiveAddress = 'g4.receive.address';
   static const sendTo = 'g4.send.to';
   static const sendAmount = 'g4.send.amount';
+  static const sendSwap = 'g4.send.swap';
+  static const sendNote = 'g4.send.note';
+  static const sendKey0 = 'g4.send.key.0';
+  static const sendKey1 = 'g4.send.key.1';
+  static const sendKey2 = 'g4.send.key.2';
+  static const sendKey3 = 'g4.send.key.3';
+  static const sendKey4 = 'g4.send.key.4';
+  static const sendKey5 = 'g4.send.key.5';
+  static const sendKey6 = 'g4.send.key.6';
+  static const sendKey7 = 'g4.send.key.7';
+  static const sendKey8 = 'g4.send.key.8';
+  static const sendKey9 = 'g4.send.key.9';
+  static const sendKeyPoint = 'g4.send.key.point';
+  static const sendKeyDelete = 'g4.send.key.delete';
   static const sendMax = 'g4.send.max';
   static const sendReview = 'g4.send.review';
   static const sendPassword = 'g4.send.password';
@@ -424,6 +438,20 @@ abstract final class TrustIds {
     'g4.receive.address',
     'g4.send.to',
     'g4.send.amount',
+    'g4.send.swap',
+    'g4.send.note',
+    'g4.send.key.0',
+    'g4.send.key.1',
+    'g4.send.key.2',
+    'g4.send.key.3',
+    'g4.send.key.4',
+    'g4.send.key.5',
+    'g4.send.key.6',
+    'g4.send.key.7',
+    'g4.send.key.8',
+    'g4.send.key.9',
+    'g4.send.key.point',
+    'g4.send.key.delete',
     'g4.send.max',
     'g4.send.review',
     'g4.send.password',

@@ -111,6 +111,10 @@ ROUTE_WAIT_S = 4    # for the address selector after To is filled
 SEND_CLEAR = T("g4.send.clear")
 SEND_AMOUNT = T("g4.send.amount")
 SEND_MAX = T("g4.send.max")
+SEND_REVIEW = T("g4.send.review")
+SEND_KEYS = {"0": T("g4.send.key.0"), "1": T("g4.send.key.1"), "2": T("g4.send.key.2"), "3": T("g4.send.key.3"),
+             "4": T("g4.send.key.4"), "5": T("g4.send.key.5"), "6": T("g4.send.key.6"), "7": T("g4.send.key.7"),
+             "8": T("g4.send.key.8"), "9": T("g4.send.key.9"), ".": T("g4.send.key.point")}
 SEND_CONFIRM = T("g4.send.confirm")  # sendReviewSendButton "Send {amount}"
 SEND_BACK = T("g4.send.back")
 SEND_FAILED = T("g4.send.failed")
@@ -178,6 +182,15 @@ def bare_host(v):
 def same_host(a, b):
     a, b = bare_host(a), bare_host(b)
     return a == b or a == b + ":443" or a + ":443" == b
+
+
+def _amount_shown(node):
+    """The figure of the Send amount display ("12.5 EPIC"); 0 when there is none."""
+    m = re.match(r"\s*(\d[\d.,]*)", (node.name or node.value or "") if node else "")
+    try:
+        return float(m.group(1).replace(",", ".")) if m else 0.0
+    except ValueError:
+        return 0.0
 
 
 class Phone:
@@ -999,14 +1012,14 @@ class Phone:
         if amount is None:
             d.press(SEND_MAX, step="send-max", timeout=20,
                     then=Expect("an amount filled", lambda dd, tree: next((n for n in dd.find_in(SEND_AMOUNT, tree)
-                                                                          if re.match(r"\d", (n.value or "").strip())), None)))
-            amount = (d.seen(SEND_AMOUNT).value or "").strip()
+                                                                          if _amount_shown(n) > 0), None)))
+            amount = ("%.8f" % _amount_shown(d.seen(SEND_AMOUNT))).rstrip("0").rstrip(".")
         else:
-            d.fill(SEND_AMOUNT, amount, step="send-amount")
-        if hasattr(d.s, "hide_keyboard"):
-            d.s.hide_keyboard()
+            # The keypad: one key per character of the amount (a comma counts as the point).
+            for c in str(amount).replace(",", "."):
+                d.press(SEND_KEYS[c], step="send-amount-key", timeout=10)
         d.shot("send-filled")
-        d.press(CONTINUE, step="send-amount-continue", then=shows(SEND_CONFIRM), timeout=60)
+        d.press(SEND_REVIEW, step="send-amount-review", then=shows(SEND_CONFIRM), timeout=60)
         d.shot("send-review")
         d.press(SEND_CONFIRM, step="send-confirm", then=either(shows(PIN_FIELD), gone(SEND_CONFIRM), shows(SEND_FAILED)),
                 timeout=60)
