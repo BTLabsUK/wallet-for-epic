@@ -4,14 +4,20 @@
 /// phone redesign and only keeps the launch settling ([settleLevelChoice]), which tells a fresh
 /// install from an existing one for the first-start hold.
 ///
-/// Phone upgrade path (no write at launch, the level key is never touched by the phone UI):
+/// Phone upgrade path (no write over a stored value: an existing level is never written over,
+/// and a fresh install's first step stores level 1 through [WalletLevelNotifier.setLevel]):
 /// every starting level runs the same engines. Pairing, invoices and linked devices are always
 /// on ([AdvancedPrefs.pairingOn], [AdvancedPrefs.linkedDevicesOn]), so level 1's forced
 /// "pairing + linked devices" set was already the same as the stored prefs for those. Levels 2
 /// and 3, an unreadable store and a missing key already ran the stored prefs. A level-1 install
 /// now runs its stored switches too; they were all off unless the user had set them at level 2
 /// or 3 before. Advanced shows the stored switches, so it matches what runs. The stored level
-/// and "Default method" values stay where they are and are no longer read on the phone.
+/// and "Default method" values stay where they are and are no longer read on the phone (Send
+/// starts on the recipient step, `PaymentPrefs.defaultMethod` stays for the desktop).
+///
+/// The Epicbox relay-move offer (`relaySwitchProvider`) runs on every phone install, at level 1
+/// too: the owner allowed moving relays automatically on 2026-11-02, so the old level-1 gate is
+/// gone on purpose.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -162,13 +162,20 @@ Future<T?> showKitSheet<T>({
 
 /// One choice of a [KitPickerSheet].
 class KitChoice<T> {
-  const KitChoice({required this.value, required this.title, this.subtitle, this.leading, this.semanticsId});
+  const KitChoice({required this.value, required this.title, this.subtitle, this.leading, this.semanticsId, this.enabled = true, this.key});
 
   final T value;
   final String title;
   final String? subtitle;
   final Widget? leading;
   final String? semanticsId;
+
+  /// A choice that is not offered now (its [subtitle] says why): dimmed, read as disabled, and
+  /// a tap does nothing.
+  final bool enabled;
+
+  /// The row's key, for a choice a test or a driver finds by position.
+  final Key? key;
 }
 
 /// A picker (HANDOFF 7.5): a title and rows with a tick on the chosen one. A tap saves the
@@ -257,6 +264,7 @@ class _KitPickerSheetState<T> extends State<KitPickerSheet<T>> {
             children: [
               for (final c in w.choices)
                 KitRow(
+                  key: c.key,
                   title: c.title,
                   subtitle: c.subtitle,
                   leading: c.leading,
@@ -264,7 +272,9 @@ class _KitPickerSheetState<T> extends State<KitPickerSheet<T>> {
                   selected: c.value == w.selected,
                   // Settings-Picker: the chosen row keeps the row weight, the others are regular.
                   titleStyle: c.value == w.selected ? null : const TextStyle(fontWeight: FontWeight.w400),
-                  onTap: () => _pick(c.value),
+                  // A choice not offered now is dimmed and read as disabled (KitRow's rule).
+                  enabled: c.enabled,
+                  onTap: c.enabled ? () => _pick(c.value) : null,
                   semanticsId: c.semanticsId,
                 ),
             ],

@@ -3,6 +3,12 @@
 // none, or a store that cannot be read), the phone runs the Advanced switches it has stored,
 // Advanced shows the same ones, nothing is written at launch, and the level and Default method
 // values stay on disk as they were. The reasoning is in levels/level_providers.dart.
+//
+// The Epicbox relay-move offer runs on every phone install, at level 1 too (the owner allowed
+// moving relays automatically on 2026-11-02). That needs the clock and a relay list, so it is
+// asserted in relay_switch_offer_test.dart, which runs it at WalletLevel.justSendReceive.
+// The phone's Send never reads the stored Default method: send_methods_test.dart opens it with
+// a stored File and a stored QR default and expects the recipient step.
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/levels/level_providers.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';

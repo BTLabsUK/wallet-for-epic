@@ -10,6 +10,9 @@
 /// After a move the old relay is drained for [relayDrainWindow] ([relayDrainWatchProvider]),
 /// so payments sent to the old address still arrive.
 ///
+/// It runs at every wallet level, level 1 included: the phone has no levels, and moving relays
+/// automatically was allowed by the owner on 2026-11-02 (see levels/level_providers.dart).
+///
 /// Both notifiers run while something listens: `app.dart` keeps them alive beside node
 /// failover and calls [RelaySwitchNotifier.paused] / [RelaySwitchNotifier.resumed].
 library;

@@ -632,12 +632,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _openFlow(ShellFlow flow) {
     if (!mounted) return;
     final navigator = Navigator.of(context);
-    navigator.popUntil((route) => route.isFirst);
+    // A Send that has sent, or is sending, stays: a request for Send brings it forward (its form
+    // takes a new recipient after the payment), another flow opens over it.
+    final holding = popToShell(navigator);
+    if (holding && flow == ShellFlow.send) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (flow == ShellFlow.send) _sendRoutes++;
       navigator
-          .push(MaterialPageRoute<void>(builder: (_) => ShellFlowRoute(flow: flow)))
+          .push(MaterialPageRoute<void>(settings: flow == ShellFlow.send ? const RouteSettings(name: sendFlowRouteName) : null, builder: (_) => ShellFlowRoute(flow: flow)))
           .whenComplete(() {
             if (flow == ShellFlow.send) _sendRoutes--;
           });

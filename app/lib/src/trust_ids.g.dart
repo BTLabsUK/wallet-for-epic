@@ -561,6 +561,9 @@ abstract final class TrustIds {
   static const welcomePinBack = 'g4.welcome.pin-back';
   static const welcomePinHelp = 'g4.welcome.pin-help';
   static const advancedReset = 'g4.advanced.reset';
+  static const sendNoAddressCancel = 'g4.send.noAddress.cancel';
+  static const sendTrackIfNot = 'g4.send.track.ifNot';
+  static const sendTrackAddContact = 'g4.send.track.addContact';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
   static String securityAutoLockChoiceAt(Object value) => 'g4.security.autoLock.choice.$value';
@@ -1135,5 +1138,8 @@ abstract final class TrustIds {
     'g4.welcome.pin-back',
     'g4.welcome.pin-help',
     'g4.advanced.reset',
+    'g4.send.noAddress.cancel',
+    'g4.send.track.ifNot',
+    'g4.send.track.addContact',
   ];
 }

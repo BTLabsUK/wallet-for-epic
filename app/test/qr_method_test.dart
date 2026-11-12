@@ -749,6 +749,8 @@ void main() {
         validatedWithNode: true,
       );
       await h.pump(tester, SendView(onDone: () {}));
+      // The phone opens on the recipient step whatever the stored Default method is.
+      await chooseWay(tester, qr: true);
       await tester.enterText(amount(), '5');
       // One frame: inside the estimate's debounce, nothing asked of the wallet yet.
       await tester.pump();
@@ -766,6 +768,8 @@ void main() {
     testWidgets('within the balance: off until the estimate for it has come', (tester) async {
       final h = _Harness(prefs: '|qr');
       await h.pump(tester, SendView(onDone: () {}));
+      // The phone opens on the recipient step whatever the stored Default method is.
+      await chooseWay(tester, qr: true);
       await tester.enterText(amount(), '0.5');
       await tester.pump();
       expect(find.byKey(sendNotEnoughKey), findsNothing);

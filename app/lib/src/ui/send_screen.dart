@@ -22,6 +22,7 @@ import 'kit/kit_icons.dart';
 import 'kit/kit_kv.dart';
 import 'kit/kit_result_mark.dart';
 import 'kit/kit_step_strip.dart';
+import 'kit/kit_support.dart' show kitId;
 import 'kit/kit_steps.dart';
 import 'payment_progress.dart';
 import 'send_help_sheet.dart';
@@ -628,13 +629,13 @@ class _SendViewState extends ConsumerState<SendView> {
       appSettingsProvider.select((s) => s.value?.payments),
       (_, payments) => _paymentsChanged(payments),
     );
-    // Settings › Transactions: the method Send starts on. A recipient handed over wins; the
+    // Settings › Transactions: which methods are on. A recipient handed over wins; the
     // settings load on their own, so a form still untouched takes them when they arrive.
     if (handoff == null || (handoff.pairingId == null && !recipientShaped(parseRecipient(handoff.text)))) {
-      _startOn(ref.read(appSettingsProvider).value?.payments.startMethod);
+      _startOn(_phoneStart(ref.read(appSettingsProvider).value?.payments));
       if (!_startApplied) {
         ref.listenManual(
-          appSettingsProvider.select((s) => s.value?.payments.startMethod),
+          appSettingsProvider.select((s) => _phoneStart(s.value?.payments)),
           (_, start) {
             if (start == null || _startApplied || !mounted) return;
             if (_stage != SendStage.recipient ||
@@ -651,6 +652,16 @@ class _SendViewState extends ConsumerState<SendView> {
 
   bool _startApplied = false;
 
+  /// Where the phone's Send starts: the recipient step, whatever Default method an older
+  /// install stored (the phone has no setting for it; the value stays stored for the desktop and
+  /// is never read here). Only with no address method on does it open on the first one that is
+  /// (QR Payment, then File Transfer), else on the recipient step, which says Epicbox is off.
+  MethodKind? _phoneStart(PaymentPrefs? payments) {
+    if (payments == null) return null;
+    if (payments.epicbox || payments.linkHttp || payments.linkTor) return MethodKind.epicbox;
+    return payments.on.firstOrNull ?? MethodKind.epicbox;
+  }
+
   /// A method switched off in Settings › Transactions while Send is open: an idle form moves to
   /// the method Send starts on now, as after a restart. An address in To keeps its method,
   /// with the note that it is off.
@@ -660,7 +671,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _stage = SendStage.recipient;
       _viaQr = false;
       _error = null;
-      _startOn(payments.startMethod);
+      _startOn(_phoneStart(payments));
     });
   }
 
@@ -701,6 +712,7 @@ class _SendViewState extends ConsumerState<SendView> {
     _recipientFocus.dispose();
     _amountFocus.dispose();
     _noteFocus.dispose();
+    sendHoldsPayment(this, false);
     super.dispose();
   }
 
@@ -1141,7 +1153,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
       _viaQr = false;
       _stage = SendStage.recipient;
-      _startOn(_payments.startMethod);
+      _startOn(_phoneStart(_payments));
     });
   }
 
@@ -2502,6 +2514,8 @@ class _SendViewState extends ConsumerState<SendView> {
       }
     });
 
+    // The shell leaves this Send open while a payment is sent or being sent.
+    sendHoldsPayment(this, _holdsPayment);
     // Keeps the listener running while Send shows, as home does, so the review's check sees
     // its state at once.
     ref.watch(listenerProvider.select((s) => s.connected));
@@ -2515,7 +2529,9 @@ class _SendViewState extends ConsumerState<SendView> {
         summary != null &&
         summary.spendable == BigInt.zero &&
         _pending(summary) == BigInt.zero) {
-      return _emptyState(context);
+      // The same bar as the other steps: the close is the way out (the tab has no other).
+      _header(context, context.l10n.homeSendButton, onClose: _done);
+      return _page(_emptyState(context));
     }
 
     // epic1 mode: one field for an epic1 link or a contact; a contact paid goes on as a pairing.
@@ -2588,11 +2604,11 @@ class _SendViewState extends ConsumerState<SendView> {
                 ),
                 // A Link method off: one tap turns it on here (Epicbox keeps its own way).
                 if (_sendMethod case final m? when note == NetBlock.methodOff && m.family == MethodFamily.link) ...[
-                  OutlinedButton(
+                  KitButton(
                     key: sendTurnOnMethodKey,
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+                    kind: KitButtonKind.quiet,
+                    label: context.l10n.sendTurnOnMethod(MethodIcons.fullName(context.l10n, m)),
                     onPressed: () => _turnOn(m),
-                    child: Text(context.l10n.sendTurnOnMethod(MethodIcons.fullName(context.l10n, m))),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -2699,7 +2715,7 @@ class _SendViewState extends ConsumerState<SendView> {
           PhoneTourTarget(
             id: 'tour-send-empty',
             child: EmptyState(
-            icon: const Icon(Icons.north_east),
+            icon: const Icon(KitIcons.send),
             message: context.l10n.sendNoCoins,
             // Never a dead end: the next step is the Receive tab.
             action: TextButton(
@@ -2914,7 +2930,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final routeShown = read.isAddress || read.typing != null;
     final saveable = valid && contact == null && _contactName(read.address) == null;
     // A complete address, pasted, scanned or left: shown whole in its box (Send-5).
-    final settled = valid && (_touched || contact != null) && contact == null;
+    final settled = valid && _touched && contact == null;
     // The settled address shows its first and last six in gold and its server faint (`.addr em`, `i`).
     _recipient
       ..mark = settled ? TextStyle(color: t.accentText) : null
@@ -3147,7 +3163,7 @@ class _SendViewState extends ConsumerState<SendView> {
   int _lastPaidTime(List<TxEntry> transactions, String address) {
     var newest = 0;
     for (final tx in transactions) {
-      if (tx.kind == TxKind.sent && tx.counterparty == address && tx.timeUnix > newest) newest = tx.timeUnix;
+      if (tx.kind == TxKind.sent && tx.counterparty?.trim() == address.trim() && tx.timeUnix > newest) newest = tx.timeUnix;
     }
     return newest;
   }
@@ -3238,10 +3254,13 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              child: TextButton(
-                style: _ghostStyle(context),
-                onPressed: () => Navigator.of(sheet).pop(),
-                child: Text(l.commonCancel),
+              child: kitId(
+                TrustIds.sendNoAddressCancel,
+                TextButton(
+                  style: _ghostStyle(context),
+                  onPressed: () => Navigator.of(sheet).pop(),
+                  child: Text(l.commonCancel),
+                ),
               ),
             ),
           ],
@@ -3374,7 +3393,7 @@ class _SendViewState extends ConsumerState<SendView> {
       chevron: several,
       onTap: several ? () => _addressesSheet(context, contact, to) : null,
       semanticsId: several ? TrustIds.sendRoute : null,
-      semanticsLabel: l.sendRouteChange,
+      semanticsLabel: several ? metaLine([l.sendRouteSemantics(name, sendContactedText(to)), l.sendRouteChange]) : l.sendRouteChange,
     );
     if (several) return row;
     return Semantics(
@@ -3391,6 +3410,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     final first = contact.name.trim().split(RegExp(r'\s+')).first;
     final choices = <KitChoice<String>>[];
+    var index = 0;
     for (final address in contact.addresses) {
       final to = _readOf(address);
       if (!to.isAddress) continue;
@@ -3404,8 +3424,12 @@ class _SendViewState extends ConsumerState<SendView> {
         title: sendMethodName(l, to),
         subtitle: reason ?? short,
         leading: KitIconWell(MethodIcons.of(kind)),
-        semanticsId: TrustIds.sendAddressPick,
+        // Each choice has its own key; the trust id (no driver taps it yet) is the first one's.
+        key: ValueKey('send-address-$index'),
+        semanticsId: index == 0 ? TrustIds.sendAddressPick : null,
+        enabled: reason == null,
       ));
+      index++;
     }
     return KitPickerSheet.show<String>(
       context: context,
@@ -3556,11 +3580,18 @@ class _SendViewState extends ConsumerState<SendView> {
     _onAmountChanged(text);
   }
 
+  /// Where the decimal mark stands in [text]: the language's or the plain point, whichever
+  /// is there (an amount can come in either, from a paste or a code).
+  int _pointAt(String text, AppLocalizations l) {
+    final at = text.indexOf(_point(l));
+    return at >= 0 ? at : text.indexOf('.');
+  }
+
   void _keyDigit(String digit) {
     if (_busy) return;
     final l = context.l10n;
     final text = _amount.text;
-    final at = text.indexOf(_point(l));
+    final at = _pointAt(text, l);
     // EPIC has eight decimals, a currency two; the field never holds more.
     if (at >= 0 && text.length - at - 1 >= (_fiatEntry ? 2 : 8)) return;
     if (text.length >= 16) return;
@@ -3572,8 +3603,80 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     final text = _amount.text;
     final mark = _point(l);
-    if (text.contains(mark) || text.contains('.')) return;
+    if (_pointAt(text, l) >= 0) return;
     _setAmountText(text.isEmpty ? '0$mark' : text + mark);
+  }
+
+  static final _digitKeys = <LogicalKeyboardKey, String>{
+    LogicalKeyboardKey.digit0: '0',
+    LogicalKeyboardKey.digit1: '1',
+    LogicalKeyboardKey.digit2: '2',
+    LogicalKeyboardKey.digit3: '3',
+    LogicalKeyboardKey.digit4: '4',
+    LogicalKeyboardKey.digit5: '5',
+    LogicalKeyboardKey.digit6: '6',
+    LogicalKeyboardKey.digit7: '7',
+    LogicalKeyboardKey.digit8: '8',
+    LogicalKeyboardKey.digit9: '9',
+    LogicalKeyboardKey.numpad0: '0',
+    LogicalKeyboardKey.numpad1: '1',
+    LogicalKeyboardKey.numpad2: '2',
+    LogicalKeyboardKey.numpad3: '3',
+    LogicalKeyboardKey.numpad4: '4',
+    LogicalKeyboardKey.numpad5: '5',
+    LogicalKeyboardKey.numpad6: '6',
+    LogicalKeyboardKey.numpad7: '7',
+    LogicalKeyboardKey.numpad8: '8',
+    LogicalKeyboardKey.numpad9: '9',
+  };
+
+  /// The hardware keyboard on the amount page: digits, the decimal point ('.' or ','),
+  /// Backspace, and a pasted number (Ctrl or Cmd with V). The page's keypad does the same by touch.
+  KeyEventResult _amountKey(FocusNode node, KeyEvent event) {
+    if (event is KeyUpEvent) return KeyEventResult.ignored;
+    final key = event.logicalKey;
+    final keyboard = HardwareKeyboard.instance;
+    if (key == LogicalKeyboardKey.keyV && (keyboard.isControlPressed || keyboard.isMetaPressed)) {
+      _pasteAmount();
+      return KeyEventResult.handled;
+    }
+    if (keyboard.isControlPressed || keyboard.isMetaPressed || keyboard.isAltPressed) return KeyEventResult.ignored;
+    if (key == LogicalKeyboardKey.backspace) {
+      _keyDelete();
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.period || key == LogicalKeyboardKey.comma || key == LogicalKeyboardKey.numpadDecimal) {
+      _keyPoint();
+      return KeyEventResult.handled;
+    }
+    final c = event.character;
+    final digit = _digitKeys[key] ?? (c != null && c.length == 1 && c.compareTo('0') >= 0 && c.compareTo('9') <= 0 ? c : null);
+    if (digit != null) {
+      _keyDigit(digit);
+      return KeyEventResult.handled;
+    }
+    if (c == '.' || c == ',') {
+      _keyPoint();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  /// A number from the clipboard becomes the amount when it reads as one (digits and at most one
+  /// point or comma, within the field's limits); anything else is left alone.
+  Future<void> _pasteAmount() async {
+    if (_busy) return;
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted) return;
+    final text = (data?.text ?? '').replaceAll(RegExp(r'\s'), '');
+    final match = RegExp(r'^(\d*)(?:[.,](\d*))?$').firstMatch(text);
+    if (match == null || text.isEmpty || text == '.' || text == ',') return;
+    final whole = (match.group(1) ?? '').isEmpty ? '0' : match.group(1)!;
+    final fraction = match.group(2);
+    final room = _fiatEntry ? 2 : 8;
+    final shown = fraction == null ? whole : '$whole${_point(context.l10n)}${fraction.length > room ? fraction.substring(0, room) : fraction}';
+    if (shown.length > 16) return;
+    _setAmountText(shown);
   }
 
   void _keyDelete() {
@@ -3659,7 +3762,10 @@ class _SendViewState extends ConsumerState<SendView> {
       // `.big`: 44 under the bar (the list's own 14 is part of it).
       // A long figure (50) sits 8 lower than the 68 one, as the frame's margin says.
       SizedBox(height: _amount.text.length > 8 ? 38 : 30),
-      Stack(
+      Focus(
+        autofocus: true,
+        onKeyEvent: _amountKey,
+        child: Stack(
         alignment: Alignment.topCenter,
         children: [
           KitAmountDisplay(
@@ -3673,7 +3779,8 @@ class _SendViewState extends ConsumerState<SendView> {
             swapId: file ? null : TrustIds.sendSwap,
             semanticsId: file ? null : TrustIds.sendAmount,
           ),
-          // The real field: hidden, never focused by the page itself, and out of the layout.
+          // The real field: hidden, out of the layout and never focused; the tests and the
+          // drivers write to it. The hardware keyboard is [_amountKey], on the page's Focus.
           Positioned(
             left: 0,
             top: 0,
@@ -3697,6 +3804,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ),
         ],
+      ),
       ),
       // `.avail`, 24 under the fiat line (the swap target takes 16 of it, the bar's slot 1).
       SizedBox(height: fiat != null ? 7 : 15),
@@ -3851,6 +3959,7 @@ class _SendViewState extends ConsumerState<SendView> {
         key: sendReviewButtonKey,
         semanticsId: TrustIds.sendReview,
         label: way == TorWay.wait ? context.l10n.torWaiting : context.l10n.phoneSendReviewTitle,
+        busy: _estimating,
         onPressed: _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null ? _toReview : null,
       ),
     );
@@ -4056,9 +4165,11 @@ class _SendViewState extends ConsumerState<SendView> {
     final short = to.isUrl ? to.address : shortAddress(to.address, ownServer: ownServer);
     final mono = KitType.address.copyWith(color: t.text, fontSize: 12.5);
     final several = contact != null && contact.addresses.length > 1 && !_sendFailed && !_busy;
+    // A pairing with no address of its own (paid through its mailbox) names none; a short address
+    // that is already the name (with or without the own server cut) is not said twice.
+    final nameless = _pairingTo != null || name == short || (!to.isUrl && name == shortAddress(to.address));
     Widget address() {
-      // A pairing with no address of its own (paid through its mailbox) names none.
-      if (_pairingTo != null || name == short) return const SizedBox.shrink();
+      if (nameless) return const SizedBox.shrink();
       final cut = short.indexOf('…');
       if (cut < 0) return Text(short, style: mono, maxLines: 1, overflow: TextOverflow.ellipsis);
       final at = short.indexOf('@', cut);
@@ -4095,7 +4206,7 @@ class _SendViewState extends ConsumerState<SendView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: t.text)),
-                if (!(_pairingTo != null || name == short)) ...[const SizedBox(height: 3), address()],
+                if (!nameless) ...[const SizedBox(height: 3), address()],
               ],
             ),
           ),
@@ -4447,13 +4558,14 @@ class _SendViewState extends ConsumerState<SendView> {
           margin: EdgeInsets.zero,
           dividerInset: Kit.dividerInsetPlain,
           children: [
-            if (waiting) KitRow(title: l.sendTrackIfNot, chevron: true, onTap: () => _ifNotSheet(context)),
+            if (waiting) KitRow(title: l.sendTrackIfNot, chevron: true, onTap: () => _ifNotSheet(context), semanticsId: TrustIds.sendTrackIfNot),
             if (unknown)
               KitRow(
                 title: l.phoneSendAddContact,
                 leading: KitIconWell(KitIcons.add, color: t.accentText),
                 chevron: true,
                 onTap: () => _saveContact(sent.to.address, name: sent.linkLabel),
+                semanticsId: TrustIds.sendTrackAddContact,
               ),
           ],
         ),
@@ -4538,6 +4650,7 @@ class _SendViewState extends ConsumerState<SendView> {
     context,
     button: KitButton(
       label: _viaQr ? context.l10n.sendMakeQr : context.l10n.sendMakeFile,
+      busy: _estimating,
       onPressed: _amountReady && !_busy ? _createFile : null,
     ),
   );

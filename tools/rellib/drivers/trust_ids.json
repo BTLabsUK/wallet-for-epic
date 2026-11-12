@@ -606,5 +606,8 @@
 {"id": "g4.welcome.retry", "screen": "welcome", "family": ["android"], "keys": ["firstRunTryAgain"], "driver": false},
 {"id": "g4.welcome.pin-back", "screen": "welcome", "family": ["android"], "keys": ["phoneKitBack"], "driver": false},
 {"id": "g4.welcome.pin-help", "screen": "welcome", "family": ["android"], "keys": ["sendHelp"], "driver": false},
-{"id": "g4.advanced.reset", "screen": "advanced", "family": ["android"], "keys": ["advReset"], "driver": false}
+{"id": "g4.advanced.reset", "screen": "advanced", "family": ["android"], "keys": ["advReset"], "driver": false},
+{"id": "g4.send.noAddress.cancel", "screen": "send", "role": "control", "keys": ["commonCancel"], "driver": false},
+{"id": "g4.send.track.ifNot", "screen": "send", "role": "control", "keys": ["sendTrackIfNot"], "driver": false},
+{"id": "g4.send.track.addContact", "screen": "send", "role": "control", "keys": ["phoneSendAddContact"], "driver": false}
 ]}

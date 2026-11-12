@@ -28,6 +28,7 @@ class KitButton extends StatelessWidget {
     this.expand = true,
     this.semanticsId,
     this.tall = false,
+    this.busy = false,
   });
 
   final String label;
@@ -47,10 +48,14 @@ class KitButton extends StatelessWidget {
   /// (the unlock page's Forgot PIN), where the extra height moves nothing.
   final bool tall;
 
+  /// Work is under way: a small spinner before the label (a still arc under reduced motion),
+  /// and the button does not react.
+  final bool busy;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final off = onPressed == null || kind == KitButtonKind.off;
+    final off = busy || onPressed == null || kind == KitButtonKind.off;
     final (Color bg, Color fg) = switch (kind) {
       _ when off => (t.fill, t.faint),
       KitButtonKind.gold => (t.accent, t.accentInk),
@@ -71,7 +76,13 @@ class KitButton extends StatelessWidget {
       mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null) ...[Icon(icon, size: small ? 18 : 20, color: fg), SizedBox(width: small ? 6 : 8)],
+        if (busy) ...[
+          SizedBox.square(
+            dimension: small ? 14 : 18,
+            child: CircularProgressIndicator(strokeWidth: 2, color: fg, value: MediaQuery.disableAnimationsOf(context) ? 0.3 : null),
+          ),
+          SizedBox(width: small ? 6 : 8),
+        ] else if (icon != null) ...[Icon(icon, size: small ? 18 : 20, color: fg), SizedBox(width: small ? 6 : 8)],
         Flexible(
           child: Text(label, style: style, maxLines: label.trim().contains(' ') ? 2 : 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
         ),
