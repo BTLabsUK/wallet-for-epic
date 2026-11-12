@@ -41,8 +41,8 @@ class KitFacesStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    // 54 avatar, 7 gap, the 12 label (about 15 tall).
-    const stripHeight = Kit.avatarStrip + 7 + 16;
+    // 54 avatar, 7 gap, the 12 label (about 15 tall at 1x; it grows with the text size).
+    final stripHeight = Kit.avatarStrip + 7 + MediaQuery.textScalerOf(context).scale(16);
     final strip = SizedBox(
       height: stripHeight,
       child: ListView.separated(
