@@ -6026,7 +6026,6 @@
   "phoneRecvCodeLead": "Pokaż ten kod lub go udostępnij. Kto go otworzy, zostanie poproszony o {amount}.",
   "phoneRecvWaitingPaid": "Czeka na zapłatę",
   "phoneRecvViewPayment": "Zobacz płatność",
-  "phoneRecvShowCode": "Pokaż kod",
   "phoneRecvArrivalFrom": "od {name}",
   "phoneQrHoldHint": "Przyłóż ich aparat do tego kodu.",
   "phoneQrReplyShowing": "Płatność nastąpi, gdy zeskanują kod. Potem pojawi się w Aktywności.",
@@ -6099,5 +6098,7 @@
   "phoneProgArrived": "Dotarło",
   "phoneProgFinishesByItself": "Zakończy się samo. Możesz opuścić ten ekran.",
   "phoneProgReadyToSpend": "Gotowe do wydania",
-  "phoneKitPickerSaveFailed": "Nie zapisano. Spróbuj ponownie."
+  "phoneKitPickerSaveFailed": "Nie zapisano. Spróbuj ponownie.",
+  "phoneTxCancelledByUser": "Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą.",
+  "phoneTxCancelledIncoming": "Jeśli nadawca opublikuje płatność później, i tak dotrze."
 }

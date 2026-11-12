@@ -118,15 +118,12 @@ void main() {
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
   }
 
-  testWidgets('request: the code is covered until shown; the answer is checked; Matches finishes', (tester) async {
+  testWidgets('request: the code shows at once; the answer is checked; Matches finishes', (tester) async {
     await pump(tester);
     await makeCode(tester, 'request');
     expect(fake.calls, contains('inPersonRequest'));
     expect(find.text(_l.deskIpCodeLeadRequest), findsOneWidget);
     expect(find.byKey(inPersonQrKey), findsOneWidget);
-    expect(find.text(_l.qrShow), findsOneWidget);
-    await tester.tap(find.text(_l.qrShow));
-    await frames(tester, n: 2);
     expect(find.text(_l.qrShow), findsNothing);
 
     fake.answerCode(_firstSlate);
@@ -204,7 +201,7 @@ void main() {
     await frames(tester);
     expect(fake.calls.where((c) => c == 'inPersonRequest'), hasLength(2));
     expect(find.byKey(inPersonOnlineKey), findsOneWidget);
-    expect(find.text(_l.qrShow), findsOneWidget);
+    expect(find.text(_l.qrShow), findsNothing);
     await close(tester);
   });
 

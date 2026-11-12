@@ -345,10 +345,10 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final l = context.l10n;
     final box = btn.findRenderObject()! as RenderBox;
     final overlay = Overlay.of(btn).context.findRenderObject()! as RenderBox;
-    final rect = RelativeRect.fromRect(
-      Rect.fromPoints(box.localToGlobal(Offset.zero, ancestor: overlay), box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay)),
-      Offset.zero & overlay.size,
-    );
+    // The menu hangs under the button with its right edge on the page gutter (left is one pixel past the
+    // gutter line so the menu aligns to the right side).
+    final top = box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay).dy + 4;
+    final rect = RelativeRect.fromLTRB(overlay.size.width - Kit.gutter + 1, top, Kit.gutter, 0);
     final v = await showMenu<String>(
       context: btn,
       position: rect,
@@ -744,7 +744,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
                   children: [
                     Row(
                       children: [
-                        Flexible(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: t.text))),
+                        Flexible(flex: 2, child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: t.text))),
                         const SizedBox(width: 8),
                         if (r.state.isPending) const Flexible(child: PairPendingBadge()) else Flexible(child: TrustBadge(r, short: true)),
                       ],
@@ -878,7 +878,7 @@ class _ContactRow extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Flexible(child: Text(contact.name, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Flexible(flex: 2, child: Text(contact.name, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
                         if (starred) ...[const SizedBox(width: 4), const ContactStar()],
                         const SizedBox(width: 8),
                         // Paired: its trust badge, never beside an Epicbox address the pairing did

@@ -811,7 +811,7 @@ class QrFinderOverlay extends StatelessWidget {
             painter: _ScrimPainter(finder: finder),
             foregroundPainter: _FramePainter(
               finder: finder,
-              ring: finder.inflate(14),
+              ring: finder.inflate(18),
               received: received,
               count: count,
               complete: complete,
@@ -874,7 +874,7 @@ class _FramePainter extends CustomPainter {
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.butt
       ..color = const Color(0x57FFFFFF);
-    final path = roundedSquarePath(ring, 24);
+    final path = roundedSquarePath(ring, 30);
     final metric = path.computeMetrics().first;
     final length = metric.length;
     if (count <= 1) {

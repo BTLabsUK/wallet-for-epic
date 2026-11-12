@@ -6026,7 +6026,6 @@
   "phoneRecvCodeLead": "Покажите этот код или поделитесь им. Кто его откроет, увидит запрос на {amount}.",
   "phoneRecvWaitingPaid": "Ожидает оплаты",
   "phoneRecvViewPayment": "Открыть платёж",
-  "phoneRecvShowCode": "Показать код",
   "phoneRecvArrivalFrom": "от {name}",
   "phoneQrHoldHint": "Поднесите их камеру к этому коду.",
   "phoneQrReplyShowing": "Оплата пройдёт, когда они отсканируют код. Затем она появится в Активности.",
@@ -6099,5 +6098,7 @@
   "phoneProgArrived": "Получено",
   "phoneProgFinishesByItself": "Завершится само. Можно закрыть этот экран.",
   "phoneProgReadyToSpend": "Готово к трате",
-  "phoneKitPickerSaveFailed": "Не сохранено. Попробуйте ещё раз."
+  "phoneKitPickerSaveFailed": "Не сохранено. Попробуйте ещё раз.",
+  "phoneTxCancelledByUser": "Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.",
+  "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит."
 }

@@ -88,5 +88,7 @@
   "phoneProgAtTime": "в {time}",
   "phoneProgArrived": "Получено",
   "phoneProgFinishesByItself": "Завершится само. Можно закрыть этот экран.",
-  "phoneProgReadyToSpend": "Готово к трате"
+  "phoneProgReadyToSpend": "Готово к трате",
+  "phoneTxCancelledByUser": "Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.",
+  "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит."
 }

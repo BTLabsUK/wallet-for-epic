@@ -23809,9 +23809,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneRecvViewPayment => 'Открыть платёж';
 
   @override
-  String get phoneRecvShowCode => 'Показать код';
-
-  @override
   String phoneRecvArrivalFrom(String name) {
     return 'от $name';
   }
@@ -24085,4 +24082,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneKitPickerSaveFailed => 'Не сохранено. Попробуйте ещё раз.';
+
+  @override
+  String get phoneTxCancelledByUser =>
+      'Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.';
+
+  @override
+  String get phoneTxCancelledIncoming =>
+      'Если отправитель опубликует платёж позже, он всё равно поступит.';
 }

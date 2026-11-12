@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart' show qrCompleteFor, qrPostedFor;
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
+import 'package:epic_wallet/src/ui/receive_code.dart' show requestQrCardKey;
 import 'package:epic_wallet/src/ui/request_qr_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
@@ -206,20 +207,18 @@ void main() {
       await tester.tap(find.byKey(requestShowQrKey));
       await tester.pumpAndSettle();
 
-      // The code opens by itself, shown at once: an invoice code only lets the payer pay.
-      expect(find.byType(QrShowScreen), findsOneWidget);
-      expect(find.text(_l.qrShowTitleRequest), findsOneWidget);
-      expect(find.text(_l.qrHiddenTitle), findsNothing);
-      expect(find.byKey(qrShowButtonKey), findsNothing);
-      final request = tester.widget<RequestQrScreen>(find.byType(RequestQrScreen, skipOffstage: false));
+      // Gap-1: the code stands on the page, never hidden, with Waiting to be paid; no code
+      // screen opens on top.
+      expect(find.byType(QrShowScreen), findsNothing);
+      expect(find.byKey(requestQrCardKey), findsOneWidget);
+      expect(find.text(_l.phoneRecvWaitingPaid), findsOneWidget);
+      final request = tester.widget<RequestQrScreen>(find.byType(RequestQrScreen));
       expect(request.amount, _epic(12.5));
       expect(h.session.issuedRequests.single.message, 'Table 4');
 
-      expect(find.text(_l.qrStatusRequestShowing), findsOneWidget);
-
       // The payer pays it (another wallet; the same fake core here) and shows the answer.
       final paid = await h.session.payRequestFile(slateJson: request.slate.json, amount: _epic(12.5));
-      await tester.tap(find.byKey(qrNextButtonKey));
+      await tester.tap(find.byKey(requestQrScanKey));
       await h.cameraUp(tester);
       await h.scan(tester, paid.json);
       await h.finished(tester);
@@ -246,8 +245,6 @@ void main() {
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
       await _type(tester, '5');
       await tester.tap(find.byKey(requestShowQrKey));
-      await tester.pumpAndSettle();
-      await tester.pageBack();
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(requestQrScanKey));
       await h.cameraUp(tester);

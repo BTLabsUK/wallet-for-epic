@@ -36180,12 +36180,6 @@ abstract class AppLocalizations {
   /// **'View payment'**
   String get phoneRecvViewPayment;
 
-  /// Button that shows a request as a code in full.
-  ///
-  /// In en, this message translates to:
-  /// **'Show code'**
-  String get phoneRecvShowCode;
-
   /// Line under the amount on the sheet for an arriving payment. {name} is the sender.
   ///
   /// In en, this message translates to:
@@ -36623,6 +36617,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not saved. Try again.'**
   String get phoneKitPickerSaveFailed;
+
+  /// Payment details of a cancelled send, under the Cancelled chip: no repeated word.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.'**
+  String get phoneTxCancelledByUser;
+
+  /// Payment details of a cancelled receive, under the Cancelled chip: no repeated word.
+  ///
+  /// In en, this message translates to:
+  /// **'If the sender posts it later, it still arrives.'**
+  String get phoneTxCancelledIncoming;
 }
 
 class _AppLocalizationsDelegate

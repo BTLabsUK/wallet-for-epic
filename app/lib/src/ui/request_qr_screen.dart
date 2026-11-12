@@ -33,7 +33,6 @@ import 'slate_file_screen.dart' show NotPostedNotice, openSlateFile;
 import 'theme/tokens.dart';
 
 /// The keys of the request QR screen, for tests.
-const Key requestQrShowKey = ValueKey('request-qr-show');
 const Key requestQrScanKey = ValueKey('request-qr-scan');
 const Key requestQrErrorKey = ValueKey('request-qr-error');
 const Key requestQrPaidKey = ValueKey('request-qr-paid');
@@ -45,8 +44,8 @@ Future<void> openQrRequest(BuildContext context) => Navigator.of(context).push<v
   MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen(asQr: true)),
 );
 
-/// The request made for a QR: its code opens at once; scanning the payer's answer from there
-/// (or from here) finishes and posts it, and the screen turns into the receipt. New request
+/// The request made for a QR (Gap-1): its code stands on the page with Copy and Share; scanning
+/// the payer's answer finishes and posts it, and the screen turns into the receipt. New request
 /// opens the form again, for the next payer.
 class RequestQrScreen extends ConsumerStatefulWidget {
   const RequestQrScreen({super.key, required this.slate, required this.amount, this.message});
@@ -71,29 +70,7 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
 
   bool _busy = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // The payer stands next to the screen: the code comes first.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(_show());
-    });
-  }
-
   bool get _canPost => watchNetBlock(context, ref, node: true) == NetBlock.none;
-
-  Future<void> _show() async {
-    final result = await showRequestQr(
-      context,
-      json: widget.slate.json,
-      amount: widget.amount,
-      slateId: widget.slate.slateId,
-      scanEnabled: _canPost,
-      finish: _finish,
-    );
-    if (!mounted) return;
-    if (result is QrShowOpenFile) await _openFile();
-  }
 
   Future<void> _scan() async {
     final result = await scanQrSlate(context, QrScanKind.reply, finish: _finish);
@@ -236,34 +213,8 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
       busy: _busy,
       onDone: () => Navigator.pop(context),
       status: const RequestStatusLine(),
-      card: RequestCodeCard(
-        child: TrustId(
-          TrustIds.receiveCodeShow,
-          child: Semantics(
-            button: true,
-            label: l.phoneRecvShowCode,
-            excludeSemantics: true,
-            onTap: _busy ? null : _show,
-            child: Material(
-              key: requestQrShowKey,
-              color: t.fill,
-              borderRadius: BorderRadius.circular(Kit.rQr),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(Kit.rQr),
-                onTap: _busy ? null : _show,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(KitIcons.qr, size: 64, color: t.accentText),
-                    const SizedBox(height: 10),
-                    Text(l.phoneRecvShowCode, style: KitType.button.copyWith(color: t.text)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      // On the receive side the code is never hidden (Gap-1): it stands on the page.
+      card: RequestQrCard(json: widget.slate.json, label: l.deskKitQrOf(l.qrShowTitleRequest)),
       actions: [
         KitButton(
           key: requestQrScanKey,

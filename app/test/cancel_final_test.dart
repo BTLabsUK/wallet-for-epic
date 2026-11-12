@@ -299,12 +299,12 @@ void main() {
 
     test('an invoice paid: the same words, final or not', () {
       final tx = _send(flow: TxFlow.invoice, cancelled: true, reason: CancelReason.user);
-      expect(say(tx, true), _l.txDetailsCancelledByUser);
-      expect(say(tx, false), _l.txDetailsCancelledByUser);
+      expect(say(tx, true), _l.phoneTxCancelledByUser);
+      expect(say(tx, false), _l.phoneTxCancelledByUser);
     });
 
     test('a plain send keeps its certain words', () {
-      expect(say(_send(cancelled: true, reason: CancelReason.user), null), _l.txDetailsCancelledByUser);
+      expect(say(_send(cancelled: true, reason: CancelReason.user), null), _l.phoneTxCancelledByUser);
     });
 
     test('a released send keeps its released words', () {
@@ -403,7 +403,7 @@ void main() {
       final s = _session(tx);
       expect(s.outputsValue.where((o) => o.txId == 9 && o.status == WalletOutputStatus.unspent), isEmpty);
       await pump(tester, tx);
-      expect(find.text(_l.txDetailsCancelledByUser), findsOneWidget);
+      expect(find.text(_l.phoneTxCancelledByUser), findsOneWidget);
     });
   });
 

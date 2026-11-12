@@ -406,7 +406,8 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
       title: title,
       steps: _showSteps(l),
       current: 0,
-      idle: SlotProgress(label: l.deskIpWaiting),
+      // No progress bar: the wait can last minutes and the status line already says it.
+      //
       // While the answer comes back online, no paste or scan: they show again once the
       // server failed or the online reply was cancelled.
       bottom: !_watch.manual
@@ -446,7 +447,7 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
           style: KitType.body.copyWith(color: t.dim),
         ),
         const SizedBox(height: 16),
-        InPersonQr(key: inPersonQrKey, parts: _watch.parts, label: l.deskKitQrOf(l.deskIpCodeOf)),
+        InPersonQr(key: inPersonQrKey, open: _watch.stage == InPersonStage.request, parts: _watch.parts, label: l.deskKitQrOf(l.deskIpCodeOf)),
         const SizedBox(height: 16),
         InPersonCodeText(label: l.deskIpCodeText, text: made.text),
         if (left != null) ...[
@@ -631,8 +632,10 @@ class InPersonEndScreen extends StatelessWidget {
 /// A code's QR, covered until tapped (UI rule); several parts show in turn, one every
 /// [inPersonFrameEvery].
 class InPersonQr extends StatefulWidget {
-  const InPersonQr({super.key, required this.parts, required this.label, this.size = 240});
+  const InPersonQr({super.key, required this.parts, required this.label, this.size = 240, this.open = false});
 
+  /// A receiver's code (a request, or the answer to a send code) is shown at once, never covered.
+  final bool open;
   final List<String> parts;
   final String label;
   final double size;
@@ -642,10 +645,16 @@ class InPersonQr extends StatefulWidget {
 }
 
 class _InPersonQrState extends State<InPersonQr> {
-  bool _shown = false;
+  late bool _shown = widget.open;
   int _frame = 0;
   Timer? _timer;
   QrFrames? _frames;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.open) _startTimer();
+  }
 
   /// The parts drawn once, in one version and mask.
   QrFrames _framesOf(List<String> parts) {
@@ -658,7 +667,7 @@ class _InPersonQrState extends State<InPersonQr> {
   void didUpdateWidget(InPersonQr old) {
     super.didUpdateWidget(old);
     // A new code covers again.
-    if (old.parts.firstOrNull != widget.parts.firstOrNull) _set(false);
+    if (old.parts.firstOrNull != widget.parts.firstOrNull) _set(widget.open);
   }
 
   @override
@@ -668,6 +677,11 @@ class _InPersonQrState extends State<InPersonQr> {
   }
 
   void _set(bool shown) {
+    _startTimer(shown);
+    setState(() => _shown = shown);
+  }
+
+  void _startTimer([bool shown = true]) {
     _timer?.cancel();
     _timer = null;
     _frame = 0;
@@ -676,7 +690,6 @@ class _InPersonQrState extends State<InPersonQr> {
         if (mounted) setState(() => _frame = (_frame + 1) % widget.parts.length);
       });
     }
-    setState(() => _shown = shown);
   }
 
   @override
@@ -723,7 +736,7 @@ class _InPersonQrState extends State<InPersonQr> {
     } else {
       final frames = _framesOf(parts);
       inner = GestureDetector(
-        onTap: () => _set(false),
+        onTap: widget.open ? null : () => _set(false),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -850,6 +863,7 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
             answer: made,
             mailbox: online ? mailbox : null,
             cutoff: info.ttlCutoff,
+            receive: _receive,
           ),
         ),
       );
@@ -945,7 +959,10 @@ Future<bool> askInPersonServer(BuildContext context, Epic1Host mailbox) async {
 /// to compare. Without a server, after a failed post or "Cancel online reply", the answer as a
 /// QR code and text for the other phone to scan or paste.
 class InPersonAnsweredScreen extends ConsumerStatefulWidget {
-  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, this.mailbox, required this.cutoff});
+  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, this.mailbox, required this.cutoff, this.receive = false});
+
+  /// The answer is the receiver's (to a send code): its QR shows at once.
+  final bool receive;
 
   final String title;
   final InPersonAnswerMade answer;
@@ -1025,7 +1042,7 @@ class _InPersonAnsweredScreenState extends ConsumerState<InPersonAnsweredScreen>
           const SizedBox(height: 24),
           Text(l.deskIpAnswerLead, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.dim)),
           const SizedBox(height: 12),
-          InPersonQr(key: inPersonAnswerQrKey, parts: _parts, label: l.deskKitQrOf(l.deskIpAnswerOf)),
+          InPersonQr(key: inPersonAnswerQrKey, open: widget.receive, parts: _parts, label: l.deskKitQrOf(l.deskIpAnswerOf)),
           const SizedBox(height: 16),
           InPersonCodeText(label: l.deskIpAnswerLabel, text: answer.armored),
         ],

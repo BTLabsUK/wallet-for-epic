@@ -6026,7 +6026,6 @@
   "phoneRecvCodeLead": "Zeige diesen Code oder teile ihn. Wer ihn öffnet, wird um {amount} gebeten.",
   "phoneRecvWaitingPaid": "Wartet auf Zahlung",
   "phoneRecvViewPayment": "Zahlung ansehen",
-  "phoneRecvShowCode": "Code zeigen",
   "phoneRecvArrivalFrom": "von {name}",
   "phoneQrHoldHint": "Halte ihre Kamera an diesen Code.",
   "phoneQrReplyShowing": "Die Zahlung erfolgt, sobald sie scannen. Danach erscheint sie unter Aktivität.",
@@ -6099,5 +6098,7 @@
   "phoneProgArrived": "Angekommen",
   "phoneProgFinishesByItself": "Es schließt von selbst ab. Du kannst diesen Bildschirm verlassen.",
   "phoneProgReadyToSpend": "Bereit zum Ausgeben",
-  "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal."
+  "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal.",
+  "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
+  "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein."
 }

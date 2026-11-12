@@ -621,6 +621,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                   more: PopupMenuButton<String>(
                     key: contactPageMoreKey,
                     tooltip: l.contactMore,
+                    // Under the mark, the menu's right edge on the page gutter (the bar's target ends 8 from the screen edge).
+                    position: PopupMenuPosition.under,
+                    offset: const Offset(-(Kit.gutter - 8), 4),
                     onSelected: (v) => switch (v) {
                       'edit' => _edit(contact),
                       'label' => _pickLabel(context, ref, contact),

@@ -199,7 +199,9 @@ class KitNeedsYouCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter - 6),
+      // `.need` sits on the gutter with its marks 6 out; here the marks sit on the gutter and the
+      // card 6 in, so nothing reaches the screen margin.
+      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

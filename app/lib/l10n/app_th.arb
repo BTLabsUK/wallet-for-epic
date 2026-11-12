@@ -6026,7 +6026,6 @@
   "phoneRecvCodeLead": "แสดงโค้ดนี้หรือแชร์ ใครเปิดจะถูกขอ {amount}",
   "phoneRecvWaitingPaid": "รอการชำระเงิน",
   "phoneRecvViewPayment": "ดูการชำระเงิน",
-  "phoneRecvShowCode": "แสดงโค้ด",
   "phoneRecvArrivalFrom": "จาก {name}",
   "phoneQrHoldHint": "ให้กล้องของเขาสแกนโค้ดนี้",
   "phoneQrReplyShowing": "จะจ่ายเมื่อเขาสแกน จากนั้นจะแสดงในกิจกรรม",
@@ -6099,5 +6098,7 @@
   "phoneProgArrived": "มาถึงแล้ว",
   "phoneProgFinishesByItself": "เสร็จเองโดยอัตโนมัติ ออกจากหน้านี้ได้เลย",
   "phoneProgReadyToSpend": "พร้อมใช้จ่าย",
-  "phoneKitPickerSaveFailed": "ไม่ได้บันทึก ลองอีกครั้ง"
+  "phoneKitPickerSaveFailed": "ไม่ได้บันทึก ลองอีกครั้ง",
+  "phoneTxCancelledByUser": "ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ",
+  "phoneTxCancelledIncoming": "ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า"
 }

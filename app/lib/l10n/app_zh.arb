@@ -6026,7 +6026,6 @@
   "phoneRecvCodeLead": "出示此码或分享它。打开的人会被要求支付 {amount}。",
   "phoneRecvWaitingPaid": "等待付款",
   "phoneRecvViewPayment": "查看付款",
-  "phoneRecvShowCode": "显示码",
   "phoneRecvArrivalFrom": "来自 {name}",
   "phoneQrHoldHint": "请让对方的相机对准此码",
   "phoneQrReplyShowing": "对方扫描后即付款，之后会显示在活动中。",
@@ -6099,5 +6098,7 @@
   "phoneProgArrived": "已到账",
   "phoneProgFinishesByItself": "会自动完成。你可以离开此页面。",
   "phoneProgReadyToSpend": "可以花费",
-  "phoneKitPickerSaveFailed": "未保存。请重试。"
+  "phoneKitPickerSaveFailed": "未保存。请重试。",
+  "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
+  "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。"
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'scan/incoming_link.dart' show incomingLinkProvider;
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,7 @@ import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
 import 'ui/settings_file_notices.dart';
 import 'ui/common.dart';
+import 'ui/kit/kit_tokens.dart' show Kit;
 import 'ui/more_below.dart';
 import 'ui/launch_screen.dart';
 import 'ui/phone_frame.dart';
@@ -289,11 +291,13 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           );
         }
         final framed = PhoneFrame(
+          child: _BottomGap(
           child: SettingsFileNotices(
             child: AdvancedOptions(
               prefs: ref.watch(effectiveAdvancedProvider),
               child: child!,
             ),
+          ),
           ),
         );
         // The web preview is a demo and says so on every screen (WFE_WEB_FAKE is never set in
@@ -338,6 +342,29 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       theme: buildWalletTheme(protocolLight, Brightness.light),
       darkTheme: buildWalletTheme(protocolDark, Brightness.dark),
       home: const LaunchScreen(),
+    );
+  }
+}
+
+/// Keeps [Kit.gutter] between the screen's bottom edge and whatever a page stands on it (a
+/// button, a sheet's last row, the tab bar) where the system gives no bottom inset (a phone
+/// with no gesture bar, the web preview, a desktop window): the frames' `.foot` never sits on
+/// the edge. A real inset larger than that is kept as it is; the keyboard's inset is not touched.
+class _BottomGap extends StatelessWidget {
+  const _BottomGap({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    if (media.viewPadding.bottom >= Kit.gutter) return child;
+    return MediaQuery(
+      data: media.copyWith(
+        padding: media.viewInsets.bottom > 0 ? media.padding : media.padding.copyWith(bottom: math.max(media.padding.bottom, Kit.gutter)),
+        viewPadding: media.viewPadding.copyWith(bottom: Kit.gutter),
+      ),
+      child: child,
     );
   }
 }

@@ -385,8 +385,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.invoicesSentEmpty), findsOneWidget);
       expect(find.text(_l.invoicesSentEmptyCaption), findsOneWidget);
-      // The empty state's action and the app bar's both open the form.
-      expect(find.text(_l.invoicesNewRequest), findsNWidgets(2));
+      // The empty state's action and the tabs row's + both open the form.
+      expect(find.text(_l.invoicesNewRequest), findsOneWidget);
       await tester.tap(find.byKey(invoicesNewRequestKey));
       await tester.pumpAndSettle();
       expect(find.text(_l.phoneRecvAsk), findsOneWidget);

@@ -28,6 +28,5 @@
   "phoneRecvFileLead": "Teile diese Datei. Wer sie öffnet, wird um {amount} gebeten.",
   "phoneRecvWaitingPaid": "Wartet auf Zahlung",
   "phoneRecvViewPayment": "Zahlung ansehen",
-  "phoneRecvShowCode": "Code zeigen",
   "phoneRecvArrivalFrom": "von {name}"
 }

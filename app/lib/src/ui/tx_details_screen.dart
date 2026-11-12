@@ -101,7 +101,7 @@ enum _DurationUnit { minutes, hours, days }
 /// Why a cancelled send was cancelled, in the words of the details screen.
 String _cancelledBecause(AppLocalizations l, TxEntry tx, CancelReason reason) =>
     switch (reason) {
-      CancelReason.user => l.txDetailsCancelledByUser,
+      CancelReason.user => l.phoneTxCancelledByUser,
       CancelReason.release => l.txDetailsCancelledReleased,
       // A finished send that never confirmed may have left this device; an unanswered one did not.
       CancelReason.expiry when tx.finalizedAtUnix != null =>
@@ -245,7 +245,7 @@ String txExplanation(
     TxPhase.cancelled when tx.isRequest => l.txDetailsRequestEnded,
     TxPhase.cancelled when senderCancelled(tx) => l.txDetailsSenderCancelled,
     TxPhase.cancelled =>
-      outgoing ? l.txDetailsCancelledByUser : l.txDetailsCancelledIncoming,
+      outgoing ? l.phoneTxCancelledByUser : l.phoneTxCancelledIncoming,
     TxPhase.fromBackup => l.txDetailsFromBackup,
   };
 }

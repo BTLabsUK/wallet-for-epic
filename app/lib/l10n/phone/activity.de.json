@@ -88,5 +88,7 @@
   "phoneProgAtTime": "um {time}",
   "phoneProgArrived": "Angekommen",
   "phoneProgFinishesByItself": "Es schließt von selbst ab. Du kannst diesen Bildschirm verlassen.",
-  "phoneProgReadyToSpend": "Bereit zum Ausgeben"
+  "phoneProgReadyToSpend": "Bereit zum Ausgeben",
+  "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
+  "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein."
 }

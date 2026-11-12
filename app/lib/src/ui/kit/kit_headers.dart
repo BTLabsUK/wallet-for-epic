@@ -104,8 +104,9 @@ class KitFlowHeader extends StatelessWidget {
     final l = context.l10n;
     return SizedBox(
       height: Kit.flowHeader,
+      // `.hdr` pads 12; the 48 targets hold the 40 `.ib` squares 4 in, so 8 here puts them at 12.
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -190,7 +191,9 @@ class KitPageHeader extends StatelessWidget {
           child: Transform.translate(
             offset: const Offset(0, -0.5),
             child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
+            // `.nav` pads 6 on the left and 12 on the right: the help square's 48 target holds it 4
+            // in, so 8 here puts its edge at 12.
+            padding: const EdgeInsetsDirectional.only(start: 6, end: 8),
             child: Row(
               children: [
                 Expanded(

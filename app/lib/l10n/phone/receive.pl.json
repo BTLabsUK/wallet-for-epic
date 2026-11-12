@@ -28,6 +28,5 @@
   "phoneRecvFileLead": "Udostępnij ten plik. Kto go otworzy, zostanie poproszony o {amount}.",
   "phoneRecvWaitingPaid": "Czeka na zapłatę",
   "phoneRecvViewPayment": "Zobacz płatność",
-  "phoneRecvShowCode": "Pokaż kod",
   "phoneRecvArrivalFrom": "od {name}"
 }

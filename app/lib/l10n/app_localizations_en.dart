@@ -23098,9 +23098,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneRecvViewPayment => 'View payment';
 
   @override
-  String get phoneRecvShowCode => 'Show code';
-
-  @override
   String phoneRecvArrivalFrom(String name) {
     return 'from $name';
   }
@@ -23365,4 +23362,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneKitPickerSaveFailed => 'Not saved. Try again.';
+
+  @override
+  String get phoneTxCancelledByUser =>
+      'Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.';
+
+  @override
+  String get phoneTxCancelledIncoming =>
+      'If the sender posts it later, it still arrives.';
 }

@@ -88,5 +88,7 @@
   "phoneProgAtTime": "เวลา {time}",
   "phoneProgArrived": "มาถึงแล้ว",
   "phoneProgFinishesByItself": "เสร็จเองโดยอัตโนมัติ ออกจากหน้านี้ได้เลย",
-  "phoneProgReadyToSpend": "พร้อมใช้จ่าย"
+  "phoneProgReadyToSpend": "พร้อมใช้จ่าย",
+  "phoneTxCancelledByUser": "ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ",
+  "phoneTxCancelledIncoming": "ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า"
 }

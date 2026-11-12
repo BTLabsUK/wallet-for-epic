@@ -9,6 +9,7 @@ import '../providers.dart';
 import 'app_dialog.dart';
 import 'common.dart';
 import 'kit/kit_button.dart';
+import 'kit/kit_check_row.dart';
 import 'kit/kit_headers.dart';
 import 'kit/kit_tokens.dart';
 import 'theme/tokens.dart';
@@ -147,14 +148,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         title: l.backupConsentTitle,
         text: '${l.backupConsentWhat} ${l.backupConsentReady}\n\n${l.backupCopyWarning}',
       ),
-      const SizedBox(height: 8),
-      CheckboxListTile(
-        contentPadding: EdgeInsets.zero,
-        controlAffinity: ListTileControlAffinity.leading,
-        value: _agreed,
-        onChanged: (value) => setState(() => _agreed = value ?? false),
-        title: trustId(TrustIds.backupAgree, Text(l.backupCopyAgree)),
-      ),
+      const SizedBox(height: 12),
+      KitCheckRow(label: l.backupCopyAgree, value: _agreed, onChanged: (value) => setState(() => _agreed = value), semanticsId: TrustIds.backupAgree),
       const SizedBox(height: 16),
       KitButton(label: l.backupShowPhrase, onPressed: _agreed ? _load : null, semanticsId: TrustIds.backupShow),
     ];

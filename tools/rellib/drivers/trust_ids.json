@@ -575,7 +575,6 @@
 {"id": "g4.receive.code-copy", "screen": "receive", "keys": ["commonCopy"], "driver": false},
 {"id": "g4.receive.code-share", "screen": "receive", "keys": ["commonShare"], "driver": false},
 {"id": "g4.receive.code-done", "screen": "receive", "keys": ["commonDone"], "driver": false, "many": true},
-{"id": "g4.receive.code-show", "screen": "receive", "keys": ["phoneRecvShowCode"], "driver": false},
 {"id": "g4.receive.arrive-sheet", "screen": "receive", "keys": ["lvPayArriving"], "driver": false},
 {"id": "g4.receive.arrive-done", "screen": "receive", "keys": ["commonDone"], "driver": false},
 {"id": "g4.receive.arrive-view", "screen": "receive", "keys": ["phoneRecvViewPayment"], "driver": false},

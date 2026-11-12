@@ -39,7 +39,6 @@ import 'pin.dart';
 import 'qr_show_screen.dart' show QrShowDone, showPaidReplyQr;
 import '../trust/policy.dart' show statedAutomated;
 import 'slate_file_screen.dart' show SlateFileResult;
-import 'theme/brand.dart' show GlyphTile;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
@@ -655,7 +654,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           children: [
             Row(
               children: [
-                GlyphTile(size: 48, child: Icon(Icons.check_circle_outline, color: t.ok)),
+                KitIconWell(Icons.check_circle_outline, color: t.ok, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(
@@ -770,10 +769,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           else ...[
             Row(
               children: [
-                GlyphTile(
-                  size: 48,
-                  child: Icon(widget.scanned ? Icons.qr_code_2 : Icons.description_outlined, color: t.accentText),
-                ),
+                KitIconWell(widget.scanned ? Icons.qr_code_2 : Icons.description_outlined, color: t.accentText, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(

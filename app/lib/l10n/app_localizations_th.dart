@@ -22628,9 +22628,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneRecvViewPayment => 'ดูการชำระเงิน';
 
   @override
-  String get phoneRecvShowCode => 'แสดงโค้ด';
-
-  @override
   String phoneRecvArrivalFrom(String name) {
     return 'จาก $name';
   }
@@ -22891,4 +22888,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneKitPickerSaveFailed => 'ไม่ได้บันทึก ลองอีกครั้ง';
+
+  @override
+  String get phoneTxCancelledByUser =>
+      'ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ';
+
+  @override
+  String get phoneTxCancelledIncoming =>
+      'ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 }

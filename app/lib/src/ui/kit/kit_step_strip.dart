@@ -36,14 +36,14 @@ class KitStepStrip extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(Kit.gutter, 10, Kit.gutter, 0),
         child: LayoutBuilder(
           builder: (context, box) {
-            final widths = _widths(texts, style, box.maxWidth - 6.0 * (n - 1));
+            final widths = _widths(texts, style, box.maxWidth - _gap * (n - 1));
             final cells = <Widget>[];
             for (var i = 0; i < n; i++) {
               final done = i < current;
               final now = i == shown && current < n;
               final bar = now ? t.accent : (done ? t.goldDeep : t.hair);
               final color = now ? t.text : (done ? t.dim : t.faint);
-              if (i > 0) cells.add(const SizedBox(width: 6));
+              if (i > 0) cells.add(const SizedBox(width: _gap));
               cells.add(
                 SizedBox(
                   width: widths[i],
@@ -88,6 +88,9 @@ class KitStepStrip extends StatelessWidget {
   /// The CSS `.steps3 span{flex:1;white-space:nowrap}` sizing: equal shares, but a step whose
   /// label is wider than its share keeps the label's width and the others split what is left.
   /// When the labels together do not fit, each takes its share of the room by label width.
+  /// `.steps3` has a 6 gap, but its nowrap labels then nearly touch; 12 keeps them apart.
+  static const double _gap = 12;
+
   static List<double> _widths(List<String> texts, TextStyle style, double room) {
     final n = texts.length;
     final need = [

@@ -100,14 +100,18 @@ class PairQr extends StatelessWidget {
   Widget build(BuildContext context) {
     final data = this.data;
     return Center(
-      child: KitCornerMarks(
-        inset: 14,
-        child: Container(
-          padding: const EdgeInsets.all(Kit.gutter),
-          decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(Kit.rQr)),
-          child: data == null
-              ? SizedBox.square(dimension: size, child: Center(child: placeholder ?? const CircularProgressIndicator()))
-              : Semantics(label: label, image: label != null, child: LogoQr(data: data, size: size, logo: QrLogo.epic1)),
+      // The marks reach 14 outside the card: 18 of room all round keeps them clear of the label above and the caption below.
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        child: KitCornerMarks(
+          inset: 14,
+          child: Container(
+            padding: const EdgeInsets.all(Kit.gutter),
+            decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(Kit.rQr)),
+            child: data == null
+                ? SizedBox.square(dimension: size, child: Center(child: placeholder ?? const CircularProgressIndicator()))
+                : Semantics(label: label, image: label != null, child: LogoQr(data: data, size: size, logo: QrLogo.epic1)),
+          ),
         ),
       ),
     );

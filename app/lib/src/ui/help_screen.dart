@@ -532,13 +532,16 @@ TextSpan markedSpan(String text, List<String> words, TextStyle style, WalletToke
 
 /// Bottom of a section and of every topic: the way to say what was unclear.
 class _ReportRow extends StatelessWidget {
-  const _ReportRow();
+  const _ReportRow({this.margin = const EdgeInsets.symmetric(horizontal: Kit.gutter)});
+
+  final EdgeInsetsGeometry margin;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
     return KitGroup(
+      margin: margin,
       children: [
         KitRow(
           size: KitRowSize.list,
@@ -677,8 +680,9 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
                           ),
                         if (related.isNotEmpty) ...[
                           const SizedBox(height: 24),
-                          KitGroupLabel(l.helpMoreInSection),
+                          KitGroupLabel(l.helpMoreInSection, inset: 4),
                           KitGroup(
+                            margin: EdgeInsets.zero,
                             children: [
                               for (final r in related)
                                 _topicRow(
@@ -699,7 +703,7 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
                           ),
                         ],
                         const SizedBox(height: Kit.groupGap),
-                        const _ReportRow(),
+                        const _ReportRow(margin: EdgeInsets.zero),
                       ],
                     ),
                   ),

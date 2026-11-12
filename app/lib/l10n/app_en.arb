@@ -31371,10 +31371,6 @@
   "@phoneRecvViewPayment": {
     "description": "Button on the sheet for an arriving payment: opens the payment page."
   },
-  "phoneRecvShowCode": "Show code",
-  "@phoneRecvShowCode": {
-    "description": "Button that shows a request as a code in full."
-  },
   "phoneRecvArrivalFrom": "from {name}",
   "@phoneRecvArrivalFrom": {
     "description": "Line under the amount on the sheet for an arriving payment. {name} is the sender.",
@@ -31699,5 +31695,13 @@
   "phoneKitPickerSaveFailed": "Not saved. Try again.",
   "@phoneKitPickerSaveFailed": {
     "description": "Line in a picker sheet when saving the tapped choice failed; the sheet stays open."
+  },
+  "phoneTxCancelledByUser": "Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.",
+  "@phoneTxCancelledByUser": {
+    "description": "Payment details of a cancelled send, under the Cancelled chip: no repeated word."
+  },
+  "phoneTxCancelledIncoming": "If the sender posts it later, it still arrives.",
+  "@phoneTxCancelledIncoming": {
+    "description": "Payment details of a cancelled receive, under the Cancelled chip: no repeated word."
   }
 }

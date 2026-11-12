@@ -21788,9 +21788,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneRecvViewPayment => '查看付款';
 
   @override
-  String get phoneRecvShowCode => '显示码';
-
-  @override
   String phoneRecvArrivalFrom(String name) {
     return '来自 $name';
   }
@@ -22039,4 +22036,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneKitPickerSaveFailed => '未保存。请重试。';
+
+  @override
+  String get phoneTxCancelledByUser =>
+      '没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。';
+
+  @override
+  String get phoneTxCancelledIncoming => '如果发送方之后广播这笔付款，它仍会到账。';
 }

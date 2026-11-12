@@ -139,10 +139,6 @@
   "@phoneRecvViewPayment": {
     "description": "Button on the sheet for an arriving payment: opens the payment page."
   },
-  "phoneRecvShowCode": "Show code",
-  "@phoneRecvShowCode": {
-    "description": "Button that shows a request as a code in full."
-  },
   "phoneRecvArrivalFrom": "from {name}",
   "@phoneRecvArrivalFrom": {
     "description": "Line under the amount on the sheet for an arriving payment. {name} is the sender.",

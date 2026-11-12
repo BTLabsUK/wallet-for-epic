@@ -23365,9 +23365,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get phoneRecvViewPayment => 'Zahlung ansehen';
 
   @override
-  String get phoneRecvShowCode => 'Code zeigen';
-
-  @override
   String phoneRecvArrivalFrom(String name) {
     return 'von $name';
   }
@@ -23635,4 +23632,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneKitPickerSaveFailed =>
       'Nicht gespeichert. Versuche es noch einmal.';
+
+  @override
+  String get phoneTxCancelledByUser =>
+      'Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.';
+
+  @override
+  String get phoneTxCancelledIncoming =>
+      'Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
 }

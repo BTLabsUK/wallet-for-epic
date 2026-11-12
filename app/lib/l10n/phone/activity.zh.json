@@ -88,5 +88,7 @@
   "phoneProgAtTime": "{time}",
   "phoneProgArrived": "已到账",
   "phoneProgFinishesByItself": "会自动完成。你可以离开此页面。",
-  "phoneProgReadyToSpend": "可以花费"
+  "phoneProgReadyToSpend": "可以花费",
+  "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
+  "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。"
 }

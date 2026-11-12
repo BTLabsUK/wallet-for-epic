@@ -28,6 +28,5 @@
   "phoneRecvFileLead": "Поделитесь этим файлом. Кто его откроет, увидит запрос на {amount}.",
   "phoneRecvWaitingPaid": "Ожидает оплаты",
   "phoneRecvViewPayment": "Открыть платёж",
-  "phoneRecvShowCode": "Показать код",
   "phoneRecvArrivalFrom": "от {name}"
 }

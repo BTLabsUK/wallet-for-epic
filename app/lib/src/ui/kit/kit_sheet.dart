@@ -92,10 +92,8 @@ class KitSheet extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          // `.sheet` padding-bottom 34 is the home-indicator zone: the inset the SafeArea gives
-          // is part of it, a phone with no inset keeps 16. The inset is read from the view: the
-          // SafeArea of [showPhoneSheet] above has already taken it out of the MediaQuery.
-          padding: EdgeInsets.only(bottom: _viewInsetBottom(context) > 0 ? 0 : 16),
+          // `.sheet` padding-bottom 34 is the home-indicator zone: the SafeArea of
+          // [showPhoneSheet] gives it, and the app gives a phone with no inset 16 (`_BottomGap`).
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,11 +124,6 @@ class KitSheet extends StatelessWidget {
   }
 }
 
-double _viewInsetBottom(BuildContext context) {
-  final view = View.maybeOf(context);
-  return view == null ? MediaQuery.viewPaddingOf(context).bottom : view.padding.bottom / view.devicePixelRatio;
-}
-
 /// Opens [builder]'s content as a redesign sheet over [showPhoneSheet], so the bottom inset
 /// stays clear. The theme gives the ground, the 28 radius and the scrim.
 Future<T?> showKitSheet<T>({
@@ -145,8 +138,8 @@ Future<T?> showKitSheet<T>({
   isDismissible: isDismissible,
   enableDrag: enableDrag,
   builder: (route) {
-    // The phone sheet's SafeArea has taken the bottom inset; the sheet still sees it as view
-    // padding, so its own 16 for a phone with no inset is not added on top (`.sheet` 34).
+    // The phone sheet's SafeArea has taken the bottom inset; the content still sees it as
+    // view padding, as on the screen below.
     final inset = MediaQuery.viewPaddingOf(route).bottom;
     return Builder(
       builder: (below) {

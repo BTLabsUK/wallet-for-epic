@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../contact_label.dart';
 import '../l10n.dart';
+import 'kit/kit_tokens.dart';
 import 'contact_label_mark.dart';
 import 'phone_sheet.dart';
 import 'theme/tokens.dart';
@@ -37,7 +38,7 @@ class ContactLabelSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, 8),
             child: Semantics(header: true, child: Text(l.deskConLabelTitle, style: Theme.of(context).textTheme.titleMedium)),
           ),
           for (final label in ContactLabel.values)

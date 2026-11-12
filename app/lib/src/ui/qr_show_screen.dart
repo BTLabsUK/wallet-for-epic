@@ -1161,7 +1161,7 @@ class _Cover extends StatelessWidget {
         );
     }
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Center(
         child: Semantics(
             liveRegion: true,

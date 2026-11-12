@@ -526,7 +526,7 @@ void main() {
       (
         'paid',
         (FakeWalletSession s, String id) => s.payIssued(id),
-        _l.issuedDetailsPaid,
+        _l.phoneProgNetwork,
       ),
       (
         'declined',
@@ -641,7 +641,7 @@ void main() {
       expect(find.text(_l.issuedWithdraw), findsOneWidget);
       await h.session.payIssued(request.slateId);
       await tester.pumpAndSettle();
-      expect(find.text(_l.issuedDetailsPaid), findsOneWidget);
+      expect(find.textContaining(_l.issuedDetailsWaiting), findsNothing);
       expect(find.text(_l.issuedWithdraw), findsNothing);
     });
 
@@ -689,7 +689,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(_l.issuedDetailsPaid), findsOneWidget);
+      expect(find.text(_l.phoneProgNetwork), findsOneWidget);
     });
 
     testWidgets('declined is a warning', (tester) async {

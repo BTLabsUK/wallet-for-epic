@@ -26,7 +26,6 @@ import '../sas_picture.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
 import '../theme/epic1_mark.dart' show Epic1Text;
-import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 
 /// The tile sizes: the words check on the phone, the pairing words, a desktop panel.
@@ -167,12 +166,10 @@ class _WordTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(t.radiusSmall),
           boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.14 : 0.08), blurRadius: side * 0.35, spreadRadius: -side * 0.08)],
         ),
-        child: CustomPaint(
-          foregroundPainter: CornerTicksPainter(t.tick, length: 8, width: 2),
-          child: Center(
-            // The bundled picture, the same on every system; the tile's label says its name.
-            child: SasPicture(w, size: side * 0.6, excludeFromSemantics: true),
-          ),
+        // Corner marks belong to QR, camera, Scan, the needs-you card and the brand tile only.
+        child: Center(
+          // The bundled picture, the same on every system; the tile's label says its name.
+          child: SasPicture(w, size: side * 0.6, excludeFromSemantics: true),
         ),
       );
     }
@@ -511,7 +508,7 @@ class PairSwitchRow extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: Kit.rowSettings),
       child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 14, 4),
         child: Row(
           children: [
             Expanded(

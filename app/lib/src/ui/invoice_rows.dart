@@ -13,7 +13,7 @@ import 'common.dart' show AmountText;
 import 'invoice_request_screen.dart';
 import 'invoice_review_screen.dart';
 import 'invoices_screen.dart';
-import 'theme/brand.dart';
+import 'kit/kit_row.dart' show KitIconWell;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'inline_button.dart';
@@ -56,11 +56,7 @@ class _InvoiceRowFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: t.line)),
-      ),
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
@@ -74,7 +70,7 @@ class _InvoiceRowFrame extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    GlyphTile(size: 40, child: Icon(icon)),
+                    KitIconWell(icon),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -110,8 +106,9 @@ class _InvoiceRowFrame extends StatelessWidget {
             ),
           ),
           ?foot,
+          // The hairline starts at the text: gutter 16 + tile 40 + gap 12.
+          Divider(height: 1, thickness: 1, indent: 68, color: t.line),
         ],
-      ),
     );
   }
 }
@@ -245,7 +242,8 @@ class _RequestRowState extends ConsumerState<RequestRow> {
       ),
       foot: request.withdrawable
           ? Padding(
-              padding: const EdgeInsetsDirectional.only(start: 60, bottom: 4),
+              // Under the row's text: gutter 16 + tile 40 + gap 12.
+              padding: const EdgeInsetsDirectional.only(start: 68, bottom: 4),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: InlineTextButton(

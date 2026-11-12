@@ -856,7 +856,8 @@ class NoticeParts extends StatelessWidget {
       firstLine: line + 2 * wordsPad,
       textEnd: 12,
       minHeight: 48,
-      centered: true,
+      // Words with something under them (buttons, a bar): the icon sits on the first line, not mid-card.
+      centered: below == null,
     );
   }
 }

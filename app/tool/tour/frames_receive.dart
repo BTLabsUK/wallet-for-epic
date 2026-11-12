@@ -116,9 +116,7 @@ final List<(String, _Start, _Visit)> _framesReceive = [
     await t.tapText(t.l.phonePayAddNote);
     await t.enter(t.l.requestMessageLabel, 'Dinner');
     await t.tapText(t.l.commonDone);
-    // With a camera the page opens on the in-person code; the file variant is the request page.
-    await t.tapText(t.l.phoneRecvFromAnyone);
-    await t.tapText(t.l.phoneRecvAnyoneFile);
+    // The default route (a phone with a camera): the request page with its code shown.
     await t.tap(find.textContaining('Ask for 25'));
     await t.images();
     await t.shot('fr-Gap-1-Request');

@@ -22,7 +22,9 @@ import '../notice_digest.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'help_screen.dart' show HelpButton, HelpId;
+import 'help_screen.dart' show HelpId, openHelp;
+import 'kit/kit_headers.dart';
+import 'kit/kit_icons.dart';
 import 'invoice_request_screen.dart';
 import 'invoice_review_screen.dart';
 import 'invoice_rows.dart';
@@ -480,8 +482,6 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
         (toPay.isEmpty && requests.isNotEmpty
             ? InvoicesSegment.sent
             : InvoicesSegment.toPay);
-    // The label beside the icon where it fits at this text size, else the icon alone.
-    final roomy = MediaQuery.textScalerOf(context).scale(14) <= 18;
 
     Widget emptyState({
       required IconData icon,
@@ -581,28 +581,6 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     );
 
     return SlotScaffold(
-      appBar: AppBar(
-        title: Text(l.invoicesTitle),
-        actions: [
-          if (roomy)
-            TextButton.icon(
-              key: invoicesNewRequestKey,
-              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
-              icon: const Icon(Icons.add),
-              label: Text(l.invoicesNewRequest),
-              onPressed: _newRequest,
-            )
-          else
-            IconButton(
-              key: invoicesNewRequestKey,
-              tooltip: l.invoicesNewRequest,
-              icon: const Icon(Icons.add),
-              onPressed: _newRequest,
-            ),
-          const HelpButton(HelpId.invoices),
-          const SizedBox(width: 8),
-        ],
-      ),
       // The first load only; a refresh after it keeps the list as it is.
       idle: invoices.isLoading && !invoices.hasValue
           ? SlotProgress(label: l.invoicesChecking)
@@ -615,9 +593,17 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                KitPageHeader(
+                  backLabel: l.phoneKitBack,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  title: l.invoicesTitle,
+                  onHelp: () => openHelp(context, HelpId.invoices),
+                  bottomGap: 12,
+                ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  child: PhoneTourTarget(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 12, 8),
+                  child: Row(children: [
+                    Expanded(child: PhoneTourTarget(
                     id: 'tour-invoices-tabs',
                     child: SegmentedButton<InvoicesSegment>(
                     key: invoicesSegmentsKey,
@@ -641,7 +627,10 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                     onSelectionChanged: (s) =>
                         setState(() => _segment = s.first),
                   ),
-                  ),
+                  )),
+                    // The header has no action slot: New invoice ends the tabs row, its 40 square on the gutter.
+                    KitIconButton(key: invoicesNewRequestKey, icon: KitIcons.add, label: l.invoicesNewRequest, onPressed: _newRequest),
+                  ]),
                 ),
                 if (invoices.hasError && !invoices.isLoading)
                   Padding(

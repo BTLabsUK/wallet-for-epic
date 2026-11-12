@@ -28,6 +28,5 @@
   "phoneRecvFileLead": "แชร์ไฟล์นี้ ใครเปิดจะถูกขอ {amount}",
   "phoneRecvWaitingPaid": "รอการชำระเงิน",
   "phoneRecvViewPayment": "ดูการชำระเงิน",
-  "phoneRecvShowCode": "แสดงโค้ด",
   "phoneRecvArrivalFrom": "จาก {name}"
 }

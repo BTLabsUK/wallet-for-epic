@@ -181,7 +181,7 @@ Future<bool> handOverFile(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium,
@@ -189,17 +189,19 @@ Future<bool> handOverFile(
               ),
               if (note != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   child: Text(note),
                 ),
               // Share first: the copy that matters is the one off this phone.
               ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 leading: const Icon(Icons.share),
                 title: Text(l.historyBackupShare),
                 subtitle: Text(l.historyBackupShareSubtitle),
                 onTap: () => Navigator.pop(context, _Destination.share),
               ),
               ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 leading: const Icon(Icons.save_alt),
                 title: Text(l.historyBackupSaveToDevice),
                 subtitle: Text(l.historyBackupSaveToDeviceSubtitle),

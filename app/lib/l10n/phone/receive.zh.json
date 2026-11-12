@@ -28,6 +28,5 @@
   "phoneRecvFileLead": "分享此文件。打开的人会被要求支付 {amount}。",
   "phoneRecvWaitingPaid": "等待付款",
   "phoneRecvViewPayment": "查看付款",
-  "phoneRecvShowCode": "显示码",
   "phoneRecvArrivalFrom": "来自 {name}"
 }

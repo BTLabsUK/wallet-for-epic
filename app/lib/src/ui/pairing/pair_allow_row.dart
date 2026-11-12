@@ -89,7 +89,7 @@ class _PairLiveSwitchRowState extends State<PairLiveSwitchRow> {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: Kit.rowSettings),
       child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 14, 4),
         child: Row(
           children: [
             Expanded(

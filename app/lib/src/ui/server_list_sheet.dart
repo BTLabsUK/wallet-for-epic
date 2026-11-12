@@ -1695,7 +1695,11 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Flexible(child: Text(face.word, style: KitType.rowSub.copyWith(color: face.color), textAlign: TextAlign.end)),
+                // Pinned to the end: a non-flex child, capped, so a short word never floats mid-row.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 160),
+                  child: Text(face.word, style: KitType.rowSub.copyWith(color: face.color), textAlign: TextAlign.end),
+                ),
               ],
             ),
           ),
@@ -1793,7 +1797,7 @@ extension on _CurrentNodeFactsState {
                   child: Text(label, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
                 ),
                 const SizedBox(width: 8),
-                Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: color), textAlign: TextAlign.end)),
+                ConstrainedBox(constraints: const BoxConstraints(maxWidth: 160), child: Text(word, style: KitType.rowSub.copyWith(color: color), textAlign: TextAlign.end)),
               ],
             ),
           ),

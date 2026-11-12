@@ -269,7 +269,9 @@ class ScanStart extends StatelessWidget {
   }
 
   /// The choice under the start: By month / By height, the month or the typed height.
-  Widget _choice(AppLocalizations l, ScanStartController c) => Column(
+  /// [row]: the redesign's layout, where the field's helper sits under it at the 4 inset of the
+  /// group labels and the note, not at the field's inner padding.
+  Widget _choice(AppLocalizations l, ScanStartController c, {bool row = false}) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -302,7 +304,14 @@ class ScanStart extends StatelessWidget {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (_) => c.heightChanged(),
-            decoration: InputDecoration(labelText: l.restoreStartHeightLabel, helperText: l.restoreStartHeightHelper),
+            decoration: InputDecoration(labelText: l.restoreStartHeightLabel, helperText: row ? null : l.restoreStartHeightHelper),
+          ),
+        ),
+      if (row && !byMonth)
+        Builder(
+          builder: (context) => Padding(
+            padding: const EdgeInsetsDirectional.only(start: 4, end: 4, top: 6),
+            child: Text(l.restoreStartHeightHelper, style: KitType.rowSub.copyWith(color: context.tokens.dim)),
           ),
         ),
     ],
@@ -331,7 +340,7 @@ class ScanStart extends StatelessWidget {
         if (picks)
           ExpandFade(
             open: c.open,
-            child: Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, 0), child: _choice(l, c)),
+            child: Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, 0), child: _choice(l, c, row: true)),
           ),
         Padding(
           padding: const EdgeInsetsDirectional.only(start: Kit.gutter + 4, end: 4, top: 8),

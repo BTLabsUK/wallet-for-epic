@@ -532,7 +532,6 @@ abstract final class TrustIds {
   static const receiveCodeCopy = 'g4.receive.code-copy';
   static const receiveCodeShare = 'g4.receive.code-share';
   static const receiveCodeDone = 'g4.receive.code-done';
-  static const receiveCodeShow = 'g4.receive.code-show';
   static const receiveArriveSheet = 'g4.receive.arrive-sheet';
   static const receiveArriveDone = 'g4.receive.arrive-done';
   static const receiveArriveView = 'g4.receive.arrive-view';
@@ -1112,7 +1111,6 @@ abstract final class TrustIds {
     'g4.receive.code-copy',
     'g4.receive.code-share',
     'g4.receive.code-done',
-    'g4.receive.code-show',
     'g4.receive.arrive-sheet',
     'g4.receive.arrive-done',
     'g4.receive.arrive-view',

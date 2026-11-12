@@ -23820,9 +23820,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get phoneRecvViewPayment => 'Zobacz płatność';
 
   @override
-  String get phoneRecvShowCode => 'Pokaż kod';
-
-  @override
   String phoneRecvArrivalFrom(String name) {
     return 'od $name';
   }
@@ -24089,4 +24086,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneKitPickerSaveFailed => 'Nie zapisano. Spróbuj ponownie.';
+
+  @override
+  String get phoneTxCancelledByUser =>
+      'Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą.';
+
+  @override
+  String get phoneTxCancelledIncoming =>
+      'Jeśli nadawca opublikuje płatność później, i tak dotrze.';
 }

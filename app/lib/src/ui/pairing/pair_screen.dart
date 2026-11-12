@@ -255,7 +255,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
               label: l.pairCodeLabel,
               placeholder: _error == null ? null : Text(_error!, textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: protocolLight.dim)),
             ),
-            const PairGap(14),
+            const PairGap(6),
             PairNote(contact == null ? l.pairCodeCaption : l.pairCodeCaptionFor(contact.name), center: true),
             const PairGap(14),
             Row(
