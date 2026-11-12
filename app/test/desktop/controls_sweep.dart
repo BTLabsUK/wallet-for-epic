@@ -286,7 +286,6 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<CancelResult> cancelTx(int id, {bool spendBack = true}) => _r('cancelTx', () => _m.cancelTx(id, spendBack: spendBack));
   @override
-  @override
   Future<String> saveContact(Contact contact) => _r('saveContact', () => _m.saveContact(contact));
   @override
   Future<void> deleteContact(String id) => _r('deleteContact', () => _m.deleteContact(id));
