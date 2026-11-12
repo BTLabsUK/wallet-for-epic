@@ -10,7 +10,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 
 import '../kit/kit_tokens.dart' show Kit;
-import 'fonts.dart' show phoneFontFallback;
+import 'fonts.dart' show interFamily, interFeatures, phoneFontFallback;
 import 'palette.dart';
 
 /// Every value the look may change. One instance per brightness.
@@ -478,9 +478,30 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     colorScheme: scheme,
     scaffoldBackgroundColor: t.bg,
     canvasColor: t.bg,
+    // The phone's body face is Inter (the designer's frames); titles and figures stay Montserrat.
+    fontFamily: interFamily,
     fontFamilyFallback: phoneFontFallback,
   );
-  final text = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
+  final applied = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
+  // The frames' body carries tnum and cv11 (wallet.css `.w`), so every text style does.
+  TextStyle? withFeatures(TextStyle? s) => s?.copyWith(fontFeatures: interFeatures);
+  final text = TextTheme(
+    displayLarge: withFeatures(applied.displayLarge),
+    displayMedium: withFeatures(applied.displayMedium),
+    displaySmall: withFeatures(applied.displaySmall),
+    headlineLarge: withFeatures(applied.headlineLarge),
+    headlineMedium: withFeatures(applied.headlineMedium),
+    headlineSmall: withFeatures(applied.headlineSmall),
+    titleLarge: withFeatures(applied.titleLarge),
+    titleMedium: withFeatures(applied.titleMedium),
+    titleSmall: withFeatures(applied.titleSmall),
+    bodyLarge: withFeatures(applied.bodyLarge),
+    bodyMedium: withFeatures(applied.bodyMedium),
+    bodySmall: withFeatures(applied.bodySmall),
+    labelLarge: withFeatures(applied.labelLarge),
+    labelMedium: withFeatures(applied.labelMedium),
+    labelSmall: withFeatures(applied.labelSmall),
+  );
   const tabular = [FontFeature.tabularFigures()];
   TextStyle? head(TextStyle? s, {double tracking = -0.3}) => s?.copyWith(
     fontFamily: t.headFamily,

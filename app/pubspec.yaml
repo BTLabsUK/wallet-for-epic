@@ -145,6 +145,8 @@ flutter:
     - assets/fonts/OFL-NotoSansThai.txt
     - assets/fonts/OFL-NotoSansSC.txt
     - assets/fonts/OFL-Geist.txt
+    - assets/fonts/OFL-Inter.txt
+    - assets/fonts/LICENSE-Lucide.txt
     # Word lists for the password estimate, from zxcvbn-ts (MIT; NOTICE.txt has the notices).
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
@@ -176,6 +178,20 @@ flutter:
     - linux/icons/hicolor/48x48/apps/epic-cash-desktop.png
     - linux/icons/hicolor/64x64/apps/epic-cash-desktop.png
   fonts:
+    # The phone's body face (KitType, the phone theme): Inter 4.1, OFL, Latin and Cyrillic subsets
+    # (tool/fonts_subset.py inter). tnum and cv11 are on in the styles (ui/theme/fonts.dart).
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+    # The phone's icons (ui/kit/kit_icons.dart): Lucide 1.72.0, ISC, the icons named in
+    # tool/lucide_icons.txt (tool/fonts_subset.py lucide).
+    - family: Lucide
+      fonts:
+        - asset: assets/fonts/Lucide.ttf
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat
       fonts:

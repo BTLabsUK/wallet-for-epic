@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../theme/fonts.dart' show interFamily, interFeatures;
 import '../theme/tokens.dart' show jetBrainsMono, montserrat;
 
 /// Sizes, radii and spaces, in logical pixels.
@@ -111,13 +112,14 @@ abstract final class Kit {
   static const double dividerInsetPlain = 14;
 }
 
-/// The type of the redesign. Montserrat for figures and titles, the platform face for rows and
-/// buttons, JetBrains Mono for amounts and addresses. Colour is left to the caller (a part
-/// copies the style with its colour). Figures are tabular.
+/// The type of the redesign, from wallet.css: Montserrat 600 for figures and titles, Inter for
+/// rows and buttons, JetBrains Mono for amounts and addresses. Colour is left to the caller (a
+/// part copies the style with its colour). Figures are tabular. A CSS letter-spacing in em is
+/// written here as em × size; a CSS line-height as the same multiple.
 abstract final class KitType {
   static const _tabular = [FontFeature.tabularFigures()];
 
-  static TextStyle _head(double size, double tracking, {FontWeight weight = FontWeight.w600, double? height}) => TextStyle(
+  static TextStyle _head(double size, double tracking, {FontWeight weight = FontWeight.w600, double height = 1.3}) => TextStyle(
     fontFamily: montserrat,
     fontSize: size,
     fontWeight: weight,
@@ -126,59 +128,125 @@ abstract final class KitType {
     fontFeatures: _tabular,
   );
 
-  /// Home balance, 50 (the fraction at [homeBalanceFraction] of it).
-  static final TextStyle homeBalance = _head(50, -0.03, height: 1.05);
+  /// The platform face: Inter, with tnum and cv11 like the frames' body. [height] is the CSS
+  /// line-height (the frames' body is 1.3).
+  static TextStyle _body(double size, {FontWeight weight = FontWeight.w400, double height = 1.3}) => TextStyle(
+    fontFamily: interFamily,
+    fontSize: size,
+    fontWeight: weight,
+    height: height,
+    fontFeatures: interFeatures,
+  );
+
+  /// `.amt`: Home balance, 50, line-height 1 (the fraction at [homeBalanceFraction] of it).
+  static final TextStyle homeBalance = _head(50, -0.03, height: 1);
   static const double homeBalanceFraction = 0.42;
 
-  /// Amount entry, 68; [amountEntryLong] when the figure is long.
-  static final TextStyle amountEntry = _head(68, -0.035, height: 1.05);
-  static final TextStyle amountEntryLong = _head(50, -0.035, height: 1.1);
-  static final TextStyle tabTitle = _head(30, -0.025, height: 1.15);
-  static final TextStyle pageTitle = _head(28, -0.025, height: 1.15);
+  /// `.big`: amount entry, 68, line-height 1; [amountEntryLong] when the figure is long.
+  static final TextStyle amountEntry = _head(68, -0.035, height: 1);
+  static final TextStyle amountEntryLong = _head(50, -0.035, height: 1);
+
+  /// `.ttl h1`.
+  static final TextStyle tabTitle = _head(30, -0.025);
+
+  /// `.ptitle`.
+  static final TextStyle pageTitle = _head(28, -0.025);
+
+  /// `.hdr .t`.
   static final TextStyle flowTitle = _head(17, -0.01);
-  static final TextStyle sheetTitle = _head(20, -0.01, height: 1.2);
-  static final TextStyle sectionHead = _head(18, -0.015, height: 1.2);
+
+  /// `.sheet h2`.
+  static final TextStyle sheetTitle = _head(20, -0.015);
+
+  /// `.sec h2`.
+  static final TextStyle sectionHead = _head(18, -0.015);
+
+  /// `.key`.
   static final TextStyle keypad = _head(26, 0);
 
-  /// The EPIC unit: 12, +0.16 em, in gold.
+  /// `.who h1`, the contact page's name.
+  static final TextStyle whoName = _head(22, -0.02);
+
+  /// The EPIC unit, `.amt u`: 12, +0.16 em, in gold.
   static final TextStyle unit = _head(12, 0.16);
 
-  /// The Max pill, "Available" figures and the avatar's initials share a small head face.
-  static final TextStyle initials = _head(13, 0);
+  /// `.av`: the avatar's initials, 13, +0.02 em.
+  static final TextStyle initials = _head(13, 0.02);
 
   // The platform face.
-  static const TextStyle rowTitle = TextStyle(fontSize: 15, fontWeight: FontWeight.w500, height: 1.25);
-  static const TextStyle rowSub = TextStyle(fontSize: 13, height: 1.3);
-  static const TextStyle groupLabel = TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.3);
-  static const TextStyle button = TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.2);
-  static const TextStyle buttonSmall = TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.2);
-  static const TextStyle chip = TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, height: 1.2);
-  static const TextStyle pill = TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.2);
-  static const TextStyle tag = TextStyle(fontSize: 11.5, fontWeight: FontWeight.w500, height: 1.2);
-  static const TextStyle toast = TextStyle(fontSize: 14.5, height: 1.3);
-  static const TextStyle toastAction = TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, height: 1.3);
-  static const TextStyle body = TextStyle(fontSize: 15, height: 1.4);
-  static const TextStyle navLink = TextStyle(fontSize: 16, height: 1.2);
+  /// `.rt b`.
+  static final TextStyle rowTitle = _body(15, weight: FontWeight.w500);
 
-  // JetBrains Mono.
+  /// `.rt span`.
+  static final TextStyle rowSub = _body(13);
+
+  /// `.glabel`.
+  static final TextStyle groupLabel = _body(13, weight: FontWeight.w500);
+
+  /// `.btn`.
+  static final TextStyle button = _body(16, weight: FontWeight.w600);
+
+  /// `.btn.sm`.
+  static final TextStyle buttonSmall = _body(14, weight: FontWeight.w600);
+
+  /// `.chip`.
+  static final TextStyle chip = _body(12.5, weight: FontWeight.w500);
+
+  /// `.pill`.
+  static final TextStyle pill = _body(13, weight: FontWeight.w500);
+
+  /// `.tag`.
+  static final TextStyle tag = _body(11.5, weight: FontWeight.w500);
+
+  /// `.toast`.
+  static final TextStyle toast = _body(14.5);
+
+  /// `.toast .ta`.
+  static final TextStyle toastAction = _body(14.5, weight: FontWeight.w600);
+
+  /// Running text; the frames use 1.4 to 1.45 (`.need p`, `.hint`, `.lead`).
+  static final TextStyle body = _body(15, height: 1.4);
+
+  /// `.back`.
+  static final TextStyle navLink = _body(16);
+
+  /// `.tab`: the tab bar label.
+  static final TextStyle tabLabel = _body(10.5, weight: FontWeight.w500);
+
+  /// `.search`, `.val`, `.lnk`.
+  static final TextStyle field = _body(15);
+
+  /// `.sec button`.
+  static final TextStyle sectionLink = _body(14, weight: FontWeight.w500);
+
+  /// `.ra span`.
+  static final TextStyle rowTrailSub = _body(12);
+
+  // JetBrains Mono (400; tracking is CSS em × size).
+  /// `.hero .a`: 40, line-height 1, -0.04 em.
   static const TextStyle amountOnPage = TextStyle(
     fontFamily: jetBrainsMono,
     fontSize: 40,
     letterSpacing: -1.6,
     fontFeatures: _tabular,
-    height: 1.1,
+    height: 1,
   );
+
+  /// `.ra b`: 15, weight 400, -0.02 em.
   static const TextStyle rowAmount = TextStyle(
     fontFamily: jetBrainsMono,
     fontSize: 15,
-    fontWeight: FontWeight.w500,
+    letterSpacing: -0.3,
     fontFeatures: _tabular,
-    height: 1.25,
+    height: 1.3,
   );
+
+  /// `.addr`: 14, line-height 1.55, -0.01 em.
   static const TextStyle address = TextStyle(
     fontFamily: jetBrainsMono,
     fontSize: 14,
+    letterSpacing: -0.14,
     fontFeatures: _tabular,
-    height: 1.4,
+    height: 1.55,
   );
 }
