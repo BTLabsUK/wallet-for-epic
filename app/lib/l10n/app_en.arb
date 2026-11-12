@@ -31628,5 +31628,17 @@
   "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
   "@phoneRestoreStartNote": {
     "description": "Help text under the Wallet created row on the Restore screen."
+  },
+  "phoneProgArrived": "Arrived",
+  "@phoneProgArrived": {
+    "description": "Payment steps of a payment you receive: the first step once the payment has arrived."
+  },
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "@phoneProgFinishesByItself": {
+    "description": "Detail under the confirming step of a payment you receive."
+  },
+  "phoneProgReadyToSpend": "Ready to spend",
+  "@phoneProgReadyToSpend": {
+    "description": "Last step of a payment you receive: the money can be spent."
   }
 }

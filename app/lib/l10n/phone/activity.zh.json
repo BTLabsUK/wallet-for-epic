@@ -85,5 +85,8 @@
   "phonePayRouteSubTor": "通过 Tor 直连对方钱包",
   "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
   "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
-  "phoneProgAtTime": "{time}"
+  "phoneProgAtTime": "{time}",
+  "phoneProgArrived": "Arrived",
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "phoneProgReadyToSpend": "Ready to spend"
 }

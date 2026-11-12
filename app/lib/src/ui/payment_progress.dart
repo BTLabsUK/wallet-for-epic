@@ -4,7 +4,9 @@
 /// the transaction, the chain's tip and the clock, so a screen and its test see the same steps.
 ///
 /// Sending: Sent → Waiting for Tom → In the network, waiting for a block → Confirmed.
-/// Receiving: Arriving → Sender finished → In the network, waiting for a block → Confirmed.
+/// Receiving, as the frame draws it: Arriving → (In the network, waiting for a block) →
+/// Confirming 2 of 6 → Ready to spend. Arriving reads "Arrived" once past, Confirming reads
+/// "Confirmed" once its block is found; the network step joins once the payment is on the network.
 /// A request this wallet sent: Requested → Paid → network → Confirmed.
 ///
 /// The current step carries one line saying why the payment is there ([PaymentProgress.reason]).
@@ -30,7 +32,7 @@ import 'kit/kit_steps.dart' show KitStep, KitStepState;
 
 /// The steps of one payment and where it is.
 class PaymentProgress {
-  const PaymentProgress({required this.steps, required this.current, required this.reason, required this.network});
+  const PaymentProgress({required this.steps, required this.current, required this.reason, required this.network, this.beforeNetwork = false});
 
   /// Four steps, each done, the current one, or later; a done step carries its time when the
   /// wallet knows it, the current one its [reason].
@@ -45,6 +47,9 @@ class PaymentProgress {
   /// The current step is the network step and the payment is on the network (not posted
   /// elsewhere or reposting): the animated network mark.
   final bool network;
+
+  /// The payment is not on the network yet (the current step is before the network step).
+  final bool beforeNetwork;
 
   /// Every step is done.
   bool get completed => current >= steps.length;
@@ -77,6 +82,7 @@ PaymentProgress? paymentProgress(
   final outgoing = tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled;
   final request = tx.isRequest;
   final name = who;
+  final incoming = !request && !outgoing;
 
   final List<String> labels;
   if (request) {
@@ -90,7 +96,7 @@ PaymentProgress? paymentProgress(
       l.txStepConfirmed,
     ];
   } else {
-    labels = [l.lvPayArriving, l.phoneProgSenderFinished, l.phoneProgNetwork, l.txStepConfirmed];
+    labels = [l.lvPayArriving, '', l.phoneProgNetwork, l.txStepConfirmed];
   }
 
   // The current step and its reason.
@@ -151,7 +157,7 @@ PaymentProgress? paymentProgress(
         };
       } else {
         at = 3;
-        reason = l.lvPayConfirming(confirmations, goal);
+        reason = incoming ? l.phoneProgFinishesByItself : l.lvPayConfirming(confirmations, goal);
       }
   }
 
@@ -171,6 +177,33 @@ PaymentProgress? paymentProgress(
     tx.status == TxStatus.confirmed ? time(tx.blockTimeUnix) : null,
   ];
 
+  if (incoming) {
+    // Stages 0, 2, 3 and 4 (ready to spend); the sender's step never is the current one.
+    final stage = at == 1 ? 0 : at;
+    final stages = [0, if (stage >= 2) 2, 3, 4];
+    final steps = [
+      for (final s in stages)
+        KitStep(
+          title: switch (s) {
+            0 => stage > 0 ? l.phoneProgArrived : l.lvPayArriving,
+            2 => l.phoneProgNetwork,
+            3 => stage >= 4 ? l.txStepConfirmed : l.lvPayConfirming(confirmations, goal),
+            _ => l.phoneProgReadyToSpend,
+          },
+          state: s < stage || stage >= 4 ? KitStepState.done : (s == stage ? KitStepState.now : KitStepState.later),
+          detail: s < stage || stage >= 4 ? (s == 0 || s == 3 ? times[s] : null) : (s == stage ? reason : null),
+          network: s == 2,
+        ),
+    ];
+    return PaymentProgress(
+      steps: steps,
+      current: stage >= 4 ? steps.length : stages.indexOf(stage),
+      reason: reason,
+      network: network,
+      beforeNetwork: stage < 2,
+    );
+  }
+
   return PaymentProgress(
     steps: [
       // The frames draw three steps until the payment is on the network; the network step
@@ -187,6 +220,7 @@ PaymentProgress? paymentProgress(
     current: at,
     reason: reason,
     network: network,
+    beforeNetwork: at < 2,
   );
 }
 

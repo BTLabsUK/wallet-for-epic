@@ -23584,4 +23584,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneRestoreStartNote =>
       'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+
+  @override
+  String get phoneProgArrived => 'Arrived';
+
+  @override
+  String get phoneProgFinishesByItself =>
+      'It finishes by itself. You can leave this screen.';
+
+  @override
+  String get phoneProgReadyToSpend => 'Ready to spend';
 }

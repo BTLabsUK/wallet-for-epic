@@ -353,7 +353,7 @@ class _BubbleSteps extends StatelessWidget {
                   child: Text(
                     switch (steps[i].state) {
                       KitStepState.done => steps[i].detail == null ? steps[i].title : '${steps[i].title} ${steps[i].detail}',
-                      KitStepState.now => waiting != null && steps[i].detail == waiting!.reason ? waiting!.text : (steps[i].detail ?? steps[i].title),
+                      KitStepState.now => steps[i].detail == context.l10n.phoneProgFinishesByItself ? steps[i].title : waiting != null && steps[i].detail == waiting!.reason ? waiting!.text : (steps[i].detail ?? steps[i].title),
                       KitStepState.later => steps[i].title,
                     },
                     style: style.copyWith(

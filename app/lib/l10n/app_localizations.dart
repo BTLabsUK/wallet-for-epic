@@ -36539,6 +36539,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.'**
   String get phoneRestoreStartNote;
+
+  /// Payment steps of a payment you receive: the first step once the payment has arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get phoneProgArrived;
+
+  /// Detail under the confirming step of a payment you receive.
+  ///
+  /// In en, this message translates to:
+  /// **'It finishes by itself. You can leave this screen.'**
+  String get phoneProgFinishesByItself;
+
+  /// Last step of a payment you receive: the money can be spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to spend'**
+  String get phoneProgReadyToSpend;
 }
 
 class _AppLocalizationsDelegate
