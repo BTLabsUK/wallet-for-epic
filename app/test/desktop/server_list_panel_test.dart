@@ -7,6 +7,7 @@
 // server is removed; the directory's new servers join and removed ones stay out; the first
 // list carries the old My nodes and removedNodes; icons with initials as the fallback; only the
 // rows scroll; in Setup a pick chooses.
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -53,6 +54,24 @@ class _LanDown extends MockDeskWallet {
   ];
 }
 
+/// The mock wallet whose check of [hung] answers only when the test says ([answer]); every
+/// useNode is kept.
+class _HungCheck extends MockDeskWallet {
+  _HungCheck(this.hung) : super(delay: Duration.zero);
+  final String hung;
+  final answer = Completer<NodeServer>();
+  final used = <String>[];
+
+  @override
+  Future<NodeServer> checkNode(String url) => url == hung ? answer.future : super.checkNode(url);
+
+  @override
+  Future<void> useNode(String url) {
+    used.add(url);
+    return super.useNode(url);
+  }
+}
+
 const _btlabs = 'https://node.lab.invalid';
 const _epicnet = 'https://node.net.invalid:3413';
 const _epiccash = 'https://node.epic.invalid:3413';
@@ -63,9 +82,9 @@ void main() {
   late MemorySecretStore secrets;
   late FakeRelayProbe probe;
 
-  ProviderContainer make({Map<String, dynamic>? prefs}) => ProviderContainer(
+  ProviderContainer make({Map<String, dynamic>? prefs, MockDeskWallet? api}) => ProviderContainer(
     overrides: [
-      deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)),
+      deskApiProvider.overrideWithValue(api ?? MockDeskWallet(delay: Duration.zero)),
       deskNodeProvider.overrideWithValue(MockDeskNode()),
       deskStoreProvider.overrideWithValue(DeskStore(secrets)),
       deskBootProvider.overrideWithValue(DeskBoot(prefs: prefs)),
@@ -284,6 +303,44 @@ void main() {
     await end(tester);
   });
 
+  testWidgets('a Node pick while an older one is checked is taken: the last pick wins, the late answer changes nothing', (tester) async {
+    final api = _HungCheck(_epiccash);
+    container.dispose();
+    container = make(api: api);
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
+    final before = container.read(deskProvider).status!.node.url;
+    ServerListPanel panel() => tester.widget<ServerListPanel>(find.byType(ServerListPanel));
+    final oldSub = panel().fieldSub;
+    expect(oldSub, isNotNull);
+
+    await tap(tester, row(_epiccash));
+    expect(panel().busy, isTrue, reason: 'the first pick is checked');
+    expect(panel().fieldText, 'node.epic.invalid:3413');
+    expect(panel().fieldSub, isNot(oldSub), reason: 'the second line names the node picked, never the one left');
+    // The list opens while busy too.
+    final state = tester.state<ServerListPanelState>(find.byType(ServerListPanel));
+    state.collapse();
+    await settle(tester);
+    state.open();
+    await settle(tester);
+    expect(state.isOpen, isTrue);
+
+    await tap(tester, row(_epicnet));
+    await settle(tester, 10);
+    expect(api.used, [_epicnet]);
+    expect(container.read(deskProvider).status!.node.url, _epicnet);
+    expect(panel().fieldText, 'node.net.invalid:3413');
+    expect(panel().fieldSub, isNot(oldSub));
+
+    // The first pick's node answers late: nothing moves back.
+    api.answer.complete(NodeServer(url: _epiccash, label: 'late', health: ServiceHealth.ok));
+    await settle(tester, 10);
+    expect(api.used, [_epicnet]);
+    expect(container.read(deskProvider).status!.node.url, _epicnet);
+    expect(before, isNot(_epicnet));
+    await end(tester);
+  });
+
   testWidgets('the bin removes with Undo; a removed server is gone, with no Restore', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     final at = nodes().indexOf(_epiccash);
@@ -429,6 +486,41 @@ void main() {
     await tap(tester, find.byKey(const ValueKey('server-list-add')));
     expect(tested, ['http://192.168.1.30:3413'], reason: 'the local network answers plain http');
     expect(chosen.last, 'http://192.168.1.30:3413');
+    await end(tester);
+  });
+
+  testWidgets('a relay panel ignores a pick while a switch runs', (tester) async {
+    final busy = ValueNotifier(false);
+    final chosen = <String>[];
+    await show(
+      tester,
+      Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: 520,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: busy,
+            builder: (context, b, child) => ServerListPanel(
+              kind: ServerKind.relay,
+              label: 'Epicbox',
+              value: 'box.lab.invalid',
+              fieldText: 'box.lab.invalid',
+              servers: [PanelServer.bare(ServerKind.relay, 'box.lab.invalid'), PanelServer.bare(ServerKind.relay, 'box.stack.invalid')],
+              source: const DeskServerSource(public: ['box.lab.invalid', 'box.stack.invalid']),
+              busy: b,
+              openInitially: true,
+              onChoose: (v) async => chosen.add(v),
+              onTest: (_) async => null,
+            ),
+          ),
+        ),
+      ),
+    );
+    busy.value = true;
+    await settle(tester);
+    await tap(tester, row('box.stack.invalid'));
+    expect(find.byType(EDialog), findsNothing);
+    expect(chosen, isEmpty);
     await end(tester);
   });
 
