@@ -236,8 +236,8 @@ class EQr extends StatelessWidget {
         ],
       ),
       child: switch (image) {
-        final image? => LogoQrImage(image: image, size: size - 28.u, logo: epic1 ? QrLogo.epic1 : QrLogo.bt),
-        null => LogoQr(data: data, size: size - 28.u, logo: epic1 ? QrLogo.epic1 : QrLogo.bt),
+        final image? => LogoQrImage(image: image, size: size - 28.u, logo: epic1 ? QrLogo.epic1Block : QrLogo.bt),
+        null => LogoQr(data: data, size: size - 28.u, logo: epic1 ? QrLogo.epic1Block : QrLogo.bt),
       },
     );
   }

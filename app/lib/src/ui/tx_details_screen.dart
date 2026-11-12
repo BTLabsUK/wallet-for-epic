@@ -1570,7 +1570,8 @@ class _PayHero extends StatelessWidget {
         ? (outgoing ? l.phonePayTo(who!) : l.phonePayFrom(who!))
         : txHeading(l, tx, contactName: name);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter, 6, Kit.gutter, 0),
+      // `.hero` sits 6 under the nav: the header's own 6 without a title.
+      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
       child: Column(
         children: [
           // `.hero .av`: 48, radius 16, the initials 15; a thing that is not a person has an icon.
@@ -2018,7 +2019,8 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
               style: KitType.rowSub.copyWith(color: t.dim),
             ),
             const SizedBox(height: 6),
-            MarkedAddress(counterparty, selectable: true, style: KitType.address.copyWith(color: t.dim)),
+            // The frame's .addr glyph pitch measures 7.82 px (44 to a line), as on Receive.
+            MarkedAddress(counterparty, selectable: true, flat: true, flow: true, style: KitType.address.copyWith(letterSpacing: -0.55)),
             if (tx.manualFields.contains(ManualField.counterparty))
               Padding(
                 padding: const EdgeInsets.only(top: 4),

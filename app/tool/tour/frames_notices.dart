@@ -38,8 +38,8 @@ final List<(String, _Start, _Visit)> _framesNotices = [
     _Start.home,
     (t) async {
       await _clearToasts(t);
-      await t.tapText(t.l.homeSendButton);
-      // The keypad amount step of the frame is the Send area's; until it lands the toast sits over the first step.
+      // The frame's flow: Send-2's amount step (12.5 to Tom, the Tickets note) under the toast.
+      await _sendToTom(t);
       _arrivalToast(t);
       await t.frames();
       await t.shot('fr-Notice-3-Toast-Flow');

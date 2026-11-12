@@ -2,7 +2,7 @@
 /// Every QR code the wallet shows, in one look (the epic1 brand pack's QR, `~/epic1-branding`,
 /// the promo): square dots with small gaps, rounded finder squares, error correction level H,
 /// and a logo on a clear patch in the centre. epic1 codes (links, in-person codes and answers,
-/// pairing and device invites) carry the block 1 of the epic1 mark in amber; the rest
+/// pairing and device invites) carry the epic1 icon (the block 1 in amber, two noise columns); the rest
 /// (addresses, the phrase, payment files) carry the BT Wallet mark in ink.
 library;
 
@@ -19,8 +19,11 @@ enum QrLogo {
   /// The BT Wallet mark ([paintBtMark]), in ink: the brand kit's rule for light ground.
   bt(PaletteLight.text, PaletteLight.text),
 
-  /// The block 1 of the epic1 mark, in the epic1 pack's amber, with its ink.
-  epic1(PaletteEpic1.ink, PaletteEpic1.amber);
+  /// The epic1 icon: the block 1 in the pack's amber, the noise in its ink.
+  epic1(PaletteEpic1.ink, PaletteEpic1.amber),
+
+  /// The block 1 alone, in amber: the desktop's epic1 codes.
+  epic1Block(PaletteEpic1.ink, PaletteEpic1.amber);
 
   const QrLogo(this.ink, this.mark);
 
@@ -118,8 +121,11 @@ class LogoQrPainter extends CustomPainter {
 /// The epic1 mark's grid (brand pack `tokens.json`); columns 0 to 2 are the 1.
 const List<String> _epic1Grid = ['.#..#..', '##....#', '.#.#...', '.#...#.', '###.#..'];
 
-/// The block 1's height, as a share of the patch's side.
-const double _epic1MarkFraction = 0.72;
+/// The noise columns' ink opacity (brand pack: columns 3 to 6 at 0.6, 0.45, 0.32, 0.22).
+const List<double> _epic1Noise = [0.6, 0.45];
+
+/// The mark's height, as a share of the patch's side (the frames' 30 px on a 53 px patch).
+const double _epic1MarkFraction = 0.57;
 
 /// The BT Wallet mark's width, as a share of the patch's side.
 const double _btMarkFraction = 0.8;
@@ -180,17 +186,21 @@ void paintLogoQr(Canvas canvas, QrImage image, {required QrLogo logo, required O
     case QrLogo.bt:
       final w = patchSide * _btMarkFraction;
       paintBtMark(canvas, Rect.fromCenter(center: centre, width: w, height: w), mark);
-    case QrLogo.epic1:
-      // The block 1: a 3 x 5 grid of 10-unit cells, 9-unit blocks, centred in the patch.
-      final unit = patchSide * _epic1MarkFraction / 49;
-      final x0 = centre.dx - 14.5 * unit;
+    case QrLogo.epic1 || QrLogo.epic1Block:
+      // The brand pack's icon: columns 0 to 4 of the 7 x 5 grid (10-unit cells, 9-unit blocks),
+      // centred in the patch; the 1 in amber, the noise in ink at its opacity.
+      // The desktop's block 1 alone: columns 0 to 2, 0.72 of the patch.
+      final block = logo == QrLogo.epic1Block;
+      final unit = patchSide * (block ? 0.72 : _epic1MarkFraction) / 49;
+      final x0 = centre.dx - (block ? 14.5 : 24.5) * unit;
       final y0 = centre.dy - 24.5 * unit;
       for (var y = 0; y < _epic1Grid.length; y++) {
-        for (var x = 0; x < 3; x++) {
+        for (var x = 0; x < (block ? 3 : 5); x++) {
           if (_epic1Grid[y][x] != '#') continue;
+          final paint = x < 3 ? mark : (Paint()..color = logo.ink.withValues(alpha: _epic1Noise[x - 3]));
           canvas.drawRRect(
             RRect.fromRectAndRadius(Rect.fromLTWH(x0 + x * 10 * unit, y0 + y * 10 * unit, 9 * unit, 9 * unit), Radius.circular(.6 * unit)),
-            mark,
+            paint,
           );
         }
       }

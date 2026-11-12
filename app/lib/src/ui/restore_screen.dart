@@ -453,7 +453,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                   padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
                   child: Text(l.restoreReplaceLead, style: KitType.rowSub.copyWith(color: t.dim)),
                 ),
-              KitGroupLabel(l.restorePhraseLabel, top: 20),
+              KitGroupLabel(l.restorePhraseLabel, top: 22),
               Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: _phraseBox(context)),
               RestoreWordCheck(text: _phrase.text),
               if (_error != null)

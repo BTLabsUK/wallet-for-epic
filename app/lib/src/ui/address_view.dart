@@ -29,12 +29,17 @@ class MarkedAddress extends StatelessWidget {
     this.onTap,
     this.center = false,
     this.flat = false,
+    this.flow = false,
   });
 
   final String address;
 
   /// The designer frames' look: the marked parts in regular weight, `@server` faint.
   final bool flat;
+
+  /// The whole address as one text that wraps anywhere, the server straight after the key (the
+  /// More details sheet's frame).
+  final bool flow;
 
   /// The size and colour of the key; the face is always mono. bodyMedium by default.
   final TextStyle? style;
@@ -87,7 +92,9 @@ class MarkedAddress extends StatelessWidget {
     // An Epicbox server always has its own line; a link's path stays beside its host when the
     // whole link fits on one line.
     final link = lines.length > 1 && !lines.last.first.text.startsWith('@');
-    final body = !link
+    final body = flow
+        ? line([for (final p in lines.expand((l) => l)) AddressPart(p.text, p.tone)])
+        : !link
         ? column()
         : LayoutBuilder(
             builder: (context, box) {

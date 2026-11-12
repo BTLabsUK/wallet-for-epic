@@ -256,7 +256,8 @@ class _LinkCard extends StatelessWidget {
           key: epic1QrKey,
           child: ReceiveQr(address: link, semanticsLabel: l.deskE1PhLinkQrLabel, logo: QrLogo.epic1),
         ),
-        const SizedBox(height: 18),
+        // The frame's heading line sits 20 under the QR block (its mark is taller than the text).
+        const SizedBox(height: 20),
         Center(child: Epic1Text(l.deskE1PhLinkTitle, style: KitType.flowTitle.copyWith(color: t.text, fontSize: 18))),
         const SizedBox(height: 12),
         Center(child: KitChip(amount == null ? l.deskE1PhAnyAmount : l.deskE1PhLinkAsks(epicFor(l, amount!)))),

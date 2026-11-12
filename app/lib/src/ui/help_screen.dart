@@ -272,6 +272,8 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               ),
           ]
         : [
+            // The frame draws the first group 21 below the search and 21 between groups.
+            const SizedBox(height: 14),
             KitGroup(
               children: [
                 for (final s in sections.where((s) => s.id != pairingHelpSection))
@@ -285,13 +287,13 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   ),
               ],
             ),
-            const SizedBox(height: Kit.groupGap),
+            const SizedBox(height: Kit.groupGap + 2),
             KitGroup(
               children: [
                 KitRow(
                   key: helpShowTourKey,
                   size: KitRowSize.settings,
-                  leading: KitIconWell(Icons.play_circle_outline_rounded, color: t.accentText, iconSize: 20),
+                  leading: KitIconWell(KitIcons.play, color: t.accentText, iconSize: 20),
                   title: l.tourPhoneShowAgain,
                   chevron: true,
                   semanticsId: TrustIds.helpTour,
@@ -302,7 +304,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   child: KitRow(
                     key: helpFeedbackKey,
                     size: KitRowSize.settings,
-                    leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accentText, iconSize: 20),
+                    leading: KitIconWell(KitIcons.message, color: t.accentText, iconSize: 20),
                     title: l.settingsSendFeedback,
                     chevron: true,
                     semanticsId: TrustIds.helpReport,
@@ -323,7 +325,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   ),
               ],
             ),
-            const SizedBox(height: Kit.groupGap),
+            const SizedBox(height: Kit.groupGap + 2),
             KitGroup(
               children: [
                 KitRow(
@@ -339,7 +341,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
             // The index has no place for these in the design: Pairing's page and the help's
             // language sit last.
             if (sections.any((s) => s.id == pairingHelpSection)) ...[
-              const SizedBox(height: Kit.groupGap),
+              const SizedBox(height: Kit.groupGap + 2),
               KitGroup(
                 children: [
                   for (final s in sections.where((s) => s.id == pairingHelpSection))
@@ -377,7 +379,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   backLabel: widget.backLabel ?? l.phoneKitBack,
                   onBack: () => Navigator.of(context).maybePop(),
                   title: l.helpTitle,
-                  bottomGap: 11,
+                  bottomGap: 12,
                   onHelp: () => showKitHelp(
                     context,
                     title: l.helpTitle,
@@ -414,12 +416,12 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
 
 /// The icon of a Help section on the index.
 IconData _sectionIcon(String id) => switch (id) {
-  'start' => Icons.flag_outlined,
-  'how' => Icons.swap_horiz_rounded,
+  'start' => KitIcons.flag,
+  'how' => KitIcons.exchange,
   'network' => KitIcons.network,
   'safety' => KitIcons.security,
-  'maintenance' => Icons.build_outlined,
-  'trouble' => Icons.error_outline_rounded,
+  'maintenance' => KitIcons.tools,
+  'trouble' => KitIcons.error,
   _ => KitIcons.devices,
 };
 
@@ -540,7 +542,7 @@ class _ReportRow extends StatelessWidget {
       children: [
         KitRow(
           size: KitRowSize.list,
-          leading: KitIconWell(Icons.chat_bubble_outline_rounded, color: t.accentText, iconSize: 20),
+          leading: KitIconWell(KitIcons.message, color: t.accentText, iconSize: 20),
           title: l.settingsSendFeedback,
           chevron: true,
           semanticsId: TrustIds.helpReport,

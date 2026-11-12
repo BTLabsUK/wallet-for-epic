@@ -90,8 +90,9 @@ final List<(String, _Start, _Visit)> _framesSend = [
   }),
 ];
 
-/// The Send frames draw the classic Send; the other frames' wallet is in epic1 mode.
-final Set<String> _framesSendClassic = {for (final v in _framesSend) v.$1};
+/// The Send frames (and Notice-3, which draws Send-2 under a toast) draw the classic Send; the
+/// other frames' wallet is in epic1 mode.
+final Set<String> _framesSendClassic = {for (final v in _framesSend) v.$1, 'fr-Notice-3-Toast-Flow'};
 
 /// Per-frame data on top of the base wallet (frame_data.dart), by visit name.
 final Map<String, void Function(FakeWalletSession s)> _sendSeeds = {
