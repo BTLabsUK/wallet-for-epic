@@ -55,7 +55,8 @@ class PaymentProgress {
 /// [who] is the other side's name (null: "the recipient" or "the sender"), [target] the
 /// confirmations the wallet counts a payment complete at, [reserved] the formatted amount a
 /// waiting send keeps set aside ("12.508 EPIC"), [wait] why a payment past its watch window is
-/// still in no block, [paused] that Epicbox is off, [killSwitch] that every connection is held.
+/// still in no block, [paused] that Epicbox is off, [killSwitch] that every connection is held,
+/// [clockAt] that a step done today carries "at 18:12" instead of "Today 18:12".
 PaymentProgress? paymentProgress(
   AppLocalizations l,
   TxEntry tx,
@@ -67,6 +68,7 @@ PaymentProgress? paymentProgress(
   BlockWait wait = BlockWait.none,
   bool paused = false,
   bool killSwitch = false,
+  bool clockAt = false,
 }) {
   if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase || tx.origin != TxOrigin.thisWallet) return null;
   final phase = txPhase(tx, tip, target: target);
@@ -158,7 +160,8 @@ PaymentProgress? paymentProgress(
   String? time(int? unix) {
     if (unix == null || unix <= 0) return null;
     final at = localTime(unix);
-    // "Today 18:12", as the frames print it.
+    // "Today 18:12", as the frames print it; the contact page's bubble: "at 18:12".
+    if (clockAt && daysAgo(at, now) == 0) return l.phoneProgAtTime(localClock(l, at));
     return daysAgo(at, now) == 0 ? '${l.dateToday} ${localClock(l, at)}' : shortDate(l, at, now);
   }
   final times = <String?>[

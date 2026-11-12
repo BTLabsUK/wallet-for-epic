@@ -84,5 +84,6 @@
   "phonePayRouteSubFile": "Eine Zahlungsdatei, die hin und her geht",
   "phonePayRouteSubTor": "Direkt an ihre Wallet, über Tor",
   "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneProgAtTime": "um {time}"
 }

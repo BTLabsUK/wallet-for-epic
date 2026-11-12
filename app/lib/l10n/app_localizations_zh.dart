@@ -21929,4 +21929,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return '等待 $who 的钱包回应';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return '$time';
+  }
 }

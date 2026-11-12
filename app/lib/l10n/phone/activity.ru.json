@@ -84,5 +84,6 @@
   "phonePayRouteSubFile": "Файл платежа, который передают туда и обратно",
   "phonePayRouteSubTor": "Напрямую в их кошелёк, через Tor",
   "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneProgAtTime": "в {time}"
 }

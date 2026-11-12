@@ -36425,6 +36425,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for {who}\'s wallet to answer'**
   String phoneContactsWaitingAnswer(String who);
+
+  /// Payment steps on a contact's page: the clock time of a step done today, after the step word (Sent at 18:12). {time} is the clock.
+  ///
+  /// In en, this message translates to:
+  /// **'at {time}'**
+  String phoneProgAtTime(String time);
 }
 
 class _AppLocalizationsDelegate

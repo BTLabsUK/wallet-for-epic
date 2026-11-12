@@ -6066,5 +6066,6 @@
   "phoneContactsPaidYou": "Заплатил(а) вам",
   "phoneContactsArriving": "{count, plural, few{{count} платежа в пути} many{{count} платежей в пути} other{{count} платежа в пути}}",
   "phoneContactsNow": "Сейчас",
-  "phoneContactsWaitingAnswer": "Ждём ответа кошелька: {who}"
+  "phoneContactsWaitingAnswer": "Ждём ответа кошелька: {who}",
+  "phoneProgAtTime": "в {time}"
 }

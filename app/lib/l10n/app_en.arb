@@ -31563,5 +31563,14 @@
         "type": "String"
       }
     }
+  },
+  "phoneProgAtTime": "at {time}",
+  "@phoneProgAtTime": {
+    "description": "Payment steps on a contact's page: the clock time of a step done today, after the step word (Sent at 18:12). {time} is the clock.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

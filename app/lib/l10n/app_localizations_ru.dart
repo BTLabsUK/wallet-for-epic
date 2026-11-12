@@ -23960,4 +23960,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return 'Ждём ответа кошелька: $who';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return 'в $time';
+  }
 }

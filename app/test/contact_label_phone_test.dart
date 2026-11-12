@@ -92,14 +92,16 @@ void main() {
     }
   });
 
-  testWidgets('the contact page mark opens the picker; setting and clearing a label updates it and the stored contact', (tester) async {
+  testWidgets('the contact page draws no mark for the plain wallet; Label in the menu opens the picker, and a set kind draws a mark that opens it too', (tester) async {
     await _pump(tester, const ContactsScreen());
     await tester.tap(find.text('Alice').first);
     await tester.pumpAndSettle();
     expect(find.byType(ContactPage), findsOneWidget);
-    // The default shows a faint mark that can be tapped.
-    expect(find.byType(ContactLabelMark), findsOneWidget);
-    await tester.tap(find.byType(ContactLabelMark));
+    // The default is the frame's plain avatar: no mark.
+    expect(find.byType(ContactLabelMark), findsNothing);
+    await tester.tap(find.byKey(contactPageMoreKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(contactPageLabelKey));
     await tester.pumpAndSettle();
     expect(find.byKey(contactLabelSheetKey), findsOneWidget);
     await tester.tap(find.byKey(contactLabelRowKey(ContactLabel.vendor)));
@@ -113,6 +115,6 @@ void main() {
     await tester.tap(find.byKey(contactLabelRowKey(ContactLabel.wallet)));
     await tester.pumpAndSettle();
     expect(await _stored('Alice'), ContactLabel.wallet);
-    expect(tester.widget<ContactLabelMark>(find.byType(ContactLabelMark)).label, ContactLabel.wallet);
+    expect(find.byType(ContactLabelMark), findsNothing);
   });
 }

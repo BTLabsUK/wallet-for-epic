@@ -6066,5 +6066,6 @@
   "phoneContactsPaidYou": "จ่ายให้คุณแล้ว",
   "phoneContactsArriving": "{count} การชำระเงินกำลังมา",
   "phoneContactsNow": "ตอนนี้",
-  "phoneContactsWaitingAnswer": "กำลังรอกระเป๋าของ {who} ตอบกลับ"
+  "phoneContactsWaitingAnswer": "กำลังรอกระเป๋าของ {who} ตอบกลับ",
+  "phoneProgAtTime": "เวลา {time}"
 }

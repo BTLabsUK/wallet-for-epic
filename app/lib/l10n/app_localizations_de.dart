@@ -23510,4 +23510,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return 'Warten auf die Wallet von $who';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return 'um $time';
+  }
 }

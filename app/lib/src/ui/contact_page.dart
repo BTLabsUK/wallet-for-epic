@@ -43,7 +43,8 @@ import 'tx_details_screen.dart' show TxDetailsScreen;
 import '../trust_ids.dart';
 import 'levels/payment_steps.dart' show paymentStepWord;
 import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
-import 'contact_label_mark.dart' show AvatarLabelMark;
+import '../contact_label.dart' show ContactLabelListMark;
+import 'contact_label_mark.dart' show AvatarLabelMark, ContactLabelGlyph;
 import 'contact_label_picker.dart';
 import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
@@ -69,6 +70,7 @@ import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 /// Keys of the contact page, for tests.
 const Key contactPageSendKey = ValueKey('contact-page-send');
 const Key contactPageEditKey = ValueKey('contact-page-edit');
+const Key contactPageLabelKey = ValueKey('contact-page-label');
 const Key contactPageCodeKey = ValueKey('contact-page-code');
 const Key contactPageMoreKey = ValueKey('contact-page-more');
 const Key contactPageBackKey = ValueKey('contact-page-back');
@@ -128,14 +130,15 @@ class _Payments extends ConsumerWidget {
       final key = when.year * 10000 + when.month * 100 + when.day;
       if (key != day) {
         day = key;
-        // `.day`: centred, 12 faint, 14 above and 8 below (18 above the first).
+        // `.day`: centred, 12 faint, 14 above and 8 below (18 above the first); the bubble's 8 below
+        // collapses into the 14, so 6 more after a bubble.
         children.add(
           Padding(
-            padding: EdgeInsets.fromLTRB(0, children.isEmpty ? 18 : 14, 0, 8),
+            padding: EdgeInsets.fromLTRB(0, children.isEmpty ? 18 : 6, 0, 8),
             child: Center(
               child: Semantics(
                 header: true,
-                child: Text(_bubbleDay(l, when, now), style: KitType.rowSub.copyWith(color: t.faint, fontSize: 12)),
+                child: Text(_bubbleDay(l, when, now), style: KitType.rowSub.copyWith(color: t.faint, fontSize: 12, height: 1.3)),
               ),
             ),
           ),
@@ -214,6 +217,7 @@ class _PaymentBubble extends ConsumerWidget {
             target: target,
             paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
             killSwitch: NetGate.killSwitch,
+            clockAt: true,
           )
         : null;
     final amountColor = cancelled
@@ -228,13 +232,14 @@ class _PaymentBubble extends ConsumerWidget {
       bottomStart: Radius.circular(outgoing ? 20 : 7),
       bottomEnd: Radius.circular(outgoing ? 7 : 20),
     );
-    final statusStyle = KitType.rowSub.copyWith(color: inProgress ? t.info : t.dim, fontSize: 12.5);
+    final statusStyle = KitType.rowSub.copyWith(color: inProgress ? t.info : t.dim, fontSize: 12.5, height: 1.3);
     // A bubble that is finished says so, whichever way the money went.
     final done = tx.status == TxStatus.confirmed ? l.phonePayCompleted : step;
     return Align(
       alignment: outgoing ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        // The page's own 16 gutter is the bubble's `margin: 0 16px`.
+        padding: const EdgeInsets.only(bottom: 8),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 268),
           child: kitId(
@@ -261,7 +266,8 @@ class _PaymentBubble extends ConsumerWidget {
                     border: Border.all(color: inProgress ? t.info.withValues(alpha: 0.38) : t.hair),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    // CSS padding 12 14 plus the 1 px border (a DecoratedBox's border takes no room).
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -273,7 +279,7 @@ class _PaymentBubble extends ConsumerWidget {
                             fontSize: 21,
                             fontWeight: FontWeight.w500,
                             letterSpacing: -0.63,
-                            height: 1.2,
+                            height: 1.3,
                             color: amountColor,
                             decoration: cancelled ? TextDecoration.lineThrough : null,
                             decorationColor: amountColor,
@@ -281,7 +287,7 @@ class _PaymentBubble extends ConsumerWidget {
                         ),
                         if (label != null && label.isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Text(label, style: KitType.rowTitle.copyWith(color: t.text, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text(label, style: KitType.rowTitle.copyWith(color: t.text, fontSize: 14, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
                         ],
                         if (progress != null) ...[
                           const SizedBox(height: 10),
@@ -330,7 +336,7 @@ class _BubbleSteps extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final style = KitType.rowSub.copyWith(fontSize: 13);
+    final style = KitType.rowSub.copyWith(fontSize: 13, height: 1.3);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -607,6 +613,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                     tooltip: l.contactMore,
                     onSelected: (v) => switch (v) {
                       'edit' => _edit(contact),
+                      'label' => _pickLabel(context, ref, contact),
                       'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
                       'code' when contact.addresses.isNotEmpty => _showCode(contact),
                       'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
@@ -618,6 +625,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                         key: contactPageEditKey,
                         value: 'edit',
                         child: ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l.contactEdit)),
+                      ),
+                      PopupMenuItem(
+                        key: contactPageLabelKey,
+                        value: 'label',
+                        child: ListTile(leading: ContactLabelGlyph(contact.label, size: 24, color: t.dim), title: Text(l.deskConLabelTitle)),
                       ),
                       PopupMenuItem(
                         key: contactPageStarKey,
@@ -856,6 +868,8 @@ class _Header extends ConsumerWidget {
     final classicOnly = ref.watch(classicOnlyProvider(contact.id));
     final paired = p != null && !p.ended && p.state.isPaired;
     final dim = KitType.rowSub.copyWith(color: t.dim);
+    final verifiedPlain = p != null && p.state == PairingState.verified && !p.removedByPeer && !p.notAnswering;
+    final showTrust = p != null && pairingVouchesFor(p, contact.epicbox) && !verifiedPlain;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -871,7 +885,8 @@ class _Header extends ConsumerWidget {
             child: AvatarLabelMark(
               avatar: _FaceAvatar(contactInitials(contact.name)),
               size: _FaceAvatar.side,
-              label: contact.label,
+              // The plain wallet draws no mark (the frame has none); Label in the menu sets it.
+              label: contact.label.listMark,
               onTap: () => _pickLabel(context, ref, contact),
             ),
           ),
@@ -909,14 +924,16 @@ class _Header extends ConsumerWidget {
         ],
         if (classicOnly) ...[const SizedBox(height: 6), const ClassicOnlyText()],
         // Verified is about the Epicbox address: none beside one the pairing did not bring.
-        if ((p != null && pairingVouchesFor(p, contact.epicbox)) || noPayments || (!noPayments && p != null && p.allowInvoices)) ...[
+        // A verified pairing draws no badge here: the paired line above already says it, as the frame
+        // has it; Paired, not verified, Keys changed, Removed and the rest still show.
+        if (showTrust || noPayments || (!noPayments && p != null && p.allowInvoices)) ...[
           const SizedBox(height: 8),
           Wrap(
             alignment: WrapAlignment.center,
             spacing: 6,
             runSpacing: 4,
             children: [
-              if (p != null && pairingVouchesFor(p, contact.epicbox)) TrustBadge(p),
+              if (showTrust) TrustBadge(p),
               if (noPayments) NoPaymentsBadge(key: contactPageNoPaymentsKey),
               if (!noPayments && p != null && p.allowInvoices) EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
             ],

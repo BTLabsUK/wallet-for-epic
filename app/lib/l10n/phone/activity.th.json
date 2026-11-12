@@ -84,5 +84,6 @@
   "phonePayRouteSubFile": "ไฟล์การชำระเงินที่ส่งไปมา",
   "phonePayRouteSubTor": "ตรงถึงกระเป๋าของอีกฝั่ง ผ่าน Tor",
   "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer"
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneProgAtTime": "เวลา {time}"
 }

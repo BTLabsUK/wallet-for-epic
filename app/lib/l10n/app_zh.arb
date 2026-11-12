@@ -6066,5 +6066,6 @@
   "phoneContactsPaidYou": "已向你付款",
   "phoneContactsArriving": "{count} 笔付款在途中",
   "phoneContactsNow": "刚刚",
-  "phoneContactsWaitingAnswer": "等待 {who} 的钱包回应"
+  "phoneContactsWaitingAnswer": "等待 {who} 的钱包回应",
+  "phoneProgAtTime": "{time}"
 }

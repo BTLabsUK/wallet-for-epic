@@ -6066,5 +6066,6 @@
   "phoneContactsPaidYou": "Zapłacił(a) tobie",
   "phoneContactsArriving": "{count} płatności w drodze",
   "phoneContactsNow": "Teraz",
-  "phoneContactsWaitingAnswer": "Czekamy na portfel: {who}"
+  "phoneContactsWaitingAnswer": "Czekamy na portfel: {who}",
+  "phoneProgAtTime": "o {time}"
 }

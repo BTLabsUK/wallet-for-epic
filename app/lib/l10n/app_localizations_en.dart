@@ -23230,4 +23230,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return 'Waiting for $who\'s wallet to answer';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return 'at $time';
+  }
 }

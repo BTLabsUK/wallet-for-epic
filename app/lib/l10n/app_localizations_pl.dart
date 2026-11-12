@@ -23964,4 +23964,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return 'Czekamy na portfel: $who';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return 'o $time';
+  }
 }

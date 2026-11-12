@@ -22771,4 +22771,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneContactsWaitingAnswer(String who) {
     return 'กำลังรอกระเป๋าของ $who ตอบกลับ';
   }
+
+  @override
+  String phoneProgAtTime(String time) {
+    return 'เวลา $time';
+  }
 }

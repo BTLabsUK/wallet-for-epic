@@ -6066,5 +6066,6 @@
   "phoneContactsPaidYou": "Hat dich bezahlt",
   "phoneContactsArriving": "{count} Zahlungen unterwegs",
   "phoneContactsNow": "Jetzt",
-  "phoneContactsWaitingAnswer": "Warten auf die Wallet von {who}"
+  "phoneContactsWaitingAnswer": "Warten auf die Wallet von {who}",
+  "phoneProgAtTime": "um {time}"
 }
