@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
 import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
+import 'package:epic_wallet/src/ui/kit/kit_steps.dart' show KitSteps;
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/phone_tx_row.dart';
@@ -50,6 +51,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
+import 'support/send_finders.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'support/test_settings.dart' show testConfigWithout;
@@ -510,20 +512,20 @@ ShellWhere _selectedTab(WidgetTester tester) => shellWhere(tester);
 
 /// The text in Send's address field.
 String _toField(WidgetTester tester) => tester
-    .widget<TextField>(find.widgetWithText(TextField, _l.sendToLabel))
+    .widget<TextField>(sendTo())
     .controller!
     .text;
 
 /// On the shell's Send tab: [to], 1\u00a0EPIC, review, Send.
 Future<void> _sendOne(WidgetTester tester, String to) async {
   await _tab(tester, _l.homeSendButton);
-  await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), to);
+  await tester.enterText(sendTo(), to);
   await tester.pumpAndSettle();
-  await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
-  await tester.enterText(find.widgetWithText(TextField, 'Amount (EPIC)'), '1');
+  await _tap(tester, continueButton());
+  await tester.enterText(sendAmount(), '1');
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
-  await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
+  await _tap(tester, continueButton());
   await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
   await enterPin(tester, _Harness._pin);
   await tester.pumpAndSettle();
@@ -1115,14 +1117,14 @@ void main() {
       await h.pump(tester);
       final payee = '${'b' * 52}@box.epic.invalid';
       await _tab(tester, _l.homeSendButton);
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), payee);
+      await tester.enterText(sendTo(), payee);
       await tester.pumpAndSettle();
-      await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
-      expect(find.widgetWithText(TextField, 'Amount (EPIC)'), findsOneWidget);
+      await _tap(tester, continueButton());
+      expect(sendAmount(), findsOneWidget);
       // Amount back to To, the address kept, still on Send.
       expect(await tester.binding.handlePopRoute(), isTrue);
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(TextField, 'Amount (EPIC)'), findsNothing);
+      expect(sendAmount(), findsNothing);
       expect(_toField(tester), payee);
       expect(_selectedTab(tester), ShellWhere.send);
       // To has no step before it: Wallet.
@@ -3371,7 +3373,7 @@ void main() {
       final h = _Harness(still: true);
       await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
       await _sendOne(tester, payee);
-      expect(find.text(_l.sendTrackWaiting), findsOneWidget);
+      expect(find.byType(KitSteps), findsOneWidget);
       await _tap(tester, find.text(_l.commonDone));
       expect(_selectedTab(tester), ShellWhere.home);
       await _tab(tester, _l.homeSendButton);
@@ -3384,23 +3386,23 @@ void main() {
         final h = _Harness(still: true);
         await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
         await _sendOne(tester, payee);
-        expect(find.text(_l.sendTrackWaiting), findsOneWidget);
+        expect(find.byType(KitSteps), findsOneWidget);
         final carol = '${'c' * 52}@box.epic.invalid';
         ProviderScope.containerOf(tester.element(find.byType(SendView)))
             .read(sendRecipientProvider.notifier)
             .hand(carol);
         await tester.pumpAndSettle();
         // The tracker stays.
-        expect(find.text(_l.sendTrackWaiting), findsOneWidget);
+        expect(find.byType(KitSteps), findsOneWidget);
         await _tap(tester, find.text(_l.commonDone));
         await _tab(tester, _l.homeSendButton);
         expect(_toField(tester), carol);
 
         // The same from the payment file screens.
         await _tap(tester, find.byKey(sendRecipientClearKey));
-        await _tap(tester, find.text(_l.sendPayByFile));
+        await chooseWay(tester);
         await tester.enterText(
-          find.widgetWithText(TextField, 'Amount (EPIC)'),
+          sendAmount(),
           '1',
         );
         await tester.pump(const Duration(milliseconds: 500));
@@ -3413,15 +3415,8 @@ void main() {
             .hand(payee);
         await tester.pumpAndSettle();
         expect(find.text(_l.phoneFileSendHint), findsOneWidget);
-        // Done is the list's last row, under the first page of a short phone.
-        await tester.scrollUntilVisible(
-          find.widgetWithText(TextButton, _l.commonDone),
-          200,
-          scrollable: find
-              .descendant(of: find.byType(SendView), matching: find.byType(Scrollable))
-              .first,
-        );
-        await _tap(tester, find.widgetWithText(TextButton, _l.commonDone));
+        // Done is the header's close.
+        await _tap(tester, find.descendant(of: find.byType(SendView), matching: find.byTooltip(_l.commonClose)));
         await _tab(tester, _l.homeSendButton);
         expect(_toField(tester), payee);
       },
@@ -3433,7 +3428,7 @@ void main() {
         final h = _Harness(still: true);
         await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
         await _sendOne(tester, payee);
-        expect(find.text(_l.sendTrackWaiting), findsOneWidget);
+        expect(find.byType(KitSteps), findsOneWidget);
 
         // Their reply comes: the listener finishes and posts it.
         h.session.transactionsValue.add(
@@ -3454,10 +3449,8 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text(_l.sendTrackWaiting), findsNothing);
-        expect(find.text(_l.txStepAccepted), findsOneWidget);
-        expect(find.text(_l.txStepPosted), findsOneWidget);
-        expect(find.textContaining('Confirming'), findsWidgets);
+        expect(find.text(_l.phoneProgSent), findsOneWidget);
+        expect(find.text(_l.phoneProgNetwork), findsOneWidget);
         // The tracker says it; a notice would say it twice.
         expect(find.textContaining('finished. Confirming'), findsNothing);
       },
@@ -3589,9 +3582,7 @@ void main() {
   group('Send recipient Clear', () {
     // The method line under the To field names the way the address takes (the field picks it).
     Finder methodLine(String name) => find.descendant(of: find.byType(SendView), matching: find.text(name));
-    Finder continueButton() => find.widgetWithText(FilledButton, _l.commonContinue);
-    bool canContinue(WidgetTester tester) =>
-        tester.widget<FilledButton>(continueButton()).onPressed != null;
+    bool canContinue(WidgetTester tester) => continueOnPressed(tester) != null;
 
     /// Wallet, then Receive, then back to Send.
     Future<void> leaveAndBack(WidgetTester tester) async {
@@ -3616,7 +3607,7 @@ void main() {
       await _tab(tester, _l.homeSendButton);
       expect(find.byKey(sendRecipientClearKey), findsNothing, reason: 'nothing to clear yet');
       const link = 'http://192.168.1.24:3415';
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), link);
+      await tester.enterText(sendTo(), link);
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
       expect(methodLine(_l.methodDirectHttp), findsOneWidget, reason: 'the address picked the method');
@@ -3625,7 +3616,7 @@ void main() {
       await leaveAndBack(tester);
       expect(_toField(tester), isEmpty);
       expect(find.byKey(sendRecipientClearKey), findsNothing);
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), link);
+      await tester.enterText(sendTo(), link);
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
       expect(methodLine('Link · HTTP'), findsOneWidget);
@@ -3642,16 +3633,15 @@ void main() {
       await h.pump(tester);
       await _tab(tester, _l.homeSendButton);
       final bob = '${'b' * 52}@box.epic.invalid';
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), bob);
+      await tester.enterText(sendTo(), bob);
       await tester.pumpAndSettle();
       expect(canContinue(tester), isTrue);
       await clear(tester);
 
-      await _tap(tester, find.text('Contacts'));
-      await _tap(tester, find.text('Carol'));
+      await pickContact(tester, 'Carol');
       // A picked contact shows as a chip in place of the field.
       expect(find.byKey(sendRecipientClearKey), findsOneWidget);
-      expect(find.widgetWithText(TextField, _l.sendToLabel), findsNothing);
+      expect(sendTo(), findsNothing);
       await clear(tester);
     });
   });

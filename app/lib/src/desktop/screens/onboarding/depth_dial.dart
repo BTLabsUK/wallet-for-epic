@@ -13,7 +13,7 @@ import '../../../app_info.dart' show appName;
 import '../../../levels/wallet_level.dart';
 import '../../../trust_ids.dart';
 import '../../../ui/levels/level_art.dart';
-import '../../../ui/levels/level_picker.dart' show levelLine, levelStopName;
+import '../../../ui/levels/level_names.dart' show levelLine, levelStopName;
 import '../../../ui/status_icons.dart' show EpicGlyphs;
 import '../../../ui/theme/brand.dart' show EpicMark;
 import '../../desk_l10n.dart';

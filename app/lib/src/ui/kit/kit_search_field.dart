@@ -27,6 +27,9 @@ class KitSearchField extends StatelessWidget {
     this.semanticsId,
     this.pasteId,
     this.scanId,
+    this.fieldKey,
+    this.textInputAction,
+    this.keyboardType,
     this.margin = const EdgeInsets.symmetric(horizontal: Kit.gutter),
   });
 
@@ -41,6 +44,11 @@ class KitSearchField extends StatelessWidget {
   final String? semanticsId;
   final String? pasteId;
   final String? scanId;
+
+  /// The key of the inner text field, for tests that type into it.
+  final Key? fieldKey;
+  final TextInputAction? textInputAction;
+  final TextInputType? keyboardType;
   final EdgeInsetsGeometry margin;
 
   static const double _hit = 48;
@@ -71,6 +79,11 @@ class KitSearchField extends StatelessWidget {
               child: kitId(
                 semanticsId,
                 TextField(
+                  key: fieldKey,
+                  textInputAction: textInputAction,
+                  keyboardType: keyboardType,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   controller: controller,
                   focusNode: focusNode,
                   onChanged: onChanged,

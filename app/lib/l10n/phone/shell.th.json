@@ -13,5 +13,7 @@
   "phoneHomeInvoiceBody": "{amount} จะไม่มีการชำระเงินจนกว่าคุณจะอนุมัติ",
   "phoneHomeBalanceLastKnown": "ใช้ได้ · ล่าสุดที่ทราบ",
   "phoneHomeBalanceSheetHint": "รายละเอียดยอดเงิน",
-  "phoneHomeEmpty": "ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น"
+  "phoneHomeEmpty": "ยังไม่มีการชำระเงิน รับ EPIC เพื่อเริ่มต้น",
+  "phoneTourOffer": "ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม",
+  "phoneTourOfferShow": "ดูเลย"
 }

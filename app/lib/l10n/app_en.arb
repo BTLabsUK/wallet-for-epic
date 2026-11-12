@@ -31079,6 +31079,86 @@
   "@phoneAcceptNotNow": {
     "description": "Ghost button that leaves the incoming payment page without accepting."
   },
+  "phoneSendSearchHint": "Name, address or link",
+  "@phoneSendSearchHint": {
+    "description": "Hint of the Who field on the Send page."
+  },
+  "phoneSendNewToYou": "New to you",
+  "@phoneSendNewToYou": {
+    "description": "First part of the line under a pasted address that is not a saved contact."
+  },
+  "phoneSendNotSavedPaid": "Not saved · paid {date}",
+  "@phoneSendNotSavedPaid": {
+    "description": "Line of a Recent row whose address is not a saved contact; {date} is when it was last paid."
+  },
+  "phoneSendNoAddressSub": "Pay in person, or with a file",
+  "@phoneSendNoAddressSub": {
+    "description": "Subtitle of the No address row on the Who step."
+  },
+  "phoneSendNoAddressTitle": "Pay without an address",
+  "@phoneSendNoAddressTitle": {
+    "description": "Title of the sheet that opens from No address."
+  },
+  "phoneSendNoAddressBody": "You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.",
+  "@phoneSendNoAddressBody": {
+    "description": "Text of the No address sheet."
+  },
+  "phoneSendInPerson": "In person",
+  "@phoneSendInPerson": {
+    "description": "Row of the No address sheet: pay by showing a code."
+  },
+  "phoneSendInPersonSub": "Show a code to the phone next to you",
+  "@phoneSendInPersonSub": {
+    "description": "Subtitle of the In person row."
+  },
+  "phoneSendWithFile": "With a file",
+  "@phoneSendWithFile": {
+    "description": "Row of the No address sheet: pay by sending a file."
+  },
+  "phoneSendWithFileSub": "Send it in any app; they send one back",
+  "@phoneSendWithFileSub": {
+    "description": "Subtitle of the With a file row."
+  },
+  "phoneSendAddContact": "Add a contact",
+  "@phoneSendAddContact": {
+    "description": "Row that saves a pasted address as a contact."
+  },
+  "phoneSendAddressCheck": "Check the first and last six characters with the person you are paying.",
+  "@phoneSendAddressCheck": {
+    "description": "Hint under a pasted address."
+  },
+  "phoneSendReviewTitle": "Review",
+  "@phoneSendReviewTitle": {
+    "description": "Title of the Review sheet."
+  },
+  "phoneSendMoreDetails": "More details",
+  "@phoneSendMoreDetails": {
+    "description": "Row of the Review sheet that opens the full details."
+  },
+  "phoneSendOver": "{amount} more than you can send. Tap Max to send it all.",
+  "@phoneSendOver": {
+    "description": "Line under the red Available bar; {amount} is how much the amount is over."
+  },
+  "phoneSendMaxNote": "Everything you have, less the {fee} fee",
+  "@phoneSendMaxNote": {
+    "description": "Line shown after Max: everything, less the fee."
+  },
+  "phoneSendViewPayment": "View payment",
+  "@phoneSendViewPayment": {
+    "description": "Quiet button on the Sent page."
+  },
+  "phoneSendOnItsWayTo": "On its way to {name}",
+  "@phoneSendOnItsWayTo": {
+    "description": "Title of the Sent page; {name} is the person paid."
+  },
+  "phoneSendTheirOffline": "their wallet can be offline",
+  "@phoneSendTheirOffline": {
+    "description": "Second part of the line under the method of a payment: the other wallet need not be open."
+  },
+  "phoneSendTheirOnline": "their wallet has to be open",
+  "@phoneSendTheirOnline": {
+    "description": "Second part of the line under the method of a payment: the other wallet must be open."
+  },
   "phoneAboutProtocol": "Payment protocol",
   "@phoneAboutProtocol": {
     "description": "Row in About: the payment protocol the wallet speaks."
@@ -31108,18 +31188,6 @@
         "example": "26.11.1"
       }
     }
-  },
-  "phoneLinkScanSub": "Scan the code on your other device",
-  "@phoneLinkScanSub": {
-    "description": "Subtitle of the Scan row in Link a device."
-  },
-  "phoneLinkShowSub": "Your other device scans it",
-  "@phoneLinkShowSub": {
-    "description": "Subtitle of the Show my code row in Link a device."
-  },
-  "phoneLinkPasteSub": "Paste a code or link you were sent",
-  "@phoneLinkPasteSub": {
-    "description": "Subtitle of the Paste code row in Link a device."
   },
   "phoneContactsSearchHint": "Search, or paste an address",
   "@phoneContactsSearchHint": {
@@ -31155,95 +31223,17 @@
   "@phoneContactRequest": {
     "description": "Button at the bottom of a contact's page that opens the form to ask this contact for an amount. One word."
   },
-  "phoneTabHome": "Home",
-  "@phoneTabHome": {
-    "description": "Tab bar: the first tab, the wallet's home screen. One word."
+  "phoneLinkScanSub": "Scan the code on your other device",
+  "@phoneLinkScanSub": {
+    "description": "Subtitle of the Scan row in Link a device."
   },
-  "phoneTabScan": "Scan",
-  "@phoneTabScan": {
-    "description": "Screen reader label of the round button in the middle of the tab bar that opens the QR scanner."
+  "phoneLinkShowSub": "Your other device scans it",
+  "@phoneLinkShowSub": {
+    "description": "Subtitle of the Show my code row in Link a device."
   },
-  "phoneReview": "Review",
-  "@phoneReview": {
-    "description": "Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking"
-  },
-  "phoneLater": "Later",
-  "@phoneLater": {
-    "description": "Quiet button that puts a needs-you card away for now"
-  },
-  "phoneHomeRecent": "Recent",
-  "@phoneHomeRecent": {
-    "description": "Heading over the latest payments on Home"
-  },
-  "phoneHomeSeeAll": "See all",
-  "@phoneHomeSeeAll": {
-    "description": "Link at the end of Home's Recent heading; opens the Activity tab"
-  },
-  "phoneHomeArriving": "+{amount} arriving",
-  "@phoneHomeArriving": {
-    "description": "Info chip under Home's balance: the amount that is on its way in",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "37.0"
-      }
-    }
-  },
-  "phoneHomeInSends": "{amount} in sends",
-  "@phoneHomeInSends": {
-    "description": "Quiet chip under Home's balance: the amount held by payments being sent",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "15.713"
-      }
-    }
-  },
-  "phoneHomeSyncing": "Syncing {percent}%",
-  "@phoneHomeSyncing": {
-    "description": "The status pill on Home while the node is catching up",
-    "placeholders": {
-      "percent": {
-        "type": "String",
-        "example": "42"
-      }
-    }
-  },
-  "phoneHomeOffline": "Offline",
-  "@phoneHomeOffline": {
-    "description": "The status pill on Home when the wallet reaches neither the node nor Epicbox"
-  },
-  "phoneHomeInvoiceTitle": "Invoice from {name}",
-  "@phoneHomeInvoiceTitle": {
-    "description": "Title of the card on Home when an invoice waits for the user's approval",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Northwind Exchange"
-      }
-    }
-  },
-  "phoneHomeInvoiceBody": "{amount}. Nothing is paid until you approve.",
-  "@phoneHomeInvoiceBody": {
-    "description": "Body of the invoice card on Home; the amount may include a fiat value",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "42.5 EPIC"
-      }
-    }
-  },
-  "phoneHomeBalanceLastKnown": "Available · last known",
-  "@phoneHomeBalanceLastKnown": {
-    "description": "Caption over Home's balance when the figure is the last one known (no connection)"
-  },
-  "phoneHomeBalanceSheetHint": "Balance details",
-  "@phoneHomeBalanceSheetHint": {
-    "description": "Spoken name of Home's balance, which opens the sheet with every part of the balance"
-  },
-  "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
-  "@phoneHomeEmpty": {
-    "description": "Empty Home: what stands under the Recent heading before the first payment"
+  "phoneLinkPasteSub": "Paste a code or link you were sent",
+  "@phoneLinkPasteSub": {
+    "description": "Subtitle of the Paste code row in Link a device."
   },
   "phoneRecvTitle": "Receive",
   "@phoneRecvTitle": {
@@ -31388,5 +31378,103 @@
         "example": "Bob"
       }
     }
+  },
+  "phoneTabHome": "Home",
+  "@phoneTabHome": {
+    "description": "Tab bar: the first tab, the wallet's home screen. One word."
+  },
+  "phoneTabScan": "Scan",
+  "@phoneTabScan": {
+    "description": "Screen reader label of the round button in the middle of the tab bar that opens the QR scanner."
+  },
+  "phoneReview": "Review",
+  "@phoneReview": {
+    "description": "Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking"
+  },
+  "phoneLater": "Later",
+  "@phoneLater": {
+    "description": "Quiet button that puts a needs-you card away for now"
+  },
+  "phoneHomeRecent": "Recent",
+  "@phoneHomeRecent": {
+    "description": "Heading over the latest payments on Home"
+  },
+  "phoneHomeSeeAll": "See all",
+  "@phoneHomeSeeAll": {
+    "description": "Link at the end of Home's Recent heading; opens the Activity tab"
+  },
+  "phoneHomeArriving": "+{amount} arriving",
+  "@phoneHomeArriving": {
+    "description": "Info chip under Home's balance: the amount that is on its way in",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "37.0"
+      }
+    }
+  },
+  "phoneHomeInSends": "{amount} in sends",
+  "@phoneHomeInSends": {
+    "description": "Quiet chip under Home's balance: the amount held by payments being sent",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "15.713"
+      }
+    }
+  },
+  "phoneHomeSyncing": "Syncing {percent}%",
+  "@phoneHomeSyncing": {
+    "description": "The status pill on Home while the node is catching up",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "phoneHomeOffline": "Offline",
+  "@phoneHomeOffline": {
+    "description": "The status pill on Home when the wallet reaches neither the node nor Epicbox"
+  },
+  "phoneHomeInvoiceTitle": "Invoice from {name}",
+  "@phoneHomeInvoiceTitle": {
+    "description": "Title of the card on Home when an invoice waits for the user's approval",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Northwind Exchange"
+      }
+    }
+  },
+  "phoneHomeInvoiceBody": "{amount}. Nothing is paid until you approve.",
+  "@phoneHomeInvoiceBody": {
+    "description": "Body of the invoice card on Home; the amount may include a fiat value",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "42.5 EPIC"
+      }
+    }
+  },
+  "phoneHomeBalanceLastKnown": "Available · last known",
+  "@phoneHomeBalanceLastKnown": {
+    "description": "Caption over Home's balance when the figure is the last one known (no connection)"
+  },
+  "phoneHomeBalanceSheetHint": "Balance details",
+  "@phoneHomeBalanceSheetHint": {
+    "description": "Spoken name of Home's balance, which opens the sheet with every part of the balance"
+  },
+  "phoneHomeEmpty": "No payments yet. Receive some EPIC to begin.",
+  "@phoneHomeEmpty": {
+    "description": "Empty Home: what stands under the Recent heading before the first payment"
+  },
+  "phoneTourOffer": "Want a quick tour of the wallet?",
+  "phoneTourOfferShow": "Show me",
+  "@phoneTourOffer": {
+    "description": "Toast shown once after the first unlock: offers the wallet tour. Short question."
+  },
+  "@phoneTourOfferShow": {
+    "description": "Button on the tour offer toast: starts the tour. One or two words."
   }
 }

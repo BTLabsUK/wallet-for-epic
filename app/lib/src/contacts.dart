@@ -231,3 +231,26 @@ List<String> recentRecipients(Iterable<TxEntry> transactions, {int limit = 3}) {
   }
   return out;
 }
+
+/// The address of [contact] its newest successful send went to, or null when none did. A send
+/// counts once the recipient signed it (waiting for the chain or confirmed); a cancelled one, or
+/// one the recipient never answered, does not. Send pays this address first when a contact has
+/// several, else the first by [contactSendAddress].
+String? lastPaidAddress(Contact contact, Iterable<TxEntry> transactions) {
+  final mine = {for (final a in contact.addresses) _comparable(a): a};
+  final sends =
+      transactions
+          .where(
+            (t) =>
+                t.kind == TxKind.sent &&
+                t.counterparty != null &&
+                (t.status == TxStatus.confirmed || t.status == TxStatus.awaitingConfirmation),
+          )
+          .toList()
+        ..sort((a, b) => b.timeUnix.compareTo(a.timeUnix));
+  for (final tx in sends) {
+    final address = mine[_comparable(tx.counterparty!)];
+    if (address != null) return address;
+  }
+  return null;
+}

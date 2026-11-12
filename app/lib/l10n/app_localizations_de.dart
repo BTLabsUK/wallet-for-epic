@@ -23159,6 +23159,78 @@ class AppLocalizationsDe extends AppLocalizations {
   String get phoneAcceptNotNow => 'Nicht jetzt';
 
   @override
+  String get phoneSendSearchHint => 'Name, Adresse oder Link';
+
+  @override
+  String get phoneSendNewToYou => 'Neu für dich';
+
+  @override
+  String phoneSendNotSavedPaid(Object date) {
+    return 'Nicht gespeichert · bezahlt am $date';
+  }
+
+  @override
+  String get phoneSendNoAddressSub =>
+      'Persönlich oder mit einer Datei bezahlen';
+
+  @override
+  String get phoneSendNoAddressTitle => 'Ohne Adresse bezahlen';
+
+  @override
+  String get phoneSendNoAddressBody =>
+      'Du erstellst die Zahlung hier, die andere Person antwortet darauf, und es ist erledigt. Bis die Antwort zurückkommt, kannst du abbrechen.';
+
+  @override
+  String get phoneSendInPerson => 'Persönlich';
+
+  @override
+  String get phoneSendInPersonSub => 'Zeige einem Handy neben dir einen Code';
+
+  @override
+  String get phoneSendWithFile => 'Mit einer Datei';
+
+  @override
+  String get phoneSendWithFileSub =>
+      'In einer beliebigen App senden; die andere Person schickt eine zurück';
+
+  @override
+  String get phoneSendAddContact => 'Kontakt hinzufügen';
+
+  @override
+  String get phoneSendAddressCheck =>
+      'Prüfe die ersten und letzten sechs Zeichen mit der Person, die du bezahlst.';
+
+  @override
+  String get phoneSendReviewTitle => 'Prüfen';
+
+  @override
+  String get phoneSendMoreDetails => 'Mehr Details';
+
+  @override
+  String phoneSendOver(Object amount) {
+    return '$amount mehr, als du senden kannst. Tippe auf Max, um alles zu senden.';
+  }
+
+  @override
+  String phoneSendMaxNote(Object fee) {
+    return 'Alles, was du hast, abzüglich $fee Gebühr';
+  }
+
+  @override
+  String get phoneSendViewPayment => 'Zahlung ansehen';
+
+  @override
+  String phoneSendOnItsWayTo(Object name) {
+    return 'Unterwegs zu $name';
+  }
+
+  @override
+  String get phoneSendTheirOffline => 'ihr Wallet kann offline sein';
+
+  @override
+  String get phoneSendTheirOnline => 'ihr Wallet muss geöffnet sein';
+
+  @override
   String get phoneAboutProtocol => 'Zahlungsprotokoll';
 
   @override
@@ -23179,15 +23251,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String phoneAboutNotesTitle(String version) {
     return 'Neu in $version';
   }
-
-  @override
-  String get phoneLinkScanSub => 'Code auf dem anderen Gerät scannen';
-
-  @override
-  String get phoneLinkShowSub => 'Das andere Gerät scannt ihn';
-
-  @override
-  String get phoneLinkPasteSub => 'Einen erhaltenen Code oder Link einfügen';
 
   @override
   String get phoneContactsSearchHint => 'Suchen oder Adresse einfügen';
@@ -23214,60 +23277,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get phoneContactRequest => 'Anfordern';
 
   @override
-  String get phoneTabHome => 'Start';
+  String get phoneLinkScanSub => 'Code auf dem anderen Gerät scannen';
 
   @override
-  String get phoneTabScan => 'Scannen';
+  String get phoneLinkShowSub => 'Das andere Gerät scannt ihn';
 
   @override
-  String get phoneReview => 'Prüfen';
-
-  @override
-  String get phoneLater => 'Später';
-
-  @override
-  String get phoneHomeRecent => 'Zuletzt';
-
-  @override
-  String get phoneHomeSeeAll => 'Alle anzeigen';
-
-  @override
-  String phoneHomeArriving(String amount) {
-    return '+$amount kommt an';
-  }
-
-  @override
-  String phoneHomeInSends(String amount) {
-    return '$amount in Zahlungen';
-  }
-
-  @override
-  String phoneHomeSyncing(String percent) {
-    return 'Synchronisiert $percent %';
-  }
-
-  @override
-  String get phoneHomeOffline => 'Offline';
-
-  @override
-  String phoneHomeInvoiceTitle(String name) {
-    return 'Rechnung von $name';
-  }
-
-  @override
-  String phoneHomeInvoiceBody(String amount) {
-    return '$amount. Es wird erst bezahlt, wenn du bestätigst.';
-  }
-
-  @override
-  String get phoneHomeBalanceLastKnown => 'Verfügbar · zuletzt bekannt';
-
-  @override
-  String get phoneHomeBalanceSheetHint => 'Details zum Guthaben';
-
-  @override
-  String get phoneHomeEmpty =>
-      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
+  String get phoneLinkPasteSub => 'Einen erhaltenen Code oder Link einfügen';
 
   @override
   String get phoneRecvTitle => 'Empfangen';
@@ -23374,4 +23390,66 @@ class AppLocalizationsDe extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'von $name';
   }
+
+  @override
+  String get phoneTabHome => 'Start';
+
+  @override
+  String get phoneTabScan => 'Scannen';
+
+  @override
+  String get phoneReview => 'Prüfen';
+
+  @override
+  String get phoneLater => 'Später';
+
+  @override
+  String get phoneHomeRecent => 'Zuletzt';
+
+  @override
+  String get phoneHomeSeeAll => 'Alle anzeigen';
+
+  @override
+  String phoneHomeArriving(String amount) {
+    return '+$amount kommt an';
+  }
+
+  @override
+  String phoneHomeInSends(String amount) {
+    return '$amount in Zahlungen';
+  }
+
+  @override
+  String phoneHomeSyncing(String percent) {
+    return 'Synchronisiert $percent %';
+  }
+
+  @override
+  String get phoneHomeOffline => 'Offline';
+
+  @override
+  String phoneHomeInvoiceTitle(String name) {
+    return 'Rechnung von $name';
+  }
+
+  @override
+  String phoneHomeInvoiceBody(String amount) {
+    return '$amount. Es wird erst bezahlt, wenn du bestätigst.';
+  }
+
+  @override
+  String get phoneHomeBalanceLastKnown => 'Verfügbar · zuletzt bekannt';
+
+  @override
+  String get phoneHomeBalanceSheetHint => 'Details zum Guthaben';
+
+  @override
+  String get phoneHomeEmpty =>
+      'Noch keine Zahlungen. Erhalte etwas EPIC, um zu beginnen.';
+
+  @override
+  String get phoneTourOffer => 'Kurze Tour durch die Wallet?';
+
+  @override
+  String get phoneTourOfferShow => 'Zeig mir';
 }

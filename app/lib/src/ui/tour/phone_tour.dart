@@ -6,9 +6,9 @@
 /// at the top only when what a step lights is low on the screen.
 ///
 /// Screens mark what a step lights with [PhoneTourTarget] (`tour_target.dart`); the steps are
-/// in `tour_steps.dart`. [PhoneTourAnchor] wraps Home: it opens the tour once, after the first
-/// unlock when Home is idle ([PhoneTourController.openIfUnseen]), and shows the overlay over
-/// every screen the tour opens. Help › Show the tour again calls [startPhoneTour]. A step
+/// in `tour_steps.dart`. [PhoneTourAnchor] wraps Home: once, after the first unlock when Home
+/// is idle, it offers the tour in a toast ("Show me", [PhoneTourController.offerIfUnseen]); the
+/// tour opens only on that tap. It shows the overlay over every screen the tour opens. Help › Show the tour again calls [startPhoneTour]. A step
 /// never switches a setting on.
 library;
 
@@ -22,8 +22,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../../epic1.dart' show PaymentMode;
-import '../../levels/level_features.dart' show LevelWording;
-import '../../levels/level_providers.dart' show levelFeaturesProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
@@ -66,7 +64,7 @@ class PhoneTourState {
 }
 
 /// Whether the tour is open, and the seen flag ([AppSettings.phoneTourSeen]) it saves when it
-/// opens: it opens by itself once, never again after it was shown or skipped.
+/// is offered: the offer comes once, never again after it was shown or skipped.
 class PhoneTourController extends Notifier<PhoneTourState> {
   /// Set by the open overlay: one step back, or the end on the first step. System Back asks it.
   VoidCallback? back;
@@ -83,12 +81,13 @@ class PhoneTourController extends Notifier<PhoneTourState> {
     unawaited(ref.read(appSettingsProvider.notifier).markPhoneTourSeen());
   }
 
-  /// Opens it unless it was seen, by the flag the settings hold now. True when it opened.
-  Future<bool> openIfUnseen() async {
+  /// Whether the tour is to be offered now: unseen by the flag the settings hold. It is marked
+  /// seen at once, so the offer comes once; the tour itself opens only on the user's "Show me".
+  Future<bool> offerIfUnseen() async {
     if (state.open) return false;
     final settings = await ref.read(appSettingsProvider.future);
     if (settings.phoneTourSeen || state.open) return false;
-    open();
+    await ref.read(appSettingsProvider.notifier).markPhoneTourSeen();
     return true;
   }
 
@@ -160,10 +159,35 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
       }
       return;
     }
-    // Level 1 is the quiet shell: its Home has none of the tour's tiles, icons or servers, so
-    // the tour never starts by itself there (Help still offers it). Levels 2 and 3 as before.
-    if (ref.read(levelFeaturesProvider).wording == LevelWording.plain) return;
-    unawaited(_tour.openIfUnseen());
+    unawaited(_offer());
+  }
+
+  /// Once, when the saved flag says unseen: a toast asks, with "Show me". It is marked seen as it
+  /// shows, so it never comes again; Help › Show the tour again opens the tour any time.
+  Future<void> _offer() async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null || !await _tour.offerIfUnseen() || !mounted) return;
+    final l = context.l10n;
+    messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 12),
+        content: Row(
+          children: [
+            Expanded(child: Text(l.phoneTourOffer)),
+            trustId(
+              TrustIds.tourOfferShow,
+              TextButton(
+                onPressed: () {
+                  messenger.hideCurrentSnackBar();
+                  _tour.open();
+                },
+                child: Text(l.phoneTourOfferShow),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _show(int start) {

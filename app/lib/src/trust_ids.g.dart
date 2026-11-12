@@ -58,6 +58,24 @@ abstract final class TrustIds {
   static const receiveAddress = 'g4.receive.address';
   static const sendTo = 'g4.send.to';
   static const sendAmount = 'g4.send.amount';
+  static const sendSwap = 'g4.send.swap';
+  static const sendNote = 'g4.send.note';
+  static const sendReviewTo = 'g4.send.review.to';
+  static const sendReviewEdit = 'g4.send.review.edit';
+  static const sendReviewMore = 'g4.send.review.more';
+  static const sendViewpayment = 'g4.send.viewpayment';
+  static const sendKey0 = 'g4.send.key.0';
+  static const sendKey1 = 'g4.send.key.1';
+  static const sendKey2 = 'g4.send.key.2';
+  static const sendKey3 = 'g4.send.key.3';
+  static const sendKey4 = 'g4.send.key.4';
+  static const sendKey5 = 'g4.send.key.5';
+  static const sendKey6 = 'g4.send.key.6';
+  static const sendKey7 = 'g4.send.key.7';
+  static const sendKey8 = 'g4.send.key.8';
+  static const sendKey9 = 'g4.send.key.9';
+  static const sendKeyPoint = 'g4.send.key.point';
+  static const sendKeyDelete = 'g4.send.key.delete';
   static const sendMax = 'g4.send.max';
   static const sendReview = 'g4.send.review';
   static const sendPassword = 'g4.send.password';
@@ -160,10 +178,8 @@ abstract final class TrustIds {
   static const tabReceive = 'g4.tab.receive';
   static const commonClose = 'g4.common.close';
   static const commonDone = 'g4.common.done';
-  static const commonSave = 'g4.common.save';
   static const commonContinue = 'g4.common.continue';
   static const backupRow = 'g4.backup.row';
-  static const statusNetwork = 'g4.status.network';
   static const serverClear = 'g4.server.clear';
   static const sendClear = 'g4.send.clear';
   static const sendBack = 'g4.send.back';
@@ -343,6 +359,18 @@ abstract final class TrustIds {
   static const fileScanagain = 'g4.file.scanagain';
   static const fileOpen = 'g4.file.open';
   static const filePaste = 'g4.file.paste';
+  static const sendClose = 'g4.send.close';
+  static const sendHelp = 'g4.send.help';
+  static const sendPaste = 'g4.send.paste';
+  static const sendScan = 'g4.send.scan';
+  static const sendFace = 'g4.send.face';
+  static const sendRecent = 'g4.send.recent';
+  static const sendNoaddress = 'g4.send.noaddress';
+  static const sendNoaddressPerson = 'g4.send.noaddress.person';
+  static const sendNoaddressFile = 'g4.send.noaddress.file';
+  static const sendAddcontact = 'g4.send.addcontact';
+  static const sendRoute = 'g4.send.route';
+  static const sendAddressPick = 'g4.send.address.pick';
   static const aboutBack = 'g4.about.back';
   static const aboutHelp = 'g4.about.help';
   static const aboutHelpSheet = 'g4.about.help_sheet';
@@ -512,6 +540,7 @@ abstract final class TrustIds {
   static const contactCopyAddress = 'g4.contact.copy_address';
   static const payCopyAddress = 'g4.pay.copy-address';
   static const payCopyExplorer = 'g4.pay.copy-explorer';
+  static const tourOfferShow = 'g4.tour.offer.show';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -580,6 +609,24 @@ abstract final class TrustIds {
     'g4.receive.address',
     'g4.send.to',
     'g4.send.amount',
+    'g4.send.swap',
+    'g4.send.note',
+    'g4.send.review.to',
+    'g4.send.review.edit',
+    'g4.send.review.more',
+    'g4.send.viewpayment',
+    'g4.send.key.0',
+    'g4.send.key.1',
+    'g4.send.key.2',
+    'g4.send.key.3',
+    'g4.send.key.4',
+    'g4.send.key.5',
+    'g4.send.key.6',
+    'g4.send.key.7',
+    'g4.send.key.8',
+    'g4.send.key.9',
+    'g4.send.key.point',
+    'g4.send.key.delete',
     'g4.send.max',
     'g4.send.review',
     'g4.send.password',
@@ -682,10 +729,8 @@ abstract final class TrustIds {
     'g4.tab.receive',
     'g4.common.close',
     'g4.common.done',
-    'g4.common.save',
     'g4.common.continue',
     'g4.backup.row',
-    'g4.status.network',
     'g4.server.clear',
     'g4.send.clear',
     'g4.send.back',
@@ -865,6 +910,18 @@ abstract final class TrustIds {
     'g4.file.scanagain',
     'g4.file.open',
     'g4.file.paste',
+    'g4.send.close',
+    'g4.send.help',
+    'g4.send.paste',
+    'g4.send.scan',
+    'g4.send.face',
+    'g4.send.recent',
+    'g4.send.noaddress',
+    'g4.send.noaddress.person',
+    'g4.send.noaddress.file',
+    'g4.send.addcontact',
+    'g4.send.route',
+    'g4.send.address.pick',
     'g4.about.back',
     'g4.about.help',
     'g4.about.help_sheet',
@@ -1034,5 +1091,6 @@ abstract final class TrustIds {
     'g4.contact.copy_address',
     'g4.pay.copy-address',
     'g4.pay.copy-explorer',
+    'g4.tour.offer.show',
   ];
 }

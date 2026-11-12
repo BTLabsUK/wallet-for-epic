@@ -29,6 +29,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/send_finders.dart';
+
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -153,7 +155,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 /// From the recipient step with a pairing: Continue, 1.5\u00a0EPIC, Continue to the review.
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  final field = sendField(label);
   await _reach(tester, field);
   await tester.enterText(field, text);
   await tester.pump(const Duration(milliseconds: 500));
@@ -161,13 +163,13 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 }
 
 Future<void> _toReview(WidgetTester tester) async {
-  await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
-  final amount = find.widgetWithText(TextField, 'Amount (EPIC)');
+  await _tap(tester, continueButton());
+  final amount = sendAmount();
   await _reach(tester, amount);
   await tester.enterText(amount, '1.5');
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
-  await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
+  await _tap(tester, continueButton());
 }
 
 bool _enabled(WidgetTester tester, Finder button) {
@@ -223,7 +225,7 @@ void main() {
       // No address, and no Link segment.
       expect(find.textContaining('@'), findsNothing);
       expect(find.text(MethodIcons.familyName(_l, MethodFamily.link)), findsNothing);
-      expect(_enabled(tester, find.widgetWithText(FilledButton, _l.commonContinue)), isTrue);
+      expect(_enabled(tester, continueButton()), isTrue);
       // The review names the contact through the pairing; Send goes through the mailbox.
       await _toReview(tester);
       expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
@@ -232,7 +234,7 @@ void main() {
       await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC'));
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
-      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.phoneProgSent), findsOneWidget);
     });
 
     testWidgets('× goes back to the empty To field', (tester) async {
@@ -261,7 +263,7 @@ void main() {
       expect(find.byKey(sendQueuedHeadlineKey), findsOneWidget);
       expect(find.text(_l.sendQueuedBody('Anna')), findsOneWidget);
       // The send is still the step under way: it waits in the outbox.
-      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.phoneProgSent), findsOneWidget);
       expect(find.text(_l.contactPausedEpicboxOff), findsOneWidget);
       expect(find.text(_l.sendTrackWaitingFor('Anna')), findsNothing);
     });
@@ -276,7 +278,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.contactKeysChangedTitle('Anna')), findsOneWidget);
       expect(find.byKey(sendPairingCheckKey), findsOneWidget);
-      expect(_enabled(tester, find.widgetWithText(FilledButton, _l.commonContinue)), isFalse);
+      expect(_enabled(tester, continueButton()), isFalse);
     });
   });
 
@@ -487,7 +489,7 @@ void main() {
       await _tap(tester, sendButton);
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
-      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.phoneProgSent), findsOneWidget);
     });
 
     testWidgets('Seal off does not hide the selector', (tester) async {

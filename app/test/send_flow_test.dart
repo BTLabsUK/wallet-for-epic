@@ -13,11 +13,14 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/send_tracker.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/theme/protocol.dart' show TimelineState;
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
+import 'package:epic_wallet/src/ui/kit/kit_steps.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
 
@@ -110,8 +113,8 @@ class _Harness {
             ),
             child: AdvancedOptions(prefs: AdvancedPrefs.none, child: child!),
           ),
+          // SendView draws its own header: no app bar over it.
           home: SlotScaffold(
-            appBar: AppBar(),
             body: SendView(onDone: () => done++),
           ),
         ),
@@ -128,6 +131,7 @@ class _Harness {
     WidgetTester tester,
     TxStatus status, {
     BigInt? height,
+    bool settle = true,
   }) async {
     session.transactionsValue = [
       fakeTx(
@@ -141,11 +145,16 @@ class _Harness {
       ),
     ];
     await container.read(homeProvider.notifier).reload();
-    await tester.pumpAndSettle();
+    // The moving network mark never settles: the caller pumps frames.
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      await tester.pump();
+    }
   }
 }
 
-Finder get _continue => find.widgetWithText(FilledButton, _l.commonContinue);
+Finder get _continue => continueButton();
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
@@ -156,7 +165,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  final field = sendField(label);
   // Screens are lazy lists: scroll until the field is built.
   if (field.evaluate().isEmpty) {
     await tester.scrollUntilVisible(
@@ -184,11 +193,11 @@ Future<void> _send(WidgetTester tester) async {
   await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
 }
 
-/// The labels of the tracker's steps in [state].
-List<String> _steps(WidgetTester tester, TimelineState state) => [
-  for (final steps in tester.widgetList<RoundSteps>(find.byType(RoundSteps)))
+/// The titles of the Sent page's payment steps in [state].
+List<String> _steps(WidgetTester tester, KitStepState state) => [
+  for (final steps in tester.widgetList<KitSteps>(find.byType(KitSteps)))
     for (final step in steps.steps)
-      if (step.state == state) step.label,
+      if (step.state == state) step.title,
 ];
 
 void main() {
@@ -256,39 +265,33 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(find.text(_l.homeSendButton), findsOneWidget);
-      expect(find.text('1 of 3'), findsOneWidget);
       expect(find.byTooltip(_l.scanQrBack), findsNothing);
 
       await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
-      expect(find.text(_l.sendStepAmount), findsOneWidget);
-      expect(find.text('2 of 3'), findsOneWidget);
+      expect(sendAmount(), findsOneWidget);
       await _tap(tester, find.byTooltip(_l.scanQrBack));
-      expect(find.text('1 of 3'), findsOneWidget);
+      expect(sendAmount(), findsNothing);
       // The address stays.
       expect(find.text(_bob), findsOneWidget);
 
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
-      expect(find.text(_l.sendStepReview), findsOneWidget);
-      expect(find.text('3 of 3'), findsOneWidget);
-      await _tap(tester, find.byTooltip(_l.scanQrBack));
-      expect(find.text('2 of 3'), findsOneWidget);
+      expect(find.byType(KitSheet), findsOneWidget);
+      await leaveReview(tester);
+      expect(find.byType(KitSheet), findsNothing);
+      expect(sendAmount(), findsOneWidget);
       await _tap(tester, _continue);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
 
       // The tracker: no step count, no way back to a form that could send twice.
-      expect(find.text('3 of 3'), findsNothing);
       expect(find.byTooltip(_l.scanQrBack), findsNothing);
-      expect(_steps(tester, TimelineState.done), ['Payment started']);
-      expect(_steps(tester, TimelineState.current), [
-        'Recipient signed',
-      ]);
-      expect(_steps(tester, TimelineState.todo), [
-        'Posted to the network',
-        'Confirming',
-        'Completed',
+      expect(_steps(tester, KitStepState.done), [_l.phoneProgSent]);
+      expect(_steps(tester, KitStepState.now), [_l.txStatusWaitingRecipient]);
+      expect(_steps(tester, KitStepState.later), [
+        _l.phoneProgNetwork,
+        _l.txStepConfirmed,
       ]);
       await _tap(tester, find.text(_l.commonDone));
       expect(h.done, 1);
@@ -299,7 +302,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      final info = find.byTooltip(_l.sendHowItWorks);
+      final info = find.byTooltip(_l.sendHelp);
       expect(info, findsOneWidget);
       // It loops, so it never settles while open.
       await tester.tap(info);
@@ -326,33 +329,25 @@ void main() {
       await h.pump(tester);
       await _send(tester);
       await h.payment(tester, TxStatus.awaitingRecipient);
-      expect(_steps(tester, TimelineState.current), [
-        _l.txStepAccepted,
-      ]);
+      expect(_steps(tester, KitStepState.now), [_l.txStatusWaitingRecipient]);
 
       // Their wallet signed; ours finished it and handed it to the network.
       await h.payment(tester, TxStatus.awaitingConfirmation);
-      expect(_steps(tester, TimelineState.done), [
-        _l.txStepStarted,
-        _l.txStepAccepted,
-        'Posted to the network',
+      expect(_steps(tester, KitStepState.done), [
+        _l.phoneProgSent,
+        _l.txStatusWaitingRecipient,
       ]);
-      expect(
-        _steps(tester, TimelineState.current).single,
-        startsWith('Confirming 0/'),
-      );
-      expect(find.textContaining('finishes it when it opens'), findsNothing);
+      expect(_steps(tester, KitStepState.now), [_l.phoneProgNetwork]);
       expect(find.text(_l.sendTrackIfNot), findsNothing);
 
       await h.payment(tester, TxStatus.confirmed, height: BigInt.one);
-      expect(_steps(tester, TimelineState.done), [
-        'Payment started',
-        'Recipient signed',
-        'Posted to the network',
-        'Confirmed',
-        'Completed',
+      expect(_steps(tester, KitStepState.done), [
+        _l.phoneProgSent,
+        _l.txStatusWaitingRecipient,
+        _l.phoneProgNetwork,
+        _l.txStepConfirmed,
       ]);
-      expect(_steps(tester, TimelineState.current), isEmpty);
+      expect(_steps(tester, KitStepState.now), isEmpty);
     });
 
     testWidgets('their wallet offline: it stays at step 2, quietly', (
@@ -364,17 +359,8 @@ void main() {
       for (var i = 0; i < 3; i++) {
         await tester.pump(const Duration(minutes: 1));
         await h.payment(tester, TxStatus.awaitingRecipient);
-        expect(_steps(tester, TimelineState.current), [
-          _l.txStepAccepted,
-        ]);
+        expect(_steps(tester, KitStepState.now), [_l.txStatusWaitingRecipient]);
       }
-      expect(
-        find.text(
-          'Their wallet signs it when it opens. '
-          '1.008\u00a0EPIC stays locked until then.',
-        ),
-        findsOneWidget,
-      );
       // The one-day rule waits behind the expandable.
       expect(find.textContaining('after 1 day'), findsNothing);
     });
@@ -385,22 +371,7 @@ void main() {
       await _send(tester);
       await h.payment(tester, TxStatus.cancelled);
       expect(find.text(_l.sendTrackCancelled), findsOneWidget);
-      expect(find.byType(RoundSteps), findsNothing);
-    });
-
-    testWidgets('the current step is a live region', (tester) async {
-      final handle = tester.ensureSemantics();
-      final h = _Harness();
-      await h.pump(tester);
-      await _send(tester);
-      final live = find.ancestor(
-        of: find.text('Recipient signed'),
-        matching: find.byWidgetPredicate(
-          (w) => w is Semantics && (w.properties.liveRegion ?? false),
-        ),
-      );
-      expect(live, findsOneWidget);
-      handle.dispose();
+      expect(find.byType(KitSteps), findsNothing);
     });
 
     testWidgets('each step tells screen readers done, now or later', (
@@ -410,13 +381,13 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _send(tester);
-      expect(find.bySemanticsLabel('Payment started, done'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^${_l.phoneProgSent}, ${_l.phoneKitStepDone}')), findsOneWidget);
       expect(
-        find.bySemanticsLabel(RegExp(r'^Recipient signed, now')),
+        find.bySemanticsLabel(RegExp('^${_l.txStatusWaitingRecipient}, ${_l.phoneKitStepNow}')),
         findsOneWidget,
       );
-      expect(find.bySemanticsLabel('Posted to the network, later'), findsOne);
-      expect(find.bySemanticsLabel('Confirming, later'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^${_l.phoneProgNetwork}, ${_l.phoneKitStepLater}')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^${_l.txStepConfirmed}, ${_l.phoneKitStepLater}')), findsOneWidget);
       handle.dispose();
     });
 
@@ -433,14 +404,15 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('the current mark pulses, and is still under reduced motion', (
+    testWidgets('the network mark moves, and is still under reduced motion', (
       tester,
     ) async {
-      sendPulseMoves = true;
-      addTearDown(() => sendPulseMoves = false);
+      paymentNetworkMoves = true;
+      addTearDown(() => paymentNetworkMoves = false);
       final h = _Harness();
       await h.pump(tester, reducedMotion: true);
       await _send(tester);
+      await h.payment(tester, TxStatus.awaitingConfirmation);
       // Settles: nothing loops.
       await tester.pumpAndSettle();
       expect(tester.hasRunningAnimations, isFalse);
@@ -448,13 +420,8 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       final moving = _Harness();
       await moving.pump(tester);
-      await _enter(tester, 'To', _bob);
-      await _tap(tester, _continue);
-      await _enter(tester, 'Amount (EPIC)', '1');
-      await _tap(tester, _continue);
-      await tester.tap(find.text('Send 1.0\u00a0EPIC'));
-      await tester.pumpAndSettle();
-      await answerPin(tester, settle: false);
+      await _send(tester);
+      await moving.payment(tester, TxStatus.awaitingConfirmation, settle: false);
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -478,7 +445,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       final recipient = editable(tester, sendRecipientFieldKey);
-      await _tap(tester, find.text(_l.sendPayByFile));
+      await chooseWay(tester);
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       final fileAmount = editable(tester, sendFileAmountFieldKey);
       expect(identical(fileAmount, recipient), isFalse);
@@ -518,7 +485,7 @@ void main() {
       final h = _Harness(summary: FakeWalletSession.emptySummary);
       await h.pump(tester);
       expect(find.text(_l.sendNoCoins), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'To'), findsNothing);
+      expect(sendTo(), findsNothing);
     });
 
     testWidgets('coins only on hold: the form, and a line about them', (

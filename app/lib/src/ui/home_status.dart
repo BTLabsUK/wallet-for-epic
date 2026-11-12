@@ -21,8 +21,6 @@ import '../providers.dart';
 import 'message_check_panel.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
-import '../levels/level_providers.dart';
-import 'levels/shell_status.dart' show shellStatusesShown;
 import 'kit/kit_group.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_sheet.dart';
@@ -158,15 +156,10 @@ String statusBrief(String detail, {String? host}) {
   WidgetRef ref, {
   required bool bar,
 }) {
-  // The quiet shell carries its own two icons under the figure ([ShellStatusIcons]).
-  if (shellStatusesShown(ref.watch(levelFeaturesProvider))) {
-    return (mode: ref.watch(networkModeProvider), entries: const <StatusEntry>[]);
-  }
   return allStatusEntries(context, ref, bar: bar);
 }
 
-/// Every status in its order, whatever the View ([statusEntries] without the quiet shell's
-/// exception). The connections sheet lists these.
+/// Every status in its order. The connections sheet lists these.
 ({NetworkMode mode, List<StatusEntry> entries}) allStatusEntries(
   BuildContext context,
   WidgetRef ref, {

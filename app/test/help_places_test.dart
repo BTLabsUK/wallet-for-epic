@@ -6,8 +6,6 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/help/help_content.dart';
 import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/level_features.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:flutter/material.dart';
@@ -109,13 +107,13 @@ void main() {
       }
     });
 
-    test('phone: a place the View hides is no link', () {
-      LevelFeatures at(WalletLevel level) => LevelFeatures.of(level, AdvancedPrefs.none, torBuilt: true);
-      expect(helpPlaceGoes('Outputs', features: at(WalletLevel.justSendReceive)), isFalse);
-      // Transactions stays at every View: it holds the epic1 switch.
-      expect(helpPlaceGoes('Settings › Transactions', features: at(WalletLevel.justSendReceive)), isTrue);
-      expect(helpPlaceGoes('Settings › Network & privacy › Node', features: at(WalletLevel.justSendReceive)), isTrue);
-      expect(helpPlaceGoes('Settings › This wallet › Recheck balance', features: at(WalletLevel.justSendReceive)), isTrue);
+    test('phone: a place whose Advanced switch is off is no link', () {
+      expect(helpPlaceGoes('Outputs', prefs: AdvancedPrefs.none), isFalse);
+      expect(helpPlaceGoes('Outputs', prefs: AdvancedPrefs.all), isTrue);
+      // Transactions stays with every switch: it holds the epic1 switch.
+      expect(helpPlaceGoes('Settings › Transactions', prefs: AdvancedPrefs.none), isTrue);
+      expect(helpPlaceGoes('Settings › Network & privacy › Node', prefs: AdvancedPrefs.none), isTrue);
+      expect(helpPlaceGoes('Settings › This wallet › Recheck balance', prefs: AdvancedPrefs.none), isTrue);
     });
 
     test('desktop: each place has its page, and a jump where it names a section', () {

@@ -210,8 +210,8 @@ Future<void> _connectionsSheet(WidgetTester tester, void Function() check) async
 Future<void> _lock(WidgetTester tester) async {
   await _openSettings(tester);
   await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.security)));
-  await tester.scrollUntilVisible(find.text(_l.settingsLockWallet), 200, scrollable: find.byType(Scrollable).last);
-  await _tap(tester, find.text(_l.settingsLockWallet));
+  await tester.scrollUntilVisible(find.text(_l.phoneSettingsLockNow), 200, scrollable: find.byType(Scrollable).last);
+  await _tap(tester, find.text(_l.phoneSettingsLockNow));
 }
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -789,11 +789,12 @@ void main() {
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
 
-      await _reveal(tester, find.text('+5.0\u00a0EPIC'));
+      await _reveal(tester, find.text('+5.0'));
       expect(find.text(_l.txIncomingPayment), findsOneWidget);
-      expect(find.text('\u22121.0\u00a0EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0'), findsOneWidget);
       expect(find.textContaining(_l.txStatusWaitingRecipient), findsOneWidget);
-      expect(find.textContaining(_l.txStatusReceived), findsOneWidget);
+      // A received row shows its date in place of a status word.
+      expect(find.textContaining(_l.txStatusReceived), findsNothing);
       // No actions on rows: cancel lives in the details.
       expect(find.byTooltip('Cancel payment'), findsNothing);
     });
@@ -845,8 +846,8 @@ void main() {
         await _pumpFrames(tester);
         // No PIN, and no phrase, until the user agrees to keep any copy private.
         expect(find.text(_l.pinPromptTitle), findsNothing);
-        final show = find.widgetWithText(FilledButton, _l.backupShowPhrase);
-        expect(tester.widget<FilledButton>(show).onPressed, isNull);
+        final show = find.widgetWithText(KitButton, _l.backupShowPhrase);
+        expect(tester.widget<KitButton>(show).onPressed, isNull);
         await tester.tap(
           find.text(_l.backupCopyAgree),
         );
@@ -879,7 +880,7 @@ void main() {
           find.text(_l.backupCopyAgree),
         );
         await tester.pump();
-        await tester.tap(find.widgetWithText(FilledButton, _l.backupShowPhrase));
+        await tester.tap(find.widgetWithText(KitButton, _l.backupShowPhrase));
         await _pumpFrames(tester);
         await typePin(tester, _pin);
         await tester.pumpAndSettle();
@@ -920,7 +921,7 @@ void main() {
         tester.view.physicalSize = const Size(1080, 1920);
         await tester.pumpAndSettle();
         final first = find.text('1. ${phrase.split(' ').first}');
-        final copy = find.widgetWithText(TextButton, 'Copy');
+        final copy = find.widgetWithText(KitButton, 'Copy');
         final done = find.text('Done');
         expect(tester.getRect(copy).bottom, lessThan(tester.getRect(first).top));
         expect(tester.getRect(done).bottom, lessThanOrEqualTo(640));
@@ -1048,7 +1049,7 @@ void main() {
 
       await _openSettings(tester);
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.security)));
-      await _tapText(tester, 'Unlock with biometrics');
+      await _tapText(tester, _l.phoneSettingsBiometrics);
       await enterPin(tester, _pin);
       await tester.pumpAndSettle();
       expect(device.bio.values['wallet.mainnet.pin'], _pin);
@@ -1074,7 +1075,7 @@ void main() {
       await _tapText(tester, 'Recheck');
       expect(service.session.scanCalls, 1);
       await _clearNotices(tester);
-      await tester.pageBack();
+      await tester.state<NavigatorState>(find.byType(Navigator).first).maybePop();
       await tester.pumpAndSettle();
       await shellGo(tester, 'Home');
       expect(find.byKey(homeFigureKey), findsOneWidget);
@@ -1102,7 +1103,7 @@ void main() {
       await _tap(tester, find.byKey(ScanStart.infoKey));
       await _tapText(tester, _l.restoreScanFromStart);
       await _tapText(tester, 'Recheck');
-      await tester.pageBack();
+      await tester.state<NavigatorState>(find.byType(Navigator).first).maybePop();
       await tester.pumpAndSettle();
       await shellGo(tester, 'Home');
       expect(find.text('The scan failed. node unreachable'), findsOneWidget);

@@ -13,8 +13,6 @@ import 'cancel_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
-import '../levels/level_features.dart' show InvoicePresence;
-import '../levels/level_providers.dart' show levelFeaturesProvider;
 import '../contacts.dart';
 import '../cancel_final.dart';
 import '../errors.dart';
@@ -166,8 +164,6 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     }
     switch (event.kind) {
       case InvoiceEventKind.received:
-        // Level 1 keeps invoices quiet: no notice; the invoice is a row under Recent activity.
-        if (ref.read(levelFeaturesProvider).invoices == InvoicePresence.quiet) break;
         hold(HeldKind.invoice, show: () => view(l.invoiceNoticeReceived, NoticeLevel.info, () => _openInvoice(event.slateId)));
       case InvoiceEventKind.posted:
         hold(HeldKind.paid, show: () async {

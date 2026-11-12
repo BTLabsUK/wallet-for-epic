@@ -3,6 +3,7 @@
 // the requests in the Invoices list, the request block in a transaction's details, withdraw
 // with its confirm, and the notices of each issuer event. Nothing on this side pays.
 
+import 'dart:async';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -11,7 +12,6 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
@@ -425,9 +425,10 @@ void main() {
     testWidgets('withdraw asks first, then withdraws', (tester) async {
       final h = _Harness();
       final request = await h.issue();
+      // Home listens for the request's events; the list opens over it.
       await h.pump(tester, const HomeScreen());
-      await tester.tap(
-        find.byKey(homeDestinationKey(HomeDestination.invoices)),
+      unawaited(
+        tester.state<NavigatorState>(find.byType(Navigator).first).push(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen())),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text(_l.issuedWithdraw));
@@ -443,12 +444,16 @@ void main() {
       await tester.tap(find.text(_l.issuedWithdraw));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
+      // The toast leaves by itself: read it before the screen settles.
+      for (var i = 0; i < 40 && _notice(tester) == null; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(_notice(tester), _l.issuerNoticeWithdrawn);
+      expect(_noticeLevel(tester), NoticeLevel.warning);
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [request.txId]);
       expect(_rich(_l.issuedWithdrawn), findsOneWidget);
       expect(find.text(_l.issuedWithdraw), findsNothing);
-      expect(_notice(tester), _l.issuerNoticeWithdrawn);
-      expect(_noticeLevel(tester), NoticeLevel.warning);
     });
 
     testWidgets('opens a request in its details', (tester) async {

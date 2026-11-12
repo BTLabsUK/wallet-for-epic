@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart' show Kit;
 import 'package:flutter_test/flutter_test.dart';
 
 final String _alice = 'es${'a' * 50}@epicbox.epiccash.com';
@@ -74,13 +75,21 @@ void main() {
 
   testWidgets('the list marks only a contact whose kind is not the plain wallet, at the larger size', (tester) async {
     await _pump(tester, const ContactsScreen());
+    // Bob only: once on the faces strip (54 px avatar) and once on his list row (40 px avatar).
     final marks = find.byType(ContactLabelMark);
-    expect(marks, findsOneWidget);
-    expect(tester.widget<ContactLabelMark>(marks).label, ContactLabel.exchange);
-    // The 48 px row avatar: a 21 px mark (it was 19 px) with a 17 px glyph (it was 14 px).
-    expect(tester.getSize(marks).width, closeTo(contactLabelMarkSize(48), 0.01));
-    expect(contactLabelMarkSize(48), greaterThanOrEqualTo(21));
-    expect(tester.getSize(find.descendant(of: marks, matching: find.byType(ContactLabelGlyph))).width, greaterThanOrEqualTo(16.8));
+    expect(marks, findsNWidgets(2));
+    for (final m in tester.widgetList<ContactLabelMark>(marks)) {
+      expect(m.label, ContactLabel.exchange);
+    }
+    final widths = [for (final e in marks.evaluate()) tester.getSize(find.byElementPredicate((x) => x == e)).width]..sort();
+    expect(widths[0], closeTo(contactLabelMarkSize(Kit.avatar), 0.01));
+    expect(widths[1], closeTo(contactLabelMarkSize(Kit.avatarStrip), 0.01));
+    expect(contactLabelMarkSize(Kit.avatarStrip), greaterThanOrEqualTo(21));
+    for (final m in marks.evaluate()) {
+      final mark = find.byElementPredicate((x) => x == m);
+      final glyph = tester.getSize(find.descendant(of: mark, matching: find.byType(ContactLabelGlyph))).width;
+      expect(glyph, closeTo(contactLabelGlyphSize(tester.getSize(mark).width), 0.01));
+    }
   });
 
   testWidgets('the contact page mark opens the picker; setting and clearing a label updates it and the stored contact', (tester) async {

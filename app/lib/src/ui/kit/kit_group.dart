@@ -65,13 +65,16 @@ class KitHairline extends StatelessWidget {
 
 /// The small dim label above a group: 13/500, 20 px in, 18 above and 8 below.
 class KitGroupLabel extends StatelessWidget {
-  const KitGroupLabel(this.text, {super.key});
+  const KitGroupLabel(this.text, {super.key, this.inset = Kit.gutter + 4});
 
   final String text;
 
+  /// The side inset: 20 on a page, less where the page already pads.
+  final double inset;
+
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 18, Kit.gutter + 4, 8),
+    padding: EdgeInsets.fromLTRB(inset, 18, inset, 8),
     child: Semantics(
       header: true,
       child: Epic1Text(text, style: KitType.groupLabel.copyWith(color: context.tokens.dim)),

@@ -37,7 +37,6 @@ import 'kit/kit_tokens.dart';
 import 'phone_tx_row.dart' show paymentInProgress;
 import 'tx_details_screen.dart' show TxDetailsScreen;
 import '../trust_ids.dart';
-import '../levels/level_features.dart' show TimelineStyle;
 import 'levels/payment_steps.dart' show paymentStepWord;
 import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
 import 'contact_label_mark.dart' show AvatarLabelMark;
@@ -177,7 +176,6 @@ class _PaymentBubble extends ConsumerWidget {
       l,
       tx,
       tip,
-      style: TimelineStyle.casualSteps,
       target: target,
       now: now,
       who: name,
