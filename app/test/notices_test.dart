@@ -341,7 +341,7 @@ void main() {
   });
 
   testWidgets(
-    'warnings, errors, persistent notices and actions can be closed',
+    'persistent notices can be closed; the others leave by themselves, a swipe or their action',
     (tester) async {
       final c = await _pump(tester);
       Finder close() =>
@@ -349,8 +349,8 @@ void main() {
       for (final (level, closable) in [
         (NoticeLevel.info, false),
         (NoticeLevel.success, false),
-        (NoticeLevel.warning, true),
-        (NoticeLevel.error, true),
+        (NoticeLevel.warning, false),
+        (NoticeLevel.error, false),
       ]) {
         c.notices.show('A ${level.name}', level: level);
         await tester.pumpAndSettle();
@@ -371,7 +371,7 @@ void main() {
         action: NoticeAction('View', () => pressed++),
       );
       await tester.pumpAndSettle();
-      expect(close(), findsOneWidget);
+      expect(close(), findsNothing);
       await tester.tap(find.text('View'));
       await tester.pumpAndSettle();
       expect(pressed, 1);

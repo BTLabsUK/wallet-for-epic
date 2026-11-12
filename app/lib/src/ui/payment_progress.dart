@@ -149,8 +149,12 @@ PaymentProgress? paymentProgress(
 
   // The times the wallet knows: the first step when the record began, the network step when
   // this wallet finalized the send, the last when its block was found.
-  String? time(int? unix) =>
-      unix == null || unix <= 0 ? null : shortDate(l, localTime(unix), now);
+  String? time(int? unix) {
+    if (unix == null || unix <= 0) return null;
+    final at = localTime(unix);
+    // "Today 18:12", as the frames print it.
+    return daysAgo(at, now) == 0 ? '${l.dateToday} ${localClock(l, at)}' : shortDate(l, at, now);
+  }
   final times = <String?>[
     time(tx.createdAtUnix),
     null,
