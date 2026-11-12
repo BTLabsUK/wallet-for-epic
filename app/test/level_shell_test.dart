@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey, connectionsSheetKey;
 import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey, homePillKey;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
 import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart';
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeChangeKey, networkModeMarkKey, networkSectionKey;
@@ -153,7 +154,7 @@ void main() {
       expect(find.byType(BalanceTiles), findsNothing);
       expect(find.byType(HomeDestinations), findsNothing);
       expect(find.byType(HomeContactsEntry), findsNothing);
-      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+      expect(find.byIcon(KitIcons.eye), findsOneWidget);
       // Contacts is a tab now, the same at every level.
       expect(find.descendant(of: find.byType(KitTabBar), matching: find.text(_l.settingsContacts)), findsOneWidget);
     });
