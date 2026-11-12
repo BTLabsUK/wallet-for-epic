@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// What moves in the web preview's fake wallet, so the levels' live payment timeline and the
-/// relay-down flow can be seen without a server: a send walks signed → posted → confirming →
+/// What moves in the web preview's fake wallet, so the live payment timeline and the relay-down
+/// flow can be seen without a server: a send walks signed → posted → confirming →
 /// completed, a payment from Bob arrives a while after Home opens and confirms the same way,
 /// and the fake Epicbox can go quiet and come back on a new address. Nothing here talks to a
 /// network; the pace is that of a presentation, not of the chain.

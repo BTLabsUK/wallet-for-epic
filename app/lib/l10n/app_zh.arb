@@ -6028,5 +6028,7 @@
   "phoneRecvWaitingPaid": "等待付款",
   "phoneRecvViewPayment": "查看付款",
   "phoneRecvShowCode": "显示码",
-  "phoneRecvArrivalFrom": "来自 {name}"
+  "phoneRecvArrivalFrom": "来自 {name}",
+  "phoneTourOffer": "要不要快速看看钱包的功能?",
+  "phoneTourOfferShow": "带我看看"
 }

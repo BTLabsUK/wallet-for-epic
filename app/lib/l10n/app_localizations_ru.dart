@@ -23818,4 +23818,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'от $name';
   }
+
+  @override
+  String get phoneTourOffer => 'Показать, как устроен кошелёк?';
+
+  @override
+  String get phoneTourOfferShow => 'Показать';
 }

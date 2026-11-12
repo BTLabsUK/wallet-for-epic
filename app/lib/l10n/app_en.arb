@@ -31388,5 +31388,13 @@
         "example": "Bob"
       }
     }
+  },
+  "phoneTourOffer": "Want a quick tour of the wallet?",
+  "phoneTourOfferShow": "Show me",
+  "@phoneTourOffer": {
+    "description": "Toast shown once after the first unlock: offers the wallet tour. Short question."
+  },
+  "@phoneTourOfferShow": {
+    "description": "Button on the tour offer toast: starts the tour. One or two words."
   }
 }

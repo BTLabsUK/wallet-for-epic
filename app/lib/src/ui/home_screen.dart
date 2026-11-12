@@ -44,7 +44,6 @@ import 'status.dart';
 import 'theme/brand.dart' show ProtocolBackdrop, topGlow;
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
-import 'levels/shell_pairing.dart' show offerPairRequest;
 import '../settings_file/host_settings.dart' show appConfig;
 import '../log.dart' show logWarn;
 import '../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;
@@ -510,8 +509,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _openLinkText(String text) async {
-    // Level 1: a pairing invite is a notice with See request, not a sheet over the screen.
-    if (await offerPairRequest(context, ref, text) || !mounted) return;
+    if (!mounted) return;
     if (ModalRoute.of(context)?.isCurrent ?? true) {
       unawaited(openScannedText(context, ref, text, origin: CodeOrigin.link));
       return;
