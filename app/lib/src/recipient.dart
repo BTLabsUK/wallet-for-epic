@@ -31,6 +31,11 @@ Recipient parseRecipient(String text) {
   if (onionAddressFormat(clean)) {
     return Recipient(RecipientKind.tor, onionHost(clean));
   }
+  // A chat app auto-links a pasted Epicbox address: `https://<address>@<relay>/`.
+  final linked = _linkedEpicbox.firstMatch(clean);
+  if (linked != null) {
+    return Recipient(RecipientKind.epicbox, '${linked.group(1)}@${linked.group(2)}');
+  }
   if (lower.startsWith('http://') || lower.startsWith('https://')) {
     return Recipient(RecipientKind.http, clean);
   }
@@ -72,6 +77,13 @@ bool epic1LinkShaped(String text, {String? network}) {
   final test = t.startsWith(RegExp(r'epic:(//)?tepic1'));
   return network == 'mainnet' ? !test : test;
 }
+
+/// `http(s)://<epicbox key>@<relay domain>` with at most a `/`: no path, query or port, so a
+/// real wallet URL never matches. The key is 40 or more base58 characters; the host a name
+/// ending in a letter label (an IP address is never a relay).
+final RegExp _linkedEpicbox = RegExp(
+  r'^[hH][tT][tT][pP][sS]?://([1-9A-HJ-NP-Za-km-z]{40,})@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z][A-Za-z0-9-]*)/?$',
+);
 
 final RegExp _epicboxShape = RegExp(
   r'^[1-9A-HJ-NP-Za-km-z]{40,}(?:@[^@\s]+)?$',
