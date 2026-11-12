@@ -312,6 +312,25 @@ abstract final class TrustIds {
   static const pairflowRequestsPair = 'g4.pairflow.requests_pair';
   static const pairflowRequestsNotNow = 'g4.pairflow.requests_not_now';
   static const pairflowRequestsRow = 'g4.pairflow.requests_row';
+  static const pairflowInviteSheet = 'g4.pairflow.invite_sheet';
+  static const pairflowInvitePair = 'g4.pairflow.invite_pair';
+  static const pairflowInviteNotNow = 'g4.pairflow.invite_not_now';
+  static const pairflowWaitingClose = 'g4.pairflow.waiting_close';
+  static const pairflowWaitingCancel = 'g4.pairflow.waiting_cancel';
+  static const pairflowWaitingShare = 'g4.pairflow.waiting_share';
+  static const pairflowWaitingCopy = 'g4.pairflow.waiting_copy';
+  static const pairflowWaitingPaste = 'g4.pairflow.waiting_paste';
+  static const pairflowWaitingFinishField = 'g4.pairflow.waiting_finish_field';
+  static const pairflowWaitingFinishGo = 'g4.pairflow.waiting_finish_go';
+  static const pairflowCancelSheet = 'g4.pairflow.cancel_sheet';
+  static const pairflowCancelConfirm = 'g4.pairflow.cancel_confirm';
+  static const pairflowCancelKeep = 'g4.pairflow.cancel_keep';
+  static const pairflowFinishClose = 'g4.pairflow.finish_close';
+  static const pairflowFinishScreenShare = 'g4.pairflow.finish_screen_share';
+  static const pairflowFinishScreenCheck = 'g4.pairflow.finish_screen_check';
+  static const pairflowOutcomeClose = 'g4.pairflow.outcome_close';
+  static const pairflowOutcomeUpdate = 'g4.pairflow.outcome_update';
+  static const pairflowOutcomeBack = 'g4.pairflow.outcome_back';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -634,5 +653,24 @@ abstract final class TrustIds {
     'g4.pairflow.requests_pair',
     'g4.pairflow.requests_not_now',
     'g4.pairflow.requests_row',
+    'g4.pairflow.invite_sheet',
+    'g4.pairflow.invite_pair',
+    'g4.pairflow.invite_not_now',
+    'g4.pairflow.waiting_close',
+    'g4.pairflow.waiting_cancel',
+    'g4.pairflow.waiting_share',
+    'g4.pairflow.waiting_copy',
+    'g4.pairflow.waiting_paste',
+    'g4.pairflow.waiting_finish_field',
+    'g4.pairflow.waiting_finish_go',
+    'g4.pairflow.cancel_sheet',
+    'g4.pairflow.cancel_confirm',
+    'g4.pairflow.cancel_keep',
+    'g4.pairflow.finish_close',
+    'g4.pairflow.finish_screen_share',
+    'g4.pairflow.finish_screen_check',
+    'g4.pairflow.outcome_close',
+    'g4.pairflow.outcome_update',
+    'g4.pairflow.outcome_back',
   ];
 }
