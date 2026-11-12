@@ -12,6 +12,13 @@ Needs fontTools (pip install fonttools). Run from app/.
   python3 tool/fonts_subset.py geist  the Geist subsets. Source: the static TTFs of a Geist release
                                       (OFL, github.com/vercel/geist-font, 1.9.0), unzipped into
                                       GEIST_DIR (the folder holding Geist/ and GeistMono/).
+  python3 tool/fonts_subset.py inter  the phone's body face. Source: the static TTFs of an Inter
+                                      release (OFL, github.com/rsms/inter, 4.1; extras/ttf), unzipped
+                                      into INTER_DIR. Keeps the tnum and cv11 features.
+  python3 tool/fonts_subset.py lucide the phone's icon font. Source: lucide-static 1.72.0 (ISC, npm),
+                                      unzipped into LUCIDE_DIR (the folder holding font/). Keeps the
+                                      icons named in tool/lucide_icons.txt; add a name there to use
+                                      one more icon (then KitIcons gets a getter).
 (The pairing pictures are SVGs, assets/sas, from tool/sas_pictures.py.)
 """
 import glob, os, re, sys
@@ -44,6 +51,31 @@ if sys.argv[1:] == ['geist']:
                                      (0x2010, 0x2027), (0x2030, 0x203A), (0x2190, 0x2193)] for c in range(r[0], r[1] + 1))
     for face in ['Geist/ttf/Geist-Regular.ttf', 'GeistMono/ttf/GeistMono-Regular.ttf', 'GeistMono/ttf/GeistMono-Medium.ttf']:
         run(os.path.join(src, face), 'assets/fonts/' + os.path.basename(face), text, hinting=True)
+    sys.exit(0)
+
+# Inter: the phone's body face, Regular, Medium and SemiBold. Latin, Latin-1, Latin Extended-A,
+# Cyrillic, punctuation, arrows. Thai and Chinese fall back to the Noto fonts. Hinting dropped:
+# the glyphs are drawn by Skia at any size.
+if sys.argv[1:] == ['inter']:
+    src = os.environ.get('INTER_DIR', 'inter')
+    text = ''.join(chr(c) for r in [(0x20, 0x7E), (0xA0, 0x17F), (0x400, 0x45F), (0x490, 0x491),
+                                     (0x2010, 0x2027), (0x2030, 0x203A), (0x2190, 0x2199), (0x2212, 0x2212),
+                                     (0x2248, 0x2248), (0x2022, 0x2022), (0x00B7, 0x00B7), (0x2026, 0x2026)] for c in range(r[0], r[1] + 1))
+    for face in ['Regular', 'Medium', 'SemiBold']:
+        run(os.path.join(src, 'extras/ttf/Inter-%s.ttf' % face), 'assets/fonts/Inter-%s.ttf' % face, text)
+    sys.exit(0)
+
+# Lucide: the icons KitIcons names (tool/lucide_icons.txt), by codepoint from the package's
+# codepoints.json.
+if sys.argv[1:] == ['lucide']:
+    import json
+    src = os.environ.get('LUCIDE_DIR', 'lucide-static')
+    codes = json.load(open(os.path.join(src, 'font/codepoints.json')))
+    names = [n.strip() for n in open('tool/lucide_icons.txt') if n.strip() and not n.startswith('#')]
+    missing = [n for n in names if n not in codes]
+    if missing:
+        sys.exit('not in lucide: %s' % missing)
+    run(os.path.join(src, 'font/lucide.ttf'), 'assets/fonts/Lucide.ttf', ''.join(chr(codes[n]) for n in names))
     sys.exit(0)
 
 # The pairing pictures' emoji (the first field of every SasWord('x', 'name') entry), kept out

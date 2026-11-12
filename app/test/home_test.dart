@@ -812,7 +812,7 @@ void main() {
       await h.pump(tester);
 
       expect(_figure(tester), '12.5');
-      expect(find.text('≈\u00a06.25\u00a0USD'), findsOneWidget);
+      expect(find.text('≈\u00a0\$6.25'), findsOneWidget);
       expect((await _statusWord(tester, nodeStatusKey)), 'Node, Synced');
       expect((await _statusWord(tester, epicboxStatusKey)), 'Epicbox, Connecting');
       // The height is only in the tooltip.
@@ -823,9 +823,9 @@ void main() {
       expect(tiles, findsNWidgets(4));
       expect(tester.widget<PhoneTxRow>(tiles.first).tx.slateId, 'send-bob');
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
-      expect(find.text('≈\u00a02.50\u00a0USD'), findsOneWidget);
+      expect(find.text('\$2.50'), findsOneWidget);
       // The waiting send says so in its own row; the open row shows no time.
-      expect(find.textContaining('Yesterday, 18:00'), findsOneWidget);
+      expect(find.textContaining('Yesterday'), findsOneWidget);
       expect(find.text('A payment is waiting for the recipient'), findsNothing);
       await _tap(tester, find.textContaining('Waiting for recipient'));
       expect(find.byType(TxDetailsScreen), findsOneWidget);
@@ -878,7 +878,7 @@ void main() {
 
       await _tap(tester, find.byTooltip(_l.homeHideBalances));
       expect(_figure(tester), hiddenAmount);
-      expect(find.text('≈\u00a06.25\u00a0USD'), findsNothing);
+      expect(find.text('≈\u00a0\$6.25'), findsNothing);
       expect(find.text('+5.0\u00a0EPIC'), findsNothing);
       expect(find.text(hiddenAmount), findsWidgets);
       expect(h.store.values['app.hide_balances'], 'true');
@@ -898,16 +898,16 @@ void main() {
     testWidgets('the price refreshes every five minutes', (tester) async {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
-      expect(find.text('≈\u00a06.25\u00a0USD'), findsOneWidget);
+      expect(find.text('≈\u00a0\$6.25'), findsOneWidget);
       h.prices.value = 1;
       await tester.pump(priceRefreshInterval);
       await tester.pumpAndSettle();
-      expect(find.text('≈\u00a012.50\u00a0USD'), findsOneWidget);
+      expect(find.text('≈\u00a0\$12.50'), findsOneWidget);
       // A failed fetch keeps the last price.
       h.prices.value = null;
       await tester.pump(priceRefreshInterval);
       await tester.pumpAndSettle();
-      expect(find.text('≈\u00a012.50\u00a0USD'), findsOneWidget);
+      expect(find.text('≈\u00a0\$12.50'), findsOneWidget);
       expect(h.prices.calls, 3);
     });
 
@@ -2038,8 +2038,8 @@ void main() {
       expect(session.summaryCalls, 1);
       expect(session.refreshCalls, 1);
       expect(session.transactionCalls, 3);
-      expect(find.textContaining('3 Aug, 08:00'), findsOneWidget);
-      expect(find.textContaining('1 Aug, 08:00'), findsNothing);
+      expect(find.textContaining('3 Aug'), findsOneWidget);
+      expect(find.textContaining('1 Aug'), findsNothing);
 
       // The minute refresh asks again; nothing changed, so no extra list load.
       final loads = session.transactionCalls;
@@ -2134,8 +2134,8 @@ void main() {
       await h.pump(tester, const HistoryScreen());
       // The cancelled 1\u00a0EPIC send would be 0.50\u00a0USD.
       expect(find.text('\u22121.0'), findsOneWidget);
-      expect(find.text('≈\u00a00.50\u00a0USD'), findsNothing);
-      expect(find.text('≈\u00a01.00\u00a0USD'), findsOneWidget);
+      expect(find.text('\$0.50'), findsNothing);
+      expect(find.text('\$1.00'), findsOneWidget);
       // Cancelled is said by the chip, not the title.
       expect(find.text(_l.txOutgoingPayment), findsOneWidget);
     });

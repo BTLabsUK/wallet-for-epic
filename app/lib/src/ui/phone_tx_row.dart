@@ -15,6 +15,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../amount.dart';
 import '../initials.dart' show nameInitials;
@@ -48,7 +49,7 @@ class PhoneProgressMark extends StatelessWidget {
     final ink = color ?? context.tokens.info;
     final f = fraction;
     if (f == null) {
-      return ExcludeSemantics(child: Icon(Icons.hourglass_empty_rounded, size: size, color: ink));
+      return ExcludeSemantics(child: Icon(KitIcons.hourglass, size: size, color: ink));
     }
     return ExcludeSemantics(
       child: CustomPaint(size: Size.square(size), painter: _RingPainter(ink, f.clamp(0.0, 1.0))),
@@ -88,6 +89,19 @@ double? phoneProgressFraction(TxEntry tx, BigInt? tip, {required int target}) =>
       TxPhase.waitingSender => 0.1,
       _ => null,
     };
+
+/// The day of a row that has no day header (the frames): "Today 14:48" with its time, then
+/// "Yesterday", the weekday within the week, the day and month this year, the full date before.
+String phoneRowDay(AppLocalizations l, DateTime t, DateTime now) {
+  final days = daysAgo(t, now);
+  return switch (days) {
+    0 => '${l.dateToday} ${localClock(l, t)}',
+    1 => l.dateYesterday,
+    _ when days > 1 && days < 7 => DateFormat.EEEE(l.localeName).format(t),
+    _ when t.year == now.year => localDayMonth(l, t),
+    _ => localDay(l, t),
+  };
+}
 
 /// The title's initials for the avatar, or null when the title is not a name: an address, a
 /// mining reward, a payment's method.
@@ -152,7 +166,7 @@ class PhoneTxRow extends ConsumerWidget {
     final addressTitle =
         counterparty != null && name == null && title == shortAddress(counterparty, ownServer: own);
     final aside = txTitleAside(tx, contactName: name, ownServer: own);
-    final time = dated ? shortDate(l, localTime(tx.timeUnix), now) : localClock(l, localTime(tx.timeUnix));
+    final time = dated ? phoneRowDay(l, localTime(tx.timeUnix), now) : localClock(l, localTime(tx.timeUnix));
     final sealed = phoneShowsSealed(ref, tx);
     final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
     final status = open
@@ -167,7 +181,7 @@ class PhoneTxRow extends ConsumerWidget {
             paused: paused,
           )
         : txStatusLabel(l, tx, tip, target: target, now: now, paused: paused);
-    final fiat = cancelled ? null : approxFiat(l, amount, display, short: true);
+    final fiat = cancelled ? null : phoneFiat(l, amount, display);
     final sign = outgoing ? minusSign : '+';
     final amountText = display.hidden ? hiddenAmount : '$sign${displayEpic(amount)}';
     final note = tx.note?.trim() ?? '';
@@ -191,7 +205,10 @@ class PhoneTxRow extends ConsumerWidget {
       final word = cancelled
           ? (outgoing && status == l.txStatusCancelled ? l.phoneActCancelledNothing : status)
           : null;
-      final detail = word ?? (note.isNotEmpty ? note : aside);
+      // Under no day header (Home, Contacts) a finished payment says which way it went when
+      // nothing else is to be said.
+      final fallback = dated && tx.status == TxStatus.confirmed && !cancelled ? status : null;
+      final detail = word ?? (note.isNotEmpty ? note : (aside ?? fallback));
       sub = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -258,13 +275,17 @@ class PhoneTxRow extends ConsumerWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: Kit.rowList),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            // `.row`: 10 14 around a 39.5 tall text block, 62 at least. The name's target is 26
+            // tall (the frame's line is 19.5), so the padding and a lift of the text give back the 3.5.
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8.25),
             child: Row(
               children: [
                 IgnorePointer(child: ExcludeSemantics(child: avatar)),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
+                  child: Transform.translate(
+                    offset: const Offset(0, -1.6),
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -308,6 +329,7 @@ class PhoneTxRow extends ConsumerWidget {
                       ),
                       IgnorePointer(child: ExcludeSemantics(child: sub)),
                     ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),

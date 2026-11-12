@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:io' show Platform;
+import 'dart:ui' show FontFeature;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
+/// The phone's body face: Inter, with tabular figures and the frames' `cv11` (single-storey a). Every phone text style that is not a title or an amount carries them.
+const String interFamily = 'Inter';
+const List<FontFeature> interFeatures = [FontFeature.tabularFigures(), FontFeature('cv11')];
 
 /// The fallback for Thai, set on both themes: Montserrat and JetBrains Mono have no Thai, and the
 /// platform's own Thai font differs per system (or is missing on some Linux installs).
@@ -29,6 +34,8 @@ const Map<String, String> fontLicenceAssets = {
   'Noto Sans Thai': 'assets/fonts/OFL-NotoSansThai.txt',
   'Noto Sans SC (subset)': 'assets/fonts/OFL-NotoSansSC.txt',
   'Geist and Geist Mono (subset)': 'assets/fonts/OFL-Geist.txt',
+  'Inter (subset)': 'assets/fonts/OFL-Inter.txt',
+  'Lucide icons (subset)': 'assets/fonts/LICENSE-Lucide.txt',
   'flag-icons': 'assets/flags/LICENSE-flag-icons.txt',
   'Noto Emoji (pairing pictures)': 'assets/sas/LICENSE.txt',
   'Status icons (Bootstrap Icons, Carbon, Material Symbols)': 'assets/licenses/status-icons.txt',

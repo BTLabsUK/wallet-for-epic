@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, Po
 import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 
 import '../address_format.dart' show displayCase;
 import '../address_format.dart' as address_format show shortAddress;
@@ -602,6 +603,29 @@ String? approxFiat(
     }
   }
   return approxText(localDigits(l, text));
+}
+
+/// The phone's value of [atomic]: `$1,327.13`, the currency's symbol before the figure (the code
+/// when it has none), with [approx] a leading `≈`. Cents always show. Null when there is no
+/// price or amounts are hidden. Bitcoin keeps its 8 decimals and its code.
+String? phoneFiat(
+  AppLocalizations l,
+  BigInt atomic,
+  ({bool hidden, double? price, String currency}) display, {
+  bool approx = false,
+}) {
+  final price = display.price;
+  if (price == null || display.hidden) return null;
+  final code = display.currency.toUpperCase();
+  final value = (atomic / atomicPerEpic * price).abs();
+  final String text;
+  if (code == 'BTC') {
+    text = fiatText(atomic, price, code);
+  } else {
+    text = NumberFormat.simpleCurrency(locale: 'en', name: code, decimalDigits: 2).format(value).replaceAll('\u00a0', noBreakSpace);
+  }
+  final figure = localDigits(l, text);
+  return approx ? approxText(figure) : figure;
 }
 
 // Dates.

@@ -10,7 +10,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 
 import '../kit/kit_tokens.dart' show Kit;
-import 'fonts.dart' show phoneFontFallback;
+import 'fonts.dart' show interFamily, interFeatures, phoneFontFallback;
 import 'palette.dart';
 
 /// Every value the look may change. One instance per brightness.
@@ -478,9 +478,30 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     colorScheme: scheme,
     scaffoldBackgroundColor: t.bg,
     canvasColor: t.bg,
+    // The phone's body face is Inter (the designer's frames); titles and figures stay Montserrat.
+    fontFamily: interFamily,
     fontFamilyFallback: phoneFontFallback,
   );
-  final text = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
+  final applied = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
+  // The frames' body carries tnum and cv11 (wallet.css `.w`), so every text style does.
+  TextStyle? withFeatures(TextStyle? s) => s?.copyWith(fontFeatures: interFeatures);
+  final text = TextTheme(
+    displayLarge: withFeatures(applied.displayLarge),
+    displayMedium: withFeatures(applied.displayMedium),
+    displaySmall: withFeatures(applied.displaySmall),
+    headlineLarge: withFeatures(applied.headlineLarge),
+    headlineMedium: withFeatures(applied.headlineMedium),
+    headlineSmall: withFeatures(applied.headlineSmall),
+    titleLarge: withFeatures(applied.titleLarge),
+    titleMedium: withFeatures(applied.titleMedium),
+    titleSmall: withFeatures(applied.titleSmall),
+    bodyLarge: withFeatures(applied.bodyLarge),
+    bodyMedium: withFeatures(applied.bodyMedium),
+    bodySmall: withFeatures(applied.bodySmall),
+    labelLarge: withFeatures(applied.labelLarge),
+    labelMedium: withFeatures(applied.labelMedium),
+    labelSmall: withFeatures(applied.labelSmall),
+  );
   const tabular = [FontFeature.tabularFigures()];
   TextStyle? head(TextStyle? s, {double tracking = -0.3}) => s?.copyWith(
     fontFamily: t.headFamily,
@@ -707,11 +728,23 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         side: BorderSide(color: t.lineStrong),
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
-      backgroundColor: t.text,
-      contentTextStyle: TextStyle(color: t.bg),
-      actionTextColor: t.bg,
-    ),
+    // `.toast`: floats 12 in from the sides, 56 tall at least, radius 20, a stronger hairline,
+    // 14.5 text. Dark: the ground rgba(34,34,43,.95); light keeps the inverted bar.
+    snackBarTheme: brightness == Brightness.dark
+        ? SnackBarThemeData(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xF222222B),
+            contentTextStyle: TextStyle(color: t.text, fontSize: 14.5, height: 1.3),
+            actionTextColor: t.accentText,
+            elevation: 0,
+            insetPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: t.hair2)),
+          )
+        : SnackBarThemeData(
+            backgroundColor: t.text,
+            contentTextStyle: TextStyle(color: t.bg),
+            actionTextColor: t.bg,
+          ),
     // Every bar and spinner takes the app's accent; none stays stock.
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: t.accent,

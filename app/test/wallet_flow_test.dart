@@ -773,8 +773,8 @@ void main() {
       await tester.pumpAndSettle();
       // Total 16, balance 13.5: the chips under the figure name what is arriving and in sends,
       // and the balance sheet lists every part.
-      expect(find.text('+1.5\u00a0EPIC arriving'), findsOneWidget);
-      expect(find.text('2.0\u00a0EPIC in sends'), findsOneWidget);
+      expect(find.text('+1.5 arriving'), findsOneWidget);
+      expect(find.text('2.0 in sends'), findsOneWidget);
       await _clearNotices(tester);
       await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();

@@ -4,6 +4,7 @@
 // still counts it as confirming (one of the F-06 disagreements; Send's re-estimate is another,
 // in send_test.dart).
 
+import 'package:epic_wallet/src/amount.dart' show epicFor;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -279,13 +280,13 @@ void main() {
       // The figure is the wallet's balance: nothing spendable now, the 7.492 confirming.
       expect(_figure(tester), '7.492');
       // Home says it in two chips: the 7.492 arriving and the 10 held by sends.
-      for (final text in [l.phoneHomeArriving(epicText(l, _epic(7.492))), l.phoneHomeInSends(epicText(l, _epic(10.0)))]) {
+      for (final text in [l.phoneHomeArriving(epicFor(l, _epic(7.492), unit: false)), l.phoneHomeInSends(epicFor(l, _epic(10.0), unit: false))]) {
         expect(find.text(text).hitTestable(), findsOneWidget, reason: text);
       }
       // They stand still, and nothing runs to move them.
-      final at = tester.getRect(find.text(l.phoneHomeInSends(epicText(l, _epic(10.0)))));
+      final at = tester.getRect(find.text(l.phoneHomeInSends(epicFor(l, _epic(10.0), unit: false))));
       await tester.pump(const Duration(seconds: 3));
-      expect(tester.getRect(find.text(l.phoneHomeInSends(epicText(l, _epic(10.0))))), at);
+      expect(tester.getRect(find.text(l.phoneHomeInSends(epicFor(l, _epic(10.0), unit: false)))), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
       // The header on Send and Receive agrees: the same 7.492, and the same amounts as tokens
@@ -364,8 +365,8 @@ void main() {
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
         ]);
         // Home: 2 confirming and 16 maturing arrive, the 5 locked are in sends.
-        expect(find.text(l.phoneHomeArriving(epicText(l, _epic(18.0)))), findsOneWidget);
-        expect(find.text(l.phoneHomeInSends(epicText(l, _epic(5.0)))), findsOneWidget);
+        expect(find.text(l.phoneHomeArriving(epicFor(l, _epic(18.0), unit: false))), findsOneWidget);
+        expect(find.text(l.phoneHomeInSends(epicFor(l, _epic(5.0), unit: false))), findsOneWidget);
         // Send and Receive keep three tokens: 5 locked, 2 confirming and 16 maturing coming
         // in, and the 0.5 not on chain yet apart (never counted as coming in).
         await _tab(tester, l.homeSendButton);
@@ -466,7 +467,7 @@ void main() {
       expect(_rowLabel(tester), isNot(contains('received,')));
       expect(find.textContaining(l.txStatusReceived), findsNothing);
       expect(find.textContaining(l.lvPolPosted), findsOneWidget);
-      expect(find.text(l.phoneHomeArriving(epicText(l, _epic(2.5)))), findsOneWidget);
+      expect(find.text(l.phoneHomeArriving(epicFor(l, _epic(2.5), unit: false))), findsOneWidget);
 
       // The next refresh reaches block 228: three confirmations, both say so.
       session.summaryValue = _summary(
