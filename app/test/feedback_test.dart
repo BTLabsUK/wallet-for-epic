@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart' show onionNoticeTag;
 import 'package:epic_wallet/src/ui/notices.dart' show noticeKey, noticeProvider;
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';

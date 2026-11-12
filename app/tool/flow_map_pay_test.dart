@@ -29,11 +29,8 @@ import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart';
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/scanner_backend.dart' show CameraTurns;
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'dart:typed_data';
 
 import 'package:epic_wallet/src/connection_grace.dart' show connectionGraceLengthProvider;
 import 'package:epic_wallet/src/name_service/payment_refusals.dart' show PaymentRefusals, paymentRefusalsProvider;
@@ -42,125 +39,49 @@ import 'package:epic_wallet/src/name_service/pins.dart' show LinkMemory, Listing
 import 'package:epic_wallet/src/scan/incoming_link.dart' show linkClockProvider;
 import '../test/name_service_vectors_support.dart' show callKey;
 import '../test/support/link_support.dart' show FakeMembership, LinkVectors, linkNow, vectorServiceKey;
-import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
-import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart' show KitTabBar;
-import 'package:epic_wallet/src/ui/badge.dart' show BadgeLook, badgeLook;
-import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/desktop/data/mock_hosts.dart';
 import 'package:epic_wallet/src/app.dart';
-import 'package:epic_wallet/src/contact_label.dart';
-import 'package:epic_wallet/src/contact_store.dart' show ContactFields;
-import 'package:epic_wallet/src/ui/contact_label_mark.dart' show ContactLabelMark;
-import 'package:epic_wallet/src/ui/contact_label_picker.dart' show contactLabelRowKey;
-import 'package:epic_wallet/src/contacts.dart' show contactsProvider;
-import 'package:epic_wallet/src/contacts_file.dart' show encodeContactsFile;
-import 'package:epic_wallet/src/ui/contacts_transfer.dart' show contactsImportDoKey;
-import 'package:epic_wallet/src/ui/confirmations_row.dart' show confirmationsMinusKey;
 import 'package:epic_wallet/src/mock_fixtures.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/onion_notice.dart' show onionNoticeKey, onionNoticeSeen;
-import 'package:epic_wallet/src/pairing_providers.dart' show invoicesShownProvider, pairingRefusalsProvider;
+import 'package:epic_wallet/src/pairing_providers.dart' show pairingRefusalsProvider;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/scan/incoming_link.dart' show incomingLinkProvider;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
-import 'package:epic_wallet/src/sas_table.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/password_lists.dart';
 import 'package:epic_wallet/src/advanced.dart';
-import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
 import 'package:epic_wallet/src/tor_location.dart';
-import 'package:epic_wallet/src/ui/backup_screen.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart' show RelaySwitchOffer;
 import 'package:epic_wallet/src/levels/relay_switch_providers.dart'
     show RelaySwitchNotifier, RelaySwitchResult, relaySwitchProvider, relaySwitchResultProvider;
-import 'package:epic_wallet/src/ui/levels/tor_wait_screen.dart' show TorWaitScreen;
-import 'package:epic_wallet/src/ui/first_run_screen.dart' show firstRunCreateKey, firstRunTorOnlyKey;
 import 'package:epic_wallet/src/ui/kit/kit_keypad.dart' show KitKeypad;
-import 'package:epic_wallet/src/tor_build.dart' show torBuilt;
-import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey, homePillKey;
-import 'package:epic_wallet/src/ui/phone_tx_row.dart' show PhoneTxRow;
-import 'package:epic_wallet/src/ui/pin.dart' show showPinSheet;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
-import 'package:epic_wallet/src/ui/home_screen.dart' show ShellFlowRoute;
 import 'package:epic_wallet/src/ui/common.dart'
-    show Notice, NoticeAction, NoticeCard, NoticeLevel, ScreenBody, SlotScaffold, epicText, noticeProvider, noticeUnfoldKey;
-import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
-import 'package:epic_wallet/src/ui/kit/kit_slot_card.dart' show KitNeedsYouCard, KitSlotCard;
-import 'package:epic_wallet/src/ui/message_check_panel.dart' show messageCheckRowKey;
-import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
-import 'package:epic_wallet/src/ui/contact_page.dart' show ContactPage, contactPageCodeKey, contactPageMoreKey, contactPagePairingKey;
-import 'package:epic_wallet/src/ui/contacts_screen.dart';
-import 'package:epic_wallet/src/ui/invoice_request_screen.dart' show requestPayerKey, requestShowQrKey, InvoiceRequestScreen;
-import 'package:epic_wallet/src/history/domain_check_book.dart' show DomainStatus;
-import 'package:epic_wallet/src/message_checks.dart' as msg;
-import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
-import 'package:epic_wallet/src/ui/pairing/contact_pairing_block.dart' show contactPageDomainRowKey, contactPageMoveAskedKey, contactPageMoveLineKey;
-import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
-import 'package:epic_wallet/src/ui/pairing/relay_move_sheet.dart' show RelayMoveSheet;
-import 'package:epic_wallet/src/ui/phone_sheet.dart' show showPhoneSheet;
-import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
-import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
-import 'package:epic_wallet/src/ui/feedback_screen.dart';
-import 'package:epic_wallet/src/ui/file_exchange_help.dart';
-import 'package:epic_wallet/src/ui/help_language_switch.dart';
-import 'package:epic_wallet/src/help/help_content.dart' show HelpAnchor, HelpId;
-import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
-import 'package:epic_wallet/src/ui/help_screen.dart';
-import 'package:epic_wallet/src/ui/history_screen.dart';
-import 'package:epic_wallet/src/ui/invoices_screen.dart';
-import 'package:epic_wallet/src/ui/receive_screen.dart'
-    show ReceiveScreen, receiveShareKey, receiveTurnOnTorKey, renderShareCard;
+    show ScreenBody, epicText;
+import 'package:epic_wallet/src/ui/invoice_request_screen.dart' show requestShowQrKey, InvoiceRequestScreen;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
-import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
-import 'package:epic_wallet/src/ui/qr_show_screen.dart';
-import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/server_icons.dart';
-import 'package:epic_wallet/src/ui/server_list_sheet.dart'
-    show serverListAddKey, serverListFieldKey, serverListRemoveKey, serverListRowKey;
-import 'package:epic_wallet/src/ui/server_picker.dart' show showEpicboxPicker, showNodePicker;
-import 'package:epic_wallet/src/ui/home_status.dart' show connectionsSheetKey;
-import 'package:epic_wallet/src/server_list_file.dart' show serverListValues, shippedServers;
-import 'package:epic_wallet/src/server_list_store.dart' show ServerKind, ServerList;
-import 'package:epic_wallet/src/settings_file/host_settings.dart' as hs;
 import 'package:epic_wallet/src/settings_file/network_mode_file.dart' show networkModeKey, networkModeText;
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/ui/finished_not_posted.dart' show FinishedNotPosted;
-import 'package:epic_wallet/src/ui/post_finished_screen.dart' show PostFinishedScreen, postFinishedPasteKey;
-import 'package:epic_wallet/src/ui/outputs_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
-import 'package:epic_wallet/src/ui/settings_invoices.dart';
-import 'package:epic_wallet/src/ui/settings_pin.dart';
-import 'package:epic_wallet/src/ui/settings_screen.dart';
-import 'package:epic_wallet/src/ui/month_picker.dart' show StartMonthChoice, StartMonthPicker;
-import 'package:epic_wallet/src/ui/scan_start.dart' show ScanStart;
-import 'package:epic_wallet/src/start_month.dart' show StartMonth, defaultStartMonth;
+import '../test/support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/theme/fonts.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart'
-    show SendView, sendAmountFieldKey, sendAsPlainKey, sendFileAmountFieldKey, sendRecipientFieldKey, sendReplyFieldKey, sendReviewButtonKey;
-import 'package:epic_wallet/src/ui/slate_file_screen.dart';
-import 'package:epic_wallet/src/ui/tour/phone_tour.dart';
-import 'package:epic_wallet/src/ui/tx_details_screen.dart';
-import 'package:epic_wallet/src/devices/device_model.dart';
-import 'package:epic_wallet/src/devices/device_service.dart';
-import 'package:epic_wallet/src/devices/device_store.dart';
-import 'package:epic_wallet/src/devices/phone_devices.dart';
-import 'package:epic_wallet/src/ui/devices/link_device_screen.dart';
-import 'package:epic_wallet/src/ui/devices/linked_devices_screen.dart';
+    show sendAmountFieldKey, sendFileAmountFieldKey, sendRecipientFieldKey, sendReplyFieldKey, sendReviewButtonKey;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/epic1.dart' show FakeEpic1;
-import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart' show epic1AskAmountKey, epic1RequestInPersonKey, epic1ShareLinkKey;
-import 'package:epic_wallet/src/ui/in_person/in_person_screens.dart' show inPersonAmountKey;
-import 'package:epic_wallet/src/ui/epic1/epic1_send.dart' show epic1SendButtonKey, epic1SendContinueKey, epic1SendFieldKey;
-import 'package:epic_wallet/src/ui/epic1/epic1_settings.dart' show epic1LockNowKey, epic1SwitchKey, epic1TurnOnKey;
+import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart' show epic1AskAmountKey;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -217,10 +138,7 @@ String _address(String seed) {
 final String _alice = _address('alice');
 final String _bob = _address('bob');
 
-/// Another address of Alice's, the one her pairing pays requests from.
-final String _aliceInvoices = _address('alice-invoices');
 final String _carol = _address('carol');
-final String _exchange = _address('exchange');
 
 /// An operator's icon on the status site; the tour reads its bytes from
 /// `test/fixtures/icons/<hash>-128.png` ([_iconFetch]).
@@ -579,7 +497,7 @@ _LinkSession _session() {
 }
 
 /// Where the tour starts.
-enum _Start { firstRun, unlock, home }
+enum _Start { home }
 
 class _Tour {
   _Tour(this.tester, this.theme);
@@ -669,19 +587,14 @@ class _Tour {
       NetGate.set(NetworkMode.standard);
     });
     if (_tourLocale != 'en') store.values['app.language'] = _tourLocale;
-    if (from case _Start.unlock || _Start.home) {
-      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
-      store.values['wallet.mainnet.backedUp'] = '1';
-      // A wallet made on this version: the one-time Tor address notice is already seen.
-      store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
-    }
+    store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
+    store.values['wallet.mainnet.backedUp'] = '1';
+    // A wallet made on this version: the one-time Tor address notice is already seen.
+    store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     if (pairingOff) session.pairing.enabled = false;
     if (epic1) session.epic1Fake = FakeEpic1(on: true);
     service = (vectorLinks ? _VectorService.new : otherChain ? _OtherChainService.new : FakeWalletService.new)(
-      existingWallets: switch (from) {
-        _Start.unlock || _Start.home => {_mainnetDir},
-        _ => {},
-      },
+      existingWallets: {_mainnetDir},
       session: session,
     )..nodeTipValue = NodeTip(height: _tip, nodeVersion: mockNodeVersion);
     // Touch devices show no keyboard-focus rings; the test binding would otherwise draw them.
@@ -858,20 +771,6 @@ class _Tour {
     await frames();
   }
 
-  /// Labels on two rows, and a sender, method and note on the restored one, as a user
-  /// who had used the feature would have them.
-  Future<void> _withLabels() async {
-    session.labels['s:a1b2c3d4-0001-4e5f-8a9b-000000000009'] = 'September rent';
-    session.labels['s:a1b2c3d4-0001-4e5f-8a9b-000000000011'] = 'Web shop order';
-    session.details['c:restored-1'] = (
-      counterparty: _exchange,
-      transport: 'epicbox',
-      note: 'Withdrawal from the exchange.',
-    );
-    ProviderScope.containerOf(tester.element(find.byType(Navigator).first))
-        .invalidate(homeProvider);
-    await frames();
-  }
 
   Future<void> push(Widget screen) async {
     final navigator = tester.state<NavigatorState>(
@@ -1135,7 +1034,7 @@ Future<void> _loadFonts() async {
     inter.addFont(read('assets/fonts/Inter-$face.ttf'));
   }
   await inter.load();
-  // The Thai fallback of both themes (thaiFallback), every bundled weight.
+  // The Thai fallback of both themes (bundledFallback), every bundled weight.
   final thai = FontLoader('NotoSansThai');
   for (final weight in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
     thai.addFont(read('assets/fonts/NotoSansThai-$weight.ttf'));
@@ -1180,6 +1079,8 @@ typedef _Setup = void Function(_Tour t);
 void _visit(String name, Future<void> Function(_Tour t) body, {_Setup? setup, _Start from = _Start.home}) {
   testWidgets('$name (dark)', (tester) async {
     // Inside the test's own zone: the camera queue of an earlier test never completes here.
+    // A widget test kept in tool/ (the flow map), so the analyzer does not count it as a test.
+    // ignore: invalid_use_of_visible_for_testing_member
     CameraTurns.reset();
     final t = _Tour(tester, ThemeMode.dark)..visit = name;
     setup?.call(t);

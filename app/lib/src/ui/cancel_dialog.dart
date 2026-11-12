@@ -23,10 +23,6 @@ import 'theme/tokens.dart';
 
 export '../cancel_choice.dart';
 
-/// The info icon the cancel confirmations had beside the fee line (before B-04); kept for
-/// callers, nothing draws it any more.
-const Key cancelFeeHintKey = ValueKey('cancel-fee-hint');
-
 /// The tile of every cancel confirmation (the desktop's EIcons.cancel).
 const IconData cancelDialogIcon = Icons.block;
 

@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/ui/common.dart' show txSpokenLabel;
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/ui/tx_label.dart';
 import 'package:epic_wallet/src/settings.dart';

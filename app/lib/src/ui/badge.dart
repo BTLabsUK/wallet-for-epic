@@ -202,9 +202,6 @@ class EBadge extends StatelessWidget {
   /// chip in a narrow sheet.
   final bool wrap;
 
-  /// The method glyph of [kind]: [MethodIcons] is the source.
-  static IconData kindIcon(RecipientKind kind) => MethodIcons.ofRecipient(kind);
-
   @override
   Widget build(BuildContext context) {
     final s = BadgeStyle.of(context);

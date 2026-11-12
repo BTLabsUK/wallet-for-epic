@@ -9,10 +9,6 @@ import 'package:flutter/services.dart';
 const String interFamily = 'Inter';
 const List<FontFeature> interFeatures = [FontFeature.tabularFigures(), FontFeature('cv11')];
 
-/// The fallback for Thai, set on both themes: Montserrat and JetBrains Mono have no Thai, and the
-/// platform's own Thai font differs per system (or is missing on some Linux installs).
-const List<String> thaiFallback = ['NotoSansThai'];
-
 /// The Chinese UI's characters (and the language names), for installs without a CJK font.
 const String cjkFamily = 'NotoSansSCSubset';
 

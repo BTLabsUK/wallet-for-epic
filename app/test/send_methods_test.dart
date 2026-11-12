@@ -390,7 +390,6 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
-      expect(find.byKey(sendMethodsKey), findsNothing);
       expect(sendTo(), findsOneWidget);
       expect(find.text(_l.phoneSendSearchHint), findsOneWidget);
       expect(find.text(_l.sendNoAddress), findsOneWidget);
@@ -573,7 +572,6 @@ void main() {
       await h.pump(tester);
       final seen = await _type(tester, 'es');
       expect(seen, everyElement(isEmpty));
-      expect(find.byKey(sendSwitchedTagKey), findsNothing);
     });
 
     testWidgets('a whole Epicbox address pasted over a Link one replaces it', (
@@ -825,7 +823,6 @@ void main() {
         await _enter(tester, 'To', _onion);
         expect(_lines(), [_l.methodDirectTor]);
         expect(find.textContaining(_l.sendRouteTorStarts), findsOneWidget);
-        expect(find.byKey(sendTurnOnTorKey), findsNothing);
         expect(continueOnPressed(tester), isNotNull);
         await _tap(tester, _continue);
         await _enter(tester, 'Amount (EPIC)', '1');
@@ -982,7 +979,6 @@ void main() {
       await h.pump(tester, advanced: offline, payments: _directOn);
       await _enter(tester, 'To', _onion);
       expect(find.text(_l.sendHeldNodeOnly), findsOneWidget);
-      expect(find.byKey(sendTurnOnTorKey), findsNothing);
       expect(continueOnPressed(tester), isNull);
     }, skip: !torBuilt);
 
@@ -1029,7 +1025,6 @@ void main() {
     testWidgets('Epicbox off with QR off: Send opens on the file route', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(epicbox: false, directQr: false));
-      expect(find.byKey(sendMethodsKey), findsNothing);
       expect(sendTo(), findsNothing);
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);

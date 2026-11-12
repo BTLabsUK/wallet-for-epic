@@ -27,17 +27,6 @@ const IconData torIcon = EpicGlyphs.tor;
 bool torShown(PhoneTorState s) =>
     s.phase != PhoneTorPhase.unavailable && s.onion != null;
 
-/// The key of the Tor switch in Settings › Network & privacy, for tests.
-const Key torReceivingSwitchKey = ValueKey('tor-receiving-switch');
-
-/// The key of the line under the Tor switch that names the locking mode, for tests.
-const Key torLockedLineKey = ValueKey('tor-locked-line');
-
-/// Former keys of the tap area over the switch locked by Tor only and its Change Undercover
-/// link: the line under the switch names the mode, which is changed right above it.
-const Key torUndercoverTapKey = ValueKey('tor-undercover-tap');
-const Key torUndercoverChangeKey = ValueKey('tor-undercover-change');
-
 /// The key of the Tor status line, for tests.
 const Key torStatusKey = ValueKey('tor-status');
 

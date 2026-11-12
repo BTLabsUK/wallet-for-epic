@@ -739,16 +739,6 @@ class _BarsPainter extends CustomPainter {
 /// word that always goes with them.
 typedef NetFace = ({SignalLevel level, Color color, String word});
 
-/// The state dot for a [NetFace] (the faces use the tokens' colours, so the dot follows the
-/// same meaning): off when nothing is lit, green ok, blue in progress, red a problem.
-StatusDot netFaceDot(WalletTokens t, NetFace face) {
-  if (face.level == SignalLevel.none) return StatusDot.off;
-  if (face.color == t.ok) return StatusDot.ok;
-  if (face.color == t.info) return StatusDot.busy;
-  if (face.color == t.warn) return StatusDot.warn;
-  return StatusDot.bad;
-}
-
 /// From this many blocks behind the network's tip a node that answers reads "Behind N".
 const int behindAfter = 3;
 

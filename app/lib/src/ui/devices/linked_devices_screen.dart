@@ -36,7 +36,6 @@ const Key devicesPauseKey = ValueKey('devices-pause');
 const Key devicesThisKey = ValueKey('devices-this');
 const Key devicesEpicboxOffKey = ValueKey('devices-epicbox-off');
 const Key devicesUpdateOtherKey = ValueKey('devices-update-other');
-const Key devicesAboutKey = ValueKey('devices-about');
 const Key devicesRenameKey = ValueKey('devices-rename');
 const Key devicesRemoveKey = ValueKey('devices-remove');
 ValueKey<String> deviceRowKey(String id) => ValueKey('device-$id');

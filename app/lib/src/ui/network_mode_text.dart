@@ -10,7 +10,6 @@ import 'package:flutter/widgets.dart';
 import '../advanced.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
-import '../text_join.dart' show metaLine;
 import '../tor_build.dart';
 import 'status_icons.dart';
 
@@ -54,16 +53,6 @@ String networkModeHint(AppLocalizations l, NetworkMode m, {bool desktop = false,
     NetworkMode.nodeOnly => l.advModeNodeOnlyHint,
     NetworkMode.killSwitch => l.advModeKillSwitchHint,
   };
-}
-
-/// Network & privacy in one line, under its entry in Settings (the phone's hub row, the
-/// desktop's section list): the mode, then the Tor switch where the mode leaves it to the user
-/// ("Normal · Tor off"). Tor only and Kill switch decide Tor themselves, and a build without
-/// Tor ([tor] false) has no switch: the mode alone.
-String networkSummary(AppLocalizations l, NetworkMode mode, {required bool torOn, bool? tor}) {
-  final name = networkModeName(l, mode);
-  if (!(tor ?? torBuilt) || mode == NetworkMode.torOnly || mode == NetworkMode.killSwitch) return name;
-  return metaLine([name, torOn ? l.netSummaryTorOn : l.netSummaryTorOff]);
 }
 
 /// The mode mark popover's line. [waitingForTor]: Tor only and Tor is not ready.

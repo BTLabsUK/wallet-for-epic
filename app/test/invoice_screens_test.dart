@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart';

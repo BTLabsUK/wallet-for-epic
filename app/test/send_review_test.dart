@@ -525,7 +525,6 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       // One address field, and the way to a file under it.
-      expect(find.byKey(sendMethodsKey), findsNothing);
       expect(sendTo(), findsOneWidget);
 
       await chooseWay(tester);

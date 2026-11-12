@@ -31,15 +31,6 @@ String deviceSeenLine(AppLocalizations l, DateTime? at, DateTime now) {
   return l.devicesSeenDays(d.inDays);
 }
 
-/// The hub row's state line: None, "Desktop · seen 2 min ago", or "2 devices · seen …" (the
-/// device seen last).
-String devicesStateLine(AppLocalizations l, List<LinkedDevice> devices, DateTime now) {
-  if (devices.isEmpty) return l.devicesNone;
-  final last = [...devices]..sort((a, b) => (b.lastSeen ?? b.linkedAt).compareTo(a.lastSeen ?? a.linkedAt));
-  final who = devices.length == 1 ? devices.single.name : l.devicesCount(devices.length);
-  return l.settingsStateJoin(who, deviceSeenLine(l, last.first.lastSeen, now));
-}
-
 /// Why a link did not complete, in a sentence ([name]: the other device, when known).
 String linkFailureText(AppLocalizations l, LinkFailure f, [String? name]) => switch (f) {
   LinkFailure.invalidCode => l.linkFailInvalid,

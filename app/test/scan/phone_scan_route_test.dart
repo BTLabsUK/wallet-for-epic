@@ -31,6 +31,7 @@ import 'package:epic_wallet/src/ui/scan_result_sheet.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import '../support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -301,7 +302,6 @@ void main() {
       expect(find.byKey(sendRequestBannerKey), findsNothing);
       expect(find.text(_l.sendRequestTitle), findsNothing);
       expect(find.text('Invoice'), findsNothing);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       expect(find.text(_l.payeeNoteLabel), findsNothing);
       expect(find.text('Anna'), findsNothing);
       expect(find.text(_l.sendAmountFromCode), findsOneWidget);
@@ -322,7 +322,6 @@ void main() {
       expect(_origin(_l.sendOriginQr), findsOneWidget);
       // The route row names the address (the start and end of it).
       expect(find.textContaining(_e.substring(0, 6), findRichText: true), findsWidgets);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       expect(find.text('Invoice'), findsNothing);
 
       await _tap(tester, find.textContaining('Send 1.5'));
@@ -386,7 +385,6 @@ void main() {
       expect(_onAmount(), isTrue);
       expect(find.text(_l.sendAddNote), findsOneWidget);
       expect(_noteTile(note), findsNothing);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _tap(tester, find.text(_l.sendAddNote));
       expect(_field(tester, sendNoteFieldKey), isEmpty);
     });
@@ -434,7 +432,6 @@ void main() {
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), isEmpty);
       expect(find.byKey(sendRequestBannerKey), findsNothing);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       expect(find.text(_l.sendAddNote), findsOneWidget);
     });
 
@@ -468,7 +465,6 @@ void main() {
       expect(find.text('To Bob'), findsOneWidget);
       expect(find.text('Anna'), findsNothing);
       await _back(tester);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       expect(find.text('Anna'), findsNothing);
     });
 
@@ -498,7 +494,6 @@ void main() {
       expect(_tab(tester), ShellWhere.send);
       expect(_onAmount(), isFalse);
       expect(_field(tester, sendRecipientFieldKey), _e);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _continue(tester);
       expect(find.byKey(sendRequestBannerKey), findsNothing);
       await tester.enterText(find.byKey(sendAmountFieldKey), '1');
@@ -891,7 +886,6 @@ void main() {
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
       expect(find.byKey(sendRequestBannerKey), findsNothing);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       // Past the fee estimate's debounce.
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
@@ -1035,7 +1029,6 @@ void main() {
     await h.pump(tester);
     await h.scan(tester, 'epic:$onion?amount=1');
     // Tor starts with the send: nothing to turn on first.
-    expect(find.byKey(sendTurnOnTorKey), findsNothing);
     h.session.torStatusValue = TorStatus(
       kind: TorStatusKind.ready,
       onion: h.session.onion,
@@ -1094,7 +1087,6 @@ void main() {
         const Offset(0, -200),
       );
       expect(_onAmount(), isTrue);
-      expect(find.byKey(payeeClaimsKey), findsNothing);
       await _continue(tester);
       expect(tester.takeException(), isNull);
       await tester.dragUntilVisible(

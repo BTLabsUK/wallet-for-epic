@@ -158,9 +158,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
-/// The key of the Tor header on the Network & privacy page, for tests.
-const Key settingsPrivacyKey = ValueKey('settings-privacy');
-
 /// The key of the Servers header on the Network & privacy page, for tests.
 const Key settingsServersKey = ValueKey('settings-servers');
 
@@ -1211,10 +1208,6 @@ const Key settingsLinkedDevicesKey = ValueKey('settings-linked-devices');
 /// The key of a method's switch on Settings › Transactions, for tests and the tour:
 /// `tx-epicbox`, `tx-http`, `tx-tor`, `tx-qr`, `tx-file`.
 Key txMethodKey(MethodKind m) => ValueKey('tx-${_txKeyName(m)}');
-
-/// The key of a "Send starts on" choice, for tests: Link is one (`tx-start-link`).
-Key txStartKey(MethodKind m) =>
-    ValueKey('tx-start-${m.family == MethodFamily.link ? 'link' : _txKeyName(m)}');
 
 String _methodId(MethodKind m) => switch (m) {
   MethodKind.epicbox => TrustIds.paymentsEpicbox,

@@ -14,7 +14,6 @@ import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey;
-import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -149,9 +148,6 @@ void main() {
       await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.torOnly)));
       expect(row(tester, NetworkMode.torOnly).onTap, isNotNull);
       expect(selected(tester), NetworkMode.standard);
-      expect(find.byKey(torReceivingSwitchKey), findsNothing);
-      expect(find.byKey(torLockedLineKey), findsNothing);
-      expect(find.byKey(settingsPrivacyKey), findsNothing);
       expect(find.text(_l.deskSetPrivTorAll), findsNothing);
       expect(h.container.read(phoneTorProvider).receiving, isFalse);
     });
@@ -164,8 +160,6 @@ void main() {
       await tester.pumpAndSettle();
       await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.torOnly)));
       expect(selected(tester), NetworkMode.torOnly);
-      expect(find.byKey(torReceivingSwitchKey), findsNothing);
-      expect(find.byKey(torLockedLineKey), findsNothing);
     });
 
     testWidgets('Kill switch: its row is the one chosen, with no Tor switch', (tester) async {
@@ -176,7 +170,6 @@ void main() {
       await tester.pumpAndSettle();
       await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.killSwitch)));
       expect(selected(tester), NetworkMode.killSwitch);
-      expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(h.session.torStarts, isEmpty);
     });
   });
@@ -194,7 +187,6 @@ void main() {
   testWidgets('no Tor only where the app has no Tor', (tester) async {
     final h = _Harness(bundle: null);
     await h.pump(tester, privacy: true);
-    expect(find.byKey(torReceivingSwitchKey), findsNothing);
     final tile = tester.widget<KitRow>(find.byKey(networkModeRowKey(NetworkMode.torOnly)));
     expect(tile.onTap, isNull, reason: 'Tor only is disabled while Tor is unavailable');
   });
