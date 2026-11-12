@@ -36197,6 +36197,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'from {name}'**
   String phoneRecvArrivalFrom(String name);
+
+  /// Toast shown once after the first unlock: offers the wallet tour. Short question.
+  ///
+  /// In en, this message translates to:
+  /// **'Want a quick tour of the wallet?'**
+  String get phoneTourOffer;
+
+  /// Button on the tour offer toast: starts the tour. One or two words.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me'**
+  String get phoneTourOfferShow;
 }
 
 class _AppLocalizationsDelegate

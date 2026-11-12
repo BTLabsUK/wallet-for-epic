@@ -6028,5 +6028,7 @@
   "phoneRecvWaitingPaid": "Ожидает оплаты",
   "phoneRecvViewPayment": "Открыть платёж",
   "phoneRecvShowCode": "Показать код",
-  "phoneRecvArrivalFrom": "от {name}"
+  "phoneRecvArrivalFrom": "от {name}",
+  "phoneTourOffer": "Показать, как устроен кошелёк?",
+  "phoneTourOfferShow": "Показать"
 }

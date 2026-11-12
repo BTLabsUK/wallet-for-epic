@@ -21797,4 +21797,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return '来自 $name';
   }
+
+  @override
+  String get phoneTourOffer => '要不要快速看看钱包的功能?';
+
+  @override
+  String get phoneTourOfferShow => '带我看看';
 }

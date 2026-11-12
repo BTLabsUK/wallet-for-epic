@@ -23829,4 +23829,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'od $name';
   }
+
+  @override
+  String get phoneTourOffer => 'Chcesz krótki przewodnik po portfelu?';
+
+  @override
+  String get phoneTourOfferShow => 'Pokaż';
 }

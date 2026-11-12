@@ -22637,4 +22637,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String phoneRecvArrivalFrom(String name) {
     return 'จาก $name';
   }
+
+  @override
+  String get phoneTourOffer => 'ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม';
+
+  @override
+  String get phoneTourOfferShow => 'ดูเลย';
 }

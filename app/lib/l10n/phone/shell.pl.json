@@ -13,5 +13,7 @@
   "phoneHomeInvoiceBody": "{amount}. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz.",
   "phoneHomeBalanceLastKnown": "Dostępne · ostatnio znane",
   "phoneHomeBalanceSheetHint": "Szczegóły salda",
-  "phoneHomeEmpty": "Brak płatności. Odbierz trochę EPIC, aby zacząć."
+  "phoneHomeEmpty": "Brak płatności. Odbierz trochę EPIC, aby zacząć.",
+  "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
+  "phoneTourOfferShow": "Pokaż"
 }
