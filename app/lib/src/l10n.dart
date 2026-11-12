@@ -110,6 +110,10 @@ String _date(DateFormat Function() format, DateTime t) {
 String localDay(AppLocalizations l, DateTime t) =>
     _date(() => l.localeName == 'en' ? DateFormat('d MMM y', 'en') : DateFormat.yMMMd(l.localeName), t);
 
+/// `21 September`, the month in full.
+String localDayMonthLong(AppLocalizations l, DateTime t) =>
+    _date(() => l.localeName == 'en' ? DateFormat('d MMMM', 'en') : DateFormat.MMMMd(l.localeName), t);
+
 /// `21 Sep`.
 String localDayMonth(AppLocalizations l, DateTime t) =>
     _date(() => l.localeName == 'en' ? DateFormat('d MMM', 'en') : DateFormat.MMMd(l.localeName), t);

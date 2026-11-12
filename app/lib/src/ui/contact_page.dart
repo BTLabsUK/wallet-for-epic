@@ -6,6 +6,7 @@
 library;
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import 'phone_sheet.dart';
@@ -26,7 +27,6 @@ import 'app_dialog.dart';
 import 'common.dart';
 import 'inline_button.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
-import 'kit/kit_avatar.dart';
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
 import 'kit/kit_group.dart';
@@ -34,6 +34,10 @@ import 'kit/kit_headers.dart' show KitIconButton;
 import 'kit/kit_icons.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
+import 'kit/kit_steps.dart' show KitStep, KitStepState;
+import '../network_gate.dart' show NetGate;
+import 'payment_progress.dart' show paymentProgress;
+import '../amount.dart' show displayEpic, minusSign;
 import 'phone_tx_row.dart' show paymentInProgress;
 import 'tx_details_screen.dart' show TxDetailsScreen;
 import '../trust_ids.dart';
@@ -56,6 +60,7 @@ import 'pairing/pairing_notices.dart' show pairingContactNoticeTag, pairingNewsO
 import 'scan_route.dart' show sendPayments;
 import 'status_icons.dart' show EpicGlyphs;
 import 'theme/logo_qr.dart';
+import 'theme/epic1_mark.dart' show Epic1Glyph;
 import 'theme/tokens.dart';
 import 'tip.dart';
 import '../epic1.dart' show PaymentMode;
@@ -123,11 +128,15 @@ class _Payments extends ConsumerWidget {
       final key = when.year * 10000 + when.month * 100 + when.day;
       if (key != day) {
         day = key;
+        // `.day`: centred, 12 faint, 14 above and 8 below (18 above the first).
         children.add(
           Padding(
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+            padding: EdgeInsets.fromLTRB(0, children.isEmpty ? 18 : 14, 0, 8),
             child: Center(
-              child: Semantics(header: true, child: Text(dayLabel(l, when, now), style: KitType.groupLabel.copyWith(color: t.dim))),
+              child: Semantics(
+                header: true,
+                child: Text(_bubbleDay(l, when, now), style: KitType.rowSub.copyWith(color: t.faint, fontSize: 12)),
+              ),
             ),
           ),
         );
@@ -152,6 +161,15 @@ class _Payments extends ConsumerWidget {
     );
   }
 }
+
+/// The day above a run of bubbles: Today, Yesterday, `28 October`, and the year with it for
+/// another year.
+String _bubbleDay(AppLocalizations l, DateTime when, DateTime now) => switch (daysAgo(when, now)) {
+  0 => l.dateToday,
+  1 => l.dateYesterday,
+  _ when when.year == now.year => localDayMonthLong(l, when),
+  _ => localDay(l, when),
+};
 
 /// One payment as a bubble: the amount, the label when it has one, and where it stands. A
 /// payment still under way is tinted in the info colour. A tap opens its details.
@@ -185,26 +203,43 @@ class _PaymentBubble extends ConsumerWidget {
       paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
     );
     final date = shortDate(l, localTime(tx.timeUnix), now);
-    final signed = signedEpic(l, tx, hidden: display.hidden);
+    final signed = display.hidden ? hiddenAmount : '${outgoing ? minusSign : '+'}${displayEpic(amount)}';
     final label = tx.label?.trim();
-    final dim = KitType.rowSub.copyWith(color: inProgress ? t.info : t.dim);
+    final progress = inProgress
+        ? paymentProgress(
+            l,
+            tx,
+            tip,
+            now: now,
+            who: name,
+            target: target,
+            paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+            killSwitch: NetGate.killSwitch,
+          )
+        : null;
     final amountColor = cancelled
         ? t.txCancelled
         : outgoing
         ? t.text
         : t.txReceived;
-    final radius = BorderRadius.circular(Kit.rGroup);
+    // `.bub`: fit-content up to 268, radius 20 with a 7 tail at the bottom corner of its side.
+    final radius = BorderRadiusDirectional.only(
+      topStart: const Radius.circular(20),
+      topEnd: const Radius.circular(20),
+      bottomStart: Radius.circular(outgoing ? 20 : 7),
+      bottomEnd: Radius.circular(outgoing ? 7 : 20),
+    );
+    final statusStyle = KitType.rowSub.copyWith(color: inProgress ? t.info : t.dim, fontSize: 12.5);
     return Align(
       alignment: outgoing ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: FractionallySizedBox(
-          widthFactor: 0.78,
-          alignment: outgoing ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 268),
           child: kitId(
             TrustIds.contactPayment,
             KitPress(
-              radius: Kit.rGroup,
+              radius: 20,
               semanticsLabel: txSpokenLabel(
                 l,
                 tx,
@@ -217,55 +252,134 @@ class _PaymentBubble extends ConsumerWidget {
               ),
               button: true,
               onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key))),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: inProgress ? t.info.withValues(alpha: 0.12) : t.group,
-                  borderRadius: radius,
-                  border: inProgress ? Border.all(color: t.info.withValues(alpha: 0.45)) : null,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        signed,
-                        style: TextStyle(
-                          fontFamily: t.monoFamily,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2,
-                          color: amountColor,
-                          decoration: cancelled ? TextDecoration.lineThrough : null,
+              child: ExcludeSemantics(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: inProgress ? t.infoSoft : (outgoing ? const Color(0x15FFF9F9) : t.group),
+                    borderRadius: radius,
+                    border: Border.all(color: inProgress ? t.info.withValues(alpha: 0.38) : t.hair),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          signed,
+                          style: TextStyle(
+                            fontFamily: t.monoFamily,
+                            fontSize: 21,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.63,
+                            height: 1.2,
+                            color: amountColor,
+                            decoration: cancelled ? TextDecoration.lineThrough : null,
+                            decorationColor: amountColor,
+                          ),
                         ),
-                      ),
-                      if (label != null && label.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(label, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
-                      ],
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(inProgress ? Icons.schedule_rounded : KitIcons.check, size: 15, color: inProgress ? t.info : t.dim),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              sealed ? '$step$metaSeparator${l.deskE1Sealed}' : step,
-                              style: dim,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        if (label != null && label.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(label, style: KitType.rowTitle.copyWith(color: t.text, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ],
+                        if (progress != null) ...[
+                          const SizedBox(height: 10),
+                          _BubbleSteps(progress.steps),
+                        ] else ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(KitIcons.check, size: 13, color: t.dim),
+                              const SizedBox(width: 5),
+                              Flexible(
+                                child: Text(
+                                  sealed ? '$step$metaSeparator${l.phoneActSealed}' : step,
+                                  style: statusStyle,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// `.steps`: a payment still under way as a short list, a dot and a line each; the finished
+/// steps in the text colour with a filled dot, the current one in the info colour with a halo.
+class _BubbleSteps extends StatelessWidget {
+  const _BubbleSteps(this.steps);
+
+  final List<KitStep> steps;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final style = KitType.rowSub.copyWith(fontSize: 13);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < steps.length; i++)
+          Padding(
+            padding: EdgeInsets.only(top: i == 0 ? 0 : 7),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _StepDot(steps[i].state),
+                const SizedBox(width: 9),
+                Flexible(
+                  child: Text(
+                    switch (steps[i].state) {
+                      KitStepState.done => steps[i].detail == null ? steps[i].title : '${steps[i].title} ${steps[i].detail}',
+                      KitStepState.now => steps[i].detail ?? steps[i].title,
+                      KitStepState.later => steps[i].title,
+                    },
+                    style: style.copyWith(
+                      color: switch (steps[i].state) {
+                        KitStepState.done => t.text,
+                        KitStepState.now => t.info,
+                        KitStepState.later => t.dim,
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _StepDot extends StatelessWidget {
+  const _StepDot(this.state);
+
+  final KitStepState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return SizedBox(
+      width: 8,
+      height: 8,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: state == KitStepState.done ? t.info : null,
+          border: state == KitStepState.done ? null : Border.all(color: state == KitStepState.now ? t.info : t.faint, width: 1.5),
+          boxShadow: state == KitStepState.now ? [BoxShadow(color: t.info.withValues(alpha: 0.2), spreadRadius: 3)] : null,
         ),
       ),
     );
@@ -444,17 +558,16 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           color: t.bg,
           border: Border(top: BorderSide(color: t.hair)),
         ),
-        child: SafeArea(
-          top: false,
-          child: Center(
+        child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, 12),
+                // `.act`: padding 12 16 34 (the home-indicator zone), gap 10.
+                padding: EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, math.max(MediaQuery.paddingOf(context).bottom, 34)),
                 child: Row(
                   children: [
                     if (showSend) Expanded(child: classicOnly ? Tip(l.deskE1PhClassicOnlyTip, child: send) : send),
-                    if (showSend && canAsk) const SizedBox(width: 12),
+                    if (showSend && canAsk) const SizedBox(width: 10),
                     if (canAsk)
                       Expanded(
                         child: KitButton(
@@ -472,7 +585,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               ),
             ),
           ),
-        ),
       );
     }
 
@@ -613,10 +725,17 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = context.l10n;
+    // `.nav`: 48 tall, 50 from the top of the phone (4 above the safe area's edge), padding 0 12 0 6.
     return SizedBox(
-      height: Kit.pageTitleHeader + 4,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
+      height: Kit.flowHeader,
+      child: OverflowBox(
+        alignment: Alignment.topCenter,
+        minHeight: Kit.pageTitleHeader,
+        maxHeight: Kit.pageTitleHeader,
+        child: Transform.translate(
+          offset: const Offset(0, -4),
+          child: Padding(
+        padding: const EdgeInsets.only(left: 6, right: 8),
         child: Row(
           children: [
             kitId(
@@ -630,11 +749,12 @@ class _TopBar extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: Kit.hitMin, minWidth: Kit.hitMin),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 4, right: 10),
+                    padding: const EdgeInsets.only(right: 8),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(KitIcons.backLink, size: 28, color: t.accentText),
+                        Icon(KitIcons.backLink, size: 24, color: t.accentText),
+                        const SizedBox(width: 2),
                         Text(l.contactsTitle, style: KitType.navLink.copyWith(color: t.accentText)),
                       ],
                     ),
@@ -644,8 +764,9 @@ class _TopBar extends StatelessWidget {
             ),
             const Spacer(),
             kitId(TrustIds.contactMore, more),
-            const SizedBox(width: 6),
           ],
+        ),
+          ),
         ),
       ),
     );
@@ -659,9 +780,36 @@ class _MoreMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return DecoratedBox(
-      decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
-      child: SizedBox.square(dimension: Kit.hitMin, child: Icon(KitIcons.more, color: t.text)),
+    // `.ib`: 40 on the quiet fill, 48 to touch.
+    return SizedBox.square(
+      dimension: Kit.hitTarget,
+      child: Center(
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
+          child: SizedBox.square(dimension: 40, child: Icon(KitIcons.more, size: 20, color: t.text)),
+        ),
+      ),
+    );
+  }
+}
+
+/// `.av` on the contact page: 56 square, radius 18, initials 17.
+class _FaceAvatar extends StatelessWidget {
+  const _FaceAvatar(this.initials);
+
+  final String initials;
+
+  static const double side = 56;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: side,
+      height: side,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(18)),
+      child: Text(initials, style: KitType.initials.copyWith(color: t.accentText, fontSize: 17), maxLines: 1, textScaler: TextScaler.noScaling),
     );
   }
 }
@@ -702,8 +850,8 @@ class _Header extends ConsumerWidget {
       children: [
         const SizedBox(height: 4),
         AvatarLabelMark(
-          avatar: KitAvatar(initials: contactInitials(contact.name), large: true),
-          size: Kit.avatarStrip,
+          avatar: _FaceAvatar(contactInitials(contact.name)),
+          size: _FaceAvatar.side,
           label: contact.label,
           onTap: () => _pickLabel(context, ref, contact),
         ),
@@ -721,18 +869,18 @@ class _Header extends ConsumerWidget {
                   ),
               ],
             ),
-            style: KitType.pageTitle.copyWith(color: t.text, fontSize: 24),
+            style: KitType.pageTitle.copyWith(color: t.text, fontSize: 22, letterSpacing: -0.44),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         if (paired) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(EpicGlyphs.sealed, size: 15, color: t.accentText),
+              ExcludeSemantics(child: Epic1Glyph(size: 14, color: t.accentText)),
               const SizedBox(width: 6),
               Flexible(child: Text(l.phoneContactPaired, style: dim, textAlign: TextAlign.center)),
             ],

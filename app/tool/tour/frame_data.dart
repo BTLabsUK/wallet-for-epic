@@ -68,6 +68,7 @@ TxEntry _fTx(
   bool sealed = false,
   TxStatus status = TxStatus.confirmed,
   int depth = 6000,
+  BigInt? height,
 }) {
   final fee = out ? _epic(0.008) : BigInt.zero;
   final confirmed = status == TxStatus.confirmed;
@@ -78,7 +79,7 @@ TxEntry _fTx(
     status: status,
     createdAtUnix: at,
     timeUnix: at,
-    blockHeight: confirmed ? _tip - BigInt.from(depth) : null,
+    blockHeight: height ?? (confirmed ? _tip - BigInt.from(depth) : null),
     blockTimeUnix: confirmed ? at : null,
     amountDebited: out ? _epic(amount) + fee : BigInt.zero,
     amountCredited: out ? BigInt.zero : _epic(amount),

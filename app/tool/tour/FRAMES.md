@@ -61,6 +61,19 @@ words in the data; the app's own words stay the app's.
 | `.tabs` 86 high, blur, hair top | `KitTabBar`, `Kit.tabBar` |
 | `.tab` 24 icon, gap 4, 10.5/500 | `KitTabBar` tab, `KitType.tabLabel` |
 | `.scan` 50 x 50, margin 10 | `KitTabBar` scan button, `Kit.scanButton` |
+| `.ib` 44 round-rect icon button, filled gold variant | `KitIconButton` |
+| `.chip` + `.chips` gap 8, ring 13 / lock 12 | `KitChip` (`iconSize`, `semanticsLabel`), `PhoneProgressMark` |
+| `.need.brk` margin 0 16, padding 14, radius 20, `.acts` padding-left 52 gap 8, `.btn.sm` 36 | `KitNeedsYouCard`, `KitCornerMarks`, `KitButton(small)` |
+| dots 4 x 4, active 14 x 4, gap 5, 12 above | `KitPageDots` |
+| `.tab .bdg` 17 high, 6 right of the tab's centre | `KitTabBar` badge |
+| `.ttl` 44 tall at 58 from the top, padding 0 10 0 16 | `KitTabTitle` (Contacts, Activity, Settings) |
+| Contacts `.row` (name, status line, amount and time) | `ContactActivityRow` (`contact_activity_row.dart`) |
+| contact page `.nav` 48, 50 from the top, back 24 + 16, `.ib` 40 | `_TopBar`, `_MoreMark` (`contact_page.dart`) |
+| contact page `.av` 56 radius 18, h1 22, `.seal` 11 | `_FaceAvatar`, `_Header`, `Epic1Glyph(14)` |
+| `.day` 12 faint, 14 above 8 below | `_Payments`, `_bubbleDay` |
+| `.bub` max 268, radius 20 with a 7 tail, `.a` mono 21, `.s` 12.5 | `_PaymentBubble` |
+| `.steps` 8 px dots, gap 7 and 9 | `_BubbleSteps`, `_StepDot` |
+| `.act` padding 12 16 34, gap 10 | contact page `bar()` |
 | `.w::before` gold pool + 28 px grid | `ProtocolBackdropPainter` (`theme/brand.dart`) |
 
 Where a target must stay 48 tall for touch (the eye, "See all", the pill) the layout keeps the

@@ -240,11 +240,13 @@ class KitTabTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
 
+  // `.ttl`: 44 tall at 58 from the top (the view's top padding is 54), 16 in. The box is 51 tall
+  // so the centre sits on the frame's line and the search field below keeps its 14.
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: Kit.flowHeader + 12,
+    height: Kit.flowHeader + 7,
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 0, 10, 0),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, 10, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

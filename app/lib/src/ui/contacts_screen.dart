@@ -21,6 +21,7 @@ import '../wallet_service.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'app_dialog.dart';
 import 'common.dart';
+import 'contact_activity_row.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
 import 'contact_label_mark.dart' show AvatarLabelMark;
@@ -34,7 +35,6 @@ import 'kit/kit_icons.dart';
 import 'kit/kit_search_field.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
-import 'phone_tx_row.dart';
 import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyProvider;
 import 'tip.dart';
 import 'inline_button.dart';
@@ -417,7 +417,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       void open() => _open(c);
       if (!pick) {
         if (a?.asks != null) return _AsksRow(contact: c, invoice: a!.asks!, onTap: open);
-        if (!az && a?.latest != null) return PhoneTxRow(tx: a!.latest!, name: c.name, onOpen: open, dated: true);
+        if (!az && a?.latest != null) return ContactActivityRow(tx: a!.latest!, name: c.name, onOpen: open);
       }
       return _ContactRow(contact: c, onTap: open, forPayment: pick && widget.forPayment, noPaymentsYet: !pick && !az && a?.latest == null);
     }
@@ -539,7 +539,7 @@ class _Faces extends StatelessWidget {
                       ),
                       const SizedBox(height: 7),
                       Text(
-                        c.name,
+                        c.name.trim().split(RegExp(r'\s+')).first,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
@@ -579,7 +579,7 @@ class _AsksRow extends ConsumerWidget {
         onTap: onTap,
         semanticsLabel: '${contact.name}. $asks',
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: Kit.rowList + 8),
+          constraints: const BoxConstraints(minHeight: Kit.rowList),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
