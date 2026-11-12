@@ -306,5 +306,22 @@
   "phoneAcceptNotNow": "Not now",
   "@phoneAcceptNotNow": {
     "description": "Ghost button that leaves the incoming payment page without accepting."
+  },
+  "phoneRestoreTitle": "Restore a wallet",
+  "@phoneRestoreTitle": {
+    "description": "Title of the Restore screen."
+  },
+  "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
+  "@phoneRestoreWordsHint": {
+    "description": "Line under the phrase box while it is not yet a full phrase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "@phoneRestoreStartNote": {
+    "description": "Help text under the Wallet created row on the Restore screen."
   }
 }

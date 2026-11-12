@@ -36419,6 +36419,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When something is wrong'**
   String get phoneHelpSecTrouble;
+
+  /// Title of the Restore screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a wallet'**
+  String get phoneRestoreTitle;
+
+  /// Line under the phrase box while it is not yet a full phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.'**
+  String phoneRestoreWordsHint(int count);
+
+  /// Help text under the Wallet created row on the Restore screen.
+  ///
+  /// In en, this message translates to:
+  /// **'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.'**
+  String get phoneRestoreStartNote;
 }
 
 class _AppLocalizationsDelegate

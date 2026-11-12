@@ -2096,8 +2096,9 @@ void main() {
       await _tapText(tester, _l.firstRunRestore);
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
-      // Under the row and in the sheet.
-      expect(find.text(_l.scanStartInfo), findsNWidgets(2));
+      // Under the row the restore note stands; the sheet carries the full text.
+      expect(find.text(_l.phoneRestoreStartNote), findsOneWidget);
+      expect(find.text(_l.scanStartInfo), findsOneWidget);
       await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
       // Already from the start: the info sheet offers nothing more.

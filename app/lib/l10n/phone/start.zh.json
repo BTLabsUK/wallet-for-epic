@@ -62,5 +62,8 @@
   "phoneAcceptHintQr": "先接受,再向对方出示你的回复。对方扫描后才会到账。",
   "phoneAcceptHintFile": "先接受,再发送你的回复。对方打开后才会到账。",
   "phoneAcceptAccept": "接受",
-  "phoneAcceptNotNow": "暂不"
+  "phoneAcceptNotNow": "暂不",
+  "phoneRestoreTitle": "Restore a wallet",
+  "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins."
 }

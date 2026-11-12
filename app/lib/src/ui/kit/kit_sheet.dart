@@ -47,6 +47,8 @@ class KitSheet extends StatelessWidget {
     this.primaryId,
     this.secondaryId,
     this.primaryKind = KitButtonKind.gold,
+    this.buttonsTop = 18,
+    this.buttonsGap = 10,
   });
 
   final String? title;
@@ -62,6 +64,10 @@ class KitSheet extends StatelessWidget {
   final String? primaryId;
   final String? secondaryId;
   final KitButtonKind primaryKind;
+
+  /// The room above the buttons and between them.
+  final double buttonsTop;
+  final double buttonsGap;
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +86,8 @@ class KitSheet extends StatelessWidget {
         top: false,
         child: SingleChildScrollView(
           // `.sheet` padding-bottom 34 is the home-indicator zone: the inset the SafeArea gives
-          // is part of it, a phone with no inset keeps 16.
-          padding: EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom > 0 ? 0 : 16),
+          // is part of it. The sheet's own SafeArea has used the inset by now: read it above the route.
+          padding: EdgeInsets.only(bottom: (34 - MediaQuery.viewPaddingOf(Navigator.of(context).context).bottom).clamp(0, 34)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,11 +101,11 @@ class KitSheet extends StatelessWidget {
               ?child,
               if (primaryButton != null || secondaryButton != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 18, Kit.gutter, 0),
+                  padding: EdgeInsets.fromLTRB(Kit.gutter, buttonsTop, Kit.gutter, 0),
                   child: Column(
                     children: [
                       ?primaryButton,
-                      if (primaryButton != null && secondaryButton != null) const SizedBox(height: 10),
+                      if (primaryButton != null && secondaryButton != null) SizedBox(height: buttonsGap),
                       ?secondaryButton,
                     ],
                   ),

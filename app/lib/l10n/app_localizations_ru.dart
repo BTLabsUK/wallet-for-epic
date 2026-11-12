@@ -23946,4 +23946,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneHelpSecTrouble => 'When something is wrong';
+
+  @override
+  String get phoneRestoreTitle => 'Restore a wallet';
+
+  @override
+  String phoneRestoreWordsHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words so far.',
+      one: '1 word so far.',
+    );
+    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+  }
+
+  @override
+  String get phoneRestoreStartNote =>
+      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
 }

@@ -62,5 +62,8 @@
   "phoneAcceptHintQr": "Nimm sie an und zeige ihnen dann deine Antwort. Es kommt nichts an, bevor sie gescannt wird.",
   "phoneAcceptHintFile": "Nimm sie an und schick dann deine Antwort. Es kommt nichts an, bevor sie geöffnet wird.",
   "phoneAcceptAccept": "Annehmen",
-  "phoneAcceptNotNow": "Nicht jetzt"
+  "phoneAcceptNotNow": "Nicht jetzt",
+  "phoneRestoreTitle": "Restore a wallet",
+  "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins."
 }

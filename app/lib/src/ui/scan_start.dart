@@ -125,7 +125,7 @@ class ScanStartIds {
 /// [heights] false offers months only (Recheck balance without Advanced › Recheck from a
 /// height); with neither months nor heights the calendar button is left out.
 class ScanStart extends StatelessWidget {
-  const ScanStart({super.key, required this.controller, this.heights = true, this.ids = const ScanStartIds(), this.rowTitle});
+  const ScanStart({super.key, required this.controller, this.heights = true, this.ids = const ScanStartIds(), this.rowTitle, this.note, this.rowMinHeight});
 
   final ScanStartController controller;
 
@@ -133,6 +133,12 @@ class ScanStart extends StatelessWidget {
   /// title, its value and a chevron, the choice under it and the explanation as help text.
   /// Null keeps the plain line with its calendar and info buttons.
   final String? rowTitle;
+
+  /// The help text under the row, when it is not the plain explanation (the restore frame's).
+  final String? note;
+
+  /// A taller floor for the row (the restore frame's 62).
+  final double? rowMinHeight;
   final bool heights;
   final ScanStartIds ids;
 
@@ -316,6 +322,7 @@ class ScanStart extends StatelessWidget {
               value: value(l, c),
               chevron: picks,
               size: KitRowSize.settings,
+              minHeight: rowMinHeight,
               onTap: picks ? c.toggle : null,
               semanticsId: ids.start,
             ),
@@ -330,7 +337,7 @@ class ScanStart extends StatelessWidget {
           padding: const EdgeInsetsDirectional.only(start: Kit.gutter + 4, end: 4, top: 8),
           child: Row(
             children: [
-              Expanded(child: Text(l.scanStartInfo, key: lineKey, style: KitType.rowSub.copyWith(color: t.dim))),
+              Expanded(child: Text(note ?? l.scanStartInfo, key: lineKey, style: KitType.rowSub.copyWith(color: t.dim))),
               TrustId(
                 ids.info,
                 child: InfoHint(l.scanStartInfo, key: infoKey, title: l.scanStartInfoTitle, action: fromStartAction(l)),

@@ -21,6 +21,7 @@ import 'kit/kit_button.dart';
 import 'kit/kit_headers.dart';
 import 'kit/kit_help_sheet.dart';
 import 'kit/kit_row.dart';
+import 'kit/kit_support.dart' show kitId;
 import 'kit/kit_tokens.dart';
 import 'launch_screen.dart';
 import 'levels/tor_wait_screen.dart';
@@ -47,6 +48,62 @@ const Key firstRunTorOnlyKey = ValueKey('first-run-tor-only');
 ///
 /// On a fresh install nothing connects until Create or Restore ([firstStartProvider]): the
 /// screen answers that first step, with the Tor only switch, as the level step did before.
+/// The first step's top gap: the tile sits 188 below the top of the frame.
+const double _welcomeTop = 124;
+
+/// The "Tor only" row under the two buttons: the title, its line, and the switch (`.row`, 12 above,
+/// 4 in, 52 high).
+class _TorOnlyRow extends StatelessWidget {
+  const _TorOnlyRow({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l10n;
+    return Semantics(
+      container: true,
+      toggled: value,
+      label: l.levelUndercoverTitle,
+      hint: l.phoneWelcomeTorLine,
+      excludeSemantics: true,
+      onTap: onChanged == null ? null : () => onChanged!(!value),
+      child: kitId(
+        TrustIds.welcomeToronly,
+        InkWell(
+          key: firstRunTorOnlyKey,
+          onTap: onChanged == null ? null : () => onChanged!(!value),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l.levelUndercoverTitle, style: KitType.rowTitle.copyWith(color: t.text)),
+                        const SizedBox(height: 3),
+                        Text(l.phoneWelcomeTorLine, style: KitType.rowSub.copyWith(color: t.dim)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  IgnorePointer(child: ExcludeSemantics(child: KitSwitch(value: value, onChanged: onChanged))),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class FirstRunScreen extends ConsumerStatefulWidget {
   const FirstRunScreen({super.key, this.startCreating = false});
 
@@ -208,71 +265,68 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           KitFlowHeader(title: '', back: true, onLeading: _backFromPin, onHelp: _pinHelp),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter),
+              padding: EdgeInsets.zero,
               child: PinSetupView(onDone: _finish, actionsAtFoot: true),
             ),
           ),
         ],
       );
     } else if (_answer == null && choosing) {
-      body = Padding(
-        padding: const EdgeInsets.fromLTRB(Kit.gutter, Kit.gutter, Kit.gutter, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const ExcludeSemantics(child: KitBrandTile()),
-                      const SizedBox(height: 18),
-                      const BrandWordmark(variant: BrandVariant.mobile, size: 26),
-                      const SizedBox(height: 32),
-                      Semantics(
-                        header: true,
-                        child: Text(l.firstRunTitle, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center),
-                      ),
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(l.phoneWelcomeBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
-                      ),
-                    ],
+      // The frame: the tile 188 from the top, the wordmark 40 high 34 below it, the title 34
+      // below that, the buttons and the Tor row at the foot (34 above the edge).
+      final compact = MediaQuery.viewInsetsOf(context).bottom > 0;
+      body = CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // A keyboard-sized inset (a small window) gives the top room back.
+                  SizedBox(height: compact ? 0 : _welcomeTop),
+                  if (!compact) ...[
+                    const ExcludeSemantics(child: Center(child: KitBrandTile())),
+                    const SizedBox(height: 22),
+                  ],
+                  const Center(
+                    child: ExcludeSemantics(
+                      child: SizedBox(height: 40, child: FittedBox(child: BrandWordmark(variant: BrandVariant.mobile, size: 26))),
+                    ),
                   ),
-                ),
+                  SizedBox(height: compact ? 20 : 34),
+                  Semantics(
+                    header: true,
+                    child: Text(l.firstRunTitle, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(l.phoneWelcomeBody, style: KitType.body.copyWith(color: t.dim, height: 1.45), textAlign: TextAlign.center),
+                  ),
+                  const Spacer(),
+                  const SizedBox(height: Kit.gutter),
+                  KitButton(
+                    key: firstRunCreateKey,
+                    label: l.firstRunCreate,
+                    onPressed: _busy ? null : () => _go(restore: false),
+                    semanticsId: TrustIds.welcomeCreate,
+                  ),
+                  const SizedBox(height: 10),
+                  KitButton(
+                    key: firstRunRestoreKey,
+                    label: l.firstRunRestore,
+                    kind: KitButtonKind.quiet,
+                    onPressed: _busy ? null : () => _go(restore: true),
+                    semanticsId: TrustIds.welcomeRestore,
+                  ),
+                  if (torOffered) _TorOnlyRow(value: _tor, onChanged: _busy ? null : (v) => setState(() => _tor = v)),
+                ],
               ),
             ),
-            const SizedBox(height: Kit.gutter),
-            KitButton(
-              key: firstRunCreateKey,
-              label: l.firstRunCreate,
-              onPressed: _busy ? null : () => _go(restore: false),
-              semanticsId: TrustIds.welcomeCreate,
-            ),
-            const SizedBox(height: 12),
-            KitButton(
-              key: firstRunRestoreKey,
-              label: l.firstRunRestore,
-              kind: KitButtonKind.quiet,
-              onPressed: _busy ? null : () => _go(restore: true),
-              semanticsId: TrustIds.welcomeRestore,
-            ),
-            if (torOffered) ...[
-              const SizedBox(height: 4),
-              KitRow.toggle(
-                key: firstRunTorOnlyKey,
-                title: l.levelUndercoverTitle,
-                subtitle: l.phoneWelcomeTorLine,
-                value: _tor,
-                onChanged: _busy ? null : (v) => setState(() => _tor = v),
-                semanticsId: TrustIds.welcomeToronly,
-              ),
-            ] else
-              const SizedBox(height: Kit.gutter),
-          ],
-        ),
+          ),
+        ],
       );
     } else {
       body = Center(

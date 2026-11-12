@@ -197,6 +197,8 @@ class PinPad extends StatelessWidget {
     this.below,
     this.top = const [],
     this.fill = false,
+    this.topGap,
+    this.footGap = 0,
   });
 
   final String digits;
@@ -217,6 +219,12 @@ class PinPad extends StatelessWidget {
   /// With a bounded height: [top] and the dots are centred in the room above the keys, which
   /// sit at the foot of the screen. Otherwise everything follows in one column.
   final bool fill;
+
+  /// With [fill]: [top] starts this far below the top, not centred (the setup steps' frame).
+  final double? topGap;
+
+  /// With [fill]: the room under the keys.
+  final double footGap;
 
   void _digit(String d) {
     if (!enabled || digits.length >= pinLength) return;
@@ -277,8 +285,13 @@ class PinPad extends StatelessWidget {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: Center(child: SingleChildScrollView(child: head))),
+                Expanded(
+                  child: topGap == null
+                      ? Center(child: SingleChildScrollView(child: head))
+                      : SingleChildScrollView(padding: EdgeInsets.only(top: topGap!), child: head),
+                ),
                 keys,
+                SizedBox(height: footGap),
               ],
             )
           : Column(mainAxisSize: MainAxisSize.min, children: [head, const SizedBox(height: 22), keys]),
@@ -412,30 +425,39 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
     final t = context.tokens;
     final l = context.l10n;
     final choose = _step == _PinStep.choose;
-    final hintStyle = KitType.body.copyWith(color: t.dim);
+    final hintStyle = KitType.body.copyWith(color: t.dim, height: 1.45);
+    final frame = widget.actionsAtFoot;
     final top = <Widget>[
       if (choose) ?widget.intro,
       Semantics(
         header: true,
         child: Text(
           choose ? (widget.chooseTitle ?? l.pinChooseTitle(pinLength)) : l.pinConfirmTitle,
-          style: KitType.pageTitle.copyWith(color: t.text),
+          style: KitType.pageTitle.copyWith(color: t.text, fontSize: frame ? 24 : null, letterSpacing: frame ? -0.48 : null),
           textAlign: TextAlign.center,
         ),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: frame ? (choose ? 10 : 0) : 12),
       // The hint's room stays on the repeat step, so the keypad and the title do not move.
-      ReservedSlot.like(
-        alignment: AlignmentDirectional.topCenter,
-        model: Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center),
-        child: choose ? Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center) : null,
+      if (frame && !choose)
+        const SizedBox.shrink()
+      else
+        Padding(
+        padding: EdgeInsets.symmetric(horizontal: frame ? 40 : 0),
+        child: ReservedSlot.like(
+          alignment: AlignmentDirectional.topCenter,
+          model: Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center),
+          child: choose ? Text(l.phonePinChooseHint, style: hintStyle, textAlign: TextAlign.center) : null,
+        ),
       ),
-      const SizedBox(height: 28),
+      SizedBox(height: frame ? 44 : 28),
     ];
     return PinPad(
       key: ValueKey('pin-${_step.name}'),
       top: top,
       fill: widget.actionsAtFoot,
+      topGap: frame ? 54 : null,
+      footGap: frame ? 25 : 0,
       digits: _asking ? _chosen : _digits,
       enabled: !_asking,
       onChanged: (v) => setState(() => _digits = v),
@@ -465,18 +487,24 @@ Future<bool> showPinBiometricsOffer(BuildContext context) async {
       return KitSheet(
         primaryLabel: l.pinBiometricsEnable,
         onPrimary: () => Navigator.pop(sheet, true),
-        secondaryLabel: l.pinBiometricsNotNow,
-        onSecondary: () => Navigator.pop(sheet, false),
-        secondaryId: TrustIds.pinBiometricsNotnow,
+        buttonsTop: 24,
+        buttonsGap: 4,
+        secondary: SizedBox(
+          height: 44,
+          child: KitButton(label: l.pinBiometricsNotNow, onPressed: () => Navigator.pop(sheet, false), kind: KitButtonKind.ghost, semanticsId: TrustIds.pinBiometricsNotnow),
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
           child: Column(
             children: [
               Semantics(label: l.pinBiometricsIconLabel, child: KitIconWell(KitIcons.fingerprint, color: t.accent, size: 64, iconSize: 32)),
               const SizedBox(height: 18),
               Text(l.pinBiometricsQuestion, style: KitType.sheetTitle.copyWith(color: t.text), textAlign: TextAlign.center),
               const SizedBox(height: 8),
-              Text(l.phonePinBiometricsBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(l.phonePinBiometricsBody, style: KitType.body.copyWith(color: t.dim, height: 1.45), textAlign: TextAlign.center),
+              ),
             ],
           ),
         ),

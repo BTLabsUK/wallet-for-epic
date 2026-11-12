@@ -28,7 +28,6 @@ import 'kit/kit_headers.dart';
 import 'kit/kit_help_sheet.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_progress_ring.dart';
-import 'kit/kit_row.dart';
 import 'kit/kit_tokens.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -433,12 +432,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     });
   }
 
+  /// The space under the foot buttons: 34 in all, of which the phone's own bottom inset counts
+  /// (the SafeArea has taken it from this subtree, so it is read from the route).
+  double _footBottom(BuildContext context) =>
+      (34 - MediaQuery.viewPaddingOf(Navigator.of(context).context).bottom).clamp(0, 34).toDouble();
+
   Widget _phraseStep(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
     return Column(
       children: [
-        KitFlowHeader(title: l.restoreTitle, back: true, onLeading: _back, onHelp: _phraseHelp),
+        KitFlowHeader(title: l.phoneRestoreTitle, back: true, onLeading: _back, onHelp: _phraseHelp),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.only(bottom: Kit.gutter),
@@ -449,18 +453,18 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                   padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
                   child: Text(l.restoreReplaceLead, style: KitType.rowSub.copyWith(color: t.dim)),
                 ),
-              KitGroupLabel(l.restorePhraseLabel),
+              KitGroupLabel(l.restorePhraseLabel, top: 20),
               Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: _phraseBox(context)),
               RestoreWordCheck(text: _phrase.text),
               if (_error != null)
                 Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0), child: ErrorText(_error!)),
-              KitGroupLabel(l.phoneRestoreStartGroup),
-              ScanStart(controller: _scanStart, ids: ScanStartIds.restore, rowTitle: l.phoneRestoreCreated),
+              KitGroupLabel(l.phoneRestoreStartGroup, top: 26),
+              ScanStart(controller: _scanStart, ids: ScanStartIds.restore, rowTitle: l.phoneRestoreCreated, note: l.phoneRestoreStartNote, rowMinHeight: 62),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, Kit.gutter),
+          padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, _footBottom(context)),
           child: KitButton(
             label: l.commonContinue,
             onPressed: _checking ? null : _continue,
@@ -471,7 +475,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     );
   }
 
-  /// The phrase box: the text field with Paste and Scan at its foot.
+  /// The phrase box (`.field.on`): the words in the mono face, Paste and Scan as gold links at
+  /// its foot.
   Widget _phraseBox(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
@@ -481,66 +486,59 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         borderRadius: BorderRadius.circular(Kit.rField),
         border: Border.all(color: t.line),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          trustId(
-            TrustIds.restorePhrase,
-            Semantics(
-              label: l.restorePhraseLabel,
-              child: TextField(
-                controller: _phrase,
-                // A phrase error is about the words as they were: an edit takes it away; the
-                // count line under the box follows every keystroke.
-                onChanged: (_) => setState(() => _error = null),
-                minLines: 4,
-                maxLines: 6,
-                autocorrect: false,
-                enableSuggestions: false,
-                enableIMEPersonalizedLearning: false,
-                keyboardType: TextInputType.visiblePassword,
-                style: KitType.body.copyWith(color: t.text),
-                decoration: InputDecoration(
-                  filled: false,
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: const EdgeInsets.fromLTRB(Kit.gutter, Kit.gutter, Kit.gutter, 8),
-                  hintText: l.restorePhraseHelper,
-                  hintStyle: KitType.body.copyWith(color: t.dim),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 168),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              trustId(
+                TrustIds.restorePhrase,
+                Semantics(
+                  label: l.restorePhraseLabel,
+                  child: TextField(
+                    controller: _phrase,
+                    // A phrase error is about the words as they were: an edit takes it away; the
+                    // count line under the box follows every keystroke.
+                    onChanged: (_) => setState(() => _error = null),
+                    minLines: 3,
+                    maxLines: 6,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    enableIMEPersonalizedLearning: false,
+                    keyboardType: TextInputType.visiblePassword,
+                    style: KitType.body.copyWith(color: t.text, fontFamily: t.monoFamily, fontSize: 15, height: 1.7),
+                    decoration: InputDecoration(
+                      filled: false,
+                      isDense: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      hintText: l.restorePhraseHelper,
+                      hintStyle: KitType.body.copyWith(color: t.dim, fontSize: 15, height: 1.7),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            child: Row(
-              children: [
-                KitButton(
-                  label: l.commonPaste,
-                  icon: KitIcons.paste,
-                  kind: KitButtonKind.quiet,
-                  small: true,
-                  expand: false,
-                  onPressed: _pastePhrase,
-                ),
-                // The phrase as a QR code (Show QR on the backup screen).
-                if (offersQrScan(ref)) ...[
-                  const SizedBox(width: 8),
-                  KitButton(
-                    key: restoreScanKey,
-                    label: l.phoneRestoreScan,
-                    icon: KitIcons.scan,
-                    kind: KitButtonKind.quiet,
-                    small: true,
-                    expand: false,
-                    onPressed: _scanPhrase,
-                  ),
+              // Three lines of phrase, this gap and the links make the frame's 168.
+              const SizedBox(height: 23),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _PhraseLink(label: l.commonPaste, onPressed: _pastePhrase),
+                  // The phrase as a QR code (Show QR on the backup screen).
+                  if (offersQrScan(ref)) ...[
+                    const SizedBox(width: 4),
+                    _PhraseLink(key: restoreScanKey, label: l.phoneRestoreScan, icon: KitIcons.scan, onPressed: _scanPhrase),
+                  ],
                 ],
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -591,7 +589,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                   ),
                 )
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, Kit.gutter),
+                  padding: EdgeInsets.zero,
                   // A failure starts the PIN over (the error is its key).
                   child: PinSetupView(key: ValueKey(_error), onDone: _restore, actionsAtFoot: true),
                 ),
@@ -617,7 +615,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         Expanded(
           child: running
               ? ListView(
-                  padding: const EdgeInsets.only(top: 40),
+                  padding: const EdgeInsets.only(top: 44),
                   children: [
                     Center(
                       child: KitProgressRing(
@@ -628,28 +626,40 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                         semanticsValue: percent == null ? null : '$percent',
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
                       child: Semantics(
                         header: true,
-                        child: Text(l.phoneRestoreScanTitle, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center),
+                        child: Text(l.phoneRestoreScanTitle, style: KitType.pageTitle.copyWith(color: t.text, fontSize: 24, letterSpacing: -0.48), textAlign: TextAlign.center),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
                         waiting ? l.scanResuming : l.phoneRestoreScanBody,
-                        style: KitType.body.copyWith(color: t.dim),
+                        style: KitType.body.copyWith(color: t.dim, height: 1.45),
                         textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 28),
-                    KitGroup(children: [KitRow(title: l.phoneRestoreLookingFrom, value: ScanStart.value(l, _scanStart), size: KitRowSize.settings)]),
+                    KitGroup(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text(l.phoneRestoreLookingFrom, style: KitType.rowTitle.copyWith(fontWeight: FontWeight.w400, color: t.dim))),
+                              Text(ScanStart.value(l, _scanStart), style: KitType.rowAmount.copyWith(color: t.text)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
-                      child: Text(l.phoneRestoreScanNote, style: KitType.rowSub.copyWith(color: t.dim)),
+                      child: Text(l.phoneRestoreScanNote, style: KitType.rowSub.copyWith(color: t.faint)),
                     ),
                     if (_error != null)
                       Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0), child: ErrorText(_error!)),
@@ -668,7 +678,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, Kit.gutter),
+          padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, _footBottom(context)),
           child: running
               ? KitButton(key: restoreStopKey, label: l.restoreScanStop, kind: KitButtonKind.quiet, onPressed: () => ref.read(scanProvider.notifier).stop())
               : Column(
@@ -693,7 +703,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         KitFlowHeader(title: '', onLeading: _openWallet),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(Kit.gutter, 40, Kit.gutter, Kit.gutter),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 24, Kit.gutter, Kit.gutter),
             children: [
               Center(
                 child: Semantics(
@@ -708,14 +718,14 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
               Semantics(
                 header: true,
                 child: Text(l.restoreDoneTitle, style: KitType.pageTitle.copyWith(color: t.text), textAlign: TextAlign.center),
               ),
               const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(l.phoneRestoreDoneBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
               ),
               // The restore is still due after its scan (a wallet whose start the core did not
@@ -732,12 +742,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, Kit.gutter),
+          padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, _footBottom(context)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               KitButton(key: restoreOpenKey, label: l.restoreOpenWallet, onPressed: _openWallet, semanticsId: TrustIds.restoreOpen),
-              const SizedBox(height: 12),
+              const SizedBox(height: 6),
               KitButton(
                 label: l.restoreImportButton,
                 kind: KitButtonKind.quiet,
@@ -780,14 +790,14 @@ class RestoreWordCheck extends StatelessWidget {
         ? l.restoreWordsAllOk(words.length)
         : unknown > 0
         ? l.restoreWordsUnknown(unknown)
-        : l.restoreWordsSoFar(words.length);
+        : l.phoneRestoreWordsHint(words.length);
     return Padding(
       key: restoreWordCheckKey,
       padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(line, style: KitType.rowSub.copyWith(color: complete ? t.ok : unknown > 0 ? t.risk : t.dim)),
+          Text(line, style: KitType.rowSub.copyWith(color: complete ? t.ok : unknown > 0 ? t.risk : t.faint)),
           if (unknownWords.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(
@@ -816,6 +826,43 @@ class RestoreWordCheck extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// A gold text link at the foot of the phrase box (`.field .lnk`: 15/500, 40 px high).
+class _PhraseLink extends StatelessWidget {
+  const _PhraseLink({super.key, required this.label, required this.onPressed, this.icon});
+
+  final String label;
+  final IconData? icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onPressed,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 40),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[Icon(icon, size: 18, color: t.accentText), const SizedBox(width: 6)],
+                Text(label, style: KitType.rowTitle.copyWith(fontSize: 15, fontWeight: FontWeight.w500, color: t.accentText)),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

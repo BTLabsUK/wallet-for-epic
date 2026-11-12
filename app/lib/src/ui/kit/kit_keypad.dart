@@ -88,7 +88,7 @@ class KitKeypad extends StatelessWidget {
             ['4', '5', '6'],
             ['7', '8', '9'],
           ])
-            Padding(padding: const EdgeInsets.only(bottom: 10), child: Row(children: [for (final d in row) digit(d)])),
+            Row(children: [for (final d in row) digit(d)]),
           Row(
             children: [
               bottomLeft,
