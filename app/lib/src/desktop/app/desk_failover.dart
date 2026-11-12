@@ -165,13 +165,13 @@ class DeskFailoverWatch extends Notifier<void> {
     ref.listen(deskProvider.select((s) => torStateOf(s.settings, s.status)), (_, _) => later(() => _engine?.kick('tor')));
     // A pick the user made: what failover was doing is dropped at once.
     ref.listen(deskNodePicksProvider, (_, _) => userPicked());
-    ref.listen(deskProvider.select((s) => s.settings.advanced.networkMode), (_, _) => later(() => _engine?.kick('network mode')));
+    ref.listen(deskProvider.select((s) => s.settings.advanced.networkMode), (_, _) => later(() => _engine?.kick('network mode'))); // l10n-ok
     ref.listen(deskProvider.select((s) => s.settings.advanced.nodeFailover), (was, now) {
-      if (was == false && now) later(() => _engine?.kick('failover on'));
+      if (was == false && now) later(() => _engine?.kick('failover on')); // l10n-ok
     });
     later(() {
       _feed();
-      _engine?.kick('wallet opened');
+      _engine?.kick('wallet opened'); // l10n-ok
     });
   }
 
