@@ -16,6 +16,7 @@ import '../smart_outputs.dart';
 import '../devices/phone_devices.dart' show phoneDevices;
 import '../wallet_service.dart';
 import 'common.dart';
+import 'kit/kit_headers.dart';
 import 'pin.dart';
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'theme/advanced.dart';
@@ -232,8 +233,15 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final tip = tipHeight(ref);
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.outputsTitle)),
-      body: ScreenBody(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KitPageHeader(backLabel: l.phoneKitBack, onBack: () => Navigator.of(context).maybePop(), title: l.outputsTitle, bottomGap: 12),
+                Expanded(child: ScreenBody(
         children: [
           // The balances as a grid, zero ones dimmed, so the layout never jumps: the desktop's
           // tiles in its order (Spendable, Confirming, Mining rewards, Locked, Total).
@@ -457,6 +465,11 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
             ),
           ],
         ],
+      )),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
