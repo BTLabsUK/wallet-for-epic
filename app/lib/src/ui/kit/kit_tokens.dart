@@ -73,7 +73,6 @@ abstract final class Kit {
   static const double toastTop = 50;
   static const double toastSide = 12;
   static const double slotCard = 90;
-  static const double announcementImage = 64;
   static const double qr = 212;
   static const double brandTile = 96;
   static const double brandTileSmall = 64;
@@ -184,9 +183,6 @@ abstract final class KitType {
   /// `.key`.
   static final TextStyle keypad = _head(26, 0);
 
-  /// `.who h1`, the contact page's name.
-  static final TextStyle whoName = _head(22, -0.02);
-
   /// The EPIC unit, `.amt u`: 12, +0.16 em, in gold.
   static final TextStyle unit = _head(12, 0.16);
 
@@ -247,9 +243,6 @@ abstract final class KitType {
 
   /// `.search`, `.val`, `.lnk`.
   static final TextStyle field = _body(15);
-
-  /// `.sec button`.
-  static final TextStyle sectionLink = _body(14, weight: FontWeight.w500);
 
   /// `.ra span`.
   static final TextStyle rowTrailSub = _body(12);

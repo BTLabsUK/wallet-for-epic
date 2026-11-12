@@ -128,9 +128,6 @@ export '../utf8_limit.dart';
 // (send_route.dart). Pay in person (QR) and Pay with a file are their own route, also the
 // fallback when their relay does not answer.
 
-/// The key of the row under the amount with "Use USD" and "Max", for tests.
-const Key amountSuffixKey = ValueKey('send-amount-suffix');
-
 /// The key of the Epicbox-not-connected card on the method step, for tests.
 const Key sendEpicboxDownKey = ValueKey('send-epicbox-down');
 
@@ -183,38 +180,11 @@ const Key sendPublicFallbackKey = ValueKey('send-public-fallback');
 const Key sendQueuedCardKey = ValueKey('send-queued-card');
 const Key sendQueuedHeadlineKey = ValueKey('send-queued-headline');
 
-/// Send's method selector, and the tag beside the To label after the method followed the
-/// address, for tests.
-const Key sendMethodsKey = ValueKey('send-methods');
-
-/// Level 1's quiet link between QR Payment and sending to an address.
-const Key sendQuietQrKey = ValueKey('send-quiet-qr');
-
 /// The off-note's Turn on button, under a Link method switched off.
 const Key sendTurnOnMethodKey = ValueKey('send-turn-on-method');
 
 /// The Smallest / All choice for this payment, shown with Advanced › Send options.
 const Key sendStrategyKey = ValueKey('send-strategy');
-const Key sendSwitchedTagKey = ValueKey('send-switched-tag');
-
-/// The shape of an HTTP address, in the sentence about an incomplete one: the configured
-/// listener port (`http.listen_port`).
-String get sendHttpShape => 'http://host:${appConfig.httpListenPort}';
-
-/// The shape of an address for [method], under the To field while it is empty.
-String? sendAddressShape(AppLocalizations l, TransferMethod method) =>
-    switch (method) {
-      TransferMethod.epicbox => 'esXXXX…XXXX@${hostSettings.epicboxUse}',
-      TransferMethod.direct => torBuilt ? l.methodDirectShape('${appConfig.httpListenPort}') : sendHttpShape,
-      TransferMethod.qr || TransferMethod.file => null,
-    };
-
-/// The method a recipient of [kind] is paid by: an http(s) or onion address is Direct. An
-/// epic1 link has none (epic1 Send pays it); Send keeps Epicbox and says so under To.
-TransferMethod methodForRecipient(RecipientKind kind) => switch (kind) {
-  RecipientKind.epicbox || RecipientKind.epic1 => TransferMethod.epicbox,
-  RecipientKind.http || RecipientKind.tor => TransferMethod.direct,
-};
 
 /// The connection a payment to [to] takes, for the Tor switch ([torWay]). Plain `http://` to
 /// another device is a route of its own: it never goes through a Tor exit.
@@ -228,15 +198,10 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 
 /// Send's notice under To and the Tor buttons in it, for tests.
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
-const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
 
 /// The caption under Turn Tor off: it is the switch for every connection (D-05).
 const Key sendTurnOffTorCaptionKey = ValueKey('send-turn-off-tor-caption');
-const Key sendPlainHttpOffInfoKey = ValueKey('send-plain-http-off-info');
-
-/// The tag beside To that says whether the payment goes over Tor, for tests.
-const Key sendTorTagKey = ValueKey('send-tor-tag');
 
 /// Keys of the sealed file route, for tests.
 const Key sendSealedOptionKey = ValueKey('send-sealed-option');

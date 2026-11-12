@@ -27,8 +27,6 @@ import 'theme/tokens.dart';
 /// The key of a mode's row in the Network section: `adv-mode-<name>`.
 Key networkModeRowKey(NetworkMode m) => ValueKey('adv-mode-${m.name}');
 
-/// The key of a mode's ⓘ in the Network section.
-Key networkModeHintKey(NetworkMode m) => ValueKey('adv-mode-hint-${m.name}');
 
 /// The key of the Network section's header, for scrolling to it and for tests.
 const Key networkSectionKey = ValueKey('adv-network');

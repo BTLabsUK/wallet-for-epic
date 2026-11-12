@@ -55,7 +55,6 @@ const Key requestPayerKey = ValueKey('request-payer');
 const Key requestSaveFileKey = ValueKey('request-save-file');
 const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
-const Key requestSummaryKey = ValueKey('request-summary');
 const Key requestShowQrKey = ValueKey('request-show-qr');
 const Key requestFileWaitingKey = ValueKey('request-file-waiting');
 

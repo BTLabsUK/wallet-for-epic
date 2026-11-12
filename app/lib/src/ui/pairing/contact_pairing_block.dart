@@ -13,7 +13,6 @@ import '../../amount.dart';
 import '../../contacts.dart';
 import '../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../trust/policy.dart' show statedAutomated;
-import '../../errors.dart';
 import '../../history/domain_check_book.dart' show DomainStatus;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -572,10 +571,4 @@ class ContactPairingBlock extends ConsumerWidget {
       ],
     );
   }
-}
-
-/// Words a data error reads as, for the block's calls.
-String pairingCallError(AppLocalizations l, Object error) {
-  final failure = pairingFailureOf(error);
-  return failure == null ? describeError(l, error) : pairingFailureText(l, failure);
 }

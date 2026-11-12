@@ -1083,7 +1083,7 @@ Future<void> _loadFonts() async {
     inter.addFont(read('assets/fonts/Inter-$face.ttf'));
   }
   await inter.load();
-  // The Thai fallback of both themes (thaiFallback), every bundled weight.
+  // The Thai fallback of both themes (bundledFallback), every bundled weight.
   final thai = FontLoader('NotoSansThai');
   for (final weight in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
     thai.addFont(read('assets/fonts/NotoSansThai-$weight.ttf'));

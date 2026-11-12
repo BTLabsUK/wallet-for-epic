@@ -355,7 +355,6 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
       expect(find.textContaining(_l.sendRouteTorStarts), findsOneWidget);
-      expect(find.byKey(sendTurnOnTorKey), findsNothing);
       await h.toReview(tester);
       // Tor starts as the review opens; the send waits for it.
       expect(h.session.torStarts, hasLength(1));

@@ -347,7 +347,6 @@ void main() {
       await h.type(tester, '2.5');
       expect(find.text(_l.phoneRecvFromName('Alice')), findsOneWidget);
       expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(2.5)))), findsOneWidget);
-      expect(find.byKey(requestSummaryKey), findsNothing);
     });
 
     testWidgets('a request the relay did not take stays on the form', (

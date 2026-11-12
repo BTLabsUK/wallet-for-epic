@@ -64,10 +64,6 @@ const Key headerSyncLineKey = ValueKey('header-sync-line');
 /// The key of the sweep along the app bar's foot when a payment lands, for tests.
 const Key landingSweepKey = ValueKey('landing-sweep');
 
-/// The width of the app bar's leading slot, the mark. The title, and so the figure on Send
-/// and Receive, starts here.
-const double shellLeadingWidth = 48;
-
 /// How long the sweep takes when a payment lands.
 const Duration landingSweepDuration = Duration(milliseconds: 1200);
 
@@ -76,10 +72,6 @@ const double figureSize = 60, figureMinSize = 34;
 
 /// The size the figure never scales under: its unit goes first.
 const double figureFloorSize = 14;
-
-/// A layer's opacity at [share] of the way to it: out of sight until 0.4, full from 0.6, so
-/// the two layers of a cross-fade barely show at once.
-double shellFade(double share) => ((share - 0.4) / 0.2).clamp(0.0, 1.0);
 
 /// Whether [after] is [before] with a pending payment landed: spendable rose while the money
 /// on its way in (confirming, waiting to finish, mining rewards) fell. A cancelled send, a

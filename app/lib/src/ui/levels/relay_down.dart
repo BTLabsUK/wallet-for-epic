@@ -55,12 +55,6 @@ Future<bool> acceptRelaySwitch(BuildContext context, WidgetRef ref, {RelayCandid
   }
 }
 
-/// Not now: the offer waits until the relay answers again or the wait runs out.
-void keepWaitingForRelay(WidgetRef ref) {
-  ref.read(noticeProvider.notifier).dismissTag(relayOfferNoticeTag);
-  ref.read(relaySwitchProvider.notifier).keepWaiting();
-}
-
 /// Receive, at the Epicbox address the move gave.
 void showNewAddress(WidgetRef ref) {
   ref.read(receiveTabProvider.notifier).choose(ReceiveTab.epicbox);

@@ -153,7 +153,6 @@ void _expectThreeChoices(WidgetTester tester, {required String keep}) {
   // No caption under a button, no info icon (B-04).
   expect(find.text(_l.cancelFeeLine), findsNothing);
   expect(find.text(_l.cancelStopWaitingLine), findsNothing);
-  expect(find.byKey(cancelFeeHintKey), findsNothing);
   final compare = tester.getRect(find.text(_l.cancelCompareUnlock));
   final main = tester.getRect(find.byKey(cancelForSureKey));
   final stop = tester.getRect(find.byKey(cancelStopWaitingKey));
@@ -214,7 +213,6 @@ void main() {
     await _openCancel(tester);
     expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
     expect(find.text(_l.cancelFeeLine), findsNothing);
-    expect(find.byKey(cancelFeeHintKey), findsNothing);
     expect(find.byType(InfoHint), findsNothing);
     expect(find.byKey(cancelStopWaitingKey), findsNothing);
     expect(find.text(_l.cancelCompareUnlock), findsNothing);

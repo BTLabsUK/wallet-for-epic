@@ -284,7 +284,6 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
-      expect(find.byKey(sendMethodsKey), findsNothing);
       await _openWays(tester);
       expect(_way('Pay in person'), findsOneWidget);
       expect(_way('Pay with a file'), findsNothing);

@@ -45,7 +45,6 @@ import 'package:epic_wallet/src/ui/licences_screen.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey, networkSectionKey;
 import 'package:epic_wallet/src/address_format.dart' show shownUrl;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
-import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -632,7 +631,6 @@ void main() {
       // Without Tor there is no Tor only row; Standard heads the modes.
       final mode = networkModeRowKey(torBuilt ? NetworkMode.torOnly : NetworkMode.standard);
       expect(find.byKey(mode), findsOneWidget);
-      expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(
         tester.getTopLeft(find.byKey(mode)).dy,
         greaterThan(tester.getTopLeft(find.byKey(networkSectionKey)).dy),

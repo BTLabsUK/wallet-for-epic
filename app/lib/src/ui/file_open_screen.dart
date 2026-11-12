@@ -23,10 +23,7 @@ import 'net_block.dart' show OfflineNodeNote, watchOfflineUsesNode;
 import 'receive_screen.dart' show pasteSlate;
 import 'slate_file_screen.dart' show openSlateFile;
 
-/// Opens the file page: pick a file, or paste its text.
-Future<void> openFileOpenPage(BuildContext context) =>
-    Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const FileOpenScreen()));
-
+/// The file page: pick a file, or paste its text.
 class FileOpenScreen extends ConsumerWidget {
   const FileOpenScreen({super.key});
 
