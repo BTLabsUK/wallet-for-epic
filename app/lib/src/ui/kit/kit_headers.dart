@@ -11,7 +11,7 @@ import 'kit_settings.dart' show KitTag;
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
-/// A round-cornered icon button of the headers: 44 px target, 14 radius when pressed.
+/// The round-cornered icon button of the headers (`.ib`): a 40 px square on the quiet fill, 48 px to touch.
 class KitIconButton extends StatelessWidget {
   const KitIconButton({super.key, required this.icon, required this.label, required this.onPressed, this.color, this.semanticsId, this.filled = false});
 
@@ -29,7 +29,10 @@ class KitIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // `.ib`: 40 x 40 on the quiet fill, radius 14, the glyph 20 (the back chevron 21). The
+    // touch target is [Kit.hitTarget]; the filled one is the scan button's 50.
     final size = filled ? Kit.scanButton : Kit.hitTarget;
+    final glyph = icon == KitIcons.back ? 21.0 : 20.0;
     return kitId(
       semanticsId,
       Semantics(
@@ -47,7 +50,21 @@ class KitIconButton extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(Kit.rIconButton),
               onTap: onPressed,
-              child: SizedBox(width: size, height: size, child: Icon(icon, size: 22, color: color ?? t.text)),
+              child: SizedBox(
+                width: size,
+                height: size,
+                child: filled
+                    ? Icon(icon, size: 22, color: color ?? t.text)
+                    : Center(
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rIconButton)),
+                          child: Icon(icon, size: glyph, color: color ?? t.text),
+                        ),
+                      ),
+              ),
             ),
           ),
         ),
@@ -245,10 +262,14 @@ class KitTabTitle extends StatelessWidget {
 }
 
 /// A section head (HANDOFF 7.4): 18/600 Montserrat with a 12 × 2 deep-gold tick before it.
+/// `.sec`: 16 in at the start, 18 at the end, a 32 tall line and 10 to what follows. A
+/// [trailing] action is 48 tall to reach (the line is 32 in the frames), so the space around
+/// the line gives back the 8 above and below. [top] is the space above the line.
 class KitSectionHead extends StatelessWidget {
-  const KitSectionHead(this.title, {super.key, this.trailing});
+  const KitSectionHead(this.title, {super.key, this.trailing, this.top = 22});
 
   final String title;
+  final double top;
 
   /// A quiet text action at the end ("See all").
   final Widget? trailing;
@@ -256,8 +277,9 @@ class KitSectionHead extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final give = trailing == null ? 0.0 : 8.0;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 22, Kit.gutter + 4, 10),
+      padding: EdgeInsets.fromLTRB(Kit.gutter, top - give, 18, 10 - give),
       child: Row(
         children: [
           Expanded(
