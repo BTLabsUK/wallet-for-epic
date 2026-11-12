@@ -63,7 +63,7 @@ class AboutPhoneBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: Kit.gutter),
+        const SizedBox(height: 16),
         Center(
           child: KitCornerMarks(
             inset: 8,
@@ -74,31 +74,32 @@ class AboutPhoneBody extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(height: Kit.gutter * 2),
+        const SizedBox(height: 30),
         const Center(child: BrandWordmark(variant: BrandVariant.mobile, size: 24)),
-        const SizedBox(height: Kit.gutter * 2),
+        const SizedBox(height: 30),
         KitGroup(
           dividerInset: Kit.dividerInsetPlain,
           children: [
-            KitRow(
-              size: KitRowSize.settings,
+            _KvRow(
               title: l.settingsVersion,
-              value: version.hasValue ? version.value ?? l.commonUnknown : '…',
+              value: Text(version.hasValue ? version.value ?? l.commonUnknown : '…', textAlign: TextAlign.end, style: KitType.rowAmount.copyWith(color: t.text)),
+              semanticsValue: version.hasValue ? version.value ?? l.commonUnknown : null,
               // A store build: the store updates it, the app has no updater.
-              subtitle: distStore == null ? null : l.settingsUpdatesFrom(distStore!),
+              note: distStore == null ? null : l.settingsUpdatesFrom(distStore!),
             ),
-            KitRow(size: KitRowSize.settings, title: l.phoneSettingsMadeBy, value: _madeBy),
-            KitRow(size: KitRowSize.settings, title: l.phoneAboutProtocol, trailing: const Epic1Mark(fontSize: 16)),
-            KitRow(size: KitRowSize.settings, title: l.phoneSettingsEngine, value: 'LEPIC'),
+            _KvRow(title: l.phoneSettingsMadeBy, value: Text(_madeBy, style: KitType.rowTitle.copyWith(fontWeight: FontWeight.w400, color: t.text)), semanticsValue: _madeBy),
+            _KvRow(title: l.phoneAboutProtocol, value: const Epic1Mark(fontSize: 16), semanticsValue: 'epic1'),
+            _KvRow(title: l.phoneSettingsEngine, value: Text('LEPIC', style: KitType.rowAmount.copyWith(color: t.text)), semanticsValue: 'LEPIC'),
           ],
         ),
-        const SizedBox(height: Kit.groupGap),
+        const SizedBox(height: 14),
         KitGroup(
           dividerInset: Kit.dividerInsetPlain,
           children: [
             if (notes != null || releases != null)
               KitRow(
                 size: KitRowSize.settings,
+                minHeight: 54,
                 title: l.phoneAboutWhatsNew,
                 // Notes open in a sheet; the release page is copied, as every link here.
                 chevron: notes != null,
@@ -111,6 +112,7 @@ class AboutPhoneBody extends ConsumerWidget {
             KitRow(
               key: settingsLicencesKey,
               size: KitRowSize.settings,
+              minHeight: 54,
               title: l.settingsLicences,
               chevron: true,
               semanticsId: TrustIds.aboutLicences,
@@ -118,7 +120,7 @@ class AboutPhoneBody extends ConsumerWidget {
             ),
             // The site's address as its name, the same in every language and on the desktop. The
             // app has no browser launcher: a tap copies the address.
-            if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site, id: TrustIds.aboutSite),
+            if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site, id: TrustIds.aboutSite, minHeight: 54),
           ],
         ),
         if (updates || projectRepoUrl != null || privacyPolicyUrl != null) ...[
@@ -149,6 +151,46 @@ class AboutPhoneBody extends ConsumerWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// A fact of this build: the dim name and its value at the end (`.kv`, 15, 13 px above and below).
+class _KvRow extends StatelessWidget {
+  const _KvRow({required this.title, required this.value, this.semanticsValue, this.note});
+
+  final String title;
+  final Widget value;
+  final String? semanticsValue;
+
+  /// A small faint line under the value (the store that updates this build).
+  final String? note;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Semantics(
+      container: true,
+      label: semanticsValue == null ? title : '$title, $semanticsValue',
+      excludeSemantics: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        child: Row(
+          children: [
+            Text(title, style: KitType.rowTitle.copyWith(fontWeight: FontWeight.w400, color: t.dim)),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                value,
+                if (note != null) Padding(padding: const EdgeInsets.only(top: 2), child: Text(note!, textAlign: TextAlign.end, style: KitType.rowSub.copyWith(fontSize: 12, color: t.faint))),
+              ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -49,6 +49,7 @@ class KitSheet extends StatelessWidget {
     this.primaryKind = KitButtonKind.gold,
     this.actionsTop = 18,
     this.titleGap = 14,
+    this.buttonsGap = 10,
   });
 
   final String? title;
@@ -68,6 +69,7 @@ class KitSheet extends StatelessWidget {
   /// The space above the buttons, and under the title.
   final double actionsTop;
   final double titleGap;
+  final double buttonsGap;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +108,7 @@ class KitSheet extends StatelessWidget {
                   child: Column(
                     children: [
                       ?primaryButton,
-                      if (primaryButton != null && secondaryButton != null) const SizedBox(height: 10),
+                      if (primaryButton != null && secondaryButton != null) SizedBox(height: buttonsGap),
                       ?secondaryButton,
                     ],
                   ),

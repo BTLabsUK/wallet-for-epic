@@ -152,7 +152,7 @@ class KitFlowHeader extends StatelessWidget {
 /// The header of a page inside a tab (HANDOFF 7.4): a gold back link named after the page it
 /// returns to ("‹ Settings"), a "?" on the right, then the 28 [title].
 class KitPageHeader extends StatelessWidget {
-  const KitPageHeader({super.key, required this.backLabel, required this.onBack, this.title, this.onHelp, this.backId, this.helpId, this.tag});
+  const KitPageHeader({super.key, required this.backLabel, required this.onBack, this.title, this.onHelp, this.backId, this.helpId, this.tag, this.bottomGap = 20});
 
   final String backLabel;
   final VoidCallback? onBack;
@@ -162,6 +162,9 @@ class KitPageHeader extends StatelessWidget {
   final VoidCallback? onHelp;
   final String? backId;
   final String? helpId;
+
+  /// The space under the title; a page that opens with a group label asks for less.
+  final double bottomGap;
 
   /// A small tag beside the title (the Experiment tag of Linked devices).
   final String? tag;
@@ -173,9 +176,13 @@ class KitPageHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        // The frame's nav row sits 4 px above the safe area and its title starts 6 px higher: a
+        // 42 px row, drawn 2.5 px up, keeps the content below where it was.
         SizedBox(
-          height: Kit.pageTitleHeader,
-          child: Padding(
+          height: Kit.pageTitleHeader - 6,
+          child: Transform.translate(
+            offset: const Offset(0, -2.5),
+            child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
               children: [
@@ -195,11 +202,11 @@ class KitPageHeader extends StatelessWidget {
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(minHeight: Kit.hitTarget, minWidth: Kit.hitMin),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 4, right: 10),
+                          padding: const EdgeInsets.only(right: 10),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(KitIcons.backLink, size: 28, color: t.accentText),
+                              Icon(KitIcons.backLink, size: 26, color: t.accentText),
                               Flexible(
                                 child: Text(
                                   backLabel,
@@ -222,10 +229,11 @@ class KitPageHeader extends StatelessWidget {
               ],
             ),
           ),
+          ),
         ),
         if (title != null)
           Padding(
-            padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 2, Kit.gutter + 4, 14),
+            padding: EdgeInsets.fromLTRB(Kit.gutter, 2, Kit.gutter, bottomGap),
             child: tag == null
                 ? Semantics(header: true, child: Text(title!, style: KitType.pageTitle.copyWith(color: t.text)))
                 : Row(
@@ -235,7 +243,9 @@ class KitPageHeader extends StatelessWidget {
                       KitTag(tag!),
                     ],
                   ),
-          ),
+          )
+        else
+          const SizedBox(height: 6),
       ],
     );
   }

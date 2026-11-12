@@ -4,6 +4,8 @@
 /// here with Release. Removing a device stops sync; it does not protect the money.
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,7 +18,6 @@ import '../../trust_ids.dart';
 import '../common.dart';
 import '../help_screen.dart' show openHelp;
 import '../kit/kit_button.dart';
-import '../kit/kit_empty_state.dart';
 import '../kit/kit_group.dart';
 import '../kit/kit_headers.dart';
 import '../kit/kit_help_sheet.dart';
@@ -65,6 +66,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
     );
     return SlotScaffold(
       body: SafeArea(
+        bottom: false,
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
@@ -93,10 +95,28 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   Expanded(
                     child: PhoneTourTarget(
                       id: 'tour-devices-link',
-                      child: KitEmptyState(
-                        icon: KitIcons.devices,
-                        title: l.phoneSettingsDevicesEmpty,
-                        message: l.phoneSettingsDevicesEmptyLine,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(top: 70),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(22)),
+                              child: ExcludeSemantics(child: Icon(KitIcons.devices, size: 34, color: t.accentText)),
+                            ),
+                            const SizedBox(height: 24),
+                            Semantics(
+                              header: true,
+                              child: Text(l.phoneSettingsDevicesEmpty, style: KitType.sheetTitle.copyWith(fontSize: 22, color: t.text), textAlign: TextAlign.center),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(40, 10, 40, 24),
+                              child: Text(l.phoneSettingsDevicesEmptyLine, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   )
@@ -173,7 +193,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   ),
                 if (loaded && linked == null)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, Kit.gutter),
+                    padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, math.max(MediaQuery.paddingOf(context).bottom, 34)),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,

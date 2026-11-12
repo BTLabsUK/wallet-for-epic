@@ -1393,11 +1393,11 @@ void main() {
         await h.openSettings(tester, SettingsSection.wallet);
         await _reveal(tester, find.byKey(settingsRestoreKey));
         // Next to Delete, in the row's normal colour.
-        expect(find.text(_l.firstRunRestore), findsOneWidget);
+        expect(find.text(_l.phoneSettingsRestore), findsOneWidget);
         expect(find.text(_l.settingsDeleteWallet), findsOneWidget);
 
         // The phrase first; Back leaves the wallet as it is.
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.phoneSettingsRestore);
         expect(find.byType(RestoreScreen), findsOneWidget);
         expect(find.byType(DeleteWalletDialog), findsNothing);
         await tester.tap(find.byIcon(KitIcons.back));
@@ -1407,7 +1407,7 @@ void main() {
         expect(h.container.read(sessionProvider), isNotNull);
 
         // A phrase that does not check out never reaches the warning.
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.phoneSettingsRestore);
         await _enter(tester, 'Recovery phrase', 'abandon abandon abandon');
         await _tapText(tester, 'Continue');
         expect(find.textContaining('This phrase has 3 words.'), findsOneWidget);
@@ -2096,8 +2096,9 @@ void main() {
       await _tapText(tester, _l.firstRunRestore);
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
-      // Under the row and in the sheet.
-      expect(find.text(_l.scanStartInfo), findsNWidgets(2));
+      // Under the row the restore note stands; the sheet carries the full text.
+      expect(find.text(_l.phoneRestoreStartNote), findsOneWidget);
+      expect(find.text(_l.scanStartInfo), findsOneWidget);
       await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
       // Already from the start: the info sheet offers nothing more.

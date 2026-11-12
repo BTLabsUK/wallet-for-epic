@@ -21934,4 +21934,73 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneProgAtTime(String time) {
     return '$time';
   }
+
+  @override
+  String get phoneSettingsFailover => 'Switch node by itself';
+
+  @override
+  String get phoneSettingsModeNormalLine =>
+      'Connects directly to the node, Epicbox and other services';
+
+  @override
+  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+
+  @override
+  String get phoneSettingsModeNodeLine =>
+      'Only the node connects. Epicbox, links and price checks are off.';
+
+  @override
+  String get phoneSettingsModeKillLine =>
+      'Nothing connects. Payments are finished offline and posted from another device.';
+
+  @override
+  String get phoneSettingsAdvIntro =>
+      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+
+  @override
+  String get phoneSettingsAdvShows => 'Show more';
+
+  @override
+  String get phoneSettingsConfirmationsLine =>
+      'Blocks before a payment counts as yours to spend';
+
+  @override
+  String get phoneSettingsEpic1Line =>
+      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+
+  @override
+  String get phoneHelpSecStart => 'Getting started';
+
+  @override
+  String get phoneHelpSecHow => 'How payments work';
+
+  @override
+  String get phoneHelpSecNetwork => 'Networks and privacy';
+
+  @override
+  String get phoneHelpSecSafety => 'Keeping it safe';
+
+  @override
+  String get phoneHelpSecMaintenance => 'Upkeep';
+
+  @override
+  String get phoneHelpSecTrouble => 'When something is wrong';
+
+  @override
+  String get phoneRestoreTitle => 'Restore a wallet';
+
+  @override
+  String phoneRestoreWordsHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count words so far.',
+      one: '1 word so far.',
+    );
+    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+  }
+
+  @override
+  String get phoneRestoreStartNote =>
+      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
 }

@@ -45,6 +45,7 @@ class KitRow extends StatelessWidget {
     this.valueColor,
     this.isChoice,
     this.minHeight,
+    this.valueIcon,
     this.compact = false,
   });
 
@@ -134,6 +135,9 @@ class KitRow extends StatelessWidget {
   /// Set by [KitRow.radio]: whether this choice is the chosen one (read as selected).
   final bool? isChoice;
 
+  /// A small icon before the [value] (the tick of "Backed up").
+  final IconData? valueIcon;
+
   /// A tighter row (padding 8, 54 high) for the list of ways in a sheet.
   final bool compact;
 
@@ -145,8 +149,16 @@ class KitRow extends StatelessWidget {
         Flexible(
           flex: 0,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 140),
-            child: Text(value!, style: KitType.rowSub.copyWith(color: valueColor ?? t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+            constraints: const BoxConstraints(maxWidth: 160),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (valueIcon != null) ...[ExcludeSemantics(child: Icon(valueIcon, size: 14, color: valueColor ?? t.dim)), const SizedBox(width: 6)],
+                Flexible(
+                  child: Text(value!, style: KitType.rowValue.copyWith(color: valueColor ?? t.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
           ),
         ),
       ?trailing,
@@ -203,11 +215,10 @@ class KitIconWell extends StatelessWidget {
   const KitIconWell(IconData this.icon, {super.key, this.color, this.size = Kit.avatar, this.iconSize = 22, this.radius = Kit.rAvatar}) : child = null;
 
   /// A well around any mark (the brand's, on the hub's wallet card).
-  const KitIconWell.child(Widget this.child, {super.key, this.size = Kit.avatar})
+  const KitIconWell.child(Widget this.child, {super.key, this.size = Kit.avatar, this.radius = Kit.rAvatar})
     : icon = null,
       color = null,
-      iconSize = 22,
-      radius = Kit.rAvatar;
+      iconSize = 22;
 
   final IconData? icon;
   final Widget? child;
