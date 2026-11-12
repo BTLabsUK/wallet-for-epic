@@ -159,13 +159,20 @@ Future<T?> showKitSheet<T>({
 
 /// One choice of a [KitPickerSheet].
 class KitChoice<T> {
-  const KitChoice({required this.value, required this.title, this.subtitle, this.leading, this.semanticsId});
+  const KitChoice({required this.value, required this.title, this.subtitle, this.leading, this.semanticsId, this.enabled = true, this.key});
 
   final T value;
   final String title;
   final String? subtitle;
   final Widget? leading;
   final String? semanticsId;
+
+  /// A choice that is not offered now (its [subtitle] says why): dimmed, read as disabled, and
+  /// a tap does nothing.
+  final bool enabled;
+
+  /// The row's key, for a choice a test or a driver finds by position.
+  final Key? key;
 }
 
 /// A picker (HANDOFF 7.5): a title and rows with a tick on the chosen one. A tap saves the
@@ -224,15 +231,34 @@ class KitPickerSheet<T> extends StatelessWidget {
             dividerInset: Kit.dividerInsetPlain,
             children: [
               for (final c in choices)
-                KitRow(
-                  title: c.title,
-                  subtitle: c.subtitle,
-                  leading: c.leading,
-                  size: KitRowSize.sheet,
-                  selected: c.value == selected,
-                  onTap: () => onSelected(c.value),
-                  semanticsId: c.semanticsId,
-                ),
+                if (c.enabled)
+                  KitRow(
+                    key: c.key,
+                    title: c.title,
+                    subtitle: c.subtitle,
+                    leading: c.leading,
+                    size: KitRowSize.sheet,
+                    selected: c.value == selected,
+                    onTap: () => onSelected(c.value),
+                    semanticsId: c.semanticsId,
+                  )
+                else
+                  Semantics(
+                    enabled: false,
+                    child: Opacity(
+                      opacity: 0.4,
+                      child: KitRow(
+                        key: c.key,
+                        title: c.title,
+                        subtitle: c.subtitle,
+                        leading: c.leading,
+                        size: KitRowSize.sheet,
+                        selected: c.value == selected,
+                        onTap: null,
+                        semanticsId: c.semanticsId,
+                      ),
+                    ),
+                  ),
             ],
           ),
           if (note != null)
