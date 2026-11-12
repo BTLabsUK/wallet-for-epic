@@ -20971,4 +20971,85 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneQrShowMine => '再次出示我的码';
+
+  @override
+  String get phoneFileTitleReceive => '用文件收款';
+
+  @override
+  String get phoneFilePayCard => '付款文件';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return '$amount · 创建于 $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => '你的回复';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return '针对 $amount 的付款 · 创建于 $time';
+  }
+
+  @override
+  String get phoneFileCopyText => '复制为文本';
+
+  @override
+  String get phoneFileShare => '分享文件';
+
+  @override
+  String get phoneFileShareReply => '分享回复';
+
+  @override
+  String get phoneFileSendHint => '用任何应用发送。对方在其钱包中打开后会回传一个回复。';
+
+  @override
+  String get phoneFileReplyHint => '按原路发回。对方打开你的回复后付款即完成。';
+
+  @override
+  String get phoneFileWhenReply => '对方回复到达时';
+
+  @override
+  String get phoneFileOpenReplySub => '文件或粘贴的文本';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount 已先预留。你可以离开此页面,付款会在“活动”中等待。';
+  }
+
+  @override
+  String get phoneFileOpenIntro => '有人给你发了付款文件。在这里打开即可查看并接受付款。';
+
+  @override
+  String get phoneFileOpenFile => '打开文件';
+
+  @override
+  String get phoneFileOpenFileSub => '来自“文件”或其他应用';
+
+  @override
+  String get phoneFilePasteText => '粘贴文本';
+
+  @override
+  String get phoneFilePasteTextSub => '如果是以消息收到的';
+
+  @override
+  String get phoneFileOpenNote => '打开文件不会接受任何内容。你会先看到来源和金额。';
+
+  @override
+  String get phoneAcceptTitle => '有人向你付款';
+
+  @override
+  String get phoneAcceptNote => '备注';
+
+  @override
+  String get phoneAcceptHintQr => '先接受,再向对方出示你的回复。对方扫描后才会到账。';
+
+  @override
+  String get phoneAcceptHintFile => '先接受,再发送你的回复。对方打开后才会到账。';
+
+  @override
+  String get phoneAcceptAccept => '接受';
+
+  @override
+  String get phoneAcceptNotNow => '暂不';
 }

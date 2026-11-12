@@ -180,5 +180,131 @@
   "phoneQrShowMine": "Show my code again",
   "@phoneQrShowMine": {
     "description": "Quiet button on the payer's scan screen: go back to the QR code that was shown."
+  },
+  "phoneFileTitleReceive": "Receive with a file",
+  "@phoneFileTitleReceive": {
+    "description": "Header of the receiver's file pages."
+  },
+  "phoneFilePayCard": "Payment file",
+  "@phoneFilePayCard": {
+    "description": "Title of the card that holds the payment file the payer made."
+  },
+  "phoneFileMadeSub": "For {amount} · made {time}",
+  "@phoneFileMadeSub": {
+    "description": "Line under the payment file's title: its amount and when it was made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      },
+      "time": {
+        "type": "String",
+        "example": "18:12"
+      }
+    }
+  },
+  "phoneFileReplyCard": "Your reply",
+  "@phoneFileReplyCard": {
+    "description": "Title of the card that holds the reply file the receiver made."
+  },
+  "phoneFileReplySub": "For the {amount} payment · made {time}",
+  "@phoneFileReplySub": {
+    "description": "Line under the reply's title: which payment it answers and when it was made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      },
+      "time": {
+        "type": "String",
+        "example": "18:12"
+      }
+    }
+  },
+  "phoneFileCopyText": "Copy as text",
+  "@phoneFileCopyText": {
+    "description": "Button: copy the file's content as text, to send it in a message."
+  },
+  "phoneFileShare": "Share file",
+  "@phoneFileShare": {
+    "description": "Gold button: hand the payment file to another app."
+  },
+  "phoneFileShareReply": "Share reply",
+  "@phoneFileShareReply": {
+    "description": "Gold button: hand the reply file to another app."
+  },
+  "phoneFileSendHint": "Send it in any app. They open it in their wallet and send a reply back.",
+  "@phoneFileSendHint": {
+    "description": "Info line under the payment file's buttons."
+  },
+  "phoneFileReplyHint": "Send it back the same way it came. The payment is made when they open your reply.",
+  "@phoneFileReplyHint": {
+    "description": "Info line under the reply file's buttons."
+  },
+  "phoneFileWhenReply": "When their reply arrives",
+  "@phoneFileWhenReply": {
+    "description": "Small label above the row that opens the reply."
+  },
+  "phoneFileOpenReplySub": "A file, or pasted text",
+  "@phoneFileOpenReplySub": {
+    "description": "Subtitle of the row that opens the other wallet's reply."
+  },
+  "phoneFileHeld": "{amount} is set aside until then. You can leave this screen; the payment waits in Activity.",
+  "@phoneFileHeld": {
+    "description": "Dim line under the open-reply row: the money is held, and the payer may leave.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      }
+    }
+  },
+  "phoneFileOpenIntro": "Someone sent you a payment file. Open it here to see the payment and accept it.",
+  "@phoneFileOpenIntro": {
+    "description": "Text on the receiver's first file page."
+  },
+  "phoneFileOpenFile": "Open a file",
+  "@phoneFileOpenFile": {
+    "description": "Row: pick a payment file."
+  },
+  "phoneFileOpenFileSub": "From Files or another app",
+  "@phoneFileOpenFileSub": {
+    "description": "Subtitle of the Open a file row."
+  },
+  "phoneFilePasteText": "Paste its text",
+  "@phoneFilePasteText": {
+    "description": "Row: paste the payment text."
+  },
+  "phoneFilePasteTextSub": "If it arrived as a message",
+  "@phoneFilePasteTextSub": {
+    "description": "Subtitle of the Paste its text row."
+  },
+  "phoneFileOpenNote": "Opening a file accepts nothing yet. You see who it is from and how much first.",
+  "@phoneFileOpenNote": {
+    "description": "Dim line under the receiver's two rows."
+  },
+  "phoneAcceptTitle": "Someone is paying you",
+  "@phoneAcceptTitle": {
+    "description": "Title of the page that shows an incoming payment before it is accepted."
+  },
+  "phoneAcceptNote": "Note",
+  "@phoneAcceptNote": {
+    "description": "Label of the sender's message row."
+  },
+  "phoneAcceptHintQr": "Accept it, then show your answer to them. Nothing arrives until they scan it.",
+  "@phoneAcceptHintQr": {
+    "description": "Info line on the incoming payment page, in person."
+  },
+  "phoneAcceptHintFile": "Accept it, then send your reply. Nothing arrives until they open it.",
+  "@phoneAcceptHintFile": {
+    "description": "Info line on the incoming payment page, with a file."
+  },
+  "phoneAcceptAccept": "Accept",
+  "@phoneAcceptAccept": {
+    "description": "Gold button that accepts the incoming payment."
+  },
+  "phoneAcceptNotNow": "Not now",
+  "@phoneAcceptNotNow": {
+    "description": "Ghost button that leaves the incoming payment page without accepting."
   }
 }

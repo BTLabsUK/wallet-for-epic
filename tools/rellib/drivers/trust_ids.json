@@ -275,5 +275,16 @@
 {"id": "g4.qrscan.again", "screen": "qrscan", "family": ["android"], "keys": ["phoneQrShowMine"], "names": ["Show my code again"], "match": "exact", "driver": false},
 {"id": "g4.qrscan.settings", "screen": "qrscan", "family": ["android"], "keys": ["qrScanOpenSettings"], "names": ["Open settings"], "match": "exact", "driver": false},
 {"id": "g4.qrscan.retry", "screen": "qrscan", "family": ["android"], "keys": ["scanQrTryAgain"], "names": ["Try again"], "match": "exact", "many": true, "driver": false},
-{"id": "g4.qrscan.file", "screen": "qrscan", "family": ["android"], "keys": ["qrScanOpenFileInstead"], "names": ["Open a file instead"], "match": "exact", "driver": false}
+{"id": "g4.qrscan.file", "screen": "qrscan", "family": ["android"], "keys": ["qrScanOpenFileInstead"], "names": ["Open a file instead"], "match": "exact", "driver": false},
+{"id": "g4.file.back", "screen": "file", "family": ["android"], "keys": ["phoneKitBack"], "names": ["Back"], "match": "exact", "many": true, "driver": false},
+{"id": "g4.file.copy", "screen": "file", "family": ["android"], "keys": ["phoneFileCopyText"], "names": ["Copy as text"], "match": "exact", "driver": false},
+{"id": "g4.file.share", "screen": "file", "family": ["android"], "keys": ["phoneFileShare"], "names": ["Share file"], "match": "exact", "driver": false},
+{"id": "g4.file.save", "screen": "file", "family": ["android"], "keys": ["slateSaveToDevice"], "names": ["Save to device"], "match": "exact", "driver": false},
+{"id": "g4.file.done", "screen": "file", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact", "many": true, "driver": false},
+{"id": "g4.file.reply", "screen": "file", "family": ["android"], "keys": ["sendOpenReply"], "names": ["Open their reply"], "match": "exact", "many": true, "driver": false},
+{"id": "g4.accept.accept", "screen": "accept", "family": ["android"], "keys": ["phoneAcceptAccept"], "names": ["Accept"], "match": "exact", "driver": false},
+{"id": "g4.accept.later", "screen": "accept", "family": ["android"], "keys": ["phoneAcceptNotNow"], "names": ["Not now"], "match": "exact", "driver": false},
+{"id": "g4.file.showqr", "screen": "file", "family": ["android"], "keys": ["qrShowReplyAsQr"], "names": ["Show reply as QR code"], "match": "exact", "driver": false},
+{"id": "g4.file.finish", "screen": "file", "family": ["android"], "keys": ["slateFinishPayment"], "names": ["Finish payment"], "match": "exact", "driver": false},
+{"id": "g4.file.scanagain", "screen": "file", "family": ["android"], "keys": ["qrScanAgain"], "names": ["Scan again"], "match": "exact", "driver": false}
 ]}

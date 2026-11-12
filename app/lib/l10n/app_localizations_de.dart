@@ -22483,4 +22483,91 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneQrShowMine => 'Meinen Code erneut zeigen';
+
+  @override
+  String get phoneFileTitleReceive => 'Mit einer Datei empfangen';
+
+  @override
+  String get phoneFilePayCard => 'Zahlungsdatei';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return 'Für $amount · erstellt $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => 'Deine Antwort';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return 'Für die Zahlung von $amount · erstellt $time';
+  }
+
+  @override
+  String get phoneFileCopyText => 'Als Text kopieren';
+
+  @override
+  String get phoneFileShare => 'Datei teilen';
+
+  @override
+  String get phoneFileShareReply => 'Antwort teilen';
+
+  @override
+  String get phoneFileSendHint =>
+      'Schick sie in einer beliebigen App. Sie wird in der Wallet des anderen geöffnet, danach kommt eine Antwort zurück.';
+
+  @override
+  String get phoneFileReplyHint =>
+      'Schick sie auf demselben Weg zurück. Die Zahlung wird ausgeführt, sobald die Antwort geöffnet wird.';
+
+  @override
+  String get phoneFileWhenReply => 'Wenn die Antwort ankommt';
+
+  @override
+  String get phoneFileOpenReplySub => 'Eine Datei oder eingefügter Text';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount sind bis dahin zurückgelegt. Du kannst diesen Bildschirm verlassen; die Zahlung wartet in Aktivität.';
+  }
+
+  @override
+  String get phoneFileOpenIntro =>
+      'Jemand hat dir eine Zahlungsdatei geschickt. Öffne sie hier, um die Zahlung zu sehen und anzunehmen.';
+
+  @override
+  String get phoneFileOpenFile => 'Datei öffnen';
+
+  @override
+  String get phoneFileOpenFileSub => 'Aus Dateien oder einer anderen App';
+
+  @override
+  String get phoneFilePasteText => 'Text einfügen';
+
+  @override
+  String get phoneFilePasteTextSub => 'Wenn sie als Nachricht ankam';
+
+  @override
+  String get phoneFileOpenNote =>
+      'Beim Öffnen wird noch nichts angenommen. Du siehst zuerst, von wem sie ist und wie viel.';
+
+  @override
+  String get phoneAcceptTitle => 'Jemand bezahlt dich';
+
+  @override
+  String get phoneAcceptNote => 'Notiz';
+
+  @override
+  String get phoneAcceptHintQr =>
+      'Nimm sie an und zeige ihnen dann deine Antwort. Es kommt nichts an, bevor sie gescannt wird.';
+
+  @override
+  String get phoneAcceptHintFile =>
+      'Nimm sie an und schick dann deine Antwort. Es kommt nichts an, bevor sie geöffnet wird.';
+
+  @override
+  String get phoneAcceptAccept => 'Annehmen';
+
+  @override
+  String get phoneAcceptNotNow => 'Nicht jetzt';
 }

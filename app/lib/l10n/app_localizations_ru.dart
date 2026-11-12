@@ -22931,4 +22931,91 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneQrShowMine => 'Показать мой код снова';
+
+  @override
+  String get phoneFileTitleReceive => 'Получить файлом';
+
+  @override
+  String get phoneFilePayCard => 'Файл платежа';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return 'На $amount · создан $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => 'Ваш ответ';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return 'Для платежа $amount · создан $time';
+  }
+
+  @override
+  String get phoneFileCopyText => 'Копировать текстом';
+
+  @override
+  String get phoneFileShare => 'Отправить файл';
+
+  @override
+  String get phoneFileShareReply => 'Отправить ответ';
+
+  @override
+  String get phoneFileSendHint =>
+      'Отправьте его в любом приложении. Получатель откроет его в своём кошельке и пришлёт ответ.';
+
+  @override
+  String get phoneFileReplyHint =>
+      'Отправьте его тем же путём. Платёж пройдёт, когда отправитель откроет ваш ответ.';
+
+  @override
+  String get phoneFileWhenReply => 'Когда придёт ответ';
+
+  @override
+  String get phoneFileOpenReplySub => 'Файл или вставленный текст';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount отложено до этого момента. Можно закрыть экран: платёж ждёт в Активности.';
+  }
+
+  @override
+  String get phoneFileOpenIntro =>
+      'Вам прислали файл платежа. Откройте его здесь, чтобы увидеть платёж и принять его.';
+
+  @override
+  String get phoneFileOpenFile => 'Открыть файл';
+
+  @override
+  String get phoneFileOpenFileSub => 'Из «Файлов» или другого приложения';
+
+  @override
+  String get phoneFilePasteText => 'Вставить текст';
+
+  @override
+  String get phoneFilePasteTextSub => 'Если пришёл сообщением';
+
+  @override
+  String get phoneFileOpenNote =>
+      'Открытие файла ничего не принимает. Сначала видно, от кого он и на какую сумму.';
+
+  @override
+  String get phoneAcceptTitle => 'Вам платят';
+
+  @override
+  String get phoneAcceptNote => 'Заметка';
+
+  @override
+  String get phoneAcceptHintQr =>
+      'Примите платёж и покажите ответ. Ничего не придёт, пока его не отсканируют.';
+
+  @override
+  String get phoneAcceptHintFile =>
+      'Примите платёж и отправьте ответ. Ничего не придёт, пока его не откроют.';
+
+  @override
+  String get phoneAcceptAccept => 'Принять';
+
+  @override
+  String get phoneAcceptNotNow => 'Не сейчас';
 }

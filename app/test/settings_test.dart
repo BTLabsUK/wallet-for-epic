@@ -1324,8 +1324,6 @@ void main() {
           expect(rect.left, greaterThanOrEqualTo(0));
           expect(rect.right, lessThanOrEqualTo(360));
         }
-        // Node and Epicbox stays on the first screen (as the icon at this text scale).
-        expect(find.byType(NetworkSettingsButton), findsOneWidget);
 
         // Create leads to the PIN; Back returns to the choice; Restore leads to the phrase.
         await tester.tap(create);

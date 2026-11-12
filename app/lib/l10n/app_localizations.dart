@@ -34697,6 +34697,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show my code again'**
   String get phoneQrShowMine;
+
+  /// Header of the receiver's file pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive with a file'**
+  String get phoneFileTitleReceive;
+
+  /// Title of the card that holds the payment file the payer made.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment file'**
+  String get phoneFilePayCard;
+
+  /// Line under the payment file's title: its amount and when it was made.
+  ///
+  /// In en, this message translates to:
+  /// **'For {amount} · made {time}'**
+  String phoneFileMadeSub(String amount, String time);
+
+  /// Title of the card that holds the reply file the receiver made.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply'**
+  String get phoneFileReplyCard;
+
+  /// Line under the reply's title: which payment it answers and when it was made.
+  ///
+  /// In en, this message translates to:
+  /// **'For the {amount} payment · made {time}'**
+  String phoneFileReplySub(String amount, String time);
+
+  /// Button: copy the file's content as text, to send it in a message.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy as text'**
+  String get phoneFileCopyText;
+
+  /// Gold button: hand the payment file to another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Share file'**
+  String get phoneFileShare;
+
+  /// Gold button: hand the reply file to another app.
+  ///
+  /// In en, this message translates to:
+  /// **'Share reply'**
+  String get phoneFileShareReply;
+
+  /// Info line under the payment file's buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it in any app. They open it in their wallet and send a reply back.'**
+  String get phoneFileSendHint;
+
+  /// Info line under the reply file's buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it back the same way it came. The payment is made when they open your reply.'**
+  String get phoneFileReplyHint;
+
+  /// Small label above the row that opens the reply.
+  ///
+  /// In en, this message translates to:
+  /// **'When their reply arrives'**
+  String get phoneFileWhenReply;
+
+  /// Subtitle of the row that opens the other wallet's reply.
+  ///
+  /// In en, this message translates to:
+  /// **'A file, or pasted text'**
+  String get phoneFileOpenReplySub;
+
+  /// Dim line under the open-reply row: the money is held, and the payer may leave.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is set aside until then. You can leave this screen; the payment waits in Activity.'**
+  String phoneFileHeld(String amount);
+
+  /// Text on the receiver's first file page.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone sent you a payment file. Open it here to see the payment and accept it.'**
+  String get phoneFileOpenIntro;
+
+  /// Row: pick a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a file'**
+  String get phoneFileOpenFile;
+
+  /// Subtitle of the Open a file row.
+  ///
+  /// In en, this message translates to:
+  /// **'From Files or another app'**
+  String get phoneFileOpenFileSub;
+
+  /// Row: paste the payment text.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste its text'**
+  String get phoneFilePasteText;
+
+  /// Subtitle of the Paste its text row.
+  ///
+  /// In en, this message translates to:
+  /// **'If it arrived as a message'**
+  String get phoneFilePasteTextSub;
+
+  /// Dim line under the receiver's two rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening a file accepts nothing yet. You see who it is from and how much first.'**
+  String get phoneFileOpenNote;
+
+  /// Title of the page that shows an incoming payment before it is accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone is paying you'**
+  String get phoneAcceptTitle;
+
+  /// Label of the sender's message row.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get phoneAcceptNote;
+
+  /// Info line on the incoming payment page, in person.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept it, then show your answer to them. Nothing arrives until they scan it.'**
+  String get phoneAcceptHintQr;
+
+  /// Info line on the incoming payment page, with a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept it, then send your reply. Nothing arrives until they open it.'**
+  String get phoneAcceptHintFile;
+
+  /// Gold button that accepts the incoming payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get phoneAcceptAccept;
+
+  /// Ghost button that leaves the incoming payment page without accepting.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get phoneAcceptNotNow;
 }
 
 class _AppLocalizationsDelegate

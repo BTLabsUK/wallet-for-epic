@@ -233,6 +233,17 @@ abstract final class TrustIds {
   static const qrscanSettings = 'g4.qrscan.settings';
   static const qrscanRetry = 'g4.qrscan.retry';
   static const qrscanFile = 'g4.qrscan.file';
+  static const fileBack = 'g4.file.back';
+  static const fileCopy = 'g4.file.copy';
+  static const fileShare = 'g4.file.share';
+  static const fileSave = 'g4.file.save';
+  static const fileDone = 'g4.file.done';
+  static const fileReply = 'g4.file.reply';
+  static const acceptAccept = 'g4.accept.accept';
+  static const acceptLater = 'g4.accept.later';
+  static const fileShowqr = 'g4.file.showqr';
+  static const fileFinish = 'g4.file.finish';
+  static const fileScanagain = 'g4.file.scanagain';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -476,5 +487,16 @@ abstract final class TrustIds {
     'g4.qrscan.settings',
     'g4.qrscan.retry',
     'g4.qrscan.file',
+    'g4.file.back',
+    'g4.file.copy',
+    'g4.file.share',
+    'g4.file.save',
+    'g4.file.done',
+    'g4.file.reply',
+    'g4.accept.accept',
+    'g4.accept.later',
+    'g4.file.showqr',
+    'g4.file.finish',
+    'g4.file.scanagain',
   ];
 }

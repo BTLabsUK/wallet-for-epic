@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../amount.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -19,7 +20,18 @@ import '../slate_files.dart';
 import '../tor_build.dart';
 import '../updater.dart' show updateProvider;
 import '../wallet_service.dart';
+import '../trust_ids.dart';
 import 'common.dart';
+import 'file_exchange_help.dart' show FileExchangeRole, showFileExchangeHelp;
+import 'file_flow_pages.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_hero_amount.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_step_strip.dart';
+import 'kit/kit_tokens.dart';
 import '../epic1.dart' show PaymentMode, looksLikeEpictx;
 import 'epic1/epic1_common.dart' show epic1ModeSettingsKey, openEpic1Settings;
 import 'in_person/in_person_entry.dart' show openInPersonText;
@@ -412,11 +424,31 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     await _read();
   }
 
+  /// When the reply was first shown, for its "made 18:20" line.
+  DateTime? _madeAt;
+
+  /// The three steps of this exchange (HANDOFF 4) and the one in progress. An answer to our own
+  /// send is the payer's side, a payment to us the receiver's; a scanned code is in person.
+  (List<String>, int)? _steps(AppLocalizations l, SlateInfo? info) {
+    if (info == null || _error != null && _response == null && _posted == null) return null;
+    final receiving = info.stage == SlateStage.send;
+    final qr = widget.scanned;
+    final labels = receiving
+        ? (qr
+              ? [l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone]
+              : [l.phoneStepRecvFileOpen, l.phoneStepRecvFileReply, l.commonDone])
+        : (qr
+              ? [l.phoneStepPayShow, l.phoneStepPayScan, l.commonDone]
+              : [l.phoneStepPayFileSend, l.phoneStepPayFileReply, l.commonDone]);
+    final now = _posted != null ? 3 : (_response != null ? 1 : (receiving ? 0 : 1));
+    return (labels, now);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final info = _info;
-    final theme = Theme.of(context);
     final showQr = widget.scanned && offersQrPayment(ref);
     // The reply goes by QR Payment on a phone with File Transfer off; the file buttons need it on.
     final fileOn =
@@ -427,35 +459,32 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             .directFile;
     final List<Widget> body;
     Widget? foot;
+    final receivingNow = info?.stage == SlateStage.send;
     if (_modeLine case final line?) {
       // A file of the other payment mode: why it is not read, with Settings.
       body = [
         _Headline(icon: Icons.info_outline, text: line(l)),
         const SizedBox(height: 24),
-        FilledButton(
+        KitButton(
           key: epic1ModeSettingsKey,
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          label: l.deskE1PhSettings,
           onPressed: () {
             Navigator.pop(context, false);
             unawaited(openEpic1Settings(context));
           },
-          child: Text(l.deskE1PhSettings),
         ),
         const SizedBox(height: 8),
-        TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        KitButton(
+          label: l.commonClose,
+          kind: KitButtonKind.ghost,
           onPressed: () => Navigator.pop(context, false),
-          child: Text(l.commonClose),
         ),
       ];
     } else if (_posted case final posted? when posted.repostable) {
       body = [
         NotPostedNotice(tx: posted),
         const SizedBox(height: 8),
-        BusyButton(
-          label: l.commonDone,
-          onPressed: () => Navigator.pop(context, true),
-        ),
+        KitButton(label: l.commonDone, semanticsId: TrustIds.fileDone, onPressed: () => Navigator.pop(context, true)),
       ];
     } else if (_posted != null) {
       body = [
@@ -464,46 +493,38 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           text: l.slatePostedHeadline(epicExact(l, info!.amount)),
         ),
         const SizedBox(height: 8),
-        Text(l.slatePostedBody(confirmationsTargetOf(ref))),
+        Text(l.slatePostedBody(confirmationsTargetOf(ref)), style: KitType.body.copyWith(color: t.dim)),
         const SizedBox(height: 24),
-        BusyButton(
-          label: l.commonDone,
-          onPressed: () => Navigator.pop(context, true),
-        ),
+        KitButton(label: l.commonDone, semanticsId: TrustIds.fileDone, onPressed: () => Navigator.pop(context, true)),
       ];
     } else if (_response case final response?) {
       // A sealed answer is its own file type (RFC 3.5).
       final name = _sealedAnswer != null
           ? sealedFileName(info!.slateId, text: _sealedAnswer)
           : replyFileName(info!.slateId, loaded: _file.name == pastedSlateName || _file.name == scannedSlateName ? null : _file.name);
+      final made = fileMadeTime(context, _madeAt ??= DateTime.now());
+      final amount = epicFor(l, info.amount, surface: AmountSurface.exact, unit: false);
       body = [
-        _Headline(
-          icon: Icons.check_circle,
-          text: widget.scanned
-              ? l.slateAcceptedHeadlineQr
-              : response.repeated
-              ? l.slateRepeatedHeadline(name)
-              : l.slateAcceptedHeadline(name),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          response.repeated
-              ? l.slateRepeatedBody(epicExact(l, info.amount))
-              : l.slateAcceptedBody(epicExact(l, info.amount)),
-        ),
-        const SizedBox(height: 24),
-        if (showQr) ...[
-          FilledButton.icon(
-            key: showReplyQrKey,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: const Icon(MethodIcons.qr),
-            label: Text(l.qrShowReplyAsQr),
-            onPressed: () =>
-                _showReply(response.json, info.amount, info.slateId),
+        const SizedBox(height: 18),
+        KitHeroAmount(amount: '+$amount', unit: epicUnit, incoming: true),
+        const SizedBox(height: 18),
+        Semantics(
+          liveRegion: true,
+          child: FileCard(
+            title: l.phoneFileReplyCard,
+            sub: l.phoneFileReplySub(epicExact(l, info.amount), made),
           ),
-          const SizedBox(height: 8),
+        ),
+        const SizedBox(height: 12),
+        if (showQr) ...[
+          KitButton(
+            key: showReplyQrKey,
+            icon: KitIcons.qr,
+            label: l.qrShowReplyAsQr,
+            semanticsId: TrustIds.fileShowqr,
+            onPressed: () => _showReply(response.json, info.amount, info.slateId),
+          ),
+          const SizedBox(height: 10),
         ],
         if (_sealedAnswer case final sealed? when _sealedFrom != null) ...[
           Align(
@@ -511,25 +532,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
             child: SealedBadge(name: pairingName(_sealedFrom!, ref.watch(contactsProvider).value ?? const [])),
           ),
           const SizedBox(height: 12),
-          SlateFileButtons(
-            name: name,
-            json: sealed,
-            copyable: widget.pasted,
-          ),
+          SlateFileButtons(name: name, json: sealed, copyable: widget.pasted, framed: true),
         ] else if (!showQr || fileOn)
-          SlateFileButtons(
-            name: name,
-            json: response.json,
-            copyable: widget.pasted,
-            primary: !showQr,
-          ),
-        if (!showQr || fileOn) const SizedBox(height: 8),
-        TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l.commonDone),
-        ),
+          SlateFileButtons(name: name, json: response.json, copyable: widget.pasted, primary: !showQr, framed: true),
+        const SizedBox(height: 14),
+        FileInfoLine(widget.scanned ? l.slateAcceptedHeadlineQr : (response.repeated ? l.slateRepeatedBody(epicExact(l, info.amount)) : l.phoneFileReplyHint)),
       ];
+      foot = KitButton(label: l.commonDone, semanticsId: TrustIds.fileDone, onPressed: () => Navigator.pop(context, true));
     } else if (_reading) {
       body = [
         Semantics(
@@ -558,11 +567,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.pairClosed),
-        ),
+        KitButton(label: l.pairClosed, kind: KitButtonKind.ghost, onPressed: () => Navigator.pop(context)),
       ];
     } else if (info == null) {
       body = [];
@@ -570,11 +575,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         InlineNotice(key: requestAnswerUnknownKey, level: NoticeLevel.error, text: l.reqAnswerUnknown, liveRegion: true),
         const SizedBox(height: 16),
-        TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.pairClosed),
-        ),
+        KitButton(label: l.pairClosed, kind: KitButtonKind.ghost, onPressed: () => Navigator.pop(context)),
       ];
     } else {
       final receiving = info.stage == SlateStage.send;
@@ -583,98 +584,123 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         info.messages,
         receiving ? SlateRole.sender : SlateRole.receiver,
       );
+      final amount = epicFor(l, info.amount, surface: AmountSurface.exact, unit: false);
       body = [
-        Text(
-          widget.scanned
-              ? (receiving
-                    ? l.slateScannedPaymentTitle
-                    : l.slateScannedReplyTitle)
-              : widget.pasted
-              ? l.slatePastedTitle
-              : _file.name,
-          style: theme.textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
+        // Where it came from: the file's name, or what kind of text it was.
         Text(
           receiving
-              ? l.slateIncomingSend(epicExact(l, info.amount))
-              : info.stage == SlateStage.requestAnswer
-              ? l.slateIncomingRequestAnswer(epicExact(l, info.amount))
-              : l.slateIncomingResponse(
-                  epicExact(l, info.amount),
-                  epicExact(l, info.fee),
-                ),
-          style: theme.textTheme.bodyLarge,
+              ? l.phoneAcceptTitle
+              : (widget.scanned ? l.slateScannedReplyTitle : widget.pasted ? l.slatePastedTitle : _file.name),
+          style: KitType.rowTitle.copyWith(fontSize: 20, color: t.text),
         ),
-        // What to do next, only while it can be done: never above a refusal.
-        if (_error == null) ...[
-          const SizedBox(height: 8),
-          Text(
-            receiving
-                ? (widget.scanned
-                      ? l.slateIncomingSendHintQr
-                      : l.slateIncomingSendHint)
-                : l.slateIncomingResponseHint,
+        const SizedBox(height: 14),
+        KitHeroAmount(amount: receiving ? '+$amount' : amount, unit: epicUnit, incoming: receiving),
+        if (!receiving) ...[
+          const SizedBox(height: 10),
+          FileInfoLine(
+            info.stage == SlateStage.requestAnswer
+                ? l.slateIncomingRequestAnswer(epicExact(l, info.amount))
+                : l.slateIncomingResponse(epicExact(l, info.amount), epicExact(l, info.fee)),
+            bare: true,
           ),
         ],
+        const SizedBox(height: 16),
         if (message != null) ...[
-          const SizedBox(height: 16),
-          Text(
-            receiving
-                ? l.txDetailsMessageFromSender
-                // A request's answer carries the issuer's own message: it is this wallet's.
-                : info.stage == SlateStage.requestAnswer
-                ? l.invoicesMessage
-                : l.txDetailsMessageFromRecipient,
-            style: theme.textTheme.labelLarge,
+          KitGroup(
+            margin: EdgeInsets.zero,
+            children: [
+              KitRow(
+                title: receiving
+                    ? l.phoneAcceptNote
+                    // A request's answer carries the issuer's own message: it is this wallet's.
+                    : info.stage == SlateStage.requestAnswer
+                    ? l.invoicesMessage
+                    : l.txDetailsMessageFromRecipient,
+                value: message,
+                size: KitRowSize.settings,
+              ),
+            ],
           ),
           const SizedBox(height: 4),
-          SelectableText(message, style: theme.textTheme.bodyLarge),
         ],
+        // What to do next, only while it can be done: never above a refusal.
+        if (_error == null)
+          FileInfoLine(
+            receiving
+                ? (widget.scanned ? l.phoneAcceptHintQr : l.phoneAcceptHintFile)
+                : l.slateIncomingResponseHint,
+          ),
       ];
       // The primary at the foot, as on every other step (UP-013).
       if (_error == null) {
-        foot = BusyButton(
-          label: receiving ? l.slateAcceptPayment : l.slateFinishPayment,
-          busy: _busy,
-          onPressed: receiving ? _sign : _finalize,
+        foot = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitButton(
+              label: receiving ? l.phoneAcceptAccept : l.slateFinishPayment,
+              semanticsId: receiving ? TrustIds.acceptAccept : TrustIds.fileFinish,
+              onPressed: _busy ? null : (receiving ? _sign : _finalize),
+            ),
+            if (receiving) ...[
+              const SizedBox(height: 4),
+              KitButton(
+                label: l.phoneAcceptNotNow,
+                kind: KitButtonKind.ghost,
+                semanticsId: TrustIds.acceptLater,
+                onPressed: _busy ? null : () => Navigator.pop(context),
+              ),
+            ],
+          ],
         );
       }
     }
     final error = _error;
+    final strip = _steps(l, info);
+    final title = widget.scanned
+        ? (receivingNow == false ? l.phoneQrTitlePay : l.phoneQrTitleReceive)
+        : (receivingNow == false ? l.sendPayByFile : l.phoneFileTitleReceive);
     return SlotScaffold(
-      appBar: AppBar(
-        title: Text(widget.scanned ? MethodIcons.fullName(l, MethodKind.directQr) : l.slateFileTitle),
-      ),
-      body: ScreenBody(
-        bottom: foot,
-        children: [
-          ...body,
-          if (error != null && !_answerUnknown) ...[
-            ErrorText(error(l)),
-            // A scan that failed is not the end: read the code again.
-            if (widget.scanned && !_busy && _response == null) ...[
-              const SizedBox(height: 8),
-              FilledButton.icon(
-                key: scanAgainKey,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                icon: const Icon(Icons.qr_code_scanner),
-                label: Text(l.qrScanAgain),
-                onPressed: _scanAgain,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitFlowHeader(
+              title: title,
+              back: true,
+              onLeading: () => Navigator.of(context).maybePop(),
+              leadingId: TrustIds.fileBack,
+              onHelp: widget.scanned || info == null
+                  ? null
+                  : () => showFileExchangeHelp(context, role: receivingNow == false ? FileExchangeRole.sender : FileExchangeRole.receiver),
+            ),
+            if (strip != null) KitStepStrip(labels: strip.$1, current: strip.$2),
+            Expanded(
+              child: ScreenBody(
+                bottom: foot,
+                children: [
+                  ...body,
+                  if (error != null && !_answerUnknown) ...[
+                    ErrorText(error(l)),
+                    // A scan that failed is not the end: read the code again.
+                    if (widget.scanned && !_busy && _response == null) ...[
+                      const SizedBox(height: 8),
+                      KitButton(
+                        key: scanAgainKey,
+                        icon: KitIcons.scan,
+                        label: l.qrScanAgain,
+                        semanticsId: TrustIds.fileScanagain,
+                        onPressed: _scanAgain,
+                      ),
+                      const SizedBox(height: 4),
+                      KitButton(label: l.scanQrBack, kind: KitButtonKind.ghost, onPressed: () => Navigator.pop(context)),
+                    ],
+                  ],
+                ],
               ),
-              const SizedBox(height: 8),
-              TextButton(
-                style: TextButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                onPressed: () => Navigator.pop(context),
-                child: Text(l.scanQrBack),
-              ),
-            ],
+            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -759,6 +785,7 @@ class SlateFileButtons extends ConsumerWidget {
     this.copyable = false,
     this.primary = true,
     this.onHandedOver,
+    this.framed = false,
   });
 
   final String name;
@@ -770,6 +797,10 @@ class SlateFileButtons extends ConsumerWidget {
 
   /// Called once the file was saved or shared, so the screen can move its primary on.
   final VoidCallback? onHandedOver;
+
+  /// On the file pages of the redesign: "Copy as text" beside a gold "Share reply", "Save to
+  /// device" under them. Off, the buttons keep their older words.
+  final bool framed;
 
   Future<void> _out(
     BuildContext context,
@@ -797,8 +828,7 @@ class SlateFileButtons extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final files = ref.watch(slateFilesProvider);
-    const icon = Icon(Icons.save_alt);
-    final label = Text(l.slateSaveToDevice);
+    final saveLabel = l.slateSaveToDevice;
     void save() => _out(
       context,
       ref,
@@ -806,51 +836,44 @@ class SlateFileButtons extends ConsumerWidget {
           f.save(name: name, json: json, dialogTitle: l.slateSaveDialogTitle),
       done: l.slateSaved(name),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (primary)
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: icon,
-            label: label,
-            onPressed: save,
-          )
-        else
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: icon,
-            label: label,
-            onPressed: save,
-          ),
-        if (files.canShare) ...[
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: const Icon(Icons.share),
-            label: Text(l.commonShare),
-            onPressed: () =>
-                _out(context, ref, (f) => f.share(name: name, json: json)),
-          ),
-        ],
-        if (copyable) ...[
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: const Icon(Icons.copy),
-            label: Text(l.slateCopyReply),
+    final copy = copyable
+        ? KitButton(
+            icon: KitIcons.copy,
+            label: framed ? l.phoneFileCopyText : l.slateCopyReply,
+            kind: KitButtonKind.quiet,
+            semanticsId: TrustIds.fileCopy,
             onPressed: () => copySecretText(context, json, l.slateCopied),
-          ),
+          )
+        : null;
+    final share = files.canShare
+        ? KitButton(
+            icon: KitIcons.share,
+            label: framed ? l.phoneFileShareReply : l.commonShare,
+            kind: primary ? KitButtonKind.gold : KitButtonKind.quiet,
+            semanticsId: TrustIds.fileShare,
+            onPressed: () => _out(context, ref, (f) => f.share(name: name, json: json)),
+          )
+        : null;
+    final saveButton = KitButton(
+      icon: Icons.save_alt_rounded,
+      label: saveLabel,
+      kind: share == null && primary ? KitButtonKind.gold : KitButtonKind.quiet,
+      semanticsId: TrustIds.fileSave,
+      onPressed: save,
+    );
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (framed && copy != null && share != null)
+            Row(children: [Expanded(child: copy), const SizedBox(width: 12), Expanded(child: share)])
+          else ...[
+            ?share,
+            if (share != null && copy != null) const SizedBox(height: 10),
+            ?copy,
+          ],
+          if (share != null || copy != null) const SizedBox(height: 10),
+          saveButton,
         ],
-      ],
     );
   }
 }

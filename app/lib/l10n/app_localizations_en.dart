@@ -22218,4 +22218,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneQrShowMine => 'Show my code again';
+
+  @override
+  String get phoneFileTitleReceive => 'Receive with a file';
+
+  @override
+  String get phoneFilePayCard => 'Payment file';
+
+  @override
+  String phoneFileMadeSub(String amount, String time) {
+    return 'For $amount · made $time';
+  }
+
+  @override
+  String get phoneFileReplyCard => 'Your reply';
+
+  @override
+  String phoneFileReplySub(String amount, String time) {
+    return 'For the $amount payment · made $time';
+  }
+
+  @override
+  String get phoneFileCopyText => 'Copy as text';
+
+  @override
+  String get phoneFileShare => 'Share file';
+
+  @override
+  String get phoneFileShareReply => 'Share reply';
+
+  @override
+  String get phoneFileSendHint =>
+      'Send it in any app. They open it in their wallet and send a reply back.';
+
+  @override
+  String get phoneFileReplyHint =>
+      'Send it back the same way it came. The payment is made when they open your reply.';
+
+  @override
+  String get phoneFileWhenReply => 'When their reply arrives';
+
+  @override
+  String get phoneFileOpenReplySub => 'A file, or pasted text';
+
+  @override
+  String phoneFileHeld(String amount) {
+    return '$amount is set aside until then. You can leave this screen; the payment waits in Activity.';
+  }
+
+  @override
+  String get phoneFileOpenIntro =>
+      'Someone sent you a payment file. Open it here to see the payment and accept it.';
+
+  @override
+  String get phoneFileOpenFile => 'Open a file';
+
+  @override
+  String get phoneFileOpenFileSub => 'From Files or another app';
+
+  @override
+  String get phoneFilePasteText => 'Paste its text';
+
+  @override
+  String get phoneFilePasteTextSub => 'If it arrived as a message';
+
+  @override
+  String get phoneFileOpenNote =>
+      'Opening a file accepts nothing yet. You see who it is from and how much first.';
+
+  @override
+  String get phoneAcceptTitle => 'Someone is paying you';
+
+  @override
+  String get phoneAcceptNote => 'Note';
+
+  @override
+  String get phoneAcceptHintQr =>
+      'Accept it, then show your answer to them. Nothing arrives until they scan it.';
+
+  @override
+  String get phoneAcceptHintFile =>
+      'Accept it, then send your reply. Nothing arrives until they open it.';
+
+  @override
+  String get phoneAcceptAccept => 'Accept';
+
+  @override
+  String get phoneAcceptNotNow => 'Not now';
 }
