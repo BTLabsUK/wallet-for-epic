@@ -67,6 +67,23 @@ void goHome(BuildContext context) {
   );
 }
 
+/// The name of the route that holds the Send flow over the shell.
+const sendFlowRouteName = 'send-flow';
+
+final Set<Object> _sendHolders = {};
+
+/// Send tells here whether it holds a payment that was sent or is being sent ([owner] is its
+/// state): such a Send is not closed by another flow opening over the shell.
+void sendHoldsPayment(Object owner, bool holds) => holds ? _sendHolders.add(owner) : _sendHolders.remove(owner);
+
+/// Closes every screen over the shell, except a Send route that holds a payment (sent or being
+/// sent): that one stays, and a request to open Send brings it forward instead of a new one.
+/// Returns whether such a Send route is left open.
+bool popToShell(NavigatorState navigator) {
+  navigator.popUntil((route) => route.isFirst || (_sendHolders.isNotEmpty && route.settings.name == sendFlowRouteName));
+  return _sendHolders.isNotEmpty;
+}
+
 /// Opens [flow] over the wallet shell and closes every screen over the shell first. With
 /// [recipient] (a scanned code, Send again), the Send form takes it as the recipient; with
 /// [pairingTo], the paired contact with no address, paid through its mailbox.
@@ -78,7 +95,7 @@ void showShellFlow(BuildContext context, ShellFlow flow, {String? recipient, Str
     container.read(sendRecipientProvider.notifier).handPairing(pairingTo);
   }
   container.read(shellFlowProvider.notifier).open(flow);
-  Navigator.of(context).popUntil((route) => route.isFirst);
+  popToShell(Navigator.of(context));
 }
 
 /// The web preview build (tool/build_preview.sh) has no lock: a const of its define, false in
