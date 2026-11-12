@@ -372,6 +372,18 @@ abstract final class TrustIds {
   static const pairflowCpPairAgainUnproven = 'g4.pairflow.cp_pair_again_unproven';
   static const pairflowCpHeldCancel = 'g4.pairflow.cp_held_cancel';
   static const pairflowSendCheck = 'g4.pairflow.send_check';
+  static const pairflowNsJoin = 'g4.pairflow.ns_join';
+  static const pairflowNsNotNow = 'g4.pairflow.ns_not_now';
+  static const pairflowNsWaitClose = 'g4.pairflow.ns_wait_close';
+  static const pairflowNsWaitCancel = 'g4.pairflow.ns_wait_cancel';
+  static const pairflowNsCheckClose = 'g4.pairflow.ns_check_close';
+  static const pairflowNsMatch = 'g4.pairflow.ns_match';
+  static const pairflowNsNoMatch = 'g4.pairflow.ns_no_match';
+  static const pairflowNsRemoveSheet = 'g4.pairflow.ns_remove_sheet';
+  static const pairflowNsRemoveConfirm = 'g4.pairflow.ns_remove_confirm';
+  static const pairflowNsRemoveKeep = 'g4.pairflow.ns_remove_keep';
+  static const pairflowNsLeave = 'g4.pairflow.ns_leave';
+  static const pairflowNsBlockJoin = 'g4.pairflow.ns_block_join';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -754,5 +766,17 @@ abstract final class TrustIds {
     'g4.pairflow.cp_pair_again_unproven',
     'g4.pairflow.cp_held_cancel',
     'g4.pairflow.send_check',
+    'g4.pairflow.ns_join',
+    'g4.pairflow.ns_not_now',
+    'g4.pairflow.ns_wait_close',
+    'g4.pairflow.ns_wait_cancel',
+    'g4.pairflow.ns_check_close',
+    'g4.pairflow.ns_match',
+    'g4.pairflow.ns_no_match',
+    'g4.pairflow.ns_remove_sheet',
+    'g4.pairflow.ns_remove_confirm',
+    'g4.pairflow.ns_remove_keep',
+    'g4.pairflow.ns_leave',
+    'g4.pairflow.ns_block_join',
   ];
 }
