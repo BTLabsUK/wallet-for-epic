@@ -444,6 +444,18 @@ void main() {
   });
 
   group('details', () {
+    /// The facts of a payment sit in its More sheet; this opens it, reads one row, closes it.
+    Future<void> expectInMore(WidgetTester tester, String text) async {
+      final more = find.byKey(txDetailsMoreKey);
+      await tester.ensureVisible(more);
+      await tester.pumpAndSettle();
+      await tester.tap(more);
+      await tester.pumpAndSettle();
+      expect(find.text(text), findsOneWidget);
+      await tester.tap(find.text(_l.commonDone));
+      await tester.pumpAndSettle();
+    }
+
     Future<void> details(
       WidgetTester tester,
       _Harness h,
@@ -461,9 +473,10 @@ void main() {
         final request = await h.issue(message: 'Dinner on Friday');
         await details(tester, h, request);
         expect(find.text(_l.issuedDetailsSection), findsOneWidget);
-        // One "Requested from" row names the payer, with the address.
-        expect(find.text(_l.txDetailsRequestedFrom), findsOneWidget);
-        expect(find.text('Dinner on Friday'), findsOneWidget);
+        // The hero line names the payer; the More sheet has the "Requested from" row.
+        expect(find.textContaining(shortAddress(_payer)), findsWidgets);
+        await expectInMore(tester, _l.txDetailsRequestedFrom);
+        expect(find.textContaining('Dinner on Friday'), findsOneWidget);
         expect(
           find.text(
             '${_l.issuedDetailsWaiting} · ${_l.invoiceTimeLeftHours(24, 0)}',
@@ -523,10 +536,14 @@ void main() {
       final request = await h.issue();
       await details(tester, h, request);
       // Status card and timeline: requested, then waiting for the payer.
-      expect(find.text(_l.txDetailsWaitingPayer), findsOneWidget);
       expect(find.text(_l.txStepRequested), findsOneWidget);
-      expect(find.text(_l.txStatusWaitingPayer), findsWidgets);
-      expect(find.text(_l.txDetailsRequestedFrom), findsOneWidget);
+      expect(find.text(_l.txStepPaid), findsOneWidget);
+      expect(
+        tester.any(find.text(_l.phoneProgPayerPending)) || tester.any(find.textContaining(_l.phoneProgPayerPendingNamed('').trim())),
+        isTrue,
+        reason: 'the current step says it waits for the payer',
+      );
+      await expectInMore(tester, _l.txDetailsRequestedFrom);
       for (final receive in [
         _l.txStepArrived,
         _l.txStatusWaitingSender,
@@ -546,7 +563,7 @@ void main() {
       expect(find.text(_l.txStepPaid), findsOneWidget);
       expect(find.text(_l.txStatusWaitingPayer), findsNothing);
       expect(find.text(_l.txStepArrived), findsNothing);
-      expect(find.text(_l.txDetailsRequestedFrom), findsOneWidget);
+      await expectInMore(tester, _l.txDetailsRequestedFrom);
     });
 
     testWidgets('an ended request says nothing arrived', (tester) async {

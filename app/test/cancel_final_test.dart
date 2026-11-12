@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/common.dart' show DangerButton;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -351,7 +352,7 @@ void main() {
         ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
     Future<void> cancel(WidgetTester tester) async {
-      await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first);
+      await tester.tap(find.widgetWithText(KitButton, _l.txDetailsCancelPayment).first);
       await tester.pumpAndSettle();
     }
 

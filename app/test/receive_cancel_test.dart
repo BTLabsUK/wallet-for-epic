@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/common.dart' show DangerButton;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -199,7 +200,8 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(txDetailsCancelHoldKey), findsOneWidget);
-      expect(find.text(_l.txStatusWaitingSender), findsWidgets, reason: 'the status stays the same');
+      expect(find.text(_l.lvPayArriving), findsOneWidget, reason: 'the steps stay on the first one');
+      expect(find.textContaining(_l.phoneProgSenderPending.replaceAll(RegExp(r'\.$'), '')), findsWidgets);
     });
 
     testWidgets('after the hold: a quiet Cancel, no small print', (tester) async {
@@ -207,7 +209,7 @@ void main() {
       await h.pump(tester);
       expect(find.byKey(txDetailsCancelReceiveKey), findsOneWidget);
       // One destructive look on both sides: the same red Cancel as a send's.
-      expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
+      expect(find.widgetWithText(KitButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(find.textContaining('Accepted'), findsNothing);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
     });
@@ -217,7 +219,7 @@ void main() {
       await h.pump(tester);
       expect(_cancelButton, findsNothing);
       expect(find.text(_l.txDetailsCancelWhileReported), findsOneWidget);
-      expect(find.text(_l.txStatusSenderPosted), findsWidgets);
+      expect(find.text(_l.phoneProgReported), findsOneWidget, reason: 'the network step says the sender reports it');
     });
 
     testWidgets('its sender cancelled it: Cancel at once, no hold and no accepted-ago line', (tester) async {
@@ -230,7 +232,7 @@ void main() {
       // The automatic release fails (no node), so the payment still waits here.
       h.session.cancelError = const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'down');
       await h.pump(tester);
-      expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
+      expect(find.widgetWithText(KitButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
       expect(find.textContaining('Accepted'), findsNothing);
       expect(find.text(_l.txStatusSenderCancelled), findsWidgets);
@@ -275,7 +277,7 @@ void main() {
     testWidgets('a send waiting for its recipient keeps its Cancel and words', (tester) async {
       final h = _Harness(_waiting(ago: const Duration(minutes: 2), kind: TxKind.sent, status: TxStatus.awaitingRecipient));
       await h.pump(tester);
-      expect(find.widgetWithText(OutlinedButton, _l.txDetailsCancelPayment), findsOneWidget);
+      expect(find.widgetWithText(KitButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
     });
   });

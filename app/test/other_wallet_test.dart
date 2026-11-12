@@ -111,7 +111,7 @@ void main() {
     expect(find.text(_l.txSentFromOtherWallet), findsWidgets);
     expect(find.text(_l.txDetailsOtherWallet), findsOneWidget);
     expect(find.text(_l.txDetailsSentTo), findsNothing);
-    expect(find.text(_l.txDetailsFee), findsOneWidget);
+    expect(find.text(_l.phonePayFee), findsOneWidget);
     expect(find.text(_l.txDetailsNotKnown), findsOneWidget);
     expect(find.byType(SentFromOtherWalletOffer), findsOneWidget);
   });
@@ -121,7 +121,7 @@ void main() {
     expect(find.text(_l.txReceivedByOtherWallet), findsWidgets);
     expect(find.text(_l.txDetailsOtherWalletIn), findsOneWidget);
     expect(find.text(_l.txDetailsReceivedFrom), findsNothing);
-    expect(find.text(_l.txDetailsFee), findsNothing);
+    expect(find.text(_l.phonePayFee), findsNothing);
     expect(find.byType(SentFromOtherWalletOffer), findsOneWidget);
   });
 

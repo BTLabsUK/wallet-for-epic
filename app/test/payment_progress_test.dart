@@ -2,7 +2,6 @@
 // The payment progress model: steps for a send, a receive and a request; the network step; the
 // steps going back; no steps where a status line says it all.
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/ui/kit/kit_steps.dart';
 import 'package:epic_wallet/src/ui/payment_progress.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
