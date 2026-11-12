@@ -526,5 +526,7 @@
 {"id": "g4.contact.payment", "screen": "contact", "family": ["android"], "keys": ["historyTitle"], "driver": false},
 {"id": "g4.home.backup_export", "screen": "home", "family": ["android"], "keys": ["homeHistoryExportButton"], "driver": false},
 {"id": "g4.home.backup_not_now", "screen": "home", "family": ["android"], "keys": ["homeHistoryReminderNotNow"], "driver": false},
-{"id": "g4.contact.copy_address", "screen": "contact", "family": ["android"], "keys": ["contactCopyAddress"], "driver": false}
+{"id": "g4.contact.copy_address", "screen": "contact", "family": ["android"], "keys": ["contactCopyAddress"], "driver": false},
+{"id": "g4.pay.copy-address", "screen": "payment", "family": ["android"], "keys": ["txDetailsCopyAddress"], "driver": false},
+{"id": "g4.pay.copy-explorer", "screen": "payment", "family": ["android"], "keys": ["txDetailsExplorerLink"], "driver": false}
 ]}

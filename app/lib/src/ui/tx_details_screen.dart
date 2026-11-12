@@ -1762,13 +1762,14 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
     if (mounted) setState(() => _behind = has == ExplorerHas.notYet ? height : null);
   }
 
-  Widget _copyRow(String title, String value, {required String notice, String? shown, String? hint, VoidCallback? after}) {
+  Widget _copyRow(String title, String value, {required String notice, String? shown, String? hint, VoidCallback? after, String? id}) {
     final t = context.tokens;
     return _FieldRow(
       title: title,
       body: shown ?? value,
       bodyLines: 3,
       hint: hint,
+      semanticsId: id,
       trailing: Icon(KitIcons.copy, size: 20, color: t.dim),
       onTap: () async {
         await copyText(context, value, notice);
@@ -1826,9 +1827,11 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
                 ),
             ],
           ),
-          trailing: IconButton(
-            tooltip: l.txDetailsCopyAddress,
-            icon: Icon(KitIcons.copy, size: 20, color: t.dim),
+          trailing: KitIconButton(
+            icon: KitIcons.copy,
+            label: l.txDetailsCopyAddress,
+            color: t.dim,
+            semanticsId: TrustIds.payCopyAddress,
             onPressed: () => copyText(context, counterparty, l.txDetailsAddressCopied),
           ),
         ),
@@ -1888,6 +1891,7 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
           notice: l.txDetailsLinkCopied,
           hint: _behind != null && _behind == tx.blockHeight?.toInt() ? l.txDetailsExplorerBehind : null,
           after: () => _checkExplorer(tx.blockHeight!.toInt()),
+          id: TrustIds.payCopyExplorer,
         ),
       // Advanced › Technical details shows the rows; without it this row shows them for this
       // view only (the switch stays off). Send feedback carries the slate id for support.
