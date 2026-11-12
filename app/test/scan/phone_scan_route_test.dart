@@ -324,7 +324,7 @@ void main() {
       expect(find.text('Invoice'), findsNothing);
 
       await _tap(tester, find.textContaining('Send 1.5'));
-      expect(find.widgetWithText(TextField, _l.pinLabel), findsOneWidget);
+      expect(pinAsked, findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
       await answerPin(tester);
       expect(h.session.epicboxSends.single.amount, _epic(1.5));

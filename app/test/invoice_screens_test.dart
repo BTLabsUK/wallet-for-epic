@@ -28,6 +28,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/pin_pad.dart';
+
 const String _pin = '123456';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
@@ -170,7 +172,7 @@ class _Harness {
     if (pin == null) {
       await tester.tap(find.text(_l.commonCancel));
     } else {
-      await tester.enterText(find.byType(TextField).last, pin);
+      await enterPin(tester, pin);
     }
     await tester.pumpAndSettle();
   }
@@ -319,6 +321,9 @@ void main() {
       await h.invoice(slateId: 'w1');
       await h.pump(tester, const HomeScreen());
       await tester.tap(_invoicesTile);
+      await tester.pumpAndSettle();
+      // The notice of the invoice's arrival floats over the list: it goes first.
+      h.container(tester).read(noticeProvider.notifier).clear();
       await tester.pumpAndSettle();
       await tester.tap(find.text('Anna'));
       await tester.pumpAndSettle();
@@ -715,7 +720,7 @@ void main() {
       slateId: 'inv-1',
     );
     await h.container(tester).read(pendingInvoicesProvider.notifier).refresh();
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(find.text(_l.invoicePinReason), findsNothing);
     expect(h.session.invoicePayments, 0);

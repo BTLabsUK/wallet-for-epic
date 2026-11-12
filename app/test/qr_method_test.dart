@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/ui/qr_show_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -508,7 +509,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       // The code opens by itself, hidden, with what to do.
-      expect(find.text(_l.qrShowTitlePayment), findsOneWidget);
+      expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
       expect(find.text(_l.qrStatusSendHidden), findsOneWidget);
       expect(h.session.sentAmounts, [_epic(1)]);
       await tester.tap(find.byKey(qrShowButtonKey));
@@ -522,7 +523,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text(_l.qrScanReply), findsWidgets);
+      expect(find.text(_l.phoneQrTitlePay), findsWidgets);
       final replyParts = await h.parts(_replyJson);
       final n = partCountOf(replyParts.first);
       await h.scan(tester, replyParts.take(1).toList());
@@ -608,7 +609,7 @@ void main() {
       await h.scan(tester, await h.parts(json));
       await tester.pump(qrCompleteFor);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(_l.slateAcceptPayment));
+      await tester.tap(find.text(_l.phoneAcceptAccept));
       await tester.pumpAndSettle();
       expect(find.byKey(showReplyQrKey), findsOneWidget);
       expect(find.text(_l.slateSaveToDevice), findsOneWidget);
@@ -643,21 +644,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // The payment screen of a scanned payment.
-      expect(find.text(_l.slateScannedPaymentTitle), findsOneWidget);
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
       expect(
-        find.text(_l.slateIncomingSendHintQr),
+        find.text(_l.phoneAcceptHintQr),
         findsOneWidget,
       );
       // Titled for the method, with no word of files.
-      expect(
-        find.descendant(
-          of: find.byType(AppBar),
-          matching: find.text(_l.methodDirectQr),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
       expect(find.text(_l.slateFileTitle), findsNothing);
-      await tester.tap(find.text(_l.slateAcceptPayment));
+      await tester.tap(find.text(_l.phoneAcceptAccept));
       await tester.pumpAndSettle();
       expect(
         find.text(_l.slateAcceptedHeadlineQr),
@@ -673,7 +668,7 @@ void main() {
       await tester.tap(find.byKey(showReplyQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text(_l.qrShowTitleReply), findsOneWidget);
+      expect(find.text(_l.phoneQrTitleReceive), findsWidgets);
       expect(find.text(_l.qrStatusReplyHidden), findsOneWidget);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
@@ -711,7 +706,7 @@ void main() {
       expect(find.text(_l.qrShowAgain), findsNothing);
       expect(find.byKey(qrShowButtonKey), findsNothing);
       expect(find.byKey(qrNextButtonKey), findsOneWidget);
-      expect(tester.widget(find.byKey(qrNextButtonKey)), isA<FilledButton>());
+      expect(tester.widget<KitButton>(find.byKey(qrNextButtonKey)).kind, KitButtonKind.gold);
       h.session.transactionsValue = [
         fakeTx(
           slateId: 'slate-1',

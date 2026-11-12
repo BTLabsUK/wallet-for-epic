@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/trust_ids.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart' show pairNameFieldKey;
@@ -55,6 +56,8 @@ import 'package:flutter/services.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/pin_pad.dart';
 import 'support/real_time.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
 
@@ -224,7 +227,7 @@ class _Harness {
 
   Future<void> unlock(WidgetTester tester) async {
     expect(find.text(_l.unlockTitle), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await typePin(tester, _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }
@@ -301,7 +304,15 @@ Future<void> _tapText(WidgetTester tester, String text) async {
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  // The restore screen's phrase box has no label of its own (its hint sits inside it).
+  final field = label == _l.restorePhraseLabel ? find.byType(TextField) : find.widgetWithText(TextField, label);
+  // The choose and repeat steps of a PIN take their digits on the wallet's keypad.
+  if (field.evaluate().isEmpty && pinPad.evaluate().isNotEmpty) {
+    await typePin(tester, text);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
+    return;
+  }
   await _reveal(tester, field);
   await tester.enterText(field, text);
   await tester.pumpAndSettle();
@@ -407,7 +418,7 @@ void main() {
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapKey(tester, ScanStart.changeKey);
       // January 2025 until another month is picked.
-      expect(find.text('January 2025'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
       await _tapKey(tester, StartMonthChoice.buttonKey);
       // Year and month, no day: the picker opens on the chosen month's year; four years back, July.
       expect(find.text('2025'), findsOneWidget);
@@ -418,7 +429,7 @@ void main() {
       await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
       final dayStart = DateTime(2021, 7);
-      expect(find.text('July 2021'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('July 2021')), findsOneWidget);
       expect(find.text('Scanning starts from block ${localInt(englishStrings, mainnetHeightForDate(dayStart))}.'), findsOneWidget);
       // An old month: no warning that coins may be missed.
       expect(find.byKey(StartMonthChoice.recentKey), findsNothing);
@@ -428,10 +439,7 @@ void main() {
 
       expect(h.session.lastStart, mainnetHeightForDate(dayStart));
       expect(find.text(_l.restoreDoneTitle), findsOneWidget);
-      expect(
-        find.textContaining('import the wallet data file you exported'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('come back from a wallet data file'), findsOneWidget);
 
       h.files.picks.add(await h.session.exportHistory());
       await _tapText(tester, 'Import wallet data');
@@ -983,10 +991,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNull);
       expect(find.text(_l.unlockTitle), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
       expect(h.bio.prompts, 1);
 
-      await tester.tap(find.text(_l.pinUseBiometrics));
+      await tester.tap(pinBiometricsKey);
       await tester.pumpAndSettle();
       expect(h.bio.prompts, 2);
       expect(h.container.read(sessionProvider), isNotNull);
@@ -1036,10 +1044,9 @@ void main() {
       expect(find.textContaining('Wrong PIN'), findsOneWidget);
       expect(tester.getRect(field), at, reason: 'the error line was held');
       await _enter(tester, 'Current PIN', _pin);
-      // The new PIN's field is named so, and takes the current one's place (#64).
-      expect(tester.getRect(find.widgetWithText(TextField, 'New PIN')), at);
+      // The new PIN is chosen and repeated on the keypad.
+      expect(pinPad, findsOneWidget);
       await _enter(tester, 'New PIN', '654321');
-      expect(tester.getRect(find.widgetWithText(TextField, 'Repeat PIN')), at);
       await _enter(tester, 'Repeat PIN', '654321');
 
       // Back on settings, docked under the app bar, and gone after a while.
@@ -1052,13 +1059,12 @@ void main() {
         findsOneWidget,
       );
       final docked = tester.getTopLeft(find.text('Change PIN'));
-      final dock = tester.getSize(find.byType(NoticeDock)).height;
-      expect(dock, greaterThan(0));
+      // The notice is a toast over the screen: its dock takes no room.
+      expect(tester.getSize(find.byType(NoticeDock)).height, 0);
       await tester.pump(noticeDuration(NoticeLevel.success));
       await tester.pumpAndSettle();
       expect(find.text(_l.settingsPinChanged), findsNothing);
-      // The dock closed, and the row under the finger stayed where it was (android-02).
-      expect(tester.getSize(find.byType(NoticeDock)).height, 0);
+      // The toast left, and the row under the finger stayed where it was (android-02).
       expect(tester.getTopLeft(find.text('Change PIN')), docked);
       expect(
         h.store.values['wallet.mainnet.pinSealed'],
@@ -1328,8 +1334,8 @@ void main() {
         // Create leads to the PIN; Back returns to the choice; Restore leads to the phrase.
         await tester.tap(create);
         await tester.pumpAndSettle();
-        expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
-        await tester.tap(find.byType(BackButton));
+        expect(pinPad, findsOneWidget);
+        await tester.tap(find.byIcon(KitIcons.back));
         await tester.pumpAndSettle();
         expect(create, findsOneWidget);
         // The system's Back does the same, instead of leaving the app.
@@ -1342,7 +1348,7 @@ void main() {
         await tester.tap(restore);
         await tester.pumpAndSettle();
         expect(find.byType(RestoreScreen), findsOneWidget);
-        expect(find.widgetWithText(TextField, _l.restorePhraseLabel), findsOneWidget);
+        expect(find.byType(TextField), findsOneWidget);
       },
     );
 
@@ -1387,7 +1393,7 @@ void main() {
         await _tapText(tester, 'Restore from phrase');
         expect(find.byType(RestoreScreen), findsOneWidget);
         expect(find.byType(DeleteWalletDialog), findsNothing);
-        await tester.tap(find.byType(BackButton));
+        await tester.tap(find.byIcon(KitIcons.back));
         await tester.pumpAndSettle();
         expect(find.byType(RestoreScreen), findsNothing);
         expect(find.text('Delete wallet'), findsOneWidget);
@@ -1457,7 +1463,7 @@ void main() {
         ..restoreScanPending = true
         ..controller = StreamController<ScanProgress>();
       await h.pump(tester);
-      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      await typePin(tester, _pin);
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -1481,7 +1487,7 @@ void main() {
       await frames();
       await tester.tap(find.text('Delete wallet').last);
       await frames();
-      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      await typePin(tester, _pin);
       await frames();
       await tester.pumpAndSettle();
 
@@ -1879,7 +1885,9 @@ void main() {
               }
             }
             await tester.pumpAndSettle(const Duration(milliseconds: 50));
-            expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+            // A toast over the screen: its dock takes no room, and the notice shows.
+            expect(tester.getSize(find.byType(NoticeDock).last).height, 0);
+            expect(find.text('Notifications off'), findsOneWidget);
             for (var r = 0; r < rows.length; r++) {
               expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
             }
@@ -2102,7 +2110,8 @@ void main() {
       h.store.values[levelKey] = '1';
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
-      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
+      // The start is a row with its value; the explanation sits under it.
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
       expect(find.byKey(ScanStart.changeKey), findsOneWidget);
       expect(find.byKey(ScanStart.infoKey), findsOneWidget);
       // Scan from the start lives in the info sheet; the choices are folded away.
@@ -2124,20 +2133,21 @@ void main() {
       await _tapText(tester, _l.firstRunRestore);
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
-      expect(find.text(_l.scanStartInfo), findsOneWidget);
+      // Under the row and in the sheet.
+      expect(find.text(_l.scanStartInfo), findsNWidgets(2));
       await _tapKey(tester, ScanStart.fromStartKey);
-      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
       // Already from the start: the info sheet offers nothing more.
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.byKey(ScanStart.fromStartKey), findsNothing);
       await _tapText(tester, _l.commonClose);
       // The way back: the calendar opens the month, January 2025 again.
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
       expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
       await _tapKey(tester, ScanStart.infoKey);
       await _tapKey(tester, ScanStart.fromStartKey);
-      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
       expect(find.byKey(StartMonthChoice.buttonKey), findsNothing, reason: 'the choices fold away');
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.commonContinue);
@@ -2160,7 +2170,7 @@ void main() {
       await _tapKey(tester, ScanStart.changeKey);
       expect(find.byKey(ScanStart.byKey), findsOneWidget);
       expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
-      expect(find.text('January 2025'), findsOneWidget);
+      expect(find.text('January 2025'), findsWidgets);
       await _tapText(tester, 'Block height');
       expect(
         find.widgetWithText(TextField, _l.restoreStartHeightLabel),

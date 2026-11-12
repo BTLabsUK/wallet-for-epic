@@ -25,6 +25,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/pin_pad.dart';
+
 const String _pin = '123456';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
@@ -493,7 +495,7 @@ void main() {
     expect(h.session.splits, isEmpty);
     await tester.tap(find.text(_l.outputsSplitInto(5)));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(h.session.splits, [5]);
     expect(find.text(_l.outputsSplitTitle), findsNothing);
@@ -509,7 +511,7 @@ void main() {
     await tester.tap(find.text(_l.outputsConsolidateAction));
     await tester.pumpAndSettle();
     expect(find.text(_l.outputsConsolidatePin), findsOneWidget);
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(h.session.consolidations, 1);
   });
@@ -526,7 +528,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.outputsConsolidateAction));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(h.session.consolidations, 1);
     expect(h.session.splits, isEmpty);
