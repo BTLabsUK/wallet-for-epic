@@ -12,10 +12,12 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/send_tracker.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
 import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/kit/kit_steps.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -477,12 +479,80 @@ void main() {
     });
   });
 
+  group('the amount page takes the hardware keyboard', () {
+    String shown(WidgetTester tester) => tester.widget<TextField>(sendAmount()).controller!.text;
+
+    Future<_Harness> toAmount(WidgetTester tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _enter(tester, 'To', _bob);
+      await _tap(tester, _continue);
+      expect(sendAmount(), findsOneWidget);
+      return h;
+    }
+
+    testWidgets('digits, a point or comma, and Backspace', (tester) async {
+      await toAmount(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit2);
+      await tester.sendKeyEvent(LogicalKeyboardKey.period);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpad5);
+      await tester.pump();
+      expect(shown(tester), '12.5');
+      // A second point is ignored; Backspace removes one character.
+      await tester.sendKeyEvent(LogicalKeyboardKey.comma);
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pump();
+      expect(shown(tester), '12.');
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.sendKeyEvent(LogicalKeyboardKey.backspace);
+      await tester.pump();
+      expect(shown(tester), '');
+      // A point first reads as 0.
+      await tester.sendKeyEvent(LogicalKeyboardKey.comma);
+      await tester.pump();
+      expect(shown(tester), anyOf('0.', '0,'));
+    });
+
+    testWidgets('Ctrl+V pastes a number, and leaves other text alone', (tester) async {
+      String? clip = '7,25';
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.getData') return <String, dynamic>{'text': clip};
+        return null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+      await toAmount(tester);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.control);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyV);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.control);
+      await tester.pumpAndSettle();
+      expect(shown(tester), matches(RegExp(r'^7[.,]25$')));
+      clip = 'send me 5 coins';
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.control);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyV);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.control);
+      await tester.pumpAndSettle();
+      expect(shown(tester), matches(RegExp(r'^7[.,]25$')));
+    });
+  });
+
   group('no coins', () {
     testWidgets('an empty wallet gets one line, not a form', (tester) async {
       final h = _Harness(summary: FakeWalletSession.emptySummary);
       await h.pump(tester);
       expect(find.text(_l.sendNoCoins), findsOneWidget);
       expect(sendTo(), findsNothing);
+    });
+
+    testWidgets('the empty state has the flow header: a close that leaves Send', (tester) async {
+      final h = _Harness(summary: FakeWalletSession.emptySummary);
+      await h.pump(tester);
+      final close = find.byIcon(KitIcons.close);
+      expect(close, findsOneWidget);
+      await tester.tap(close);
+      await tester.pumpAndSettle();
+      expect(h.done, 1);
     });
 
     testWidgets('coins only on hold: the form, and a line about them', (

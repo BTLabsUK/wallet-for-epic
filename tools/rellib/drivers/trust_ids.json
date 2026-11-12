@@ -584,5 +584,8 @@
 {"id": "g4.contact.copy_address", "screen": "contact", "family": ["android"], "keys": ["contactCopyAddress"], "driver": false},
 {"id": "g4.pay.copy-address", "screen": "payment", "family": ["android"], "keys": ["txDetailsCopyAddress"], "driver": false},
 {"id": "g4.pay.copy-explorer", "screen": "payment", "family": ["android"], "keys": ["txDetailsExplorerLink"], "driver": false},
-{"id": "g4.tour.offer.show", "screen": "tour", "family": ["android"], "keys": ["phoneTourOfferShow"], "driver": false}
+{"id": "g4.tour.offer.show", "screen": "tour", "family": ["android"], "keys": ["phoneTourOfferShow"], "driver": false},
+{"id": "g4.send.noAddress.cancel", "screen": "send", "role": "control", "keys": ["commonCancel"], "driver": false},
+{"id": "g4.send.track.ifNot", "screen": "send", "role": "control", "keys": ["sendTrackIfNot"], "driver": false},
+{"id": "g4.send.track.addContact", "screen": "send", "role": "control", "keys": ["phoneSendAddContact"], "driver": false}
 ]}

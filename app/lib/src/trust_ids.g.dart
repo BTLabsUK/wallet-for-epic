@@ -542,6 +542,9 @@ abstract final class TrustIds {
   static const payCopyAddress = 'g4.pay.copy-address';
   static const payCopyExplorer = 'g4.pay.copy-explorer';
   static const tourOfferShow = 'g4.tour.offer.show';
+  static const sendNoAddressCancel = 'g4.send.noAddress.cancel';
+  static const sendTrackIfNot = 'g4.send.track.ifNot';
+  static const sendTrackAddContact = 'g4.send.track.addContact';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -1094,5 +1097,8 @@ abstract final class TrustIds {
     'g4.pay.copy-address',
     'g4.pay.copy-explorer',
     'g4.tour.offer.show',
+    'g4.send.noAddress.cancel',
+    'g4.send.track.ifNot',
+    'g4.send.track.addContact',
   ];
 }

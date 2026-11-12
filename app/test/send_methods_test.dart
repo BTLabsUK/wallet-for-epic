@@ -422,7 +422,7 @@ void main() {
       await _enter(tester, 'To', _onion);
       expect(_lines(), [_l.methodDirectTor]);
       expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
-      expect(find.widgetWithText(OutlinedButton, 'Turn on Link · Tor'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(sendTurnOnMethodKey), matching: find.text('Turn on Link · Tor')), findsOneWidget);
       await _tap(tester, find.byKey(sendTurnOnMethodKey));
       expect(h.container.read(appSettingsProvider).value!.payments.linkTor, isTrue);
       expect(find.byKey(sendTurnOnMethodKey), findsNothing);
@@ -513,11 +513,56 @@ void main() {
       expect(h.session.epicboxSends, isEmpty);
     });
 
-    testWidgets('File as the default opens the file route', (tester) async {
+    // The phone never reads the stored Default method: Send opens on the recipient step.
+    for (final stored in [MethodKind.directFile, MethodKind.directQr]) {
+      testWidgets('a stored default of ${stored.name} still opens Send on the recipient step', (tester) async {
+        final h = _Harness();
+        await h.pump(tester, payments: PaymentPrefs(defaultMethod: stored));
+        expect(find.byKey(sendRecipientFieldKey), findsOneWidget);
+        expect(find.text(_l.sendMakeFile), findsNothing);
+        // Reading it never rewrites it.
+        expect(h.container.read(appSettingsProvider).value!.payments.defaultMethod, stored);
+      });
+    }
+  });
+
+  group('a contact with several addresses', () {
+    Future<_Harness> contactWithTwo(WidgetTester tester) async {
       final h = _Harness();
-      await h.pump(tester, payments: const PaymentPrefs(defaultMethod: MethodKind.directFile));
-      expect(find.text(lookupAppLocalizations(const Locale('en')).sendMakeFile), findsOneWidget);
-      expect(find.byKey(sendRecipientFieldKey), findsNothing);
+      await h.session.saveContact(contact: Contact(id: '', name: 'Two Tom', epicbox: _bob, http: _https));
+      // Epicbox is off (Link · HTTP counts as on): the first address has a reason.
+      await h.pump(tester, payments: const PaymentPrefs(epicbox: false, linkHttp: true));
+      await pickContact(tester, 'Two Tom');
+      return h;
+    }
+
+    testWidgets('the route row reads its method, its host and Change', (tester) async {
+      final handle = tester.ensureSemantics();
+      await contactWithTwo(tester);
+      final row = find.bySemanticsLabel(RegExp('^Sends by .*\n?.*${_l.sendRouteChange}\$', dotAll: true));
+      expect(row, findsOneWidget);
+      await _settle(tester);
+      handle.dispose();
+    });
+
+    testWidgets('an address whose method is off is dimmed and cannot be chosen', (tester) async {
+      final handle = tester.ensureSemantics();
+      await contactWithTwo(tester);
+      await _tap(tester, find.bySemanticsLabel(RegExp('${_l.sendRouteChange}\$')));
+      final first = find.byKey(const ValueKey('send-address-0'));
+      final second = find.byKey(const ValueKey('send-address-1'));
+      expect(first, findsOneWidget);
+      expect(second, findsOneWidget);
+      // The off method's reason sits in the choice, which is dimmed, disabled and does nothing.
+      bool enabledFlag(Finder f) => tester
+          .widgetList<Semantics>(find.ancestor(of: f, matching: find.byType(Semantics)))
+          .any((w) => w.properties.enabled == false);
+      expect(enabledFlag(first), isTrue);
+      expect(enabledFlag(second), isFalse);
+      await tester.tap(first, warnIfMissed: false);
+      await _settle(tester);
+      expect(first, findsOneWidget, reason: 'the sheet stays open');
+      handle.dispose();
     });
   });
 
