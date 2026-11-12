@@ -10,5 +10,6 @@
   "phoneKitStepDone": "Erledigt",
   "phoneKitStepNow": "In Arbeit",
   "phoneKitStepLater": "Noch nicht begonnen",
-  "phoneKitDismiss": "Schließen"
+  "phoneKitDismiss": "Schließen",
+  "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal."
 }

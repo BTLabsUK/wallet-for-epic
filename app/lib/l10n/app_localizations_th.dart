@@ -22892,4 +22892,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneProgReadyToSpend => 'พร้อมใช้จ่าย';
+
+  @override
+  String get phoneKitPickerSaveFailed => 'ไม่ได้บันทึก ลองอีกครั้ง';
 }

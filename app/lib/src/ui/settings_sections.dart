@@ -809,6 +809,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                 : (block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
             subtitleLines: 2,
             semanticsId: TrustIds.walletRecheck,
+            enabled: !recheckOff,
             onTap: recheckOff ? null : _rescan,
           ),
           // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
@@ -845,6 +846,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             title: l.settingsDeleteWallet,
             titleColor: t.risk,
             semanticsId: TrustIds.walletDelete,
+            enabled: !_busy,
             onTap: _busy ? null : _deleteWallet,
           ),
         ],

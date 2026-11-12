@@ -36623,6 +36623,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ready to spend'**
   String get phoneProgReadyToSpend;
+
+  /// Line in a picker sheet when saving the tapped choice failed; the sheet stays open.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved. Try again.'**
+  String get phoneKitPickerSaveFailed;
 }
 
 class _AppLocalizationsDelegate

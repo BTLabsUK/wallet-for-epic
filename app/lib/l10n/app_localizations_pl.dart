@@ -24090,4 +24090,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneProgReadyToSpend => 'Gotowe do wydania';
+
+  @override
+  String get phoneKitPickerSaveFailed => 'Nie zapisano. Spróbuj ponownie.';
 }

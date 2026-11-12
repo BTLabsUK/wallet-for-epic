@@ -24086,4 +24086,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneProgReadyToSpend => 'Готово к трате';
+
+  @override
+  String get phoneKitPickerSaveFailed => 'Не сохранено. Попробуйте ещё раз.';
 }

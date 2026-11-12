@@ -50,6 +50,7 @@ class KitRow extends StatelessWidget {
     this.valueIcon,
     this.compact = false,
     this.titleMarks = false,
+    this.enabled,
   });
 
   /// A row with a switch at the end. Tapping the row flips it.
@@ -78,7 +79,7 @@ class KitRow extends StatelessWidget {
       height: Kit.switchHeight,
       child: OverflowBox(
         maxHeight: Kit.hitMin,
-        child: IgnorePointer(child: ExcludeSemantics(child: KitSwitch(value: value, onChanged: onChanged))),
+        child: IgnorePointer(child: ExcludeSemantics(child: KitSwitch(value: value, onChanged: (_) {}))),
       ),
     ),
     onTap: onChanged == null ? null : () => onChanged(!value),
@@ -160,6 +161,12 @@ class KitRow extends StatelessWidget {
   /// The title draws "epic1" as its brand mark (the epic1 payments switch).
   final bool titleMarks;
 
+  /// Whether the row can be used. Null decides from the row: a row that is a control (it has a
+  /// chevron, or a switch) but has no [onTap] is waiting for something and reads as off; a plain
+  /// info row (title and value, no chevron) is never dimmed. Pass false for a button row that
+  /// has neither (Recheck balance, Delete wallet) while it waits.
+  final bool? enabled;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -215,7 +222,24 @@ class KitRow extends StatelessWidget {
         ),
       ),
     );
-    final row = onTap == null
+    // A control that cannot be used right now: dimmed, and read as disabled.
+    final off = enabled == false || (enabled == null && onTap == null && (chevron || toggled != null));
+    final row = off
+        ? Opacity(
+            opacity: Kit.disabledOpacity,
+            child: Semantics(
+              container: true,
+              enabled: false,
+              button: toggled == null,
+              toggled: toggled,
+              selected: isChoice ?? (selected ? true : null),
+              label: semanticsLabel,
+              hint: semanticsLabel == null ? null : subtitle,
+              excludeSemantics: semanticsLabel != null,
+              child: body,
+            ),
+          )
+        : onTap == null
         ? Semantics(container: true, child: body)
         : Semantics(
             button: toggled == null,
@@ -306,7 +330,7 @@ class KitSwitch extends StatelessWidget {
         label: semanticsLabel,
         onTap: enabled ? () => onChanged!(!value) : null,
         child: Opacity(
-          opacity: enabled ? 1 : 0.4,
+          opacity: enabled ? 1 : Kit.disabledOpacity,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: enabled ? () => onChanged!(!value) : null,

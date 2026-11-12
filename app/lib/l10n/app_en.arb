@@ -31699,5 +31699,9 @@
   "phoneProgReadyToSpend": "Ready to spend",
   "@phoneProgReadyToSpend": {
     "description": "Last step of a payment you receive: the money can be spent."
+  },
+  "phoneKitPickerSaveFailed": "Not saved. Try again.",
+  "@phoneKitPickerSaveFailed": {
+    "description": "Line in a picker sheet when saving the tapped choice failed; the sheet stays open."
   }
 }

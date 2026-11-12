@@ -23635,4 +23635,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneProgReadyToSpend => 'Bereit zum Ausgeben';
+
+  @override
+  String get phoneKitPickerSaveFailed =>
+      'Nicht gespeichert. Versuche es noch einmal.';
 }

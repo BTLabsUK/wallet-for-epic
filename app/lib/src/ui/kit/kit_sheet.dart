@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../../l10n.dart';
 import '../phone_sheet.dart';
 import '../theme/tokens.dart';
 import 'kit_button.dart';
@@ -169,14 +172,18 @@ class KitChoice<T> {
 }
 
 /// A picker (HANDOFF 7.5): a title and rows with a tick on the chosen one. A tap saves the
-/// choice and closes the sheet, so there is no Save button. Use [KitPickerSheet.show].
-class KitPickerSheet<T> extends StatelessWidget {
+/// choice and closes the sheet, so there is no Save button. [onSelected] may return a future:
+/// the sheet waits for it, and when it fails the sheet stays open with a line saying the choice
+/// was not saved. Use [KitPickerSheet.show].
+class KitPickerSheet<T> extends StatefulWidget {
   const KitPickerSheet({super.key, required this.title, required this.choices, required this.selected, required this.onSelected, this.subtitle, this.note});
 
   final String title;
   final List<KitChoice<T>> choices;
   final T? selected;
-  final ValueChanged<T> onSelected;
+
+  /// Saves the choice; a returned future is awaited (a throw keeps the sheet open).
+  final FutureOr<void> Function(T) onSelected;
 
   /// A line under the title saying what the choice does, and a note under the rows.
   final String? subtitle;
@@ -187,7 +194,7 @@ class KitPickerSheet<T> extends StatelessWidget {
     required String title,
     required List<KitChoice<T>> choices,
     required T? selected,
-    ValueChanged<T>? onSelected,
+    FutureOr<void> Function(T)? onSelected,
     String? subtitle,
     String? note,
   }) => showKitSheet<T>(
@@ -198,47 +205,77 @@ class KitPickerSheet<T> extends StatelessWidget {
       selected: selected,
       subtitle: subtitle,
       note: note,
-      onSelected: (v) {
-        onSelected?.call(v);
-        Navigator.of(sheetContext).pop(v);
+      onSelected: (v) async {
+        if (onSelected != null) await Future<void>.sync(() => onSelected(v));
+        if (sheetContext.mounted) Navigator.of(sheetContext).pop(v);
       },
     ),
   );
 
   @override
+  State<KitPickerSheet<T>> createState() => _KitPickerSheetState<T>();
+}
+
+class _KitPickerSheetState<T> extends State<KitPickerSheet<T>> {
+  bool _busy = false;
+  bool _failed = false;
+
+  Future<void> _pick(T value) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _failed = false;
+    });
+    try {
+      await Future<void>.sync(() => widget.onSelected(value));
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    }
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final w = widget;
     return KitSheet(
-      title: title,
+      title: w.title,
+      // A subtitle sits 8 under the title (`.hint`), which already leaves 14.
+      titleGap: w.subtitle != null ? 8 : 14,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (subtitle != null)
+          if (w.subtitle != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-              child: Text(subtitle!, style: KitType.body.copyWith(color: t.dim)),
+              child: Text(w.subtitle!, style: KitType.hint.copyWith(color: t.dim)),
             ),
           KitGroup(
             onSheet: true,
             dividerInset: Kit.dividerInsetPlain,
             children: [
-              for (final c in choices)
+              for (final c in w.choices)
                 KitRow(
                   title: c.title,
                   subtitle: c.subtitle,
                   leading: c.leading,
                   size: KitRowSize.sheet,
-                  selected: c.value == selected,
-                  onTap: () => onSelected(c.value),
+                  selected: c.value == w.selected,
+                  onTap: () => _pick(c.value),
                   semanticsId: c.semanticsId,
                 ),
             ],
           ),
-          if (note != null)
+          if (_failed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Text(note!, style: KitType.rowSub.copyWith(color: t.dim)),
+              child: Semantics(liveRegion: true, child: Text(context.l10n.phoneKitPickerSaveFailed, style: KitType.rowSub.copyWith(color: t.risk))),
+            ),
+          if (w.note != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Text(w.note!, style: KitType.rowSub.copyWith(color: t.dim)),
             ),
         ],
       ),
