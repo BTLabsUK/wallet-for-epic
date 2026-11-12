@@ -262,6 +262,8 @@ class _KitPickerSheetState<T> extends State<KitPickerSheet<T>> {
                   leading: c.leading,
                   size: KitRowSize.sheet,
                   selected: c.value == w.selected,
+                  // Settings-Picker: the chosen row keeps the row weight, the others are regular.
+                  titleStyle: c.value == w.selected ? null : const TextStyle(fontWeight: FontWeight.w400),
                   onTap: () => _pick(c.value),
                   semanticsId: c.semanticsId,
                 ),
@@ -272,10 +274,11 @@ class _KitPickerSheetState<T> extends State<KitPickerSheet<T>> {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Semantics(liveRegion: true, child: Text(context.l10n.phoneKitPickerSaveFailed, style: KitType.rowSub.copyWith(color: t.risk))),
             ),
+          // `.note`: 13 px, line height 1.45, faint, 8 under the rows.
           if (w.note != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Text(w.note!, style: KitType.rowSub.copyWith(color: t.dim)),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: Text(w.note!, style: KitType.hint.copyWith(color: t.faint)),
             ),
         ],
       ),
