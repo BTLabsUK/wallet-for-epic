@@ -188,16 +188,6 @@ String currencyName(AppLocalizations l, String code) => switch (code) {
 };
 
 
-/// When a pairing invite went out, as a fixed fact for its row (never a ticking age): the clock
-/// time today, "yesterday", else the day.
-String invitedLine(AppLocalizations l, DateTime at, DateTime now) {
-  final a = at.toLocal(), n = now.toLocal();
-  final day = DateTime(a.year, a.month, a.day), today = DateTime(n.year, n.month, n.day);
-  if (day == today) return l.pairInvitedAt(localClock(l, a));
-  if (today.difference(day).inDays == 1) return l.pairInvitedYesterday;
-  return l.pairInvitedOn(localDay(l, a));
-}
-
 /// The line under a payment's Message: which way the text went. The sender's message on an
 /// incoming payment is "From the sender"; this wallet's own is "Sent to the recipient" (or to
 /// the sender, for the receiver's message on an invoice).
