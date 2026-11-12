@@ -9,7 +9,7 @@ import '../theme/tokens.dart';
 /// 5.5): the brand's frame on a QR code and on the needs-you card. They are painted outside
 /// the child's box, so leave [inset] of room around it.
 class KitCornerMarks extends StatelessWidget {
-  const KitCornerMarks({super.key, required this.child, this.inset = 6, this.arm = 11, this.thickness = 2, this.color});
+  const KitCornerMarks({super.key, required this.child, this.inset = 6, this.arm = 11, this.thickness = 1.5, this.color});
 
   final Widget child;
   final double inset;

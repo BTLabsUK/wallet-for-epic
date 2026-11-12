@@ -13,7 +13,7 @@ enum KitDirection { out, incoming, pending }
 
 /// A contact or a thing in a list: 40 px (radius 13) or, in the contact strip, 54 px (radius
 /// 18). Shows [initials] in gold, or [icon]. [neutral] makes the figure dim, for a thing that
-/// is not a person. A [direction] adds the 19 px badge at the top-left corner.
+/// is not a person. A [direction] adds the 19 px badge at the bottom-right corner.
 class KitAvatar extends StatelessWidget {
   const KitAvatar({super.key, this.initials, this.icon, this.large = false, this.neutral = false, this.direction, this.semanticsLabel})
     : assert(initials != null || icon != null);
@@ -58,7 +58,7 @@ class KitAvatar extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             face,
-            if (d != null) Positioned(left: -5, top: -5, child: _Badge(d)),
+            if (d != null) Positioned(right: -5, bottom: -5, child: _Badge(d)),
           ],
         ),
       ),
@@ -83,8 +83,9 @@ class _Badge extends StatelessWidget {
       width: Kit.avatarBadge,
       height: Kit.avatarBadge,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: t.surface, shape: BoxShape.circle),
-      child: Icon(direction == KitDirection.pending ? Icons.more_horiz_rounded : icon, size: 12, color: color),
+      // `.dir`: 19 round on #111115 (the group's ground), the arrow small inside.
+      decoration: BoxDecoration(color: t.group.withValues(alpha: 1), shape: BoxShape.circle),
+      child: Icon(direction == KitDirection.pending ? KitIcons.more : icon, size: 11, color: color),
     );
   }
 }

@@ -53,7 +53,7 @@ class KitTabBar extends StatelessWidget {
   final String scanLabel;
   final String? scanId;
 
-  static const double _inset = 24;
+  static const double _inset = 34;
 
   @override
   Widget build(BuildContext context) {
@@ -66,13 +66,15 @@ class KitTabBar extends StatelessWidget {
         label: scanLabel,
         excludeSemantics: true,
         onTap: onScan,
-        child: Center(
+        child: Align(
+          alignment: Alignment.topCenter,
           key: kitScanButtonKey,
           child: KitPress(
             onTap: onScan,
             radius: Kit.rButton,
             button: false,
             child: Container(
+              margin: const EdgeInsets.only(top: 7),
               width: Kit.scanButton,
               height: Kit.scanButton,
               decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(Kit.rButton)),
@@ -85,20 +87,23 @@ class KitTabBar extends StatelessWidget {
     Widget tab(int i) => Expanded(
       child: _Tab(item: items[i], selected: i == selected, onTap: () => onSelect(i)),
     );
+    // `.tabs`: 86 tall with the home-indicator zone, 9 above the tabs, the bar a hair darker than the ground.
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: t.bg,
+        color: t.bg.withValues(alpha: 0.84),
         border: Border(top: BorderSide(color: t.hair)),
       ),
       child: Padding(
-        padding: EdgeInsets.only(bottom: bottom > _inset ? bottom : _inset),
+        padding: EdgeInsets.only(bottom: bottom > _inset ? bottom : _inset, left: 6, right: 6),
         child: SizedBox(
-          height: Kit.tabBar - _inset,
+          height: Kit.tabBar - _inset - 1,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               tab(0),
               tab(1),
-              Expanded(child: scan),
+              // `.tabs .scan`: 50 x 50 with a 10 px margin each side, 2 up from the tabs' line.
+              SizedBox(width: Kit.scanButton + 20, child: scan),
               tab(2),
               tab(3),
             ],
@@ -119,7 +124,7 @@ class _Tab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final color = selected ? t.accent : t.dim;
+    final color = selected ? t.accent : t.faint;
     final glyph = Icon(selected ? item.iconOn : item.icon, size: 24, color: color);
     final label = item.badge > 0 ? '${item.label}, ${item.badge}' : item.label;
     return kitId(
@@ -133,38 +138,45 @@ class _Tab extends StatelessWidget {
         child: InkResponse(
           onTap: onTap,
           radius: 36,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  glyph,
-                  if (item.badge > 0)
-                    PositionedDirectional(
-                      top: -4,
-                      end: -9,
-                      child: Container(
-                        constraints: const BoxConstraints(minWidth: 16),
-                        height: 16,
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(color: t.accent, borderRadius: BorderRadius.circular(Kit.rPill)),
-                        child: Text(
-                          '${item.badge}',
-                          style: KitType.tag.copyWith(fontSize: 10.5, color: t.accentInk, height: 1),
+              // `.tab`: gap 4, the 9 px of the bar's padding above.
+              Padding(
+                padding: const EdgeInsets.only(top: 9),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    glyph,
+                    const SizedBox(height: 4),
+                    Text(item.label, style: KitType.tabLabel.copyWith(color: color), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              // `.tab .bdg`: 17 tall, top -3 of the tab, 6 right of its centre.
+              if (item.badge > 0)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Transform.translate(
+                      offset: const Offset(6, -3),
+                      child: FractionalTranslation(
+                        translation: const Offset(0.5, 0),
+                        child: Container(
+                          constraints: const BoxConstraints(minWidth: 17),
+                          height: 17,
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(color: t.accent, borderRadius: BorderRadius.circular(9)),
+                          child: Text(
+                            '${item.badge}',
+                            style: KitType.tabLabel.copyWith(fontWeight: FontWeight.w600, color: t.accentInk, height: 1),
+                          ),
                         ),
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                item.label,
-                style: KitType.tag.copyWith(color: color),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+                  ),
+                ),
             ],
           ),
         ),
