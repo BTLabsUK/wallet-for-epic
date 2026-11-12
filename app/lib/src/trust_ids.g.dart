@@ -331,6 +331,27 @@ abstract final class TrustIds {
   static const pairflowOutcomeClose = 'g4.pairflow.outcome_close';
   static const pairflowOutcomeUpdate = 'g4.pairflow.outcome_update';
   static const pairflowOutcomeBack = 'g4.pairflow.outcome_back';
+  static const pairflowAddButton = 'g4.pairflow.add_button';
+  static const pairflowAddSheet = 'g4.pairflow.add_sheet';
+  static const pairflowAddNew = 'g4.pairflow.add_new';
+  static const pairflowAddExisting = 'g4.pairflow.add_existing';
+  static const pairflowCheckClose = 'g4.pairflow.check_close';
+  static const pairflowCheckMatch = 'g4.pairflow.check_match';
+  static const pairflowCheckNoMatch = 'g4.pairflow.check_no_match';
+  static const pairflowCheckStop = 'g4.pairflow.check_stop';
+  static const pairflowCheckStopBack = 'g4.pairflow.check_stop_back';
+  static const pairflowCheckStopSheet = 'g4.pairflow.check_stop_sheet';
+  static const pairflowOtherCancel = 'g4.pairflow.other_cancel';
+  static const pairflowOtherNew = 'g4.pairflow.other_new';
+  static const pairflowOtherSheet = 'g4.pairflow.other_sheet';
+  static const pairflowRemoveConfirm = 'g4.pairflow.remove_confirm';
+  static const pairflowRemoveKeep = 'g4.pairflow.remove_keep';
+  static const pairflowRemoveSheet = 'g4.pairflow.remove_sheet';
+  static const pairflowResultAddNamed = 'g4.pairflow.result_add_named';
+  static const pairflowResultCheckNow = 'g4.pairflow.result_check_now';
+  static const pairflowResultClose = 'g4.pairflow.result_close';
+  static const pairflowResultDone = 'g4.pairflow.result_done';
+  static const pairflowResultLabel = 'g4.pairflow.result_label';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
 
@@ -672,5 +693,26 @@ abstract final class TrustIds {
     'g4.pairflow.outcome_close',
     'g4.pairflow.outcome_update',
     'g4.pairflow.outcome_back',
+    'g4.pairflow.add_button',
+    'g4.pairflow.add_sheet',
+    'g4.pairflow.add_new',
+    'g4.pairflow.add_existing',
+    'g4.pairflow.check_close',
+    'g4.pairflow.check_match',
+    'g4.pairflow.check_no_match',
+    'g4.pairflow.check_stop',
+    'g4.pairflow.check_stop_back',
+    'g4.pairflow.check_stop_sheet',
+    'g4.pairflow.other_cancel',
+    'g4.pairflow.other_new',
+    'g4.pairflow.other_sheet',
+    'g4.pairflow.remove_confirm',
+    'g4.pairflow.remove_keep',
+    'g4.pairflow.remove_sheet',
+    'g4.pairflow.result_add_named',
+    'g4.pairflow.result_check_now',
+    'g4.pairflow.result_close',
+    'g4.pairflow.result_done',
+    'g4.pairflow.result_label',
   ];
 }
