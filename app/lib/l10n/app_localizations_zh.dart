@@ -21799,14 +21799,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneQrHoldHint => 'Hold their camera to this code.';
+  String get phoneQrHoldHint => '请让对方的相机对准此码';
 
   @override
-  String get phoneQrReplyShowing =>
-      'The payment is made when they scan it. It then shows in Activity.';
+  String get phoneQrReplyShowing => '对方扫描后即付款，之后会显示在活动中。';
 
   @override
-  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+  String get phoneQrAimAnswer => '对准对方手机上的回复码';
 
   @override
   String get phoneSendSearchHint => '姓名、地址或链接';
@@ -21883,20 +21882,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneTourOfferShow => '带我看看';
 
   @override
-  String get phoneQrDoneScanned => 'Your code was scanned';
+  String get phoneQrDoneScanned => '你的码已被扫描';
 
   @override
-  String get phoneQrDoneAnswerRead => 'Their answer was read';
+  String get phoneQrDoneAnswerRead => '对方的回复已读取';
 
   @override
-  String get phoneQrDoneCodeRead => 'You scanned their code';
+  String get phoneQrDoneCodeRead => '你已扫描对方的码';
 
   @override
-  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+  String get phoneQrDoneAnswerSeen => '对方已扫描你的回复';
 
   @override
-  String get phoneQrDoneFinishes =>
-      'It finishes by itself. You can put the phone away.';
+  String get phoneQrDoneFinishes => '会自动完成。你可以收起手机。';
 
   @override
   String phoneRecvFileLead(String amount) {
@@ -21904,11 +21902,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+  String get phoneProgWaitingAnswer => '等待对方钱包回复';
 
   @override
   String phoneProgWaitingAnswerNamed(String name) {
-    return 'Waiting for $name\'s wallet to answer';
+    return '等待 $name 的钱包回复';
   }
 
   @override
@@ -21936,73 +21934,65 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneSettingsFailover => 'Switch node by itself';
+  String get phoneSettingsFailover => '自动切换节点';
 
   @override
-  String get phoneSettingsModeNormalLine =>
-      'Connects directly to the node, Epicbox and other services';
+  String get phoneSettingsModeNormalLine => '直接连接节点、Epicbox 和其他服务';
 
   @override
-  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+  String get phoneSettingsModeTorLine => '一切都经过 Tor。较慢。';
 
   @override
-  String get phoneSettingsModeNodeLine =>
-      'Only the node connects. Epicbox, links and price checks are off.';
+  String get phoneSettingsModeNodeLine => '只有节点连接。Epicbox、链接和价格查询已关闭。';
 
   @override
-  String get phoneSettingsModeKillLine =>
-      'Nothing connects. Payments are finished offline and posted from another device.';
+  String get phoneSettingsModeKillLine => '没有任何连接。付款离线完成，再从另一台设备发布。';
 
   @override
-  String get phoneSettingsAdvIntro =>
-      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+  String get phoneSettingsAdvIntro => '每个开关会在对应位置多显示钱包的一部分。已存储的内容不变。';
 
   @override
-  String get phoneSettingsAdvShows => 'Show more';
+  String get phoneSettingsAdvShows => '显示更多';
 
   @override
-  String get phoneSettingsConfirmationsLine =>
-      'Blocks before a payment counts as yours to spend';
+  String get phoneSettingsConfirmationsLine => '付款需要经过多少个区块才算可花费';
 
   @override
-  String get phoneSettingsEpic1Line =>
-      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+  String get phoneSettingsEpic1Line => '用 epic1 链接和当面码付款与收款。经典付款仍可到账。';
 
   @override
-  String get phoneHelpSecStart => 'Getting started';
+  String get phoneHelpSecStart => '开始使用';
 
   @override
-  String get phoneHelpSecHow => 'How payments work';
+  String get phoneHelpSecHow => '付款如何运作';
 
   @override
-  String get phoneHelpSecNetwork => 'Networks and privacy';
+  String get phoneHelpSecNetwork => '网络与隐私';
 
   @override
-  String get phoneHelpSecSafety => 'Keeping it safe';
+  String get phoneHelpSecSafety => '保管安全';
 
   @override
   String get phoneHelpSecMaintenance => 'Upkeep';
 
   @override
-  String get phoneHelpSecTrouble => 'When something is wrong';
+  String get phoneHelpSecTrouble => '出现问题时';
 
   @override
-  String get phoneRestoreTitle => 'Restore a wallet';
+  String get phoneRestoreTitle => '恢复钱包';
 
   @override
   String phoneRestoreWordsHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words so far.',
-      one: '1 word so far.',
+      other: '目前 $count 个词。',
     );
-    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+    return '$_temp0恢复短语有 12、15、18、21 或 24 个词。';
   }
 
   @override
-  String get phoneRestoreStartNote =>
-      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+  String get phoneRestoreStartNote => '寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox 地址';
@@ -22042,12 +22032,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneSendHelpStep3Sub => '几个区块之后，对方就可以花费这笔钱。';
 
   @override
-  String get phoneProgArrived => 'Arrived';
+  String get phoneProgArrived => '已到账';
 
   @override
-  String get phoneProgFinishesByItself =>
-      'It finishes by itself. You can leave this screen.';
+  String get phoneProgFinishesByItself => '会自动完成。你可以离开此页面。';
 
   @override
-  String get phoneProgReadyToSpend => 'Ready to spend';
+  String get phoneProgReadyToSpend => '可以花费';
 }

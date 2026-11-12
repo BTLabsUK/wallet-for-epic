@@ -22639,14 +22639,13 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get phoneQrHoldHint => 'Hold their camera to this code.';
+  String get phoneQrHoldHint => 'ให้กล้องของเขาสแกนโค้ดนี้';
 
   @override
-  String get phoneQrReplyShowing =>
-      'The payment is made when they scan it. It then shows in Activity.';
+  String get phoneQrReplyShowing => 'จะจ่ายเมื่อเขาสแกน จากนั้นจะแสดงในกิจกรรม';
 
   @override
-  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+  String get phoneQrAimAnswer => 'เล็งไปที่คำตอบบนโทรศัพท์ของเขา';
 
   @override
   String get phoneSendSearchHint => 'ชื่อ ที่อยู่ หรือลิงก์';
@@ -22725,20 +22724,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneTourOfferShow => 'ดูเลย';
 
   @override
-  String get phoneQrDoneScanned => 'Your code was scanned';
+  String get phoneQrDoneScanned => 'โค้ดของคุณถูกสแกนแล้ว';
 
   @override
-  String get phoneQrDoneAnswerRead => 'Their answer was read';
+  String get phoneQrDoneAnswerRead => 'อ่านคำตอบของเขาแล้ว';
 
   @override
-  String get phoneQrDoneCodeRead => 'You scanned their code';
+  String get phoneQrDoneCodeRead => 'คุณสแกนโค้ดของเขาแล้ว';
 
   @override
-  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+  String get phoneQrDoneAnswerSeen => 'เขาสแกนคำตอบของคุณแล้ว';
 
   @override
-  String get phoneQrDoneFinishes =>
-      'It finishes by itself. You can put the phone away.';
+  String get phoneQrDoneFinishes => 'เสร็จเองโดยอัตโนมัติ เก็บโทรศัพท์ได้เลย';
 
   @override
   String phoneRecvFileLead(String amount) {
@@ -22746,11 +22744,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+  String get phoneProgWaitingAnswer => 'รอกระเป๋าของเขาตอบกลับ';
 
   @override
   String phoneProgWaitingAnswerNamed(String name) {
-    return 'Waiting for $name\'s wallet to answer';
+    return 'รอกระเป๋าของ $name ตอบกลับ';
   }
 
   @override
@@ -22778,73 +22776,72 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get phoneSettingsFailover => 'Switch node by itself';
+  String get phoneSettingsFailover => 'สลับโหนดเอง';
 
   @override
   String get phoneSettingsModeNormalLine =>
-      'Connects directly to the node, Epicbox and other services';
+      'เชื่อมต่อโหนด Epicbox และบริการอื่นโดยตรง';
 
   @override
-  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+  String get phoneSettingsModeTorLine => 'ทุกอย่างผ่าน Tor ช้ากว่า';
 
   @override
   String get phoneSettingsModeNodeLine =>
-      'Only the node connects. Epicbox, links and price checks are off.';
+      'มีเพียงโหนดที่เชื่อมต่อ Epicbox ลิงก์ และการเช็กราคาจะปิด';
 
   @override
   String get phoneSettingsModeKillLine =>
-      'Nothing connects. Payments are finished offline and posted from another device.';
+      'ไม่มีอะไรเชื่อมต่อ การจ่ายเงินจะเสร็จแบบออฟไลน์และส่งจากอุปกรณ์อื่น';
 
   @override
   String get phoneSettingsAdvIntro =>
-      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+      'สวิตช์แต่ละตัวแสดงส่วนของกระเป๋าเพิ่มอีกหนึ่งส่วนในที่ของมัน ข้อมูลที่เก็บไว้ไม่เปลี่ยน';
 
   @override
-  String get phoneSettingsAdvShows => 'Show more';
+  String get phoneSettingsAdvShows => 'แสดงเพิ่มเติม';
 
   @override
   String get phoneSettingsConfirmationsLine =>
-      'Blocks before a payment counts as yours to spend';
+      'จำนวนบล็อกก่อนที่เงินจะใช้จ่ายได้';
 
   @override
   String get phoneSettingsEpic1Line =>
-      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+      'จ่ายและรับด้วยลิงก์ epic1 และโค้ดต่อหน้า การจ่ายแบบเดิมยังเข้ามาตามปกติ';
 
   @override
-  String get phoneHelpSecStart => 'Getting started';
+  String get phoneHelpSecStart => 'เริ่มต้นใช้งาน';
 
   @override
-  String get phoneHelpSecHow => 'How payments work';
+  String get phoneHelpSecHow => 'การจ่ายเงินทำงานอย่างไร';
 
   @override
-  String get phoneHelpSecNetwork => 'Networks and privacy';
+  String get phoneHelpSecNetwork => 'เครือข่ายและความเป็นส่วนตัว';
 
   @override
-  String get phoneHelpSecSafety => 'Keeping it safe';
+  String get phoneHelpSecSafety => 'รักษาให้ปลอดภัย';
 
   @override
   String get phoneHelpSecMaintenance => 'Upkeep';
 
   @override
-  String get phoneHelpSecTrouble => 'When something is wrong';
+  String get phoneHelpSecTrouble => 'เมื่อมีบางอย่างผิดปกติ';
 
   @override
-  String get phoneRestoreTitle => 'Restore a wallet';
+  String get phoneRestoreTitle => 'กู้คืนกระเป๋า';
 
   @override
   String phoneRestoreWordsHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words so far.',
-      one: '1 word so far.',
+      other: 'ตอนนี้ $count คำ',
     );
-    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+    return '$_temp0 วลีกู้คืนมี 12, 15, 18, 21 หรือ 24 คำ';
   }
 
   @override
   String get phoneRestoreStartNote =>
-      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+      'การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ';
 
   @override
   String get phoneSendRouteEpicbox => 'ที่อยู่ Epicbox';
@@ -22886,12 +22883,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get phoneSendHelpStep3Sub => 'หลังผ่านไปไม่กี่บล็อก เขาก็นำไปใช้ได้';
 
   @override
-  String get phoneProgArrived => 'Arrived';
+  String get phoneProgArrived => 'มาถึงแล้ว';
 
   @override
   String get phoneProgFinishesByItself =>
-      'It finishes by itself. You can leave this screen.';
+      'เสร็จเองโดยอัตโนมัติ ออกจากหน้านี้ได้เลย';
 
   @override
-  String get phoneProgReadyToSpend => 'Ready to spend';
+  String get phoneProgReadyToSpend => 'พร้อมใช้จ่าย';
 }

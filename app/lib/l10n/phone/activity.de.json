@@ -83,10 +83,10 @@
   "phonePayRouteSubInPerson": "Zwei Handys zeigen sich einen Code",
   "phonePayRouteSubFile": "Eine Zahlungsdatei, die hin und her geht",
   "phonePayRouteSubTor": "Direkt an ihre Wallet, über Tor",
-  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneProgWaitingAnswer": "Warten, bis ihr Wallet antwortet",
+  "phoneProgWaitingAnswerNamed": "Warten, bis das Wallet von {name} antwortet",
   "phoneProgAtTime": "um {time}",
-  "phoneProgArrived": "Arrived",
-  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
-  "phoneProgReadyToSpend": "Ready to spend"
+  "phoneProgArrived": "Angekommen",
+  "phoneProgFinishesByItself": "Es schließt von selbst ab. Du kannst diesen Bildschirm verlassen.",
+  "phoneProgReadyToSpend": "Bereit zum Ausgeben"
 }

@@ -23831,14 +23831,14 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get phoneQrHoldHint => 'Hold their camera to this code.';
+  String get phoneQrHoldHint => 'Przyłóż ich aparat do tego kodu.';
 
   @override
   String get phoneQrReplyShowing =>
-      'The payment is made when they scan it. It then shows in Activity.';
+      'Płatność nastąpi, gdy zeskanują kod. Potem pojawi się w Aktywności.';
 
   @override
-  String get phoneQrAimAnswer => 'Point at the answer on their phone.';
+  String get phoneQrAimAnswer => 'Skieruj na odpowiedź na ich telefonie.';
 
   @override
   String get phoneSendSearchHint => 'Nazwa, adres lub link';
@@ -23918,20 +23918,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get phoneTourOfferShow => 'Pokaż';
 
   @override
-  String get phoneQrDoneScanned => 'Your code was scanned';
+  String get phoneQrDoneScanned => 'Twój kod został zeskanowany';
 
   @override
-  String get phoneQrDoneAnswerRead => 'Their answer was read';
+  String get phoneQrDoneAnswerRead => 'Ich odpowiedź została odczytana';
 
   @override
-  String get phoneQrDoneCodeRead => 'You scanned their code';
+  String get phoneQrDoneCodeRead => 'Zeskanowano ich kod';
 
   @override
-  String get phoneQrDoneAnswerSeen => 'They scanned your answer';
+  String get phoneQrDoneAnswerSeen => 'Zeskanowali Twoją odpowiedź';
 
   @override
   String get phoneQrDoneFinishes =>
-      'It finishes by itself. You can put the phone away.';
+      'Zakończy się samo. Możesz schować telefon.';
 
   @override
   String phoneRecvFileLead(String amount) {
@@ -23939,11 +23939,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get phoneProgWaitingAnswer => 'Waiting for their wallet to answer';
+  String get phoneProgWaitingAnswer => 'Czeka, aż ich portfel odpowie';
 
   @override
   String phoneProgWaitingAnswerNamed(String name) {
-    return 'Waiting for $name\'s wallet to answer';
+    return 'Czeka, aż portfel $name odpowie';
   }
 
   @override
@@ -23971,73 +23971,75 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get phoneSettingsFailover => 'Switch node by itself';
+  String get phoneSettingsFailover => 'Przełączaj węzeł sam';
 
   @override
   String get phoneSettingsModeNormalLine =>
-      'Connects directly to the node, Epicbox and other services';
+      'Łączy się bezpośrednio z węzłem, Epicbox i innymi usługami';
 
   @override
-  String get phoneSettingsModeTorLine => 'Everything goes through Tor. Slower.';
+  String get phoneSettingsModeTorLine => 'Wszystko idzie przez Tor. Wolniej.';
 
   @override
   String get phoneSettingsModeNodeLine =>
-      'Only the node connects. Epicbox, links and price checks are off.';
+      'Łączy się tylko węzeł. Epicbox, linki i sprawdzanie cen są wyłączone.';
 
   @override
   String get phoneSettingsModeKillLine =>
-      'Nothing connects. Payments are finished offline and posted from another device.';
+      'Nic się nie łączy. Płatności kończą się offline i są wysyłane z innego urządzenia.';
 
   @override
   String get phoneSettingsAdvIntro =>
-      'Each switch shows one more part of the wallet, in the place it belongs. Nothing stored changes.';
+      'Każdy przełącznik pokazuje kolejną część portfela, na jej miejscu. Nic zapisanego się nie zmienia.';
 
   @override
-  String get phoneSettingsAdvShows => 'Show more';
+  String get phoneSettingsAdvShows => 'Pokaż więcej';
 
   @override
   String get phoneSettingsConfirmationsLine =>
-      'Blocks before a payment counts as yours to spend';
+      'Bloki, zanim płatność będzie Twoja do wydania';
 
   @override
   String get phoneSettingsEpic1Line =>
-      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
+      'Płać i odbieraj płatności linkami epic1 i kodami osobistymi. Klasyczne płatności nadal docierają.';
 
   @override
-  String get phoneHelpSecStart => 'Getting started';
+  String get phoneHelpSecStart => 'Pierwsze kroki';
 
   @override
-  String get phoneHelpSecHow => 'How payments work';
+  String get phoneHelpSecHow => 'Jak działają płatności';
 
   @override
-  String get phoneHelpSecNetwork => 'Networks and privacy';
+  String get phoneHelpSecNetwork => 'Sieci i prywatność';
 
   @override
-  String get phoneHelpSecSafety => 'Keeping it safe';
+  String get phoneHelpSecSafety => 'Bezpieczeństwo';
 
   @override
   String get phoneHelpSecMaintenance => 'Upkeep';
 
   @override
-  String get phoneHelpSecTrouble => 'When something is wrong';
+  String get phoneHelpSecTrouble => 'Gdy coś jest nie tak';
 
   @override
-  String get phoneRestoreTitle => 'Restore a wallet';
+  String get phoneRestoreTitle => 'Przywróć portfel';
 
   @override
   String phoneRestoreWordsHint(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count words so far.',
-      one: '1 word so far.',
+      other: 'Dotąd $count słowa.',
+      many: 'Dotąd $count słów.',
+      few: 'Dotąd $count słowa.',
+      one: 'Dotąd 1 słowo.',
     );
-    return '$_temp0 A recovery phrase has 12, 15, 18, 21 or 24.';
+    return '$_temp0 Fraza odzyskiwania ma 12, 15, 18, 21 lub 24.';
   }
 
   @override
   String get phoneRestoreStartNote =>
-      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+      'Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety.';
 
   @override
   String get phoneSendRouteEpicbox => 'Adres Epicbox';
@@ -24079,12 +24081,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get phoneSendHelpStep3Sub => 'Po kilku blokach mogą ją wydać.';
 
   @override
-  String get phoneProgArrived => 'Arrived';
+  String get phoneProgArrived => 'Dotarło';
 
   @override
   String get phoneProgFinishesByItself =>
-      'It finishes by itself. You can leave this screen.';
+      'Zakończy się samo. Możesz opuścić ten ekran.';
 
   @override
-  String get phoneProgReadyToSpend => 'Ready to spend';
+  String get phoneProgReadyToSpend => 'Gotowe do wydania';
 }
