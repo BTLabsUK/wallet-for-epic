@@ -373,8 +373,9 @@ class _NetworkLine extends StatelessWidget {
     final t = context.tokens;
     return Row(
       children: [
-        KitConnectionDot(ready: connected),
-        const SizedBox(width: 6),
+        // The frame: a plain 7 px dot, 5 from the text.
+        KitConnectionDot(ready: connected, halo: false),
+        const SizedBox(width: 5),
         Flexible(
           child: Text(
             '${networkModeName(l, mode)} · ${connected ? l.phoneSettingsConnected : l.phoneSettingsNotConnected}',

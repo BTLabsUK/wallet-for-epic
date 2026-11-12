@@ -352,7 +352,11 @@ class PhoneTxRow extends ConsumerWidget {
                             ),
                           ),
                           if (fiat != null)
-                            Text(fiat, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.dim)),
+                            // The frame's `.ra span`: 12, faint, 3 under the amount.
+                            Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Text(fiat, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTrailSub.copyWith(color: t.faint)),
+                            ),
                         ],
                       ),
                     ),

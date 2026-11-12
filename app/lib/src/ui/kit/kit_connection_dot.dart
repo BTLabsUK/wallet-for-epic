@@ -9,10 +9,13 @@ import '../theme/tokens.dart';
 /// with a soft halo of its own colour. [KitStatusPill] uses it; Home and unlock can place it on
 /// its own. Decorative: the state is named by the part that holds it.
 class KitConnectionDot extends StatelessWidget {
-  const KitConnectionDot({super.key, required this.ready, this.size = 7});
+  const KitConnectionDot({super.key, required this.ready, this.size = 7, this.halo = true});
 
   final bool ready;
   final double size;
+
+  /// The soft ring; Settings' network line draws the plain dot (`box-shadow: none`).
+  final bool halo;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,7 @@ class KitConnectionDot extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.18), spreadRadius: 3)],
+          boxShadow: halo ? [BoxShadow(color: color.withValues(alpha: 0.18), spreadRadius: 3)] : null,
         ),
       ),
     );
