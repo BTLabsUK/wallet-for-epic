@@ -3,16 +3,18 @@
 // rule under test throughout: nothing pays an invoice but Approve, and Approve pays only after
 // the PIN or biometric gate.
 
+import 'dart:async';
+
 import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/onion_notice.dart' show markOnionNoticeSeen;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
@@ -62,6 +64,22 @@ class _Config extends WalletConfigNotifier {
 class _NoPrice implements PriceSource {
   @override
   Future<double?> price(String currency) async => null;
+}
+
+/// Records the text of every notice that shows.
+final class _NoticeLog extends ProviderObserver {
+  _NoticeLog(this.texts);
+  final List<String> texts;
+
+  @override
+  void didUpdateProvider(ProviderObserverContext context, Object? previous, Object? value) {
+    if (context.provider == noticeProvider && value is Notice) texts.add(value.text);
+  }
+
+  @override
+  void didAddProvider(ProviderObserverContext context, Object? value) {
+    if (context.provider == noticeProvider && value is Notice) texts.add(value.text);
+  }
 }
 
 class _Harness {
@@ -115,6 +133,9 @@ class _Harness {
     );
   }
 
+  /// Every notice text that showed, in order: a toast leaves by itself while Home settles.
+  final List<String> notices = [];
+
   ProviderContainer container(WidgetTester tester) =>
       ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
 
@@ -127,9 +148,12 @@ class _Harness {
     tester.view.physicalSize = Size(1080, tall ? 7200 : 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
+    // Home's Tor address toast has been seen: it would take the notices' place.
+    await markOnionNoticeSeen(store, chain: config.chain.name, walletId: config.walletId);
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
+        observers: [_NoticeLog(notices)],
         overrides: [
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
@@ -201,10 +225,21 @@ Color? _spanColor(WidgetTester tester, String text) {
 Color _warn(WidgetTester tester) =>
     tester.element(find.byType(Scaffold).first).tokens.warn;
 
-/// Home's Invoices destination tile: the way in now that the app bar has no icon for it.
-final Finder _invoicesTile = find.byKey(
-  homeDestinationKey(HomeDestination.invoices),
-);
+/// Home's slot card for a pending invoice: its Review button.
+final Finder _reviewButton = find.text(_l.phoneReview);
+
+/// The Invoices list, opened over the screen: Home has no tile for it any more.
+Future<void> _openList(WidgetTester tester) async {
+  unawaited(
+    tester
+        .state<NavigatorState>(find.byType(Navigator).first)
+        .push(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen())),
+  );
+  await tester.pumpAndSettle();
+  // The arrival toast floats over the top rows of the list: it leaves before a tap there.
+  ProviderScope.containerOf(tester.element(find.byType(InvoicesScreen))).read(noticeProvider.notifier).dismiss();
+  await tester.pumpAndSettle();
+}
 
 void main() {
   group('home entry', () {
@@ -213,7 +248,7 @@ void main() {
       h.session.invoicesSupported = false;
       await h.pump(tester, const HomeScreen());
       expect(find.byKey(invoicesEntryKey), findsNothing);
-      expect(_invoicesTile, findsNothing);
+      expect(_reviewButton, findsNothing);
     });
 
     testWidgets('drains at start and badges the pending invoices', (
@@ -224,34 +259,19 @@ void main() {
       await h.invoice(slateId: 'b');
       await h.pump(tester, const HomeScreen());
       expect(h.session.pendingInvoicesValue.keys, ['a', 'b']);
-      // The app bar has no icon any more; the destination tile on Home carries the badge.
+      // Home's slot shows the first one, with Review; the other is a page away.
       expect(find.byKey(invoicesEntryKey), findsNothing);
-      expect(_invoicesTile, findsOneWidget);
-      expect(
-        find.descendant(of: _invoicesTile, matching: find.text('2')),
-        findsOneWidget,
-      );
+      expect(_reviewButton, findsOneWidget);
+      expect(find.text(_l.phoneHomeInvoiceTitle('My Exchange')), findsOneWidget);
       // The arrival is announced, with no way to pay from the notice.
-      expect(_notice(tester), _l.invoiceNoticeReceived);
+      expect(h.notices, contains(_l.invoiceNoticeReceived));
       expect(h.session.invoicePayments, 0);
     });
 
-    testWidgets('shows no badge with nothing pending', (tester) async {
+    testWidgets('shows no card with nothing pending', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HomeScreen());
-      expect(_invoicesTile, findsOneWidget);
-      expect(
-        find.descendant(
-          of: _invoicesTile,
-          matching: find.text(_l.invoicesTitle),
-        ),
-        findsOneWidget,
-      );
-      // No badge: the tile holds its label and nothing else in words.
-      expect(
-        find.descendant(of: _invoicesTile, matching: find.byType(Text)),
-        findsOneWidget,
-      );
+      expect(_reviewButton, findsNothing);
     });
 
     testWidgets('drains again when the app comes back to the front', (
@@ -273,10 +293,7 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(h.session.pendingInvoicesValue.keys, ['later']);
-      expect(
-        find.descendant(of: _invoicesTile, matching: find.text('1')),
-        findsOneWidget,
-      );
+      expect(_reviewButton, findsOneWidget);
     });
 
     testWidgets(
@@ -299,8 +316,7 @@ void main() {
       // Paired before: only the invoice is new.
       h.session.pairing.seedPaired(name: 'My Exchange', kind: PairingParty.exchange, peerProfile: 2, allowInvoices: true, paymentsAddress: _shop);
       await h.pump(tester, const HomeScreen());
-      await tester.tap(_invoicesTile);
-      await tester.pumpAndSettle();
+      await _openList(tester);
       expect(find.text('My Exchange'), findsNothing);
       // It arrives another way than this screen's drain (a contact's mailbox), with its event.
       await h.invoice(slateId: 'late');
@@ -318,9 +334,8 @@ void main() {
       h.session.pairing.seedPaired(name: 'Anna', allowInvoices: true, paymentsAddress: _shop);
       await h.invoice(slateId: 'w1');
       await h.pump(tester, const HomeScreen());
-      await tester.tap(_invoicesTile);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Anna'));
+      await _openList(tester);
+      await tester.tap(find.descendant(of: find.byType(InvoicesScreen), matching: find.text('Anna')));
       await tester.pumpAndSettle();
       expect(find.text(_l.reqTitle), findsOneWidget);
       // The withdrawal comes by another drain than this screen's, with its event.
@@ -337,14 +352,13 @@ void main() {
       expect(find.text('Anna'), findsNothing, reason: 'the open list dropped it');
     });
 
-    testWidgets('opens the list', (tester) async {
+    testWidgets('Review on the slot card opens that invoice', (tester) async {
       final h = _Harness();
       await h.invoice();
       await h.pump(tester, const HomeScreen());
-      await tester.tap(_invoicesTile);
+      await tester.tap(_reviewButton);
       await tester.pumpAndSettle();
-      expect(find.text(_l.invoicesTitle), findsOneWidget);
-      expect(find.text('My Exchange'), findsOneWidget);
+      expect(find.text(_l.reqTitle), findsOneWidget);
     });
   });
 

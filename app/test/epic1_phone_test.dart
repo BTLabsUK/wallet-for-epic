@@ -28,6 +28,7 @@ import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -423,7 +424,7 @@ void main() {
       final alice = (await session.contacts()).single;
       await _pump(tester, session, ContactPage(contactId: alice.id));
       expect(_key(classicOnlyKey), findsOneWidget);
-      expect(tester.widget<ButtonStyleButton>(_key(contactPageSendKey)).onPressed, isNull);
+      expect(tester.widget<KitButton>(_key(contactPageSendKey)).onPressed, isNull);
     });
   });
 }

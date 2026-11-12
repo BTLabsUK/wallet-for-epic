@@ -22,7 +22,6 @@ import 'package:epic_wallet/src/tor_licence.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/language_flag.dart';
-import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_start.dart';
@@ -53,6 +52,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
+import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/real_time.dart';
@@ -291,6 +291,15 @@ Future<void> _tapKey(WidgetTester tester, Key key) async {
   await _reveal(tester, finder);
   await tester.tap(finder);
   await tester.pumpAndSettle();
+}
+
+/// Settings tab › Security › Lock wallet.
+Future<void> _lockFromSettings(WidgetTester tester) async {
+  await tester.tap(find.descendant(of: find.byType(KitTabBar), matching: find.text('Settings')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(settingsGroupKey(SettingsSection.security)));
+  await tester.pumpAndSettle();
+  await _tapText(tester, _l.settingsLockWallet);
 }
 
 Future<void> _tapText(WidgetTester tester, String text) async {
@@ -699,8 +708,7 @@ void main() {
         await _leave(tester);
         await _return(tester);
         expect(notice(), findsNothing);
-        await tester.tap(find.byTooltip(_l.homeLockTooltip));
-        await tester.pumpAndSettle();
+        await _lockFromSettings(tester);
         await h.unlock(tester);
         expect(notice(), findsNothing);
 
@@ -729,18 +737,18 @@ void main() {
       );
       expect(notice(), findsOneWidget);
       expect(find.byType(Badge), findsNothing);
-      expect(find.byTooltip('Settings'), findsOneWidget);
-      await tester.tap(find.byKey(settingsButtonKey));
+      await tester.tap(find.descendant(of: find.byType(KitTabBar), matching: find.text('Settings')));
       await tester.pumpAndSettle();
-      // Settings never shows a second offer: the same notice, nothing in the list.
-      expect(notice(), findsOneWidget);
+      // Settings never shows a second offer: the same notice (each screen's dock draws it, so
+      // two are in the tree), nothing in the list.
+      expect(notice(), findsWidgets);
       expect(find.textContaining('Update to'), findsNothing);
       expect(
         find.descendant(of: find.byType(ListView), matching: find.text('Install')),
         findsNothing,
       );
       await tester.tap(
-        find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.updateInstallButton)),
+        find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.updateInstallButton)).first,
       );
       await tester.pumpAndSettle();
       expect(h.updates.installs, 1);
@@ -979,8 +987,7 @@ void main() {
       await h.pump(tester);
       expect(h.bio.prompts, 1);
 
-      await tester.tap(find.byTooltip(_l.homeLockTooltip));
-      await tester.pumpAndSettle();
+      await _lockFromSettings(tester);
       expect(h.container.read(sessionProvider), isNull);
       expect(find.text(_l.unlockTitle), findsOneWidget);
       expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
@@ -1052,13 +1059,10 @@ void main() {
         findsOneWidget,
       );
       final docked = tester.getTopLeft(find.text('Change PIN'));
-      final dock = tester.getSize(find.byType(NoticeDock)).height;
-      expect(dock, greaterThan(0));
       await tester.pump(noticeDuration(NoticeLevel.success));
       await tester.pumpAndSettle();
       expect(find.text(_l.settingsPinChanged), findsNothing);
-      // The dock closed, and the row under the finger stayed where it was (android-02).
-      expect(tester.getSize(find.byType(NoticeDock)).height, 0);
+      // The toast floats over the page: the row under the finger stayed where it was (android-02).
       expect(tester.getTopLeft(find.text('Change PIN')), docked);
       expect(
         h.store.values['wallet.mainnet.pinSealed'],
@@ -1881,14 +1885,14 @@ void main() {
               }
             }
             await tester.pumpAndSettle(const Duration(milliseconds: 50));
-            expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+            expect(find.text('Notifications off'), findsWidgets);
             for (var r = 0; r < rows.length; r++) {
               expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
             }
             // Closing does not move them either.
             await tester.pump(noticeDuration(NoticeLevel.info));
             await tester.pumpAndSettle(const Duration(milliseconds: 50));
-            expect(tester.getSize(find.byType(NoticeDock).last).height, 0);
+            expect(find.text('Notifications off'), findsNothing);
             for (var r = 0; r < rows.length; r++) {
               expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
             }

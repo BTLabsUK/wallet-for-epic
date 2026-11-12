@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// The level-1 shell on Home: the deeper levels' balance block with level 1's two status icons
-// under the figure, no tiles, one Contacts entry, the Epicbox sheet on a tap, and the relay offer
-// as a notice whose Switch calls through. Level 3 keeps its full row of icons and the tiles.
+// Home at every level (the phone redesign: one Home, the level no longer changes it), the
+// connections sheet behind the status pill, the Contacts tab, the invoice slot card, and the
+// relay offer as a notice whose Switch calls through.
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
@@ -16,16 +16,17 @@ import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayP
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
-import 'package:epic_wallet/src/ui/levels/quiet_invoices.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey, connectionsSheetKey;
+import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey, homePillKey;
+import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart';
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
-import 'package:epic_wallet/src/ui/levels/status_sheets.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeChangeKey, networkModeMarkKey, networkSectionKey;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'support/shell_where.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -140,55 +141,44 @@ Future<void> _pump(
 }
 
 void main() {
-  testWidgets('level 1: the balance block as at level 3, two status icons under the figure, no tiles, Contacts', (tester) async {
-    await _pump(tester, level: '1');
-    // The same block as the deeper levels: the caption, the figure, the icon row with the fiat
-    // value and the eye; level 1's two icons in it, nothing in the app bar.
-    expect(find.byKey(balanceCaptionKey), findsOneWidget);
-    expect(find.byKey(shellNetworkIconKey), findsOneWidget);
-    expect(find.byKey(shellEpicboxIconKey), findsOneWidget);
-    expect(find.byType(StatusIcon), findsNWidgets(2));
-    expect(find.byKey(nodeStatusKey), findsNothing);
-    expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.qr_code_scanner), findsNothing);
-    expect(tester.widget<StatusIcon>(find.byKey(shellNetworkIconKey)).label, startsWith('Network · '));
-    final icons = tester.getTopLeft(find.byKey(shellNetworkIconKey));
-    final bar = tester.getRect(find.byType(AppBar));
-    expect(icons.dy, greaterThan(bar.bottom), reason: 'the icons are under the figure, not in the bar');
-    // No tiles; of the destinations only Contacts, one entry under the balance.
-    expect(find.byType(BalanceTiles), findsNothing);
-    expect(find.byType(HomeDestinations), findsNothing);
-    expect(find.text('+12.5 arriving · 7.5 on hold'), findsNothing);
-    expect(find.byType(HomeContactsEntry), findsOneWidget);
-    expect(find.byKey(homeDestinationKey(HomeDestination.contacts)), findsOneWidget);
-    expect(find.text(_l.settingsContacts), findsOneWidget);
-    expect(tester.getSize(find.byType(HomeContactsEntry)).height, greaterThanOrEqualTo(48));
-  });
+  for (final level in ['1', '3']) {
+    testWidgets('level $level: Home is the same: the pill, the figure and two buttons, no icons, no tiles', (tester) async {
+      await _pump(tester, level: level);
+      expect(find.byKey(homePillKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
+      expect(find.byType(StatusIcon), findsNothing);
+      expect(find.byKey(walletStatusesKey), findsNothing);
+      expect(find.byKey(shellNetworkIconKey), findsNothing);
+      expect(find.byKey(nodeStatusKey), findsNothing);
+      expect(find.byType(BalanceTiles), findsNothing);
+      expect(find.byType(HomeDestinations), findsNothing);
+      expect(find.byType(HomeContactsEntry), findsNothing);
+      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+      // Contacts is a tab now, the same at every level.
+      expect(find.descendant(of: find.byType(KitTabBar), matching: find.text(_l.settingsContacts)), findsOneWidget);
+    });
+  }
 
-  testWidgets('level 1: Normal shows no mode line on Home or in the connections sheet', (tester) async {
+  testWidgets('Normal shows no mode line in the connections sheet', (tester) async {
     await _pump(tester, level: '1');
     expect(find.byKey(networkModeMarkKey), findsNothing);
-    await tester.tap(find.byKey(shellNetworkIconKey));
+    await tester.tap(find.byKey(homePillKey));
     await tester.pumpAndSettle();
     expect(find.byKey(connectionsSheetKey), findsOneWidget);
     expect(find.byKey(networkModeMarkKey), findsNothing);
   });
 
   for (final mode in [NetworkMode.nodeOnly, NetworkMode.killSwitch]) {
-    testWidgets('level 1: ${mode.name} names the mode in the connections sheet, nothing on Home; Change opens the setting', (tester) async {
+    testWidgets('${mode.name} names the mode in the connections sheet, nothing on Home; Change opens the setting', (tester) async {
       await _pump(tester, level: '1', mode: mode);
-      // Home keeps its two icons alone: the mode is named where they lead.
+      // Home keeps the pill alone: the mode is named where it leads.
       expect(find.byKey(networkModeMarkKey), findsNothing);
-      await tester.tap(find.byKey(shellNetworkIconKey));
+      await tester.tap(find.byKey(homePillKey));
       await tester.pumpAndSettle();
       final line = find.descendant(of: find.byKey(connectionsSheetKey), matching: find.byKey(networkModeMarkKey));
       expect(line, findsOneWidget);
       final name = mode == NetworkMode.nodeOnly ? _l.advModeNodeOnly : _l.advModeKillSwitch;
       expect(find.descendant(of: line, matching: find.text(_l.netMarkRowLabel(name))), findsOneWidget);
-      // Under the title, before the first service row.
-      // The Shallow sheet's first row: "Network · <state>".
-      final firstRow = find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining('${_l.settingsAboutNetwork} · ')).first;
-      expect(tester.getRect(line).bottom, lessThanOrEqualTo(tester.getTopLeft(firstRow).dy));
       await tester.tap(find.byKey(networkModeChangeKey));
       await tester.pumpAndSettle();
       expect(find.byKey(connectionsSheetKey), findsNothing);
@@ -196,18 +186,15 @@ void main() {
     });
   }
 
-  testWidgets('level 1: the Contacts entry opens Contacts', (tester) async {
+  testWidgets('the Contacts tab opens Contacts', (tester) async {
     await _pump(tester, level: '1');
-    await tester.tap(find.byKey(homeDestinationKey(HomeDestination.contacts)));
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
+    await shellGo(tester, _l.settingsContacts);
     expect(find.byType(ContactsScreen), findsOneWidget);
   });
 
   testWidgets('level 1: Send and Receive carry the two icons in the balance header', (tester) async {
     await _pump(tester, level: '1');
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text(_l.homeSendButton)));
+    await shellGo(tester, _l.homeSendButton, settle: false);
     for (var i = 0; i < 8; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
@@ -217,52 +204,14 @@ void main() {
     expect(find.byKey(barNodeIconKey), findsNothing);
   });
 
-  testWidgets('level 1: an invoice waiting is a row under Recent activity, never a notice', (tester) async {
+  testWidgets('an invoice waiting is the slot card on Home, never a notice', (tester) async {
     await _pump(tester, level: '1', invoice: true);
-    expect(find.byKey(quietInvoiceKey('inv-1')), findsOneWidget);
-    expect(find.text(_l.lvPolInvoiceWaiting), findsOneWidget);
+    await shellContainer(tester).read(pendingInvoicesProvider.notifier).refresh();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('home-slot-invoice-inv-1')), findsOneWidget);
     expect(find.byKey(noticeKey), findsNothing);
     // No explainer card about a send that waits: the rows say "Waiting for …" themselves.
     expect(find.textContaining('A payment is waiting'), findsNothing);
-  });
-
-  testWidgets('the Network sheet keeps Close clear of the bottom system inset', (tester) async {
-    await _pump(tester, level: '1');
-    // An edge-to-edge phone: a 48 dp navigation bar under the sheet.
-    tester.view.padding = const FakeViewPadding(bottom: 48 * 3);
-    tester.view.viewPadding = const FakeViewPadding(bottom: 48 * 3);
-    addTearDown(tester.view.resetPadding);
-    addTearDown(tester.view.resetViewPadding);
-    await tester.tap(find.byKey(shellNetworkIconKey));
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    // The icon opens the connections sheet; its Network row the Network sheet.
-    expect(find.byKey(connectionsSheetKey), findsOneWidget);
-    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining(_l.settingsAboutNetwork)));
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(find.byKey(networkSheetKey), findsOneWidget);
-    final okBottom = tester.getBottomLeft(find.widgetWithText(TextButton, _l.commonClose)).dy;
-    expect(okBottom, lessThanOrEqualTo(2400 / 3 - 48));
-  });
-
-  testWidgets('level 1: a tap on Epicbox opens the connections sheet, its row the Epicbox sheet', (tester) async {
-    await _pump(tester, level: '1');
-    await tester.tap(find.byKey(shellEpicboxIconKey));
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(find.byKey(connectionsSheetKey), findsOneWidget);
-    expect(find.byKey(epicboxSheetKey), findsNothing);
-    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining(_l.netStatusEpicbox)));
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(find.byKey(epicboxSheetKey), findsOneWidget);
-    expect(find.text('For support'), findsNothing);
-    expect(find.text(_l.lvShellSwitchServer), findsOneWidget);
   });
 
   for (final level in ['1', '3']) {
@@ -285,15 +234,4 @@ void main() {
       expect(find.text(_l.lvShellShowNewAddress), findsOneWidget);
     });
   }
-
-  testWidgets('level 3: the full row of icons under the figure, the tiles', (tester) async {
-    await _pump(tester, level: '3');
-    expect(find.byKey(shellNetworkIconKey), findsNothing);
-    expect(find.byType(HomeContactsEntry), findsNothing);
-    expect(find.byKey(walletStatusesKey), findsOneWidget);
-    expect(find.byKey(nodeStatusKey), findsOneWidget);
-    expect(find.byKey(epicboxStatusKey), findsOneWidget);
-    expect(find.byType(BalanceTiles), findsOneWidget);
-    expect(find.byKey(balanceCaptionKey), findsOneWidget);
-  });
 }

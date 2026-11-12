@@ -324,7 +324,7 @@ void main() {
         tester,
         () => _openPhone(tester, const HomeScreen(), tour: true),
         () => _closePhone(tester),
-        ['g4.home.lock', 'g4.home.settings', 'g4.home.contacts', 'g4.tour.skip'],
+        ['g4.tab.home', 'g4.tab.settings', 'g4.tab.contacts', 'g4.tour.skip'],
       );
     });
 

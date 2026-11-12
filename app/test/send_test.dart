@@ -16,10 +16,11 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
-import 'package:epic_wallet/src/ui/centered_body.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_empty_state.dart';
+import 'package:epic_wallet/src/ui/kit/kit_search_field.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -330,6 +331,18 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
   await tester.enterText(field, text);
   // Past the fee estimate's debounce.
   await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
+}
+
+/// The Contacts search field (its hint goes once there is text).
+Future<void> _search(WidgetTester tester, String text) async {
+  await tester.enterText(
+    find.descendant(
+      of: find.byType(KitSearchField),
+      matching: find.byType(TextField),
+    ),
+    text,
+  );
   await tester.pumpAndSettle();
 }
 
@@ -1428,6 +1441,9 @@ void main() {
         findsOneWidget,
       );
       expect(find.byType(SnackBar), findsNothing);
+      // The toast floats over the top rows: it leaves before the next tap there.
+      ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(noticeProvider.notifier).dismiss();
+      await tester.pumpAndSettle();
       await _tap(tester, find.text(_l.commonShare));
       expect(h.files.shared.single.name, 'slate-1.tx');
       expect(find.text(_l.sendOpenReply), findsOneWidget);
@@ -1452,7 +1468,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendFileWaitingReply), findsOneWidget);
+      // The steps are built, but not on the screen (the page is longer than the test view).
+      expect(
+        find.text(_l.sendFileWaitingReply, skipOffstage: false),
+        findsOneWidget,
+      );
 
       h.files.picks.add(
         SlateFile(
@@ -1479,8 +1499,8 @@ void main() {
       );
       // Back on Send, the tracker has moved on.
       await _tap(tester, find.widgetWithText(FilledButton, _l.commonDone));
-      expect(find.text(_l.sendFileWaitingReply), findsNothing);
-      expect(find.text(_l.txStepAccepted), findsOneWidget);
+      expect(find.text(_l.sendFileWaitingReply, skipOffstage: false), findsNothing);
+      expect(find.text(_l.txStepAccepted, skipOffstage: false), findsOneWidget);
       expect(find.text(_l.sendOpenReply), findsNothing);
     });
 
@@ -1564,7 +1584,7 @@ void main() {
       expect(find.textContaining(_l.contactsEmptyTitle), findsOneWidget);
       // Nothing to search yet: the empty state sits in the middle, without a search field.
       expect(find.widgetWithText(TextField, 'Name or address'), findsNothing);
-      expect(find.byType(CenteredBody), findsOneWidget);
+      expect(find.byType(KitEmptyState), findsOneWidget);
 
       await _tap(tester, find.text(_l.contactsAdd));
       await _tap(tester, find.text(_l.contactsSave));
@@ -1578,7 +1598,7 @@ void main() {
 
       await _enterAddress(tester, ' $_bob ');
       await _tap(tester, find.text(_l.contactsSave));
-      expect(find.text('Bob'), findsOneWidget);
+      expect(find.text('Bob'), findsWidgets); // the row, and the face above the list
 
       // With contacts, Add is the app bar's icon.
       await _tap(tester, find.byTooltip(_l.contactsAdd));
@@ -1591,23 +1611,24 @@ void main() {
       await _enterAddress(tester, _carol);
       expect(find.textContaining('already saved'), findsNothing);
       await _tap(tester, find.text(_l.contactsSave));
-      expect(find.text('Carol'), findsOneWidget);
+      expect(find.text('Carol'), findsWidgets);
 
-      await _enter(tester, 'Name or address', 'car');
-      expect(find.text('Carol'), findsOneWidget);
+      await _search(tester, 'car');
+      expect(find.text('Carol'), findsWidgets);
       expect(find.text('Bob'), findsNothing);
-      await _enter(tester, 'Name or address', '');
+      await _search(tester, '');
 
       // A tap opens the contact's page; Edit opens the form.
-      await _tap(tester, find.text('Bob'));
+      await _tap(tester, find.text('Bob').last);
+      await _tap(tester, find.byKey(contactPageMoreKey));
       await _tap(tester, find.byKey(contactPageEditKey));
       expect(find.text(_l.contactsEditTitle), findsOneWidget);
       await _enter(tester, 'Name', 'Robert');
       await _tap(tester, find.text(_l.contactsSave));
-      expect(find.text('Robert'), findsOneWidget);
+      expect(find.text('Robert'), findsWidgets);
       expect(find.text('Bob'), findsNothing);
 
-      await _tap(tester, find.text('Robert'));
+      await _tap(tester, find.text('Robert').last);
       await _tap(tester, find.byKey(contactPageMoreKey));
       await _tap(tester, find.byKey(contactPageDeleteKey));
       expect(find.text('Delete Robert?'), findsOneWidget);

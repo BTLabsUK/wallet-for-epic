@@ -106,6 +106,13 @@ class _Harness {
 }
 
 /// Frames for a screen with a spinner, which never settles.
+/// Taps [finder] after scrolling it clear of the page's bottom edge.
+Future<void> _tapVisible(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+}
+
 Future<void> _frames(WidgetTester tester, [int n = 10]) async {
   for (var i = 0; i < n; i++) {
     await tester.pump(const Duration(milliseconds: 100));
@@ -519,7 +526,7 @@ void main() {
       await _frames(tester);
       expect(find.text(_l.pairNoAnswerFrom('Anna')), findsOneWidget);
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
-      await tester.tap(find.byKey(contactPageCancelPairingKey));
+      await _tapVisible(tester, find.byKey(contactPageCancelPairingKey));
       await _frames(tester);
       expect(h.api.records, isEmpty);
       expect(find.text(_l.pairNotPaired), findsOneWidget);
@@ -588,7 +595,7 @@ void main() {
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
       expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
       expect(find.byKey(contactPageSealKey), findsNothing, reason: 'no switches on an ended pairing');
-      await tester.tap(find.widgetWithText(TextButton, _l.commonCancel).first);
+      await _tapVisible(tester, find.widgetWithText(TextButton, _l.commonCancel).first);
       await _frames(tester);
       expect(h.session.cancelledTxIds, isNotEmpty, reason: 'the held send was cancelled');
     });
@@ -596,7 +603,7 @@ void main() {
     testWidgets('never finished: the reason line; Remove drops it, the contact stays', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.ended, endedReason: PairingEndReason.neverFinished));
       expect(find.text(_l.pairEndedNeverFinished('Anna')), findsOneWidget);
-      await tester.tap(find.byKey(contactPageRemovePairingKey));
+      await _tapVisible(tester, find.byKey(contactPageRemovePairingKey));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(confirmRemovePairingKey));
       await tester.pumpAndSettle();
@@ -615,7 +622,7 @@ void main() {
     testWidgets('a later card proves another address: Update the contact\'s address or Detach', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _tom));
       expect(find.text(_l.pairProvesOther('Anna')), findsOneWidget);
-      await tester.tap(find.byKey(contactPageUpdateAddressKey));
+      await _tapVisible(tester, find.byKey(contactPageUpdateAddressKey));
       await tester.pumpAndSettle();
       expect(h.session.contactsValue.single.epicbox, _tom);
       expect(find.text(_l.pairProvesOther('Anna')), findsNothing);

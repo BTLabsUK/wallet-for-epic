@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/ui/theme/protocol.dart' show CornerTicksPainter;
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'support/shell_where.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -137,13 +138,7 @@ Future<void> _pump(
     ),
   );
   await tester.pumpAndSettle();
-  await tester.tap(
-    find.descendant(
-      of: find.byType(NavigationBar),
-      matching: find.text(_l.homeReceiveButton),
-    ),
-  );
-  await tester.pumpAndSettle();
+  await shellGo(tester, _l.homeReceiveButton);
 }
 
 /// Receive's own scroll view.
@@ -197,7 +192,8 @@ void main() {
         _receiveScroll(tester).jumpTo(scroll);
         await tester.pumpAndSettle();
       }
-      final bar = tester.getRect(find.byType(NavigationBar));
+      // Receive is a full-screen flow: no tab bar, the screen's bottom edge is the limit.
+      final bar = Rect.fromLTWH(0, tester.view.physicalSize.height / tester.view.devicePixelRatio, 0, 0);
       final helpButton = tester.getRect(
         find.ancestor(of: help, matching: find.byType(TextButton)),
       );
@@ -260,7 +256,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       tester.getRect(find.text(_l.receiveHelpButton)).bottom,
-      lessThanOrEqualTo(tester.getRect(find.byType(NavigationBar)).top),
+      lessThanOrEqualTo(tester.view.physicalSize.height / tester.view.devicePixelRatio),
     );
     expect(tester.takeException(), isNull);
   });

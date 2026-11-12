@@ -604,12 +604,13 @@ void main() {
       final container = ProviderScope.containerOf(
         tester.element(find.byKey(directIconKey)),
       );
-      expect(container.read(shellTabProvider), ShellTab.wallet);
+      expect(container.read(shellFlowProvider), isNull);
       await tester.tap(find.byKey(directIconKey));
       await tester.pumpAndSettle();
       await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.text(_label(tester, directIconKey))));
       await tester.pumpAndSettle();
-      expect(container.read(shellTabProvider), ShellTab.receive);
+      // No shell here to take the request: Receive is asked for.
+      expect(container.read(shellFlowProvider), ShellFlow.receive);
       expect(container.read(receiveTabProvider), ReceiveTab.direct);
     });
   });
