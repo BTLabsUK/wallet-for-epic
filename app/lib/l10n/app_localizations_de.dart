@@ -632,10 +632,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get txDetailsCancelledByUser =>
-      'Storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.';
-
-  @override
   String get txDetailsCancelledReleased =>
       'Das Netzwerk hat die Zahlung nie angenommen, daher wurde der Betrag freigegeben. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.';
 

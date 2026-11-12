@@ -134,7 +134,7 @@ class ScanStart extends StatelessWidget {
   /// Null keeps the plain line with its calendar and info buttons.
   final String? rowTitle;
 
-  /// The help text under the row, when it is not the plain explanation (the restore frame's).
+  /// The help text under the row while a month is the start (the restore frame's); a height start shows the plain explanation.
   final String? note;
 
   /// A taller floor for the row (the restore frame's 62).
@@ -346,7 +346,7 @@ class ScanStart extends StatelessWidget {
           padding: const EdgeInsetsDirectional.only(start: Kit.gutter + 4, end: 4, top: 8),
           child: Row(
             children: [
-              Expanded(child: Text(note ?? l.scanStartInfo, key: lineKey, style: KitType.rowSub.copyWith(color: t.dim))),
+              Expanded(child: Text((byMonth ? note : null) ?? l.scanStartInfo, key: lineKey, style: KitType.rowSub.copyWith(color: t.dim))),
               TrustId(
                 ids.info,
                 child: InfoHint(l.scanStartInfo, key: infoKey, title: l.scanStartInfoTitle, action: fromStartAction(l)),

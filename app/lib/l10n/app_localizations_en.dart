@@ -625,10 +625,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get txDetailsCancelledByUser =>
-      'Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.';
-
-  @override
   String get txDetailsCancelledReleased =>
       'The network never took it, so its coins were released. Check the recipient did not receive it before sending again.';
 
