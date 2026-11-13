@@ -25,7 +25,7 @@ import 'onboarding_parts.dart';
 
 /// The steps: preferences (only with languages), node, the local node's own step when
 /// Local was chosen (same rail position), Epicbox, which saves.
-enum SetupStep { prefs, node, local, epicbox }
+enum SetupStep { node, local, epicbox }
 
 /// A tour start state: the step, and for the local step which probe answer to show.
 @immutable
@@ -84,15 +84,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   late String _relay = _startRelay;
   bool _epicboxOn = true;
   SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _shot?.first;
-  late final List<SetupStep> _steps = [if (_first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox];
+  final List<SetupStep> _steps = const [SetupStep.node, SetupStep.epicbox];
 
   SetupShot? get _shot => widget.arg is SetupShot ? widget.arg! as SetupShot : null;
   SetupStep get _startStep => _shot?.step ?? (widget.arg is SetupStep ? widget.arg! as SetupStep : _steps.first);
 
   // Lazy: [_steps] needs the widget.
   late SetupStep _step = _startStep == SetupStep.local || _steps.contains(_startStep) ? _startStep : _steps.first;
-  /// The language picked on Preferences: a code, or null for the computer's.
-  late String? _language = ref.read(deskProvider).settings.language;
 
   /// Local node chosen on the node step (the bundled node or one already running here).
   late bool _local = _startStep == SetupStep.local || (_shot?.localChosen ?? false);
@@ -238,7 +236,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     setState(() => _busy = true);
     final domain = _epicboxOn ? _relay : '';
     prefs.set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: domain.isNotEmpty));
-    if (_steps.contains(SetupStep.prefs)) await c.saveSettings(ref.read(deskProvider).settings.copyWith(language: () => _language)); // read now: the dialogs above may have saved settings
     try {
       if (bundled) {
         if (!_wasBuiltin) await c.useBuiltInNode(true);
@@ -340,7 +337,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     SetupStep.epicbox => _save,
     SetupStep.node => _nodeNext,
     SetupStep.local => () => _to(SetupStep.epicbox),
-    _ => () => _to(_steps[_steps.indexOf(_step) + 1]),
   };
 
   @override
@@ -349,11 +345,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     final railIndex = _step == SetupStep.local ? _steps.indexOf(SetupStep.node) : _steps.indexOf(_step);
-    final rail = railOf([if (_steps.contains(SetupStep.prefs)) l.deskSetupStepPrefs, l.deskSetupStepNode, l.deskSetupStepEpicbox], railIndex);
+    final rail = railOf([l.deskSetupStepNode, l.deskSetupStepEpicbox], railIndex);
     final last = _step == SetupStep.epicbox;
     final again = nav.canBack ? l.deskSetupAgain : null;
     final (title, lead, body) = switch (_step) {
-      SetupStep.prefs => (l.deskSetupStepPrefs, again ?? l.deskSetupPrefsLead, _prefs(context)),
       SetupStep.node => (l.deskSetupNodeTitle, again ?? (_first?.resumed ?? false ? l.deskSetupResumeLead : l.deskSetupNodeLead), _node(context)),
       SetupStep.local => (
         l.deskSetupLocalTitle,
@@ -379,7 +374,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           SetupStep.node => EIcons.server,
           SetupStep.local => EIcons.monitor,
           SetupStep.epicbox => EIcons.epicbox,
-          _ => null,
         },
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
@@ -391,21 +385,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       ),
     );
   }
-
-  Widget _prefs(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      EField(
-        label: context.l10n.deskSetupLanguage,
-        child: ESelect<String>(
-          semanticLabel: context.l10n.deskSetupLanguage,
-          value: _language ?? deskSystemLanguage,
-          onChanged: (v) => setState(() => _language = v == deskSystemLanguage ? null : v),
-          items: deskLanguageItems(context.l10n),
-        ),
-      ),
-    ],
-  );
 
   Widget _node(BuildContext context) {
     final nodes = _nodes;
@@ -431,8 +410,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       listNote: nodeListNoteText(l),
       chooseOnly: true,
       keepBelow: Ctl.md + Sp.x8,
-      // The field sits Sp.x4 in from the choice cards (below); the open list reaches their edges.
-      panelOverhang: Sp.x4,
       openInitially: _shot?.listOpen ?? false,
       onChoose: (v) async => setState(() {
         _picked = true;
@@ -452,13 +429,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         ),
         ExpandFade(
           open: !_local,
-          child: Padding(padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x4, Sp.x1), child: picker),
+          // As wide as the choice cards, and as the Epicbox step's picker.
+          child: Padding(padding: EdgeInsets.only(top: Sp.x3, bottom: Sp.x1), child: picker),
         ),
         // Every node checked and none answered (no network): say so, not an empty pick.
         if (!_local && _nodeUrl == null && nodes != null && nodes.isNotEmpty && nodes.every((n) => n.health == ServiceHealth.down))
           Padding(
             key: const ValueKey('setup-no-node-answers'),
-            padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, Sp.x4, 0),
+            padding: EdgeInsets.only(top: Sp.x2),
             child: Text(l.deskOnbNodeNoAnswer, style: context.ts.small.copyWith(color: context.dc.risk, fontWeight: FontWeight.w600)),
           ),
         SizedBox(height: Sp.x3),

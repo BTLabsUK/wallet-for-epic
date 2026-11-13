@@ -493,10 +493,7 @@ void main() {
       expect(find.text(_l.deskSetupNodeTitle), findsOneWidget);
       expect(container.read(deskNavProvider).route, DeskRoute.setup);
       await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
-      expect(find.text(_l.deskSetupStepPrefs), findsWidgets, reason: 'the language step comes first');
-      expect(container.read(deskNavProvider).route, DeskRoute.setup);
-      await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
-      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'the node step is the first');
 
       container.read(deskNavProvider.notifier).go(DeskRoute.create, CreateStep.phrase);
       await _settle(tester);

@@ -14766,10 +14766,6 @@
   "@deskSetupAgain": {
     "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
   },
-  "deskSetupPrefsLead": "App language",
-  "@deskSetupPrefsLead": {
-    "description": "Lead under the title of the setup's Preferences step, which has the language picker."
-  },
   "deskSetupNodeTitle": "Choose a node",
   "@deskSetupNodeTitle": {
     "description": "Title of the setup step where the user picks the Epic node the wallet uses."
@@ -14801,10 +14797,6 @@
   "deskSetupSave": "Save settings",
   "@deskSetupSave": {
     "description": "Main button on the setup's last step: save every choice."
-  },
-  "deskSetupLanguage": "Language",
-  "@deskSetupLanguage": {
-    "description": "Label of the language picker on the setup's Preferences step, and the row in its summary. The language names in the list stay in their own language."
   },
   "deskSetupNodeServer": "Node server",
   "@deskSetupNodeServer": {
@@ -16774,7 +16766,7 @@
   "@pairNotNow": {
     "description": "Secondary button of the incoming sheet."
   },
-  "pairWaitingBody": "Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.",
+  "pairWaitingBody": "The answer comes when that wallet is open. This screen can be closed; the check shows when pairing is done.",
   "@pairWaitingBody": {
     "description": "Waiting screen body."
   },

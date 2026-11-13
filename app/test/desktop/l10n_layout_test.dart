@@ -25,7 +25,7 @@ import 'package:flutter_test/flutter_test.dart';
 const _ids = {
   '10-overview', '11-activity', '19a-outputs', '12-tx-detail', '13-send', '13j-send-summary', '17-receive',
   '21-contacts', '22-settings-node', '23-settings-receiving', '24-settings-appearance', '25-settings-account',
-  '28-settings-rescan', '30-settings-help', '04-setup', '04b-setup-node', '05-unlock', '41-tour', '41b-tour-settings',
+  '28-settings-rescan', '30-settings-help', '04b-setup-node', '05-unlock', '41-tour', '41b-tour-settings',
 };
 
 Future<void> _loadFonts() async {

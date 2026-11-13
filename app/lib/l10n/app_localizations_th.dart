@@ -10833,9 +10833,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'กำลังตั้งค่าใหม่ ไม่มีอะไรเปลี่ยนจนกว่าจะกด บันทึก ในขั้นตอนสุดท้าย';
 
   @override
-  String get deskSetupPrefsLead => 'ภาษาของแอป';
-
-  @override
   String get deskSetupNodeTitle => 'เลือกโหนด';
 
   @override
@@ -10860,9 +10857,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetupSave => 'บันทึกการตั้งค่า';
-
-  @override
-  String get deskSetupLanguage => 'ภาษา';
 
   @override
   String get deskSetupNodeServer => 'เซิร์ฟเวอร์โหนด';
@@ -12309,7 +12303,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'กระเป๋าเงินของอีกฝ่ายจะตอบเมื่อเปิด คุณปิดหน้านี้ได้ การยืนยันจะปรากฏเมื่อจับคู่เสร็จ';
+      'คำตอบจะมาเมื่อกระเป๋าเงินนั้นเปิดอยู่ ปิดหน้านี้ได้ การตรวจสอบจะแสดงเมื่อจับคู่เสร็จ';
 
   @override
   String get pairRelayUnreachableTitle => 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้';

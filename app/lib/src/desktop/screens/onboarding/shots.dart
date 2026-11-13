@@ -104,7 +104,6 @@ final List<DeskShot> onboardingShots = [
   ),
   const DeskShot(id: '03d-restore-restoring', title: 'Restore: restoring', route: DeskRoute.restore, arg: RestoreStep.restoring),
   const DeskShot(id: '03e-restore-failed', title: 'Restore: failed', route: DeskRoute.restore, arg: RestoreStep.failed),
-  const DeskShot(id: '04-setup', title: 'Setup: preferences', route: DeskRoute.setup, arg: SetupStep.prefs),
   const DeskShot(id: '04b-setup-node', title: 'Setup: node', route: DeskRoute.setup, arg: SetupStep.node),
   const DeskShot(id: '03-setup-node', title: 'Setup: choose a node', route: DeskRoute.setup, arg: SetupStep.node),
   const DeskShot(id: '03b-setup-local', title: 'Setup: the local node step', route: DeskRoute.setup, arg: SetupShot(SetupStep.local)),

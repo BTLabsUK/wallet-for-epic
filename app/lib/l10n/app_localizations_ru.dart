@@ -11476,9 +11476,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Повторная настройка. Ничего не изменится до нажатия «Сохранить настройки» на последнем шаге.';
 
   @override
-  String get deskSetupPrefsLead => 'Язык приложения';
-
-  @override
   String get deskSetupNodeTitle => 'Выберите узел';
 
   @override
@@ -11503,9 +11500,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupSave => 'Сохранить настройки';
-
-  @override
-  String get deskSetupLanguage => 'Язык';
 
   @override
   String get deskSetupNodeServer => 'Сервер узла';
@@ -13032,7 +13026,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Другой кошелёк ответит, когда его откроют. Этот экран можно закрыть; проверка появится, когда сопряжение завершится.';
+      'Ответ придёт, когда тот кошелёк будет открыт. Этот экран можно закрыть; проверка появится, когда сопряжение завершится.';
 
   @override
   String get pairRelayUnreachableTitle => 'Сервер недоступен';

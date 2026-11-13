@@ -11101,9 +11101,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Running setup again. Nothing changes until Save on the last step.';
 
   @override
-  String get deskSetupPrefsLead => 'App language';
-
-  @override
   String get deskSetupNodeTitle => 'Choose a node';
 
   @override
@@ -11128,9 +11125,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupSave => 'Save settings';
-
-  @override
-  String get deskSetupLanguage => 'Language';
 
   @override
   String get deskSetupNodeServer => 'Node server';
@@ -12610,7 +12604,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.';
+      'The answer comes when that wallet is open. This screen can be closed; the check shows when pairing is done.';
 
   @override
   String get pairRelayUnreachableTitle => 'Cannot reach the server';

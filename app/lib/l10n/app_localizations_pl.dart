@@ -11503,9 +11503,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ponowna konfiguracja. Nic się nie zmieni przed kliknięciem Zapisz ustawienia na ostatnim kroku.';
 
   @override
-  String get deskSetupPrefsLead => 'Język aplikacji';
-
-  @override
   String get deskSetupNodeTitle => 'Wybierz węzeł';
 
   @override
@@ -11530,9 +11527,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetupSave => 'Zapisz ustawienia';
-
-  @override
-  String get deskSetupLanguage => 'Język';
 
   @override
   String get deskSetupNodeServer => 'Serwer węzła';
@@ -13057,7 +13051,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Drugi portfel odpowie, gdy zostanie otwarty. Możesz zamknąć ten ekran; weryfikacja pojawi się po zakończeniu parowania.';
+      'Odpowiedź przyjdzie, gdy tamten portfel będzie otwarty. Ten ekran można zamknąć; sprawdzenie pojawi się po zakończeniu parowania.';
 
   @override
   String get pairRelayUnreachableTitle => 'Brak połączenia z serwerem';

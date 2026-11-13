@@ -17497,12 +17497,6 @@ abstract class AppLocalizations {
   /// **'Running setup again. Nothing changes until Save on the last step.'**
   String get deskSetupAgain;
 
-  /// Lead under the title of the setup's Preferences step, which has the language picker.
-  ///
-  /// In en, this message translates to:
-  /// **'App language'**
-  String get deskSetupPrefsLead;
-
   /// Title of the setup step where the user picks the Epic node the wallet uses.
   ///
   /// In en, this message translates to:
@@ -17550,12 +17544,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save settings'**
   String get deskSetupSave;
-
-  /// Label of the language picker on the setup's Preferences step, and the row in its summary. The language names in the list stay in their own language.
-  ///
-  /// In en, this message translates to:
-  /// **'Language'**
-  String get deskSetupLanguage;
 
   /// Label of the field where the user picks or types a public Epic node.
   ///
@@ -19846,7 +19834,7 @@ abstract class AppLocalizations {
   /// Waiting screen body.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.'**
+  /// **'The answer comes when that wallet is open. This screen can be closed; the check shows when pairing is done.'**
   String get pairWaitingBody;
 
   /// Notice on the waiting screen (cases file).

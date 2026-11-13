@@ -10476,9 +10476,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupAgain => '正在重新运行设置向导。在最后一步点击“保存设置”之前不会有任何更改。';
 
   @override
-  String get deskSetupPrefsLead => '应用语言';
-
-  @override
   String get deskSetupNodeTitle => '选择节点';
 
   @override
@@ -10501,9 +10498,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetupSave => '保存设置';
-
-  @override
-  String get deskSetupLanguage => '语言';
 
   @override
   String get deskSetupNodeServer => '节点服务器';
@@ -11895,7 +11889,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairNotNow => '暂不';
 
   @override
-  String get pairWaitingBody => '对方的钱包打开时会回复。你可以关闭此页面；配对完成后会出现验证。';
+  String get pairWaitingBody => '那个钱包打开时就会回复。此页面可以关闭；配对完成后会显示核对。';
 
   @override
   String get pairRelayUnreachableTitle => '无法连接服务器';

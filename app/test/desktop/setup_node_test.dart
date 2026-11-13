@@ -285,9 +285,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(milliseconds: 300));
-    // Preferences (the language) comes first; the node step is next.
-    await tester.tap(find.text(_l.commonContinue));
-    await tester.pump(const Duration(milliseconds: 700));
+    // The node step is the first (the language is asked on Welcome, not again here).
     await tester.pumpAndSettle();
   }
 

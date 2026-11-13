@@ -11228,9 +11228,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Einrichtung läuft erneut. Erst „Einstellungen speichern“ im letzten Schritt ändert etwas.';
 
   @override
-  String get deskSetupPrefsLead => 'Sprache der App';
-
-  @override
   String get deskSetupNodeTitle => 'Node wählen';
 
   @override
@@ -11255,9 +11252,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetupSave => 'Einstellungen speichern';
-
-  @override
-  String get deskSetupLanguage => 'Sprache';
 
   @override
   String get deskSetupNodeServer => 'Node-Server';
@@ -12760,7 +12754,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairWaitingBody =>
-      'Die andere Wallet antwortet, sobald sie geöffnet wird. Sie können diese Seite schließen; die Verifizierung erscheint, wenn die Kopplung fertig ist.';
+      'Die Antwort kommt, sobald diese Wallet geöffnet ist. Diese Seite kann geschlossen werden; die Prüfung erscheint, wenn die Kopplung fertig ist.';
 
   @override
   String get pairRelayUnreachableTitle => 'Der Server ist nicht erreichbar';
