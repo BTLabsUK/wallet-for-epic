@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
 import '../../connection_grace.dart';
+import '../../connection_state.dart' show walletStatusProvider;
 import '../../contact_check.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
@@ -27,6 +28,7 @@ import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
+import '../status.dart' show NodeState;
 import '../contact_page.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
@@ -217,6 +219,9 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     });
     // Something is in flight with another contact: its check runs within the in-flight interval.
     ref.listenManual(contactsInFlightProvider, (_, _) => _check?.inFlightChanged());
+    // Unlocked, or the node back: the check of every contact runs at once.
+    ref.listenManual(sessionProvider, (_, _) => _check?.wake());
+    ref.listenManual(walletStatusProvider.select((s) => s.node.state), (_, _) => _check?.wake());
     // A payment reached the payments address (the drain on open and resume).
     ref.listenManual(paymentsDrainProvider, (_, next) {
       if (next != null && (next.received > 0 || next.finalized > 0)) _check?.reset();

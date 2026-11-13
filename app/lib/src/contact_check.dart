@@ -75,6 +75,7 @@ class ContactCheck {
     required this.inFlight,
     required this.idleChecks,
     required this.inFlightEvery,
+    this.paused,
     DateTime Function()? now,
   }) : _boosts = boosts,
        _now = now ?? DateTime.now {
@@ -92,6 +93,11 @@ class ContactCheck {
   /// The waits between full checks, one step later after each that finds nothing.
   final List<Duration> idleChecks;
   final Duration inFlightEvery;
+
+  /// True while the wallet is locked or its node is down: the timer reads nothing then, and
+  /// the check of every contact runs as soon as [wake] says it is over. A pull to refresh or an
+  /// open does not go through it.
+  final bool Function()? paused;
 
   final Boosts _boosts;
   final DateTime Function() _now;
@@ -144,6 +150,9 @@ class ContactCheck {
   /// The contacts in flight changed: the check of them runs within [inFlightEvery].
   void inFlightChanged() => _retime(shorten: true);
 
+  /// What [paused] reads may have changed: when it is over, the check runs now.
+  void wake() => _retime(shorten: true);
+
   /// The check of every contact now, for an open or a resume ([trigger] says which); the wait
   /// starts again at the first step.
   Future<void> checkAll(PairingCollectTrigger trigger) async {
@@ -157,6 +166,11 @@ class ContactCheck {
   }
 
   Future<bool> _tick() async {
+    if (paused?.call() ?? false) {
+      // Nothing is read; look again in [inFlightEvery], or at once on [wake].
+      _driver.base = inFlightEvery;
+      return true;
+    }
     final boosted = _isBoosted;
     if (boosted || !_now().isBefore(_nextFull)) {
       var messages = 0;

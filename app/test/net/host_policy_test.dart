@@ -10,8 +10,8 @@ import '../support/test_settings.dart';
 void main() {
   test('hostPolicyOf reads the hold attempts and patience from the config', () {
     final p = LepicWalletService.hostPolicyOf(testConfig());
-    expect(p.contactHoldAttempts, 10);
-    expect(p.contactHoldPatienceS, BigInt.from(86400));
+    expect(p.contactHoldAttempts, 3);
+    expect(p.contactHoldPatienceS, BigInt.from(180));
     final other = LepicWalletService.hostPolicyOf(
       testConfig().withValues({'contacts.hold_attempts': 4, 'contacts.hold_patience_s': 600}),
     );

@@ -232,6 +232,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         inFlight: () => ref.read(deskContactsInFlightProvider),
         idleChecks: appConfig.contactsIdleChecks,
         inFlightEvery: appConfig.contactsInFlightCheck,
+        // Locked or the node down: the tick reads nothing.
+        paused: () => ref.read(deskProvider).account == null || ref.read(deskProvider).status?.nodeHealth == ServiceHealth.down,
       )..start();
     }
     _openCount = Timer.periodic(NodeFitFacts.tick, (_) {
@@ -411,6 +413,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     // What the pairing engine found (RFC 10.4), as a toast; the screens that wait open the
     // words check themselves, Pending invites keeps the rest.
+    // Unlocked, or the node back: the check of every contact runs at once.
+    ref.listen(deskProvider.select((s) => (s.account == null, s.status?.nodeHealth)), (_, _) => _contactCheck?.wake());
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
       if (e == null) return;

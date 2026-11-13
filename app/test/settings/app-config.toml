@@ -173,8 +173,8 @@ in_flight_check_s = 45
 idle_check_s = [45, 90, 180, 300]
 # A message from a contact that fails to apply is held and tried again on later checks, up to
 # this many attempts and for this many seconds, then dropped. The core's bounds.
-hold_attempts = 10
-hold_patience_s = 86400
+hold_attempts = 3
+hold_patience_s = 180
 # A message that opened but could not be taken is kept on this device, up to this many bytes in
 # all, tried again each time the app opens and removed after this many days.
 quarantine_max_bytes = 16777216

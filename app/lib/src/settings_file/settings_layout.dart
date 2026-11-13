@@ -413,8 +413,8 @@ const List<SettingsKey> configKeys = [
   SettingsKey('contacts.in_flight_check_s', IntKind(min: 15, max: 3600), byDefault: 45),
   SettingsKey('contacts.idle_check_s', IntListKind(min: 15, max: 3600), byDefault: [45, 90, 180, 300]),
   // ... and a contact's message that fails to apply is held for this many attempts and seconds
-  SettingsKey('contacts.hold_attempts', IntKind(min: 1, max: 100), byDefault: 10),
-  SettingsKey('contacts.hold_patience_s', IntKind(min: 1, max: 604800), byDefault: 86400),
+  SettingsKey('contacts.hold_attempts', IntKind(min: 1, max: 100), byDefault: 3),
+  SettingsKey('contacts.hold_patience_s', IntKind(min: 1, max: 604800), byDefault: 180),
   // ... then kept on this device, up to this size in all and this long
   SettingsKey('contacts.quarantine_max_bytes', IntKind(min: 1, max: 67108864), byDefault: 16777216),
   SettingsKey('contacts.quarantine_keep_days', IntKind(min: 1, max: 3650), byDefault: 30),
