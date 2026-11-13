@@ -25,7 +25,8 @@ import 'common.dart';
 import 'home_screen.dart' show homeCardGap;
 import 'home_parts.dart' show ownChangeOffChain;
 import 'home_slot.dart';
-import 'home_status.dart' show showConnectionsSheet;
+import '../phone_tor.dart';
+import 'home_status.dart' show showConnectionsSheet, torIconShown;
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
 import 'kit/kit_group.dart';
@@ -188,6 +189,7 @@ class _HomeHeader extends ConsumerWidget {
                     key: homePillKey,
                     ready: state == HomeConnection.ready,
                     label: label,
+                    tor: torIconShown(ref.watch(phoneTorProvider)),
                     onTap: () => showConnectionsSheet(context),
                     semanticsId: TrustIds.homeStatus,
                   ),
