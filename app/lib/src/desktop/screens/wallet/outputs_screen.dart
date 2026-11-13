@@ -184,7 +184,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = ref.watch(deskProvider);
-    final hidden = s.settings.hideAmounts;
     final AsyncValue<List<Output>> value = _args.error
         ? AsyncValue.error('shot', StackTrace.empty)
         : _args.waiting
@@ -206,12 +205,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       title: l.deskOutTitle,
       width: EPageWidth.full,
       actions: [
-        EIconButton(
-          icon: hidden ? EIcons.eyeOff : EIcons.eye,
-          label: hidden ? l.deskOutShowAmounts : l.deskOutHideAmounts,
-          selected: hidden,
-          onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
-        ),
         _refreshing
             ? SizedBox.square(dimension: Ctl.sm, child: const Center(child: ESpinner()))
             : EIconButton(icon: EIcons.refresh, label: l.deskOutRefresh, onPressed: _refresh),

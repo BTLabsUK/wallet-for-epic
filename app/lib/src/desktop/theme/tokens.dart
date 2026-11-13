@@ -71,11 +71,8 @@ abstract final class Ctl {
   static double get icon => _px(20);
   static double get iconLg => _px(24);
 
-  static double get sidebar => _px(224);
-
-  /// The Settings column that takes the sidebar's place while a Settings page is open.
+  /// The Settings column beside a Settings page.
   static double get settingsNav => _px(288);
-  static double get rail => _px(72);
   static double get topbar => _px(64);
 
   /// Reading widths.
@@ -233,8 +230,8 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.dots,
   });
 
-  /// Window, then four elevation steps: sidebar and panels, fields, hover and selection,
-  /// dialogs and popovers.
+  /// Window, then four elevation steps: panels, fields, hover and selection, dialogs and
+  /// popovers.
   final Color bg, s1, s2, s3, s4;
 
   /// Hairlines: between rows, around panels, around fields.

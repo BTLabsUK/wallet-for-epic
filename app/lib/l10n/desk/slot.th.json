@@ -1,5 +1,4 @@
 {
-  "deskSlotNow": "ตอนนี้",
   "deskSlotHelp": "ช่วยเหลือ",
   "deskSlotScanning": "กำลังสแกนเชน",
   "deskSlotScanWaits": "การสแกนรอเครือข่าย",
@@ -12,12 +11,10 @@
   "deskSlotPaymentsMoving": "กำลังยืนยันการชำระ",
   "deskSlotOf": "{done} จาก {needed}",
   "deskSlotWaitingBlock": "รอบล็อก",
-  "deskSlotRequests": "ใบแจ้งหนี้ใหม่",
   "deskSlotNodeStarting": "โหนดในเครื่องกำลังเริ่ม",
   "deskSlotNodeSyncing": "โหนดในเครื่องกำลังซิงก์",
   "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
   "deskSlotOpenSend": "เปิดส่ง",
   "deskSlotOpenActivity": "เปิดในประวัติ",
-  "deskSlotOpenInvoices": "เปิดใบแจ้งหนี้",
   "deskSlotNotPosted": "การชำระเงินไม่อยู่ในเครือข่าย"
 }

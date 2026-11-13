@@ -6771,12 +6771,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskActClearSearch => 'Suche löschen';
 
   @override
-  String get deskActShowAmounts => 'Beträge anzeigen';
-
-  @override
-  String get deskActHideAmounts => 'Beträge verbergen';
-
-  @override
   String get deskActRefresh => 'Aktualisieren';
 
   @override
@@ -7027,12 +7021,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOutTitle => 'Outputs';
-
-  @override
-  String get deskOutShowAmounts => 'Beträge anzeigen';
-
-  @override
-  String get deskOutHideAmounts => 'Beträge verbergen';
 
   @override
   String get deskOutRefresh => 'Aktualisieren';
@@ -14869,9 +14857,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskSlotNow => 'Aktuell';
-
-  @override
   String get deskSlotHelp => 'Hilfe';
 
   @override
@@ -14910,9 +14895,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSlotWaitingBlock => 'wartet auf einen Block';
 
   @override
-  String get deskSlotRequests => 'Neue Rechnungen';
-
-  @override
   String get deskSlotNodeStarting => 'Lokaler Node startet';
 
   @override
@@ -14926,9 +14908,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSlotOpenActivity => 'In Aktivität öffnen';
-
-  @override
-  String get deskSlotOpenInvoices => 'Rechnungen öffnen';
 
   @override
   String deskBarMenu(String app) {

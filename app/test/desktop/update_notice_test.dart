@@ -251,11 +251,10 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 
-  testWidgets('the narrow rail keeps the line as an icon with its words in the tooltip', (tester) async {
+  testWidgets('a narrow window keeps the line and its words in the status bar', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.available), size: const Size(900, 800));
     expect(line(), findsOneWidget);
-    expect(tip(tester), contains('Update available\u00A0· $_v'));
-    expect(find.descendant(of: line(), matching: find.byIcon(EIcons.download)), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.textContaining(_v)), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The window's own title bar (the system's is hidden, desk_window.dart), 40 u tall above every
-/// screen. Its left part is as wide as the sidebar and holds the brand, which opens the app
-/// menu (Lock, Switch wallet, Keyboard shortcuts, About, Quit). Then the wallet switcher (the
-/// name alone at Shallow with one wallet), the level's status icons (each a click opens its
-/// popover), Lock and the window controls:
-/// Windows' three on the right, round ones on Linux, the traffic lights' room on the left on
-/// macOS. Unlock and the first-run screens keep only the brand and the controls.
+/// The window's own title bar (the system's is hidden, desk_window.dart), 52 u tall above every
+/// screen. The brand opens the app menu (Lock, Switch wallet, Help, Report a problem, Keyboard
+/// shortcuts, About, Quit). Then the wallet's places as tabs, the wallet switcher (the name
+/// alone at Shallow with one wallet), Hide amounts, Lock and the window controls: Windows' three
+/// on the right, round ones on Linux, the traffic lights' room on the left on macOS. Unlock and
+/// the first-run screens keep only the brand and the controls. The services' status and the
+/// network mode are in the status bar at the window's foot (status_bar.dart).
 ///
 /// Any empty part of the bar moves the window; a double click maximises or restores it; a right
 /// click opens the system's window menu (Windows). While a dialog is open its scrim covers the
@@ -21,28 +21,41 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
+import '../../amount.dart' show atomicPerEpic, epicUnit;
 import '../../app_info.dart';
+import '../../l10n.dart' show localDigits;
+import '../../network_gate.dart' show NetGate;
+import '../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
+import '../../trust_ids.dart';
 import '../data/desk_update.dart' show deskAppVersion;
+import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, BrandWordmark, EpicMark;
 import '../../advanced.dart' show NetworkMode;
 import '../../ui/network_mode_text.dart';
 import '../data/desk_levels.dart';
 import '../data/net_mode_view.dart' show deskNetTor;
+import '../data/node_view.dart' show digits;
 import '../data/tor_view.dart' show TorState;
 import '../desk_l10n.dart';
 import '../screens/onboarding/onboarding_parts.dart' show networkName;
 import '../screens/onboarding/unlock_screen.dart' show UnlockPick;
+import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../screens/settings/prefs.dart';
+import '../screens/settings/report_problem.dart' show showReportProblemDialog;
 import '../widgets/kit.dart';
 import 'close_guard.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_window.dart';
+import 'now_slot.dart';
 import 'rail.dart';
-import 'shell.dart' show deskKeys, lockWallet, deskLockingProvider;
+import 'shell.dart' show deskKeys, deskSettingsHome, invoicesShown, lockWallet, deskLockingProvider, outputsShown;
 import 'status_popover.dart';
+import 'tour.dart' show TourTarget;
+
+part 'status_bar.dart';
 
 /// The bar's height before the interface scale.
-const double deskBarHeight = 48;
+const double deskBarHeight = 52;
 
 /// Dialogs open on the app's navigator: the bar dims under their scrim.
 class DeskModalWatch extends NavigatorObserver {
@@ -210,7 +223,7 @@ List<Widget> _resizeEdges(DeskWindow window) {
 }
 
 /// The bar. Its state comes from the window (maximised, focused), the place (an open wallet or
-/// Unlock) and the width (the sidebar or its rail).
+/// Unlock) and the width (below [Bp.desktop] the brand is its mark and the tabs their icons).
 class DeskTitleBar extends ConsumerWidget {
   const DeskTitleBar({super.key});
 
@@ -229,36 +242,23 @@ class DeskTitleBar extends ConsumerWidget {
         final dim = !w.focused;
         final chrome = c.tint.a != 0;
         final controls = window.frameless ? _WindowControls(window: window, state: w, style: style) : null;
-        // In Settings the brand stands over its column, wider than the sidebar.
-        final sideWidth = compact ? Ctl.rail : (route.section == DeskSection.settings ? Ctl.settingsNav : Ctl.sidebar);
         final bar = Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // The traffic lights' room (the system draws them on macOS).
             if (style == DeskWindowStyle.mac && window.frameless) SizedBox(width: 78.u),
-            SizedBox(
-              width: wallet ? sideWidth - (style == DeskWindowStyle.mac && window.frameless ? 78.u : 0) : null,
-              child: Padding(
-                padding: EdgeInsetsDirectional.only(start: compact && wallet ? 0 : Sp.x3, end: Sp.x2),
-                child: Align(
-                  alignment: compact && wallet ? Alignment.center : AlignmentDirectional.centerStart,
-                  child: _Held(child: _Brand(menu: wallet, compact: compact && wallet, dim: dim)),
-                ),
-              ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Sp.x1),
+              child: Center(child: _Held(child: _Brand(menu: wallet, compact: compact && wallet, dim: dim))),
             ),
-            // The wallet's name takes all the room the bar has left (beside a Spacer it got
-            // half, and lost its name in a narrow window).
             if (wallet) ...[
-              SizedBox(width: Sp.x4),
-              Expanded(child: Align(alignment: AlignmentDirectional.centerStart, child: _Held(child: _WalletChip(dim: dim)))),
-            ] else
-              const Spacer(),
-            if (wallet) ...[
-              // A bar narrower than Lay.lg shows the mode by its glyph alone (its name in the
-              // tooltip and the screen-reader label), so the wallet's name keeps its room.
-              _Held(child: _ModeMark(dim: dim, glyphOnly: width < Lay.lg)),
-              _Held(child: _StatusIcons(dim: dim)),
-              SizedBox(width: Sp.x1),
+              // The tabs take the room the bar has left; in a window too narrow for them they
+              // scroll, so the wallet's name and Lock never leave the bar.
+              Expanded(child: Align(alignment: AlignmentDirectional.centerStart, child: _Held(child: _Tabs(section: route.section, compact: compact)))),
+              // Always some empty bar to move the window by, however many tabs there are.
+              SizedBox(width: Sp.x6),
+              _Held(child: _WalletChip(dim: dim, compact: compact)),
+              _Held(child: _EyeButton(dim: dim)),
               _Held(child: _LockButton(dim: dim)),
               if (controls != null && style != DeskWindowStyle.mac)
                 Container(
@@ -269,7 +269,8 @@ class DeskTitleBar extends ConsumerWidget {
                 )
               else
                 SizedBox(width: Sp.x3),
-            ],
+            ] else
+              const Spacer(),
             ?controls,
           ],
         );
@@ -286,22 +287,9 @@ class DeskTitleBar extends ConsumerWidget {
                   Positioned.fill(
                     child: _DragSurface(
                       window: window,
-                      child: Row(
-                        children: [
-                          // Light: the bar is one white strip with the sidebar (the brand's
-                          // block runs into the column below it, no step beside it) and a
-                          // hairline over the page. Dark keeps the flat window colour.
-                          if (wallet)
-                            Container(
-                              width: sideWidth,
-                              decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: chrome ? c.lineStrong : c.line))),
-                            ),
-                          Expanded(
-                            // A Container, which fills the strip; a childless DecoratedBox sizes to nothing here.
-                            child: Container(decoration: chrome ? BoxDecoration(color: c.s1, border: Border(bottom: BorderSide(color: c.line))) : BoxDecoration(color: c.bg)),
-                          ),
-                        ],
-                      ),
+                      // One strip with a hairline over the page: white in light, the window's
+                      // colour in dark. A Container, which fills the strip.
+                      child: Container(decoration: BoxDecoration(color: chrome ? c.s1 : c.bg, border: Border(bottom: BorderSide(color: c.line)))),
                     ),
                   ),
                   Positioned.fill(child: bar),
@@ -379,13 +367,9 @@ class _Held extends ConsumerWidget {
   );
 }
 
-/// Hover and pressed backgrounds for the bar's own buttons (brand, wallet chip, status).
+/// Hover and pressed backgrounds for the bars' own buttons (brand, wallet chip, status lights).
 class _BarButton extends StatefulWidget {
-  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height = 30, this.hit44 = false});
-
-  /// The click and tap area is at least 44 × 44 u around the drawn button (the status icons,
-  /// review finding 8); what is drawn keeps [height].
-  final bool hit44;
+  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height = 30, this.radius});
 
   final String label;
   final String? tooltip;
@@ -396,6 +380,9 @@ class _BarButton extends StatefulWidget {
 
   /// Before the interface scale.
   final double height;
+
+  /// The corners of the hover and pressed background; the kit's control radius when null.
+  final double? radius;
 
   @override
   State<_BarButton> createState() => _BarButtonState();
@@ -422,7 +409,7 @@ class _BarButtonState extends State<_BarButton> {
         actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
         child: Builder(
           builder: (context) {
-            Widget face = FocusRing(
+            final face = FocusRing(
               focused: Focus.of(context).hasFocus,
               child: AnimatedContainer(
                 duration: Dur.fast,
@@ -436,17 +423,11 @@ class _BarButtonState extends State<_BarButton> {
                       : _hover
                       ? c.hover
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(Rad.sm),
+                  borderRadius: BorderRadius.circular(widget.radius ?? Rad.sm),
                 ),
                 child: widget.child,
               ),
             );
-            if (widget.hit44) {
-              face = ConstrainedBox(
-                constraints: BoxConstraints(minWidth: Ctl.md, minHeight: Ctl.md),
-                child: Center(widthFactor: 1, heightFactor: 1, child: face),
-              );
-            }
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: widget.onPressed,
@@ -516,7 +497,8 @@ Widget _menuDivider(DeskColors c) => Padding(
   child: Divider(height: 1, thickness: 1, color: c.line),
 );
 
-/// A menu that opens below its button and closes on Esc.
+/// A menu that opens below its button (above it from the status bar, where no room is below) and
+/// closes on Esc.
 class _BarMenu extends StatefulWidget {
   const _BarMenu({required this.children, required this.builder, this.minWidth, this.f10 = false});
 
@@ -623,9 +605,9 @@ class _Brand extends ConsumerWidget {
       ),
     );
     if (!menu) return Semantics(label: appName, excludeSemantics: true, child: Padding(padding: EdgeInsetsDirectional.only(start: Sp.x3), child: lockup));
-    // The rail: the mark alone, the build in its tooltip; Copy build info is in the menu.
+    // A narrow window: the mark alone, the build in its tooltip; Copy build info is in the menu.
     if (compact) return _appMenu(context, ref, Center(widthFactor: 1, child: mark(22.u)), tooltip: '$appName ${deskBuildLabel()}');
-    // The build in the tooltip (the sidebar has no version line).
+    // The build in the tooltip.
     return _appMenu(context, ref, lockup, tooltip: '$appName ${deskBuildLabel()}');
   }
 
@@ -641,6 +623,8 @@ class _Brand extends ConsumerWidget {
         if (!deskNoLock) _menuItem(context, key: const ValueKey('bar-menu-lock'), icon: EIcons.lock, label: l.deskBarLock, keys: deskKeys('L'), onPressed: locking ? null : () => lockWallet(ref)),
         if (canSwitch && !deskNoLock) _menuItem(context, icon: EIcons.swap, label: l.deskShellSwitchWallet, onPressed: locking ? null : () => lockWallet(ref)),
         _menuDivider(c),
+        _menuItem(context, key: const ValueKey('bar-menu-help'), icon: EIcons.help, label: l.deskSlotHelp, onPressed: () => _go(ref, DeskRoute.settingsHelp)),
+        _menuItem(context, key: const ValueKey('bar-menu-report'), icon: EIcons.bug, label: l.deskSetReportTitle, onPressed: _reportProblem),
         _menuItem(context, icon: EIcons.keyboard, label: l.deskBarShortcuts, keys: '?', onPressed: () => showDeskShortcuts()), // l10n-ok: the key
         _menuItem(context, icon: EIcons.info, label: l.deskBarAbout(appName), onPressed: () => _go(ref, DeskRoute.settingsAbout)),
         _menuItem(context, key: const ValueKey('bar-menu-build'), icon: EIcons.copy, label: l.deskBarCopyBuild, onPressed: () => unawaited(copyBuildInfo())),
@@ -653,8 +637,7 @@ class _Brand extends ConsumerWidget {
         tooltip: tooltip,
         open: open,
         height: 36,
-        // The mark lines up with the sidebar's icons below it.
-        padding: compact ? EdgeInsets.symmetric(horizontal: Sp.x2) : EdgeInsetsDirectional.only(start: Sp.x3, end: Sp.x4),
+        padding: compact ? EdgeInsets.symmetric(horizontal: Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x3),
         onPressed: () => _toggle(m),
         child: child,
       ),
@@ -709,9 +692,12 @@ void _go(WidgetRef ref, DeskRoute route) {
 
 /// The open wallet's name; a click lists the wallets on this computer.
 class _WalletChip extends ConsumerWidget {
-  const _WalletChip({required this.dim});
+  const _WalletChip({required this.dim, required this.compact});
 
   final bool dim;
+
+  /// A narrow window: the name gets half the room.
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -732,7 +718,7 @@ class _WalletChip extends ConsumerWidget {
         SizedBox(width: Sp.x2),
         Flexible(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 240.u),
+            constraints: BoxConstraints(maxWidth: compact ? 120.u : 240.u),
             child: Text(
               name,
               maxLines: 1,
@@ -791,140 +777,97 @@ class _WalletChip extends ConsumerWidget {
   }
 }
 
-/// The network mode's mark, left of the status cluster and shown only off Normal: a small
-/// neutral pill (the mode's glyph and name, no state dot: a mode is a choice, not a service)
-/// and a hairline after it. A click opens a popover with the glyph, the name, one line and a
-/// Change button that opens Settings › Advanced › Network.
-class _ModeMark extends ConsumerWidget {
-  const _ModeMark({required this.dim, this.glyphOnly = false});
+/// The wallet's places as tabs: Home, Activity, Contacts, Invoices, Outputs and Settings, with
+/// the counts and the tour targets. Send and Receive start on Home.
+class _Tabs extends ConsumerWidget {
+  const _Tabs({required this.section, required this.compact});
 
-  final bool dim;
-  final bool glyphOnly;
+  final DeskSection? section;
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(deskProvider.select((s) => s.settings.advanced.networkMode));
-    if (mode == NetworkMode.standard) return const SizedBox.shrink();
     final l = context.l10n;
-    final c = context.dc;
-    final ts = context.ts;
-    final name = networkModeName(l, mode);
-    final waiting = mode == NetworkMode.torOnly && deskNetTor(ref.watch(deskProvider)) != TorState.on;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _BarMenu(
-          minWidth: 280.u,
-          children: (context, m) => [
-            Padding(
-              padding: EdgeInsets.all(Sp.x3),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 260.u),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(networkModeGlyph(mode), size: 18.u, color: c.dim),
-                        SizedBox(width: Sp.x2),
-                        Flexible(child: Text(name, style: ts.strong)),
-                      ],
-                    ),
-                    SizedBox(height: Sp.x2),
-                    Text(networkModeMarkLine(l, mode, waitingForTor: waiting), style: ts.small.copyWith(color: c.dim)),
-                    SizedBox(height: Sp.x3),
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: EButton(
-                        key: const ValueKey('bar-mode-change'),
-                        label: l.netMarkChange,
-                        onPressed: () {
-                          m.close();
-                          deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-                          ProviderScope.containerOf(context, listen: false).read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network);
-                        },
-                      ),
-                    ),
-                  ],
+    final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
+    final invoices = invoicesShown(ref);
+    final outputs = outputsShown(ref);
+    final toPay = ref.watch(deskInvoiceBadgeProvider);
+    return Semantics(
+      container: true,
+      label: l.deskShellMainNav,
+      child: TrustId(TrustIds.nav, child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 2,
+          children: [
+            for (final (s, route, icon) in deskNav)
+              if (s != DeskSection.send && s != DeskSection.receive && (s != DeskSection.invoices || invoices) && (s != DeskSection.outputs || outputs))
+                TourTarget(
+                  id: 'nav-${s.name}',
+                  child: ETab(
+                    semanticsId: TrustIds.shellNav(s.name),
+                    icon: icon,
+                    label: deskNavLabel(l, s),
+                    selected: section == s,
+                    compact: compact,
+                    count: switch (s) {
+                      DeskSection.activity => pending,
+                      DeskSection.invoices => toPay,
+                      _ => null,
+                    },
+                    onTap: () => _go(ref, route),
+                  ),
                 ),
+            TourTarget(
+              id: 'nav-settings',
+              child: ETab(
+                semanticsId: TrustIds.navSettings,
+                icon: EIcons.settings,
+                label: l.deskShellNavSettings,
+                selected: section == DeskSection.settings,
+                compact: compact,
+                onTap: () => _go(ref, deskSettingsHome(ref)),
               ),
             ),
           ],
-          builder: (context, m, open) => _BarButton(
-            key: const ValueKey('bar-net-mode'),
-            label: l.netMarkSemanticsDesk(name),
-            tooltip: glyphOnly ? metaLine([name, networkModeMarkLine(l, mode, waitingForTor: waiting)]) : networkModeMarkLine(l, mode, waitingForTor: waiting),
-            open: open,
-            padding: EdgeInsets.symmetric(horizontal: 4.u),
-            onPressed: () => _toggle(m),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: glyphOnly ? Sp.x1 + 2.u : Sp.x2),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(12.u)),
-              height: 24.u,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(networkModeGlyph(mode), size: 14.u, color: dim ? c.faint : c.dim),
-                  if (!glyphOnly) ...[
-                    SizedBox(width: Sp.x1),
-                    Text(name, maxLines: 1, style: ts.caption.copyWith(color: dim ? c.faint : c.dim)),
-                  ],
-                ],
-              ),
-            ),
-          ),
         ),
-        Container(width: 1, height: 16.u, margin: EdgeInsets.symmetric(horizontal: Sp.x2), color: c.line),
-      ],
+      )),
     );
   }
 }
 
-/// The level's status icons (Shallow: Network and Epicbox; deeper: Node, Epicbox, HTTP, Tor),
-/// each a glyph with a state dot, a "Name · State" tooltip, and a popover of its own under it
-/// (status_popover.dart). Enter or Space opens it, Esc closes it.
-class _StatusIcons extends ConsumerWidget {
-  const _StatusIcons({required this.dim});
+/// Report a problem, from the app menu, over whatever page is open.
+void _reportProblem() {
+  final shown = deskNavigatorKey.currentContext;
+  if (shown != null) unawaited(showReportProblemDialog(shown));
+}
+
+/// Hide amounts, on every page; the levels that keep it out of the header have none.
+class _EyeButton extends ConsumerWidget {
+  const _EyeButton({required this.dim});
 
   final bool dim;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(deskLevelUiProvider.select((u) => u.hideAmountsInHeader))) return const SizedBox.shrink();
+    final c = context.dc;
     final l = context.l10n;
-    final level = ref.watch(deskLevelProvider);
-    return ServiceRows(
-      builder: (context, items) {
-        final shown = deskStatusShown(ref, items);
-        return Semantics(
-          container: true,
-          label: l.deskBarStatus,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final i in shown)
-                _BarMenu(
-                  minWidth: 280.u,
-                  children: (context, m) => [DeskStatusPopover(item: i, close: m.close)],
-                  builder: (context, m, open) {
-                    final tip = deskStatusTip(l, level, i);
-                    return _BarButton(
-                      key: ValueKey('bar-status-${i.jump.name}'),
-                      label: tip,
-                      tooltip: tip,
-                      open: open,
-                      padding: EdgeInsets.symmetric(horizontal: 3.u),
-                      hit44: true,
-                      onPressed: () => _toggle(m),
-                      child: EStatusGlyph(icon: i.icon, state: i.state, label: tip, dim: dim),
-                    );
-                  },
-                ),
-            ],
-          ),
-        );
-      },
+    final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
+    return Center(
+      child: EIconButton(
+        key: const ValueKey('bar-eye'),
+        icon: hidden ? EIcons.eyeOff : EIcons.eye,
+        label: hidden ? l.deskOvShowAmounts : l.deskOvHideAmounts,
+        selected: hidden,
+        size: EBtnSize.inline,
+        color: dim ? c.faint : null,
+        onPressed: () {
+          final s = ref.read(deskProvider).settings;
+          ref.read(deskProvider.notifier).saveSettings(s.copyWith(hideAmounts: !hidden));
+        },
+      ),
     );
   }
 }

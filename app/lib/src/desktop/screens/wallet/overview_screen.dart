@@ -234,14 +234,6 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
             )
           : null,
       actions: [
-        // Shallow moves the eye to Settings › Appearance.
-        if (lv.hideAmountsInHeader)
-          EIconButton(
-            icon: hidden ? EIcons.eyeOff : EIcons.eye,
-            label: hidden ? l.deskOvShowAmounts : l.deskOvHideAmounts,
-            selected: hidden,
-            onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
-          ),
         _refreshing
             ? SizedBox.square(
                 dimension: Ctl.sm,

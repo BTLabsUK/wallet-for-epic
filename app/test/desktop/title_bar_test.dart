@@ -85,22 +85,21 @@ void main() {
 
   Finder bar(String id) => find.byKey(ValueKey('bar-$id'));
 
-  // A send under way shows a moving bar in the sidebar, which never settles.
+  // A send under way never settles.
   Future<void> settle(WidgetTester tester) async {
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
   }
 
-  // The brand's upper row (its lower row is the build label, its own button).
   Future<void> openMenu(WidgetTester tester) async {
-    await tester.tapAt(tester.getTopLeft(bar('brand')) + const Offset(10, 8));
+    await tester.tap(bar('brand'));
     await tester.pumpAndSettle();
   }
 
   testWidgets('an open wallet: brand menu, wallet, status, lock and the window controls', (tester) async {
     await pump(tester);
-    for (final id in ['brand', 'wallet', 'status-node', 'status-epicbox', 'lock', 'min', 'max', 'close']) {
+    for (final id in ['brand', 'wallet', 'eye', 'status-node', 'status-epicbox', 'net-mode', 'lock', 'min', 'max', 'close']) {
       expect(bar(id), findsOneWidget, reason: id);
     }
     // The brand opens the app menu with Lock and Quit and their shortcuts.
@@ -211,8 +210,8 @@ void main() {
 
   testWidgets('the bar moves the window; double-click maximises; edges resize', (tester) async {
     await pump(tester);
-    // An empty part of the bar, right of the wallet chip.
-    final at = tester.getCenter(bar('wallet')) + const Offset(300, 0);
+    // The part the bar always keeps empty, between the tabs and the wallet chip.
+    final at = tester.getCenter(bar('wallet')).translate(-tester.getSize(bar('wallet')).width / 2 - 12, 0);
     await tester.dragFrom(at, const Offset(60, 40));
     await tester.pumpAndSettle();
     expect(window.calls, contains('drag'));
@@ -226,15 +225,18 @@ void main() {
     expect(window.calls, contains('max'));
   });
 
-  testWidgets('the sidebar slot rests on Help and Report a problem; the wallet shows once, in the bar', (tester) async {
+  testWidgets('the app menu has Help and Report a problem; the wallet shows once, in the bar', (tester) async {
     await pump(tester);
-    expect(find.byKey(const ValueKey('now-help')), findsOneWidget);
-    expect(find.byKey(const ValueKey('now-report')), findsOneWidget);
-    expect(find.text('Main wallet'), findsOneWidget, reason: 'the sidebar no longer repeats the wallet');
+    expect(find.text('Main wallet'), findsOneWidget);
     expect(find.text('Wallet by BT Labs'), findsNothing);
+    await openMenu(tester);
+    expect(find.byKey(const ValueKey('bar-menu-help')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bar-menu-report')), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
   });
 
-  testWidgets('no build label in the sidebar (item 7); Copy build info puts the build on the clipboard', (tester) async {
+  testWidgets('no build label in the bar (item 7); Copy build info puts the build on the clipboard', (tester) async {
     String? copied;
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
       if (call.method == 'Clipboard.setData') copied = (call.arguments as Map)['text'] as String?;

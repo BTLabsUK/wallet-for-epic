@@ -1,8 +1,6 @@
 {
   "deskOutNotUpdated": "未更新",
   "deskOutTitle": "输出",
-  "deskOutShowAmounts": "显示金额",
-  "deskOutHideAmounts": "隐藏金额",
   "deskOutRefresh": "刷新",
   "deskOutLockedNote": "已锁定的输出正被一笔进行中的交易花费。它们的找零显示为“等待完成”，在发送完成前不计入总额，因此总额中每个币只计算一次。",
   "deskOutIntro": "输出是构成余额的一个个部分。一笔发送会花掉整个输出，并把找零作为新的输出返回。",

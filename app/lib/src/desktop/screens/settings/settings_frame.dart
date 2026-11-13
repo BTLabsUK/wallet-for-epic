@@ -12,7 +12,6 @@ import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
 import '../../data/desk_levels.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
-import '../../app/now_slot.dart' show NowSlot;
 import 'search/search_slot.dart';
 import 'search/settings_sections.dart';
 import '../../../advanced.dart' show AdvancedFeature;
@@ -94,11 +93,7 @@ class SettingsColumn extends ConsumerWidget {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, Sp.x4, Sp.x3),
-              // The tour lights it as the place it shows (the sidebar's Settings entry is gone here).
-              child: TourTarget(
-                id: 'nav-settings',
-                child: Semantics(header: true, child: Text(l.deskSetFrameTitle, style: ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis)),
-              ),
+              child: Semantics(header: true, child: Text(l.deskSetFrameTitle, style: ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ),
             Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: const SettingsSearchSlot()),
             Expanded(
@@ -116,8 +111,6 @@ class SettingsColumn extends ConsumerWidget {
                 ),
               ),
             ),
-            // What goes on now (a scan, a payment, an update), as the sidebar's slot says it.
-            const NowSlot(compact: false, resting: false),
             Container(
               padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),

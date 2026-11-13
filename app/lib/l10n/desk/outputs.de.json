@@ -1,8 +1,6 @@
 {
   "deskOutNotUpdated": "Nicht aktualisiert",
   "deskOutTitle": "Outputs",
-  "deskOutShowAmounts": "Beträge anzeigen",
-  "deskOutHideAmounts": "Beträge verbergen",
   "deskOutRefresh": "Aktualisieren",
   "deskOutLockedNote": "Gesperrte Outputs werden von einer laufenden Transaktion ausgegeben. Ihr Wechselgeld erscheint als „Wartet auf Abschluss“ und zählt erst zu Gesamt, wenn die Zahlung abgeschlossen ist, damit Gesamt die Coins nur einmal zählt.",
   "deskOutIntro": "Outputs sind die Stücke, aus denen das Guthaben besteht. Eine Zahlung verbraucht ganze Outputs und gibt das Wechselgeld als neuen Output zurück.",

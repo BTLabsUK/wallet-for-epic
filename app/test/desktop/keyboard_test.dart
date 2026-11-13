@@ -5,6 +5,7 @@
 // Alt+arrows and Backspace outside a text field, wizard steps first.
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
+import 'package:epic_wallet/src/desktop/app/title_bar.dart' show DeskStatusBar;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';
@@ -84,6 +85,7 @@ String _focused() {
       ServerListPanel() => 'combo:${w.label}',
       EDetails() => 'details',
       ENavItem() => 'nav:${w.label}',
+      DeskStatusBar() => 'status',
       TxPen() => 'pen:${w.label}',
       _ => null,
     };
@@ -179,7 +181,7 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Send: To, Amount, Message, then Review send before the sidebar', (tester) async {
+    testWidgets('Send: To, Amount, Message, then Review send before the status bar', (tester) async {
       await _open(tester, DeskRoute.send);
       await _type(tester, _l.deskSendToSem, 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNL@box.epic.invalid');
       await _type(tester, 'Amount', '1');
@@ -188,7 +190,7 @@ void main() {
       // paste is not a stop. The Advanced disclosure follows Message, then the summary's help
       // icon (keyboard-reachable), then Review.
       expect(tabs.take(8), ['icon:Clear recipient', 'button:Contacts', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'help:Why the change is split', 'button:Review']);
-      expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
+      expect(tabs.last, 'status', reason: 'the status bar comes after the form');
       expect(tabs.where((t) => t != 'icon:Clear recipient'), _noSecondary);
       await _end(tester);
     });

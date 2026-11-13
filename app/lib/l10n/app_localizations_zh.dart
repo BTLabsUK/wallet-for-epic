@@ -6293,12 +6293,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskActClearSearch => '清除搜索';
 
   @override
-  String get deskActShowAmounts => '显示金额';
-
-  @override
-  String get deskActHideAmounts => '隐藏金额';
-
-  @override
   String get deskActRefresh => '刷新';
 
   @override
@@ -6544,12 +6538,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOutTitle => '输出';
-
-  @override
-  String get deskOutShowAmounts => '显示金额';
-
-  @override
-  String get deskOutHideAmounts => '隐藏金额';
 
   @override
   String get deskOutRefresh => '刷新';
@@ -13866,9 +13854,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSlotNow => '当前';
-
-  @override
   String get deskSlotHelp => '帮助';
 
   @override
@@ -13907,9 +13892,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSlotWaitingBlock => '等待区块';
 
   @override
-  String get deskSlotRequests => '新账单';
-
-  @override
   String get deskSlotNodeStarting => '本地节点正在启动';
 
   @override
@@ -13923,9 +13905,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlotOpenActivity => '在活动中打开';
-
-  @override
-  String get deskSlotOpenInvoices => '打开账单';
 
   @override
   String deskBarMenu(String app) {

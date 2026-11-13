@@ -38,18 +38,19 @@ Future<void> _end(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 10));
 }
 
-Finder _rail(String label) => find.descendant(of: find.byType(ENavItem), matching: find.text(label));
+// A tab of the title bar by its label (a narrow window shows the selected tab's label only).
+Finder _rail(String label) => find.byWidgetPredicate((w) => w is ETab && w.label == label);
 
 void main() {
   group('Shallow', () {
-    testWidgets('an invoice to answer brings Invoices to the rail', (tester) async {
+    testWidgets('an invoice to answer brings Invoices to the tabs', (tester) async {
       await _pump(tester, WalletLevel.justSendReceive, invoicesToAnswer: 1);
       expect(_rail('Invoices'), findsOneWidget);
     });
 
-    testWidgets('six rail items, the name without a menu, Network and Epicbox, a popover without For support or Copy details', (tester) async {
+    testWidgets('four tabs, the name without a menu, Network and Epicbox, a popover without For support or Copy details', (tester) async {
       await _pump(tester, WalletLevel.justSendReceive);
-      for (final l in ['Overview', 'Activity', 'Contacts', 'Send', 'Receive', 'Settings']) {
+      for (final l in ['Overview', 'Activity', 'Contacts', 'Settings']) {
         expect(_rail(l), findsOneWidget, reason: l);
       }
       expect(_rail('Outputs'), findsNothing);

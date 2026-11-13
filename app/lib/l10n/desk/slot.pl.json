@@ -1,5 +1,4 @@
 {
-  "deskSlotNow": "Teraz",
   "deskSlotHelp": "Pomoc",
   "deskSlotScanning": "Skanowanie łańcucha",
   "deskSlotScanWaits": "Skanowanie czeka na sieć",
@@ -12,12 +11,10 @@
   "deskSlotPaymentsMoving": "Płatności w toku",
   "deskSlotOf": "{done} z {needed}",
   "deskSlotWaitingBlock": "czeka na blok",
-  "deskSlotRequests": "Nowe faktury",
   "deskSlotNodeStarting": "Uruchamianie węzła lokalnego",
   "deskSlotNodeSyncing": "Synchronizacja węzła lokalnego",
   "deskSlotOpenRecheck": "Otwórz Sprawdź saldo",
   "deskSlotOpenSend": "Otwórz Wyślij",
   "deskSlotOpenActivity": "Otwórz w Aktywności",
-  "deskSlotOpenInvoices": "Otwórz Faktury",
   "deskSlotNotPosted": "Płatności nie ma w sieci"
 }

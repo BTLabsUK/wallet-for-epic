@@ -6901,12 +6901,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActClearSearch => 'Очистить поиск';
 
   @override
-  String get deskActShowAmounts => 'Показать суммы';
-
-  @override
-  String get deskActHideAmounts => 'Скрыть суммы';
-
-  @override
   String get deskActRefresh => 'Обновить';
 
   @override
@@ -7161,12 +7155,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutTitle => 'Выходы';
-
-  @override
-  String get deskOutShowAmounts => 'Показать суммы';
-
-  @override
-  String get deskOutHideAmounts => 'Скрыть суммы';
 
   @override
   String get deskOutRefresh => 'Обновить';
@@ -15217,9 +15205,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSlotNow => 'Сейчас';
-
-  @override
   String get deskSlotHelp => 'Справка';
 
   @override
@@ -15258,9 +15243,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSlotWaitingBlock => 'ждёт блока';
 
   @override
-  String get deskSlotRequests => 'Новые счета';
-
-  @override
   String get deskSlotNodeStarting => 'Запуск локального узла';
 
   @override
@@ -15274,9 +15256,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSlotOpenActivity => 'Открыть в «Активности»';
-
-  @override
-  String get deskSlotOpenInvoices => 'Открыть «Счета»';
 
   @override
   String deskBarMenu(String app) {

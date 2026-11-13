@@ -10658,18 +10658,6 @@ abstract class AppLocalizations {
   /// **'Clear search'**
   String get deskActClearSearch;
 
-  /// Tooltip of the icon button on Activity that shows the hidden amounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Show amounts'**
-  String get deskActShowAmounts;
-
-  /// Tooltip of the icon button on Activity that hides amounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide amounts'**
-  String get deskActHideAmounts;
-
   /// Tooltip of the icon button on Activity that asks the node for new transactions.
   ///
   /// In en, this message translates to:
@@ -11107,18 +11095,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outputs'**
   String get deskOutTitle;
-
-  /// Tooltip of the icon button on Outputs that shows the hidden amounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Show amounts'**
-  String get deskOutShowAmounts;
-
-  /// Tooltip of the icon button on Outputs that hides amounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide amounts'**
-  String get deskOutHideAmounts;
 
   /// Tooltip of the icon button on Outputs that asks the node for new data; also the button when the list could not be loaded.
   ///
@@ -22735,12 +22711,6 @@ abstract class AppLocalizations {
   /// **'Switch to {host}'**
   String deskEpicboxBlockedSwitch(String host);
 
-  /// Screen-reader name of the sidebar's bottom slot, which shows what is going on now (a scan, an update, a payment on its way).
-  ///
-  /// In en, this message translates to:
-  /// **'Now'**
-  String get deskSlotNow;
-
   /// Small link at the bottom of the sidebar: opens Settings › Help.
   ///
   /// In en, this message translates to:
@@ -22813,12 +22783,6 @@ abstract class AppLocalizations {
   /// **'waiting for a block'**
   String get deskSlotWaitingBlock;
 
-  /// Sidebar slot line: invoices that need an answer; the count follows after a dot.
-  ///
-  /// In en, this message translates to:
-  /// **'New invoices'**
-  String get deskSlotRequests;
-
   /// Sidebar slot line: the local node on this computer is starting.
   ///
   /// In en, this message translates to:
@@ -22848,12 +22812,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open in Activity'**
   String get deskSlotOpenActivity;
-
-  /// Tooltip line of the slot's requests line: opens Invoices.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Invoices'**
-  String get deskSlotOpenInvoices;
 
   /// Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, BT Wallet.
   ///

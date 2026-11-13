@@ -15,14 +15,6 @@
   "@deskActClearSearch": {
     "description": "Tooltip of the button that empties the search field; also the button of the 'no match' state."
   },
-  "deskActShowAmounts": "Show amounts",
-  "@deskActShowAmounts": {
-    "description": "Tooltip of the icon button on Activity that shows the hidden amounts."
-  },
-  "deskActHideAmounts": "Hide amounts",
-  "@deskActHideAmounts": {
-    "description": "Tooltip of the icon button on Activity that hides amounts."
-  },
   "deskActRefresh": "Refresh",
   "@deskActRefresh": {
     "description": "Tooltip of the icon button on Activity that asks the node for new transactions."

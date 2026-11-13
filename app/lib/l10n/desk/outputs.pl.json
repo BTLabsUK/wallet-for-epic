@@ -1,8 +1,6 @@
 {
   "deskOutNotUpdated": "Nie zaktualizowano",
   "deskOutTitle": "Wyjścia",
-  "deskOutShowAmounts": "Pokaż kwoty",
-  "deskOutHideAmounts": "Ukryj kwoty",
   "deskOutRefresh": "Odśwież",
   "deskOutLockedNote": "Zablokowane wyjścia są wydawane przez trwającą transakcję. Ich reszta jest widoczna jako czekająca na sfinalizowanie i nie wlicza się do sumy Razem, dopóki wysyłka nie zostanie sfinalizowana, więc Razem liczy monety tylko raz.",
   "deskOutIntro": "Wyjścia to części, z których składa się saldo. Wysyłka wydaje całe wyjścia i zwraca resztę jako nowe wyjście.",

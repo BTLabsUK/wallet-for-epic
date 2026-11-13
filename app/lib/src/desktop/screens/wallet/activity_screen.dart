@@ -154,7 +154,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   Widget _buildPage(BuildContext context, double width) {
     final s = ref.watch(deskProvider);
     final l = context.l10n;
-    final hidden = s.settings.hideAmounts;
     final split = width >= Lay.xl;
     // Below this the tabs and the search move out of the header into the page.
     final roomy = width >= Lay.xl;
@@ -163,14 +162,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final hasItems = all?.isNotEmpty ?? false;
     final actions = <Widget>[
       if (roomy) _search(full: false, hasItems: hasItems),
-      // Shallow moves the eye to Settings › Appearance.
-      if (ref.watch(deskLevelUiProvider.select((f) => f.hideAmountsInHeader)))
-        EIconButton(
-          icon: hidden ? EIcons.eyeOff : EIcons.eye,
-          label: hidden ? l.deskActShowAmounts : l.deskActHideAmounts,
-          selected: hidden,
-          onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
-        ),
       _refreshing
           ? SizedBox.square(
               dimension: Ctl.sm,

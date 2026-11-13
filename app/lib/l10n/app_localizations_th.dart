@@ -6524,12 +6524,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActClearSearch => 'ล้างการค้นหา';
 
   @override
-  String get deskActShowAmounts => 'แสดงจำนวน';
-
-  @override
-  String get deskActHideAmounts => 'ซ่อนจำนวน';
-
-  @override
   String get deskActRefresh => 'รีเฟรช';
 
   @override
@@ -6777,12 +6771,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutTitle => 'เอาต์พุต';
-
-  @override
-  String get deskOutShowAmounts => 'แสดงจำนวน';
-
-  @override
-  String get deskOutHideAmounts => 'ซ่อนจำนวน';
 
   @override
   String get deskOutRefresh => 'รีเฟรช';
@@ -14358,9 +14346,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSlotNow => 'ตอนนี้';
-
-  @override
   String get deskSlotHelp => 'ช่วยเหลือ';
 
   @override
@@ -14399,9 +14384,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSlotWaitingBlock => 'รอบล็อก';
 
   @override
-  String get deskSlotRequests => 'ใบแจ้งหนี้ใหม่';
-
-  @override
   String get deskSlotNodeStarting => 'โหนดในเครื่องกำลังเริ่ม';
 
   @override
@@ -14415,9 +14397,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSlotOpenActivity => 'เปิดในประวัติ';
-
-  @override
-  String get deskSlotOpenInvoices => 'เปิดใบแจ้งหนี้';
 
   @override
   String deskBarMenu(String app) {

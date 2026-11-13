@@ -1,5 +1,4 @@
 {
-  "deskSlotNow": "Aktuell",
   "deskSlotHelp": "Hilfe",
   "deskSlotScanning": "Chain wird durchsucht",
   "deskSlotScanWaits": "Durchsuchen wartet auf das Netzwerk",
@@ -12,12 +11,10 @@
   "deskSlotPaymentsMoving": "Zahlungen bestätigen",
   "deskSlotOf": "{done} von {needed}",
   "deskSlotWaitingBlock": "wartet auf einen Block",
-  "deskSlotRequests": "Neue Rechnungen",
   "deskSlotNodeStarting": "Lokaler Node startet",
   "deskSlotNodeSyncing": "Lokaler Node synchronisiert",
   "deskSlotOpenRecheck": "„Guthaben neu prüfen“ öffnen",
   "deskSlotOpenSend": "Senden öffnen",
   "deskSlotOpenActivity": "In Aktivität öffnen",
-  "deskSlotOpenInvoices": "Rechnungen öffnen",
   "deskSlotNotPosted": "Zahlung nicht im Netzwerk"
 }

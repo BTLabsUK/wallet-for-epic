@@ -92,15 +92,15 @@ class DeskLocation {
   final Object? arg;
 }
 
-/// The sidebar's entries, in order: the phone's (Activity, Outputs, Contacts, Invoices), then Send
-/// and Receive.
+/// The wallet's places, in order. The title bar shows them as tabs without Send and Receive,
+/// which start on Home; the phone-width bar keeps all of them.
 const List<(DeskSection, DeskRoute, IconData)> deskNav = [
   (DeskSection.overview, DeskRoute.overview, EIcons.home),
   (DeskSection.activity, DeskRoute.activity, EIcons.activity),
-  (DeskSection.outputs, DeskRoute.outputs, EIcons.coins),
   (DeskSection.contacts, DeskRoute.contacts, EIcons.contacts),
   // Shown only when the wallet supports invoices.
   (DeskSection.invoices, DeskRoute.invoices, EIcons.invoice),
+  (DeskSection.outputs, DeskRoute.outputs, EIcons.coins),
   (DeskSection.send, DeskRoute.send, EIcons.send),
   (DeskSection.receive, DeskRoute.receive, EIcons.receive),
 ];

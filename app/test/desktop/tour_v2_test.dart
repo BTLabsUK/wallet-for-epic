@@ -129,23 +129,26 @@ void main() {
     });
   });
 
-  testWidgets('the sidebar runs as the phone: Activity, Outputs, Contacts, Invoices, Send, Receive; each step lights an entry in it', (tester) async {
-    // Outputs sits in the sidebar once Advanced shows it.
+  testWidgets('the tabs run Home, Activity, Contacts, Invoices, Outputs, Settings; each step lights one of them', (tester) async {
+    // Outputs is a tab once Advanced shows it.
     final container = await _open(tester, DeskRoute.overview);
     await tester.runAsync(() => advancedOn(container, only: {AdvancedFeature.outputs}));
     await _settle(tester);
-    double top(String id) => tester.getTopLeft(find.byKey(tourKey(id))).dy;
-    final ids = ['nav-overview', 'nav-activity', 'nav-outputs', 'nav-contacts', 'nav-invoices', 'nav-send', 'nav-receive', 'nav-settings'];
-    final tops = [for (final id in ids) top(id)];
-    for (var i = 1; i < tops.length; i++) {
-      expect(tops[i], greaterThan(tops[i - 1]), reason: '${ids[i]} below ${ids[i - 1]}');
+    double left(String id) => tester.getTopLeft(find.byKey(tourKey(id))).dx;
+    final ids = ['nav-overview', 'nav-activity', 'nav-contacts', 'nav-invoices', 'nav-outputs', 'nav-settings'];
+    final lefts = [for (final id in ids) left(id)];
+    for (var i = 1; i < lefts.length; i++) {
+      expect(lefts[i], greaterThan(lefts[i - 1]), reason: '${ids[i]} after ${ids[i - 1]}');
     }
+    // Send and Receive start on Home: no tab of their own.
+    expect(find.byKey(tourKey('nav-send')), findsNothing);
+    expect(find.byKey(tourKey('nav-receive')), findsNothing);
     for (final step in tourStepsFor(invoices: true)) {
       expect(find.byKey(tourKey(step.navId)), findsOneWidget, reason: step.title);
     }
   });
 
-  testWidgets('Next walks every page in order, lights the area and the sidebar entry, and ends on Help', (tester) async {
+  testWidgets('Next walks every page in order, lights the area and its tab, and ends on Help', (tester) async {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
@@ -155,7 +158,7 @@ void main() {
       expect(_inCard('${i + 1} of ${steps.length}'), findsOneWidget);
       expect(_inCard(step.title), findsOneWidget);
       expect(_inCard(step.text), findsOneWidget);
-      // The page area, the sidebar entry, and on a Settings page its list entry.
+      // The page area, its tab, and on a Settings page its list entry.
       expect(_holes(tester), step.subId == null ? 2 : 3, reason: 'step ${i + 1} ${step.title}');
       expect(_inCard(_l.deskTourBack), i == 0 ? findsNothing : findsOneWidget);
       final last = i == steps.length - 1;

@@ -7,14 +7,6 @@
   "@deskOutTitle": {
     "description": "Title of the Outputs page; also the screen reader label of the outputs table. Outputs are the coins the balance is made of."
   },
-  "deskOutShowAmounts": "Show amounts",
-  "@deskOutShowAmounts": {
-    "description": "Tooltip of the icon button on Outputs that shows the hidden amounts."
-  },
-  "deskOutHideAmounts": "Hide amounts",
-  "@deskOutHideAmounts": {
-    "description": "Tooltip of the icon button on Outputs that hides amounts."
-  },
   "deskOutRefresh": "Refresh",
   "@deskOutRefresh": {
     "description": "Tooltip of the icon button on Outputs that asks the node for new data; also the button when the list could not be loaded."

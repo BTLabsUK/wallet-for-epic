@@ -1,8 +1,4 @@
 {
-  "deskSlotNow": "Now",
-  "@deskSlotNow": {
-    "description": "Screen-reader name of the sidebar's bottom slot, which shows what is going on now (a scan, an update, a payment on its way)."
-  },
   "deskSlotHelp": "Help",
   "@deskSlotHelp": {
     "description": "Small link at the bottom of the sidebar: opens Settings › Help."
@@ -59,10 +55,6 @@
   "@deskSlotWaitingBlock": {
     "description": "After 'Payment on its way' while the payment is posted but in no block yet."
   },
-  "deskSlotRequests": "New invoices",
-  "@deskSlotRequests": {
-    "description": "Sidebar slot line: invoices that need an answer; the count follows after a dot."
-  },
   "deskSlotNodeStarting": "Local node starting",
   "@deskSlotNodeStarting": {
     "description": "Sidebar slot line: the local node on this computer is starting."
@@ -82,10 +74,6 @@
   "deskSlotOpenActivity": "Open in Activity",
   "@deskSlotOpenActivity": {
     "description": "Tooltip line of the slot's payment line: opens the payment in Activity."
-  },
-  "deskSlotOpenInvoices": "Open Invoices",
-  "@deskSlotOpenInvoices": {
-    "description": "Tooltip line of the slot's requests line: opens Invoices."
   },
   "deskSlotNotPosted": "Payment not posted",
   "@deskSlotNotPosted": {

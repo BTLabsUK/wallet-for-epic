@@ -785,15 +785,7 @@ class _ENavItemState extends State<ENavItem> {
                 style: TextStyle(fontSize: Fs.md, height: 1.4, fontWeight: FontWeight.w500, color: widget.dimmed && !sel ? c.faint : (sel || _hover ? c.text : c.dim)),
               ),
             ),
-            if (count > 0)
-              Container(
-                constraints: BoxConstraints(minWidth: 20.u),
-                height: 20.u,
-                padding: EdgeInsets.symmetric(horizontal: 6.u),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(10.u)),
-                child: Text('$count', style: context.ts.mono(size: Fs.xs, color: c.accentText, weight: FontWeight.w500)),
-              ),
+            if (count > 0) ECount(count),
           ],
         ],
       ),
@@ -806,6 +798,96 @@ class _ENavItemState extends State<ENavItem> {
           ? context.l10n.deskKitNeedAction(widget.label, count)
           : widget.label,
       value: widget.value,
+      excludeSemantics: true,
+      onTap: widget.onTap,
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
+        child: Builder(
+          builder: (context) => GestureDetector(
+            onTap: widget.onTap,
+            child: FocusRing(focused: Focus.of(context).hasFocus, child: NoSelect(child: item)),
+          ),
+        ),
+      ),
+    ));
+  }
+}
+
+/// How many things wait behind a navigation entry: a small pill in the accent.
+class ECount extends StatelessWidget {
+  const ECount(this.count, {super.key});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      constraints: BoxConstraints(minWidth: 20.u),
+      height: 20.u,
+      padding: EdgeInsets.symmetric(horizontal: 6.u),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(10.u)),
+      child: Text('$count', style: context.ts.mono(size: Fs.xs, color: c.accentText, weight: FontWeight.w500)),
+    );
+  }
+}
+
+/// A tab of the title bar, 32 px: icon, label, optional count. [compact] (a narrow window) keeps
+/// the label for the selected tab; the others say theirs in a tooltip.
+class ETab extends StatefulWidget {
+  const ETab({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.semanticsId});
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final int? count;
+  final bool compact;
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
+
+  @override
+  State<ETab> createState() => _ETabState();
+}
+
+class _ETabState extends State<ETab> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final sel = widget.selected;
+    final count = widget.count ?? 0;
+    final words = sel || !widget.compact;
+    Widget item = AnimatedContainer(
+      duration: Dur.fast,
+      height: 32.u,
+      padding: EdgeInsets.symmetric(horizontal: widget.compact ? 10.u : Sp.x3),
+      decoration: BoxDecoration(
+        color: sel ? (c.tint.a == 0 ? c.s3 : c.tint) : (_hover ? c.hover : Colors.transparent),
+        borderRadius: BorderRadius.circular(Rad.sm),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(widget.icon, size: Ctl.icon, color: sel ? c.accentText : (_hover ? c.text : c.dim)),
+          if (words) ...[
+            SizedBox(width: Sp.x2),
+            Text(widget.label, maxLines: 1, style: TextStyle(fontSize: Fs.sm, height: 1, fontWeight: FontWeight.w600, color: sel || _hover ? c.text : c.dim)),
+          ],
+          if (count > 0) ...[SizedBox(width: Sp.x2), ECount(count)],
+        ],
+      ),
+    );
+    if (!words) item = ETip(widget.label, child: item);
+    return TrustId(widget.semanticsId, child: Semantics(
+      button: true,
+      selected: sel,
+      label: count > 0 ? context.l10n.deskKitNeedAction(widget.label, count) : widget.label,
       excludeSemantics: true,
       onTap: widget.onTap,
       child: FocusableActionDetector(

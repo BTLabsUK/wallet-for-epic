@@ -1,5 +1,4 @@
 {
-  "deskSlotNow": "当前",
   "deskSlotHelp": "帮助",
   "deskSlotScanning": "正在扫描区块链",
   "deskSlotScanWaits": "扫描正在等待网络",
@@ -12,12 +11,10 @@
   "deskSlotPaymentsMoving": "付款确认中",
   "deskSlotOf": "{done}/{needed}",
   "deskSlotWaitingBlock": "等待区块",
-  "deskSlotRequests": "新账单",
   "deskSlotNodeStarting": "本地节点正在启动",
   "deskSlotNodeSyncing": "本地节点正在同步",
   "deskSlotOpenRecheck": "打开重新核对余额",
   "deskSlotOpenSend": "打开发送",
   "deskSlotOpenActivity": "在活动中打开",
-  "deskSlotOpenInvoices": "打开账单",
   "deskSlotNotPosted": "付款不在网络上"
 }

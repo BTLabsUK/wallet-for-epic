@@ -11,7 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../pairing_text.dart' show InviteSource;
 import '../../settings.dart' show clockProvider;
 import '../../stale_open.dart';
-import '../../trust_ids.dart';
 import '../desk_l10n.dart';
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
@@ -53,10 +52,9 @@ import 'rail.dart';
 import 'screens.dart';
 import 'close_guard.dart';
 import 'last_session_offer.dart';
-import 'now_slot.dart';
 import 'update_strip.dart' show DeskUpdateStrip;
 import 'old_app_offer.dart';
-import 'title_bar.dart' show showDeskShortcuts;
+import 'title_bar.dart' show DeskStatusBar, showDeskShortcuts;
 import 'tour.dart';
 
 export 'rail.dart' show ServiceRows;
@@ -465,7 +463,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // Otherwise the key stays a ValueKey<DeskRoute>: ValueKey equality compares the type too.
     final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
     final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
-    // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
+    // The page's text is selectable and copyable (selectable.dart); the bars are not.
     // The light backdrop sits under the page and stays put while the page scrolls.
     // The update strip (update_strip.dart) sits above the page in every frame and pushes it down.
     final main = Material(
@@ -487,8 +485,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         bottomNavigationBar: _PhoneNav(section: shown.route.section),
       );
     } else if (shown.route.section == DeskSection.settings && settingsTakeover(context)) {
-      // Settings takes the sidebar's place (option 1): its column, then the page. Esc and
-      // "← Wallet" go back to the wallet page it came from.
+      // Settings has a column of its own beside the page. Esc and "← Wallet" go back to the
+      // wallet page it came from.
       final nav = ref.read(deskNavProvider.notifier);
       frame = Scaffold(
         backgroundColor: c.bg,
@@ -499,27 +497,31 @@ class _DeskShellState extends ConsumerState<DeskShell> {
           onKeyEvent: (_, e) => _onSettingsEsc(e) ? KeyEventResult.handled : KeyEventResult.ignored,
           child: SettingsSearchKeys(
             onLeave: nav.leaveSettings,
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FocusTraversalGroup(child: SettingsColumn(route: shown.route)),
-                Expanded(child: FocusTraversalGroup(child: main)),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      FocusTraversalGroup(child: SettingsColumn(route: shown.route)),
+                      Expanded(child: FocusTraversalGroup(child: main)),
+                    ],
+                  ),
+                ),
+                const DeskStatusBar(),
               ],
             ),
           ),
         ),
       );
     } else {
-      final compact = width < Bp.desktop;
+      // The tabs are in the title bar (title_bar.dart): the page has the window's whole width.
       frame = Scaffold(
         backgroundColor: c.bg,
-        body: Row(
+        body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Two groups: Tab finishes the page before it moves to the sidebar.
-            FocusTraversalGroup(child: _Sidebar(section: shown.route.section, compact: compact)),
-            Expanded(child: FocusTraversalGroup(child: main)),
-          ],
+          children: [Expanded(child: FocusTraversalGroup(child: main)), const DeskStatusBar()],
         ),
       );
     }
@@ -701,86 +703,6 @@ Future<void> lockWallet(WidgetRef ref, {Object? then}) async {
 
 /// Quit (Ctrl+Q, the app menu): the one close rule of close_guard.dart.
 Future<void> quitWallet(WidgetRef ref) => deskClose(ref);
-
-class _Sidebar extends ConsumerWidget {
-  const _Sidebar({required this.section, required this.compact});
-
-  final DeskSection? section;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.dc;
-    final nav = ref.read(deskNavProvider.notifier);
-    final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
-    final invoices = invoicesShown(ref);
-    final toPay = ref.watch(deskInvoiceBadgeProvider);
-    final l = context.l10n;
-    return Semantics(
-      container: true,
-      label: l.deskShellMainNav,
-      child: TrustId(TrustIds.nav, child: Container(
-        width: compact ? Ctl.rail : Ctl.sidebar,
-        // Light: the white column stands off the warm page with a visible divider.
-        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.tint.a == 0 ? c.line : c.lineStrong))),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // The brand is in the title bar's part above (title_bar.dart).
-            SizedBox(height: Sp.x2),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (s, route, icon) in deskNav)
-                      if ((s != DeskSection.invoices || invoices) &&
-                          (s != DeskSection.outputs || outputsShown(ref)))
-                      TourTarget(
-                        id: 'nav-${s.name}',
-                        child: ENavItem(
-                          semanticsId: TrustIds.shellNav(s.name),
-                          icon: icon,
-                          label: deskNavLabel(l, s),
-                          selected: section == s,
-                          compact: compact,
-                          count: switch (s) {
-                            DeskSection.activity => pending,
-                            DeskSection.invoices => toPay,
-                            _ => null,
-                          },
-                          onTap: () => nav.go(route),
-                        ),
-                      ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: Sp.x2),
-                      child: Divider(height: 1, color: c.line),
-                    ),
-                    TourTarget(
-                      id: 'nav-settings',
-                      child: ENavItem(
-                        semanticsId: TrustIds.navSettings,
-                        icon: EIcons.settings,
-                        label: l.deskShellNavSettings,
-                        selected: section == DeskSection.settings,
-                        compact: compact,
-                        onTap: () => nav.go(deskSettingsHome(ref)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // What goes on now, else Help · Report a problem (now_slot.dart). The wallet, the
-            // status and Lock are in the title bar.
-            NowSlot(compact: compact),
-          ],
-        ),
-      )),
-    );
-  }
-}
 
 class _PhoneTopBar extends ConsumerWidget {
   const _PhoneTopBar({required this.section});

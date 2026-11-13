@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The sidebar's bottom slot: what is going on now, else a quiet resting row. The wallet's name,
-/// the status rows and Lock live in the title bar (title_bar.dart), so nothing is said twice:
-/// the slot shows progress and events (Offline mode, a scan, an update out or to restart, a
-/// payment on its way, new requests, the local node syncing, an update downloading), at most two
-/// lines, the most important first, a `+N` for the rest; each line opens its screen. Resting:
-/// Help · Report a problem (the build is in the title bar's tooltip and About). Health (a node that does not answer, Epicbox, Tor) stays in the title
-/// bar's status.
+/// What is going on now, for the status bar (status_bar.dart): progress and events (Offline
+/// mode, a scan, an update out or to restart, a payment on its way, new requests, the local node
+/// syncing, an update downloading), the most important first; each one opens its screen. Health
+/// (a node that does not answer, Epicbox, Tor) is the status lights' part.
 library;
 
 import 'dart:async';
@@ -17,19 +14,17 @@ import '../../node/local_node_state.dart' show LocalNodePhase;
 import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider, deskOwnerSecretProvider, deskOwnStatusProvider, NodeHead, nodeClassOf;
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
 import '../data/desk_update_apply.dart' show deskUpdateApplierProvider;
-import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import '../data/node_view.dart' show localNodeView, digits, syncPercent;
 import 'desk_failover.dart' show deskFailoverProvider;
 import '../../l10n.dart' show localInt;
 import '../../tor_build.dart' show inAppUpdates;
 import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart';
-import '../screens/settings/report_problem.dart' show showReportProblemDialog;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'update_notice.dart' show deskUpdateAct, deskUpdateWords;
 
-/// One line of the slot.
+/// One thing that goes on.
 @immutable
 class NowItem {
   const NowItem({required this.id, required this.icon, required this.tone, required this.title, this.detail, this.hint, this.act = false, this.stacked = false, this.progress, this.onTap});
@@ -60,7 +55,7 @@ class NowItem {
   String get words => [detail == null ? title : metaLine([title, detail]), ?hint].join('\n');
 }
 
-/// What goes on now, the most important first (the slot shows two).
+/// What goes on now, the most important first (the status bar shows two).
 List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   final l = context.l10n;
   final s = ref.watch(deskProvider);
@@ -165,11 +160,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
       ),
     );
   }
-  // 6. Requests to pay.
-  final requests = ref.watch(deskInvoiceBadgeProvider);
-  if (requests > 0) {
-    items.add(NowItem(id: 'requests', icon: EIcons.invoice, tone: ETone.warn, title: l.deskSlotRequests, detail: localInt(l, requests), stacked: true, hint: DeskRoute.invoices == here ? null : l.deskSlotOpenInvoices, onTap: to(DeskRoute.invoices)));
-  }
+  // 6. Invoices to pay are the Invoices tab's count (title_bar.dart), not said twice here.
   // 7. The local node starting or syncing.
   if (ref.watch(settingsPrefsProvider.select((p) => p.builtin))) {
     final node = ref.watch(deskLocalNodeProvider).value;
@@ -222,412 +213,4 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
     items.add(NowItem(id: 'notice', icon: EIcons.info, tone: ETone.info, title: notice, hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode)));
   }
   return items;
-}
-
-/// The slot. [compact] is the 72 px rail: icons, the words in their tooltips.
-class NowSlot extends ConsumerStatefulWidget {
-  const NowSlot({super.key, required this.compact, this.resting = true});
-
-  final bool compact;
-
-  /// Help · Report a problem when nothing runs; the Settings column has none (it is in Help).
-  final bool resting;
-
-  @override
-  ConsumerState<NowSlot> createState() => _NowSlotState();
-}
-
-class _NowSlotState extends ConsumerState<NowSlot> {
-  /// Every line on screen, also one closing; [_open] those that are (or are opening) in view.
-  final Map<String, NowItem> _lines = {};
-  final Set<String> _open = {};
-  final Map<String, Timer> _gone = {};
-
-  /// The lines' order on screen: a line that leaves keeps its place while it closes.
-  List<String> _order = const [];
-  String _said = '';
-
-  @override
-  void dispose() {
-    for (final t in _gone.values) {
-      t.cancel();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final l = context.l10n;
-    final items = nowItems(context, ref);
-    final shown = items.take(2).toList();
-    final more = items.skip(2).toList();
-    final ids = {for (final i in shown) i.id};
-    // Arrivals for screen readers (never every percent); they open on the next frame, so the
-    // height and the fade run in; a line that goes closes the same way before it leaves.
-    final arrived = [for (final i in shown) if (!_lines.containsKey(i.id) || !_open.contains(i.id)) i.title];
-    if (arrived.isNotEmpty) _said = arrived.join(', ');
-    for (final i in shown) {
-      final isNew = !_lines.containsKey(i.id);
-      _lines[i.id] = i;
-      _gone.remove(i.id)?.cancel();
-      if (isNew) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _lines.containsKey(i.id)) setState(() => _open.add(i.id));
-        });
-      } else {
-        _open.add(i.id);
-      }
-    }
-    for (final id in _lines.keys.where((k) => !ids.contains(k)).toList()) {
-      _open.remove(id);
-      _gone[id] ??= Timer(Motion.expand + const Duration(milliseconds: 60), () {
-        if (!mounted) return;
-        setState(() {
-          _gone.remove(id);
-          if (!_open.contains(id)) _lines.remove(id);
-        });
-      });
-    }
-    final order = [for (final id in _order) if (_lines.containsKey(id)) id];
-    for (final (n, i) in shown.indexed) {
-      if (order.contains(i.id)) continue;
-      order.insert(n == 0 ? 0 : order.indexOf(shown[n - 1].id) + 1, i.id);
-    }
-    // The lines in view take their slots in priority order; the closing ones stay put.
-    final slots = [for (final (k, id) in order.indexed) if (ids.contains(id)) k];
-    for (final (n, k) in slots.indexed) {
-      order[k] = shown[n].id;
-    }
-    _order = order;
-    // The Settings column: the slot only while something runs (or a line still closes).
-    if (!widget.resting && order.isEmpty) return const SizedBox.shrink();
-    return Semantics(
-      container: true,
-      label: l.deskSlotNow,
-      child: Container(
-        padding: EdgeInsets.all(widget.compact ? Sp.x2 : Sp.x3),
-        decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // A hidden polite live region with what just arrived.
-            Semantics(liveRegion: true, label: _said, child: const SizedBox.shrink()),
-            for (final id in order)
-              ExpandFade(
-                key: ValueKey('now-$id'),
-                open: _open.contains(id),
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 2.u),
-                  child: _Line(item: _lines[id]!, compact: widget.compact, more: shown.isNotEmpty && id == shown.last.id ? more : const []),
-                ),
-              ),
-            if (widget.resting) ...[
-              AnimatedContainer(duration: Motion.expand, height: shown.isEmpty ? 0 : Sp.x1),
-              _Resting(compact: widget.compact),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-Color _toneColor(DeskColors c, ETone t) => switch (t) {
-  ETone.ok => c.ok,
-  ETone.warn => c.warn,
-  ETone.risk => c.risk,
-  ETone.info => c.info,
-  ETone.gold => c.accentText,
-  ETone.neutral => c.faint,
-};
-
-/// Sweeps a bar without a known end plays before it holds still: about 12 s.
-@visibleForTesting
-const int slotBarSweeps = 5;
-
-/// One sweep: slow and steady, so the one moving bar in the window stays calm.
-const Duration _sweep = Duration(milliseconds: 2400);
-
-/// A 2 px bar without a known end: it sweeps [slotBarSweeps] times, then holds the empty track
-/// each sweep starts from. A sync can last hours, and a bar that never stops redraws the window
-/// all that time. A new state (its key) sweeps again. Reduced motion: the still track only.
-class _SweepBar extends StatefulWidget {
-  const _SweepBar({super.key, required this.color});
-
-  final Color color;
-
-  @override
-  State<_SweepBar> createState() => _SweepBarState();
-}
-
-class _SweepBarState extends State<_SweepBar> {
-  Timer? _stop;
-  bool _held = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _stop = Timer(_sweep * slotBarSweeps, () {
-      if (mounted) setState(() => _held = true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _stop?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => _held || MediaQuery.disableAnimationsOf(context)
-      ? LinearProgressIndicator(value: 0, minHeight: 2, backgroundColor: context.dc.s3, color: widget.color)
-      : _SlowSweep(period: _sweep, color: widget.color);
-}
-
-/// A third of the bar gliding left to right at an even pace, one pass per [period]: calmer
-/// than Flutter's bar without a known end, which runs two quick strokes every 1.8 s.
-class _SlowSweep extends StatefulWidget {
-  const _SlowSweep({required this.period, required this.color});
-
-  final Duration period;
-  final Color color;
-
-  @override
-  State<_SlowSweep> createState() => _SlowSweepState();
-}
-
-class _SlowSweepState extends State<_SlowSweep> with SingleTickerProviderStateMixin {
-  late final AnimationController _run = AnimationController(vsync: this, duration: widget.period)..repeat();
-
-  @override
-  void dispose() {
-    _run.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => ColoredBox(
-    color: context.dc.s3,
-    child: AnimatedBuilder(
-      animation: _run,
-      // -2 .. 2 moves the third from just off the left edge to just off the right one.
-      builder: (context, _) => Align(
-        alignment: Alignment(-2 + 4 * _run.value, 0),
-        child: FractionallySizedBox(widthFactor: 1 / 3, heightFactor: 1, child: ColoredBox(color: widget.color)),
-      ),
-    ),
-  );
-}
-
-/// A line: icon, title · detail, a 2 px bar under it when it has progress.
-class _Line extends StatelessWidget {
-  const _Line({required this.item, required this.compact, required this.more});
-
-  final NowItem item;
-  final bool compact;
-  final List<NowItem> more;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final i = item;
-    final tone = _toneColor(c, i.tone);
-    final bar = i.progress == null
-        ? null
-        : ClipRRect(
-            borderRadius: BorderRadius.circular(1),
-            child: SizedBox(
-              height: 2,
-              child: i.progress! < 0
-                  ? _SweepBar(key: ValueKey('${i.id}/${i.title}'), color: i.tone == ETone.gold ? c.accent : c.info)
-                  : TweenAnimationBuilder<double>(
-                      tween: Tween(end: i.progress!.clamp(0.0, 1.0)),
-                      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
-                      builder: (context, v, _) => LinearProgressIndicator(value: v, minHeight: 2, backgroundColor: c.s3, color: i.tone == ETone.gold ? c.accent : c.info),
-                    ),
-            ),
-          );
-    final tip = [i.words, for (final m in more) m.words].join('\n');
-    Widget content;
-    if (compact) {
-      content = SizedBox(
-        height: bar == null ? Ctl.inline : 36.u,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(i.icon, size: Ctl.iconSm, color: tone),
-                if (more.isNotEmpty)
-                  PositionedDirectional(
-                    end: -14.u,
-                    top: -6.u,
-                    child: Text('+${more.length}', style: ts.caption.copyWith(fontSize: 10, color: c.dim)), // l10n-ok: a count
-                  ),
-              ],
-            ),
-            if (bar != null) ...[SizedBox(height: 6.u), SizedBox(width: 20.u, child: bar)],
-          ],
-        ),
-      );
-    } else {
-      final under = i.stacked && i.detail != null;
-      content = Container(
-        // Stacked with a bar: the title, the detail under it, then the bar (5.u gap, 2 px).
-        height: under ? (bar == null ? 40.u : 46.u) : (bar == null ? Ctl.inline : 36.u),
-        padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LayoutBuilder(
-              builder: (context, box) => Row(
-              children: [
-                Icon(i.icon, size: Ctl.iconSm, color: tone),
-                SizedBox(width: Sp.x2),
-                Flexible(
-                  child: Text(i.title, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.small.copyWith(color: c.text, height: 20 / Fs.sm)),
-                ),
-                if (i.detail != null && !under) ...[
-                  Text(metaSeparator, style: ts.small.copyWith(color: c.lineField)), // l10n-ok: separator
-                  // A number or an action word fits whole; a longer detail gives up at half the line.
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: box.maxWidth / 2),
-                    child: Text(i.detail!, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: i.act ? c.accentText : c.dim)),
-                  ),
-                ],
-                if (more.isNotEmpty) ...[
-                  const Spacer(),
-                  Container(
-                    margin: EdgeInsetsDirectional.only(start: Sp.x1),
-                    padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 1.u),
-                    decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.sm)),
-                    child: Text('+${more.length}', style: ts.caption.copyWith(color: c.dim)), // l10n-ok: a count
-                  ),
-                ],
-              ],
-            ),
-
-            ),
-            if (under)
-              Padding(
-                padding: EdgeInsetsDirectional.only(start: Ctl.iconSm + Sp.x2),
-                child: Text(i.detail!, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: i.act ? c.accentText : c.dim, height: 16 / Fs.xs)),
-              ),
-            if (bar != null) ...[SizedBox(height: 5.u), bar],
-          ],
-        ),
-      );
-    }
-    final line = Semantics(
-      button: i.onTap != null,
-      label: [i.words, for (final m in more) m.words].join(', '),
-      excludeSemantics: true,
-      child: i.onTap == null
-          ? content
-          : Material(
-              type: MaterialType.transparency,
-              child: EInkWell(onTap: i.onTap, borderRadius: BorderRadius.circular(Rad.sm), hoverColor: c.hover, child: content),
-            ),
-    );
-    return ETip(tip, child: line);
-  }
-}
-
-/// Help · Report a problem.
-class _Resting extends ConsumerWidget {
-  const _Resting({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final c = context.dc;
-    void help() {
-      deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-      ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
-    }
-
-    if (compact) {
-      return Center(
-        child: EIconButton(key: const ValueKey('now-help'), icon: EIcons.help, label: l.deskSlotHelp, size: EBtnSize.inline, onPressed: help),
-      );
-    }
-    final links = SizedBox(
-      height: 24.u,
-      child: Row(
-        children: [
-          _TextLink(key: const ValueKey('now-help'), label: l.deskSlotHelp, onTap: help),
-          Text(metaSeparator, style: context.ts.caption.copyWith(color: c.lineField)), // l10n-ok: separator
-          Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: _TextLink(
-              key: const ValueKey('now-report'),
-              label: l.deskSetReportTitle,
-              onTap: () {
-                final shown = deskNavigatorKey.currentContext;
-                if (shown != null) unawaited(showReportProblemDialog(shown));
-              },
-            ),
-            ),
-          ),
-        ],
-      ),
-    );
-    return links;
-  }
-}
-
-class _TextLink extends StatefulWidget {
-  const _TextLink({super.key, required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  State<_TextLink> createState() => _TextLinkState();
-}
-
-class _TextLinkState extends State<_TextLink> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Semantics(
-      button: true,
-      label: widget.label,
-      excludeSemantics: true,
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onTap,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: AnimatedContainer(
-                duration: Dur.fast,
-                padding: EdgeInsets.symmetric(horizontal: Sp.x1, vertical: 2.u),
-                decoration: BoxDecoration(color: _hover ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
-                child: Text(
-                  widget.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.ts.caption.copyWith(color: _hover ? c.text : c.faint),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

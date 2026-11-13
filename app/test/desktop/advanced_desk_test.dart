@@ -357,9 +357,10 @@ void main() {
       expect(_advanced.networkMode, NetworkMode.standard);
     });
 
-    testWidgets('Normal: no mark in the title bar', (tester) async {
+    testWidgets('Normal: the status bar names the mode', (tester) async {
       await _open(tester, DeskRoute.overview);
-      expect(find.byKey(const ValueKey('bar-net-mode')), findsNothing);
+      final mode = find.byKey(const ValueKey('bar-net-mode'));
+      expect(find.descendant(of: mode, matching: find.text(_l.advModeStandard)), findsOneWidget);
     });
 
     testWidgets('the title bar mark shows off Normal; its popover says what the mode does and Change opens Network & privacy', (tester) async {
