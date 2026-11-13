@@ -7030,7 +7030,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvNodeSettings => '节点设置';
 
   @override
-  String get deskOvTitle => '概览';
+  String get deskOvTitle => '首页';
 
   @override
   String get deskOvShowAmounts => '显示金额';
@@ -8225,7 +8225,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskAppWaitingOutput => '等待第一条输出…';
 
   @override
-  String get deskShellNavOverview => '概览';
+  String get deskShellNavOverview => '首页';
 
   @override
   String get deskShellNavActivity => '活动';
@@ -8283,7 +8283,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskShellSwitchWallet => '切换钱包';
 
   @override
-  String get deskTourOverviewTitle => '概览';
+  String get deskTourOverviewTitle => '首页';
 
   @override
   String get deskTourOverviewText => '余额和仍在确认中的金额，下面是最近的付款。其他功能都在侧边栏中。';
@@ -20284,4 +20284,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => '到账后显示在这里';
+
+  @override
+  String get deskOvRequest => '请求付款';
+
+  @override
+  String get deskOvInMotion => '进行中';
+
+  @override
+  String deskOvSendTo(String name) {
+    return '发送给 $name';
+  }
+
+  @override
+  String get deskOvFieldHint => '输入名称、金额、地址或付款码';
 }

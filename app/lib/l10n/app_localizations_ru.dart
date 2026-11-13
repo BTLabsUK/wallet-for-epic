@@ -7760,7 +7760,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOvNodeSettings => 'Настройки узла';
 
   @override
-  String get deskOvTitle => 'Обзор';
+  String get deskOvTitle => 'Главная';
 
   @override
   String get deskOvShowAmounts => 'Показать суммы';
@@ -9071,7 +9071,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskAppWaitingOutput => 'Ждём первых строк…';
 
   @override
-  String get deskShellNavOverview => 'Обзор';
+  String get deskShellNavOverview => 'Главная';
 
   @override
   String get deskShellNavActivity => 'Активность';
@@ -9132,7 +9132,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskShellSwitchWallet => 'Сменить кошелёк';
 
   @override
-  String get deskTourOverviewTitle => 'Обзор';
+  String get deskTourOverviewTitle => 'Главная';
 
   @override
   String get deskTourOverviewText =>
@@ -22095,4 +22095,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Появится здесь, когда поступит';
+
+  @override
+  String get deskOvRequest => 'Запросить';
+
+  @override
+  String get deskOvInMotion => 'В процессе';
+
+  @override
+  String deskOvSendTo(String name) {
+    return 'Отправить: $name';
+  }
+
+  @override
+  String get deskOvFieldHint => 'Введите имя, сумму, адрес или код платежа';
 }

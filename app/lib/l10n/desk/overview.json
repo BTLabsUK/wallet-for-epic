@@ -73,9 +73,9 @@
   "@deskOvNodeSettings": {
     "description": "Ghost button in the node-down notice: opens Settings for the node. Short."
   },
-  "deskOvTitle": "Overview",
+  "deskOvTitle": "Home",
   "@deskOvTitle": {
-    "description": "Title of the Overview page: balance and recent activity."
+    "description": "Name of the first page (balance, what is in motion, recent activity). It has no visible title; a screen reader and the window title say it."
   },
   "deskOvShowAmounts": "Show amounts",
   "@deskOvShowAmounts": {
@@ -318,5 +318,27 @@
   "deskOvFinalize": "Finalize",
   "@deskOvFinalize": {
     "description": "Ghost button in the open-file-sends notice: opens the Finalize page. Short."
+  },
+  "deskOvRequest": "Request",
+  "@deskOvRequest": {
+    "description": "Button on Home beside Send and Receive: opens a new invoice to ask a contact for a payment. One word, a verb."
+  },
+  "deskOvInMotion": "In motion",
+  "@deskOvInMotion": {
+    "description": "Section title on Home over the payments that are under way (sent or arriving, not yet completed). Two words at most."
+  },
+  "deskOvSendTo": "Send to {name}",
+  "@deskOvSendTo": {
+    "description": "Tooltip and screen-reader label of the arrow button on a contact's row on Home: opens Send with that contact filled in.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "deskOvFieldHint": "Type a name, an amount, an address or a payment code",
+  "@deskOvFieldHint": {
+    "description": "Placeholder and screen-reader label of the field on Home. Enter opens Send with what was typed or pasted. One line, no full stop."
   }
 }

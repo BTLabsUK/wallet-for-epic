@@ -7480,7 +7480,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOvNodeSettings => 'Node settings';
 
   @override
-  String get deskOvTitle => 'Overview';
+  String get deskOvTitle => 'Home';
 
   @override
   String get deskOvShowAmounts => 'Show amounts';
@@ -8749,7 +8749,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskAppWaitingOutput => 'Waiting for the first output…';
 
   @override
-  String get deskShellNavOverview => 'Overview';
+  String get deskShellNavOverview => 'Home';
 
   @override
   String get deskShellNavActivity => 'Activity';
@@ -8809,7 +8809,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskShellSwitchWallet => 'Switch wallet';
 
   @override
-  String get deskTourOverviewTitle => 'Overview';
+  String get deskTourOverviewTitle => 'Home';
 
   @override
   String get deskTourOverviewText =>
@@ -21473,4 +21473,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Appears here when it arrives';
+
+  @override
+  String get deskOvRequest => 'Request';
+
+  @override
+  String get deskOvInMotion => 'In motion';
+
+  @override
+  String deskOvSendTo(String name) {
+    return 'Send to $name';
+  }
+
+  @override
+  String get deskOvFieldHint =>
+      'Type a name, an amount, an address or a payment code';
 }

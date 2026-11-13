@@ -77,9 +77,9 @@ void main() {
   tearDown(() => debugTourSteps = null);
 
   group('steps', () {
-    test('without the Invoices page: eight, Overview to Help, Advanced before Help', () {
+    test('without the Invoices page: eight, Home to Help, Advanced before Help', () {
       final steps = tourStepsFor(invoices: false);
-      expect(steps.map((s) => s.title), ['Overview', 'Send', 'Receive', 'Activity', 'Contacts', 'Settings\u00a0›\u00a0Node', 'Advanced', 'Help']);
+      expect(steps.map((s) => s.title), ['Home', 'Send', 'Receive', 'Activity', 'Contacts', 'Settings\u00a0›\u00a0Node', 'Advanced', 'Help']);
       expect(steps.map((s) => s.route), [
         DeskRoute.overview,
         DeskRoute.send,
@@ -280,7 +280,7 @@ void main() {
     expect(container.read(deskTourProvider).open, isTrue);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
     expect(_inCard('1 of ${deskTourSteps.length}'), findsOneWidget);
-    expect(_inCard('Overview'), findsOneWidget);
+    expect(_inCard('Home'), findsOneWidget);
   });
 
   testWidgets('with the Invoices page, the Invoices step follows Receive and runs even before its tabs are marked', (tester) async {

@@ -7784,7 +7784,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOvNodeSettings => 'Ustawienia węzła';
 
   @override
-  String get deskOvTitle => 'Przegląd';
+  String get deskOvTitle => 'Start';
 
   @override
   String get deskOvShowAmounts => 'Pokaż kwoty';
@@ -9096,7 +9096,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskAppWaitingOutput => 'Oczekiwanie na pierwsze wyniki…';
 
   @override
-  String get deskShellNavOverview => 'Przegląd';
+  String get deskShellNavOverview => 'Start';
 
   @override
   String get deskShellNavActivity => 'Aktywność';
@@ -9156,7 +9156,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskShellSwitchWallet => 'Zmień portfel';
 
   @override
-  String get deskTourOverviewTitle => 'Przegląd';
+  String get deskTourOverviewTitle => 'Start';
 
   @override
   String get deskTourOverviewText =>
@@ -22101,4 +22101,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Pojawi się tutaj, gdy dotrze';
+
+  @override
+  String get deskOvRequest => 'Poproś';
+
+  @override
+  String get deskOvInMotion => 'W toku';
+
+  @override
+  String deskOvSendTo(String name) {
+    return 'Wyślij do: $name';
+  }
+
+  @override
+  String get deskOvFieldHint => 'Wpisz nazwę, kwotę, adres lub kod płatności';
 }

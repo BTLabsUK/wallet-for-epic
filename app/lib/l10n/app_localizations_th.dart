@@ -7273,7 +7273,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOvNodeSettings => 'การตั้งค่าโหนด';
 
   @override
-  String get deskOvTitle => 'ภาพรวม';
+  String get deskOvTitle => 'หน้าแรก';
 
   @override
   String get deskOvShowAmounts => 'แสดงจำนวน';
@@ -8512,7 +8512,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskAppWaitingOutput => 'รอผลแรก…';
 
   @override
-  String get deskShellNavOverview => 'ภาพรวม';
+  String get deskShellNavOverview => 'หน้าแรก';
 
   @override
   String get deskShellNavActivity => 'ประวัติ';
@@ -8571,7 +8571,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskShellSwitchWallet => 'สลับกระเป๋าเงิน';
 
   @override
-  String get deskTourOverviewTitle => 'ภาพรวม';
+  String get deskTourOverviewTitle => 'หน้าแรก';
 
   @override
   String get deskTourOverviewText =>
@@ -21057,4 +21057,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'จะแสดงที่นี่เมื่อมาถึง';
+
+  @override
+  String get deskOvRequest => 'ขอรับเงิน';
+
+  @override
+  String get deskOvInMotion => 'กำลังดำเนินการ';
+
+  @override
+  String deskOvSendTo(String name) {
+    return 'ส่งให้ $name';
+  }
+
+  @override
+  String get deskOvFieldHint => 'พิมพ์ชื่อ จำนวน ที่อยู่ หรือรหัสการชำระเงิน';
 }

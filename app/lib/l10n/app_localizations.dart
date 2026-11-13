@@ -11870,10 +11870,10 @@ abstract class AppLocalizations {
   /// **'Node settings'**
   String get deskOvNodeSettings;
 
-  /// Title of the Overview page: balance and recent activity.
+  /// Name of the first page (balance, what is in motion, recent activity). It has no visible title; a screen reader and the window title say it.
   ///
   /// In en, this message translates to:
-  /// **'Overview'**
+  /// **'Home'**
   String get deskOvTitle;
 
   /// Tooltip of the icon button on Overview that shows the hidden amounts.
@@ -13826,10 +13826,10 @@ abstract class AppLocalizations {
   /// **'Waiting for the first output…'**
   String get deskAppWaitingOutput;
 
-  /// Sidebar entry and window title: the Overview page (balance and latest transactions). One word where possible.
+  /// Tab in the title bar: the first page, with the balance, what is in motion and recent activity. One word.
   ///
   /// In en, this message translates to:
-  /// **'Overview'**
+  /// **'Home'**
   String get deskShellNavOverview;
 
   /// Sidebar entry and window title: the list of all transactions. One word where possible.
@@ -13934,10 +13934,10 @@ abstract class AppLocalizations {
   /// **'Switch wallet'**
   String get deskShellSwitchWallet;
 
-  /// Title of the tour card for this page (first-unlock tour). Short.
+  /// Title of the tour's first step, on Home: the balance. The page's name, as its tab says it.
   ///
   /// In en, this message translates to:
-  /// **'Overview'**
+  /// **'Home'**
   String get deskTourOverviewTitle;
 
   /// Text of the tour card for this page (first-unlock tour); one or two short sentences.
@@ -33642,6 +33642,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Appears here when it arrives'**
   String get phoneHomeFirstPaymentHint;
+
+  /// Button on Home beside Send and Receive: opens a new invoice to ask a contact for a payment. One word, a verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get deskOvRequest;
+
+  /// Section title on Home over the payments that are under way (sent or arriving, not yet completed). Two words at most.
+  ///
+  /// In en, this message translates to:
+  /// **'In motion'**
+  String get deskOvInMotion;
+
+  /// Tooltip and screen-reader label of the arrow button on a contact's row on Home: opens Send with that contact filled in.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {name}'**
+  String deskOvSendTo(String name);
+
+  /// Placeholder and screen-reader label of the field on Home. Enter opens Send with what was typed or pasted. One line, no full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a name, an amount, an address or a payment code'**
+  String get deskOvFieldHint;
 }
 
 class _AppLocalizationsDelegate

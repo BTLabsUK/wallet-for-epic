@@ -1830,7 +1830,7 @@
   "deskOvStarting": "Запуск",
   "deskOvStartNode": "Запустить узел",
   "deskOvNodeSettings": "Настройки узла",
-  "deskOvTitle": "Обзор",
+  "deskOvTitle": "Главная",
   "deskOvShowAmounts": "Показать суммы",
   "deskOvHideAmounts": "Скрыть суммы",
   "deskOvRefresh": "Обновить",
@@ -2522,7 +2522,7 @@
   "deskAppFirstScanBody": "Кошелёк сканирует блокчейн в поисках своих монет, и им можно пользоваться.",
   "deskAppScanOutput": "Ход сканирования",
   "deskAppWaitingOutput": "Ждём первых строк…",
-  "deskShellNavOverview": "Обзор",
+  "deskShellNavOverview": "Главная",
   "deskShellNavActivity": "Активность",
   "deskShellNavSend": "Отправить",
   "deskShellNavReceive": "Получить",
@@ -2540,7 +2540,7 @@
   "deskShellMainNav": "Основная навигация",
   "deskShellOpenWalletSettingsNamed": "Открыть настройки кошелька: {name}",
   "deskShellSwitchWallet": "Сменить кошелёк",
-  "deskTourOverviewTitle": "Обзор",
+  "deskTourOverviewTitle": "Главная",
   "deskTourOverviewText": "Баланс и то, что ещё подтверждается, а ниже последние платежи. Всё остальное — в боковой панели.",
   "deskTourSendTitle": "Отправить",
   "deskTourSendText": "Заплатите на адрес Epicbox или создайте файл транзакции, который кто-то подпишет. Перед отправкой — проверка.",
@@ -5594,5 +5594,9 @@
   "phoneTxCancelledByUser": "Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.",
   "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит.",
   "phoneHomeFirstPayment": "Ваш первый платёж",
-  "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит"
+  "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит",
+  "deskOvRequest": "Запросить",
+  "deskOvInMotion": "В процессе",
+  "deskOvSendTo": "Отправить: {name}",
+  "deskOvFieldHint": "Введите имя, сумму, адрес или код платежа"
 }

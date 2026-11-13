@@ -50,7 +50,7 @@ void main() {
 
     testWidgets('four tabs, the name without a menu, Network and Epicbox, a popover without For support or Copy details', (tester) async {
       await _pump(tester, WalletLevel.justSendReceive);
-      for (final l in ['Overview', 'Activity', 'Contacts', 'Settings']) {
+      for (final l in ['Home', 'Activity', 'Contacts', 'Settings']) {
         expect(_rail(l), findsOneWidget, reason: l);
       }
       expect(_rail('Outputs'), findsNothing);

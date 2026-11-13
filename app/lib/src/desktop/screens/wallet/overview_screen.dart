@@ -13,12 +13,13 @@ import '../../app/relay_offer.dart' show DeskRelayNotice;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
 import '../../data/invoice_state.dart' show deskInvoicesProvider;
+import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../../levels/level_features.dart' show LevelWording;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
-import '../../../amount.dart' show AmountSurface, surfaceEpic;
+import '../../../amount.dart' show AmountSurface, atomicPerEpic, epicUnit, surfaceEpic;
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
@@ -29,6 +30,8 @@ import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'activity_screen.dart' show ActivityArgs;
+import 'home_contacts.dart';
+import 'home_field.dart';
 import 'restore_scan_panel.dart';
 import '../scan/desk_scan.dart' show DeskScanButton;
 import '../scan/desk_scan_route.dart';
@@ -45,7 +48,8 @@ enum OverviewShot { loading, empty, nodeDown, starting, syncing, nodeProblem }
 const double _syncPart = 0.62;
 const int _walletTip = 2903118;
 
-/// Overview: the balance (the one framed object) and recent activity; the service state lives in the rail.
+/// Home: the balance (the one framed object), what is in motion and recent activity; the
+/// service state lives in the status bar.
 class OverviewScreen extends ConsumerStatefulWidget {
   const OverviewScreen({super.key, this.arg});
 
@@ -220,6 +224,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     return DeskRelayNotice(
       child: EPage(
       title: l.deskOvTitle,
+      header: false,
       width: EPageWidth.full,
       // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
       fill: restore == null || (s.txs?.isNotEmpty ?? false)
@@ -233,19 +238,6 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               gain: context.dc.wash.a == 0 ? 1 : 1.6,
             )
           : null,
-      actions: [
-        _refreshing
-            ? SizedBox.square(
-                dimension: Ctl.sm,
-                child: Center(child: ESpinner()),
-              )
-            : EIconButton(
-                semanticsId: TrustIds.overviewRefresh,
-                icon: EIcons.refresh,
-                label: netBlock == NetBlock.killSwitch ? l.recheckOffKill : (netBlockReason(l, netBlock) ?? l.deskOvRefresh),
-                onPressed: netBlock == NetBlock.none ? _refresh : null,
-              ),
-      ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -265,16 +257,40 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               nodeAnswers: !(nodeDown || shot == OverviewShot.nodeProblem),
               shallow: shallow,
               casual: lv.casualWords,
+              refresh: _refreshing
+                  ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
+                  : EIconButton(
+                      semanticsId: TrustIds.overviewRefresh,
+                      icon: EIcons.refresh,
+                      size: EBtnSize.inline,
+                      label: netBlock == NetBlock.killSwitch ? l.recheckOffKill : (netBlockReason(l, netBlock) ?? l.deskOvRefresh),
+                      onPressed: netBlock == NetBlock.none ? _refresh : null,
+                    ),
             ),
           ),
+          // The field: what to pay, typed or pasted (home_field.dart). Not at Shallow's first
+          // look into an empty wallet, where Receive is the one thing to do.
+          if (!empty) ...[SizedBox(height: Sp.x4), const TourTarget(id: 'field', child: HomeField())],
+          // Something to act on goes first; a quiet card stays below Recent activity.
+          if (invoicesWait) const OverviewInvoicesCard(),
           // A payment in progress, at every level: its steps live (D11).
           if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onMore: () => nav.go(DeskRoute.activity, const ActivityArgs(pending: true))),
-          SizedBox(height: Sp.x2),
           // While the restore scan runs, Recent activity shows what it finds, never "No
-          // transactions yet" (copy D1).
-          // Something to act on goes above Recent activity; a quiet card stays below it.
-          if (invoicesWait) ...[const OverviewInvoicesCard(), SizedBox(height: Sp.x4)],
-          if (restore == null || (s.txs?.isNotEmpty ?? false)) recent,
+          // transactions yet" (copy D1). The contacts used last stand beside it in a window
+          // with the room, under it otherwise.
+          if (restore == null || (s.txs?.isNotEmpty ?? false))
+            LayoutBuilder(
+              builder: (context, box) => box.maxWidth >= Lay.xl && (s.contacts?.isNotEmpty ?? false)
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: recent),
+                        SizedBox(width: Sp.x4),
+                        SizedBox(width: 340.u, child: const HomeContacts()),
+                      ],
+                    )
+                  : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [recent, const HomeContacts()]),
+            ),
           if (pending > 0) _PendingFiles(count: pending),
           if (!invoicesWait) const OverviewInvoicesCard(),
         ],
@@ -377,7 +393,7 @@ class _SyncNotice extends StatelessWidget {
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false, this.shallow = false, this.casual = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, required this.refresh, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false, this.shallow = false, this.casual = false});
 
   final Balance? balance;
   final bool empty;
@@ -396,11 +412,14 @@ class _BalancePanel extends ConsumerWidget {
   /// Offline mode: the amounts are the last known ones, marked as such.
   final bool offline;
 
-  /// Shallow: one number and one sentence, no tiles, no fiat line.
+  /// Shallow: one number and one sentence, no parts line, no fiat line.
   final bool shallow;
 
-  /// Deeper: the tiles in casual words.
+  /// Deeper: the parts of the balance in casual words.
   final bool casual;
+
+  /// Refresh, at the end of the label's row.
+  final Widget refresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -423,162 +442,139 @@ class _BalancePanel extends ConsumerWidget {
     // The change of this wallet's own sends is in Locked in sends already: never awaiting anyone.
     final own = b == null ? 0 : ownChangeOffChain(txs).clamp(0, b.awaitingFinalization);
     final posted = b == null ? 0 : reported.clamp(0, b.awaitingFinalization - own);
+    // The value in the chosen currency and what one EPIC costs, between the figure and its trace.
+    final fiat = price == null || b == null || shallow
+        ? null
+        : Wrap(
+            spacing: 14.u,
+            runSpacing: Sp.x1,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: hidden ? '≈ ••• ${currency.toUpperCase()}' : '≈ ${localDigits(l, fiatText(BigInt.from(b.figure(own)), price, currency))}'), // l10n-ok: digits and the currency code
+                    TextSpan(text: l.deskOvFiatNote, style: TextStyle(color: c.faint)),
+                  ],
+                ),
+                style: ts.mono(size: Fs.lg, weight: FontWeight.w500),
+              ),
+              Text('${withUnit(localDigits(l, '1'), epicUnit)} = ${localDigits(l, fiatText(atomicPerEpic, price, currency))}', style: ts.mono(size: Fs.sm, color: c.dim)), // l10n-ok: digits and units
+            ],
+          );
     final amount = b == null
         ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_Skeleton(width: 260.u, height: 40.u), SizedBox(height: Sp.x4), _Trace(width: 260.u)])
-        : _BigAmount(nano: b.figure(own), hidden: hidden, dim: updating);
-    final actions = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Wrap(
-          spacing: Sp.x2,
-          runSpacing: Sp.x2,
-          children: empty
-              ? [EButton.primary(label: l.deskOvReceiveEpic, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))]
-              : [
-                  // Send and Receive look alike: neither is the one thing to do here.
-                  EButton(label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
-                  EButton(label: l.deskOvReceive, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
-                  // Scan reads any code and opens it like a link; greyed out with no camera.
-                  DeskScanButton(key: const ValueKey('home-scan'), label: l.deskOvScan, onScan: () => unawaited(openDeskScan(context, ref)), size: EBtnSize.md),
-                ],
-        ),
-        if (sendBlocked && !empty) ...[
-          SizedBox(height: Sp.x2),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 240.u),
-            child: Text(nodeAnswers ? l.deskOvSendWaits : l.deskOvSendWaitsNode, style: ts.small),
-          ),
-        ],
+        : _BigAmount(nano: b.figure(own), hidden: hidden, dim: updating, under: fiat);
+    // The parts of the balance that are not zero, in the phone's order (GP-007), then the total
+    // when it is more than the figure above. One precision for all of them (UP-016, C-01).
+    final parts = <(String, int)>[
+      if (b != null && !shallow) ...[
+        if (b.awaitingConfirmation > 0) (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b.awaitingConfirmation),
+        if (b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b.immature),
+        if (b.awaitingFinalization - own - posted > 0) (casual ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, b.awaitingFinalization - own - posted),
+        if (posted > 0) (l.deskTxStatusSenderPosted, posted),
+        if (b.locked > 0) (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b.locked),
+        if (b.total != b.figure(own)) (l.deskOvBreakTotal, b.total),
       ],
-    );
+    ];
+    final buttons = <Widget>[
+      if (empty)
+        EButton.primary(label: l.deskOvReceiveEpic, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))
+      else ...[
+        // Send is the one main action here; it and Receive carry the ids the tabs had.
+        EButton.primary(semanticsId: TrustIds.navSend, label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
+        EButton(semanticsId: TrustIds.navReceive, label: l.deskOvReceive, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive)),
+        if (ref.watch(deskInvoicesShownProvider)) EButton(key: const ValueKey('home-request'), label: l.deskOvRequest, icon: EIcons.request, onPressed: () => nav.go(DeskRoute.invoiceIssue)),
+        // Scan reads any code and opens it like a link; greyed out with no camera.
+        DeskScanButton(key: const ValueKey('home-scan'), label: l.deskOvScan, onScan: () => unawaited(openDeskScan(context, ref)), size: EBtnSize.md),
+      ],
+    ];
     return ETicked(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x8, Sp.x6, Sp.x8, 0),
-            child: LayoutBuilder(
-              builder: (context, box) {
-                final words = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final narrow = box.maxWidth < 560.u;
+          final words = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Wrap(
                       spacing: Sp.x2,
                       runSpacing: Sp.x1,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        trustId(TrustIds.overviewAvailable, Text(l.deskOvBalance, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500))),
+                        trustId(TrustIds.overviewAvailable, Text(l.deskOvBalance, style: ts.small)),
                         if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
                         if (offline) EBadge(l.lastKnownCaption, key: const ValueKey('overview-offline')),
                       ],
                     ),
-                    SizedBox(height: 6.u),
-                    amount,
-                    // What Send can use, when a send's change or a payment is still confirming.
-                    if (b != null && b.spendable != b.figure(own)) ...[
-                      Text(
-                        l.deskOvSpendableNow(hidden ? '••••••' : epicTextL(l, b.spendable)),
-                        key: const ValueKey('overview-spendable-now'),
-                        style: ts.bodyDim,
-                      ),
-                      SizedBox(height: Sp.x1),
-                    ],
-                    SizedBox(height: 6.u),
-                    if (empty)
-                      Text(shallow ? l.deskLvPayHeroNothing : l.deskOvEmptyHint, style: ts.bodyDim)
-                    else if (shallow)
-                      _HeroSentence(txs: txs, hidden: hidden)
-                    else if (price != null && b != null)
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: hidden ? '≈ ••• ${currency.toUpperCase()}' : '≈ ${localDigits(l, fiatText(BigInt.from(b.figure(own)), price, currency))}'), // l10n-ok: digits and the currency code
-                            TextSpan(
-                              text: l.deskOvFiatNote,
-                              style: TextStyle(color: c.faint),
-                            ),
-                          ],
-                        ),
-                        style: ts.bodyDim,
-                      ),
-                  ],
-                );
-                if (box.maxWidth < 560.u) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      words,
-                      SizedBox(height: Sp.x4),
-                      actions,
-                    ],
-                  );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  SizedBox(width: Sp.x1),
+                  refresh,
+                ],
+              ),
+              amount,
+              SizedBox(height: 6.u),
+              // What Send can use, when a send's change or a payment is still confirming, then
+              // the parts of the balance (none at Shallow).
+              if (b != null && (parts.isNotEmpty || b.spendable != b.figure(own)))
+                Wrap(
+                  spacing: 14.u,
+                  runSpacing: Sp.x1,
                   children: [
-                    Expanded(child: words),
-                    SizedBox(width: Sp.x6),
-                    actions,
-                  ],
-                );
-              },
-            ),
-          ),
-          SizedBox(height: shallow ? Sp.x6 : Sp.x5),
-          if (!shallow) Divider(height: 1, color: c.line),
-          if (!shallow)
-          LayoutBuilder(
-            builder: (context, box) {
-              // The phone's order (GP-007); the balance is the big figure above, Spendable under it.
-              final items = <(String, int?, Widget?)>[
-                (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
-                // Loading draws the tiles most wallets have: no Immature (a miner's tile).
-                if (b != null && b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (casual ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
-                if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
-                (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
-              ];
-              // One precision for every tile, the row surface as the phone's tiles (UP-016, C-01):
-              // never computed from the data; the exact value is each tile's tooltip.
-              const surface = AmountSurface.row;
-              // One row when it fits; else rows of three (two for four tiles), the last row's
-              // tiles stretching, so no tile is left alone beside an empty cell.
-              final perRow = box.maxWidth >= items.length * 180.u ? items.length : (items.length == 4 ? 2 : 3);
-              final rows = [for (var i = 0; i < items.length; i += perRow) items.sublist(i, i + perRow > items.length ? items.length : i + perRow)];
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final (r, row) in rows.indexed)
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                    Text(l.deskOvSpendableNow(hidden ? '••••••' : epicTextL(l, b.spendable)), key: const ValueKey('overview-spendable-now'), style: ts.small),
+                    for (final (label, nano) in parts)
+                      Row(
+                        key: ValueKey('overview-part-$label'),
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 6.u,
                         children: [
-                          for (final (i, it) in row.indexed)
-                            Expanded(
-                              child: _Break(
-                                label: it.$1,
-                                nano: it.$2,
-                                lead: it.$3,
-                                surface: surface,
-                                width: box.maxWidth / row.length,
-                                dim: updating,
-                                hidden: hidden,
-                                first: i == 0,
-                                right: i < row.length - 1,
-                                bottom: r < rows.length - 1,
-                              ),
-                            ),
+                          // A long label gives way in a narrow window; the amount never does.
+                          Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small)),
+                          FitMoney(nano, sizes: const [Fs.sm], surface: AmountSurface.row, color: updating ? c.dim : c.text),
                         ],
                       ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ],
+                  ],
+                ),
+              if (empty)
+                Text(shallow ? l.deskLvPayHeroNothing : l.deskOvEmptyHint, style: ts.small)
+              else if (shallow)
+                _HeroSentence(txs: txs, hidden: hidden),
+            ],
+          );
+          // Two by two beside the balance; one row under it in a narrow window, two by two
+          // again where four would not hold their labels.
+          final perRow = narrow && box.maxWidth >= 440.u ? buttons.length : 2;
+          final grid = Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: Sp.x2,
+            children: [
+              for (var i = 0; i < buttons.length; i += perRow)
+                Row(
+                  spacing: Sp.x2,
+                  children: [
+                    for (var j = i; j < i + perRow; j++) Expanded(child: j < buttons.length ? EButtonFill(child: buttons[j]) : const SizedBox.shrink()),
+                  ],
+                ),
+              if (sendBlocked && !empty) Text(nodeAnswers ? l.deskOvSendWaits : l.deskOvSendWaitsNode, style: ts.small),
+            ],
+          );
+          return Padding(
+            padding: narrow ? EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 18.u) : EdgeInsets.symmetric(horizontal: 28.u, vertical: 22.u),
+            child: narrow
+                ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [words, SizedBox(height: Sp.x4), grid])
+                : Row(
+                    children: [
+                      Expanded(child: words),
+                      SizedBox(width: Sp.x10),
+                      SizedBox(width: 288.u, child: grid),
+                    ],
+                  ),
+          );
+        },
       ),
     );
   }
@@ -594,11 +590,14 @@ class _UpdatingTag extends StatelessWidget {
 /// The balance in Montserrat 44: whole part bright, the four decimals ([AmountSurface.hero], the one
 /// display rule) dim, unit in mono. A hover shows the exact amount.
 class _BigAmount extends StatelessWidget {
-  const _BigAmount({required this.nano, required this.hidden, this.dim = false});
+  const _BigAmount({required this.nano, required this.hidden, this.dim = false, this.under});
 
   final int nano;
   final bool hidden;
   final bool dim;
+
+  /// Between the figure and its trace: the value in the chosen currency.
+  final Widget? under;
 
   @override
   Widget build(BuildContext context) {
@@ -681,7 +680,8 @@ class _BigAmount extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: Sp.x4),
+            if (under != null) ...[SizedBox(height: Sp.x1), under!],
+            SizedBox(height: Sp.x3),
             _Trace(width: rowW),
           ],
         );
@@ -706,84 +706,6 @@ class _Trace extends StatelessWidget {
     height: 26.u,
     child: CustomPaint(painter: _TracePainter(context.dc.accent)),
   );
-}
-
-class _Break extends StatelessWidget {
-  const _Break({
-    required this.label,
-    required this.nano,
-    required this.width,
-    this.lead,
-    this.first = false,
-    this.right = false,
-    this.bottom = false,
-    this.dim = false,
-    this.surface = AmountSurface.row,
-    this.hidden = false,
-  });
-
-  /// Where the amounts sit, so their decimals: the same in every tile of the row.
-  final AmountSurface surface;
-
-  /// Amounts hidden: no exact value in the tooltip.
-  final bool hidden;
-
-  /// The cell's width, for fitting the amount.
-  final double width;
-
-  final String label;
-  final int? nano;
-  final Widget? lead;
-  final bool first;
-  final bool right;
-  final bool bottom;
-  final bool dim;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final zero = nano == 0;
-    final side = BorderSide(color: c.line);
-    return Container(
-      padding: EdgeInsets.fromLTRB(first ? Sp.x8 : Sp.x5, Sp.x4, Sp.x5, Sp.x4),
-      decoration: BoxDecoration(
-        border: Border(right: right ? side : BorderSide.none, bottom: bottom ? side : BorderSide.none),
-      ),
-      // Label at the top, value at the bottom: values share one baseline when a label wraps.
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              if (lead != null) ...[SizedBox(width: Ctl.iconSm, height: Ctl.iconSm, child: Center(child: lead!)), SizedBox(width: 6.u)],
-              Flexible(
-                child: Text(label, style: ts.small, maxLines: 2, overflow: TextOverflow.ellipsis),
-              ),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: Sp.x1),
-            child: nano == null
-              ? _Skeleton(width: 90.u, height: 16.u)
-              : exactAmountTip(
-                  context,
-                  BigInt.from(nano!),
-                  hidden: hidden,
-                  child: FitMoney(
-                    nano!,
-                    surface: surface,
-                    sizes: const [Fs.lg, Fs.md, Fs.sm, Fs.xs],
-                    width: width - (first ? Sp.x8 : Sp.x5) - Sp.x5,
-                    color: zero || dim ? c.faint : c.text,
-                  ),
-                ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _TracePainter extends CustomPainter {
@@ -1005,9 +927,8 @@ class _InFlight extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: EdgeInsets.only(top: Sp.x4),
-          child: _AccentBox(
+        ESectionHead(l.deskOvInMotion, top: Sp.x6),
+        _AccentBox(
             key: ValueKey('overview-inflight-${t.id}'),
             child: Semantics(
               button: true,
@@ -1048,7 +969,6 @@ class _InFlight extends ConsumerWidget {
                 ),
               ),
             ),
-          ),
         ),
         if (rows.isNotEmpty || more > 0)
           Padding(

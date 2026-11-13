@@ -1830,7 +1830,7 @@
   "deskOvStarting": "正在启动",
   "deskOvStartNode": "启动节点",
   "deskOvNodeSettings": "节点设置",
-  "deskOvTitle": "概览",
+  "deskOvTitle": "首页",
   "deskOvShowAmounts": "显示金额",
   "deskOvHideAmounts": "隐藏金额",
   "deskOvRefresh": "刷新",
@@ -2611,7 +2611,7 @@
   "deskAppFirstScanBody": "钱包正在扫描区块链查找属于它的币，期间仍可使用。",
   "deskAppScanOutput": "扫描进度",
   "deskAppWaitingOutput": "等待第一条输出…",
-  "deskShellNavOverview": "概览",
+  "deskShellNavOverview": "首页",
   "deskShellNavActivity": "活动",
   "deskShellNavSend": "发送",
   "deskShellNavReceive": "接收",
@@ -2629,7 +2629,7 @@
   "deskShellMainNav": "主导航",
   "deskShellOpenWalletSettingsNamed": "打开钱包设置：{name}",
   "deskShellSwitchWallet": "切换钱包",
-  "deskTourOverviewTitle": "概览",
+  "deskTourOverviewTitle": "首页",
   "deskTourOverviewText": "余额和仍在确认中的金额，下面是最近的付款。其他功能都在侧边栏中。",
   "deskTourSendTitle": "发送",
   "deskTourSendText": "向 Epicbox 地址付款，或生成交易文件让对方签名。发出前会先确认。",
@@ -5594,5 +5594,9 @@
   "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
   "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。",
   "phoneHomeFirstPayment": "你的第一笔付款",
-  "phoneHomeFirstPaymentHint": "到账后显示在这里"
+  "phoneHomeFirstPaymentHint": "到账后显示在这里",
+  "deskOvRequest": "请求付款",
+  "deskOvInMotion": "进行中",
+  "deskOvSendTo": "发送给 {name}",
+  "deskOvFieldHint": "输入名称、金额、地址或付款码"
 }

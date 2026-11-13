@@ -134,9 +134,9 @@
   "@deskAppWaitingOutput": {
     "description": "Placeholder in the first-scan dialog before the scan has printed anything."
   },
-  "deskShellNavOverview": "Overview",
+  "deskShellNavOverview": "Home",
   "@deskShellNavOverview": {
-    "description": "Sidebar entry and window title: the Overview page (balance and latest transactions). One word where possible."
+    "description": "Tab in the title bar: the first page, with the balance, what is in motion and recent activity. One word."
   },
   "deskShellNavActivity": "Activity",
   "@deskShellNavActivity": {
@@ -216,9 +216,9 @@
   "@deskShellSwitchWallet": {
     "description": "Tooltip of the button next to the account row that locks the wallet so another wallet can be picked."
   },
-  "deskTourOverviewTitle": "Overview",
+  "deskTourOverviewTitle": "Home",
   "@deskTourOverviewTitle": {
-    "description": "Title of the tour card for this page (first-unlock tour). Short."
+    "description": "Title of the tour's first step, on Home: the balance. The page's name, as its tab says it."
   },
   "deskTourOverviewText": "The balance and what is still confirming, then the latest payments. Everything else is in the sidebar.",
   "@deskTourOverviewText": {

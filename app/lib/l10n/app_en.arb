@@ -9809,9 +9809,9 @@
   "@deskOvNodeSettings": {
     "description": "Ghost button in the node-down notice: opens Settings for the node. Short."
   },
-  "deskOvTitle": "Overview",
+  "deskOvTitle": "Home",
   "@deskOvTitle": {
-    "description": "Title of the Overview page: balance and recent activity."
+    "description": "Name of the first page (balance, what is in motion, recent activity). It has no visible title; a screen reader and the window title say it."
   },
   "deskOvShowAmounts": "Show amounts",
   "@deskOvShowAmounts": {
@@ -11499,9 +11499,9 @@
   "@deskAppWaitingOutput": {
     "description": "Placeholder in the first-scan dialog before the scan has printed anything."
   },
-  "deskShellNavOverview": "Overview",
+  "deskShellNavOverview": "Home",
   "@deskShellNavOverview": {
-    "description": "Sidebar entry and window title: the Overview page (balance and latest transactions). One word where possible."
+    "description": "Tab in the title bar: the first page, with the balance, what is in motion and recent activity. One word."
   },
   "deskShellNavActivity": "Activity",
   "@deskShellNavActivity": {
@@ -11581,9 +11581,9 @@
   "@deskShellSwitchWallet": {
     "description": "Tooltip of the button next to the account row that locks the wallet so another wallet can be picked."
   },
-  "deskTourOverviewTitle": "Overview",
+  "deskTourOverviewTitle": "Home",
   "@deskTourOverviewTitle": {
-    "description": "Title of the tour card for this page (first-unlock tour). Short."
+    "description": "Title of the tour's first step, on Home: the balance. The page's name, as its tab says it."
   },
   "deskTourOverviewText": "The balance and what is still confirming, then the latest payments. Everything else is in the sidebar.",
   "@deskTourOverviewText": {
@@ -29169,5 +29169,27 @@
   "phoneHomeFirstPaymentHint": "Appears here when it arrives",
   "@phoneHomeFirstPaymentHint": {
     "description": "Empty Home: the line under 'Your first payment' in the empty row. Says the payment shows in this place once it comes in. Short, no full stop."
+  },
+  "deskOvRequest": "Request",
+  "@deskOvRequest": {
+    "description": "Button on Home beside Send and Receive: opens a new invoice to ask a contact for a payment. One word, a verb."
+  },
+  "deskOvInMotion": "In motion",
+  "@deskOvInMotion": {
+    "description": "Section title on Home over the payments that are under way (sent or arriving, not yet completed). Two words at most."
+  },
+  "deskOvSendTo": "Send to {name}",
+  "@deskOvSendTo": {
+    "description": "Tooltip and screen-reader label of the arrow button on a contact's row on Home: opens Send with that contact filled in.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "deskOvFieldHint": "Type a name, an amount, an address or a payment code",
+  "@deskOvFieldHint": {
+    "description": "Placeholder and screen-reader label of the field on Home. Enter opens Send with what was typed or pasted. One line, no full stop."
   }
 }

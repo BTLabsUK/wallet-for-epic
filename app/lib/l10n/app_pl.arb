@@ -1830,7 +1830,7 @@
   "deskOvStarting": "Uruchamianie",
   "deskOvStartNode": "Uruchom węzeł",
   "deskOvNodeSettings": "Ustawienia węzła",
-  "deskOvTitle": "Przegląd",
+  "deskOvTitle": "Start",
   "deskOvShowAmounts": "Pokaż kwoty",
   "deskOvHideAmounts": "Ukryj kwoty",
   "deskOvRefresh": "Odśwież",
@@ -2074,7 +2074,7 @@
   "deskAppFirstScanBody": "Portfel skanuje łańcuch w poszukiwaniu swoich monet i w tym czasie można go używać.",
   "deskAppScanOutput": "Przebieg skanowania",
   "deskAppWaitingOutput": "Oczekiwanie na pierwsze wyniki…",
-  "deskShellNavOverview": "Przegląd",
+  "deskShellNavOverview": "Start",
   "deskShellNavActivity": "Aktywność",
   "deskShellNavSend": "Wyślij",
   "deskShellNavReceive": "Odbierz",
@@ -2092,7 +2092,7 @@
   "deskShellMainNav": "Główna nawigacja",
   "deskShellOpenWalletSettingsNamed": "Otwórz ustawienia portfela: {name}",
   "deskShellSwitchWallet": "Zmień portfel",
-  "deskTourOverviewTitle": "Przegląd",
+  "deskTourOverviewTitle": "Start",
   "deskTourOverviewText": "Saldo i to, co jeszcze się potwierdza, a pod nim ostatnie płatności. Wszystko inne jest na pasku bocznym.",
   "deskTourSendTitle": "Wyślij",
   "deskTourSendText": "Zapłać na adres Epicbox albo utwórz plik transakcji do podpisania przez kogoś. Przed wysłaniem jest podgląd.",
@@ -5594,5 +5594,9 @@
   "phoneTxCancelledByUser": "Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą.",
   "phoneTxCancelledIncoming": "Jeśli nadawca opublikuje płatność później, i tak dotrze.",
   "phoneHomeFirstPayment": "Twoja pierwsza płatność",
-  "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze"
+  "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze",
+  "deskOvRequest": "Poproś",
+  "deskOvInMotion": "W toku",
+  "deskOvSendTo": "Wyślij do: {name}",
+  "deskOvFieldHint": "Wpisz nazwę, kwotę, adres lub kod płatności"
 }

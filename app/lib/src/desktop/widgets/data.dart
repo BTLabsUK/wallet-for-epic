@@ -860,7 +860,8 @@ class ETab extends StatefulWidget {
     var width = gap * (tabs.length - 1);
     for (final (label, count) in tabs) {
       final text = TextPainter(
-        text: TextSpan(text: label, style: TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w600)),
+        // The face the tabs draw their labels in (the theme's), not the engine's default.
+        text: TextSpan(text: label, style: DefaultTextStyle.of(context).style.copyWith(fontSize: Fs.sm, fontWeight: FontWeight.w600)),
         textDirection: TextDirection.ltr,
         textScaler: scaler,
         maxLines: 1,

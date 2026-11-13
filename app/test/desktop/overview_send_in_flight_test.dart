@@ -51,7 +51,7 @@ void main() {
     expect(b.total, b.spendable + b.awaitingConfirmation + b.locked, reason: 'no double count, nothing missing');
   });
 
-  testWidgets('Overview: Waiting for sender leaves the change out, Locked and Total keep the 0.1; Send is plain', (tester) async {
+  testWidgets('Home: Waiting for sender leaves the change out, Locked and Total keep the 0.1; Send is the main action', (tester) async {
     final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet())]);
     addTearDown(container.dispose);
     tester.view.physicalSize = const Size(1400, 1000);
@@ -67,17 +67,17 @@ void main() {
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
-    int cell(String label) {
-      final column = find.ancestor(of: find.text(label), matching: find.byType(Column)).first;
-      return tester.widget<FitMoney>(find.descendant(of: column, matching: find.byType(FitMoney))).nano;
-    }
+    // The parts of the balance under the figure: one per part that is not zero.
+    Finder part(String label) => find.byKey(ValueKey('overview-part-$label'));
+    int cell(String label) => tester.widget<FitMoney>(find.descendant(of: part(label), matching: find.byType(FitMoney))).nano;
 
-    expect(cell(_l.deskOvBreakAwaiting), 0);
+    expect(part(_l.deskOvBreakAwaiting), findsNothing, reason: 'the change is the wallet\'s own: nothing waits for a sender');
     expect(cell(_l.deskOvBreakLocked), 10000000);
     expect(cell(_l.deskOvBreakTotal), 10000000);
     final send = tester.widget<EButton>(find.widgetWithText(EButton, 'Send'));
     final receive = tester.widget<EButton>(find.widgetWithText(EButton, 'Receive'));
-    expect(send.kind, receive.kind);
+    expect(send.kind, EBtnKind.primary);
+    expect(receive.kind, EBtnKind.secondary);
     expect(send.size, receive.size);
   });
 }

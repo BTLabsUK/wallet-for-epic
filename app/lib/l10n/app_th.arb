@@ -1830,7 +1830,7 @@
   "deskOvStarting": "กำลังเริ่ม",
   "deskOvStartNode": "เริ่มโหนด",
   "deskOvNodeSettings": "การตั้งค่าโหนด",
-  "deskOvTitle": "ภาพรวม",
+  "deskOvTitle": "หน้าแรก",
   "deskOvShowAmounts": "แสดงจำนวน",
   "deskOvHideAmounts": "ซ่อนจำนวน",
   "deskOvRefresh": "รีเฟรช",
@@ -2522,7 +2522,7 @@
   "deskAppFirstScanBody": "กระเป๋าเงินสแกนบล็อกเชนเพื่อหาเหรียญของตัวเอง และใช้งานได้ระหว่างนี้",
   "deskAppScanOutput": "ผลการสแกน",
   "deskAppWaitingOutput": "รอผลแรก…",
-  "deskShellNavOverview": "ภาพรวม",
+  "deskShellNavOverview": "หน้าแรก",
   "deskShellNavActivity": "ประวัติ",
   "deskShellNavSend": "ส่ง",
   "deskShellNavReceive": "รับ",
@@ -2540,7 +2540,7 @@
   "deskShellMainNav": "เมนูหลัก",
   "deskShellOpenWalletSettingsNamed": "เปิดการตั้งค่ากระเป๋าเงิน: {name}",
   "deskShellSwitchWallet": "สลับกระเป๋าเงิน",
-  "deskTourOverviewTitle": "ภาพรวม",
+  "deskTourOverviewTitle": "หน้าแรก",
   "deskTourOverviewText": "ยอดคงเหลือและยอดที่กำลังยืนยัน ตามด้วยรายการล่าสุด อย่างอื่นอยู่ในแถบด้านข้าง",
   "deskTourSendTitle": "ส่ง",
   "deskTourSendText": "จ่ายไปที่อยู่ Epicbox หรือสร้างไฟล์ธุรกรรมให้อีกฝ่ายเซ็น จะมีการตรวจสอบก่อนส่งทุกครั้ง",
@@ -5594,5 +5594,9 @@
   "phoneTxCancelledByUser": "ไม่มีการชำระเงิน และยอดเงินกลับมาใช้ได้แล้ว หากผู้รับได้รับรายการนี้ไปแล้ว กระเป๋าเงินของผู้รับอาจยังแสดงว่ากำลังรอ",
   "phoneTxCancelledIncoming": "ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า",
   "phoneHomeFirstPayment": "การชำระเงินครั้งแรกของคุณ",
-  "phoneHomeFirstPaymentHint": "จะแสดงที่นี่เมื่อมาถึง"
+  "phoneHomeFirstPaymentHint": "จะแสดงที่นี่เมื่อมาถึง",
+  "deskOvRequest": "ขอรับเงิน",
+  "deskOvInMotion": "กำลังดำเนินการ",
+  "deskOvSendTo": "ส่งให้ {name}",
+  "deskOvFieldHint": "พิมพ์ชื่อ จำนวน ที่อยู่ หรือรหัสการชำระเงิน"
 }

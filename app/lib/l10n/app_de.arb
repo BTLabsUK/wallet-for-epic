@@ -1651,7 +1651,7 @@
   "deskOvStarting": "Startet",
   "deskOvStartNode": "Node starten",
   "deskOvNodeSettings": "Node-Einstellungen",
-  "deskOvTitle": "Übersicht",
+  "deskOvTitle": "Start",
   "deskOvShowAmounts": "Beträge anzeigen",
   "deskOvHideAmounts": "Beträge verbergen",
   "deskOvRefresh": "Aktualisieren",
@@ -2272,7 +2272,7 @@
   "deskAppFirstScanBody": "Die Wallet durchsucht die Blockchain nach ihren Coins und bleibt dabei nutzbar.",
   "deskAppScanOutput": "Scan-Ausgabe",
   "deskAppWaitingOutput": "Warten auf die erste Ausgabe…",
-  "deskShellNavOverview": "Übersicht",
+  "deskShellNavOverview": "Start",
   "deskShellNavActivity": "Aktivität",
   "deskShellNavSend": "Senden",
   "deskShellNavReceive": "Empfangen",
@@ -2290,7 +2290,7 @@
   "deskShellMainNav": "Hauptnavigation",
   "deskShellOpenWalletSettingsNamed": "Wallet-Einstellungen öffnen: {name}",
   "deskShellSwitchWallet": "Wallet wechseln",
-  "deskTourOverviewTitle": "Übersicht",
+  "deskTourOverviewTitle": "Start",
   "deskTourOverviewText": "Das Guthaben und was noch bestätigt wird, darunter die letzten Zahlungen. Alles andere finden Sie in der Seitenleiste.",
   "deskTourSendTitle": "Senden",
   "deskTourSendText": "An eine Epicbox-Adresse zahlen oder eine Transaktionsdatei erstellen, die jemand signiert. Vor dem Abschicken kommt eine Prüfung.",
@@ -5594,5 +5594,9 @@
   "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
   "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
   "phoneHomeFirstPayment": "Deine erste Zahlung",
-  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt"
+  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt",
+  "deskOvRequest": "Anfordern",
+  "deskOvInMotion": "In Bewegung",
+  "deskOvSendTo": "An {name} senden",
+  "deskOvFieldHint": "Name, Betrag, Adresse oder Zahlungscode eingeben"
 }
