@@ -34,7 +34,7 @@ import '../../../models.dart'
         pairingFailureOf;
 import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
-import '../../../relay_boost.dart';
+import '../../../boosts.dart' show boostRelays;
 import '../../../trust_ids.dart';
 import '../../../ui/key_picture.dart';
 import '../../../ui/pairing/invite_links.dart';

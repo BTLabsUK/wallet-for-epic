@@ -19,7 +19,6 @@ import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../providers.dart' show sessionProvider;
-import '../../relay_boost.dart';
 import 'pair_screen.dart' show seenAsForWire;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';

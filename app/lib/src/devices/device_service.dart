@@ -36,7 +36,6 @@ import '../boosts.dart';
 import '../log.dart';
 import '../models.dart';
 import '../pairing_api.dart';
-import '../relay_boost.dart';
 import '../scan/scan_router.dart' show cleanUntrustedText;
 import '../wallet_service.dart' show WalletSession;
 import 'device_link_code.dart';

@@ -8,11 +8,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../../boosts.dart' show Boosts, boostMinInterval;
+import '../../boosts.dart' show Boosts, boostMinInterval, boostRelays;
 import '../../epic1.dart';
 import '../../models.dart';
 import '../../qr_slate.dart' show qrFrameMs;
-import '../../relay_boost.dart';
 
 /// How often a code on screen asks for its answers.
 const Duration inPersonPollEvery = Duration(seconds: 3);

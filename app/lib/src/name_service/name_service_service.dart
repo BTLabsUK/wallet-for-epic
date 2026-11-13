@@ -15,7 +15,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../log.dart';
-import '../relay_boost.dart';
 import '../sas_table.dart';
 import '../trust/policy.dart' show featureNameService;
 import '../wallet_service.dart';

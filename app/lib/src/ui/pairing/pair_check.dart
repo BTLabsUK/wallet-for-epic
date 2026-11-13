@@ -19,7 +19,6 @@ import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../providers.dart' show sessionProvider;
-import '../../relay_boost.dart';
 import '../../pairing_text.dart' show isUnnamed, sameNamedContact;
 import '../../wallet_service.dart';
 import '../app_dialog.dart';
