@@ -99,3 +99,17 @@ lepic/crates/lepic-peer/src/origin/tests.rs	[a-z2-7]{56}\.onion
 lepic/crates/lepic-peer/src/origin/tests.rs	(?<![0-9])3415(?![0-9])|/api/v1/inbox
 lepic/crates/lepic-native-slate/src/tail/tests.rs	:65535(?![0-9])
 lepic/crates/lepic-epic1/src/link/tests.rs	:2100(?![0-9])
+
+# LEPIC unit-test data in files that are not tests.rs: the webhook SSRF test's address table
+# (public and non-public unicast addresses the guard must pass or refuse), epicbox links in the
+# QR, link and legacy-import tests. Test input, never dialled.
+lepic/crates/lepic-cli/src/commands/serve/v1/webhook/send.rs	"[0-9a-f:.]+",
+lepic/crates/lepic-cli/src/qr.rs	epicbox\.epiccash\.com
+lepic/crates/lepic-transport/src/epicbox_link.rs	epicbox\.epiccash\.com
+lepic/crates/lepic-wallet/src/legacy_history/import.rs	epicbox\.epiccash\.com
+
+# The pair-request string's metadata names Epicbox's default host as an example of the value
+# (words for translators, never dialled).
+app/lib/l10n/app_*	e\.g\. epicbox\.epiccash\.com
+app/lib/l10n/desk/*	e\.g\. epicbox\.epiccash\.com
+app/lib/l10n/app_localizations.dart	e\.g\. epicbox\.epiccash\.com
