@@ -15,6 +15,7 @@ import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 import 'pay_dialogs.dart';
+import 'review_screen.dart' show InvoiceReview;
 
 class PayTab extends ConsumerWidget {
   const PayTab({super.key, required this.book, this.selected});
@@ -36,7 +37,9 @@ class PayTab extends ConsumerWidget {
     final paid = opened != null && !needs.any((i) => i.slateId == opened.slateId) && !waiting.any((i) => i.slateId == opened.slateId)
         ? opened
         : null;
-    return ListView(
+    // The invoice to pay that is open: in a pane beside the list on a wide page.
+    final review = selected == null ? null : waiting.where((i) => i.slateId == selected).firstOrNull;
+    final list = ListView(
       padding: EdgeInsets.only(bottom: Sp.x6),
       children: [
         if (needs.isNotEmpty) ...[
@@ -81,6 +84,21 @@ class PayTab extends ConsumerWidget {
           ),
         ],
       ],
+    );
+    if (review == null) return list;
+    return LayoutBuilder(
+      builder: (context, box) => box.maxWidth < Lay.xl
+          ? list
+          : PanelRow(
+              main: list,
+              side: EPanel(
+                key: const ValueKey('inv-review-pane'),
+                scroll: true,
+                child: InvoiceReview(invoice: review, book: book, onBack: () => nav.go(DeskRoute.invoices, InvoicesTab.pay)),
+              ),
+              sideWidth: MediaQuery.sizeOf(context).width >= Ctl.sideWideFrom ? Ctl.sideWide : Ctl.side,
+              maxSideFraction: Ctl.sideMaxFraction,
+            ),
     );
   }
 }

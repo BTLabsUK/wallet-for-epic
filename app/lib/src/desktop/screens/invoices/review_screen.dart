@@ -14,6 +14,7 @@ import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
+import 'invoices_screen.dart' show InvoicesScreen;
 import 'pay_dialogs.dart';
 import 'pay_tab.dart' show PayAmount;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -51,16 +52,22 @@ class InvoiceReviewScreen extends ConsumerWidget {
         ),
       );
     }
+    // A wide window shows it beside the list it came from (the list's side pane).
+    if (MediaQuery.sizeOf(context).width >= Bp.desktop && book.waiting.any((w) => w.slateId == invoice.slateId)) {
+      return InvoicesScreen(arg: invoice.slateId);
+    }
     return EPage(
       title: l.reqTitle,
       onBack: back,
-      child: _Review(invoice: invoice, book: book, onBack: back),
+      child: InvoiceReview(invoice: invoice, book: book, onBack: back),
     );
   }
 }
 
-class _Review extends ConsumerWidget {
-  const _Review({required this.invoice, required this.book, required this.onBack});
+/// One invoice to pay or decline: in the Invoices list's side pane on a wide window
+/// ([PayTab]), on a page of its own on a narrow one.
+class InvoiceReview extends ConsumerWidget {
+  const InvoiceReview({super.key, required this.invoice, required this.book, required this.onBack});
 
   final IncomingInvoice invoice;
   final InvoiceBook book;
