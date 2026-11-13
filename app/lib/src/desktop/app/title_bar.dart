@@ -29,7 +29,7 @@ import '../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../trust_ids.dart';
 import '../data/desk_update.dart' show deskAppVersion;
 import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
-import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, BrandWordmark, EpicMark;
+import '../../ui/theme/brand.dart' show EpicMark;
 import '../../advanced.dart' show NetworkMode;
 import '../../ui/network_mode_text.dart';
 import '../data/desk_levels.dart';
@@ -574,8 +574,10 @@ class _BarMenuState extends State<_BarMenu> {
 
 void _toggle(MenuController m) => m.isOpen ? m.close() : m.open();
 
-/// The mark, then the BT Wallet wordmark, as [BrandLockup] sets them; in an open wallet it
-/// opens the app menu (hover and pressed fills say so); its tooltip names the build.
+/// The title bar's logo (canvas/handoff/LOGO.md, the user's pick of 2026-11-13): the mask in
+/// one flat brand colour, 20 high, and "BT Wallet" as text on one line; in a narrow window the
+/// mark alone. In an open wallet it opens the app menu (hover and pressed fills say so); its
+/// tooltip names the build.
 class _Brand extends ConsumerWidget {
   const _Brand({required this.menu, required this.compact, required this.dim});
 
@@ -586,31 +588,29 @@ class _Brand extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    Widget mark(double size) => AnimatedOpacity(
-      opacity: dim ? 0.7 : 1,
-      duration: Dur.base,
-      child: EpicMark(size: size, color: dim ? c.accentDeep : null),
-    );
-    // The kit's row lockup proportions. Scaled down rather than cut in a narrow window.
-    final lockup = FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: AlignmentDirectional.centerStart,
-      child: Row(
+    final ts = context.ts;
+    // A colour makes EpicMark's gradient run from it to itself: flat.
+    final mark = EpicMark(size: 20.u, color: dim ? c.accentDeep : c.accent);
+    final size = (ts.h3.fontSize ?? Fs.h3) * Fs.lg / Fs.h3;
+    Widget faded(Widget w) => AnimatedOpacity(opacity: dim ? 0.7 : 1, duration: Dur.base, child: w);
+    final lockup = faded(
+      Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          mark(30.u),
-          SizedBox(width: 30.u * BrandLockup.kitGapRatio),
-          AnimatedOpacity(
-            opacity: dim ? 0.7 : 1,
-            duration: Dur.base,
-            child: BrandWordmark(variant: BrandVariant.desktop, size: 30.u * BrandLockup.kitTextRatio, label: appName),
+          mark,
+          SizedBox(width: Sp.x2),
+          Text(
+            appName, // l10n-ok: the product's name, never translated
+            maxLines: 1,
+            softWrap: false,
+            style: ts.h3.copyWith(fontSize: size, height: 1, letterSpacing: size * -0.02, color: c.text),
           ),
         ],
       ),
     );
     if (!menu) return Semantics(label: appName, excludeSemantics: true, child: Padding(padding: EdgeInsetsDirectional.only(start: Sp.x3), child: lockup));
     // A narrow window: the mark alone, the build in its tooltip; Copy build info is in the menu.
-    if (compact) return _appMenu(context, ref, Center(widthFactor: 1, child: mark(22.u)), tooltip: '$appName ${deskBuildLabel()}');
+    if (compact) return _appMenu(context, ref, Center(widthFactor: 1, child: faded(mark)), tooltip: '$appName ${deskBuildLabel()}');
     // The build in the tooltip.
     return _appMenu(context, ref, lockup, tooltip: '$appName ${deskBuildLabel()}');
   }
