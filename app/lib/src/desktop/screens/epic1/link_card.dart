@@ -15,6 +15,7 @@ import '../../../trust_ids.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../../../ui/theme/protocol.dart' show CornerTicksPainter;
 import '../in_person/in_person_entry.dart' show openDeskRequestInPerson;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/setting_ids.dart';
@@ -167,6 +168,8 @@ class _Epic1LinkCardState extends ConsumerState<Epic1LinkCard> {
       final info = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Semantics(header: true, child: Text(l.deskE1LinkTitle, style: ts.h3)),
+          SizedBox(height: Sp.x1),
           Text(l.deskE1LinkSub, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           Container(
@@ -184,33 +187,44 @@ class _Epic1LinkCardState extends ConsumerState<Epic1LinkCard> {
             SizedBox(height: Sp.x2),
             Text(l.deskE1LinkAsks(epicTextL(l, _amount!)), key: const ValueKey('e1-link-asks'), style: ts.small),
           ],
-          SizedBox(height: Sp.x4),
-          Wrap(
-            spacing: Sp.x3,
-            runSpacing: Sp.x2,
+          SizedBox(height: Sp.x3),
+          // Copy link is the main way out; the buttons share the row.
+          Row(
             children: [
-              ECopyButton(
-                key: const ValueKey('e1-copy-link'),
-                text: link.link,
-                label: l.deskE1CopyLink,
-                withLabel: true,
-                kind: EBtnKind.secondary,
-                size: EBtnSize.sm,
-                semanticsId: TrustIds.e1CopyLink,
+              Expanded(
+                child: EButtonFill(
+                  child: ECopyButton(
+                    key: const ValueKey('e1-copy-link'),
+                    text: link.link,
+                    label: l.deskE1CopyLink,
+                    withLabel: true,
+                    kind: EBtnKind.primary,
+                    size: EBtnSize.md,
+                    semanticsId: TrustIds.e1CopyLink,
+                  ),
+                ),
               ),
-              EButton(
-                key: const ValueKey('e1-ask-amount'),
-                label: l.deskE1AskAmount,
-                icon: EIcons.coins,
-                size: EBtnSize.sm,
-                busy: _busy,
-                semanticsId: TrustIds.e1AskAmount,
-                onPressed: _busy ? null : _ask,
+              SizedBox(width: Sp.x2),
+              Expanded(
+                child: EButton(
+                  key: const ValueKey('e1-ask-amount'),
+                  label: l.deskE1AskAmount,
+                  icon: EIcons.coins,
+                  expand: true,
+                  busy: _busy,
+                  semanticsId: TrustIds.e1AskAmount,
+                  onPressed: _busy ? null : _ask,
+                ),
               ),
-              if (_amount != null)
-                EButton.ghost(key: const ValueKey('e1-any-amount'), label: l.deskE1AnyAmount, size: EBtnSize.sm, onPressed: _busy ? null : _anyAmount),
             ],
           ),
+          if (_amount != null) ...[
+            SizedBox(height: Sp.x2),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: EButton.ghost(key: const ValueKey('e1-any-amount'), label: l.deskE1AnyAmount, size: EBtnSize.sm, onPressed: _busy ? null : _anyAmount),
+            ),
+          ],
         ],
       );
       final qr = EQrReveal(
@@ -224,12 +238,26 @@ class _Epic1LinkCardState extends ConsumerState<Epic1LinkCard> {
         epic1: true,
       );
       body = LayoutBuilder(
-        builder: (context, box) => box.maxWidth < Lay.lg
+        // The code at the card's start from a width that leaves the words a column of their own.
+        builder: (context, box) => box.maxWidth < 560.u
             ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Align(alignment: Alignment.centerLeft, child: qr)])
-            : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: info), SizedBox(width: Sp.x6), qr]),
+            : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [qr, SizedBox(width: Sp.x6), Expanded(child: info)]),
       );
     }
-    return EPanel(key: const ValueKey('e1-link-card'), title: l.deskE1LinkTitle, child: body);
+    // The link is the page's object: a ticked card, as Send's summary.
+    return CustomPaint(
+      foregroundPainter: CornerTicksPainter(c.tick, length: 14.u, width: 1.5),
+      child: EPanel(
+        key: const ValueKey('e1-link-card'),
+        padding: EdgeInsets.all(Sp.x6),
+        child: _lanAsk || error != null || link == null || widget.relay == null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [Semantics(header: true, child: Text(l.deskE1LinkTitle, style: ts.h3)), SizedBox(height: Sp.x4), body],
+              )
+            : body,
+      ),
+    );
   }
 }
 
@@ -327,28 +355,40 @@ class Epic1OtherWays extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
+    final c = context.dc;
+    // One row per way: its glyph, what it is, the button at the end.
     return Column(
       key: const ValueKey('e1-other-ways'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ESectionHead(l.deskE1OtherWays, top: 0),
         EPanel(
-          title: l.deskE1InPerson,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
+          child: Row(
             children: [
-              Text(l.deskE1InPersonSub, style: ts.bodyDim),
-              SizedBox(height: Sp.x4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: EButton(
-                  key: const ValueKey('e1-request-in-person'),
-                  label: l.deskE1RequestInPerson,
-                  icon: EIcons.phone,
-                  size: EBtnSize.sm,
-                  semanticsId: TrustIds.e1RequestInPerson,
-                  onPressed: () => openDeskRequestInPerson(context),
+              Container(
+                width: Ctl.sm,
+                height: Ctl.sm,
+                decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.sm)),
+                child: Icon(EIcons.phone, size: Ctl.iconSm, color: c.dim),
+              ),
+              SizedBox(width: Sp.x3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.deskE1InPerson, style: ts.strong),
+                    Text(l.deskE1InPersonSub, style: ts.small),
+                  ],
                 ),
+              ),
+              SizedBox(width: Sp.x3),
+              EButton(
+                key: const ValueKey('e1-request-in-person'),
+                label: l.deskE1RequestInPerson,
+                size: EBtnSize.sm,
+                semanticsId: TrustIds.e1RequestInPerson,
+                onPressed: () => openDeskRequestInPerson(context),
               ),
             ],
           ),
