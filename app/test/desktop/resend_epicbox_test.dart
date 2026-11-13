@@ -107,7 +107,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Send again'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    final toast = find.byType(SnackBar);
+    final toast = find.byType(EToast);
     expect(find.descendant(of: toast, matching: find.text('Not sent')), findsOneWidget);
     expect(find.descendant(of: toast, matching: find.byIcon(EIcons.error)), findsOneWidget);
     expect(find.descendant(of: toast, matching: find.byIcon(EIcons.okCircle)), findsNothing);

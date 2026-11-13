@@ -60,13 +60,19 @@ void main() {
     expect(find.textContaining('The older app received through epicbox.example.org.'), findsOneWidget);
     expect(find.text(_l.deskOnbImportUnlockOld), findsWidgets);
     // Keep is chosen already: tapping it changes nothing.
+    await tester.ensureVisible(find.text('Keep epicbox.example.org'));
+    await tester.pump();
     await tester.tap(find.text('Keep epicbox.example.org'));
     await _wait(tester);
     expect(api.relayChoices, isEmpty);
     expect(find.textContaining('payments to the old one do not arrive'), findsOneWidget);
+    await tester.ensureVisible(find.text('Use ${hostSettings.epicboxUse}'));
+    await tester.pump();
     await tester.tap(find.text('Use ${hostSettings.epicboxUse}'));
     await _wait(tester);
     expect(api.relayChoices.single, endsWith(':false'));
+    await tester.ensureVisible(find.text('Keep epicbox.example.org'));
+    await tester.pump();
     await tester.tap(find.text('Keep epicbox.example.org'));
     await _wait(tester);
     expect(api.relayChoices.last, endsWith(':true'));

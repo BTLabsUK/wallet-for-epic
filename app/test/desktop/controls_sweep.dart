@@ -498,7 +498,7 @@ List<_Control> _controls(Finder scope) {
 
 /// What the screen shows, toasts left out.
 String _shown() {
-  final toast = find.descendant(of: find.byType(SnackBar), matching: find.byType(RichText)).evaluate().toSet();
+  final toast = find.descendant(of: find.byType(EToast), matching: find.byType(RichText)).evaluate().toSet();
   final b = StringBuffer();
   for (final e in find.byType(RichText).evaluate()) {
     if (!toast.contains(e)) b.writeln((e.widget as RichText).text.toPlainText());
@@ -677,8 +677,8 @@ void sweepControls(List<DeskShot> shots, {List<DeskShot> after = const []}) {
 
         final acts = api.calls.where((c) => !_reads.contains(c)).toSet();
         final stub = acts.intersection(_stubbed);
-        final toasted = find.byType(SnackBar).evaluate().isNotEmpty;
-        if (toasted) ScaffoldMessenger.of(tester.element(find.byType(SnackBar).first)).clearSnackBars();
+        final toasted = find.byType(EToast).evaluate().isNotEmpty;
+        if (toasted) deskToastsOf(tester.element(find.byType(EToast).first))?.clear();
         await settle();
         final top = <Route<dynamic>>[];
         deskNavigatorKey.currentState?.popUntil((r) {

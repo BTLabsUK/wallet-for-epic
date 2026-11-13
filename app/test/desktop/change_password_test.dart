@@ -249,7 +249,7 @@ void main() {
       await settle(tester);
       expect(find.byType(ChangePasswordDialog), findsOneWidget);
       expect(find.descendant(of: find.widgetWithText(EField, 'Current password'), matching: find.text('Wrong password')), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(EToast), findsNothing);
       expect(await tester.runAsync(() => mock.isRemembered('')), isTrue);
       // Typing again clears it.
       await type(tester, 'Current password', 'right password');

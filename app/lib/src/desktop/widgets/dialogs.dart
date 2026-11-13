@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../trust_ids.dart';
@@ -125,7 +126,8 @@ class EDialog extends StatelessWidget {
     final narrow = window.width < Bp.desktop;
     // A short window (the canvas tightens under 760): a smaller mark and less air, so the body
     // keeps its room.
-    final short = window.height < 760.u;
+    // Short as the canvas means it (760 canvas px): an 800-high window keeps the full spacing.
+    final short = window.height < 760 * deskScale / deskBase;
     final padRaw = (narrow ? 20 : 28).toDouble();
     final padX = padRaw.u;
     final padTop = (short ? 18 : (narrow ? 22 : 28)).u;
@@ -165,7 +167,8 @@ class EDialog extends StatelessWidget {
                         child: Column(
                           children: [
                             EModalMark(tone: tone, icon: icon ?? toneIcon(tone), short: short),
-                            SizedBox(height: short ? Sp.x2 : 14.u),
+                            // Room between the mark, the title and what follows (the user's call, every modal).
+                            SizedBox(height: short ? Sp.x3 : Sp.x5),
                             Semantics(
                               header: true,
                               child: titleTrailing == null
@@ -180,7 +183,7 @@ class EDialog extends StatelessWidget {
                                     ),
                             ),
                             if (description != null) ...[
-                              SizedBox(height: 6.u),
+                              SizedBox(height: Sp.x2),
                               ConstrainedBox(
                                 constraints: BoxConstraints(maxWidth: 380.u),
                                 child: Text(description!, style: ts.bodyDim, textAlign: TextAlign.center),
@@ -194,7 +197,7 @@ class EDialog extends StatelessWidget {
                   if (body != null)
                     Flexible(
                       child: SingleChildScrollView(
-                        child: Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: body),
+                        child: Padding(padding: EdgeInsets.fromLTRB(padX, short ? Sp.x4 : Sp.x6, padX, 0), child: body),
                       ),
                     ),
                   if (foot != null) Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: foot),
@@ -403,8 +406,8 @@ void showEToast(
   bool stay = false,
 }) {
   final c = context.dc;
-  final messenger = ScaffoldMessenger.maybeOf(context);
-  if (messenger == null) return;
+  final toasts = deskToastsOf(context);
+  if (toasts == null) return;
   final color = switch (tone) {
     ETone.ok => c.ok,
     ETone.risk => c.risk,
@@ -449,7 +452,7 @@ void showEToast(
           size: EBtnSize.sm,
           onPressed: () {
             acted = true;
-            messenger.hideCurrentSnackBar();
+            toasts.hide();
             action.run();
           },
         ),
@@ -458,33 +461,25 @@ void showEToast(
     ],
   );
   // A toast with items keeps its own clock: it stops while the pointer is over the toast or
-  // the items are unfolded, so the SnackBar's own must not run out first.
+  // the items are unfolded, so the host's own must not run out first.
   final folds = items.isNotEmpty;
-  final shown = messenger.showSnackBar(
-    SnackBar(
-      behavior: SnackBarBehavior.floating,
-      width: 380.u,
-      backgroundColor: c.s4,
-      elevation: 6,
-      duration: folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rad.sm),
-        side: BorderSide(color: c.lineStrong),
-      ),
-      padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : null,
-      content: folds
+  final shown = toasts.add(
+    EToast(
+      padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
+      child: folds
           ? _ToastFold(
               head: head,
               items: items,
               onItem: (item) {
                 acted = true;
-                messenger.hideCurrentSnackBar();
+                toasts.hide();
                 item.run();
               },
-              onExpire: () => messenger.hideCurrentSnackBar(),
+              onExpire: toasts.hide,
             )
           : head(),
     ),
+    folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
   );
   // A toast belongs to the screen it was shown on: leaving the screen closes it.
   ProviderContainer? container;
@@ -497,9 +492,8 @@ void showEToast(
   ProviderSubscription<DeskLocation>? sub;
   sub = container.listen(deskNavProvider, (prev, next) {
     if (prev?.route != next.route) {
-      // Every toast of the screen goes, the queued ones too: closing a queued one by its
-      // controller is not allowed.
-      messenger.clearSnackBars();
+      // Every toast of the screen goes, the queued ones too.
+      toasts.clear();
       sub?.close();
       sub = null;
       if (stay && !acted && !next.route.bare) {
@@ -510,10 +504,137 @@ void showEToast(
       }
     }
   });
-  shown.closed.then((_) {
+  shown.then((_) {
     sub?.close();
     sub = null;
   });
+}
+
+/// A toast's surface: the raised card at the window's top right, 380 wide.
+class EToast extends StatelessWidget {
+  const EToast({super.key, required this.child, required this.padding});
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Material(
+      color: c.s4,
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
+      child: SizedBox(width: 380.u, child: Padding(padding: padding, child: child)),
+    );
+  }
+}
+
+/// The toasts of one window (one root overlay): one shows at a time, the rest wait their turn.
+class DeskToasts extends ChangeNotifier {
+  final List<({Widget toast, Duration duration, Completer<void> closed})> _queue = [];
+  Timer? _timer;
+
+  /// The toast on screen; null for none.
+  Widget? get current => _queue.isEmpty ? null : _queue.first.toast;
+
+  /// Queues [toast] for [duration]; completes when it is gone.
+  Future<void> add(Widget toast, Duration duration) {
+    final closed = Completer<void>();
+    _queue.add((toast: toast, duration: duration, closed: closed));
+    if (_queue.length == 1) _start();
+    notifyListeners();
+    return closed.future;
+  }
+
+  void _start() {
+    _timer?.cancel();
+    if (_queue.isNotEmpty) _timer = Timer(_queue.first.duration, hide);
+  }
+
+  /// The toast on screen goes; the next one, if any, comes.
+  void hide() {
+    if (_queue.isEmpty) return;
+    final gone = _queue.removeAt(0);
+    if (!gone.closed.isCompleted) gone.closed.complete();
+    _start();
+    notifyListeners();
+  }
+
+  /// Every toast goes, the waiting ones too.
+  void clear() {
+    _timer?.cancel();
+    for (final t in _queue) {
+      if (!t.closed.isCompleted) t.closed.complete();
+    }
+    _queue.clear();
+    notifyListeners();
+  }
+}
+
+final _toastsOf = Expando<DeskToasts>();
+
+/// The toasts of [context]'s window, with their host placed in its root overlay the first time;
+/// null outside an app (no overlay).
+DeskToasts? deskToastsOf(BuildContext context) {
+  // A Navigator's own context sits above its overlay: then that navigator's.
+  final overlay = Overlay.maybeOf(context, rootOverlay: true) ?? Navigator.maybeOf(context, rootNavigator: true)?.overlay;
+  if (overlay == null) return null;
+  final known = _toastsOf[overlay];
+  if (known != null) return known;
+  final toasts = _toastsOf[overlay] = DeskToasts();
+  final entry = OverlayEntry(builder: (_) => _ToastHost(toasts: toasts));
+  // Not while a frame is being built (a toast from a build or a layout callback): right after it.
+  if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (overlay.mounted) overlay.insert(entry);
+    });
+  } else {
+    overlay.insert(entry);
+  }
+  return toasts;
+}
+
+/// Where toasts show: the window's top right, under the title bar, over the page. When the
+/// window's overlay goes, its toasts and their clock go with it.
+class _ToastHost extends StatefulWidget {
+  const _ToastHost({required this.toasts});
+
+  final DeskToasts toasts;
+
+  @override
+  State<_ToastHost> createState() => _ToastHostState();
+}
+
+class _ToastHostState extends State<_ToastHost> {
+  DeskToasts get toasts => widget.toasts;
+
+  @override
+  void dispose() {
+    toasts.clear();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: toasts,
+    builder: (context, _) {
+      final toast = toasts.current;
+      if (toast == null) return const SizedBox.shrink();
+      final still = MediaQuery.disableAnimationsOf(context);
+      return Positioned(
+        top: Sp.x4,
+        right: Sp.x4,
+        child: TweenAnimationBuilder<double>(
+          key: ObjectKey(toast),
+          tween: Tween(begin: 0, end: 1),
+          duration: still ? Duration.zero : Dur.base,
+          curve: Motion.easeOut,
+          builder: (context, t, child) => Opacity(opacity: t, child: Transform.translate(offset: Offset(0, (1 - t) * -8), child: child)),
+          child: toast,
+        ),
+      );
+    },
+  );
 }
 
 /// The unfold chevron and the items of a digest toast, for tests.

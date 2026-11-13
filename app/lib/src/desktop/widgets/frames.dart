@@ -434,7 +434,8 @@ class EOnbFrame extends StatelessWidget {
     final l = context.l10n;
     final ts = context.ts;
     final window = MediaQuery.sizeOf(context);
-    final short = window.height < 760.u;
+    // Short as the canvas means it (760 canvas px): an 800-high window keeps the full spacing.
+    final short = window.height < 760 * deskScale / deskBase;
     final current = steps.indexWhere((s) => s.current);
     final back = onBack == null ? null : EButton(key: const ValueKey('onb-back'), label: backLabel ?? l.deskSetupBack, tabStop: false, onPressed: onBack);
     Widget card({required bool bounded, required Widget body}) => EModalCard(

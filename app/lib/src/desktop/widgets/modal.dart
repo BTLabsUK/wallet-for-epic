@@ -239,7 +239,8 @@ class EModalCard extends StatelessWidget {
     final ts = context.ts;
     final window = MediaQuery.sizeOf(context);
     final narrow = window.width < Bp.desktop;
-    final short = window.height < 760.u;
+    // Short as the canvas means it (760 canvas px): an 800-high window keeps the full spacing.
+    final short = window.height < 760 * deskScale / deskBase;
     final padX = (narrow ? 20 : 28).toDouble();
     final pad = padX.u;
     final head = Column(
@@ -248,14 +249,15 @@ class EModalCard extends StatelessWidget {
       children: [
         if (icon != null || mark != null) ...[
           Center(child: EModalMark(tone: tone, icon: icon, short: short, child: mark)),
-          SizedBox(height: short ? Sp.x2 : 14.u),
+          // Room between the mark, the title and what follows (the user's call, every modal).
+          SizedBox(height: short ? Sp.x3 : Sp.x5),
         ],
         if (heading != null)
           heading!
         else if (title != null)
           Semantics(header: true, liveRegion: liveTitle, child: Text(title!, style: ts.h2, textAlign: TextAlign.center)),
         if (lead != null) ...[
-          SizedBox(height: 6.u),
+          SizedBox(height: Sp.x2),
           Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: width >= 600.u ? 560.u : 380.u),
@@ -265,7 +267,7 @@ class EModalCard extends StatelessWidget {
         ],
       ],
     );
-    final content = body == null ? null : Padding(padding: EdgeInsets.fromLTRB(pad, Sp.x4, pad, 0), child: body);
+    final content = body == null ? null : Padding(padding: EdgeInsets.fromLTRB(pad, short ? Sp.x4 : Sp.x6, pad, 0), child: body);
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: width),
       child: Container(

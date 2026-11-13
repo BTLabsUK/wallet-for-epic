@@ -59,12 +59,12 @@ void main() {
     api.pairing.emit(_invoice('b'));
     api.pairing.emit(PairingEvent(PairingEventKind.withdrawalFromContact, name: 'Ola', slateId: 'c', amount: BigInt.from(100000000)));
     await _settle(tester);
-    expect(find.byType(SnackBar), findsNothing, reason: 'held until the run ends');
+    expect(find.byType(EToast), findsNothing, reason: 'held until the run ends');
 
     checks.notices.end();
     await _settle(tester);
     expect(find.text(digest), findsOneWidget);
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byType(EToast), findsOneWidget);
 
     c.read(deskNavProvider.notifier).go(DeskRoute.overview);
     await _settle(tester);
@@ -86,7 +86,7 @@ void main() {
     checks.notices.begin();
     api.pairing.emit(_invoice('a'));
     await _settle(tester);
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.byType(EToast), findsNothing);
     checks.notices.end();
     await _settle(tester);
     expect(find.textContaining('Ola requests'), findsOneWidget);

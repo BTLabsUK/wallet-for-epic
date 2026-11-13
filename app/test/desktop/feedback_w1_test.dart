@@ -264,7 +264,7 @@ void main() {
       await _pump(tester, Builder(builder: (c) => EButton(label: 'toast', onPressed: () => showEToast(c, 'T', tone: tone))), refresh: false);
       await tester.tap(find.text('toast'));
       await tester.pump(const Duration(milliseconds: 300));
-      final toast = find.byType(SnackBar);
+      final toast = find.byType(EToast);
       expect(find.descendant(of: toast, matching: find.byIcon(icon)), findsOneWidget, reason: '$tone');
       if (tone != ETone.ok) expect(find.descendant(of: toast, matching: find.byIcon(EIcons.okCircle)), findsNothing);
       await tester.pumpWidget(const SizedBox());

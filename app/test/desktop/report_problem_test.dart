@@ -122,7 +122,7 @@ void main() {
     await tester.tap(find.text('offer'));
     await tester.pumpAndSettle();
     expect(kept.offers, 1);
-    await tester.tap(find.descendant(of: find.byType(SnackBar), matching: find.text(_l.deskLastSessionSend)));
+    await tester.tap(find.descendant(of: find.byType(EToast), matching: find.text(_l.deskLastSessionSend)));
     await settle(tester);
     expect(find.byType(ReportProblemDialog), findsOneWidget);
     expect(find.text(_l.deskLastSessionReportClosed), findsOneWidget);
