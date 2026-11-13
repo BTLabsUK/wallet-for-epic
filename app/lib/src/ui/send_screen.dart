@@ -2819,8 +2819,8 @@ class _SendViewState extends ConsumerState<SendView> {
     });
     unawaited(
       checkWalletAnswers(to, mode: mode).then((result) async {
-        // No scheme typed, nothing at https://: plain http:// is asked once ([plainHttpFallback]).
-        final plain = result == ReachResult.noAnswer ? await plainHttpFallback(to, mode: mode, listenPort: appConfig.httpListenPort) : null;
+        // No wallet answers as typed: the listener's port, or plain http://, is asked once ([reachFallback]).
+        final plain = reachFallbackApplies(result, to) ? await reachFallback(to, mode: mode, listenPort: appConfig.httpListenPort) : null;
         if (!mounted) return;
         setState(() {
           _reachAsking.remove(key);
@@ -3339,7 +3339,7 @@ class _SendViewState extends ConsumerState<SendView> {
         children: [
           TextSpan(text: '${to.urlKind == RecipientInputKind.https ? 'https' : 'http'}://', style: dim),
           TextSpan(text: to.hostShown, style: strong),
-          TextSpan(text: ':${to.port}${to.path}', style: dim),
+          TextSpan(text: '${to.portShown}${to.path}', style: dim),
         ],
       ),
       RecipientInputKind.onion => addressSpan(

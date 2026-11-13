@@ -51,7 +51,7 @@ Future<ReachResult> checkWalletAnswers(RecipientInput to, {required NetworkMode 
     url = Uri.parse('http://${to.host}/v2/foreign');
   } else {
     final scheme = to.kind == RecipientInputKind.https ? 'https' : 'http';
-    url = Uri.parse('$scheme://${to.hostShown}:${to.port}${to.path}/v2/foreign');
+    url = Uri.parse('$scheme://${to.hostShown}${to.portShown}${to.path}/v2/foreign');
   }
   try {
     final reply = await httpPost(
@@ -71,15 +71,33 @@ Future<ReachResult> checkWalletAnswers(RecipientInput to, {required NetworkMode 
   }
 }
 
-/// A name typed without a scheme got `https://`; when no wallet answers there, the same address
-/// over plain `http://` is asked once ([checkWalletAnswers]), unless plain http is held now (Tor
-/// on, Tor only). The plain address when a wallet answers there, else null. Send then shows
-/// the `http://` address in To, and its review says it is not encrypted.
-Future<RecipientInput?> plainHttpFallback(RecipientInput to, {required NetworkMode mode, required int listenPort}) async {
-  if (to.kind != RecipientInputKind.https || !to.notes.contains(RecipientNote.httpsAdded)) return null;
-  final plain = readRecipient('http://${to.unicodeHost ?? to.hostShown}:${to.port}${to.path}', defaultRelay: '', listenPort: listenPort);
-  if (plain.kind != RecipientInputKind.http || plainHttpHeldNow(plain.address)) return null;
-  return await checkWalletAnswers(plain, mode: mode) == ReachResult.answers ? plain : null;
+/// Whether [reachFallback] is asked after [result]: nothing answered, or something that is not
+/// a wallet answered at an address typed without a port (a website on 443, the wallet on 3415).
+bool reachFallbackApplies(ReachResult result, RecipientInput to) =>
+    result == ReachResult.noAnswer || (result == ReachResult.notWallet && to.notes.contains(RecipientNote.defaultPort));
+
+/// When no wallet answers at [to] as typed, the other addresses Send asks once each, in order
+/// ([checkWalletAnswers]): with no port given, the same address on the listener's port
+/// ([listenPort]); for a name typed without a scheme (it got `https://`), plain `http://` on the
+/// port given or the listener's, unless plain http is held now (Tor on, Tor only). The first
+/// that answers, else null. Send then shows it in To; a plain one's review says it is not
+/// encrypted.
+Future<RecipientInput?> reachFallback(RecipientInput to, {required NetworkMode mode, required int listenPort}) async {
+  if (!to.isUrl) return null;
+  final noPort = to.notes.contains(RecipientNote.defaultPort);
+  final host = to.unicodeHost ?? to.hostShown;
+  final scheme = to.kind == RecipientInputKind.https ? 'https' : 'http';
+  final tries = [
+    if (noPort && to.port != listenPort) '$scheme://$host:$listenPort${to.path}',
+    if (to.kind == RecipientInputKind.https && to.notes.contains(RecipientNote.httpsAdded))
+      'http://$host:${noPort ? listenPort : to.port}${to.path}',
+  ];
+  for (final t in tries) {
+    final next = readRecipient(t, defaultRelay: '', listenPort: listenPort);
+    if (!next.isUrl || (next.kind == RecipientInputKind.http && plainHttpHeldNow(next.address))) continue;
+    if (await checkWalletAnswers(next, mode: mode) == ReachResult.answers) return next;
+  }
+  return null;
 }
 
 /// A foreign API's answer: `{"result": {"Ok": {"foreign_api_version": …}}}`.

@@ -614,13 +614,15 @@ void main() {
       expect(seen.sublist(url.indexOf('//') + 1), everyElement([_l.methodDirectHttp]));
     });
 
-    testWidgets('https:// typed names Link · HTTPS at once, with port 3415', (tester) async {
+    testWidgets('https:// typed names Link · HTTPS at once, without a port', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       final seen = await _type(tester, 'https://203.0');
       expect(seen['https://'.length - 1], [_l.sendRouteLinkHttps]);
       expect(seen.last, [_l.sendRouteLinkHttps]);
-      expect(find.textContaining(':3415', findRichText: true), findsWidgets);
+      // No port typed: https means 443, which the row does not show.
+      expect(find.textContaining(':3415', findRichText: true), findsNothing);
+      expect(find.textContaining(':443', findRichText: true), findsNothing);
     });
 
     testWidgets('picks by method: a contact fills its address whose method is on (qa-next)', (tester) async {

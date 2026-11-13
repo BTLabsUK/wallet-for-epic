@@ -847,8 +847,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       if (mounted && !_reach.containsKey(key)) setState(() => _reachSlow = true);
     });
     unawaited(checkWalletAnswers(r, mode: mode).then((res) async {
-      // No scheme typed, nothing at https://: plain http:// is asked once ([plainHttpFallback]).
-      final plain = res == ReachResult.noAnswer ? await plainHttpFallback(r, mode: mode, listenPort: appConfig.httpListenPort) : null;
+      // No wallet answers as typed: the listener's port, or plain http://, is asked once ([reachFallback]).
+      final plain = reachFallbackApplies(res, r) ? await reachFallback(r, mode: mode, listenPort: appConfig.httpListenPort) : null;
       if (!mounted) return;
       setState(() {
         _reach[key] = res;
@@ -2989,7 +2989,7 @@ class _RouteLine extends StatelessWidget {
       RecipientInputKind.https || RecipientInputKind.http => [
         TextSpan(text: '${to.urlKind == RecipientInputKind.https ? 'https' : 'http'}://'), // l10n-ok: scheme
         TextSpan(text: to.hostShown, style: bold),
-        TextSpan(text: ':${to.port}${to.path}'),
+        TextSpan(text: '${to.portShown}${to.path}'),
       ],
       RecipientInputKind.epicbox => [TextSpan(text: to.host, style: bold)],
       _ => [TextSpan(text: to.host)],
