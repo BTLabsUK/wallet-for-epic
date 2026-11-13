@@ -30,7 +30,7 @@
   "deskConNote": "บันทึก",
   "deskConTxWith": "รายการกับ {name}",
   "deskConAllTx": "รายการทั้งหมด",
-  "deskConTxNone": "ยังไม่มีรายการกับผู้ติดต่อนี้ รายการที่ส่งให้จากหน้า ส่ง จะแสดงที่นี่",
+  "deskConTxNone": "ยังไม่มีรายการกับผู้ติดต่อนี้ รายการจากหน้า ส่ง จะแสดงที่นี่",
   "deskConTxReceived": "รับ",
   "deskConTxSent": "ส่ง",
   "deskConErrName": "ตั้งชื่อผู้ติดต่อ",

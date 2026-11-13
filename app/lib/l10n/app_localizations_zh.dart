@@ -6467,7 +6467,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConAllTx => '全部付款';
 
   @override
-  String get deskConTxNone => '还没有与此联系人的付款。从“发送”付给对方的付款会显示在这里。';
+  String get deskConTxNone => '还没有与此联系人的付款。通过“发送”的付款会显示在这里。';
 
   @override
   String get deskConTxReceived => '已收到';
@@ -15865,7 +15865,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartPreviewLabel => '概览预览。档位越深，显示越多。';
 
   @override
-  String get deskLvStartPreviewCaption => '此视图下的概览。已保存的内容不会改变。';
+  String get deskLvStartPreviewCaption => '此视图下的首页。已保存的内容不会改变。';
 
   @override
   String get deskLvStartCover => '选择一个档位以查看预览';

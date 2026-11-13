@@ -207,6 +207,7 @@ class EModalCard extends StatelessWidget {
     this.keys = const [],
     this.bounded = false,
     this.liveTitle = false,
+    this.scrolls = false,
   });
 
   final double width;
@@ -232,6 +233,10 @@ class EModalCard extends StatelessWidget {
 
   /// The title is announced when it changes (a long action's progress and its failure).
   final bool liveTitle;
+
+  /// The body scrolls inside the card, its scrollbar in the card's side margin rather than over
+  /// the body's own right edge (a field, a word box).
+  final bool scrolls;
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +272,8 @@ class EModalCard extends StatelessWidget {
         ],
       ],
     );
-    final content = body == null ? null : Padding(padding: EdgeInsets.fromLTRB(pad, short ? Sp.x4 : Sp.x6, pad, 0), child: body);
+    final bodyPad = EdgeInsets.fromLTRB(pad, short ? Sp.x4 : Sp.x6, pad, 0);
+    final content = body == null ? null : (scrolls ? SingleChildScrollView(padding: bodyPad, child: body) : Padding(padding: bodyPad, child: body));
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: width),
       child: Container(

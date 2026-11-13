@@ -30,7 +30,7 @@
   "deskConNote": "备注",
   "deskConTxWith": "与 {name} 的付款",
   "deskConAllTx": "全部付款",
-  "deskConTxNone": "还没有与此联系人的付款。从“发送”付给对方的付款会显示在这里。",
+  "deskConTxNone": "还没有与此联系人的付款。通过“发送”的付款会显示在这里。",
   "deskConTxReceived": "已收到",
   "deskConTxSent": "已发送",
   "deskConErrName": "请为联系人填写名称。",

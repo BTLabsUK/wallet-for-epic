@@ -8971,7 +8971,7 @@
   "@deskConAllTx": {
     "description": "Link next to the heading: opens Activity."
   },
-  "deskConTxNone": "No payments with this contact yet. Payments sent to them from Send appear here.",
+  "deskConTxNone": "No payments with this contact yet. Payments made from Send show here.",
   "@deskConTxNone": {
     "description": "Text under the heading when there are no payments with this contact."
   },
@@ -22680,7 +22680,7 @@
   "@deskLvStartPreviewLabel": {
     "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
   },
-  "deskLvStartPreviewCaption": "Your Overview in this view. Nothing stored changes between views.",
+  "deskLvStartPreviewCaption": "Home in this view. Nothing stored changes between views.",
   "@deskLvStartPreviewCaption": {
     "description": "Caption under the Overview picture in Settings › Advanced › View."
   },

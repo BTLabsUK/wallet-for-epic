@@ -26,9 +26,13 @@ final passwordEstimatorProvider = FutureProvider.autoDispose<PasswordEstimator>(
 /// region, [announceDelay] after typing stops and only when it changed. The password and the
 /// estimate never leave this widget.
 class PasswordHint extends ConsumerStatefulWidget {
-  const PasswordHint({super.key, required this.controller, this.minLength = minPasswordLength});
+  const PasswordHint({super.key, required this.controller, this.error, this.minLength = minPasswordLength});
 
   final TextEditingController controller;
+
+  /// What is wrong with the password, said on this line in place of the hint (a line under the
+  /// field would move the fields below it).
+  final String? error;
 
   /// The least length, shown at rest.
   final int minLength;
@@ -105,7 +109,8 @@ class _PasswordHintState extends ConsumerState<PasswordHint> {
       if (next.hasValue && widget.controller.text.isNotEmpty && _estimateTimer?.isActive != true) _estimate();
     });
     final c = context.dc;
-    final line = _count == 0 ? context.l10n.deskKitPasswordRule(widget.minLength) : metaLine([characterCount(_count), ?_time]);
+    final error = widget.error;
+    final line = error ?? (_count == 0 ? context.l10n.deskKitPasswordRule(widget.minLength) : metaLine([characterCount(_count), ?_time]));
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: Ctl.inline),
       child: Row(
@@ -114,14 +119,14 @@ class _PasswordHintState extends ConsumerState<PasswordHint> {
           Flexible(
             child: Semantics(
               liveRegion: true,
-              label: _announced,
+              label: error ?? _announced,
               child: ExcludeSemantics(
                 // One line: a hint that wrapped would move the field under it.
-                child: Text(line, key: const ValueKey('password-hint'), maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.caption.copyWith(color: c.dim)),
+                child: Text(line, key: const ValueKey('password-hint'), maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.caption.copyWith(color: error == null ? c.dim : c.risk)),
               ),
             ),
           ),
-          if (_count > 0) ...[SizedBox(width: Sp.x1), EInfoHint(context.l10n.deskKitPasswordNote, label: context.l10n.deskKitPasswordNoteLabel, size: Ctl.inline)],
+          if (_count > 0 && error == null) ...[SizedBox(width: Sp.x1), EInfoHint(context.l10n.deskKitPasswordNote, label: context.l10n.deskKitPasswordNoteLabel, size: Ctl.inline)],
         ],
       ),
     );

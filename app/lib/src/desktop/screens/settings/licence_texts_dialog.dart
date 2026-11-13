@@ -29,6 +29,8 @@ class LicenceTextsDialog extends StatefulWidget {
 class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
   late final Future<Map<String, List<LicenseEntry>>> _packages = collectLicences();
   final _search = TextEditingController();
+  final _searchFocus = FocusNode();
+  bool _focused = false;
 
   /// The package whose texts are open; null for the list.
   String? _open;
@@ -36,6 +38,7 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
   @override
   void dispose() {
     _search.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -65,11 +68,19 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
           // Dlg-Licences: a search over the packages, then one row each: the name, its licence
           // and how many texts; a row opens its texts.
           final shown = _matches(packages);
+          // The field is built after the wait, when the dialog's focus has settled elsewhere.
+          if (!_focused) {
+            _focused = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _searchFocus.requestFocus();
+            });
+          }
           body = Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ESearch(
                 controller: _search,
+                focusNode: _searchFocus,
                 autofocus: true,
                 hint: l.deskLicSearch(packages.length),
                 label: l.deskLicSearch(packages.length),

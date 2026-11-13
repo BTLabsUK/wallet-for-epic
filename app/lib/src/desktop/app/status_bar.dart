@@ -90,10 +90,10 @@ class _ModeRow extends StatelessWidget {
           decoration: BoxDecoration(color: chosen ? c.s3 : null, borderRadius: BorderRadius.circular(Rad.sm)),
           child: Row(
             children: [
-              Icon(networkModeGlyph(mode), size: Ctl.iconSm, color: off ? c.faint : c.dim),
+              Icon(mode == NetworkMode.standard ? EIcons.network : networkModeGlyph(mode), size: Ctl.iconSm, color: off ? c.faint : c.dim),
               SizedBox(width: Sp.x3),
               Expanded(child: Text(networkModeName(context.l10n, mode), style: (chosen ? ts.strong : ts.body).copyWith(color: off ? c.faint : null))),
-              if (chosen) Icon(EIcons.check, size: Ctl.iconSm, color: c.text),
+              if (chosen) ...[SizedBox(width: Sp.x3), Icon(EIcons.check, size: Ctl.iconSm, color: c.text)],
             ],
           ),
         ),

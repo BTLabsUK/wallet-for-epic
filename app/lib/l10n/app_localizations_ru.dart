@@ -7081,7 +7081,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConTxNone =>
-      'Платежей с этим контактом пока нет. Платежи ему со страницы «Отправить» появятся здесь.';
+      'Платежей с этим контактом пока нет. Платежи со страницы «Отправить» появятся здесь.';
 
   @override
   String get deskConTxReceived => 'Получено';
@@ -17374,7 +17374,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Ваш обзор в этом виде. Сохранённые данные не меняются.';
+      'Главная в этом виде. Сохранённые данные не меняются.';
 
   @override
   String get deskLvStartCover => 'Выберите положение, чтобы увидеть превью';

@@ -52,8 +52,6 @@ class AccountForm extends StatelessWidget {
     children: [
       EField(
         label: l.deskOnbStepPassword,
-        error: passwordError,
-        reserveError: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -67,12 +65,12 @@ class AccountForm extends StatelessWidget {
             ),
             SizedBox(height: Sp.x2),
             // Its info icon is not a Tab stop (keyboard.dart); the hint text is on screen.
-            ExcludeFocusTraversal(child: PasswordHint(controller: password)),
+            // A too-short password says so on this line, in place of the hint.
+            ExcludeFocusTraversal(child: PasswordHint(controller: password, error: passwordError)),
           ],
         ),
       ),
-      // The reserved error line above is part of the gap: no second full gap.
-      SizedBox(height: Sp.x2),
+      SizedBox(height: Sp.x4),
       EField(
         label: l.deskSetupConfirmPassword,
         error: confirmError,

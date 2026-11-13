@@ -6698,7 +6698,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConTxNone =>
-      'ยังไม่มีรายการกับผู้ติดต่อนี้ รายการที่ส่งให้จากหน้า ส่ง จะแสดงที่นี่';
+      'ยังไม่มีรายการกับผู้ติดต่อนี้ รายการจากหน้า ส่ง จะแสดงที่นี่';
 
   @override
   String get deskConTxReceived => 'รับ';
@@ -16432,7 +16432,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'ภาพรวมของคุณในมุมมองนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+      'หน้าแรกในมุมมองนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
 
   @override
   String get deskLvStartCover => 'เลือกระดับเพื่อดูภาพตัวอย่าง';

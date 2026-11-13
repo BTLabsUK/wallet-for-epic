@@ -269,6 +269,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     return true;
   }
 
+  /// A widget outside Settings has the focus (an open menu in the title bar): Esc is its own.
+  bool _focusElsewhere() {
+    final f = FocusManager.instance.primaryFocus;
+    return f != null && f is! FocusScopeNode;
+  }
+
   /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu). Esc in
   /// Settings when nothing in it has the focus (the focus tree would not see the key).
   bool _onKey(KeyEvent e) {
@@ -276,7 +282,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (_onQuestion(e)) return true;
     if (e.logicalKey == LogicalKeyboardKey.escape) {
       final inside = _settingsFocus.hasFocus;
-      return !inside && _onSettingsEsc(e);
+      return !inside && !_focusElsewhere() && _onSettingsEsc(e);
     }
     final hw = HardwareKeyboard.instance;
     if (!(hw.isControlPressed || hw.isMetaPressed) || hw.isShiftPressed || hw.isAltPressed) return false;

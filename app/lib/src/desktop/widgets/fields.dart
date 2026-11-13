@@ -22,6 +22,7 @@ class EField extends StatelessWidget {
     super.key,
     required this.label,
     required this.child,
+    this.showLabel = true,
     this.optional = false,
     this.help,
     this.error,
@@ -31,6 +32,10 @@ class EField extends StatelessWidget {
   });
 
   final String label;
+
+  /// False under a heading that names the fields already (a contact's Addresses): the label is
+  /// left to screen readers.
+  final bool showLabel;
   final Widget child;
   final bool optional;
   final String? help;
@@ -55,6 +60,7 @@ class EField extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // The aside goes under the label when both do not fit on one line.
+        if (showLabel) ...[
         Wrap(
           alignment: WrapAlignment.spaceBetween,
           crossAxisAlignment: WrapCrossAlignment.end,
@@ -77,6 +83,7 @@ class EField extends StatelessWidget {
           ],
         ),
         SizedBox(height: 6.u),
+        ],
         _EFieldLabel(label: label, child: child),
         if (error != null) ...[
           SizedBox(height: 6.u),

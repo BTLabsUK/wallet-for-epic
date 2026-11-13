@@ -7105,7 +7105,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskConTxNone =>
-      'Brak płatności z tym kontaktem. Płatności wysłane do niego z ekranu Wyślij pojawią się tutaj.';
+      'Brak płatności z tym kontaktem. Płatności z ekranu Wyślij pojawią się tutaj.';
 
   @override
   String get deskConTxReceived => 'Odebrana';
@@ -17389,7 +17389,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Twój Przegląd w tym widoku. Nic zapisanego się nie zmienia.';
+      'Start w tym widoku. Nic zapisanego się nie zmienia.';
 
   @override
   String get deskLvStartCover => 'Wybierz punkt, aby zobaczyć podgląd';

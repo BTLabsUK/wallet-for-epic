@@ -444,7 +444,7 @@ class EOnbFrame extends StatelessWidget {
     final short = window.height < 760 * deskScale / deskBase;
     final current = steps.indexWhere((s) => s.current);
     final back = onBack == null ? null : EButton(key: const ValueKey('onb-back'), label: backLabel ?? l.deskSetupBack, tabStop: false, onPressed: onBack);
-    Widget card({required bool bounded, required Widget body}) => EModalCard(
+    Widget card({required bool bounded, required Widget body, bool scrolls = false}) => EModalCard(
       width: width ?? 480.u,
       icon: icon,
       title: title,
@@ -454,6 +454,7 @@ class EOnbFrame extends StatelessWidget {
       status: status,
       actions: [?back, ...actions],
       bounded: bounded,
+      scrolls: scrolls,
       keys: [
         if (onBack != null) EKeyHint(keys: l.deskSetFrameEscKey, does: backLabel ?? l.deskSetupBack),
         if (enter != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: enter!),
@@ -504,7 +505,7 @@ class EOnbFrame extends StatelessWidget {
             padding: pad,
             child: Align(
               alignment: Alignment.topCenter,
-              child: card(bounded: true, body: fill ? child : SingleChildScrollView(child: child)),
+              child: card(bounded: true, body: child, scrolls: !fill),
             ),
           );
         }

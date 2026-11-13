@@ -10961,7 +10961,7 @@ abstract class AppLocalizations {
   /// Text under the heading when there are no payments with this contact.
   ///
   /// In en, this message translates to:
-  /// **'No payments with this contact yet. Payments sent to them from Send appear here.'**
+  /// **'No payments with this contact yet. Payments made from Send show here.'**
   String get deskConTxNone;
 
   /// Title of a compact row in a contact's payments: an incoming payment. One word.
@@ -25948,7 +25948,7 @@ abstract class AppLocalizations {
   /// Caption under the Overview picture in Settings › Advanced › View.
   ///
   /// In en, this message translates to:
-  /// **'Your Overview in this view. Nothing stored changes between views.'**
+  /// **'Home in this view. Nothing stored changes between views.'**
   String get deskLvStartPreviewCaption;
 
   /// Over the faded Overview picture on Welcome before a stop of the depth dial is picked.

@@ -6947,7 +6947,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskConTxNone =>
-      'Noch keine Zahlungen mit diesem Kontakt. Zahlungen an ihn über Senden erscheinen hier.';
+      'Noch keine Zahlungen mit diesem Kontakt. Zahlungen über Senden erscheinen hier.';
 
   @override
   String get deskConTxReceived => 'Empfangen';
@@ -16993,7 +16993,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Ihre Übersicht in dieser Ansicht. Gespeichert wird nichts anders.';
+      'Start in dieser Ansicht. Gespeichert wird nichts anders.';
 
   @override
   String get deskLvStartCover => 'Stufe wählen, um die Vorschau zu sehen';

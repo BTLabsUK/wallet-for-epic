@@ -6851,7 +6851,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskConTxNone =>
-      'No payments with this contact yet. Payments sent to them from Send appear here.';
+      'No payments with this contact yet. Payments made from Send show here.';
 
   @override
   String get deskConTxReceived => 'Received';
@@ -16801,7 +16801,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Your Overview in this view. Nothing stored changes between views.';
+      'Home in this view. Nothing stored changes between views.';
 
   @override
   String get deskLvStartCover => 'Pick a stop to see the preview';

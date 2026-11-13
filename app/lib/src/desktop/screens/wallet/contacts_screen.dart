@@ -235,6 +235,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       id: 'contacts-list',
       child: EPanel(
       padding: EdgeInsets.zero,
+      // Beside the pane the page stays and the list scrolls inside its panel.
+      scroll: split,
       head: Padding(
         padding: EdgeInsetsDirectional.only(end: Sp.x3),
         child: CallbackShortcuts(
@@ -328,6 +330,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     return EPage(
       title: l.deskConTitle,
       width: EPageWidth.full,
+      scroll: !split,
       actions: [
         // Pair in one place, labelled at every width and never gold (Pairing UX plan 4.3).
         // Requests from contacts show beside it while any wait.
@@ -350,14 +353,19 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       ],
       child: split
           // The list and the detail are one unit: same top and bottom; the list leads, the
-          // contact's pane is on the right, as Activity's payment.
-          ? PanelRow(
+          // contact's pane is on the right, as Activity's payment. Each scrolls inside itself.
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Flexible(
+                  child: PanelRow(
               sideWidth: paneWidth,
               maxSideFraction: Ctl.sideMaxFraction,
               main: list,
               // A header band like the list's: what the pane shows.
               side: EPanel(
                     title: _adding || _editing ? null : l.deskConDetailsTitle,
+                    scroll: true,
                     child: paneOpen
                         ? Align(
                             alignment: Alignment.topLeft,
@@ -368,6 +376,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                           )
                         : const _Idle(),
                   ),
+                  ),
+                ),
+              ],
             )
           : list,
     );
@@ -1232,6 +1243,8 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final l = context.l10n;
     final nameError = _tried || _touched.contains('name') ? _nameError : null;
     final free = _free;
+    // More than one address field shows: the Addresses heading names them all.
+    final headed = _fields.where((f) => f.text.text.trim().isNotEmpty || free.isNotEmpty).length > 1;
     final noAddress = _tried && !_addressOptional && _fields.every((f) => f.text.text.trim().isEmpty);
     // Enter: Name → Address, then Save (the Note keeps Enter for a new line).
     // A form with typed changes holds Back (mouse, Alt+Left).
@@ -1287,8 +1300,9 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           child: EInput(controller: _name, focusNode: _nameFocus, invalid: nameError != null, onChanged: (_) => setState(() {}), autofocus: true),
         ),
         SizedBox(height: Sp.x5),
-        // A heading only over several fields: one field's own label says what it holds (#17).
-        if (_fields.where((f) => f.text.text.trim().isNotEmpty || free.isNotEmpty).length > 1) ...[
+        // A heading only over several fields: one field's own label says what it holds (#17);
+        // under the heading the fields need no label of their own.
+        if (headed) ...[
           Text(l.contactAddresses, style: ts.label),
           SizedBox(height: Sp.x2),
         ],
@@ -1297,7 +1311,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
             Padding(
               key: ObjectKey(f),
               padding: EdgeInsets.only(bottom: Sp.x3),
-              child: _addressField(l, c, f, free, noAddress && f == _fields.first),
+              child: _addressField(l, c, f, free, noAddress && f == _fields.first, labelled: !headed),
             ),
         ],
         SizedBox(height: Sp.x5),
@@ -1326,7 +1340,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     );
   }
 
-  Widget _addressField(AppLocalizations l, DeskColors c, _AddrField f, List<RecipientKind> free, bool missing) {
+  Widget _addressField(AppLocalizations l, DeskColors c, _AddrField f, List<RecipientKind> free, bool missing, {bool labelled = true}) {
     final kind = _kindOf(f);
     final empty = f.text.text.trim().isEmpty;
     // LEPIC's line on an epic1 text shows as soon as it is in: a pasted address alone says so.
@@ -1342,6 +1356,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       children: [
         EField(
           label: l.addrField,
+          showLabel: labelled,
           error: error,
           child: EInput(
             controller: f.text,

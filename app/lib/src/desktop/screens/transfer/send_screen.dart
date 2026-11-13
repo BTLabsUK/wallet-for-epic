@@ -2796,12 +2796,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       reviewLabel: switch (_torWay(st)) {
         _ when _viaPairing && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff => l.sendQueue,
         // Shallow: the button is the Send itself, naming the amount and whom it goes to.
-        _ when !_reviewStep => n <= 0
-            ? l.deskLvSendButton
-            : switch (_viaPairing ? ref.watch(deskPairingNameProvider(_pairingId!)) : _contactOf(st.contacts)?.name) {
-                final who? => keepNumbersWithUnits(l.deskLvSendButtonTo(formatEpicL(l, n), who)),
-                null => keepNumbersWithUnits(l.deskLvSendButtonAmount(formatEpicL(l, n))),
-              },
+        _ when !_reviewStep => n <= 0 ? l.deskLvSendButton : keepNumbersWithUnits(l.deskLvSendButtonAmount(formatEpicL(l, n))),
         _ => l.deskSendReview,
       },
       reviewing: _reviewing,
