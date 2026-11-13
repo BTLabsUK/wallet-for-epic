@@ -43,6 +43,15 @@ void main() {
       expect(c.localNodeApiPort, isNot(c.localNodeP2pPort));
     });
 
+    test('an app-config.toml with the retired watch keys still loads; watch_for_s is capped at 600', () {
+      const old = 'watch_fast_every_s = 4\nwatch_fast_for_s = 120\nwatch_slow_every_s = 10\n';
+      final withOld = _configText.replaceFirst('watch_for_s', '${old}watch_for_s');
+      expect(withOld, isNot(_configText));
+      expect(AppConfig.fromText(withOld).watchFor, const Duration(seconds: 300));
+      final tooLong = _configText.replaceFirst(RegExp(r'watch_for_s = \d+'), 'watch_for_s = 601');
+      expect(() => AppConfig.fromText(tooLong), throwsStateError);
+    });
+
     test('the first entry of each list is in use; the next node is the fallback', () {
       final s = HostSettings.fromText(_defaultText, config: AppConfig.fromText(_configText));
       expect(s.nodeUse, s.nodeUrls.first);

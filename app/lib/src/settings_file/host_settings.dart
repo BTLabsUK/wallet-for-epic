@@ -334,9 +334,6 @@ class AppConfig {
   List<String> get vpnSuffixes => _texts('network.vpn_suffixes');
 
   // [payments]
-  Duration get watchFastEvery => _s('payments.watch_fast_every_s');
-  Duration get watchFastFor => _s('payments.watch_fast_for_s');
-  Duration get watchSlowEvery => _s('payments.watch_slow_every_s');
   Duration get watchFor => _s('payments.watch_for_s');
   List<Duration> get repostWaits => [for (final m in value('payments.repost_waits_min') as List<int>) Duration(minutes: m)];
   List<Duration> get answerResendWaits => [

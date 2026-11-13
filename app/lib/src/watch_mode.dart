@@ -1,45 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Watch mode: while a payment of the open wallet is in a state a block can move, the app asks
-/// the node for its tip more often than its normal pace, and refreshes as soon as a new block
-/// is in. The sender and the receiver then both see a payment move within moments of the same
-/// block. Phone and desktop share the rule, the pacing and the wait notes.
+/// Watch mode: while a payment of the open wallet is in a state a block can move, the node is
+/// boosted ([Boosts], LEPIC ADR 0058) so the tip check runs every [boostMinInterval] and the app
+/// refreshes as soon as a new block is in. The sender and the receiver then both see a payment
+/// move within moments of the same block. Phone and desktop share the rule and the wait notes.
 ///
-/// Only the tip is asked that often (one small call to the node in use, over the connection the
-/// wallet already uses); the refresh still runs once per block. Watch mode ends by itself: a
-/// payment waiting for a block is watched every [watchFastEvery] for [watchFastFor] after its
-/// last step, every [watchSlowEvery] until [watchWindow], then at the normal pace with a calm
-/// note on the payment ([BlockWait]). A payment in a block is watched until it is done. While
-/// the node does not answer, the asks back off to the normal pace. Nothing here changes what
-/// the payments are or when they may be cancelled.
+/// A boost runs [watchWindow] from a payment's last step (created, finalized, posted), once per
+/// step; a payment in a block gets a new one with each new block until it is confirmed. After
+/// the window a calm note says why a payment is still waiting ([BlockWait]). Nothing here
+/// changes what the payments are or when they may be cancelled.
 ///
 /// The window is longer than the node's Dandelion embargo (180 s on Epic 4.x): an Epicbox
 /// payment is posted through the stem phase, and the network may first see it only then.
 library;
 
-import 'dart:async';
-
+import 'boosts.dart';
 import 'models.dart';
 import 'settings_file/host_settings.dart' show appConfig;
 
-/// How often the tip is asked in the first part of watch mode (`payments.watch_fast_every_s`).
-Duration get watchFastEvery => appConfig.watchFastEvery;
-
-/// How long after a payment's last step the tip is asked every [watchFastEvery].
-Duration get watchFastFor => appConfig.watchFastFor;
-
-/// How often the tip is asked after [watchFastFor], until [watchWindow].
-Duration get watchSlowEvery => appConfig.watchSlowEvery;
-
 /// How long a payment that waits for a block (or for the other side) is watched, from its last
-/// step: created, finalized, or reported posted by the sender. After it, a note says why it is
-/// still waiting.
+/// step: created, finalized, or reported posted by the sender (`payments.watch_for_s`). After
+/// it, a note says why it is still waiting.
 Duration get watchWindow => appConfig.watchFor;
-
-/// How often the tip is asked in watch mode at its fastest.
-Duration get watchTipEvery => watchFastEvery;
-
-/// How closely a payment is watched now.
-enum WatchPace { none, slow, fast }
 
 /// Why a payment past [watchWindow] is still not in a block, for the note on it.
 enum BlockWait {
@@ -53,10 +34,6 @@ enum BlockWait {
   notInBlock,
 }
 
-/// How long a payment in a block is watched at most, from its last step: a node that answers
-/// but stays at one height is then asked at the normal pace.
-const Duration watchInBlockFor = Duration(minutes: 30);
-
 /// Seconds from the last step of [tx] that this wallet knows of to [now]: created, reported
 /// posted by the sender, or a change [steps] saw on the list (finalized, posted, answered). LEPIC
 /// keeps no finalize time, so the change is the app's own sighting. A step dated after [now] (a
@@ -68,55 +45,6 @@ int _sinceLastStep(TxEntry tx, DateTime now, BlockWatch? steps) {
     if (step != null && step > at && step <= nowUnix) at = step;
   }
   return nowUnix - at;
-}
-
-/// How closely [tx] is watched at [now]: in a block under [minConfirmations] at [tip] fast
-/// (its count moves with each block) until it is done; not in a block yet, and waiting for the
-/// other side or for its kernel, fast then slow until [watchWindow] after its last step.
-WatchPace watchPace(
-  TxEntry tx, {
-  required DateTime now,
-  required BigInt tip,
-  required int minConfirmations,
-  BlockWatch? steps,
-}) {
-  if (tx.source != TxSource.wallet || tx.status == TxStatus.cancelled) return WatchPace.none;
-  final since = _sinceLastStep(tx, now, steps);
-  final height = tx.blockHeight;
-  if (height != null) {
-    if (tip <= BigInt.zero || height > tip || since >= watchInBlockFor.inSeconds) return WatchPace.none;
-    return (tip - height).toInt() + 1 < minConfirmations ? WatchPace.fast : WatchPace.none;
-  }
-  if (tx.status == TxStatus.confirmed) return WatchPace.none;
-  if (since < watchFastFor.inSeconds) return WatchPace.fast;
-  if (since < watchWindow.inSeconds) return WatchPace.slow;
-  return WatchPace.none;
-}
-
-/// Whether a block can move [tx] now ([watchPace] is not none).
-bool watchesChain(
-  TxEntry tx, {
-  required DateTime now,
-  required BigInt tip,
-  required int minConfirmations,
-  BlockWatch? steps,
-}) => watchPace(tx, now: now, tip: tip, minConfirmations: minConfirmations, steps: steps) != WatchPace.none;
-
-/// The closest watch over [txs].
-WatchPace listPace(
-  Iterable<TxEntry> txs, {
-  required DateTime now,
-  required BigInt tip,
-  required int minConfirmations,
-  BlockWatch? steps,
-}) {
-  var pace = WatchPace.none;
-  for (final t in txs) {
-    final p = watchPace(t, now: now, tip: tip, minConfirmations: minConfirmations, steps: steps);
-    if (p.index > pace.index) pace = p;
-    if (pace == WatchPace.fast) break;
-  }
-  return pace;
 }
 
 /// How long after finalizing a send that reads not posted is read again at each tip ask: LEPIC
@@ -150,6 +78,7 @@ class BlockWatch {
   final _tipAt = <String, BigInt>{};
   final _shape = <String, Object>{};
   final _stepAt = <String, int>{};
+  final _boosted = <String, (bool, int)>{};
 
   /// When the list last showed [key] change, in unix seconds; null when it has not since it was
   /// first seen.
@@ -178,6 +107,42 @@ class BlockWatch {
     }
   }
 
+  /// Boosts the node for the payments of [txs] (already [saw]) that took a step or, in a block
+  /// under [minConfirmations], saw a new block since the last call: for the window left since
+  /// the step, or [watchWindow] for a block. One boost, for the longest window. Nothing when
+  /// [boosts] is null (the wallet is locked) or nothing is new.
+  void boostNode(Boosts? boosts, Iterable<TxEntry> txs, BigInt tip, {required int minConfirmations, DateTime? now}) {
+    if (boosts == null) return;
+    final at = now ?? DateTime.now();
+    final nowUnix = at.millisecondsSinceEpoch ~/ 1000;
+    final marks = <String, (bool, int)>{};
+    Duration? longest;
+    for (final t in txs) {
+      if (t.source != TxSource.wallet || t.status == TxStatus.cancelled) continue;
+      final height = t.blockHeight;
+      final (bool, int) mark;
+      Duration window;
+      if (height != null) {
+        if (tip <= BigInt.zero || height > tip || (tip - height).toInt() + 1 >= minConfirmations) continue;
+        mark = (true, tip.toInt());
+        window = watchWindow;
+      } else if (t.status == TxStatus.confirmed) {
+        continue;
+      } else {
+        final since = _sinceLastStep(t, at, this);
+        window = watchWindow - Duration(seconds: since);
+        if (window <= Duration.zero) continue;
+        mark = (false, nowUnix - since);
+      }
+      marks[t.key] = mark;
+      if (_boosted[t.key] != mark && (longest == null || window > longest)) longest = window;
+    }
+    _boosted
+      ..clear()
+      ..addAll(marks);
+    if (longest != null) boosts.boost(Poller.node, longest, boostMinInterval);
+  }
+
   /// Why [tx] is still not in a block at [now] with the node at [tip], once its window passed.
   BlockWait waitOf(TxEntry tx, {required DateTime now, required BigInt tip}) {
     if (!_waitsForBlock(tx, now)) return BlockWait.none;
@@ -186,142 +151,4 @@ class BlockWatch {
     if (at == null || tip <= BigInt.zero) return BlockWait.none;
     return tip > at ? BlockWait.notInBlock : BlockWait.noNewBlock;
   }
-}
-
-/// The soonest moment after [now] at which the watch of [txs] or a wait note on one of them can
-/// change by time alone: a payment passing [watchFastFor], [watchWindow], [watchInBlockFor] or
-/// [senderReportWindow] after its last step, or a step dated ahead of [now] coming due. Null when
-/// none can. A list read can change them too; its owner arms the pacer again then.
-Duration? nextWatchChange(Iterable<TxEntry> txs, {required DateTime now, BlockWatch? steps}) {
-  final nowMs = now.millisecondsSinceEpoch;
-  final nowUnix = nowMs ~/ 1000;
-  int? soonest;
-  void at(int unix) {
-    if (unix > nowUnix && (soonest == null || unix < soonest!)) soonest = unix;
-  }
-
-  for (final t in txs) {
-    if (t.source != TxSource.wallet || t.status == TxStatus.cancelled) continue;
-    final last = nowUnix - _sinceLastStep(t, now, steps);
-    for (final d in [watchFastFor, watchWindow, watchInBlockFor]) {
-      at(last + d.inSeconds);
-    }
-    for (final step in [t.createdAtUnix, t.finalizedAtUnix, t.senderReportedPostedAtUnix, steps?.stepAt(t.key)]) {
-      if (step != null) at(step);
-    }
-    final reported = t.senderReportedPostedAtUnix;
-    if (reported != null) at(reported + senderReportWindow.inSeconds);
-  }
-  final unix = soonest;
-  return unix == null ? null : Duration(milliseconds: unix * 1000 - nowMs);
-}
-
-/// Paces the tip asks of one open wallet with one timer, set to the next ask or to the next
-/// moment the pace can change ([nextWatchChange]), whichever comes first. Its owner [arm]s it
-/// with the pace now; when it fires, the owner asks the node if [due] says so, reports
-/// [answered] or [failed], and arms it again. It counts the time it waited rather than reading
-/// the clock, so it keeps time under a test's fake clock too; only an [arm] before the timer
-/// fired reads the owner's clock, for the part already waited.
-class TipPacer {
-  TipPacer({
-    required this.normal,
-    Duration? watch,
-    Duration? watchSlow,
-  }) : watch = watch ?? watchFastEvery,
-       watchSlow = watchSlow ?? watchSlowEvery;
-
-  /// The pace outside watch mode.
-  final Duration normal;
-
-  /// The pace in watch mode, at its fastest.
-  final Duration watch;
-
-  /// The pace in its slower part.
-  final Duration watchSlow;
-
-  Duration _since = Duration.zero;
-  int _failures = 0;
-  Timer? _timer;
-  Duration _armed = Duration.zero;
-  DateTime? _armedAt;
-  WatchPace? _armedPace;
-  Duration? _armedEvery;
-
-  /// Asks that failed in a row.
-  int get failures => _failures;
-
-  /// Whether the timer is set.
-  bool get running => _timer != null;
-
-  /// The wait before the next ask: [normal] outside watch mode; in it [watch] or [watchSlow],
-  /// doubled for each failed ask in a row, never past [normal].
-  Duration every(WatchPace pace) {
-    if (pace == WatchPace.none) return normal;
-    final base = pace == WatchPace.fast ? watch : watchSlow;
-    final backedOff = base * (1 << (_failures > 4 ? 4 : _failures));
-    return backedOff < normal ? backedOff : normal;
-  }
-
-  /// How long from the last count to the next ask at [pace], or to [change] when that is
-  /// sooner.
-  Duration next(WatchPace pace, {Duration? change}) {
-    final left = every(pace) - _since;
-    final wait = left > Duration.zero ? left : Duration.zero;
-    return change != null && change < wait ? change : wait;
-  }
-
-  /// Sets the timer for [pace] at [now], with [change] from [nextWatchChange]; [fire] runs when
-  /// it is up. Set already, it stays as it is unless the pace differs or [change] comes before
-  /// it, or an answer or failure since changed the wait ([every]); otherwise the time already
-  /// waited counts.
-  void arm(WatchPace pace, {Duration? change, required DateTime now, required void Function() fire}) {
-    final armedAt = _armedAt;
-    if (_timer != null && armedAt != null) {
-      final waited = now.difference(armedAt);
-      final keep = pace == _armedPace && every(pace) == _armedEvery && (change == null || waited + change >= _armed);
-      if (keep) return;
-      _since += waited < Duration.zero ? Duration.zero : (waited > _armed ? _armed : waited);
-      _timer!.cancel();
-    }
-    final wait = next(pace, change: change);
-    _armed = wait;
-    _armedAt = now;
-    _armedPace = pace;
-    _armedEvery = every(pace);
-    _timer = Timer(wait, () {
-      _timer = null;
-      _armedAt = null;
-      _since += wait;
-      fire();
-    });
-  }
-
-  /// Stops the timer, counting the time already waited up to [now].
-  void stop({DateTime? now}) {
-    final armedAt = _armedAt;
-    if (_timer != null && armedAt != null && now != null) {
-      final waited = now.difference(armedAt);
-      _since += waited < Duration.zero ? Duration.zero : (waited > _armed ? _armed : waited);
-    }
-    _timer?.cancel();
-    _timer = null;
-    _armedAt = null;
-  }
-
-  /// The timer fired: true when an ask is due at [pace], which starts the count again.
-  bool due(WatchPace pace) {
-    if (_since < every(pace)) return false;
-    _since = Duration.zero;
-    return true;
-  }
-
-  /// The node answered. True when it had failed at least twice in a row before: it is back. One
-  /// dropped ask (a flaky circuit) is not an outage.
-  bool answered() {
-    final back = _failures >= 2;
-    _failures = 0;
-    return back;
-  }
-
-  void failed() => _failures++;
 }

@@ -238,9 +238,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Timer? _timer;
   bool _tipBusy = false;
 
-  /// In the background: the tip timer stays off until the app is back.
-  bool _away = false;
-  final TipPacer _tipPace = TipPacer(normal: tipCheckInterval);
+  /// The tip check: every [tipCheckInterval], faster while the node is boosted (watch mode).
+  /// Off while the app is in the background.
+  late final PollDriver _tip = PollDriver(
+    ref.read(sessionProvider)!.boosts,
+    Poller.node,
+    base: tipCheckInterval,
+    tick: _checkTip,
+  );
 
   /// Payments whose "could not reach the node" notice was already shown.
   final Set<String> _delayedShown = {};
@@ -270,13 +275,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _lifecycle;
     _startRefreshTimer();
-    _armTip();
-    // Each list read can change the pace: a new payment, a step, a block.
+    _tip.start();
+    // Each list read can start a boost: a new payment, a step, a block.
     ref.listenManual(homeProvider, (_, next) {
       final data = next.value;
       if (data == null || !mounted) return;
-      ref.read(blockWatchProvider).saw(data.transactions, data.summary.lastConfirmedHeight, now: ref.read(clockProvider)());
-      _armTip();
+      final tip = data.summary.lastConfirmedHeight;
+      final now = ref.read(clockProvider)();
+      final watch = ref.read(blockWatchProvider)..saw(data.transactions, tip, now: now);
+      watch.boostNode(
+        ref.read(sessionProvider)?.boosts,
+        data.transactions,
+        tip,
+        minConfirmations: data.summary.minimumConfirmations.toInt(),
+        now: now,
+      );
     }, fireImmediately: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
@@ -382,7 +395,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     _timer?.cancel();
-    _tipPace.stop();
+    _tip.stop();
     _lifecycle.dispose();
     _pages.dispose();
     super.dispose();
@@ -419,65 +432,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _resumed() {
-    _away = false;
-    _armTip();
+    _tip.start();
     _autoRefresh();
   }
 
-  void _paused() {
-    _away = true;
-    _tipPace.stop(now: ref.read(clockProvider)());
-  }
-
-  /// How closely the list is watched now (watch_mode.dart).
-  WatchPace _pace() {
-    final data = ref.read(homeProvider).value;
-    if (data == null) return WatchPace.none;
-    return listPace(
-      data.transactions,
-      now: ref.read(clockProvider)(),
-      tip: data.summary.lastConfirmedHeight,
-      minConfirmations: data.summary.minimumConfirmations.toInt(),
-      steps: ref.read(blockWatchProvider),
-    );
-  }
-
-  /// Sets the tip timer for the pace now: to the next ask, or to the moment the pace can change
-  /// by time alone.
-  void _armTip() {
-    if (!mounted || _away) return;
-    final data = ref.read(homeProvider).value;
-    final now = ref.read(clockProvider)();
-    final change = data == null ? null : nextWatchChange(data.transactions, now: now, steps: ref.read(blockWatchProvider));
-    _tipPace.arm(_pace(), change: change, now: now, fire: _tipFired);
-  }
-
-  void _tipFired() {
-    if (!mounted) return;
-    if (_tipPace.due(_pace())) _checkTip();
-    _armTip();
-  }
+  void _paused() => _tip.stop();
 
   /// Asks the node for its tip and refreshes when it is past the height home counts
   /// confirmations at: each block moves a payment's Confirming n/3. Skipped when a refresh
-  /// would be ([_autoRefresh]); a failed ask waits for the next one, later in watch mode.
-  /// A node that answers again after failing has the payments it refused posted again at once.
-  Future<void> _checkTip() async {
-    if (!mounted || _tipBusy) return;
+  /// would be ([_autoRefresh]). False when the node did not answer: the driver then waits
+  /// longer. A node that answers again after failing has the payments it refused posted again
+  /// at once.
+  Future<bool> _checkTip() async {
+    if (!mounted || _tipBusy) return true;
     final life = WidgetsBinding.instance.lifecycleState;
-    if (life != null && life != AppLifecycleState.resumed) return;
+    if (life != null && life != AppLifecycleState.resumed) return true;
     final home = ref.read(homeProvider);
     final shown = home.value?.summary.lastConfirmedHeight;
     if (shown == null || shown == BigInt.zero || _syncing(home) || ref.read(scanProvider).running) {
-      return;
+      return true;
     }
     _tipBusy = true;
     try {
       final tip = await ref.refresh(nodeTipProvider.future);
-      if (!mounted) return;
-      final back = _tipPace.answered();
-      // A node back after failing is asked at the watch pace again, not the backed-off one.
-      _armTip();
+      if (!mounted) return true;
+      final back = _tip.failures >= 2;
       if (back) ref.read(stallRetryProvider).nodeBack();
       if (tip.height > shown || back) {
         _autoRefresh();
@@ -485,10 +464,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         // Being posted: read the list again, so "Not on the network" does not wait for a block.
         unawaited(ref.read(homeProvider.notifier).relist());
       }
+      return true;
     } catch (_) {
       // The status line shows a node that does not answer; the minute's refresh still runs.
-      _tipPace.failed();
-      _armTip();
+      return false;
     } finally {
       _tipBusy = false;
     }

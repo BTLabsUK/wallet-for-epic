@@ -86,13 +86,13 @@ import '../../slate_files.dart' show decodeSlateFile, isSealedText, replyFileNam
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
-import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, nextWatchChange, postingNow, watchTipEvery;
+import '../../watch_mode.dart' show BlockWait, BlockWatch, postingNow;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../trust/contact_trust.dart' show peerCompatRetention;
 import '../../trust/policy.dart' show PeerCompat;
 import '../../epic1.dart' show Epic1Wallet, Epic1Of;
-import '../../boosts.dart' show Boosts;
+import '../../boosts.dart' show Boosts, PollDriver, Poller;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -156,7 +156,6 @@ class LepicDeskWallet implements DeskWalletApi {
     Duration? nodePoll,
     Duration? nodeRecheck,
     Duration? nodeStale,
-    Duration? watchPoll,
     Duration? nodeTimeout,
     Duration? nodeTorTimeout,
     this.torNodeGrace = const Duration(minutes: 2),
@@ -181,7 +180,6 @@ class LepicDeskWallet implements DeskWalletApi {
   }) : nodePoll = nodePoll ?? appConfig.nodePoll,
        nodeRecheck = nodeRecheck ?? appConfig.nodeRecheck,
        nodeStale = nodeStale ?? appConfig.nodeStaleAfter,
-       watchPoll = watchPoll ?? watchTipEvery,
        nodeTimeout = nodeTimeout ?? appConfig.nodeCheckTimeout,
        nodeTorTimeout = nodeTorTimeout ?? appConfig.nodeTorCheckTimeout,
        torStartBackoff = torStartBackoff ?? appConfig.torStartBackoff,
@@ -315,10 +313,6 @@ class LepicDeskWallet implements DeskWalletApi {
   /// than compare a stale height with a fresh one.
   final Duration nodeStale;
 
-  /// How often the node is asked instead while a payment can move with the next block
-  /// (watch_mode.dart).
-  final Duration watchPoll;
-  late final TipPacer _tipPace = TipPacer(normal: nodePoll, watch: watchPoll);
   final Duration nodeTimeout;
 
   /// How long a node may take over Tor: LEPIC's own node timeout there, as a first onion
@@ -494,8 +488,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The open wallet's onion, `<56 characters>.onion`.
   String? _onion;
 
-  /// Whether the node is polled: the tip timer in [_tipPace] is set.
-  bool _poll = false;
+  /// The node poll, every [nodePoll] and faster while the node is boosted (watch_mode.dart);
+  /// null when the node is not polled.
+  PollDriver? _tipDriver;
   Future<void>? _syncing;
   bool _syncAgain = false;
   /// Why the last sync did not reach the node; null when it did.
@@ -508,7 +503,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   void _changed() {
     _followTor();
-    _armTip();
+    _watchBlocks();
     if (!_changes.isClosed) _changes.add(null);
   }
 
@@ -1314,6 +1309,8 @@ class LepicDeskWallet implements DeskWalletApi {
     await _stopHttp();
     await _stopTor();
     _stopInvoices();
+    final polling = _tipDriver != null;
+    _stopPoll();
     _session?.dispose();
     _session = null;
     // A lock() while opening wins: the new session closes at once.
@@ -1325,6 +1322,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       _session = session;
       _sessionRevision++;
+      if (polling) _startPoll();
       // The coins the linked devices hold stay held through the reopen.
       session.heldOutputs = _deviceHeld;
       _config = c;
@@ -2169,65 +2167,56 @@ class LepicDeskWallet implements DeskWalletApi {
     await _reload();
   }
 
-  /// How closely the list is watched now (watch_mode.dart).
-  WatchPace _pace() => listPace(
-    _entries ?? const <core.TxEntry>[],
-    now: DateTime.now(),
-    tip: BigInt.from(_tip),
-    minConfirmations: _minConf.toInt(),
-    steps: _blockWaits,
-  );
-
   /// The wait notes last shown, so a window that passes with no block (and so no sync) still
   /// shows its note.
   int? _waitsShown;
 
   void _startPoll() {
-    _poll = true;
-    _armTip();
+    _tipDriver?.stop();
+    _tipDriver = PollDriver(_open.boosts, Poller.node, base: nodePoll, tick: _tipTick)..start();
   }
 
   void _stopPoll() {
-    _poll = false;
-    _tipPace.stop();
+    _tipDriver?.stop();
+    _tipDriver = null;
   }
 
-  /// Sets the tip timer for the list now: to the next ask, or to the moment the pace or a wait
-  /// note can change by time alone. Each change ([_changed]) sets it again.
-  void _armTip() {
-    if (!_poll) return;
+  /// Boosts the node for the payments that took a step or saw a block ([BlockWatch.boostNode]).
+  /// Each change ([_changed]) calls it.
+  void _watchBlocks() {
     final entries = _entries;
-    if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
-    final now = DateTime.now();
-    final change = entries == null ? null : nextWatchChange(entries, now: now, steps: _blockWaits);
-    _tipPace.arm(_pace(), change: change, now: now, fire: _tipTick);
+    if (_tipDriver == null || entries == null) return;
+    final tip = BigInt.from(_tip);
+    _blockWaits
+      ..saw(entries, tip)
+      ..boostNode(_session?.boosts, entries, tip, minConfirmations: _minConf.toInt());
   }
 
-  void _tipTick() {
+  Future<bool> _tipTick() async {
+    final answered = await _checkTip();
     final entries = _entries;
-    if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
-    if (_tipPace.due(_pace())) unawaited(_checkTip());
-    _armTip();
-    if (entries == null) return;
-    final waits = Object.hashAll(entries.map(_waitOf));
-    if (_waitsShown != null && waits != _waitsShown) _changed();
-    _waitsShown = waits;
+    if (entries != null) {
+      final waits = Object.hashAll(entries.map(_waitOf));
+      if (_waitsShown != null && waits != _waitsShown) _changed();
+      _waitsShown = waits;
+    }
+    return answered;
   }
 
-  Future<void> _checkTip() async {
+  /// Asks the node for its tip. False when it did not answer: the poll then waits longer.
+  Future<bool> _checkTip() async {
     final config = _config;
-    if (config == null || _tipBusy || _nodeOff) return;
+    if (config == null || _tipBusy || _nodeOff) return true;
     // Over Tor, LEPIC holds the check until tor is connected; a failure meanwhile is not counted.
     final overTor = _nodeOverTor(config.nodeUrl);
     _tipBusy = true;
     try {
       final tip = await _nodeTip(config);
-      if (tip == null) return;
+      if (tip == null) return true;
       _nodeReachedAt = DateTime.now();
-      // Back after failing: the payments it refused meanwhile are posted again at once.
-      if (_tipPace.answered()) _stall.nodeBack();
-      // A node back after failing is asked at the watch pace again, not the backed-off one.
-      _armTip();
+      // Back after failing twice in a row: the payments it refused meanwhile are posted again
+      // at once.
+      if ((_tipDriver?.failures ?? 0) >= 2) _stall.nodeBack();
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
@@ -2252,19 +2241,19 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       unawaited(_retryStalled());
       unawaited(_releaseSenderCancelled());
+      return true;
     } on Object catch (e) {
-      _tipPace.failed();
-      _armTip();
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
       if (overTor && _torGrace()) {
         logInfo('desk', 'node check over Tor failed: $why; not counted while tor settles or the node syncs');
-        return;
+        return false;
       }
       if (_nodeHealth != ServiceHealth.down) {
         logWarn('desk', 'node check failed: $why');
         _nodeHealth = ServiceHealth.down;
         _changed();
       }
+      return false;
     } finally {
       _tipBusy = false;
     }

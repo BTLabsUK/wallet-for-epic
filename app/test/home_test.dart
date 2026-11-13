@@ -39,7 +39,6 @@ import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:epic_wallet/src/watch_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show SemanticsData;
@@ -1077,6 +1076,7 @@ void main() {
           chip(kind == TxKind.sent ? _l.txStatusSent : _l.txStatusReceived),
           findsOneWidget,
         );
+        await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
       });
     }
 
@@ -1131,6 +1131,7 @@ void main() {
       await tester.pump(tipCheckInterval);
       await tester.pumpAndSettle();
       expect(h.session.refreshCalls, refreshes);
+      await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
     });
 
     testWidgets('a payment waiting for its block sees it within seconds (watch mode)', (
@@ -1164,21 +1165,22 @@ void main() {
         validatedWithNode: true,
       );
       h.session.transactionsValue = [answered(height: next), ..._transactions()];
-      await tester.pump(watchTipEvery);
+      await tester.pump(boostMinInterval);
       await tester.pumpAndSettle();
-      expect(h.session.refreshCalls, refreshes + 1, reason: 'one refresh, at the watch pace');
+      expect(h.session.refreshCalls, refreshes + 1, reason: 'one refresh, at the boosted pace');
       expect(
         find.descendant(of: find.byType(TxStatusLine), matching: find.textContaining('Confirming 1/3')),
         findsOneWidget,
       );
+      await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
     });
 
     testWidgets('with nothing pending the tip is asked at the normal pace only', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       final asks = h.session.nodeTipsFor.length;
-      // Not at the watch pace: none in three of its steps.
-      await tester.pump(watchTipEvery * 3);
+      // Not at the boosted pace: none in two of its steps.
+      await tester.pump(boostMinInterval * 2);
       expect(h.session.nodeTipsFor.length, asks);
       // One at the normal pace (the timer started while home loaded).
       await tester.pump(tipCheckInterval);

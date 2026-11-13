@@ -399,11 +399,9 @@ const List<SettingsKey> configKeys = [
   SettingsKey('notices.early_notice_max_count', IntKind(min: 1, max: 10000), byDefault: 256),
   SettingsKey('notices.early_notice_max_age_s', IntKind(min: 1, max: 2592000), byDefault: 604800),
   // [payments]
-  SettingsKey('payments.watch_fast_every_s', _seconds),
-  SettingsKey('payments.watch_fast_for_s', _seconds),
-  SettingsKey('payments.watch_slow_every_s', _seconds),
-  // Above the 180 s the network holds a new transaction (Dandelion's embargo).
-  SettingsKey('payments.watch_for_s', IntKind(min: 181, max: 86400)),
+  // How long the node is boosted from a payment's step or block; above the 180 s the network
+  // holds a new transaction (Dandelion's embargo).
+  SettingsKey('payments.watch_for_s', IntKind(min: 181, max: 600)),
   SettingsKey('payments.repost_waits_min', IntListKind(min: 1, max: 1440)),
   SettingsKey('payments.answer_resend_waits_min', IntListKind(min: 1, max: 1440)),
   // [contacts]: a wallet not opened for this many days says so on opening
