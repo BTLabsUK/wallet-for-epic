@@ -76,6 +76,7 @@ import '../../../recipient.dart' show epic1AddressOnly;
 import '../epic1/epic1_files.dart' show jumpToEpic1Switch, showEpic1ModeDialog;
 import '../epic1/send_link.dart' show Epic1SendPage;
 import 'send_summary_rows.dart';
+import '../../../ui/theme/protocol.dart' show CornerTicksPainter;
 
 /// Where the Send page is, so the tour reaches every state without taps.
 enum SendStep { form, errors, review, sending, done, fileReady, failed }
@@ -2336,16 +2337,20 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       final asked => l.sendAmountCodeAsked(epicTextL(l, asked)),
     };
     final minimumHelp = minimum == null ? null : l.sendMinimumAmount(epicTextL(l, minimum));
-    return EPanel(
+    // One card per question: who, how much, what it says; the options under them.
+    Widget card(List<Widget> children) => EPanel(
       padding: EdgeInsets.all(Sp.panel),
-      child: Column(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    );
+    final gap = SizedBox(height: Sp.x3);
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        card([
         if (file) ...[
           _FileLine(onBack: _leaveFile),
           SizedBox(height: Sp.x5),
           _fileRecipient(st),
-          SizedBox(height: Sp.x5),
         ] else if (pairing != null) ...[
           EField(
             label: l.deskSendTo,
@@ -2357,7 +2362,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
               onClear: _clearRecipient,
             ),
           ),
-          SizedBox(height: Sp.x5),
         ] else ...[
           TourTarget(
             id: 'send-methods',
@@ -2430,8 +2434,10 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
             SizedBox(height: Sp.x3),
             DeskLinkTrust(link: link),
           ],
-          SizedBox(height: Sp.x5),
         ],
+        ]),
+        gap,
+        card([
         EField(
           label: l.deskSendAmount,
           error: amErr,
@@ -2472,7 +2478,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           SizedBox(height: Sp.x2),
           Text(st.settings.hideAmounts ? l.deskSendConfirmingHidden : l.deskSendConfirming(formatEpicL(l, st.balance!.awaitingConfirmation)), style: ts.small),
         ],
-        SizedBox(height: Sp.x5),
+        ]),
+        gap,
+        card([
         EField(
           label: l.deskSendMessage,
           optional: !noteExpected(_read.isAddress ? _read.address : _to.text.trim(), codeNote: code != null && (code.noteFilled || code.noteRequired)),
@@ -2499,6 +2507,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           SizedBox(height: Sp.x3),
           ENotice(key: const ValueKey('send-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: missing),
         ],
+        ]),
         // Advanced › Send options; open when a link brought the user here for it.
         if (!shallow && advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
         SizedBox(height: Sp.x5),
@@ -2532,7 +2541,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           ),
         ],
       ],
-      ),
     );
   }
 
@@ -2884,7 +2892,9 @@ class _SendSummary extends StatelessWidget {
     // The summary's one row ([SummaryLine]); a zero reads as "—", nothing to show yet.
     Widget line(String label, int? v, {bool strong = false, bool risk = false, bool loading = false}) =>
         SummaryLine(label: label, value: v == 0 ? null : v, strong: strong, risk: risk, loading: loading);
-    return EPanel(
+    return CustomPaint(
+      foregroundPainter: CornerTicksPainter(c.tick, length: 14.u, width: 1.5),
+      child: EPanel(
       title: l.deskSendSummary,
       padding: EdgeInsets.all(Sp.panel),
       child: Column(
@@ -2933,6 +2943,7 @@ class _SendSummary extends StatelessWidget {
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
         ],
       ),
+    ),
     );
   }
 }
