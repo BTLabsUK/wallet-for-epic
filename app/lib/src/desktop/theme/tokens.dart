@@ -72,7 +72,7 @@ abstract final class Ctl {
   static double get iconLg => _px(24);
 
   /// The Settings column beside a Settings page.
-  static double get settingsNav => _px(288);
+  static double get settingsNav => _px(240);
   static double get topbar => _px(64);
 
   /// Reading widths.

@@ -76,26 +76,9 @@ class SettingsColumn extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, 0),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: EButton.ghost(
-                  key: settingsBackKey,
-                  semanticsId: TrustIds.settingsBack,
-                  label: l.deskSetFrameBack,
-                  icon: EIcons.arrowLeft,
-                  tooltip: l.deskSetFrameBackTip,
-                  hit44: true,
-                  onPressed: nav.leaveSettings,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, Sp.x4, Sp.x3),
-              child: Semantics(header: true, child: Text(l.deskSetFrameTitle, style: ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis)),
-            ),
-            Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: const SettingsSearchSlot()),
+            // The search leads: the Settings tab names the place, and the tab bar and Esc lead
+            // back to the wallet.
+            Padding(padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x4, Sp.x3, 0), child: const SettingsSearchSlot()),
             Expanded(
               // Its own scroll: a short window holds more entries than fit.
               child: SingleChildScrollView(
@@ -111,15 +94,35 @@ class SettingsColumn extends ConsumerWidget {
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+            // The way back to the wallet: Esc, or a click on this line. Not a Tab stop (Esc and the
+            // tabs do the same).
+            DecoratedBox(
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
-              child: Row(
-                children: [
-                  _Kbd(l.deskSetFrameEscKey),
-                  SizedBox(width: Sp.x2),
-                  Flexible(child: Text(l.deskSetFrameEscHint, style: ts.caption.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                ],
+              child: TrustId(
+                TrustIds.settingsBack,
+                // Named as the old "Wallet" button was, so a reader and the drivers find it by it.
+                child: Semantics(
+                  button: true,
+                  label: l.deskSetFrameBack,
+                  excludeSemantics: true,
+                  child: ETip(
+                    l.deskSetFrameBackTip,
+                    child: EInkWell(
+                      key: settingsBackKey,
+                      onTap: nav.leaveSettings,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                        child: Row(
+                          children: [
+                            _Kbd(l.deskSetFrameEscKey),
+                            SizedBox(width: Sp.x2),
+                            Flexible(child: Text(l.deskSetFrameEscHint, style: ts.caption.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -129,7 +132,7 @@ class SettingsColumn extends ConsumerWidget {
   }
 }
 
-/// The Settings column's "← Wallet", for tests.
+/// The Settings column's way back to the wallet (its foot line), for tests.
 const settingsBackKey = ValueKey('settings-back');
 
 /// A key as the keyboard shows it.

@@ -8,7 +8,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesShownProvider;
-import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show settingsBackKey;
+import 'package:epic_wallet/src/desktop/screens/settings/search/search_slot.dart' show SettingsSearchSlot;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/amount.dart' as amount show displayEpic, exactEpic;
@@ -191,9 +191,8 @@ void main() {
     await tester.tap(field);
     await _settle(tester);
     expect(item, findsOneWidget);
-    // A click on the Settings column (where the sidebar is) while it is open closes the list
-    // and does not press "← Wallet".
-    await tester.tap(find.byKey(settingsBackKey));
+    // A click on the Settings column while it is open closes the list and presses nothing.
+    await tester.tap(find.byType(SettingsSearchSlot));
     await _settle(tester);
     expect(item, findsNothing);
     expect(container.read(deskNavProvider).route, DeskRoute.settingsAppearance);
@@ -207,8 +206,8 @@ void main() {
     await _settle(tester);
     expect(find.byType(ListView), findsWidgets);
     final lists = find.byType(ListView).evaluate().length;
-    // "← Wallet" in the Settings column, where the sidebar is.
-    await tester.tap(find.byKey(settingsBackKey));
+    // The Settings column's search.
+    await tester.tap(find.byType(SettingsSearchSlot));
     await _settle(tester);
     expect(find.byType(ListView).evaluate().length, lessThan(lists), reason: 'the list closed');
     expect(container.read(deskNavProvider).route, DeskRoute.settingsNode);
