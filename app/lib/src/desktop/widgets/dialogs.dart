@@ -355,18 +355,18 @@ class EKeyHint extends StatelessWidget {
         children: [
           WidgetSpan(
             alignment: PlaceholderAlignment.middle,
+            // As wide as the key's name (a Container with an alignment would take the whole line).
             child: Container(
               constraints: BoxConstraints(minWidth: 20.u),
               height: 20.u,
               margin: EdgeInsetsDirectional.only(end: 6.u),
               padding: EdgeInsets.symmetric(horizontal: 6.u),
-              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: c.s2,
                 borderRadius: BorderRadius.circular(Rad.xs),
                 border: Border(top: BorderSide(color: c.lineStrong), left: BorderSide(color: c.lineStrong), right: BorderSide(color: c.lineStrong), bottom: BorderSide(color: c.lineStrong, width: 2)),
               ),
-              child: Text(keys, style: ts.mono(size: Fs.xs, color: c.dim, weight: FontWeight.w500)),
+              child: Center(widthFactor: 1, child: Text(keys, style: ts.mono(size: Fs.xs, color: c.dim, weight: FontWeight.w500))),
             ),
           ),
           TextSpan(text: does),
