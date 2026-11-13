@@ -282,7 +282,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (_onQuestion(e)) return true;
     if (e.logicalKey == LogicalKeyboardKey.escape) {
       final inside = _settingsFocus.hasFocus;
-      return !inside && !_focusElsewhere() && _onSettingsEsc(e);
+      return !inside && !_focusElsewhere() && deskOpenMenus.value == 0 && _onSettingsEsc(e);
     }
     final hw = HardwareKeyboard.instance;
     if (!(hw.isControlPressed || hw.isMetaPressed) || hw.isShiftPressed || hw.isAltPressed) return false;

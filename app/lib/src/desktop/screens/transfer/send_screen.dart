@@ -3082,6 +3082,8 @@ class _AddressMenu extends StatelessWidget {
     final width = 340.u;
     return MenuAnchor(
       consumeOutsideTap: true,
+      onOpen: deskMenuOpened,
+      onClose: deskMenuClosed,
       style: MenuStyle(
         alignment: AlignmentDirectional.bottomEnd,
         minimumSize: WidgetStatePropertyAll(Size(width, 0)),

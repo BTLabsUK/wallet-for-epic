@@ -1845,6 +1845,8 @@ class _ContactMoreMenu extends StatelessWidget {
     final l = context.l10n;
     return MenuAnchor(
       consumeOutsideTap: true,
+      onOpen: deskMenuOpened,
+      onClose: deskMenuClosed,
       menuChildren: [
         for (final (key, icon, label, risk, run) in items)
           MenuItemButton(

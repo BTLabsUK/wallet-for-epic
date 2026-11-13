@@ -21,6 +21,7 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 import '../data/state.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
+import 'keyboard.dart' show deskMenuClosed, deskMenuOpened;
 import 'buttons.dart';
 import 'selectable.dart';
 import 'tip.dart';
@@ -524,7 +525,11 @@ class _ESelectState<T> extends State<ESelect<T>> {
         final width = math.max(120.u, box.maxWidth - 160.u);
         return MenuAnchor(
           controller: _controller,
-          onOpen: _measure,
+          onOpen: () {
+            deskMenuOpened();
+            _measure();
+          },
+          onClose: deskMenuClosed,
           // A click outside only closes the list: it does not also press what is under it.
           consumeOutsideTap: true,
           // The app's menu look comes from the theme's menuTheme; the list is the field's width.

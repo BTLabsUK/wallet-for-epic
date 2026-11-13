@@ -560,8 +560,12 @@ class _BarMenuState extends State<_BarMenu> {
       consumeOutsideTap: true,
       style: _menuStyle(minWidth: widget.minWidth),
       alignmentOffset: Offset(0, 4.u),
-      onOpen: () => setState(() => _open = true),
+      onOpen: () {
+        deskMenuOpened();
+        setState(() => _open = true);
+      },
       onClose: () {
+        deskMenuClosed();
         if (mounted) setState(() => _open = false);
       },
       menuChildren: [

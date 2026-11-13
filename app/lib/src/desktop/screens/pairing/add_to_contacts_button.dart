@@ -50,6 +50,8 @@ class DeskAddToContactsButton extends ConsumerWidget {
     );
     return MenuAnchor(
       consumeOutsideTap: true,
+      onOpen: deskMenuOpened,
+      onClose: deskMenuClosed,
       menuChildren: [
         if (suggested case final to?)
           item(deskAddToContactsSuggestedKey, EIcons.user, l.pairAddToNamed(to.name), () async {

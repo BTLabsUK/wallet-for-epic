@@ -59,6 +59,8 @@ class ContactsMoreButton extends ConsumerWidget {
     );
     return MenuAnchor(
       consumeOutsideTap: true,
+      onOpen: deskMenuOpened,
+      onClose: deskMenuClosed,
       menuChildren: [
         item(deskContactsImportKey, EIcons.fileDown, l.contactsImport, () => deskImportContacts(context)),
         item(deskContactsExportKey, EIcons.fileUp, l.contactsExport, canExport ? () => deskExportContacts(context) : null),

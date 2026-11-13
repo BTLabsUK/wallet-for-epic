@@ -29,6 +29,8 @@ class ContactLabelMenu extends StatelessWidget {
     final l = context.l10n;
     return MenuAnchor(
       consumeOutsideTap: true,
+      onOpen: deskMenuOpened,
+      onClose: deskMenuClosed,
       menuChildren: [
         for (final label in ContactLabel.values)
           MenuItemButton(

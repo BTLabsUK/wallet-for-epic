@@ -119,6 +119,12 @@ class _EFormScope extends InheritedWidget {
 /// innermost one with an [onBack] wins; the app's Back (mouse, Alt+Left, Backspace) asks these
 /// before it changes the place. A no-op [onBack] holds Back on a step that must not be left
 /// that way (the wallet is being made, the phrase is on screen).
+/// The menus open now ([MenuAnchor]s report through [deskMenuOpened] and [deskMenuClosed]):
+/// while one is, Esc is the menu's, not Settings' way back.
+final deskOpenMenus = ValueNotifier<int>(0);
+void deskMenuOpened() => deskOpenMenus.value++;
+void deskMenuClosed() => deskOpenMenus.value = deskOpenMenus.value > 0 ? deskOpenMenus.value - 1 : 0;
+
 class DeskStepBack extends StatefulWidget {
   const DeskStepBack({super.key, required this.onBack, required this.child});
 

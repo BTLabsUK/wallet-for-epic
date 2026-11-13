@@ -389,6 +389,21 @@ void main() {
       await _end(tester);
     });
 
+    testWidgets('in Settings, Esc in the wallet menu closes the menu and stays in Settings', (tester) async {
+      final container = await _open(tester, DeskRoute.settingsAccount);
+      await tester.tap(find.byKey(const ValueKey('bar-wallet')));
+      await _settle(tester);
+      expect(deskOpenMenus.value, 1);
+      await _key(tester, LogicalKeyboardKey.escape);
+      await _settle(tester);
+      expect(deskOpenMenus.value, 0, reason: 'the menu closed');
+      expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount, reason: 'one Esc closes one thing');
+      await _key(tester, LogicalKeyboardKey.escape);
+      await _settle(tester);
+      expect(container.read(deskNavProvider).route.section, isNot(DeskSection.settings), reason: 'then Esc leaves Settings');
+      await _end(tester);
+    });
+
     testWidgets('folds an open panel on the page; in a dialog it closes the dialog', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
