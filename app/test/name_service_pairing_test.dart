@@ -2,6 +2,7 @@
 // Name service pairing on the fakes: the hello and the Check the code step, Join and Leave, the
 // name service's unlisted, and the payload routing between the devices and the name service services.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -70,7 +71,6 @@ class _Rig {
       store: NameServiceStore(store, chain: Chain.mainnet, walletId: 'w1'),
       clock: clock.call,
       wait: wait,
-      poll: const Duration(seconds: 1),
     );
   }
 
@@ -129,7 +129,7 @@ void main() {
       expect(rig.service.book.byPairing(r.id), isNull);
       expect(await rig.api.payloads(), isEmpty, reason: 'acknowledged and dropped');
       rig.clock.now = rig.clock.now.add(const Duration(seconds: 4));
-      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(rig.service.stepOf(r.id), HelloStep.words);
     });
 
@@ -404,7 +404,8 @@ void main() {
       expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
       expect(find.byKey(nsWaitCancelKey), findsOneWidget);
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
       expect(find.descendant(of: find.byKey(nsCodeKey), matching: find.byType(WordTiles)), findsOneWidget);
@@ -440,7 +441,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
       rig.api.nameServiceHello(answered.id, serviceKey: _serviceKey);
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
@@ -465,7 +467,8 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       rig.clock.now = rig.clock.now.add(const Duration(seconds: 31));
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
@@ -477,7 +480,8 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkNoMatchKey));
       await tester.pump(const Duration(milliseconds: 400));
@@ -495,7 +499,8 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test');
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pump(const Duration(milliseconds: 300));

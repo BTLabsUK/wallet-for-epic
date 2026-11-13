@@ -32,9 +32,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import '../boosts.dart';
 import '../log.dart';
 import '../models.dart';
 import '../pairing_api.dart';
+import '../relay_boost.dart';
 import '../scan/scan_router.dart' show cleanUntrustedText;
 import '../wallet_service.dart' show WalletSession;
 import 'device_link_code.dart';
@@ -49,6 +51,9 @@ import 'device_wire.dart';
 abstract interface class DeviceHost {
   /// The wallet's pairing engine, whatever the Pairing switch says.
   PairingApi get pairing;
+
+  /// The wallet's boosts: a link under way checks the relays more often.
+  Boosts get boosts;
 
   /// Whether the channel may reach the servers now (not Offline, Epicbox on).
   bool get online;
@@ -99,6 +104,9 @@ class SessionDeviceHost implements DeviceHost {
 
   @override
   PairingApi get pairing => session.pairing;
+
+  @override
+  Boosts get boosts => session.boosts;
 
   @override
   bool get online => _online();
@@ -161,7 +169,6 @@ const Duration gapWait = Duration(minutes: 3);
 /// How often the channel is read in the foreground with a device linked, and while a link
 /// is being made.
 const Duration deviceSyncEvery = Duration(seconds: 5);
-const Duration linkPollEvery = Duration(seconds: 2);
 
 /// How long Send waits for one read of the channel before it chooses coins.
 const Duration sendWaitsForDevices = Duration(seconds: 3);
@@ -368,7 +375,18 @@ class DeviceService {
   final StreamController<void> _changes = StreamController<void>.broadcast();
   final StreamController<ForwardedNotice> _forwarded = StreamController<ForwardedNotice>.broadcast();
   Future<void>? _running;
-  Timer? _timer;
+  late final PollDriver _driver = PollDriver(
+    host.boosts,
+    Poller.relays,
+    base: deviceSyncEvery,
+    tick: () async {
+      await sync(DeviceSyncTrigger.tick);
+      return true;
+    },
+  );
+
+  /// Ends the boost a link under way holds; null without one.
+  void Function()? _endLinkBoost;
   bool _foreground = false;
   bool _disposed = false;
 
@@ -434,7 +452,8 @@ class DeviceService {
     }
     _disposed = true;
     if (!_ready.isCompleted) _ready.complete();
-    _timer?.cancel();
+    _driver.stop();
+    _endLinkBoost?.call();
     _pairingEvents?.cancel();
     _unmatched?.cancel();
     _changes.close();
@@ -478,17 +497,14 @@ class DeviceService {
     if (now) unawaited(sync(DeviceSyncTrigger.resume));
   }
 
+  /// A link is being made.
+  bool get _linking => _link != null && _link!.phase != LinkPhase.done && _link!.phase != LinkPhase.failed;
+
+  /// Runs the read while in the foreground with a device linked or a link under way, from now.
   void _schedule() {
-    _timer?.cancel();
-    _timer = null;
-    if (!_foreground || _disposed) return;
-    final every = _link != null && _link!.phase != LinkPhase.done && _link!.phase != LinkPhase.failed
-        ? linkPollEvery
-        : book.devices.isNotEmpty || book.removing.isNotEmpty
-        ? _pace ?? deviceSyncEvery
-        : null;
-    if (every == null) return;
-    _timer = Timer.periodic(every, (_) => sync(DeviceSyncTrigger.tick).ignore());
+    if (!_foreground || _disposed || !(_linking || book.devices.isNotEmpty || book.removing.isNotEmpty)) return _driver.stop();
+    _driver.base = _pace ?? deviceSyncEvery;
+    _driver.start();
   }
 
   /// Reads the channel once (one at a time: a call while one runs waits for it).
@@ -1615,6 +1631,12 @@ class DeviceService {
 
   void _setLink(LinkFlow? flow) {
     _link = flow;
+    if (_linking) {
+      _endLinkBoost ??= boostRelays(host.boosts, boostMinInterval);
+    } else {
+      _endLinkBoost?.call();
+      _endLinkBoost = null;
+    }
     _changed();
     _schedule();
   }

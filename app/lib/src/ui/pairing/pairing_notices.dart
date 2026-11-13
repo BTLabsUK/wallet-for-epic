@@ -129,33 +129,39 @@ class PairingNotices extends ConsumerStatefulWidget {
 
 class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBindingObserver {
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
-  static const _tick = Duration(seconds: 45);
-  Timer? _timer;
+  PollDriver? _driver;
   late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(pairingClockProvider));
 
   /// A service's relay move sheet is up: the next waits until it closes.
   bool _askingMove = false;
 
-  void _collect(PairingCollectTrigger trigger) {
+  Future<void> _collect(PairingCollectTrigger trigger) async {
     final api = ref.read(pairingApiProvider);
-    if (api.supported) api.collect(trigger: trigger).ignore();
+    if (api.supported) await api.collect(trigger: trigger);
     // The name services' payloads and listing drains go with every collect.
     final sync = trigger == PairingCollectTrigger.open ? NameServiceSyncTrigger.resume : NameServiceSyncTrigger.tick;
-    unawaited(ref.read(nameServiceProvider)?.sync(sync) ?? Future<void>.value());
+    await ref.read(nameServiceProvider)?.sync(sync);
   }
 
   void _startTick() {
-    _timer?.cancel();
-    _timer = Timer.periodic(_tick, (_) => _collect(PairingCollectTrigger.foreground));
+    final boosts = ref.read(sessionProvider)?.boosts;
+    if (boosts == null) return;
+    _driver ??= PollDriver(
+      boosts,
+      Poller.relays,
+      base: const Duration(seconds: 45),
+      tick: () => _collect(PairingCollectTrigger.foreground).then((_) => true),
+    );
+    _driver!.start();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _collect(PairingCollectTrigger.open);
+      _collect(PairingCollectTrigger.open).ignore();
       _startTick();
     } else if (state == AppLifecycleState.paused) {
-      _timer?.cancel();
+      _driver?.stop();
     }
   }
 
@@ -174,7 +180,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unregisterInviteHandler(InviteKind.pair, _pairInvite);
-    _timer?.cancel();
+    _driver?.stop();
     super.dispose();
   }
 
@@ -185,7 +191,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     WidgetsBinding.instance.addObserver(this);
     registerInviteHandler(InviteKind.pair, _pairInvite);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _collect(PairingCollectTrigger.open);
+      if (mounted) _collect(PairingCollectTrigger.open).ignore();
     });
     _startTick();
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {

@@ -34,6 +34,7 @@ import '../../../models.dart'
         pairingFailureOf;
 import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
+import '../../../relay_boost.dart';
 import '../../../trust_ids.dart';
 import '../../../ui/key_picture.dart';
 import '../../../ui/pairing/invite_links.dart';
@@ -144,7 +145,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   String? _inviteError;
   String? _enterError;
   bool _busy = false;
-  Timer? _collect;
+  void Function()? _unboost;
   StreamSubscription<PairingEvent>? _events;
 
   /// Pairings answered while this page is up: the status under the invite follows them.
@@ -161,9 +162,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     final api = ref.read(deskPairingApiProvider);
-    if (ref.read(deskPairNetProvider) == DeskPairNet.online) {
-      _collect = Timer.periodic(const Duration(seconds: 10), (_) => api.collect().ignore());
-    }
+    if (ref.read(deskPairNetProvider) == DeskPairNet.online) _unboost = boostRelays(ref.read(deskApiProvider).boosts, const Duration(seconds: 10));
     _events = api.events().listen(_onEvent);
     WidgetsBinding.instance.addPostFrameCallback((_) => _makeInvite());
   }
@@ -171,7 +170,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
-    _collect?.cancel();
+    _unboost?.call();
     _events?.cancel();
     _enter.dispose();
     super.dispose();
@@ -767,7 +766,7 @@ class DeskPairWaitingDialog extends ConsumerStatefulWidget {
 }
 
 class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
-  Timer? _collect;
+  void Function()? _unboost;
   Timer? _slow;
   bool _late = false;
   bool _done = false;
@@ -786,7 +785,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     deskPairingStepsOnScreen.add(widget.pairingId);
     final api = ref.read(deskPairingApiProvider);
     if (ref.read(deskPairNetProvider) == DeskPairNet.online) {
-      _collect = Timer.periodic(const Duration(seconds: 5), (_) => api.collect().ignore());
+      _unboost = boostRelays(ref.read(deskApiProvider).boosts, const Duration(seconds: 5));
       _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     } else {
       _late = true;
@@ -815,7 +814,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
   void dispose() {
     deskPairingStepsOnScreen.remove(widget.pairingId);
     pairingWordsOnScreen.remove(_onScreen);
-    _collect?.cancel();
+    _unboost?.call();
     _slow?.cancel();
     _events?.cancel();
     _finish.dispose();

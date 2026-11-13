@@ -18,6 +18,8 @@ import '../../trust/policy.dart' show featureNameService, statedAutomated;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import '../../providers.dart' show sessionProvider;
+import '../../relay_boost.dart';
 import '../../pairing_text.dart' show isUnnamed, sameNamedContact;
 import '../../wallet_service.dart';
 import '../app_dialog.dart';
@@ -132,7 +134,7 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   bool _busy = false;
   bool _left = false;
-  PairingCollector? _collector;
+  void Function()? _unboost;
   StreamSubscription<PairingEvent>? _events;
 
   /// Where the name service's wait stands when the service has not said yet (its answer to
@@ -148,7 +150,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     final api = ref.read(pairingApiProvider);
     // The other wallet's verdict is heard within seconds, as on the desktop, not at the next
     // foreground tick.
-    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
+    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 5));
     _events = api.events().listen((e) {
       // Ended while the words are open (the other wallet said they do not match): nothing is
       // left to check; the ended notice says why.
@@ -185,7 +187,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
 
   @override
   void dispose() {
-    _collector?.stop();
+    _unboost?.call();
     _events?.cancel();
     pairingWordsOnScreen.remove(_onScreen);
     // Leaving the screen stops the wait; the words step is what Back leaves the pairing at.

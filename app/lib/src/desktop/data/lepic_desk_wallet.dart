@@ -6072,6 +6072,9 @@ class _DeskNameServiceHost implements NameServiceHost {
   core.PairingApi get pairing => _host.pairing;
 
   @override
+  Boosts get boosts => _host.boosts;
+
+  @override
   bool get online => _online();
 
   @override
@@ -6109,6 +6112,9 @@ class _DeskDeviceHost implements DeviceHost {
 
   @override
   core.PairingApi get pairing => _session.pairing;
+
+  @override
+  Boosts get boosts => _session.boosts;
 
   @override
   bool get online => _online();

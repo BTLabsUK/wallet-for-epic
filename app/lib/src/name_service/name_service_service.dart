@@ -15,6 +15,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../log.dart';
+import '../relay_boost.dart';
 import '../sas_table.dart';
 import '../trust/policy.dart' show featureNameService;
 import '../wallet_service.dart';
@@ -31,9 +32,6 @@ export '../sas_table.dart' show sasIndexesOf;
 
 /// How long the wallet waits for the name service's hello once the pairing is Paired.
 const Duration helloWait = Duration(seconds: 30);
-
-/// How often the wait collects the pairing and reads its payloads.
-const Duration helloPoll = Duration(seconds: 2);
 
 /// The longest payload from a name service this wallet reads.
 const int nameServicePayloadMaxBytes = 2048;
@@ -57,6 +55,9 @@ enum HelloStep {
 /// one over their session ([SessionNameServiceHost]).
 abstract interface class NameServiceHost {
   PairingApi get pairing;
+
+  /// The wallet's boosts: a wait for a hello checks the relays more often.
+  Boosts get boosts;
 
   /// The channel may reach the servers now.
   bool get online;
@@ -95,6 +96,9 @@ class SessionNameServiceHost implements NameServiceHost {
   PairingApi get pairing => _session.pairing;
 
   @override
+  Boosts get boosts => _session.boosts;
+
+  @override
   bool get online => _online();
 
   @override
@@ -117,7 +121,6 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
     required NameServiceStore store,
     DateTime Function()? clock,
     this.wait = helloWait,
-    this.poll = helloPoll,
     this.onDrained,
   }) : _host = host,
        _store = store,
@@ -127,9 +130,8 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
   final NameServiceStore _store;
   final DateTime Function() _clock;
 
-  /// How long the hello is waited for, and how often the wait reads.
+  /// How long the hello is waited for.
   final Duration wait;
-  final Duration poll;
 
   /// A listing drain received or finalized something: the lists read again.
   final void Function(PaymentsDrainReport report)? onDrained;
@@ -216,8 +218,9 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
 
   void dispose() {
     _disposed = true;
-    _pollTimer?.cancel();
-    _pollTimer = null;
+    for (final end in _endBoosts.values) {
+      end();
+    }
     _changes.close();
   }
 
@@ -247,6 +250,7 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
           logWarn('name service', 'name service read failed: ${e.runtimeType}');
         }
       } while (_again && !_disposed);
+      _settleHellos();
     } finally {
       _busy = false;
     }
@@ -420,7 +424,7 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
 
   final Map<String, HelloStep> _steps = {};
   final Map<String, DateTime> _deadlines = {};
-  Timer? _pollTimer;
+  final Map<String, void Function()> _endBoosts = {};
 
   /// Where the words step of [pairingId] stands, null before [beginHello].
   HelloStep? stepOf(String pairingId) => _steps[pairingId];
@@ -446,49 +450,35 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
     if (entry != null && !entry.pinned) return _setStep(pairingId, HelloStep.check);
     _deadlines[pairingId] = _clock().add(wait);
     _setStep(pairingId, HelloStep.waiting);
-    _pollTimer ??= Timer.periodic(poll, (_) => unawaited(_pollHello()));
-    unawaited(_pollHello(collect: false));
+    // The regular collect brings the hello: it runs every few seconds for the wait.
+    _endBoosts[pairingId] = boostRelays(_host.boosts, boostMinInterval, window: wait);
+    unawaited(sync(NameServiceSyncTrigger.tick));
     return HelloStep.waiting;
   }
 
   HelloStep _setStep(String pairingId, HelloStep step) {
     if (_steps[pairingId] == step) return step;
     _steps[pairingId] = step;
-    if (step != HelloStep.waiting) _deadlines.remove(pairingId);
-    if (_deadlines.isEmpty) {
-      _pollTimer?.cancel();
-      _pollTimer = null;
+    if (step != HelloStep.waiting) {
+      _deadlines.remove(pairingId);
+      _endBoosts.remove(pairingId)?.call();
     }
     _changed();
     return step;
   }
 
-  bool _polling = false;
-
-  Future<void> _pollHello({bool collect = true}) async {
-    if (_polling || _disposed) return;
-    _polling = true;
-    try {
-      if (_host.online) {
-        try {
-          if (collect) await _host.pairing.collect();
-          await readPayloads();
-        } on Object catch (e) {
-          logWarn('name service', 'waiting for the hello failed: ${e.runtimeType}');
-        }
+  /// After a read: a wait whose hello came goes on to the check, one past its time to the
+  /// ordinary words.
+  void _settleHellos() {
+    final now = _clock();
+    for (final id in _deadlines.keys.toList()) {
+      if (_steps[id] != HelloStep.waiting) continue;
+      final entry = _book.byPairing(id);
+      if (entry != null && !entry.pinned) {
+        _setStep(id, HelloStep.check);
+      } else if (!now.isBefore(_deadlines[id]!)) {
+        _setStep(id, HelloStep.words);
       }
-      final now = _clock();
-      for (final id in _deadlines.keys.toList()) {
-        if (_steps[id] != HelloStep.waiting) continue;
-        final entry = _book.byPairing(id);
-        if (entry != null && !entry.pinned) {
-          _setStep(id, HelloStep.check);
-        } else if (!now.isBefore(_deadlines[id]!)) {
-          _setStep(id, HelloStep.words);
-        }
-      }
-    } finally {
-      _polling = false;
     }
   }
 

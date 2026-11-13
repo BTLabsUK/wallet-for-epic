@@ -18,6 +18,8 @@ import '../../errors.dart';
 import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import '../../providers.dart' show sessionProvider;
+import '../../relay_boost.dart';
 import 'pair_screen.dart' show seenAsForWire;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
@@ -366,7 +368,7 @@ class PairingWaitingScreen extends ConsumerStatefulWidget {
 }
 
 class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
-  PairingCollector? _collector;
+  void Function()? _unboost;
   Timer? _slow;
   bool _late = false;
   bool _left = false;
@@ -386,7 +388,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     final api = ref.read(pairingApiProvider);
     if (ref.read(pairNetProvider) == PairNet.online) {
-      _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
+      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 5));
       _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     } else {
       _late = true;
@@ -447,7 +449,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
     pairingStepsOnScreen.remove(widget.pairingId);
-    _collector?.stop();
+    _unboost?.call();
     _slow?.cancel();
     _events?.cancel();
     _finish.dispose();

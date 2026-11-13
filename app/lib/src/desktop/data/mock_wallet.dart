@@ -28,7 +28,7 @@ import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, QrSlateProgress, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
-import '../../boosts.dart' show MemoryBoosts;
+import '../../boosts.dart' show Boosts, MemoryBoosts;
 import '../../epic1.dart';
 import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
@@ -1724,6 +1724,8 @@ class _MockNameServiceHost implements NameServiceHost {
 
   @override
   final FakePairing pairing;
+  @override
+  final Boosts boosts = MemoryBoosts();
   final bool Function() _online;
   final FakeListingKeys _keys = FakeListingKeys();
 
@@ -1752,6 +1754,8 @@ class _MockDeviceHost implements DeviceHost {
 
   @override
   final FakePairing pairing;
+  @override
+  final Boosts boosts = MemoryBoosts();
   final bool Function() _online;
   final Future<List<WalletOutput>> Function() _outputs;
 

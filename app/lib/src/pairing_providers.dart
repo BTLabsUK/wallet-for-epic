@@ -385,27 +385,6 @@ Future<void> writeProvenAddress(WidgetRef ref, PairingRecord r) async {
   }
 }
 
-/// Opens the pairing mailboxes every [every] while something is pending, then not at all
-/// (RFC 8.2: every 10 s while the Pair screen is open, every 5 s while waiting). The screen
-/// that waits holds it; the timer stops with the screen.
-class PairingCollector {
-  PairingCollector(this._api, {this.every = const Duration(seconds: 10)});
-
-  final PairingApi _api;
-  final Duration every;
-  Timer? _timer;
-
-  void start() {
-    _timer ??= Timer.periodic(every, (_) => _api.collect().ignore());
-    _api.collect().ignore();
-  }
-
-  void stop() {
-    _timer?.cancel();
-    _timer = null;
-  }
-}
-
 /// The remembered name others see, once loaded.
 Future<String> readSeenAs(WidgetRef ref) async {
   final String? now = ref.read(pairingSeenAsProvider).value;

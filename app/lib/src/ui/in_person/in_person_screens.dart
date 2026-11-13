@@ -139,7 +139,7 @@ class _InPersonFormScreenState extends ConsumerState<InPersonFormScreen> {
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => InPersonCodeScreen(
-            watch: InPersonCodeWatch(wallet: wallet, stage: widget.stage, amount: amount, made: made),
+            watch: InPersonCodeWatch(wallet: wallet, stage: widget.stage, amount: amount, made: made, boosts: ref.read(sessionProvider)?.boosts),
             message: message,
           ),
         ),

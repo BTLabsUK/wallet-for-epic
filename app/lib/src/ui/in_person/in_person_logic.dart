@@ -8,9 +8,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../../boosts.dart' show Boosts, boostMinInterval;
 import '../../epic1.dart';
 import '../../models.dart';
 import '../../qr_slate.dart' show qrFrameMs;
+import '../../relay_boost.dart';
 
 /// How often a code on screen asks for its answers.
 const Duration inPersonPollEvery = Duration(seconds: 3);
@@ -157,7 +159,7 @@ const int _failsBeforeManual = 2;
 /// A code this wallet shows, waiting for its answer: asks [Epic1Wallet.inPersonAnswers] every
 /// [inPersonPollEvery] while it waits, and takes answers pasted or scanned back.
 class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
-  InPersonCodeWatch({required this.wallet, required this.stage, required BigInt this.amount, required InPersonCodeMade made, this.pollEvery = inPersonPollEvery})
+  InPersonCodeWatch({required this.wallet, required this.stage, required BigInt this.amount, required InPersonCodeMade made, this.boosts, this.pollEvery = inPersonPollEvery})
     : _made = made,
       _slateId = made.slateId {
     _start();
@@ -168,6 +170,7 @@ class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   InPersonCodeWatch.answered({required this.wallet, required InPersonTaken taken})
     : stage = taken.stage,
       amount = null,
+      boosts = null,
       pollEvery = inPersonPollEvery,
       _made = null,
       _slateId = taken.slateId {
@@ -180,6 +183,9 @@ class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   /// The code's amount; null for [InPersonCodeWatch.answered].
   final BigInt? amount;
   final Duration pollEvery;
+
+  /// The wallet's boosts: the relays are checked more often while the code waits online.
+  final Boosts? boosts;
 
   InPersonCodeMade? _made;
 
@@ -202,6 +208,7 @@ class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   Object? error;
 
   Timer? _poll;
+  void Function()? _unboost;
   bool _asking = false;
   bool _disposed = false;
 
@@ -238,7 +245,7 @@ class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   void cancelOnline() {
     if (!online) return;
     _manual = true;
-    _poll?.cancel();
+    _stop();
     if (!_disposed) notifyListeners();
   }
 
@@ -249,13 +256,20 @@ class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   };
 
   void _start() {
-    _poll?.cancel();
+    _stop();
     _poll = Timer.periodic(pollEvery, (_) => unawaited(poll()));
+    if (hasMailbox) _unboost = boostRelays(boosts, boostMinInterval);
+  }
+
+  void _stop() {
+    _poll?.cancel();
+    _unboost?.call();
+    _unboost = null;
   }
 
   void _set(InPersonPhase phase) {
     _phase = phase;
-    if (phase != InPersonPhase.waiting) _poll?.cancel();
+    if (phase != InPersonPhase.waiting) _stop();
     if (!_disposed) notifyListeners();
   }
 
@@ -381,7 +395,7 @@ class InPersonCodeWatch extends ChangeNotifier implements InPersonOnline {
   @override
   void dispose() {
     _disposed = true;
-    _poll?.cancel();
+    _stop();
     super.dispose();
   }
 }

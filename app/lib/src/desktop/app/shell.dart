@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../app_info.dart';
+import '../../boosts.dart' show PollDriver, Poller;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -107,7 +108,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   Timer? _behindAsk;
 
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
-  Timer? _collectTimer;
+  PollDriver? _collectDriver;
 
   Timer? _linkRetry;
 
@@ -129,18 +130,15 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(code: link.text, codeOrigin: CodeOrigin.link));
   }
 
-  void _collect(PairingCollectTrigger trigger) {
+  Future<void> _collect(PairingCollectTrigger trigger) async {
     final api = ref.read(deskPairingApiProvider);
-    if (api.supported) api.collect(trigger: trigger).ignore();
+    if (api.supported) await api.collect(trigger: trigger);
     // The listings are drained where the contacts' mailboxes are read, never in the background.
-    final dirs = ref.read(deskNameServiceProvider);
-    if (dirs != null) {
-      final t = switch (trigger) {
-        PairingCollectTrigger.open => NameServiceSyncTrigger.open,
-        _ => NameServiceSyncTrigger.tick,
-      };
-      unawaited(dirs.sync(t));
-    }
+    final t = switch (trigger) {
+      PairingCollectTrigger.open => NameServiceSyncTrigger.open,
+      _ => NameServiceSyncTrigger.tick,
+    };
+    await ref.read(deskNameServiceProvider)?.sync(t);
   }
 
   /// An incoming pair invite (a tapped link, a scheme open): the confirm dialog, never a
@@ -198,7 +196,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     HardwareKeyboard.instance.addHandler(_onKey);
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _collect(PairingCollectTrigger.open);
+      if (mounted) _collect(PairingCollectTrigger.open).ignore();
       // A link that came before the unlock.
       if (mounted) _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
@@ -213,7 +211,15 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         unawaited(deskPairingCall(ref, (api) => api.checkContacts()).then<void>((_) {}, onError: (Object _) {}));
       }
     });
-    _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
+    final boosts = ref.read(deskApiProvider).boosts;
+    if (boosts != null) {
+      _collectDriver = PollDriver(
+        boosts,
+        Poller.relays,
+        base: const Duration(seconds: 45),
+        tick: () => _collect(PairingCollectTrigger.foreground).then((_) => true),
+      )..start();
+    }
     _openCount = Timer.periodic(NodeFitFacts.tick, (_) {
       if (mounted) unawaited(ref.read(nodeFitFactsProvider).addOpen(NodeFitFacts.tick).catchError((Object _) {}));
     });
@@ -243,7 +249,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         ref.read(deskFailoverWatchProvider.notifier).resumed();
         // The contacts' mailboxes too, as the phone does on resume (the shell exists only
         // unlocked; the collect itself stays off in Node only, Kill switch and with Epicbox off).
-        if (mounted) _collect(PairingCollectTrigger.open);
+        if (mounted) _collect(PairingCollectTrigger.open).ignore();
       },
     );
   }
@@ -352,7 +358,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _ownAsk?.cancel();
     _behindAsk?.cancel();
     _linkRetry?.cancel();
-    _collectTimer?.cancel();
+    _collectDriver?.stop();
     _openCount?.cancel();
     _focus?.dispose();
     _settingsFocus.dispose();
