@@ -53,15 +53,15 @@ class KitStatusPill extends StatelessWidget {
               base,
               PositionedDirectional(
                 top: -5,
-                start: -5,
+                start: -8,
                 child: ExcludeSemantics(
                   child: Container(
-                    width: 18,
-                    height: 18,
+                    width: 22,
+                    height: 22,
                     alignment: Alignment.center,
                     // A ring in the page's colour parts the badge from the pill.
                     decoration: BoxDecoration(color: t.accentSoft, shape: BoxShape.circle, border: Border.all(color: t.bg, width: 1.5)),
-                    child: Icon(EpicGlyphs.tor, size: 11, color: t.accentText),
+                    child: Icon(EpicGlyphs.tor, size: 14, color: t.accentText),
                   ),
                 ),
               ),
