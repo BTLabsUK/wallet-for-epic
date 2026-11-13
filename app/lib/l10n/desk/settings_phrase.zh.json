@@ -9,7 +9,7 @@
   "deskSetPhrasePanel": "输入密码以显示这些单词",
   "deskSetPhraseShowWords": "显示助记词",
   "deskSetPhraseWordsLabel": "{count, plural, other{助记词，{count} 个单词}}",
-  "deskSetPhraseShowQr": "显示二维码",
+  "deskSetPhraseShowQr": "显示为二维码",
   "deskSetPhraseHideWords": "隐藏助记词",
   "deskSetPhraseHidesIn": "{seconds} 秒后隐藏",
   "deskSetPhraseBackUp": "备份助记词",

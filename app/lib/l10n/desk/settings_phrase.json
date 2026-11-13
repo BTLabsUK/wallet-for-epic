@@ -44,9 +44,9 @@
       }
     }
   },
-  "deskSetPhraseShowQr": "Show QR",
+  "deskSetPhraseShowQr": "Show as a code",
   "@deskSetPhraseShowQr": {
-    "description": "Settings > Recovery phrase: button that shows the phrase as a QR code."
+    "description": "Settings › Recovery phrase: button that shows the phrase as a QR code. 'Show as a code', never 'Show QR'."
   },
   "deskSetPhraseHideWords": "Hide recovery phrase",
   "@deskSetPhraseHideWords": {

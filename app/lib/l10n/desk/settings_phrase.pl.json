@@ -9,7 +9,7 @@
   "deskSetPhrasePanel": "Wpisz hasło, aby pokazać słowa",
   "deskSetPhraseShowWords": "Pokaż frazę odzyskiwania",
   "deskSetPhraseWordsLabel": "{count, plural, one{Fraza odzyskiwania, {count} słowo} few{Fraza odzyskiwania, {count} słowa} many{Fraza odzyskiwania, {count} słów} other{Fraza odzyskiwania, {count} słowa}}",
-  "deskSetPhraseShowQr": "Pokaż QR",
+  "deskSetPhraseShowQr": "Pokaż jako kod",
   "deskSetPhraseHideWords": "Ukryj frazę odzyskiwania",
   "deskSetPhraseHidesIn": "Ukryje się za {seconds} s",
   "deskSetPhraseBackUp": "Zabezpiecz frazę",

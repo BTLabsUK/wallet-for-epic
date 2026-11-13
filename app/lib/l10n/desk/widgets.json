@@ -695,7 +695,7 @@
       }
     }
   },
-  "deskKitQrShowOf": "Show QR code of the {title}",
+  "deskKitQrShowOf": "Show the code of the {title}",
   "@deskKitQrShowOf": {
     "description": "Screen-reader label of the button that reveals a QR code. {title} is what it holds.",
     "placeholders": {
@@ -704,13 +704,13 @@
       }
     }
   },
-  "deskKitQrShow": "Show QR",
+  "deskKitQrShow": "Show as a code",
   "@deskKitQrShow": {
-    "description": "Button and tooltip: reveal the hidden QR code. Short."
+    "description": "Button and tooltip: reveal the hidden QR code. Short. 'Show as a code', never 'Show QR'."
   },
-  "deskKitQrHide": "Hide QR",
+  "deskKitQrHide": "Hide the code",
   "@deskKitQrHide": {
-    "description": "Button and tooltip: hide the QR code again. Short."
+    "description": "Button and tooltip: cover the QR code again. Short."
   },
   "deskKitQrHideCode": "Hide QR",
   "@deskKitQrHideCode": {

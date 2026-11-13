@@ -9,7 +9,7 @@
   "deskSetPhrasePanel": "Введите пароль, чтобы показать слова",
   "deskSetPhraseShowWords": "Показать фразу восстановления",
   "deskSetPhraseWordsLabel": "{count, plural, one{Фраза восстановления, {count} слово} few{Фраза восстановления, {count} слова} many{Фраза восстановления, {count} слов} other{Фраза восстановления, {count} слова}}",
-  "deskSetPhraseShowQr": "Показать QR",
+  "deskSetPhraseShowQr": "Показать как код",
   "deskSetPhraseHideWords": "Скрыть фразу восстановления",
   "deskSetPhraseHidesIn": "Скроется через {seconds} с",
   "deskSetPhraseBackUp": "Сохраните фразу",

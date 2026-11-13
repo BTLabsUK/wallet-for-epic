@@ -81,8 +81,8 @@ void main() {
     await _pump(tester, const ReceiveArgs());
     expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-qr-epicbox')), findsNothing);
-    expect(find.text('Show QR'), findsNothing);
-    expect(find.text('Hide QR'), findsNothing);
+    expect(find.text(_l.deskKitQrShow), findsNothing);
+    expect(find.text(_l.deskKitQrHide), findsNothing);
     expect(find.text('QR code of the Epicbox address'), findsOneWidget);
   });
 

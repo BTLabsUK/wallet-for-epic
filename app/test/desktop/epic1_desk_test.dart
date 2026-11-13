@@ -178,7 +178,7 @@ void main() {
       expect(_wallet.epic1Fake.calls, contains('makeLink'));
       expect(find.byKey(const ValueKey('e1-copy-link')), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-qr-image-epic1')), findsOneWidget, reason: 'shown from the start');
-      expect(find.text('Show QR'), findsNothing, reason: 'no cover, no Show QR step');
+      expect(find.text(_l.deskKitQrShow), findsNothing, reason: 'no cover, no Show QR step');
       expect(find.byKey(const ValueKey('e1-ask-amount')), findsOneWidget);
       expect(find.byKey(const ValueKey('e1-request-in-person')), findsOneWidget);
       // No classic receiving rows.

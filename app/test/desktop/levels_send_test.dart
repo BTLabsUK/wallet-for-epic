@@ -145,7 +145,7 @@ void main() {
     await _pump(tester, WalletLevel.justSendReceive, const ReceiveScreen());
     expect(find.text(_l.deskLvSendYourAddress), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsOneWidget);
-    expect(find.text('Show QR'), findsNothing);
+    expect(find.text(_l.deskKitQrShow), findsNothing);
     expect(find.text(_l.deskLvSendReady), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-switch-epicbox')), findsNothing);
     expect(find.text(_l.deskRecvReceiving), findsNothing);

@@ -8398,7 +8398,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbCreateHide => 'Скрыть';
 
   @override
-  String get deskOnbCreateShowQr => 'Показать QR';
+  String get deskOnbCreateShowQr => 'Показать как код';
 
   @override
   String get deskOnbCreateQrWarn =>
@@ -9689,14 +9689,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskKitQrShowOf(String title) {
-    return 'Показать QR-код: $title';
+    return 'Показать код: $title';
   }
 
   @override
-  String get deskKitQrShow => 'Показать QR';
+  String get deskKitQrShow => 'Показать как код';
 
   @override
-  String get deskKitQrHide => 'Скрыть QR';
+  String get deskKitQrHide => 'Скрыть код';
 
   @override
   String get deskKitQrHideCode => 'Скрыть QR';
@@ -11055,7 +11055,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetPhraseShowQr => 'Показать QR';
+  String get deskSetPhraseShowQr => 'Показать как код';
 
   @override
   String get deskSetPhraseHideWords => 'Скрыть фразу восстановления';

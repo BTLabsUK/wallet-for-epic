@@ -8099,7 +8099,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbCreateHide => 'Hide';
 
   @override
-  String get deskOnbCreateShowQr => 'Show QR';
+  String get deskOnbCreateShowQr => 'Show as a code';
 
   @override
   String get deskOnbCreateQrWarn =>
@@ -9349,14 +9349,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskKitQrShowOf(String title) {
-    return 'Show QR code of the $title';
+    return 'Show the code of the $title';
   }
 
   @override
-  String get deskKitQrShow => 'Show QR';
+  String get deskKitQrShow => 'Show as a code';
 
   @override
-  String get deskKitQrHide => 'Hide QR';
+  String get deskKitQrHide => 'Hide the code';
 
   @override
   String get deskKitQrHideCode => 'Hide QR';
@@ -10681,7 +10681,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetPhraseShowQr => 'Show QR';
+  String get deskSetPhraseShowQr => 'Show as a code';
 
   @override
   String get deskSetPhraseHideWords => 'Hide recovery phrase';

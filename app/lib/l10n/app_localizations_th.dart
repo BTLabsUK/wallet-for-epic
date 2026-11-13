@@ -7877,7 +7877,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbCreateHide => 'ซ่อน';
 
   @override
-  String get deskOnbCreateShowQr => 'แสดง QR';
+  String get deskOnbCreateShowQr => 'แสดงเป็นโค้ด';
 
   @override
   String get deskOnbCreateQrWarn => 'ใครสแกนโค้ดนี้ก็เอาเหรียญไปได้';
@@ -9101,14 +9101,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskKitQrShowOf(String title) {
-    return 'แสดง QR Code ของ$title';
+    return 'แสดงโค้ดของ $title';
   }
 
   @override
-  String get deskKitQrShow => 'แสดง QR';
+  String get deskKitQrShow => 'แสดงเป็นโค้ด';
 
   @override
-  String get deskKitQrHide => 'ซ่อน QR';
+  String get deskKitQrHide => 'ซ่อนโค้ด';
 
   @override
   String get deskKitQrHideCode => 'ซ่อน QR';
@@ -10414,7 +10414,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetPhraseShowQr => 'แสดง QR';
+  String get deskSetPhraseShowQr => 'แสดงเป็นโค้ด';
 
   @override
   String get deskSetPhraseHideWords => 'ซ่อนวลีกู้คืน';

@@ -43,7 +43,7 @@
   "deskOnbCreateReveal": "显示助记词",
   "deskOnbCreateCheckScreen": "请确认没有人能看到屏幕。",
   "deskOnbCreateHide": "隐藏",
-  "deskOnbCreateShowQr": "显示二维码",
+  "deskOnbCreateShowQr": "显示为二维码",
   "deskOnbCreateQrWarn": "任何扫描此二维码的人都能拿走你的币",
   "deskOnbCreateQrWarnText": "只扫描到你信任的另一个钱包中。",
   "deskOnbCreateQrLabel": "助记词二维码",

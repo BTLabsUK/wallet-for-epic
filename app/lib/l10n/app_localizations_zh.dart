@@ -7618,7 +7618,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbCreateHide => '隐藏';
 
   @override
-  String get deskOnbCreateShowQr => '显示二维码';
+  String get deskOnbCreateShowQr => '显示为二维码';
 
   @override
   String get deskOnbCreateQrWarn => '任何扫描此二维码的人都能拿走你的币';
@@ -8802,7 +8802,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskKitQrShow => '显示二维码';
+  String get deskKitQrShow => '显示为二维码';
 
   @override
   String get deskKitQrHide => '隐藏二维码';
@@ -10077,7 +10077,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetPhraseShowQr => '显示二维码';
+  String get deskSetPhraseShowQr => '显示为二维码';
 
   @override
   String get deskSetPhraseHideWords => '隐藏助记词';

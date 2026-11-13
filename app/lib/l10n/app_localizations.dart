@@ -12854,10 +12854,10 @@ abstract class AppLocalizations {
   /// **'Hide'**
   String get deskOnbCreateHide;
 
-  /// Button that shows the recovery phrase as a QR code.
+  /// New wallet, recovery phrase step: button that shows the phrase as a QR code in a dialog. The canvas rule: 'Show as a code', never 'Show QR'.
   ///
   /// In en, this message translates to:
-  /// **'Show QR'**
+  /// **'Show as a code'**
   String get deskOnbCreateShowQr;
 
   /// Warning title above the recovery phrase QR code.
@@ -14705,19 +14705,19 @@ abstract class AppLocalizations {
   /// Screen-reader label of the button that reveals a QR code. {title} is what it holds.
   ///
   /// In en, this message translates to:
-  /// **'Show QR code of the {title}'**
+  /// **'Show the code of the {title}'**
   String deskKitQrShowOf(String title);
 
-  /// Button and tooltip: reveal the hidden QR code. Short.
+  /// Button and tooltip: reveal the hidden QR code. Short. 'Show as a code', never 'Show QR'.
   ///
   /// In en, this message translates to:
-  /// **'Show QR'**
+  /// **'Show as a code'**
   String get deskKitQrShow;
 
-  /// Button and tooltip: hide the QR code again. Short.
+  /// Button and tooltip: cover the QR code again. Short.
   ///
   /// In en, this message translates to:
-  /// **'Hide QR'**
+  /// **'Hide the code'**
   String get deskKitQrHide;
 
   /// Screen-reader label of the button that hides the QR code.
@@ -16777,10 +16777,10 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{Recovery phrase, {count} word} other{Recovery phrase, {count} words}}'**
   String deskSetPhraseWordsLabel(int count);
 
-  /// Settings > Recovery phrase: button that shows the phrase as a QR code.
+  /// Settings › Recovery phrase: button that shows the phrase as a QR code. 'Show as a code', never 'Show QR'.
   ///
   /// In en, this message translates to:
-  /// **'Show QR'**
+  /// **'Show as a code'**
   String get deskSetPhraseShowQr;
 
   /// Settings > Recovery phrase: button that hides the words.

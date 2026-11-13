@@ -9,7 +9,7 @@
   "deskSetPhrasePanel": "ใส่รหัสผ่านเพื่อแสดงคำ",
   "deskSetPhraseShowWords": "แสดงวลีกู้คืน",
   "deskSetPhraseWordsLabel": "{count, plural, other{วลีกู้คืน {count} คำ}}",
-  "deskSetPhraseShowQr": "แสดง QR",
+  "deskSetPhraseShowQr": "แสดงเป็นโค้ด",
   "deskSetPhraseHideWords": "ซ่อนวลีกู้คืน",
   "deskSetPhraseHidesIn": "ซ่อนใน {seconds} วินาที",
   "deskSetPhraseBackUp": "สำรองวลี",
