@@ -5605,5 +5605,8 @@
   "deskOnbWelcomeFactLinkText": "Linki epic1 i Epicbox dostarczają płatności, zapieczętowane między sparowanymi kontaktami.",
   "deskOnbWelcomeFactNode": "Własny węzeł, jeśli chcesz",
   "deskOnbWelcomeFactNodeText": "Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa.",
-  "deskOnbUnlockLead": "Wpisz hasło, aby otworzyć ten portfel."
+  "deskOnbUnlockLead": "Wpisz hasło, aby otworzyć ten portfel.",
+  "deskOvLast30": "Ostatnie 30 dni",
+  "deskOvIn": "wpłynęło",
+  "deskOvOut": "wypłynęło"
 }

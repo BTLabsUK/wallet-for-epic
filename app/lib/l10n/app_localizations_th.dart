@@ -21095,4 +21095,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbUnlockLead => 'ใส่รหัสผ่านเพื่อเปิดกระเป๋าเงินนี้';
+
+  @override
+  String get deskOvLast30 => '30 วันล่าสุด';
+
+  @override
+  String get deskOvIn => 'เข้า';
+
+  @override
+  String get deskOvOut => 'ออก';
 }

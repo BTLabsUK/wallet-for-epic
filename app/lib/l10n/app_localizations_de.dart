@@ -21762,4 +21762,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOnbUnlockLead =>
       'Passwort eingeben, um diese Wallet zu öffnen.';
+
+  @override
+  String get deskOvLast30 => 'Letzte 30 Tage';
+
+  @override
+  String get deskOvIn => 'ein';
+
+  @override
+  String get deskOvOut => 'aus';
 }

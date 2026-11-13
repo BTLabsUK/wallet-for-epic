@@ -63,5 +63,8 @@
   "deskOvRequest": "ขอรับเงิน",
   "deskOvInMotion": "กำลังดำเนินการ",
   "deskOvSendTo": "ส่งให้ {name}",
-  "deskOvFieldHint": "พิมพ์ชื่อ จำนวน ที่อยู่ หรือรหัสการชำระเงิน"
+  "deskOvFieldHint": "พิมพ์ชื่อ จำนวน ที่อยู่ หรือรหัสการชำระเงิน",
+  "deskOvLast30": "30 วันล่าสุด",
+  "deskOvIn": "เข้า",
+  "deskOvOut": "ออก"
 }

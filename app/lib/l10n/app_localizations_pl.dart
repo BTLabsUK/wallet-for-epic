@@ -22140,4 +22140,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbUnlockLead => 'Wpisz hasło, aby otworzyć ten portfel.';
+
+  @override
+  String get deskOvLast30 => 'Ostatnie 30 dni';
+
+  @override
+  String get deskOvIn => 'wpłynęło';
+
+  @override
+  String get deskOvOut => 'wypłynęło';
 }

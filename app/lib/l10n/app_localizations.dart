@@ -33708,6 +33708,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the password to open this wallet.'**
   String get deskOnbUnlockLead;
+
+  /// Home, the chart beside the balance: the period it covers.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get deskOvLast30;
+
+  /// Home chart: after the amount that came in during the 30 days, as in '+233.73 in'. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'in'**
+  String get deskOvIn;
+
+  /// Home chart: after the amount that went out (with fees) during the 30 days, as in '−40.01 out'. One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'out'**
+  String get deskOvOut;
 }
 
 class _AppLocalizationsDelegate

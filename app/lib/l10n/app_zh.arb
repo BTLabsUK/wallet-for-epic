@@ -5605,5 +5605,8 @@
   "deskOnbWelcomeFactLinkText": "epic1 链接和 Epicbox 传递付款，在已配对的联系人之间加密。",
   "deskOnbWelcomeFactNode": "可选：自己的节点",
   "deskOnbWelcomeFactNodeText": "钱包可以在这台电脑上运行节点。也可以用公共节点。",
-  "deskOnbUnlockLead": "输入密码以打开此钱包。"
+  "deskOnbUnlockLead": "输入密码以打开此钱包。",
+  "deskOvLast30": "最近 30 天",
+  "deskOvIn": "收入",
+  "deskOvOut": "支出"
 }

@@ -20320,4 +20320,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbUnlockLead => '输入密码以打开此钱包。';
+
+  @override
+  String get deskOvLast30 => '最近 30 天';
+
+  @override
+  String get deskOvIn => '收入';
+
+  @override
+  String get deskOvOut => '支出';
 }

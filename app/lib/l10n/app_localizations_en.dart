@@ -21512,4 +21512,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbUnlockLead => 'Enter the password to open this wallet.';
+
+  @override
+  String get deskOvLast30 => 'Last 30 days';
+
+  @override
+  String get deskOvIn => 'in';
+
+  @override
+  String get deskOvOut => 'out';
 }

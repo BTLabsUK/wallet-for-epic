@@ -5605,5 +5605,8 @@
   "deskOnbWelcomeFactLinkText": "epic1-Links und Epicbox stellen Zahlungen zu, versiegelt zwischen gekoppelten Kontakten.",
   "deskOnbWelcomeFactNode": "Eigener Node, wenn gewünscht",
   "deskOnbWelcomeFactNodeText": "Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch.",
-  "deskOnbUnlockLead": "Passwort eingeben, um diese Wallet zu öffnen."
+  "deskOnbUnlockLead": "Passwort eingeben, um diese Wallet zu öffnen.",
+  "deskOvLast30": "Letzte 30 Tage",
+  "deskOvIn": "ein",
+  "deskOvOut": "aus"
 }

@@ -22133,4 +22133,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbUnlockLead => 'Введите пароль, чтобы открыть этот кошелёк.';
+
+  @override
+  String get deskOvLast30 => 'Последние 30 дней';
+
+  @override
+  String get deskOvIn => 'поступило';
+
+  @override
+  String get deskOvOut => 'ушло';
 }

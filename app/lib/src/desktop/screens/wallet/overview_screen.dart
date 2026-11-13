@@ -31,6 +31,7 @@ import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'activity_screen.dart' show ActivityArgs;
 import 'home_contacts.dart';
+import 'home_chart.dart';
 import 'home_field.dart';
 import 'restore_scan_panel.dart';
 import '../scan/desk_scan.dart' show DeskScanButton;
@@ -573,6 +574,11 @@ class _BalancePanel extends ConsumerWidget {
                 : Row(
                     children: [
                       Expanded(child: words),
+                      // The last 30 days between the balance and the buttons, where there is room.
+                      if (!shallow && !hidden && !empty && b != null && txs.isNotEmpty && box.maxWidth >= 1000.u) ...[
+                        SizedBox(width: Sp.x8),
+                        Expanded(child: HomeChart(txs: txs, total: b.total)),
+                      ],
                       SizedBox(width: Sp.x10),
                       SizedBox(width: 288.u, child: grid),
                     ],

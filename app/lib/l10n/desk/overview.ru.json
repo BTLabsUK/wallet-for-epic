@@ -63,5 +63,8 @@
   "deskOvRequest": "Запросить",
   "deskOvInMotion": "В процессе",
   "deskOvSendTo": "Отправить: {name}",
-  "deskOvFieldHint": "Введите имя, сумму, адрес или код платежа"
+  "deskOvFieldHint": "Введите имя, сумму, адрес или код платежа",
+  "deskOvLast30": "Последние 30 дней",
+  "deskOvIn": "поступило",
+  "deskOvOut": "ушло"
 }

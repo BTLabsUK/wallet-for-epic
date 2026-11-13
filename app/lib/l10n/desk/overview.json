@@ -340,5 +340,17 @@
   "deskOvFieldHint": "Type a name, an amount, an address or a payment code",
   "@deskOvFieldHint": {
     "description": "Placeholder and screen-reader label of the field on Home. Enter opens Send with what was typed or pasted. One line, no full stop."
+  },
+  "deskOvLast30": "Last 30 days",
+  "@deskOvLast30": {
+    "description": "Home, the chart beside the balance: the period it covers."
+  },
+  "deskOvIn": "in",
+  "@deskOvIn": {
+    "description": "Home chart: after the amount that came in during the 30 days, as in '+233.73 in'. One short word."
+  },
+  "deskOvOut": "out",
+  "@deskOvOut": {
+    "description": "Home chart: after the amount that went out (with fees) during the 30 days, as in '−40.01 out'. One short word."
   }
 }

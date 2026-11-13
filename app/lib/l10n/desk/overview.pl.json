@@ -63,5 +63,8 @@
   "deskOvRequest": "Poproś",
   "deskOvInMotion": "W toku",
   "deskOvSendTo": "Wyślij do: {name}",
-  "deskOvFieldHint": "Wpisz nazwę, kwotę, adres lub kod płatności"
+  "deskOvFieldHint": "Wpisz nazwę, kwotę, adres lub kod płatności",
+  "deskOvLast30": "Ostatnie 30 dni",
+  "deskOvIn": "wpłynęło",
+  "deskOvOut": "wypłynęło"
 }

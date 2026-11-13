@@ -5605,5 +5605,8 @@
   "deskOnbWelcomeFactLinkText": "ลิงก์ epic1 และ Epicbox ส่งการชำระเงิน ปิดผนึกระหว่างผู้ติดต่อที่จับคู่กัน",
   "deskOnbWelcomeFactNode": "โหนดของคุณเอง หากต้องการ",
   "deskOnbWelcomeFactNodeText": "กระเป๋าเงินรันโหนดบนคอมพิวเตอร์เครื่องนี้ได้ ใช้โหนดสาธารณะก็ได้",
-  "deskOnbUnlockLead": "ใส่รหัสผ่านเพื่อเปิดกระเป๋าเงินนี้"
+  "deskOnbUnlockLead": "ใส่รหัสผ่านเพื่อเปิดกระเป๋าเงินนี้",
+  "deskOvLast30": "30 วันล่าสุด",
+  "deskOvIn": "เข้า",
+  "deskOvOut": "ออก"
 }

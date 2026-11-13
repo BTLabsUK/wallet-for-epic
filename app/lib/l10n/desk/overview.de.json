@@ -63,5 +63,8 @@
   "deskOvRequest": "Anfordern",
   "deskOvInMotion": "In Bewegung",
   "deskOvSendTo": "An {name} senden",
-  "deskOvFieldHint": "Name, Betrag, Adresse oder Zahlungscode eingeben"
+  "deskOvFieldHint": "Name, Betrag, Adresse oder Zahlungscode eingeben",
+  "deskOvLast30": "Letzte 30 Tage",
+  "deskOvIn": "ein",
+  "deskOvOut": "aus"
 }

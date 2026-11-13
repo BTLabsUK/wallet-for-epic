@@ -63,5 +63,8 @@
   "deskOvRequest": "请求付款",
   "deskOvInMotion": "进行中",
   "deskOvSendTo": "发送给 {name}",
-  "deskOvFieldHint": "输入名称、金额、地址或付款码"
+  "deskOvFieldHint": "输入名称、金额、地址或付款码",
+  "deskOvLast30": "最近 30 天",
+  "deskOvIn": "收入",
+  "deskOvOut": "支出"
 }
