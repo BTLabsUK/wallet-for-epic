@@ -33726,6 +33726,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'out'**
   String get deskOvOut;
+
+  /// Send's summary, under the amount: whom it goes to. {name} is the contact's or the pairing's name.
+  ///
+  /// In en, this message translates to:
+  /// **'to {name}'**
+  String deskSendSummaryTo(String name);
 }
 
 class _AppLocalizationsDelegate

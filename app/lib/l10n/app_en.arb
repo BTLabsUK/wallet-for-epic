@@ -29231,5 +29231,15 @@
   "deskOvOut": "out",
   "@deskOvOut": {
     "description": "Home chart: after the amount that went out (with fees) during the 30 days, as in '−40.01 out'. One short word."
+  },
+  "deskSendSummaryTo": "to {name}",
+  "@deskSendSummaryTo": {
+    "description": "Send's summary, under the amount: whom it goes to. {name} is the contact's or the pairing's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna Kowalska"
+      }
+    }
   }
 }

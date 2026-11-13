@@ -145,5 +145,6 @@
   "deskSendMessageTooLongPlain": "Wiadomość jest za długa. Skróć ją.",
   "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
   "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać.",
-  "deskSendHintNeedsMethod": "Sprawdzenie wymaga: {method}"
+  "deskSendHintNeedsMethod": "Sprawdzenie wymaga: {method}",
+  "deskSendSummaryTo": "do {name}"
 }

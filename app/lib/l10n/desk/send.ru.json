@@ -145,5 +145,6 @@
   "deskSendMessageTooLongPlain": "Сообщение слишком длинное. Сократите его.",
   "deskSendRelayUnknownTitle": "Неизвестный сервер Epicbox",
   "deskSendRelayUnknownText": "Приложение не знает сервер {relay}. Проверьте адрес перед отправкой. Отправить всё равно можно.",
-  "deskSendHintNeedsMethod": "Для проверки нужен {method}"
+  "deskSendHintNeedsMethod": "Для проверки нужен {method}",
+  "deskSendSummaryTo": "для {name}"
 }

@@ -22149,4 +22149,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvOut => 'wypłynęło';
+
+  @override
+  String deskSendSummaryTo(String name) {
+    return 'do $name';
+  }
 }

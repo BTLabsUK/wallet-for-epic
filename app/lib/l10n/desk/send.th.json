@@ -145,5 +145,6 @@
   "deskSendMessageTooLongPlain": "ข้อความยาวเกินไป โปรดย่อให้สั้นลง",
   "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
   "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้",
-  "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}"
+  "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}",
+  "deskSendSummaryTo": "ถึง {name}"
 }

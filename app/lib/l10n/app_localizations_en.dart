@@ -21521,4 +21521,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvOut => 'out';
+
+  @override
+  String deskSendSummaryTo(String name) {
+    return 'to $name';
+  }
 }

@@ -773,5 +773,15 @@
         "type": "String"
       }
     }
+  },
+  "deskSendSummaryTo": "to {name}",
+  "@deskSendSummaryTo": {
+    "description": "Send's summary, under the amount: whom it goes to. {name} is the contact's or the pairing's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna Kowalska"
+      }
+    }
   }
 }

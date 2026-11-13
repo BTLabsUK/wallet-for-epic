@@ -22142,4 +22142,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvOut => 'ушло';
+
+  @override
+  String deskSendSummaryTo(String name) {
+    return 'для $name';
+  }
 }

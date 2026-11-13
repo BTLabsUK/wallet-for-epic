@@ -5608,5 +5608,6 @@
   "deskOnbUnlockLead": "Введите пароль, чтобы открыть этот кошелёк.",
   "deskOvLast30": "Последние 30 дней",
   "deskOvIn": "поступило",
-  "deskOvOut": "ушло"
+  "deskOvOut": "ушло",
+  "deskSendSummaryTo": "для {name}"
 }

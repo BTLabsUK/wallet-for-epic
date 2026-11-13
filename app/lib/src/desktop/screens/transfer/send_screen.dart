@@ -2778,6 +2778,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     return _SendSummary(
       via: via,
       viaSub: viaSub,
+      to: _viaPairing ? ref.watch(deskPairingNameProvider(_pairingId!)) : _contactOf(st.contacts)?.name,
       amount: n,
       fee: fee,
       feeLoading: n > 0 && _feeBusy && (fee == null || plan == null),
@@ -2827,6 +2828,7 @@ class _SendSummary extends StatelessWidget {
     this.reviewTip,
     this.via,
     this.viaSub,
+    this.to,
     this.summary,
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
@@ -2839,6 +2841,9 @@ class _SendSummary extends StatelessWidget {
   /// The method this send goes by, and under it where it goes; null hides the row (Shallow).
   final String? via;
   final String? viaSub;
+
+  /// Whom it goes to, when a contact or a pairing names it: under the amount.
+  final String? to;
 
   /// Balance after, the lock rows and the split line: Deeper and Deep end. Shallow keeps
   /// Amount, Network fee and Total.
@@ -2900,7 +2905,20 @@ class _SendSummary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          line(l.deskSendAmount, n > 0 ? n : null, risk: bad),
+          // The amount leads, large, and whom it goes to; before one is typed, the plain row.
+          if (n > 0) ...[
+            FittedBox(
+              alignment: AlignmentDirectional.centerStart,
+              fit: BoxFit.scaleDown,
+              child: EMoney(n, size: Fs.h1, color: bad ? c.risk : c.text),
+            ),
+            if (to != null) ...[
+              SizedBox(height: Sp.x1),
+              Text(l.deskSendSummaryTo(to!), key: const ValueKey('send-summary-to'), style: ts.small.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+            Divider(height: Sp.x5, color: c.line),
+          ] else
+            line(l.deskSendAmount, null, risk: bad),
           line(l.deskSendNetworkFee, fee, loading: pending && fee == null),
           if (via != null)
             Padding(

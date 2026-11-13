@@ -5608,5 +5608,6 @@
   "deskOnbUnlockLead": "Passwort eingeben, um diese Wallet zu öffnen.",
   "deskOvLast30": "Letzte 30 Tage",
   "deskOvIn": "ein",
-  "deskOvOut": "aus"
+  "deskOvOut": "aus",
+  "deskSendSummaryTo": "an {name}"
 }

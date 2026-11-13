@@ -5608,5 +5608,6 @@
   "deskOnbUnlockLead": "Wpisz hasło, aby otworzyć ten portfel.",
   "deskOvLast30": "Ostatnie 30 dni",
   "deskOvIn": "wpłynęło",
-  "deskOvOut": "wypłynęło"
+  "deskOvOut": "wypłynęło",
+  "deskSendSummaryTo": "do {name}"
 }

@@ -5608,5 +5608,6 @@
   "deskOnbUnlockLead": "输入密码以打开此钱包。",
   "deskOvLast30": "最近 30 天",
   "deskOvIn": "收入",
-  "deskOvOut": "支出"
+  "deskOvOut": "支出",
+  "deskSendSummaryTo": "给 {name}"
 }

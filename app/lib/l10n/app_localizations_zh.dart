@@ -20329,4 +20329,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvOut => '支出';
+
+  @override
+  String deskSendSummaryTo(String name) {
+    return '给 $name';
+  }
 }

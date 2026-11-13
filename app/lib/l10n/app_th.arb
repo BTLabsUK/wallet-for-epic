@@ -5608,5 +5608,6 @@
   "deskOnbUnlockLead": "ใส่รหัสผ่านเพื่อเปิดกระเป๋าเงินนี้",
   "deskOvLast30": "30 วันล่าสุด",
   "deskOvIn": "เข้า",
-  "deskOvOut": "ออก"
+  "deskOvOut": "ออก",
+  "deskSendSummaryTo": "ถึง {name}"
 }

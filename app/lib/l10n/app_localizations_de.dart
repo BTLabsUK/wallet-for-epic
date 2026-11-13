@@ -21771,4 +21771,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOvOut => 'aus';
+
+  @override
+  String deskSendSummaryTo(String name) {
+    return 'an $name';
+  }
 }

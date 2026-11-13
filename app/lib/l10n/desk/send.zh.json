@@ -145,5 +145,6 @@
   "deskSendMessageTooLongPlain": "消息太长，请缩短。",
   "deskSendRelayUnknownTitle": "未知的 Epicbox 服务器",
   "deskSendRelayUnknownText": "此应用不认识服务器 {relay}。发送前请检查地址。你仍然可以发送。",
-  "deskSendHintNeedsMethod": "确认需要 {method}"
+  "deskSendHintNeedsMethod": "确认需要 {method}",
+  "deskSendSummaryTo": "给 {name}"
 }
