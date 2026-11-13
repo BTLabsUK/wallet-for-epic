@@ -15,6 +15,8 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/send_route.dart' show RecipientInput;
+import 'package:epic_wallet/src/send_reach.dart';
 import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -176,7 +178,11 @@ class _Harness {
     PaymentPrefs payments = PaymentPrefs.defaults,
     String? node,
     int? peers,
+    Future<ReachResult> Function(RecipientInput to)? reach,
   }) async {
+    // The wallet at a Link address answers, unless a test says otherwise; no network is asked.
+    reachCheckForTest = reach ?? (_) async => ReachResult.answers;
+    addTearDown(() => reachCheckForTest = null);
     tester.view.physicalSize = Size(1080, height);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -709,6 +715,46 @@ void main() {
   });
 
   group('HTTP send', () {
+    testWidgets('Continue right after To: the review waits for the wallet to answer', (tester) async {
+      final h = _Harness();
+      final answer = Completer<ReachResult>();
+      await h.pump(tester, payments: _directOn, reach: (_) => answer.future);
+      await _enter(tester, 'To', _https);
+      await _tap(tester, _continue);
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, _continue);
+      // Asked, not answered: no review to send from.
+      expect(find.text(_l.sendStepReview), findsNothing);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
+      answer.complete(ReachResult.answers);
+      await _settle(tester);
+      expect(find.text(_l.sendStepReview), findsOneWidget);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsOneWidget);
+    });
+
+    testWidgets('Continue right after To: no wallet answers, back to To with the notice, nothing sent', (tester) async {
+      final h = _Harness();
+      final answer = Completer<ReachResult>();
+      await h.pump(tester, payments: _directOn, reach: (_) => answer.future);
+      await _enter(tester, 'To', _https);
+      await _tap(tester, _continue);
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, _continue);
+      answer.complete(ReachResult.noAnswer);
+      await _settle(tester);
+      expect(find.text(_l.sendStepReview), findsNothing);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
+      expect(find.text(_l.sendReachOpenFirst), findsOneWidget);
+      expect(h.session.httpSends, isEmpty);
+    });
+
+    testWidgets('a wallet that answered before: the review opens at once', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: _directOn);
+      await h.toReview(tester, _https);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsOneWidget);
+    });
+
     testWidgets('delivered: the tracker waits for a block, with no Cancel', (
       tester,
     ) async {

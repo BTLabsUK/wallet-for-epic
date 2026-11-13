@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Send's quiet reach check: once a Link address is complete, its wallet is asked once, in the
 /// background, which slate versions it takes (`check_version` at `/v2/foreign`, as LEPIC's own
-/// send asks first). Only a failure is shown, and Continue stays on: their wallet may be opened
-/// before Send. Nothing is asked in Node only or Kill switch, for an onion while the app's own
+/// send asks first). Only a failure is shown, and Continue stays on; Review opens only once the
+/// wallet has answered (waited for, a failure sends back to To). Nothing is asked in Node only or Kill switch, for an onion while the app's own
 /// requests do not go over Tor, or on the web (the browser's CORS check would fail every one).
 library;
 
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 
 import 'advanced.dart' show NetworkMode;
 import 'net/http.dart';
@@ -43,9 +43,15 @@ bool reachCheckApplies(RecipientInput to, {required NetworkMode mode}) {
   return true;
 }
 
+/// Tests answer the check here instead of asking a network; null asks it.
+@visibleForTesting
+Future<ReachResult> Function(RecipientInput to)? reachCheckForTest;
+
 /// Asks the wallet at [to] once. Never throws.
 Future<ReachResult> checkWalletAnswers(RecipientInput to, {required NetworkMode mode}) async {
   if (!reachCheckApplies(to, mode: mode)) return ReachResult.unknown;
+  final test = reachCheckForTest;
+  if (test != null) return test(to);
   final Uri url;
   if (to.kind == RecipientInputKind.onion) {
     url = Uri.parse('http://${to.host}/v2/foreign');

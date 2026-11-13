@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/send_reach.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,6 +70,9 @@ class _Wallet extends MockDeskWallet {
 }
 
 void main() {
+  // Review waits for the wallet at a Link address to answer; here one always does.
+  setUp(() => reachCheckForTest = (_) async => ReachResult.answers);
+  tearDown(() => reachCheckForTest = null);
   late _Wallet wallet;
   late ProviderContainer container;
 

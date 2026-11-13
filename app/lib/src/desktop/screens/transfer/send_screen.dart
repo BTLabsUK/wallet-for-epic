@@ -326,6 +326,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   // The reach check, per clean address: asked once, again only on Try again.
   final Map<String, ReachResult> _reach = {};
   final Set<String> _reachAsked = {};
+
+  /// The check running per address, for Review to wait on.
+  final Map<String, Future<void>> _reachRuns = {};
   // "Checking…" shows only for a slow answer.
   bool _reachSlow = false;
   Timer? _reachTimer;
@@ -846,7 +849,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     _reachTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted && !_reach.containsKey(key)) setState(() => _reachSlow = true);
     });
-    unawaited(checkWalletAnswers(r, mode: mode).then((res) async {
+    _reachRuns[key] = checkWalletAnswers(r, mode: mode).then((res) async {
       // No wallet answers as typed: the listener's port, or plain http://, is asked once ([reachFallback]).
       final plain = reachFallbackApplies(res, r) ? await reachFallback(r, mode: mode, listenPort: appConfig.httpListenPort) : null;
       if (!mounted) return;
@@ -862,7 +865,26 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           }
         }
       });
-    }));
+    }).whenComplete(() {
+      _reachRuns.remove(key);
+    });
+  }
+
+  /// Whether Review may open: the Link address in To is asked (once, as the field does) and
+  /// waited for, and a wallet answers there; else the notice under To says it. Nothing to wait
+  /// for when the check does not apply.
+  Future<bool> _reachSettled() async {
+    for (var i = 0; i < 3; i++) {
+      final r = _read;
+      _askReach(ref.read(deskProvider));
+      await _reachRuns[r.address];
+      if (!mounted) return false;
+      // To changed while it was asked (typed again, or the address that answered): ask that one.
+      if (_read.address != r.address) continue;
+      final res = _reach[r.address];
+      return res == null || res == ReachResult.answers;
+    }
+    return false;
   }
 
   /// Try again: the address in To is asked once more.
@@ -1550,12 +1572,15 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       _amountEdited = false;
       _reviewing = true;
     });
+    var answers = false;
     try {
       await _loadFee();
+      // The wallet at the address must have answered: Review can be reached before the check ends.
+      answers = await _reachSettled();
     } finally {
       if (mounted) setState(() => _reviewing = false);
     }
-    if (!mounted) return;
+    if (!mounted || !answers) return;
     if (_toError(st) != null || _amountError(st.balance?.spendable) != null || _messageTooLong) return;
     await _openReview();
   }
