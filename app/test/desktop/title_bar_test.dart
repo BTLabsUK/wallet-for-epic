@@ -136,6 +136,21 @@ void main() {
     }
   });
 
+  testWidgets('Welcome has the language in the bar; a pick there is saved', (tester) async {
+    final container = await pump(tester, start: DeskRoute.welcome);
+    expect(bar('language'), findsOneWidget);
+    await tester.tap(bar('language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('bar-language-pl')));
+    await tester.pumpAndSettle();
+    expect(container.read(deskProvider).settings.language, 'pl');
+  });
+
+  testWidgets('Unlock has no language in the bar', (tester) async {
+    await pump(tester, start: DeskRoute.unlock);
+    expect(bar('language'), findsNothing);
+  });
+
   testWidgets('the controls drive the window; maximise turns into restore', (tester) async {
     await pump(tester);
     await tester.tap(bar('min'));

@@ -37,7 +37,7 @@ import '../data/net_mode_view.dart' show deskNetTor;
 import '../data/node_view.dart' show digits;
 import '../data/tor_view.dart' show TorState;
 import '../desk_l10n.dart';
-import '../screens/onboarding/onboarding_parts.dart' show networkName;
+import '../screens/onboarding/onboarding_parts.dart' show deskLanguageItems, deskSystemLanguage, networkName;
 import '../screens/onboarding/unlock_screen.dart' show UnlockPick;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../screens/settings/prefs.dart';
@@ -273,8 +273,11 @@ class DeskTitleBar extends ConsumerWidget {
                 )
               else
                 SizedBox(width: Sp.x3),
-            ] else
+            ] else ...[
               const Spacer(),
+              // The first screen asks nothing before the language: it is changed right here.
+              if (route == DeskRoute.welcome) ...[_Held(child: _LanguageButton(dim: dim)), SizedBox(width: Sp.x2)],
+            ],
             ?controls,
           ],
         );
@@ -573,6 +576,65 @@ class _BarMenuState extends State<_BarMenu> {
 }
 
 void _toggle(MenuController m) => m.isOpen ? m.close() : m.open();
+
+/// The language of the app, on Welcome's bar: its name and a chevron; the list holds the
+/// computer's language and each translation, the chosen one ticked.
+class _LanguageButton extends ConsumerWidget {
+  const _LanguageButton({required this.dim});
+
+  final bool dim;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final settings = ref.watch(deskProvider.select((s) => s.settings));
+    final value = settings.language ?? deskSystemLanguage;
+    final items = deskLanguageItems(l);
+    final current = items.where((i) => i.value == value).firstOrNull ?? items.first;
+    return _BarMenu(
+      minWidth: 220.u,
+      children: (context, m) => [
+        for (final i in items)
+          _menuItem(
+            context,
+            key: ValueKey('bar-language-${i.value.isEmpty ? 'system' : i.value}'),
+            leading: i.leading,
+            label: i.title,
+            trailing: i.value == value ? Icon(EIcons.check, size: Ctl.iconSm, color: c.text) : null,
+            onPressed: () {
+              m.close();
+              final n = ref.read(deskProvider.notifier);
+              unawaited(n.saveSettings(ref.read(deskProvider).settings.copyWith(language: () => i.value == deskSystemLanguage ? null : i.value)));
+            },
+          ),
+      ],
+      builder: (context, m, open) => _BarButton(
+        key: const ValueKey('bar-language'),
+        label: l.deskSetAppearLanguage,
+        tooltip: l.deskSetAppearLanguage,
+        open: open,
+        height: 36,
+        padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+        onPressed: () => _toggle(m),
+        child: AnimatedOpacity(
+          opacity: dim ? 0.7 : 1,
+          duration: Dur.base,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: Sp.x2,
+            children: [
+              Icon(EIcons.translate, size: Ctl.iconSm, color: c.dim),
+              Text(current.title, style: ts.strong.copyWith(fontSize: ts.small.fontSize)),
+              Icon(EIcons.chevronDown, size: Ctl.iconSm, color: c.dim),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 /// The title bar's logo (canvas/handoff/LOGO.md, the user's pick of 2026-11-13): the mask in
 /// one flat brand colour, 20 high, and "BT Wallet" as text on one line; in a narrow window the
