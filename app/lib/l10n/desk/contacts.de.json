@@ -56,5 +56,8 @@
   "deskConLabelVendor": "Händler",
   "deskConLabelService": "Dienst",
   "deskConLabelDefault": "Standard",
-  "deskConLabelCurrent": "Label: {name}"
+  "deskConLabelCurrent": "Label: {name}",
+  "deskPairNameTitle": "Der Name, der beim Koppeln angezeigt wird",
+  "deskPairNameDesc": "Die gekoppelte Wallet zeigt diesen Namen neben versiegelten Zahlungen und Rechnungen. Leer lassen, um ohne Namen zu koppeln.",
+  "deskPairNameField": "Angezeigter Name"
 }

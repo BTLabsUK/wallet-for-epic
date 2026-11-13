@@ -146,5 +146,10 @@
   "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
   "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać.",
   "deskSendHintNeedsMethod": "Sprawdzenie wymaga: {method}",
-  "deskSendSummaryTo": "do {name}"
+  "deskSendSummaryTo": "do {name}",
+  "deskSendPickSendTitle": "Wyślij do kontaktu",
+  "deskSendPickSendDesc": "Sparowane kontakty dostają zapieczętowaną płatność. Pozostałe – na zapisany adres.",
+  "deskSendPickSendTo": "Wyślij do: {name}",
+  "deskSendPickChooseName": "Wybierz: {name}",
+  "deskSendPickChoose": "Wybierz"
 }

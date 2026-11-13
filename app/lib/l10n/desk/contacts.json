@@ -272,5 +272,17 @@
         "example": "Exchange"
       }
     }
+  },
+  "deskPairNameTitle": "The name shown when paired",
+  "@deskPairNameTitle": {
+    "description": "Pairing: the dialog that sets the name the paired wallet shows for this wallet."
+  },
+  "deskPairNameDesc": "The paired wallet shows this name beside sealed payments and invoices. Leave it empty to pair without a name.",
+  "@deskPairNameDesc": {
+    "description": "Pairing name dialog: the sentence under the title."
+  },
+  "deskPairNameField": "Name shown",
+  "@deskPairNameField": {
+    "description": "Pairing name dialog: the field's label."
   }
 }

@@ -206,5 +206,23 @@
   "deskSetHttpBackLocal": "Back to local only",
   "@deskSetHttpBackLocal": {
     "description": "Internet guide dialog: button that goes back to local only."
+  },
+  "deskSetRecvEpboxOffSent": "Sent {time} · waiting for the reply",
+  "@deskSetRecvEpboxOffSent": {
+    "description": "Turn Epicbox off? dialog: the line under a waiting payment's name. time is a clock time like 11:30.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "11:30"
+      }
+    }
+  },
+  "deskSetRecvEpboxOffNote": "Payments sent to the Epicbox address wait at the server until it is on.",
+  "@deskSetRecvEpboxOffNote": {
+    "description": "Turn Epicbox off? dialog: the info line under the waiting payments."
+  },
+  "deskSetRecvEpboxKeepOn": "Keep it on",
+  "@deskSetRecvEpboxKeepOn": {
+    "description": "Turn Epicbox off? dialog: the button that leaves Epicbox on."
   }
 }

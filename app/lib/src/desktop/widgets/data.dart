@@ -257,10 +257,13 @@ class EQr extends StatelessWidget {
 
 /// A file drop zone with a pick button: dashed edge, icon, title, one line.
 class EDropZone extends StatefulWidget {
-  const EDropZone({super.key, required this.title, this.text, this.buttonLabel, required this.onPick});
+  const EDropZone({super.key, required this.title, this.text, this.buttonLabel, required this.onPick, this.button = true});
 
   final String title;
   final String? text;
+
+  /// False where the pick button sits in the footer (a modal card): the zone itself picks.
+  final bool button;
   /// The pick button's label; "Choose file" when null.
   final String? buttonLabel;
   /// Null: the pick button is disabled.
@@ -277,14 +280,15 @@ class _EDropZoneState extends State<EDropZone> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    return MouseRegion(
+    final zone = MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
+      cursor: widget.button || widget.onPick == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: CustomPaint(
         painter: _DashedBorder(color: _hover ? c.accent : c.lineField),
         child: AnimatedContainer(
           duration: Dur.fast,
-          constraints: BoxConstraints(minHeight: 160.u),
+          constraints: BoxConstraints(minHeight: widget.button ? 160.u : 120.u),
           padding: EdgeInsets.all(Sp.x6),
           decoration: BoxDecoration(
             color: _hover ? c.accentFaint : Colors.transparent,
@@ -300,13 +304,18 @@ class _EDropZoneState extends State<EDropZone> {
                 const SizedBox(height: 2),
                 Text(widget.text!, style: ts.small, textAlign: TextAlign.center),
               ],
-              SizedBox(height: Sp.x3),
-              EButton(label: widget.buttonLabel ?? context.l10n.deskKitChooseFile, icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: widget.onPick),
+              if (widget.button) ...[
+                SizedBox(height: Sp.x3),
+                EButton(label: widget.buttonLabel ?? context.l10n.deskKitChooseFile, icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: widget.onPick),
+              ],
             ],
           ),
         ),
       ),
     );
+    if (widget.button) return zone;
+    // The footer's button is the keyboard's way in; the zone is a second, pointer-only one.
+    return ExcludeSemantics(child: GestureDetector(onTap: widget.onPick, child: zone));
   }
 }
 

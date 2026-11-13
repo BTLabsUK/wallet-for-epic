@@ -109,7 +109,7 @@
   "deskSetLndBadFolder": "Ten folder się nie nadaje",
   "deskSetLndChooseAnother": "Wybierz inny",
   "deskSetLndMoveTitle": "Przenieść {size} do {folder}?",
-  "deskSetLndMoveDesc": "Węzeł zatrzyma się na czas przenoszenia danych, a potem uruchomi z nowego folderu. Zacznij tam od nowa zamiast tego pobierze do niego łańcuch od nowa.",
+  "deskSetLndMoveDesc": "Węzeł zatrzyma się na czas przenoszenia danych, a potem uruchomi z nowego folderu.",
   "deskSetLndStartFresh": "Zacznij tam od nowa",
   "deskSetLndMove": "Przenieś",
   "deskSetLndProbNotEmpty": "Folder nie jest pusty.",
@@ -162,5 +162,9 @@
   "deskSetLnodePortsRestart": "Węzeł uruchomi się ponownie z nowymi portami.",
   "deskSetLnodePortsSaved": "Porty zapisane",
   "deskSetLnodePortsRestarting": "Węzeł uruchamia się ponownie.",
-  "deskSetLnodePortsNotSaved": "Porty nie zostały zapisane"
+  "deskSetLnodePortsNotSaved": "Porty nie zostały zapisane",
+  "deskSetLndMoveFrom": "Skąd",
+  "deskSetLndMoveTo": "Dokąd",
+  "deskSetLndMoveFree": "Wolne tam",
+  "deskSetLndMoveFreshNote": "Zacznij tam od nowa zamiast tego pobierze łańcuch od nowa do nowego folderu."
 }

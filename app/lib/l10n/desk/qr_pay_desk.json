@@ -39,10 +39,6 @@
   "@deskQrPastedName": {
     "description": "Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name."
   },
-  "deskQrScanFinalize": "Or scan their reply as a QR code.",
-  "@deskQrScanFinalize": {
-    "description": "Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file."
-  },
   "deskSetTxQrHint": "Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.",
   "@deskSetTxQrHint": {
     "description": "Hint of the QR Payment method in desktop Settings › Payment methods."

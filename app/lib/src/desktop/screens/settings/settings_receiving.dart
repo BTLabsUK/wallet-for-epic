@@ -25,6 +25,7 @@ import '../../data/server_lists.dart';
 import '../transfer/epicbox_notice.dart';
 import '../../data/desk_levels.dart' show deskLevelProvider;
 import '../wallet/outputs_dialogs.dart' show EStepper;
+import '../wallet/tx_display.dart' show timeOf, whoOf;
 import 'prefs.dart';
 import 'search/settings_sections.dart' show setJoinReasons;
 import 'setting_ids.dart';
@@ -229,18 +230,65 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     await _saveAutostart(s.copyWith(payments: change(s.payments)));
   }
 
-  /// Epicbox off while sends still wait for their replies over Epicbox: "Turn Epicbox off?".
-  Future<bool> _confirmEpicboxOff(int waiting) async {
+  /// Epicbox off while sends still wait for their replies over Epicbox: "Turn Epicbox off?",
+  /// the waiting payments shown (Dlg-Epicbox-off), Keep it on the safe choice.
+  Future<bool> _confirmEpicboxOff(List<Tx> waiting) async {
     final yes = await showEDialog<bool>(
       context,
       builder: (context) {
         final l = context.l10n;
+        final c = context.dc;
+        final ts = context.ts;
         return EDialog(
           title: l.txEpicboxOffTitle,
-          description: l.txEpicboxOffPending(waiting),
+          description: l.txEpicboxOffPending(waiting.length),
           icon: EIcons.epicbox,
+          tone: ETone.warn,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+                child: Column(
+                  children: [
+                    for (final (i, t) in waiting.take(3).indexed)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                        decoration: i == 0 ? null : BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+                        child: Row(
+                          children: [
+                            EAvatar(whoOf(l, t)),
+                            SizedBox(width: Sp.x3),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(whoOf(l, t), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  Text(l.deskSetRecvEpboxOffSent(timeOf(t)), style: ts.small.copyWith(color: c.dim)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: Sp.x3),
+                            EMoney(t.amount, weight: FontWeight.w600),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(height: Sp.x3),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.info, size: 16.u, color: c.dim)),
+                  SizedBox(width: Sp.x2),
+                  Expanded(child: Text(l.deskSetRecvEpboxOffNote, style: ts.bodyDim)),
+                ],
+              ),
+            ],
+          ),
           actions: [
-            EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
+            EButton(label: l.deskSetRecvEpboxKeepOn, onPressed: () => Navigator.of(context).pop(false)),
             EButton.primary(label: l.txEpicboxOffAction, onPressed: () => Navigator.of(context).pop(true)),
           ],
         );
@@ -251,10 +299,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   Future<void> _setEpicbox(bool on) async {
     if (!on) {
-      final waiting = (ref.read(deskProvider).txs ?? const <Tx>[])
-          .where((t) => t.method == TxMethod.epicbox && t.state == TxState.waitingRecipient && !t.incoming)
-          .length;
-      if (waiting > 0 && !await _confirmEpicboxOff(waiting)) return;
+      final waiting = [
+        for (final t in ref.read(deskProvider).txs ?? const <Tx>[])
+          if (t.method == TxMethod.epicbox && t.state == TxState.waitingRecipient && !t.incoming) t,
+      ];
+      if (waiting.isNotEmpty && !await _confirmEpicboxOff(waiting)) return;
     }
     await _savePayments((x) => x.copyWith(epicbox: on));
   }

@@ -18,8 +18,6 @@
   "deskFinPickTitle": "Plik odpowiedzi",
   "deskFinPosted": "Płatność opublikowana w sieci",
   "deskFinTitle": "Sfinalizuj plik odpowiedzi",
-  "deskFinNoticeTitle": "Dla płatności plikiem",
-  "deskFinNoticeText": "Użyj pliku odpowiedzi odesłanego przez odbiorcę.",
   "deskFinTryAgain": "Spróbuj ponownie",
   "deskFinPostedText": "Płatność została sfinalizowana i wysłana do sieci. Śledź ją w Aktywności.",
   "deskFinAnother": "Sfinalizuj kolejny plik",
@@ -52,5 +50,10 @@
   "deskImpOpenAnother": "Otwórz kolejny plik",
   "deskEpicboxBlockedWord": "Zablokowany",
   "deskEpicboxBlockedShort": "Ta sieć blokuje {host}. Wybierz inny serwer lub prywatny DNS.",
-  "deskEpicboxBlockedSwitch": "Przełącz na {host}"
+  "deskEpicboxBlockedSwitch": "Przełącz na {host}",
+  "deskFinCardTitle": "Dokończ płatność",
+  "deskFinCardLead": "Otwórz plik odpowiedzi odesłany przez odbiorcę. Portfel dokończy płatność i wyśle ją do sieci.",
+  "deskFinScanLink": "Zeskanuj odpowiedź jako kod",
+  "deskFinPasteLink": "Wklej jako tekst",
+  "deskFinPasteEmpty": "Nie ma czego wkleić: najpierw skopiuj odpowiedź"
 }

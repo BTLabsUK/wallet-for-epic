@@ -146,5 +146,10 @@
   "deskSendRelayUnknownTitle": "未知的 Epicbox 服务器",
   "deskSendRelayUnknownText": "此应用不认识服务器 {relay}。发送前请检查地址。你仍然可以发送。",
   "deskSendHintNeedsMethod": "确认需要 {method}",
-  "deskSendSummaryTo": "给 {name}"
+  "deskSendSummaryTo": "给 {name}",
+  "deskSendPickSendTitle": "发送给联系人",
+  "deskSendPickSendDesc": "已配对的联系人收到密封付款，其他联系人通过已保存的地址收款。",
+  "deskSendPickSendTo": "发送给 {name}",
+  "deskSendPickChooseName": "选择 {name}",
+  "deskSendPickChoose": "选择"
 }

@@ -218,7 +218,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   }
 
   Future<void> _pick() async {
-    final c = await showContactPicker(context);
+    final c = await showContactPicker(context, send: true);
     if (c == null || !mounted) return;
     // No pairing that takes epic1: the contact's epic1 link is paid, as if pasted.
     if (contactEpic1Link(ref, c, watch: false) case final link?) {

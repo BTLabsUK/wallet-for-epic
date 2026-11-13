@@ -6562,13 +6562,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskFinTitle => 'Finalize a response file';
 
   @override
-  String get deskFinNoticeTitle => 'For file payments';
-
-  @override
-  String get deskFinNoticeText =>
-      'Use the response file the recipient sent back.';
-
-  @override
   String get deskFinTryAgain => 'Try again';
 
   @override
@@ -10338,7 +10331,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetLndMoveDesc =>
-      'The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.';
+      'The node stops while the data moves, then starts again from the new folder.';
 
   @override
   String get deskSetLndStartFresh => 'Start fresh there';
@@ -10527,9 +10520,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetLogsClearDesc =>
       'Deletes the log files. A report sent later has only what is logged from now on.';
-
-  @override
-  String get deskSetLogsKeep => 'Keep logs';
 
   @override
   String get deskSetLogsClear => 'Clear logs';
@@ -20089,9 +20079,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskQrPastedName => 'Pasted text';
 
   @override
-  String get deskQrScanFinalize => 'Or scan their reply as a QR code.';
-
-  @override
   String get deskSetTxQrHint =>
       'Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.';
 
@@ -21520,4 +21507,90 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendSummaryTo(String name) {
     return 'to $name';
   }
+
+  @override
+  String get deskPairNameTitle => 'The name shown when paired';
+
+  @override
+  String get deskPairNameDesc =>
+      'The paired wallet shows this name beside sealed payments and invoices. Leave it empty to pair without a name.';
+
+  @override
+  String get deskPairNameField => 'Name shown';
+
+  @override
+  String get deskSendPickSendTitle => 'Send to a contact';
+
+  @override
+  String get deskSendPickSendDesc =>
+      'Paired contacts get a sealed payment. The others get their saved address.';
+
+  @override
+  String deskSendPickSendTo(String name) {
+    return 'Send to $name';
+  }
+
+  @override
+  String deskSendPickChooseName(String name) {
+    return 'Choose $name';
+  }
+
+  @override
+  String get deskSendPickChoose => 'Choose';
+
+  @override
+  String get deskLicTitle => 'Licence texts';
+
+  @override
+  String get deskLicDesc =>
+      'BT Wallet and the parts it is built from, each with its licence. Open one to read it in full.';
+
+  @override
+  String deskLicSearch(int count) {
+    return 'Search $count packages';
+  }
+
+  @override
+  String get deskLicNone => 'No package has that in its name.';
+
+  @override
+  String get deskSetLndMoveFrom => 'From';
+
+  @override
+  String get deskSetLndMoveTo => 'To';
+
+  @override
+  String get deskSetLndMoveFree => 'Free there';
+
+  @override
+  String get deskSetLndMoveFreshNote =>
+      'Start fresh there downloads the chain again into the new folder instead.';
+
+  @override
+  String deskSetRecvEpboxOffSent(String time) {
+    return 'Sent $time · waiting for the reply';
+  }
+
+  @override
+  String get deskSetRecvEpboxOffNote =>
+      'Payments sent to the Epicbox address wait at the server until it is on.';
+
+  @override
+  String get deskSetRecvEpboxKeepOn => 'Keep it on';
+
+  @override
+  String get deskFinCardTitle => 'Finish the payment';
+
+  @override
+  String get deskFinCardLead =>
+      'Open the response file the recipient sent back. The wallet completes the payment and posts it to the network.';
+
+  @override
+  String get deskFinScanLink => 'Scan the reply as a code';
+
+  @override
+  String get deskFinPasteLink => 'Paste it as text';
+
+  @override
+  String get deskFinPasteEmpty => 'Nothing to paste: copy the reply first';
 }

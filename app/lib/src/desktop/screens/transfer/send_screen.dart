@@ -1425,7 +1425,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   }
 
   Future<void> _pick() async {
-    final c = await showContactPicker(context);
+    final c = await showContactPicker(context, send: true);
     if (c == null || !mounted) return;
     _use(c);
   }

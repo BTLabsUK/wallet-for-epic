@@ -9,7 +9,6 @@
   "deskQrNotTx": "Das ist kein Zahlungs-QR-Code.",
   "deskQrScannedName": "Gescannter QR-Code",
   "deskQrPastedName": "Eingefügter Text",
-  "deskQrScanFinalize": "Oder scannen Sie ihre Antwort als QR-Code.",
   "deskSetTxQrHint": "Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.",
   "deskQrScanImport": "Oder scannen Sie die Zahlung oder Rechnung als QR-Code."
 }

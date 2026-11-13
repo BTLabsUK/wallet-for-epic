@@ -2,7 +2,6 @@
   "deskSetLogsMemoryOnly": "บันทึกเก็บไว้ในหน่วยความจำเท่านั้น",
   "deskSetLogsClearTitle": "ล้างบันทึกไหม?",
   "deskSetLogsClearDesc": "ลบไฟล์บันทึก รายงานที่ส่งภายหลังจะมีเฉพาะสิ่งที่บันทึกตั้งแต่นี้",
-  "deskSetLogsKeep": "เก็บบันทึกไว้",
   "deskSetLogsClear": "ล้างบันทึก",
   "deskSetLogsCleared": "ล้างบันทึกแล้ว",
   "deskSetLogsToday": "วันนี้ {time}",

@@ -56,5 +56,8 @@
   "deskConLabelVendor": "Продавец",
   "deskConLabelService": "Сервис",
   "deskConLabelDefault": "По умолчанию",
-  "deskConLabelCurrent": "Метка: {name}"
+  "deskConLabelCurrent": "Метка: {name}",
+  "deskPairNameTitle": "Имя, показываемое при связке",
+  "deskPairNameDesc": "Связанный кошелёк показывает это имя рядом с запечатанными платежами и счетами. Оставьте пустым, чтобы связать без имени.",
+  "deskPairNameField": "Показываемое имя"
 }

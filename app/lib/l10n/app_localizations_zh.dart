@@ -6189,12 +6189,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskFinTitle => '完成回复文件';
 
   @override
-  String get deskFinNoticeTitle => '用于文件付款';
-
-  @override
-  String get deskFinNoticeText => '使用接收方发回的回复文件。';
-
-  @override
   String get deskFinTryAgain => '重试';
 
   @override
@@ -9743,8 +9737,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetLndMoveDesc =>
-      '移动数据期间节点会停止，之后从新文件夹重新启动。“在那里重新开始”则会改为把区块链重新下载到新文件夹中。';
+  String get deskSetLndMoveDesc => '移动数据期间节点会停止，之后从新文件夹重新启动。';
 
   @override
   String get deskSetLndStartFresh => '在那里重新开始';
@@ -9928,9 +9921,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetLogsClearDesc => '删除日志文件。之后发送的报告只包含从现在开始记录的内容。';
-
-  @override
-  String get deskSetLogsKeep => '保留日志';
 
   @override
   String get deskSetLogsClear => '清除日志';
@@ -18997,9 +18987,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskQrPastedName => '粘贴的文本';
 
   @override
-  String get deskQrScanFinalize => '或将对方的回复作为二维码扫描。';
-
-  @override
   String get deskSetTxQrHint =>
       '通过显示和扫描动态二维码形式的交易来付款和收款，无需网络。在这台电脑上它随“文件传输”一起提供：“显示二维码”和“扫描二维码”位于文件按钮旁边。';
 
@@ -20328,4 +20315,85 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendSummaryTo(String name) {
     return '给 $name';
   }
+
+  @override
+  String get deskPairNameTitle => '配对时显示的名称';
+
+  @override
+  String get deskPairNameDesc => '已配对的钱包会在密封付款和发票旁显示此名称。留空则不带名称配对。';
+
+  @override
+  String get deskPairNameField => '显示的名称';
+
+  @override
+  String get deskSendPickSendTitle => '发送给联系人';
+
+  @override
+  String get deskSendPickSendDesc => '已配对的联系人收到密封付款，其他联系人通过已保存的地址收款。';
+
+  @override
+  String deskSendPickSendTo(String name) {
+    return '发送给 $name';
+  }
+
+  @override
+  String deskSendPickChooseName(String name) {
+    return '选择 $name';
+  }
+
+  @override
+  String get deskSendPickChoose => '选择';
+
+  @override
+  String get deskLicTitle => '许可证文本';
+
+  @override
+  String get deskLicDesc => 'BT Wallet 及其构成部分，各附其许可证。打开一项即可阅读全文。';
+
+  @override
+  String deskLicSearch(int count) {
+    return '搜索 $count 个软件包';
+  }
+
+  @override
+  String get deskLicNone => '没有名称包含此内容的软件包。';
+
+  @override
+  String get deskSetLndMoveFrom => '从';
+
+  @override
+  String get deskSetLndMoveTo => '到';
+
+  @override
+  String get deskSetLndMoveFree => '那里的可用空间';
+
+  @override
+  String get deskSetLndMoveFreshNote => '“在那里重新开始”则会改为把区块链重新下载到新文件夹中。';
+
+  @override
+  String deskSetRecvEpboxOffSent(String time) {
+    return '$time 已发送 · 等待回复';
+  }
+
+  @override
+  String get deskSetRecvEpboxOffNote =>
+      '发往 Epicbox 地址的付款会在服务器上等待，直到 Epicbox 再次开启。';
+
+  @override
+  String get deskSetRecvEpboxKeepOn => '保持开启';
+
+  @override
+  String get deskFinCardTitle => '完成付款';
+
+  @override
+  String get deskFinCardLead => '打开收款方发回的回复文件。钱包会完成付款并将其发布到网络。';
+
+  @override
+  String get deskFinScanLink => '扫描回复二维码';
+
+  @override
+  String get deskFinPasteLink => '以文本粘贴';
+
+  @override
+  String get deskFinPasteEmpty => '没有可粘贴的内容：请先复制回复';
 }

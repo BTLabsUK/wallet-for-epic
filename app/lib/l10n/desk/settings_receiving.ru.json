@@ -37,5 +37,8 @@
   "deskSetHttpNoRouterText": "Tor работает откуда угодно, ничего перенаправлять не нужно.",
   "deskSetHttpTurnOnTor": "Включить Tor",
   "deskSetHttpExposed": "Открыт только API приёма. Обычный HTTP не шифруется.",
-  "deskSetHttpBackLocal": "Вернуть «Только локально»"
+  "deskSetHttpBackLocal": "Вернуть «Только локально»",
+  "deskSetRecvEpboxOffSent": "Отправлено {time} · ждёт ответа",
+  "deskSetRecvEpboxOffNote": "Платежи на адрес Epicbox ждут на сервере, пока Epicbox снова не включён.",
+  "deskSetRecvEpboxKeepOn": "Оставить включённым"
 }

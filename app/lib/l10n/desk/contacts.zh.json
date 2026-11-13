@@ -56,5 +56,8 @@
   "deskConLabelVendor": "商家",
   "deskConLabelService": "服务",
   "deskConLabelDefault": "默认",
-  "deskConLabelCurrent": "标签：{name}"
+  "deskConLabelCurrent": "标签：{name}",
+  "deskPairNameTitle": "配对时显示的名称",
+  "deskPairNameDesc": "已配对的钱包会在密封付款和发票旁显示此名称。留空则不带名称配对。",
+  "deskPairNameField": "显示的名称"
 }

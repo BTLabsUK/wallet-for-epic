@@ -18,8 +18,6 @@
   "deskFinPickTitle": "ไฟล์ตอบกลับ",
   "deskFinPosted": "ส่งรายการเข้าเครือข่ายแล้ว",
   "deskFinTitle": "ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ",
-  "deskFinNoticeTitle": "สำหรับการชำระด้วยไฟล์",
-  "deskFinNoticeText": "ใช้ไฟล์ตอบกลับที่ผู้รับส่งคืนมา",
   "deskFinTryAgain": "ลองอีกครั้ง",
   "deskFinPostedText": "ทำรายการเสร็จและส่งเข้าเครือข่ายแล้ว ติดตามได้ในประวัติ",
   "deskFinAnother": "ทำไฟล์อื่นให้เสร็จ",
@@ -52,5 +50,10 @@
   "deskImpOpenAnother": "เปิดไฟล์อื่น",
   "deskEpicboxBlockedWord": "ถูกบล็อก",
   "deskEpicboxBlockedShort": "เครือข่ายนี้บล็อก {host} ลองเซิร์ฟเวอร์อื่นหรือ DNS ส่วนตัว",
-  "deskEpicboxBlockedSwitch": "สลับไปที่ {host}"
+  "deskEpicboxBlockedSwitch": "สลับไปที่ {host}",
+  "deskFinCardTitle": "ทำการชำระเงินให้เสร็จ",
+  "deskFinCardLead": "เปิดไฟล์ตอบกลับที่ผู้รับส่งกลับมา กระเป๋าจะทำการชำระเงินให้เสร็จและส่งเข้าสู่เครือข่าย",
+  "deskFinScanLink": "สแกนการตอบกลับเป็นโค้ด",
+  "deskFinPasteLink": "วางเป็นข้อความ",
+  "deskFinPasteEmpty": "ไม่มีอะไรให้วาง: คัดลอกการตอบกลับก่อน"
 }

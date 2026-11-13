@@ -146,5 +146,10 @@
   "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
   "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.",
   "deskSendHintNeedsMethod": "Prüfen braucht {method}",
-  "deskSendSummaryTo": "an {name}"
+  "deskSendSummaryTo": "an {name}",
+  "deskSendPickSendTitle": "An einen Kontakt senden",
+  "deskSendPickSendDesc": "Gekoppelte Kontakte erhalten eine versiegelte Zahlung. Die anderen erhalten sie an die gespeicherte Adresse.",
+  "deskSendPickSendTo": "An {name} senden",
+  "deskSendPickChooseName": "{name} wählen",
+  "deskSendPickChoose": "Wählen"
 }

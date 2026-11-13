@@ -23,5 +23,9 @@
   "deskSetAboutNotCopied": "Не скопировано",
   "deskSetAboutDownloadPage": "Страница загрузки",
   "deskSetAboutVersionLabel": "Версия",
-  "deskSetAboutNodeLabel": "Узел"
+  "deskSetAboutNodeLabel": "Узел",
+  "deskLicTitle": "Тексты лицензий",
+  "deskLicDesc": "BT Wallet и части, из которых он собран, каждая со своей лицензией. Откройте одну, чтобы прочитать её полностью.",
+  "deskLicSearch": "Поиск по пакетам: {count}",
+  "deskLicNone": "Ни в одном названии пакета этого нет."
 }

@@ -64,17 +64,19 @@ class PairingOnlyLine extends StatelessWidget {
 
 /// Opens the contact picker over the current page; resolves to the chosen contact or null.
 /// [description] says what the pick is for; Send's line by default.
-Future<Contact?> showContactPicker(BuildContext context, {String? description}) =>
-    showEDialog<Contact>(context, builder: (_) => ContactPickerDialog(description: description));
+/// [send] makes it Send's: "Send to a contact", its button naming the chosen one.
+Future<Contact?> showContactPicker(BuildContext context, {String? description, bool send = false}) =>
+    showEDialog<Contact>(context, builder: (_) => ContactPickerDialog(description: description, send: send));
 
-/// For the screenshot tour: the picker, result ignored.
-Future<void> showContactPickerDialog(BuildContext context) => showContactPicker(context);
+/// For the screenshot tour: Send's picker, result ignored.
+Future<void> showContactPickerDialog(BuildContext context) => showContactPicker(context, send: true);
 
 class ContactPickerDialog extends ConsumerStatefulWidget {
-  const ContactPickerDialog({super.key, this.query = '', this.description});
+  const ContactPickerDialog({super.key, this.query = '', this.description, this.send = false});
 
   final String query;
   final String? description;
+  final bool send;
 
   @override
   ConsumerState<ContactPickerDialog> createState() => _ContactPickerDialogState();
@@ -82,6 +84,10 @@ class ContactPickerDialog extends ConsumerStatefulWidget {
 
 class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
   late final TextEditingController _q = TextEditingController(text: widget.query);
+
+  /// The chosen row's contact (Dlg-Contact-pick: ticked, named on the button); the first
+  /// payable match until the arrow keys move it.
+  String? _chosen;
 
   void _openContacts() {
     Navigator.of(context).pop();
@@ -105,6 +111,18 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
         ? const <Contact>[]
         : ([...contacts].where(contactSendable).where((x) => q.isEmpty || x.name.toLowerCase().contains(q) || x.address.toLowerCase().contains(q)).toList()
             ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())));
+    // Rows that can be paid; the chosen one among them.
+    final open = [
+      for (final x in shown)
+        if (!contactRefusesPayments(ref, x) && !contactClassicOnly(ref, x)) x,
+    ];
+    final chosen = open.where((x) => x.id == _chosen).firstOrNull ?? open.firstOrNull;
+    void move(int by) {
+      if (open.isEmpty) return;
+      final i = chosen == null ? 0 : open.indexOf(chosen);
+      setState(() => _chosen = open[(i + by).clamp(0, open.length - 1)].id);
+    }
+
     final Widget list;
     if (contacts == null) {
       list = Padding(
@@ -124,38 +142,47 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
         child: Center(child: Text(l.deskSendPickNoMatch(_q.text.trim()), style: ts.small)),
       );
     } else {
-      list = ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: 320.u),
-        child: ListView.separated(
-          shrinkWrap: true,
-          itemCount: shown.length,
-          separatorBuilder: (_, _) => Divider(height: 1, color: c.line),
-          itemBuilder: (_, i) => _PickRow(
-            contact: shown[i],
-            pairing: contactPairingOnly(ref, shown[i]),
-            noPayments: contactRefusesPayments(ref, shown[i]),
-            classicOnly: contactClassicOnly(ref, shown[i]),
-            onTap: () => Navigator.of(context).pop(shown[i]),
+      list = DecoratedBox(
+        decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 320.u),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: shown.length,
+            separatorBuilder: (_, _) => Divider(height: 1, color: c.line),
+            itemBuilder: (_, i) => _PickRow(
+              contact: shown[i],
+              chosen: shown[i].id == chosen?.id,
+              pairing: contactPairingOnly(ref, shown[i]),
+              noPayments: contactRefusesPayments(ref, shown[i]),
+              classicOnly: contactClassicOnly(ref, shown[i]),
+              onTap: () => Navigator.of(context).pop(shown[i]),
+            ),
           ),
         ),
       );
     }
     return EDialog(
-      title: l.deskSendPickTitle,
+      title: widget.send ? l.deskSendPickSendTitle : l.deskSendPickTitle,
       icon: EIcons.contacts,
-      description: widget.description ?? l.deskSendPickDesc,
+      description: widget.description ?? (widget.send ? l.deskSendPickSendDesc : l.deskSendPickDesc),
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (contacts != null && contacts.isNotEmpty) ...[
-            // ↓ from the search field to the first row; the rows move with the arrow keys.
+            // ↑ ↓ in the search field move the choice; Enter takes it.
             Focus(
               canRequestFocus: false,
               skipTraversal: true,
               onKeyEvent: (node, e) {
-                if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.arrowDown && shown.isNotEmpty) {
-                  node.nextFocus();
+                if (e is! KeyDownEvent && e is! KeyRepeatEvent) return KeyEventResult.ignored;
+                if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
+                  move(1);
+                  return KeyEventResult.handled;
+                }
+                if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
+                  move(-1);
                   return KeyEventResult.handled;
                 }
                 return KeyEventResult.ignored;
@@ -166,10 +193,9 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
                 label: l.deskSendPickSearch,
                 clearLabel: l.deskActClearSearch,
                 autofocus: true,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) => setState(() => _chosen = null),
                 onSubmitted: (_) {
-                  final open = shown.where((x) => !contactRefusesPayments(ref, x) && !contactClassicOnly(ref, x));
-                  if (open.isNotEmpty) Navigator.of(context).pop(open.first);
+                  if (chosen != null) Navigator.of(context).pop(chosen);
                 },
               ),
             ),
@@ -179,18 +205,25 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
         ],
       ),
       actions: [
-        if (contacts != null && contacts.isNotEmpty) EButton(label: l.deskSendPickOpen, onPressed: _openContacts),
         EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
+        if (contacts != null && contacts.isNotEmpty)
+          EButton.primary(
+            label: chosen == null ? l.deskSendPickChoose : (widget.send ? l.deskSendPickSendTo(chosen.name) : l.deskSendPickChooseName(chosen.name)),
+            onPressed: chosen == null ? null : () => Navigator.of(context).pop(chosen),
+          ),
       ],
     );
   }
 }
 
 class _PickRow extends StatefulWidget {
-  const _PickRow({required this.contact, required this.onTap, this.pairing, this.noPayments = false, this.classicOnly = false});
+  const _PickRow({required this.contact, required this.onTap, this.chosen = false, this.pairing, this.noPayments = false, this.classicOnly = false});
 
   final Contact contact;
   final VoidCallback onTap;
+
+  /// The row Enter and the button take: raised, with a tick.
+  final bool chosen;
 
   /// The contact takes no payments: the row stays, dimmed and not pressable, with the reason.
   final bool noPayments;
@@ -230,8 +263,8 @@ class _PickRowState extends State<_PickRow> {
         child: EInkWell(
           onTap: noPayments ? null : widget.onTap,
           child: Container(
-            color: _hover && !noPayments ? c.hover : Colors.transparent,
-            padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x2),
+            color: widget.chosen ? c.s3 : (_hover && !noPayments ? c.hover : Colors.transparent),
+            padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x4),
             child: Row(
               children: [
                 EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label.listMark),
@@ -282,6 +315,7 @@ class _PickRowState extends State<_PickRow> {
                         : null,
                   ),
                 ),
+                if (widget.chosen) ...[SizedBox(width: Sp.x3), Icon(EIcons.okCircle, size: 18.u, color: c.accentText)],
               ],
             ),
           ),

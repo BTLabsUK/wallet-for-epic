@@ -29,12 +29,14 @@ import 'package:epic_wallet/src/server_icons.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/shots.dart';
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelControlProvider;
-import 'package:epic_wallet/src/desktop/data/desk_node.dart' show deskNodeProvider;
+import 'package:epic_wallet/src/desktop/data/desk_node.dart' show MockDeskNode, deskNodeProvider, mockLocalNode;
 import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/depth_dial.dart' show showDepthHelp;
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/licence_texts_dialog.dart' show showLicenceTextsDialog;
-import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show showLocalNodePortsDialog;
+import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show showChangeFolderDialog, showLocalNodePortsDialog;
+import 'package:epic_wallet/src/desktop/screens/transfer/contact_picker.dart' show showContactPickerDialog;
+import 'package:epic_wallet/src/node/local_node_state.dart' show LocalNodePhase;
 import 'package:epic_wallet/src/desktop/screens/settings/search/search_slot.dart' show settingsQueryProvider;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart' show confirmNetworkModeSwitch;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_phrase.dart' show PhraseShot;
@@ -157,6 +159,16 @@ final List<DeskShot> flowMapSettingsShots = [
   DeskShot(id: 'fm-settings-network-switch-confirm', title: 'Switch to Kill switch? with sends waiting', route: DeskRoute.settingsPrivacy, dialog: (c) => confirmNetworkModeSwitch(c, mode: NetworkMode.killSwitch, waiting: 2)),
   DeskShot(id: 'fm-settings-depth-help', title: 'Advanced, what the views decide', route: DeskRoute.settingsAdvanced, dialog: showDepthHelp),
   DeskShot(id: 'fm-settings-licence-texts', title: 'About, licence texts', route: DeskRoute.settingsAbout, dialog: showLicenceTextsDialog),
+  // drawn after the review (2026-11-13)
+  DeskShot(id: 'fm-review-contact-pick', title: 'Send, choosing a contact', route: DeskRoute.send, dialog: showContactPickerDialog),
+  const DeskShot(id: 'fm-review-finish', title: 'Finish the payment (a response file)', route: DeskRoute.finalize),
+  DeskShot(
+    id: 'fm-review-chain-move',
+    title: 'Local node, moving the chain data',
+    route: DeskRoute.settingsNode,
+    before: (c) => _feature(c, {AdvancedFeature.builtInNode}),
+    dialog: (ctx) => showChangeFolderDialog(ctx, MockDeskNode(state: mockLocalNode(LocalNodePhase.synced)), mockLocalNode(LocalNodePhase.synced), pick: () async => '/mnt/data/EpicChain'),
+  ),
   const DeskShot(id: 'fm-settings-phrase-copy-confirm', title: 'Recovery phrase, copy confirm', route: DeskRoute.settingsPhrase, arg: PhraseShot.shown),
   DeskShot(id: 'fm-settings-device-rename', title: 'Linked devices, rename', route: DeskRoute.settingsDevices, height: 1100, prepare: (c, _) => _linkedHeld(c)),
   DeskShot(id: 'fm-settings-device-remove', title: 'Linked devices, remove a device', route: DeskRoute.settingsDevices, height: 1100, prepare: (c, _) => _linkedHeld(c)),

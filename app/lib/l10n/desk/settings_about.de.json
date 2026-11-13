@@ -23,5 +23,9 @@
   "deskSetAboutNotCopied": "Nicht kopiert",
   "deskSetAboutDownloadPage": "Download-Seite",
   "deskSetAboutVersionLabel": "Version",
-  "deskSetAboutNodeLabel": "Node"
+  "deskSetAboutNodeLabel": "Node",
+  "deskLicTitle": "Lizenztexte",
+  "deskLicDesc": "BT Wallet und die Teile, aus denen es gebaut ist, jeweils mit seiner Lizenz. Einen Eintrag öffnen, um sie vollständig zu lesen.",
+  "deskLicSearch": "{count} Pakete durchsuchen",
+  "deskLicNone": "Kein Paket hat das im Namen."
 }

@@ -8584,14 +8584,6 @@
   "@deskFinTitle": {
     "description": "Page title of Finalize."
   },
-  "deskFinNoticeTitle": "For file payments",
-  "@deskFinNoticeTitle": {
-    "description": "Title of the info notice at the top of the Finalize page."
-  },
-  "deskFinNoticeText": "Use the response file the recipient sent back.",
-  "@deskFinNoticeText": {
-    "description": "Text of the info notice at the top of the Finalize page."
-  },
   "deskFinTryAgain": "Try again",
   "@deskFinTryAgain": {
     "description": "Button in the \"Not posted\" notice on Finalize: choose the file again."
@@ -13684,7 +13676,7 @@
       }
     }
   },
-  "deskSetLndMoveDesc": "The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.",
+  "deskSetLndMoveDesc": "The node stops while the data moves, then starts again from the new folder.",
   "@deskSetLndMoveDesc": {
     "description": "Change folder dialog: description. \"Start fresh there\" is a button name."
   },
@@ -13967,10 +13959,6 @@
   "deskSetLogsClearDesc": "Deletes the log files. A report sent later has only what is logged from now on.",
   "@deskSetLogsClearDesc": {
     "description": "Clear logs dialog: description."
-  },
-  "deskSetLogsKeep": "Keep logs",
-  "@deskSetLogsKeep": {
-    "description": "Clear logs dialog: button that cancels."
   },
   "deskSetLogsClear": "Clear logs",
   "@deskSetLogsClear": {
@@ -27333,10 +27321,6 @@
   "@deskQrPastedName": {
     "description": "Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name."
   },
-  "deskQrScanFinalize": "Or scan their reply as a QR code.",
-  "@deskQrScanFinalize": {
-    "description": "Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file."
-  },
   "deskSetTxQrHint": "Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.",
   "@deskSetTxQrHint": {
     "description": "Hint of the QR Payment method in desktop Settings › Payment methods."
@@ -29233,5 +29217,125 @@
         "example": "Anna Kowalska"
       }
     }
+  },
+  "deskPairNameTitle": "The name shown when paired",
+  "@deskPairNameTitle": {
+    "description": "Pairing: the dialog that sets the name the paired wallet shows for this wallet."
+  },
+  "deskPairNameDesc": "The paired wallet shows this name beside sealed payments and invoices. Leave it empty to pair without a name.",
+  "@deskPairNameDesc": {
+    "description": "Pairing name dialog: the sentence under the title."
+  },
+  "deskPairNameField": "Name shown",
+  "@deskPairNameField": {
+    "description": "Pairing name dialog: the field's label."
+  },
+  "deskSendPickSendTitle": "Send to a contact",
+  "@deskSendPickSendTitle": {
+    "description": "Send's contact picker: the dialog's title."
+  },
+  "deskSendPickSendDesc": "Paired contacts get a sealed payment. The others get their saved address.",
+  "@deskSendPickSendDesc": {
+    "description": "Send's contact picker: the sentence under the title. A paired contact is paid with a sealed payment; any other contact at the saved address."
+  },
+  "deskSendPickSendTo": "Send to {name}",
+  "@deskSendPickSendTo": {
+    "description": "Send's contact picker: the button that takes the chosen contact as the recipient.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna Kowalska"
+      }
+    }
+  },
+  "deskSendPickChooseName": "Choose {name}",
+  "@deskSendPickChooseName": {
+    "description": "Contact picker (not Send): the button that takes the chosen contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna Kowalska"
+      }
+    }
+  },
+  "deskSendPickChoose": "Choose",
+  "@deskSendPickChoose": {
+    "description": "Contact picker: the button while no contact can be chosen (disabled)."
+  },
+  "deskLicTitle": "Licence texts",
+  "@deskLicTitle": {
+    "description": "Settings › About › Licences: the title of the dialog listing every package's licence texts."
+  },
+  "deskLicDesc": "BT Wallet and the parts it is built from, each with its licence. Open one to read it in full.",
+  "@deskLicDesc": {
+    "description": "Licence texts dialog: the sentence under the title."
+  },
+  "deskLicSearch": "Search {count} packages",
+  "@deskLicSearch": {
+    "description": "Licence texts dialog: the search field's hint. count is how many packages carry licences.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "142"
+      }
+    }
+  },
+  "deskLicNone": "No package has that in its name.",
+  "@deskLicNone": {
+    "description": "Licence texts dialog: the line when the search matches no package."
+  },
+  "deskSetLndMoveFrom": "From",
+  "@deskSetLndMoveFrom": {
+    "description": "Move the chain data? dialog: label of the folder the chain data is in now."
+  },
+  "deskSetLndMoveTo": "To",
+  "@deskSetLndMoveTo": {
+    "description": "Move the chain data? dialog: label of the chosen folder."
+  },
+  "deskSetLndMoveFree": "Free there",
+  "@deskSetLndMoveFree": {
+    "description": "Move the chain data? dialog: label of the free space on the chosen folder's drive."
+  },
+  "deskSetLndMoveFreshNote": "Start fresh there downloads the chain again into the new folder instead.",
+  "@deskSetLndMoveFreshNote": {
+    "description": "Move the chain data? dialog: the info line on what the Start fresh there button does."
+  },
+  "deskSetRecvEpboxOffSent": "Sent {time} · waiting for the reply",
+  "@deskSetRecvEpboxOffSent": {
+    "description": "Turn Epicbox off? dialog: the line under a waiting payment's name. time is a clock time like 11:30.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "11:30"
+      }
+    }
+  },
+  "deskSetRecvEpboxOffNote": "Payments sent to the Epicbox address wait at the server until it is on.",
+  "@deskSetRecvEpboxOffNote": {
+    "description": "Turn Epicbox off? dialog: the info line under the waiting payments."
+  },
+  "deskSetRecvEpboxKeepOn": "Keep it on",
+  "@deskSetRecvEpboxKeepOn": {
+    "description": "Turn Epicbox off? dialog: the button that leaves Epicbox on."
+  },
+  "deskFinCardTitle": "Finish the payment",
+  "@deskFinCardTitle": {
+    "description": "Finalize a response file: the card's title (the sender completes a file payment with the recipient's response file)."
+  },
+  "deskFinCardLead": "Open the response file the recipient sent back. The wallet completes the payment and posts it to the network.",
+  "@deskFinCardLead": {
+    "description": "Finalize card: the sentence under the title."
+  },
+  "deskFinScanLink": "Scan the reply as a code",
+  "@deskFinScanLink": {
+    "description": "Finalize card: link that scans the recipient's reply shown as a QR code."
+  },
+  "deskFinPasteLink": "Paste it as text",
+  "@deskFinPasteLink": {
+    "description": "Finalize card: link that finalizes the reply copied as text."
+  },
+  "deskFinPasteEmpty": "Nothing to paste: copy the reply first",
+  "@deskFinPasteEmpty": {
+    "description": "Toast: Paste it as text found no text on the clipboard."
   }
 }

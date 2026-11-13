@@ -37,5 +37,8 @@
   "deskSetHttpNoRouterText": "Tor ใช้ได้จากทุกที่โดยไม่ต้อง forward อะไร",
   "deskSetHttpTurnOnTor": "เปิด Tor",
   "deskSetHttpExposed": "เปิดเฉพาะ API สำหรับรับเงิน HTTP ธรรมดาไม่ได้เข้ารหัส",
-  "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น"
+  "deskSetHttpBackLocal": "กลับเป็นในเครื่องเท่านั้น",
+  "deskSetRecvEpboxOffSent": "ส่งเมื่อ {time} · รอการตอบกลับ",
+  "deskSetRecvEpboxOffNote": "การชำระเงินที่ส่งไปยังที่อยู่ Epicbox จะรออยู่ที่เซิร์ฟเวอร์จนกว่าจะเปิด Epicbox อีกครั้ง",
+  "deskSetRecvEpboxKeepOn": "เปิดไว้"
 }

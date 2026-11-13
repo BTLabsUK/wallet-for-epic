@@ -18,8 +18,6 @@
   "deskFinPickTitle": "Файл ответа",
   "deskFinPosted": "Платёж отправлен в сеть",
   "deskFinTitle": "Завершить по файлу ответа",
-  "deskFinNoticeTitle": "Для платежей файлом",
-  "deskFinNoticeText": "Используйте файл ответа, который прислал получатель.",
   "deskFinTryAgain": "Повторить",
   "deskFinPostedText": "Платёж завершён и отправлен в сеть. Следите за ним в «Активности».",
   "deskFinAnother": "Завершить другой файл",
@@ -52,5 +50,10 @@
   "deskImpOpenAnother": "Открыть другой файл",
   "deskEpicboxBlockedWord": "Заблокирован",
   "deskEpicboxBlockedShort": "Эта сеть блокирует {host}. Выберите другой сервер или частный DNS.",
-  "deskEpicboxBlockedSwitch": "Переключиться на {host}"
+  "deskEpicboxBlockedSwitch": "Переключиться на {host}",
+  "deskFinCardTitle": "Завершить платёж",
+  "deskFinCardLead": "Откройте файл ответа, который вернул получатель. Кошелёк завершит платёж и отправит его в сеть.",
+  "deskFinScanLink": "Сканировать ответ как код",
+  "deskFinPasteLink": "Вставить как текст",
+  "deskFinPasteEmpty": "Нечего вставить: сначала скопируйте ответ"
 }

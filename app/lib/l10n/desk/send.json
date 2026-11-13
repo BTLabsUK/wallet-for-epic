@@ -783,5 +783,37 @@
         "example": "Anna Kowalska"
       }
     }
+  },
+  "deskSendPickSendTitle": "Send to a contact",
+  "@deskSendPickSendTitle": {
+    "description": "Send's contact picker: the dialog's title."
+  },
+  "deskSendPickSendDesc": "Paired contacts get a sealed payment. The others get their saved address.",
+  "@deskSendPickSendDesc": {
+    "description": "Send's contact picker: the sentence under the title. A paired contact is paid with a sealed payment; any other contact at the saved address."
+  },
+  "deskSendPickSendTo": "Send to {name}",
+  "@deskSendPickSendTo": {
+    "description": "Send's contact picker: the button that takes the chosen contact as the recipient.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna Kowalska"
+      }
+    }
+  },
+  "deskSendPickChooseName": "Choose {name}",
+  "@deskSendPickChooseName": {
+    "description": "Contact picker (not Send): the button that takes the chosen contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna Kowalska"
+      }
+    }
+  },
+  "deskSendPickChoose": "Choose",
+  "@deskSendPickChoose": {
+    "description": "Contact picker: the button while no contact can be chosen (disabled)."
   }
 }

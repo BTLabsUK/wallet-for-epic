@@ -605,7 +605,7 @@
       }
     }
   },
-  "deskSetLndMoveDesc": "The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.",
+  "deskSetLndMoveDesc": "The node stops while the data moves, then starts again from the new folder.",
   "@deskSetLndMoveDesc": {
     "description": "Change folder dialog: description. \"Start fresh there\" is a button name."
   },
@@ -908,5 +908,21 @@
   "deskSetLnodePortsNotSaved": "Ports not saved",
   "@deskSetLnodePortsNotSaved": {
     "description": "Toast title when the node ports could not be saved or the node could not restart; the error follows."
+  },
+  "deskSetLndMoveFrom": "From",
+  "@deskSetLndMoveFrom": {
+    "description": "Move the chain data? dialog: label of the folder the chain data is in now."
+  },
+  "deskSetLndMoveTo": "To",
+  "@deskSetLndMoveTo": {
+    "description": "Move the chain data? dialog: label of the chosen folder."
+  },
+  "deskSetLndMoveFree": "Free there",
+  "@deskSetLndMoveFree": {
+    "description": "Move the chain data? dialog: label of the free space on the chosen folder's drive."
+  },
+  "deskSetLndMoveFreshNote": "Start fresh there downloads the chain again into the new folder instead.",
+  "@deskSetLndMoveFreshNote": {
+    "description": "Move the chain data? dialog: the info line on what the Start fresh there button does."
   }
 }

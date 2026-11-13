@@ -109,7 +109,7 @@
   "deskSetLndBadFolder": "Эта папка не подходит",
   "deskSetLndChooseAnother": "Выбрать другую",
   "deskSetLndMoveTitle": "Переместить {size} в {folder}?",
-  "deskSetLndMoveDesc": "Узел остановится на время перемещения, затем запустится из новой папки. «Начать там заново» вместо этого загрузит в неё блокчейн с нуля.",
+  "deskSetLndMoveDesc": "Узел остановится на время перемещения, затем запустится из новой папки.",
   "deskSetLndStartFresh": "Начать там заново",
   "deskSetLndMove": "Переместить",
   "deskSetLndProbNotEmpty": "Папка не пустая.",
@@ -162,5 +162,9 @@
   "deskSetLnodePortsRestart": "Узел перезапустится с новыми портами.",
   "deskSetLnodePortsSaved": "Порты сохранены",
   "deskSetLnodePortsRestarting": "Узел перезапускается.",
-  "deskSetLnodePortsNotSaved": "Порты не сохранены"
+  "deskSetLnodePortsNotSaved": "Порты не сохранены",
+  "deskSetLndMoveFrom": "Откуда",
+  "deskSetLndMoveTo": "Куда",
+  "deskSetLndMoveFree": "Свободно там",
+  "deskSetLndMoveFreshNote": "«Начать там заново» вместо этого загрузит блокчейн в новую папку с нуля."
 }

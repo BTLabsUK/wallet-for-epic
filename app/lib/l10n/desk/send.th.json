@@ -146,5 +146,10 @@
   "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
   "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้",
   "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}",
-  "deskSendSummaryTo": "ถึง {name}"
+  "deskSendSummaryTo": "ถึง {name}",
+  "deskSendPickSendTitle": "ส่งถึงผู้ติดต่อ",
+  "deskSendPickSendDesc": "ผู้ติดต่อที่จับคู่แล้วจะได้รับการชำระเงินแบบปิดผนึก ส่วนผู้ติดต่ออื่นจะได้รับที่ที่อยู่ที่บันทึกไว้",
+  "deskSendPickSendTo": "ส่งถึง {name}",
+  "deskSendPickChooseName": "เลือก {name}",
+  "deskSendPickChoose": "เลือก"
 }

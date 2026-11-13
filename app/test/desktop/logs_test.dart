@@ -115,7 +115,7 @@ void main() {
 
     await tester.tap(find.widgetWithText(EButton, 'Clear logs'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(EButton, 'Keep logs'));
+    await tester.tap(find.widgetWithText(EButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(files.cleared, 0);
     await tester.tap(find.widgetWithText(EButton, 'Clear logs'));

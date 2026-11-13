@@ -146,5 +146,10 @@
   "deskSendRelayUnknownTitle": "Неизвестный сервер Epicbox",
   "deskSendRelayUnknownText": "Приложение не знает сервер {relay}. Проверьте адрес перед отправкой. Отправить всё равно можно.",
   "deskSendHintNeedsMethod": "Для проверки нужен {method}",
-  "deskSendSummaryTo": "для {name}"
+  "deskSendSummaryTo": "для {name}",
+  "deskSendPickSendTitle": "Отправить контакту",
+  "deskSendPickSendDesc": "Связанные контакты получают запечатанный платёж. Остальные — на сохранённый адрес.",
+  "deskSendPickSendTo": "Отправить: {name}",
+  "deskSendPickChooseName": "Выбрать: {name}",
+  "deskSendPickChoose": "Выбрать"
 }

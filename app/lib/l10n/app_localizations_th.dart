@@ -6411,12 +6411,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskFinTitle => 'ทำรายการให้เสร็จด้วยไฟล์ตอบกลับ';
 
   @override
-  String get deskFinNoticeTitle => 'สำหรับการชำระด้วยไฟล์';
-
-  @override
-  String get deskFinNoticeText => 'ใช้ไฟล์ตอบกลับที่ผู้รับส่งคืนมา';
-
-  @override
   String get deskFinTryAgain => 'ลองอีกครั้ง';
 
   @override
@@ -10074,7 +10068,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetLndMoveDesc =>
-      'โหนดจะหยุดระหว่างย้ายข้อมูล แล้วเริ่มใหม่จากโฟลเดอร์ใหม่ ส่วน เริ่มใหม่ที่นั่น จะดาวน์โหลดบล็อกเชนลงในโฟลเดอร์นั้นแทน';
+      'โหนดจะหยุดระหว่างย้ายข้อมูล แล้วเริ่มใหม่จากโฟลเดอร์ใหม่';
 
   @override
   String get deskSetLndStartFresh => 'เริ่มใหม่ที่นั่น';
@@ -10261,9 +10255,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetLogsClearDesc =>
       'ลบไฟล์บันทึก รายงานที่ส่งภายหลังจะมีเฉพาะสิ่งที่บันทึกตั้งแต่นี้';
-
-  @override
-  String get deskSetLogsKeep => 'เก็บบันทึกไว้';
 
   @override
   String get deskSetLogsClear => 'ล้างบันทึก';
@@ -19704,9 +19695,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskQrPastedName => 'ข้อความที่วาง';
 
   @override
-  String get deskQrScanFinalize => 'หรือสแกนคำตอบของเขาเป็น QR Code';
-
-  @override
   String get deskSetTxQrHint =>
       'จ่ายและรับเงินโดยแสดงและสแกนธุรกรรมเป็น QR Code แบบเคลื่อนไหว ไม่ต้องใช้เครือข่าย บนคอมพิวเตอร์นี้มาพร้อมกับโอนไฟล์: แสดง QR และ สแกน QR อยู่ข้างปุ่มไฟล์';
 
@@ -21103,4 +21091,90 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendSummaryTo(String name) {
     return 'ถึง $name';
   }
+
+  @override
+  String get deskPairNameTitle => 'ชื่อที่แสดงเมื่อจับคู่';
+
+  @override
+  String get deskPairNameDesc =>
+      'กระเป๋าที่จับคู่จะแสดงชื่อนี้ข้างการชำระเงินแบบปิดผนึกและใบแจ้งหนี้ เว้นว่างไว้เพื่อจับคู่โดยไม่มีชื่อ';
+
+  @override
+  String get deskPairNameField => 'ชื่อที่แสดง';
+
+  @override
+  String get deskSendPickSendTitle => 'ส่งถึงผู้ติดต่อ';
+
+  @override
+  String get deskSendPickSendDesc =>
+      'ผู้ติดต่อที่จับคู่แล้วจะได้รับการชำระเงินแบบปิดผนึก ส่วนผู้ติดต่ออื่นจะได้รับที่ที่อยู่ที่บันทึกไว้';
+
+  @override
+  String deskSendPickSendTo(String name) {
+    return 'ส่งถึง $name';
+  }
+
+  @override
+  String deskSendPickChooseName(String name) {
+    return 'เลือก $name';
+  }
+
+  @override
+  String get deskSendPickChoose => 'เลือก';
+
+  @override
+  String get deskLicTitle => 'ข้อความสัญญาอนุญาต';
+
+  @override
+  String get deskLicDesc =>
+      'BT Wallet และส่วนประกอบที่ใช้สร้าง แต่ละส่วนพร้อมสัญญาอนุญาต เปิดรายการเพื่ออ่านฉบับเต็ม';
+
+  @override
+  String deskLicSearch(int count) {
+    return 'ค้นหาในแพ็กเกจ $count รายการ';
+  }
+
+  @override
+  String get deskLicNone => 'ไม่มีแพ็กเกจที่มีคำนี้ในชื่อ';
+
+  @override
+  String get deskSetLndMoveFrom => 'จาก';
+
+  @override
+  String get deskSetLndMoveTo => 'ไปยัง';
+
+  @override
+  String get deskSetLndMoveFree => 'พื้นที่ว่างที่นั่น';
+
+  @override
+  String get deskSetLndMoveFreshNote =>
+      'เริ่มใหม่ที่นั่น จะดาวน์โหลดบล็อกเชนลงในโฟลเดอร์ใหม่แทน';
+
+  @override
+  String deskSetRecvEpboxOffSent(String time) {
+    return 'ส่งเมื่อ $time · รอการตอบกลับ';
+  }
+
+  @override
+  String get deskSetRecvEpboxOffNote =>
+      'การชำระเงินที่ส่งไปยังที่อยู่ Epicbox จะรออยู่ที่เซิร์ฟเวอร์จนกว่าจะเปิด Epicbox อีกครั้ง';
+
+  @override
+  String get deskSetRecvEpboxKeepOn => 'เปิดไว้';
+
+  @override
+  String get deskFinCardTitle => 'ทำการชำระเงินให้เสร็จ';
+
+  @override
+  String get deskFinCardLead =>
+      'เปิดไฟล์ตอบกลับที่ผู้รับส่งกลับมา กระเป๋าจะทำการชำระเงินให้เสร็จและส่งเข้าสู่เครือข่าย';
+
+  @override
+  String get deskFinScanLink => 'สแกนการตอบกลับเป็นโค้ด';
+
+  @override
+  String get deskFinPasteLink => 'วางเป็นข้อความ';
+
+  @override
+  String get deskFinPasteEmpty => 'ไม่มีอะไรให้วาง: คัดลอกการตอบกลับก่อน';
 }

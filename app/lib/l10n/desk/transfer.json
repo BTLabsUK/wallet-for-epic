@@ -87,14 +87,6 @@
   "@deskFinTitle": {
     "description": "Page title of Finalize."
   },
-  "deskFinNoticeTitle": "For file payments",
-  "@deskFinNoticeTitle": {
-    "description": "Title of the info notice at the top of the Finalize page."
-  },
-  "deskFinNoticeText": "Use the response file the recipient sent back.",
-  "@deskFinNoticeText": {
-    "description": "Text of the info notice at the top of the Finalize page."
-  },
   "deskFinTryAgain": "Try again",
   "@deskFinTryAgain": {
     "description": "Button in the \"Not posted\" notice on Finalize: choose the file again."
@@ -243,5 +235,25 @@
         "example": "epicbox.example.org"
       }
     }
+  },
+  "deskFinCardTitle": "Finish the payment",
+  "@deskFinCardTitle": {
+    "description": "Finalize a response file: the card's title (the sender completes a file payment with the recipient's response file)."
+  },
+  "deskFinCardLead": "Open the response file the recipient sent back. The wallet completes the payment and posts it to the network.",
+  "@deskFinCardLead": {
+    "description": "Finalize card: the sentence under the title."
+  },
+  "deskFinScanLink": "Scan the reply as a code",
+  "@deskFinScanLink": {
+    "description": "Finalize card: link that scans the recipient's reply shown as a QR code."
+  },
+  "deskFinPasteLink": "Paste it as text",
+  "@deskFinPasteLink": {
+    "description": "Finalize card: link that finalizes the reply copied as text."
+  },
+  "deskFinPasteEmpty": "Nothing to paste: copy the reply first",
+  "@deskFinPasteEmpty": {
+    "description": "Toast: Paste it as text found no text on the clipboard."
   }
 }

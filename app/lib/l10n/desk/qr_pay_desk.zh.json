@@ -9,7 +9,6 @@
   "deskQrNotTx": "这不是付款二维码。",
   "deskQrScannedName": "扫描的二维码",
   "deskQrPastedName": "粘贴的文本",
-  "deskQrScanFinalize": "或将对方的回复作为二维码扫描。",
   "deskSetTxQrHint": "通过显示和扫描动态二维码形式的交易来付款和收款，无需网络。在这台电脑上它随“文件传输”一起提供：“显示二维码”和“扫描二维码”位于文件按钮旁边。",
   "deskQrScanImport": "或将付款或账单作为二维码扫描。"
 }

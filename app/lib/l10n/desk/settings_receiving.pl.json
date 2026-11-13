@@ -37,5 +37,8 @@
   "deskSetHttpNoRouterText": "Tor działa z każdego miejsca i nie wymaga przekierowań.",
   "deskSetHttpTurnOnTor": "Włącz Tor",
   "deskSetHttpExposed": "Udostępnione jest tylko API odbierania. Zwykłe HTTP nie jest szyfrowane.",
-  "deskSetHttpBackLocal": "Wróć do trybu lokalnego"
+  "deskSetHttpBackLocal": "Wróć do trybu lokalnego",
+  "deskSetRecvEpboxOffSent": "Wysłano {time} · czeka na odpowiedź",
+  "deskSetRecvEpboxOffNote": "Płatności wysłane na adres Epicbox czekają na serwerze, aż Epicbox znów będzie włączony.",
+  "deskSetRecvEpboxKeepOn": "Zostaw włączony"
 }

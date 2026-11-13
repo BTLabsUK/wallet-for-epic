@@ -56,5 +56,8 @@
   "deskConLabelVendor": "ร้านค้า",
   "deskConLabelService": "บริการ",
   "deskConLabelDefault": "ค่าเริ่มต้น",
-  "deskConLabelCurrent": "ป้ายกำกับ: {name}"
+  "deskConLabelCurrent": "ป้ายกำกับ: {name}",
+  "deskPairNameTitle": "ชื่อที่แสดงเมื่อจับคู่",
+  "deskPairNameDesc": "กระเป๋าที่จับคู่จะแสดงชื่อนี้ข้างการชำระเงินแบบปิดผนึกและใบแจ้งหนี้ เว้นว่างไว้เพื่อจับคู่โดยไม่มีชื่อ",
+  "deskPairNameField": "ชื่อที่แสดง"
 }

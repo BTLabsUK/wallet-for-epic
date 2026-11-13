@@ -18,8 +18,6 @@
   "deskFinPickTitle": "Antwortdatei",
   "deskFinPosted": "Zahlung an das Netzwerk gesendet",
   "deskFinTitle": "Antwortdatei abschließen",
-  "deskFinNoticeTitle": "Für Zahlungen per Datei",
-  "deskFinNoticeText": "Verwenden Sie die Antwortdatei, die der Empfänger zurückgeschickt hat.",
   "deskFinTryAgain": "Erneut versuchen",
   "deskFinPostedText": "Die Zahlung wurde abgeschlossen und an das Netzwerk gesendet. Verfolgen Sie sie unter Aktivität.",
   "deskFinAnother": "Weitere Datei abschließen",
@@ -52,5 +50,10 @@
   "deskImpOpenAnother": "Weitere Datei öffnen",
   "deskEpicboxBlockedWord": "Blockiert",
   "deskEpicboxBlockedShort": "Dieses Netzwerk blockiert {host}. Anderen Server oder privates DNS nutzen.",
-  "deskEpicboxBlockedSwitch": "Zu {host} wechseln"
+  "deskEpicboxBlockedSwitch": "Zu {host} wechseln",
+  "deskFinCardTitle": "Zahlung abschließen",
+  "deskFinCardLead": "Die Antwortdatei öffnen, die der Empfänger zurückgeschickt hat. Die Wallet schließt die Zahlung ab und sendet sie an das Netzwerk.",
+  "deskFinScanLink": "Antwort als Code scannen",
+  "deskFinPasteLink": "Als Text einfügen",
+  "deskFinPasteEmpty": "Nichts zum Einfügen: zuerst die Antwort kopieren"
 }

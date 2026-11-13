@@ -23,5 +23,9 @@
   "deskSetAboutNotCopied": "ไม่ได้คัดลอก",
   "deskSetAboutDownloadPage": "หน้าดาวน์โหลด",
   "deskSetAboutVersionLabel": "เวอร์ชัน",
-  "deskSetAboutNodeLabel": "โหนด"
+  "deskSetAboutNodeLabel": "โหนด",
+  "deskLicTitle": "ข้อความสัญญาอนุญาต",
+  "deskLicDesc": "BT Wallet และส่วนประกอบที่ใช้สร้าง แต่ละส่วนพร้อมสัญญาอนุญาต เปิดรายการเพื่ออ่านฉบับเต็ม",
+  "deskLicSearch": "ค้นหาในแพ็กเกจ {count} รายการ",
+  "deskLicNone": "ไม่มีแพ็กเกจที่มีคำนี้ในชื่อ"
 }

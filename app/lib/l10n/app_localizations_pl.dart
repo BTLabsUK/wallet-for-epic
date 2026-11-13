@@ -6812,13 +6812,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskFinTitle => 'Sfinalizuj plik odpowiedzi';
 
   @override
-  String get deskFinNoticeTitle => 'Dla płatności plikiem';
-
-  @override
-  String get deskFinNoticeText =>
-      'Użyj pliku odpowiedzi odesłanego przez odbiorcę.';
-
-  @override
   String get deskFinTryAgain => 'Spróbuj ponownie';
 
   @override
@@ -10732,7 +10725,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetLndMoveDesc =>
-      'Węzeł zatrzyma się na czas przenoszenia danych, a potem uruchomi z nowego folderu. Zacznij tam od nowa zamiast tego pobierze do niego łańcuch od nowa.';
+      'Węzeł zatrzyma się na czas przenoszenia danych, a potem uruchomi z nowego folderu.';
 
   @override
   String get deskSetLndStartFresh => 'Zacznij tam od nowa';
@@ -10925,9 +10918,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetLogsClearDesc =>
       'Usuwa pliki logów. Raport wysłany później będzie zawierał tylko to, co zostanie zapisane od teraz.';
-
-  @override
-  String get deskSetLogsKeep => 'Zachowaj logi';
 
   @override
   String get deskSetLogsClear => 'Wyczyść logi';
@@ -20720,9 +20710,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskQrPastedName => 'Wklejony tekst';
 
   @override
-  String get deskQrScanFinalize => 'Albo zeskanuj ich odpowiedź jako kod QR.';
-
-  @override
   String get deskSetTxQrHint =>
       'Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.';
 
@@ -22148,4 +22135,91 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendSummaryTo(String name) {
     return 'do $name';
   }
+
+  @override
+  String get deskPairNameTitle => 'Nazwa pokazywana po sparowaniu';
+
+  @override
+  String get deskPairNameDesc =>
+      'Sparowany portfel pokazuje tę nazwę przy zapieczętowanych płatnościach i fakturach. Zostaw puste, aby sparować bez nazwy.';
+
+  @override
+  String get deskPairNameField => 'Pokazywana nazwa';
+
+  @override
+  String get deskSendPickSendTitle => 'Wyślij do kontaktu';
+
+  @override
+  String get deskSendPickSendDesc =>
+      'Sparowane kontakty dostają zapieczętowaną płatność. Pozostałe – na zapisany adres.';
+
+  @override
+  String deskSendPickSendTo(String name) {
+    return 'Wyślij do: $name';
+  }
+
+  @override
+  String deskSendPickChooseName(String name) {
+    return 'Wybierz: $name';
+  }
+
+  @override
+  String get deskSendPickChoose => 'Wybierz';
+
+  @override
+  String get deskLicTitle => 'Teksty licencji';
+
+  @override
+  String get deskLicDesc =>
+      'BT Wallet i części, z których jest zbudowany, każda ze swoją licencją. Otwórz jedną, aby przeczytać ją w całości.';
+
+  @override
+  String deskLicSearch(int count) {
+    return 'Szukaj wśród $count pakietów';
+  }
+
+  @override
+  String get deskLicNone => 'Żaden pakiet nie ma tego w nazwie.';
+
+  @override
+  String get deskSetLndMoveFrom => 'Skąd';
+
+  @override
+  String get deskSetLndMoveTo => 'Dokąd';
+
+  @override
+  String get deskSetLndMoveFree => 'Wolne tam';
+
+  @override
+  String get deskSetLndMoveFreshNote =>
+      'Zacznij tam od nowa zamiast tego pobierze łańcuch od nowa do nowego folderu.';
+
+  @override
+  String deskSetRecvEpboxOffSent(String time) {
+    return 'Wysłano $time · czeka na odpowiedź';
+  }
+
+  @override
+  String get deskSetRecvEpboxOffNote =>
+      'Płatności wysłane na adres Epicbox czekają na serwerze, aż Epicbox znów będzie włączony.';
+
+  @override
+  String get deskSetRecvEpboxKeepOn => 'Zostaw włączony';
+
+  @override
+  String get deskFinCardTitle => 'Dokończ płatność';
+
+  @override
+  String get deskFinCardLead =>
+      'Otwórz plik odpowiedzi odesłany przez odbiorcę. Portfel dokończy płatność i wyśle ją do sieci.';
+
+  @override
+  String get deskFinScanLink => 'Zeskanuj odpowiedź jako kod';
+
+  @override
+  String get deskFinPasteLink => 'Wklej jako tekst';
+
+  @override
+  String get deskFinPasteEmpty =>
+      'Nie ma czego wkleić: najpierw skopiuj odpowiedź';
 }

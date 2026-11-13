@@ -2,7 +2,6 @@
   "deskSetLogsMemoryOnly": "Log jest przechowywany tylko w pamięci.",
   "deskSetLogsClearTitle": "Wyczyścić logi?",
   "deskSetLogsClearDesc": "Usuwa pliki logów. Raport wysłany później będzie zawierał tylko to, co zostanie zapisane od teraz.",
-  "deskSetLogsKeep": "Zachowaj logi",
   "deskSetLogsClear": "Wyczyść logi",
   "deskSetLogsCleared": "Wyczyszczono logi",
   "deskSetLogsToday": "dzisiaj o {time}",

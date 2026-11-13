@@ -109,7 +109,7 @@
   "deskSetLndBadFolder": "该文件夹不可用",
   "deskSetLndChooseAnother": "选择其他文件夹",
   "deskSetLndMoveTitle": "把 {size} 移动到 {folder}？",
-  "deskSetLndMoveDesc": "移动数据期间节点会停止，之后从新文件夹重新启动。“在那里重新开始”则会改为把区块链重新下载到新文件夹中。",
+  "deskSetLndMoveDesc": "移动数据期间节点会停止，之后从新文件夹重新启动。",
   "deskSetLndStartFresh": "在那里重新开始",
   "deskSetLndMove": "移动",
   "deskSetLndProbNotEmpty": "该文件夹不是空的。",
@@ -162,5 +162,9 @@
   "deskSetLnodePortsRestart": "节点将使用新端口重新启动。",
   "deskSetLnodePortsSaved": "端口已保存",
   "deskSetLnodePortsRestarting": "节点正在重新启动。",
-  "deskSetLnodePortsNotSaved": "端口未保存"
+  "deskSetLnodePortsNotSaved": "端口未保存",
+  "deskSetLndMoveFrom": "从",
+  "deskSetLndMoveTo": "到",
+  "deskSetLndMoveFree": "那里的可用空间",
+  "deskSetLndMoveFreshNote": "“在那里重新开始”则会改为把区块链重新下载到新文件夹中。"
 }

@@ -109,7 +109,7 @@
   "deskSetLndBadFolder": "Dieser Ordner funktioniert nicht",
   "deskSetLndChooseAnother": "Anderen wählen",
   "deskSetLndMoveTitle": "{size} nach {folder} verschieben?",
-  "deskSetLndMoveDesc": "Der Node stoppt, während die Daten verschoben werden, und startet dann aus dem neuen Ordner. „Dort neu beginnen“ lädt die Blockchain stattdessen neu in diesen Ordner.",
+  "deskSetLndMoveDesc": "Der Node stoppt, während die Daten verschoben werden, und startet dann aus dem neuen Ordner.",
   "deskSetLndStartFresh": "Dort neu beginnen",
   "deskSetLndMove": "Verschieben",
   "deskSetLndProbNotEmpty": "Der Ordner ist nicht leer.",
@@ -162,5 +162,9 @@
   "deskSetLnodePortsRestart": "Der Node startet mit den neuen Ports neu.",
   "deskSetLnodePortsSaved": "Ports gespeichert",
   "deskSetLnodePortsRestarting": "Der Node startet neu.",
-  "deskSetLnodePortsNotSaved": "Ports nicht gespeichert"
+  "deskSetLnodePortsNotSaved": "Ports nicht gespeichert",
+  "deskSetLndMoveFrom": "Von",
+  "deskSetLndMoveTo": "Nach",
+  "deskSetLndMoveFree": "Dort frei",
+  "deskSetLndMoveFreshNote": "„Dort neu beginnen“ lädt die Blockchain stattdessen neu in den neuen Ordner."
 }

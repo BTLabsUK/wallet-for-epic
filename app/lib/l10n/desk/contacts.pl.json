@@ -56,5 +56,8 @@
   "deskConLabelVendor": "Sprzedawca",
   "deskConLabelService": "Usługa",
   "deskConLabelDefault": "Domyślna",
-  "deskConLabelCurrent": "Etykieta: {name}"
+  "deskConLabelCurrent": "Etykieta: {name}",
+  "deskPairNameTitle": "Nazwa pokazywana po sparowaniu",
+  "deskPairNameDesc": "Sparowany portfel pokazuje tę nazwę przy zapieczętowanych płatnościach i fakturach. Zostaw puste, aby sparować bez nazwy.",
+  "deskPairNameField": "Pokazywana nazwa"
 }

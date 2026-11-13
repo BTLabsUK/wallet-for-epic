@@ -37,5 +37,8 @@
   "deskSetHttpNoRouterText": "Tor funktioniert von überall, ohne etwas weiterzuleiten.",
   "deskSetHttpTurnOnTor": "Tor einschalten",
   "deskSetHttpExposed": "Nur die Empfangs-API ist erreichbar. Einfaches HTTP ist nicht verschlüsselt.",
-  "deskSetHttpBackLocal": "Zurück zu „Nur lokal“"
+  "deskSetHttpBackLocal": "Zurück zu „Nur lokal“",
+  "deskSetRecvEpboxOffSent": "Gesendet {time} · wartet auf die Antwort",
+  "deskSetRecvEpboxOffNote": "An die Epicbox-Adresse gesendete Zahlungen warten auf dem Server, bis Epicbox wieder an ist.",
+  "deskSetRecvEpboxKeepOn": "Anlassen"
 }

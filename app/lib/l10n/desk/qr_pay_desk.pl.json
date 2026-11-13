@@ -9,7 +9,6 @@
   "deskQrNotTx": "To nie jest kod QR płatności.",
   "deskQrScannedName": "Zeskanowany kod QR",
   "deskQrPastedName": "Wklejony tekst",
-  "deskQrScanFinalize": "Albo zeskanuj ich odpowiedź jako kod QR.",
   "deskSetTxQrHint": "Płać i dostawaj zapłatę, pokazując i skanując transakcję jako animowany kod QR, bez potrzeby sieci. Na tym komputerze idzie w parze z Przesyłaniem pliku: Pokaż QR i Skanuj QR są obok przycisków plików.",
   "deskQrScanImport": "Albo zeskanuj płatność lub fakturę jako kod QR."
 }

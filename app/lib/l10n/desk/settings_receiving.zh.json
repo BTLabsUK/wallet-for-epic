@@ -37,5 +37,8 @@
   "deskSetHttpNoRouterText": "Tor 在任何地方都能用，无需转发任何端口。",
   "deskSetHttpTurnOnTor": "开启 Tor",
   "deskSetHttpExposed": "只开放接收 API。明文 HTTP 不加密。",
-  "deskSetHttpBackLocal": "改回仅限本机"
+  "deskSetHttpBackLocal": "改回仅限本机",
+  "deskSetRecvEpboxOffSent": "{time} 已发送 · 等待回复",
+  "deskSetRecvEpboxOffNote": "发往 Epicbox 地址的付款会在服务器上等待，直到 Epicbox 再次开启。",
+  "deskSetRecvEpboxKeepOn": "保持开启"
 }

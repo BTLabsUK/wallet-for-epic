@@ -23,5 +23,9 @@
   "deskSetAboutNotCopied": "未复制",
   "deskSetAboutDownloadPage": "下载页面",
   "deskSetAboutVersionLabel": "版本",
-  "deskSetAboutNodeLabel": "节点"
+  "deskSetAboutNodeLabel": "节点",
+  "deskLicTitle": "许可证文本",
+  "deskLicDesc": "BT Wallet 及其构成部分，各附其许可证。打开一项即可阅读全文。",
+  "deskLicSearch": "搜索 {count} 个软件包",
+  "deskLicNone": "没有名称包含此内容的软件包。"
 }

@@ -6787,13 +6787,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskFinTitle => 'Завершить по файлу ответа';
 
   @override
-  String get deskFinNoticeTitle => 'Для платежей файлом';
-
-  @override
-  String get deskFinNoticeText =>
-      'Используйте файл ответа, который прислал получатель.';
-
-  @override
   String get deskFinTryAgain => 'Повторить';
 
   @override
@@ -10706,7 +10699,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetLndMoveDesc =>
-      'Узел остановится на время перемещения, затем запустится из новой папки. «Начать там заново» вместо этого загрузит в неё блокчейн с нуля.';
+      'Узел остановится на время перемещения, затем запустится из новой папки.';
 
   @override
   String get deskSetLndStartFresh => 'Начать там заново';
@@ -10899,9 +10892,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetLogsClearDesc =>
       'Удаляет файлы журналов. В отчёт, отправленный позже, попадёт только то, что записано с этого момента.';
-
-  @override
-  String get deskSetLogsKeep => 'Оставить журналы';
 
   @override
   String get deskSetLogsClear => 'Очистить журналы';
@@ -20705,9 +20695,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskQrPastedName => 'Вставленный текст';
 
   @override
-  String get deskQrScanFinalize => 'Или отсканируйте их ответ как QR-код.';
-
-  @override
   String get deskSetTxQrHint =>
       'Платите и получайте платежи, показывая и сканируя транзакцию как анимированный QR-код, сеть не нужна. На этом компьютере это часть «Передачи файла»: «Показать QR» и «Сканировать QR» стоят рядом с кнопками файлов.';
 
@@ -22141,4 +22128,90 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendSummaryTo(String name) {
     return 'для $name';
   }
+
+  @override
+  String get deskPairNameTitle => 'Имя, показываемое при связке';
+
+  @override
+  String get deskPairNameDesc =>
+      'Связанный кошелёк показывает это имя рядом с запечатанными платежами и счетами. Оставьте пустым, чтобы связать без имени.';
+
+  @override
+  String get deskPairNameField => 'Показываемое имя';
+
+  @override
+  String get deskSendPickSendTitle => 'Отправить контакту';
+
+  @override
+  String get deskSendPickSendDesc =>
+      'Связанные контакты получают запечатанный платёж. Остальные — на сохранённый адрес.';
+
+  @override
+  String deskSendPickSendTo(String name) {
+    return 'Отправить: $name';
+  }
+
+  @override
+  String deskSendPickChooseName(String name) {
+    return 'Выбрать: $name';
+  }
+
+  @override
+  String get deskSendPickChoose => 'Выбрать';
+
+  @override
+  String get deskLicTitle => 'Тексты лицензий';
+
+  @override
+  String get deskLicDesc =>
+      'BT Wallet и части, из которых он собран, каждая со своей лицензией. Откройте одну, чтобы прочитать её полностью.';
+
+  @override
+  String deskLicSearch(int count) {
+    return 'Поиск по пакетам: $count';
+  }
+
+  @override
+  String get deskLicNone => 'Ни в одном названии пакета этого нет.';
+
+  @override
+  String get deskSetLndMoveFrom => 'Откуда';
+
+  @override
+  String get deskSetLndMoveTo => 'Куда';
+
+  @override
+  String get deskSetLndMoveFree => 'Свободно там';
+
+  @override
+  String get deskSetLndMoveFreshNote =>
+      '«Начать там заново» вместо этого загрузит блокчейн в новую папку с нуля.';
+
+  @override
+  String deskSetRecvEpboxOffSent(String time) {
+    return 'Отправлено $time · ждёт ответа';
+  }
+
+  @override
+  String get deskSetRecvEpboxOffNote =>
+      'Платежи на адрес Epicbox ждут на сервере, пока Epicbox снова не включён.';
+
+  @override
+  String get deskSetRecvEpboxKeepOn => 'Оставить включённым';
+
+  @override
+  String get deskFinCardTitle => 'Завершить платёж';
+
+  @override
+  String get deskFinCardLead =>
+      'Откройте файл ответа, который вернул получатель. Кошелёк завершит платёж и отправит его в сеть.';
+
+  @override
+  String get deskFinScanLink => 'Сканировать ответ как код';
+
+  @override
+  String get deskFinPasteLink => 'Вставить как текст';
+
+  @override
+  String get deskFinPasteEmpty => 'Нечего вставить: сначала скопируйте ответ';
 }

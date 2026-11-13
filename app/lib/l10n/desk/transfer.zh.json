@@ -18,8 +18,6 @@
   "deskFinPickTitle": "回复文件",
   "deskFinPosted": "付款已广播",
   "deskFinTitle": "完成回复文件",
-  "deskFinNoticeTitle": "用于文件付款",
-  "deskFinNoticeText": "使用接收方发回的回复文件。",
   "deskFinTryAgain": "重试",
   "deskFinPostedText": "付款已完成并广播到网络。可在“活动”中查看进度。",
   "deskFinAnother": "完成另一个文件",
@@ -52,5 +50,10 @@
   "deskImpOpenAnother": "打开另一个文件",
   "deskEpicboxBlockedWord": "被拦截",
   "deskEpicboxBlockedShort": "此网络拦截了 {host}。请换个服务器或使用专用 DNS。",
-  "deskEpicboxBlockedSwitch": "切换到 {host}"
+  "deskEpicboxBlockedSwitch": "切换到 {host}",
+  "deskFinCardTitle": "完成付款",
+  "deskFinCardLead": "打开收款方发回的回复文件。钱包会完成付款并将其发布到网络。",
+  "deskFinScanLink": "扫描回复二维码",
+  "deskFinPasteLink": "以文本粘贴",
+  "deskFinPasteEmpty": "没有可粘贴的内容：请先复制回复"
 }

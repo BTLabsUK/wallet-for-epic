@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network_gate.dart' show NetGate;
@@ -127,6 +128,17 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     await _finalize((api) => api.finalizeText(text));
   }
 
+  /// Paste it as text: the reply's text from the clipboard, finalized as a scanned one is.
+  Future<void> _paste() async {
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim() ?? '';
+    if (!mounted) return;
+    if (text.isEmpty) {
+      showEToast(context, context.l10n.deskFinPasteEmpty, tone: ETone.warn);
+      return;
+    }
+    await _finalize((api) => api.finalizeText(text));
+  }
+
   /// The last finalize, which Try again runs once more (a file picked again, or the same text).
   Future<Tx> Function(DeskWalletApi api)? _last;
 
@@ -177,50 +189,40 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     final l = context.l10n;
     // Offline on a node that is not local: the file still runs, through that node.
     final offlineNode = ref.watch(deskOfflineUsesNodeProvider);
+    final notices = [
+      if (offlineNode)
+        ENotice(
+          key: const ValueKey('file-offline-node'),
+          title: l.advModeNodeOnly,
+          text: l.netOfflineNodeHint,
+          tone: ETone.info,
+          icon: EIcons.info,
+        ),
+      if (_error != null)
+        ENotice(
+          title: _error!.title(l),
+          // A refused answer to a request says why in the request's words (DESIGN §3.4).
+          text: _error == FinalizeError.failed && _detail != null && _requestRefusal(_detail!) ? _detail!.text(l) : _error!.text(l),
+          tone: ETone.risk,
+          icon: EIcons.error,
+          actions: [if (_error == FinalizeError.notPosted) EButton(label: l.deskFinTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _retry)],
+        ),
+    ];
+    void leave() => nav.canBack ? nav.back() : nav.go(DeskRoute.receive);
     return EPage(
       title: l.deskFinTitle,
       width: EPageWidth.narrow,
-      onBack: () => nav.canBack ? nav.back() : nav.go(DeskRoute.receive),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ENotice(
-            title: l.deskFinNoticeTitle,
-            text: l.deskFinNoticeText,
-            icon: EIcons.info,
-          ),
-          SizedBox(height: Sp.x5),
-          if (offlineNode) ...[
-            ENotice(
-              key: const ValueKey('file-offline-node'),
-              title: l.advModeNodeOnly,
-              text: l.netOfflineNodeHint,
-              tone: ETone.info,
-              icon: EIcons.info,
-            ),
-            SizedBox(height: Sp.x5),
-          ],
-          if (_error != null) ...[
-            ENotice(
-              title: _error!.title(l),
-              // A refused answer to a request says why in the request's words (DESIGN §3.4).
-              text: _error == FinalizeError.failed && _detail != null && _requestRefusal(_detail!) ? _detail!.text(l) : _error!.text(l),
-              tone: ETone.risk,
-              icon: EIcons.error,
-              actions: [if (_error == FinalizeError.notPosted) EButton(label: l.deskFinTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _retry)],
-            ),
-            SizedBox(height: Sp.x5),
-          ],
-          if (_done && _cold != null)
-            FinishedNotPostedPanel(
+      onBack: leave,
+      child: _done && _cold != null
+          ? FinishedNotPostedPanel(
               tx: _cold!,
               actions: [
                 EButton(label: l.deskFinAnother, icon: EIcons.fileUp, onPressed: () => setState(() => _done = false)),
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _txId)),
               ],
             )
-          else if (_done)
-            ResultPanel(
+          : _done
+          ? ResultPanel(
               title: l.deskFinPosted,
               text: _request == null
                   ? l.deskFinPostedText
@@ -230,30 +232,50 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _txId)),
               ],
             )
-          else if (_busy)
-            EPanel(
-              padding: EdgeInsets.all(Sp.x8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ESpinner(size: 20.u),
-                  SizedBox(width: Sp.x3),
-                  Text(l.deskFinBusy, style: ts.bodyDim),
+          // Dlg-Finish-file: the card the canvas draws, standing on the page.
+          : Align(
+              alignment: AlignmentDirectional.topStart,
+              child: EModalCard(
+                width: 560.u,
+                icon: EIcons.file,
+                title: l.deskFinCardTitle,
+                lead: l.deskFinCardLead,
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final n in notices) ...[n, SizedBox(height: Sp.x4)],
+                    if (_busy)
+                      SizedBox(
+                        height: 120.u,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ESpinner(size: 20.u),
+                            SizedBox(width: Sp.x3),
+                            Text(l.deskFinBusy, style: ts.bodyDim),
+                          ],
+                        ),
+                      )
+                    else
+                      EDropZone(title: l.deskFinChoose, text: l.deskFinChooseText, onPick: _pick, button: false),
+                    SizedBox(height: Sp.x3),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: Sp.x5,
+                      runSpacing: Sp.x2,
+                      children: [
+                        ELink(key: const ValueKey('fin-scan'), label: l.deskFinScanLink, onPressed: _busy ? null : _scan),
+                        ELink(key: const ValueKey('fin-paste'), label: l.deskFinPasteLink, onPressed: _busy ? null : _paste),
+                      ],
+                    ),
+                  ],
+                ),
+                actions: [
+                  EButton(label: l.commonCancel, onPressed: leave),
+                  EButton.primary(label: l.deskFinChooseFile, onPressed: _busy ? null : _pick),
                 ],
               ),
-            )
-          else ...[
-            EDropZone(
-              title: l.deskFinChoose,
-              text: l.deskFinChooseText,
-              buttonLabel: l.deskFinChooseFile,
-              onPick: _pick,
             ),
-            SizedBox(height: Sp.x3),
-            DeskScanRow(text: l.deskQrScanFinalize, button: DeskQrScanButton(key: const ValueKey('fin-scan'), onScan: _scan)),
-          ],
-        ],
-      ),
     );
   }
 }

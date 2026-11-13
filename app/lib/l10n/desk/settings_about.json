@@ -141,5 +141,27 @@
   "deskSetAboutNodeLabel": "Node",
   "@deskSetAboutNodeLabel": {
     "description": "About: label column of the node version row (LD-004)."
+  },
+  "deskLicTitle": "Licence texts",
+  "@deskLicTitle": {
+    "description": "Settings › About › Licences: the title of the dialog listing every package's licence texts."
+  },
+  "deskLicDesc": "BT Wallet and the parts it is built from, each with its licence. Open one to read it in full.",
+  "@deskLicDesc": {
+    "description": "Licence texts dialog: the sentence under the title."
+  },
+  "deskLicSearch": "Search {count} packages",
+  "@deskLicSearch": {
+    "description": "Licence texts dialog: the search field's hint. count is how many packages carry licences.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "142"
+      }
+    }
+  },
+  "deskLicNone": "No package has that in its name.",
+  "@deskLicNone": {
+    "description": "Licence texts dialog: the line when the search matches no package."
   }
 }

@@ -546,18 +546,64 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
       if (again != true) return null;
       continue;
     }
+    // Dlg-Chain-move: where from, where to, the room there; Choose another and Start fresh
+    // there over Cancel and Move. Choose another comes back as null with [again].
+    var again = false;
     final how = await showEDialog<FolderChange>(
       context,
-      builder: (context) => EDialog(
-        title: context.l10n.deskSetLndMoveTitle(bytesText(s.chainDataBytes ?? plan.bytesNeeded, context.l10n), folder),
-        icon: EIcons.folder,
-        description: context.l10n.deskSetLndMoveDesc,
-        actions: [
-          EButton(label: context.l10n.deskSetLndStartFresh, onPressed: () => Navigator.of(context).pop(FolderChange.point)),
-          EButton.primary(label: context.l10n.deskSetLndMove, onPressed: () => Navigator.of(context).pop(FolderChange.move)),
-        ],
-      ),
+      builder: (context) {
+        final l = context.l10n;
+        final c = context.dc;
+        final ts = context.ts;
+        Text path(String p) => Text(p, style: ts.mono(size: Fs.sm), maxLines: 2, overflow: TextOverflow.ellipsis);
+        return EDialog(
+          title: l.deskSetLndMoveTitle(bytesText(s.chainDataBytes ?? plan.bytesNeeded, l), folder),
+          icon: EIcons.node,
+          tone: ETone.info,
+          description: l.deskSetLndMoveDesc,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              EFacts([
+                (l.deskSetLndMoveFrom, path(plan.from)),
+                (l.deskSetLndMoveTo, path(plan.to)),
+                if (plan.freeOnTarget != null) (l.deskSetLndMoveFree, Text(bytesText(plan.freeOnTarget!, l))),
+              ]),
+              SizedBox(height: Sp.x3),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.info, size: 16.u, color: c.dim)),
+                  SizedBox(width: Sp.x2),
+                  Expanded(child: Text(l.deskSetLndMoveFreshNote, style: ts.bodyDim)),
+                ],
+              ),
+              SizedBox(height: Sp.x5),
+              Row(
+                children: [
+                  Expanded(
+                    child: EButton(
+                      label: l.deskSetLndChooseAnother,
+                      onPressed: () {
+                        again = true;
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  SizedBox(width: Sp.x3),
+                  Expanded(child: EButton(label: l.deskSetLndStartFresh, onPressed: () => Navigator.of(context).pop(FolderChange.point))),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
+            EButton.primary(label: l.deskSetLndMove, onPressed: () => Navigator.of(context).pop(FolderChange.move)),
+          ],
+        );
+      },
     );
+    if (again && context.mounted) continue;
     return how == null ? null : (folder, how);
   }
 }

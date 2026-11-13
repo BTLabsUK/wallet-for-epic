@@ -10454,18 +10454,6 @@ abstract class AppLocalizations {
   /// **'Finalize a response file'**
   String get deskFinTitle;
 
-  /// Title of the info notice at the top of the Finalize page.
-  ///
-  /// In en, this message translates to:
-  /// **'For file payments'**
-  String get deskFinNoticeTitle;
-
-  /// Text of the info notice at the top of the Finalize page.
-  ///
-  /// In en, this message translates to:
-  /// **'Use the response file the recipient sent back.'**
-  String get deskFinNoticeText;
-
   /// Button in the "Not posted" notice on Finalize: choose the file again.
   ///
   /// In en, this message translates to:
@@ -16235,7 +16223,7 @@ abstract class AppLocalizations {
   /// Change folder dialog: description. "Start fresh there" is a button name.
   ///
   /// In en, this message translates to:
-  /// **'The node stops while the data moves, then starts again from the new folder. Start fresh there downloads the chain again into it instead.'**
+  /// **'The node stops while the data moves, then starts again from the new folder.'**
   String get deskSetLndMoveDesc;
 
   /// Change folder dialog: button that uses the new folder and downloads the chain again.
@@ -16530,12 +16518,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deletes the log files. A report sent later has only what is logged from now on.'**
   String get deskSetLogsClearDesc;
-
-  /// Clear logs dialog: button that cancels.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep logs'**
-  String get deskSetLogsKeep;
 
   /// Clear logs dialog danger button and the Settings > Help > Logs button that opens it.
   ///
@@ -31297,12 +31279,6 @@ abstract class AppLocalizations {
   /// **'Pasted text'**
   String get deskQrPastedName;
 
-  /// Line beside Scan QR on desktop's Finalize step, under the box that takes the reply file.
-  ///
-  /// In en, this message translates to:
-  /// **'Or scan their reply as a QR code.'**
-  String get deskQrScanFinalize;
-
   /// Hint of the QR Payment method in desktop Settings › Payment methods.
   ///
   /// In en, this message translates to:
@@ -33720,6 +33696,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'to {name}'**
   String deskSendSummaryTo(String name);
+
+  /// Pairing: the dialog that sets the name the paired wallet shows for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'The name shown when paired'**
+  String get deskPairNameTitle;
+
+  /// Pairing name dialog: the sentence under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'The paired wallet shows this name beside sealed payments and invoices. Leave it empty to pair without a name.'**
+  String get deskPairNameDesc;
+
+  /// Pairing name dialog: the field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Name shown'**
+  String get deskPairNameField;
+
+  /// Send's contact picker: the dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to a contact'**
+  String get deskSendPickSendTitle;
+
+  /// Send's contact picker: the sentence under the title. A paired contact is paid with a sealed payment; any other contact at the saved address.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired contacts get a sealed payment. The others get their saved address.'**
+  String get deskSendPickSendDesc;
+
+  /// Send's contact picker: the button that takes the chosen contact as the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {name}'**
+  String deskSendPickSendTo(String name);
+
+  /// Contact picker (not Send): the button that takes the chosen contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose {name}'**
+  String deskSendPickChooseName(String name);
+
+  /// Contact picker: the button while no contact can be chosen (disabled).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get deskSendPickChoose;
+
+  /// Settings › About › Licences: the title of the dialog listing every package's licence texts.
+  ///
+  /// In en, this message translates to:
+  /// **'Licence texts'**
+  String get deskLicTitle;
+
+  /// Licence texts dialog: the sentence under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'BT Wallet and the parts it is built from, each with its licence. Open one to read it in full.'**
+  String get deskLicDesc;
+
+  /// Licence texts dialog: the search field's hint. count is how many packages carry licences.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {count} packages'**
+  String deskLicSearch(int count);
+
+  /// Licence texts dialog: the line when the search matches no package.
+  ///
+  /// In en, this message translates to:
+  /// **'No package has that in its name.'**
+  String get deskLicNone;
+
+  /// Move the chain data? dialog: label of the folder the chain data is in now.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get deskSetLndMoveFrom;
+
+  /// Move the chain data? dialog: label of the chosen folder.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get deskSetLndMoveTo;
+
+  /// Move the chain data? dialog: label of the free space on the chosen folder's drive.
+  ///
+  /// In en, this message translates to:
+  /// **'Free there'**
+  String get deskSetLndMoveFree;
+
+  /// Move the chain data? dialog: the info line on what the Start fresh there button does.
+  ///
+  /// In en, this message translates to:
+  /// **'Start fresh there downloads the chain again into the new folder instead.'**
+  String get deskSetLndMoveFreshNote;
+
+  /// Turn Epicbox off? dialog: the line under a waiting payment's name. time is a clock time like 11:30.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {time} · waiting for the reply'**
+  String deskSetRecvEpboxOffSent(String time);
+
+  /// Turn Epicbox off? dialog: the info line under the waiting payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments sent to the Epicbox address wait at the server until it is on.'**
+  String get deskSetRecvEpboxOffNote;
+
+  /// Turn Epicbox off? dialog: the button that leaves Epicbox on.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it on'**
+  String get deskSetRecvEpboxKeepOn;
+
+  /// Finalize a response file: the card's title (the sender completes a file payment with the recipient's response file).
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the payment'**
+  String get deskFinCardTitle;
+
+  /// Finalize card: the sentence under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the response file the recipient sent back. The wallet completes the payment and posts it to the network.'**
+  String get deskFinCardLead;
+
+  /// Finalize card: link that scans the recipient's reply shown as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the reply as a code'**
+  String get deskFinScanLink;
+
+  /// Finalize card: link that finalizes the reply copied as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste it as text'**
+  String get deskFinPasteLink;
+
+  /// Toast: Paste it as text found no text on the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to paste: copy the reply first'**
+  String get deskFinPasteEmpty;
 }
 
 class _AppLocalizationsDelegate

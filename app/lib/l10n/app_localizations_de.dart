@@ -6657,13 +6657,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskFinTitle => 'Antwortdatei abschließen';
 
   @override
-  String get deskFinNoticeTitle => 'Für Zahlungen per Datei';
-
-  @override
-  String get deskFinNoticeText =>
-      'Verwenden Sie die Antwortdatei, die der Empfänger zurückgeschickt hat.';
-
-  @override
   String get deskFinTryAgain => 'Erneut versuchen';
 
   @override
@@ -10456,7 +10449,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetLndMoveDesc =>
-      'Der Node stoppt, während die Daten verschoben werden, und startet dann aus dem neuen Ordner. „Dort neu beginnen“ lädt die Blockchain stattdessen neu in diesen Ordner.';
+      'Der Node stoppt, während die Daten verschoben werden, und startet dann aus dem neuen Ordner.';
 
   @override
   String get deskSetLndStartFresh => 'Dort neu beginnen';
@@ -10647,9 +10640,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetLogsClearDesc =>
       'Löscht die Protokolldateien. Ein später gesendeter Bericht enthält nur, was ab jetzt protokolliert wird.';
-
-  @override
-  String get deskSetLogsKeep => 'Protokolle behalten';
 
   @override
   String get deskSetLogsClear => 'Protokolle löschen';
@@ -20332,9 +20322,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskQrPastedName => 'Eingefügter Text';
 
   @override
-  String get deskQrScanFinalize => 'Oder scannen Sie ihre Antwort als QR-Code.';
-
-  @override
   String get deskSetTxQrHint =>
       'Zahlen und bezahlt werden, indem Sie eine Transaktion als animierten QR-Code zeigen und scannen, ganz ohne Netzwerk. Auf diesem Computer gehört es zur Dateiübertragung: QR anzeigen und QR scannen stehen neben den Datei-Schaltflächen.';
 
@@ -21770,4 +21757,91 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendSummaryTo(String name) {
     return 'an $name';
   }
+
+  @override
+  String get deskPairNameTitle => 'Der Name, der beim Koppeln angezeigt wird';
+
+  @override
+  String get deskPairNameDesc =>
+      'Die gekoppelte Wallet zeigt diesen Namen neben versiegelten Zahlungen und Rechnungen. Leer lassen, um ohne Namen zu koppeln.';
+
+  @override
+  String get deskPairNameField => 'Angezeigter Name';
+
+  @override
+  String get deskSendPickSendTitle => 'An einen Kontakt senden';
+
+  @override
+  String get deskSendPickSendDesc =>
+      'Gekoppelte Kontakte erhalten eine versiegelte Zahlung. Die anderen erhalten sie an die gespeicherte Adresse.';
+
+  @override
+  String deskSendPickSendTo(String name) {
+    return 'An $name senden';
+  }
+
+  @override
+  String deskSendPickChooseName(String name) {
+    return '$name wählen';
+  }
+
+  @override
+  String get deskSendPickChoose => 'Wählen';
+
+  @override
+  String get deskLicTitle => 'Lizenztexte';
+
+  @override
+  String get deskLicDesc =>
+      'BT Wallet und die Teile, aus denen es gebaut ist, jeweils mit seiner Lizenz. Einen Eintrag öffnen, um sie vollständig zu lesen.';
+
+  @override
+  String deskLicSearch(int count) {
+    return '$count Pakete durchsuchen';
+  }
+
+  @override
+  String get deskLicNone => 'Kein Paket hat das im Namen.';
+
+  @override
+  String get deskSetLndMoveFrom => 'Von';
+
+  @override
+  String get deskSetLndMoveTo => 'Nach';
+
+  @override
+  String get deskSetLndMoveFree => 'Dort frei';
+
+  @override
+  String get deskSetLndMoveFreshNote =>
+      '„Dort neu beginnen“ lädt die Blockchain stattdessen neu in den neuen Ordner.';
+
+  @override
+  String deskSetRecvEpboxOffSent(String time) {
+    return 'Gesendet $time · wartet auf die Antwort';
+  }
+
+  @override
+  String get deskSetRecvEpboxOffNote =>
+      'An die Epicbox-Adresse gesendete Zahlungen warten auf dem Server, bis Epicbox wieder an ist.';
+
+  @override
+  String get deskSetRecvEpboxKeepOn => 'Anlassen';
+
+  @override
+  String get deskFinCardTitle => 'Zahlung abschließen';
+
+  @override
+  String get deskFinCardLead =>
+      'Die Antwortdatei öffnen, die der Empfänger zurückgeschickt hat. Die Wallet schließt die Zahlung ab und sendet sie an das Netzwerk.';
+
+  @override
+  String get deskFinScanLink => 'Antwort als Code scannen';
+
+  @override
+  String get deskFinPasteLink => 'Als Text einfügen';
+
+  @override
+  String get deskFinPasteEmpty =>
+      'Nichts zum Einfügen: zuerst die Antwort kopieren';
 }

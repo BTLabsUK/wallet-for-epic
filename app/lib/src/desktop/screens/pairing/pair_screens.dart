@@ -517,12 +517,14 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    // Dlg-Pair-name: what the name is for, then the field.
     return EDialog(
-      title: l.pairSeenAsEdit,
-      icon: EIcons.pencil,
+      title: l.deskPairNameTitle,
+      description: l.deskPairNameDesc,
+      icon: EIcons.paired,
       body: EField(
-        label: l.pairSeenAsField,
-        help: l.pairSeenAsOptional,
+        label: l.deskPairNameField,
+        help: l.pairSeenAsHint,
         error: _error,
         child: EInput(key: deskPairNameKey, semanticsId: TrustIds.pairNameField, controller: _text, hint: l.pairSeenAsHint, autofocus: true, onChanged: (_) => setState(() => _error = null), onSubmitted: (_) => _save()),
       ),

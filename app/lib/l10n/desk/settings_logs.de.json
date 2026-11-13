@@ -2,7 +2,6 @@
   "deskSetLogsMemoryOnly": "Das Protokoll wird nur im Arbeitsspeicher gehalten.",
   "deskSetLogsClearTitle": "Protokolle löschen?",
   "deskSetLogsClearDesc": "Löscht die Protokolldateien. Ein später gesendeter Bericht enthält nur, was ab jetzt protokolliert wird.",
-  "deskSetLogsKeep": "Protokolle behalten",
   "deskSetLogsClear": "Protokolle löschen",
   "deskSetLogsCleared": "Protokolle gelöscht",
   "deskSetLogsToday": "heute {time}",

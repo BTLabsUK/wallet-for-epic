@@ -11,10 +11,6 @@
   "@deskSetLogsClearDesc": {
     "description": "Clear logs dialog: description."
   },
-  "deskSetLogsKeep": "Keep logs",
-  "@deskSetLogsKeep": {
-    "description": "Clear logs dialog: button that cancels."
-  },
   "deskSetLogsClear": "Clear logs",
   "@deskSetLogsClear": {
     "description": "Clear logs dialog danger button and the Settings > Help > Logs button that opens it."
