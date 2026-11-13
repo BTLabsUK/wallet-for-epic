@@ -4686,7 +4686,7 @@
   "deskSetTxSending": "การส่ง",
   "deskSetTxTorPayHint": "Tor ทำงานเฉพาะเพื่อส่งและรับเงินที่ที่อยู่ Tor เท่านั้น โหนด ราคา และการอัปเดตใช้การตั้งค่าในเครือข่ายและความเป็นส่วนตัว ทุกกระเป๋า",
   "deskSetWalletsOnComputer": "ในคอมพิวเตอร์นี้",
-  "deskBarKeySearch": "ค้นหาการตั้งค่า",
+  "deskBarKeySearch": "ช่องในหน้าแรก; ในการตั้งค่าคือช่องค้นหา",
   "deskBarKeySearchHere": "ค้นหา ขณะอยู่ในการตั้งค่า",
   "deskHttpLocalTitle": "เครือข่ายในบ้าน",
   "deskHttpLocalSwitch": "รับบนคอมพิวเตอร์เครื่องนี้",

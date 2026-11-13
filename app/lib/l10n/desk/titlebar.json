@@ -105,9 +105,9 @@
   "@deskBarKeyList": {
     "description": "Keyboard-shortcuts row: the ? key opens this list."
   },
-  "deskBarKeySearch": "Search settings",
+  "deskBarKeySearch": "Home field; in Settings, its search",
   "@deskBarKeySearch": {
-    "description": "Keyboard-shortcuts row: Ctrl+K (Cmd+K on macOS) opens Settings with its search field focused, from any page."
+    "description": "Keyboard shortcuts list: what Ctrl+K does. Outside Settings it focuses the field on Home (a name, an amount, an address or a code); inside Settings it focuses the Settings search."
   },
   "deskBarKeySearchHere": "Search, while in Settings",
   "@deskBarKeySearchHere": {

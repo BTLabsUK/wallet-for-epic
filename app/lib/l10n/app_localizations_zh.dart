@@ -17448,7 +17448,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRailTorForPayments => '用于付款';
 
   @override
-  String get deskBarKeySearch => '搜索设置';
+  String get deskBarKeySearch => '首页输入框；在设置中为设置搜索';
 
   @override
   String get deskBarKeySearchHere => '在设置中搜索';

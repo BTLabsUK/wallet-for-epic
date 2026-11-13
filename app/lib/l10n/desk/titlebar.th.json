@@ -23,7 +23,7 @@
   "deskBarKeyClose": "ปิดเมนูหรือหน้าต่าง",
   "deskBarKeySubmit": "ทำคำสั่งหลักของแบบฟอร์ม",
   "deskBarKeyList": "รายการนี้",
-  "deskBarKeySearch": "ค้นหาการตั้งค่า",
+  "deskBarKeySearch": "ช่องในหน้าแรก; ในการตั้งค่าคือช่องค้นหา",
   "deskBarKeySearchHere": "ค้นหา ขณะอยู่ในการตั้งค่า",
   "deskBarCopyBuild": "คัดลอกข้อมูลบิลด์",
   "deskBarBuildCopied": "คัดลอกข้อมูลบิลด์แล้ว",

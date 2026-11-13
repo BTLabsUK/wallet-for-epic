@@ -4686,7 +4686,7 @@
   "deskSetTxSending": "Senden",
   "deskSetTxTorPayHint": "Tor läuft nur, um Zahlungen an der Tor-Adresse zu senden und zu empfangen. Node, Kurse und Updates folgen der Einstellung unter Netzwerk & Datenschutz. Alle Wallets.",
   "deskSetWalletsOnComputer": "Auf diesem Computer",
-  "deskBarKeySearch": "Einstellungen durchsuchen",
+  "deskBarKeySearch": "Feld auf Start; in den Einstellungen deren Suche",
   "deskBarKeySearchHere": "Suchen, in den Einstellungen",
   "deskHttpLocalTitle": "Lokales Netzwerk",
   "deskHttpLocalSwitch": "Auf diesem Computer empfangen",

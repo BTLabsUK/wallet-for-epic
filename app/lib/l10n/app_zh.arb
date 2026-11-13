@@ -4686,7 +4686,7 @@
   "deskSetTxSending": "发送",
   "deskSetTxTorPayHint": "Tor 只用于在 Tor 地址收发付款。节点、价格和更新沿用“网络与隐私”中的设置。所有钱包。",
   "deskSetWalletsOnComputer": "此电脑上",
-  "deskBarKeySearch": "搜索设置",
+  "deskBarKeySearch": "首页输入框；在设置中为设置搜索",
   "deskBarKeySearchHere": "在设置中搜索",
   "deskHttpLocalTitle": "本地网络",
   "deskHttpLocalSwitch": "在本机接收",

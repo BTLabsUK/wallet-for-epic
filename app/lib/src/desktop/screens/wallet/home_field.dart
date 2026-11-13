@@ -27,6 +27,22 @@ SendArgs? homeFieldSend(String typed) {
   return SendArgs(recipient: text, suggest: true, code: text, codeOrigin: CodeOrigin.paste);
 }
 
+/// Asks Home's field for the focus (Ctrl+K): a count, so every press asks again.
+final homeFieldFocusProvider = NotifierProvider<HomeFieldFocus, int>(HomeFieldFocus.new);
+
+class HomeFieldFocus extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void request() => state++;
+}
+
+/// Ctrl+K outside Settings: Home, with its field focused.
+void openHomeField(WidgetRef ref) {
+  if (ref.read(deskNavProvider).route != DeskRoute.overview) ref.read(deskNavProvider.notifier).go(DeskRoute.overview);
+  ref.read(homeFieldFocusProvider.notifier).request();
+}
+
 class HomeField extends ConsumerStatefulWidget {
   const HomeField({super.key});
 
@@ -36,10 +52,19 @@ class HomeField extends ConsumerStatefulWidget {
 
 class _HomeFieldState extends ConsumerState<HomeField> {
   final _text = TextEditingController();
+  final _focus = FocusNode(debugLabel: 'home-field');
+
+  @override
+  void initState() {
+    super.initState();
+    // Opened by Ctrl+K: the request came before this field was built.
+    if (ref.read(homeFieldFocusProvider) > 0) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _focus.requestFocus() : null);
+  }
 
   @override
   void dispose() {
     _text.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -54,9 +79,11 @@ class _HomeFieldState extends ConsumerState<HomeField> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
+    ref.listen(homeFieldFocusProvider, (_, _) => _focus.requestFocus());
     return EInput(
       key: const ValueKey('home-field'),
       controller: _text,
+      focusNode: _focus,
       leading: EIcons.search,
       hint: l.deskOvFieldHint,
       semanticLabel: l.deskOvFieldHint,

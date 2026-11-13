@@ -339,6 +339,20 @@ void main() {
     });
   });
 
+  group('Ctrl+K', () {
+    testWidgets('from a wallet page: Home, with its field focused', (tester) async {
+      final container = await _open(tester, DeskRoute.activity);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await _settle(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      final field = find.descendant(of: find.byKey(const ValueKey('home-field')), matching: find.byType(EditableText));
+      expect(tester.widget<EditableText>(field).focusNode.hasFocus, isTrue);
+      await _end(tester);
+    });
+  });
+
   group('Esc', () {
     testWidgets('closes a tooltip first, then the dialog under it; with nothing open it leaves Settings', (tester) async {
       final container = await _open(tester, DeskRoute.contacts);

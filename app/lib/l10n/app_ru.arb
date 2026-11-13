@@ -4686,7 +4686,7 @@
   "deskSetTxSending": "Отправка",
   "deskSetTxTorPayHint": "Tor работает только для отправки и получения платежей по адресу Tor. Узел, курсы и обновления следуют настройке в разделе «Сеть и приватность». Все кошельки.",
   "deskSetWalletsOnComputer": "На этом компьютере",
-  "deskBarKeySearch": "Поиск по настройкам",
+  "deskBarKeySearch": "Поле на главной; в настройках — их поиск",
   "deskBarKeySearchHere": "Поиск, когда открыты Настройки",
   "deskHttpLocalTitle": "Локальная сеть",
   "deskHttpLocalSwitch": "Получать на этом компьютере",

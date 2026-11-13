@@ -18110,7 +18110,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskRailTorForPayments => 'สำหรับการชำระเงิน';
 
   @override
-  String get deskBarKeySearch => 'ค้นหาการตั้งค่า';
+  String get deskBarKeySearch => 'ช่องในหน้าแรก; ในการตั้งค่าคือช่องค้นหา';
 
   @override
   String get deskBarKeySearchHere => 'ค้นหา ขณะอยู่ในการตั้งค่า';

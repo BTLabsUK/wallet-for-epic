@@ -19101,7 +19101,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskRailTorForPayments => 'Dla płatności';
 
   @override
-  String get deskBarKeySearch => 'Szukaj w ustawieniach';
+  String get deskBarKeySearch =>
+      'Pole na stronie Start; w Ustawieniach ich wyszukiwarka';
 
   @override
   String get deskBarKeySearchHere => 'Szukaj, gdy otwarte są Ustawienia';
