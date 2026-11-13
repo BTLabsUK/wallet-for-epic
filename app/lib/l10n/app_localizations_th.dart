@@ -11590,7 +11590,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ให้ ตรวจยอดใหม่ เริ่มจากความสูงบล็อกหรือวันที่แทนการเริ่มจากบล็อกแรก เร็วกว่า และเป็นวิธีเดียวที่ข้ามประวัติช่วงแรกได้ ตอนกู้คืนมีตัวเลือกนี้เสมอ';
 
   @override
-  String get advModeStandard => 'ปกติ';
+  String get advModeStandard => 'การเชื่อมต่อทั้งหมด';
 
   @override
   String get advModeTorOnly => 'Tor เท่านั้น';
@@ -18200,7 +18200,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendHeldWhileTorOn => 'ถูกระงับขณะ Tor เปิดอยู่';
 
   @override
-  String get sendHeldModeNormal => 'โหมดเครือข่าย: ปกติ';
+  String get sendHeldModeNormal => 'โหมดเครือข่าย: การเชื่อมต่อทั้งหมด';
 
   @override
   String get sendHeldTorIsOff => 'Tor ปิดอยู่';

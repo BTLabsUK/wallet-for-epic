@@ -12010,7 +12010,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Lässt „Guthaben neu prüfen“ bei einer Blockhöhe oder einem Datum beginnen statt beim ersten Block. Schneller, und der einzige Weg, frühe Blöcke zu überspringen. Beim Wiederherstellen steht die Wahl immer offen.';
 
   @override
-  String get advModeStandard => 'Normal';
+  String get advModeStandard => 'Alle Verbindungen';
 
   @override
   String get advModeTorOnly => 'Nur Tor';
@@ -18803,7 +18803,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendHeldWhileTorOn => 'Gesperrt, solange Tor an ist';
 
   @override
-  String get sendHeldModeNormal => 'Netzwerkmodus: Normal.';
+  String get sendHeldModeNormal => 'Netzwerkmodus: Alle Verbindungen.';
 
   @override
   String get sendHeldTorIsOff => 'Tor ist aus.';

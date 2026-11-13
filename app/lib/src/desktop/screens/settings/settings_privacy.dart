@@ -126,15 +126,7 @@ class NetworkModeGroup extends ConsumerWidget {
     final s = st.settings;
     final adv = s.advanced;
     final torIncluded = (st.status?.torIncluded ?? true) && DeskFeatures.tor;
-    Future<void> choose(NetworkMode m) async {
-      if (m == adv.networkMode) return;
-      final waiting = switchPausesSends(m) && !switchPausesSends(adv.networkMode) ? deskPendingNetworkSends(st) : 0;
-      if (waiting > 0) {
-        final ok = await confirmNetworkModeSwitch(context, mode: m, waiting: waiting);
-        if (ok != true) return;
-      }
-      await ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withMode(m)));
-    }
+    Future<void> choose(NetworkMode m) => deskChooseNetworkMode(context, ref, m);
     Widget mode(NetworkMode m, {bool tor = false}) => ERadioRow(
       key: ValueKey('adv-mode-${m.name}'),
       semanticsId: _modeId[m],
@@ -177,6 +169,24 @@ class NetworkModeGroup extends ConsumerWidget {
     );
   }
 }
+
+/// Switches the wallet to the connection mode [m] (Settings › Network and privacy, the status
+/// bar's mode menu). A switch that would pause a send waiting for its recipient asks first
+/// ([confirmNetworkModeSwitch]).
+Future<void> deskChooseNetworkMode(BuildContext context, WidgetRef ref, NetworkMode m) async {
+  final st = ref.read(deskProvider);
+  final adv = st.settings.advanced;
+  if (m == adv.networkMode) return;
+  final waiting = switchPausesSends(m) && !switchPausesSends(adv.networkMode) ? deskPendingNetworkSends(st) : 0;
+  if (waiting > 0) {
+    final ok = await confirmNetworkModeSwitch(context, mode: m, waiting: waiting);
+    if (ok != true) return;
+  }
+  await ref.read(deskProvider.notifier).saveSettings(ref.read(deskProvider).settings.copyWith(advanced: adv.withMode(m)));
+}
+
+/// The modes in the order Settings lists them; Tor only in builds with Tor.
+List<NetworkMode> deskNetworkModes() => [NetworkMode.standard, if (DeskFeatures.tor) NetworkMode.torOnly, NetworkMode.nodeOnly, NetworkMode.killSwitch];
 
 /// The ⓘ beside the Connection mode heading: the picture of the modes.
 const Key networkModesHintKey = ValueKey('adv-modes-hint');

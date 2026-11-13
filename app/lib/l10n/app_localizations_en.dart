@@ -11876,7 +11876,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.';
 
   @override
-  String get advModeStandard => 'Normal';
+  String get advModeStandard => 'All connections';
 
   @override
   String get advModeTorOnly => 'Tor only';
@@ -18577,7 +18577,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendHeldWhileTorOn => 'Held while Tor is on';
 
   @override
-  String get sendHeldModeNormal => 'Network mode: Normal.';
+  String get sendHeldModeNormal => 'Network mode: All connections.';
 
   @override
   String get sendHeldTorIsOff => 'Tor is off.';

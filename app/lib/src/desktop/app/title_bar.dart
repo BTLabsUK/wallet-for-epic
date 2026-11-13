@@ -42,6 +42,7 @@ import '../screens/onboarding/unlock_screen.dart' show UnlockPick;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/report_problem.dart' show showReportProblemDialog;
+import '../screens/settings/settings_privacy.dart' show deskChooseNetworkMode, deskNetworkModes;
 import '../widgets/kit.dart';
 import 'close_guard.dart';
 import 'desk_app.dart' show deskNavigatorKey;

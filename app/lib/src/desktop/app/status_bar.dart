@@ -62,6 +62,46 @@ class DeskStatusBar extends ConsumerWidget {
   }
 }
 
+/// A mode in the status bar's mode menu: its glyph, its name, a tick on the chosen one.
+class _ModeRow extends StatelessWidget {
+  const _ModeRow({required this.mode, required this.chosen, required this.onTap});
+
+  final NetworkMode mode;
+  final bool chosen;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final off = onTap == null;
+    return Semantics(
+      button: true,
+      selected: chosen,
+      enabled: !off,
+      child: EInkWell(
+        key: ValueKey('bar-mode-${mode.name}'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(Rad.sm),
+        hoverColor: c.hover,
+        child: Container(
+          height: Ctl.sm,
+          padding: EdgeInsets.symmetric(horizontal: Sp.x2),
+          decoration: BoxDecoration(color: chosen ? c.s3 : null, borderRadius: BorderRadius.circular(Rad.sm)),
+          child: Row(
+            children: [
+              Icon(networkModeGlyph(mode), size: Ctl.iconSm, color: off ? c.faint : c.dim),
+              SizedBox(width: Sp.x3),
+              Expanded(child: Text(networkModeName(context.l10n, mode), style: (chosen ? ts.strong : ts.body).copyWith(color: off ? c.faint : null))),
+              if (chosen) Icon(EIcons.check, size: Ctl.iconSm, color: c.text),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// One cell of the bar with the hairline that parts it from the next ([end]: from the one before).
 class _BarCell extends StatelessWidget {
   const _BarCell({required this.child, this.end = false});
@@ -191,15 +231,16 @@ class _PriceCell extends ConsumerWidget {
   }
 }
 
-/// The network mode, always in words: a mode is a choice, not a service, so it wears no state
-/// dot. A click opens a popover with the mode's glyph, its name, one line and a Change button
-/// that opens Settings › Advanced › Network.
+/// The connection mode, always in words: a mode is a choice, not a service, so it wears no state
+/// dot. A click opens the list of modes, the chosen one ticked: a pick switches the wallet here
+/// (asking first when it would pause a waiting send), and Settings opens Network and privacy.
 class _ModeCell extends ConsumerWidget {
   const _ModeCell();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(deskProvider.select((s) => s.settings.advanced.networkMode));
+    final torIncluded = ref.watch(deskProvider.select((s) => s.status?.torIncluded ?? true));
     final l = context.l10n;
     final c = context.dc;
     final ts = context.ts;
@@ -210,33 +251,45 @@ class _ModeCell extends ConsumerWidget {
       end: true,
       child: _BarMenu(
         minWidth: 280.u,
-        children: (context, m) => [
+        children: (menu, m) => [
           Padding(
-            padding: EdgeInsets.all(Sp.x3),
+            padding: EdgeInsets.all(Sp.x2),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 260.u),
+              constraints: BoxConstraints(maxWidth: 280.u),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Icon(networkModeGlyph(mode), size: 18.u, color: c.dim),
-                      SizedBox(width: Sp.x2),
-                      Flexible(child: Text(name, style: ts.strong)),
-                    ],
-                  ),
-                  if (line.isNotEmpty) ...[SizedBox(height: Sp.x2), Text(line, style: ts.small.copyWith(color: c.dim))],
-                  SizedBox(height: Sp.x3),
+                  for (final x in deskNetworkModes())
+                    _ModeRow(
+                      mode: x,
+                      chosen: x == mode,
+                      // Tor only in a build without Tor: listed, not offered.
+                      onTap: x == NetworkMode.torOnly && !torIncluded
+                          ? null
+                          : () {
+                              m.close();
+                              // The cell's own context: the menu's goes with it.
+                              unawaited(deskChooseNetworkMode(context, ref, x));
+                            },
+                    ),
+                  if (line.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(Sp.x2, Sp.x2, Sp.x2, 0),
+                      child: Text(line, style: ts.small.copyWith(color: c.dim)),
+                    ),
+                  Divider(height: Sp.x4, color: c.line),
                   Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: EButton(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: EButton.ghost(
                       key: const ValueKey('bar-mode-change'),
-                      label: l.netMarkChange,
+                      label: l.deskRecvSettings,
+                      icon: EIcons.settings,
+                      size: EBtnSize.sm,
                       onPressed: () {
                         m.close();
                         deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-                        ProviderScope.containerOf(context, listen: false).read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network);
+                        ProviderScope.containerOf(menu, listen: false).read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network);
                       },
                     ),
                   ),

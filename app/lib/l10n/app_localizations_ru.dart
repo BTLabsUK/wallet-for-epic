@@ -12274,7 +12274,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Позволяет начать «Сверку баланса» с высоты блока или с даты, а не с первого блока. Быстрее, и это единственный способ пропустить раннюю историю. При восстановлении выбор есть всегда.';
 
   @override
-  String get advModeStandard => 'Обычный';
+  String get advModeStandard => 'Все подключения';
 
   @override
   String get advModeTorOnly => 'Только Tor';
@@ -19179,7 +19179,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendHeldWhileTorOn => 'Недоступно, пока включён Tor';
 
   @override
-  String get sendHeldModeNormal => 'Режим сети: Обычный.';
+  String get sendHeldModeNormal => 'Режим сети: Все подключения.';
 
   @override
   String get sendHeldTorIsOff => 'Tor выключен.';

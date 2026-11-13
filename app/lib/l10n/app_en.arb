@@ -15806,9 +15806,9 @@
   "@advRecheckHeightHint": {
     "description": "Info sheet of the Recheck from a height switch."
   },
-  "advModeStandard": "Normal",
+  "advModeStandard": "All connections",
   "@advModeStandard": {
-    "description": "Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes."
+    "description": "The default connection mode, named by what it allows (every connection, directly), as Tor only and Node only are. Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes."
   },
   "advModeTorOnly": "Tor only",
   "@advModeTorOnly": {
@@ -25155,7 +25155,7 @@
   "@sendHeldWhileTorOn": {
     "description": "Send: why an address in a contact's address menu cannot be used now."
   },
-  "sendHeldModeNormal": "Network mode: Normal.",
+  "sendHeldModeNormal": "Network mode: All connections.",
   "@sendHeldModeNormal": {
     "description": "Send: toast after a notice's action set the network mode back to Normal."
   },

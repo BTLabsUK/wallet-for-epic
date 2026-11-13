@@ -11206,7 +11206,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '让“重新核对余额”可以从某个区块高度或日期开始，而不是从第一个区块开始。更快，也是跳过早期记录的唯一办法。恢复钱包时始终可以选择。';
 
   @override
-  String get advModeStandard => '常规';
+  String get advModeStandard => '全部连接';
 
   @override
   String get advModeTorOnly => '仅 Tor';
@@ -17537,7 +17537,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendHeldWhileTorOn => 'Tor 开启时不可用';
 
   @override
-  String get sendHeldModeNormal => '网络模式：常规。';
+  String get sendHeldModeNormal => '网络模式：全部连接。';
 
   @override
   String get sendHeldTorIsOff => 'Tor 已关闭。';

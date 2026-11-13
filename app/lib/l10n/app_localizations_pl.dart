@@ -12300,7 +12300,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pozwala Sprawdź saldo zacząć od wysokości bloku lub daty zamiast od pierwszego bloku. Szybciej, i jedyny sposób, by pominąć wczesną historię. Przywracanie zawsze daje taki wybór.';
 
   @override
-  String get advModeStandard => 'Normalny';
+  String get advModeStandard => 'Wszystkie połączenia';
 
   @override
   String get advModeTorOnly => 'Tylko Tor';
@@ -19194,7 +19194,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendHeldWhileTorOn => 'Wstrzymany, gdy Tor jest włączony';
 
   @override
-  String get sendHeldModeNormal => 'Tryb sieci: Normalny.';
+  String get sendHeldModeNormal => 'Tryb sieci: Wszystkie połączenia.';
 
   @override
   String get sendHeldTorIsOff => 'Tor jest wyłączony.';

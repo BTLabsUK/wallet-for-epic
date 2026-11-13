@@ -18721,10 +18721,10 @@ abstract class AppLocalizations {
   /// **'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.'**
   String get advRecheckHeightHint;
 
-  /// Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes.
+  /// The default connection mode, named by what it allows (every connection, directly), as Tor only and Node only are. Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes.
   ///
   /// In en, this message translates to:
-  /// **'Normal'**
+  /// **'All connections'**
   String get advModeStandard;
 
   /// Network mode: Tor or nothing.
@@ -28840,7 +28840,7 @@ abstract class AppLocalizations {
   /// Send: toast after a notice's action set the network mode back to Normal.
   ///
   /// In en, this message translates to:
-  /// **'Network mode: Normal.'**
+  /// **'Network mode: All connections.'**
   String get sendHeldModeNormal;
 
   /// Send: toast after Turn Tor off in a notice.
