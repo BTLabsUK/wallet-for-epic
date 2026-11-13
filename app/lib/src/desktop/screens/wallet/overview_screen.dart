@@ -126,6 +126,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
 
     final recent = _Recent(txs: txs, shallow: shallow, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
+    // The payment the In motion card shows, when it is a file send waiting for its response.
+    final top = txs?.where(payInFlight).firstOrNull;
+    final onCard = top != null && _waitsForFile(top) ? 1 : 0;
     final gap = SizedBox(height: Sp.x4);
     final book = ref.watch(deskInvoicesProvider);
     final invoicesWait = book != null && (book.waiting.isNotEmpty || book.openRequests.isNotEmpty || book.needsAction.isNotEmpty);
@@ -291,7 +294,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                     )
                   : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [recent, const HomeContacts()]),
             ),
-          if (pending > 0) _PendingFiles(count: pending),
+          // The file sends to finish that the card above does not already offer.
+          if (pending - onCard > 0) _PendingFiles(count: pending - onCard),
           if (!invoicesWait) const OverviewInvoicesCard(),
         ],
       ),
@@ -922,6 +926,12 @@ class _InFlight extends ConsumerWidget {
     final technical = ref.watch(deskLevelFeaturesProvider.select((f) => f.wording)) == LevelWording.technical;
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final t = live.first;
+    // A file send that waits for the recipient's file: the next step is on its card, beside
+    // the amount, or under the title in a window too narrow for both.
+    final reply = _waitsForFile(t)
+        ? EButton(key: const ValueKey('home-open-reply'), label: l.sendOpenReply, size: EBtnSize.sm, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize))
+        : null;
+    final roomy = MediaQuery.sizeOf(context).width >= Lay.lg;
     final rows = live.skip(1).take(3).toList();
     final more = live.length - 1 - rows.length;
     return Column(
@@ -960,8 +970,10 @@ class _InFlight extends ConsumerWidget {
                           ),
                           SizedBox(width: Sp.x4),
                           ExcludeSemantics(child: TxAmount(t, showFee: false)),
+                          if (reply != null && roomy) ...[SizedBox(width: Sp.x4), reply],
                         ],
                       ),
+                      if (reply != null && !roomy) Padding(padding: EdgeInsets.only(top: Sp.x3), child: Align(alignment: AlignmentDirectional.centerStart, child: reply)),
                       SizedBox(height: Sp.x4),
                       DeskPaymentSteps(tx: t, dense: true),
                     ],
@@ -1005,6 +1017,9 @@ class _InFlight extends ConsumerWidget {
     );
   }
 }
+
+/// A file send that waits for the recipient's response file (what [DeskState.pendingFiles] counts).
+bool _waitsForFile(Tx t) => t.method == TxMethod.file && t.state == TxState.waitingRecipient && !t.incoming;
 
 /// The box of a payment under way: s1 fill, line border and the info bar at the start. The bar is
 /// drawn under the content, not laid out beside it: the steps measure their own width (no

@@ -56,9 +56,9 @@ IssuedRequest _request({bool byFile = false, bool inPerson = false, RequestState
 );
 
 void main() {
-  testWidgets('with an invoice waiting, the Invoices card is above Recent activity', (tester) async {
+  testWidgets('with an invoice waiting, the invoices strip is above Recent activity', (tester) async {
     await _pump(tester, _Wallet());
-    final card = tester.getTopLeft(find.text(_l.deskInvActOverviewTitle)).dy;
+    final card = tester.getTopLeft(find.byKey(const ValueKey('home-invoices'))).dy;
     final recent = tester.getTopLeft(find.text(_l.deskOvRecent)).dy;
     expect(card, lessThan(recent));
   });

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Overview's Requests card: what waits for the user and for others.
+/// Home's invoices strip: what waits for the user and for others, and nothing when nothing does.
 /// Amounts to pay are outgoing ("You pay"), never income; requested amounts are not counted.
 library;
 
@@ -26,78 +26,64 @@ class OverviewInvoicesCard extends ConsumerWidget {
     final open = book.openRequests;
     final attention = book.needsAction;
     final toPay = waiting.fold<int>(0, (a, i) => a + i.amount);
-    Widget line(IconData icon, String text, {Widget? trailing, Color? color}) => Padding(
-      padding: EdgeInsets.symmetric(vertical: Sp.x1),
-      child: Row(
-        children: [
-          Icon(icon, size: Ctl.iconSm, color: color ?? c.dim),
-          SizedBox(width: Sp.x2),
-          Expanded(child: Text(text, style: ts.body.copyWith(color: color ?? c.text))),
-          ?trailing,
-        ],
-      ),
+    // Nothing waits either way: the Invoices tab says so and Home says nothing.
+    if (waiting.isEmpty && open.isEmpty && attention.isEmpty) return const SizedBox.shrink();
+    // What waits, the most pressing first: to pay, to look at, issued and not paid yet.
+    final lines = [
+      if (waiting.isNotEmpty) l.deskInvActOverviewToPay(waiting.length),
+      if (attention.isNotEmpty) l.deskInvActOverviewAttention(attention.length),
+      if (open.isNotEmpty) l.deskInvActOverviewWaiting(open.length),
+    ];
+    final act = waiting.isNotEmpty || attention.isNotEmpty;
+    final button = act
+        ? InvButton(label: l.deskInvActReview, kind: EBtnKind.primarySoft, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices, InvoicesTab.pay))
+        : InvButton(label: l.deskInvActOpenInvoices, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices));
+    final tile = Container(
+      width: Ctl.sm,
+      height: Ctl.sm,
+      decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(Rad.sm)),
+      child: Icon(EIcons.invoice, size: Ctl.icon, color: c.accentText),
     );
-    // Nothing waiting either way: the two lines and the button share one row, so the card
-    // takes the room of a list row instead of a box around two "nothing" lines.
-    final quiet = waiting.isEmpty && open.isEmpty && attention.isEmpty;
-    final openButton = InvButton(label: l.deskInvActOpenInvoices, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices));
+    final words = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(lines.first, style: ts.strong.copyWith(color: waiting.isEmpty && attention.isNotEmpty ? c.warn : c.text)),
+        if (lines.length > 1) Text(metaLine(lines.skip(1).toList()), style: ts.small),
+      ],
+    );
+    final amount = waiting.isEmpty
+        ? null
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EMoney(-toPay, sign: true, unit: false, size: Fs.md, color: c.text),
+              Text(l.deskInvYouPay, style: ts.caption),
+            ],
+          );
     return Padding(
       padding: EdgeInsets.only(top: Sp.x4),
-      child: EPanel(
-        title: l.deskInvActOverviewTitle,
-        padding: quiet ? EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x3) : null,
-        child: quiet
-            ? LayoutBuilder(
-                builder: (context, box) {
-                  final lines = Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      line(EIcons.invoice, l.deskInvActOverviewToPay(0)),
-                      line(EIcons.request, l.deskInvActOverviewWaiting(0)),
-                    ],
-                  );
-                  if (box.maxWidth < Lay.sm) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [lines, SizedBox(height: Sp.x3), openButton],
-                    );
-                  }
-                  return Row(
-                    children: [
-                      Expanded(child: lines),
-                      SizedBox(width: Sp.x4),
-                      openButton,
-                    ],
-                  );
-                },
-              )
-            : Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            line(
-              EIcons.invoice,
-              l.deskInvActOverviewToPay(waiting.length),
-              trailing: waiting.isEmpty
-                  ? null
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        EMoney(-toPay, sign: true, unit: false, size: Fs.md, color: c.text),
-                        Text(l.deskInvYouPay, style: ts.caption),
-                      ],
-                    ),
-            ),
-            line(EIcons.request, l.deskInvActOverviewWaiting(open.length)),
-            if (attention.isNotEmpty) line(EIcons.alert, l.deskInvActOverviewAttention(attention.length), color: c.warn),
-            SizedBox(height: Sp.x3),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: waiting.isNotEmpty || attention.isNotEmpty
-                  ? InvButton(label: l.deskInvActReview, kind: EBtnKind.primarySoft, width: InvW.md, onPressed: () => nav.go(DeskRoute.invoices, InvoicesTab.pay))
-                  : openButton,
-            ),
-          ],
+      child: Container(
+        key: const ValueKey('home-invoices'),
+        padding: EdgeInsets.fromLTRB(14.u, 10.u, Sp.x3, 10.u),
+        decoration: BoxDecoration(color: c.s1, border: Border.all(color: act ? c.lineStrong : c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final head = Row(
+              children: [
+                tile,
+                SizedBox(width: 14.u),
+                Expanded(child: words),
+                if (amount != null) ...[SizedBox(width: Sp.x4), amount],
+              ],
+            );
+            // The button under the words where the strip is too narrow for it beside them.
+            if (box.maxWidth < Lay.sm) {
+              return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [head, SizedBox(height: Sp.x3), button]);
+            }
+            return Row(children: [Expanded(child: head), SizedBox(width: Sp.x4), button]);
+          },
         ),
       ),
     );
