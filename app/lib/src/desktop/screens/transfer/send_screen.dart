@@ -2725,7 +2725,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   }
 
   /// What the summary shows now: the amounts and the one line under Review send.
-  _SendSummary _summary(DeskState st, SendResult? res, {bool review = true}) {
+  SendSummaryPanel _summary(DeskState st, SendResult? res, {bool review = true}) {
     final l = context.l10n;
     final spendable = st.balance?.spendable;
     final n = _amountNano;
@@ -2775,7 +2775,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         _ => r.contacted,
       }),
     };
-    return _SendSummary(
+    return SendSummaryPanel(
       via: via,
       viaSub: viaSub,
       to: _viaPairing ? ref.watch(deskPairingNameProvider(_pairingId!)) : _contactOf(st.contacts)?.name,
@@ -2814,8 +2814,9 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
 /// The Send page's summary panel: amount, fee, total, balance after, Review send and the
 /// line under it. One widget so the summary rows can grow (outputs) without the form.
-class _SendSummary extends StatelessWidget {
-  const _SendSummary({
+class SendSummaryPanel extends StatelessWidget {
+  const SendSummaryPanel({
+    super.key,
     required this.amount,
     required this.fee,
     required this.spendable,
@@ -2836,7 +2837,13 @@ class _SendSummary extends StatelessWidget {
     this.confirmations = defaultMinimumConfirmations,
     this.review = true,
     this.lockRows = true,
+    this.reviewKey,
+    this.reviewId = TrustIds.sendReview,
   });
+
+  /// The Review button's key and driver id (epic1 mode's Send names its own).
+  final Key? reviewKey;
+  final String reviewId;
 
   /// The method this send goes by, and under it where it goes; null hides the row (Shallow).
   final String? via;
@@ -2955,7 +2962,7 @@ class _SendSummary extends StatelessWidget {
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (review) ...[
-            EButton.primary(semanticsId: TrustIds.sendReview, label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
+            EButton.primary(key: reviewKey, semanticsId: reviewId, label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
             SizedBox(height: Sp.x3),
           ],
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),

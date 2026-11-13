@@ -24700,7 +24700,7 @@ abstract class AppLocalizations {
   /// One line under the Node ports dialog title.
   ///
   /// In en, this message translates to:
-  /// **'The ports the built-in node listens on.'**
+  /// **'The ports the node on this computer listens on. Change a port only if another program already uses it.'**
   String get deskSetLnodePortsDesc;
 
   /// Note in the Node ports dialog while the node runs: saving a change restarts it.
@@ -33840,6 +33840,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to paste: copy the reply first'**
   String get deskFinPasteEmpty;
+
+  /// Node ports dialog: the line over the buttons, why Save is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Save turns on once a port changes.'**
+  String get deskSetLnodePortsHint;
 }
 
 class _AppLocalizationsDelegate

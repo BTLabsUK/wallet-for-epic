@@ -889,7 +889,7 @@
   "@deskSetLnodePortsTitle": {
     "description": "Title of the dialog that changes the built-in node's ports."
   },
-  "deskSetLnodePortsDesc": "The ports the built-in node listens on.",
+  "deskSetLnodePortsDesc": "The ports the node on this computer listens on. Change a port only if another program already uses it.",
   "@deskSetLnodePortsDesc": {
     "description": "One line under the Node ports dialog title."
   },
@@ -924,5 +924,9 @@
   "deskSetLndMoveFreshNote": "Start fresh there downloads the chain again into the new folder instead.",
   "@deskSetLndMoveFreshNote": {
     "description": "Move the chain data? dialog: the info line on what the Start fresh there button does."
+  },
+  "deskSetLnodePortsHint": "Save turns on once a port changes.",
+  "@deskSetLnodePortsHint": {
+    "description": "Node ports dialog: the line over the buttons, why Save is off."
   }
 }

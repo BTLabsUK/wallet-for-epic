@@ -4043,7 +4043,7 @@
   "deskOnbNodePortUse": "Использовать {port}",
   "deskSetLnodePorts": "Порты",
   "deskSetLnodePortsTitle": "Порты узла",
-  "deskSetLnodePortsDesc": "Порты, которые слушает встроенный узел.",
+  "deskSetLnodePortsDesc": "Порты, которые слушает узел на этом компьютере. Меняйте порт, только если его уже занимает другая программа.",
   "deskSetLnodePortsRestart": "Узел перезапустится с новыми портами.",
   "deskSetLnodePortsSaved": "Порты сохранены",
   "deskSetLnodePortsRestarting": "Узел перезапускается.",
@@ -5627,5 +5627,6 @@
   "deskFinCardLead": "Откройте файл ответа, который вернул получатель. Кошелёк завершит платёж и отправит его в сеть.",
   "deskFinScanLink": "Сканировать ответ как код",
   "deskFinPasteLink": "Вставить как текст",
-  "deskFinPasteEmpty": "Нечего вставить: сначала скопируйте ответ"
+  "deskFinPasteEmpty": "Нечего вставить: сначала скопируйте ответ",
+  "deskSetLnodePortsHint": "«Сохранить» станет доступно, когда порт изменится."
 }

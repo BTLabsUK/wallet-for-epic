@@ -158,7 +158,7 @@
   "deskSetPeersFirstSeenHint": "本应用在本次运行中首次看到该对等节点连接的时间。",
   "deskSetLnodePorts": "端口",
   "deskSetLnodePortsTitle": "节点端口",
-  "deskSetLnodePortsDesc": "内置节点监听的端口。",
+  "deskSetLnodePortsDesc": "此电脑上的节点监听的端口。仅当其他程序已占用某个端口时才更改它。",
   "deskSetLnodePortsRestart": "节点将使用新端口重新启动。",
   "deskSetLnodePortsSaved": "端口已保存",
   "deskSetLnodePortsRestarting": "节点正在重新启动。",
@@ -166,5 +166,6 @@
   "deskSetLndMoveFrom": "从",
   "deskSetLndMoveTo": "到",
   "deskSetLndMoveFree": "那里的可用空间",
-  "deskSetLndMoveFreshNote": "“在那里重新开始”则会改为把区块链重新下载到新文件夹中。"
+  "deskSetLndMoveFreshNote": "“在那里重新开始”则会改为把区块链重新下载到新文件夹中。",
+  "deskSetLnodePortsHint": "端口更改后即可保存。"
 }

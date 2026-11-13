@@ -16572,7 +16572,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetLnodePortsTitle => 'Порты узла';
 
   @override
-  String get deskSetLnodePortsDesc => 'Порты, которые слушает встроенный узел.';
+  String get deskSetLnodePortsDesc =>
+      'Порты, которые слушает узел на этом компьютере. Меняйте порт, только если его уже занимает другая программа.';
 
   @override
   String get deskSetLnodePortsRestart =>
@@ -22214,4 +22215,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskFinPasteEmpty => 'Нечего вставить: сначала скопируйте ответ';
+
+  @override
+  String get deskSetLnodePortsHint =>
+      '«Сохранить» станет доступно, когда порт изменится.';
 }

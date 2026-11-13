@@ -4043,7 +4043,7 @@
   "deskOnbNodePortUse": "Użyj {port}",
   "deskSetLnodePorts": "Porty",
   "deskSetLnodePortsTitle": "Porty węzła",
-  "deskSetLnodePortsDesc": "Porty, na których nasłuchuje wbudowany węzeł.",
+  "deskSetLnodePortsDesc": "Porty, na których nasłuchuje węzeł na tym komputerze. Zmień port tylko wtedy, gdy używa go już inny program.",
   "deskSetLnodePortsRestart": "Węzeł uruchomi się ponownie z nowymi portami.",
   "deskSetLnodePortsSaved": "Porty zapisane",
   "deskSetLnodePortsRestarting": "Węzeł uruchamia się ponownie.",
@@ -5627,5 +5627,6 @@
   "deskFinCardLead": "Otwórz plik odpowiedzi odesłany przez odbiorcę. Portfel dokończy płatność i wyśle ją do sieci.",
   "deskFinScanLink": "Zeskanuj odpowiedź jako kod",
   "deskFinPasteLink": "Wklej jako tekst",
-  "deskFinPasteEmpty": "Nie ma czego wkleić: najpierw skopiuj odpowiedź"
+  "deskFinPasteEmpty": "Nie ma czego wkleić: najpierw skopiuj odpowiedź",
+  "deskSetLnodePortsHint": "Zapisz włączy się, gdy zmieni się port."
 }

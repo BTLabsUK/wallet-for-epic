@@ -10,7 +10,6 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
-import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -192,7 +191,8 @@ void main() {
       await _open(tester, DeskRoute.send, epic1: true);
       _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
       expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
-      expect(find.byWidgetPredicate((w) => w is Epic1Text && w.text == _l.deskE1SendField), findsWidgets);
+      // Send's form: To, with what it takes in the line under it.
+      expect(find.text(_l.deskE1SendField), findsOneWidget);
 
       await _enter(tester, 'e1-send-to', _link);
       expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);

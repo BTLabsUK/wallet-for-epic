@@ -15125,7 +15125,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLnodePortsTitle => '节点端口';
 
   @override
-  String get deskSetLnodePortsDesc => '内置节点监听的端口。';
+  String get deskSetLnodePortsDesc => '此电脑上的节点监听的端口。仅当其他程序已占用某个端口时才更改它。';
 
   @override
   String get deskSetLnodePortsRestart => '节点将使用新端口重新启动。';
@@ -20396,4 +20396,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskFinPasteEmpty => '没有可粘贴的内容：请先复制回复';
+
+  @override
+  String get deskSetLnodePortsHint => '端口更改后即可保存。';
 }

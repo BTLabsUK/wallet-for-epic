@@ -16195,7 +16195,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsDesc =>
-      'Die Ports, auf denen der mitgelieferte Node lauscht.';
+      'Die Ports, auf denen der Node auf diesem Computer lauscht. Einen Port nur ändern, wenn ein anderes Programm ihn schon nutzt.';
 
   @override
   String get deskSetLnodePortsRestart =>
@@ -21844,4 +21844,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskFinPasteEmpty =>
       'Nichts zum Einfügen: zuerst die Antwort kopieren';
+
+  @override
+  String get deskSetLnodePortsHint =>
+      '„Speichern“ wird aktiv, sobald sich ein Port ändert.';
 }

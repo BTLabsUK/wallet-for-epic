@@ -4043,7 +4043,7 @@
   "deskOnbNodePortUse": "ใช้ {port}",
   "deskSetLnodePorts": "พอร์ต",
   "deskSetLnodePortsTitle": "พอร์ตของโหนด",
-  "deskSetLnodePortsDesc": "พอร์ตที่โหนดในตัวรับการเชื่อมต่อ",
+  "deskSetLnodePortsDesc": "พอร์ตที่โหนดบนคอมพิวเตอร์เครื่องนี้รับการเชื่อมต่อ เปลี่ยนพอร์ตเฉพาะเมื่อมีโปรแกรมอื่นใช้อยู่แล้ว",
   "deskSetLnodePortsRestart": "โหนดจะเริ่มใหม่ด้วยพอร์ตใหม่",
   "deskSetLnodePortsSaved": "บันทึกพอร์ตแล้ว",
   "deskSetLnodePortsRestarting": "โหนดกำลังเริ่มใหม่",
@@ -5627,5 +5627,6 @@
   "deskFinCardLead": "เปิดไฟล์ตอบกลับที่ผู้รับส่งกลับมา กระเป๋าจะทำการชำระเงินให้เสร็จและส่งเข้าสู่เครือข่าย",
   "deskFinScanLink": "สแกนการตอบกลับเป็นโค้ด",
   "deskFinPasteLink": "วางเป็นข้อความ",
-  "deskFinPasteEmpty": "ไม่มีอะไรให้วาง: คัดลอกการตอบกลับก่อน"
+  "deskFinPasteEmpty": "ไม่มีอะไรให้วาง: คัดลอกการตอบกลับก่อน",
+  "deskSetLnodePortsHint": "ปุ่มบันทึกจะใช้ได้เมื่อมีการเปลี่ยนพอร์ต"
 }

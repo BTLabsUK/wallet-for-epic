@@ -15654,7 +15654,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetLnodePortsTitle => 'พอร์ตของโหนด';
 
   @override
-  String get deskSetLnodePortsDesc => 'พอร์ตที่โหนดในตัวรับการเชื่อมต่อ';
+  String get deskSetLnodePortsDesc =>
+      'พอร์ตที่โหนดบนคอมพิวเตอร์เครื่องนี้รับการเชื่อมต่อ เปลี่ยนพอร์ตเฉพาะเมื่อมีโปรแกรมอื่นใช้อยู่แล้ว';
 
   @override
   String get deskSetLnodePortsRestart => 'โหนดจะเริ่มใหม่ด้วยพอร์ตใหม่';
@@ -21177,4 +21178,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskFinPasteEmpty => 'ไม่มีอะไรให้วาง: คัดลอกการตอบกลับก่อน';
+
+  @override
+  String get deskSetLnodePortsHint =>
+      'ปุ่มบันทึกจะใช้ได้เมื่อมีการเปลี่ยนพอร์ต';
 }

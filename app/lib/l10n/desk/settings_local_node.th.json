@@ -158,7 +158,7 @@
   "deskSetPeersFirstSeenHint": "เวลาที่แอปนี้เห็น peer เชื่อมต่อครั้งแรกในรอบนี้",
   "deskSetLnodePorts": "พอร์ต",
   "deskSetLnodePortsTitle": "พอร์ตของโหนด",
-  "deskSetLnodePortsDesc": "พอร์ตที่โหนดในตัวรับการเชื่อมต่อ",
+  "deskSetLnodePortsDesc": "พอร์ตที่โหนดบนคอมพิวเตอร์เครื่องนี้รับการเชื่อมต่อ เปลี่ยนพอร์ตเฉพาะเมื่อมีโปรแกรมอื่นใช้อยู่แล้ว",
   "deskSetLnodePortsRestart": "โหนดจะเริ่มใหม่ด้วยพอร์ตใหม่",
   "deskSetLnodePortsSaved": "บันทึกพอร์ตแล้ว",
   "deskSetLnodePortsRestarting": "โหนดกำลังเริ่มใหม่",
@@ -166,5 +166,6 @@
   "deskSetLndMoveFrom": "จาก",
   "deskSetLndMoveTo": "ไปยัง",
   "deskSetLndMoveFree": "พื้นที่ว่างที่นั่น",
-  "deskSetLndMoveFreshNote": "เริ่มใหม่ที่นั่น จะดาวน์โหลดบล็อกเชนลงในโฟลเดอร์ใหม่แทน"
+  "deskSetLndMoveFreshNote": "เริ่มใหม่ที่นั่น จะดาวน์โหลดบล็อกเชนลงในโฟลเดอร์ใหม่แทน",
+  "deskSetLnodePortsHint": "ปุ่มบันทึกจะใช้ได้เมื่อมีการเปลี่ยนพอร์ต"
 }

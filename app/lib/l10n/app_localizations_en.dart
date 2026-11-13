@@ -16014,7 +16014,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLnodePortsTitle => 'Node ports';
 
   @override
-  String get deskSetLnodePortsDesc => 'The ports the built-in node listens on.';
+  String get deskSetLnodePortsDesc =>
+      'The ports the node on this computer listens on. Change a port only if another program already uses it.';
 
   @override
   String get deskSetLnodePortsRestart =>
@@ -21593,4 +21594,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskFinPasteEmpty => 'Nothing to paste: copy the reply first';
+
+  @override
+  String get deskSetLnodePortsHint => 'Save turns on once a port changes.';
 }

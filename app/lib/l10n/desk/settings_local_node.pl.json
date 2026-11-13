@@ -158,7 +158,7 @@
   "deskSetPeersFirstSeenHint": "Kiedy aplikacja w tej sesji pierwszy raz zobaczyła połączonego peera.",
   "deskSetLnodePorts": "Porty",
   "deskSetLnodePortsTitle": "Porty węzła",
-  "deskSetLnodePortsDesc": "Porty, na których nasłuchuje wbudowany węzeł.",
+  "deskSetLnodePortsDesc": "Porty, na których nasłuchuje węzeł na tym komputerze. Zmień port tylko wtedy, gdy używa go już inny program.",
   "deskSetLnodePortsRestart": "Węzeł uruchomi się ponownie z nowymi portami.",
   "deskSetLnodePortsSaved": "Porty zapisane",
   "deskSetLnodePortsRestarting": "Węzeł uruchamia się ponownie.",
@@ -166,5 +166,6 @@
   "deskSetLndMoveFrom": "Skąd",
   "deskSetLndMoveTo": "Dokąd",
   "deskSetLndMoveFree": "Wolne tam",
-  "deskSetLndMoveFreshNote": "Zacznij tam od nowa zamiast tego pobierze łańcuch od nowa do nowego folderu."
+  "deskSetLndMoveFreshNote": "Zacznij tam od nowa zamiast tego pobierze łańcuch od nowa do nowego folderu.",
+  "deskSetLnodePortsHint": "Zapisz włączy się, gdy zmieni się port."
 }

@@ -4043,7 +4043,7 @@
   "deskOnbNodePortUse": "使用 {port}",
   "deskSetLnodePorts": "端口",
   "deskSetLnodePortsTitle": "节点端口",
-  "deskSetLnodePortsDesc": "内置节点监听的端口。",
+  "deskSetLnodePortsDesc": "此电脑上的节点监听的端口。仅当其他程序已占用某个端口时才更改它。",
   "deskSetLnodePortsRestart": "节点将使用新端口重新启动。",
   "deskSetLnodePortsSaved": "端口已保存",
   "deskSetLnodePortsRestarting": "节点正在重新启动。",
@@ -5627,5 +5627,6 @@
   "deskFinCardLead": "打开收款方发回的回复文件。钱包会完成付款并将其发布到网络。",
   "deskFinScanLink": "扫描回复二维码",
   "deskFinPasteLink": "以文本粘贴",
-  "deskFinPasteEmpty": "没有可粘贴的内容：请先复制回复"
+  "deskFinPasteEmpty": "没有可粘贴的内容：请先复制回复",
+  "deskSetLnodePortsHint": "端口更改后即可保存。"
 }

@@ -25,7 +25,8 @@ import '../scan/desk_scan.dart';
 import '../scan/desk_scan_text.dart';
 import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPayInPerson;
 import '../transfer/contact_picker.dart' show contactEpic1Link, showContactPicker;
-import '../transfer/send_screen.dart' show SendArgs;
+import '../../../models.dart' show Epic1Via;
+import '../transfer/send_screen.dart' show SendArgs, SendSummaryPanel;
 import 'epic1_files.dart';
 
 enum _Step { form, review, waiting }
@@ -54,6 +55,10 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   bool _hostsOk = false;
   _Step _step = _Step.form;
   bool _busy = false;
+
+  /// The network fee for the amount, as Send estimates it; null until it comes.
+  int? _fee;
+  int _feeAsked = 0;
   Epic1Payment? _pay;
   String? _payError;
 
@@ -193,9 +198,9 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       _info = info;
       // The review shows the server and an unknown one was confirmed: LEPIC pays only with this.
       _hostsOk = true;
-      _amount.clear();
       _amountError = null;
     });
+    unawaited(_estimate());
   }
 
   Future<bool> _askServer(String host) async {
@@ -249,6 +254,34 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       return null;
     }
     return nano;
+  }
+
+  /// The amount the summary shows: the link's own, else the typed one; 0 when none is valid.
+  int get _shownNano {
+    final fixed = _info?.amount;
+    if (fixed != null) return fixed.toInt();
+    try {
+      final n = parseEpicIn(context.l10n, _amount.text.trim());
+      return n > 0 ? n : 0;
+    } on Object {
+      return 0;
+    }
+  }
+
+  /// Estimates the fee for the amount shown, as Send does; the last ask wins.
+  Future<void> _estimate() async {
+    final n = _shownNano;
+    final ask = ++_feeAsked;
+    if (n <= 0) {
+      if (_fee != null) setState(() => _fee = null);
+      return;
+    }
+    try {
+      final fee = await ref.read(deskApiProvider).estimateFee(n);
+      if (mounted && ask == _feeAsked) setState(() => _fee = fee);
+    } on Object {
+      if (mounted && ask == _feeAsked) setState(() => _fee = null);
+    }
   }
 
   void _review() {
@@ -359,119 +392,139 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     );
   }
 
+  /// Send's form with an epic1 link in To: the To card (Pay in person under it), the Amount
+  /// card, and Send's summary beside them with Review; under each other when narrow.
   Widget _form() {
     final l = context.l10n;
     final info = _info;
     final error = _error?.call(l);
     final empty = _to.text.trim().isEmpty;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TourTarget(
-          id: 'e1-send-form',
-          child: EPanel(
-            key: const ValueKey('e1-send-form'),
-            padding: EdgeInsets.all(Sp.panel),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    final st = ref.watch(deskProvider);
+    final n = _shownNano;
+    Widget card(Key? key, List<Widget> children) => EPanel(
+      key: key,
+      padding: EdgeInsets.all(Sp.panel),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    );
+    final toCard = TourTarget(
+      id: 'e1-send-form',
+      child: card(const ValueKey('e1-send-form'), [
+        EField(
+          label: l.deskSendTo,
+          error: error,
+          help: error == null && empty ? l.deskE1SendField : null,
+          child: EInput(
+            key: const ValueKey('e1-send-to'),
+            semanticsId: TrustIds.e1SendTo,
+            controller: _to,
+            mono: true,
+            fadeEnd: true,
+            autofocus: true,
+            invalid: error != null,
+            hint: l.deskE1SendFieldHint,
+            semanticLabel: l.deskE1SendFieldSem,
+            onChanged: _changed,
+            onSubmitted: (t) => unawaited(_open(t)),
+            trailingTabStop: true,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                EField(
-                  label: l.deskE1SendField,
-                  error: error,
-                  child: EInput(
-                    key: const ValueKey('e1-send-to'),
-                    semanticsId: TrustIds.e1SendTo,
-                    controller: _to,
-                    mono: true,
-                    fadeEnd: true,
-                    autofocus: true,
-                    invalid: error != null,
-                    hint: l.deskE1SendFieldHint,
-                    semanticLabel: l.deskE1SendFieldSem,
-                    onChanged: _changed,
-                    onSubmitted: (t) => unawaited(_open(t)),
-                    trailingTabStop: true,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_reading)
-                          Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x2), child: ESpinner(size: 16.u))
-                        else if (empty)
-                          EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
-                        else
-                          EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _reset),
-                        if (empty && !_reading) ...[SizedBox(width: Sp.x1), DeskScanButton(key: const ValueKey('e1-scan'), onScan: _scan, size: EBtnSize.inline)],
-                        SizedBox(width: Sp.x1),
-                        EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
-                      ],
-                    ),
-                  ),
-                ),
-                if (empty && !_reading) const DeskNoCameraLine(),
-                if (_errorSettings) ...[
-                  SizedBox(height: Sp.x2),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: EButton.ghost(
-                      key: const ValueKey('e1-send-settings'),
-                      label: l.deskRecvSettings,
-                      icon: EIcons.settings,
-                      size: EBtnSize.inline,
-                      onPressed: () => jumpToEpic1Switch(ref),
-                    ),
-                  ),
-                ],
-                if (info != null) ...[
-                  SizedBox(height: Sp.x5),
-                  if (info.message case final m? when m.isNotEmpty) ...[
-                    Text('"$m"', key: const ValueKey('e1-link-message'), style: context.ts.body.copyWith(fontStyle: FontStyle.italic)),
-                    SizedBox(height: Sp.x4),
-                  ],
-                  EField(
-                    label: l.deskSendAmount,
-                    error: _amountError,
-                    child: info.amount != null
-                        ? Text(epicTextL(l, info.amount!.toInt()), key: const ValueKey('e1-amount-fixed'), style: context.ts.mono(size: Fs.sm))
-                        : EInput(
-                            key: const ValueKey('e1-amount'),
-                            semanticsId: TrustIds.e1Amount,
-                            controller: _amount,
-                            mono: true,
-                            hint: '0',
-                            invalid: _amountError != null,
-                            semanticLabel: l.deskSendAmountSem,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            onChanged: (_) => setState(() => _amountError = null),
-                            onSubmitted: (_) => _review(),
-                          ),
-                  ),
-                ],
-                SizedBox(height: Sp.x5),
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: EButton.primary(
-                    key: const ValueKey('e1-review'),
-                    semanticsId: TrustIds.e1Review,
-                    label: l.deskE1Review,
-                    onPressed: empty || _reading ? null : _review,
-                  ),
-                ),
+                if (_reading)
+                  Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x2), child: ESpinner(size: 16.u))
+                else if (empty)
+                  EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
+                else
+                  EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _reset),
+                if (empty && !_reading) ...[SizedBox(width: Sp.x1), DeskScanButton(key: const ValueKey('e1-scan'), onScan: _scan, size: EBtnSize.inline)],
+                SizedBox(width: Sp.x1),
+                EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
               ],
             ),
           ),
         ),
-        SizedBox(height: Sp.x4),
+        if (empty && !_reading) const DeskNoCameraLine(),
+        if (_errorSettings) ...[
+          SizedBox(height: Sp.x2),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: EButton.ghost(
+              key: const ValueKey('e1-send-settings'),
+              label: l.deskRecvSettings,
+              icon: EIcons.settings,
+              size: EBtnSize.inline,
+              onPressed: () => jumpToEpic1Switch(ref),
+            ),
+          ),
+        ],
+        if (info?.message case final m? when m.isNotEmpty) ...[
+          SizedBox(height: Sp.x3),
+          Text('"$m"', key: const ValueKey('e1-link-message'), style: context.ts.body.copyWith(fontStyle: FontStyle.italic)),
+        ],
+        SizedBox(height: Sp.x2),
+        // Flush with the field's edge, as Send's Pay with a file.
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: EButton(
+          child: Transform.translate(
+            offset: Offset(-EButton.labelInset(EBtnSize.inline), 0),
+            child: EButton.ghost(
             key: const ValueKey('e1-pay-in-person'),
             semanticsId: TrustIds.e1PayInPerson,
             label: l.deskE1PayInPerson,
             icon: EIcons.phone,
+            size: EBtnSize.inline,
             onPressed: () => unawaited(openDeskPayInPerson(context)),
+            ),
           ),
         ),
-      ],
+      ]),
+    );
+    final amountCard = card(null, [
+      EField(
+        label: l.deskSendAmount,
+        error: _amountError,
+        child: info?.amount != null
+            ? Text(epicTextL(l, info!.amount!.toInt()), key: const ValueKey('e1-amount-fixed'), style: context.ts.mono(size: Fs.sm))
+            : EInput(
+                key: const ValueKey('e1-amount'),
+                semanticsId: TrustIds.e1Amount,
+                controller: _amount,
+                mono: true,
+                hint: '0',
+                invalid: _amountError != null,
+                semanticLabel: l.deskSendAmountSem,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                onChanged: (_) {
+                  setState(() => _amountError = null);
+                  unawaited(_estimate());
+                },
+                onSubmitted: (_) => _review(),
+              ),
+      ),
+    ]);
+    final server = info?.hosts.firstOrNull?.label;
+    final summary = SendSummaryPanel(
+      via: info == null ? null : MethodIcons.epic1Name(l, Epic1Via.link),
+      viaSub: server,
+      to: info == null ? null : shortMiddle(info.address),
+      amount: n,
+      fee: n > 0 ? _fee : null,
+      feeLoading: n > 0 && _fee == null,
+      spendable: st.balance?.spendable,
+      updating: st.status?.syncProgress != null,
+      hint: error != null || _amountError != null ? l.deskSendHintFix : (info == null ? l.deskE1SendFieldHint : l.deskLvSendNothingLeaves),
+      reviewing: _reading,
+      onReview: empty || _reading ? null : _review,
+      reviewLabel: l.deskE1Review,
+      reviewKey: const ValueKey('e1-review'),
+      reviewId: TrustIds.e1Review,
+      lockRows: false,
+    );
+    return LayoutBuilder(
+      builder: (context, box) {
+        final form = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [toCard, SizedBox(height: Sp.x3), amountCard]);
+        if (box.maxWidth >= Lay.xl) return PanelRow(main: form, side: summary, sideWidth: Ctl.sideSm);
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [form, SizedBox(height: Sp.col), summary]);
+      },
     );
   }
 

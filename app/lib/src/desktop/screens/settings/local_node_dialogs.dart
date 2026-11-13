@@ -96,7 +96,9 @@ class _LocalNodePortsDialogState extends ConsumerState<LocalNodePortsDialog> {
               _ports = p;
             }),
           ),
-          if (widget.running) ...[SizedBox(height: Sp.x3), Text(l.deskSetLnodePortsRestart, style: context.ts.caption)],
+          // Dlg-Node-ports: when Save turns on, and that the node restarts after it.
+          SizedBox(height: Sp.x3),
+          Text(widget.running ? '${l.deskSetLnodePortsHint} ${l.deskSetLnodePortsRestart}' : l.deskSetLnodePortsHint, style: context.ts.caption), // l10n-ok: two sentences
         ],
       ),
       actions: [

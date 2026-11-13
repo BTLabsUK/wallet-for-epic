@@ -158,7 +158,7 @@
   "deskSetPeersFirstSeenHint": "Wann diese App den Peer in dieser Sitzung zuerst verbunden sah.",
   "deskSetLnodePorts": "Ports",
   "deskSetLnodePortsTitle": "Node-Ports",
-  "deskSetLnodePortsDesc": "Die Ports, auf denen der mitgelieferte Node lauscht.",
+  "deskSetLnodePortsDesc": "Die Ports, auf denen der Node auf diesem Computer lauscht. Einen Port nur ändern, wenn ein anderes Programm ihn schon nutzt.",
   "deskSetLnodePortsRestart": "Der Node startet mit den neuen Ports neu.",
   "deskSetLnodePortsSaved": "Ports gespeichert",
   "deskSetLnodePortsRestarting": "Der Node startet neu.",
@@ -166,5 +166,6 @@
   "deskSetLndMoveFrom": "Von",
   "deskSetLndMoveTo": "Nach",
   "deskSetLndMoveFree": "Dort frei",
-  "deskSetLndMoveFreshNote": "„Dort neu beginnen“ lädt die Blockchain stattdessen neu in den neuen Ordner."
+  "deskSetLndMoveFreshNote": "„Dort neu beginnen“ lädt die Blockchain stattdessen neu in den neuen Ordner.",
+  "deskSetLnodePortsHint": "„Speichern“ wird aktiv, sobald sich ein Port ändert."
 }

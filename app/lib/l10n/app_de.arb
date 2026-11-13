@@ -4043,7 +4043,7 @@
   "deskOnbNodePortUse": "{port} nutzen",
   "deskSetLnodePorts": "Ports",
   "deskSetLnodePortsTitle": "Node-Ports",
-  "deskSetLnodePortsDesc": "Die Ports, auf denen der mitgelieferte Node lauscht.",
+  "deskSetLnodePortsDesc": "Die Ports, auf denen der Node auf diesem Computer lauscht. Einen Port nur ändern, wenn ein anderes Programm ihn schon nutzt.",
   "deskSetLnodePortsRestart": "Der Node startet mit den neuen Ports neu.",
   "deskSetLnodePortsSaved": "Ports gespeichert",
   "deskSetLnodePortsRestarting": "Der Node startet neu.",
@@ -5627,5 +5627,6 @@
   "deskFinCardLead": "Die Antwortdatei öffnen, die der Empfänger zurückgeschickt hat. Die Wallet schließt die Zahlung ab und sendet sie an das Netzwerk.",
   "deskFinScanLink": "Antwort als Code scannen",
   "deskFinPasteLink": "Als Text einfügen",
-  "deskFinPasteEmpty": "Nichts zum Einfügen: zuerst die Antwort kopieren"
+  "deskFinPasteEmpty": "Nichts zum Einfügen: zuerst die Antwort kopieren",
+  "deskSetLnodePortsHint": "„Speichern“ wird aktiv, sobald sich ein Port ändert."
 }

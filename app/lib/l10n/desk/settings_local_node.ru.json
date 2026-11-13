@@ -158,7 +158,7 @@
   "deskSetPeersFirstSeenHint": "Когда это приложение впервые увидело пир подключённым за этот сеанс.",
   "deskSetLnodePorts": "Порты",
   "deskSetLnodePortsTitle": "Порты узла",
-  "deskSetLnodePortsDesc": "Порты, которые слушает встроенный узел.",
+  "deskSetLnodePortsDesc": "Порты, которые слушает узел на этом компьютере. Меняйте порт, только если его уже занимает другая программа.",
   "deskSetLnodePortsRestart": "Узел перезапустится с новыми портами.",
   "deskSetLnodePortsSaved": "Порты сохранены",
   "deskSetLnodePortsRestarting": "Узел перезапускается.",
@@ -166,5 +166,6 @@
   "deskSetLndMoveFrom": "Откуда",
   "deskSetLndMoveTo": "Куда",
   "deskSetLndMoveFree": "Свободно там",
-  "deskSetLndMoveFreshNote": "«Начать там заново» вместо этого загрузит блокчейн в новую папку с нуля."
+  "deskSetLndMoveFreshNote": "«Начать там заново» вместо этого загрузит блокчейн в новую папку с нуля.",
+  "deskSetLnodePortsHint": "«Сохранить» станет доступно, когда порт изменится."
 }

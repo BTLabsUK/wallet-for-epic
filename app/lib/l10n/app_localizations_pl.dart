@@ -16586,7 +16586,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsDesc =>
-      'Porty, na których nasłuchuje wbudowany węzeł.';
+      'Porty, na których nasłuchuje węzeł na tym komputerze. Zmień port tylko wtedy, gdy używa go już inny program.';
 
   @override
   String get deskSetLnodePortsRestart =>
@@ -22222,4 +22222,7 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskFinPasteEmpty =>
       'Nie ma czego wkleić: najpierw skopiuj odpowiedź';
+
+  @override
+  String get deskSetLnodePortsHint => 'Zapisz włączy się, gdy zmieni się port.';
 }
