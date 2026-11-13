@@ -19,6 +19,8 @@ import 'package:epic_wallet/src/watch_mode.dart' show postingFor;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
+import '../support/no_boosts.dart';
+
 const _password = 'test-pass-1234';
 const _shop = 'esShopKey@epicbox.example';
 const _payer = 'esPayerInvoiceKey@epicbox.example';
@@ -64,7 +66,7 @@ lepic.TransactionDetails _tx({
 
 /// LEPIC's wallet in memory: a paired shop, its invoices, transactions and a summary. Fails any
 /// other call.
-class _Wallet implements lepic.EpicWallet {
+class _Wallet with NoBoosts implements lepic.EpicWallet {
   final List<lepic.ContactInvoiceView> waiting = [];
   final List<lepic.TransactionDetails> stored = [];
   final StreamController<lepic.WalletEvent> events$ = StreamController<lepic.WalletEvent>.broadcast();

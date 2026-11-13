@@ -28,6 +28,7 @@ import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, QrSlateProgress, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
+import '../../boosts.dart' show MemoryBoosts;
 import '../../epic1.dart';
 import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
@@ -1451,6 +1452,9 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   Epic1Wallet? get epic1 => epic1Fake;
+
+  @override
+  final MemoryBoosts boosts = MemoryBoosts();
 
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
   /// pairings. The Prototype panel and the tour drive its other side.

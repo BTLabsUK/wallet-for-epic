@@ -1696,6 +1696,13 @@ class LepicWalletSession
   @override
   late final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace, settle: () => _inTurn(() async {}));
 
+  @override
+  late final Boosts boosts = _LepicBoosts(_wallet);
+
+  /// A payment step whose answer comes through the contacts' mailboxes: they are collected
+  /// every 5 s for 2 min, as `lepic serve` does.
+  void _collectSoon() => boosts.boost(Poller.relays, const Duration(minutes: 2), boostMinInterval);
+
   /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
   String? nodeUrl;
@@ -3310,6 +3317,7 @@ class LepicWalletSession
       relayMode: lepicRelayMode(),
     );
     _deliverOutbox();
+    _collectSoon();
     final result = PaidInvoice(
       slateId: slateId,
       senderAddress: '',
@@ -3577,6 +3585,7 @@ class LepicWalletSession
     }
     _txContacts[sent.txId] = contactId;
     _deliverOutbox();
+    _collectSoon();
     final issued = IssuedInvoice(
       slateId: sent.slateId,
       txId: sent.txId,
@@ -3771,6 +3780,41 @@ InPersonAnswerMade _inPersonAnswer(lepic.InPersonReply r) => InPersonAnswerMade(
 DateTime _msAt(int ms) => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
 
 /// [Epic1Wallet] on a LEPIC wallet: one per [LepicWalletSession] (`epic1Wallet`).
+/// [Boosts] on LEPIC's (ADR 0058). Every boost of this process starts here, so [changed]
+/// fires here too.
+class _LepicBoosts implements Boosts {
+  _LepicBoosts(this._wallet);
+
+  final lepic.EpicWallet _wallet;
+  final _changed = StreamController<void>.broadcast(sync: true);
+
+  static lepic.Poller _of(Poller poller) => switch (poller) {
+    Poller.relays => lepic.Poller.relays,
+    Poller.node => lepic.Poller.node,
+  };
+
+  @override
+  int boost(Poller poller, Duration duration, Duration interval) {
+    if (_wallet.isDisposed) return 0;
+    final id = _wallet.boost(poller: _of(poller), durationSecs: duration.inSeconds, intervalSecs: interval.inSeconds);
+    _changed.add(null);
+    return id.toInt();
+  }
+
+  @override
+  void end(int id) {
+    if (!_wallet.isDisposed && _wallet.endBoost(id: BigInt.from(id))) _changed.add(null);
+  }
+
+  @override
+  Duration interval(Poller poller, Duration base) => _wallet.isDisposed
+      ? base
+      : Duration(seconds: _wallet.pollInterval(poller: _of(poller), baseSecs: base.inSeconds));
+
+  @override
+  Stream<void> get changed => _changed.stream;
+}
+
 class _LepicEpic1 implements Epic1Wallet {
   _LepicEpic1(this._s);
 
@@ -3843,6 +3887,7 @@ class _LepicEpic1 implements Epic1Wallet {
       ),
     );
     await _s._markEpic1(paid.slateId, Epic1Via.link);
+    _s._collectSoon();
     return _epic1Payment(paid);
   });
 
@@ -5126,6 +5171,7 @@ class _LepicPairing implements PairingApi {
       relayMode: lepicRelayMode(),
     );
     _slates[sent.slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
+    _s._collectSoon();
     return _s._entry(sent.txId);
   });
 

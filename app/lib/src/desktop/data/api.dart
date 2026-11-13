@@ -6,6 +6,7 @@ library;
 
 import 'dart:typed_data';
 
+import '../../boosts.dart' show Boosts;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../epic1.dart' show Epic1Wallet;
 import '../../cancel_final.dart' show CancelResult;
@@ -531,6 +532,10 @@ abstract interface class DeskWalletApi {
   /// epic1 payments of the open wallet (`epic1.dart`), shared with the phone: the switch, links,
   /// in-person codes. Null while locked or on a core without them.
   Epic1Wallet? get epic1;
+
+  /// Checking the relays or the node more often for a while (`boosts.dart`) for the open wallet;
+  /// null while locked.
+  Boosts? get boosts;
 
   /// What the wallet has learned about the software behind [address] (an Epicbox address), or
   /// null when it knows nothing. Feeds the trust policy (`trust/policy.dart`).

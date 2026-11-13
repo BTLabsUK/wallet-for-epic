@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 
+import 'boosts.dart';
 import 'contact_label.dart';
 import 'epic1.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
@@ -29,6 +30,7 @@ import 'pairing_fake.dart';
 import 'settings_file/host_settings.dart' show appConfig, hostSettings, hostSettingsLoaded;
 import 'message_checks.dart';
 
+export 'boosts.dart';
 export 'models.dart';
 export 'pairing_api.dart';
 
@@ -217,6 +219,9 @@ Duration pinDelay(int failures) {
 /// disposed before a wallet on another chain can be opened.
 abstract interface class WalletSession {
   void dispose();
+
+  /// Checking the relays or the node more often for a while (`boosts.dart`).
+  Boosts get boosts;
 
   /// How this session's open found the wallet's records: encrypted, encrypted by this open, or
   /// left plain for now because the copy did not go through ([StoreOpenOutcome]).
@@ -1401,6 +1406,9 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
 
   @override
   final MessageChecks checks = MessageChecks(showAfter: appConfig.checkShowAfter, digestGrace: appConfig.digestGrace);
+
+  @override
+  final MemoryBoosts boosts = MemoryBoosts();
 
   /// epic1 calls (`epic1.dart`); classic mode unless a test puts one made with `on: true`.
   FakeEpic1 epic1Fake = FakeEpic1();

@@ -17,13 +17,15 @@ import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
+import '../support/no_boosts.dart';
+
 const _password = 'test-pass-1234';
 const _pairing = '0123456789abcdef0123456789abcdef';
 const _slate = 'c13b7bff-0000-4000-8000-000000000001';
 
 /// LEPIC's wallet in memory: one send through a pairing's mailbox, in [status]; the events the
 /// test raises. Fails any other call.
-class _Wallet implements lepic.EpicWallet {
+class _Wallet with NoBoosts implements lepic.EpicWallet {
   final events$ = StreamController<lepic.WalletEvent>.broadcast();
   lepic.TxStatus status = lepic.TxStatus.sent;
 

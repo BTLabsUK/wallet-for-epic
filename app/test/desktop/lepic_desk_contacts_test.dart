@@ -16,6 +16,8 @@ import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
+import '../support/no_boosts.dart';
+
 const _password = 'test-pass-1234';
 const _payments = 'esOwnPaymentsKey@epicbox.example';
 const _shop = 'esShopKey@epicbox.example';
@@ -23,7 +25,7 @@ const _shop = 'esShopKey@epicbox.example';
 lepic.WalletError _lepicError(lepic.WalletErrorKind kind) => lepic.WalletError(kind: kind, code: 0, message: kind.name);
 
 /// LEPIC's wallet in memory: a summary and no pairings. Fails any other call.
-class _Wallet implements lepic.EpicWallet {
+class _Wallet with NoBoosts implements lepic.EpicWallet {
   @override
   Future<bool> restoreScanRequired() async => false;
   @override

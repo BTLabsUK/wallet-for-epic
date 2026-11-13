@@ -92,6 +92,7 @@ import '../../settings.dart' show HistoryExportSnapshot;
 import '../../trust/contact_trust.dart' show peerCompatRetention;
 import '../../trust/policy.dart' show PeerCompat;
 import '../../epic1.dart' show Epic1Wallet, Epic1Of;
+import '../../boosts.dart' show Boosts;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -5586,6 +5587,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Epic1Wallet? get epic1 => _session?.epic1;
+
+  @override
+  Boosts? get boosts => _session?.boosts;
 
   @override
   Future<PeerCompat?> peerCompat(String address) => _service.peerCompat(address);

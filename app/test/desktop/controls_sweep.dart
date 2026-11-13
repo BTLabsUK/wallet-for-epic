@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/message_checks.dart' show MessageChecks;
 import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, QrSlateProgress, StoreMigrationProgress;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
+import 'package:epic_wallet/src/boosts.dart' show Boosts;
 import 'package:epic_wallet/src/epic1.dart' show Epic1Wallet;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
 import 'package:epic_wallet/src/name_service/name_service.dart' show NameServiceHost;
@@ -407,6 +408,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   PairingApi get pairing => _m.pairing;
   @override
   Epic1Wallet? get epic1 => _m.epic1;
+  @override
+  Boosts? get boosts => _m.boosts;
   @override
   NameServiceHost? nameServiceHost({required bool Function() online}) => _m.nameServiceHost(online: online);
 

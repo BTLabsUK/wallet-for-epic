@@ -13,6 +13,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
+import 'support/no_boosts.dart';
+
 const _payer = 'contact-payer';
 
 /// A request a restore brought back from before pairing: LEPIC kept its address.
@@ -23,7 +25,7 @@ lepic.WalletError _lepicError(lepic.WalletErrorKind kind) =>
 
 /// LEPIC's issuer half in memory. Every spending call is recorded and refused; any other
 /// call not written here fails the test.
-class _IssuerWallet implements lepic.EpicWallet {
+class _IssuerWallet with NoBoosts implements lepic.EpicWallet {
   final Map<int, lepic.TransactionDetails> stored = {};
   final StreamController<lepic.WalletEvent> eventSink =
       StreamController<lepic.WalletEvent>.broadcast();

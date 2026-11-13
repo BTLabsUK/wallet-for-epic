@@ -20,6 +20,9 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
   void dispose() => _inner.dispose();
 
   @override
+  Boosts get boosts => _inner.boosts;
+
+  @override
   Future<String> listingAddress(String serviceKeyHex, int generation) => _inner.listingKeys!.listingAddress(serviceKeyHex, generation);
 
   @override
