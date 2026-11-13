@@ -3766,7 +3766,7 @@ abstract class AppLocalizations {
   /// Button that starts the countdown and then shows the QR code.
   ///
   /// In en, this message translates to:
-  /// **'Show QR'**
+  /// **'Show as a code'**
   String get qrShow;
 
   /// Button that shows the QR code again after it hid itself.
@@ -10586,10 +10586,10 @@ abstract class AppLocalizations {
   /// **'Signing does not spend anything'**
   String get deskImpNoticeTitle;
 
-  /// Text of the info notice at the top of the page.
+  /// Sign a transaction file: the line under 'Signing does not spend anything'. Impersonal: the file's way back is the way it came.
   ///
   /// In en, this message translates to:
-  /// **'Send the response file back to the sender over the same channel they used.'**
+  /// **'Send the response file back to the sender the same way the file came.'**
   String get deskImpNoticeText;
 
   /// Title of the result card after the response file was saved.
@@ -14720,10 +14720,10 @@ abstract class AppLocalizations {
   /// **'Hide the code'**
   String get deskKitQrHide;
 
-  /// Screen-reader label of the button that hides the QR code.
+  /// Button: cover the QR code again.
   ///
   /// In en, this message translates to:
-  /// **'Hide QR'**
+  /// **'Hide the code'**
   String get deskKitQrHideCode;
 
   /// Toast title when forgetting the remembered password failed.
@@ -23860,7 +23860,7 @@ abstract class AppLocalizations {
   /// Link a device (desktop), a tab: this computer shows the QR of its invite.
   ///
   /// In en, this message translates to:
-  /// **'Show QR'**
+  /// **'Show as a code'**
   String get linkShow;
 
   /// Link a device (phone): the button that opens the camera to scan the QR of the other device’s invite; also the camera’s accessibility label.
@@ -25006,7 +25006,7 @@ abstract class AppLocalizations {
   /// Button: show the finished payment as an animated QR code.
   ///
   /// In en, this message translates to:
-  /// **'Show QR'**
+  /// **'Show as a code'**
   String get finishedShowQr;
 
   /// Confirmation after saving the finished payment file.

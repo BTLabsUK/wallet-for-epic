@@ -712,9 +712,9 @@
   "@deskKitQrHide": {
     "description": "Button and tooltip: cover the QR code again. Short."
   },
-  "deskKitQrHideCode": "Hide QR",
+  "deskKitQrHideCode": "Hide the code",
   "@deskKitQrHideCode": {
-    "description": "Screen-reader label of the button that hides the QR code."
+    "description": "Button: cover the QR code again."
   },
   "deskKitReachTorOff": "The check needs Tor off.",
   "@deskKitReachTorOff": {

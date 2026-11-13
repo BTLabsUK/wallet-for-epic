@@ -113,7 +113,7 @@
   "deskKitQrShowOf": "แสดงโค้ดของ {title}",
   "deskKitQrShow": "แสดงเป็นโค้ด",
   "deskKitQrHide": "ซ่อนโค้ด",
-  "deskKitQrHideCode": "ซ่อน QR",
+  "deskKitQrHideCode": "ซ่อนโค้ด",
   "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor",
   "deskKitNoAnswerSince": "ไม่ตอบตั้งแต่ {time}",
   "deskKitMoreInHelp": "ดูเพิ่มเติมในความช่วยเหลือ",

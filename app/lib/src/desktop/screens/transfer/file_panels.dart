@@ -128,23 +128,19 @@ class ResultPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ts = context.ts;
-    return EPanel(
-      padding: EdgeInsets.all(Sp.x8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          glyph ?? const ResultGlyph(),
-          SizedBox(height: Sp.x4),
-          Semantics(header: true, child: Text(title, style: ts.h3)),
-          SizedBox(height: Sp.x2),
-          Text(text, style: ts.bodyDim),
-          if (body != null) ...[SizedBox(height: Sp.x5), body!],
-          if (actions.isNotEmpty) ...[
-            SizedBox(height: Sp.x6),
-            Wrap(spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
-          ],
-        ],
+    // The outcome as the canvas's modal card (R-Reply): the tone's mark, the title, one
+    // sentence, what came of it, and the next steps sharing the footer.
+    final g = glyph is ResultGlyph ? glyph! as ResultGlyph : const ResultGlyph();
+    return Align(
+      alignment: AlignmentDirectional.topStart,
+      child: EModalCard(
+        width: 560.u,
+        tone: g.tone,
+        icon: g.icon,
+        title: title,
+        lead: text,
+        body: body,
+        actions: actions,
       ),
     );
   }

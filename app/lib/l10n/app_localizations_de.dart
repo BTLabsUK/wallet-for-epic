@@ -2398,7 +2398,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wer ihn zuerst scannt, kann diese Zahlung annehmen. Zeigen Sie ihn nur der Person, die Sie bezahlen.';
 
   @override
-  String get qrShow => 'QR anzeigen';
+  String get qrShow => 'Als Code zeigen';
 
   @override
   String get qrShowAgain => 'Erneut anzeigen';
@@ -6733,7 +6733,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskImpNoticeText =>
-      'Schicken Sie die Antwortdatei auf demselben Weg an den Absender zurück, auf dem er sie Ihnen geschickt hat.';
+      'Die Antwortdatei auf demselben Weg an den Absender zurückschicken, auf dem die Datei kam.';
 
   @override
   String get deskImpSaved => 'Antwort gespeichert';
@@ -9468,7 +9468,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitQrHide => 'Code ausblenden';
 
   @override
-  String get deskKitQrHideCode => 'QR ausblenden';
+  String get deskKitQrHideCode => 'Code ausblenden';
 
   @override
   String get deskSetAcctNotForgotten => 'Nicht vergessen';
@@ -15584,7 +15584,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Für diese Wallet auf dem anderen Gerät. Dort zuerst aus der Wiederherstellungsphrase wiederherstellen.';
 
   @override
-  String get linkShow => 'QR zeigen';
+  String get linkShow => 'Als Code zeigen';
 
   @override
   String get linkScan => 'QR scannen';
@@ -16400,7 +16400,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get finishedSaveFile => 'Datei speichern';
 
   @override
-  String get finishedShowQr => 'QR zeigen';
+  String get finishedShowQr => 'Als Code zeigen';
 
   @override
   String finishedSaved(String name) {

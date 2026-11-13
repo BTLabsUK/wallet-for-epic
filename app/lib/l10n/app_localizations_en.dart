@@ -2361,7 +2361,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Whoever scans it first can accept this payment. Show it only to the person you are paying.';
 
   @override
-  String get qrShow => 'Show QR';
+  String get qrShow => 'Show as a code';
 
   @override
   String get qrShowAgain => 'Show again';
@@ -6638,7 +6638,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskImpNoticeText =>
-      'Send the response file back to the sender over the same channel they used.';
+      'Send the response file back to the sender the same way the file came.';
 
   @override
   String get deskImpSaved => 'Response saved';
@@ -9359,7 +9359,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitQrHide => 'Hide the code';
 
   @override
-  String get deskKitQrHideCode => 'Hide QR';
+  String get deskKitQrHideCode => 'Hide the code';
 
   @override
   String get deskSetAcctNotForgotten => 'Not forgotten';
@@ -15410,7 +15410,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'For this wallet on your other device. Restore it there from the recovery phrase first.';
 
   @override
-  String get linkShow => 'Show QR';
+  String get linkShow => 'Show as a code';
 
   @override
   String get linkScan => 'Scan the QR';
@@ -16216,7 +16216,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finishedSaveFile => 'Save file';
 
   @override
-  String get finishedShowQr => 'Show QR';
+  String get finishedShowQr => 'Show as a code';
 
   @override
   String finishedSaved(String name) {

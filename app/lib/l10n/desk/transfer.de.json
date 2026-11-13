@@ -41,7 +41,7 @@
   "deskImpPickTitle": "Transaktionsdatei",
   "deskImpTitle": "Transaktionsdatei signieren",
   "deskImpNoticeTitle": "Signieren gibt nichts aus",
-  "deskImpNoticeText": "Schicken Sie die Antwortdatei auf demselben Weg an den Absender zurück, auf dem er sie Ihnen geschickt hat.",
+  "deskImpNoticeText": "Die Antwortdatei auf demselben Weg an den Absender zurückschicken, auf dem die Datei kam.",
   "deskImpSaved": "Antwort gespeichert",
   "deskImpSavedText": "Schicken Sie die Antwortdatei an den Absender zurück. Die EPIC kommen an, sobald der Absender sie abschließt.",
   "deskImpAmount": "Betrag ",

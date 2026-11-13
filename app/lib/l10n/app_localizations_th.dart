@@ -2321,7 +2321,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใครสแกนก่อนจะรับรายการนี้ได้ แสดงให้เฉพาะคนที่คุณจ่ายให้เท่านั้น';
 
   @override
-  String get qrShow => 'แสดง QR';
+  String get qrShow => 'แสดงเป็นโค้ด';
 
   @override
   String get qrShowAgain => 'แสดงอีกครั้ง';
@@ -6486,7 +6486,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskImpNoticeText =>
-      'ส่งไฟล์ตอบกลับคืนให้ผู้ส่งผ่านช่องทางเดียวกับที่เขาใช้';
+      'ส่งไฟล์ตอบกลับไปยังผู้ส่งด้วยช่องทางเดียวกับที่ไฟล์มา';
 
   @override
   String get deskImpSaved => 'บันทึกไฟล์ตอบกลับแล้ว';
@@ -9111,7 +9111,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitQrHide => 'ซ่อนโค้ด';
 
   @override
-  String get deskKitQrHideCode => 'ซ่อน QR';
+  String get deskKitQrHideCode => 'ซ่อนโค้ด';
 
   @override
   String get deskSetAcctNotForgotten => 'ไม่ได้ลืม';
@@ -15057,7 +15057,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'สำหรับกระเป๋าเงินนี้บนอุปกรณ์อีกเครื่อง กู้คืนที่นั่นจากวลีกู้คืนก่อน';
 
   @override
-  String get linkShow => 'แสดง QR';
+  String get linkShow => 'แสดงเป็นโค้ด';
 
   @override
   String get linkScan => 'สแกน QR';
@@ -15851,7 +15851,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get finishedSaveFile => 'บันทึกไฟล์';
 
   @override
-  String get finishedShowQr => 'แสดง QR';
+  String get finishedShowQr => 'แสดงเป็นโค้ด';
 
   @override
   String finishedSaved(String name) {

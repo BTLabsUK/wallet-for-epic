@@ -41,7 +41,7 @@
   "deskImpPickTitle": "交易文件",
   "deskImpTitle": "签署交易文件",
   "deskImpNoticeTitle": "签名不会花费任何资金",
-  "deskImpNoticeText": "通过发送方使用的同一渠道，把回复文件发回给对方。",
+  "deskImpNoticeText": "用文件传来的同一方式把回复文件发回给发送方。",
   "deskImpSaved": "回复已保存",
   "deskImpSavedText": "把回复文件发回给发送方。发送方完成交易后，EPIC 即会到账。",
   "deskImpAmount": "金额 ",

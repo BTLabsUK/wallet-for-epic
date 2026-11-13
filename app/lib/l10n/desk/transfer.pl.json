@@ -41,7 +41,7 @@
   "deskImpPickTitle": "Plik transakcji",
   "deskImpTitle": "Podpisz plik transakcji",
   "deskImpNoticeTitle": "Podpisanie niczego nie wydaje",
-  "deskImpNoticeText": "Odeślij plik odpowiedzi nadawcy tym samym kanałem, którym przyszedł plik.",
+  "deskImpNoticeText": "Odeślij plik odpowiedzi nadawcy tą samą drogą, którą przyszedł plik.",
   "deskImpSaved": "Zapisano odpowiedź",
   "deskImpSavedText": "Odeślij plik odpowiedzi nadawcy. EPIC dotrą, gdy nadawca go sfinalizuje.",
   "deskImpAmount": "Kwota ",

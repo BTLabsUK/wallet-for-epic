@@ -2437,7 +2437,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Тот, кто отсканирует его первым, сможет принять этот платёж. Показывайте его только тому, кому платите.';
 
   @override
-  String get qrShow => 'Показать QR';
+  String get qrShow => 'Показать как код';
 
   @override
   String get qrShowAgain => 'Показать снова';
@@ -6863,7 +6863,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskImpNoticeText =>
-      'Отправьте файл ответа отправителю тем же способом, которым он передал файл.';
+      'Отправьте файл ответа отправителю тем же путём, которым пришёл файл.';
 
   @override
   String get deskImpSaved => 'Ответ сохранён';
@@ -9699,7 +9699,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitQrHide => 'Скрыть код';
 
   @override
-  String get deskKitQrHideCode => 'Скрыть QR';
+  String get deskKitQrHideCode => 'Скрыть код';
 
   @override
   String get deskSetAcctNotForgotten => 'Не забыт';
@@ -15947,7 +15947,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Для этого кошелька на другом устройстве. Сначала восстановите его там из фразы восстановления.';
 
   @override
-  String get linkShow => 'Показать QR';
+  String get linkShow => 'Показать как код';
 
   @override
   String get linkScan => 'Сканировать QR';
@@ -16780,7 +16780,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get finishedSaveFile => 'Сохранить файл';
 
   @override
-  String get finishedShowQr => 'Показать QR';
+  String get finishedShowQr => 'Показать как код';
 
   @override
   String finishedSaved(String name) {

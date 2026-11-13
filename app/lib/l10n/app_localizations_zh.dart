@@ -2226,7 +2226,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qrHiddenBodyPayment => '谁先扫到，谁就能接受这笔付款。只给你要付款的那个人看。';
 
   @override
-  String get qrShow => '显示二维码';
+  String get qrShow => '显示为二维码';
 
   @override
   String get qrShowAgain => '再次显示';
@@ -6257,7 +6257,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskImpNoticeTitle => '签名不会花费任何资金';
 
   @override
-  String get deskImpNoticeText => '通过发送方使用的同一渠道，把回复文件发回给对方。';
+  String get deskImpNoticeText => '用文件传来的同一方式把回复文件发回给发送方。';
 
   @override
   String get deskImpSaved => '回复已保存';
@@ -14548,7 +14548,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkLead => '用于另一台设备上的此钱包。请先在那里用助记词恢复它。';
 
   @override
-  String get linkShow => '显示二维码';
+  String get linkShow => '显示为二维码';
 
   @override
   String get linkScan => '扫描二维码';
@@ -15310,7 +15310,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get finishedSaveFile => '保存文件';
 
   @override
-  String get finishedShowQr => '显示二维码';
+  String get finishedShowQr => '显示为二维码';
 
   @override
   String finishedSaved(String name) {

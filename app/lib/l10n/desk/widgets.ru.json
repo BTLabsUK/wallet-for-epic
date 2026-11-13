@@ -113,7 +113,7 @@
   "deskKitQrShowOf": "Показать код: {title}",
   "deskKitQrShow": "Показать как код",
   "deskKitQrHide": "Скрыть код",
-  "deskKitQrHideCode": "Скрыть QR",
+  "deskKitQrHideCode": "Скрыть код",
   "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",
   "deskKitNoAnswerSince": "Нет ответа с {time}",
   "deskKitMoreInHelp": "Подробнее в справке",

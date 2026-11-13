@@ -2456,7 +2456,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Kto zeskanuje go pierwszy, może przyjąć tę płatność. Pokaż go tylko osobie, której płacisz.';
 
   @override
-  String get qrShow => 'Pokaż QR';
+  String get qrShow => 'Pokaż jako kod';
 
   @override
   String get qrShowAgain => 'Pokaż ponownie';
@@ -6888,7 +6888,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskImpNoticeText =>
-      'Odeślij plik odpowiedzi nadawcy tym samym kanałem, którym przyszedł plik.';
+      'Odeślij plik odpowiedzi nadawcy tą samą drogą, którą przyszedł plik.';
 
   @override
   String get deskImpSaved => 'Zapisano odpowiedź';
@@ -9724,7 +9724,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKitQrHide => 'Ukryj kod';
 
   @override
-  String get deskKitQrHideCode => 'Ukryj QR';
+  String get deskKitQrHideCode => 'Ukryj kod';
 
   @override
   String get deskSetAcctNotForgotten => 'Nie zapomniano';
@@ -15963,7 +15963,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Dla tego portfela na drugim urządzeniu. Najpierw przywróć go tam z frazy odzyskiwania.';
 
   @override
-  String get linkShow => 'Pokaż QR';
+  String get linkShow => 'Pokaż jako kod';
 
   @override
   String get linkScan => 'Skanuj QR';
@@ -16795,7 +16795,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get finishedSaveFile => 'Zapisz plik';
 
   @override
-  String get finishedShowQr => 'Pokaż QR';
+  String get finishedShowQr => 'Pokaż jako kod';
 
   @override
   String finishedSaved(String name) {

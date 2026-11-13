@@ -2942,7 +2942,7 @@
   "@qrHiddenBodyPayment": {
     "description": "Body on the covered payment QR card: why it stays hidden."
   },
-  "qrShow": "Show QR",
+  "qrShow": "Show as a code",
   "@qrShow": {
     "description": "Button that starts the countdown and then shows the QR code."
   },
@@ -8677,9 +8677,9 @@
   "@deskImpNoticeTitle": {
     "description": "Title of the info notice at the top of the Sign a transaction file page."
   },
-  "deskImpNoticeText": "Send the response file back to the sender over the same channel they used.",
+  "deskImpNoticeText": "Send the response file back to the sender the same way the file came.",
   "@deskImpNoticeText": {
-    "description": "Text of the info notice at the top of the page."
+    "description": "Sign a transaction file: the line under 'Signing does not spend anything'. Impersonal: the file's way back is the way it came."
   },
   "deskImpSaved": "Response saved",
   "@deskImpSaved": {
@@ -12360,9 +12360,9 @@
   "@deskKitQrHide": {
     "description": "Button and tooltip: cover the QR code again. Short."
   },
-  "deskKitQrHideCode": "Hide QR",
+  "deskKitQrHideCode": "Hide the code",
   "@deskKitQrHideCode": {
-    "description": "Screen-reader label of the button that hides the QR code."
+    "description": "Button: cover the QR code again."
   },
   "deskSetAcctNotForgotten": "Not forgotten",
   "@deskSetAcctNotForgotten": {
@@ -20648,7 +20648,7 @@
   "@linkLead": {
     "description": "First step of Link a device."
   },
-  "linkShow": "Show QR",
+  "linkShow": "Show as a code",
   "@linkShow": {
     "description": "Link a device (desktop), a tab: this computer shows the QR of its invite."
   },
@@ -21884,7 +21884,7 @@
   "@finishedSaveFile": {
     "description": "Button: save the finished payment as a file."
   },
-  "finishedShowQr": "Show QR",
+  "finishedShowQr": "Show as a code",
   "@finishedShowQr": {
     "description": "Button: show the finished payment as an animated QR code."
   },
