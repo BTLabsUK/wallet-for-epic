@@ -110,6 +110,8 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final all = _args.loading ? null : (_args.empty ? const <Contact>[] : ref.watch(deskProvider.select((s) => s.contacts)));
     final selected = all?.where((x) => x.id == _selected).firstOrNull;
     final paneOpen = _adding || (selected != null && (_editing || _selected != null));
+    // The contact's pane: as wide as Activity's payment pane.
+    final paneWidth = MediaQuery.sizeOf(context).width >= Ctl.sideWideFrom ? Ctl.sideWide : Ctl.side;
     final panel = BoxDecoration(
       color: c.s1,
       border: Border.all(color: c.line),
@@ -182,10 +184,10 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         actions: [EButton(semanticsId: TrustIds.contactsAdd, label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: null), const ContactsMoreButton()],
         child: split
             ? PanelRow(
-                sideFirst: true,
-                sideWidth: Ctl.sideList,
-                side: loadingList,
-                main: EPanel(title: l.deskConDetailsTitle, child: const Opacity(opacity: 0.5, child: _Idle())),
+                sideWidth: paneWidth,
+                maxSideFraction: Ctl.sideMaxFraction,
+                main: loadingList,
+                side: EPanel(title: l.deskConDetailsTitle, child: const Opacity(opacity: 0.5, child: _Idle())),
               )
             : loadingList,
       );
@@ -347,13 +349,14 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         const ContactsMoreButton(),
       ],
       child: split
-          // The list and the detail are one unit: same top and bottom.
+          // The list and the detail are one unit: same top and bottom; the list leads, the
+          // contact's pane is on the right, as Activity's payment.
           ? PanelRow(
-              sideFirst: true,
-              sideWidth: Ctl.sideList,
-              side: list,
+              sideWidth: paneWidth,
+              maxSideFraction: Ctl.sideMaxFraction,
+              main: list,
               // A header band like the list's: what the pane shows.
-              main: EPanel(
+              side: EPanel(
                     title: _adding || _editing ? null : l.deskConDetailsTitle,
                     child: paneOpen
                         ? Align(

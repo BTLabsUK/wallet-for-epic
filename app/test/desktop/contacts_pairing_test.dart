@@ -343,7 +343,8 @@ void main() {
   });
 
   testWidgets('the header keeps Edit, Star and Delete as buttons where they fit, and folds them into a ⋯ menu in a narrow pane', (tester) async {
-    await _contact(tester, 'c6');
+    // Under the split width the contact fills the page: room for every button.
+    await _contact(tester, 'c6', size: const Size(900, 1100));
     expect(find.byKey(deskContactMoreKey), findsNothing);
     expect(find.byKey(deskContactDeleteKey), findsOneWidget);
     await _contact(tester, 'c6', size: const Size(480, 900));
@@ -380,7 +381,8 @@ void main() {
   });
 
   testWidgets('deleting a paired contact says the pairing goes, and removes it', (tester) async {
-    await _contact(tester, 'c1');
+    // The contact on its own page, where Delete is a button (the pane folds it into ⋯).
+    await _contact(tester, 'c1', size: const Size(900, 1100));
     await tester.tap(find.text(_l.deskConDelete));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.textContaining(_l.contactDeletePaired('Anna Kowalska')), findsOneWidget);
@@ -513,10 +515,14 @@ void main() {
       await _real(tester);
       expect(find.byKey(deskContactMoveAskedKey), findsOneWidget);
       expect(find.text(_l.contactMoveAsked(moved)), findsOneWidget);
+      await tester.ensureVisible(find.byKey(deskContactMoveRefuseKey));
+      await tester.pump();
       await tester.tap(find.byKey(deskContactMoveRefuseKey));
       await _real(tester);
       expect(find.byKey(deskContactMoveAskedKey), findsNothing);
       expect(find.text(_l.contactMoveRefused(moved)), findsOneWidget);
+      await tester.ensureVisible(find.byKey(deskContactMoveAcceptKey));
+      await tester.pump();
       await tester.tap(find.byKey(deskContactMoveAcceptKey));
       await _real(tester);
       expect(_fake.calls, contains('acceptMove:$mockAnnaPairing'));
