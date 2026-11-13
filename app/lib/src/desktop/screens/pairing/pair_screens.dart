@@ -228,7 +228,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
   }
 
   Future<void> _changeName() async {
-    final name = await showEDialog<String>(context, builder: (_) => _NameDialog(initial: ref.read(deskSeenAsProvider)));
+    final name = await showPairNameDialog(context, ref.read(deskSeenAsProvider));
     if (name == null || !mounted) return;
     await ref.read(deskSeenAsProvider.notifier).set(name);
     await _makeInvite();
@@ -485,6 +485,10 @@ class _ConfirmationBox extends StatelessWidget {
 }
 
 /// Change "They see you as": one field, one name per wallet.
+/// "The name shown when paired": the name, or null when cancelled.
+Future<String?> showPairNameDialog(BuildContext context, String initial) =>
+    showEDialog<String>(context, builder: (_) => _NameDialog(initial: initial));
+
 class _NameDialog extends StatefulWidget {
   const _NameDialog({required this.initial});
 

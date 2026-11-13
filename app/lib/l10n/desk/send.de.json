@@ -151,5 +151,8 @@
   "deskSendPickSendDesc": "Gekoppelte Kontakte erhalten eine versiegelte Zahlung. Die anderen erhalten sie an die gespeicherte Adresse.",
   "deskSendPickSendTo": "An {name} senden",
   "deskSendPickChooseName": "{name} wählen",
-  "deskSendPickChoose": "Wählen"
+  "deskSendPickChoose": "Wählen",
+  "deskSendPickKeyMove": "Auswählen",
+  "deskSendPickKeySend": "An die Auswahl senden",
+  "deskSendPickKeyTake": "Auswahl übernehmen"
 }

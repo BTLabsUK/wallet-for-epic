@@ -24,7 +24,6 @@
   "deskFinViewActivity": "In Aktivität anzeigen",
   "deskFinBusy": "Wird abgeschlossen und gesendet",
   "deskFinChoose": "Antwortdatei wählen",
-  "deskFinChooseText": "Die Wallet schließt die Transaktion ab und sendet sie an das Netzwerk.",
   "deskFinChooseFile": "Datei wählen",
   "deskImpWrongType": "Keine Transaktionsdatei",
   "deskImpWrongTypeText": "Keine Transaktionsdatei. Wählen Sie die .tx-Datei, die Ihnen der Absender gegeben hat.",

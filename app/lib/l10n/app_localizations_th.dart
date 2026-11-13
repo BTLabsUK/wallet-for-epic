@@ -6430,10 +6430,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskFinChoose => 'เลือกไฟล์ตอบกลับ';
 
   @override
-  String get deskFinChooseText =>
-      'กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย';
-
-  @override
   String get deskFinChooseFile => 'เลือกไฟล์';
 
   @override
@@ -21182,4 +21178,19 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetLnodePortsHint =>
       'ปุ่มบันทึกจะใช้ได้เมื่อมีการเปลี่ยนพอร์ต';
+
+  @override
+  String get deskSendPickKeyMove => 'เลือก';
+
+  @override
+  String get deskSendPickKeySend => 'ส่งถึงรายการที่เลือก';
+
+  @override
+  String get deskSendPickKeyTake => 'ใช้รายการที่เลือก';
+
+  @override
+  String get deskLicEmpty => 'บิลด์นี้ไม่มีข้อความสัญญาอนุญาต';
+
+  @override
+  String get deskLicKeyOpen => 'เปิดแพ็กเกจ';
 }

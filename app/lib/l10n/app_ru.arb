@@ -2655,7 +2655,6 @@
   "deskFinViewActivity": "Открыть в «Активности»",
   "deskFinBusy": "Завершение и отправка в сеть",
   "deskFinChoose": "Выберите файл ответа",
-  "deskFinChooseText": "Кошелёк завершит транзакцию и отправит её в сеть.",
   "deskFinChooseFile": "Выбрать файл",
   "deskImpWrongType": "Это не файл транзакции",
   "deskImpWrongTypeText": "Это не файл транзакции. Выберите файл .tx, который передал отправитель.",
@@ -5628,5 +5627,10 @@
   "deskFinScanLink": "Сканировать ответ как код",
   "deskFinPasteLink": "Вставить как текст",
   "deskFinPasteEmpty": "Нечего вставить: сначала скопируйте ответ",
-  "deskSetLnodePortsHint": "«Сохранить» станет доступно, когда порт изменится."
+  "deskSetLnodePortsHint": "«Сохранить» станет доступно, когда порт изменится.",
+  "deskSendPickKeyMove": "Выбор",
+  "deskSendPickKeySend": "Отправить выбранному",
+  "deskSendPickKeyTake": "Взять выбранный",
+  "deskLicEmpty": "В этой сборке нет текстов лицензий.",
+  "deskLicKeyOpen": "Открыть пакет"
 }

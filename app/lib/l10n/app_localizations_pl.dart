@@ -6831,10 +6831,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskFinChoose => 'Wybierz plik odpowiedzi';
 
   @override
-  String get deskFinChooseText =>
-      'Portfel dokończy transakcję i opublikuje ją w sieci.';
-
-  @override
   String get deskFinChooseFile => 'Wybierz plik';
 
   @override
@@ -22225,4 +22221,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsHint => 'Zapisz włączy się, gdy zmieni się port.';
+
+  @override
+  String get deskSendPickKeyMove => 'Wybór';
+
+  @override
+  String get deskSendPickKeySend => 'Wyślij do wybranego';
+
+  @override
+  String get deskSendPickKeyTake => 'Weź wybrany';
+
+  @override
+  String get deskLicEmpty => 'Ta wersja nie zawiera tekstów licencji.';
+
+  @override
+  String get deskLicKeyOpen => 'Otwórz pakiet';
 }

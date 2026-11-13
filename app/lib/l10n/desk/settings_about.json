@@ -163,5 +163,13 @@
   "deskLicNone": "No package has that in its name.",
   "@deskLicNone": {
     "description": "Licence texts dialog: the line when the search matches no package."
+  },
+  "deskLicEmpty": "This build carries no licence texts.",
+  "@deskLicEmpty": {
+    "description": "Licence texts dialog: the line when the build lists no package at all."
+  },
+  "deskLicKeyOpen": "Open the package",
+  "@deskLicKeyOpen": {
+    "description": "Licence texts key strip: what Enter does (opens the first package the search shows)."
   }
 }

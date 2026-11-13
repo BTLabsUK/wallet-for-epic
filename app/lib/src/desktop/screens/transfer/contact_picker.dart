@@ -204,6 +204,10 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
           list,
         ],
       ),
+      keys: [
+        if (open.length > 1) EKeyHint(keys: '↑ ↓', does: l.deskSendPickKeyMove), // l10n-ok: arrow keys
+        if (chosen != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: widget.send ? l.deskSendPickKeySend : l.deskSendPickKeyTake),
+      ],
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         if (contacts != null && contacts.isNotEmpty)

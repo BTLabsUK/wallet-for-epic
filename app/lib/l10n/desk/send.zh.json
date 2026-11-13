@@ -151,5 +151,8 @@
   "deskSendPickSendDesc": "已配对的联系人收到密封付款，其他联系人通过已保存的地址收款。",
   "deskSendPickSendTo": "发送给 {name}",
   "deskSendPickChooseName": "选择 {name}",
-  "deskSendPickChoose": "选择"
+  "deskSendPickChoose": "选择",
+  "deskSendPickKeyMove": "选择",
+  "deskSendPickKeySend": "发送给所选联系人",
+  "deskSendPickKeyTake": "使用所选联系人"
 }

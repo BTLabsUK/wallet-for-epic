@@ -2655,7 +2655,6 @@
   "deskFinViewActivity": "ดูในประวัติ",
   "deskFinBusy": "กำลังทำให้เสร็จและส่งเข้าเครือข่าย",
   "deskFinChoose": "เลือกไฟล์ตอบกลับ",
-  "deskFinChooseText": "กระเป๋าเงินจะทำธุรกรรมให้เสร็จและส่งเข้าเครือข่าย",
   "deskFinChooseFile": "เลือกไฟล์",
   "deskImpWrongType": "ไม่ใช่ไฟล์ธุรกรรม",
   "deskImpWrongTypeText": "ไม่ใช่ไฟล์ธุรกรรม เลือกไฟล์ .tx ที่ผู้ส่งให้มา",
@@ -5628,5 +5627,10 @@
   "deskFinScanLink": "สแกนการตอบกลับเป็นโค้ด",
   "deskFinPasteLink": "วางเป็นข้อความ",
   "deskFinPasteEmpty": "ไม่มีอะไรให้วาง: คัดลอกการตอบกลับก่อน",
-  "deskSetLnodePortsHint": "ปุ่มบันทึกจะใช้ได้เมื่อมีการเปลี่ยนพอร์ต"
+  "deskSetLnodePortsHint": "ปุ่มบันทึกจะใช้ได้เมื่อมีการเปลี่ยนพอร์ต",
+  "deskSendPickKeyMove": "เลือก",
+  "deskSendPickKeySend": "ส่งถึงรายการที่เลือก",
+  "deskSendPickKeyTake": "ใช้รายการที่เลือก",
+  "deskLicEmpty": "บิลด์นี้ไม่มีข้อความสัญญาอนุญาต",
+  "deskLicKeyOpen": "เปิดแพ็กเกจ"
 }

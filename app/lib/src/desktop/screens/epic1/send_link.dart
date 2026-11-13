@@ -29,7 +29,7 @@ import '../../../models.dart' show Epic1Via;
 import '../transfer/send_screen.dart' show SendArgs, SendSummaryPanel;
 import 'epic1_files.dart';
 
-enum _Step { form, review, waiting }
+enum _Step { form, waiting }
 
 class Epic1SendPage extends ConsumerStatefulWidget {
   const Epic1SendPage({super.key, this.code});
@@ -290,7 +290,43 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       return;
     }
     if (_info!.amount == null && _nano() == null) return;
-    setState(() => _step = _Step.review);
+    unawaited(_openReview());
+  }
+
+  /// The review over the form, as Send's: what goes where and through which server.
+  Future<void> _openReview() async {
+    final info = _info!;
+    final send = await showEDialog<bool>(
+      context,
+      builder: (ctx) {
+        final l = ctx.l10n;
+        final nano = info.amount?.toInt() ?? parseEpicIn(l, _amount.text);
+        final server = info.hosts.firstOrNull?.label;
+        return EDialog(
+          key: const ValueKey('e1-review-panel'),
+          title: l.deskE1ReviewTitle,
+          icon: EIcons.send,
+          body: EFacts([
+            (l.deskE1To, Text(shortMiddle(info.address), style: ctx.ts.mono(size: Fs.sm))),
+            (l.deskSendAmount, Text(epicTextL(l, nano))),
+            if (_fee case final fee?) ...[(l.deskSendNetworkFee, Text(epicTextL(l, fee))), (l.deskSendTotal, Text(epicTextL(l, nano + fee), style: ctx.ts.strong))],
+            if (server != null) (l.deskE1Server, KeyedSubtree(key: const ValueKey('e1-review-server'), child: Text(server))),
+          ]),
+          actions: [
+            EButton(key: const ValueKey('e1-back'), label: l.deskE1Back, onPressed: () => Navigator.of(ctx).pop(false)),
+            EButton.primary(
+              key: const ValueKey('e1-send'),
+              semanticsId: TrustIds.e1Send,
+              label: l.deskE1Send,
+              icon: EIcons.send,
+              autofocus: true,
+              onPressed: () => Navigator.of(ctx).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+    if (send == true && mounted) await _send();
   }
 
   Future<void> _send() async {
@@ -382,7 +418,6 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       _Step.waiting when tx?.state == TxState.cancelled => _result(EIcons.close, l.deskE1Cancelled, 'e1-cancelled'),
       _Step.waiting when tx != null && tx.state != TxState.waitingRecipient => _result(EIcons.check, l.deskE1Sent, 'e1-sent'),
       _Step.waiting => _waiting(pay!),
-      _Step.review => _reviewPanel(),
       _Step.form => _form(),
     };
     return EPage(
@@ -512,8 +547,8 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       spendable: st.balance?.spendable,
       updating: st.status?.syncProgress != null,
       hint: error != null || _amountError != null ? l.deskSendHintFix : (info == null ? l.deskE1SendFieldHint : l.deskLvSendNothingLeaves),
-      reviewing: _reading,
-      onReview: empty || _reading ? null : _review,
+      reviewing: _reading || _busy,
+      onReview: empty || _reading || _busy ? null : _review,
       reviewLabel: l.deskE1Review,
       reviewKey: const ValueKey('e1-review'),
       reviewId: TrustIds.e1Review,
@@ -539,43 +574,6 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       ],
     ),
   );
-
-  Widget _reviewPanel() {
-    final l = context.l10n;
-    final info = _info!;
-    final nano = info.amount?.toInt() ?? parseEpicIn(l, _amount.text);
-    final server = info.hosts.firstOrNull?.label;
-    return EPanel(
-      key: const ValueKey('e1-review-panel'),
-      title: l.deskE1ReviewTitle,
-      padding: EdgeInsets.all(Sp.panel),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _row(l.deskE1To, shortMiddle(info.address), mono: true),
-          _row(l.deskSendAmount, formatEpicL(l, nano)),
-          if (server != null) _row(l.deskE1Server, server, key: const ValueKey('e1-review-server')),
-          SizedBox(height: Sp.x5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              EButton(key: const ValueKey('e1-back'), label: l.deskE1Back, onPressed: _busy ? null : () => setState(() => _step = _Step.form)),
-              SizedBox(width: Sp.x3),
-              EButton.primary(
-                key: const ValueKey('e1-send'),
-                semanticsId: TrustIds.e1Send,
-                label: l.deskE1Send,
-                icon: EIcons.send,
-                busy: _busy,
-                autofocus: true,
-                onPressed: _busy ? null : () => unawaited(_send()),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _waiting(Epic1Payment p) {
     final l = context.l10n;

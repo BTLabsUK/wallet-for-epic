@@ -815,5 +815,17 @@
   "deskSendPickChoose": "Choose",
   "@deskSendPickChoose": {
     "description": "Contact picker: the button while no contact can be chosen (disabled)."
+  },
+  "deskSendPickKeyMove": "Choose",
+  "@deskSendPickKeyMove": {
+    "description": "Contact picker's key strip: what the arrow keys do (move the choice)."
+  },
+  "deskSendPickKeySend": "Send to the chosen one",
+  "@deskSendPickKeySend": {
+    "description": "Send's contact picker key strip: what Enter does."
+  },
+  "deskSendPickKeyTake": "Take the chosen one",
+  "@deskSendPickKeyTake": {
+    "description": "Contact picker (not Send) key strip: what Enter does."
   }
 }

@@ -6207,9 +6207,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskFinChoose => '选择回复文件';
 
   @override
-  String get deskFinChooseText => '钱包会完成这笔交易并广播到网络。';
-
-  @override
   String get deskFinChooseFile => '选择文件';
 
   @override
@@ -20399,4 +20396,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsHint => '端口更改后即可保存。';
+
+  @override
+  String get deskSendPickKeyMove => '选择';
+
+  @override
+  String get deskSendPickKeySend => '发送给所选联系人';
+
+  @override
+  String get deskSendPickKeyTake => '使用所选联系人';
+
+  @override
+  String get deskLicEmpty => '此版本不含许可证文本。';
+
+  @override
+  String get deskLicKeyOpen => '打开软件包';
 }

@@ -24,7 +24,6 @@
   "deskFinViewActivity": "在“活动”中查看",
   "deskFinBusy": "正在完成并广播",
   "deskFinChoose": "选择回复文件",
-  "deskFinChooseText": "钱包会完成这笔交易并广播到网络。",
   "deskFinChooseFile": "选择文件",
   "deskImpWrongType": "不是交易文件",
   "deskImpWrongTypeText": "不是交易文件。请选择发送方提供的 .tx 文件。",

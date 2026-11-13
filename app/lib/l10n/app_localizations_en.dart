@@ -6581,10 +6581,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskFinChoose => 'Choose a response file';
 
   @override
-  String get deskFinChooseText =>
-      'The wallet completes the transaction and posts it to the network.';
-
-  @override
   String get deskFinChooseFile => 'Choose file';
 
   @override
@@ -21597,4 +21593,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsHint => 'Save turns on once a port changes.';
+
+  @override
+  String get deskSendPickKeyMove => 'Choose';
+
+  @override
+  String get deskSendPickKeySend => 'Send to the chosen one';
+
+  @override
+  String get deskSendPickKeyTake => 'Take the chosen one';
+
+  @override
+  String get deskLicEmpty => 'This build carries no licence texts.';
+
+  @override
+  String get deskLicKeyOpen => 'Open the package';
 }

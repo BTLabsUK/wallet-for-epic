@@ -128,25 +128,7 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
   }
 
   Future<void> _clear() async {
-    final files = _files ?? const [];
-    final total = files.fold<int>(0, (sum, f) => sum + f.bytes);
-    final ok = await showEDialog<bool>(
-      context,
-      builder: (context) => EDialog(
-        title: context.l10n.deskSetLogsClearTitle,
-        // A deletion: the risk tone, as the canvas draws it (Dlg-Clear-logs).
-        icon: EIcons.trash,
-        tone: ETone.risk,
-        description: context.l10n.deskSetLogsClearDesc,
-        // What goes: how many files and how much.
-        body: EFacts([(context.l10n.deskSetLogsFiles, Text('${files.length} · ${logSize(total, context.l10n)}', style: context.ts.mono(size: Fs.sm)))]), // l10n-ok: a count and a size
-        actions: [
-          EButton(label: context.l10n.commonCancel, onPressed: () => Navigator.pop(context, false)),
-          EButton(label: context.l10n.deskSetLogsClear, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => Navigator.pop(context, true)),
-        ],
-      ),
-    );
-    if (ok != true) return;
+    if (!await confirmClearLogs(context, _files ?? const [])) return;
     await ref.read(logFilesProvider).clear();
     await _read();
     if (mounted) showEToast(context, context.l10n.deskSetLogsCleared, tone: ETone.ok);
@@ -207,4 +189,26 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
       revealKey: 'files-logs',
     );
   }
+}
+
+/// "Clear logs?": how many files and how much go; true to clear.
+Future<bool> confirmClearLogs(BuildContext context, List<LogFileInfo> files) async {
+  final total = files.fold<int>(0, (sum, f) => sum + f.bytes);
+  final ok = await showEDialog<bool>(
+    context,
+    builder: (context) => EDialog(
+      title: context.l10n.deskSetLogsClearTitle,
+      // A deletion: the risk tone, as the canvas draws it (Dlg-Clear-logs).
+      icon: EIcons.trash,
+      tone: ETone.risk,
+      description: context.l10n.deskSetLogsClearDesc,
+      // What goes: how many files and how much.
+      body: EFacts([(context.l10n.deskSetLogsFiles, Text('${files.length} · ${logSize(total, context.l10n)}', style: context.ts.mono(size: Fs.sm)))]), // l10n-ok: a count and a size
+      actions: [
+        EButton(label: context.l10n.commonCancel, onPressed: () => Navigator.pop(context, false)),
+        EButton(label: context.l10n.deskSetLogsClear, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => Navigator.pop(context, true)),
+      ],
+    ),
+  );
+  return ok == true;
 }

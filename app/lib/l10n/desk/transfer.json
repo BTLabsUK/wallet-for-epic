@@ -111,10 +111,6 @@
   "@deskFinChoose": {
     "description": "Title of the drop zone on Finalize."
   },
-  "deskFinChooseText": "The wallet completes the transaction and posts it to the network.",
-  "@deskFinChooseText": {
-    "description": "Text of the drop zone on Finalize."
-  },
   "deskFinChooseFile": "Choose file",
   "@deskFinChooseFile": {
     "description": "Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog."

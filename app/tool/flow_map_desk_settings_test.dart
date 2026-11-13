@@ -34,6 +34,10 @@ import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/depth_dial.dart' show showDepthHelp;
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/licence_texts_dialog.dart' show showLicenceTextsDialog;
+import 'package:epic_wallet/src/app_log.dart' show LogFileInfo;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_files.dart' show confirmClearLogs;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart' show confirmEpicboxOff;
+import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show showPairNameDialog;
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show showChangeFolderDialog, showLocalNodePortsDialog;
 import 'package:epic_wallet/src/desktop/screens/transfer/contact_picker.dart' show showContactPickerDialog;
 import 'package:epic_wallet/src/node/local_node_state.dart' show LocalNodePhase;
@@ -46,6 +50,7 @@ import 'package:epic_wallet/src/desktop/widgets/dialogs.dart' show EDialog;
 import 'package:epic_wallet/src/desktop/data/devices_state.dart' show deskDeviceServiceProvider;
 import 'package:epic_wallet/src/levels/level_providers.dart' show walletLevelProvider;
 import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:flutter/foundation.dart' show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -73,6 +78,26 @@ Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async 
   await c.read(walletLevelProvider.future);
   await c.read(deskLevelControlProvider).setLevel(level);
 };
+
+/// A test run has no licence registry (the app reads the bundle's notices): a few packages
+/// as the built app lists them, for the licence texts shot.
+var _licencesAdded = false;
+void _sampleLicences() {
+  if (_licencesAdded) return;
+  _licencesAdded = true;
+  const apache = 'Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/';
+  const mit = 'Permission is hereby granted, free of charge, to any person obtaining a copy of this software.';
+  const bsd = 'Redistribution and use in source and binary forms, with or without modification, are permitted.\nNeither the name of the copyright holder nor the names of its contributors may be used.';
+  const ofl = 'SIL OPEN FONT LICENSE Version 1.1';
+  LicenseRegistry.addLicense(() => Stream.fromIterable([
+    const LicenseEntryWithLineBreaks(['BT Wallet'], apache),
+    const LicenseEntryWithLineBreaks(['flutter'], bsd),
+    const LicenseEntryWithLineBreaks(['flutter'], bsd),
+    const LicenseEntryWithLineBreaks(['flutter_riverpod'], mit),
+    const LicenseEntryWithLineBreaks(['Montserrat'], ofl),
+    const LicenseEntryWithLineBreaks(['tor'], bsd),
+  ]));
+}
 
 Future<void> _feature(ProviderContainer c, Set<AdvancedFeature> on) async {
   final n = c.read(deskProvider.notifier);
@@ -158,10 +183,20 @@ final List<DeskShot> flowMapSettingsShots = [
   // dialogs without a shot
   DeskShot(id: 'fm-settings-network-switch-confirm', title: 'Switch to Kill switch? with sends waiting', route: DeskRoute.settingsPrivacy, dialog: (c) => confirmNetworkModeSwitch(c, mode: NetworkMode.killSwitch, waiting: 2)),
   DeskShot(id: 'fm-settings-depth-help', title: 'Advanced, what the views decide', route: DeskRoute.settingsAdvanced, dialog: showDepthHelp),
-  DeskShot(id: 'fm-settings-licence-texts', title: 'About, licence texts', route: DeskRoute.settingsAbout, dialog: showLicenceTextsDialog),
+  DeskShot(id: 'fm-settings-licence-texts', title: 'About, licence texts', route: DeskRoute.settingsAbout, before: (_) async => _sampleLicences(), dialog: showLicenceTextsDialog),
   // drawn after the review (2026-11-13)
   DeskShot(id: 'fm-review-contact-pick', title: 'Send, choosing a contact', route: DeskRoute.send, dialog: showContactPickerDialog),
   const DeskShot(id: 'fm-review-finish', title: 'Finish the payment (a response file)', route: DeskRoute.finalize),
+  DeskShot(id: 'fm-review-clear-logs', title: 'Files & logs, Clear logs?', route: DeskRoute.settingsFiles, dialog: (ctx) => confirmClearLogs(ctx, [LogFileInfo('wfe.log', 1800000), LogFileInfo('wfe.1.log', 524288), LogFileInfo('node.log', 190000)])),
+  DeskShot(
+    id: 'fm-review-epicbox-off',
+    title: 'Transactions, Turn Epicbox off? with a payment waiting',
+    route: DeskRoute.settingsReceiving,
+    dialog: (ctx) => confirmEpicboxOff(ctx, [
+      Tx(id: 901, slateId: 'a1f9e8d7', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: 2500000000, fee: 700000, created: DateTime(2026, 11, 13, 11, 30), contactName: 'Anna Kowalska'),
+    ]),
+  ),
+  DeskShot(id: 'fm-review-pair-name', title: 'Pairing, the name shown when paired', route: DeskRoute.contacts, dialog: (ctx) => showPairNameDialog(ctx, 'BT Labs')),
   DeskShot(
     id: 'fm-review-chain-move',
     title: 'Local node, moving the chain data',

@@ -2208,7 +2208,6 @@
   "deskFinViewActivity": "Pokaż w Aktywności",
   "deskFinBusy": "Finalizowanie i publikowanie",
   "deskFinChoose": "Wybierz plik odpowiedzi",
-  "deskFinChooseText": "Portfel dokończy transakcję i opublikuje ją w sieci.",
   "deskFinChooseFile": "Wybierz plik",
   "deskImpWrongType": "To nie plik transakcji",
   "deskImpWrongTypeText": "To nie jest plik transakcji. Wybierz plik .tx od nadawcy.",
@@ -5628,5 +5627,10 @@
   "deskFinScanLink": "Zeskanuj odpowiedź jako kod",
   "deskFinPasteLink": "Wklej jako tekst",
   "deskFinPasteEmpty": "Nie ma czego wkleić: najpierw skopiuj odpowiedź",
-  "deskSetLnodePortsHint": "Zapisz włączy się, gdy zmieni się port."
+  "deskSetLnodePortsHint": "Zapisz włączy się, gdy zmieni się port.",
+  "deskSendPickKeyMove": "Wybór",
+  "deskSendPickKeySend": "Wyślij do wybranego",
+  "deskSendPickKeyTake": "Weź wybrany",
+  "deskLicEmpty": "Ta wersja nie zawiera tekstów licencji.",
+  "deskLicKeyOpen": "Otwórz pakiet"
 }

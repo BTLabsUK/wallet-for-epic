@@ -6806,10 +6806,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskFinChoose => 'Выберите файл ответа';
 
   @override
-  String get deskFinChooseText =>
-      'Кошелёк завершит транзакцию и отправит её в сеть.';
-
-  @override
   String get deskFinChooseFile => 'Выбрать файл';
 
   @override
@@ -22219,4 +22215,19 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetLnodePortsHint =>
       '«Сохранить» станет доступно, когда порт изменится.';
+
+  @override
+  String get deskSendPickKeyMove => 'Выбор';
+
+  @override
+  String get deskSendPickKeySend => 'Отправить выбранному';
+
+  @override
+  String get deskSendPickKeyTake => 'Взять выбранный';
+
+  @override
+  String get deskLicEmpty => 'В этой сборке нет текстов лицензий.';
+
+  @override
+  String get deskLicKeyOpen => 'Открыть пакет';
 }

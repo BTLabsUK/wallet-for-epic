@@ -2742,7 +2742,6 @@
   "deskFinViewActivity": "在“活动”中查看",
   "deskFinBusy": "正在完成并广播",
   "deskFinChoose": "选择回复文件",
-  "deskFinChooseText": "钱包会完成这笔交易并广播到网络。",
   "deskFinChooseFile": "选择文件",
   "deskImpWrongType": "不是交易文件",
   "deskImpWrongTypeText": "不是交易文件。请选择发送方提供的 .tx 文件。",
@@ -5628,5 +5627,10 @@
   "deskFinScanLink": "扫描回复二维码",
   "deskFinPasteLink": "以文本粘贴",
   "deskFinPasteEmpty": "没有可粘贴的内容：请先复制回复",
-  "deskSetLnodePortsHint": "端口更改后即可保存。"
+  "deskSetLnodePortsHint": "端口更改后即可保存。",
+  "deskSendPickKeyMove": "选择",
+  "deskSendPickKeySend": "发送给所选联系人",
+  "deskSendPickKeyTake": "使用所选联系人",
+  "deskLicEmpty": "此版本不含许可证文本。",
+  "deskLicKeyOpen": "打开软件包"
 }

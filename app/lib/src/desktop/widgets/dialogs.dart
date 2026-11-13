@@ -68,7 +68,11 @@ class EDialog extends StatelessWidget {
     @Deprecated('Pass size: a DialogWidth') this._width,
     this.dismissible = true,
     this.foot,
+    this.keys = const [],
   });
+
+  /// More [EKeyHint]s for the strip, after Esc (a list's ↑ ↓, what Enter takes).
+  final List<Widget> keys;
 
   final String title;
 
@@ -134,7 +138,7 @@ class EDialog extends StatelessWidget {
     final padTop = (short ? 18 : (narrow ? 22 : 28)).u;
     final padEnd = (narrow ? 16 : 20).u;
     final enter = _enterLabel;
-    final keys = dismissible || enter != null;
+    final strip = dismissible || enter != null || keys.isNotEmpty;
     final dialog = Dialog(
       backgroundColor: c.modal,
       insetPadding: EdgeInsets.all(Sp.x5),
@@ -207,12 +211,13 @@ class EDialog extends StatelessWidget {
                       padding: EdgeInsets.fromLTRB(padX, short ? Sp.x4 : 22.u, padX, 0),
                       child: EModalButtons(actions: actions),
                     ),
-                  if (keys)
+                  if (strip)
                     EModalKeys(
                       padX: padRaw,
                       short: short,
                       hints: [
                         if (dismissible) EKeyHint(keys: l.deskSetFrameEscKey, does: l.commonClose),
+                        ...keys,
                         if (enter != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: enter),
                       ],
                     )

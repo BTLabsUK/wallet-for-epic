@@ -8608,10 +8608,6 @@
   "@deskFinChoose": {
     "description": "Title of the drop zone on Finalize."
   },
-  "deskFinChooseText": "The wallet completes the transaction and posts it to the network.",
-  "@deskFinChooseText": {
-    "description": "Text of the drop zone on Finalize."
-  },
   "deskFinChooseFile": "Choose file",
   "@deskFinChooseFile": {
     "description": "Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog."
@@ -29341,5 +29337,25 @@
   "deskSetLnodePortsHint": "Save turns on once a port changes.",
   "@deskSetLnodePortsHint": {
     "description": "Node ports dialog: the line over the buttons, why Save is off."
+  },
+  "deskSendPickKeyMove": "Choose",
+  "@deskSendPickKeyMove": {
+    "description": "Contact picker's key strip: what the arrow keys do (move the choice)."
+  },
+  "deskSendPickKeySend": "Send to the chosen one",
+  "@deskSendPickKeySend": {
+    "description": "Send's contact picker key strip: what Enter does."
+  },
+  "deskSendPickKeyTake": "Take the chosen one",
+  "@deskSendPickKeyTake": {
+    "description": "Contact picker (not Send) key strip: what Enter does."
+  },
+  "deskLicEmpty": "This build carries no licence texts.",
+  "@deskLicEmpty": {
+    "description": "Licence texts dialog: the line when the build lists no package at all."
+  },
+  "deskLicKeyOpen": "Open the package",
+  "@deskLicKeyOpen": {
+    "description": "Licence texts key strip: what Enter does (opens the first package the search shows)."
   }
 }

@@ -1963,7 +1963,6 @@
   "deskFinViewActivity": "In Aktivität anzeigen",
   "deskFinBusy": "Wird abgeschlossen und gesendet",
   "deskFinChoose": "Antwortdatei wählen",
-  "deskFinChooseText": "Die Wallet schließt die Transaktion ab und sendet sie an das Netzwerk.",
   "deskFinChooseFile": "Datei wählen",
   "deskImpWrongType": "Keine Transaktionsdatei",
   "deskImpWrongTypeText": "Keine Transaktionsdatei. Wählen Sie die .tx-Datei, die Ihnen der Absender gegeben hat.",
@@ -5628,5 +5627,10 @@
   "deskFinScanLink": "Antwort als Code scannen",
   "deskFinPasteLink": "Als Text einfügen",
   "deskFinPasteEmpty": "Nichts zum Einfügen: zuerst die Antwort kopieren",
-  "deskSetLnodePortsHint": "„Speichern“ wird aktiv, sobald sich ein Port ändert."
+  "deskSetLnodePortsHint": "„Speichern“ wird aktiv, sobald sich ein Port ändert.",
+  "deskSendPickKeyMove": "Auswählen",
+  "deskSendPickKeySend": "An die Auswahl senden",
+  "deskSendPickKeyTake": "Auswahl übernehmen",
+  "deskLicEmpty": "Dieser Build enthält keine Lizenztexte.",
+  "deskLicKeyOpen": "Paket öffnen"
 }

@@ -24,7 +24,6 @@
   "deskFinViewActivity": "Pokaż w Aktywności",
   "deskFinBusy": "Finalizowanie i publikowanie",
   "deskFinChoose": "Wybierz plik odpowiedzi",
-  "deskFinChooseText": "Portfel dokończy transakcję i opublikuje ją w sieci.",
   "deskFinChooseFile": "Wybierz plik",
   "deskImpWrongType": "To nie plik transakcji",
   "deskImpWrongTypeText": "To nie jest plik transakcji. Wybierz plik .tx od nadawcy.",

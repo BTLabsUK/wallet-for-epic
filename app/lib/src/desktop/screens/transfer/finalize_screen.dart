@@ -257,7 +257,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
                         ),
                       )
                     else
-                      EDropZone(title: l.deskFinChoose, text: l.deskFinChooseText, onPick: _pick, button: false),
+                      EDropZone(title: l.deskFinChoose, onPick: _pick, button: false),
                     SizedBox(height: Sp.x3),
                     Wrap(
                       alignment: WrapAlignment.center,

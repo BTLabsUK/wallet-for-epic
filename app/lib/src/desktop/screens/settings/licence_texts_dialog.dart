@@ -85,7 +85,7 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (shown.isEmpty) Padding(padding: EdgeInsets.all(Sp.x4), child: Text(l.deskLicNone, style: ts.bodyDim)),
+                    if (shown.isEmpty) Padding(padding: EdgeInsets.all(Sp.x4), child: Text(packages.isEmpty ? l.deskLicEmpty : l.deskLicNone, style: ts.bodyDim)),
                     for (final (i, MapEntry(key: name, value: entries)) in shown.indexed)
                       EInkWell(
                         onTap: () => setState(() => _open = name),
@@ -134,6 +134,8 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
           description: open == null ? l.deskLicDesc : metaLine([licenceKind(packages?[open] ?? const []), l.licencesPackageCount(packages?[open]?.length ?? 0)]),
           icon: EIcons.file,
           size: DialogWidth.wide,
+          // Enter in the search opens the first package it shows.
+          keys: [if (open == null && (packages?.isNotEmpty ?? false)) EKeyHint(keys: l.deskSetSearchKeyEnter, does: l.deskLicKeyOpen)],
           body: body,
           actions: [
             if (open != null) EButton(label: l.deskSendBack, onPressed: () => setState(() => _open = null)),

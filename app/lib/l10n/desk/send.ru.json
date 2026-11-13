@@ -151,5 +151,8 @@
   "deskSendPickSendDesc": "Связанные контакты получают запечатанный платёж. Остальные — на сохранённый адрес.",
   "deskSendPickSendTo": "Отправить: {name}",
   "deskSendPickChooseName": "Выбрать: {name}",
-  "deskSendPickChoose": "Выбрать"
+  "deskSendPickChoose": "Выбрать",
+  "deskSendPickKeyMove": "Выбор",
+  "deskSendPickKeySend": "Отправить выбранному",
+  "deskSendPickKeyTake": "Взять выбранный"
 }

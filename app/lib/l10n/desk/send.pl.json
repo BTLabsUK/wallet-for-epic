@@ -151,5 +151,8 @@
   "deskSendPickSendDesc": "Sparowane kontakty dostają zapieczętowaną płatność. Pozostałe – na zapisany adres.",
   "deskSendPickSendTo": "Wyślij do: {name}",
   "deskSendPickChooseName": "Wybierz: {name}",
-  "deskSendPickChoose": "Wybierz"
+  "deskSendPickChoose": "Wybierz",
+  "deskSendPickKeyMove": "Wybór",
+  "deskSendPickKeySend": "Wyślij do wybranego",
+  "deskSendPickKeyTake": "Weź wybrany"
 }

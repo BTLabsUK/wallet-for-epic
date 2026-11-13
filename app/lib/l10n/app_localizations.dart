@@ -10490,12 +10490,6 @@ abstract class AppLocalizations {
   /// **'Choose a response file'**
   String get deskFinChoose;
 
-  /// Text of the drop zone on Finalize.
-  ///
-  /// In en, this message translates to:
-  /// **'The wallet completes the transaction and posts it to the network.'**
-  String get deskFinChooseText;
-
   /// Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog.
   ///
   /// In en, this message translates to:
@@ -33846,6 +33840,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save turns on once a port changes.'**
   String get deskSetLnodePortsHint;
+
+  /// Contact picker's key strip: what the arrow keys do (move the choice).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get deskSendPickKeyMove;
+
+  /// Send's contact picker key strip: what Enter does.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to the chosen one'**
+  String get deskSendPickKeySend;
+
+  /// Contact picker (not Send) key strip: what Enter does.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the chosen one'**
+  String get deskSendPickKeyTake;
+
+  /// Licence texts dialog: the line when the build lists no package at all.
+  ///
+  /// In en, this message translates to:
+  /// **'This build carries no licence texts.'**
+  String get deskLicEmpty;
+
+  /// Licence texts key strip: what Enter does (opens the first package the search shows).
+  ///
+  /// In en, this message translates to:
+  /// **'Open the package'**
+  String get deskLicKeyOpen;
 }
 
 class _AppLocalizationsDelegate

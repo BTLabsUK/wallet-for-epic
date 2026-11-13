@@ -24,7 +24,6 @@
   "deskFinViewActivity": "Открыть в «Активности»",
   "deskFinBusy": "Завершение и отправка в сеть",
   "deskFinChoose": "Выберите файл ответа",
-  "deskFinChooseText": "Кошелёк завершит транзакцию и отправит её в сеть.",
   "deskFinChooseFile": "Выбрать файл",
   "deskImpWrongType": "Это не файл транзакции",
   "deskImpWrongTypeText": "Это не файл транзакции. Выберите файл .tx, который передал отправитель.",
