@@ -722,7 +722,7 @@ class _PhoneTopBar extends ConsumerWidget {
         children: [
           // The brand is in the title bar above.
           const Spacer(),
-          const ServiceRows(compact: true, horizontal: true),
+          const ServiceRows(),
           TourTarget(
             id: 'nav-settings',
             child: EIconButton(

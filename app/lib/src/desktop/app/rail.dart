@@ -217,13 +217,10 @@ RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
 /// wallet status; the info is also asked again when the node changes or answers again.
 const Duration railNodeRefresh = Duration(minutes: 5);
 
-/// The rail: Node, Epicbox, HTTP, Tor, a divider between every two. [horizontal] lays the
-/// compact rows side by side (the phone's top bar).
+/// The services: Node, Epicbox, HTTP, Tor. Their icons side by side (the phone-width top bar),
+/// or, with [builder], laid out another way (the status bar).
 class ServiceRows extends ConsumerStatefulWidget {
-  const ServiceRows({super.key, this.compact = false, this.horizontal = false, this.builder});
-
-  final bool compact;
-  final bool horizontal;
+  const ServiceRows({super.key, this.builder});
 
   /// Lays the rows out another way (the title bar's status); the rows' content stays this one.
   final Widget Function(BuildContext context, List<RailItem> items)? builder;
@@ -355,37 +352,19 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     // Connecting (item 11, connection_grace.dart).
     final items = graceRailItems(l, [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reachClosed)], grace: ref.watch(connectionGraceProvider));
     if (widget.builder != null) return widget.builder!(context, items);
-    Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.opens));
-    if (widget.horizontal) {
-      return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);
-    }
-    final c = context.dc;
-    return Column(
-      key: const ValueKey('rail'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var n = 0; n < items.length; n++) ...[
-          // The same hairline and the same space between every two rows.
-          if (n > 0)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 3.u, horizontal: 8.u),
-              child: Divider(height: 1, thickness: 1, color: c.line),
-            ),
-          row(items[n]),
-        ],
-      ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [for (final i in items) SizedBox(width: Ctl.md, child: RailRow(item: i, onTap: () => p.jumpTo(i.opens)))],
     );
   }
 }
 
-/// One rail row, 40 u tall: the service's icon, the name over one line, the bars at the end
-/// (compact: the icon and the bars). Hover shows the card; a click opens the service's settings.
+/// A service as its glyph with the state, 40 high; hover shows its card, a click its settings.
 class RailRow extends StatefulWidget {
-  const RailRow({super.key, required this.item, required this.onTap, this.compact = false});
+  const RailRow({super.key, required this.item, required this.onTap});
 
   final RailItem item;
   final VoidCallback onTap;
-  final bool compact;
 
   @override
   State<RailRow> createState() => _RailRowState();
@@ -399,12 +378,6 @@ class _RailRowState extends State<RailRow> {
     final c = context.dc;
     final ts = context.ts;
     final i = widget.item;
-    final off = i.second == '–';
-    // A host is mono; a status word is in the interface face.
-    final mono = i.icon == EIcons.node || i.icon == EIcons.epicbox;
-    final secondStyle = off
-        ? ts.small.copyWith(color: c.faint, height: 15 / 12)
-        : (mono && !off ? ts.mono(size: Fs.xs, color: c.dim) : ts.caption.copyWith(color: c.dim)).copyWith(height: 15 / Fs.xs);
     final card = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -427,38 +400,7 @@ class _RailRowState extends State<RailRow> {
         Text(i.open, style: ts.caption.copyWith(color: c.accentText)),
       ],
     );
-    final Widget content;
-    if (widget.compact) {
-      content = Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', size: 16.u),
-        ],
-      );
-    } else {
-      content = Row(
-        children: [
-          // The glyph with its state dot, as the title bar; bars only where latency shows.
-          EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', size: 16.u),
-          SizedBox(width: 6.u),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(i.name, maxLines: 1, style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600, height: 17 / Fs.sm)),
-                Row(
-                  children: [
-                    Flexible(child: Text(i.second, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: secondStyle)),
-                    if (i.marker != null) Flexible(child: Text(' · ${i.marker}', maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.caption.copyWith(color: c.dim, height: 15 / Fs.xs))),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
+    final content = Center(child: EStatusGlyph(icon: i.icon, state: i.state, label: '${i.name}: ${i.word}', size: 16.u));
     return ETip.card(
       card,
       child: Semantics(
@@ -473,7 +415,6 @@ class _RailRowState extends State<RailRow> {
           borderRadius: BorderRadius.circular(Rad.sm),
           child: Container(
             height: 40.u,
-            padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : 8.u),
             decoration: BoxDecoration(color: _hover ? c.hover : null, borderRadius: BorderRadius.circular(Rad.sm)),
             // The row is 40 u in every state; the OS text scale follows up to the size where
             // the two lines still fit (the interface scale is already in `u`).
