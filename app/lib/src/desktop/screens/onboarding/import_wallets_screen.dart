@@ -398,36 +398,19 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       steps: railOf([l.deskOnbImportStepFind, l.deskOnbImportStepChoose, l.deskOnbImportStepCheck, l.deskOnbImportTitle, l.commonDone], _railIndex),
       title: h.title,
       lead: h.lead,
-      sideFoot: _step == ImportStep.done
-          ? null
-          : Align(
-              alignment: Alignment.centerLeft,
-              child: EButton.ghost(label: l.commonCancel, icon: EIcons.close, tabStop: false, onPressed: _busy ? null : _cancel),
-            ),
-      back: canBack ? backButton(_back, label: l.deskOnbImportBack) : null,
+      barEnd: _step == ImportStep.done ? null : EButton.ghost(label: l.commonCancel, icon: EIcons.close, size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : _cancel),
+      onBack: canBack ? _back : null,
+      backLabel: l.deskOnbImportBack,
+      width: EOnbFrame.wide,
       status: stat,
       actions: [
+        // Skip sits left of the main button; Tab reaches Import first, then Skip.
         if (_step == ImportStep.import && current != null)
-          // Tab: Import, then Skip (Skip sits left of the main button).
-          FocusTraversalGroup(
-            policy: OrderedTraversalPolicy(),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FocusTraversalOrder(
-                  order: const NumericFocusOrder(2),
-                  child: EButton.ghost(label: l.deskOnbImportSkip, size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
-                ),
-                SizedBox(width: Sp.x3),
-                FocusTraversalOrder(
-                  order: const NumericFocusOrder(1),
-                  child: EButton.primary(label: label, busy: _busy, onPressed: enabled ? _next : null),
-                ),
-              ],
-            ),
-          )
-        else
-          EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
+          FocusTraversalOrder(order: const NumericFocusOrder(2), child: EButton(label: l.deskOnbImportSkip, onPressed: _busy ? null : _skipCurrent)),
+        FocusTraversalOrder(
+          order: const NumericFocusOrder(1),
+          child: EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
+        ),
       ],
       child: _body(context),
     ),

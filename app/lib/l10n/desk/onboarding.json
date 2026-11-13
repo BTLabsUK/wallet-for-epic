@@ -1074,5 +1074,29 @@
   "deskOnbUnlockUsePhrase": "Enter recovery phrase",
   "@deskOnbUnlockUsePhrase": {
     "description": "Button on Unlock failed when the wallet's key is gone from the system keychain or key store; opens Set a new password, where the recovery phrase opens the wallet again."
+  },
+  "deskOnbWelcomeFactAccount": "No account",
+  "@deskOnbWelcomeFactAccount": {
+    "description": "Welcome, under the doors: the first of three short facts, its bold title. There is no sign-up."
+  },
+  "deskOnbWelcomeFactAccountText": "No sign-up. The keys stay on this computer and nowhere else.",
+  "@deskOnbWelcomeFactAccountText": {
+    "description": "Welcome: the line under 'No account'."
+  },
+  "deskOnbWelcomeFactLink": "Pay with one link",
+  "@deskOnbWelcomeFactLink": {
+    "description": "Welcome: the second fact's bold title. A payment can be sent with a single epic1 link."
+  },
+  "deskOnbWelcomeFactLinkText": "epic1 links and Epicbox deliver payments, sealed between paired contacts.",
+  "@deskOnbWelcomeFactLinkText": {
+    "description": "Welcome: the line under 'Pay with one link'. 'epic1' and 'Epicbox' are names: keep them as they are (epic1 shows as its wordmark)."
+  },
+  "deskOnbWelcomeFactNode": "Your own node, if you want",
+  "@deskOnbWelcomeFactNode": {
+    "description": "Welcome: the third fact's bold title. The wallet can run its own node; it is optional."
+  },
+  "deskOnbWelcomeFactNodeText": "The wallet can run one on this computer. A public node works too.",
+  "@deskOnbWelcomeFactNodeText": {
+    "description": "Welcome: the line under the third fact. 'one' is a node."
   }
 }

@@ -204,5 +204,11 @@
   "deskOnbNodePortTaken": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่ {next} ว่าง",
   "deskOnbNodePortUse": "ใช้ {port}",
   "deskOnbFailedTitle": "ไม่เสร็จสิ้น",
-  "deskOnbUnlockUsePhrase": "ใส่วลีกู้คืน"
+  "deskOnbUnlockUsePhrase": "ใส่วลีกู้คืน",
+  "deskOnbWelcomeFactAccount": "ไม่ต้องมีบัญชี",
+  "deskOnbWelcomeFactAccountText": "ไม่ต้องสมัคร คีย์อยู่บนคอมพิวเตอร์เครื่องนี้เท่านั้น",
+  "deskOnbWelcomeFactLink": "จ่ายด้วยลิงก์เดียว",
+  "deskOnbWelcomeFactLinkText": "ลิงก์ epic1 และ Epicbox ส่งการชำระเงิน ปิดผนึกระหว่างผู้ติดต่อที่จับคู่กัน",
+  "deskOnbWelcomeFactNode": "โหนดของคุณเอง หากต้องการ",
+  "deskOnbWelcomeFactNodeText": "กระเป๋าเงินรันโหนดบนคอมพิวเตอร์เครื่องนี้ได้ ใช้โหนดสาธารณะก็ได้"
 }

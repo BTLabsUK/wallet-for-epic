@@ -33666,6 +33666,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type a name, an amount, an address or a payment code'**
   String get deskOvFieldHint;
+
+  /// Welcome, under the doors: the first of three short facts, its bold title. There is no sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'No account'**
+  String get deskOnbWelcomeFactAccount;
+
+  /// Welcome: the line under 'No account'.
+  ///
+  /// In en, this message translates to:
+  /// **'No sign-up. The keys stay on this computer and nowhere else.'**
+  String get deskOnbWelcomeFactAccountText;
+
+  /// Welcome: the second fact's bold title. A payment can be sent with a single epic1 link.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with one link'**
+  String get deskOnbWelcomeFactLink;
+
+  /// Welcome: the line under 'Pay with one link'. 'epic1' and 'Epicbox' are names: keep them as they are (epic1 shows as its wordmark).
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 links and Epicbox deliver payments, sealed between paired contacts.'**
+  String get deskOnbWelcomeFactLinkText;
+
+  /// Welcome: the third fact's bold title. The wallet can run its own node; it is optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own node, if you want'**
+  String get deskOnbWelcomeFactNode;
+
+  /// Welcome: the line under the third fact. 'one' is a node.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet can run one on this computer. A public node works too.'**
+  String get deskOnbWelcomeFactNodeText;
 }
 
 class _AppLocalizationsDelegate

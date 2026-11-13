@@ -22109,4 +22109,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvFieldHint => 'Введите имя, сумму, адрес или код платежа';
+
+  @override
+  String get deskOnbWelcomeFactAccount => 'Без аккаунта';
+
+  @override
+  String get deskOnbWelcomeFactAccountText =>
+      'Без регистрации. Ключи хранятся только на этом компьютере.';
+
+  @override
+  String get deskOnbWelcomeFactLink => 'Оплата одной ссылкой';
+
+  @override
+  String get deskOnbWelcomeFactLinkText =>
+      'Ссылки epic1 и Epicbox доставляют платежи, запечатанные между связанными контактами.';
+
+  @override
+  String get deskOnbWelcomeFactNode => 'Свой узел, если нужно';
+
+  @override
+  String get deskOnbWelcomeFactNodeText =>
+      'Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит.';
 }

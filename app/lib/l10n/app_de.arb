@@ -5598,5 +5598,11 @@
   "deskOvRequest": "Anfordern",
   "deskOvInMotion": "In Bewegung",
   "deskOvSendTo": "An {name} senden",
-  "deskOvFieldHint": "Name, Betrag, Adresse oder Zahlungscode eingeben"
+  "deskOvFieldHint": "Name, Betrag, Adresse oder Zahlungscode eingeben",
+  "deskOnbWelcomeFactAccount": "Kein Konto",
+  "deskOnbWelcomeFactAccountText": "Keine Anmeldung. Die Schlüssel bleiben auf diesem Computer und nirgends sonst.",
+  "deskOnbWelcomeFactLink": "Mit einem Link zahlen",
+  "deskOnbWelcomeFactLinkText": "epic1-Links und Epicbox stellen Zahlungen zu, versiegelt zwischen gekoppelten Kontakten.",
+  "deskOnbWelcomeFactNode": "Eigener Node, wenn gewünscht",
+  "deskOnbWelcomeFactNodeText": "Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch."
 }

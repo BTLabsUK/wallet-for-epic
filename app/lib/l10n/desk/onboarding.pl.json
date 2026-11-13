@@ -204,5 +204,11 @@
   "deskOnbNodePortTaken": "Port {port} zajmuje inny program. {next} jest wolny.",
   "deskOnbNodePortUse": "Użyj {port}",
   "deskOnbFailedTitle": "Nie ukończono",
-  "deskOnbUnlockUsePhrase": "Wpisz frazę odzyskiwania"
+  "deskOnbUnlockUsePhrase": "Wpisz frazę odzyskiwania",
+  "deskOnbWelcomeFactAccount": "Bez konta",
+  "deskOnbWelcomeFactAccountText": "Bez rejestracji. Klucze zostają na tym komputerze i nigdzie indziej.",
+  "deskOnbWelcomeFactLink": "Płać jednym linkiem",
+  "deskOnbWelcomeFactLinkText": "Linki epic1 i Epicbox dostarczają płatności, zapieczętowane między sparowanymi kontaktami.",
+  "deskOnbWelcomeFactNode": "Własny węzeł, jeśli chcesz",
+  "deskOnbWelcomeFactNodeText": "Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa."
 }

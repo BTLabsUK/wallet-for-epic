@@ -20298,4 +20298,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvFieldHint => '输入名称、金额、地址或付款码';
+
+  @override
+  String get deskOnbWelcomeFactAccount => '无需账户';
+
+  @override
+  String get deskOnbWelcomeFactAccountText => '无需注册。密钥只保存在这台电脑上。';
+
+  @override
+  String get deskOnbWelcomeFactLink => '一个链接即可付款';
+
+  @override
+  String get deskOnbWelcomeFactLinkText =>
+      'epic1 链接和 Epicbox 传递付款，在已配对的联系人之间加密。';
+
+  @override
+  String get deskOnbWelcomeFactNode => '可选：自己的节点';
+
+  @override
+  String get deskOnbWelcomeFactNodeText => '钱包可以在这台电脑上运行节点。也可以用公共节点。';
 }

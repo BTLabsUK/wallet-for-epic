@@ -21,6 +21,7 @@ export 'frames.dart';
 export 'grid.dart';
 export 'hero_art.dart';
 export 'keyboard.dart';
+export 'modal.dart';
 export 'password_hint.dart';
 export 'phrase_layout.dart';
 export 'popover.dart';

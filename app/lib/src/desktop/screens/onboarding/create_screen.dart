@@ -166,7 +166,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           title: _name ?? defaultWalletName(ref),
           heading: WalletNameTitle(place: 'create', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
           lead: l.deskOnbCreateLead,
-          back: backButton(() => nav.back()),
+          onBack: () => nav.back(),
+          icon: EIcons.lock,
           actions: [
             EButton.primary(semanticsId: TrustIds.createSubmit, label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
           ],
@@ -210,6 +211,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       steps: rail,
       title: l.deskOnbStepPhrase,
       lead: l.deskOnbCreatePhraseLead,
+      width: EOnbFrame.wide,
       status: _revealed ? null : l.deskOnbCreateRevealFirst,
       actions: [
         EButton.primary(semanticsId: TrustIds.createContinue, label: l.commonContinue, busy: _busy, onPressed: _revealed && _written ? _finish : null),

@@ -21071,4 +21071,25 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvFieldHint => 'พิมพ์ชื่อ จำนวน ที่อยู่ หรือรหัสการชำระเงิน';
+
+  @override
+  String get deskOnbWelcomeFactAccount => 'ไม่ต้องมีบัญชี';
+
+  @override
+  String get deskOnbWelcomeFactAccountText =>
+      'ไม่ต้องสมัคร คีย์อยู่บนคอมพิวเตอร์เครื่องนี้เท่านั้น';
+
+  @override
+  String get deskOnbWelcomeFactLink => 'จ่ายด้วยลิงก์เดียว';
+
+  @override
+  String get deskOnbWelcomeFactLinkText =>
+      'ลิงก์ epic1 และ Epicbox ส่งการชำระเงิน ปิดผนึกระหว่างผู้ติดต่อที่จับคู่กัน';
+
+  @override
+  String get deskOnbWelcomeFactNode => 'โหนดของคุณเอง หากต้องการ';
+
+  @override
+  String get deskOnbWelcomeFactNodeText =>
+      'กระเป๋าเงินรันโหนดบนคอมพิวเตอร์เครื่องนี้ได้ ใช้โหนดสาธารณะก็ได้';
 }

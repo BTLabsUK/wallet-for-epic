@@ -22115,4 +22115,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvFieldHint => 'Wpisz nazwę, kwotę, adres lub kod płatności';
+
+  @override
+  String get deskOnbWelcomeFactAccount => 'Bez konta';
+
+  @override
+  String get deskOnbWelcomeFactAccountText =>
+      'Bez rejestracji. Klucze zostają na tym komputerze i nigdzie indziej.';
+
+  @override
+  String get deskOnbWelcomeFactLink => 'Płać jednym linkiem';
+
+  @override
+  String get deskOnbWelcomeFactLinkText =>
+      'Linki epic1 i Epicbox dostarczają płatności, zapieczętowane między sparowanymi kontaktami.';
+
+  @override
+  String get deskOnbWelcomeFactNode => 'Własny węzeł, jeśli chcesz';
+
+  @override
+  String get deskOnbWelcomeFactNodeText =>
+      'Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa.';
 }

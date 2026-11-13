@@ -11,8 +11,8 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import '../../ui/theme/dialog_metrics.dart';
 import '../../ui/theme/epic1_mark.dart';
-import '../../ui/theme/protocol.dart' show CornerTicksPainter;
 import 'buttons.dart';
+import 'modal.dart';
 import 'motion.dart';
 import 'selectable.dart';
 import 'surfaces.dart';
@@ -104,36 +104,8 @@ class EDialog extends StatelessWidget {
     ETone.info || ETone.neutral || ETone.gold => EIcons.info,
   };
 
-  /// The footer in its order: secondaries as given, then a destructive action, then the
-  /// primary; every primary but the last shows as a secondary. Anything that is not an
-  /// [EButton] keeps its place among the secondaries.
-  static List<Widget> footer(List<Widget> actions) {
-    int rank(Widget w) => w is EButton
-        ? switch (w.kind) {
-            EBtnKind.primary => 2,
-            EBtnKind.danger => 1,
-            _ => 0,
-          }
-        : 0;
-    final ordered = [for (var i = 0; i < actions.length; i++) (i, actions[i])]
-      ..sort((a, b) {
-        final r = rank(a.$2).compareTo(rank(b.$2));
-        return r != 0 ? r : a.$1.compareTo(b.$1);
-      });
-    final lastPrimary = ordered.lastIndexWhere((e) => rank(e.$2) == 2);
-    // An action's own key keys its slot: one that moves when the footer changes (a button that
-    // comes or goes beside it) keeps its state, and its work in flight, instead of starting over.
-    final keys = [for (final a in actions) a.key];
-    Key? slot(Widget w) => w.key != null && keys.where((k) => k == w.key).length == 1 ? ValueKey<Key>(w.key!) : null;
-    return [
-      for (var i = 0; i < ordered.length; i++)
-        EDialogActions(
-          key: slot(ordered[i].$2),
-          kind: rank(ordered[i].$2) == 2 && i != lastPrimary ? EBtnKind.secondary : null,
-          child: ordered[i].$2,
-        ),
-    ];
-  }
+  /// The footer in its order ([EModalButtons.ordered]).
+  static List<Widget> footer(List<Widget> actions) => EModalButtons.ordered(actions);
 
   /// What Enter does, for the key strip: the label of a primary that takes the focus when the
   /// dialog opens ([EButton.autofocus]); null when Enter belongs to a field or to nothing.
@@ -149,25 +121,17 @@ class EDialog extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final (toneColor, toneSoft) = switch (tone) {
-      ETone.ok => (c.ok, c.okSoft),
-      ETone.warn => (c.warn, c.warnSoft),
-      ETone.risk => (c.risk, c.riskSoft),
-      ETone.info => (c.info, c.infoSoft),
-      ETone.gold || ETone.neutral => (c.accentText, c.accentSoft),
-    };
     final window = MediaQuery.sizeOf(context);
     final narrow = window.width < Bp.desktop;
     // A short window (the canvas tightens under 760): a smaller mark and less air, so the body
     // keeps its room.
     final short = window.height < 760.u;
-    final padX = (narrow ? 20 : 28).u;
+    final padRaw = (narrow ? 20 : 28).toDouble();
+    final padX = padRaw.u;
     final padTop = (short ? 18 : (narrow ? 22 : 28)).u;
     final padEnd = (narrow ? 16 : 20).u;
-    final mark = (short ? 40 : 52).u;
     final enter = _enterLabel;
     final keys = dismissible || enter != null;
-    final buttons = footer(actions);
     final dialog = Dialog(
       backgroundColor: c.modal,
       insetPadding: EdgeInsets.all(Sp.x5),
@@ -183,32 +147,7 @@ class EDialog extends StatelessWidget {
           child: Stack(
             children: [
               // The tone at the top edge: a hairline and a soft light under it. Painted once.
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 150.u,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(center: Alignment.topCenter, radius: 0.9, colors: [toneSoft.withValues(alpha: toneSoft.a * 0.7), toneSoft.withValues(alpha: 0)], stops: const [0, 0.72]),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 1,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [toneColor.withValues(alpha: 0), toneColor.withValues(alpha: 0.75), toneColor.withValues(alpha: 0.75), toneColor.withValues(alpha: 0)], stops: const [0, 0.28, 0.72, 1]),
-                    ),
-                  ),
-                ),
-              ),
+              ...modalGlow(context, tone),
               // The title and the buttons stay in view; the body scrolls between them when the
               // window is too short (linux-09: a long message pushed Send off the screen; a short
               // window at a large scale must not overflow either, and a field scrolled into view
@@ -225,15 +164,7 @@ class EDialog extends StatelessWidget {
                         padding: EdgeInsets.fromLTRB(padX, padTop, padX, 0),
                         child: Column(
                           children: [
-                            Container(
-                              width: mark,
-                              height: mark,
-                              color: toneSoft.withValues(alpha: toneSoft.a * 0.5),
-                              child: CustomPaint(
-                                foregroundPainter: CornerTicksPainter(toneColor, length: mark / 6, width: 1.5),
-                                child: Icon(icon ?? toneIcon(tone), size: short ? Ctl.icon : Ctl.iconLg, color: toneColor),
-                              ),
-                            ),
+                            EModalMark(tone: tone, icon: icon ?? toneIcon(tone), short: short),
                             SizedBox(height: short ? Sp.x2 : 14.u),
                             Semantics(
                               header: true,
@@ -267,55 +198,19 @@ class EDialog extends StatelessWidget {
                       ),
                     ),
                   if (foot != null) Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: foot),
-                  if (buttons.isNotEmpty)
+                  if (actions.isNotEmpty)
                     Padding(
                       padding: EdgeInsets.fromLTRB(padX, short ? Sp.x4 : 22.u, padX, 0),
-                      // One Wrap, every button a keyed sibling in it: a button that moves when the
-                      // footer changes keeps its state and its work in flight. The widths fill each
-                      // row exactly, so the rows break where they should.
-                      child: LayoutBuilder(
-                        builder: (context, box) {
-                          final gap = 10.u;
-                          final last = buttons.length > 3 ? 3 : buttons.length;
-                          final first = buttons.length - last;
-                          double floor(double w) => (w * 100).floorToDouble() / 100;
-                          final unit = floor((box.maxWidth - gap * (last - 1)) / (last == 1 ? 1 : last - 1 + 1.35));
-                          final main = last == 1 ? unit : floor(box.maxWidth - gap * (last - 1) - unit * (last - 1));
-                          final above = first == 0 ? 0.0 : floor((box.maxWidth - gap * (first - 1)) / first);
-                          return Wrap(
-                            spacing: gap,
-                            runSpacing: gap,
-                            children: [
-                              for (final (i, b) in buttons.indexed)
-                                SizedBox(
-                                  key: b.key,
-                                  width: i < first ? above : (i == buttons.length - 1 ? main : unit),
-                                  child: EButtonFill(child: b),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
+                      child: EModalButtons(actions: actions),
                     ),
                   if (keys)
-                    Container(
-                      margin: EdgeInsets.only(top: short ? Sp.x3 : Sp.x5),
-                      padding: EdgeInsets.symmetric(horizontal: padX, vertical: short ? 6.u : 10.u),
-                      decoration: BoxDecoration(color: c.modalFoot, border: Border(top: BorderSide(color: c.line))),
-                      child: NoSelect(
-                        child: ExcludeSemantics(
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: Sp.x5,
-                          runSpacing: 6.u,
-                          children: [
-                            if (dismissible) EKeyHint(keys: l.deskSetFrameEscKey, does: l.commonClose),
-                            if (enter != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: enter),
-                          ],
-                        ),
-                        ),
-                      ),
+                    EModalKeys(
+                      padX: padRaw,
+                      short: short,
+                      hints: [
+                        if (dismissible) EKeyHint(keys: l.deskSetFrameEscKey, does: l.commonClose),
+                        if (enter != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: enter),
+                      ],
                     )
                   else
                     SizedBox(height: padEnd),

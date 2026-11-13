@@ -5598,5 +5598,11 @@
   "deskOvRequest": "Poproś",
   "deskOvInMotion": "W toku",
   "deskOvSendTo": "Wyślij do: {name}",
-  "deskOvFieldHint": "Wpisz nazwę, kwotę, adres lub kod płatności"
+  "deskOvFieldHint": "Wpisz nazwę, kwotę, adres lub kod płatności",
+  "deskOnbWelcomeFactAccount": "Bez konta",
+  "deskOnbWelcomeFactAccountText": "Bez rejestracji. Klucze zostają na tym komputerze i nigdzie indziej.",
+  "deskOnbWelcomeFactLink": "Płać jednym linkiem",
+  "deskOnbWelcomeFactLinkText": "Linki epic1 i Epicbox dostarczają płatności, zapieczętowane między sparowanymi kontaktami.",
+  "deskOnbWelcomeFactNode": "Własny węzeł, jeśli chcesz",
+  "deskOnbWelcomeFactNodeText": "Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa."
 }

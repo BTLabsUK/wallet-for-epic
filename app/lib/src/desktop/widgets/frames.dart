@@ -6,7 +6,10 @@ import '../../ui/theme/brand.dart' show EpicMark;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
+import 'dialogs.dart' show EKeyHint;
+import 'buttons.dart';
 import 'keyboard.dart';
+import 'modal.dart';
 import 'phrase_layout.dart' show EPhraseLayout;
 import 'tip.dart';
 
@@ -175,7 +178,6 @@ class EHeroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     final short = isShortWindow(context);
     final pad = short ? Sp.x4 : Sp.x8;
     final body = topAnchored
@@ -184,31 +186,9 @@ class EHeroScreen extends StatelessWidget {
             child: Align(alignment: Alignment.topCenter, child: child),
           )
         : Center(child: Padding(padding: EdgeInsets.all(pad), child: child));
-    return ColoredBox(
-      color: c.bg,
+    return EBackdrop(
       child: Stack(
         children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(0, -1),
-                  radius: 0.9,
-                  colors: [c.accentFaint.withValues(alpha: c.accentFaint.a * 1.6), c.bg.withValues(alpha: 0)],
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: ShaderMask(
-              shaderCallback: (r) => const RadialGradient(
-                center: Alignment(0, -0.6),
-                radius: 0.8,
-                colors: [Colors.white, Colors.transparent],
-              ).createShader(r),
-              child: CustomPaint(painter: _Grid(c.grid.withValues(alpha: c.grid.a * 1.4))),
-            ),
-          ),
           Positioned.fill(
             child: SingleChildScrollView(
               child: ConstrainedBox(
@@ -237,6 +217,48 @@ class EHeroScreen extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The ground of the screens before a wallet is open: a pool of accent light at the top and a
+/// measurement grid fading out, under [child].
+class EBackdrop extends StatelessWidget {
+  const EBackdrop({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return ColoredBox(
+      color: c.bg,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0, -1),
+                  radius: 0.9,
+                  colors: [c.accentFaint.withValues(alpha: c.accentFaint.a * 1.6), c.bg.withValues(alpha: 0)],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: ShaderMask(
+              shaderCallback: (r) => const RadialGradient(
+                center: Alignment(0, -0.6),
+                radius: 0.8,
+                colors: [Colors.white, Colors.transparent],
+              ).createShader(r),
+              child: CustomPaint(painter: _Grid(c.grid.withValues(alpha: c.grid.a * 1.4))),
+            ),
+          ),
+          Positioned.fill(child: child),
         ],
       ),
     );
@@ -305,8 +327,8 @@ class EGlyphTile extends StatelessWidget {
   }
 }
 
-/// The card of unlock and the other single-question screens: tile, title, lead, the form in a
-/// panel, then alternatives under it.
+/// Unlock's card: the modal standing on the page with the Epic mark (or [icon]), the title, one
+/// sentence, the form, the other ways (links) under it, and what Enter does in the form.
 class EAuthCard extends StatelessWidget {
   const EAuthCard({
     super.key,
@@ -316,6 +338,7 @@ class EAuthCard extends StatelessWidget {
     this.alternatives = const [],
     this.width,
     this.icon,
+    this.enter,
   });
 
   final String title;
@@ -327,46 +350,35 @@ class EAuthCard extends StatelessWidget {
   final double? width;
   final IconData? icon;
 
+  /// What Enter does in the form, for the key strip; null for no strip.
+  final String? enter;
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final ts = context.ts;
-    // A short window keeps the form and its button in view: a smaller tile, tighter gaps.
-    final short = isShortWindow(context);
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: width ?? Max.auth),
-      child: Column(
+    return EModalCard(
+      width: width ?? Max.auth,
+      icon: icon,
+      mark: icon == null ? EpicMark(size: 26.u, color: c.accent) : null,
+      title: title,
+      lead: lead,
+      body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: EGlyphTile(icon: icon, size: short ? 48.u : null)),
-          SizedBox(height: short ? Sp.x3 : Sp.x5),
-          Semantics(header: true, child: Text(title, style: ts.h1, textAlign: TextAlign.center)),
-          if (lead != null) ...[
-            SizedBox(height: 6.u),
-            Text(lead!, style: ts.bodyDim, textAlign: TextAlign.center),
-          ],
-          SizedBox(height: short ? Sp.x4 : Sp.x6),
-          Container(
-            padding: short ? EdgeInsets.all(Sp.x6) : EdgeInsets.symmetric(horizontal: Sp.x10, vertical: Sp.x8),
-            decoration: BoxDecoration(
-              color: c.s1,
-              border: Border.all(color: c.line),
-              borderRadius: BorderRadius.circular(Rad.sm),
-            ),
-            child: child,
-          ),
+          child,
           if (alternatives.isNotEmpty) ...[
-            SizedBox(height: Sp.x5),
-            Wrap(alignment: WrapAlignment.center, spacing: Sp.x4, runSpacing: Sp.x2, children: alternatives),
+            SizedBox(height: Sp.x4),
+            Wrap(alignment: WrapAlignment.center, spacing: 22.u, runSpacing: Sp.x2, children: alternatives),
           ],
         ],
       ),
+      keys: [if (enter != null) EKeyHint(keys: context.l10n.deskSetSearchKeyEnter, does: enter!)],
     );
   }
 }
 
-/// One step on the onboarding rail.
+/// One step of a first-run flow's track.
 class ERailStep {
   const ERailStep(this.label, {this.done = false, this.current = false});
 
@@ -375,8 +387,9 @@ class ERailStep {
   final bool current;
 }
 
-/// The first-run frame: the step rail on a 260 px side, the step in the main column, the
-/// actions pinned at its foot. Below 760 px the rail collapses to "Step n of m".
+/// The first-run frame: a bar with Back, the flow's name and its step track, and the step as
+/// the modal standing in the middle of the page ([EModalCard]): its mark, title, one sentence,
+/// the step, a status line, then Back and the step's actions at its foot.
 class EOnbFrame extends StatelessWidget {
   const EOnbFrame({
     super.key,
@@ -387,22 +400,31 @@ class EOnbFrame extends StatelessWidget {
     this.lead,
     required this.child,
     this.actions = const [],
-    this.back,
+    this.onBack,
+    this.backLabel,
     this.status,
-    this.sideFoot,
+    this.barEnd,
     this.fill = false,
+    this.icon,
+    this.width,
   });
 
-  /// [child] gets the height left under the title instead of scrolling with it, so it can keep
+  /// [child] gets the height left in the card instead of scrolling with it, so it can keep
   /// parts of its own in view ([EPhraseLayout]: only the words scroll). With less room than
-  /// [fillMinHeight] the whole step scrolls as usual.
+  /// [fillMinHeight] the whole page scrolls as usual.
   final bool fill;
 
   /// The room [fill] needs: the title, the phrase step's warning, actions and checkbox, and two
   /// rows of words.
   static double get fillMinHeight => 450.u;
 
-  /// Under the brand: "New wallet", "Restore", …
+  /// The card of a step of words or of a list (the phrase, the word boxes, wallets to import).
+  static double get wide => 680.u;
+
+  /// The card of the connection steps.
+  static double get mid => 600.u;
+
+  /// The flow's name in the bar: "New wallet", "Restore", …
   final String sideTitle;
   final List<ERailStep> steps;
   final String title;
@@ -412,202 +434,165 @@ class EOnbFrame extends StatelessWidget {
   final String? lead;
   final Widget child;
 
-  /// The right group of the action bar, left to right: secondary actions (Skip, Paste, …), the
-  /// primary last.
+  /// The step's actions, the primary last; Back goes first on its own.
   final List<Widget> actions;
 
-  /// The bar's fixed left slot: Back (`backButton`), on every step that has one. Steps without
-  /// Back leave the slot empty, so Skip and the primary never move.
-  final Widget? back;
+  /// Back, at the foot and as the bar's arrow; null on a step without one.
+  final VoidCallback? onBack;
 
-  /// A short line in the bar, between Back and the actions, set against the actions it explains
-  /// ("Imported 1 of 3", "Reveal the words first").
+  /// Back's words in place of "Back".
+  final String? backLabel;
+
+  /// A short line over the footer, set against the actions it explains ("Imported 1 of 3").
   final String? status;
-  final Widget? sideFoot;
 
-  bool get _hasBar => actions.isNotEmpty || back != null;
+  /// At the bar's end, after the track: a way out of the whole flow (Cancel).
+  final Widget? barEnd;
+
+  /// The card's mark; none for a card of words.
+  final IconData? icon;
+
+  /// The card's width: 480 unless given ([wide], [mid]).
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
+    final l = context.l10n;
     final ts = context.ts;
-    // The step rail beside the form from a window of Lay.xl; below, "Step 2 of 4" above it.
-    final narrow = MediaQuery.sizeOf(context).width < Lay.xl;
+    final window = MediaQuery.sizeOf(context);
+    final short = window.height < 760.u;
     final current = steps.indexWhere((s) => s.current);
-    final pad = EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8);
-    Widget body(Widget content) => Align(
-      alignment: Alignment.topLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 600.u),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (narrow && current >= 0) ...[
-              Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
-              SizedBox(height: Sp.x2),
-            ],
-            heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
-            if (lead != null) ...[
-              SizedBox(height: Sp.x2),
-              Text(lead!, style: ts.lead),
-            ],
-            SizedBox(height: Sp.x8),
-            content,
-          ],
+    final back = onBack == null ? null : EButton(key: const ValueKey('onb-back'), label: backLabel ?? l.deskSetupBack, tabStop: false, onPressed: onBack);
+    Widget card({required bool bounded, required Widget body}) => EModalCard(
+      width: width ?? 480.u,
+      icon: icon,
+      title: title,
+      heading: heading,
+      lead: lead,
+      body: body,
+      status: status,
+      actions: [?back, ...actions],
+      bounded: bounded,
+    );
+    final bar = SizedBox(
+      height: (short ? 52 : 60).u,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: Sp.x6),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            // The track from a bar of 720; a narrower one says "Step 2 of 4".
+            final Widget? track = steps.length < 2
+                ? null
+                : box.maxWidth < 720.u
+                ? (current < 0 ? null : Text(l.deskKitStepOf(current + 1, steps.length), style: ts.caption, maxLines: 1, overflow: TextOverflow.ellipsis))
+                : ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: (window.width < Bp.desktop ? 107 : 140).u * steps.length),
+                    child: EStepTrack(steps: steps),
+                  );
+            return Row(
+              children: [
+                if (onBack != null) ...[
+                  EIconButton(key: const ValueKey('onb-bar-back'), icon: EIcons.arrowLeft, label: backLabel ?? l.deskKitBackAlt, tabStop: false, onPressed: onBack),
+                  SizedBox(width: Sp.x2),
+                ],
+                Expanded(
+                  flex: 2,
+                  child: Semantics(header: true, child: Text(sideTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3)),
+                ),
+                if (track != null) ...[SizedBox(width: Sp.x4), Flexible(flex: 3, child: Align(alignment: AlignmentDirectional.centerEnd, child: track))],
+                if (barEnd != null) ...[SizedBox(width: Sp.x4), barEnd!],
+              ],
+            );
+          },
         ),
       ),
     );
-    final scrolled = SingleChildScrollView(padding: pad, child: body(child));
-    final main = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Stack(
-            children: [
-              if (fill)
-                LayoutBuilder(builder: (context, box) => box.maxHeight < fillMinHeight ? scrolled : Padding(padding: pad, child: body(Flexible(child: child))))
-              else
-                scrolled,
-              // Content cut by the footer line fades out over 24 u first, so it reads as
-              // scrollable rather than chopped (UD-024).
-              if (_hasBar)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  height: Sp.x6,
-                  child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [c.bg.withValues(alpha: 0), c.bg]),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        if (_hasBar)
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: narrow ? Sp.x5 : Sp.x12, vertical: Sp.x5),
-            decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+    final stage = LayoutBuilder(
+      builder: (context, box) {
+        // Anchored at one height, not centred: a step whose content grows (a hint, an error
+        // line) moves nothing above it.
+        final pad = EdgeInsets.fromLTRB(Sp.x6, (window.height * 0.06).clamp(Sp.x4, 96.u), Sp.x6, short ? Sp.x4 : 28.u);
+        // As in a dialog, the step scrolls inside the card and its buttons stay in view; a
+        // [fill] step scrolls its own part. Too short a window scrolls the whole page.
+        if (box.maxHeight >= fillMinHeight) {
+          return Padding(
+            padding: pad,
             child: Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 600.u),
-                // One bar on every step: Back in the left slot, the status line beside the
-                // actions it explains, then secondary actions and the primary on the right.
-                child: Row(
-                  children: [
-                    ?back,
-                    if (back != null) SizedBox(width: Sp.x4),
-                    Expanded(
-                      child: status == null
-                          ? const SizedBox.shrink()
-                          : Text(status!, style: ts.caption, textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
-                    ),
-                    for (var i = 0; i < actions.length; i++) ...[
-                      SizedBox(width: Sp.x3),
-                      actions[i],
-                    ],
-                  ],
-                ),
-              ),
+              alignment: Alignment.topCenter,
+              child: card(bounded: true, body: fill ? child : SingleChildScrollView(child: child)),
             ),
-          ),
-      ],
+          );
+        }
+        return SingleChildScrollView(
+          padding: pad,
+          child: Align(alignment: Alignment.topCenter, child: card(bounded: false, body: child)),
+        );
+      },
     );
-    if (narrow) return ColoredBox(color: c.bg, child: main);
-    return ColoredBox(
-      color: c.bg,
-      child: Row(
+    return EBackdrop(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: 260.u,
-            padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x6),
-            decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // The title bar carries the brand: the panel only names the job (New wallet,
-                // Restore, Set a new password), so the logo never shows twice.
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-                  child: Semantics(
-                    header: true,
-                    child: Text(sideTitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.strong),
-                  ),
-                ),
-                SizedBox(height: Sp.x6),
-                ERail(steps: steps),
-                const Spacer(),
-                ?sideFoot,
-              ],
-            ),
-          ),
-          Expanded(child: main),
-        ],
+        children: [bar, Expanded(child: stage)],
       ),
     );
   }
 }
 
-/// A numbered step list: done steps get a check, the current one an accent edge.
-class ERail extends StatelessWidget {
-  const ERail({super.key, required this.steps});
+/// A flow's steps in a line: a dot per step (done green, the current one blue) joined by a
+/// line, the step's name under it.
+class EStepTrack extends StatelessWidget {
+  const EStepTrack({super.key, required this.steps});
 
   final List<ERailStep> steps;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final ts = context.ts;
+    final dot = 13.u;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (var i = 0; i < steps.length; i++)
-          Semantics(
-            label: '${steps[i].label}${steps[i].done ? ', done' : ''}',
-            selected: steps[i].current,
-            excludeSemantics: true,
-            child: Container(
-              height: Ctl.md,
-              margin: const EdgeInsets.only(bottom: 2),
-              padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-              decoration: BoxDecoration(
-                color: steps[i].current ? c.s3 : null,
-                borderRadius: BorderRadius.circular(Rad.sm),
-              ),
-              child: Row(
+        for (final (i, s) in steps.indexed)
+          Expanded(
+            child: Semantics(
+              label: '${s.label}${s.done ? ', done' : ''}', // l10n-ok: as the rail said it
+              selected: s.current,
+              excludeSemantics: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 24.u,
-                    height: 24.u,
-                    alignment: Alignment.center,
-                    decoration: steps[i].done
-                        ? null
-                        : BoxDecoration(
-                            borderRadius: BorderRadius.circular(6.u),
-                            border: Border.all(color: steps[i].current ? c.lineField : c.lineStrong),
+                  SizedBox(
+                    height: dot,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: dot,
+                          height: dot,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: s.done ? c.ok : (s.current ? c.info : c.s1),
+                            border: Border.all(color: s.done ? c.ok : (s.current ? c.info : c.lineField), width: 2),
                           ),
-                    child: steps[i].done
-                        ? Icon(EIcons.check, size: 18.u, color: c.ok)
-                        : Text(
-                            '${i + 1}',
-                            style: context.ts.mono(size: Fs.xs, color: steps[i].current ? c.text : c.faint),
+                        ),
+                        if (i < steps.length - 1)
+                          Expanded(
+                            child: Container(
+                              height: 2,
+                              margin: EdgeInsets.symmetric(horizontal: 4.u),
+                              decoration: BoxDecoration(color: s.done ? c.ok : c.lineStrong, borderRadius: BorderRadius.circular(1)),
+                            ),
                           ),
-                  ),
-                  SizedBox(width: Sp.x3),
-                  Expanded(
-                    child: Text(
-                      steps[i].label,
-                      style: TextStyle(
-                        fontSize: Fs.md,
-                        fontWeight: FontWeight.w500,
-                        color: steps[i].current ? c.text : (steps[i].done ? c.dim : c.faint),
-                      ),
+                      ],
                     ),
+                  ),
+                  SizedBox(height: 7.u),
+                  Text(
+                    s.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: s.current ? ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600) : ts.small.copyWith(color: c.dim),
                   ),
                 ],
               ),

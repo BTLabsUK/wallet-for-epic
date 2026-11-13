@@ -263,7 +263,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           title: _name ?? defaultWalletName(ref),
           heading: WalletNameTitle(place: 'restore', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
           lead: l.deskOnbRestorePasswordLead,
-          back: backButton(() => setState(() => _step = RestoreStep.words)),
+          onBack: () => setState(() => _step = RestoreStep.words),
+          icon: EIcons.lock,
           actions: [
             EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null, semanticsId: TrustIds.restoreContinue),
           ],
@@ -305,7 +306,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final length = e.length;
     final bad = e.firstInvalid;
     final complete = e.complete;
-    final narrow = MediaQuery.sizeOf(context).width < Lay.lg;
     final (String? status, Color? tone) = switch (e) {
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
@@ -322,12 +322,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 0),
       title: l.deskOnbStepPhrase,
       lead: l.deskOnbRestoreWordsLead,
-      back: backButton(() => nav.back()),
+      onBack: () => nav.back(),
+      width: EOnbFrame.wide,
       actions: [
-        // Words only on a narrow window, so the row fits "Use 24 words".
-        EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
-        DeskScanButton(key: const ValueKey('restore-scan'), onScan: _scanPhrase),
-        EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
         // Names the length, so a typed 12-word phrase is never taken for 24 by mistake.
         EButton.primary(
           label: l.commonContinue,
@@ -339,13 +336,29 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          // How many words are in, and the ways to fill the boxes other than typing.
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: Sp.x3,
+            runSpacing: Sp.x2,
             children: [
-              Expanded(child: Semantics(header: true, child: Text(l.deskOnbRestoreWords, style: ts.label))),
-              Text(
-                l.deskOnbRestoreFilledOf(filled, length),
-                style: ts.caption.copyWith(color: complete ? c.ok : null),
+              Wrap(
+                spacing: Sp.x3,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Semantics(header: true, child: Text(l.deskOnbRestoreWords, style: ts.label)),
+                  Text(l.deskOnbRestoreFilledOf(filled, length), style: ts.caption.copyWith(color: complete ? c.ok : null)),
+                ],
+              ),
+              Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x2,
+                children: [
+                  EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteClipboard),
+                  DeskScanButton(key: const ValueKey('restore-scan'), size: EBtnSize.sm, onScan: _scanPhrase),
+                  EButton(label: l.deskOnbRestoreClear, size: EBtnSize.sm, onPressed: filled == 0 ? null : e.clear),
+                ],
               ),
             ],
           ),

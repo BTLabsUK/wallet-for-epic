@@ -10,6 +10,7 @@ import '../../../levels/first_start.dart' show firstStartProvider;
 import '../../../levels/wallet_level.dart';
 import '../../../tor_build.dart' show torBuilt;
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
+import '../../../ui/theme/epic1_mark.dart' show Epic1Text;
 import '../../data/desk_levels.dart';
 import '../../widgets/kit.dart';
 import 'depth_dial.dart';
@@ -91,79 +92,75 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       hasWallets ? go() : _enter(go);
     });
     void toRestore() => nav.go(DeskRoute.restore);
-    final create = EChoiceCard(
+    final create = _Door(
       key: const ValueKey('door-create'),
       semanticsId: TrustIds.welcomeCreate,
       title: l.deskOnbWelcomeCreate,
-      description: l.deskOnbWelcomeCreateSub,
+      text: l.deskOnbWelcomeCreateSub,
       icon: EIcons.plus,
-      selected: false,
+      main: true,
       onTap: hasWallets ? toCreate : () => _enter(toCreate),
     );
-    final import = EChoiceCard(
-      key: const ValueKey('door-import'),
-      semanticsId: TrustIds.welcomeImport,
-      title: l.deskOnbWelcomeImport,
-      description: l.deskOnbWelcomeImportSub,
-      icon: EIcons.folderOpen,
-      selected: false,
-      onTap: toImport,
-    );
-    // The other apps' line belongs to Restore (their wallets come back by phrase): its card's
-    // line, like the others', so the cards keep one rhythm.
-    final restore = EChoiceCard(
+    // The other apps' line belongs to Restore (their wallets come back by phrase).
+    final restore = _Door(
       key: const ValueKey('door-restore'),
       semanticsId: TrustIds.welcomeRestore,
       title: l.deskOnbWelcomeRestore,
-      description: l.deskOnbWelcomeRestoreSub,
-      icon: EIcons.key,
-      selected: false,
+      text: l.deskOnbWelcomeRestoreSub,
+      icon: EIcons.refresh,
       onTap: hasWallets ? toRestore : () => _enter(toRestore),
     );
+    final import = _Door(
+      key: const ValueKey('door-import'),
+      semanticsId: TrustIds.welcomeImport,
+      title: l.deskOnbWelcomeImport,
+      text: l.deskOnbWelcomeImportSub,
+      icon: EIcons.folderOpen,
+      onTap: toImport,
+    );
+    final gap = 10.u;
     // Tor only from the first connection: a fresh install, Tor builds.
     final offered = torBuilt && held && !hasWallets;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: hasWallets ? 480.u : 1180.u),
+        constraints: BoxConstraints(maxWidth: hasWallets ? 480.u : 780.u),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Center(child: EGlyphTile()),
-            SizedBox(height: Sp.x5),
+            SizedBox(height: 18.u),
             if (hasWallets)
               Semantics(
                 header: true,
                 child: Text(l.deskOnbWelcomeAdd, style: ts.h1, textAlign: TextAlign.center),
               )
-            else
+            else ...[
               Semantics(
                 header: true,
                 child: Center(child: BrandWordmark(variant: BrandVariant.desktop, size: Fs.h1.u, label: appName)),
               ),
-            if (!hasWallets) ...[
-              SizedBox(height: Sp.x2),
+              SizedBox(height: 14.u),
               Text(l.deskOnbWelcomeTagline, style: ts.bodyDim, textAlign: TextAlign.center),
             ],
-            SizedBox(height: Sp.x8),
-            if (hasWallets) ...[
-              create,
-              SizedBox(height: Sp.x3),
-              import,
-              SizedBox(height: Sp.x3),
-              restore,
-            ] else ...[
-              LayoutBuilder(
-                builder: (context, box) => box.maxWidth >= Lay.lg
-                    ? IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [Expanded(child: create), SizedBox(width: Sp.x4), Expanded(child: import), SizedBox(width: Sp.x4), Expanded(child: restore)],
-                        ),
-                      )
-                    : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [create, SizedBox(height: Sp.x4), import, SizedBox(height: Sp.x4), restore]),
-              ),
+            SizedBox(height: 28.u),
+            // Create first and widest; Restore and Import side by side under it when they fit.
+            create,
+            SizedBox(height: gap),
+            LayoutBuilder(
+              builder: (context, box) => box.maxWidth >= Lay.md
+                  ? IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [Expanded(child: restore), SizedBox(width: gap), Expanded(child: import)],
+                      ),
+                    )
+                  : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [restore, SizedBox(height: gap), import]),
+            ),
+            if (!hasWallets) ...[
+              SizedBox(height: 28.u),
+              const _Facts(),
               // Niche, so under the doors and quiet (the owner).
               if (offered) ...[
                 SizedBox(height: Sp.x6),
@@ -296,6 +293,140 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         ],
         ],
       ],
+    );
+  }
+}
+
+/// A way in: a tile with its glyph, the title, one line, an arrow. The [main] one (Create) is
+/// larger and wears the brand's tint.
+class _Door extends StatefulWidget {
+  const _Door({super.key, required this.semanticsId, required this.title, required this.text, required this.icon, required this.onTap, this.main = false});
+
+  final String semanticsId;
+  final String title;
+  final String text;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool main;
+
+  @override
+  State<_Door> createState() => _DoorState();
+}
+
+class _DoorState extends State<_Door> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final main = widget.main;
+    final tile = (main ? 44 : 36).u;
+    final edge = main || _hover ? c.accent.withValues(alpha: _hover ? 0.7 : 0.45) : c.lineStrong;
+    return TrustId(
+      widget.semanticsId,
+      child: Semantics(
+        button: true,
+        child: FocusableActionDetector(
+          mouseCursor: SystemMouseCursors.click,
+          onShowHoverHighlight: (v) => setState(() => _hover = v),
+          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
+          child: Builder(
+            builder: (context) => GestureDetector(
+              onTap: widget.onTap,
+              child: FocusRing(
+                focused: Focus.of(context).hasFocus,
+                child: AnimatedContainer(
+                  duration: Dur.fast,
+                  padding: main ? EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 18.u) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
+                  decoration: BoxDecoration(
+                    color: main ? Color.alphaBlend(c.accentFaint, c.s1) : c.s1,
+                    borderRadius: BorderRadius.circular(Rad.sm),
+                    border: Border.all(color: edge),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: tile,
+                        height: tile,
+                        decoration: BoxDecoration(
+                          color: main ? c.accentSoft : c.s3,
+                          borderRadius: BorderRadius.circular(Rad.sm),
+                          border: main ? Border.all(color: c.accent.withValues(alpha: 0.45)) : null,
+                        ),
+                        child: Icon(widget.icon, size: Ctl.icon, color: main ? c.accentText : c.dim),
+                      ),
+                      SizedBox(width: 14.u),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.title, style: main ? ts.h3 : ts.strong.copyWith(fontSize: (ts.strong.fontSize ?? Fs.md) * Fs.lg / Fs.md)),
+                            SizedBox(height: 2.u),
+                            Text(widget.text, style: ts.small),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: Sp.x3),
+                      Icon(EIcons.chevronRight, size: Ctl.iconSm, color: main ? c.accentText : c.faint),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// What the app is, in three short facts under the doors.
+class _Facts extends StatelessWidget {
+  const _Facts();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final style = ts.small;
+    Widget fact(IconData icon, String title, String text) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(icon, size: Ctl.iconSm, color: c.accentText)),
+        SizedBox(width: 10.u),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: ts.strong.copyWith(fontSize: style.fontSize)),
+              Epic1Text(text, style: style),
+            ],
+          ),
+        ),
+      ],
+    );
+    final facts = [
+      fact(EIcons.lock, l.deskOnbWelcomeFactAccount, l.deskOnbWelcomeFactAccountText),
+      fact(EIcons.link, l.deskOnbWelcomeFactLink, l.deskOnbWelcomeFactLinkText),
+      fact(EIcons.server, l.deskOnbWelcomeFactNode, l.deskOnbWelcomeFactNodeText),
+    ];
+    return LayoutBuilder(
+      builder: (context, box) => box.maxWidth >= Lay.md
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final (i, f) in facts.indexed) ...[if (i > 0) SizedBox(width: 22.u), Expanded(child: f)],
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, f) in facts.indexed) ...[if (i > 0) SizedBox(height: Sp.x3), f],
+              ],
+            ),
     );
   }
 }

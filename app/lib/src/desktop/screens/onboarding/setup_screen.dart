@@ -371,13 +371,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         steps: rail,
         title: title,
         lead: lead,
-        sideFoot: first && nav.canBack
-            ? Align(
-                alignment: Alignment.centerLeft,
-                child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
-              )
-            : null,
-        back: first ? null : backButton(() => _to(_back)),
+        // The first step leads back to the wallet when there is one to go back to.
+        onBack: first ? (nav.canBack ? nav.back : null) : () => _to(_back),
+        backLabel: first && nav.canBack ? l.deskSetupBackToWallet : null,
+        width: EOnbFrame.mid,
+        icon: switch (_step) {
+          SetupStep.node => EIcons.server,
+          SetupStep.local => EIcons.monitor,
+          SetupStep.epicbox => EIcons.epicbox,
+          _ => null,
+        },
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
           // What Skip keeps is the button's tooltip and accessible description (UD-016).

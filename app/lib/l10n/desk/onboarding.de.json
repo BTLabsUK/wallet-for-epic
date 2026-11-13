@@ -204,5 +204,11 @@
   "deskOnbNodePortTaken": "Port {port} wird von einem anderen Programm genutzt. {next} ist frei.",
   "deskOnbNodePortUse": "{port} nutzen",
   "deskOnbFailedTitle": "Nicht abgeschlossen",
-  "deskOnbUnlockUsePhrase": "Wiederherstellungsphrase eingeben"
+  "deskOnbUnlockUsePhrase": "Wiederherstellungsphrase eingeben",
+  "deskOnbWelcomeFactAccount": "Kein Konto",
+  "deskOnbWelcomeFactAccountText": "Keine Anmeldung. Die Schlüssel bleiben auf diesem Computer und nirgends sonst.",
+  "deskOnbWelcomeFactLink": "Mit einem Link zahlen",
+  "deskOnbWelcomeFactLinkText": "epic1-Links und Epicbox stellen Zahlungen zu, versiegelt zwischen gekoppelten Kontakten.",
+  "deskOnbWelcomeFactNode": "Eigener Node, wenn gewünscht",
+  "deskOnbWelcomeFactNodeText": "Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch."
 }

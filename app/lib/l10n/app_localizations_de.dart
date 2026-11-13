@@ -21736,4 +21736,25 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOvFieldHint =>
       'Name, Betrag, Adresse oder Zahlungscode eingeben';
+
+  @override
+  String get deskOnbWelcomeFactAccount => 'Kein Konto';
+
+  @override
+  String get deskOnbWelcomeFactAccountText =>
+      'Keine Anmeldung. Die Schlüssel bleiben auf diesem Computer und nirgends sonst.';
+
+  @override
+  String get deskOnbWelcomeFactLink => 'Mit einem Link zahlen';
+
+  @override
+  String get deskOnbWelcomeFactLinkText =>
+      'epic1-Links und Epicbox stellen Zahlungen zu, versiegelt zwischen gekoppelten Kontakten.';
+
+  @override
+  String get deskOnbWelcomeFactNode => 'Eigener Node, wenn gewünscht';
+
+  @override
+  String get deskOnbWelcomeFactNodeText =>
+      'Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch.';
 }

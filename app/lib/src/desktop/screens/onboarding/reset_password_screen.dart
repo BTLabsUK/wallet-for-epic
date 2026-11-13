@@ -235,7 +235,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
             title: l.deskOnbForgotFailedTitle,
             lead: l.deskOnbForgotFailedLead,
-            back: backButton(() => setState(() => _step = _Step.words)),
+            onBack: () => setState(() => _step = _Step.words),
             actions: [
               EButton.primary(key: const ValueKey('reset-restore-instead'), label: l.deskOnbForgotRestoreInstead, busy: _checking, onPressed: _checking ? null : _restoreInstead),
             ],
@@ -266,8 +266,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             sideTitle: l.deskOnbForgotTitle,
             steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
             title: l.deskSetDlgPwNew,
+            icon: EIcons.lock,
             lead: l.deskOnbForgotPasswordLead,
-            back: backButton(() => setState(() => _step = _Step.words)),
+            onBack: () => setState(() => _step = _Step.words),
             actions: [
               EButton.primary(key: const ValueKey('reset-password-save'), label: l.deskOnbForgotSet, onPressed: _passwordOk ? _reset : null),
             ],
@@ -286,7 +287,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final e = _entry;
     final bad = e.firstInvalid;
     final complete = e.complete;
-    final narrow = MediaQuery.sizeOf(context).width < Lay.lg;
     final (String? status, Color? tone) = switch (e) {
       _ when _phraseError != null => (_phraseError!, c.risk),
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
@@ -302,11 +302,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 0),
       title: l.deskOnbStepPhrase,
       lead: l.deskOnbForgotLead(name),
-      back: backButton(() => _toUnlock()),
+      onBack: () => _toUnlock(),
+      width: EOnbFrame.wide,
       actions: [
-        EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
-        DeskScanButton(key: const ValueKey('reset-scan'), onScan: _scanPhrase),
-        EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: e.filled == 0 ? null : e.clear),
         EButton.primary(
           key: const ValueKey('reset-password-words'),
           label: l.commonContinue,
@@ -317,6 +315,20 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The ways to fill the boxes other than typing.
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            children: [
+              EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteClipboard),
+              DeskScanButton(key: const ValueKey('reset-scan'), size: EBtnSize.sm, onScan: _scanPhrase),
+              EButton(label: l.deskOnbRestoreClear, size: EBtnSize.sm, onPressed: e.filled == 0 ? null : e.clear),
+            ],
+          ),
+          ),
+          SizedBox(height: Sp.x3),
           PhraseGrid(entry: e, autofocus: true, onSubmit: complete && !_checking ? _toPassword : null),
           SizedBox(height: Sp.x3),
           const DeskNoCameraLine(),

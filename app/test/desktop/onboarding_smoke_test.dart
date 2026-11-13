@@ -174,6 +174,9 @@ void flows() {
     expect(find.text(_l.deskOnbImportNewPassword), findsOneWidget);
     await tester.enterText(_field(1), 'new-password');
     await tester.enterText(_field(2), 'new-password');
+    // The new password's fields make the card taller than the window: the page scrolls.
+    await tester.ensureVisible(find.text(_l.deskOnbImportTitle).last);
+    await tester.pump();
     await tester.tap(find.text(_l.deskOnbImportTitle).last);
     await _wait(tester, 1500);
     expect(find.text('2 of 2 imported'), findsOneWidget);

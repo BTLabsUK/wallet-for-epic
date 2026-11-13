@@ -204,5 +204,11 @@
   "deskOnbNodePortTaken": "Порт {port} занят другой программой. {next} свободен.",
   "deskOnbNodePortUse": "Использовать {port}",
   "deskOnbFailedTitle": "Не завершено",
-  "deskOnbUnlockUsePhrase": "Ввести фразу восстановления"
+  "deskOnbUnlockUsePhrase": "Ввести фразу восстановления",
+  "deskOnbWelcomeFactAccount": "Без аккаунта",
+  "deskOnbWelcomeFactAccountText": "Без регистрации. Ключи хранятся только на этом компьютере.",
+  "deskOnbWelcomeFactLink": "Оплата одной ссылкой",
+  "deskOnbWelcomeFactLinkText": "Ссылки epic1 и Epicbox доставляют платежи, запечатанные между связанными контактами.",
+  "deskOnbWelcomeFactNode": "Свой узел, если нужно",
+  "deskOnbWelcomeFactNodeText": "Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит."
 }

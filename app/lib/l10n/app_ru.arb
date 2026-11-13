@@ -5598,5 +5598,11 @@
   "deskOvRequest": "Запросить",
   "deskOvInMotion": "В процессе",
   "deskOvSendTo": "Отправить: {name}",
-  "deskOvFieldHint": "Введите имя, сумму, адрес или код платежа"
+  "deskOvFieldHint": "Введите имя, сумму, адрес или код платежа",
+  "deskOnbWelcomeFactAccount": "Без аккаунта",
+  "deskOnbWelcomeFactAccountText": "Без регистрации. Ключи хранятся только на этом компьютере.",
+  "deskOnbWelcomeFactLink": "Оплата одной ссылкой",
+  "deskOnbWelcomeFactLinkText": "Ссылки epic1 и Epicbox доставляют платежи, запечатанные между связанными контактами.",
+  "deskOnbWelcomeFactNode": "Свой узел, если нужно",
+  "deskOnbWelcomeFactNodeText": "Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит."
 }

@@ -116,7 +116,8 @@ class _PasswordHintState extends ConsumerState<PasswordHint> {
               liveRegion: true,
               label: _announced,
               child: ExcludeSemantics(
-                child: Text(line, key: const ValueKey('password-hint'), style: context.ts.caption.copyWith(color: c.dim)),
+                // One line: a hint that wrapped would move the field under it.
+                child: Text(line, key: const ValueKey('password-hint'), maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.caption.copyWith(color: c.dim)),
               ),
             ),
           ),

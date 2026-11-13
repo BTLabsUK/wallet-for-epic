@@ -115,12 +115,6 @@ List<ERailStep> railOf(List<String> labels, int current) => [
   for (var i = 0; i < labels.length; i++) ERailStep(labels[i], done: i < current, current: i == current),
 ];
 
-/// Back button used in the foot of the first-run frames. Not a Tab stop: Alt+Left and the
-/// mouse Back button do the same (keyboard.dart).
-Widget backButton(VoidCallback onTap, {String? label}) => Builder(
-  builder: (context) => EButton.ghost(label: label ?? context.l10n.deskSetupBack, icon: EIcons.arrowLeft, tabStop: false, onPressed: onTap),
-);
-
 /// The value of [deskLanguageItems]' first option: follow the computer's language
 /// (`DeskSettings.language` null).
 const deskSystemLanguage = '';
@@ -207,7 +201,7 @@ class _WalletNameTitleState extends ConsumerState<WalletNameTitle> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final style = context.ts.h1;
+    final style = context.ts.h2;
     if (ref.watch(txLabelEditingProvider) == _site) {
       return TxLabelField(
         key: const ValueKey('wallet-name-field'),
@@ -223,6 +217,7 @@ class _WalletNameTitleState extends ConsumerState<WalletNameTitle> {
     }
     final name = widget.name ?? widget.fallback;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Flexible(
           child: Semantics(
@@ -563,95 +558,79 @@ class ProgressView extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final failure = this.failure;
-    final short = isShortWindow(context);
     // Back goes to [onBack] after a failure; while the action runs it is held.
     return DeskStepBack(
       onBack: (failure != null ? onBack : null) ?? () {},
       child: EHeroScreen(
-      footer: const AuthFoot(),
-      topAnchored: topAnchored,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 480.u),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // The tile and the gap under it as on [EAuthCard], so a form and its progress share them.
-            Center(child: EGlyphTile(size: short ? 48.u : 72.u, icon: failure != null ? EIcons.alert : null, risk: failure != null)),
-            SizedBox(height: short ? Sp.x3 : Sp.x5),
-            Semantics(
-              header: true,
-              liveRegion: true,
-              child: Text(title, style: ts.h1, textAlign: TextAlign.center),
-            ),
-            if (lead != null) ...[
-              SizedBox(height: Sp.x2),
-              Text(lead!, style: ts.bodyDim, textAlign: TextAlign.center),
-            ],
-            SizedBox(height: Sp.x6),
-            EPanel(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  StageList(stages: stages, current: current, failed: failure != null ? failed : ''),
-                  if (progress != null && failure == null) ...[
-                    Padding(
-                      padding: EdgeInsets.only(left: Ctl.iconLg + Sp.x3),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          EProgress(value: progress),
-                          if (progressText != null) ...[
-                            SizedBox(height: Sp.x1),
-                            Text(progressText!, style: ts.caption),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                  if (note != null && failure == null) ...[
-                    SizedBox(height: Sp.x3),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(EIcons.info, size: Ctl.iconSm, color: context.dc.faint),
-                        SizedBox(width: Sp.x2),
-                        Expanded(child: Text(note!, style: ts.small)),
+        footer: const AuthFoot(),
+        topAnchored: topAnchored,
+        // The card a form became: blue while it works, red when it failed.
+        child: EModalCard(
+          width: Max.auth,
+          tone: failure != null ? ETone.risk : ETone.info,
+          icon: failure != null ? EIcons.close : null,
+          mark: failure != null ? null : ESpinner(size: 22.u),
+          title: title,
+          liveTitle: true,
+          lead: lead,
+          body: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StageList(stages: stages, current: current, failed: failure != null ? failed : ''),
+              if (progress != null && failure == null)
+                Padding(
+                  padding: EdgeInsets.only(top: Sp.x2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      EProgress(value: progress),
+                      if (progressText != null) ...[
+                        SizedBox(height: Sp.x1),
+                        Text(progressText!, style: ts.caption),
                       ],
-                    ),
+                    ],
+                  ),
+                ),
+              if (note != null && failure == null) ...[
+                SizedBox(height: Sp.x3),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(EIcons.info, size: Ctl.iconSm, color: context.dc.faint),
+                    SizedBox(width: Sp.x2),
+                    Expanded(child: Text(note!, style: ts.small)),
                   ],
-                ],
-              ),
-            ),
-            SizedBox(height: Sp.x5),
-            if (failure != null) ...[
-              // A short bold heading; the sentence under it, regular (#39).
-              ENotice(title: context.l10n.deskOnbFailedTitle, text: failure, tone: ETone.risk, icon: EIcons.alert),
-              SizedBox(height: Sp.x5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+                ),
+              ],
+              if (failure != null) ...[
+                SizedBox(height: Sp.x3),
+                // A short bold heading; the sentence under it, regular (#39).
+                ENotice(title: context.l10n.deskOnbFailedTitle, text: failure, tone: ETone.risk, icon: EIcons.alert),
+              ] else if (wait != null) ...[
+                SizedBox(height: Sp.x3),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(EIcons.clock, size: Ctl.iconSm, color: context.dc.faint),
+                    SizedBox(width: Sp.x2),
+                    Flexible(child: Text(wait!, style: ts.small)),
+                  ],
+                ),
+              ],
+            ],
+          ),
+          actions: failure == null
+              ? const []
+              : [
                   if (onBack != null) EButton(label: context.l10n.deskSetupBack, onPressed: onBack),
-                  SizedBox(width: Sp.x3),
                   if (onRetry != null)
                     retryLabel != null
                         ? EButton.primary(label: retryLabel!, onPressed: onRetry)
                         : EButton.primary(label: context.l10n.deskSetupTryAgain, icon: EIcons.refresh, onPressed: onRetry),
                 ],
-              ),
-            ] else if (wait != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(EIcons.clock, size: Ctl.iconSm, color: context.dc.faint),
-                  SizedBox(width: Sp.x2),
-                  Flexible(child: Text(wait!, style: ts.small)),
-                ],
-              ),
-          ],
         ),
       ),
-    ),
     );
   }
 }

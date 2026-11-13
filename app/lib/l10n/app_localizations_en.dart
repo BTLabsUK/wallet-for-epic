@@ -21488,4 +21488,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOvFieldHint =>
       'Type a name, an amount, an address or a payment code';
+
+  @override
+  String get deskOnbWelcomeFactAccount => 'No account';
+
+  @override
+  String get deskOnbWelcomeFactAccountText =>
+      'No sign-up. The keys stay on this computer and nowhere else.';
+
+  @override
+  String get deskOnbWelcomeFactLink => 'Pay with one link';
+
+  @override
+  String get deskOnbWelcomeFactLinkText =>
+      'epic1 links and Epicbox deliver payments, sealed between paired contacts.';
+
+  @override
+  String get deskOnbWelcomeFactNode => 'Your own node, if you want';
+
+  @override
+  String get deskOnbWelcomeFactNodeText =>
+      'The wallet can run one on this computer. A public node works too.';
 }
