@@ -67,6 +67,21 @@ class _NoPrice implements PriceSource {
   Future<double?> price(String currency) async => null;
 }
 
+/// The core's list answers late once a request was withdrawn, as the real one does: the
+/// screen has several frames to drop the row that asked.
+class _SlowListSession extends FakeWalletSession {
+  _SlowListSession({required super.summary});
+
+  @override
+  Future<List<IssuedInvoice>> issuedInvoices() async {
+    final list = await super.issuedInvoices();
+    if (list.any((i) => i.state == IssuedInvoiceState.withdrawn)) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    return list;
+  }
+}
+
 class _Harness {
   _Harness() {
     store.values['wallet.mainnet.backedUp'] = '1';
@@ -76,7 +91,7 @@ class _Harness {
   }
 
   DateTime now = DateTime(2026, 10, 5, 12);
-  final session = FakeWalletSession(summary: _summary);
+  final FakeWalletSession session = _SlowListSession(summary: _summary);
   final store = MemorySecretStore();
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
@@ -213,6 +228,19 @@ NoticeLevel? _noticeLevel(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(Navigator).first))
         .read(noticeProvider)
         ?.level;
+
+/// A button that withdraws [request] through the shared confirm, as the list row does.
+class _WithdrawHost extends ConsumerWidget {
+  const _WithdrawHost(this.request);
+
+  final IssuedInvoice request;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => TextButton(
+    onPressed: () => confirmWithdraw(context, ref, request),
+    child: Text(context.l10n.issuedWithdraw),
+  );
+}
 
 /// Text inside a row's rich line.
 Finder _rich(String text) => find.textContaining(text, findRichText: true);
@@ -460,6 +488,64 @@ void main() {
       expect(find.text(_l.issuedWithdraw), findsNothing);
     });
 
+    testWidgets('a withdraw that works shows no error, though the row that asked is gone by then', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await h.pump(tester, const HomeScreen());
+      // The button lives only while the request waits: the reload that follows the cancel
+      // takes it (and its `ref`) away before the withdraw returns.
+      unawaited(
+        tester.state<NavigatorState>(find.byType(Navigator).first).push(
+          MaterialPageRoute<void>(
+            builder: (_) => Scaffold(
+              body: Consumer(
+                builder: (context, ref, _) {
+                  final waiting = (ref.watch(issuedInvoicesProvider).value ?? const <IssuedInvoice>[])
+                      .any((i) => i.state == IssuedInvoiceState.waiting);
+                  return waiting ? _WithdrawHost(request) : const SizedBox.shrink();
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final levels = <NoticeLevel>[];
+      final sub = h.container(tester).listen<Notice?>(noticeProvider, (_, n) {
+        if (n != null) levels.add(n.level);
+      });
+      addTearDown(sub.close);
+      await tester.tap(find.text(_l.issuedWithdraw));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(h.session.cancelledTxIds, [request.txId]);
+      expect(find.text(_l.issuedWithdraw), findsNothing);
+      expect(levels, isNot(contains(NoticeLevel.error)));
+    });
+
+    testWidgets('a withdraw that fails still shows an error', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      // Settled by someone else first: the core refuses it.
+      await h.session.withdrawInvoice(slateId: request.slateId);
+      await h.pump(tester, Scaffold(body: _WithdrawHost(request)));
+      final levels = <NoticeLevel>[];
+      final sub = h.container(tester).listen<Notice?>(noticeProvider, (_, n) {
+        if (n != null) levels.add(n.level);
+      });
+      addTearDown(sub.close);
+      await tester.tap(find.text(_l.issuedWithdraw));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(levels, contains(NoticeLevel.error));
+    });
+
     testWidgets('opens a request in its details', (tester) async {
       final h = _Harness();
       await h.issue(message: 'Dinner on Friday');
@@ -521,6 +607,26 @@ void main() {
         expect(find.text(_l.issuedWithdraw), findsNothing);
       },
     );
+
+    testWidgets('withdrawing from the details shows no error notice', (tester) async {
+      final h = _Harness();
+      final request = await h.issue(message: 'Dinner on Friday');
+      await details(tester, h, request);
+      final levels = <NoticeLevel>[];
+      final sub = h.container(tester).listen<Notice?>(noticeProvider, (_, n) {
+        if (n != null) levels.add(n.level);
+      });
+      addTearDown(sub.close);
+      await tester.tap(find.text(_l.issuedWithdraw));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(h.session.cancelledTxIds, [request.txId]);
+      expect(find.text(_l.issuedDetailsWithdrawn), findsOneWidget);
+      expect(levels, isNot(contains(NoticeLevel.error)));
+    });
 
     for (final (name, settle, text) in [
       (

@@ -113,10 +113,15 @@ Future<bool> confirmWithdraw(
   );
   if (confirmed != true || !context.mounted) return false;
   final l = context.l10n;
+  // Everything the end needs is taken before the await: withdrawing reloads the list, which
+  // can remove the row (and `ref`) that asked. Using `ref` after that threw, and the error
+  // notice came although the withdraw had worked.
   final notices = ref.read(noticeProvider.notifier);
+  final withdrawals = ref.read(issuedInvoicesProvider.notifier);
+  final container = ProviderScope.containerOf(context, listen: false);
   try {
-    await ref.read(issuedInvoicesProvider.notifier).withdraw(invoice.slateId);
-    ref.invalidate(homeProvider);
+    await withdrawals.withdraw(invoice.slateId);
+    container.invalidate(homeProvider);
     return true;
   } catch (error) {
     notices.show(describeError(l, error), level: NoticeLevel.error);
