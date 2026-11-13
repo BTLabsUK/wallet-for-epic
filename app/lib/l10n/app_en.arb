@@ -10875,9 +10875,9 @@
   "@deskOnbUnlockNote": {
     "description": "Note under the unlock progress list."
   },
-  "deskOnbUnlockTitle": "Unlock wallet",
+  "deskOnbUnlockTitle": "Welcome back",
   "@deskOnbUnlockTitle": {
-    "description": "Title of the unlock page."
+    "description": "Title of the unlock card: a returning person opens a wallet that is already on this computer."
   },
   "deskOnbUnlockRemember": "Remember on this computer",
   "@deskOnbUnlockRemember": {
@@ -29215,5 +29215,9 @@
   "deskOnbWelcomeFactNodeText": "The wallet can run one on this computer. A public node works too.",
   "@deskOnbWelcomeFactNodeText": {
     "description": "Welcome: the line under the third fact. 'one' is a node."
+  },
+  "deskOnbUnlockLead": "Enter the password to open this wallet.",
+  "@deskOnbUnlockLead": {
+    "description": "The sentence under the unlock card's title."
   }
 }

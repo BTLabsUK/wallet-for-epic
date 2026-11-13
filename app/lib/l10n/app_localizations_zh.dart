@@ -7780,7 +7780,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbUnlockNote => '随后节点、余额和接收会在后台完成。';
 
   @override
-  String get deskOnbUnlockTitle => '解锁钱包';
+  String get deskOnbUnlockTitle => '欢迎回来';
 
   @override
   String get deskOnbUnlockRemember => '在这台电脑上记住';
@@ -20317,4 +20317,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeFactNodeText => '钱包可以在这台电脑上运行节点。也可以用公共节点。';
+
+  @override
+  String get deskOnbUnlockLead => '输入密码以打开此钱包。';
 }

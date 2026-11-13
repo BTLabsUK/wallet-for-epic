@@ -86,7 +86,7 @@
   "deskOnbUnlockFailed": "Odblokowanie nie powiodło się",
   "deskOnbUnlockUnlocking": "Odblokowywanie: {name}",
   "deskOnbUnlockNote": "Potem węzeł, salda i odbieranie kończą się ładować w tle.",
-  "deskOnbUnlockTitle": "Odblokuj portfel",
+  "deskOnbUnlockTitle": "Witaj ponownie",
   "deskOnbUnlockRemember": "Zapamiętaj na tym komputerze",
   "deskOnbUnlockRememberFor": "Na 30 dni. {who}",
   "deskOnbUnlockMissingTitle": "Brak folderu tego portfela",
@@ -210,5 +210,6 @@
   "deskOnbWelcomeFactLink": "Płać jednym linkiem",
   "deskOnbWelcomeFactLinkText": "Linki epic1 i Epicbox dostarczają płatności, zapieczętowane między sparowanymi kontaktami.",
   "deskOnbWelcomeFactNode": "Własny węzeł, jeśli chcesz",
-  "deskOnbWelcomeFactNodeText": "Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa."
+  "deskOnbWelcomeFactNodeText": "Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa.",
+  "deskOnbUnlockLead": "Wpisz hasło, aby otworzyć ten portfel."
 }

@@ -8592,7 +8592,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Затем узел, баланс и приём завершают загрузку в фоне.';
 
   @override
-  String get deskOnbUnlockTitle => 'Разблокировка кошелька';
+  String get deskOnbUnlockTitle => 'С возвращением';
 
   @override
   String get deskOnbUnlockRemember => 'Запомнить на этом компьютере';
@@ -22130,4 +22130,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOnbWelcomeFactNodeText =>
       'Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит.';
+
+  @override
+  String get deskOnbUnlockLead => 'Введите пароль, чтобы открыть этот кошелёк.';
 }

@@ -86,7 +86,7 @@
   "deskOnbUnlockFailed": "ปลดล็อกไม่สำเร็จ",
   "deskOnbUnlockUnlocking": "กำลังปลดล็อก {name}",
   "deskOnbUnlockNote": "จากนั้นโหนด ยอดเงิน และการรับเงินจะทำงานต่อเบื้องหลังจนเสร็จ",
-  "deskOnbUnlockTitle": "ปลดล็อกกระเป๋าเงิน",
+  "deskOnbUnlockTitle": "ยินดีต้อนรับกลับ",
   "deskOnbUnlockRemember": "จำไว้บนคอมพิวเตอร์นี้",
   "deskOnbUnlockRememberFor": "30 วัน {who}",
   "deskOnbUnlockMissingTitle": "ไม่พบโฟลเดอร์ของกระเป๋าเงินนี้",
@@ -210,5 +210,6 @@
   "deskOnbWelcomeFactLink": "จ่ายด้วยลิงก์เดียว",
   "deskOnbWelcomeFactLinkText": "ลิงก์ epic1 และ Epicbox ส่งการชำระเงิน ปิดผนึกระหว่างผู้ติดต่อที่จับคู่กัน",
   "deskOnbWelcomeFactNode": "โหนดของคุณเอง หากต้องการ",
-  "deskOnbWelcomeFactNodeText": "กระเป๋าเงินรันโหนดบนคอมพิวเตอร์เครื่องนี้ได้ ใช้โหนดสาธารณะก็ได้"
+  "deskOnbWelcomeFactNodeText": "กระเป๋าเงินรันโหนดบนคอมพิวเตอร์เครื่องนี้ได้ ใช้โหนดสาธารณะก็ได้",
+  "deskOnbUnlockLead": "ใส่รหัสผ่านเพื่อเปิดกระเป๋าเงินนี้"
 }

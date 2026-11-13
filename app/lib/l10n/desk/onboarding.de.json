@@ -86,7 +86,7 @@
   "deskOnbUnlockFailed": "Entsperren fehlgeschlagen",
   "deskOnbUnlockUnlocking": "{name} wird entsperrt",
   "deskOnbUnlockNote": "Danach werden Node, Guthaben und Empfang im Hintergrund fertig eingerichtet.",
-  "deskOnbUnlockTitle": "Wallet entsperren",
+  "deskOnbUnlockTitle": "Willkommen zurück",
   "deskOnbUnlockRemember": "Auf diesem Computer merken",
   "deskOnbUnlockRememberFor": "Für 30 Tage. {who}",
   "deskOnbUnlockMissingTitle": "Der Ordner dieser Wallet fehlt",
@@ -210,5 +210,6 @@
   "deskOnbWelcomeFactLink": "Mit einem Link zahlen",
   "deskOnbWelcomeFactLinkText": "epic1-Links und Epicbox stellen Zahlungen zu, versiegelt zwischen gekoppelten Kontakten.",
   "deskOnbWelcomeFactNode": "Eigener Node, wenn gewünscht",
-  "deskOnbWelcomeFactNodeText": "Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch."
+  "deskOnbWelcomeFactNodeText": "Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch.",
+  "deskOnbUnlockLead": "Passwort eingeben, um diese Wallet zu öffnen."
 }

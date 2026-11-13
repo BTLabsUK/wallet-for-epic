@@ -8054,7 +8054,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'จากนั้นโหนด ยอดเงิน และการรับเงินจะทำงานต่อเบื้องหลังจนเสร็จ';
 
   @override
-  String get deskOnbUnlockTitle => 'ปลดล็อกกระเป๋าเงิน';
+  String get deskOnbUnlockTitle => 'ยินดีต้อนรับกลับ';
 
   @override
   String get deskOnbUnlockRemember => 'จำไว้บนคอมพิวเตอร์นี้';
@@ -21092,4 +21092,7 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskOnbWelcomeFactNodeText =>
       'กระเป๋าเงินรันโหนดบนคอมพิวเตอร์เครื่องนี้ได้ ใช้โหนดสาธารณะก็ได้';
+
+  @override
+  String get deskOnbUnlockLead => 'ใส่รหัสผ่านเพื่อเปิดกระเป๋าเงินนี้';
 }

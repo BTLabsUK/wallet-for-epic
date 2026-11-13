@@ -402,6 +402,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       topAnchored: true,
       child: EAuthCard(
         title: l.deskOnbUnlockTitle,
+        lead: l.deskOnbUnlockLead,
         enter: _missing ? null : l.deskOnbUnlockButton,
         alternatives: [
           // The wallet's phrase sets a new password.

@@ -8283,7 +8283,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Then the node, balances and receiving finish in the background.';
 
   @override
-  String get deskOnbUnlockTitle => 'Unlock wallet';
+  String get deskOnbUnlockTitle => 'Welcome back';
 
   @override
   String get deskOnbUnlockRemember => 'Remember on this computer';
@@ -21509,4 +21509,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOnbWelcomeFactNodeText =>
       'The wallet can run one on this computer. A public node works too.';
+
+  @override
+  String get deskOnbUnlockLead => 'Enter the password to open this wallet.';
 }

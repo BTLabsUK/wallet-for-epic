@@ -8617,7 +8617,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Potem węzeł, salda i odbieranie kończą się ładować w tle.';
 
   @override
-  String get deskOnbUnlockTitle => 'Odblokuj portfel';
+  String get deskOnbUnlockTitle => 'Witaj ponownie';
 
   @override
   String get deskOnbUnlockRemember => 'Zapamiętaj na tym komputerze';
@@ -22137,4 +22137,7 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskOnbWelcomeFactNodeText =>
       'Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa.';
+
+  @override
+  String get deskOnbUnlockLead => 'Wpisz hasło, aby otworzyć ten portfel.';
 }

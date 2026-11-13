@@ -8389,7 +8389,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Danach werden Node, Guthaben und Empfang im Hintergrund fertig eingerichtet.';
 
   @override
-  String get deskOnbUnlockTitle => 'Wallet entsperren';
+  String get deskOnbUnlockTitle => 'Willkommen zurück';
 
   @override
   String get deskOnbUnlockRemember => 'Auf diesem Computer merken';
@@ -21758,4 +21758,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOnbWelcomeFactNodeText =>
       'Die Wallet kann einen auf diesem Computer betreiben. Ein öffentlicher Node geht auch.';
+
+  @override
+  String get deskOnbUnlockLead =>
+      'Passwort eingeben, um diese Wallet zu öffnen.';
 }

@@ -74,7 +74,7 @@ void main() {
     await typeAndUnlock(tester);
     await run(tester);
     expect(find.text("This wallet's records could not be opened with this phrase. Nothing was changed."), findsOneWidget);
-    expect(find.text('Unlock wallet'), findsOneWidget);
+    expect(find.text(_l.deskOnbUnlockTitle), findsOneWidget);
     await done(tester);
   });
 

@@ -13106,10 +13106,10 @@ abstract class AppLocalizations {
   /// **'Then the node, balances and receiving finish in the background.'**
   String get deskOnbUnlockNote;
 
-  /// Title of the unlock page.
+  /// Title of the unlock card: a returning person opens a wallet that is already on this computer.
   ///
   /// In en, this message translates to:
-  /// **'Unlock wallet'**
+  /// **'Welcome back'**
   String get deskOnbUnlockTitle;
 
   /// Checkbox on the unlock page: store the password in this computer's key store.
@@ -33702,6 +33702,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The wallet can run one on this computer. A public node works too.'**
   String get deskOnbWelcomeFactNodeText;
+
+  /// The sentence under the unlock card's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password to open this wallet.'**
+  String get deskOnbUnlockLead;
 }
 
 class _AppLocalizationsDelegate

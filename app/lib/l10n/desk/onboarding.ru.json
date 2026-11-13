@@ -86,7 +86,7 @@
   "deskOnbUnlockFailed": "Не удалось разблокировать",
   "deskOnbUnlockUnlocking": "Разблокировка: {name}",
   "deskOnbUnlockNote": "Затем узел, баланс и приём завершают загрузку в фоне.",
-  "deskOnbUnlockTitle": "Разблокировка кошелька",
+  "deskOnbUnlockTitle": "С возвращением",
   "deskOnbUnlockRemember": "Запомнить на этом компьютере",
   "deskOnbUnlockRememberFor": "На 30 дней. {who}",
   "deskOnbUnlockMissingTitle": "Папка этого кошелька пропала",
@@ -210,5 +210,6 @@
   "deskOnbWelcomeFactLink": "Оплата одной ссылкой",
   "deskOnbWelcomeFactLinkText": "Ссылки epic1 и Epicbox доставляют платежи, запечатанные между связанными контактами.",
   "deskOnbWelcomeFactNode": "Свой узел, если нужно",
-  "deskOnbWelcomeFactNodeText": "Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит."
+  "deskOnbWelcomeFactNodeText": "Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит.",
+  "deskOnbUnlockLead": "Введите пароль, чтобы открыть этот кошелёк."
 }

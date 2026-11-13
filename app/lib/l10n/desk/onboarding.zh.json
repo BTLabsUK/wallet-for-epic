@@ -86,7 +86,7 @@
   "deskOnbUnlockFailed": "解锁失败",
   "deskOnbUnlockUnlocking": "正在解锁 {name}",
   "deskOnbUnlockNote": "随后节点、余额和接收会在后台完成。",
-  "deskOnbUnlockTitle": "解锁钱包",
+  "deskOnbUnlockTitle": "欢迎回来",
   "deskOnbUnlockRemember": "在这台电脑上记住",
   "deskOnbUnlockRememberFor": "保留 30 天。{who}",
   "deskOnbUnlockMissingTitle": "此钱包的文件夹不见了",
@@ -210,5 +210,6 @@
   "deskOnbWelcomeFactLink": "一个链接即可付款",
   "deskOnbWelcomeFactLinkText": "epic1 链接和 Epicbox 传递付款，在已配对的联系人之间加密。",
   "deskOnbWelcomeFactNode": "可选：自己的节点",
-  "deskOnbWelcomeFactNodeText": "钱包可以在这台电脑上运行节点。也可以用公共节点。"
+  "deskOnbWelcomeFactNodeText": "钱包可以在这台电脑上运行节点。也可以用公共节点。",
+  "deskOnbUnlockLead": "输入密码以打开此钱包。"
 }
