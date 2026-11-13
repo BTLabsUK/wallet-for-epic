@@ -270,11 +270,9 @@ class EModalCard extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: width),
       child: Container(
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: c.modal,
-          border: Border.all(color: c.lineStrong),
-          borderRadius: BorderRadius.circular(Rad.lg),
-        ),
+        decoration: BoxDecoration(color: c.modal, borderRadius: BorderRadius.circular(Rad.lg)),
+        // On top, so the key strip's fill never covers the edge or the corners.
+        foregroundDecoration: BoxDecoration(border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(Rad.lg)),
         child: Stack(
           children: [
             ...modalGlow(context, tone),
