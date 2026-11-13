@@ -261,7 +261,8 @@ void main() {
     '23-settings-receiving': ['g4.server.epicbox', 'g4.confirmations.fewer', 'g4.confirmations.more'],
     '23b-epicbox-combobox-open': ['g4.server.epicbox', 'g4.server.search'],
     '23j-epicbox-picked': ['g4.server.epicbox.switch'],
-    '24-settings-appearance': ['g4.appearance.theme.system', 'g4.appearance.theme.dark', 'g4.appearance.theme.light'],
+    // Theme is a dropdown on desktop too: the row's one id, as on the phone.
+    '24-settings-appearance': ['g4.appearance.theme'],
     '25-settings-account': ['g4.wallet.label'],
     '43-advanced': ['g4.advanced.technical', 'g4.level.stop.1', 'g4.level.stop.2', 'g4.level.stop.3'],
   };

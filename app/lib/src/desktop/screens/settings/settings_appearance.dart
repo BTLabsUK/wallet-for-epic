@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../trust_ids.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'setting_ids.dart';
@@ -27,24 +28,24 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             anchor: SetId.theme,
             title: l.deskSetAppearTheme,
             hint: l.deskSetAppearThemeHint,
-            // At least the wide control; wider when a language's words need it, the three
-            // segments equal and every word whole (LNX-11). Under the title when that is
-            // wider than the row leaves.
-            wrap: true,
-            control: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: Ctl.rowWide),
-              child: IntrinsicWidth(
-              child: ESegmented<ThemeChoice>(
-              stretch: true,
-              segments: [
-                ESegment(ThemeChoice.system, l.deskSetAppearSystem, icon: EIcons.themeSystem, semanticsId: TrustIds.appearanceThemeSystem),
-                ESegment(ThemeChoice.dark, l.deskSetAppearDark, icon: EIcons.moon, semanticsId: TrustIds.appearanceThemeDark),
-                ESegment(ThemeChoice.light, l.deskSetAppearLight, icon: EIcons.sun, semanticsId: TrustIds.appearanceThemeLight),
-              ],
-              value: s.theme,
-              onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
-            ),
-            ),
+            // A choice from a list is a dropdown in the row's slot, as Size and Language.
+            control: ERowControl(
+              // The phone's Theme row id: one control, one id.
+              child: TrustId(
+                TrustIds.appearanceTheme,
+                child: ESelect<ThemeChoice>(
+                key: const ValueKey('appearance-theme'),
+                size: EBtnSize.sm,
+                semanticLabel: l.deskSetAppearTheme,
+                value: s.theme,
+                items: [
+                  ESelectItem(ThemeChoice.system, l.deskSetAppearSystem, leading: Icon(EIcons.themeSystem, size: 14.u)),
+                  ESelectItem(ThemeChoice.dark, l.deskSetAppearDark, leading: Icon(EIcons.moon, size: 14.u)),
+                  ESelectItem(ThemeChoice.light, l.deskSetAppearLight, leading: Icon(EIcons.sun, size: 14.u)),
+                ],
+                onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
+                ),
+              ),
             ),
           ),
           ESetRow(

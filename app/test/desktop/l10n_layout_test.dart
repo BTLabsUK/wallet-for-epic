@@ -56,7 +56,7 @@ void main() {
     }
   });
 
-  // LNX-10, LNX-11: every language, the Settings sub-navigation and the Theme segments.
+  // LNX-10, LNX-11: every language, the Settings sub-navigation and the chosen Theme.
   for (final lang in ['en', 'de', 'pl', 'ru', 'th', 'zh']) {
     testWidgets('$lang: Settings names never break inside a word; Theme labels show whole', (tester) async {
       final shot = shots.firstWhere((s) => s.id == '24-settings-appearance');
@@ -74,12 +74,14 @@ void main() {
             }
           }
         }
-        for (final word in [l.deskSetAppearSystem, l.deskSetAppearDark, l.deskSetAppearLight]) {
-          final ps = _paragraphs(tester, word);
-          expect(ps, isNotEmpty, reason: word);
-          for (final p in ps) {
-            expect(p.didExceedMaxLines, isFalse, reason: '"$word" is cut');
-          }
+        // Theme is a dropdown: the chosen one shows, whole.
+        final shown = [
+          for (final word in [l.deskSetAppearSystem, l.deskSetAppearDark, l.deskSetAppearLight])
+            for (final p in _paragraphs(tester, word)) (word, p),
+        ];
+        expect(shown, isNotEmpty, reason: 'the chosen theme shows');
+        for (final (word, p) in shown) {
+          expect(p.didExceedMaxLines, isFalse, reason: '"$word" is cut');
         }
       });
     });
