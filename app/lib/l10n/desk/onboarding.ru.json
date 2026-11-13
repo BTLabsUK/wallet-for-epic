@@ -211,5 +211,9 @@
   "deskOnbWelcomeFactLinkText": "Ссылки epic1 и Epicbox доставляют платежи, запечатанные между связанными контактами.",
   "deskOnbWelcomeFactNode": "Свой узел, если нужно",
   "deskOnbWelcomeFactNodeText": "Кошелёк может запустить его на этом компьютере. Публичный узел тоже подходит.",
-  "deskOnbUnlockLead": "Введите пароль, чтобы открыть этот кошелёк."
+  "deskOnbUnlockLead": "Введите пароль, чтобы открыть этот кошелёк.",
+  "deskOnbKeyNextCreate": "Следующее поле, затем создать",
+  "deskOnbKeyNextRestore": "Следующее поле, затем восстановить",
+  "deskOnbKeyNextSet": "Следующее поле, затем задать",
+  "deskOnbKeyNextImport": "Следующее поле, затем импортировать"
 }

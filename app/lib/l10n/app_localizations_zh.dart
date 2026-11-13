@@ -20411,4 +20411,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLicKeyOpen => '打开软件包';
+
+  @override
+  String get deskOnbKeyNextCreate => '下一个字段，然后创建';
+
+  @override
+  String get deskOnbKeyNextRestore => '下一个字段，然后恢复';
+
+  @override
+  String get deskOnbKeyNextSet => '下一个字段，然后设置';
+
+  @override
+  String get deskOnbKeyNextImport => '下一个字段，然后导入';
 }

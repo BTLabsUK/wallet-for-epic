@@ -29357,5 +29357,21 @@
   "deskLicKeyOpen": "Open the package",
   "@deskLicKeyOpen": {
     "description": "Licence texts key strip: what Enter does (opens the first package the search shows)."
+  },
+  "deskOnbKeyNextCreate": "Next field, then create",
+  "@deskOnbKeyNextCreate": {
+    "description": "Start steps' key strip: what Enter does on the new wallet's password step (moves to the next field, from the last one creates the wallet)."
+  },
+  "deskOnbKeyNextRestore": "Next field, then restore",
+  "@deskOnbKeyNextRestore": {
+    "description": "Start steps' key strip: what Enter does on the restore's password step."
+  },
+  "deskOnbKeyNextSet": "Next field, then set",
+  "@deskOnbKeyNextSet": {
+    "description": "Start steps' key strip: what Enter does on the new password step of Forgot password."
+  },
+  "deskOnbKeyNextImport": "Next field, then import",
+  "@deskOnbKeyNextImport": {
+    "description": "Start steps' key strip: what Enter does on an old wallet's password form in Import wallets."
   }
 }

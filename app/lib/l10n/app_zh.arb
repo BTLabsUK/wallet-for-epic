@@ -5632,5 +5632,9 @@
   "deskSendPickKeySend": "发送给所选联系人",
   "deskSendPickKeyTake": "使用所选联系人",
   "deskLicEmpty": "此版本不含许可证文本。",
-  "deskLicKeyOpen": "打开软件包"
+  "deskLicKeyOpen": "打开软件包",
+  "deskOnbKeyNextCreate": "下一个字段，然后创建",
+  "deskOnbKeyNextRestore": "下一个字段，然后恢复",
+  "deskOnbKeyNextSet": "下一个字段，然后设置",
+  "deskOnbKeyNextImport": "下一个字段，然后导入"
 }

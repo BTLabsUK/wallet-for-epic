@@ -21859,4 +21859,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskLicKeyOpen => 'Paket öffnen';
+
+  @override
+  String get deskOnbKeyNextCreate => 'Nächstes Feld, dann erstellen';
+
+  @override
+  String get deskOnbKeyNextRestore => 'Nächstes Feld, dann wiederherstellen';
+
+  @override
+  String get deskOnbKeyNextSet => 'Nächstes Feld, dann festlegen';
+
+  @override
+  String get deskOnbKeyNextImport => 'Nächstes Feld, dann importieren';
 }

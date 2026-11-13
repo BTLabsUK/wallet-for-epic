@@ -5632,5 +5632,9 @@
   "deskSendPickKeySend": "Отправить выбранному",
   "deskSendPickKeyTake": "Взять выбранный",
   "deskLicEmpty": "В этой сборке нет текстов лицензий.",
-  "deskLicKeyOpen": "Открыть пакет"
+  "deskLicKeyOpen": "Открыть пакет",
+  "deskOnbKeyNextCreate": "Следующее поле, затем создать",
+  "deskOnbKeyNextRestore": "Следующее поле, затем восстановить",
+  "deskOnbKeyNextSet": "Следующее поле, затем задать",
+  "deskOnbKeyNextImport": "Следующее поле, затем импортировать"
 }

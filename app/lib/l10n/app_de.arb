@@ -5632,5 +5632,9 @@
   "deskSendPickKeySend": "An die Auswahl senden",
   "deskSendPickKeyTake": "Auswahl übernehmen",
   "deskLicEmpty": "Dieser Build enthält keine Lizenztexte.",
-  "deskLicKeyOpen": "Paket öffnen"
+  "deskLicKeyOpen": "Paket öffnen",
+  "deskOnbKeyNextCreate": "Nächstes Feld, dann erstellen",
+  "deskOnbKeyNextRestore": "Nächstes Feld, dann wiederherstellen",
+  "deskOnbKeyNextSet": "Nächstes Feld, dann festlegen",
+  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren"
 }

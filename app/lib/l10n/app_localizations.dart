@@ -33870,6 +33870,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the package'**
   String get deskLicKeyOpen;
+
+  /// Start steps' key strip: what Enter does on the new wallet's password step (moves to the next field, from the last one creates the wallet).
+  ///
+  /// In en, this message translates to:
+  /// **'Next field, then create'**
+  String get deskOnbKeyNextCreate;
+
+  /// Start steps' key strip: what Enter does on the restore's password step.
+  ///
+  /// In en, this message translates to:
+  /// **'Next field, then restore'**
+  String get deskOnbKeyNextRestore;
+
+  /// Start steps' key strip: what Enter does on the new password step of Forgot password.
+  ///
+  /// In en, this message translates to:
+  /// **'Next field, then set'**
+  String get deskOnbKeyNextSet;
+
+  /// Start steps' key strip: what Enter does on an old wallet's password form in Import wallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Next field, then import'**
+  String get deskOnbKeyNextImport;
 }
 
 class _AppLocalizationsDelegate

@@ -5632,5 +5632,9 @@
   "deskSendPickKeySend": "Wyślij do wybranego",
   "deskSendPickKeyTake": "Weź wybrany",
   "deskLicEmpty": "Ta wersja nie zawiera tekstów licencji.",
-  "deskLicKeyOpen": "Otwórz pakiet"
+  "deskLicKeyOpen": "Otwórz pakiet",
+  "deskOnbKeyNextCreate": "Następne pole, potem utwórz",
+  "deskOnbKeyNextRestore": "Następne pole, potem przywróć",
+  "deskOnbKeyNextSet": "Następne pole, potem ustaw",
+  "deskOnbKeyNextImport": "Następne pole, potem importuj"
 }

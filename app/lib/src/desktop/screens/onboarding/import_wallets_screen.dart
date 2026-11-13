@@ -403,6 +403,8 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       backLabel: l.deskOnbImportBack,
       width: EOnbFrame.wide,
       status: stat,
+      // The old wallet's password form takes Enter: Old, New, Repeat, then Import.
+      enter: _step == ImportStep.import && current != null ? l.deskOnbKeyNextImport : null,
       actions: [
         // Skip sits left of the main button; Tab reaches Import first, then Skip.
         if (_step == ImportStep.import && current != null)

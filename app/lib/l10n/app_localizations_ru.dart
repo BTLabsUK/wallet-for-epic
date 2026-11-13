@@ -22230,4 +22230,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLicKeyOpen => 'Открыть пакет';
+
+  @override
+  String get deskOnbKeyNextCreate => 'Следующее поле, затем создать';
+
+  @override
+  String get deskOnbKeyNextRestore => 'Следующее поле, затем восстановить';
+
+  @override
+  String get deskOnbKeyNextSet => 'Следующее поле, затем задать';
+
+  @override
+  String get deskOnbKeyNextImport => 'Следующее поле, затем импортировать';
 }

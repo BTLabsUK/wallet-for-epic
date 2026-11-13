@@ -1102,5 +1102,21 @@
   "deskOnbUnlockLead": "Enter the password to open this wallet.",
   "@deskOnbUnlockLead": {
     "description": "The sentence under the unlock card's title."
+  },
+  "deskOnbKeyNextCreate": "Next field, then create",
+  "@deskOnbKeyNextCreate": {
+    "description": "Start steps' key strip: what Enter does on the new wallet's password step (moves to the next field, from the last one creates the wallet)."
+  },
+  "deskOnbKeyNextRestore": "Next field, then restore",
+  "@deskOnbKeyNextRestore": {
+    "description": "Start steps' key strip: what Enter does on the restore's password step."
+  },
+  "deskOnbKeyNextSet": "Next field, then set",
+  "@deskOnbKeyNextSet": {
+    "description": "Start steps' key strip: what Enter does on the new password step of Forgot password."
+  },
+  "deskOnbKeyNextImport": "Next field, then import",
+  "@deskOnbKeyNextImport": {
+    "description": "Start steps' key strip: what Enter does on an old wallet's password form in Import wallets."
   }
 }

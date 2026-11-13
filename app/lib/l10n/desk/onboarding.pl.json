@@ -211,5 +211,9 @@
   "deskOnbWelcomeFactLinkText": "Linki epic1 i Epicbox dostarczają płatności, zapieczętowane między sparowanymi kontaktami.",
   "deskOnbWelcomeFactNode": "Własny węzeł, jeśli chcesz",
   "deskOnbWelcomeFactNodeText": "Portfel może uruchomić go na tym komputerze. Publiczny węzeł też działa.",
-  "deskOnbUnlockLead": "Wpisz hasło, aby otworzyć ten portfel."
+  "deskOnbUnlockLead": "Wpisz hasło, aby otworzyć ten portfel.",
+  "deskOnbKeyNextCreate": "Następne pole, potem utwórz",
+  "deskOnbKeyNextRestore": "Następne pole, potem przywróć",
+  "deskOnbKeyNextSet": "Następne pole, potem ustaw",
+  "deskOnbKeyNextImport": "Następne pole, potem importuj"
 }

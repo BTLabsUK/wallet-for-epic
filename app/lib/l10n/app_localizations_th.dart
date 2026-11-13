@@ -21193,4 +21193,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLicKeyOpen => 'เปิดแพ็กเกจ';
+
+  @override
+  String get deskOnbKeyNextCreate => 'ช่องถัดไป แล้วสร้าง';
+
+  @override
+  String get deskOnbKeyNextRestore => 'ช่องถัดไป แล้วกู้คืน';
+
+  @override
+  String get deskOnbKeyNextSet => 'ช่องถัดไป แล้วตั้งค่า';
+
+  @override
+  String get deskOnbKeyNextImport => 'ช่องถัดไป แล้วนำเข้า';
 }

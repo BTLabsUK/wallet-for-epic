@@ -265,6 +265,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           lead: l.deskOnbRestorePasswordLead,
           onBack: () => setState(() => _step = RestoreStep.words),
           icon: EIcons.lock,
+          enter: l.deskOnbKeyNextRestore,
           actions: [
             EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null, semanticsId: TrustIds.restoreContinue),
           ],

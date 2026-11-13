@@ -22236,4 +22236,16 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLicKeyOpen => 'Otwórz pakiet';
+
+  @override
+  String get deskOnbKeyNextCreate => 'Następne pole, potem utwórz';
+
+  @override
+  String get deskOnbKeyNextRestore => 'Następne pole, potem przywróć';
+
+  @override
+  String get deskOnbKeyNextSet => 'Następne pole, potem ustaw';
+
+  @override
+  String get deskOnbKeyNextImport => 'Następne pole, potem importuj';
 }

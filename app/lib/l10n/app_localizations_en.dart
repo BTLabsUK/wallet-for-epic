@@ -21608,4 +21608,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLicKeyOpen => 'Open the package';
+
+  @override
+  String get deskOnbKeyNextCreate => 'Next field, then create';
+
+  @override
+  String get deskOnbKeyNextRestore => 'Next field, then restore';
+
+  @override
+  String get deskOnbKeyNextSet => 'Next field, then set';
+
+  @override
+  String get deskOnbKeyNextImport => 'Next field, then import';
 }

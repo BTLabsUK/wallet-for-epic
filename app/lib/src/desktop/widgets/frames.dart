@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 
 import '../desk_l10n.dart';
 import '../../ui/theme/brand.dart' show EpicMark;
@@ -381,7 +382,12 @@ class EOnbFrame extends StatelessWidget {
     this.fill = false,
     this.icon,
     this.width,
+    this.enter,
   });
+
+  /// What Enter does on this step, for the key strip ("Next field, then create"); null where
+  /// no form takes Enter.
+  final String? enter;
 
   /// [child] gets the height left in the card instead of scrolling with it, so it can keep
   /// parts of its own in view ([EPhraseLayout]: only the words scroll). With less room than
@@ -448,6 +454,10 @@ class EOnbFrame extends StatelessWidget {
       status: status,
       actions: [?back, ...actions],
       bounded: bounded,
+      keys: [
+        if (onBack != null) EKeyHint(keys: l.deskSetFrameEscKey, does: backLabel ?? l.deskSetupBack),
+        if (enter != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: enter!),
+      ],
     );
     final bar = SizedBox(
       height: (short ? 52 : 60).u,
@@ -504,11 +514,22 @@ class EOnbFrame extends StatelessWidget {
         );
       },
     );
-    return EBackdrop(
+    final page = EBackdrop(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [bar, Expanded(child: stage)],
       ),
+    );
+    if (onBack == null) return page;
+    // Esc is Back, as the mouse's Back button: the screen's inner step first ([DeskStepBack],
+    // which typed passwords hold), else this step's Back.
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () {
+          if (!DeskStepBack.tryStepBack()) onBack!();
+        },
+      },
+      child: page,
     );
   }
 }

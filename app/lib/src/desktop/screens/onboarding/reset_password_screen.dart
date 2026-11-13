@@ -266,6 +266,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             sideTitle: l.deskOnbForgotTitle,
             steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
             title: l.deskSetDlgPwNew,
+            enter: l.deskOnbKeyNextSet,
             icon: EIcons.lock,
             lead: l.deskOnbForgotPasswordLead,
             onBack: () => setState(() => _step = _Step.words),

@@ -168,6 +168,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           lead: l.deskOnbCreateLead,
           onBack: () => nav.back(),
           icon: EIcons.lock,
+          enter: l.deskOnbKeyNextCreate,
           actions: [
             EButton.primary(semanticsId: TrustIds.createSubmit, label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
           ],
