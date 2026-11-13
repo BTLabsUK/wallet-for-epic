@@ -20,9 +20,16 @@ void main() {
     expect(release!.group(1), contains('signingConfigs.getByName("release")'));
   });
 
-  test('nothing signs with the debug config', () {
-    expect(code, isNot(contains('getByName("debug")')));
-    expect(code, isNot(contains('signingConfigs.debug')));
+  test('nothing signs with the debug config, but a -PwfeTestBuild=true build beside the store app', () {
+    // The one line allowed: a test build (id uk.btlabs.btwallet.test, own data), never a release.
+    const testLine = 'if (testBuild) signingConfig = signingConfigs.getByName("debug")';
+    expect(RegExp(r'getByName\("debug"\)').allMatches(code).length, 1);
+    expect(code, contains(testLine));
+    expect(code, contains('val testBuild = findProperty("wfeTestBuild") == "true"'));
+    expect(code, contains('if (testBuild) applicationId = "uk.btlabs.btwallet.test"'));
+    final rest = code.replaceAll(testLine, '');
+    expect(rest, isNot(contains('getByName("debug")')));
+    expect(rest, isNot(contains('signingConfigs.debug')));
   });
 
   test('a release build stops without a usable release key', () {
