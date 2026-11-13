@@ -723,12 +723,10 @@ void main() {
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
-      // Asked, not answered: no review to send from.
-      expect(find.text(_l.sendStepReview), findsNothing);
+      // Asked, not answered: no review to send from (the redesign's button is named Review too).
       expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
       answer.complete(ReachResult.answers);
       await _settle(tester);
-      expect(find.text(_l.sendStepReview), findsOneWidget);
       expect(find.text('Send 1.0\u00a0EPIC'), findsOneWidget);
     });
 
