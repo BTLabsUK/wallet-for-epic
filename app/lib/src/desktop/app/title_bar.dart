@@ -109,7 +109,10 @@ class DeskWindowFrame extends ConsumerWidget {
             Expanded(
               child: Stack(
                 children: [
-                  Positioned.fill(child: child),
+                  // A semantics node of its own for the app under the bar: a route's barrier
+                  // blocks the semantics of everything painted before it in its container, and
+                  // without this node that was the bar, with the tabs in it.
+                  Positioned.fill(child: Semantics(container: true, explicitChildNodes: true, child: child)),
                   // Unfocused: a light wash over the page, as the bar's glyphs fade.
                   Positioned.fill(
                     child: IgnorePointer(
