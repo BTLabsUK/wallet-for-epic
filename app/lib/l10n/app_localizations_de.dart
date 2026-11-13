@@ -21742,4 +21742,44 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Erscheint hier, sobald sie ankommt';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Jeder, mit meiner Adresse';
+
+  @override
+  String get phoneRecvAnyoneAddressLine =>
+      'Ein Code mit deiner Adresse und dem Betrag';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Zeige diesen Code oder teile den Link. Wer ihn scannt oder einfügt, bekommt eine normale Zahlung an deine Adresse mit $amount schon eingetragen.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link kopiert';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Deine Adresse mit dem Betrag als QR-Code';
+
+  @override
+  String get deskRecvAskOpen => 'Betrag anfragen';
+
+  @override
+  String get deskRecvAskAmount => 'Betrag';
+
+  @override
+  String get deskRecvAskNote => 'Notiz';
+
+  @override
+  String get deskRecvAskHint =>
+      'Der Code enthält jetzt Ihre Adresse und diesen Betrag. Wer ihn scannt oder einfügt, erhält eine normale Zahlung an Sie mit eingetragenem Betrag.';
+
+  @override
+  String get deskRecvAskCopy => 'Link kopieren';
+
+  @override
+  String get deskRecvAskCopied => 'Link kopiert';
+
+  @override
+  String get deskRecvAskClose => 'Zurück zur Adresse';
 }

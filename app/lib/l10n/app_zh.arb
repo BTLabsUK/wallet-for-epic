@@ -5601,5 +5601,17 @@
   "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
   "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。",
   "phoneHomeFirstPayment": "你的第一笔付款",
-  "phoneHomeFirstPaymentHint": "到账后显示在这里"
+  "phoneHomeFirstPaymentHint": "到账后显示在这里",
+  "phoneRecvAnyoneAddress": "任何人，用我的地址",
+  "phoneRecvAnyoneAddressLine": "包含你的地址和金额的码",
+  "phoneRecvLinkLead": "出示此码或分享链接。扫描或粘贴它的人会得到一笔发往你地址的普通转账，并已填好 {amount}。",
+  "phoneRecvLinkCopied": "链接已复制",
+  "phoneRecvLinkQrLabel": "包含你的地址和金额的二维码",
+  "deskRecvAskOpen": "请求金额",
+  "deskRecvAskAmount": "金额",
+  "deskRecvAskNote": "备注",
+  "deskRecvAskHint": "现在二维码包含你的地址和此金额。扫描或粘贴它的人会得到一笔发给你的普通转账，并已填好金额。",
+  "deskRecvAskCopy": "复制链接",
+  "deskRecvAskCopied": "链接已复制",
+  "deskRecvAskClose": "返回地址"
 }

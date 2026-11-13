@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -88,6 +89,8 @@ class _Harness {
     session.clock = () => now;
     session.owner = service;
     session.address = _own;
+    // These tests are about codes and files; the address link has its own tests (request_link_test).
+    store.values['app.payment_prefs'] = const PaymentPrefs(epicbox: false, linkHttp: true).encode();
   }
 
   DateTime now = DateTime(2026, 10, 5, 12);

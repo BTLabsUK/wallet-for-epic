@@ -5601,5 +5601,17 @@
   "phoneTxCancelledByUser": "Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.",
   "phoneTxCancelledIncoming": "Если отправитель опубликует платёж позже, он всё равно поступит.",
   "phoneHomeFirstPayment": "Ваш первый платёж",
-  "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит"
+  "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит",
+  "phoneRecvAnyoneAddress": "Любой, по моему адресу",
+  "phoneRecvAnyoneAddressLine": "Код с вашим адресом и суммой",
+  "phoneRecvLinkLead": "Покажите этот код или поделитесь ссылкой. Кто отсканирует или вставит её, получит обычную отправку на ваш адрес с уже заполненной суммой {amount}.",
+  "phoneRecvLinkCopied": "Ссылка скопирована",
+  "phoneRecvLinkQrLabel": "Ваш адрес с суммой в виде QR-кода",
+  "deskRecvAskOpen": "Запросить сумму",
+  "deskRecvAskAmount": "Сумма",
+  "deskRecvAskNote": "Заметка",
+  "deskRecvAskHint": "Теперь код содержит ваш адрес и эту сумму. Кто отсканирует или вставит его, получит обычную отправку вам с уже заполненной суммой.",
+  "deskRecvAskCopy": "Копировать ссылку",
+  "deskRecvAskCopied": "Ссылка скопирована",
+  "deskRecvAskClose": "Назад к адресу"
 }

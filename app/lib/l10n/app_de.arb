@@ -5601,5 +5601,17 @@
   "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
   "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
   "phoneHomeFirstPayment": "Deine erste Zahlung",
-  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt"
+  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt",
+  "phoneRecvAnyoneAddress": "Jeder, mit meiner Adresse",
+  "phoneRecvAnyoneAddressLine": "Ein Code mit deiner Adresse und dem Betrag",
+  "phoneRecvLinkLead": "Zeige diesen Code oder teile den Link. Wer ihn scannt oder einfügt, bekommt eine normale Zahlung an deine Adresse mit {amount} schon eingetragen.",
+  "phoneRecvLinkCopied": "Link kopiert",
+  "phoneRecvLinkQrLabel": "Deine Adresse mit dem Betrag als QR-Code",
+  "deskRecvAskOpen": "Betrag anfragen",
+  "deskRecvAskAmount": "Betrag",
+  "deskRecvAskNote": "Notiz",
+  "deskRecvAskHint": "Der Code enthält jetzt Ihre Adresse und diesen Betrag. Wer ihn scannt oder einfügt, erhält eine normale Zahlung an Sie mit eingetragenem Betrag.",
+  "deskRecvAskCopy": "Link kopieren",
+  "deskRecvAskCopied": "Link kopiert",
+  "deskRecvAskClose": "Zurück zur Adresse"
 }

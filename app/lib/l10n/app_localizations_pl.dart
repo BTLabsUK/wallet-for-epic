@@ -22122,4 +22122,43 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Pojawi się tutaj, gdy dotrze';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Każdy, z moim adresem';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'Kod z Twoim adresem i kwotą';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Pokaż ten kod lub udostępnij link. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie na Twój adres z już wpisaną kwotą $amount.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link skopiowany';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Twój adres z kwotą jako kod QR';
+
+  @override
+  String get deskRecvAskOpen => 'Poproś o kwotę';
+
+  @override
+  String get deskRecvAskAmount => 'Kwota';
+
+  @override
+  String get deskRecvAskNote => 'Notatka';
+
+  @override
+  String get deskRecvAskHint =>
+      'Kod zawiera teraz Twój adres i tę kwotę. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie do Ciebie z wpisaną kwotą.';
+
+  @override
+  String get deskRecvAskCopy => 'Kopiuj link';
+
+  @override
+  String get deskRecvAskCopied => 'Link skopiowany';
+
+  @override
+  String get deskRecvAskClose => 'Wróć do adresu';
 }

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../amount.dart';
 import '../app_log.dart';
@@ -20,10 +21,13 @@ import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../pairing_providers.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../scan/scan_router.dart' show EpicUri;
 import '../settings.dart';
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../initials.dart' show nameInitials;
 import '../slate_files.dart';
 import '../trust_ids.dart';
@@ -44,6 +48,7 @@ import 'kit/kit_keypad.dart';
 import 'kit/kit_sheet.dart';
 import 'kit/kit_tokens.dart';
 import 'receive_code.dart';
+import 'theme/logo_qr.dart';
 import 'request_qr_screen.dart' show RequestQrScreen;
 import 'scan_screen.dart' show offersQrPayment;
 import 'send_screen.dart' show Utf8LengthLimiter, utf8Length;
@@ -56,6 +61,8 @@ const Key requestSaveFileKey = ValueKey('request-save-file');
 const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
 const Key requestShowQrKey = ValueKey('request-show-qr');
+const Key requestShowLinkKey = ValueKey('request-show-link');
+const Key requestLinkQrKey = ValueKey('request-link-qr');
 const Key requestFileWaitingKey = ValueKey('request-file-waiting');
 
 /// Payment requests work as files, both ways: Invoices is on and the core handles them
@@ -68,6 +75,20 @@ const String _fileRow = '\u0000file';
 
 /// The picker's value for "Show as QR".
 const String _qrRow = '\u0000qr';
+
+/// The picker's value for "Anyone, with my address".
+const String _linkRow = '\u0000link';
+
+/// The wallet's Epicbox address when a request can go out as a code of it with an amount: a
+/// plain send to the address with the amount filled in. Null with Epicbox off or no relay.
+String? requestLinkAddress(WidgetRef ref, {bool listen = true}) {
+  T get<T>(ProviderListenable<T> p) => listen ? ref.watch(p) : ref.read(p);
+  final payments =
+      get(appSettingsProvider.select((s) => s.value?.payments)) ??
+      (get(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults);
+  if (!payments.epicbox || get(hostSettingsProvider.select((h) => h.epicboxServers.isEmpty))) return null;
+  return get(addressProvider).value;
+}
 
 /// The payer as the user knows them: the contact's name, else the start of the address.
 ///
@@ -173,6 +194,10 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   /// "Anyone, with a code" was chosen: the request goes to a phone next to this one.
   late bool _toQr = widget.asQr;
 
+  /// "Anyone, with my address" was chosen (true) or another payer was (false); null until the
+  /// user picks.
+  bool? _toLink;
+
   /// The amount as typed on the keypad, with a "." for the decimal point.
   String _digits = '';
   late String _note = widget.message ?? '';
@@ -241,12 +266,20 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final l = context.l10n;
     final byFile = requestFilesOn(ref, listen: false);
     final byQr = byFile && offersQrPayment(ref);
+    final byLink = requestLinkAddress(ref, listen: false) != null;
     final picked = await KitPickerSheet.show<String>(
       context: context,
       title: l.phoneRecvWho,
       selected: selected,
-      note: payers.isEmpty && !byFile ? l.reqNoPayersContacts : null,
+      note: payers.isEmpty && !byFile && !byLink ? l.reqNoPayersContacts : null,
       choices: [
+        if (byLink)
+          KitChoice(
+            value: _linkRow,
+            title: l.phoneRecvAnyoneAddress,
+            subtitle: l.phoneRecvAnyoneAddressLine,
+            leading: KitIconWell(KitIcons.qr),
+          ),
         for (final r in payers)
           KitChoice(
             value: r.id,
@@ -275,7 +308,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
       setState(() {
         _toQr = picked == _qrRow;
         _toFile = picked == _fileRow;
-        if (picked != _fileRow && picked != _qrRow) _to = picked;
+        _toLink = picked == _linkRow;
+        if (picked == _linkRow) _to = null;
+        if (picked != _fileRow && picked != _qrRow && picked != _linkRow) _to = picked;
         _payerError = null;
       });
     }
@@ -351,6 +386,21 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     }
   }
 
+  /// Shows the wallet's address with the amount as a static code: a plain Epicbox send for
+  /// whoever scans or pastes it, with the amount filled in. Nothing is made or stored.
+  void _showLink(String address) {
+    final amount = _amount;
+    if (amount == null) return;
+    final message = _note.trim();
+    unawaited(
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => RequestLinkScreen(address: address, amount: amount, message: message.isEmpty ? null : message),
+        ),
+      ),
+    );
+  }
+
   /// Makes the request and shows it as a code (Direct · QR Payment). Nothing is spent, so no
   /// PIN; the request waits in Requests sent until the payer's answer is scanned.
   Future<void> _showQr() async {
@@ -399,9 +449,12 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final to = payers.where((r) => r.id == _to).firstOrNull;
     // Request files off (the core or the Invoices switch): contacts only.
     final byFile = requestFilesOn(ref);
-    // Nobody chosen yet means anyone: with a code where the phone offers it, else a file.
-    final toQr = byFile && offersQrPayment(ref) && (_toQr || (_toFile == null && _to == null));
-    final toFile = byFile && !toQr && (_toFile ?? _to == null);
+    // Nobody chosen yet means anyone: with the wallet's address where it has one (a normal
+    // send with the amount filled in), else with a code where the phone offers it, else a file.
+    final linkAddress = requestLinkAddress(ref);
+    final toLink = linkAddress != null && (_toLink ?? (_to == null && !_toQr && _toFile == null));
+    final toQr = byFile && offersQrPayment(ref) && !toLink && (_toQr || (_toFile == null && _to == null));
+    final toFile = byFile && !toQr && !toLink && (_toFile ?? _to == null);
     final amount = _amount;
     final unit = _fiatEntry ? currency.toUpperCase() : epicUnit;
     final String? fiat;
@@ -412,9 +465,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     } else {
       fiat = phoneFiat(l, amount ?? BigInt.zero, (hidden: false, price: price, currency: currency), approx: true);
     }
-    final anyone = toQr || toFile;
+    final anyone = toQr || toFile || toLink;
     final chip = anyone ? l.phoneRecvFromAnyone : (to == null ? l.phoneRecvWho : l.phoneRecvFromName(pairingName(to, contacts)));
-    final selected = toQr ? _qrRow : (toFile ? _fileRow : to?.id);
+    final selected = toLink ? _linkRow : (toQr ? _qrRow : (toFile ? _fileRow : to?.id));
     final contactRoute = !anyone;
     final canSubmit = amount != null && !_busy && (!contactRoute || block == NetBlock.none);
     return SlotScaffold(
@@ -521,11 +574,13 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(Kit.gutter, 17, Kit.gutter, 0),
                   child: KitButton(
-                    key: toQr ? requestShowQrKey : (toFile ? requestSaveFileKey : null),
+                    key: toLink ? requestShowLinkKey : (toQr ? requestShowQrKey : (toFile ? requestSaveFileKey : null)),
                     label: amount == null ? l.phoneRecvAsk : l.phoneRecvAskFor(epicExact(l, amount)),
                     kind: canSubmit ? KitButtonKind.gold : KitButtonKind.off,
                     semanticsId: TrustIds.receiveAskSubmit,
-                    onPressed: canSubmit ? (toQr ? _showQr : (toFile ? _saveFile : () => _request(payers, contacts))) : null,
+                    onPressed: canSubmit
+                        ? (toLink ? () => _showLink(linkAddress) : (toQr ? _showQr : (toFile ? _saveFile : () => _request(payers, contacts))))
+                        : null,
                   ),
                 ),
               ],
@@ -605,6 +660,46 @@ class RequestFileSavedScreen extends StatelessWidget {
         MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),
       ),
       card: RequestQrCard(json: slate.json, label: l.deskKitQrOf(l.qrShowTitleRequest)),
+    );
+  }
+}
+
+/// The payment link, shown: the wallet's Epicbox address with the amount as one still code and
+/// as a link to copy or share. Whoever scans or pastes it gets the normal send to this address
+/// with the amount filled in; no request exists in the wallet, so nothing waits and Done just
+/// closes.
+class RequestLinkScreen extends StatelessWidget {
+  const RequestLinkScreen({super.key, required this.address, required this.amount, this.message});
+
+  final String address;
+  final BigInt amount;
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final link = EpicUri.build(address, amount: amount, note: message);
+    return RequestCodePage(
+      amount: amount,
+      message: message,
+      json: link,
+      fileName: '',
+      textNotice: l.phoneRecvLinkCopied,
+      lead: l.phoneRecvLinkLead(epicExact(l, amount)),
+      status: const SizedBox.shrink(),
+      onDone: () => Navigator.of(context).maybePop(),
+      card: RequestCodeCard(
+        child: Container(
+          key: requestLinkQrKey,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(Kit.rQr)),
+          child: Semantics(
+            label: l.phoneRecvLinkQrLabel,
+            image: true,
+            child: LayoutBuilder(builder: (context, box) => LogoQr(data: link, size: box.biggest.shortestSide, logo: QrLogo.bt)),
+          ),
+        ),
+      ),
     );
   }
 }

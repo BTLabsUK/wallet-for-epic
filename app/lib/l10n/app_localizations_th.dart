@@ -21078,4 +21078,44 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'จะแสดงที่นี่เมื่อมาถึง';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'ใครก็ได้ ด้วยที่อยู่ของฉัน';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'โค้ดที่มีที่อยู่ของคุณและจำนวนเงิน';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'แสดงโค้ดนี้หรือแชร์ลิงก์ ใครสแกนหรือวางจะได้การส่งตามปกติไปยังที่อยู่ของคุณ โดยกรอก $amount ไว้แล้ว';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'คัดลอกลิงก์แล้ว';
+
+  @override
+  String get phoneRecvLinkQrLabel =>
+      'ที่อยู่ของคุณพร้อมจำนวนเงินเป็นคิวอาร์โค้ด';
+
+  @override
+  String get deskRecvAskOpen => 'ขอจำนวนเงิน';
+
+  @override
+  String get deskRecvAskAmount => 'จำนวนเงิน';
+
+  @override
+  String get deskRecvAskNote => 'บันทึก';
+
+  @override
+  String get deskRecvAskHint =>
+      'ตอนนี้โค้ดมีที่อยู่ของคุณและจำนวนเงินนี้ ใครสแกนหรือวางจะได้การส่งตามปกติมาหาคุณ โดยกรอกจำนวนเงินไว้แล้ว';
+
+  @override
+  String get deskRecvAskCopy => 'คัดลอกลิงก์';
+
+  @override
+  String get deskRecvAskCopied => 'คัดลอกลิงก์แล้ว';
+
+  @override
+  String get deskRecvAskClose => 'กลับไปที่ที่อยู่';
 }

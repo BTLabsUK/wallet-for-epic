@@ -97,6 +97,32 @@
   "@phoneRecvAnyoneFileLine": {
     "description": "Line under the Anyone, with a file choice."
   },
+  "phoneRecvAnyoneAddress": "Anyone, with my address",
+  "@phoneRecvAnyoneAddress": {
+    "description": "Choice in the who-pays sheet: a code with the wallet's own Epicbox address and the amount; the payer sends as usual with the amount filled in."
+  },
+  "phoneRecvAnyoneAddressLine": "A code with your address and the amount",
+  "@phoneRecvAnyoneAddressLine": {
+    "description": "Line under the Anyone, with my address choice."
+  },
+  "phoneRecvLinkLead": "Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with {amount} filled in.",
+  "@phoneRecvLinkLead": {
+    "description": "Lead on the screen that shows the wallet's address with an amount as a code. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
+  },
+  "phoneRecvLinkCopied": "Link copied",
+  "@phoneRecvLinkCopied": {
+    "description": "Notice after the payment link (address with an amount) was copied."
+  },
+  "phoneRecvLinkQrLabel": "Your address with the amount, as a QR code",
+  "@phoneRecvLinkQrLabel": {
+    "description": "What a screen reader says for the code that holds the wallet's address and an amount."
+  },
   "phoneRecvAskFor": "Ask for {amount}",
   "@phoneRecvAskFor": {
     "description": "Button that sends the request. {amount} is the amount with its unit.",
