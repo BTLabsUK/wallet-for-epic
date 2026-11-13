@@ -387,7 +387,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     final api = ref.read(pairingApiProvider);
     if (ref.read(pairNetProvider) == PairNet.online) {
-      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 5));
+      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 10));
       _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     } else {
       _late = true;

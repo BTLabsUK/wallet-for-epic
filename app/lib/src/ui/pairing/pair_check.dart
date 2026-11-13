@@ -149,7 +149,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     final api = ref.read(pairingApiProvider);
     // The other wallet's verdict is heard within seconds, as on the desktop, not at the next
     // foreground tick.
-    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 5));
+    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 10));
     _events = api.events().listen((e) {
       // Ended while the words are open (the other wallet said they do not match): nothing is
       // left to check; the ended notice says why.

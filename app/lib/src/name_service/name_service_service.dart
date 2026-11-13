@@ -449,8 +449,8 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
     if (entry != null && !entry.pinned) return _setStep(pairingId, HelloStep.check);
     _deadlines[pairingId] = _clock().add(wait);
     _setStep(pairingId, HelloStep.waiting);
-    // The regular collect brings the hello: it runs every few seconds for the wait.
-    _endBoosts[pairingId] = boostRelays(_host.boosts, boostMinInterval, window: wait);
+    // The regular collect brings the hello: it runs every 10 s for the wait.
+    _endBoosts[pairingId] = boostRelays(_host.boosts, const Duration(seconds: 10), window: wait);
     unawaited(sync(NameServiceSyncTrigger.tick));
     return HelloStep.waiting;
   }

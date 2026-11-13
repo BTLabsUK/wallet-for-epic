@@ -785,7 +785,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     deskPairingStepsOnScreen.add(widget.pairingId);
     final api = ref.read(deskPairingApiProvider);
     if (ref.read(deskPairNetProvider) == DeskPairNet.online) {
-      _unboost = boostRelays(ref.read(deskApiProvider).boosts, const Duration(seconds: 5));
+      _unboost = boostRelays(ref.read(deskApiProvider).boosts, const Duration(seconds: 10));
       _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     } else {
       _late = true;

@@ -107,7 +107,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // unlock (restore_scan.dart); Home shows where it stands.
     ref.listenManual(restoreScanProvider, (_, _) {});
     // Alive for the app's life: at every level an Epicbox relay down for a while is offered a
-    // one-tap move (never made by itself), and an address left behind is read for 30 days.
+    // one-tap move (never made by itself), and an address left behind is read for 7 days.
     ref.listenManual(relaySwitchProvider, (_, _) {});
     ref.listenManual(relayDrainWatchProvider, (_, _) {});
   }
