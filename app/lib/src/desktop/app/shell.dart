@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../app_info.dart';
-import '../../boosts.dart' show PollDriver, Poller;
+import '../../contact_check.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../pairing_text.dart' show InviteSource;
 import '../../settings.dart' show clockProvider;
+import '../../settings_file/host_settings.dart' show appConfig;
 import '../../stale_open.dart';
 import '../../trust_ids.dart';
 import '../desk_l10n.dart';
@@ -26,7 +27,7 @@ import '../data/name_service_state.dart' show deskNameServiceProvider;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../../trust/profile_watch.dart';
-import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskNoticeDigestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
+import '../data/pairing_state.dart' show deskPairingsProvider, deskPairingName, deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskNoticeDigestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider, deskContactsInFlightProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
@@ -108,7 +109,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   Timer? _behindAsk;
 
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
-  PollDriver? _collectDriver;
+  ContactCheck? _contactCheck;
 
   Timer? _linkRetry;
 
@@ -130,15 +131,23 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(code: link.text, codeOrigin: CodeOrigin.link));
   }
 
-  Future<void> _collect(PairingCollectTrigger trigger) async {
-    final api = ref.read(deskPairingApiProvider);
-    if (api.supported) await api.collect(trigger: trigger);
-    // The listings are drained where the contacts' mailboxes are read, never in the background.
+  /// What a collect reads besides the contacts. The listings are drained where the contacts'
+  /// mailboxes are read, never in the background.
+  Future<void> _sync(PairingCollectTrigger trigger) async {
     final t = switch (trigger) {
       PairingCollectTrigger.open => NameServiceSyncTrigger.open,
       _ => NameServiceSyncTrigger.tick,
     };
     await ref.read(deskNameServiceProvider)?.sync(t);
+  }
+
+  /// The check of every contact, for an open or a resume.
+  Future<void> _open() async {
+    final check = _contactCheck;
+    if (check != null) return check.checkAll(PairingCollectTrigger.open);
+    final api = ref.read(deskPairingApiProvider);
+    if (api.supported) await api.collect(trigger: PairingCollectTrigger.open);
+    await _sync(PairingCollectTrigger.open);
   }
 
   /// An incoming pair invite (a tapped link, a scheme open): the confirm dialog, never a
@@ -196,7 +205,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     HardwareKeyboard.instance.addHandler(_onKey);
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _collect(PairingCollectTrigger.open).ignore();
+      if (mounted) _open().ignore();
       // A link that came before the unlock.
       if (mounted) _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
@@ -213,11 +222,16 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     final boosts = ref.read(deskApiProvider).boosts;
     if (boosts != null) {
-      _collectDriver = PollDriver(
-        boosts,
-        Poller.relays,
-        base: const Duration(seconds: 45),
-        tick: () => _collect(PairingCollectTrigger.foreground).then((_) => true),
+      _contactCheck = ContactCheck(
+        boosts: boosts,
+        collect: (trigger, {only}) async {
+          final api = ref.read(deskPairingApiProvider);
+          return api.supported ? collectCounting(api, trigger, only: only) : 0;
+        },
+        sync: _sync,
+        inFlight: () => ref.read(deskContactsInFlightProvider),
+        idleChecks: appConfig.contactsIdleChecks,
+        inFlightEvery: appConfig.contactsInFlightCheck,
       )..start();
     }
     _openCount = Timer.periodic(NodeFitFacts.tick, (_) {
@@ -249,7 +263,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         ref.read(deskFailoverWatchProvider.notifier).resumed();
         // The contacts' mailboxes too, as the phone does on resume (the shell exists only
         // unlocked; the collect itself stays off in Node only, Kill switch and with Epicbox off).
-        if (mounted) _collect(PairingCollectTrigger.open).ignore();
+        if (mounted) _open().ignore();
       },
     );
   }
@@ -358,7 +372,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _ownAsk?.cancel();
     _behindAsk?.cancel();
     _linkRetry?.cancel();
-    _collectDriver?.stop();
+    _contactCheck?.stop();
     _openCount?.cancel();
     _focus?.dispose();
     _settingsFocus.dispose();
@@ -400,6 +414,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
       if (e == null) return;
+      // A pairing moved: the next check of every contact is the first wait away.
+      _contactCheck?.reset();
       // A mailbox payment's answer was finalized: Activity shows it posted.
       if (e.kind == PairingEventKind.paymentFinalized) unawaited(ref.read(deskProvider.notifier).refresh());
       // A request to pair from someone not in Contacts is dropped unseen.

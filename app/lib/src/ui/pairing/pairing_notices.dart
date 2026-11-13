@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
 import '../../connection_grace.dart';
+import '../../contact_check.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../notice_digest.dart';
@@ -20,7 +21,8 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../relay_moves.dart' show relayMoveToAsk;
-import '../../providers.dart' show homeProvider, noticeDigestProvider, pendingInvoicesProvider, sessionProvider;
+import '../../providers.dart' show homeProvider, noticeDigestProvider, paymentsDrainProvider, pendingInvoicesProvider, sessionProvider;
+import '../../settings_file/host_settings.dart' show appConfig;
 import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
 import '../../wallet_service.dart';
@@ -129,39 +131,51 @@ class PairingNotices extends ConsumerStatefulWidget {
 
 class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBindingObserver {
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
-  PollDriver? _driver;
+  ContactCheck? _check;
   late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(pairingClockProvider));
 
   /// A service's relay move sheet is up: the next waits until it closes.
   bool _askingMove = false;
 
-  Future<void> _collect(PairingCollectTrigger trigger) async {
-    final api = ref.read(pairingApiProvider);
-    if (api.supported) await api.collect(trigger: trigger);
-    // The name services' payloads and listing drains go with every collect.
+  /// What a collect reads besides the contacts: the name services' payloads and listing drains.
+  Future<void> _sync(PairingCollectTrigger trigger) async {
     final sync = trigger == PairingCollectTrigger.open ? NameServiceSyncTrigger.resume : NameServiceSyncTrigger.tick;
     await ref.read(nameServiceProvider)?.sync(sync);
+  }
+
+  /// The check of every contact, for an open or a resume.
+  Future<void> _open() async {
+    final check = _check;
+    if (check != null) return check.checkAll(PairingCollectTrigger.open);
+    final api = ref.read(pairingApiProvider);
+    if (api.supported) await api.collect(trigger: PairingCollectTrigger.open);
+    await _sync(PairingCollectTrigger.open);
   }
 
   void _startTick() {
     final boosts = ref.read(sessionProvider)?.boosts;
     if (boosts == null) return;
-    _driver ??= PollDriver(
-      boosts,
-      Poller.relays,
-      base: const Duration(seconds: 45),
-      tick: () => _collect(PairingCollectTrigger.foreground).then((_) => true),
+    _check ??= ContactCheck(
+      boosts: boosts,
+      collect: (trigger, {only}) async {
+        final api = ref.read(pairingApiProvider);
+        return api.supported ? collectCounting(api, trigger, only: only) : 0;
+      },
+      sync: _sync,
+      inFlight: () => ref.read(contactsInFlightProvider),
+      idleChecks: appConfig.contactsIdleChecks,
+      inFlightEvery: appConfig.contactsInFlightCheck,
     );
-    _driver!.start();
+    _check!.start();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _collect(PairingCollectTrigger.open).ignore();
       _startTick();
+      _open().ignore();
     } else if (state == AppLifecycleState.paused) {
-      _driver?.stop();
+      _check?.stop();
     }
   }
 
@@ -180,7 +194,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unregisterInviteHandler(InviteKind.pair, _pairInvite);
-    _driver?.stop();
+    _check?.stop();
     super.dispose();
   }
 
@@ -191,12 +205,21 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     WidgetsBinding.instance.addObserver(this);
     registerInviteHandler(InviteKind.pair, _pairInvite);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _collect(PairingCollectTrigger.open).ignore();
+      if (mounted) _open().ignore();
     });
     _startTick();
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {
       final e = next.value;
-      if (e != null && mounted) unawaited(_show(e));
+      if (e == null || !mounted) return;
+      // A pairing moved: the next check of every contact is the first wait away.
+      _check?.reset();
+      unawaited(_show(e));
+    });
+    // Something is in flight with another contact: its check runs within the in-flight interval.
+    ref.listenManual(contactsInFlightProvider, (_, _) => _check?.inFlightChanged());
+    // A payment reached the payments address (the drain on open and resume).
+    ref.listenManual(paymentsDrainProvider, (_, next) {
+      if (next != null && (next.received > 0 || next.finalized > 0)) _check?.reset();
     });
     // Reloading keeps the last value: a digest shows once.
     ref.listenManual<AsyncValue<NoticeDigest>>(noticeDigestProvider, (_, next) {

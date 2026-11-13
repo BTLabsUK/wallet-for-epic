@@ -202,7 +202,12 @@ abstract interface class PairingApi {
   /// Collects the pairing and contact mailboxes once (an open code, an answer waiting for
   /// its confirm, a contact's invoices, payments and withdrawals): what it finds comes as
   /// [events]. [trigger] says why (RFC 8.4). Returns how many pairings it completed or ended.
-  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground});
+  /// [only] reads just those contacts' and pairings' mailboxes (ids as [checkContacts] takes them).
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground, List<String>? only});
+
+  /// How many contact messages every collect of this wallet has taken in all: a caller reads
+  /// it before and after a collect to know whether it brought any.
+  int get messagesCollected;
 
   /// Removes the pairing [id] (C-19). Its contact stays.
   Future<void> removePairing(String id);
@@ -448,7 +453,10 @@ class NoPairing implements PairingApi {
   Future<PairingRecord?> checkWords(String id, PairingCheck check) async => throw pairingUnsupported('checkWords');
 
   @override
-  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async => 0;
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground, List<String>? only}) async => 0;
+
+  @override
+  int get messagesCollected => 0;
 
   @override
   Future<void> removePairing(String id) async => throw pairingUnsupported('removePairing');

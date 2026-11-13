@@ -408,6 +408,10 @@ const List<SettingsKey> configKeys = [
   SettingsKey('contacts.stale_after_days', IntKind(min: 1, max: 3650), byDefault: 7),
   // ... and, after the check, waits this long for the answers
   SettingsKey('contacts.check_wait_s', IntKind(min: 15, max: 3600), byDefault: 120),
+  // ... the foreground check reads a contact with something in flight this often, and every
+  // contact at these waits, one more each check that finds nothing
+  SettingsKey('contacts.in_flight_check_s', IntKind(min: 15, max: 3600), byDefault: 45),
+  SettingsKey('contacts.idle_check_s', IntListKind(min: 15, max: 3600), byDefault: [45, 90, 180, 300]),
   // ... and a contact's message that fails to apply is held for this many attempts and seconds
   SettingsKey('contacts.hold_attempts', IntKind(min: 1, max: 100), byDefault: 10),
   SettingsKey('contacts.hold_patience_s', IntKind(min: 1, max: 604800), byDefault: 86400),

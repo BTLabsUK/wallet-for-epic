@@ -181,6 +181,14 @@ stale_after_days = 7
 # After that check, the contacts are collected every 15 s for this many seconds; one that has not
 # answered by then shows "Not answering".
 check_wait_s = 120
+# The foreground check of the contacts. A contact with something in flight (a payment or request
+# waiting for it, a pairing in progress) is read every in_flight_check_s seconds. Every contact
+# (and the name services' payloads) is read at the first wait of idle_check_s; after each such
+# check that brings no message the wait moves to the next one, the last one repeating. Any
+# message, a resume, an unlock or a faster check (a send, a pairing screen) starts again at the
+# first. A boost of the contact check (LEPIC ADR 0058) reads every contact at its interval.
+in_flight_check_s = 45
+idle_check_s = [45, 90, 180, 300]
 # A message from a contact that fails to apply is held and tried again on later checks, up to
 # this many attempts and for this many seconds, then dropped. The core's bounds.
 hold_attempts = 10

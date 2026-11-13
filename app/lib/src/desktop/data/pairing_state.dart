@@ -11,6 +11,7 @@ import 'dart:ui' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkModeRestricted;
+import '../../contact_check.dart' show contactsInFlight;
 import '../../log.dart';
 import '../../name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
 import '../../notice_digest.dart' show NoticeDigest;
@@ -53,6 +54,20 @@ final deskPairNetProvider = Provider<DeskPairNet>((ref) {
   final s = ref.watch(deskProvider.select((s) => s.settings));
   if (s.advanced.networkMode.restricted) return DeskPairNet.offline;
   return s.payments.epicbox ? DeskPairNet.online : DeskPairNet.epicboxOff;
+});
+
+/// The contacts something is in flight with, as the ids the foreground check reads
+/// ([contactsInFlight]): pairings in progress, and payments and requests waiting for the other
+/// wallet through a pairing.
+final deskContactsInFlightProvider = Provider<List<String>>((ref) {
+  final txs = ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[];
+  return contactsInFlight(
+    pairings: ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[],
+    sendPairings: [
+      for (final t in txs)
+        if (t.state == TxState.waitingRecipient) t.pairingId,
+    ],
+  );
 });
 
 /// Every pairing, newest first; reloads on every pairing event.

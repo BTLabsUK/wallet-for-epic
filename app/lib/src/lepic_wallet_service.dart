@@ -4858,13 +4858,14 @@ class _LepicPairing implements PairingApi {
   ({int count, int read}) _held = (count: 0, read: 0);
 
   @override
-  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground, List<String>? only}) async {
     if (!supported || NetGate.epicboxOff) return 0;
     // What the sweep expires is news of the same run.
     return _s.checks.notices.during(() async {
       try {
         // A trigger during a running collect marks one rerun; the later ones add none.
-        return await _collects.run(() => collectOrFail(trigger));
+        // The tick stays quiet whatever it reads: the user asked for no look.
+        return await _collects.run(() => collectOrFail(trigger, only: only, quiet: trigger == PairingCollectTrigger.foreground));
       } on lepic.WalletError catch (error) {
         logWarn('pairing', 'collect failed: ${error.kind.name}');
         return 0;
@@ -4877,14 +4878,14 @@ class _LepicPairing implements PairingApi {
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
-  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) => !NetGate.pairing
+  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only, bool? quiet}) => !NetGate.pairing
       // Pairing off: no pairing or contact mailbox is opened.
       ? Future.value(0)
       : _s.checks.run(
     CheckSource.collect,
     () => _collectCounted(trigger, only: only),
     // The 45-second tick stays quiet; a look the user asked for, or a resume, shows.
-    quiet: trigger == PairingCollectTrigger.foreground && only == null,
+    quiet: quiet ?? (trigger == PairingCollectTrigger.foreground && only == null),
     outcomeOf: (r) => CheckOutcome(
       messages: r.messages,
       failed: r.failed,
@@ -4894,7 +4895,13 @@ class _LepicPairing implements PairingApi {
       capped: r.capped,
       unreadable: r.unreadable,
     ),
-  ).then((r) => r.paired);
+  ).then((r) {
+    messagesCollected += r.messages;
+    return r.paired;
+  });
+
+  @override
+  int messagesCollected = 0;
 
   Future<({int paired, int messages, int failed, int held, int lost, int buffered, int capped, int unreadable})> _collectCounted(
     PairingCollectTrigger trigger, {

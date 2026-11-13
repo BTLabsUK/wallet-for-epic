@@ -205,6 +205,13 @@ class AppConfig {
   /// has not answered shows "Not answering".
   Duration get contactsCheckWait => _s('contacts.check_wait_s');
 
+  /// The foreground check reads a contact with something in flight this often,
+  Duration get contactsInFlightCheck => _s('contacts.in_flight_check_s');
+
+  /// ... and every contact at the first wait, then the next after each check with no message
+  /// (the last repeats).
+  List<Duration> get contactsIdleChecks => [for (final s in value('contacts.idle_check_s') as List<int>) Duration(seconds: s)];
+
   // [camera]
 
   /// The desktop QR scan says No picture when the first frame takes longer than this,

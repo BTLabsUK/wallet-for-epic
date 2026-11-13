@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart' show NetworkMode;
+import 'contact_check.dart' show contactsInFlight;
 import 'contacts.dart';
 import 'log.dart' show logWarn;
 import 'name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
@@ -226,6 +227,25 @@ final pendingPairingsProvider = Provider<List<PairingRecord>>((ref) => [
 final contactPendingPairingProvider = Provider.family<PairingRecord?, String>(
   (ref, contactId) => ref.watch(pendingPairingsProvider).where((r) => r.contactId == contactId).firstOrNull,
 );
+
+/// The contacts something is in flight with, as the ids the foreground check reads
+/// ([contactsInFlight]): pairings in progress, sends waiting for the recipient and requests
+/// this wallet issued that are not paid. Empty while the wallet is locked.
+final contactsInFlightProvider = Provider<List<String>>((ref) {
+  final txs = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
+  final issued = ref.watch(issuedInvoicesProvider).value ?? const <IssuedInvoice>[];
+  return contactsInFlight(
+    pairings: ref.watch(pairingsProvider).value ?? const <PairingRecord>[],
+    sendPairings: [
+      for (final t in txs)
+        if (t.kind == TxKind.sent && t.status == TxStatus.awaitingRecipient) t.pairingId,
+    ],
+    requestPairings: [
+      for (final i in issued)
+        if (i.state == IssuedInvoiceState.waiting) i.pairingId,
+    ],
+  );
+});
 
 /// Second answers to used codes.
 final pairingStraysProvider = FutureProvider<List<PairingStray>>((ref) {
