@@ -201,10 +201,15 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       });
     }
 
+    final cards = _cards(balance, counts, loaded: all != null);
+    final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     return EPage(
       title: l.deskOutTitle,
       width: EPageWidth.full,
       actions: [
+        // Split and Consolidate head the page on a wide window (the canvas); the pane beside the
+        // table says what they do.
+        if (wide) ...[cards.split.headButton(), cards.consolidate.headButton()],
         _refreshing
             ? SizedBox.square(dimension: Ctl.sm, child: const Center(child: ESpinner()))
             : EIconButton(icon: EIcons.refresh, label: l.deskOutRefresh, onPressed: _refresh),
@@ -214,20 +219,72 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
         children: [
           _Tiles(balance: balance, counts: all == null ? null : counts),
           SizedBox(height: Sp.x4),
-          ..._list(value, counts),
-          // The management part, after the table: what outputs are, Split and Consolidate,
-          // a line to where the defaults for sends are.
-          ESectionHead(l.deskOutAdvanced, top: Sp.x8),
-          Text(l.deskOutIntro, style: context.ts.bodyDim),
+          if (wide)
+            LayoutBuilder(
+              builder: (context, box) => box.maxWidth < 1100.u
+                  ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [..._list(value, counts), SizedBox(height: Sp.x6), _pane(cards)])
+                  : PanelRow(
+                      main: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: _list(value, counts)),
+                      side: _pane(cards),
+                      sideWidth: MediaQuery.sizeOf(context).width >= Ctl.sideWideFrom ? Ctl.sideWide : Ctl.side,
+                      maxSideFraction: Ctl.sideMaxFraction,
+                    ),
+            )
+          else ...[
+            ..._list(value, counts),
+            // The management part, after the table: what outputs are, Split and Consolidate,
+            // a line to where the defaults for sends are.
+            ESectionHead(l.deskOutAdvanced, top: Sp.x8),
+            Text(l.deskOutIntro, style: context.ts.bodyDim),
+            SizedBox(height: Sp.x4),
+            _cardRow(cards),
+            const _DefaultsMoved(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// The pane beside the table: what outputs are, then what Split and Consolidate do (their
+  /// buttons head the page), and where the defaults for sends are.
+  Widget _pane(({_ActionCard split, _ActionCard consolidate}) cards) {
+    final l = context.l10n;
+    final ts = context.ts;
+    return EPanel(
+      key: const ValueKey('outputs-pane'),
+      title: l.deskOutAdvanced,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l.deskOutIntro, style: ts.bodyDim),
+          SizedBox(height: Sp.x5),
+          cards.split.explained(),
           SizedBox(height: Sp.x4),
-          _cards(balance, counts, loaded: all != null),
+          cards.consolidate.explained(),
           const _DefaultsMoved(),
         ],
       ),
     );
   }
 
-  Widget _cards(Balance? b, OutputCounts counts, {required bool loaded}) {
+  /// Split and Consolidate as two cards with their buttons, side by side when they fit.
+  Widget _cardRow(({_ActionCard split, _ActionCard consolidate}) cards) => LayoutBuilder(
+    builder: (context, box) => box.maxWidth >= Lay.xl
+        ? IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: cards.split.copyWith(fill: true)),
+                SizedBox(width: Sp.x4),
+                Expanded(child: cards.consolidate.copyWith(fill: true)),
+              ],
+            ),
+          )
+        : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [cards.split, SizedBox(height: Sp.x3), cards.consolidate]),
+  );
+
+  ({_ActionCard split, _ActionCard consolidate}) _cards(Balance? b, OutputCounts counts, {required bool loaded}) {
     final l = context.l10n;
     final locked = (b?.locked ?? 0) > 0 || counts.locked > 0;
     final wait = l.deskOutCardWait(deskMinConfirmations(ref));
@@ -271,20 +328,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       enabled: consOn,
       onPressed: () => _open(() => showConsolidateDialog(context, spendableCount: counts.spendable)),
     );
-    return LayoutBuilder(
-      builder: (context, box) => box.maxWidth >= Lay.xl
-          ? IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(child: split.copyWith(fill: true)),
-                  SizedBox(width: Sp.x4),
-                  Expanded(child: consolidate.copyWith(fill: true)),
-                ],
-              ),
-            )
-          : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [split, SizedBox(height: Sp.x3), consolidate]),
-    );
+    return (split: split, consolidate: consolidate);
   }
 
   List<Widget> _list(AsyncValue<List<Output>> value, OutputCounts counts) {
@@ -566,6 +610,43 @@ class _ActionCard extends StatelessWidget {
   final String button;
   final bool enabled;
   final VoidCallback onPressed;
+
+  /// The action as a button in the page head: the row slot's width, so the two match.
+  Widget headButton() => ERowControl(child: EButton(label: button, icon: icon, size: EBtnSize.sm, onPressed: enabled ? onPressed : null));
+
+  /// The action explained in the pane beside the table, without its button (it heads the page).
+  Widget explained() => Builder(
+    builder: (context) {
+      final ts = context.ts;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title, style: ts.strong),
+          SizedBox(height: Sp.x2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              EGlyphTile(size: Ctl.sm, icon: icon),
+              SizedBox(width: Sp.x3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(text, style: ts.small),
+                    if (note.isNotEmpty) ...[
+                      SizedBox(height: Sp.x1),
+                      Semantics(liveRegion: true, child: Text(note, style: ts.mono(size: Fs.xs, color: context.dc.dim))),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
