@@ -20,7 +20,7 @@ test/desktop/grid_test.dart 84 keep large screen file; recorded cost at seeding
 test/trust_ids_semantics_test.dart 63 keep large screen file; recorded cost at seeding
 test/desktop/pair_screens_test.dart 56 keep large screen file; recorded cost at seeding
 test/desktop/l10n_layout_test.dart 55 keep large screen file; recorded cost at seeding
-test/send_methods_test.dart 55 keep large screen file; recorded cost at seeding
+test/send_methods_test.dart 75 keep large screen file; recorded cost at seeding, plus the reach-gate tests
 test/desktop/onboarding_smoke_test.dart 49 keep large screen file; recorded cost at seeding
 test/send_test.dart 49 keep large screen file; recorded cost at seeding
 test/wallet_flow_test.dart 47 keep large screen file; recorded cost at seeding

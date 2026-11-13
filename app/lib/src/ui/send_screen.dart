@@ -434,6 +434,9 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Addresses being asked now, and those with no answer after [_reachSlowAfter].
   final Set<String> _reachAsking = {};
   final Set<String> _reachSlow = {};
+
+  /// The check running per address, for Review to wait on.
+  final Map<String, Future<void>> _reachRuns = {};
   static const Duration _reachSlowAfter = Duration(milliseconds: 1500);
 
   /// Send's PIN dialog is open.
@@ -1473,6 +1476,12 @@ class _SendViewState extends ConsumerState<SendView> {
       _cancelFailed = false;
     });
     try {
+      // The wallet at the address must have answered: the amount and review can be reached before the check ends.
+      if (!await _reachSettled()) {
+        _closeChecks();
+        if (mounted) setState(() => _stage = SendStage.recipient);
+        return;
+      }
       final minimum = ref.read(countedConfirmationsProvider);
       final plan = _maxUsed
           ? (
@@ -2800,9 +2809,9 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The Link address the reach check asks about now: complete in To (pasted, left, or a
   /// contact's), not held, in a mode that lets it ask. Null otherwise.
-  RecipientInput? _reachTarget(RecipientInput read, SendHold? hold) {
+  RecipientInput? _reachTarget(RecipientInput read, SendHold? hold, {bool force = false}) {
     if (!read.isLink || hold != null) return null;
-    if (!_touched && _contact == null) return null;
+    if (!force && !_touched && _contact == null) return null;
     if (!reachCheckApplies(read, mode: AdvancedOptions.of(context).networkMode)) return null;
     if (_recipientProblem(read.address) != null) return null;
     return read;
@@ -2817,26 +2826,44 @@ class _SendViewState extends ConsumerState<SendView> {
     Timer(_reachSlowAfter, () {
       if (mounted && _reachAsking.contains(key)) setState(() => _reachSlow.add(key));
     });
-    unawaited(
-      checkWalletAnswers(to, mode: mode).then((result) async {
-        // No scheme typed, nothing at https://: plain http:// is asked once ([plainHttpFallback]).
-        final plain = result == ReachResult.noAnswer ? await plainHttpFallback(to, mode: mode, listenPort: appConfig.httpListenPort) : null;
-        if (!mounted) return;
-        setState(() {
-          _reachAsking.remove(key);
-          _reachSlow.remove(key);
-          _reach[key] = result;
-          if (plain != null) {
-            _reach[plain.address] = ReachResult.answers;
-            // To shows the address that answered, while it still holds the one asked.
-            if (_read.address == key) {
-              _recipient.text = plain.address;
-              _lastTo = plain.address;
-            }
+    _reachRuns[key] = checkWalletAnswers(to, mode: mode).then((result) async {
+      // No wallet answers as typed: the listener's port, or plain http://, is asked once ([reachFallback]).
+      final plain = reachFallbackApplies(result, to) ? await reachFallback(to, mode: mode, listenPort: appConfig.httpListenPort) : null;
+      if (!mounted) return;
+      setState(() {
+        _reachAsking.remove(key);
+        _reachSlow.remove(key);
+        _reach[key] = result;
+        if (plain != null) {
+          _reach[plain.address] = ReachResult.answers;
+          // To shows the address that answered, while it still holds the one asked.
+          if (_read.address == key) {
+            _recipient.text = plain.address;
+            _lastTo = plain.address;
           }
-        });
-      }),
-    );
+        }
+      });
+    }).whenComplete(() {
+      _reachRuns.remove(key);
+    });
+  }
+
+  /// Whether Review may open: the Link address in To is asked (once, as the field does) and
+  /// waited for, and a wallet answers there. A failed or pending check ends on To, whose
+  /// notice says it. Nothing to wait for when the check does not apply.
+  Future<bool> _reachSettled() async {
+    for (var i = 0; i < 3; i++) {
+      final read = _read;
+      final to = _reachTarget(read, _hold, force: true);
+      if (to == null) return true;
+      _askReach(to);
+      await _reachRuns[to.address];
+      if (!mounted) return false;
+      // To changed while it was asked (typed again, or the address that answered): ask that one.
+      if (_read.address != to.address) continue;
+      return _reach[to.address] == ReachResult.answers;
+    }
+    return false;
   }
 
   /// Try again on the reach notice: the one way to ask an address again.
@@ -3339,7 +3366,7 @@ class _SendViewState extends ConsumerState<SendView> {
         children: [
           TextSpan(text: '${to.urlKind == RecipientInputKind.https ? 'https' : 'http'}://', style: dim),
           TextSpan(text: to.hostShown, style: strong),
-          TextSpan(text: ':${to.port}${to.path}', style: dim),
+          TextSpan(text: '${to.portShown}${to.path}', style: dim),
         ],
       ),
       RecipientInputKind.onion => addressSpan(
