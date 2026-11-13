@@ -10,7 +10,10 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/tor_phone.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
@@ -32,12 +35,26 @@ class _Config extends WalletConfigNotifier {
   WalletConfig? build() => _config;
 }
 
+/// The network mode the tests flip (the app's comes from settings.toml).
+final _modeSource = NotifierProvider<_ModeSource, NetworkMode>(_ModeSource.new);
+
+class _ModeSource extends Notifier<NetworkMode> {
+  @override
+  NetworkMode build() => NetworkMode.standard;
+
+  void set(NetworkMode mode) {
+    NetGate.set(mode);
+    state = mode;
+  }
+}
+
 class _Harness {
   _Harness({TorBundle? bundle = _bundle, Duration startStall = const Duration(minutes: 5)}) {
     container = ProviderContainer(
       retry: (_, _) => null,
       overrides: [
         secretStoreProvider.overrideWithValue(store),
+        networkModeProvider.overrideWith((ref) => ref.watch(_modeSource)),
         walletConfigProvider.overrideWith(_Config.new),
         torBundleFinderProvider.overrideWithValue(() async => bundle),
         networkChangesProvider.overrideWithValue(network.stream),
@@ -200,6 +217,44 @@ void main() {
     expect(h.session.torStops, 1);
     expect(h.state.phase, PhoneTorPhase.off);
     expect(h.state.receiving, isFalse);
+  });
+
+  test('Tor only to Normal: the switch, the routes and tor follow at once', () async {
+    addTearDown(() => NetGate.set(NetworkMode.standard));
+    await h.unlock();
+    final mode = h.container.read(_modeSource.notifier);
+    mode.set(NetworkMode.torOnly);
+    await h.until((s) => s.receiving);
+    expect(h.store.values[h.key], 'true');
+    expect(h.session.nodeAndHttpOverTorValue, isTrue);
+    expect(h.session.torStarts, hasLength(1));
+    final stops = h.session.torStops;
+
+    mode.set(NetworkMode.standard);
+    await h.until((s) => !s.receiving);
+    await h.settle();
+    expect(h.store.values[h.key], 'false');
+    expect(h.session.nodeAndHttpOverTorValue, isFalse);
+    expect(h.session.epicboxOverTorValue, isFalse);
+    expect(h.session.torStops, stops + 1);
+    expect(h.state.phase, PhoneTorPhase.off);
+
+    // And back: Tor only turns it all on again.
+    mode.set(NetworkMode.torOnly);
+    await h.until((s) => s.receiving);
+    expect(h.session.nodeAndHttpOverTorValue, isTrue);
+    expect(h.session.epicboxOverTorValue, isTrue);
+  });
+
+  test('Normal with the switch on keeps it on', () async {
+    await h.unlock();
+    await h.tor.setReceiving(true);
+    h.container.read(_modeSource.notifier).set(NetworkMode.nodeOnly);
+    await h.settle();
+    h.container.read(_modeSource.notifier).set(NetworkMode.standard);
+    await h.settle();
+    expect(h.state.receiving, isTrue);
+    expect(h.store.values[h.key], 'true');
   });
 
   test('ensureForSend starts tor and completes once bootstrapped', () async {
