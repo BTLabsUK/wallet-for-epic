@@ -102,6 +102,68 @@ class _ModeRow extends StatelessWidget {
   }
 }
 
+/// The status bar before a wallet is open (Welcome, Unlock, the first-run steps): the services'
+/// lights, off, since nothing connects until a wallet is open, and the app's version at the end.
+class DeskStartStatusBar extends StatelessWidget {
+  const DeskStartStatusBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    Widget light(String name, {IconData? icon}) => _BarCell(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14.u),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: Sp.x2,
+          children: [
+            EStateDot(EState.off, size: 8.u),
+            if (icon != null) Icon(icon, size: 14.u, color: c.faint),
+            Text(name, style: ts.caption.copyWith(color: c.faint)),
+          ],
+        ),
+      ),
+    );
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: l.deskBarStatus,
+      child: Container(
+        key: const ValueKey('start-status-bar'),
+        height: deskStatusBarHeight.u,
+        decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    light(l.deskRailNode),
+                    light('Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
+                    if (DeskFeatures.tor) light('Tor', icon: EIcons.tor), // l10n-ok: product name
+                    light(l.methodDirectHttp, icon: EIcons.link),
+                  ],
+                ),
+              ),
+            ),
+            _BarCell(
+              end: true,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 14.u),
+                child: Center(child: Text('$appName $deskVersion', key: const ValueKey('start-status-version'), style: ts.mono(size: Fs.xs, color: c.faint))),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// One cell of the bar with the hairline that parts it from the next ([end]: from the one before).
 class _BarCell extends StatelessWidget {
   const _BarCell({required this.child, this.end = false});

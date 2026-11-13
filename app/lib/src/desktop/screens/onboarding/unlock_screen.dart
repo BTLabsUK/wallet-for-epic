@@ -398,8 +398,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     // Top-anchored: the tile stays put across the list, a missing folder, a wrong password
     // and the progress that follows; a form taller than the window scrolls.
     return EHeroScreen(
-      footer: const AuthFoot(),
-      topAnchored: true,
+            topAnchored: true,
       child: EAuthCard(
         title: l.deskOnbUnlockTitle,
         lead: l.deskOnbUnlockLead,

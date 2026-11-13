@@ -115,7 +115,17 @@ class _DeskRootState extends ConsumerState<DeskRoot> {
     final at = ref.watch(deskNavProvider);
     final child = at.route.bare
         // A Scaffold, so toasts (showEToast) show on the first-run screens too.
-        ? Scaffold(backgroundColor: context.dc.bg, body: KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at)))
+        // The status bar is there before a wallet is open too, its lights off.
+        ? Scaffold(
+            backgroundColor: context.dc.bg,
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at))),
+                const DeskStartStatusBar(),
+              ],
+            ),
+          )
         // The open wallet locks itself after the idle time (Settings › Account › Security).
         : DeskAutoLock(child: DeskShell(at: at));
     return DeskNavKeys(

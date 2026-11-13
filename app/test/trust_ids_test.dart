@@ -207,6 +207,9 @@ void main() {
     await open(tester, shots['03c-restore-password']!);
     // The fold's first frame is at elapsed 0: one frame to start, one to open.
     Future<void> tap(Finder f) async {
+      // The step scrolls inside its card: bring the control into view first.
+      await tester.ensureVisible(f);
+      await tester.pump();
       await tester.tap(f);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));

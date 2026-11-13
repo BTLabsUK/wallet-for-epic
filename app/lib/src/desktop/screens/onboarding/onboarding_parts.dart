@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
-import '../../../app_info.dart';
 import '../../../l10n.dart' show appLanguages;
 import '../../../models.dart' show Chain;
 import '../../../network.dart' show chainShownName;
@@ -11,20 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/shell.dart' show deskVersion;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../../wallet_registry.dart' show WalletRegistry;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../wallet/tx_label.dart' show TxLabelField, TxPen, txLabelEditingProvider;
-
-/// The version line under the full-window screens.
-class AuthFoot extends StatelessWidget {
-  const AuthFoot({super.key});
-
-  @override
-  Widget build(BuildContext context) => Text('$appName $deskVersion');
-}
 
 /// Password and confirmation: the first step of create and restore. Enter in Password goes to
 /// Confirm; Enter in Confirm runs [onSubmit] (null while the two are not valid).
@@ -562,8 +552,7 @@ class ProgressView extends StatelessWidget {
     return DeskStepBack(
       onBack: (failure != null ? onBack : null) ?? () {},
       child: EHeroScreen(
-        footer: const AuthFoot(),
-        topAnchored: topAnchored,
+                topAnchored: topAnchored,
         // The card a form became: blue while it works, red when it failed.
         child: EModalCard(
           width: Max.auth,

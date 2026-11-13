@@ -122,8 +122,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     // Tor only from the first connection: a fresh install, Tor builds.
     final offered = torBuilt && held && !hasWallets;
     return EHeroScreen(
-      footer: const AuthFoot(),
-      child: ConstrainedBox(
+            child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: hasWallets ? 480.u : 780.u),
         child: Column(
           mainAxisSize: MainAxisSize.min,

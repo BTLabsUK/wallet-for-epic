@@ -162,10 +162,9 @@ bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < 
 /// The full-window backdrop of the screens that open the app: a pool of accent light at the
 /// top and a measurement grid fading out.
 class EHeroScreen extends StatelessWidget {
-  const EHeroScreen({super.key, required this.child, this.footer, this.topAnchored = false});
+  const EHeroScreen({super.key, required this.child, this.topAnchored = false});
 
   final Widget child;
-  final Widget? footer;
 
   /// The content starts at one height from the top whatever its length, instead of being
   /// centred: for a screen whose states differ in height (Unlock's form, its missing-folder
@@ -178,46 +177,21 @@ class EHeroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final short = isShortWindow(context);
-    final pad = short ? Sp.x4 : Sp.x8;
-    final body = topAnchored
-        ? Padding(
-            padding: EdgeInsets.fromLTRB(pad, topInset(context), pad, pad),
-            child: Align(alignment: Alignment.topCenter, child: child),
-          )
-        : Center(child: Padding(padding: EdgeInsets.all(pad), child: child));
+    final pad = isShortWindow(context) ? Sp.x4 : Sp.x8;
+    final body = Padding(
+      padding: topAnchored ? EdgeInsets.fromLTRB(pad, topInset(context), pad, pad) : EdgeInsets.all(pad),
+      child: child,
+    );
+    // Centred (or anchored) in the room the screen has, above the status bar; a screen
+    // taller than that scrolls.
     return EBackdrop(
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: MediaQuery.sizeOf(context).height),
-                // The footer follows the content: on a screen taller than the window it scrolls
-                // with it instead of covering it. The top spacer, about the footer's height,
-                // keeps the content centred.
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (!topAnchored) SizedBox(height: footer == null ? 0 : (short ? Sp.x4 : Sp.x10)),
-                    body,
-                    if (footer != null)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: Sp.x5),
-                        child: DefaultTextStyle.merge(
-                          style: context.ts.caption,
-                          textAlign: TextAlign.center,
-                          child: Center(child: footer!),
-                        ),
-                      )
-                    else
-                      const SizedBox.shrink(),
-                  ],
-                ),
-              ),
-            ),
+      child: LayoutBuilder(
+        builder: (context, box) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: box.maxHeight),
+            child: Align(alignment: topAnchored ? Alignment.topCenter : Alignment.center, child: body),
           ),
-        ],
+        ),
       ),
     );
   }

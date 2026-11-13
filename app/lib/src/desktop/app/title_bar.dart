@@ -49,7 +49,7 @@ import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_window.dart';
 import 'now_slot.dart';
 import 'rail.dart';
-import 'shell.dart' show deskKeys, deskSettingsHome, invoicesShown, lockWallet, deskLockingProvider, outputsShown;
+import 'shell.dart' show deskVersion, deskKeys, deskSettingsHome, invoicesShown, lockWallet, deskLockingProvider, outputsShown;
 import 'status_popover.dart';
 import 'tour.dart' show TourTarget;
 
