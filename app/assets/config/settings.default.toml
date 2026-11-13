@@ -16,9 +16,9 @@ servers = [
 # Connecting two wallets uses the first three; linked devices use the first two.
 servers = [
   "epicbox.btlabs.uk",
-  "epicbox.epiccash.com",
   "epicbox.stackwallet.com",
   "epicbox.epicnet.us",
+  "epicbox.epiccash.com",
 ]
 
 [online]
