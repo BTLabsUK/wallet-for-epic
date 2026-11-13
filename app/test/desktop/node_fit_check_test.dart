@@ -175,6 +175,9 @@ void main() {
       expect(find.text(_l.deskNodeFitMetered), findsOneWidget);
       expect(find.text(_l.deskNodeFitMeteredText(_chain)), findsOneWidget);
       expect(find.text(_l.deskNodeFitDownload(_chain)), findsOneWidget);
+      // The body scrolls in the test's short window: bring the answer into view first.
+      await tester.ensureVisible(find.text(_l.deskNodeFitNetFree));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(_l.deskNodeFitNetFree));
       await tester.pumpAndSettle();
       expect(find.text(_l.deskNodeFitGood), findsOneWidget);

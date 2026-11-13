@@ -162,6 +162,9 @@ void main() {
     expect(tester.widget<EButton>(button).onPressed, isNull);
     final fields = find.byType(EditableText);
     await tester.enterText(fields.at(0), 'Main wallet');
+    // The body scrolls in the test's short window: bring the tick into view first.
+    await tester.ensureVisible(find.text(_l.deskSetDlgPhraseWritten));
+    await tester.pump();
     await tester.tap(find.text(_l.deskSetDlgPhraseWritten));
     await tester.pump();
     expect(tester.widget<EButton>(button).onPressed, isNull, reason: 'the password is still missing');

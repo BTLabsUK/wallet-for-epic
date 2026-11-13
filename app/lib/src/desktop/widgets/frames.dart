@@ -14,7 +14,8 @@ import 'tip.dart';
 enum EPageWidth { narrow, mid, full }
 
 /// A page inside the app shell: a 64 px top bar with the title, optional crumb (back) and
-/// actions, then the scrolling content. [scroll] false hands the remaining height to [child]
+/// actions, then the scrolling content. Without [header] the content starts at the page's top
+/// (Home, whose balance is its title); [title] still names the page to a screen reader. [scroll] false hands the remaining height to [child]
 /// (list/detail panes that scroll themselves). With [onBack], the app's Back (mouse, Alt+Left,
 /// Backspace) runs it before it changes the place.
 class EPage extends StatelessWidget {
@@ -29,9 +30,13 @@ class EPage extends StatelessWidget {
     this.titleTrailing,
     this.footer,
     this.fill,
+    this.header = true,
   });
 
   final String title;
+
+  /// The top bar with the title, Back and the actions.
+  final bool header;
 
   /// Fills the room the scrolling content leaves under it, inside the gutters (a quiet
   /// graphic). Scrolling pages only; nothing when the content is taller than the page.
@@ -65,9 +70,14 @@ class EPage extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxW), child: child),
     );
+    // The content's top padding: a breath under the top bar, the page's gutter without one.
+    final top = header ? Sp.x2 : pad;
     final page = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (!header)
+          Semantics(header: true, label: title, child: const SizedBox.shrink())
+        else
         Container(
           height: Ctl.topbar,
           padding: EdgeInsets.symmetric(horizontal: pad),
@@ -83,7 +93,7 @@ class EPage extends StatelessWidget {
                     Flexible(
                       child: Semantics(
                         header: true,
-                        child: Text(title, style: context.ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        child: Text(title, style: context.ts.h1, maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                     ),
                     if (titleTrailing != null) ...[SizedBox(width: Sp.x3), titleTrailing!],
@@ -100,7 +110,7 @@ class EPage extends StatelessWidget {
               ? CustomScrollView(
                   slivers: [
                     SliverPadding(
-                      padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, 0),
+                      padding: EdgeInsets.fromLTRB(pad, top, pad, 0),
                       sliver: SliverToBoxAdapter(child: body),
                     ),
                     SliverFillRemaining(
@@ -110,8 +120,8 @@ class EPage extends StatelessWidget {
                   ],
                 )
               : scroll
-              ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body)
-              : Padding(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body),
+              ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, top, pad, pad), child: body)
+              : Padding(padding: EdgeInsets.fromLTRB(pad, top, pad, pad), child: body),
         ),
         ?footer,
       ],

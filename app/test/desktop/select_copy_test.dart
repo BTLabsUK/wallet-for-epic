@@ -163,7 +163,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     final desc = _textContaining('did not answer');
     expect(desc, findsOneWidget);
-    await _drag(tester, desc, dx: 200);
+    // The sentence is centred: the drag runs from the box's edge well into the first line.
+    await _drag(tester, desc, dx: 340);
     await _ctrl(tester, LogicalKeyboardKey.keyC);
     expect(_clip, startsWith('The node at'));
     expect(_clip!.length, greaterThan(8));

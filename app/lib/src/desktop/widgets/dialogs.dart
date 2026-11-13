@@ -11,6 +11,7 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import '../../ui/theme/dialog_metrics.dart';
 import '../../ui/theme/epic1_mark.dart';
+import '../../ui/theme/protocol.dart' show CornerTicksPainter;
 import 'buttons.dart';
 import 'motion.dart';
 import 'selectable.dart';
@@ -39,15 +40,16 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
   ),
 );
 
-/// The one desktop dialog (the anatomy in `ui/theme/dialog_metrics.dart`, the phone's
-/// `AppDialog` twin): a 40 px icon tile, the title and description beside it, the body
-/// indented to the title's column, and the footer. Every dialog has a tile: without [icon] it
-/// shows the [tone]'s glyph.
+/// The one desktop dialog, centred: Close in the corner, the [tone]'s mark (a 52 px ticked
+/// tile with [icon], or the tone's glyph), the title, one sentence ([description]), the body at
+/// the dialog's full width, the footer, and a strip that says what Esc and Enter do. The tone
+/// also draws a hairline and a soft light at the top edge; neutral wears the brand gold.
 ///
-/// The footer is laid out here, so call sites cannot drift: the buttons are right-aligned,
-/// all [EBtnSize.md] tall on one baseline; ghost and soft buttons show as the outlined
-/// secondary; a destructive [EBtnKind.danger] keeps the outlined risk style and the filled
-/// primary comes last; only one primary is filled (an earlier one shows as a secondary).
+/// The footer is laid out here, so call sites cannot drift: all buttons [EBtnSize.md] tall;
+/// ghost and soft buttons show as the outlined secondary; a destructive [EBtnKind.danger]
+/// keeps the outlined risk style and the filled primary comes last; only one primary is filled
+/// (an earlier one shows as a secondary). The buttons share one row, the main one 1.35 times
+/// as wide as each of the others and last; past three, the first ones sit in a row above.
 /// Pass plain `EButton`s (secondary), one `EButton.primary` or `EButton(kind: danger)`;
 /// their `size` is ignored here.
 class EDialog extends StatelessWidget {
@@ -87,8 +89,11 @@ class EDialog extends StatelessWidget {
   /// standard width is standard, wider is wide); `double.infinity` is wide.
   final double? _width;
 
-  /// The dialog's width at the current scale.
-  double get width => DialogMetrics.widthOf(_width == null ? size : DialogMetrics.snap(_width / deskScale)).u;
+  /// The dialog's width at the current scale: 480 or 600 on desktop (the canvas's two widths).
+  double get width => switch (_width == null ? size : DialogMetrics.snap(_width / deskScale)) {
+    DialogWidth.standard => 480.u,
+    DialogWidth.wide => 600.u,
+  };
   final bool dismissible;
 
   /// The tile's glyph when no [icon] is given.
@@ -130,23 +135,43 @@ class EDialog extends StatelessWidget {
     ];
   }
 
+  /// What Enter does, for the key strip: the label of a primary that takes the focus when the
+  /// dialog opens ([EButton.autofocus]); null when Enter belongs to a field or to nothing.
+  String? get _enterLabel {
+    for (final a in actions.reversed) {
+      if (a is EButton && a.kind == EBtnKind.primary) return a.autofocus && a.onPressed != null ? a.label : null;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final (iconColor, tileFill) = switch (tone) {
+    final l = context.l10n;
+    final (toneColor, toneSoft) = switch (tone) {
       ETone.ok => (c.ok, c.okSoft),
       ETone.warn => (c.warn, c.warnSoft),
       ETone.risk => (c.risk, c.riskSoft),
       ETone.info => (c.info, c.infoSoft),
-      ETone.gold => (c.accentText, c.accentSoft),
-      ETone.neutral => (c.dim, Colors.transparent),
+      ETone.gold || ETone.neutral => (c.accentText, c.accentSoft),
     };
-    final pad = DialogMetrics.pad.u;
-    final indent = pad + DialogMetrics.bodyIndent.u;
+    final window = MediaQuery.sizeOf(context);
+    final narrow = window.width < Bp.desktop;
+    // A short window (the canvas tightens under 760): a smaller mark and less air, so the body
+    // keeps its room.
+    final short = window.height < 760.u;
+    final padX = (narrow ? 20 : 28).u;
+    final padTop = (short ? 18 : (narrow ? 22 : 28)).u;
+    final padEnd = (narrow ? 16 : 20).u;
+    final mark = (short ? 40 : 52).u;
+    final enter = _enterLabel;
+    final keys = dismissible || enter != null;
+    final buttons = footer(actions);
     final dialog = Dialog(
-      backgroundColor: c.s4,
-      insetPadding: EdgeInsets.all(Sp.x6),
+      backgroundColor: c.modal,
+      insetPadding: EdgeInsets.all(Sp.x5),
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.lg),
         side: BorderSide(color: c.lineStrong),
@@ -155,87 +180,153 @@ class EDialog extends StatelessWidget {
       child: DeskSelectable(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: width),
-          // The title and the buttons stay in view; the body scrolls between them when the window
-          // is too short (linux-09: a long message pushed Send off the screen; a short window at a
-          // large scale must not overflow either, and a field scrolled into view must not take the
-          // title with it).
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Stack(
             children: [
-              // A long description in a very short window scrolls by itself, never overflows.
-              ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.4),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(pad, pad, Sp.x4, 0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: DialogMetrics.iconTile.u,
-                          height: DialogMetrics.iconTile.u,
-                          decoration: BoxDecoration(
-                            color: tileFill,
-                            borderRadius: BorderRadius.circular(Rad.sm),
-                            border: Border.all(color: c.lineStrong),
-                          ),
-                          child: Icon(icon ?? toneIcon(tone), size: DialogMetrics.icon.u, color: iconColor),
-                        ),
-                        SizedBox(width: DialogMetrics.titleGap.u),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Alone, the title is centred on the tile; with a description the
-                              // two start at the tile's top.
-                              ConstrainedBox(
-                                constraints: BoxConstraints(minHeight: description == null ? DialogMetrics.iconTile.u : 0),
-                                child: Align(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  child: Semantics(
-                                    header: true,
-                                    child: titleTrailing == null
-                                        ? Epic1Text(title, style: ts.h3)
-                                        : Text.rich(
-                                            TextSpan(
-                                              text: title,
-                                              children: [const TextSpan(text: ' '), WidgetSpan(alignment: PlaceholderAlignment.middle, child: titleTrailing!)],
-                                            ),
-                                            style: ts.h3,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                              if (description != null) ...[SizedBox(height: DialogMetrics.descriptionGap.u), Text(description!, style: ts.bodyDim)],
-                            ],
-                          ),
-                        ),
-                        if (dismissible) EIconButton(semanticsId: TrustIds.dialogClose, icon: EIcons.close, label: context.l10n.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
-                      ],
+              // The tone at the top edge: a hairline and a soft light under it. Painted once.
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 150.u,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(center: Alignment.topCenter, radius: 0.9, colors: [toneSoft.withValues(alpha: toneSoft.a * 0.7), toneSoft.withValues(alpha: 0)], stops: const [0, 0.72]),
                     ),
                   ),
                 ),
               ),
-              if (body != null)
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Padding(padding: EdgeInsetsDirectional.fromSTEB(indent, DialogMetrics.bodyGap.u, pad, 0), child: body),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 1,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [toneColor.withValues(alpha: 0), toneColor.withValues(alpha: 0.75), toneColor.withValues(alpha: 0.75), toneColor.withValues(alpha: 0)], stops: const [0, 0.28, 0.72, 1]),
+                    ),
                   ),
                 ),
-              if (foot != null) Padding(padding: EdgeInsetsDirectional.fromSTEB(indent, Sp.x4, pad, 0), child: foot),
-              Padding(
-                padding: EdgeInsets.all(pad),
-                child: actions.isEmpty
-                    ? const SizedBox.shrink()
-                    : Wrap(
-                        alignment: WrapAlignment.end,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: DialogMetrics.actionGap.u,
-                        runSpacing: DialogMetrics.actionRunGap.u,
-                        children: footer(actions),
-                      ),
               ),
+              // The title and the buttons stay in view; the body scrolls between them when the
+              // window is too short (linux-09: a long message pushed Send off the screen; a short
+              // window at a large scale must not overflow either, and a field scrolled into view
+              // must not take the title with it).
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // A long description in a very short window scrolls by itself, never overflows.
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.4),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(padX, padTop, padX, 0),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: mark,
+                              height: mark,
+                              color: toneSoft.withValues(alpha: toneSoft.a * 0.5),
+                              child: CustomPaint(
+                                foregroundPainter: CornerTicksPainter(toneColor, length: mark / 6, width: 1.5),
+                                child: Icon(icon ?? toneIcon(tone), size: short ? Ctl.icon : Ctl.iconLg, color: toneColor),
+                              ),
+                            ),
+                            SizedBox(height: short ? Sp.x2 : 14.u),
+                            Semantics(
+                              header: true,
+                              child: titleTrailing == null
+                                  ? Epic1Text(title, style: ts.h2, textAlign: TextAlign.center)
+                                  : Text.rich(
+                                      TextSpan(
+                                        text: title,
+                                        children: [const TextSpan(text: ' '), WidgetSpan(alignment: PlaceholderAlignment.middle, child: titleTrailing!)],
+                                      ),
+                                      style: ts.h2,
+                                      textAlign: TextAlign.center,
+                                    ),
+                            ),
+                            if (description != null) ...[
+                              SizedBox(height: 6.u),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: 380.u),
+                                child: Text(description!, style: ts.bodyDim, textAlign: TextAlign.center),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (body != null)
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: body),
+                      ),
+                    ),
+                  if (foot != null) Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: foot),
+                  if (buttons.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(padX, short ? Sp.x4 : 22.u, padX, 0),
+                      // One Wrap, every button a keyed sibling in it: a button that moves when the
+                      // footer changes keeps its state and its work in flight. The widths fill each
+                      // row exactly, so the rows break where they should.
+                      child: LayoutBuilder(
+                        builder: (context, box) {
+                          final gap = 10.u;
+                          final last = buttons.length > 3 ? 3 : buttons.length;
+                          final first = buttons.length - last;
+                          double floor(double w) => (w * 100).floorToDouble() / 100;
+                          final unit = floor((box.maxWidth - gap * (last - 1)) / (last == 1 ? 1 : last - 1 + 1.35));
+                          final main = last == 1 ? unit : floor(box.maxWidth - gap * (last - 1) - unit * (last - 1));
+                          final above = first == 0 ? 0.0 : floor((box.maxWidth - gap * (first - 1)) / first);
+                          return Wrap(
+                            spacing: gap,
+                            runSpacing: gap,
+                            children: [
+                              for (final (i, b) in buttons.indexed)
+                                SizedBox(
+                                  key: b.key,
+                                  width: i < first ? above : (i == buttons.length - 1 ? main : unit),
+                                  child: EButtonFill(child: b),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  if (keys)
+                    Container(
+                      margin: EdgeInsets.only(top: short ? Sp.x3 : Sp.x5),
+                      padding: EdgeInsets.symmetric(horizontal: padX, vertical: short ? 6.u : 10.u),
+                      decoration: BoxDecoration(color: c.modalFoot, border: Border(top: BorderSide(color: c.line))),
+                      child: NoSelect(
+                        child: ExcludeSemantics(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: Sp.x5,
+                          runSpacing: 6.u,
+                          children: [
+                            if (dismissible) EKeyHint(keys: l.deskSetFrameEscKey, does: l.commonClose),
+                            if (enter != null) EKeyHint(keys: l.deskSetSearchKeyEnter, does: enter),
+                          ],
+                        ),
+                        ),
+                      ),
+                    )
+                  else
+                    SizedBox(height: padEnd),
+                ],
+              ),
+              if (dismissible)
+                PositionedDirectional(
+                  top: 10.u,
+                  end: 10.u,
+                  child: EIconButton(semanticsId: TrustIds.dialogClose, icon: EIcons.close, label: l.deskKitCloseEsc, tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
+                ),
             ],
           ),
         ),
@@ -243,6 +334,46 @@ class EDialog extends StatelessWidget {
     );
     if (!dismissible) return dialog;
     return _EscCloses(child: dialog);
+  }
+}
+
+/// A key and what it does, for the strip at a dialog's foot and wherever keys are named. One
+/// run of text (the key as a chip inside it), so a button's own label stays the only plain text
+/// with those words.
+class EKeyHint extends StatelessWidget {
+  const EKeyHint({super.key, required this.keys, required this.does});
+
+  final String keys;
+  final String does;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Text.rich(
+      TextSpan(
+        children: [
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Container(
+              constraints: BoxConstraints(minWidth: 20.u),
+              height: 20.u,
+              margin: EdgeInsetsDirectional.only(end: 6.u),
+              padding: EdgeInsets.symmetric(horizontal: 6.u),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.s2,
+                borderRadius: BorderRadius.circular(Rad.xs),
+                border: Border(top: BorderSide(color: c.lineStrong), left: BorderSide(color: c.lineStrong), right: BorderSide(color: c.lineStrong), bottom: BorderSide(color: c.lineStrong, width: 2)),
+              ),
+              child: Text(keys, style: ts.mono(size: Fs.xs, color: c.dim, weight: FontWeight.w500)),
+            ),
+          ),
+          TextSpan(text: does),
+        ],
+      ),
+      style: ts.caption.copyWith(color: c.faint),
+    );
   }
 }
 

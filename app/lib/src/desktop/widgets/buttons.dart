@@ -45,6 +45,17 @@ class EDialogActions extends InheritedWidget {
   bool updateShouldNotify(EDialogActions oldWidget) => kind != oldWidget.kind;
 }
 
+/// A slot of a row or grid of buttons (a dialog's footer, Home's actions): the button in it
+/// takes the slot's whole width.
+class EButtonFill extends InheritedWidget {
+  const EButtonFill({super.key, required super.child});
+
+  static bool of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<EButtonFill>() != null;
+
+  @override
+  bool updateShouldNotify(EButtonFill oldWidget) => false;
+}
+
 /// The one button. Kind sets the colour, size the height; see [Ctl] for the rule.
 class EButton extends StatefulWidget {
   const EButton({
@@ -198,7 +209,7 @@ class _EButtonState extends State<EButton> {
         border: Border.all(color: border),
       ),
       child: Row(
-        mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisSize: widget.expand || EButtonFill.of(context) ? MainAxisSize.max : MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (lead != null) ...[lead, SizedBox(width: size == EBtnSize.inline ? Sp.x1 : Sp.x2)],

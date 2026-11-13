@@ -850,6 +850,27 @@ class ETab extends StatefulWidget {
   /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
+  /// Between two tabs of a row.
+  static const double gap = 2;
+
+  /// The width a row of tabs takes with every label shown, for (label, count) pairs: what
+  /// decides between labels and icons.
+  static double widthOf(BuildContext context, List<(String, int)> tabs) {
+    final scaler = MediaQuery.textScalerOf(context);
+    var width = gap * (tabs.length - 1);
+    for (final (label, count) in tabs) {
+      final text = TextPainter(
+        text: TextSpan(text: label, style: TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w600)),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      width += 2 * Sp.x3 + Ctl.icon + Sp.x2 + text.width + (count > 0 ? Sp.x2 + 20.u + (count > 9 ? 8.u : 0) : 0);
+      text.dispose();
+    }
+    return width;
+  }
+
   @override
   State<ETab> createState() => _ETabState();
 }

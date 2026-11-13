@@ -28,16 +28,22 @@ void main() {
         ],
       ),
     );
-    final xs = {for (final l in ['Back', 'First', 'Delete', 'Go']) l: tester.getCenter(find.text(l)).dx};
-    // Secondaries, the destructive action, then the primaries (the last one filled).
-    expect(xs['Back']! < xs['Delete']! && xs['Delete']! < xs['First']! && xs['First']! < xs['Go']!, isTrue, reason: '$xs');
+    final xs = {for (final l in ['First', 'Delete', 'Go']) l: tester.getCenter(find.text(l)).dx};
+    // Secondaries, the destructive action, then the primaries (the last one filled). Past three
+    // buttons the first ones sit in a row above the last three.
+    expect(xs['Delete']! < xs['First']! && xs['First']! < xs['Go']!, isTrue, reason: '$xs');
+    expect(tester.getCenter(find.text('Back')).dy, lessThan(tester.getCenter(find.text('Go')).dy));
     final heights = {
       for (final l in ['Back', 'First', 'Delete', 'Go'])
         tester.getSize(find.ancestor(of: find.text(l), matching: find.byType(AnimatedContainer)).first).height,
     };
     expect(heights, {Ctl.md}, reason: 'every footer button is one height');
-    final ys = {for (final l in ['Back', 'First', 'Delete', 'Go']) tester.getCenter(find.text(l)).dy};
+    final ys = {for (final l in ['First', 'Delete', 'Go']) tester.getCenter(find.text(l)).dy};
     expect(ys.length, 1, reason: 'one baseline');
+    // The main button is 1.35 times as wide as each of the others in its row.
+    double w(String l) => tester.getSize(find.ancestor(of: find.text(l), matching: find.byType(AnimatedContainer)).first).width;
+    expect(w('Go') / w('Delete'), moreOrLessEquals(1.35, epsilon: 0.02));
+    expect(w('First'), moreOrLessEquals(w('Delete'), epsilon: 1));
     Color fill(String l) => (tester.widget<AnimatedContainer>(find.ancestor(of: find.text(l), matching: find.byType(AnimatedContainer)).first).decoration! as BoxDecoration).color!;
     final c = deskDark;
     expect(fill('Go'), c.accent, reason: 'the last primary is filled');
@@ -61,9 +67,9 @@ void main() {
   });
 
   test('old widths snap to the two sizes', () {
-    expect(EDialog(title: 'T', width: 420.u).width, DialogMetrics.standardWidth.u);
-    expect(EDialog(title: 'T', width: 680.u).width, DialogMetrics.wideWidth.u);
-    expect(const EDialog(title: 'T', width: double.infinity).width, DialogMetrics.wideWidth.u);
-    expect(const EDialog(title: 'T').width, DialogMetrics.standardWidth.u);
+    expect(EDialog(title: 'T', width: 420.u).width, 480.u);
+    expect(EDialog(title: 'T', width: 680.u).width, 600.u);
+    expect(const EDialog(title: 'T', width: double.infinity).width, 600.u);
+    expect(const EDialog(title: 'T').width, 480.u);
   });
 }

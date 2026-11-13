@@ -792,46 +792,47 @@ class _Tabs extends ConsumerWidget {
     final invoices = invoicesShown(ref);
     final outputs = outputsShown(ref);
     final toPay = ref.watch(deskInvoiceBadgeProvider);
+    final tabs = [
+      for (final (s, route, icon) in deskNav)
+        if (s != DeskSection.send && s != DeskSection.receive && (s != DeskSection.invoices || invoices) && (s != DeskSection.outputs || outputs))
+          (
+            id: 'nav-${s.name}',
+            trust: TrustIds.shellNav(s.name),
+            icon: icon,
+            label: deskNavLabel(l, s),
+            selected: section == s,
+            count: switch (s) {
+              DeskSection.activity => pending,
+              DeskSection.invoices => toPay,
+              _ => 0,
+            },
+            go: () => _go(ref, route),
+          ),
+      (id: 'nav-settings', trust: TrustIds.navSettings, icon: EIcons.settings, label: l.deskShellNavSettings, selected: section == DeskSection.settings, count: 0, go: () => _go(ref, deskSettingsHome(ref))),
+    ];
     return Semantics(
       container: true,
       label: l.deskShellMainNav,
-      child: TrustId(TrustIds.nav, child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            for (final (s, route, icon) in deskNav)
-              if (s != DeskSection.send && s != DeskSection.receive && (s != DeskSection.invoices || invoices) && (s != DeskSection.outputs || outputs))
-                TourTarget(
-                  id: 'nav-${s.name}',
-                  child: ETab(
-                    semanticsId: TrustIds.shellNav(s.name),
-                    icon: icon,
-                    label: deskNavLabel(l, s),
-                    selected: section == s,
-                    compact: compact,
-                    count: switch (s) {
-                      DeskSection.activity => pending,
-                      DeskSection.invoices => toPay,
-                      _ => null,
-                    },
-                    onTap: () => _go(ref, route),
+      child: TrustId(TrustIds.nav, child: LayoutBuilder(
+        builder: (context, box) {
+          // Icons alone (the selected tab keeps its label) in a narrow window, and in any window
+          // where the labels of this language do not all fit.
+          final icons = compact || ETab.widthOf(context, [for (final t in tabs) (t.label, t.count)]) > box.maxWidth;
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: ETab.gap,
+              children: [
+                for (final t in tabs)
+                  TourTarget(
+                    id: t.id,
+                    child: ETab(semanticsId: t.trust, icon: t.icon, label: t.label, selected: t.selected, compact: icons, count: t.count, onTap: t.go),
                   ),
-                ),
-            TourTarget(
-              id: 'nav-settings',
-              child: ETab(
-                semanticsId: TrustIds.navSettings,
-                icon: EIcons.settings,
-                label: l.deskShellNavSettings,
-                selected: section == DeskSection.settings,
-                compact: compact,
-                onTap: () => _go(ref, deskSettingsHome(ref)),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       )),
     );
   }

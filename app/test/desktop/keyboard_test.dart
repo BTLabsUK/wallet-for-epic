@@ -353,7 +353,7 @@ void main() {
         builder: (_) => const EDialog(title: 'Test', body: Tooltip(message: 'Tip', child: Text('Hover'))),
       );
       await _settle(tester);
-      final tip = tester.state<TooltipState>(find.byType(Tooltip).last);
+      final tip = tester.state<TooltipState>(find.byWidgetPredicate((w) => w is Tooltip && w.message == 'Tip'));
       tip.ensureTooltipVisible();
       await _settle(tester);
       expect(find.text('Tip'), findsOneWidget);

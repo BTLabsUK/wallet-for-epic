@@ -193,6 +193,8 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.s2,
     required this.s3,
     required this.s4,
+    required this.modal,
+    required this.modalFoot,
     required this.line,
     required this.lineStrong,
     required this.lineField,
@@ -230,9 +232,13 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.dots,
   });
 
-  /// Window, then four elevation steps: panels, fields, hover and selection, dialogs and
-  /// popovers.
+  /// Window, then four elevation steps: panels, fields, hover and selection, popovers and
+  /// menus.
   final Color bg, s1, s2, s3, s4;
+
+  /// A dialog's surface and the key strip at its foot: darker than the popovers in dark, so the
+  /// tone's light at its top edge shows; white over a paper strip in light.
+  final Color modal, modalFoot;
 
   /// Hairlines: between rows, around panels, around fields.
   final Color line, lineStrong, lineField;
@@ -314,6 +320,8 @@ const DeskColors deskDark = DeskColors(
   s2: PaletteDark.s2,
   s3: PaletteDark.s3,
   s4: PaletteDark.s4,
+  modal: Color(0xFF111116),
+  modalFoot: PaletteDark.bg,
   line: PaletteDark.line,
   lineStrong: PaletteDark.lineStrong,
   lineField: PaletteDark.lineField,
@@ -357,6 +365,8 @@ const DeskColors deskLight = DeskColors(
   s2: PaletteLight.s2,
   s3: PaletteLight.s3,
   s4: PaletteLight.s4,
+  modal: Color(0xFFFFFFFF),
+  modalFoot: Color(0xFFFBF7EF),
   line: PaletteLight.line,
   lineStrong: PaletteLight.lineStrong,
   lineField: PaletteLight.lineField,
