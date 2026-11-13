@@ -80,7 +80,10 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     ref.listen(homeFieldFocusProvider, (_, _) => _focus.requestFocus());
-    return EInput(
+    // The page's one place to type: 58 high, as the canvas draws it.
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: 58.u),
+      child: EInput(
       key: const ValueKey('home-field'),
       controller: _text,
       focusNode: _focus,
@@ -94,6 +97,7 @@ class _HomeFieldState extends ConsumerState<HomeField> {
           EIconButton(icon: EIcons.file, label: l.deskOvReceiveFile, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.importTx)),
           DeskScanButton(key: const ValueKey('home-field-scan'), onScan: () => unawaited(openDeskScan(context, ref))),
         ],
+      ),
       ),
     );
   }
