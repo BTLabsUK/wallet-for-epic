@@ -94,7 +94,7 @@ class PayTab extends ConsumerWidget {
               side: EPanel(
                 key: const ValueKey('inv-review-pane'),
                 scroll: true,
-                child: InvoiceReview(invoice: review, book: book, onBack: () => nav.go(DeskRoute.invoices, InvoicesTab.pay)),
+                child: InvoiceReview(invoice: review, book: book, pane: true, onBack: () => nav.go(DeskRoute.invoices, InvoicesTab.pay)),
               ),
               sideWidth: MediaQuery.sizeOf(context).width >= Ctl.sideWideFrom ? Ctl.sideWide : Ctl.side,
               maxSideFraction: Ctl.sideMaxFraction,

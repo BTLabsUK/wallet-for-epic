@@ -14,6 +14,7 @@ import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
+import '../../../ui/theme/protocol.dart' show CornerTicksPainter;
 import 'invoices_screen.dart' show InvoicesScreen;
 import 'pay_dialogs.dart';
 import 'pay_tab.dart' show PayAmount;
@@ -67,7 +68,10 @@ class InvoiceReviewScreen extends ConsumerWidget {
 /// One invoice to pay or decline: in the Invoices list's side pane on a wide window
 /// ([PayTab]), on a page of its own on a narrow one.
 class InvoiceReview extends ConsumerWidget {
-  const InvoiceReview({super.key, required this.invoice, required this.book, required this.onBack});
+  const InvoiceReview({super.key, required this.invoice, required this.book, required this.onBack, this.pane = false});
+
+  /// In the Invoices list's side pane: the buttons under the amount, as the canvas has them.
+  final bool pane;
 
   final IncomingInvoice invoice;
   final InvoiceBook book;
@@ -111,6 +115,19 @@ class InvoiceReview extends ConsumerWidget {
             _ => deskInvoiceEndedText(l, i),
           };
 
+    final money = <(String, Widget)>[
+      // No estimate (too little to spend): unknown, never a fee of 0.
+      (l.deskInvPayerFee, i.feeKnown ? EMoney(i.fee, size: Fs.md) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
+      (l.deskInvPayerTotal, i.feeKnown ? PayAmount(i.total) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
+      if (spendable != null && open && (i.feeKnown || short))
+        (
+          l.deskInvPayerBalanceAfter,
+          short
+              ? Text(l.deskInvPayerShort, style: ts.body.copyWith(color: c.risk))
+              : EMoney(spendable - i.total, size: Fs.md, color: c.dim),
+        ),
+    ];
+    // In the pane the box holds the amount alone; the fee and the rest go with the details.
     final amountPanel = EPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -118,19 +135,7 @@ class InvoiceReview extends ConsumerWidget {
           Text(l.deskInvYouPay, style: ts.small),
           SizedBox(height: Sp.x1),
           FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: PayAmount(i.amount, size: Fs.h1)),
-          SizedBox(height: Sp.x4),
-          EFacts([
-            // No estimate (too little to spend): unknown, never a fee of 0.
-            (l.deskInvPayerFee, i.feeKnown ? EMoney(i.fee, size: Fs.md) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
-            (l.deskInvPayerTotal, i.feeKnown ? PayAmount(i.total) : Text('—', style: ts.mono(size: Fs.md, color: c.faint))),
-            if (spendable != null && open && (i.feeKnown || short))
-              (
-                l.deskInvPayerBalanceAfter,
-                short
-                    ? Text(l.deskInvPayerShort, style: ts.body.copyWith(color: c.risk))
-                    : EMoney(spendable - i.total, size: Fs.md, color: c.dim),
-              ),
-          ]),
+          if (!pane) ...[SizedBox(height: Sp.x4), EFacts(money)],
         ],
       ),
     );
@@ -166,6 +171,7 @@ class InvoiceReview extends ConsumerWidget {
 
     final facts = EPanel(
       child: EFacts([
+        if (pane) ...money,
         (
           l.deskInvPayerPaysTo,
           Column(
@@ -232,6 +238,29 @@ class InvoiceReview extends ConsumerWidget {
     );
 
     final blocked = !gate.ready || nodeDown;
+    final actions = open
+          ? [
+              InvButton(label: l.invoiceDecline, width: InvW.md, size: EBtnSize.md, onPressed: () => showDeclineInvoice(context, i)),
+              InvButton(
+                semanticsId: TrustIds.invPayApprove,
+                label: l.invoiceApprove,
+                width: InvW.md,
+                size: EBtnSize.md,
+                kind: EBtnKind.primary,
+                tooltip: nodeDown ? l.deskInvPayerNodeDownTitle : (gate.notEnough ? l.deskInvPayerShort : null),
+                onPressed: blocked ? null : () => showApproveInvoice(context, i),
+              ),
+            ]
+          : [
+              if (i.txId != null)
+                InvButton(label: l.deskInvPayerView, width: InvW.md, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
+              InvButton(label: l.deskInvPayerBack, width: InvW.md, size: EBtnSize.md, kind: EBtnKind.primary, onPressed: onBack),
+            ];
+    // In the pane the two share one row as a dialog's footer does (1 : 1.35); the page keeps
+    // them at their own widths at its end.
+    final buttons = pane
+        ? EModalButtons(actions: actions)
+        : Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, runSpacing: Sp.x3, children: actions);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -239,7 +268,7 @@ class InvoiceReview extends ConsumerWidget {
           children: [
             EAvatar(i.label),
             SizedBox(width: Sp.x3),
-            Expanded(child: Semantics(header: true, child: Text(l.invoiceReviewAsks(i.label), style: ts.h2))),
+            Expanded(child: Semantics(header: true, child: Text(l.invoiceReviewAsks(i.label), style: pane ? ts.h3 : ts.h2))),
             if (!open) PayStateTag(i),
           ],
         ),
@@ -273,50 +302,41 @@ class InvoiceReview extends ConsumerWidget {
           ],
           SizedBox(height: Sp.x1),
         ],
-        LayoutBuilder(
-          builder: (context, box) => box.maxWidth < Lay.lg
-              ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [amountPanel, SizedBox(height: Sp.x4), facts])
-              // Side by side on one grid: both panels share their top and bottom edges.
-              : IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(child: amountPanel),
-                      SizedBox(width: Sp.x4),
-                      Expanded(child: facts),
-                    ],
+        if (pane) ...[
+          // The pane: the amount ticked as the page's object, what to do right under it, then
+          // what the sender wrote and the details.
+          CustomPaint(foregroundPainter: CornerTicksPainter(c.tick, length: 14.u, width: 1.5), child: amountPanel),
+          SizedBox(height: Sp.x4),
+          buttons,
+          SizedBox(height: Sp.x5),
+          messagePanel,
+          SizedBox(height: Sp.x4),
+          facts,
+          if (advancedHas(ref, AdvancedFeature.technicalDetails)) ...[SizedBox(height: Sp.x3), advanced],
+        ] else ...[
+          LayoutBuilder(
+            builder: (context, box) => box.maxWidth < Lay.lg
+                ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [amountPanel, SizedBox(height: Sp.x4), facts])
+                // Side by side on one grid: both panels share their top and bottom edges.
+                : IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(child: amountPanel),
+                        SizedBox(width: Sp.x4),
+                        Expanded(child: facts),
+                      ],
+                    ),
                   ),
-                ),
-        ),
-        SizedBox(height: Sp.x5),
-        messagePanel,
-        SizedBox(height: Sp.x3),
-        // Advanced › Technical details: the raw ids.
-        if (advancedHas(ref, AdvancedFeature.technicalDetails)) advanced,
-        SizedBox(height: Sp.x6),
-        Wrap(
-          alignment: WrapAlignment.end,
-          spacing: Sp.x3,
-          runSpacing: Sp.x3,
-          children: open
-              ? [
-                  InvButton(label: l.invoiceDecline, width: InvW.md, size: EBtnSize.md, onPressed: () => showDeclineInvoice(context, i)),
-                  InvButton(
-                    semanticsId: TrustIds.invPayApprove,
-                    label: l.invoiceApprove,
-                    width: InvW.md,
-                    size: EBtnSize.md,
-                    kind: EBtnKind.primary,
-                    tooltip: nodeDown ? l.deskInvPayerNodeDownTitle : (gate.notEnough ? l.deskInvPayerShort : null),
-                    onPressed: blocked ? null : () => showApproveInvoice(context, i),
-                  ),
-                ]
-              : [
-                  if (i.txId != null)
-                    InvButton(label: l.deskInvPayerView, width: InvW.md, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
-                  InvButton(label: l.deskInvPayerBack, width: InvW.md, size: EBtnSize.md, kind: EBtnKind.primary, onPressed: onBack),
-                ],
-        ),
+          ),
+          SizedBox(height: Sp.x5),
+          messagePanel,
+          SizedBox(height: Sp.x3),
+          // Advanced › Technical details: the raw ids.
+          if (advancedHas(ref, AdvancedFeature.technicalDetails)) advanced,
+          SizedBox(height: Sp.x6),
+          buttons,
+        ],
       ],
     );
   }
