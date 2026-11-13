@@ -667,6 +667,16 @@ class _TxRowState extends ConsumerState<TxRow> {
     final finalizable = !compact && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final row = Row(
       children: [
+        // The time leads, as the canvas's list: a day's rows read down the clock.
+        if (!compact) ...[
+          SizedBox(
+            width: txTimeWidth,
+            child: ExcludeSemantics(
+              child: Text(timeOf(t), style: ts.mono(size: Fs.xs, color: c.faint)),
+            ),
+          ),
+          SizedBox(width: Sp.x4),
+        ],
         ExcludeSemantics(child: TxIcon(t)),
         SizedBox(width: Sp.x4),
         Expanded(flex: 16, child: who),
@@ -703,17 +713,6 @@ class _TxRowState extends ConsumerState<TxRow> {
                     ),
                   if (fromDevice) deskDeviceStatusInfo(l, t),
                 ],
-              ),
-            ),
-          ),
-          SizedBox(width: Sp.x4),
-          SizedBox(
-            width: txTimeWidth,
-            child: ExcludeSemantics(
-              child: Text(
-                timeOf(t),
-                textAlign: TextAlign.right,
-                style: ts.mono(size: Fs.xs, color: c.faint),
               ),
             ),
           ),

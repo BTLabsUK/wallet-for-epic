@@ -419,15 +419,12 @@ class ActivityListHead extends ConsumerWidget {
           ),
           child: Row(
             children: [
+              SizedBox(width: txTimeWidth, child: Text(l.deskActColTime, style: style)),
+              SizedBox(width: Sp.x4),
               SizedBox(width: 36.u + Sp.x4),
               Expanded(flex: 16, child: Text(l.deskActColFromTo, style: style)),
               SizedBox(width: Sp.x4),
               Expanded(flex: 10, child: Text(l.deskActColStatus, style: style)),
-              SizedBox(width: Sp.x4),
-              SizedBox(
-                width: txTimeWidth,
-                child: Text(l.deskActColTime, textAlign: TextAlign.right, style: style),
-              ),
               SizedBox(width: Sp.x4),
               SizedBox(
                 width: txAmountWidth,
