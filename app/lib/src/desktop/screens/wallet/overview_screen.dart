@@ -552,7 +552,7 @@ class _BalancePanel extends ConsumerWidget {
           );
           // Two by two beside the balance; one row under it in a narrow window, two by two
           // again where four would not hold their labels.
-          final perRow = narrow && box.maxWidth >= 440.u ? buttons.length : 2;
+          final perRow = buttons.length == 1 ? 1 : (narrow && box.maxWidth >= 440.u ? buttons.length : 2);
           final grid = Column(
             mainAxisSize: MainAxisSize.min,
             spacing: Sp.x2,

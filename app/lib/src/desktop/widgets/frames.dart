@@ -158,7 +158,7 @@ class _BackButton extends StatelessWidget {
 }
 
 /// A window too short for the opening screens' full spacing (under 640 u tall).
-bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < 640.u;
+bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < 760 * deskScale / deskBase;
 
 /// The full-window backdrop of the screens that open the app: a pool of accent light at the
 /// top and a measurement grid fading out.
@@ -496,7 +496,7 @@ class EOnbFrame extends StatelessWidget {
       builder: (context, box) {
         // Anchored at one height, not centred: a step whose content grows (a hint, an error
         // line) moves nothing above it.
-        final pad = EdgeInsets.fromLTRB(Sp.x6, (window.height * 0.06).clamp(Sp.x4, 96.u), Sp.x6, short ? Sp.x4 : 28.u);
+        final pad = EdgeInsets.fromLTRB(Sp.x6, short ? Sp.x3 : (window.height * 0.06).clamp(Sp.x4, 96.u), Sp.x6, short ? Sp.x3 : 28.u);
         // As in a dialog, the step scrolls inside the card and its buttons stay in view; a
         // [fill] step scrolls its own part. Too short a window scrolls the whole page.
         if (box.maxHeight >= fillMinHeight) {

@@ -12310,7 +12310,7 @@
   "@deskKitCopied": {
     "description": "Brief label of a copy button for 1.5 seconds after a successful copy. Short."
   },
-  "deskKitQrOf": "QR code of the {title}",
+  "deskKitQrOf": "QR code: {title}",
   "@deskKitQrOf": {
     "description": "Caption and screen-reader label of a QR code. {title} is the name of what it holds, e.g. 'Epicbox address' (lowercase in the sentence).",
     "placeholders": {
@@ -12319,7 +12319,7 @@
       }
     }
   },
-  "deskKitQrOfTag": "QR code of the {title}, {tag}",
+  "deskKitQrOfTag": "QR code: {title}, {tag}",
   "@deskKitQrOfTag": {
     "description": "Screen-reader label of a QR code with a note. {title} is the name of what it holds; {tag} a short lowercase note.",
     "placeholders": {

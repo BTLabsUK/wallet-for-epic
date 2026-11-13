@@ -83,7 +83,7 @@ void main() {
     expect(find.byKey(const ValueKey('rx-qr-epicbox')), findsNothing);
     expect(find.text(_l.deskKitQrShow), findsNothing);
     expect(find.text(_l.deskKitQrHide), findsNothing);
-    expect(find.text('QR code of the Epicbox address'), findsOneWidget);
+    expect(find.text('QR code: Epicbox address'), findsOneWidget);
   });
 
   testWidgets('the HTTP reveal opens and closes in the same number of frames', (tester) async {

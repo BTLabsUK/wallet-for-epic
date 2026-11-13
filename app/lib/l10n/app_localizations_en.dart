@@ -9328,12 +9328,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskKitQrOf(String title) {
-    return 'QR code of the $title';
+    return 'QR code: $title';
   }
 
   @override
   String deskKitQrOfTag(String title, String tag) {
-    return 'QR code of the $title, $tag';
+    return 'QR code: $title, $tag';
   }
 
   @override

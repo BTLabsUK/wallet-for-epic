@@ -397,6 +397,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice ?? context.l10n.deskSetupNewWalletAdded : null;
     // Top-anchored: the tile stays put across the list, a missing folder, a wrong password
     // and the progress that follows; a form taller than the window scrolls.
+    // A short window (800 x 700 and the like) keeps the gaps the canvas draws there.
+    final gap = isShortWindow(context) ? Sp.x3 : Sp.x5;
     return EHeroScreen(
             topAnchored: true,
       child: EAuthCard(
@@ -418,7 +420,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 liveRegion: true,
                 child: ENotice(title: added, tone: ETone.ok, icon: EIcons.check),
               ),
-              SizedBox(height: Sp.x5),
+              SizedBox(height: gap),
             ],
             if (wallets != null && wallets.length > 1) ...[
               EField(
@@ -443,7 +445,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: Sp.x5),
+              SizedBox(height: gap),
             ] else if (wallets != null && selected != null) ...[
               Row(
                 children: [
@@ -456,7 +458,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   ],
                 ],
               ),
-              SizedBox(height: Sp.x5),
+              SizedBox(height: gap),
             ] else if (wallets == null)
               Padding(
                 padding: EdgeInsets.only(bottom: Sp.x5),
@@ -507,7 +509,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 ),
               ),
             ],
-            SizedBox(height: Sp.x6),
+            SizedBox(height: isShortWindow(context) ? Sp.x4 : Sp.x6),
             if (_missing)
               // The folder is what is missing: Remove and Try again take Unlock's place (a
               // disabled Unlock beside them only said what could not be done), on its line.

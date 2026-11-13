@@ -14675,13 +14675,13 @@ abstract class AppLocalizations {
   /// Caption and screen-reader label of a QR code. {title} is the name of what it holds, e.g. 'Epicbox address' (lowercase in the sentence).
   ///
   /// In en, this message translates to:
-  /// **'QR code of the {title}'**
+  /// **'QR code: {title}'**
   String deskKitQrOf(String title);
 
   /// Screen-reader label of a QR code with a note. {title} is the name of what it holds; {tag} a short lowercase note.
   ///
   /// In en, this message translates to:
-  /// **'QR code of the {title}, {tag}'**
+  /// **'QR code: {title}, {tag}'**
   String deskKitQrOfTag(String title, String tag);
 
   /// Screen-reader label of the button that reveals a QR code. {title} is what it holds.
