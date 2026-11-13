@@ -31,8 +31,8 @@ def _defaults():
 
 
 _D = _defaults()
-NODE_PICK = _D.get("nodes") or ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
-RELAY_PICK = _D.get("epicboxes") or ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
+NODE_PICK = _D.get("nodes") or ["https://node.btlabs.uk"]
+RELAY_PICK = _D.get("epicboxes") or ["epicbox.btlabs.uk"]
 
 TEST_CONFIRMATIONS = int(os.environ.get("REL_TRUST_CONFIRMATIONS") or "1")
 

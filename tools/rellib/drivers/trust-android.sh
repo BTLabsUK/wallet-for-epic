@@ -18,7 +18,7 @@
 #   REL_FUNDS          1 = also receive from and send to P with the candidate; 0 = not (P still funds the
 #                      previous release's wallet and the balance goes back to P)
 #   REL_NODE           node to type in, e.g. https://node.btlabs.uk (unset: health pick below)
-#   REL_EPICBOX        Epicbox relay to type in, e.g. epicbox.stackwallet.com (unset: health pick)
+#   REL_EPICBOX        Epicbox relay to type in, e.g. epicbox.btlabs.uk (unset: health pick)
 #   REL_OUT            result.txt, proof.json, trust.log and shots/ go here
 #   REL_DRY_RUN=1      print the plan, touch nothing, exit 0
 # Optional:
@@ -95,14 +95,14 @@ relay_ok() {
 }
 picked=""
 if [[ -z "${REL_NODE:-}" ]]; then
-  for n in https://node.btlabs.uk https://node.epicnet.us:3413 https://node.epiccash.com:3413; do
+  for n in https://node.btlabs.uk; do
     if [[ "$dry" == 1 ]] || node_ok "$n"; then REL_NODE=$n; break; fi
   done
-  [[ -n "${REL_NODE:-}" ]] || cannot "no node answered (node.btlabs.uk, node.epicnet.us:3413, node.epiccash.com:3413)"
+  [[ -n "${REL_NODE:-}" ]] || cannot "no node answered (node.btlabs.uk)"
   picked+=" node"
 fi
 if [[ -z "${REL_EPICBOX:-}" ]]; then
-  for r in epicbox.stackwallet.com epicbox.epicnet.us epicbox.epiccash.com; do
+  for r in epicbox.btlabs.uk; do
     if [[ "$dry" == 1 ]] || relay_ok "$r"; then REL_EPICBOX=$r; break; fi
   done
   [[ -n "${REL_EPICBOX:-}" ]] || cannot "no Epicbox relay answered"
