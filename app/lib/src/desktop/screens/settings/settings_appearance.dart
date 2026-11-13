@@ -30,11 +30,10 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             hint: l.deskSetAppearThemeHint,
             // A choice from a list is a dropdown in the row's slot, as Size and Language.
             control: ERowControl(
-              // The phone's Theme row id: one control, one id.
-              child: TrustId(
-                TrustIds.appearanceTheme,
-                child: ESelect<ThemeChoice>(
+              child: ESelect<ThemeChoice>(
                 key: const ValueKey('appearance-theme'),
+                // The phone's Theme row id: one control, one id.
+                semanticsId: TrustIds.appearanceTheme,
                 size: EBtnSize.sm,
                 semanticLabel: l.deskSetAppearTheme,
                 value: s.theme,
@@ -44,7 +43,6 @@ class SettingsAppearanceScreen extends ConsumerWidget {
                   ESelectItem(ThemeChoice.light, l.deskSetAppearLight, leading: Icon(EIcons.sun, size: 14.u)),
                 ],
                 onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
-                ),
               ),
             ),
           ),

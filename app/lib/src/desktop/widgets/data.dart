@@ -422,6 +422,7 @@ class ESelect<T> extends StatefulWidget {
     this.footer,
     this.mono = false,
     this.semanticLabel,
+    this.semanticsId,
     this.size = EBtnSize.md,
     this.openInitially = false,
     this.keepBelow = 0,
@@ -445,6 +446,9 @@ class ESelect<T> extends StatefulWidget {
   final Widget? footer;
   final bool mono;
   final String? semanticLabel;
+
+  /// The test drivers' stable name for the field (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   /// The list opens with the first frame: the tour's shots of a list.
   final bool openInitially;
@@ -573,7 +577,9 @@ class _ESelectState<T> extends State<ESelect<T>> {
               return KeyEventResult.handled;
             },
             child: Builder(
-              builder: (context) => Semantics(
+              builder: (context) => TrustId(
+                widget.semanticsId,
+                child: Semantics(
                 button: true,
                 label: semanticLabel,
                 value: current?.title,
@@ -608,6 +614,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
                     ),
                   ),
                 ),
+              ),
               ),
             ),
           ),
