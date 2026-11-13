@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // What a failed HTTP send left behind is found again: LEPIC records the listener URL in full
 // (scheme, port, `/v2/foreign`), also when the address was typed without a port.
-import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/wallet/stored_send.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
