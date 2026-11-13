@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: Apache-2.0
+// Home's field: what Enter opens, and the contacts a typed name brings up under it.
+import 'package:epic_wallet/src/desktop/app/desk_app.dart';
+import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
+import 'package:epic_wallet/src/desktop/screens/wallet/home_field.dart';
+import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Future<ProviderContainer> _open(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(1280, 800);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))], retry: (_, _) => null);
+  addTearDown(container.dispose);
+  await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  container.read(deskNavProvider.notifier).reset(DeskRoute.overview);
+  await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
+  for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 60));
+  }
+  return container;
+}
+
+Future<void> _end(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox());
+  await tester.pump(const Duration(seconds: 10));
+}
+
+void main() {
+  test('an amount opens Send with it; anything else lands in To', () {
+    expect(homeFieldSend('  '), isNull);
+    expect(homeFieldSend('12.5')!.amount, '12.5');
+    expect(homeFieldSend('anna')!.recipient, 'anna');
+  });
+
+  test('matches: by name in any case, favourites first, four at most, none for an amount', () {
+    Contact c(String id, String name, {bool fav = false}) => Contact(id: id, name: name, address: '', favourite: fav);
+    final all = [c('1', 'Anna Kowalska'), c('2', 'Hannah', fav: true), c('3', 'Tom'), c('4', 'Joanna'), c('5', 'Annette'), c('6', 'Danny')];
+    expect(homeFieldMatches(all, 'ANN').map((x) => x.name), ['Hannah', 'Anna Kowalska', 'Annette', 'Danny']);
+    expect(homeFieldMatches(all, '12'), isEmpty);
+    expect(homeFieldMatches(all, ''), isEmpty);
+  });
+
+  testWidgets('typing a name shows the contact under the field; a click opens Send to it', (tester) async {
+    final container = await _open(tester);
+    final field = find.descendant(of: find.byKey(const ValueKey('home-field')), matching: find.byType(EditableText));
+    final first = container.read(deskProvider).contacts!.first;
+    await tester.enterText(field, first.name.substring(0, 3));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('home-field-matches')), findsOneWidget);
+    await tester.tap(find.byKey(ValueKey('home-field-match-${first.id}')));
+    await tester.pump(const Duration(milliseconds: 300));
+    final at = container.read(deskNavProvider);
+    expect(at.route, DeskRoute.send);
+    expect((at.arg as SendArgs).contact?.id, first.id);
+    await _end(tester);
+  });
+}

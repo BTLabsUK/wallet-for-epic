@@ -27,6 +27,16 @@ SendArgs? homeFieldSend(String typed) {
   return SendArgs(recipient: text, suggest: true, code: text, codeOrigin: CodeOrigin.paste);
 }
 
+/// The contacts whose name holds [typed] (any case), favourites first, at most [max]; none for
+/// an amount or for nothing typed.
+List<Contact> homeFieldMatches(List<Contact> all, String typed, {int max = 4}) {
+  final q = typed.trim().toLowerCase();
+  if (q.isEmpty || RegExp(r'^\d+([.,]\d*)?$').hasMatch(q)) return const [];
+  final hits = [for (final c in all) if (c.name.toLowerCase().contains(q)) c]
+    ..sort((a, b) => a.favourite == b.favourite ? a.name.toLowerCase().compareTo(b.name.toLowerCase()) : (a.favourite ? -1 : 1));
+  return hits.take(max).toList();
+}
+
 /// Asks Home's field for the focus (Ctrl+K): a count, so every press asks again.
 final homeFieldFocusProvider = NotifierProvider<HomeFieldFocus, int>(HomeFieldFocus.new);
 
@@ -80,13 +90,15 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     ref.listen(homeFieldFocusProvider, (_, _) => _focus.requestFocus());
+    final matches = homeFieldMatches(ref.watch(deskProvider.select((s) => s.contacts)) ?? const [], _text.text);
     // The page's one place to type: 58 high, as the canvas draws it.
-    return ConstrainedBox(
+    final field = ConstrainedBox(
       constraints: BoxConstraints(minHeight: 58.u),
       child: EInput(
       key: const ValueKey('home-field'),
       controller: _text,
       focusNode: _focus,
+      onChanged: (_) => setState(() {}),
       leading: EIcons.search,
       hint: l.deskOvFieldHint,
       semanticLabel: l.deskOvFieldHint,
@@ -99,6 +111,47 @@ class _HomeFieldState extends ConsumerState<HomeField> {
         ],
       ),
       ),
+    );
+    if (matches.isEmpty) return field;
+    final c = context.dc;
+    final ts = context.ts;
+    // The contacts the typing names, under the field: a click opens Send to one.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        field,
+        SizedBox(height: Sp.x1),
+        EPanel(
+          key: const ValueKey('home-field-matches'),
+          padding: EdgeInsets.all(Sp.x1),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final x in matches)
+                EInkWell(
+                  key: ValueKey('home-field-match-${x.id}'),
+                  onTap: () {
+                    _text.clear();
+                    nav.go(DeskRoute.send, SendArgs(contact: x));
+                  },
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  hoverColor: c.hover,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+                    child: Row(
+                      children: [
+                        EAvatar(x.name, size: 28.u),
+                        SizedBox(width: Sp.x3),
+                        Expanded(child: Text(l.deskOvSendTo(x.name), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Icon(EIcons.chevronRight, size: Ctl.iconSm, color: c.faint),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
