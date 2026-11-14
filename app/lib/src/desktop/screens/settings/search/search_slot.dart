@@ -508,7 +508,7 @@ class _Block extends StatelessWidget {
             ),
           ),
           Container(
-            decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+            decoration: panelBox(c),
             clipBehavior: Clip.antiAlias,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -139,7 +139,7 @@ class ServerRow extends StatelessWidget {
         final row = Row(
           children: [
             ESignalBars(i.state),
-            SizedBox(width: 10.u),
+            SizedBox(width: Sp.x2p5),
             Expanded(
               child: ETip.value(
                 i.full ?? i.host,
@@ -148,24 +148,24 @@ class ServerRow extends StatelessWidget {
               ),
             ),
             if (showOperator) ...[
-              SizedBox(width: 10.u),
+              SizedBox(width: Sp.x2p5),
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 110.u),
                 child: Text(i.operator!, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.caption.copyWith(color: dim)),
               ),
             ],
             if (kind == ServerKind.relay && i.isDefault) ...[
-              SizedBox(width: 10.u),
+              SizedBox(width: Sp.x2p5),
               EBadge(l.deskSlDefault),
             ],
             if (kind == ServerKind.node) ...[
-              SizedBox(width: 10.u),
+              SizedBox(width: Sp.x2p5),
               SizedBox(
                 width: 72.u,
                 child: Text(tip.$1, maxLines: 1, softWrap: false, textAlign: TextAlign.right, style: ts.caption.copyWith(color: tip.$2)),
               ),
             ],
-            SizedBox(width: 10.u),
+            SizedBox(width: Sp.x2p5),
             SizedBox(
               width: 68.u,
               child: FittedBox(
@@ -175,7 +175,7 @@ class ServerRow extends StatelessWidget {
               ),
             ),
             if (showVersion) ...[
-              SizedBox(width: 10.u),
+              SizedBox(width: Sp.x2p5),
               SizedBox(
                 width: 46.u,
                 child: Text(version.$1, maxLines: 1, softWrap: false, textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: version.$2)),
@@ -200,7 +200,7 @@ class ServerRow extends StatelessWidget {
             hoverColor: c.s3,
             child: Container(
               height: 36.u,
-              padding: EdgeInsets.symmetric(horizontal: 12.u),
+              padding: EdgeInsets.symmetric(horizontal: Sp.x3),
               decoration: BoxDecoration(color: selected ? c.s3 : null, borderRadius: BorderRadius.circular(Rad.sm)),
               child: row,
             ),

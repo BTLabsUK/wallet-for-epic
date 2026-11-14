@@ -400,7 +400,7 @@ class _ReportPreviewState extends State<ReportPreview> {
     final height = (MediaQuery.sizeOf(context).height - 680.u).clamp(96.u, 220.u);
     return Container(
       height: height,
-      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      decoration: panelBox(c),
       // Selectable through the dialog's own selection area (selectable.dart).
       child: Scrollbar(
         controller: _scroll,

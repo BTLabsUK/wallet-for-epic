@@ -50,7 +50,7 @@ class HomeContacts extends ConsumerWidget {
         Container(
           key: const ValueKey('home-contacts'),
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+          decoration: panelBox(c),
           child: Column(
             children: [
               for (final (i, x) in list.indexed) ...[
@@ -58,11 +58,11 @@ class HomeContacts extends ConsumerWidget {
                 EInkWell(
                   onTap: () => nav.go(DeskRoute.contacts, ContactsArgs(selectedId: x.id)),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 10.u),
+                    padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2p5),
                     child: Row(
                       children: [
                         EAvatar(x.name),
-                        SizedBox(width: 14.u),
+                        SizedBox(width: Sp.x3p5),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

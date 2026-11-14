@@ -335,30 +335,25 @@ class _EIconButtonState extends State<EIconButton> {
           selected: widget.selected,
           excludeSemantics: true,
           onTap: widget.onPressed,
-          child: FocusableActionDetector(
+          child: EPressable(
             enabled: enabled,
-            mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-            onShowHoverHighlight: (v) => setState(() => _hover = v),
-            actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
-            child: Builder(
-              builder: (context) => GestureDetector(
-                onTap: widget.onPressed,
-                child: FocusRing(
-                  focused: Focus.of(context).hasFocus,
-                  child: AnimatedContainer(
-                    duration: Dur.fast,
-                    width: dim,
-                    height: dim,
-                    decoration: BoxDecoration(
-                      color: _hover && enabled ? c.hover : Colors.transparent,
-                      borderRadius: BorderRadius.circular(Rad.sm),
-                    ),
-                    child: Icon(
-                      widget.icon,
-                      size: widget.size == EBtnSize.inline ? Ctl.iconSm : Ctl.icon,
-                      color: fg,
-                    ),
-                  ),
+            cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+            onHover: (v) => setState(() => _hover = v),
+            onTap: widget.onPressed,
+            builder: (context, focused) => FocusRing(
+              focused: focused,
+              child: AnimatedContainer(
+                duration: Dur.fast,
+                width: dim,
+                height: dim,
+                decoration: BoxDecoration(
+                  color: _hover && enabled ? c.hover : Colors.transparent,
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                ),
+                child: Icon(
+                  widget.icon,
+                  size: widget.size == EBtnSize.inline ? Ctl.iconSm : Ctl.icon,
+                  color: fg,
                 ),
               ),
             ),
@@ -403,26 +398,20 @@ class _ELinkState extends State<ELink> {
         label: widget.label,
         excludeSemantics: true,
         onTap: widget.onPressed,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
-          child: Builder(
-            builder: (context) => GestureDetector(
-              onTap: widget.onPressed,
-              child: FocusRing(
-                focused: Focus.of(context).hasFocus,
-                child: NoSelect(
-                  child: Text(
-                    widget.label,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: Fs.sm,
-                      fontWeight: widget.dim ? FontWeight.w400 : FontWeight.w600,
-                      decoration: TextDecoration.underline,
-                      decorationColor: _hover ? color : color.withValues(alpha: 0.45),
-                    ),
-                  ),
+        child: EPressable(
+          onHover: (v) => setState(() => _hover = v),
+          onTap: widget.onPressed,
+          builder: (context, focused) => FocusRing(
+            focused: focused,
+            child: NoSelect(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: Fs.sm,
+                  fontWeight: widget.dim ? FontWeight.w400 : FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                  decorationColor: _hover ? color : color.withValues(alpha: 0.45),
                 ),
               ),
             ),
@@ -454,6 +443,75 @@ class FocusRing extends StatelessWidget {
         border: Border.all(color: c.accent, width: 2, strokeAlign: BorderSide.strokeAlignOutside),
       ),
       child: child,
+    );
+  }
+}
+
+/// The focus, hover, keyboard and click wiring of a hand-built control: Enter or Space (and
+/// any [shortcuts]) and a click run [onTap]; [builder] draws the face and is told whether the
+/// control has focus. Semantics and the TrustId stay with the caller.
+class EPressable extends StatelessWidget {
+  const EPressable({
+    super.key,
+    required this.onTap,
+    required this.builder,
+    this.enabled = true,
+    this.focusNode,
+    this.autofocus = false,
+    this.cursor = SystemMouseCursors.click,
+    this.onHover,
+    this.onPress,
+    this.shortcuts,
+    this.actions,
+    this.behavior,
+    this.tapKey,
+  });
+
+  final VoidCallback? onTap;
+  final Widget Function(BuildContext context, bool focused) builder;
+  final bool enabled;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final MouseCursor cursor;
+
+  /// The pointer is over it (the hover highlight).
+  final ValueChanged<bool>? onHover;
+
+  /// A press starts (true), or ends or is cancelled (false).
+  final ValueChanged<bool>? onPress;
+
+  final Map<ShortcutActivator, Intent>? shortcuts;
+
+  /// Actions beside the ActivateIntent that runs [onTap].
+  final Map<Type, Action<Intent>>? actions;
+
+  final HitTestBehavior? behavior;
+
+  /// The key of the gesture detector inside.
+  final Key? tapKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final press = onPress;
+    return FocusableActionDetector(
+      enabled: enabled,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      mouseCursor: cursor,
+      onShowHoverHighlight: onHover,
+      shortcuts: shortcuts,
+      actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => onTap?.call()), ...?actions},
+      child: Builder(
+        builder: (context) => GestureDetector(
+          key: tapKey,
+          behavior: behavior,
+          onTap: onTap,
+          onTapDown: press == null ? null : (_) => press(true),
+          onTapUp: press == null ? null : (_) => press(false),
+          onTapCancel: press == null ? null : () => press(false),
+          child: builder(context, Focus.of(context).hasFocus),
+        ),
+      ),
     );
   }
 }

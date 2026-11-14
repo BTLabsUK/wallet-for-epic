@@ -252,7 +252,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         day = d;
         rows.add(
           Container(
-            padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x3, Sp.x5, 6.u),
+            padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x3, Sp.x5, Sp.x1p5),
             decoration: BoxDecoration(
               color: c.s1,
               border: Border(

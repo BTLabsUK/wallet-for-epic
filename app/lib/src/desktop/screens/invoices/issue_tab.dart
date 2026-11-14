@@ -153,7 +153,7 @@ class _Frame extends StatelessWidget {
     final c = context.dc;
     return Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      decoration: panelBox(c),
       child: child,
     );
   }
@@ -306,12 +306,7 @@ class RequestDetail extends ConsumerWidget {
         SizedBox(height: Sp.x4),
         ENotice(
           tone: tone,
-          icon: switch (tone) {
-            ETone.ok => EIcons.okCircle,
-            ETone.risk => EIcons.error,
-            ETone.warn => EIcons.alert,
-            _ => EIcons.info,
-          },
+          icon: tone.icon,
           title: text,
         ),
         if (r.lateReplyRefused) ...[

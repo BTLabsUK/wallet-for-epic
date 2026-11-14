@@ -59,33 +59,28 @@ class DeskUndercoverRow extends StatelessWidget {
                   label: title,
                   excludeSemantics: true,
                   onTap: onChanged == null ? null : toggle,
-                  child: FocusableActionDetector(
+                  child: EPressable(
                     enabled: onChanged != null,
-                    mouseCursor: onChanged == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
-                    actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => toggle())},
-                    child: Builder(
-                      builder: (context) => GestureDetector(
-                        key: deskUndercoverKey,
-                        behavior: HitTestBehavior.opaque,
-                        onTap: onChanged == null ? null : toggle,
-                        child: FocusRing(
-                          focused: Focus.of(context).hasFocus,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: 40.u),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  AnimatedSwitcher(
-                                    duration: Dur.base,
-                                    child: Icon(EpicGlyphs.tor, key: ValueKey(value), size: 18.u, color: value ? c.accentText : c.faint),
-                                  ),
-                                  SizedBox(width: Sp.x2),
-                                  Flexible(child: Text(title, style: context.ts.small.copyWith(color: value ? c.text : c.dim))),
-                                ],
+                    cursor: onChanged == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
+                    tapKey: deskUndercoverKey,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onChanged == null ? null : toggle,
+                    builder: (context, focused) => FocusRing(
+                      focused: focused,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: 40.u),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedSwitcher(
+                                duration: Dur.base,
+                                child: Icon(EpicGlyphs.tor, key: ValueKey(value), size: 18.u, color: value ? c.accentText : c.faint),
                               ),
-                            ),
+                              SizedBox(width: Sp.x2),
+                              Flexible(child: Text(title, style: context.ts.small.copyWith(color: value ? c.text : c.dim))),
+                            ],
                           ),
                         ),
                       ),

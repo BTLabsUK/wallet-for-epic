@@ -383,8 +383,49 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final at = widget.at;
-    final width = MediaQuery.sizeOf(context).width;
+    _listen(context);
+    final shown = _shownAt(context, widget.at);
+    // A link opened over Send starts a new Send (its SendArgs is the key), as from any other page.
+    // Otherwise the key stays a ValueKey<DeskRoute>: ValueKey equality compares the type too.
+    final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
+    final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
+    // The page's text is selectable and copyable (selectable.dart); the bars are not.
+    // The light backdrop sits under the page and stays put while the page scrolls.
+    // The update strip (update_strip.dart) sits above the page in every frame and pushes it down.
+    final main = Material(
+      color: c.bg,
+      child: DeskBackdrop(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [const DeskUpdateStrip(), Expanded(child: DeskSelectable(child: page))],
+        ),
+      ),
+    );
+    final tour = ref.watch(deskTourProvider.select((t) => t.open));
+    final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
+    final frame = _frame(context, shown, main);
+    // Invites a browser opened (pairing, device link) go to their feature's confirm dialog.
+    return InviteLinkGate(
+      onUnreadable: (context) => showEToast(context, context.l10n.inviteLinkUnreadable, tone: ETone.warn),
+      onNoHandler: (context, kind) => showEToast(context, inviteNoHandlerText(context.l10n, kind), tone: ETone.info),
+      child: Title(
+        title: deskPageTitle(context.l10n, shown.route),
+        color: c.accent,
+        child: Stack(
+          children: [
+            Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
+            if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
+            // The clickable prototype (web build on the mock): plays the other side of invoices.
+            if (kIsWeb && !tour) const ProtoButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// What the shell listens to while it shows: links, invoice and pairing news, digests, the
+  /// device service, failover, contacts' keys and the old wallet's history.
+  void _listen(BuildContext context) {
     ref.listen(incomingLinkProvider, (_, link) {
       if (link != null) _openLink();
     });
@@ -446,45 +487,36 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskProvider.select((s) => s.oldHistory), (_, next) {
       if (next.isNotEmpty && mounted) unawaited(_askOldHistory(next));
     });
+  }
+
+  /// The place to show for [at].
+  DeskLocation _shownAt(BuildContext context, DeskLocation at) {
     // A place of a part switched off (Outputs, Pairing, Invoices) reads as Home, or as the
     // Settings landing for a Settings page. A Settings page a switch hides falls back to the
     // first entry of its group, with a toast that says what shows it (review 14).
-    final DeskLocation shown;
     if (deskRouteShown(ref, at.route)) {
-      shown = at;
+      return at;
     } else if (at.route.section == DeskSection.settings) {
       final back = settingsFallback(context.l10n, ref.watch(setViewProvider), at.route);
-      shown = DeskLocation(deskRouteShown(ref, back.route) ? back.route : deskSettingsHome(ref));
+      final shown = DeskLocation(deskRouteShown(ref, back.route) ? back.route : deskSettingsHome(ref));
       if (back.notice != null && _fellBack != at) {
         _fellBack = at;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) showEToast(context, back.notice!, tone: ETone.info);
         });
       }
+      return shown;
     } else {
-      shown = const DeskLocation(DeskRoute.overview);
+      return const DeskLocation(DeskRoute.overview);
     }
-    // A link opened over Send starts a new Send (its SendArgs is the key), as from any other page.
-    // Otherwise the key stays a ValueKey<DeskRoute>: ValueKey equality compares the type too.
-    final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
-    final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
-    // The page's text is selectable and copyable (selectable.dart); the bars are not.
-    // The light backdrop sits under the page and stays put while the page scrolls.
-    // The update strip (update_strip.dart) sits above the page in every frame and pushes it down.
-    final main = Material(
-      color: c.bg,
-      child: DeskBackdrop(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [const DeskUpdateStrip(), Expanded(child: DeskSelectable(child: page))],
-        ),
-      ),
-    );
-    final tour = ref.watch(deskTourProvider.select((t) => t.open));
-    final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
-    final Widget frame;
+  }
+
+  /// The window around [main]: the phone frame, Settings with its own column, or the wallet's.
+  Widget _frame(BuildContext context, DeskLocation shown, Widget main) {
+    final c = context.dc;
+    final width = MediaQuery.sizeOf(context).width;
     if (width < Bp.phone) {
-      frame = Scaffold(
+      return Scaffold(
         backgroundColor: c.bg,
         body: SafeArea(child: Column(children: [_PhoneTopBar(section: shown.route.section), Expanded(child: FocusTraversalGroup(child: main))])),
         bottomNavigationBar: _PhoneNav(section: shown.route.section),
@@ -493,7 +525,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       // Settings has a column of its own beside the page. Esc and "← Wallet" go back to the
       // wallet page it came from.
       final nav = ref.read(deskNavProvider.notifier);
-      frame = Scaffold(
+      return Scaffold(
         backgroundColor: c.bg,
         // The search's keys first (Esc clears a query), then Esc back to the wallet.
         body: Focus(
@@ -522,7 +554,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       );
     } else {
       // The tabs are in the title bar (title_bar.dart): the page has the window's whole width.
-      frame = Scaffold(
+      return Scaffold(
         backgroundColor: c.bg,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -530,23 +562,6 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         ),
       );
     }
-    // Invites a browser opened (pairing, device link) go to their feature's confirm dialog.
-    return InviteLinkGate(
-      onUnreadable: (context) => showEToast(context, context.l10n.inviteLinkUnreadable, tone: ETone.warn),
-      onNoHandler: (context, kind) => showEToast(context, inviteNoHandlerText(context.l10n, kind), tone: ETone.info),
-      child: Title(
-        title: deskPageTitle(context.l10n, shown.route),
-        color: c.accent,
-        child: Stack(
-          children: [
-            Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
-            if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
-            // The clickable prototype (web build on the mock): plays the other side of invoices.
-            if (kIsWeb && !tour) const ProtoButton(),
-          ],
-        ),
-      ),
-    );
   }
 }
 

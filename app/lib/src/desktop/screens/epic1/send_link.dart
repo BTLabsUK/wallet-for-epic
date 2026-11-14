@@ -587,7 +587,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
         children: [
           Row(
             children: [
-              Icon(EIcons.clock, size: 20.u, color: c.info),
+              Icon(EIcons.clock, size: Ctl.icon, color: c.info),
               SizedBox(width: Sp.x3),
               Expanded(child: Text(l.deskE1Waiting, style: context.ts.h3)),
             ],

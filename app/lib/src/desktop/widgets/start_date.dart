@@ -93,7 +93,7 @@ class EStartMonthRecent extends StatelessWidget {
               padding: EdgeInsets.only(top: 2.u),
               child: Icon(EIcons.alert, size: Ctl.iconSm, color: c.warn),
             ),
-            SizedBox(width: 6.u),
+            SizedBox(width: Sp.x1p5),
             Flexible(
               child: Text(context.l10n.restoreMonthRecent, style: ts.small.copyWith(color: c.warn)),
             ),

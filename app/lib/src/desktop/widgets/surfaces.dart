@@ -29,6 +29,11 @@ import 'more_options.dart';
 import 'popover.dart';
 import 'tip.dart';
 
+/// A panel's look with no shadow and no bands: s1 fill, a hairline [edge] (the line colour by
+/// default), [Rad.sm] corners. For hand-built boxes that sit flat.
+BoxDecoration panelBox(DeskColors c, {Color? edge}) =>
+    BoxDecoration(color: c.s1, border: Border.all(color: edge ?? c.line), borderRadius: BorderRadius.circular(Rad.sm));
+
 /// A panel: s1 fill, hairline edge, [Rad.sm] corners. [title] (or a custom [head]) and [foot] get
 /// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
 /// panels side by side have their header lines and first rows level.
@@ -234,7 +239,7 @@ class ESectionHead extends StatelessWidget {
       child: Row(
         children: [
           Container(width: 14.u, height: 2, color: c.accent),
-          SizedBox(width: 10.u),
+          SizedBox(width: Sp.x2p5),
           Expanded(
             child: Semantics(header: true, child: Epic1Text(title, style: context.ts.h3)),
           ),
@@ -250,7 +255,9 @@ class ESectionHead extends StatelessWidget {
 /// neutral for the rest. A sent amount wears DeskColors.txSent, not a tone.
 typedef ETone = BadgeTone;
 
-extension on ETone {
+/// A tone's colours and glyph, shared by the badges, notices and dialogs.
+extension EToneLook on ETone {
+  /// The text and the fill: neutral has no fill.
   (Color fg, Color bg) colors(DeskColors c) => switch (this) {
     ETone.neutral => (c.dim, Colors.transparent),
     ETone.ok => (c.ok, c.okSoft),
@@ -258,6 +265,14 @@ extension on ETone {
     ETone.risk => (c.risk, c.riskSoft),
     ETone.info => (c.info, c.infoSoft),
     ETone.gold => (c.accentText, c.accentSoft),
+  };
+
+  /// The glyph: a check, an alert or an error; the calm tones an info mark.
+  IconData get icon => switch (this) {
+    ETone.ok => EIcons.okCircle,
+    ETone.warn => EIcons.alert,
+    ETone.risk => EIcons.error,
+    ETone.info || ETone.neutral || ETone.gold => EIcons.info,
   };
 }
 
@@ -328,13 +343,7 @@ class ENotice extends StatelessWidget {
     final (fg, bg) = tone.colors(c);
     final calm = tone == ETone.neutral || tone == ETone.ok || tone == ETone.info;
     final iconColor = tone == ETone.neutral ? c.dim : fg;
-    final glyph = icon ??
-        switch (tone) {
-          ETone.ok => EIcons.okCircle,
-          ETone.warn => EIcons.alert,
-          ETone.risk => EIcons.error,
-          _ => EIcons.info,
-        };
+    final glyph = icon ?? tone.icon;
     final strong = ts.strong;
     final line = MediaQuery.textScalerOf(context).scale(strong.fontSize ?? Fs.md) * (strong.height ?? 1.5);
     return Container(
@@ -1081,7 +1090,7 @@ class EReasonTag extends StatelessWidget {
     return CustomPaint(
       painter: _DashedEdge(c.faint, Rad.xs),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 1.u),
+        padding: EdgeInsets.symmetric(horizontal: Sp.x1p5, vertical: 1.u),
         child: Text(text, style: context.ts.small.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
     );
@@ -1562,27 +1571,22 @@ class EInfoHintState extends State<EInfoHint> {
         expanded: _open,
         excludeSemantics: true,
         onTap: open,
-        child: FocusableActionDetector(
+        child: EPressable(
           focusNode: _node,
-          mouseCursor: SystemMouseCursors.help,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
+          cursor: SystemMouseCursors.help,
+          onHover: (v) => setState(() => _hover = v),
           shortcuts: const {SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(), SingleActivator(LogicalKeyboardKey.space): ActivateIntent()},
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => open())},
-          child: Builder(
-            builder: (context) => GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: open,
-              child: FocusRing(
-                focused: Focus.of(context).hasFocus,
-                radius: Rad.xs,
-                child: AnimatedContainer(
-                  duration: Dur.fast,
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(color: lit ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
-                  child: Icon(widget.glyph, size: Ctl.iconSm, color: lit ? c.text : c.dim),
-                ),
-              ),
+          behavior: HitTestBehavior.opaque,
+          onTap: open,
+          builder: (context, focused) => FocusRing(
+            focused: focused,
+            radius: Rad.xs,
+            child: AnimatedContainer(
+              duration: Dur.fast,
+              width: size,
+              height: size,
+              decoration: BoxDecoration(color: lit ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
+              child: Icon(widget.glyph, size: Ctl.iconSm, color: lit ? c.text : c.dim),
             ),
           ),
         ),

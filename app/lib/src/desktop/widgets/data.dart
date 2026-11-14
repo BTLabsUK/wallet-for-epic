@@ -239,7 +239,7 @@ class EQr extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      padding: EdgeInsets.all(14.u),
+      padding: EdgeInsets.all(Sp.x3p5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -821,16 +821,10 @@ class _ENavItemState extends State<ENavItem> {
       value: widget.value,
       excludeSemantics: true,
       onTap: widget.onTap,
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onTap,
-            child: FocusRing(focused: Focus.of(context).hasFocus, child: NoSelect(child: item)),
-          ),
-        ),
+      child: EPressable(
+        onHover: (v) => setState(() => _hover = v),
+        onTap: widget.onTap,
+        builder: (context, focused) => FocusRing(focused: focused, child: NoSelect(child: item)),
       ),
     ));
   }
@@ -848,7 +842,7 @@ class ECount extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(minWidth: 20.u),
       height: 20.u,
-      padding: EdgeInsets.symmetric(horizontal: 6.u),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x1p5),
       alignment: Alignment.center,
       decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(10.u)),
       child: Text('$count', style: context.ts.mono(size: Fs.xs, color: c.accentText, weight: FontWeight.w500)),
@@ -909,7 +903,7 @@ class _ETabState extends State<ETab> {
     Widget item = AnimatedContainer(
       duration: Dur.fast,
       height: 32.u,
-      padding: EdgeInsets.symmetric(horizontal: widget.compact ? 10.u : Sp.x3),
+      padding: EdgeInsets.symmetric(horizontal: widget.compact ? Sp.x2p5 : Sp.x3),
       decoration: BoxDecoration(
         color: sel ? (c.tint.a == 0 ? c.s3 : c.tint) : (_hover ? c.hover : Colors.transparent),
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -933,16 +927,10 @@ class _ETabState extends State<ETab> {
       label: count > 0 ? context.l10n.deskKitNeedAction(widget.label, count) : widget.label,
       excludeSemantics: true,
       onTap: widget.onTap,
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onTap,
-            child: FocusRing(focused: Focus.of(context).hasFocus, child: NoSelect(child: item)),
-          ),
-        ),
+      child: EPressable(
+        onHover: (v) => setState(() => _hover = v),
+        onTap: widget.onTap,
+        builder: (context, focused) => FocusRing(focused: focused, child: NoSelect(child: item)),
       ),
     ));
   }

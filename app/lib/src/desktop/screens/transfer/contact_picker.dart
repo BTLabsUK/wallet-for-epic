@@ -272,7 +272,7 @@ class _PickRowState extends State<_PickRow> {
             child: Row(
               children: [
                 EAvatar(widget.contact.name, size: 32.u, label: widget.contact.label.listMark),
-                SizedBox(width: 14.u),
+                SizedBox(width: Sp.x3p5),
                 Expanded(
                   child: classicOnly
                       ? Column(

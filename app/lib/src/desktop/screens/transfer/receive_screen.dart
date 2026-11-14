@@ -749,7 +749,7 @@ class _MethodPanel extends StatelessWidget {
             child: Row(
               children: [
                 EMethodIcon(method, state, size: 20.u),
-                SizedBox(width: 10.u),
+                SizedBox(width: Sp.x2p5),
                 Expanded(
                   child: Semantics(header: true, child: Text(title, style: ts.h3, maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ),
@@ -775,7 +775,7 @@ class _MethodPanel extends StatelessWidget {
           if (method != TxMethod.epicbox)
             ExpandFade(
               open: !grown,
-              child: Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 6.u, Sp.panel, Sp.x4), child: small),
+              child: Padding(padding: EdgeInsets.fromLTRB(Sp.panel, Sp.x1p5, Sp.panel, Sp.x4), child: small),
             ),
           ExpandFade(
             open: grown,

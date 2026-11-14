@@ -432,11 +432,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Widget _wlist(BuildContext context, List<Widget> rows) {
     final c = context.dc;
     return Container(
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.line),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
+      decoration: panelBox(c),
       child: Column(
         children: [
           for (var i = 0; i < rows.length; i++) ...[

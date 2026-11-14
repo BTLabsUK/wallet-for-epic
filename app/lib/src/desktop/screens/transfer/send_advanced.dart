@@ -140,66 +140,61 @@ class _ERadioRowState extends State<ERadioRow> {
       label: '${widget.title}${widget.tag == null ? '' : ', ${widget.tag}'}${widget.text == null ? '' : '. ${widget.text}'}',
       excludeSemantics: true,
       onTap: widget.onSelected,
-      child: FocusableActionDetector(
+      child: EPressable(
         enabled: on,
-        mouseCursor: on ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        cursor: on ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onHover: (v) => setState(() => _hover = v),
         shortcuts: const {
           SingleActivator(LogicalKeyboardKey.arrowDown): NextFocusIntent(),
           SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
         },
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onSelected?.call())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: widget.onSelected,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: Sp.x2, horizontal: Sp.x1),
-                decoration: BoxDecoration(color: _hover && on ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.sm)),
-                child: Opacity(
-                  opacity: on ? 1 : 0.5,
-                  child: Row(
-                    crossAxisAlignment: widget.text == null ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 18.u,
-                        height: 18.u,
-                        margin: EdgeInsets.only(top: widget.text == null ? 0 : 2.u),
-                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ring, width: 1.5)),
-                        alignment: Alignment.center,
-                        child: widget.selected
-                            ? Container(width: 8.u, height: 8.u, decoration: BoxDecoration(shape: BoxShape.circle, color: c.accent))
-                            : null,
-                      ),
-                      SizedBox(width: Sp.x3),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onSelected,
+        builder: (context, focused) => FocusRing(
+          focused: focused,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: Sp.x2, horizontal: Sp.x1),
+            decoration: BoxDecoration(color: _hover && on ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.sm)),
+            child: Opacity(
+              opacity: on ? 1 : 0.5,
+              child: Row(
+                crossAxisAlignment: widget.text == null ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 18.u,
+                    height: 18.u,
+                    margin: EdgeInsets.only(top: widget.text == null ? 0 : 2.u),
+                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ring, width: 1.5)),
+                    alignment: Alignment.center,
+                    child: widget.selected
+                        ? Container(width: 8.u, height: 8.u, decoration: BoxDecoration(shape: BoxShape.circle, color: c.accent))
+                        : null,
+                  ),
+                  SizedBox(width: Sp.x3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Flexible(child: Text(widget.title, style: ts.strong)),
-                                if (widget.tag != null) ...[SizedBox(width: Sp.x2), EBadge(widget.tag!)],
-                                // Just the name: its ⓘ follows it, as a settings row's does.
-                                if (widget.text == null && widget.hint != null) ...[
-                                  SizedBox(width: Sp.x2),
-                                  EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon, onOpen: widget.onHint),
-                                ],
-                              ],
-                            ),
-                            if (widget.text != null) Text(widget.text!, style: ts.small),
+                            Flexible(child: Text(widget.title, style: ts.strong)),
+                            if (widget.tag != null) ...[SizedBox(width: Sp.x2), EBadge(widget.tag!)],
+                            // Just the name: its ⓘ follows it, as a settings row's does.
+                            if (widget.text == null && widget.hint != null) ...[
+                              SizedBox(width: Sp.x2),
+                              EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon, onOpen: widget.onHint),
+                            ],
                           ],
                         ),
-                      ),
-                      if (widget.hint != null && widget.text != null) ...[
-                        SizedBox(width: Sp.x2),
-                        EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon, onOpen: widget.onHint),
+                        if (widget.text != null) Text(widget.text!, style: ts.small),
                       ],
-                    ],
+                    ),
                   ),
-                ),
+                  if (widget.hint != null && widget.text != null) ...[
+                    SizedBox(width: Sp.x2),
+                    EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon, onOpen: widget.onHint),
+                  ],
+                ],
               ),
             ),
           ),

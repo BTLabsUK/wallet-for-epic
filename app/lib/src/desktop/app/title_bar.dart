@@ -270,7 +270,7 @@ class DeskTitleBar extends ConsumerWidget {
                 Container(
                   width: 1,
                   height: 16.u,
-                  margin: EdgeInsetsDirectional.only(start: Sp.x2, end: 10.u),
+                  margin: EdgeInsetsDirectional.only(start: Sp.x2, end: Sp.x2p5),
                   color: c.lineStrong,
                 )
               else
@@ -411,41 +411,31 @@ class _BarButtonState extends State<DeskBarButton> {
       expanded: enabled ? widget.open : null,
       excludeSemantics: true,
       onTap: widget.onPressed,
-      child: FocusableActionDetector(
+      child: EPressable(
         enabled: enabled,
-        mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
-        child: Builder(
-          builder: (context) {
-            final face = FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: AnimatedContainer(
-                duration: Dur.fast,
-                height: widget.height ?? 30.u,
-                padding: widget.padding,
-                decoration: BoxDecoration(
-                  color: !enabled
-                      ? Colors.transparent
-                      : widget.open || _down
-                      ? c.press
-                      : _hover
-                      ? c.hover
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(widget.radius ?? Rad.sm),
-                ),
-                child: widget.child,
-              ),
-            );
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: widget.onPressed,
-              onTapDown: enabled ? (_) => setState(() => _down = true) : null,
-              onTapUp: enabled ? (_) => setState(() => _down = false) : null,
-              onTapCancel: enabled ? () => setState(() => _down = false) : null,
-              child: face,
-            );
-          },
+        cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onHover: (v) => setState(() => _hover = v),
+        onPress: enabled ? (v) => setState(() => _down = v) : null,
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onPressed,
+        builder: (context, focused) => FocusRing(
+          focused: focused,
+          child: AnimatedContainer(
+            duration: Dur.fast,
+            height: widget.height ?? 30.u,
+            padding: widget.padding,
+            decoration: BoxDecoration(
+              color: !enabled
+                  ? Colors.transparent
+                  : widget.open || _down
+                  ? c.press
+                  : _hover
+                  ? c.hover
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(widget.radius ?? Rad.sm),
+            ),
+            child: widget.child,
+          ),
         ),
       ),
     );
@@ -457,7 +447,7 @@ class _BarButtonState extends State<DeskBarButton> {
 /// The title bar's menus: the app's menu look (the theme's menuTheme: s4, lineStrong, the soft
 /// shadow), a little tighter and at least [minWidth] wide, with the plain cursor between rows.
 MenuStyle _menuStyle({double? minWidth}) => MenuStyle(
-  padding: WidgetStatePropertyAll(EdgeInsets.all(6.u)),
+  padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x1p5)),
   // The panel itself is no button (Flutter's default is the click cursor over all of it): the
   // rows and buttons inside show their own.
   mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
@@ -483,7 +473,7 @@ Widget _menuItem(
       style: ButtonStyle(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         minimumSize: WidgetStatePropertyAll(Size(0, 36.u)),
-        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10.u)),
+        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x2p5)),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
         overlayColor: const WidgetStatePropertyAll(Colors.transparent),
         backgroundColor: WidgetStateProperty.resolveWith(
@@ -502,7 +492,7 @@ Widget _menuItem(
   }
 
 Widget _menuDivider(DeskColors c) => Padding(
-  padding: EdgeInsets.symmetric(vertical: 6.u, horizontal: Sp.x1),
+  padding: EdgeInsets.symmetric(vertical: Sp.x1p5, horizontal: Sp.x1),
   child: Divider(height: 1, thickness: 1, color: c.line),
 );
 
@@ -799,14 +789,14 @@ class _WalletChip extends ConsumerWidget {
           ),
         ),
         SizedBox(width: Sp.x2),
-        Icon(EIcons.chevronDown, size: 16.u, color: c.faint),
+        Icon(EIcons.chevronDown, size: Ctl.iconSm, color: c.faint),
       ],
     );
     return DeskBarMenu(
       minWidth: 260.u,
       children: (context, m) => [
         Padding(
-          padding: EdgeInsets.fromLTRB(10.u, 6.u, 10.u, 4.u),
+          padding: EdgeInsets.fromLTRB(Sp.x2p5, Sp.x1p5, Sp.x2p5, Sp.x1),
           child: Text(l.deskBarWalletsHere, style: ts.caption.copyWith(color: c.faint)),
         ),
         for (final w in wallets.isEmpty ? [WalletEntry(id: current ?? '', name: name, folder: '', network: account?.network ?? 'mainnet', current: true)] : wallets)
@@ -1313,12 +1303,12 @@ class _ShortcutsDialog extends StatelessWidget {
         children: [
           for (final (what, keys) in rows)
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 6.u),
+              padding: EdgeInsets.symmetric(vertical: Sp.x1p5),
               child: Row(
                 children: [
                   Expanded(child: Text(what, style: ts.body)),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 2.u),
+                    padding: EdgeInsets.symmetric(horizontal: Sp.x1p5, vertical: 2.u),
                     decoration: BoxDecoration(
                       color: c.s1,
                       borderRadius: BorderRadius.circular(Rad.xs),

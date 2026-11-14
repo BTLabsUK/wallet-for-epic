@@ -66,14 +66,14 @@ class OverviewInvoicesCard extends ConsumerWidget {
       padding: EdgeInsets.only(top: Sp.x4),
       child: Container(
         key: const ValueKey('home-invoices'),
-        padding: EdgeInsets.fromLTRB(14.u, 10.u, Sp.x3, 10.u),
+        padding: EdgeInsets.fromLTRB(Sp.x3p5, Sp.x2p5, Sp.x3, Sp.x2p5),
         decoration: BoxDecoration(color: c.s1, border: Border.all(color: act ? c.lineStrong : c.line), borderRadius: BorderRadius.circular(Rad.sm)),
         child: LayoutBuilder(
           builder: (context, box) {
             final head = Row(
               children: [
                 tile,
-                SizedBox(width: 14.u),
+                SizedBox(width: Sp.x3p5),
                 Expanded(child: words),
                 if (amount != null) ...[SizedBox(width: Sp.x4), amount],
               ],

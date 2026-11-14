@@ -316,30 +316,22 @@ class _QrToggleState extends State<_QrToggle> {
         label: widget.shown ? context.l10n.deskKitQrHideCode : context.l10n.deskKitQrShowOf(widget.title),
         excludeSemantics: true,
         onTap: widget.onPressed,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
+        child: EPressable(
+          onHover: (v) => setState(() => _hover = v),
           shortcuts: const {SingleActivator(LogicalKeyboardKey.escape): DismissIntent()},
-          actions: {
-            ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed()),
-            DismissIntent: CallbackAction<DismissIntent>(onInvoke: (_) => widget.shown ? widget.onPressed() : null),
-          },
-          child: Builder(
-            builder: (context) => GestureDetector(
-              onTap: widget.onPressed,
-              child: FocusRing(
-                focused: Focus.of(context).hasFocus,
-                child: AnimatedContainer(
-                  duration: Dur.fast,
-                  width: Ctl.inline,
-                  height: Ctl.inline,
-                  decoration: BoxDecoration(
-                    color: widget.shown ? c.accentSoft : (_hover ? c.hover : Colors.transparent),
-                    borderRadius: BorderRadius.circular(Rad.sm),
-                  ),
-                  child: Icon(EIcons.qr, size: Ctl.iconSm, color: fg),
-                ),
+          actions: {DismissIntent: CallbackAction<DismissIntent>(onInvoke: (_) => widget.shown ? widget.onPressed() : null)},
+          onTap: widget.onPressed,
+          builder: (context, focused) => FocusRing(
+            focused: focused,
+            child: AnimatedContainer(
+              duration: Dur.fast,
+              width: Ctl.inline,
+              height: Ctl.inline,
+              decoration: BoxDecoration(
+                color: widget.shown ? c.accentSoft : (_hover ? c.hover : Colors.transparent),
+                borderRadius: BorderRadius.circular(Rad.sm),
               ),
+              child: Icon(EIcons.qr, size: Ctl.iconSm, color: fg),
             ),
           ),
         ),

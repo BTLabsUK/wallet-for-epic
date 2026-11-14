@@ -341,7 +341,7 @@ class EAuthCard extends StatelessWidget {
           child,
           if (alternatives.isNotEmpty) ...[
             SizedBox(height: Sp.x4),
-            Wrap(alignment: WrapAlignment.center, spacing: 22.u, runSpacing: Sp.x2, children: alternatives),
+            Wrap(alignment: WrapAlignment.center, spacing: Sp.x5p5, runSpacing: Sp.x2, children: alternatives),
           ],
         ],
       ),
@@ -573,7 +573,7 @@ class EStepTrack extends StatelessWidget {
                           Expanded(
                             child: Container(
                               height: 2,
-                              margin: EdgeInsets.symmetric(horizontal: 4.u),
+                              margin: EdgeInsets.symmetric(horizontal: Sp.x1),
                               decoration: BoxDecoration(color: s.done ? c.ok : c.lineStrong, borderRadius: BorderRadius.circular(1)),
                             ),
                           ),

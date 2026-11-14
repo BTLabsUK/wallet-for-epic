@@ -575,7 +575,7 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.info, size: 16.u, color: c.dim)),
+                  Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.info, size: Ctl.iconSm, color: c.dim)),
                   SizedBox(width: Sp.x2),
                   Expanded(child: Text(l.deskSetLndMoveFreshNote, style: ts.bodyDim)),
                 ],

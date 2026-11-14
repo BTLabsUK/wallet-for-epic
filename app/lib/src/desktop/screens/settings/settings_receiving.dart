@@ -356,7 +356,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, 0),
       child: Row(
         children: [
-          Icon(MethodIcons.family(f), size: 16.u, color: c.dim),
+          Icon(MethodIcons.family(f), size: Ctl.iconSm, color: c.dim),
           SizedBox(width: Sp.x2),
           Semantics(header: true, child: Text(MethodIcons.familyName(l, f), style: ts.caption.copyWith(fontWeight: FontWeight.w600, color: c.dim))),
         ],
@@ -831,7 +831,7 @@ Future<bool> confirmEpicboxOff(BuildContext context, List<Tx> waiting) async {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.info, size: 16.u, color: c.dim)),
+                Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.info, size: Ctl.iconSm, color: c.dim)),
                 SizedBox(width: Sp.x2),
                 Expanded(child: Text(l.deskSetRecvEpboxOffNote, style: ts.bodyDim)),
               ],

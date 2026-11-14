@@ -14,7 +14,7 @@ import '../desk_l10n.dart';
 import '../screens/settings/search/settings_sections.dart' show setJoinReasons;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
-import 'buttons.dart' show FocusRing;
+import 'buttons.dart' show EPressable, FocusRing;
 import 'tip.dart';
 
 /// The keys of the "more options" controls the user opened, for the session.
@@ -72,31 +72,25 @@ class _EMoreOptionsState extends ConsumerState<EMoreOptions> {
         label: tip,
         excludeSemantics: true,
         onTap: _toggle,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => _toggle())},
-          child: Builder(
-            builder: (context) => GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _toggle,
-              // 44 px to hit, 28 px to see.
-              child: SizedBox.square(
-                dimension: Ctl.md,
-                child: Center(
-                  child: FocusRing(
-                    focused: Focus.of(context).hasFocus,
-                    child: AnimatedContainer(
-                      duration: Dur.fast,
-                      width: Ctl.inline,
-                      height: Ctl.inline,
-                      decoration: BoxDecoration(
-                        color: _hover ? c.hover : (open ? c.s3 : Colors.transparent),
-                        borderRadius: BorderRadius.circular(Rad.sm),
-                      ),
-                      child: Icon(open ? EIcons.unfoldLess : EIcons.unfoldMore, size: 18.u, color: _hover || open ? c.text : c.dim),
-                    ),
+        child: EPressable(
+          onHover: (v) => setState(() => _hover = v),
+          behavior: HitTestBehavior.opaque,
+          onTap: _toggle,
+          // 44 px to hit, 28 px to see.
+          builder: (context, focused) => SizedBox.square(
+            dimension: Ctl.md,
+            child: Center(
+              child: FocusRing(
+                focused: focused,
+                child: AnimatedContainer(
+                  duration: Dur.fast,
+                  width: Ctl.inline,
+                  height: Ctl.inline,
+                  decoration: BoxDecoration(
+                    color: _hover ? c.hover : (open ? c.s3 : Colors.transparent),
+                    borderRadius: BorderRadius.circular(Rad.sm),
                   ),
+                  child: Icon(open ? EIcons.unfoldLess : EIcons.unfoldMore, size: 18.u, color: _hover || open ? c.text : c.dim),
                 ),
               ),
             ),

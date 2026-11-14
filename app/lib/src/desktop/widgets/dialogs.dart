@@ -98,12 +98,7 @@ class EDialog extends StatelessWidget {
   final bool dismissible;
 
   /// The tile's glyph when no [icon] is given.
-  static IconData toneIcon(ETone tone) => switch (tone) {
-    ETone.ok => EIcons.okCircle,
-    ETone.warn => EIcons.alert,
-    ETone.risk => EIcons.error,
-    ETone.info || ETone.neutral || ETone.gold => EIcons.info,
-  };
+  static IconData toneIcon(ETone tone) => tone.icon;
 
 
   /// What Enter does, for the key strip: the label of a primary that takes the focus when the
@@ -249,8 +244,8 @@ class EKeyHint extends StatelessWidget {
             child: Container(
               constraints: BoxConstraints(minWidth: 20.u),
               height: 20.u,
-              margin: EdgeInsetsDirectional.only(end: 6.u),
-              padding: EdgeInsets.symmetric(horizontal: 6.u),
+              margin: EdgeInsetsDirectional.only(end: Sp.x1p5),
+              padding: EdgeInsets.symmetric(horizontal: Sp.x1p5),
               decoration: BoxDecoration(
                 color: c.s2,
                 borderRadius: BorderRadius.circular(Rad.xs),
@@ -400,64 +395,31 @@ void showEToast(
     final c = context.dc;
     final toasts = deskToastsOf(context);
     if (toasts == null) return;
-    final color = switch (tone) {
-      ETone.ok => c.ok,
-      ETone.risk => c.risk,
-      ETone.warn => c.warn,
-      ETone.info => c.info,
-      ETone.neutral => c.dim,
-      // Gold is the brand's, never a notice's: a done toast in gold reads as done (ok).
-      ETone.gold => c.ok,
-    };
+    final color = _toastColor(c, tone);
     var acted = false;
-    final icon = switch (tone) {
-      ETone.risk => EIcons.error,
-      ETone.warn => EIcons.alert,
-      ETone.info || ETone.neutral => EIcons.info,
-      ETone.ok || ETone.gold => EIcons.okCircle,
-    };
-    Widget head({Widget? trailing}) => Row(
-      children: [
-        Icon(icon, size: Ctl.icon, color: color),
-        SizedBox(width: Sp.x3),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
-              ),
-              if (text != null)
-                Text(
-                  text,
-                  style: TextStyle(color: c.dim, fontSize: Fs.sm),
-                ),
-            ],
-          ),
-        ),
-        if (action != null) ...[
-          SizedBox(width: Sp.x3),
-          EButton(
-            label: action.label,
-            size: EBtnSize.sm,
-            onPressed: () {
+    final icon = _toastIcon(tone);
+    Widget head({Widget? trailing}) => _toastHead(
+      c,
+      icon: icon,
+      color: color,
+      title: title,
+      text: text,
+      actionLabel: action?.label,
+      onAction: action == null
+          ? null
+          : () {
               acted = true;
               toasts.hide();
               action.run();
             },
-          ),
-        ],
-        if (trailing != null) ...[SizedBox(width: Sp.x2), trailing],
-      ],
+      trailing: trailing,
     );
     // A toast with items keeps its own clock: it stops while the pointer is over the toast or
     // the items are unfolded, so the host's own must not run out first.
     final folds = items.isNotEmpty;
     final shown = toasts.add(
       EToast(
-        padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
+        padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3p5),
         child: folds
             ? _ToastFold(
                 head: head,
@@ -473,34 +435,109 @@ void showEToast(
       ),
       folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
     );
-    // A toast belongs to the screen it was shown on: leaving the screen closes it.
-    ProviderContainer? container;
-    try {
-      container = ProviderScope.containerOf(context, listen: false);
-    } on Object {
-      container = null;
-    }
-    if (container == null) return;
-    ProviderSubscription<DeskLocation>? sub;
-    sub = container.listen(deskNavProvider, (prev, next) {
-      if (prev?.route != next.route) {
-        // Every toast of the screen goes, the queued ones too.
-        toasts.clear();
-        sub?.close();
-        sub = null;
-        if (stay && !acted && !next.route.bare) {
-          // After every toast of the old screen cleared, this one's own clear included.
-          scheduleMicrotask(() {
-            if (context.mounted) showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true);
-          });
-        }
-      }
-    });
-    shown.then((_) {
+    _closeWithScreen(
+      context,
+      toasts,
+      shown,
+      showAgain: () => stay && !acted,
+      again: () => showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true),
+    );
+  }
+
+/// A toast's colour for [tone].
+Color _toastColor(DeskColors c, ETone tone) => switch (tone) {
+  ETone.ok => c.ok,
+  ETone.risk => c.risk,
+  ETone.warn => c.warn,
+  ETone.info => c.info,
+  ETone.neutral => c.dim,
+  // Gold is the brand's, never a notice's: a done toast in gold reads as done (ok).
+  ETone.gold => c.ok,
+};
+
+/// A toast's icon for [tone].
+IconData _toastIcon(ETone tone) => switch (tone) {
+  ETone.risk => EIcons.error,
+  ETone.warn => EIcons.alert,
+  ETone.info || ETone.neutral => EIcons.info,
+  ETone.ok || ETone.gold => EIcons.okCircle,
+};
+
+/// A toast's line: icon, title over [text], the action's button and [trailing].
+Widget _toastHead(
+  DeskColors c, {
+  required IconData icon,
+  required Color color,
+  required String title,
+  String? text,
+  String? actionLabel,
+  VoidCallback? onAction,
+  Widget? trailing,
+}) => Row(
+  children: [
+    Icon(icon, size: Ctl.icon, color: color),
+    SizedBox(width: Sp.x3),
+    Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
+          ),
+          if (text != null)
+            Text(
+              text,
+              style: TextStyle(color: c.dim, fontSize: Fs.sm),
+            ),
+        ],
+      ),
+    ),
+    if (actionLabel != null) ...[
+      SizedBox(width: Sp.x3),
+      EButton(label: actionLabel, size: EBtnSize.sm, onPressed: onAction),
+    ],
+    if (trailing != null) ...[SizedBox(width: Sp.x2), trailing],
+  ],
+);
+
+/// A toast belongs to the screen it was shown on: leaving the screen closes it, and every toast
+/// of that screen. When [showAgain] says so, [again] shows it on the next screen (not a bare one).
+void _closeWithScreen(
+  BuildContext context,
+  DeskToasts toasts,
+  Future<void> shown, {
+  required bool Function() showAgain,
+  required VoidCallback again,
+}) {
+  ProviderContainer? container;
+  try {
+    container = ProviderScope.containerOf(context, listen: false);
+  } on Object {
+    container = null;
+  }
+  if (container == null) return;
+  ProviderSubscription<DeskLocation>? sub;
+  sub = container.listen(deskNavProvider, (prev, next) {
+    if (prev?.route != next.route) {
+      // Every toast of the screen goes, the queued ones too.
+      toasts.clear();
       sub?.close();
       sub = null;
-    });
-  }
+      if (showAgain() && !next.route.bare) {
+        // After every toast of the old screen cleared, this one's own clear included.
+        scheduleMicrotask(() {
+          if (context.mounted) again();
+        });
+      }
+    }
+  });
+  shown.then((_) {
+    sub?.close();
+    sub = null;
+  });
+}
 
 /// A toast's surface: the raised card at the window's top right.
 class EToast extends StatelessWidget {
@@ -745,7 +782,7 @@ class _ToastFoldState extends State<_ToastFold> {
                       borderRadius: BorderRadius.circular(Rad.sm),
                       hoverColor: c.hover,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 6.u),
+                        padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: Sp.x1p5),
                         child: Row(
                           children: [
                             Expanded(child: Text(item.label, style: ts.body)),

@@ -226,7 +226,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                     // Its own control (review 11, named "Help language" to a screen reader): it
                     // sets only the topics' language. Level with the field, above its hint.
                     Padding(
-                      padding: EdgeInsets.only(bottom: 24.u),
+                      padding: EdgeInsets.only(bottom: Sp.x6),
                       child: _HelpLanguageSwitch(current: lang),
                     ),
                   ],
@@ -484,7 +484,7 @@ class _TopicState extends ConsumerState<_Topic> {
     final instant = MediaQuery.of(context).disableAnimations;
     final answer = ts.bodyDim.copyWith(fontSize: 13.5.u);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3p5),
       decoration: BoxDecoration(border: widget.first ? null : Border(top: BorderSide(color: c.line))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -529,7 +529,7 @@ class _TopicState extends ConsumerState<_Topic> {
           ExpandFade(
             open: _open,
             child: Padding(
-              padding: EdgeInsets.only(top: 10.u),
+              padding: EdgeInsets.only(top: Sp.x2p5),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: ConstrainedBox(

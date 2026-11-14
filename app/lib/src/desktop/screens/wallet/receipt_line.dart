@@ -60,7 +60,7 @@ class _DeskReceiptLineState extends ConsumerState<DeskReceiptLine> {
       return Row(
         key: deskReceiptToldKey,
         children: [
-          Icon(EIcons.check, size: 16.u, color: c.ok),
+          Icon(EIcons.check, size: Ctl.iconSm, color: c.ok),
           SizedBox(width: Sp.x2),
           Expanded(child: Text(texts.told, style: context.ts.body)),
         ],

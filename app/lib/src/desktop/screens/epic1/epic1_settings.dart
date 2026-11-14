@@ -96,7 +96,7 @@ class _Epic1ExperimentalGroupState extends ConsumerState<Epic1ExperimentalGroup>
               : Row(
                   key: const ValueKey('e1-applies'),
                   children: [
-                    Icon(EIcons.clock, size: 16.u, color: c.dim),
+                    Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim),
                     SizedBox(width: Sp.x2),
                     Expanded(child: Text(l.deskE1AppliesNext, style: context.ts.small.copyWith(color: c.dim))),
                     SizedBox(width: Sp.x3),

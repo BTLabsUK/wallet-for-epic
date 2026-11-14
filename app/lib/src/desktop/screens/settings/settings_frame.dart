@@ -142,7 +142,7 @@ class _Kbd extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 1.u),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x1p5, vertical: 1.u),
       decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.xs), border: Border.all(color: c.lineStrong)),
       child: Text(keys, style: context.ts.mono(size: Fs.xs, color: c.text)),
     );

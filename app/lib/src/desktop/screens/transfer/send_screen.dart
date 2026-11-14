@@ -3251,7 +3251,7 @@ class _PairingCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
             child: Row(
               children: [
-                Icon(!ok ? EIcons.alert : (paused ? Icons.pause : EIcons.lock), size: 16.u, color: !ok || paused ? c.warn : c.dim),
+                Icon(!ok ? EIcons.alert : (paused ? Icons.pause : EIcons.lock), size: Ctl.iconSm, color: !ok || paused ? c.warn : c.dim),
                 SizedBox(width: Sp.x3),
                 Expanded(
                   child: ok

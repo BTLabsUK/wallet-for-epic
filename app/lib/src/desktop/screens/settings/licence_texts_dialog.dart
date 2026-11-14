@@ -101,7 +101,7 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
                       EInkWell(
                         onTap: () => setState(() => _open = name),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 10.u),
+                          padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2p5),
                           decoration: i == 0 ? null : BoxDecoration(border: Border(top: BorderSide(color: c.line))),
                           child: Row(
                             children: [

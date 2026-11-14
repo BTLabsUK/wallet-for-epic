@@ -142,7 +142,7 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
               children: [
                 for (final (n, g) in groups.indexed) ...[
                   Padding(
-                    padding: EdgeInsets.only(top: n == 0 ? 0 : Sp.x3, bottom: 4.u),
+                    padding: EdgeInsets.only(top: n == 0 ? 0 : Sp.x3, bottom: Sp.x1),
                     child: Text(
                       checkGroupLabel(l, g).toUpperCase(),
                       style: ts.caption.copyWith(color: g == CheckGroup.problems ? c.warn : c.dim, letterSpacing: 0.8, fontWeight: FontWeight.w600),

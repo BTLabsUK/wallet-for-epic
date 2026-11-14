@@ -845,7 +845,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                             ),
                     ),
                     SizedBox(width: Sp.x2),
-                    Icon(EIcons.chevronDown, size: 16.u, color: c.dim),
+                    Icon(EIcons.chevronDown, size: Ctl.iconSm, color: c.dim),
                   ],
                 ),
               ),
@@ -875,7 +875,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             },
           ),
           if (widget.error != null) ...[
-            SizedBox(height: 6.u),
+            SizedBox(height: Sp.x1p5),
             _ErrorLine(widget.error!),
           ],
         ],
@@ -997,7 +997,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             ),
           ),
           if (helper != null) ...[
-            SizedBox(height: 6.u),
+            SizedBox(height: Sp.x1p5),
             Semantics(
               liveRegion: true,
               child: Text(
@@ -1138,7 +1138,7 @@ class _ErrorLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(padding: const EdgeInsets.only(top: 2), child: Icon(EIcons.error, size: Ctl.iconSm, color: c.risk)),
-          SizedBox(width: 6.u),
+          SizedBox(width: Sp.x1p5),
           Expanded(child: Text(text, style: context.ts.small.copyWith(color: c.risk))),
         ],
       ),
@@ -1259,7 +1259,7 @@ class _Row extends StatelessWidget {
                 Expanded(
                   child: ExcludeSemantics(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 6.u),
+                      padding: EdgeInsets.symmetric(vertical: Sp.x1p5),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1310,13 +1310,13 @@ class _Row extends StatelessWidget {
                         borderRadius: BorderRadius.circular(Rad.xs),
                         border: Border.all(color: ticked! ? c.accent : c.lineField),
                       ),
-                      child: ticked! ? Icon(EIcons.check, size: 16.u, color: c.accentInk) : null,
+                      child: ticked! ? Icon(EIcons.check, size: Ctl.iconSm, color: c.accentInk) : null,
                     ),
                   )
                 else
                   SizedBox(
                     width: 20.u,
-                    child: selected ? Icon(EIcons.check, size: 16.u, color: s.state == NodeHealthState.healthy ? c.ok : c.dim) : null,
+                    child: selected ? Icon(EIcons.check, size: Ctl.iconSm, color: s.state == NodeHealthState.healthy ? c.ok : c.dim) : null,
                   ),
                 EIconButton(
                   key: ValueKey('server-row-remove-${s.value}'),
@@ -1393,7 +1393,7 @@ class _LocalRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: 20.u, child: selected ? Icon(EIcons.check, size: 16.u, color: c.dim) : null),
+                SizedBox(width: 20.u, child: selected ? Icon(EIcons.check, size: Ctl.iconSm, color: c.dim) : null),
                 SizedBox(width: Ctl.inline),
               ],
             ),

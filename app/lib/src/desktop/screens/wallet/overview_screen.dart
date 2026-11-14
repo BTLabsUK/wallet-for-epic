@@ -47,6 +47,16 @@ enum OverviewShot { loading, empty, nodeDown, starting, syncing, nodeProblem }
 const double _syncPart = 0.62;
 const int _walletTip = 2903118;
 
+/// How a screenshot state reads on the balance panel: [busy] updating, [asOfBlock] the
+/// wallet's height while the node syncs, [sendBlocked] Send waits, [nodeTrouble] the node
+/// answers but cannot be used. A live Overview (no shot) has none of them.
+({bool busy, int? asOfBlock, bool sendBlocked, bool nodeTrouble}) _shotBalance(OverviewShot? shot) => (
+  busy: shot == OverviewShot.starting || shot == OverviewShot.syncing,
+  asOfBlock: shot == OverviewShot.syncing ? _walletTip : null,
+  sendBlocked: shot == OverviewShot.syncing || shot == OverviewShot.nodeProblem,
+  nodeTrouble: shot == OverviewShot.nodeProblem,
+);
+
 /// Home: the balance (the one framed object), what is in motion and recent activity; the
 /// service state lives in the status bar.
 class OverviewScreen extends ConsumerStatefulWidget {
@@ -61,8 +71,6 @@ class OverviewScreen extends ConsumerStatefulWidget {
 class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _refreshing = false;
   bool _restarting = false;
-  bool _problemHidden = false;
-  bool _addressNoteHidden = false;
 
   /// The history import offer was asked on this Overview.
   bool _importOffered = false;
@@ -101,8 +109,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     // The scan a restore owes: its progress, not the empty-wallet state.
     final restore = shot == null ? s.status?.restoreScan : null;
     final empty = shot == OverviewShot.empty || (shot == null && restore == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
-    final starting = shot == OverviewShot.starting;
-    final syncing = shot == OverviewShot.syncing;
+    final shotView = _shotBalance(shot);
     // Offline (but with a local node) and Tor only: the node is not asked, so its last answer
     // is not news.
     final netBlock = shot == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
@@ -136,74 +143,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         if (mounted) unawaited(showHistoryImportOffer(context, ref));
       });
     }
-    final notices = <Widget>[
-      // The shell's notice; the Epicbox server offer is a toast.
-      if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
-      if (restore != null) RestoreScanPanel(scan: restore),
-      if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
-      // This session runs on the unencrypted records; the next unlock copies them again.
-      if (s.status?.recordsPlain ?? false) ENotice(key: const ValueKey('overview-records-plain'), tone: ETone.info, icon: EIcons.info, title: l.storeRecordsPlain),
-      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
-      if (starting) const _Steps(),
-      if (shot == OverviewShot.nodeProblem && !_addressNoteHidden)
-        ENotice(
-          icon: EIcons.info,
-          title: l.deskOvNodeAddrTitle,
-          text: l.deskOvNodeAddrText(hostPort(hostSettings.nodeUse)),
-          actionsBelow: true,
-          actions: [EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
-        ),
-      if (shot == OverviewShot.nodeProblem && !_problemHidden)
-        ENotice(
-          tone: ETone.risk,
-          title: l.deskOvNodeIncompatTitle,
-          text: l.deskOvNodeUrl(nodeUrl),
-          actionsBelow: true,
-          actions: [
-            EButton(label: l.deskOvUsePublicNode, icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            if (advancedHas(ref, AdvancedFeature.builtInNode)) EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
-            EButton(label: l.deskOvHide, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
-          ],
-        ),
-      // The Node list is empty: nothing to reach, so no "Cannot reach the node at …".
-      if (nodeDownSaid && ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty)))
-        ENotice(
-          key: const ValueKey('overview-no-node'),
-          tone: ETone.warn,
-          icon: EIcons.server,
-          title: l.deskSlNoNodeTitle,
-          text: l.deskSlNoNodeText,
-          actionsBelow: true,
-          actions: [EButton(label: l.deskOvNodeSettings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode))],
-        )
-      else if (nodeDownSaid)
-        ENotice(
-          tone: ETone.risk,
-          title: l.deskOvCantReachNode(nodeUrl),
-          text: l.deskOvCantReachNodeText,
-          actionsBelow: true,
-          actions: [
-            if (ref.watch(settingsPrefsProvider).builtin)
-              EButton(
-                label: _restarting ? l.deskOvStarting : l.deskOvStartNode,
-                icon: EIcons.refresh,
-                size: EBtnSize.inline,
-                busy: _restarting,
-                onPressed: _restarting ? null : _restartNode,
-              ),
-            EButton(label: l.deskOvNodeSettings, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-          ],
-        ),
-      if (syncing) _SyncNotice(part: _syncPart, walletTip: _walletTip),
-      // Tor only, Tor not up yet: the node waits for it (in progress, as Send and Receive say).
-      if (netBlock == NetBlock.waitingForTor)
-        ENotice(
-          key: const ValueKey('overview-waiting-tor'),
-          tone: ETone.info,
-          title: l.netBlockWaitingForTorLong,
-          actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
-        ),
-    ];
+    final notices = _notices(context, s, restore: restore, nodeDownSaid: nodeDownSaid, nodeUrl: nodeUrl, netBlock: netBlock);
 
     // The Epicbox server offer and the move as toasts (item 16), not cards in the layout.
     return DeskRelayNotice(
@@ -227,6 +167,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final n in notices) ...[n, gap],
+            if (shot != null) _ShotNotices(shot: shot, nodeUrl: nodeUrl, restarting: _restarting, onRestartNode: _restartNode),
             TourTarget(
               id: 'balance',
               child: _BalancePanel(
@@ -235,11 +176,11 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                 hidden: hidden,
                 // Not beside "Cannot reach the node": a refresh still waiting on a node that does
                 // not answer (packets dropped) only ends at its timeout.
-                updating: !offline && !nodeDown && (starting || syncing || loading || walletSync),
+                updating: !offline && !nodeDown && (shotView.busy || loading || walletSync),
                 offline: offline,
-                asOfBlock: syncing ? _walletTip : null,
-                sendBlocked: syncing || nodeDown || shot == OverviewShot.nodeProblem,
-                nodeAnswers: !(nodeDown || shot == OverviewShot.nodeProblem),
+                asOfBlock: shotView.asOfBlock,
+                sendBlocked: shotView.sendBlocked || nodeDown,
+                nodeAnswers: !(nodeDown || shotView.nodeTrouble),
                 refresh: _refreshing
                     ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
                     : EIconButton(
@@ -280,6 +221,124 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// The notices above the balance, most pressing last: the shell's, a restore's scan, the
+  /// node's and Tor's.
+  List<Widget> _notices(
+    BuildContext context,
+    DeskState s, {
+    required RestoreScan? restore,
+    required bool nodeDownSaid,
+    required String nodeUrl,
+    required NetBlock netBlock,
+  }) {
+    final l = context.l10n;
+    final nav = ref.read(deskNavProvider.notifier);
+    return [
+      // The shell's notice; the Epicbox server offer is a toast.
+      if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
+      if (restore != null) RestoreScanPanel(scan: restore),
+      if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
+      // This session runs on the unencrypted records; the next unlock copies them again.
+      if (s.status?.recordsPlain ?? false) ENotice(key: const ValueKey('overview-records-plain'), tone: ETone.info, icon: EIcons.info, title: l.storeRecordsPlain),
+      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
+      // The Node list is empty: nothing to reach, so no "Cannot reach the node at …".
+      if (nodeDownSaid && ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty)))
+        ENotice(
+          key: const ValueKey('overview-no-node'),
+          tone: ETone.warn,
+          icon: EIcons.server,
+          title: l.deskSlNoNodeTitle,
+          text: l.deskSlNoNodeText,
+          actionsBelow: true,
+          actions: [EButton(label: l.deskOvNodeSettings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode))],
+        )
+      else if (nodeDownSaid)
+        ENotice(
+          tone: ETone.risk,
+          title: l.deskOvCantReachNode(nodeUrl),
+          text: l.deskOvCantReachNodeText,
+          actionsBelow: true,
+          actions: [
+            if (ref.watch(settingsPrefsProvider).builtin)
+              EButton(
+                label: _restarting ? l.deskOvStarting : l.deskOvStartNode,
+                icon: EIcons.refresh,
+                size: EBtnSize.inline,
+                busy: _restarting,
+                onPressed: _restarting ? null : _restartNode,
+              ),
+            EButton(label: l.deskOvNodeSettings, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
+          ],
+        ),
+      // Tor only, Tor not up yet: the node waits for it (in progress, as Send and Receive say).
+      if (netBlock == NetBlock.waitingForTor)
+        ENotice(
+          key: const ValueKey('overview-waiting-tor'),
+          tone: ETone.info,
+          title: l.netBlockWaitingForTorLong,
+          actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
+        ),
+    ];
+  }
+}
+
+/// The notices of the states a live Overview only passes through, which only a screenshot
+/// holds still (the tour, the screenshot tool): just unlocked, the node syncing, a node that
+/// cannot be used. Each with the gap the live notices have under them.
+class _ShotNotices extends ConsumerStatefulWidget {
+  const _ShotNotices({required this.shot, required this.nodeUrl, required this.restarting, required this.onRestartNode});
+
+  final OverviewShot shot;
+  final String nodeUrl;
+  final bool restarting;
+  final VoidCallback onRestartNode;
+
+  @override
+  ConsumerState<_ShotNotices> createState() => _ShotNoticesState();
+}
+
+class _ShotNoticesState extends ConsumerState<_ShotNotices> {
+  bool _problemHidden = false;
+  bool _addressNoteHidden = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final nav = ref.read(deskNavProvider.notifier);
+    final nodeProblem = widget.shot == OverviewShot.nodeProblem;
+    final notices = <Widget>[
+      if (widget.shot == OverviewShot.starting) const _Steps(),
+      if (nodeProblem && !_addressNoteHidden)
+        ENotice(
+          icon: EIcons.info,
+          title: l.deskOvNodeAddrTitle,
+          text: l.deskOvNodeAddrText(hostPort(hostSettings.nodeUse)),
+          actionsBelow: true,
+          actions: [EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
+        ),
+      if (nodeProblem && !_problemHidden)
+        ENotice(
+          tone: ETone.risk,
+          title: l.deskOvNodeIncompatTitle,
+          text: l.deskOvNodeUrl(widget.nodeUrl),
+          actionsBelow: true,
+          actions: [
+            EButton(label: l.deskOvUsePublicNode, icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
+            if (advancedHas(ref, AdvancedFeature.builtInNode))
+              EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: widget.restarting, onPressed: widget.onRestartNode),
+            EButton(label: l.deskOvHide, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
+          ],
+        ),
+      if (widget.shot == OverviewShot.syncing) const _SyncNotice(part: _syncPart, walletTip: _walletTip),
+    ];
+    if (notices.isEmpty) return const SizedBox.shrink();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [for (final n in notices) ...[n, SizedBox(height: Sp.x4)]],
     );
   }
 }
@@ -423,7 +482,7 @@ class _BalancePanel extends ConsumerWidget {
     final fiat = price == null || b == null
         ? null
         : Wrap(
-            spacing: 14.u,
+            spacing: Sp.x3p5,
             runSpacing: Sp.x1,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
@@ -494,12 +553,12 @@ class _BalancePanel extends ConsumerWidget {
                 ],
               ),
               amount,
-              SizedBox(height: 6.u),
+              SizedBox(height: Sp.x1p5),
               // What Send can use, when a send's change or a payment is still confirming, then
               // the parts of the balance.
               if (b != null && (parts.isNotEmpty || b.spendable != b.figure(own)))
                 Wrap(
-                  spacing: 14.u,
+                  spacing: Sp.x3p5,
                   runSpacing: Sp.x1,
                   children: [
                     Text(l.deskOvSpendableNow(hidden ? '••••••' : epicTextL(l, b.spendable)), key: const ValueKey('overview-spendable-now'), style: ts.small),
@@ -507,7 +566,7 @@ class _BalancePanel extends ConsumerWidget {
                       Row(
                         key: ValueKey('overview-part-$label'),
                         mainAxisSize: MainAxisSize.min,
-                        spacing: 6.u,
+                        spacing: Sp.x1p5,
                         children: [
                           // A long label gives way in a narrow window; the amount never does.
                           Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small)),
@@ -537,7 +596,7 @@ class _BalancePanel extends ConsumerWidget {
             ],
           );
           return Padding(
-            padding: narrow ? EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 18.u) : EdgeInsets.symmetric(horizontal: 28.u, vertical: 22.u),
+            padding: narrow ? EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4p5) : EdgeInsets.symmetric(horizontal: 28.u, vertical: Sp.x5p5),
             child: narrow
                 ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [words, SizedBox(height: Sp.x4), grid])
                 : Row(
@@ -650,7 +709,7 @@ class _BigAmount extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 10.u),
+                    SizedBox(width: Sp.x2p5),
                     Text(
                       epicUnit,
                       style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
@@ -811,11 +870,7 @@ class _Recent extends StatelessWidget {
           ),
         Container(
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: c.s1,
-            border: Border.all(color: c.line),
-            borderRadius: BorderRadius.circular(Rad.sm),
-          ),
+          decoration: panelBox(c),
           child: body,
         ),
       ],
@@ -950,11 +1005,7 @@ class _AccentBox extends StatelessWidget {
     final c = context.dc;
     return Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.line),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
+      decoration: panelBox(c),
       child: Stack(
         children: [
           Positioned.fill(

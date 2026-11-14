@@ -114,7 +114,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       icon: EIcons.folderOpen,
       onTap: toImport,
     );
-    final gap = 10.u;
+    final gap = Sp.x2p5;
     // Tor only from the first connection: a fresh install, Tor builds.
     final offered = torBuilt && held && !hasWallets;
     return EHeroScreen(
@@ -125,7 +125,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Center(child: EGlyphTile()),
-                  SizedBox(height: 18.u),
+                  SizedBox(height: Sp.x4p5),
                   if (hasWallets)
                     Semantics(
                       header: true,
@@ -136,7 +136,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       header: true,
                       child: Center(child: BrandWordmark(variant: BrandVariant.desktop, size: Fs.h1.u, label: appName)),
                     ),
-                    SizedBox(height: 14.u),
+                    SizedBox(height: Sp.x3p5),
                     Text(l.deskOnbWelcomeTagline, style: ts.bodyDim, textAlign: TextAlign.center),
                   ],
                   SizedBox(height: 28.u),
@@ -322,52 +322,46 @@ class _DoorState extends State<_Door> {
       widget.semanticsId,
       child: Semantics(
         button: true,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.click,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
-          child: Builder(
-            builder: (context) => GestureDetector(
-              onTap: widget.onTap,
-              child: FocusRing(
-                focused: Focus.of(context).hasFocus,
-                child: AnimatedContainer(
-                  duration: Dur.fast,
-                  padding: main ? EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 18.u) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
-                  decoration: BoxDecoration(
-                    color: main ? Color.alphaBlend(c.accentFaint, c.s1) : c.s1,
-                    borderRadius: BorderRadius.circular(Rad.sm),
-                    border: Border.all(color: edge),
+        child: EPressable(
+          onHover: (v) => setState(() => _hover = v),
+          onTap: widget.onTap,
+          builder: (context, focused) => FocusRing(
+            focused: focused,
+            child: AnimatedContainer(
+              duration: Dur.fast,
+              padding: main ? EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4p5) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3p5),
+              decoration: BoxDecoration(
+                color: main ? Color.alphaBlend(c.accentFaint, c.s1) : c.s1,
+                borderRadius: BorderRadius.circular(Rad.sm),
+                border: Border.all(color: edge),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: tile,
+                    height: tile,
+                    decoration: BoxDecoration(
+                      color: main ? c.accentSoft : c.s3,
+                      borderRadius: BorderRadius.circular(Rad.sm),
+                      border: main ? Border.all(color: c.accent.withValues(alpha: 0.45)) : null,
+                    ),
+                    child: Icon(widget.icon, size: Ctl.icon, color: main ? c.accentText : c.dim),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: tile,
-                        height: tile,
-                        decoration: BoxDecoration(
-                          color: main ? c.accentSoft : c.s3,
-                          borderRadius: BorderRadius.circular(Rad.sm),
-                          border: main ? Border.all(color: c.accent.withValues(alpha: 0.45)) : null,
-                        ),
-                        child: Icon(widget.icon, size: Ctl.icon, color: main ? c.accentText : c.dim),
-                      ),
-                      SizedBox(width: 14.u),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.title, style: main ? ts.h3 : ts.strong.copyWith(fontSize: (ts.strong.fontSize ?? Fs.md) * Fs.lg / Fs.md)),
-                            SizedBox(height: 2.u),
-                            Text(widget.text, style: ts.small),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: Sp.x3),
-                      Icon(EIcons.chevronRight, size: Ctl.iconSm, color: main ? c.accentText : c.faint),
-                    ],
+                  SizedBox(width: Sp.x3p5),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.title, style: main ? ts.h3 : ts.strong.copyWith(fontSize: (ts.strong.fontSize ?? Fs.md) * Fs.lg / Fs.md)),
+                        SizedBox(height: 2.u),
+                        Text(widget.text, style: ts.small),
+                      ],
+                    ),
                   ),
-                ),
+                  SizedBox(width: Sp.x3),
+                  Icon(EIcons.chevronRight, size: Ctl.iconSm, color: main ? c.accentText : c.faint),
+                ],
               ),
             ),
           ),
@@ -391,7 +385,7 @@ class _Facts extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(icon, size: Ctl.iconSm, color: c.accentText)),
-        SizedBox(width: 10.u),
+        SizedBox(width: Sp.x2p5),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +407,7 @@ class _Facts extends StatelessWidget {
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final (i, f) in facts.indexed) ...[if (i > 0) SizedBox(width: 22.u), Expanded(child: f)],
+                for (final (i, f) in facts.indexed) ...[if (i > 0) SizedBox(width: Sp.x5p5), Expanded(child: f)],
               ],
             )
           : Column(

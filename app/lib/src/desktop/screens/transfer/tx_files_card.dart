@@ -269,8 +269,8 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(EIcons.file, size: 20.u, color: c.dim),
-                    SizedBox(width: 10.u),
+                    Icon(EIcons.file, size: Ctl.icon, color: c.dim),
+                    SizedBox(width: Sp.x2p5),
                     Semantics(header: true, child: Text(l.deskRecvFiles, style: ts.h3)),
                   ],
                 ),
@@ -315,8 +315,8 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
                 key: const ValueKey('rx-files-offline-node'),
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(EIcons.info, size: 16.u, color: c.info),
-                  SizedBox(width: 8.u),
+                  Icon(EIcons.info, size: Ctl.iconSm, color: c.info),
+                  SizedBox(width: Sp.x2),
                   Expanded(child: Text(l.netOfflineNodeHint, style: ts.small)),
                 ],
               ),
@@ -376,7 +376,7 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
                                 _Tone.wait => EIcons.info,
                                 _Tone.risk => EIcons.error,
                               },
-                              size: 16.u,
+                              size: Ctl.iconSm,
                               color: switch (line.tone) {
                                 _Tone.ok => c.ok,
                                 _Tone.wait => c.info,

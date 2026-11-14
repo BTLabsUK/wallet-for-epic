@@ -38,7 +38,7 @@ class ModalMetrics {
 
   /// Over the body, and over the footer.
   double get bodyTop => short ? Sp.x4 : Sp.x6;
-  double get footTop => short ? Sp.x4 : 22.u;
+  double get footTop => short ? Sp.x4 : Sp.x5p5;
 
   /// The widest the one sentence under the title runs.
   static double get leadWidth => 380.u;
@@ -161,7 +161,7 @@ class EModalButtons extends StatelessWidget {
     final buttons = ordered(actions);
     return LayoutBuilder(
       builder: (context, box) {
-        final gap = 10.u;
+        final gap = Sp.x2p5;
         final last = buttons.length > 3 ? 3 : buttons.length;
         final first = buttons.length - last;
         double floor(double w) => (w * 100).floorToDouble() / 100;
@@ -205,7 +205,7 @@ class EModalKeys extends StatelessWidget {
     final c = context.dc;
     return Container(
       margin: EdgeInsets.only(top: short ? Sp.x3 : Sp.x5),
-      padding: EdgeInsets.symmetric(horizontal: padX.u, vertical: short ? 6.u : 10.u),
+      padding: EdgeInsets.symmetric(horizontal: padX.u, vertical: short ? Sp.x1p5 : Sp.x2p5),
       decoration: BoxDecoration(color: c.modalFoot, border: Border(top: BorderSide(color: c.line))),
       child: NoSelect(
         child: ExcludeSemantics(
@@ -213,7 +213,7 @@ class EModalKeys extends StatelessWidget {
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: Sp.x5,
-            runSpacing: 6.u,
+            runSpacing: Sp.x1p5,
             children: hints,
           ),
         ),

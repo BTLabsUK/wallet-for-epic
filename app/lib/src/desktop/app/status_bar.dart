@@ -87,7 +87,7 @@ class DeskStatusBar extends ConsumerWidget {
 const _nowShown = 2;
 
 /// A cell's side padding.
-EdgeInsets get _cellPad => EdgeInsets.symmetric(horizontal: 14.u);
+EdgeInsets get _cellPad => EdgeInsets.symmetric(horizontal: Sp.x3p5);
 
 /// The bar itself: its height, its fill, the hairline over it, and its name for a screen reader.
 class _BarFrame extends StatelessWidget {

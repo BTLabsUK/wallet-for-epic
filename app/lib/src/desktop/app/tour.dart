@@ -495,7 +495,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                                   ),
                                   SizedBox(height: Sp.x1),
                                   Semantics(header: true, child: Text(step.titleOf(l), style: ts.h3)),
-                                  SizedBox(height: 6.u),
+                                  SizedBox(height: Sp.x1p5),
                                   Semantics(liveRegion: true, child: Text(step.textOf(l), style: ts.bodyDim)),
                                 ],
                               ),

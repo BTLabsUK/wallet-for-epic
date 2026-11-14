@@ -224,9 +224,9 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
     final facts = _facts(l, info);
     Widget factGrid(double width) {
       final per = width >= 900.u ? facts.length : (width >= 560.u ? 3 : 2);
-      final gap = 14.u;
+      final gap = Sp.x3p5;
       final w = ((width - gap * (per - 1)) / per).floorToDouble();
-      return Wrap(spacing: gap, runSpacing: 20.u, children: [for (final f in facts) SizedBox(width: w, child: f)]);
+      return Wrap(spacing: gap, runSpacing: Sp.x5, children: [for (final f in facts) SizedBox(width: w, child: f)]);
     }
 
     Widget statusBlock({required bool wide}) {

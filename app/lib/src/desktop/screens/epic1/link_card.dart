@@ -363,7 +363,7 @@ class Epic1OtherWays extends StatelessWidget {
       children: [
         ESectionHead(l.deskE1OtherWays, top: 0),
         EPanel(
-          padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
+          padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3p5),
           child: Row(
             children: [
               Container(

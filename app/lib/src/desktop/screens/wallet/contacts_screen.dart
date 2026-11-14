@@ -112,11 +112,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final paneOpen = _adding || (selected != null && (_editing || _selected != null));
     // The contact's pane: as wide as Activity's payment pane.
     final paneWidth = MediaQuery.sizeOf(context).width >= Ctl.sideWideFrom ? Ctl.sideWide : Ctl.side;
-    final panel = BoxDecoration(
-      color: c.s1,
-      border: Border.all(color: c.line),
-      borderRadius: BorderRadius.circular(Rad.sm),
-    );
+    final panel = panelBox(c);
 
     Widget pane() {
       if (_adding || (_editing && selected != null)) {
@@ -162,7 +158,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                       child: Row(
                         children: [
                           bone(40.u, 40.u),
-                          SizedBox(width: 14.u),
+                          SizedBox(width: Sp.x3p5),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -599,7 +595,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> with _BusyRun<_OrphanRow
             crossAxisAlignment: beside ? CrossAxisAlignment.center : CrossAxisAlignment.start,
             children: [
               DeskPairAvatar(name: peerLabel(l, r), size: 40.u),
-              SizedBox(width: 14.u),
+              SizedBox(width: Sp.x3p5),
               Expanded(
                 child: beside
                     ? words
@@ -661,7 +657,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
             child: Row(
               children: [
                 _Pic(name: x.name, picture: x.hasPicture, size: 40.u, label: x.label.listMark),
-                SizedBox(width: 14.u),
+                SizedBox(width: Sp.x3p5),
                 Expanded(
                   child: EAddressLines(
                     full: true,
@@ -735,7 +731,7 @@ class _ContactDetail extends ConsumerWidget {
     final addressesCard = <Widget>[
         SizedBox(height: Sp.x6),
         Text(l.contactAddresses, style: ts.label),
-        SizedBox(height: 6.u),
+        SizedBox(height: Sp.x1p5),
         ESetGroup(
           gap: false,
           rows: [
@@ -746,7 +742,7 @@ class _ContactDetail extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
                 child: Row(
                   children: [
-                    Icon(EIcons.lock, size: 16.u, color: c.dim),
+                    Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim),
                     SizedBox(width: Sp.x3),
                     Expanded(child: Text(l.contactNoAddressPaired, style: pairing.caps.opensSealed ? ts.body : ts.bodyDim)),
                   ],

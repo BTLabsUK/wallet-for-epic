@@ -188,13 +188,13 @@ class NodeCard extends StatelessWidget {
               builder: (context, box) {
                 // Columns that leave no lone cell: all four facts in one row where they fit
                 // (>= 1100 px), else rows of three (or two) of at least 150 u each.
-                final fit = ((box.maxWidth + 14.u) / (150.u + 14.u)).floor().clamp(1, 6);
+                final fit = ((box.maxWidth + Sp.x3p5) / (150.u + Sp.x3p5)).floor().clamp(1, 6);
                 var cols = facts.length <= fit ? facts.length : (fit >= 3 ? 3 : fit);
                 if (facts.length % cols == 1 && cols > 2) cols--;
-                final w = (box.maxWidth - 14.u * (cols - 1)) / cols;
+                final w = (box.maxWidth - Sp.x3p5 * (cols - 1)) / cols;
                 final grid = Wrap(
-                  spacing: 14.u,
-                  runSpacing: 20.u,
+                  spacing: Sp.x3p5,
+                  runSpacing: Sp.x5,
                   children: [for (final f in facts) SizedBox(width: w, child: f)],
                 );
                 // The figures of a node that is not answering are the last ones heard: dimmed.

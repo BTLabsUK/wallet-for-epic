@@ -42,6 +42,14 @@ abstract final class Sp {
   static double get x12 => _px(48);
   static double get x16 => _px(64);
 
+  /// The half steps between them, for a component's inner gaps and paddings (a tag's, a row's,
+  /// a notice's): 6, 10, 14, 18 and 22.
+  static double get x1p5 => _px(6);
+  static double get x2p5 => _px(10);
+  static double get x3p5 => _px(14);
+  static double get x4p5 => _px(18);
+  static double get x5p5 => _px(22);
+
   /// The one grid of a two-column page (Activity + detail, Send + Summary, Contacts + detail,
   /// Outputs): the gap between the columns and the padding inside their panels.
   static double get col => x6;

@@ -570,7 +570,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // A withdrawal not posted yet: its notice below stands alone.
         if (!t.isInvoice && !(withdrawal != null && !onChain))
           Container(
-            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10.u),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2p5),
             decoration: BoxDecoration(
               color: c.s2,
               borderRadius: BorderRadius.circular(Rad.sm),

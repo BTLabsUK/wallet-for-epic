@@ -488,11 +488,7 @@ class _MessageBox extends StatelessWidget {
     final c = context.dc;
     return Container(
       padding: EdgeInsets.all(Sp.x4),
-      decoration: BoxDecoration(
-        color: c.s1,
-        borderRadius: BorderRadius.circular(Rad.sm),
-        border: Border.all(color: c.lineStrong),
-      ),
+      decoration: panelBox(c, edge: c.lineStrong),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

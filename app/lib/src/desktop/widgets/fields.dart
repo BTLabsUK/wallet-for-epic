@@ -82,11 +82,11 @@ class EField extends StatelessWidget {
               ?aside,
             ],
           ),
-          SizedBox(height: 6.u),
+          SizedBox(height: Sp.x1p5),
         ],
         _EFieldLabel(label: label, child: child),
         if (error != null) ...[
-          SizedBox(height: 6.u),
+          SizedBox(height: Sp.x1p5),
           _line(Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -94,14 +94,14 @@ class EField extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 1),
                 child: Icon(EIcons.error, size: Ctl.iconSm, color: c.risk),
               ),
-              SizedBox(width: 6.u),
+              SizedBox(width: Sp.x1p5),
               Expanded(
                 child: Text(error!, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w500)),
               ),
             ],
           )),
         ] else if (help != null) ...[
-          SizedBox(height: 6.u),
+          SizedBox(height: Sp.x1p5),
           _line(Text(help!, style: ts.small)),
         ] else if (reserveError) ...[
           // One fixed line the error or hint fills, no more (UD-010).
@@ -574,28 +574,23 @@ class ESwitch extends StatelessWidget {
     return TrustId(semanticsId, child: Semantics(
       toggled: value,
       label: label ?? semanticLabel,
-      child: FocusableActionDetector(
+      child: EPressable(
         enabled: enabled,
-        mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => onChanged?.call(!value))},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            // The whole row takes the click, the gap between the track and the label too.
-            behavior: HitTestBehavior.opaque,
-            onTap: enabled ? () => onChanged!(!value) : null,
-            child: Opacity(
-              opacity: enabled ? 1 : 0.4,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FocusRing(focused: Focus.of(context).hasFocus, radius: 12.u, child: track),
-                  if (label != null) ...[
-                    SizedBox(width: Sp.x3),
-                    Text(label!, style: context.ts.body),
-                  ],
-                ],
-              ),
-            ),
+        cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
+        // The whole row takes the click, the gap between the track and the label too.
+        behavior: HitTestBehavior.opaque,
+        onTap: enabled ? () => onChanged!(!value) : null,
+        builder: (context, focused) => Opacity(
+          opacity: enabled ? 1 : 0.4,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FocusRing(focused: focused, radius: 12.u, child: track),
+              if (label != null) ...[
+                SizedBox(width: Sp.x3),
+                Text(label!, style: context.ts.body),
+              ],
+            ],
           ),
         ),
       ),
@@ -785,54 +780,49 @@ class _SegState<T> extends State<_Seg<T>> {
       button: true,
       selected: sel,
       enabled: !off,
-      child: FocusableActionDetector(
+      child: EPressable(
         enabled: !off,
-        mouseCursor: off ? SystemMouseCursors.basic : SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v && !off),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap?.call())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onTap,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              radius: 6.u,
-              child: AnimatedContainer(
-                duration: widget.md ? Dur.base : Dur.fast,
-                // The whole control (3 u padding and 1 px border each side) is Ctl.md or Ctl.sm tall.
-                height: (widget.md ? Ctl.md : Ctl.sm) - 2 * 3.u - 2,
-                padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-                decoration: BoxDecoration(
-                  color: sel ? c.s4 : (_hover ? c.hover : Colors.transparent),
-                  borderRadius: BorderRadius.circular(6.u),
-                ),
-                // The hairline is drawn over the segment, so choosing one never shifts the row.
-                foregroundDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.u),
-                  border: Border.all(color: sel ? c.lineStrong : Colors.transparent),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.seg.icon != null) ...[
-                      Icon(widget.seg.icon, size: Ctl.iconSm, color: fg),
-                      SizedBox(width: 6.u),
-                    ],
-                    if (widget.stretch)
-                      Flexible(child: NoSelect(child: Text(widget.seg.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: label)))
-                    else
-                      NoSelect(child: Text(widget.seg.label, style: label)),
-                    if (widget.seg.count != null) ...[
-                      SizedBox(width: 6.u),
-                      Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),
-                    ],
-                    if (widget.seg.badge case final badge?) ...[
-                      SizedBox(width: 6.u),
-                      badge,
-                    ],
-                  ],
-                ),
-              ),
+        cursor: off ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        onHover: (v) => setState(() => _hover = v && !off),
+        onTap: widget.onTap,
+        builder: (context, focused) => FocusRing(
+          focused: focused,
+          radius: 6.u,
+          child: AnimatedContainer(
+            duration: widget.md ? Dur.base : Dur.fast,
+            // The whole control (3 u padding and 1 px border each side) is Ctl.md or Ctl.sm tall.
+            height: (widget.md ? Ctl.md : Ctl.sm) - 2 * 3.u - 2,
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+            decoration: BoxDecoration(
+              color: sel ? c.s4 : (_hover ? c.hover : Colors.transparent),
+              borderRadius: BorderRadius.circular(6.u),
+            ),
+            // The hairline is drawn over the segment, so choosing one never shifts the row.
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6.u),
+              border: Border.all(color: sel ? c.lineStrong : Colors.transparent),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (widget.seg.icon != null) ...[
+                  Icon(widget.seg.icon, size: Ctl.iconSm, color: fg),
+                  SizedBox(width: Sp.x1p5),
+                ],
+                if (widget.stretch)
+                  Flexible(child: NoSelect(child: Text(widget.seg.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: label)))
+                else
+                  NoSelect(child: Text(widget.seg.label, style: label)),
+                if (widget.seg.count != null) ...[
+                  SizedBox(width: Sp.x1p5),
+                  Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),
+                ],
+                if (widget.seg.badge case final badge?) ...[
+                  SizedBox(width: Sp.x1p5),
+                  badge,
+                ],
+              ],
             ),
           ),
         ),
@@ -887,55 +877,49 @@ class _EChoiceCardState extends State<EChoiceCard> {
       inMutuallyExclusiveGroup: true,
       checked: sel,
       button: true,
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onTap,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: AnimatedContainer(
-                duration: Dur.fast,
-                padding: EdgeInsets.all(Sp.x4),
-                decoration: BoxDecoration(
-                  color: sel ? c.s3 : c.s1,
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                  border: Border.all(color: sel ? c.text.withValues(alpha: 0.4) : (_hover ? c.dim : c.lineStrong)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (widget.icon != null) ...[
-                      Icon(widget.icon, size: Ctl.icon, color: sel ? c.text : c.faint),
-                      SizedBox(width: Sp.x3),
+      child: EPressable(
+        onHover: (v) => setState(() => _hover = v),
+        onTap: widget.onTap,
+        builder: (context, focused) => FocusRing(
+          focused: focused,
+          child: AnimatedContainer(
+            duration: Dur.fast,
+            padding: EdgeInsets.all(Sp.x4),
+            decoration: BoxDecoration(
+              color: sel ? c.s3 : c.s1,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              border: Border.all(color: sel ? c.text.withValues(alpha: 0.4) : (_hover ? c.dim : c.lineStrong)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.icon != null) ...[
+                  Icon(widget.icon, size: Ctl.icon, color: sel ? c.text : c.faint),
+                  SizedBox(width: Sp.x3),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.titleLines case final n?)
+                        SizedBox(height: n * (ts.strong.fontSize ?? Fs.md) * (ts.strong.height ?? 1.4), child: Text(widget.title, style: ts.strong, maxLines: n, overflow: TextOverflow.ellipsis))
+                      else
+                        Text(widget.title, style: ts.strong),
+                      if (widget.description != null) ...[
+                        SizedBox(height: Sp.x1),
+                        Text(widget.description!, style: ts.small),
+                      ],
+                      if (widget.tag != null) ...[SizedBox(height: Sp.x2), widget.tag!],
                     ],
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (widget.titleLines case final n?)
-                            SizedBox(height: n * (ts.strong.fontSize ?? Fs.md) * (ts.strong.height ?? 1.4), child: Text(widget.title, style: ts.strong, maxLines: n, overflow: TextOverflow.ellipsis))
-                          else
-                            Text(widget.title, style: ts.strong),
-                          if (widget.description != null) ...[
-                            SizedBox(height: Sp.x1),
-                            Text(widget.description!, style: ts.small),
-                          ],
-                          if (widget.tag != null) ...[SizedBox(height: Sp.x2), widget.tag!],
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: Sp.x3),
-                    AnimatedOpacity(
-                      opacity: sel ? 1 : 0,
-                      duration: Dur.fast,
-                      child: Icon(EIcons.check, size: Ctl.iconSm, color: c.text),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                SizedBox(width: Sp.x3),
+                AnimatedOpacity(
+                  opacity: sel ? 1 : 0,
+                  duration: Dur.fast,
+                  child: Icon(EIcons.check, size: Ctl.iconSm, color: c.text),
+                ),
+              ],
             ),
           ),
         ),
@@ -961,38 +945,32 @@ class ECheckbox extends StatelessWidget {
       checked: value,
       label: label,
       excludeSemantics: true,
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => onChanged(!value))},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            // The whole row takes the click, the gap between the box and the label too.
-            behavior: HitTestBehavior.opaque,
-            onTap: () => onChanged(!value),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FocusRing(
-                  focused: Focus.of(context).hasFocus,
-                  radius: Rad.xs,
-                  child: Container(
-                    width: 20.u,
-                    height: 20.u,
-                    margin: const EdgeInsets.only(top: 1),
-                    decoration: BoxDecoration(
-                      color: value ? c.accent : c.s2,
-                      borderRadius: BorderRadius.circular(Rad.xs),
-                      border: Border.all(color: value ? c.accent : c.lineField),
-                    ),
-                    child: value ? Icon(EIcons.check, size: 16.u, color: c.accentInk) : null,
-                  ),
+      child: EPressable(
+        // The whole row takes the click, the gap between the box and the label too.
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onChanged(!value),
+        builder: (context, focused) => Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FocusRing(
+              focused: focused,
+              radius: Rad.xs,
+              child: Container(
+                width: 20.u,
+                height: 20.u,
+                margin: const EdgeInsets.only(top: 1),
+                decoration: BoxDecoration(
+                  color: value ? c.accent : c.s2,
+                  borderRadius: BorderRadius.circular(Rad.xs),
+                  border: Border.all(color: value ? c.accent : c.lineField),
                 ),
-                SizedBox(width: Sp.x3),
-                Flexible(child: Text(label, style: context.ts.body)),
-              ],
+                child: value ? Icon(EIcons.check, size: Ctl.iconSm, color: c.accentInk) : null,
+              ),
             ),
-          ),
+            SizedBox(width: Sp.x3),
+            Flexible(child: Text(label, style: context.ts.body)),
+          ],
         ),
       ),
     ));

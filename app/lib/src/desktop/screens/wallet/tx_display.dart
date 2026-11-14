@@ -614,7 +614,7 @@ class _TxRowState extends ConsumerState<TxRow> {
             child: Row(
               children: [
                 TxStateMark(t, size: 15.u),
-                SizedBox(width: 6.u),
+                SizedBox(width: Sp.x1p5),
                 Flexible(
                   child: Text.rich(
                     TextSpan(
@@ -628,7 +628,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: toneColor),
                   ),
                 ),
-                if (sealed) ...[SizedBox(width: 6.u), const Epic1SealedBadge(compact: true)],
+                if (sealed) ...[SizedBox(width: Sp.x1p5), const Epic1SealedBadge(compact: true)],
                 if (fromDevice) deskDeviceStatusInfo(l, t),
               ],
             ),
@@ -645,7 +645,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                     style: ts.small.copyWith(color: c.faint),
                   ),
                 ),
-                if (sealed) ...[SizedBox(width: 6.u), const Epic1SealedBadge(compact: true)],
+                if (sealed) ...[SizedBox(width: Sp.x1p5), const Epic1SealedBadge(compact: true)],
                 if (typed) ...[SizedBox(width: Sp.x2), Flexible(child: ManualTag(t, t.manualFields.firstWhere((f) => f != ManualField.label)))],
               ],
             ),

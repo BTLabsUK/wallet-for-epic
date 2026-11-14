@@ -135,7 +135,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: l.deskSetDlgPwNew, onChanged: (_) => _edited()),
-                    SizedBox(height: 6.u),
+                    SizedBox(height: Sp.x1p5),
                     // Informs only; its info icon is not a Tab stop.
                     ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
                   ],

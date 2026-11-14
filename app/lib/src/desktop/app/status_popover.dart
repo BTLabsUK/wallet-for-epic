@@ -167,7 +167,7 @@ class DeskStatusPopover extends ConsumerWidget {
               padding: EdgeInsets.fromLTRB(Sp.x3, facts.isEmpty ? 0 : Sp.x3, Sp.x3, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [for (final n in notes) Padding(padding: EdgeInsets.only(bottom: 4.u), child: Text(n, style: ts.small.copyWith(color: c.dim)))],
+                children: [for (final n in notes) Padding(padding: EdgeInsets.only(bottom: Sp.x1), child: Text(n, style: ts.small.copyWith(color: c.dim)))],
               ),
             ),
           if (panel case final panel?)

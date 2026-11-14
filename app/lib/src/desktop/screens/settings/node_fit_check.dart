@@ -363,7 +363,7 @@ class _FitStageState extends State<FitStage> with SingleTickerProviderStateMixin
     final side = 120.u;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-      decoration: BoxDecoration(color: c.s1, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.lineStrong)),
+      decoration: panelBox(c, edge: c.lineStrong),
       child: Row(
         children: [
           ExcludeSemantics(

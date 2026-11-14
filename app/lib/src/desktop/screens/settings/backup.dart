@@ -554,7 +554,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
     } else {
       body = reading != null
           ? Padding(
-              padding: EdgeInsets.only(top: 14.u, bottom: 6.u),
+              padding: EdgeInsets.only(top: Sp.x3p5, bottom: Sp.x1p5),
               child: Row(
                 children: [
                   ESpinner(size: Ctl.iconSm),

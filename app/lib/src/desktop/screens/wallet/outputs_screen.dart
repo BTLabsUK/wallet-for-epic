@@ -486,11 +486,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final c = context.dc;
     return Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.line),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
+      decoration: panelBox(c),
       child: child,
     );
   }
@@ -587,7 +583,7 @@ class _Tiles extends StatelessWidget {
                   for (final (i, t) in tiles.indexed) ...[if (i > 0) SizedBox(width: Sp.x6), Expanded(child: t)],
                 ],
               )
-            : Wrap(spacing: 40.u, runSpacing: 24.u, children: tiles),
+            : Wrap(spacing: Sp.x10, runSpacing: Sp.x6, children: tiles),
       ),
     );
   }
@@ -668,7 +664,7 @@ class _ActionCard extends StatelessWidget {
                   SizedBox(height: Sp.x1),
                   Semantics(liveRegion: true, child: Text(note, style: ts.caption)),
                 ],
-                SizedBox(height: 10.u),
+                SizedBox(height: Sp.x2p5),
                 if (fill) const Spacer(),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 160),
