@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../connection_grace.dart';
 import '../../connection_state.dart' show walletStatusProvider;
+import '../status.dart' show NodeState;
 import '../../contact_check.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
