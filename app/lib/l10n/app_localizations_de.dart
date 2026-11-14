@@ -6514,10 +6514,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendPassword => 'Passwort';
 
   @override
-  String get deskSendPasswordHelp =>
-      'Jede Zahlung fragt das Wallet-Passwort ab.';
-
-  @override
   String get deskSendBusyFile => 'Die Datei wird erstellt.';
 
   @override

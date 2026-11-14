@@ -680,10 +680,6 @@
   "@deskSendPassword": {
     "description": "Label of the password field in the review dialog."
   },
-  "deskSendPasswordHelp": "Every send asks the wallet’s password.",
-  "@deskSendPasswordHelp": {
-    "description": "Help text under the password field in the review dialog."
-  },
   "deskSendBusyFile": "Creating the file.",
   "@deskSendBusyFile": {
     "description": "Status in the review dialog while a file send creates the transaction file."

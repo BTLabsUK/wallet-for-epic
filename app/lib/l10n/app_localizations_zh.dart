@@ -6056,9 +6056,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendPassword => '密码';
 
   @override
-  String get deskSendPasswordHelp => '每次发送都需要输入钱包密码。';
-
-  @override
   String get deskSendBusyFile => '正在创建文件。';
 
   @override

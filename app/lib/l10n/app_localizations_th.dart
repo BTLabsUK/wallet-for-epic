@@ -6271,9 +6271,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendPassword => 'รหัสผ่าน';
 
   @override
-  String get deskSendPasswordHelp => 'ทุกการส่งต้องใส่รหัสผ่านกระเป๋าเงิน';
-
-  @override
   String get deskSendBusyFile => 'กำลังสร้างไฟล์';
 
   @override

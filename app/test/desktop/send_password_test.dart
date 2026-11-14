@@ -73,9 +73,8 @@ void main() {
   testWidgets('a typed unlock: the send asks the password too', (tester) async {
     await review(tester);
     expect(password(), findsOneWidget);
-    // windows-03: this wallet was not opened with the remembered password; the help says so.
+    // windows-03: this wallet was not opened with the remembered password.
     expect(find.textContaining('remembered'), findsNothing);
-    expect(find.text('Every send asks the wallet’s password.'), findsOneWidget);
     expect(tester.widget<EButton>(sendButton()).onPressed, isNull);
     await tester.enterText(password(), 'secret-pass');
     await tester.pump();

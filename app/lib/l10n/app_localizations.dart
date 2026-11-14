@@ -10208,12 +10208,6 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get deskSendPassword;
 
-  /// Help text under the password field in the review dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Every send asks the wallet’s password.'**
-  String get deskSendPasswordHelp;
-
   /// Status in the review dialog while a file send creates the transaction file.
   ///
   /// In en, this message translates to:

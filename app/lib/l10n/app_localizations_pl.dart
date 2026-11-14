@@ -6672,9 +6672,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendPassword => 'Hasło';
 
   @override
-  String get deskSendPasswordHelp => 'Każda wysyłka prosi o hasło portfela.';
-
-  @override
   String get deskSendBusyFile => 'Tworzenie pliku.';
 
   @override

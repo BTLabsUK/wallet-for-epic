@@ -6645,10 +6645,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendPassword => 'Пароль';
 
   @override
-  String get deskSendPasswordHelp =>
-      'Каждая отправка запрашивает пароль кошелька.';
-
-  @override
   String get deskSendBusyFile => 'Создаём файл.';
 
   @override

@@ -6425,9 +6425,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendPassword => 'Password';
 
   @override
-  String get deskSendPasswordHelp => 'Every send asks the wallet’s password.';
-
-  @override
   String get deskSendBusyFile => 'Creating the file.';
 
   @override
