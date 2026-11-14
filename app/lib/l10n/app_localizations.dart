@@ -33930,6 +33930,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing was sent. Ask them to pay to your address instead.'**
   String get pairRefusesInvoicesBody;
+
+  /// Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'The invoice was not sent. Nothing changed; try again.'**
+  String get deskInvIssuerFailed;
 }
 
 class _AppLocalizationsDelegate

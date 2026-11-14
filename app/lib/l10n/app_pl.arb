@@ -5642,5 +5642,6 @@
   "deskE1ModeEpic1Code": "Kod osobisty epic1. Włącz płatności epic1, aby go opłacić.",
   "pairRefusesInvoices": "Portfel tego kontaktu nie opłaca faktur.",
   "pairRefusesInvoicesTitle": "Portfel kontaktu {name} nie opłaca faktur.",
-  "pairRefusesInvoicesBody": "Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres."
+  "pairRefusesInvoicesBody": "Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.",
+  "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie."
 }

@@ -21651,4 +21651,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pairRefusesInvoicesBody =>
       'Nothing was sent. Ask them to pay to your address instead.';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'The invoice was not sent. Nothing changed; try again.';
 }

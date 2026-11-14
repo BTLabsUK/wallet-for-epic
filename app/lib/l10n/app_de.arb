@@ -5642,5 +5642,6 @@
   "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen.",
   "pairRefusesInvoices": "Die Wallet dieses Kontakts bezahlt keine Rechnungen.",
   "pairRefusesInvoicesTitle": "Die Wallet von {name} bezahlt keine Rechnungen.",
-  "pairRefusesInvoicesBody": "Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse."
+  "pairRefusesInvoicesBody": "Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse.",
+  "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut."
 }

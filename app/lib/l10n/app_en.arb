@@ -29456,5 +29456,9 @@
   "pairRefusesInvoicesBody": "Nothing was sent. Ask them to pay to your address instead.",
   "@pairRefusesInvoicesBody": {
     "description": "Second line under pairRefusesInvoices: what to do instead."
+  },
+  "deskInvIssuerFailed": "The invoice was not sent. Nothing changed; try again.",
+  "@deskInvIssuerFailed": {
+    "description": "Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent."
   }
 }

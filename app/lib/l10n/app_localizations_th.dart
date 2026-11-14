@@ -21234,4 +21234,8 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get pairRefusesInvoicesBody =>
       'ยังไม่ได้ส่งสิ่งใด ขอให้อีกฝ่ายชำระไปยังที่อยู่ของคุณแทน';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง';
 }

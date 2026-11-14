@@ -20454,4 +20454,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairRefusesInvoicesBody => '未发送任何内容。请让对方改为直接付款到你的地址。';
+
+  @override
+  String get deskInvIssuerFailed => '账单未发送。没有任何更改；请重试。';
 }

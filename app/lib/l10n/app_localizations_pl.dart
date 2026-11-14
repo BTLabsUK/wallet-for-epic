@@ -22277,4 +22277,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get pairRefusesInvoicesBody =>
       'Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.';
 }

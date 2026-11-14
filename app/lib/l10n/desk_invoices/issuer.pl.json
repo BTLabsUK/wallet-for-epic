@@ -11,6 +11,7 @@
   "deskInvIssuerExpiry": "Płacący ma {hours} godz. na zapłatę.",
   "deskInvIssuerRelayDown": "Serwer Epicbox nie odpowiada, więc teraz nie można wysłać faktury.",
   "deskInvIssuerNotDelivered": "Faktura nie dotarła do serwera Epicbox. Nic nie wysłano. Spróbuj ponownie.",
+  "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.",
   "deskInvIssuerEmpty": "Nie wystawiono jeszcze faktur. Faktura prosi kontakt lub serwis o zapłatę; niczego nie wydaje.",
   "deskInvIssuerTo": "Faktura dla: {payer}",
   "deskInvIssuerToAnyone": "Faktura dla każdego, kto ma plik",

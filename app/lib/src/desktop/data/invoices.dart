@@ -524,12 +524,16 @@ enum InvoiceProblem {
 
 /// An invoice call's failure. [message] is English, for logs; screens word [problem].
 class InvoiceError extends DeskError {
-  const InvoiceError(this.problem, String message, {this.cause}) : super(message, wrongPassword: problem == InvoiceProblem.wrongPassword);
+  const InvoiceError(this.problem, String message, {this.cause, this.source}) : super(message, wrongPassword: problem == InvoiceProblem.wrongPassword);
 
   final InvoiceProblem problem;
 
   /// The wallet's error kind behind [problem], for logs.
   final String? cause;
+
+  /// The wallet's error behind [problem], for a screen that words it more exactly than
+  /// [problem] can (a pairing failure, the network mode).
+  final Object? source;
 }
 
 /// What kind of failure [e] is, for the log: never its message, which may name an address.

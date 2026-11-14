@@ -6063,7 +6063,7 @@ InvoiceError invoiceError(core.WalletError e, {bool issuing = false}) => Invoice
   core.WalletErrorKind.invoiceLockedAboveTip => InvoiceProblem.lockedAboveTip,
   core.WalletErrorKind.amountMismatch => InvoiceProblem.amountMismatch,
   _ => InvoiceProblem.invalid,
-}, deskErrorText(e), cause: e.kind.name);
+}, deskErrorText(e), cause: e.kind.name, source: e);
 
 /// History backups are small; a file far larger is not one (the phone's limit).
 const int maxDeskHistoryBytes = 32 << 20;

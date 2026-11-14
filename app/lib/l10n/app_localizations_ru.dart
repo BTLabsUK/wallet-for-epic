@@ -22273,4 +22273,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pairRefusesInvoicesBody =>
       'Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес.';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.';
 }

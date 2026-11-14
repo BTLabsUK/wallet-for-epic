@@ -51,7 +51,11 @@
   "deskInvIssuerNotDelivered": "The invoice did not reach the Epicbox server. Nothing was sent. Try again.",
   "@deskInvIssuerNotDelivered": {
     "description": "Error after Request: the relay did not take it; it was cancelled at once."
+  },  "deskInvIssuerFailed": "The invoice was not sent. Nothing changed; try again.",
+  "@deskInvIssuerFailed": {
+    "description": "Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent."
   },
+
   "deskInvIssuerEmpty": "No invoices issued yet. An invoice asks a contact or a service to pay you; it spends nothing.",
   "@deskInvIssuerEmpty": {
     "description": "Empty Sent tab."
