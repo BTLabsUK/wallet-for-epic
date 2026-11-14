@@ -1,7 +1,6 @@
 {
   "deskRailWaitingTor": "等待 Tor",
   "deskRailConnecting": "正在连接",
-  "deskRailSlow": "较慢",
   "deskRailOverTor": "经由 Tor",
   "deskRailWaitsForTor": "等 Tor 连接后再连接。",
   "deskRailPaymentsWait": "付款暂存在 Epicbox 服务器上。",

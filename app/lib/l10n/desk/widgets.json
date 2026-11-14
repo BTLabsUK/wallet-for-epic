@@ -67,38 +67,6 @@
       }
     }
   },
-  "deskKitHeroCaptionEpicbox": "EPICBOX SERVER HOLDS IT",
-  "@deskKitHeroCaptionEpicbox": {
-    "description": "Caption under the Epicbox picture on the Send page. Written in capitals; at most about 24 characters, it sits in a 160 px wide picture."
-  },
-  "deskKitHeroCaptionHttp": "STRAIGHT TO THE RECIPIENT",
-  "@deskKitHeroCaptionHttp": {
-    "description": "Caption under the HTTP picture on the Send page. Capitals; at most about 24 characters."
-  },
-  "deskKitHeroCaptionTor": "STRAIGHT, THROUGH TOR",
-  "@deskKitHeroCaptionTor": {
-    "description": "Caption under the Tor picture on the Send page. Capitals; at most about 24 characters."
-  },
-  "deskKitHeroCaptionFile": "FILE OUT, RESPONSE BACK",
-  "@deskKitHeroCaptionFile": {
-    "description": "Caption under the transaction-file picture on the Send page. Capitals; at most about 24 characters."
-  },
-  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back",
-  "@deskKitHeroLabelEpicbox": {
-    "description": "Screen-reader description of the Epicbox picture on the Send page."
-  },
-  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open",
-  "@deskKitHeroLabelHttp": {
-    "description": "Screen-reader description of the HTTP picture on the Send page."
-  },
-  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network",
-  "@deskKitHeroLabelTor": {
-    "description": "Screen-reader description of the Tor picture on the Send page."
-  },
-  "deskKitHeroLabelFile": "Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes",
-  "@deskKitHeroLabelFile": {
-    "description": "Screen-reader description of the transaction-file picture on the Send page."
-  },
   "deskKitReachCheck": "Check",
   "@deskKitReachCheck": {
     "description": "Small button of the internet-reachability notice in the HTTP receiving settings: check again. One word."

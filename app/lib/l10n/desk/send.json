@@ -402,10 +402,6 @@
   "@deskSendEpicboxTurnOn": {
     "description": "Button in that notice."
   },
-  "deskSendDoneViaDirect": "Finalized and posted to the network.",
-  "@deskSendDoneViaDirect": {
-    "description": "Text of the Sent notice after a Link send."
-  },
   "deskSendDoneViaEpicbox": "Handed to Epicbox. Completes when the recipient answers.",
   "@deskSendDoneViaEpicbox": {
     "description": "Text of the Sent notice after an Epicbox send."

@@ -152,16 +152,6 @@
   "@deskSetAdvConfirmationsMore": {
     "description": "Tooltip and screen-reader label of the plus button on the Confirmations row."
   },
-  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} confirmation} other{{count} confirmations}}",
-  "@deskSetAdvConfirmationsCount": {
-    "description": "Screen-reader value of the Confirmations row: the count it is set to.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "6"
-      }
-    }
-  },
   "deskSetAdvConfirmationsLowNote": "Fewer confirmations are faster but less safe.",
   "@deskSetAdvConfirmationsLowNote": {
     "description": "Quiet note under the Confirmations row while the count is below the default. Factual, no alarm."

@@ -1729,23 +1729,11 @@ abstract class AppLocalizations {
   /// **'The file held nothing new.'**
   String get historyBackupImportNothingNew;
 
-  /// Tooltip of the app-bar button that closes the wallet and returns to the PIN screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Lock wallet'**
-  String get homeLockTooltip;
-
   /// App-bar title of the wallet's main page: the app's name. A product name; do not translate.
   ///
   /// In en, this message translates to:
   /// **'BT Wallet'**
   String get shellTitle;
-
-  /// Tooltip of the app-bar button that opens settings.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get homeSettingsTooltip;
 
   /// Label of the left tab of the bottom tab bar, where payments are sent. Short.
   ///
@@ -1764,12 +1752,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Receive'**
   String get homeReceiveButton;
-
-  /// Heading above the latest payments on home.
-  ///
-  /// In en, this message translates to:
-  /// **'Recent activity'**
-  String get homeRecentActivity;
 
   /// Short notice after the user wrote down the recovery phrase (the 12 or 24 words).
   ///
@@ -2166,12 +2148,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{days, plural, one{Last opened {days} day ago. Checking paired contacts.} other{Last opened {days} days ago. Checking paired contacts.}}'**
   String contactsStaleOpened(int days);
-
-  /// Shown on home in place of the payment list in a new wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'No payments yet'**
-  String get homeNoPayments;
 
   /// Title of the Invoices screen: invoices that services the user trusts sent, waiting for the user's answer. Also the word for an invoice elsewhere.
   ///
@@ -2826,12 +2802,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each network has its own wallet. A network without one gets a new wallet.'**
   String get setupWalletPerNetwork;
-
-  /// Title of the screen that restores a wallet from its recovery phrase (the 12 or 24 words).
-  ///
-  /// In en, this message translates to:
-  /// **'Restore wallet'**
-  String get restoreTitle;
 
   /// Label of the field where the user types the 12 or 24 words.
   ///
@@ -6558,12 +6528,6 @@ abstract class AppLocalizations {
   /// **'Behind'**
   String get serverDegraded;
 
-  /// Screen reader: no health known for the server.
-  ///
-  /// In en, this message translates to:
-  /// **'Status unknown'**
-  String get serverHealthNone;
-
   /// Row trailing word: the server in use.
   ///
   /// In en, this message translates to:
@@ -6839,12 +6803,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To'**
   String get sendToLabel;
-
-  /// Placeholder of Send's recipient field.
-  ///
-  /// In en, this message translates to:
-  /// **'Address, payment link or contact'**
-  String get sendToHint;
 
   /// Review caption: when an Epicbox send can be cancelled.
   ///
@@ -9902,12 +9860,6 @@ abstract class AppLocalizations {
   /// **'Turn on Epicbox receiving'**
   String get deskSendEpicboxTurnOn;
 
-  /// Text of the Sent notice after a Link send.
-  ///
-  /// In en, this message translates to:
-  /// **'Finalized and posted to the network.'**
-  String get deskSendDoneViaDirect;
-
   /// Text of the Sent notice after an Epicbox send.
   ///
   /// In en, this message translates to:
@@ -10363,12 +10315,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Switch to {domain}?'**
   String deskSendEpicboxSwitchTo(String domain);
-
-  /// Button in that notice: switch to the other server. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch'**
-  String get deskSendEpicboxSwitch;
 
   /// Button next to a file name: open the folder that holds the file in the system's file manager.
   ///
@@ -13628,12 +13574,6 @@ abstract class AppLocalizations {
   /// **'Connecting'**
   String get deskRailConnecting;
 
-  /// Status word on the sidebar's Epicbox row: the server answers slowly. One short word.
-  ///
-  /// In en, this message translates to:
-  /// **'Slow'**
-  String get deskRailSlow;
-
   /// Line in the sidebar Epicbox hover card: the connection goes through Tor.
   ///
   /// In en, this message translates to:
@@ -14077,54 +14017,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step {current} of {total}'**
   String deskKitStepOf(int current, int total);
-
-  /// Caption under the Epicbox picture on the Send page. Written in capitals; at most about 24 characters, it sits in a 160 px wide picture.
-  ///
-  /// In en, this message translates to:
-  /// **'EPICBOX SERVER HOLDS IT'**
-  String get deskKitHeroCaptionEpicbox;
-
-  /// Caption under the HTTP picture on the Send page. Capitals; at most about 24 characters.
-  ///
-  /// In en, this message translates to:
-  /// **'STRAIGHT TO THE RECIPIENT'**
-  String get deskKitHeroCaptionHttp;
-
-  /// Caption under the Tor picture on the Send page. Capitals; at most about 24 characters.
-  ///
-  /// In en, this message translates to:
-  /// **'STRAIGHT, THROUGH TOR'**
-  String get deskKitHeroCaptionTor;
-
-  /// Caption under the transaction-file picture on the Send page. Capitals; at most about 24 characters.
-  ///
-  /// In en, this message translates to:
-  /// **'FILE OUT, RESPONSE BACK'**
-  String get deskKitHeroCaptionFile;
-
-  /// Screen-reader description of the Epicbox picture on the Send page.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back'**
-  String get deskKitHeroLabelEpicbox;
-
-  /// Screen-reader description of the HTTP picture on the Send page.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open'**
-  String get deskKitHeroLabelHttp;
-
-  /// Screen-reader description of the Tor picture on the Send page.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network'**
-  String get deskKitHeroLabelTor;
-
-  /// Screen-reader description of the transaction-file picture on the Send page.
-  ///
-  /// In en, this message translates to:
-  /// **'Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes'**
-  String get deskKitHeroLabelFile;
 
   /// Small button of the internet-reachability notice in the HTTP receiving settings: check again. One word.
   ///
@@ -18588,12 +18480,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each switch shows one more part of the wallet, where it belongs.'**
   String get advIntro;
-
-  /// Header over the visibility switches on the Advanced page.
-  ///
-  /// In en, this message translates to:
-  /// **'Shows more'**
-  String get advShowsHeader;
 
   /// Advanced switch: the Outputs page.
   ///
@@ -24186,12 +24072,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More confirmations'**
   String get deskSetAdvConfirmationsMore;
-
-  /// Screen-reader value of the Confirmations row: the count it is set to.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one{{count} confirmation} other{{count} confirmations}}'**
-  String deskSetAdvConfirmationsCount(int count);
 
   /// Quiet note under the Confirmations row while the count is below the default. Factual, no alarm.
   ///

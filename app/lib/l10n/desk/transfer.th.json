@@ -4,7 +4,6 @@
   "deskSendEpicboxDownTitle": "เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง",
   "deskSendEpicboxDownWait": "รายการจะรอจนกว่าเซิร์ฟเวอร์จะกลับมา",
   "deskSendEpicboxSwitchTo": "เปลี่ยนเป็น {domain} ไหม?",
-  "deskSendEpicboxSwitch": "เปลี่ยน",
   "deskFinOpenFolder": "เปิดโฟลเดอร์",
   "deskFinFolderNotOpened": "เปิดโฟลเดอร์ไม่ได้",
   "deskFinWrongType": "ไม่ใช่ไฟล์ตอบกลับ",

@@ -7,10 +7,6 @@
   "@deskRailConnecting": {
     "description": "Status word on the sidebar's Epicbox row: connecting to the Epicbox server. One short word."
   },
-  "deskRailSlow": "Slow",
-  "@deskRailSlow": {
-    "description": "Status word on the sidebar's Epicbox row: the server answers slowly. One short word."
-  },
   "deskRailOverTor": "Over Tor",
   "@deskRailOverTor": {
     "description": "Line in the sidebar Epicbox hover card: the connection goes through Tor."

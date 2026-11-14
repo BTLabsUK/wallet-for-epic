@@ -1,7 +1,6 @@
 {
   "deskRailWaitingTor": "รอ Tor",
   "deskRailConnecting": "กำลังเชื่อมต่อ",
-  "deskRailSlow": "ช้า",
   "deskRailOverTor": "ผ่าน Tor",
   "deskRailWaitsForTor": "รอจนกว่า Tor จะเชื่อมต่อ",
   "deskRailPaymentsWait": "รายการรออยู่บนเซิร์ฟเวอร์ Epicbox",

@@ -1,7 +1,6 @@
 {
   "deskRailWaitingTor": "Czeka na Tor",
   "deskRailConnecting": "Łączenie",
-  "deskRailSlow": "Wolno",
   "deskRailOverTor": "Przez Tor",
   "deskRailWaitsForTor": "Czeka na połączenie z Torem.",
   "deskRailPaymentsWait": "Płatności czekają na serwerze Epicbox.",

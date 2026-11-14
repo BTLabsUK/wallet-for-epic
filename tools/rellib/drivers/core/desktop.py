@@ -110,7 +110,6 @@ CONF_MORE = T("g4.confirmations.more")
 # the number field; up to 26.10.26 its name went on with the − button's tooltip ("Confirmations. Fewer confirmations")
 CONF_FIELD = T("g4.confirmations.value")
 CONF_NOT_SAVED = T("g4.confirmations.not_saved")
-CONF_COUNT = T("g4.confirmations.count")
 TECHNICAL = T("g4.advanced.technical")
 
 NODE_PICKER = T("g4.server.node")
@@ -149,7 +148,7 @@ MODE_NORMAL = T("g4.privacy.mode.standard")
 # one line of a node's name: on Linux the line is a line of its group's text ("Epicbox\nReceiving\n
 # Connected · epicbox.stackwallet.com, over Tor\nStart with the wallet")
 EPICBOX_STATE_KEYS = ("netStatusConnected", "netStatusConnecting", "torWaiting", "netStatusNotConnected",
-                      "serverNotResponding", "deskRailSlow", "netStatusOff", "netStatusBlocked")
+                      "serverNotResponding", "deskKitMethodSlow", "netStatusOff", "netStatusBlocked")
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
 ADDRESS_RX = re.compile(r"\b([1-9A-HJ-NP-Za-km-z]{48,56})(@[\w.:-]+)?")
@@ -964,10 +963,6 @@ class Desktop:
         for n in self.d.find_in(CONF_FIELD, tree):
             if (n.value or "").strip().isdigit():
                 return int(n.value.strip())
-        for n in self.d.find_in(CONF_COUNT, tree):
-            m = re.match(r"(\d+)", n.name)
-            if m:
-                return int(m.group(1))
         for n in tree:
             if n.role == "text_field" and (n.value or "").strip().isdigit():
                 return int(n.value.strip())

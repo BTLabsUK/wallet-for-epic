@@ -1225,17 +1225,9 @@
   "@historyBackupImportNothingNew": {
     "description": "Import result when the backup added nothing."
   },
-  "homeLockTooltip": "Lock wallet",
-  "@homeLockTooltip": {
-    "description": "Tooltip of the app-bar button that closes the wallet and returns to the PIN screen."
-  },
   "shellTitle": "BT Wallet",
   "@shellTitle": {
     "description": "App-bar title of the wallet's main page: the app's name. A product name; do not translate."
-  },
-  "homeSettingsTooltip": "Settings",
-  "@homeSettingsTooltip": {
-    "description": "Tooltip of the app-bar button that opens settings."
   },
   "homeSendButton": "Send",
   "@homeSendButton": {
@@ -1248,10 +1240,6 @@
   "homeReceiveButton": "Receive",
   "@homeReceiveButton": {
     "description": "Label of the right tab of the bottom tab bar, which shows the wallet's address. Short."
-  },
-  "homeRecentActivity": "Recent activity",
-  "@homeRecentActivity": {
-    "description": "Heading above the latest payments on home."
   },
   "homeBackedUpNotice": "Recovery phrase backed up",
   "@homeBackedUpNotice": {
@@ -1616,10 +1604,6 @@
         "example": "9"
       }
     }
-  },
-  "homeNoPayments": "No payments yet",
-  "@homeNoPayments": {
-    "description": "Shown on home in place of the payment list in a new wallet."
   },
   "invoicesTitle": "Invoices",
   "@invoicesTitle": {
@@ -2196,10 +2180,6 @@
     "description": "Heading above the choice of network (development builds only)."
   },
   "setupWalletPerNetwork": "Each network has its own wallet. A network without one gets a new wallet.",
-  "restoreTitle": "Restore wallet",
-  "@restoreTitle": {
-    "description": "Title of the screen that restores a wallet from its recovery phrase (the 12 or 24 words)."
-  },
   "restorePhraseLabel": "Recovery phrase",
   "@restorePhraseLabel": {
     "description": "Label of the field where the user types the 12 or 24 words."
@@ -5228,10 +5208,6 @@
   "@serverDegraded": {
     "description": "Screen reader: the monitor saw the server answer but lag or misbehave."
   },
-  "serverHealthNone": "Status unknown",
-  "@serverHealthNone": {
-    "description": "Screen reader: no health known for the server."
-  },
   "serverCurrent": "In use",
   "@serverCurrent": {
     "description": "Row trailing word: the server in use."
@@ -5470,10 +5446,6 @@
   "sendToLabel": "To",
   "@sendToLabel": {
     "description": "Label of Send's recipient field."
-  },
-  "sendToHint": "Address, payment link or contact",
-  "@sendToHint": {
-    "description": "Placeholder of Send's recipient field."
   },
   "sendCancelRuleEpicbox": "Can be cancelled while it waits for the recipient.",
   "@sendCancelRuleEpicbox": {
@@ -8176,10 +8148,6 @@
   "@deskSendEpicboxTurnOn": {
     "description": "Button in that notice."
   },
-  "deskSendDoneViaDirect": "Finalized and posted to the network.",
-  "@deskSendDoneViaDirect": {
-    "description": "Text of the Sent notice after a Link send."
-  },
   "deskSendDoneViaEpicbox": "Handed to Epicbox. Completes when the recipient answers.",
   "@deskSendDoneViaEpicbox": {
     "description": "Text of the Sent notice after an Epicbox send."
@@ -8523,10 +8491,6 @@
         "example": "epicbox.example.org"
       }
     }
-  },
-  "deskSendEpicboxSwitch": "Switch",
-  "@deskSendEpicboxSwitch": {
-    "description": "Button in that notice: switch to the other server. Short."
   },
   "deskFinOpenFolder": "Open folder",
   "@deskFinOpenFolder": {
@@ -11352,10 +11316,6 @@
   "@deskRailConnecting": {
     "description": "Status word on the sidebar's Epicbox row: connecting to the Epicbox server. One short word."
   },
-  "deskRailSlow": "Slow",
-  "@deskRailSlow": {
-    "description": "Status word on the sidebar's Epicbox row: the server answers slowly. One short word."
-  },
   "deskRailOverTor": "Over Tor",
   "@deskRailOverTor": {
     "description": "Line in the sidebar Epicbox hover card: the connection goes through Tor."
@@ -11708,38 +11668,6 @@
         "type": "int"
       }
     }
-  },
-  "deskKitHeroCaptionEpicbox": "EPICBOX SERVER HOLDS IT",
-  "@deskKitHeroCaptionEpicbox": {
-    "description": "Caption under the Epicbox picture on the Send page. Written in capitals; at most about 24 characters, it sits in a 160 px wide picture."
-  },
-  "deskKitHeroCaptionHttp": "STRAIGHT TO THE RECIPIENT",
-  "@deskKitHeroCaptionHttp": {
-    "description": "Caption under the HTTP picture on the Send page. Capitals; at most about 24 characters."
-  },
-  "deskKitHeroCaptionTor": "STRAIGHT, THROUGH TOR",
-  "@deskKitHeroCaptionTor": {
-    "description": "Caption under the Tor picture on the Send page. Capitals; at most about 24 characters."
-  },
-  "deskKitHeroCaptionFile": "FILE OUT, RESPONSE BACK",
-  "@deskKitHeroCaptionFile": {
-    "description": "Caption under the transaction-file picture on the Send page. Capitals; at most about 24 characters."
-  },
-  "deskKitHeroLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back",
-  "@deskKitHeroLabelEpicbox": {
-    "description": "Screen-reader description of the Epicbox picture on the Send page."
-  },
-  "deskKitHeroLabelHttp": "Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open",
-  "@deskKitHeroLabelHttp": {
-    "description": "Screen-reader description of the HTTP picture on the Send page."
-  },
-  "deskKitHeroLabelTor": "Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network",
-  "@deskKitHeroLabelTor": {
-    "description": "Screen-reader description of the Tor picture on the Send page."
-  },
-  "deskKitHeroLabelFile": "Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes",
-  "@deskKitHeroLabelFile": {
-    "description": "Screen-reader description of the transaction-file picture on the Send page."
   },
   "deskKitReachCheck": "Check",
   "@deskKitReachCheck": {
@@ -15717,10 +15645,6 @@
   "advIntro": "Each switch shows one more part of the wallet, where it belongs.",
   "@advIntro": {
     "description": "First line of the Advanced page."
-  },
-  "advShowsHeader": "Shows more",
-  "@advShowsHeader": {
-    "description": "Header over the visibility switches on the Advanced page."
   },
   "advOutputs": "Outputs",
   "@advOutputs": {
@@ -20980,16 +20904,6 @@
   "deskSetAdvConfirmationsMore": "More confirmations",
   "@deskSetAdvConfirmationsMore": {
     "description": "Tooltip and screen-reader label of the plus button on the Confirmations row."
-  },
-  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} confirmation} other{{count} confirmations}}",
-  "@deskSetAdvConfirmationsCount": {
-    "description": "Screen-reader value of the Confirmations row: the count it is set to.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "6"
-      }
-    }
   },
   "deskSetAdvConfirmationsLowNote": "Fewer confirmations are faster but less safe.",
   "@deskSetAdvConfirmationsLowNote": {

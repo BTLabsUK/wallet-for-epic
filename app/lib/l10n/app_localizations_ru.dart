@@ -1077,13 +1077,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get historyBackupImportNothingNew => 'В файле нет ничего нового.';
 
   @override
-  String get homeLockTooltip => 'Заблокировать кошелёк';
-
-  @override
   String get shellTitle => 'BT Wallet';
-
-  @override
-  String get homeSettingsTooltip => 'Настройки';
 
   @override
   String get homeSendButton => 'Отправить';
@@ -1093,9 +1087,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get homeReceiveButton => 'Получить';
-
-  @override
-  String get homeRecentActivity => 'Последние операции';
 
   @override
   String get homeBackedUpNotice => 'Фраза восстановления сохранена';
@@ -1374,9 +1365,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get homeNoPayments => 'Платежей пока нет';
 
   @override
   String get invoicesTitle => 'Счета';
@@ -1794,9 +1782,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get setupWalletPerNetwork =>
       'У каждой сети свой кошелёк. Для сети без кошелька будет создан новый.';
-
-  @override
-  String get restoreTitle => 'Восстановление кошелька';
 
   @override
   String get restorePhraseLabel => 'Фраза восстановления';
@@ -4190,9 +4175,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverDegraded => 'Отстаёт';
 
   @override
-  String get serverHealthNone => 'Состояние неизвестно';
-
-  @override
   String get serverCurrent => 'Используется';
 
   @override
@@ -4375,9 +4357,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendToLabel => 'Кому';
-
-  @override
-  String get sendToHint => 'Адрес, ссылка на оплату или контакт';
 
   @override
   String get sendCancelRuleEpicbox =>
@@ -6461,9 +6440,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendEpicboxTurnOn => 'Включить приём через Epicbox';
 
   @override
-  String get deskSendDoneViaDirect => 'Завершено и отправлено в сеть.';
-
-  @override
   String get deskSendDoneViaEpicbox =>
       'Передано в Epicbox. Завершится, когда получатель ответит.';
 
@@ -6736,9 +6712,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendEpicboxSwitchTo(String domain) {
     return 'Переключиться на $domain?';
   }
-
-  @override
-  String get deskSendEpicboxSwitch => 'Переключить';
 
   @override
   String get deskFinOpenFolder => 'Открыть папку';
@@ -8962,9 +8935,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskRailConnecting => 'Подключение';
 
   @override
-  String get deskRailSlow => 'Медленно';
-
-  @override
   String get deskRailOverTor => 'Через Tor';
 
   @override
@@ -9232,34 +9202,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskKitStepOf(int current, int total) {
     return 'Шаг $current из $total';
   }
-
-  @override
-  String get deskKitHeroCaptionEpicbox => 'ХРАНИТ СЕРВЕР EPICBOX';
-
-  @override
-  String get deskKitHeroCaptionHttp => 'ПРЯМО В КОШЕЛЁК';
-
-  @override
-  String get deskKitHeroCaptionTor => 'НАПРЯМУЮ, ЧЕРЕЗ TOR';
-
-  @override
-  String get deskKitHeroCaptionFile => 'ФАЙЛ ТУДА, ОТВЕТ ОБРАТНО';
-
-  @override
-  String get deskKitHeroLabelEpicbox =>
-      'Epicbox: платёж уходит на сервер Epicbox, который хранит его, пока кошелёк получателя не вернётся';
-
-  @override
-  String get deskKitHeroLabelHttp =>
-      'Ссылка · HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
-
-  @override
-  String get deskKitHeroLabelTor =>
-      'Ссылка · Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
-
-  @override
-  String get deskKitHeroLabelFile =>
-      'Напрямую · Передача файла: файл транзакции передаётся, возвращается файл ответа, затем отправитель завершает платёж';
 
   @override
   String get deskKitReachCheck => 'Проверить';
@@ -12199,9 +12141,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get advIntro =>
       'Каждый переключатель показывает ещё одну часть кошелька там, где ей место.';
-
-  @override
-  String get advShowsHeader => 'Показывает больше';
 
   @override
   String get advOutputs => 'Выходы';
@@ -16178,19 +16117,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsMore => 'Больше подтверждений';
-
-  @override
-  String deskSetAdvConfirmationsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count подтверждения',
-      many: '$count подтверждений',
-      few: '$count подтверждения',
-      one: '$count подтверждение',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get deskSetAdvConfirmationsLowNote =>

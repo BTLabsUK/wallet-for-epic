@@ -990,13 +990,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupImportNothingNew => '文件中没有新内容。';
 
   @override
-  String get homeLockTooltip => '锁定钱包';
-
-  @override
   String get shellTitle => 'BT Wallet';
-
-  @override
-  String get homeSettingsTooltip => '设置';
 
   @override
   String get homeSendButton => '发送';
@@ -1006,9 +1000,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeReceiveButton => '接收';
-
-  @override
-  String get homeRecentActivity => '最近活动';
 
   @override
   String get homeBackedUpNotice => '助记词已备份';
@@ -1261,9 +1252,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get homeNoPayments => '还没有付款';
 
   @override
   String get invoicesTitle => '账单';
@@ -1651,9 +1639,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
-
-  @override
-  String get restoreTitle => '恢复钱包';
 
   @override
   String get restorePhraseLabel => '助记词';
@@ -3860,9 +3845,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverDegraded => '落后';
 
   @override
-  String get serverHealthNone => '状态未知';
-
-  @override
   String get serverCurrent => '使用中';
 
   @override
@@ -4033,9 +4015,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sendToLabel => '收款方';
-
-  @override
-  String get sendToHint => '地址、付款链接或联系人';
 
   @override
   String get sendCancelRuleEpicbox => '在等待对方期间可以取消。';
@@ -5888,9 +5867,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendEpicboxTurnOn => '开启 Epicbox 接收';
 
   @override
-  String get deskSendDoneViaDirect => '已完成并广播到网络。';
-
-  @override
   String get deskSendDoneViaEpicbox => '已交给 Epicbox。接收方响应后即完成。';
 
   @override
@@ -6142,9 +6118,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendEpicboxSwitchTo(String domain) {
     return '切换到 $domain？';
   }
-
-  @override
-  String get deskSendEpicboxSwitch => '切换';
 
   @override
   String get deskFinOpenFolder => '打开文件夹';
@@ -8120,9 +8093,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRailConnecting => '正在连接';
 
   @override
-  String get deskRailSlow => '较慢';
-
-  @override
   String get deskRailOverTor => '经由 Tor';
 
   @override
@@ -8372,31 +8342,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskKitStepOf(int current, int total) {
     return '第 $current 步，共 $total 步';
   }
-
-  @override
-  String get deskKitHeroCaptionEpicbox => '由 EPICBOX 服务器暂存';
-
-  @override
-  String get deskKitHeroCaptionHttp => '直达对方钱包';
-
-  @override
-  String get deskKitHeroCaptionTor => '经由 TOR 直达';
-
-  @override
-  String get deskKitHeroCaptionFile => '发出文件，收回回复';
-
-  @override
-  String get deskKitHeroLabelEpicbox =>
-      'Epicbox：付款发送到 Epicbox 服务器，由服务器暂存，直到接收方的钱包重新上线';
-
-  @override
-  String get deskKitHeroLabelHttp => '链接 · HTTP：付款直接发送到对方钱包，对方钱包必须处于打开状态';
-
-  @override
-  String get deskKitHeroLabelTor => '链接 · Tor：付款经由 Tor 网络直接发送到对方钱包';
-
-  @override
-  String get deskKitHeroLabelFile => '直接 · 文件传输：交出交易文件，收回回复文件，然后由发送方完成';
 
   @override
   String get deskKitReachCheck => '检查';
@@ -11132,9 +11077,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advIntro => '每个开关会在相应位置显示钱包的另一部分。';
-
-  @override
-  String get advShowsHeader => '显示更多';
 
   @override
   String get advOutputs => '输出';
@@ -14762,16 +14704,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsMore => '增加确认数';
-
-  @override
-  String deskSetAdvConfirmationsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 个确认',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get deskSetAdvConfirmationsLowNote => '确认数越少越快，但越不安全。';

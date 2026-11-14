@@ -67,7 +67,6 @@
   "deskSendEpicboxOff": "Epicbox не подключён",
   "deskSendEpicboxOffTab": "Включите приём через Epicbox, чтобы отправлять через Epicbox, или используйте «{method}».",
   "deskSendEpicboxTurnOn": "Включить приём через Epicbox",
-  "deskSendDoneViaDirect": "Завершено и отправлено в сеть.",
   "deskSendDoneViaEpicbox": "Передано в Epicbox. Завершится, когда получатель ответит.",
   "deskSendViewTx": "Открыть в «Активности»",
   "deskSendFailedTitle": "Отправка не удалась",

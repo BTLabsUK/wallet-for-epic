@@ -67,7 +67,6 @@
   "deskSendEpicboxOff": "Epicbox nicht verbunden",
   "deskSendEpicboxOffTab": "Epicbox-Empfang einschalten, um über Epicbox zu senden, oder {method} nutzen.",
   "deskSendEpicboxTurnOn": "Epicbox-Empfang einschalten",
-  "deskSendDoneViaDirect": "Abgeschlossen und an das Netzwerk gesendet.",
   "deskSendDoneViaEpicbox": "An Epicbox übergeben. Wird abgeschlossen, sobald der Empfänger antwortet.",
   "deskSendViewTx": "In Aktivität anzeigen",
   "deskSendFailedTitle": "Senden fehlgeschlagen",

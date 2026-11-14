@@ -1044,13 +1044,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyBackupImportNothingNew => 'The file held nothing new.';
 
   @override
-  String get homeLockTooltip => 'Lock wallet';
-
-  @override
   String get shellTitle => 'BT Wallet';
-
-  @override
-  String get homeSettingsTooltip => 'Settings';
 
   @override
   String get homeSendButton => 'Send';
@@ -1060,9 +1054,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeReceiveButton => 'Receive';
-
-  @override
-  String get homeRecentActivity => 'Recent activity';
 
   @override
   String get homeBackedUpNotice => 'Recovery phrase backed up';
@@ -1328,9 +1319,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get homeNoPayments => 'No payments yet';
 
   @override
   String get invoicesTitle => 'Invoices';
@@ -1744,9 +1732,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setupWalletPerNetwork =>
       'Each network has its own wallet. A network without one gets a new wallet.';
-
-  @override
-  String get restoreTitle => 'Restore wallet';
 
   @override
   String get restorePhraseLabel => 'Recovery phrase';
@@ -4075,9 +4060,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverDegraded => 'Behind';
 
   @override
-  String get serverHealthNone => 'Status unknown';
-
-  @override
   String get serverCurrent => 'In use';
 
   @override
@@ -4254,9 +4236,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendToLabel => 'To';
-
-  @override
-  String get sendToHint => 'Address, payment link or contact';
 
   @override
   String get sendCancelRuleEpicbox =>
@@ -6246,9 +6225,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendEpicboxTurnOn => 'Turn on Epicbox receiving';
 
   @override
-  String get deskSendDoneViaDirect => 'Finalized and posted to the network.';
-
-  @override
   String get deskSendDoneViaEpicbox =>
       'Handed to Epicbox. Completes when the recipient answers.';
 
@@ -6514,9 +6490,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendEpicboxSwitchTo(String domain) {
     return 'Switch to $domain?';
   }
-
-  @override
-  String get deskSendEpicboxSwitch => 'Switch';
 
   @override
   String get deskFinOpenFolder => 'Open folder';
@@ -8643,9 +8616,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskRailConnecting => 'Connecting';
 
   @override
-  String get deskRailSlow => 'Slow';
-
-  @override
   String get deskRailOverTor => 'Over Tor';
 
   @override
@@ -8908,34 +8878,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskKitStepOf(int current, int total) {
     return 'Step $current of $total';
   }
-
-  @override
-  String get deskKitHeroCaptionEpicbox => 'EPICBOX SERVER HOLDS IT';
-
-  @override
-  String get deskKitHeroCaptionHttp => 'STRAIGHT TO THE RECIPIENT';
-
-  @override
-  String get deskKitHeroCaptionTor => 'STRAIGHT, THROUGH TOR';
-
-  @override
-  String get deskKitHeroCaptionFile => 'FILE OUT, RESPONSE BACK';
-
-  @override
-  String get deskKitHeroLabelEpicbox =>
-      'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back';
-
-  @override
-  String get deskKitHeroLabelHttp =>
-      'Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open';
-
-  @override
-  String get deskKitHeroLabelTor =>
-      'Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network';
-
-  @override
-  String get deskKitHeroLabelFile =>
-      'Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes';
 
   @override
   String get deskKitReachCheck => 'Check';
@@ -11803,9 +11745,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get advIntro =>
       'Each switch shows one more part of the wallet, where it belongs.';
-
-  @override
-  String get advShowsHeader => 'Shows more';
 
   @override
   String get advOutputs => 'Outputs';
@@ -15640,17 +15579,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsMore => 'More confirmations';
-
-  @override
-  String deskSetAdvConfirmationsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count confirmations',
-      one: '$count confirmation',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get deskSetAdvConfirmationsLowNote =>

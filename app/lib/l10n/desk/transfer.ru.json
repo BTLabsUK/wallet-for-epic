@@ -4,7 +4,6 @@
   "deskSendEpicboxDownTitle": "Сервер Epicbox не отвечает",
   "deskSendEpicboxDownWait": "Платежи подождут, пока он не вернётся.",
   "deskSendEpicboxSwitchTo": "Переключиться на {domain}?",
-  "deskSendEpicboxSwitch": "Переключить",
   "deskFinOpenFolder": "Открыть папку",
   "deskFinFolderNotOpened": "Папка не открыта",
   "deskFinWrongType": "Это не файл ответа",

@@ -31,7 +31,6 @@
   "deskSetAdvConfirmationsReset": "恢复为 {count}",
   "deskSetAdvConfirmationsFewer": "减少确认数",
   "deskSetAdvConfirmationsMore": "增加确认数",
-  "deskSetAdvConfirmationsCount": "{count, plural, other{{count} 个确认}}",
   "deskSetAdvConfirmationsLowNote": "确认数越少越快，但越不安全。",
   "deskSetAdvConfirmationsNotSaved": "确认数未更改"
 }

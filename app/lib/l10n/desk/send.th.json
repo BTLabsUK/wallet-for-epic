@@ -67,7 +67,6 @@
   "deskSendEpicboxOff": "Epicbox ไม่ได้เชื่อมต่อ",
   "deskSendEpicboxOffTab": "เปิดการรับผ่าน Epicbox เพื่อส่งผ่าน Epicbox หรือใช้ {method}",
   "deskSendEpicboxTurnOn": "เปิดการรับผ่าน Epicbox",
-  "deskSendDoneViaDirect": "ทำรายการเสร็จและส่งเข้าเครือข่ายแล้ว",
   "deskSendDoneViaEpicbox": "ส่งให้ Epicbox แล้ว จะสำเร็จเมื่อผู้รับตอบกลับ",
   "deskSendViewTx": "ดูในประวัติ",
   "deskSendFailedTitle": "ส่งไม่สำเร็จ",

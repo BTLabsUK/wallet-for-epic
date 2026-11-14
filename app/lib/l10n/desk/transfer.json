@@ -31,10 +31,6 @@
       }
     }
   },
-  "deskSendEpicboxSwitch": "Switch",
-  "@deskSendEpicboxSwitch": {
-    "description": "Button in that notice: switch to the other server. Short."
-  },
   "deskFinOpenFolder": "Open folder",
   "@deskFinOpenFolder": {
     "description": "Button next to a file name: open the folder that holds the file in the system's file manager."

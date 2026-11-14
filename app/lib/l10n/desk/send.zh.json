@@ -67,7 +67,6 @@
   "deskSendEpicboxOff": "Epicbox 未连接",
   "deskSendEpicboxOffTab": "开启 Epicbox 接收即可通过 Epicbox 发送，或使用 {method}。",
   "deskSendEpicboxTurnOn": "开启 Epicbox 接收",
-  "deskSendDoneViaDirect": "已完成并广播到网络。",
   "deskSendDoneViaEpicbox": "已交给 Epicbox。接收方响应后即完成。",
   "deskSendViewTx": "在“活动”中查看",
   "deskSendFailedTitle": "发送失败",

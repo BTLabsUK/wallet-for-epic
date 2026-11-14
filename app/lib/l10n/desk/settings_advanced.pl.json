@@ -31,7 +31,6 @@
   "deskSetAdvConfirmationsReset": "Przywróć {count}",
   "deskSetAdvConfirmationsFewer": "Mniej potwierdzeń",
   "deskSetAdvConfirmationsMore": "Więcej potwierdzeń",
-  "deskSetAdvConfirmationsCount": "{count, plural, one{{count} potwierdzenie} few{{count} potwierdzenia} many{{count} potwierdzeń} other{{count} potwierdzenia}}",
   "deskSetAdvConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.",
   "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń"
 }

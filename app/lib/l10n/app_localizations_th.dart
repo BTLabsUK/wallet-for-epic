@@ -1029,13 +1029,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get historyBackupImportNothingNew => 'ไฟล์ไม่มีอะไรใหม่';
 
   @override
-  String get homeLockTooltip => 'ล็อกกระเป๋าเงิน';
-
-  @override
   String get shellTitle => 'BT Wallet';
-
-  @override
-  String get homeSettingsTooltip => 'การตั้งค่า';
 
   @override
   String get homeSendButton => 'ส่ง';
@@ -1045,9 +1039,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get homeReceiveButton => 'รับ';
-
-  @override
-  String get homeRecentActivity => 'รายการล่าสุด';
 
   @override
   String get homeBackedUpNotice => 'สำรองวลีกู้คืนแล้ว';
@@ -1311,9 +1302,6 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get homeNoPayments => 'ยังไม่มีการชำระเงิน';
 
   @override
   String get invoicesTitle => 'ใบแจ้งหนี้';
@@ -1720,9 +1708,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get setupWalletPerNetwork =>
       'แต่ละเครือข่ายมีกระเป๋าเงินของตัวเอง เครือข่ายที่ยังไม่มีจะได้กระเป๋าเงินใหม่';
-
-  @override
-  String get restoreTitle => 'กู้คืนกระเป๋าเงิน';
 
   @override
   String get restorePhraseLabel => 'วลีกู้คืน';
@@ -4009,9 +3994,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverDegraded => 'ตามหลัง';
 
   @override
-  String get serverHealthNone => 'ไม่ทราบสถานะ';
-
-  @override
   String get serverCurrent => 'ใช้อยู่';
 
   @override
@@ -4184,9 +4166,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendToLabel => 'ถึง';
-
-  @override
-  String get sendToHint => 'ที่อยู่ ลิงก์ชำระเงิน หรือผู้ติดต่อ';
 
   @override
   String get sendCancelRuleEpicbox => 'ยกเลิกได้ระหว่างรอผู้รับ';
@@ -6098,9 +6077,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendEpicboxTurnOn => 'เปิดการรับผ่าน Epicbox';
 
   @override
-  String get deskSendDoneViaDirect => 'ทำรายการเสร็จและส่งเข้าเครือข่ายแล้ว';
-
-  @override
   String get deskSendDoneViaEpicbox =>
       'ส่งให้ Epicbox แล้ว จะสำเร็จเมื่อผู้รับตอบกลับ';
 
@@ -6360,9 +6336,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendEpicboxSwitchTo(String domain) {
     return 'เปลี่ยนเป็น $domain ไหม?';
   }
-
-  @override
-  String get deskSendEpicboxSwitch => 'เปลี่ยน';
 
   @override
   String get deskFinOpenFolder => 'เปิดโฟลเดอร์';
@@ -8404,9 +8377,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskRailConnecting => 'กำลังเชื่อมต่อ';
 
   @override
-  String get deskRailSlow => 'ช้า';
-
-  @override
   String get deskRailOverTor => 'ผ่าน Tor';
 
   @override
@@ -8666,34 +8636,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskKitStepOf(int current, int total) {
     return 'ขั้นตอน $current จาก $total';
   }
-
-  @override
-  String get deskKitHeroCaptionEpicbox => 'เซิร์ฟเวอร์ EPICBOX เก็บไว้ให้';
-
-  @override
-  String get deskKitHeroCaptionHttp => 'ตรงถึงกระเป๋าผู้รับ';
-
-  @override
-  String get deskKitHeroCaptionTor => 'ส่งตรง ผ่าน TOR';
-
-  @override
-  String get deskKitHeroCaptionFile => 'ส่งไฟล์ไป ได้ไฟล์ตอบกลับ';
-
-  @override
-  String get deskKitHeroLabelEpicbox =>
-      'Epicbox: รายการไปที่เซิร์ฟเวอร์ Epicbox ซึ่งเก็บไว้จนกว่ากระเป๋าเงินของผู้รับจะกลับมาออนไลน์';
-
-  @override
-  String get deskKitHeroLabelHttp =>
-      'ลิงก์ · HTTP: รายการจะไปถึงกระเป๋าของผู้รับโดยตรง ซึ่งต้องเปิดอยู่';
-
-  @override
-  String get deskKitHeroLabelTor =>
-      'ลิงก์ · Tor: รายการจะไปถึงกระเป๋าของผู้รับโดยตรงผ่านเครือข่าย Tor';
-
-  @override
-  String get deskKitHeroLabelFile =>
-      'โดยตรง · โอนไฟล์: ส่งไฟล์ธุรกรรมไป รับไฟล์ตอบกลับมา แล้วผู้ส่งทำรายการให้เสร็จ';
 
   @override
   String get deskKitReachCheck => 'ตรวจ';
@@ -11516,9 +11458,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get advIntro =>
       'แต่ละสวิตช์จะแสดงส่วนของกระเป๋าเงินเพิ่มอีกส่วนในตำแหน่งของมัน';
-
-  @override
-  String get advShowsHeader => 'แสดงเพิ่ม';
 
   @override
   String get advOutputs => 'เอาต์พุต';
@@ -15279,16 +15218,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsMore => 'เพิ่มการยืนยัน';
-
-  @override
-  String deskSetAdvConfirmationsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'ยืนยัน $count ครั้ง',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get deskSetAdvConfirmationsLowNote =>
