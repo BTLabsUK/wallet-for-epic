@@ -61,7 +61,7 @@ lepic-flutter/lib/src/rust/api/types.dart	node\.example:3413
 
 # LEPIC CLI tests that check the values of the shipped, embedded config files.
 lepic/crates/lepic-cli/src/app_config.rs	"epicbox\.epiccash\.com"
-lepic/crates/lepic-cli/src/settings_file.rs	"epicbox\.epiccash\.com"
+lepic/crates/lepic-cli/src/settings_file.rs	"epicbox\.(epiccash\.com|btlabs\.uk)"
 
 # A doc comment's example of a LAN address (lanNetworkKey's input), never connected to.
 app/lib/src/phone_http.dart	192\.168\.1\.20:3415
