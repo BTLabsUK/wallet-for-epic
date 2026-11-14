@@ -410,7 +410,7 @@ void main() {
       expect(_notice(tester), _l.pairEndedNotice);
     });
 
-    testWidgets('the other side says they do not match while the words are open: heard within 5 s, the screen closes', (tester) async {
+    testWidgets('the other side says they do not match while the words are open: heard within 10 s, the screen closes', (tester) async {
       final h = _Harness();
       final r = h.api.seedPaired(name: 'Anna', state: PairingState.waiting);
       await h.pump(tester, const Scaffold(body: PairingNotices()));
@@ -418,7 +418,7 @@ void main() {
       unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))));
       await tester.pumpAndSettle();
       final before = h.api.collects.length;
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 10));
       expect(h.api.collects.length, greaterThan(before), reason: 'the verdict is collected while the words are open');
       h.api.peerMismatch(r.id);
       await tester.pumpAndSettle();
