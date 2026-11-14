@@ -186,10 +186,11 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   }
 
   /// Payments that reached the payments address while the app was away are finalized on
-  /// return, beside the listener. The provider also drains when a wallet opens.
+  /// return, unless the listener is connected and took them as they came. The provider also
+  /// drains when a wallet opens.
   void _drainPayments() {
     if (ref.read(sessionProvider) == null) return;
-    unawaited(ref.read(paymentsDrainProvider.notifier).drain());
+    unawaited(ref.read(paymentsDrainProvider.notifier).drainOnResume());
   }
 
   /// An Epicbox listener that dropped while the app was away reconnects now, not after

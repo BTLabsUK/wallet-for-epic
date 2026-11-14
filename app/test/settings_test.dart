@@ -5,6 +5,7 @@ import 'dart:io' show File;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart' show AppLog, MemoryLogSink;
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/models.dart' show ListenerEvent, ListenerEventKind;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -834,6 +835,30 @@ void main() {
       hold.complete();
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('a resume drains the payments address unless the listener is connected', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      // Opening drained once; the listener has not connected yet.
+      expect(h.session.drainPaymentCalls, 1);
+
+      await _leave(tester);
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, 2, reason: 'listener not connected: drained on resume');
+
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      await _leave(tester);
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, 2, reason: 'listener connected: nothing to drain');
+
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.disconnected, message: 'a'));
+      await tester.pumpAndSettle();
+      await _leave(tester);
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, 3, reason: 'listener down: drained on resume');
     });
 
     testWidgets('closes the wallet in the background once the time passes', (tester) async {

@@ -1709,6 +1709,14 @@ class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
     return null;
   }
 
+  /// The drain on a resume: skipped while the Epicbox listener is connected, because it takes
+  /// every payment that reaches the payments address as it comes. With the listener down,
+  /// reconnecting or not running, the drain runs as on open.
+  Future<void> drainOnResume() async {
+    if (ref.exists(listenerProvider) && ref.read(listenerProvider).connected) return;
+    await drain();
+  }
+
   /// One drain, unless one is running. Failures are logged; the next resume tries again.
   Future<void> drain() async {
     if (!ref.mounted || _running) return;
