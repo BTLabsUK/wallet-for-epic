@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
+import 'package:epic_wallet/src/camera/camera_presence.dart' show FakeCameraProbe, cameraProbeProvider;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -62,6 +63,8 @@ Future<void> _open(
   _container = ProviderContainer(
     overrides: [
       deskApiProvider.overrideWithValue(_wallet),
+      // A computer with a camera: Scan is offered, so only the network mode can turn it off.
+      cameraProbeProvider.overrideWithValue(FakeCameraProbe()),
       deskOfflinePeersProvider.overrideWith((ref) async => peers),
       if (files != null) deskFilesProvider.overrideWithValue(files),
     ],

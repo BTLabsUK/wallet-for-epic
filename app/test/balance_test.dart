@@ -5,6 +5,7 @@
 // in send_test.dart).
 
 import 'package:epic_wallet/src/amount.dart' show epicFor;
+import 'package:epic_wallet/src/boosts.dart' show boostMaxWindow;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -630,6 +631,8 @@ void main() {
       await _pump(tester, session);
       expect(find.textContaining(l.payConfirming(1, 3)), findsOneWidget);
       expect(find.textContaining(l.txStatusReceived), findsNothing);
+      // The confirming row asks for faster refreshes; their window runs out before the end.
+      await tester.pump(boostMaxWindow);
     });
   });
 }
