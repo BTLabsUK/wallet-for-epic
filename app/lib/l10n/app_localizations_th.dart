@@ -20862,4 +20862,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'ช่องถัดไป แล้วนำเข้า';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง';
 }

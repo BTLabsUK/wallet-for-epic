@@ -5539,5 +5539,6 @@
   "deskOnbKeyNextCreate": "Następne pole, potem utwórz",
   "deskOnbKeyNextRestore": "Następne pole, potem przywróć",
   "deskOnbKeyNextSet": "Następne pole, potem ustaw",
-  "deskOnbKeyNextImport": "Następne pole, potem importuj"
+  "deskOnbKeyNextImport": "Następne pole, potem importuj",
+  "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie."
 }

@@ -5539,5 +5539,6 @@
   "deskOnbKeyNextCreate": "Следующее поле, затем создать",
   "deskOnbKeyNextRestore": "Следующее поле, затем восстановить",
   "deskOnbKeyNextSet": "Следующее поле, затем задать",
-  "deskOnbKeyNextImport": "Следующее поле, затем импортировать"
+  "deskOnbKeyNextImport": "Следующее поле, затем импортировать",
+  "deskInvIssuerFailed": "Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз."
 }

@@ -20097,4 +20097,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => '下一个字段，然后导入';
+
+  @override
+  String get deskInvIssuerFailed => '账单未发送。没有任何更改；请重试。';
 }

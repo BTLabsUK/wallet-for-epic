@@ -21520,4 +21520,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Nächstes Feld, dann importieren';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut.';
 }

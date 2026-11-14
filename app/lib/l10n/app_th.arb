@@ -5539,5 +5539,6 @@
   "deskOnbKeyNextCreate": "ช่องถัดไป แล้วสร้าง",
   "deskOnbKeyNextRestore": "ช่องถัดไป แล้วกู้คืน",
   "deskOnbKeyNextSet": "ช่องถัดไป แล้วตั้งค่า",
-  "deskOnbKeyNextImport": "ช่องถัดไป แล้วนำเข้า"
+  "deskOnbKeyNextImport": "ช่องถัดไป แล้วนำเข้า",
+  "deskInvIssuerFailed": "ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง"
 }

@@ -5539,5 +5539,6 @@
   "deskOnbKeyNextCreate": "下一个字段，然后创建",
   "deskOnbKeyNextRestore": "下一个字段，然后恢复",
   "deskOnbKeyNextSet": "下一个字段，然后设置",
-  "deskOnbKeyNextImport": "下一个字段，然后导入"
+  "deskOnbKeyNextImport": "下一个字段，然后导入",
+  "deskInvIssuerFailed": "账单未发送。没有任何更改；请重试。"
 }

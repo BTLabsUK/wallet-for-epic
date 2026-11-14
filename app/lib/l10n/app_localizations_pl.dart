@@ -21899,4 +21899,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Następne pole, potem importuj';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.';
 }

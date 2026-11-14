@@ -28889,5 +28889,9 @@
   "deskOnbKeyNextImport": "Next field, then import",
   "@deskOnbKeyNextImport": {
     "description": "Start steps' key strip: what Enter does on an old wallet's password form in Import wallets."
+  },
+  "deskInvIssuerFailed": "The invoice was not sent. Nothing changed; try again.",
+  "@deskInvIssuerFailed": {
+    "description": "Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent."
   }
 }

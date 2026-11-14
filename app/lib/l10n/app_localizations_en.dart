@@ -21288,4 +21288,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Next field, then import';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'The invoice was not sent. Nothing changed; try again.';
 }

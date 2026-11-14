@@ -5539,5 +5539,6 @@
   "deskOnbKeyNextCreate": "Nächstes Feld, dann erstellen",
   "deskOnbKeyNextRestore": "Nächstes Feld, dann wiederherstellen",
   "deskOnbKeyNextSet": "Nächstes Feld, dann festlegen",
-  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren"
+  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren",
+  "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut."
 }

@@ -21894,4 +21894,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Следующее поле, затем импортировать';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.';
 }

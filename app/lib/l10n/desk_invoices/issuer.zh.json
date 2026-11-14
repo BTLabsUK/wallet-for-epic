@@ -11,6 +11,7 @@
   "deskInvIssuerExpiry": "付款方有 {hours} 小时付款。",
   "deskInvIssuerRelayDown": "Epicbox 服务器无响应，暂时无法发出账单。",
   "deskInvIssuerNotDelivered": "账单未到达 Epicbox 服务器。未发送任何内容。请重试。",
+  "deskInvIssuerFailed": "账单未发送。没有任何更改；请重试。",
   "deskInvIssuerEmpty": "还没有开具账单。账单会让联系人或服务向你付款；它不花费任何资金。",
   "deskInvIssuerTo": "开给 {payer} 的账单",
   "deskInvIssuerToAnyone": "开给持有此文件的任何人的账单",
