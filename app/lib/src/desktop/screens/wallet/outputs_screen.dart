@@ -41,7 +41,6 @@ const int _pageSize = 20;
 /// "08c7a1…b2d4a6": both ends of a commitment, the whole on hover and when copied.
 String shortCommitment(String s) => s.length <= 13 ? s : '${s.substring(0, 6)}…${s.substring(s.length - 6)}';
 
-String _group(AppLocalizations l, int n) => localInt(l, n);
 
 /// [w]'s [OutputPart]: the one mapping the tiles, the filter tabs' counts and the table share.
 OutputPart? outputPart(OutputWord w) => switch (w) {
@@ -508,7 +507,7 @@ class _Tiles extends StatelessWidget {
 
   /// What a loading tile lays out under its bars: a count and a value of a usual width.
   static const int _placeholderCount = 88;
-  static const int _placeholderNano = 1000 * 100000000;
+  static const int _placeholderNano = 1000 * nanoPerEpic;
 
   @override
   Widget build(BuildContext context) {
@@ -818,10 +817,10 @@ class _OutputRow extends StatelessWidget {
     final o = output;
     return switch (o.word) {
       OutputWord.spendable => (l.deskOutStatusSpendable, null, c.ok),
-      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)), c.info),
+      OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, localInt(l, o.confirmations)), c.info),
       OutputWord.finalizing => (l.deskOutStatusAwaiting, tx != null && !tx!.incoming ? l.deskOutNoteWaitingRecipient : l.deskOutNoteWaitingSender, c.dim),
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
-      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.info),
+      OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, localInt(l, o.lockHeight! - tip)) : null, c.info),
       OutputWord.mining => (l.deskOutStatusMining, null, c.info),
       OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : tx == null ? l.deskOutNoteBySend(o.txId!) : l.deskOutNoteByPendingSend(localDayMonth(l, tx!.created))), c.dim),
       OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
@@ -906,14 +905,14 @@ class _OutputRow extends StatelessWidget {
               Flexible(child: ELink(label: _txText(l, t), onPressed: onTx)),
             ],
           );
-    final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)) : null;
+    final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, localInt(l, o.confirmations)) : null;
     final number = ts.mono(size: Fs.xs, color: c.dim);
     return _Cells(
       value: value,
       status: status,
       conf: conf,
-      confirmations: Text(_group(l, o.confirmations), style: number),
-      height: Text((o.height ?? 0) == 0 ? '–' : _group(l, o.height!), style: number.copyWith(color: c.faint)),
+      confirmations: Text(localInt(l, o.confirmations), style: number),
+      height: Text((o.height ?? 0) == 0 ? '–' : localInt(l, o.height!), style: number.copyWith(color: c.faint)),
       tx: txCell,
       commitment: commitment,
     );

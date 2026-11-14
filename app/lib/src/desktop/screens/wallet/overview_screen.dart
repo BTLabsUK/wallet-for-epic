@@ -116,7 +116,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
     final txs = empty ? const <Tx>[] : (shot == OverviewShot.loading ? null : s.txs);
     final nav = ref.read(deskNavProvider.notifier);
-    final nodeUrl = (s.status?.node.url ?? hostSettings.nodeFallback).replaceFirst(RegExp(r'^https?://'), '');
+    final nodeUrl = shownUrl(s.status?.node.url ?? hostSettings.nodeFallback);
 
     final recent = _Recent(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
@@ -374,7 +374,6 @@ class _SyncNotice extends StatelessWidget {
   }
 }
 
-String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
   const _BalancePanel({required this.balance, required this.empty, required this.hidden, required this.refresh, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false});
@@ -484,7 +483,7 @@ class _BalancePanel extends ConsumerWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         trustId(TrustIds.overviewAvailable, Text(l.deskOvBalance, style: ts.small)),
-                        if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
+                        if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(localInt(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
                         if (offline) EBadge(l.lastKnownCaption, key: const ValueKey('overview-offline')),
                       ],
