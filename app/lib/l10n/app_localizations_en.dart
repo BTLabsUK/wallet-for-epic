@@ -3431,14 +3431,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.';
+      'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node, Epicbox and Tor. Your latest payments are below.';
 
   @override
   String get tourPhoneSendTitle => 'Send';
 
   @override
   String get tourPhoneSendText =>
-      'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.';
+      'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Payments. A review comes first.';
 
   @override
   String get tourPhoneReceiveTitle => 'Receive';
@@ -15192,7 +15192,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'Your balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.';
+      'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node and Epicbox. Your latest payments are below.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -15835,7 +15835,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => 'Off. Turn on in Settings › Transactions.';
+  String get netStatusTurnOnHint => 'Off. Turn on in Settings › Payments.';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -21494,4 +21494,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Appears here when it arrives';
+
+  @override
+  String get phoneSendMaxNoteNoFee => 'Everything you have, less the fee';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Their wallet can be offline. The payment finishes when it next opens.';
 }

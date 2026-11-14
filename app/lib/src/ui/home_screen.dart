@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_task.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../epic1.dart' show PaymentMode;
 import '../l10n.dart';
@@ -690,18 +691,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
 
-    // The Android back: a tab other than Home goes to Home first; on Home the app leaves, as
-    // the system does. Screens over the shell pop first. Invites the system opened (pairing,
-    // device link) go to their feature's confirm sheet.
+    // The Android back: a tab other than Home goes to Home first; on Home the app goes to the
+    // background (leaveApp), as the system does. Screens over the shell pop first. Invites the
+    // system opened (pairing, device link) go to their feature's confirm sheet.
     return InviteLinkGate(
       onUnreadable: (context) => _showNotice(context.l10n.inviteLinkUnreadable, level: NoticeLevel.warning),
       onNoHandler: (context, kind) => _showNotice(inviteNoHandlerText(context.l10n, kind), level: NoticeLevel.info),
       child: PopScope(
-        canPop: tab == ShellTab.home,
+        canPop: false,
         onPopInvokedWithResult: (didPop, _) {
           // The tour takes back for its own steps.
           if (didPop || ref.read(phoneTourProvider).open) return;
-          ref.read(shellTabProvider.notifier).go(ShellTab.home);
+          if (ref.read(shellTabProvider) == ShellTab.home) {
+            unawaited(leaveApp());
+          } else {
+            ref.read(shellTabProvider.notifier).go(ShellTab.home);
+          }
         },
         child: PhoneTourAnchor(
           child: _Backdrop(

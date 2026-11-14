@@ -3542,14 +3542,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'Twoje saldo, a pod nim ikony węzła, Epicbox i Tora. To, co jeszcze się potwierdza, jest w kafelkach poniżej.';
+      'Twoje saldo oraz wysyłanie i odbieranie. Status w prawym górnym rogu pokazuje połączenie: dotknij go, by zobaczyć węzeł, Epicbox i Tora. Poniżej są ostatnie płatności.';
 
   @override
   String get tourPhoneSendTitle => 'Wyślij';
 
   @override
   String get tourPhoneSendText =>
-      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Transakcje. Najpierw jest podgląd.';
+      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Płatności. Najpierw jest podgląd.';
 
   @override
   String get tourPhoneReceiveTitle => 'Odbierz';
@@ -15738,7 +15738,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'Twoje saldo, a pod nim ikony węzła i Epicbox. To, co jeszcze się potwierdza, jest w kafelkach poniżej.';
+      'Twoje saldo oraz wysyłanie i odbieranie. Status w prawym górnym rogu pokazuje połączenie: dotknij go, by zobaczyć węzeł i Epicbox. Poniżej są ostatnie płatności.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -16404,7 +16404,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netStatusTurnOnHint =>
-      'Wyłączone. Włącz w Ustawienia › Transakcje.';
+      'Wyłączone. Włącz w Ustawienia › Płatności.';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -22122,4 +22122,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Pojawi się tutaj, gdy dotrze';
+
+  @override
+  String get phoneSendMaxNoteNoFee => 'Wszystko, co masz, minus opłata';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.';
 }

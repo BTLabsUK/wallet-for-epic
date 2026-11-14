@@ -3523,14 +3523,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'Ваш баланс, а под ним значки узла, Epicbox и Tor. То, что ещё подтверждается, — в плитках ниже.';
+      'Ваш баланс, отправка и получение. Статус справа вверху показывает подключение: нажмите на него, чтобы увидеть узел, Epicbox и Tor. Ниже — последние платежи.';
 
   @override
   String get tourPhoneSendTitle => 'Отправить';
 
   @override
   String get tourPhoneSendText =>
-      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Транзакции. Сначала — проверка.';
+      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Платежи. Сначала — проверка.';
 
   @override
   String get tourPhoneReceiveTitle => 'Получить';
@@ -15722,7 +15722,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'Ваш баланс, а под ним значки узла и Epicbox. То, что ещё подтверждается, — в плитках ниже.';
+      'Ваш баланс, отправка и получение. Статус справа вверху показывает подключение: нажмите на него, чтобы увидеть узел и Epicbox. Ниже — последние платежи.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -16389,7 +16389,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netStatusTurnOnHint =>
-      'Выключено. Включите в «Настройки › Транзакции».';
+      'Выключено. Включите в «Настройки › Платежи».';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -22116,4 +22116,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Появится здесь, когда поступит';
+
+  @override
+  String get phoneSendMaxNoteNoFee =>
+      'Всё, что у вас есть, за вычетом комиссии';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Кошелёк получателя может быть не в сети. Платёж завершится, когда он снова откроется.';
 }

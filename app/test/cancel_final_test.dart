@@ -316,7 +316,7 @@ void main() {
   });
 
   group('phone', () {
-    Future<FakeWalletSession> pump(WidgetTester tester, TxEntry tx) async {
+    Future<FakeWalletSession> pump(WidgetTester tester, TxEntry tx, {bool under = false}) async {
       final session = _session(tx);
       final store = MemorySecretStore();
       store.values['wallet.mainnet.backedUp'] = '1';
@@ -340,11 +340,26 @@ void main() {
           child: MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const TxDetailsScreen(txKey: 's:pay-1'),
+            home: under
+                ? Builder(
+                    builder: (context) => Scaffold(
+                      body: TextButton(
+                        onPressed: () => Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(builder: (_) => const TxDetailsScreen(txKey: 's:pay-1')),
+                        ),
+                        child: const Text('under'),
+                      ),
+                    ),
+                  )
+                : const TxDetailsScreen(txKey: 's:pay-1'),
           ),
         ),
       );
       await tester.pumpAndSettle();
+      if (under) {
+        await tester.tap(find.text('under'));
+        await tester.pumpAndSettle();
+      }
       return session;
     }
 
@@ -355,6 +370,15 @@ void main() {
       await tester.tap(find.widgetWithText(KitButton, _l.txDetailsCancelPayment).first);
       await tester.pumpAndSettle();
     }
+
+    testWidgets('pushed over another page: the back link goes back to it', (tester) async {
+      await pump(tester, _send(), under: true);
+      expect(find.byType(TxDetailsScreen), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(_l.historyTitle).first);
+      await tester.pumpAndSettle();
+      expect(find.byType(TxDetailsScreen), findsNothing);
+      expect(find.text('under'), findsOneWidget);
+    });
 
     testWidgets('an invoice paid: the note and the dialog say so, the fee in one line; one Cancel does both', (tester) async {
       final s = await pump(tester, _send(flow: TxFlow.invoice));

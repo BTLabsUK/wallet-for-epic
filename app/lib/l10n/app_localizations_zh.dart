@@ -3239,14 +3239,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      '你的余额，下面是节点、Epicbox 和 Tor 的图标。仍在确认中的金额在下方的卡片里。';
+      '你的余额，以及发送和接收。右上角的状态显示连接情况：点按可查看节点、Epicbox 和 Tor。最近的付款在下方。';
 
   @override
   String get tourPhoneSendTitle => '发送';
 
   @override
   String get tourPhoneSendText =>
-      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。';
+      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 付款。发出前会先确认。';
 
   @override
   String get tourPhoneReceiveTitle => '接收';
@@ -14342,7 +14342,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      '你的余额，下面是节点和 Epicbox 的图标。仍在确认中的金额在下方的卡片里。';
+      '你的余额，以及发送和接收。右上角的状态显示连接情况：点按可查看节点和 Epicbox。最近的付款在下方。';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -14952,7 +14952,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+  String get netStatusTurnOnHint => '已关闭。在“设置 › 付款”中开启。';
 
   @override
   String get netStatusTurnOnHintNet => '已关闭。在“设置 › 网络与隐私”中开启。';
@@ -20305,4 +20305,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => '到账后显示在这里';
+
+  @override
+  String get phoneSendMaxNoteNoFee => '你的全部余额,减去手续费';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName => '收款方的钱包可以离线。钱包下次打开时，付款即完成。';
 }

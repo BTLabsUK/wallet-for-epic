@@ -4376,7 +4376,7 @@
   "@tourPhoneWalletTitle": {
     "description": "Title of the tour card for the Wallet tab (first-unlock tour). Short."
   },
-  "tourPhoneWalletText": "Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.",
+  "tourPhoneWalletText": "Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node, Epicbox and Tor. Your latest payments are below.",
   "@tourPhoneWalletText": {
     "description": "Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons."
   },
@@ -4384,7 +4384,7 @@
   "@tourPhoneSendTitle": {
     "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
   },
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Payments. A review comes first.",
   "@tourPhoneSendText": {
     "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
   },
@@ -20347,7 +20347,7 @@
   "@handshakeLink1NoTor": {
     "description": "handshakeLink1 in the build without Tor: the same caption without Tor."
   },
-  "tourPhoneWalletTextNoTor": "Your balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.",
+  "tourPhoneWalletTextNoTor": "Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node and Epicbox. Your latest payments are below.",
   "@tourPhoneWalletTextNoTor": {
     "description": "tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox."
   },
@@ -21237,7 +21237,7 @@
       }
     }
   },
-  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "netStatusTurnOnHint": "Off. Turn on in Settings › Payments.",
   "@netStatusTurnOnHint": {
     "description": "Status icons: tooltip and hint of a payment method that is off; a tap opens the switch."
   },
@@ -29197,5 +29197,13 @@
   "phoneHomeFirstPaymentHint": "Appears here when it arrives",
   "@phoneHomeFirstPaymentHint": {
     "description": "Empty Home: the line under 'Your first payment' in the empty row. Says the payment shows in this place once it comes in. Short, no full stop."
+  },
+  "phoneSendMaxNoteNoFee": "Everything you have, less the fee",
+  "@phoneSendMaxNoteNoFee": {
+    "description": "Line shown after Max when the fee is not known yet."
+  },
+  "phoneSendReviewHintOfflineNoName": "Their wallet can be offline. The payment finishes when it next opens.",
+  "@phoneSendReviewHintOfflineNoName": {
+    "description": "Same hint when the person paid has no name yet (an address not in the contacts)."
   }
 }

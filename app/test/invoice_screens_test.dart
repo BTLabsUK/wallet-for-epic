@@ -22,6 +22,7 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
+import 'package:epic_wallet/src/ui/kit/kit_headers.dart' show KitPageHeader;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
@@ -370,6 +371,21 @@ void main() {
   });
 
   group('list', () {
+    testWidgets('its header sits below the status bar, and Back goes back', (tester) async {
+      final h = _Harness();
+      // A 40 dp status bar (physical pixels at 3x).
+      tester.view.padding = const FakeViewPadding(top: 120);
+      addTearDown(tester.view.resetPadding);
+      await h.pump(tester, const Scaffold(body: Text('under')));
+      await _openList(tester);
+      final back = find.descendant(of: find.byType(InvoicesScreen), matching: find.bySemanticsLabel(_l.phoneKitBack));
+      expect(tester.getTopLeft(find.descendant(of: find.byType(InvoicesScreen), matching: find.byType(KitPageHeader))).dy, greaterThanOrEqualTo(40));
+      await tester.tap(back.first);
+      await tester.pumpAndSettle();
+      expect(find.byType(InvoicesScreen), findsNothing);
+      expect(find.text('under'), findsOneWidget);
+    });
+
     testWidgets('shows an empty state per segment, each with its next step', (
       tester,
     ) async {

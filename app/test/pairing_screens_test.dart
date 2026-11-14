@@ -4,7 +4,8 @@
 // hand, the confirmation after an answer taken by hand, the words check without Skip, the
 // contact page's Pairing block in every state, Contacts rows and the Pair requests row, the
 // Way 1 sheet, and the Experimental switch gone.
-import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
+import 'package:epic_wallet/src/connection_grace.dart' show connectionGraceProvider;
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, rawWalletStatusProvider, walletStatusProvider;
 import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, NodeStatus, WalletStatus;
 
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
@@ -69,6 +70,12 @@ class _OnlineStatus extends WalletStatusNotifier {
   WalletStatus build() => (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online);
 }
 
+/// Our own Epicbox connection is down, the node too: the phone has no network.
+class _OfflineStatus extends WalletStatusNotifier {
+  @override
+  WalletStatus build() => (node: const NodeStatus(NodeState.offline), epicbox: EpicboxState.offline);
+}
+
 class _Harness {
   _Harness({String? seenAs = 'Alex', this.prefs}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
@@ -85,7 +92,7 @@ class _Harness {
 
   ProviderContainer container(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
 
-  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true}) async {
+  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true, bool offline = false}) async {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -100,7 +107,13 @@ class _Harness {
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           slateFilesProvider.overrideWithValue(files),
           sessionProvider.overrideWith(() => _OpenSession(session)),
-          walletStatusProvider.overrideWith(_OnlineStatus.new),
+          walletStatusProvider.overrideWith(offline ? _OfflineStatus.new : _OnlineStatus.new),
+          // The status this moment, which the notices read too, before the shown one settles.
+          rawWalletStatusProvider.overrideWithValue(
+            offline
+                ? (node: const NodeStatus(NodeState.offline), epicbox: EpicboxState.offline)
+                : (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online),
+          ),
           if (net != null) pairNetProvider.overrideWithValue(net),
         ],
         child: MaterialApp(
@@ -785,6 +798,26 @@ void main() {
       await h.api.requestHandledOn(q.id, 'Desktop');
       await tester.pumpAndSettle();
       expect(_notice(tester), _l.pairPairedOn('Desktop'));
+    });
+  });
+
+  group('the contact\'s Epicbox server', () {
+    testWidgets('unreachable: a warning while our own connection is up', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      h.container(tester).read(connectionGraceProvider.notifier).end();
+      h.api.emit(const PairingEvent(PairingEventKind.homeRelayUnreachable, name: 'Anna'));
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.noticeRelayDown('Anna'));
+    });
+
+    testWidgets('no warning while the phone is offline: the status already says so', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()), offline: true);
+      h.container(tester).read(connectionGraceProvider.notifier).end();
+      h.api.emit(const PairingEvent(PairingEventKind.homeRelayUnreachable, name: 'Anna'));
+      await tester.pumpAndSettle();
+      expect(_notice(tester), isNull);
     });
   });
 

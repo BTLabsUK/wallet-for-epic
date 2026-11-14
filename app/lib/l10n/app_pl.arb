@@ -908,9 +908,9 @@
   "tourPhoneBack": "Wstecz",
   "tourPhoneNext": "Dalej",
   "tourPhoneWalletTitle": "Portfel",
-  "tourPhoneWalletText": "Twoje saldo, a pod nim ikony węzła, Epicbox i Tora. To, co jeszcze się potwierdza, jest w kafelkach poniżej.",
+  "tourPhoneWalletText": "Twoje saldo oraz wysyłanie i odbieranie. Status w prawym górnym rogu pokazuje połączenie: dotknij go, by zobaczyć węzeł, Epicbox i Tora. Poniżej są ostatnie płatności.",
   "tourPhoneSendTitle": "Wyślij",
-  "tourPhoneSendText": "Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Transakcje. Najpierw jest podgląd.",
+  "tourPhoneSendText": "Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Płatności. Najpierw jest podgląd.",
   "tourPhoneReceiveTitle": "Odbierz",
   "tourPhoneReceiveText": "Twój adres Epicbox. Udostępnij go, aby dostać zapłatę. Karta Plik służy do plików transakcji do podpisania lub dokończenia.",
   "tourPhoneActivityTitle": "Aktywność",
@@ -3853,7 +3853,7 @@
   "methodSendDirectLineNoTor": "Portfel odbiorcy musi być otwarty.",
   "contactsAddressInvalidAnyNoTor": "To nie jest prawidłowy adres. Użyj adresu Epicbox (es5x…@serwer), adresu Link (https://…) lub linku epic1 (epic:epic1…).",
   "handshakeLink1NoTor": "Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet. Monety zostają zablokowane.",
-  "tourPhoneWalletTextNoTor": "Twoje saldo, a pod nim ikony węzła i Epicbox. To, co jeszcze się potwierdza, jest w kafelkach poniżej.",
+  "tourPhoneWalletTextNoTor": "Twoje saldo oraz wysyłanie i odbieranie. Status w prawym górnym rogu pokazuje połączenie: dotknij go, by zobaczyć węzeł i Epicbox. Poniżej są ostatnie płatności.",
   "deskNoTorSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:{port}), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz. Wszystkie portfele.",
   "deskNoTorTxDetailsFromBad": "Użyj adresu Epicbox lub http(s).",
   "errorInputsSpentElsewhere": "Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania.",
@@ -4005,7 +4005,7 @@
   "deskSetRescanRecheck": "Sprawdź",
   "deskSetRescanRecheckAgain": "Sprawdź ponownie",
   "contactsImportAddsAddress": "{name} dostaje adres {method}: {address}",
-  "netStatusTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje.",
+  "netStatusTurnOnHint": "Wyłączone. Włącz w Ustawienia › Płatności.",
   "netStatusTurnOnHintNet": "Wyłączone. Włącz w Ustawienia › Sieć i prywatność.",
   "deskErrMacKeychain": "macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło, którym odblokowujesz Maca, i wybierz „Zawsze pozwalaj”.",
   "deskUpdOpenDmg": "Otwórz obraz dysku",
@@ -5601,5 +5601,7 @@
   "phoneTxCancelledByUser": "Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą.",
   "phoneTxCancelledIncoming": "Jeśli nadawca opublikuje płatność później, i tak dotrze.",
   "phoneHomeFirstPayment": "Twoja pierwsza płatność",
-  "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze"
+  "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze",
+  "phoneSendMaxNoteNoFee": "Wszystko, co masz, minus opłata",
+  "phoneSendReviewHintOfflineNoName": "Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty."
 }

@@ -1151,8 +1151,18 @@ void main() {
       expect(await tester.binding.handlePopRoute(), isTrue);
       await tester.pumpAndSettle();
       expect(_selectedTab(tester), ShellWhere.home);
-      // On Wallet the system takes back: the app leaves.
-      expect(await tester.binding.handlePopRoute(), isFalse);
+      // On Wallet the app goes to the background; the activity stays, so the engine and the
+      // wallet open in the core stay together.
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('epic_wallet/app_task'), (call) async {
+        calls.add(call.method);
+        return true;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('epic_wallet/app_task'), null));
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(calls, ['toBack']);
+      expect(_selectedTab(tester), ShellWhere.home);
     });
 
     testWidgets('a recovery phrase QR says what it is, never its words', (tester) async {
@@ -2516,7 +2526,7 @@ void main() {
           status: 'Received',
           hidden: false,
         ),
-        'Received 10.0\u00a0EPIC from Alice, received, Today, 10:01',
+        'Received 10.0\u00a0EPIC from Alice, completed, Today, 10:01',
       );
       expect(
         txSpokenLabel(
@@ -2552,7 +2562,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
-          label: 'Received 5.0\u00a0EPIC, received, Yesterday, 18:00',
+          label: 'Received 5.0\u00a0EPIC, completed, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -2579,7 +2589,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
-          label: 'Received a hidden amount, received, Yesterday, 18:00',
+          label: 'Received a hidden amount, completed, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,

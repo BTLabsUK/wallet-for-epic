@@ -3483,14 +3483,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'Ihr Guthaben und darunter die Symbole für Node, Epicbox und Tor. Was noch bestätigt wird, steht in den Kacheln darunter.';
+      'Ihr Guthaben mit Senden und Empfangen. Der Status oben rechts zeigt die Verbindung: Tippen Sie darauf für Node, Epicbox und Tor. Darunter stehen Ihre letzten Zahlungen.';
 
   @override
   String get tourPhoneSendTitle => 'Senden';
 
   @override
   String get tourPhoneSendText =>
-      'Fügen Sie eine Adresse ein oder scannen Sie sie, oder wählen Sie einen Kontakt. Epicbox zahlt an eine Adresse; QR zeigt einem Smartphone neben Ihnen einen Code. Weitere Wege: Einstellungen › Transaktionen. Zuerst kommt eine Prüfung.';
+      'Fügen Sie eine Adresse ein oder scannen Sie sie, oder wählen Sie einen Kontakt. Epicbox zahlt an eine Adresse; QR zeigt einem Smartphone neben Ihnen einen Code. Weitere Wege: Einstellungen › Zahlungen. Zuerst kommt eine Prüfung.';
 
   @override
   String get tourPhoneReceiveTitle => 'Empfangen';
@@ -15364,7 +15364,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'Ihr Guthaben und darunter die Symbole für Node und Epicbox. Was noch bestätigt wird, steht in den Kacheln darunter.';
+      'Ihr Guthaben mit Senden und Empfangen. Der Status oben rechts zeigt die Verbindung: Tippen Sie darauf für Node und Epicbox. Darunter stehen Ihre letzten Zahlungen.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -16014,7 +16014,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netStatusTurnOnHint =>
-      'Aus. Einschalten unter Einstellungen › Transaktionen.';
+      'Aus. Einschalten unter Einstellungen › Zahlungen.';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -21742,4 +21742,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'Erscheint hier, sobald sie ankommt';
+
+  @override
+  String get phoneSendMaxNoteNoFee =>
+      'Alles, was du hast, abzüglich der Gebühr';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Die Wallet darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.';
 }

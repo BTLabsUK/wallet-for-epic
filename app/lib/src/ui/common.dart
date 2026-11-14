@@ -1898,7 +1898,10 @@ String txSpokenLabel(
   // English lower-cases the chip's word mid-sentence; other languages keep it, since German
   // nouns stay capitalised and Chinese has no case.
   // Only the first letter: a name in it keeps its case ("waiting for Anna").
-  final spokenStatus = l.localeName == 'en' && status.isNotEmpty ? status[0].toLowerCase() + status.substring(1) : status;
+  // A finished row's chip says Sent or Received, which the sentence starts with already:
+  // "completed" there, so the word is not said twice.
+  final said = status == l.txStatusSent || status == l.txStatusReceived ? l.txStatusCompleted : status;
+  final spokenStatus = l.localeName == 'en' && said.isNotEmpty ? said[0].toLowerCase() + said.substring(1) : said;
   final row = l.txSpokenRow(what, spokenStatus, date);
   // The row's lock, said once after the rest.
   final sentence = sealed ? l.deskE1SpokenSealed(row) : row;

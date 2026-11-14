@@ -3375,14 +3375,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'ยอดคงเหลือของคุณ และใต้ลงไปคือไอคอนโหนด Epicbox และ Tor สิ่งที่ยังอยู่ระหว่างยืนยันอยู่ในช่องด้านล่าง';
+      'ยอดคงเหลือของคุณ พร้อมการส่งและการรับ สถานะที่มุมขวาบนบอกการเชื่อมต่อ แตะเพื่อดูโหนด Epicbox และ Tor การชำระเงินล่าสุดอยู่ด้านล่าง';
 
   @override
   String get tourPhoneSendTitle => 'ส่ง';
 
   @override
   String get tourPhoneSendText =>
-      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
+      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › การชำระเงิน จะมีการตรวจสอบก่อนเสมอ';
 
   @override
   String get tourPhoneReceiveTitle => 'รับ';
@@ -14842,7 +14842,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'ยอดคงเหลือของคุณ และใต้ลงไปคือไอคอนโหนดและ Epicbox สิ่งที่ยังอยู่ระหว่างยืนยันอยู่ในช่องด้านล่าง';
+      'ยอดคงเหลือของคุณ พร้อมการส่งและการรับ สถานะที่มุมขวาบนบอกการเชื่อมต่อ แตะเพื่อดูโหนดและ Epicbox การชำระเงินล่าสุดอยู่ด้านล่าง';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -15475,7 +15475,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › การชำระเงิน';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -21078,4 +21078,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneHomeFirstPaymentHint => 'จะแสดงที่นี่เมื่อมาถึง';
+
+  @override
+  String get phoneSendMaxNoteNoFee => 'ทั้งหมดที่คุณมี หักค่าธรรมเนียม';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'กระเป๋าของผู้รับออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง';
 }

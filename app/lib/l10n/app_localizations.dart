@@ -5572,7 +5572,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons.
   ///
   /// In en, this message translates to:
-  /// **'Your balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.'**
+  /// **'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node, Epicbox and Tor. Your latest payments are below.'**
   String get tourPhoneWalletText;
 
   /// Title of the tour card for the Send tab (first-unlock tour). Short.
@@ -5584,7 +5584,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Send tab; names the two payment methods shown by default.
   ///
   /// In en, this message translates to:
-  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.'**
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Payments. A review comes first.'**
   String get tourPhoneSendText;
 
   /// Title of the tour card for the Receive tab (first-unlock tour). Short.
@@ -23560,7 +23560,7 @@ abstract class AppLocalizations {
   /// tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Your balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.'**
+  /// **'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node and Epicbox. Your latest payments are below.'**
   String get tourPhoneWalletTextNoTor;
 
   /// Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').
@@ -24472,7 +24472,7 @@ abstract class AppLocalizations {
   /// Status icons: tooltip and hint of a payment method that is off; a tap opens the switch.
   ///
   /// In en, this message translates to:
-  /// **'Off. Turn on in Settings › Transactions.'**
+  /// **'Off. Turn on in Settings › Payments.'**
   String get netStatusTurnOnHint;
 
   /// Home status card: detail of the Tor row while Tor is off; names where the Tor switch is.
@@ -33684,6 +33684,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Appears here when it arrives'**
   String get phoneHomeFirstPaymentHint;
+
+  /// Line shown after Max when the fee is not known yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you have, less the fee'**
+  String get phoneSendMaxNoteNoFee;
+
+  /// Same hint when the person paid has no name yet (an address not in the contacts).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet can be offline. The payment finishes when it next opens.'**
+  String get phoneSendReviewHintOfflineNoName;
 }
 
 class _AppLocalizationsDelegate

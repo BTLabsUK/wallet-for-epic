@@ -908,9 +908,9 @@
   "tourPhoneBack": "Zurück",
   "tourPhoneNext": "Weiter",
   "tourPhoneWalletTitle": "Wallet",
-  "tourPhoneWalletText": "Ihr Guthaben und darunter die Symbole für Node, Epicbox und Tor. Was noch bestätigt wird, steht in den Kacheln darunter.",
+  "tourPhoneWalletText": "Ihr Guthaben mit Senden und Empfangen. Der Status oben rechts zeigt die Verbindung: Tippen Sie darauf für Node, Epicbox und Tor. Darunter stehen Ihre letzten Zahlungen.",
   "tourPhoneSendTitle": "Senden",
-  "tourPhoneSendText": "Fügen Sie eine Adresse ein oder scannen Sie sie, oder wählen Sie einen Kontakt. Epicbox zahlt an eine Adresse; QR zeigt einem Smartphone neben Ihnen einen Code. Weitere Wege: Einstellungen › Transaktionen. Zuerst kommt eine Prüfung.",
+  "tourPhoneSendText": "Fügen Sie eine Adresse ein oder scannen Sie sie, oder wählen Sie einen Kontakt. Epicbox zahlt an eine Adresse; QR zeigt einem Smartphone neben Ihnen einen Code. Weitere Wege: Einstellungen › Zahlungen. Zuerst kommt eine Prüfung.",
   "tourPhoneReceiveTitle": "Empfangen",
   "tourPhoneReceiveText": "Ihre Epicbox-Adresse. Teilen Sie sie, um bezahlt zu werden. Der Tab Datei ist für Transaktionsdateien zum Signieren oder Abschließen.",
   "tourPhoneActivityTitle": "Aktivität",
@@ -3853,7 +3853,7 @@
   "methodSendDirectLineNoTor": "Ihre Wallet muss geöffnet sein.",
   "contactsAddressInvalidAnyNoTor": "Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder einen epic1-Link (epic:epic1…).",
   "handshakeLink1NoTor": "Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet. Die Coins werden gesperrt.",
-  "tourPhoneWalletTextNoTor": "Ihr Guthaben und darunter die Symbole für Node und Epicbox. Was noch bestätigt wird, steht in den Kacheln darunter.",
+  "tourPhoneWalletTextNoTor": "Ihr Guthaben mit Senden und Empfangen. Der Status oben rechts zeigt die Verbindung: Tippen Sie darauf für Node und Epicbox. Darunter stehen Ihre letzten Zahlungen.",
   "deskNoTorSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:{port}), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu. Alle Wallets.",
   "deskNoTorTxDetailsFromBad": "Verwenden Sie eine Epicbox- oder http(s)-Adresse.",
   "errorInputsSpentElsewhere": "Der Node zeigt diese Coins schon als ausgegeben, und diese Wallet hat sie nicht ausgegeben. Wahrscheinlich hat das eine andere Wallet mit Ihrer Wiederherstellungsphrase getan.",
@@ -4005,7 +4005,7 @@
   "deskSetRescanRecheck": "Neu prüfen",
   "deskSetRescanRecheckAgain": "Noch einmal prüfen",
   "contactsImportAddsAddress": "{name} erhält eine {method}-Adresse: {address}",
-  "netStatusTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
+  "netStatusTurnOnHint": "Aus. Einschalten unter Einstellungen › Zahlungen.",
   "netStatusTurnOnHintNet": "Aus. Einschalten unter Einstellungen › Netzwerk & Datenschutz.",
   "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie das Passwort ein, mit dem Sie Ihren Mac entsperren, und wählen Sie „Immer erlauben“.",
   "deskUpdOpenDmg": "Disk-Image öffnen",
@@ -5601,5 +5601,7 @@
   "phoneTxCancelledByUser": "Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
   "phoneTxCancelledIncoming": "Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
   "phoneHomeFirstPayment": "Deine erste Zahlung",
-  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt"
+  "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt",
+  "phoneSendMaxNoteNoFee": "Alles, was du hast, abzüglich der Gebühr",
+  "phoneSendReviewHintOfflineNoName": "Die Wallet darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet."
 }

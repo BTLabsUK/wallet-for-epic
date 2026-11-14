@@ -11,8 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
 import '../../connection_grace.dart';
-import '../../connection_state.dart' show walletStatusProvider;
-import '../status.dart' show NodeState;
+import '../../connection_state.dart' show rawWalletStatusProvider, walletStatusProvider;
+import '../status.dart' show EpicboxState, NodeState;
 import '../../contact_check.dart';
 import '../../contacts.dart';
 import '../../epicbox_mux.dart';
@@ -315,6 +315,12 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // Item 11: no server warning during the connection grace after start and resume; the
     // contact's page still says it.
     if (event.kind == PairingEventKind.homeRelayUnreachable && ref.read(connectionGraceProvider)) return;
+    // Nor while our own Epicbox connection is down (no network, say): the status at the top
+    // already says so, and the contact's server is not the one to blame.
+    if (event.kind == PairingEventKind.homeRelayUnreachable &&
+        (ref.read(walletStatusProvider).epicbox != EpicboxState.online || ref.read(rawWalletStatusProvider).epicbox != EpicboxState.online)) {
+      return;
+    }
     final id = event.pairingId;
     // An answer or a confirm gives the record its words: the list read before the event does
     // not have them yet, and the action would be missing.

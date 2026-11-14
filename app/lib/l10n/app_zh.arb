@@ -908,9 +908,9 @@
   "tourPhoneBack": "上一步",
   "tourPhoneNext": "下一步",
   "tourPhoneWalletTitle": "钱包",
-  "tourPhoneWalletText": "你的余额，下面是节点、Epicbox 和 Tor 的图标。仍在确认中的金额在下方的卡片里。",
+  "tourPhoneWalletText": "你的余额，以及发送和接收。右上角的状态显示连接情况：点按可查看节点、Epicbox 和 Tor。最近的付款在下方。",
   "tourPhoneSendTitle": "发送",
-  "tourPhoneSendText": "粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。",
+  "tourPhoneSendText": "粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 付款。发出前会先确认。",
   "tourPhoneReceiveTitle": "接收",
   "tourPhoneReceiveText": "你的 Epicbox 地址。分享它即可收款。“文件”标签页用于需要签名或完成的交易文件。",
   "tourPhoneActivityTitle": "活动",
@@ -3853,7 +3853,7 @@
   "methodSendDirectLineNoTor": "对方钱包必须处于打开状态。",
   "contactsAddressInvalidAnyNoTor": "地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 epic1 链接（epic:epic1…）。",
   "handshakeLink1NoTor": "你的钱包通过互联网把付款直接发到对方的钱包。这些币被锁定。",
-  "tourPhoneWalletTextNoTor": "你的余额，下面是节点和 Epicbox 的图标。仍在确认中的金额在下方的卡片里。",
+  "tourPhoneWalletTextNoTor": "你的余额，以及发送和接收。右上角的状态显示连接情况：点按可查看节点和 Epicbox。最近的付款在下方。",
   "deskNoTorSetTxDirectHint": "通过网址（http://host:{port}）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。所有钱包。",
   "deskNoTorTxDetailsFromBad": "请使用 Epicbox 或 http(s) 地址。",
   "errorInputsSpentElsewhere": "节点显示这些币已被花掉，而本钱包没有花它们。很可能是另一个使用你助记词的钱包花掉的。",
@@ -4005,7 +4005,7 @@
   "deskSetRescanRecheck": "重新核对",
   "deskSetRescanRecheckAgain": "再次核对",
   "contactsImportAddsAddress": "{name} 新增 {method} 地址：{address}",
-  "netStatusTurnOnHint": "已关闭。在“设置 › 交易”中开启。",
+  "netStatusTurnOnHint": "已关闭。在“设置 › 付款”中开启。",
   "netStatusTurnOnHintNet": "已关闭。在“设置 › 网络与隐私”中开启。",
   "deskErrMacKeychain": "macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你解锁 Mac 的密码并选择“始终允许”。",
   "deskUpdOpenDmg": "打开磁盘映像",
@@ -5601,5 +5601,7 @@
   "phoneTxCancelledByUser": "没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。",
   "phoneTxCancelledIncoming": "如果发送方之后广播这笔付款，它仍会到账。",
   "phoneHomeFirstPayment": "你的第一笔付款",
-  "phoneHomeFirstPaymentHint": "到账后显示在这里"
+  "phoneHomeFirstPaymentHint": "到账后显示在这里",
+  "phoneSendMaxNoteNoFee": "你的全部余额,减去手续费",
+  "phoneSendReviewHintOfflineNoName": "收款方的钱包可以离线。钱包下次打开时，付款即完成。"
 }
