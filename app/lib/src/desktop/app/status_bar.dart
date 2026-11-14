@@ -14,47 +14,71 @@ class DeskStatusBar extends ConsumerWidget {
     final c = context.dc;
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final now = nowItems(context, ref);
+    return _BarFrame(
+      barKey: const ValueKey('status-bar'),
+      child: FocusTraversalGroup(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // In a window too narrow for them the lights scroll; the mode keeps its place.
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ServiceRows(
+                      builder: (context, items) => Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [for (final i in deskStatusShown(ref, items)) _StatusLight(item: i, words: wide)],
+                      ),
+                    ),
+                    for (final n in now.take(_nowShown)) _NowLight(item: n),
+                    if (now.length > _nowShown)
+                      _BarCell(
+                        child: Padding(
+                          padding: _cellPad,
+                          child: Center(child: Text('+${now.length - _nowShown}', style: context.ts.caption.copyWith(color: c.dim))), // l10n-ok: a count
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (wide) const _PriceCell(),
+            const _ModeCell(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// How many things going on now the bar shows before the rest fold into a count.
+const _nowShown = 2;
+
+/// A cell's side padding.
+EdgeInsets get _cellPad => EdgeInsets.symmetric(horizontal: 14.u);
+
+/// The bar itself: its height, its fill, the hairline over it, and its name for a screen reader.
+class _BarFrame extends StatelessWidget {
+  const _BarFrame({required this.barKey, required this.child});
+
+  /// The bar's key, for tests and the tour.
+  final Key barKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
     return Semantics(
       container: true,
       explicitChildNodes: true,
       label: context.l10n.deskBarStatus,
       child: Container(
-        key: const ValueKey('status-bar'),
+        key: barKey,
         height: Ctl.statusBar,
         decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
-        child: FocusTraversalGroup(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // In a window too narrow for them the lights scroll; the mode keeps its place.
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      ServiceRows(
-                        builder: (context, items) => Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [for (final i in deskStatusShown(ref, items)) _StatusLight(item: i, words: wide)],
-                        ),
-                      ),
-                      for (final n in now.take(2)) _NowLight(item: n),
-                      if (now.length > 2)
-                        _BarCell(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 14.u),
-                            child: Center(child: Text('+${now.length - 2}', style: context.ts.caption.copyWith(color: c.dim))), // l10n-ok: a count
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              if (wide) const _PriceCell(),
-              const _ModeCell(),
-            ],
-          ),
-        ),
+        child: child,
       ),
     );
   }
@@ -112,7 +136,7 @@ class DeskStartStatusBar extends StatelessWidget {
     final l = context.l10n;
     Widget light(String name, {IconData? icon}) => _BarCell(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14.u),
+        padding: _cellPad,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: Sp.x2,
@@ -124,39 +148,32 @@ class DeskStartStatusBar extends StatelessWidget {
         ),
       ),
     );
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      label: l.deskBarStatus,
-      child: Container(
-        key: const ValueKey('start-status-bar'),
-        height: Ctl.statusBar,
-        decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    light(l.deskRailNode),
-                    light('Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
-                    if (DeskFeatures.tor) light('Tor', icon: EIcons.tor), // l10n-ok: product name
-                    light(l.methodDirectHttp, icon: EIcons.link),
-                  ],
-                ),
+    return _BarFrame(
+      barKey: const ValueKey('start-status-bar'),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  light(l.deskRailNode),
+                  light('Epicbox', icon: EIcons.epicbox), // l10n-ok: product name
+                  if (DeskFeatures.tor) light('Tor', icon: EIcons.tor), // l10n-ok: product name
+                  light(l.methodDirectHttp, icon: EIcons.link),
+                ],
               ),
             ),
-            _BarCell(
-              end: true,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14.u),
-                child: Center(child: Text('$appName $deskVersion', key: const ValueKey('start-status-version'), style: ts.mono(size: Fs.xs, color: c.faint))),
-              ),
+          ),
+          _BarCell(
+            end: true,
+            child: Padding(
+              padding: _cellPad,
+              child: Center(child: Text('$appName $deskVersion', key: const ValueKey('start-status-version'), style: ts.mono(size: Fs.xs, color: c.faint))),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -209,7 +226,7 @@ class _StatusLight extends ConsumerWidget {
           open: open,
           height: Ctl.statusBar,
           radius: 0,
-          padding: EdgeInsets.symmetric(horizontal: 14.u),
+          padding: _cellPad,
           onPressed: () => _toggle(m),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -245,7 +262,7 @@ class _NowLight extends StatelessWidget {
         tooltip: item.hint,
         height: Ctl.statusBar,
         radius: 0,
-        padding: EdgeInsets.symmetric(horizontal: 14.u),
+        padding: _cellPad,
         onPressed: item.onTap,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -276,7 +293,7 @@ class _PriceCell extends ConsumerWidget {
     return _BarCell(
       end: true,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14.u),
+        padding: _cellPad,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: Sp.x2,
@@ -364,7 +381,7 @@ class _ModeCell extends ConsumerWidget {
           open: open,
           height: Ctl.statusBar,
           radius: 0,
-          padding: EdgeInsets.symmetric(horizontal: 14.u),
+          padding: _cellPad,
           onPressed: () => _toggle(m),
           child: Row(
             mainAxisSize: MainAxisSize.min,
