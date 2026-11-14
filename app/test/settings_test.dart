@@ -5,7 +5,6 @@ import 'dart:io' show File;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart' show AppLog, MemoryLogSink;
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/models.dart' show ListenerEvent, ListenerEventKind;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';

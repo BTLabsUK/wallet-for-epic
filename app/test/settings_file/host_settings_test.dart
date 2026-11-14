@@ -108,12 +108,12 @@ void main() {
 
     test('listener_challenge_rounds is 3 as shipped; 2 to 10 or 0 (off) load, 1 and 11 do not', () {
       expect(AppConfig.fromText(_configText).listenerChallengeRounds, 3);
-      String with(int n) => _configText.replaceFirst('listener_challenge_rounds = 3', 'listener_challenge_rounds = $n');
+      String rounds(int n) => _configText.replaceFirst('listener_challenge_rounds = 3', 'listener_challenge_rounds = $n');
       for (final good in [0, 2, 10]) {
-        expect(AppConfig.fromText(with(good)).listenerChallengeRounds, good);
+        expect(AppConfig.fromText(rounds(good)).listenerChallengeRounds, good);
       }
       for (final bad in [1, 11]) {
-        expect(() => AppConfig.fromText(with(bad)), throwsStateError, reason: '$bad');
+        expect(() => AppConfig.fromText(rounds(bad)), throwsStateError, reason: '$bad');
       }
     });
 
