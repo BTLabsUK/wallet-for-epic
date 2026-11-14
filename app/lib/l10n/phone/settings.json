@@ -169,7 +169,7 @@
   "@phoneSettingsInvoicesLine": {
     "description": "Line under the Invoices row in Payments."
   },
-  "phoneSettingsFailover": "Switch node by itself",
+  "phoneSettingsFailover": "Switch node automatically",
   "@phoneSettingsFailover": {
     "description": "Switch in Network & privacy: use another node when the chosen one stops answering."
   },

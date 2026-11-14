@@ -22674,7 +22674,7 @@
   "@deskPayMaturing": {
     "description": "Deeper row status of a mining reward that is not spendable yet."
   },
-  "deskStatusFailover": "Failover",
+  "deskStatusFailover": "Switch node automatically",
   "@deskStatusFailover": {
     "description": "Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering."
   },
@@ -28614,7 +28614,7 @@
       }
     }
   },
-  "phoneSettingsFailover": "Switch node by itself",
+  "phoneSettingsFailover": "Switch node automatically",
   "@phoneSettingsFailover": {
     "description": "Switch in Network & privacy: use another node when the chosen one stops answering."
   },

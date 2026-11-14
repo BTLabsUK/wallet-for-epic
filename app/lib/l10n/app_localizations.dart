@@ -25858,7 +25858,7 @@ abstract class AppLocalizations {
   /// Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering.
   ///
   /// In en, this message translates to:
-  /// **'Failover'**
+  /// **'Switch node automatically'**
   String get deskStatusFailover;
 
   /// Desktop status popover: value of the Failover row when the node failover setting is on.
@@ -32938,7 +32938,7 @@ abstract class AppLocalizations {
   /// Switch in Network & privacy: use another node when the chosen one stops answering.
   ///
   /// In en, this message translates to:
-  /// **'Switch node by itself'**
+  /// **'Switch node automatically'**
   String get phoneSettingsFailover;
 
   /// Line under the Normal connection mode.

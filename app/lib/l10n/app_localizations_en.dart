@@ -16772,7 +16772,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskPayMaturing => 'Fresh from mining, not spendable yet';
 
   @override
-  String get deskStatusFailover => 'Failover';
+  String get deskStatusFailover => 'Switch node automatically';
 
   @override
   String get deskStatusOn => 'On';
@@ -21067,7 +21067,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get phoneSettingsFailover => 'Switch node by itself';
+  String get phoneSettingsFailover => 'Switch node automatically';
 
   @override
   String get phoneSettingsModeNormalLine =>
