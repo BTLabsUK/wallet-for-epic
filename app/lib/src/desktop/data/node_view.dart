@@ -116,6 +116,8 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   final host = own ? l.deskOwnYourNode : serviceHost('Node', full); // l10n-ok: serviceHost's kind key
   final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
   if (probeFailed && health == ServiceHealth.ok) return NodeView.of(l, ShownState.synced, host: host, lines: [full]);
+  // A blip (the wallet reads the node as checking) is not "Not answering" yet.
+  if (probeFailed && health == ServiceHealth.checking) return NodeView.of(l, ShownState.checking, host: host, lines: [full]);
   final down = health == ServiceHealth.down || probeFailed;
   if (down) {
     return NodeView.of(l, ShownState.notAnswering,

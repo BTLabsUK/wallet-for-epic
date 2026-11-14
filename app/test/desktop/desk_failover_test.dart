@@ -114,14 +114,14 @@ class _Wallet extends MockDeskWallet {
 class _Harness {
   /// [answered]: the node in use answered once before it went down; without, it never answered
   /// since the wallet opened.
-  _Harness(this._async, {String inUse = _a, Set<String> dead = const {_a}, AdvancedPrefs? prefs, bool tor = false, bool answered = true, this.node, SettingsPrefs? settingsPrefs, void Function(_Wallet)? before})
+  _Harness(this._async, {Duration blip = Duration.zero, String inUse = _a, Set<String> dead = const {_a}, AdvancedPrefs? prefs, bool tor = false, bool answered = true, this.node, SettingsPrefs? settingsPrefs, void Function(_Wallet)? before})
     : wallet = _Wallet(inUse: inUse, dead: answered ? const {} : dead) {
     // What the fake does from the first round on: the harness already runs one.
     before?.call(wallet);
     hostSettings = hostSettings.withValues({
       'node.servers': const [_a, _b, _c, _d],
     });
-    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), if (node != null) deskNodeProvider.overrideWithValue(node!)]);
+    container = ProviderContainer(overrides: [nodeBlipWindowProvider.overrideWithValue(blip), deskApiProvider.overrideWithValue(wallet), if (node != null) deskNodeProvider.overrideWithValue(node!)]);
     if (settingsPrefs != null) container.read(settingsPrefsProvider.notifier).set(settingsPrefs);
     container.listen(deskFailoverWatchProvider, (_, _) {}, fireImmediately: true);
     container.listen(deskFailoverProvider, (_, _) {}, fireImmediately: true);
@@ -226,6 +226,48 @@ void main() {
       expect(h.health, ServiceHealth.ok);
       expect(h.search, FailoverSearch.idle);
       h.dispose();
+    });
+  });
+
+  group('a blip is not an outage', () {
+    const blip = Duration(seconds: 25);
+
+    test('5 s down: checking only, nothing searched or moved; back, nothing to clear', () {
+      fakeAsync((async) {
+        final h = _Harness(async, blip: blip);
+        // _Harness already read the node down once the window is not zero.
+        expect(h.container.read(deskProvider).status?.nodeHealth, ServiceHealth.down);
+        h.elapse(const Duration(seconds: 5));
+        expect(h.health, ServiceHealth.checking);
+        expect(h.search, FailoverSearch.idle);
+        expect(h.wallet.checked, isEmpty);
+        expect(h.wallet.sessionNodes, isEmpty);
+        h.wallet.dead.clear();
+        h.poll();
+        h.elapse(blip * 2);
+        expect(h.health, ServiceHealth.ok);
+        expect(h.wallet.sessionNodes, isEmpty);
+        expect(h.failover, isNull);
+        h.dispose();
+      });
+    });
+
+    test('60 s down: red and failover after the window; recovery clears it', () {
+      fakeAsync((async) {
+        final h = _Harness(async, blip: blip, dead: {_a, _c, _d});
+        h.elapse(const Duration(seconds: 20));
+        expect(h.health, ServiceHealth.checking);
+        expect(h.search, FailoverSearch.idle);
+        h.elapse(const Duration(seconds: 6));
+        expect(h.search, FailoverSearch.noneAnswer);
+        expect(h.health, ServiceHealth.down);
+        h.elapse(const Duration(seconds: 34));
+        expect(h.health, ServiceHealth.down);
+        h.wallet.dead.clear();
+        h.elapse(const Duration(seconds: 75));
+        expect(h.health, ServiceHealth.ok);
+        h.dispose();
+      });
     });
   });
 
