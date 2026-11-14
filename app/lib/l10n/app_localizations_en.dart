@@ -17073,6 +17073,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get pairRefusesInvoices =>
+      'This contact’s wallet does not pay invoices.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return '$name’s wallet does not pay invoices.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Nothing was sent. Ask them to pay to your address instead.';
+
+  @override
   String get pairAnsweredNotHeard => 'Answered the invite · not heard yet';
 
   @override

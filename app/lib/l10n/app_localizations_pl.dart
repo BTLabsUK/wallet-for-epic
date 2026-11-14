@@ -17651,6 +17651,18 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get pairRefusesInvoices => 'Portfel tego kontaktu nie opłaca faktur.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Portfel kontaktu $name nie opłaca faktur.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.';
+
+  @override
   String get pairAnsweredNotHeard =>
       'Odpowiedź na twoje zaproszenie · jeszcze bez wieści';
 

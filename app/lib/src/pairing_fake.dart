@@ -1144,7 +1144,8 @@ class FakePairing implements PairingApi {
     _require('requestPayment');
     final r = _get(id);
     _needsLive(r);
-    if (r.state != PairingState.verified || !r.caps.paysInvoices) {
+    if (!r.caps.paysInvoices) throw pairingError(PairingFailure.refusesInvoices);
+    if (r.state != PairingState.verified) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the contact cannot be sent requests');
     }
     final s = session;

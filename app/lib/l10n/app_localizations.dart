@@ -26305,6 +26305,24 @@ abstract class AppLocalizations {
   /// **'Waiting for {name}’s wallet'**
   String pairWaitingFor(String name);
 
+  /// Invoice to a contact refused: the contact's card says its wallet does not pay invoices. No name known.
+  ///
+  /// In en, this message translates to:
+  /// **'This contact’s wallet does not pay invoices.'**
+  String get pairRefusesInvoices;
+
+  /// Invoice to a contact refused: the contact's card says its wallet does not pay invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet does not pay invoices.'**
+  String pairRefusesInvoicesTitle(String name);
+
+  /// Second line under pairRefusesInvoices: what to do instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was sent. Ask them to pay to your address instead.'**
+  String get pairRefusesInvoicesBody;
+
   /// Contacts row: the code was answered, the other wallet not heard.
   ///
   /// In en, this message translates to:

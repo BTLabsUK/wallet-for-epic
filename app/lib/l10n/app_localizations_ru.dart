@@ -17640,6 +17640,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get pairRefusesInvoices =>
+      'Кошелёк этого контакта не оплачивает счета.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Кошелёк контакта $name не оплачивает счета.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес.';
+
+  @override
   String get pairAnsweredNotHeard =>
       'Ответ на ваше приглашение · пока нет вестей';
 

@@ -17256,6 +17256,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get pairRefusesInvoices =>
+      'Die Wallet dieses Kontakts bezahlt keine Rechnungen.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Die Wallet von $name bezahlt keine Rechnungen.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse.';
+
+  @override
   String get pairAnsweredNotHeard =>
       'Hat Ihre Einladung beantwortet · noch nichts gehört';
 

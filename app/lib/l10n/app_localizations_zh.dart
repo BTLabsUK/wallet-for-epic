@@ -16123,6 +16123,17 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get pairRefusesInvoices => '此联系人的钱包不支付账单。';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return '$name 的钱包不支付账单。';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody => '未发送任何内容。请让对方改为直接付款到你的地址。';
+
+  @override
   String get pairAnsweredNotHeard => '已回复你的邀请 · 尚无消息';
 
   @override

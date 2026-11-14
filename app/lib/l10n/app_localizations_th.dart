@@ -16693,6 +16693,19 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get pairRefusesInvoices =>
+      'กระเป๋าเงินของผู้ติดต่อนี้ไม่ชำระใบแจ้งหนี้';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'กระเป๋าเงินของ $name ไม่ชำระใบแจ้งหนี้';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'ยังไม่ได้ส่งสิ่งใด ขอให้อีกฝ่ายชำระไปยังที่อยู่ของคุณแทน';
+
+  @override
   String get pairAnsweredNotHeard => 'ตอบคำเชิญของคุณแล้ว · ยังไม่ได้ยินข่าว';
 
   @override

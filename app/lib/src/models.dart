@@ -3793,6 +3793,9 @@ enum PairingFailure {
 
   /// The other wallet has not been heard yet: a sealed send or invoice must wait.
   waiting,
+
+  /// The contact's card says its wallet does not pay invoices: none was sent.
+  refusesInvoices,
 }
 
 /// The [PairingFailure] behind [error], or null for any other error.

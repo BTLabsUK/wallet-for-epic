@@ -209,6 +209,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.sealingOff ||
     lepic.WalletErrorKind.noSlateToSend ||
     lepic.WalletErrorKind.keyCheckRefused ||
+    // Reached only past lepicPairingFailure, which names it.
     lepic.WalletErrorKind.contactRefusesInvoices => WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.invalidMnemonic => WalletErrorKind.invalidMnemonic,
     lepic.WalletErrorKind.wrongPassword => WalletErrorKind.wrongPassword,
@@ -4151,6 +4152,7 @@ PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '
   lepic.WalletErrorKind.inviteDismissed => PairingFailure.inviteDismissed,
   lepic.WalletErrorKind.pairingEnded => PairingFailure.ended,
   lepic.WalletErrorKind.pairingWaiting => PairingFailure.waiting,
+  lepic.WalletErrorKind.contactRefusesInvoices => PairingFailure.refusesInvoices,
   _ => null,
 };
 

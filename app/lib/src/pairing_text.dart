@@ -43,6 +43,7 @@ String pairingFailureText(AppLocalizations l, PairingFailure failure, {String na
   PairingFailure.inviteDismissed => l.pairDismissedTitle(name),
   PairingFailure.ended => l.pairEndedShort,
   PairingFailure.waiting => l.pairWaitingFor(name),
+  PairingFailure.refusesInvoices => name.isEmpty ? l.pairRefusesInvoices : l.pairRefusesInvoicesTitle(name),
 };
 
 /// The second line of an outcome for [failure], or null where the title says it all.
@@ -70,6 +71,7 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.inviteDismissed => null,
       PairingFailure.ended => l.pairEndedBody,
       PairingFailure.waiting => l.pairWaitingSendBody,
+      PairingFailure.refusesInvoices => l.pairRefusesInvoicesBody,
     };
 
 /// The reason line of an ended pairing in a notice and on the contact's page, under the title
