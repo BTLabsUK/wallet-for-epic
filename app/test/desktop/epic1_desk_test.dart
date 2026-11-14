@@ -5,7 +5,9 @@
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
+import 'package:epic_wallet/src/desktop/screens/transfer/contact_picker.dart' show ContactPickerDialog;
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsArgs;
+import 'package:epic_wallet/src/desktop/screens/wallet/home_field.dart' show homeFieldSend;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -255,6 +257,22 @@ void main() {
       expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
       await _tap(tester, 'e1-review');
       expect(find.byKey(const ValueKey('e1-review-panel')), findsOneWidget);
+    });
+
+    testWidgets('epic1: an amount typed on Home opens Send with it', (tester) async {
+      await _open(tester, DeskRoute.send, arg: homeFieldSend('12,5'), epic1: true);
+      expect(tester.widget<EditableText>(_field('e1-amount')).controller.text, '12,5');
+    });
+
+    testWidgets('epic1: a name typed on Home searches the contacts, not "Not an epic1 link."', (tester) async {
+      await _open(tester, DeskRoute.send, arg: homeFieldSend('Piotr N'), epic1: true);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      expect(find.text(_l.deskE1ErrNotLink), findsNothing);
+      final picker = find.byType(ContactPickerDialog);
+      expect(picker, findsOneWidget);
+      expect(tester.widget<ContactPickerDialog>(picker).query, 'Piotr N');
+      expect(find.descendant(of: picker, matching: find.text('Piotr Nowak')), findsWidgets);
     });
 
     testWidgets('epic1: a classic address gets the mode line with Settings', (tester) async {
