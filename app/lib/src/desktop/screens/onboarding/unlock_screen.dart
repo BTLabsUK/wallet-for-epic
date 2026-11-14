@@ -70,14 +70,14 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   bool _rememberChosen = false;
 
   /// The stage running now; null while the form shows.
-  String? _stage;
+  _Stage? _stage;
 
   /// The copy step of a first unlock after the update, while it runs; null otherwise.
   StoreMigrationProgress? _copy;
 
   /// The message of a failure before the password step.
   String? _failure;
-  String _failedStage = '';
+  _Stage? _failedStage;
 
   /// The failure is a wallet whose key the secret store no longer holds: its way out is the
   /// recovery phrase (Set a new password), not Try again.
@@ -94,17 +94,17 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         });
         _password.text = 'secret';
       case UnlockShow.progress:
-        _stage = 'wallet';
+        _stage = _Stage.wallet;
       // The first unlock after the update, a large wallet copying its records.
       case UnlockShow.encrypting:
-        _stage = 'encrypt';
+        _stage = _Stage.encrypt;
         _copied = true;
         _copy = const StoreMigrationProgress(done: 4200, total: 10000);
       case UnlockShow.failed:
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) setState(() => _failure = context.l10n.deskOnbUnlockPortInUse('${appConfig.httpListenPort}'));
         });
-        _failedStage = 'wallet';
+        _failedStage = _Stage.wallet;
       case UnlockShow.missing:
         _missing = true;
       case UnlockShow.listOpen:
@@ -229,11 +229,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   bool _copied = false;
 
   List<Stage> _stages(AppLocalizations l) => [
-    Stage('check', l.deskOnbUnlockStageCheck),
-    Stage('wallet', l.deskOnbUnlockStageWallet),
+    Stage(_Stage.check.name, l.deskOnbUnlockStageCheck),
+    Stage(_Stage.wallet.name, l.deskOnbUnlockStageWallet),
     // The label carries its own "…": the running stage adds none ([StageList]).
-    if (_copied) Stage('encrypt', l.storeEncrypting.replaceAll('…', '')),
-    Stage('unlock', l.deskOnbUnlockStageUnlock),
+    if (_copied) Stage(_Stage.encrypt.name, l.storeEncrypting.replaceAll('…', '')),
+    Stage(_Stage.unlock.name, l.deskOnbUnlockStageUnlock),
   ];
 
   /// A copy-step event of LEPIC's open: the stage runs while rows are copied, then the open goes
@@ -243,12 +243,12 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     setState(() {
       _copied = true;
       _copy = p.finished ? null : p;
-      _stage = p.finished ? 'unlock' : 'encrypt';
+      _stage = p.finished ? _Stage.unlock : _Stage.encrypt;
     });
   }
 
   /// Shows [stage] running; false when the screen went away.
-  Future<bool> _run(String stage) async {
+  Future<bool> _run(_Stage stage) async {
     setState(() => _stage = stage);
     await Future<void>.delayed(const Duration(milliseconds: 350));
     return mounted;
@@ -281,19 +281,19 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       _failure = null;
       _keyMissing = false;
     });
-    if (!await _run('check')) return;
+    if (!await _run(_Stage.check)) return;
     final mock = ref.read(deskApiProvider) is MockDeskWallet;
-    if (!await _run('wallet')) return;
+    if (!await _run(_Stage.wallet)) return;
     if (mock && !remembered && password == 'fail') {
       setState(() {
         _failure = context.l10n.deskOnbUnlockPortInUse('${appConfig.httpListenPort}');
-        _failedStage = 'wallet';
+        _failedStage = _Stage.wallet;
         _stage = null;
       });
       return;
     }
     setState(() {
-      _stage = 'unlock';
+      _stage = _Stage.unlock;
       _copied = false;
       _copy = null;
     });
@@ -317,7 +317,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       setState(() {
         _failure = deskErrorText(e, context.l10n);
         _keyMissing = e is DeskError && e.keyMissing;
-        _failedStage = 'unlock';
+        _failedStage = _Stage.unlock;
         _stage = null;
       });
       return;
@@ -363,7 +363,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       return ProgressView(
         title: l.deskOnbUnlockFailed,
         stages: _stages(l),
-        failed: _failedStage,
+        failed: _failedStage?.name ?? '',
         failure: _failure,
         onBack: _backToForm,
         onRetry: keyMissing != null ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.resetPassword, ResetPasswordArg(keyMissing.id)) : _unlock,
@@ -374,11 +374,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (_stage != null) {
       final copy = _copy;
       // How far the copy is, while it runs (LEPIC counts pages, so no number is shown).
-      final fraction = _stage == 'encrypt' ? copy?.fraction : null;
+      final fraction = _stage == _Stage.encrypt ? copy?.fraction : null;
       return ProgressView(
         title: l.deskOnbUnlockUnlocking(name),
         stages: _stages(l),
-        current: _stage!,
+        current: _stage!.name,
         note: l.deskOnbUnlockNote,
         progress: fraction,
         topAnchored: true,
@@ -577,3 +577,6 @@ String walletRowLine(AppLocalizations l, WalletEntry w, {DateTime? now, String? 
       : l.deskSetFrameDaysAgo(d.inDays);
   return l.deskOnbUnlockOpened(when);
 }
+
+/// Unlock's stages in the order they run; a stage's name is its [Stage] key.
+enum _Stage { check, wallet, encrypt, unlock }
