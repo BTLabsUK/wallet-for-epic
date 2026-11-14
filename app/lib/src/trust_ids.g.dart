@@ -566,6 +566,7 @@ abstract final class TrustIds {
   static const restoreScanClose = 'g4.restore.scan-close';
   static const receiveCodeQr = 'g4.receive.code-qr';
   static const tourOfferClose = 'g4.tour.offer.close';
+  static const fileCancel = 'g4.file.cancel';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
   static String securityAutoLockChoiceAt(Object value) => 'g4.security.autoLock.choice.$value';
@@ -1145,5 +1146,6 @@ abstract final class TrustIds {
     'g4.restore.scan-close',
     'g4.receive.code-qr',
     'g4.tour.offer.close',
+    'g4.file.cancel',
   ];
 }

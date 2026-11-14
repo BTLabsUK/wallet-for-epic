@@ -129,6 +129,7 @@ TxEntry _payTx(
   TxStatus status = TxStatus.confirmed,
   String? note,
   int? height,
+  bool cancellable = false,
 }) {
   final fee = _epic(0.008);
   return fakeTx(
@@ -149,11 +150,12 @@ TxEntry _payTx(
     transport: 'epicbox',
     pairingId: 'p-tom',
     note: note,
+    cancellable: cancellable,
   );
 }
 
 void _payWaiting(FakeWalletSession s) => _payBase(s, [
-  _payTx(_payWaitingId, amount: 12.5, at: _at(0, 18, 12), status: TxStatus.awaitingRecipient, note: 'Tickets'),
+  _payTx(_payWaitingId, amount: 12.5, at: _at(0, 18, 12), status: TxStatus.awaitingRecipient, note: 'Tickets', cancellable: true),
 ]);
 
 void _payDone(FakeWalletSession s) => _payBase(s, [

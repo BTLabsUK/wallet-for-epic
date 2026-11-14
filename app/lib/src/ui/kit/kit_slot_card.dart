@@ -56,6 +56,7 @@ class KitSlotCard extends StatelessWidget {
     this.icon,
     this.leading,
     this.trailing,
+    this.action,
     this.onTap,
     this.pages = 1,
     this.page = 0,
@@ -67,6 +68,10 @@ class KitSlotCard extends StatelessWidget {
   final IconData? icon;
   final Widget? leading;
   final Widget? trailing;
+
+  /// The gold link under the text (`.lk b`: "Back up now"); it takes the place of the chevron and
+  /// the subtitle keeps to one line so the card stays [Kit.slotCard] tall.
+  final String? action;
   final VoidCallback? onTap;
   final int pages;
   final int page;
@@ -84,9 +89,9 @@ class KitSlotCard extends StatelessWidget {
           ?leading,
           if (leading == null && icon != null) KitWell(icon: icon!),
           const SizedBox(width: 12),
-          Expanded(child: _SlotText(title: title, subtitle: subtitle, maxSubtitleLines: 2)),
+          Expanded(child: _SlotText(title: title, subtitle: subtitle, maxSubtitleLines: action == null ? 2 : 1, action: action)),
           ?trailing,
-          if (onTap != null && trailing == null) Icon(KitIcons.chevron, size: 22, color: t.faint),
+          if (onTap != null && trailing == null && action == null) Icon(KitIcons.chevron, size: 22, color: t.faint),
         ],
       ),
     );
@@ -133,11 +138,12 @@ class KitWell extends StatelessWidget {
 }
 
 class _SlotText extends StatelessWidget {
-  const _SlotText({required this.title, this.subtitle, this.maxSubtitleLines = 1, this.needs = false});
+  const _SlotText({required this.title, this.subtitle, this.maxSubtitleLines = 1, this.needs = false, this.action});
 
   final String title;
   final String? subtitle;
   final int maxSubtitleLines;
+  final String? action;
 
   /// The needs-you card's words (`.need b`, `.need p`): the title 600 at 1.3, the sub at 1.4.
   final bool needs;
@@ -158,13 +164,18 @@ class _SlotText extends StatelessWidget {
             padding: const EdgeInsets.only(top: 3),
             child: Text(subtitle!, style: KitType.rowSub.copyWith(color: t.dim, height: needs ? 1.4 : null), maxLines: maxSubtitleLines, overflow: TextOverflow.ellipsis),
           ),
+        if (action != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(action!, style: KitType.rowSub.copyWith(color: t.accentText, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
       ],
     );
   }
 }
 
 /// The needs-you card (HANDOFF 7.1): a gold-soft ground, a gold-line edge, deep-gold corner
-/// marks, a [title] and a [subtitle] of up to two lines, then a gold Review button and a ghost Later. At
+/// marks, a [title] and a [subtitle] on one line (an ellipsis cuts it), then a gold Review button and a ghost Later. At
 /// most one gold button on the screen: this card's, which is why the screen's own primary
 /// leaves the gold to it. Its height follows its content (at least [Kit.slotCard]).
 class KitNeedsYouCard extends StatelessWidget {
@@ -226,7 +237,7 @@ class KitNeedsYouCard extends StatelessWidget {
                       children: [
                         KitWell(icon: icon, gold: true),
                         const SizedBox(width: 12),
-                        Expanded(child: _SlotText(title: title, subtitle: subtitle, maxSubtitleLines: 2, needs: true)),
+                        Expanded(child: _SlotText(title: title, subtitle: subtitle, needs: true)),
                       ],
                     ),
                     Padding(

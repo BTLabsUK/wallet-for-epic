@@ -693,6 +693,106 @@ void main() {
       await h.pump(tester, _sendTab());
       expect(find.text(_l.sendRecent), findsNothing);
     });
+
+    testWidgets('an unsaved recent row says the day, never the time', (tester) async {
+      final h = _Harness();
+      h.session.transactionsValue = history();
+      await h.pump(tester, _sendTab());
+      tester.view.physicalSize = const Size(1080, 3600);
+      await tester.pumpAndSettle();
+      final rows = find.textContaining('Not saved \u00b7 paid ');
+      expect(rows, findsWidgets);
+      for (final row in rows.evaluate()) {
+        final text = (row.widget as Text).data!;
+        expect(RegExp(r'\d{1,2}:\d{2}').hasMatch(text), isFalse, reason: text);
+      }
+    });
+  });
+
+  group('phone send details', () {
+    testWidgets('a recent address paid through a pairing carries the contact\'s name', (tester) async {
+      final h = _Harness();
+      // An invoice of a paired contact, paid to its mailbox address: the book holds no address.
+      await h.session.saveContact(contact: Contact(id: 'c1', name: 'WalletQ', note: null));
+      h.session.pairing.seedPaired(id: 'p1', name: 'WalletQ', contactId: 'c1');
+      h.session.paidInvoicesValue['slate-q'] = PaidInvoice(
+        slateId: 'slate-q',
+        senderAddress: _bob,
+        amount: _epic(1),
+        status: InvoiceStatus.replied,
+        txId: 5,
+        pairingId: 'p1',
+      );
+      h.session.transactionsValue = [
+        fakeTx(
+          kind: TxKind.sent,
+          slateId: 'slate-q',
+          id: 5,
+          counterparty: _bob,
+          flow: TxFlow.invoice,
+          amountDebited: _epic(1) + BigInt.from(1000),
+          fee: BigInt.from(1000),
+          timeUnix: 1790000600,
+        ),
+      ];
+      await h.pump(tester, _sendTab());
+      tester.view.physicalSize = const Size(1080, 3600);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.sendRecent), findsOneWidget);
+      expect(find.text('WalletQ'), findsWidgets);
+      expect(find.textContaining('Not saved', findRichText: true), findsNothing);
+    });
+
+    testWidgets('a part-typed address is not called new to you', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, _sendTab());
+      await _enter(tester, _address, '${'b' * 40}@epicbox.epiccash.com');
+      final newToYou = find.textContaining(_l.phoneSendNewToYou, findRichText: true);
+      expect(newToYou, findsNothing);
+      expect(find.text(_l.sendAddressIncomplete), findsWidgets);
+      await _enter(tester, _address, _bob);
+      expect(newToYou, findsOneWidget);
+    });
+
+    testWidgets('Max: a second tap turns it off, a digit replaces the figure', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, _sendTab());
+      await _toAmount(tester);
+      await _tap(tester, find.text('Max'));
+      expect(_fieldText(tester, 'Amount (EPIC)'), '39.992');
+      await _tap(tester, find.text('Max'));
+      expect(_fieldText(tester, 'Amount (EPIC)'), isEmpty);
+      await _tap(tester, find.text('Max'));
+      expect(_fieldText(tester, 'Amount (EPIC)'), '39.992');
+      await _enter(tester, 'Amount (EPIC)', '3');
+      expect(_fieldText(tester, 'Amount (EPIC)'), '3');
+    });
+
+    testWidgets('Max shows a fee only when the estimate is for that amount', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, _sendTab());
+      await _toAmount(tester);
+      await _tap(tester, find.text('Max'));
+      final withFee = find.textContaining('less the 0.008 fee', findRichText: true);
+      final noFee = find.textContaining(_l.phoneSendMaxNoteNoFee, findRichText: true);
+      expect(withFee.evaluate().length + noFee.evaluate().length, 1);
+      expect(find.textContaining('0.001', findRichText: true), findsNothing);
+    });
+
+    testWidgets('the file made can be cancelled, and the amount asks again', (tester) async {
+      final h = _Harness();
+      h.session.transactionsValue = [fakeTx(kind: TxKind.sent, slateId: 'slate-1', id: 7, status: TxStatus.awaitingRecipient)];
+      await h.pump(tester, _sendTab());
+      await _toFile(tester);
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      await _tap(tester, find.text(_l.sendMakeFile));
+      await buildInPage(tester, find.byKey(sendCancelPaymentKey));
+      expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
+      expect(find.text(_l.sendCancelPayment), findsOneWidget);
+      await _tap(tester, find.byKey(sendCancelPaymentKey));
+      expect(h.session.cancelledTxIds, [7]);
+      expect(find.byKey(sendCancelPaymentKey), findsNothing);
+    });
   });
 
   group('parseRecipient', () {
@@ -1214,6 +1314,18 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '100');
       expect(find.byKey(sendNotEnoughKey), findsOneWidget);
       expect(continueOnPressed(tester), isNull);
+    });
+
+    testWidgets('the over line stays on one line', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, _sendTab());
+      await _toAmount(tester);
+      await _enter(tester, 'Amount (EPIC)', '100');
+      final text = tester.widget<Text>(find.byKey(sendNotEnoughKey));
+      expect(text.maxLines, 1);
+      // One line of the line's own font, not two.
+      final box = tester.getSize(find.byKey(sendNotEnoughKey));
+      expect(box.height, lessThan((text.style?.fontSize ?? 14) * 2));
     });
 
     // F-06: "Spendable: 10.0\u00a0EPIC" beside 'Not enough spendable EPIC', because the estimate

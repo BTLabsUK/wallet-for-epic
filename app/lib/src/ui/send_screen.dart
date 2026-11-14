@@ -1382,8 +1382,18 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
-  /// Fills in the largest amount that can be sent now, with its fee.
+  /// The Max button: a second tap puts Max away, and the amount goes with it.
   Future<void> _max() async {
+    if (_maxUsed) {
+      _setAmountText('');
+      return;
+    }
+    await _fillMax();
+  }
+
+  /// Fills in the largest amount that can be sent now, with its fee (also again when the
+  /// balance changed under a Max).
+  Future<void> _fillMax() async {
     final session = ref.read(sessionProvider);
     if (session == null) return;
     _debounce?.cancel();
@@ -2037,6 +2047,44 @@ class _SendViewState extends ConsumerState<SendView> {
     await _send();
   }
 
+  /// Cancels the payment of the file made here (the foot of the made page): its coins are free
+  /// again and the file route asks for the amount once more. A file already handed over is
+  /// dead then: the other wallet's reply no longer finishes it.
+  Future<void> _cancelFile() async {
+    final slate = _slate;
+    final session = ref.read(sessionProvider);
+    if (slate == null || session == null || _busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    TxEntry? made;
+    try {
+      made = (await session.transactions(refresh: true)).where((t) => t.key == 's:${slate.slateId}').firstOrNull;
+    } catch (error) {
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
+    }
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (made == null) return;
+    _undelivered = made;
+    await _cancelUndelivered(then: SendStage.fileAmount);
+    if (!mounted) return;
+    if (_stage != SendStage.fileAmount) {
+      // Not cancelled (the cancel failed or their reply came first): the made page stays.
+      if (_undelivered != null) setState(() => _undelivered = null);
+      return;
+    }
+    setState(() {
+      _slate = null;
+      _sealedText = null;
+      _sealedFor = null;
+      _plainCopy = null;
+      _fileHandedOver = false;
+      _fileMadeAt = null;
+    });
+  }
+
   /// Cancels [_undelivered], then shows [then] with the amount and the note. After Max the
   /// maximum is asked again, now that the coins are free.
   Future<void> _cancelUndelivered({required SendStage then}) async {
@@ -2102,7 +2150,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (!mounted || _stage != then) return;
     final amount = _parsedAmount;
     if (_maxUsed) {
-      await _max();
+      await _fillMax();
     } else if (amount != null) {
       setState(() {
         _estimate = null;
@@ -2464,7 +2512,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // After Max the amount is the old balance's maximum; ask for the new one. An amount
       // above the new balance needs no estimate: the gate says so.
       if (_maxUsed) {
-        _max();
+        _fillMax();
       } else if (!_gate.notEnough) {
         _estimateFee(amount);
       }
@@ -3006,7 +3054,7 @@ class _SendViewState extends ConsumerState<SendView> {
         KitGroup(
           margin: EdgeInsets.zero,
           children: [
-            if (routeShown) _routeRow(context, read, contact: contact, hold: hold),
+            if (routeShown) _routeRow(context, read, contact: contact, hold: hold, complete: valid),
             if (saveable)
               KitRow(
                 // No well, the gold glyph alone, on a 54 row (`.av.n` with no background).
@@ -3100,24 +3148,7 @@ class _SendViewState extends ConsumerState<SendView> {
           KitGroup(
             margin: EdgeInsets.zero,
             children: [
-              for (final address in recent.take(5))
-                _WhoRow(
-                  address: address,
-                  ownServer: ownServer,
-                  name: _contactName(address),
-                  subtitle: _contactName(address) != null
-                      ? null
-                      : l.phoneSendNotSavedPaid(shortDate(l, localTime(_lastPaidTime(transactions, address)), DateTime.now())),
-                  onTap: () {
-                    final saved = contactFor(contacts, address);
-                    if (saved != null) {
-                      _useContact(saved, address: address);
-                    } else {
-                      _setRecipient(address);
-                    }
-                    _toAmount();
-                  },
-                ),
+              for (final address in recent.take(5)) _recentRow(l, address, transactions, contacts, ownServer),
             ],
           ),
         ],
@@ -3141,11 +3172,41 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  /// When the newest payment to [address] was made.
-  int _lastPaidTime(List<TxEntry> transactions, String address) {
-    var newest = 0;
+  /// One Recent row. Its name is the one Activity gives the newest payment to [address]
+  /// ([txPartyName]: a saved contact, else the pairing the payment went through); a named row
+  /// opens that contact and has no "Not saved" line.
+  Widget _recentRow(AppLocalizations l, String address, List<TxEntry> transactions, List<Contact> contacts, String? ownServer) {
+    final tx = _lastPaidTx(transactions, address);
+    final saved = contactFor(contacts, address);
+    final name = _contactName(address) ?? (tx == null ? null : txPartyName(ref, tx));
+    Contact? contact = saved;
+    if (contact == null && name != null && tx != null) {
+      final slate = tx.slateId;
+      final pairingId = tx.pairingId ?? (slate == null ? null : ref.watch(paidInvoiceProvider(slate)).value?.pairingId);
+      final contactId = pairingId == null ? null : ref.watch(pairingByIdProvider(pairingId))?.contactId;
+      contact = contactId == null ? null : contacts.where((c) => c.id == contactId).firstOrNull;
+    }
+    return _WhoRow(
+      address: address,
+      ownServer: ownServer,
+      name: name,
+      subtitle: name != null ? null : l.phoneSendNotSavedPaid(shortDay(l, localTime(tx?.timeUnix ?? 0), ref.read(clockProvider)())),
+      onTap: () {
+        if (contact != null) {
+          _useContact(contact, address: saved == null ? null : address);
+        } else {
+          _setRecipient(address);
+        }
+        _toAmount();
+      },
+    );
+  }
+
+  /// The newest payment to [address].
+  TxEntry? _lastPaidTx(List<TxEntry> transactions, String address) {
+    TxEntry? newest;
     for (final tx in transactions) {
-      if (tx.kind == TxKind.sent && tx.counterparty?.trim() == address.trim() && tx.timeUnix > newest) newest = tx.timeUnix;
+      if (tx.kind == TxKind.sent && tx.counterparty?.trim() == address.trim() && (newest == null || tx.timeUnix > newest.timeUnix)) newest = tx;
     }
     return newest;
   }
@@ -3221,7 +3282,7 @@ class _SendViewState extends ConsumerState<SendView> {
                   ),
                 if (_fileOffered)
                   KitRow(
-                    leading: KitIconWell(MethodIcons.file, color: t.accent, size: 40, iconSize: 20),
+                    leading: KitIconWell(KitIcons.fileDown, color: t.accent, size: 40, iconSize: 20),
                     minHeight: 72,
                     title: l.phoneSendWithFile,
                     subtitle: l.phoneSendWithFileSub,
@@ -3321,7 +3382,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The method row under To: the method's icon and name, whether their wallet can be offline,
   /// the host exactly as it will be contacted, and the way it goes (this phone, your network,
   /// over Tor). A contact with more than one address gets a chevron: a sheet of them.
-  Widget _routeRow(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold}) {
+  Widget _routeRow(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold, bool complete = true}) {
     final l = context.l10n;
     final t = context.tokens;
     final mode = AdvancedOptions.of(context).networkMode;
@@ -3351,7 +3412,8 @@ class _SendViewState extends ConsumerState<SendView> {
       _ => null,
     };
     final line = metaLine([
-      if (contact == null) l.phoneSendNewToYou,
+      // "New to you" is said of a whole address, not of one still being typed.
+      if (contact == null && complete) l.phoneSendNewToYou,
       epicbox ? l.phoneSendTheirOffline : l.phoneSendTheirOnline,
       if (torStarts) l.sendRouteTorStarts,
     ]);
@@ -3572,7 +3634,8 @@ class _SendViewState extends ConsumerState<SendView> {
   void _keyDigit(String digit) {
     if (_busy) return;
     final l = context.l10n;
-    final text = _amount.text;
+    // A digit after Max starts a new amount; it is not added to the maximum.
+    final text = _maxUsed ? '' : _amount.text;
     final at = _pointAt(text, l);
     // EPIC has eight decimals, a currency two; the field never holds more.
     if (at >= 0 && text.length - at - 1 >= (_fiatEntry ? 2 : 8)) return;
@@ -3583,7 +3646,7 @@ class _SendViewState extends ConsumerState<SendView> {
   void _keyPoint() {
     if (_busy) return;
     final l = context.l10n;
-    final text = _amount.text;
+    final text = _maxUsed ? '' : _amount.text;
     final mark = _point(l);
     if (_pointAt(text, l) >= 0) return;
     _setAmountText(text.isEmpty ? '0$mark' : text + mark);
@@ -3722,12 +3785,17 @@ class _SendViewState extends ConsumerState<SendView> {
               line: l.phoneSendOver(KitAfterLine.first),
               figures: [epicFor(l, over, unit: false)],
               bad: true,
+              oneLine: true,
               textKey: sendNotEnoughKey,
             )
           : KitAfterLine(line: l.errorNotEnoughFunds, bad: true, textKey: sendNotEnoughKey);
     } else if (estimate != null && amount != null && summary != null) {
+      // The fee is the one of this Max estimate; with none for this amount the line names no figure.
       status = _maxUsed
-          ? KitAfterLine(line: l.phoneSendMaxNote(epicFor(l, estimate.fee, unit: false)), live: true)
+          ? KitAfterLine(
+              line: estimate.amount == amount ? l.phoneSendMaxNote(epicFor(l, estimate.fee, unit: false)) : l.phoneSendMaxNoteNoFee,
+              live: true,
+            )
           : KitLeavesLine(
               amount: epicFor(l, summary.spendable - estimate.amount - estimate.fee, unit: false),
               fee: epicFor(l, estimate.fee, unit: false),
@@ -4109,7 +4177,10 @@ class _SendViewState extends ConsumerState<SendView> {
         // The frame's line in place of "Ready to send": whether their wallet can be offline.
         ready: KitHint(
           to.kind == RecipientKind.epicbox || pairing != null
-              ? l.phoneSendReviewHintOffline(_toName(l))
+              // A raw address is no name: without one the line says "their".
+              ? (_pairingTo != null || _contact != null || _contactName(_read.address) != null
+                    ? l.phoneSendReviewHintOffline(_toName(l))
+                    : l.phoneSendReviewHintOfflineNoName)
               : l.sendFactOnline,
         ),
       ),
@@ -4777,6 +4848,16 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
           const SizedBox(height: 8),
         ],
+      ),
+      const SizedBox(height: 8),
+      // The frame ends on the one danger action: the payment is held until a reply comes.
+      KitButton(
+        key: sendCancelPaymentKey,
+        label: l.sendCancelPayment,
+        kind: KitButtonKind.danger,
+        semanticsId: TrustIds.fileCancel,
+        busy: _busy,
+        onPressed: _busy ? null : _cancelFile,
       ),
     ];
   }

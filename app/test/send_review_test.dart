@@ -654,6 +654,28 @@ void main() {
       expect(h.session.epicboxSends.single.to, _bob);
     });
 
+    testWidgets('the hint says "their wallet" for an address with no name', (tester) async {
+      final h = _Harness();
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _reach(tester, find.text(_l.phoneSendReviewHintOfflineNoName));
+      expect(find.text(_l.phoneSendReviewHintOfflineNoName), findsOneWidget);
+      expect(find.textContaining("s wallet can be offline"), findsNothing);
+    });
+
+    testWidgets('the hint uses the name of a saved contact', (tester) async {
+      final h = _Harness();
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.session.saveContact(contact: Contact(id: '', name: 'Bob', address: _bob, note: null));
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _reach(tester, find.text(_l.phoneSendReviewHintOffline('Bob')));
+      expect(find.text(_l.phoneSendReviewHintOffline('Bob')), findsOneWidget);
+    });
+
     testWidgets(
       'the review shows the fee and the total, and the message as entered',
       (tester) async {

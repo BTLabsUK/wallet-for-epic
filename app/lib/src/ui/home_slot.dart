@@ -90,13 +90,16 @@ class InvoiceSlotItem extends HomeSlotItem {
 
 /// A calm card: an icon, a title, a line, a tap. For reminders and messages.
 class InfoSlotItem extends HomeSlotItem {
-  const InfoSlotItem({required this.id, required this.title, this.subtitle, this.icon = KitIcons.info, this.onOpen});
+  const InfoSlotItem({required this.id, required this.title, this.subtitle, this.icon = KitIcons.info, this.action, this.onOpen});
 
   @override
   final String id;
   final String title;
   final String? subtitle;
   final IconData icon;
+
+  /// The gold link under the text, as the frame draws a reminder's ("Back up now").
+  final String? action;
   final void Function(BuildContext context)? onOpen;
 
   @override
@@ -107,6 +110,7 @@ class InfoSlotItem extends HomeSlotItem {
     title: title,
     subtitle: subtitle,
     icon: icon,
+    action: action,
     pages: page.pages,
     page: page.page,
     onTap: onOpen == null ? null : () => onOpen!(context),

@@ -611,5 +611,6 @@
 {"id": "g4.qrscan.help", "screen": "qrscan", "family": ["android"], "keys": ["sendHelp"], "many": true, "driver": false},
 {"id": "g4.restore.scan-close", "screen": "restore", "family": ["android"], "keys": ["commonClose"], "driver": false},
 {"id": "g4.receive.code-qr", "screen": "receive", "role": "image", "keys": ["phoneRecvCodeLead"], "driver": false},
-{"id": "g4.tour.offer.close", "screen": "tour", "family": ["android"], "keys": ["commonClose"], "driver": false}
+{"id": "g4.tour.offer.close", "screen": "tour", "family": ["android"], "keys": ["commonClose"], "driver": false},
+{"id": "g4.file.cancel", "screen": "file", "family": ["android"], "keys": ["sendCancelPayment"], "driver": false}
 ]}

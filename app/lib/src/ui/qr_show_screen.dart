@@ -22,6 +22,7 @@ import '../providers.dart';
 import '../qr_slate.dart';
 import '../screen_brightness.dart';
 import '../secure_screen.dart';
+import '../settings.dart' show clockProvider;
 import '../trust_ids.dart';
 import 'common.dart';
 import 'kit/kit_button.dart';
@@ -624,11 +625,23 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     final answers = role == QrShowRole.reply || role == QrShowRole.paid;
     final received = role == QrShowRole.reply || role == QrShowRole.request;
     final finished = status.tone == QrStatusTone.ok;
+    final tip = tipHeight(ref);
+    final target = confirmationsTargetOf(ref);
+    // "Confirming 1 of 6" while the chain counts; the status line's own words otherwise.
+    final confirming = !finished && txPhase(tx, tip, target: target) == TxPhase.confirming;
     final steps = [
       KitStep(title: answers ? l.phoneQrDoneCodeRead : l.phoneQrDoneScanned, state: KitStepState.done),
-      KitStep(title: answers ? l.phoneQrDoneAnswerSeen : l.phoneQrDoneAnswerRead, state: KitStepState.done),
       KitStep(
-        title: status.text,
+        title: answers ? l.phoneQrDoneAnswerSeen : l.phoneQrDoneAnswerRead,
+        state: KitStepState.done,
+        // When the payment entered the history: the answer was read then.
+        detail: l.dateWithTime(
+          shortDay(l, localTime(tx.timeUnix), ref.read(clockProvider)()),
+          localClock(l, localTime(tx.timeUnix)),
+        ),
+      ),
+      KitStep(
+        title: confirming ? l.lvPayConfirmingOf(txConfirmations(tx, tip) ?? 0, target) : status.text,
         state: finished ? KitStepState.done : KitStepState.now,
         detail: finished ? null : l.phoneQrDoneFinishes,
         network: !finished,
