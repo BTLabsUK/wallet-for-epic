@@ -381,6 +381,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('links.community', _url, byDefault: ''),
   SettingsKey('links.source', _url, byDefault: ''),
   SettingsKey('links.privacy', _url, byDefault: ''),
+  SettingsKey('links.licences', _url, byDefault: ''),
   // [explorer]: a block by its height; no kernel page.
   SettingsKey('explorer.block', TextKind(_explorerBlock), byDefault: ''),
   SettingsKey('explorer.indexed', TextKind(_explorerBlock), byDefault: ''),

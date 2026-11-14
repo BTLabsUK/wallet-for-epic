@@ -132,6 +132,7 @@ website = "https://epic.invalid"
 community = "https://chat.example.invalid/EpicCash"
 source = "https://git.example.invalid/epic-cash-bt/wallet-for-epic"
 privacy = "https://example.invalid/privacy/"
+licences = "https://example.invalid/licences/"
 [explorer]
 block = "https://explorer.example.invalid/blockdetail/{height}"
 indexed = "https://explorer.example.invalid/epic_explorer/v1/blockchain_block/{height}"

@@ -31,7 +31,6 @@ import 'package:epic_wallet/src/desktop/app/shots.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart' show MockDeskNode, deskNodeProvider, mockLocalNode;
 import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/licence_texts_dialog.dart' show showLicenceTextsDialog;
 import 'package:epic_wallet/src/app_log.dart' show LogFileInfo;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_files.dart' show confirmClearLogs;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart' show confirmEpicboxOff;
@@ -46,7 +45,6 @@ import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOt
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show EButton, ECheckbox;
 import 'package:epic_wallet/src/desktop/widgets/dialogs.dart' show EDialog;
 import 'package:epic_wallet/src/desktop/data/devices_state.dart' show deskDeviceServiceProvider;
-import 'package:flutter/foundation.dart' show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -69,26 +67,6 @@ final Size? _size = () {
 
 
 // ---- helpers (the tour's own are private to settings/shots.dart and devices/shots.dart) ----
-
-/// A test run has no licence registry (the app reads the bundle's notices): a few packages
-/// as the built app lists them, for the licence texts shot.
-var _licencesAdded = false;
-void _sampleLicences() {
-  if (_licencesAdded) return;
-  _licencesAdded = true;
-  const apache = 'Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/';
-  const mit = 'Permission is hereby granted, free of charge, to any person obtaining a copy of this software.';
-  const bsd = 'Redistribution and use in source and binary forms, with or without modification, are permitted.\nNeither the name of the copyright holder nor the names of its contributors may be used.';
-  const ofl = 'SIL OPEN FONT LICENSE Version 1.1';
-  LicenseRegistry.addLicense(() => Stream.fromIterable([
-    const LicenseEntryWithLineBreaks(['BT Wallet'], apache),
-    const LicenseEntryWithLineBreaks(['flutter'], bsd),
-    const LicenseEntryWithLineBreaks(['flutter'], bsd),
-    const LicenseEntryWithLineBreaks(['flutter_riverpod'], mit),
-    const LicenseEntryWithLineBreaks(['Montserrat'], ofl),
-    const LicenseEntryWithLineBreaks(['tor'], bsd),
-  ]));
-}
 
 Future<void> _feature(ProviderContainer c, Set<AdvancedFeature> on) async {
   final n = c.read(deskProvider.notifier);
@@ -173,7 +151,6 @@ final List<DeskShot> flowMapSettingsShots = [
   DeskShot(id: 'fm-settings-wallets-removed-from-list', title: 'Wallets, one removed from the list: Add back', route: DeskRoute.settingsWallets, prepare: (c, _) async => c.read(deskProvider.notifier).removeWallet(shotOtherWallet.id, WalletRemoval.list)),
   // dialogs without a shot
   DeskShot(id: 'fm-settings-network-switch-confirm', title: 'Switch to Kill switch? with sends waiting', route: DeskRoute.settingsPrivacy, dialog: (c) => confirmNetworkModeSwitch(c, mode: NetworkMode.killSwitch, waiting: 2)),
-  DeskShot(id: 'fm-settings-licence-texts', title: 'About, licence texts', route: DeskRoute.settingsAbout, before: (_) async => _sampleLicences(), dialog: showLicenceTextsDialog),
   // drawn after the review (2026-11-13)
   DeskShot(id: 'fm-review-contact-pick', title: 'Send, choosing a contact', route: DeskRoute.send, dialog: showContactPickerDialog),
   const DeskShot(id: 'fm-review-finish', title: 'Finish the payment (a response file)', route: DeskRoute.finalize),

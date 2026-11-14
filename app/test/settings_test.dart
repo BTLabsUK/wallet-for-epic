@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io' show File;
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart' show AppLog, MemoryLogSink;
 import 'package:epic_wallet/src/l10n.dart';
@@ -42,7 +43,6 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/history/backup_summary.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
-import 'package:epic_wallet/src/ui/licences_screen.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey, networkSectionKey;
 import 'package:epic_wallet/src/address_format.dart' show shownUrl;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
@@ -57,7 +57,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
-import 'support/real_time.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
 
 final _l = englishStrings;
@@ -1759,39 +1758,23 @@ void main() {
             )
             .first,
       );
-      await tester.tap(find.byKey(settingsLicencesKey));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      // The row opens the page of full texts.
-      expect(find.byType(LicenceTextsScreen), findsOneWidget);
+      // The row is a link to the web page of full texts, not a screen of the app.
+      expect(find.byKey(settingsLicencesKey), findsOneWidget);
     });
 
-    testWidgets('Licences opens the full texts, with the bundled tor in them', (
-      tester,
-    ) async {
-      registerTorLicence();
+    testWidgets('Licences is an external link: a tap stays on About, nothing opens in the app', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.about);
       await _reveal(tester, find.byKey(settingsLicencesKey));
+      expect(hostSettings.linkLicences, isNotNull);
       expect(find.text(_l.settingsLicences), findsOneWidget);
       await tester.tap(find.byKey(settingsLicencesKey));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      // The app's own page of full texts (UP-025), not Flutter's stock LicensePage.
-      expect(find.byType(LicenceTextsScreen), findsOneWidget);
-      // British, like the row and the rest of the app.
-      expect(find.text('Licenses'), findsNothing);
-      // The registry reads the licences on real async.
-      await pumpUntil(tester, () => find.text(_l.netStatusTor).evaluate().isNotEmpty);
-      expect(find.text(_l.netStatusTor), findsOneWidget);
-      // Tor's licence as written (polish #10): one preformatted block, not centred paragraphs.
-      await tester.tap(find.text(_l.netStatusTor));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
-    }, skip: !torBuilt);
+      await tester.pump(const Duration(milliseconds: 500));
+      // Still on About: nothing opens inside the app.
+      expect(find.text(_l.settingsLicences), findsOneWidget);
+    });
   });
 
   testWidgets('About offers Check for updates wherever the updater runs, with Tor and without', (tester) async {
