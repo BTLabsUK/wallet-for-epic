@@ -78,7 +78,8 @@ Future<ReachResult> checkWalletAnswers(RecipientInput to, {required NetworkMode 
 }
 
 /// Whether [reachFallback] is asked after [result]: nothing answered, or something that is not
-/// a wallet answered at an address typed without a port (a website on 443, the wallet on 3415).
+/// a wallet answered at an address typed without a port (a website on the default port, the
+/// wallet on the listener's).
 bool reachFallbackApplies(ReachResult result, RecipientInput to) =>
     result == ReachResult.noAnswer || (result == ReachResult.notWallet && to.notes.contains(RecipientNote.defaultPort));
 
