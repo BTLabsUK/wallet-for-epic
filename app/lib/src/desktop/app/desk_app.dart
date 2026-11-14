@@ -15,6 +15,7 @@ import 'screens.dart';
 import 'auto_lock.dart';
 import 'close_guard.dart';
 import 'tray/desk_tray.dart';
+import 'status_bar.dart' show DeskStartStatusBar;
 import 'title_bar.dart';
 import 'shell.dart';
 import 'tour.dart';

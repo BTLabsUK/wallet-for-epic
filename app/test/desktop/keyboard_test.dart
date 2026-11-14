@@ -5,7 +5,7 @@
 // Alt+arrows and Backspace outside a text field, wizard steps first.
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
-import 'package:epic_wallet/src/desktop/app/title_bar.dart' show DeskStatusBar;
+import 'package:epic_wallet/src/desktop/app/status_bar.dart' show DeskStatusBar;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';

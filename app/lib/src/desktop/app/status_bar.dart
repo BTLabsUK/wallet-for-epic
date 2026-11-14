@@ -1,5 +1,35 @@
 // SPDX-License-Identifier: Apache-2.0
-part of 'title_bar.dart';
+/// The status bar at the window's foot: the services' lights, what goes on now, the EPIC price
+/// and the network mode; before a wallet is open, the lights off and the app's version. Its
+/// buttons and menus are the title bar's ([DeskBarButton], [DeskBarMenu]).
+library;
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../advanced.dart' show NetworkMode;
+import '../../amount.dart' show atomicPerEpic, epicUnit;
+import '../../app_info.dart';
+import '../../l10n.dart' show localDigits;
+import '../../network_gate.dart' show NetGate;
+import '../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
+import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../ui/network_mode_text.dart';
+import '../data/net_mode_view.dart' show deskNetTor;
+import '../data/node_view.dart' show digits;
+import '../data/tor_view.dart' show TorState;
+import '../desk_l10n.dart';
+import '../screens/settings/prefs.dart';
+import '../screens/settings/settings_privacy.dart' show deskChooseNetworkMode, deskNetworkModes;
+import '../widgets/kit.dart';
+import 'desk_app.dart' show deskNavigatorKey;
+import 'now_slot.dart';
+import 'rail.dart';
+import 'shell.dart' show deskVersion;
+import 'status_popover.dart';
+import 'title_bar.dart' show DeskBarButton, DeskBarMenu, deskMenuToggle;
 
 
 /// The status bar at the window's foot, under every page of an open wallet: one light per
@@ -216,10 +246,10 @@ class _StatusLight extends ConsumerWidget {
     final height = node && item.state == EState.ok ? ref.watch(deskProvider.select((s) => s.status?.nodeHeight)) : null;
     final detail = node ? (item.marker ?? (height == null ? null : digits(l, height))) : null;
     return _BarCell(
-      child: _BarMenu(
+      child: DeskBarMenu(
         minWidth: 280.u,
         children: (context, m) => [DeskStatusPopover(item: item, close: m.close)],
-        builder: (context, m, open) => _BarButton(
+        builder: (context, m, open) => DeskBarButton(
           key: ValueKey('bar-status-${item.jump.name}'),
           label: tip,
           tooltip: tip,
@@ -227,7 +257,7 @@ class _StatusLight extends ConsumerWidget {
           height: Ctl.statusBar,
           radius: 0,
           padding: _cellPad,
-          onPressed: () => _toggle(m),
+          onPressed: () => deskMenuToggle(m),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: Sp.x2,
@@ -256,7 +286,7 @@ class _NowLight extends StatelessWidget {
     final ts = context.ts;
     final detail = item.detail;
     return _BarCell(
-      child: _BarButton(
+      child: DeskBarButton(
         key: ValueKey('now-${item.id}'),
         label: item.words,
         tooltip: item.hint,
@@ -325,7 +355,7 @@ class _ModeCell extends ConsumerWidget {
     final line = networkModeMarkLine(l, mode, waitingForTor: waiting);
     return _BarCell(
       end: true,
-      child: _BarMenu(
+      child: DeskBarMenu(
         minWidth: 280.u,
         children: (menu, m) => [
           Padding(
@@ -374,7 +404,7 @@ class _ModeCell extends ConsumerWidget {
             ),
           ),
         ],
-        builder: (context, m, open) => _BarButton(
+        builder: (context, m, open) => DeskBarButton(
           key: const ValueKey('bar-net-mode'),
           label: l.netMarkSemanticsDesk(name),
           tooltip: line.isEmpty ? null : line,
@@ -382,7 +412,7 @@ class _ModeCell extends ConsumerWidget {
           height: Ctl.statusBar,
           radius: 0,
           padding: _cellPad,
-          onPressed: () => _toggle(m),
+          onPressed: () => deskMenuToggle(m),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: Sp.x1,

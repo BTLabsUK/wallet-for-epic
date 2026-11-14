@@ -53,7 +53,8 @@ import 'close_guard.dart';
 import 'last_session_offer.dart';
 import 'update_strip.dart' show DeskUpdateStrip;
 import 'old_app_offer.dart';
-import 'title_bar.dart' show DeskStatusBar, showDeskShortcuts;
+import 'status_bar.dart' show DeskStatusBar;
+import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
 
 export 'rail.dart' show ServiceRows;

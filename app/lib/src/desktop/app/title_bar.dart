@@ -21,38 +21,37 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
-import '../../amount.dart' show atomicPerEpic, epicUnit;
+
 import '../../app_info.dart';
-import '../../l10n.dart' show localDigits;
-import '../../network_gate.dart' show NetGate;
-import '../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
+
+
+
 import '../../trust_ids.dart';
 import '../data/desk_update.dart' show deskAppVersion;
 import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import '../../ui/theme/brand.dart' show EpicMark;
-import '../../advanced.dart' show NetworkMode;
-import '../../ui/network_mode_text.dart';
-import '../data/net_mode_view.dart' show deskNetTor;
-import '../data/node_view.dart' show digits;
-import '../data/tor_view.dart' show TorState;
+
+
+
+
+
 import '../desk_l10n.dart';
 import '../screens/onboarding/onboarding_parts.dart' show deskLanguageItems, deskSystemLanguage, networkName;
 import '../screens/onboarding/unlock_screen.dart' show UnlockPick;
-import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
+
 import '../screens/settings/prefs.dart';
 import '../screens/settings/report_problem.dart' show showReportProblemDialog;
-import '../screens/settings/settings_privacy.dart' show deskChooseNetworkMode, deskNetworkModes;
+
 import '../widgets/kit.dart';
 import 'close_guard.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_window.dart';
-import 'now_slot.dart';
-import 'rail.dart';
-import 'shell.dart' show deskVersion, deskKeys, deskSettingsHome, invoicesShown, lockWallet, deskLockingProvider, outputsShown;
-import 'status_popover.dart';
+
+
+import 'shell.dart' show deskKeys, deskSettingsHome, invoicesShown, lockWallet, deskLockingProvider, outputsShown;
+
 import 'tour.dart' show TourTarget;
 
-part 'status_bar.dart';
 
 
 /// Dialogs open on the app's navigator: the bar dims under their scrim.
@@ -378,8 +377,8 @@ class _Held extends ConsumerWidget {
 }
 
 /// Hover and pressed backgrounds for the bars' own buttons (brand, wallet chip, status lights).
-class _BarButton extends StatefulWidget {
-  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height, this.radius});
+class DeskBarButton extends StatefulWidget {
+  const DeskBarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height, this.radius});
 
   final String label;
   final String? tooltip;
@@ -395,10 +394,10 @@ class _BarButton extends StatefulWidget {
   final double? radius;
 
   @override
-  State<_BarButton> createState() => _BarButtonState();
+  State<DeskBarButton> createState() => _BarButtonState();
 }
 
-class _BarButtonState extends State<_BarButton> {
+class _BarButtonState extends State<DeskBarButton> {
   bool _hover = false;
   bool _down = false;
 
@@ -509,8 +508,8 @@ Widget _menuDivider(DeskColors c) => Padding(
 
 /// A menu that opens below its button (above it from the status bar, where no room is below) and
 /// closes on Esc.
-class _BarMenu extends StatefulWidget {
-  const _BarMenu({required this.children, required this.builder, this.minWidth, this.f10 = false});
+class DeskBarMenu extends StatefulWidget {
+  const DeskBarMenu({super.key, required this.children, required this.builder, this.minWidth, this.f10 = false});
 
   /// F10 opens this one (the app menu).
   final bool f10;
@@ -520,10 +519,10 @@ class _BarMenu extends StatefulWidget {
   final double? minWidth;
 
   @override
-  State<_BarMenu> createState() => _BarMenuState();
+  State<DeskBarMenu> createState() => _BarMenuState();
 }
 
-class _BarMenuState extends State<_BarMenu> {
+class _BarMenuState extends State<DeskBarMenu> {
   final _menu = MenuController();
   bool _open = false;
 
@@ -582,7 +581,7 @@ class _BarMenuState extends State<_BarMenu> {
   }
 }
 
-void _toggle(MenuController m) => m.isOpen ? m.close() : m.open();
+void deskMenuToggle(MenuController m) => m.isOpen ? m.close() : m.open();
 
 /// The language of the app, on Welcome's bar: its name and a chevron; the list holds the
 /// computer's language and each translation, the chosen one ticked.
@@ -600,7 +599,7 @@ class _LanguageButton extends ConsumerWidget {
     final value = settings.language ?? deskSystemLanguage;
     final items = deskLanguageItems(l);
     final current = items.where((i) => i.value == value).firstOrNull ?? items.first;
-    return _BarMenu(
+    return DeskBarMenu(
       minWidth: 220.u,
       children: (context, m) => [
         for (final i in items)
@@ -617,14 +616,14 @@ class _LanguageButton extends ConsumerWidget {
             },
           ),
       ],
-      builder: (context, m, open) => _BarButton(
+      builder: (context, m, open) => DeskBarButton(
         key: const ValueKey('bar-language'),
         label: l.deskSetAppearLanguage,
         tooltip: l.deskSetAppearLanguage,
         open: open,
         height: Ctl.sm,
         padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-        onPressed: () => _toggle(m),
+        onPressed: () => deskMenuToggle(m),
         child: AnimatedOpacity(
           opacity: dim ? 0.7 : 1,
           duration: Dur.base,
@@ -690,7 +689,7 @@ class _Brand extends ConsumerWidget {
     final locking = ref.watch(deskLockingProvider);
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final canSwitch = (wallets ?? const []).length > 1;
-    return _BarMenu(
+    return DeskBarMenu(
       f10: true,
       children: (context, m) => [
         if (!deskNoLock) _menuItem(context, key: const ValueKey('bar-menu-lock'), icon: EIcons.lock, label: l.deskBarLock, keys: deskKeys('L'), onPressed: locking ? null : () => lockWallet(ref)),
@@ -704,14 +703,14 @@ class _Brand extends ConsumerWidget {
         _menuDivider(c),
         _menuItem(context, key: const ValueKey('bar-menu-quit'), icon: EIcons.logout, label: l.deskBarQuit, keys: deskKeys('Q'), onPressed: () => deskClose(ref)),
       ],
-      builder: (context, m, open) => _BarButton(
+      builder: (context, m, open) => DeskBarButton(
         key: const ValueKey('bar-brand'),
         label: l.deskBarMenu(appName),
         tooltip: tooltip,
         open: open,
         height: Ctl.sm,
         padding: compact ? EdgeInsets.symmetric(horizontal: Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x3),
-        onPressed: () => _toggle(m),
+        onPressed: () => deskMenuToggle(m),
         child: child,
       ),
     );
@@ -803,7 +802,7 @@ class _WalletChip extends ConsumerWidget {
         Icon(EIcons.chevronDown, size: 16.u, color: c.faint),
       ],
     );
-    return _BarMenu(
+    return DeskBarMenu(
       minWidth: 260.u,
       children: (context, m) => [
         Padding(
@@ -827,13 +826,13 @@ class _WalletChip extends ConsumerWidget {
         _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
         _menuItem(context, icon: EIcons.settings, label: l.deskBarWalletSettings, onPressed: () => _go(ref, DeskRoute.settingsAccount)),
       ],
-      builder: (context, m, open) => _BarButton(
+      builder: (context, m, open) => DeskBarButton(
         key: const ValueKey('bar-wallet'),
         label: l.deskShellOpenWalletSettingsNamed(name),
         tooltip: l.deskShellSwitchWallet,
         open: open,
         padding: EdgeInsetsDirectional.only(start: 5.u, end: Sp.x2),
-        onPressed: () => _toggle(m),
+        onPressed: () => deskMenuToggle(m),
         child: chip,
       ),
     );
