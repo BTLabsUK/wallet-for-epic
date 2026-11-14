@@ -100,5 +100,13 @@
   },
   "@phoneTourOfferShow": {
     "description": "Button on the tour offer toast: starts the tour. One or two words."
+  },
+  "phoneBackupReminderText": "Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.",
+  "phoneBackupReminderAction": "Back up now",
+  "@phoneBackupReminderText": {
+    "description": "Home slot card while the recovery phrase is not backed up: what is at risk, in two short sentences. Shown beside a shield icon, two lines at most."
+  },
+  "@phoneBackupReminderAction": {
+    "description": "Gold link under the text of the recovery phrase reminder card on Home: opens the back-up. Two or three words."
   }
 }

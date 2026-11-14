@@ -484,7 +484,8 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
         a.onPressed();
       },
       style: TextButton.styleFrom(
-        foregroundColor: primary ? t.accentText : t.dim,
+        // The quiet blue of the info level: its action reads as part of the notice, not as gold.
+        foregroundColor: primary ? (widget.notice.level == NoticeLevel.info ? t.info : t.accentText) : t.dim,
         // From the theme's label style, so the fallback fonts (Thai, Chinese) stay.
         textStyle: Theme.of(context).textTheme.labelLarge?.merge(KitType.toastAction),
         minimumSize: const Size(0, 40), // `.ta` min-height

@@ -16,5 +16,7 @@
   "phoneHomeFirstPayment": "你的第一笔付款",
   "phoneHomeFirstPaymentHint": "到账后显示在这里",
   "phoneTourOffer": "要不要快速看看钱包的功能?",
-  "phoneTourOfferShow": "带我看看"
+  "phoneTourOfferShow": "带我看看",
+  "phoneBackupReminderText": "你的恢复短语尚未备份。没有它，手机丢失就意味着钱包丢失。",
+  "phoneBackupReminderAction": "立即备份"
 }

@@ -114,12 +114,14 @@ class KitSlotCard extends StatelessWidget {
   }
 }
 
-/// A 40 px icon well, optionally in the gold tint of the needs-you card.
+/// A 40 px icon well, optionally in the gold tint of the needs-you card, or the quiet blue of
+/// an info card ([info]).
 class KitWell extends StatelessWidget {
-  const KitWell({super.key, required this.icon, this.gold = false});
+  const KitWell({super.key, required this.icon, this.gold = false, this.info = false});
 
   final IconData icon;
   final bool gold;
+  final bool info;
 
   @override
   Widget build(BuildContext context) {
@@ -129,10 +131,10 @@ class KitWell extends StatelessWidget {
       height: Kit.avatar,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: gold ? t.accent.withValues(alpha: 0.14) : t.raised,
+        color: gold ? t.accent.withValues(alpha: 0.14) : (info ? t.infoSoft : t.raised),
         borderRadius: BorderRadius.circular(Kit.rAvatar),
       ),
-      child: ExcludeSemantics(child: Icon(icon, size: 22, color: gold ? t.accentText : t.dim)),
+      child: ExcludeSemantics(child: Icon(icon, size: 22, color: gold ? t.accentText : (info ? t.info : t.dim))),
     );
   }
 }
@@ -178,6 +180,10 @@ class _SlotText extends StatelessWidget {
 /// marks, a [title] and a [subtitle] on one line (an ellipsis cuts it), then a gold Review button and a ghost Later. At
 /// most one gold button on the screen: this card's, which is why the screen's own primary
 /// leaves the gold to it. Its height follows its content (at least [Kit.slotCard]).
+///
+/// With [info] it is the quiet version for news that needs an answer but is not a warning (an
+/// invoice to review): the card's own ground, a blue hairline and icon, no corner marks and a
+/// quiet Review button, all from the info tokens.
 class KitNeedsYouCard extends StatelessWidget {
   const KitNeedsYouCard({
     super.key,
@@ -192,6 +198,7 @@ class KitNeedsYouCard extends StatelessWidget {
     this.page = 0,
     this.reviewId,
     this.laterId,
+    this.info = false,
   });
 
   final String title;
@@ -206,9 +213,56 @@ class KitNeedsYouCard extends StatelessWidget {
   final String? reviewId;
   final String? laterId;
 
+  /// The quiet blue look instead of the gold one.
+  final bool info;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final card = Container(
+      constraints: const BoxConstraints(minHeight: Kit.slotCard),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: info ? t.group : t.goldSoft,
+        borderRadius: BorderRadius.circular(Kit.rGroup),
+        border: Border.all(color: info ? t.info.withValues(alpha: 0.4) : t.goldLine),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              KitWell(icon: icon, gold: !info, info: info),
+              const SizedBox(width: 12),
+              Expanded(child: _SlotText(title: title, subtitle: subtitle, needs: true)),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 12, left: 52),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  KitButton(
+                    label: reviewLabel,
+                    onPressed: onReview,
+                    kind: info ? KitButtonKind.quiet : KitButtonKind.gold,
+                    small: true,
+                    expand: false,
+                    semanticsId: reviewId,
+                  ),
+                  if (onLater != null)
+                    KitButton(label: laterLabel, onPressed: onLater, kind: KitButtonKind.ghost, small: true, expand: false, semanticsId: laterId),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
     return Padding(
       // `.need` sits on the gutter with its marks 6 out; here the marks sit on the gutter and the
       // card 6 in, so nothing reaches the screen margin.
@@ -220,47 +274,127 @@ class KitNeedsYouCard extends StatelessWidget {
           // buttons as `.need{margin-top:20px}`, the marks reaching 2 into that gap.
           Padding(
             padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
-            child: KitCornerMarks(
-              child: Container(
-                constraints: const BoxConstraints(minHeight: Kit.slotCard),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: t.goldSoft,
-                  borderRadius: BorderRadius.circular(Kit.rGroup),
-                  border: Border.all(color: t.goldLine),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        KitWell(icon: icon, gold: true),
-                        const SizedBox(width: 12),
-                        Expanded(child: _SlotText(title: title, subtitle: subtitle, needs: true)),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12, left: 52),
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            KitButton(label: reviewLabel, onPressed: onReview, small: true, expand: false, semanticsId: reviewId),
-                            if (onLater != null)
-                              KitButton(label: laterLabel, onPressed: onLater, kind: KitButtonKind.ghost, small: true, expand: false, semanticsId: laterId),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            child: info ? card : KitCornerMarks(child: card),
+          ),
+          KitPageDots(count: pages, index: page, top: 6),
+        ],
+      ),
+    );
+  }
+}
+
+/// The reminder card of Home's slot (frame "Wallet reminders", `.ann`): 90 tall, a 64 px well
+/// with a [icon] in gold, up to two lines of [text], a gold [action] link at the foot and a × at
+/// the top corner that puts it away ([onClose]). The card and its link open [onAction]; the × is
+/// its own button. [actionId] and [closeId] are the test drivers' names.
+class KitReminderCard extends StatelessWidget {
+  const KitReminderCard({
+    super.key,
+    required this.icon,
+    required this.text,
+    required this.action,
+    required this.onAction,
+    required this.closeLabel,
+    required this.onClose,
+    this.pages = 1,
+    this.page = 0,
+    this.actionId,
+    this.closeId,
+  });
+
+  final IconData icon;
+  final String text;
+  final String action;
+  final VoidCallback onAction;
+  final String closeLabel;
+  final VoidCallback onClose;
+  final int pages;
+  final int page;
+  final String? actionId;
+  final String? closeId;
+
+  /// The × target: the frame's 34 px square, 5 px in from the corner.
+  static const double _closeBox = 34;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final card = Container(
+      height: Kit.slotCard,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: t.group, borderRadius: BorderRadius.circular(Kit.rGroup), border: Border.all(color: t.hair)),
+      child: Row(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(16)),
+            child: ExcludeSemantics(child: Icon(icon, size: 28, color: t.accentText)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              // Room for the ×.
+              padding: const EdgeInsetsDirectional.only(end: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(text, style: KitType.rowSub.copyWith(fontSize: 13.5, height: 1.4, color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  const Spacer(),
+                  Text(action, style: KitType.rowSub.copyWith(color: t.accentText, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ],
               ),
             ),
           ),
-          KitPageDots(count: pages, index: page, top: 6),
+        ],
+      ),
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
+              kitId(
+                actionId,
+                Semantics(
+                  container: true,
+                  button: true,
+                  label: '$text $action',
+                  excludeSemantics: true,
+                  onTap: onAction,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: InkWell(borderRadius: BorderRadius.circular(Kit.rGroup), onTap: onAction, child: card),
+                  ),
+                ),
+              ),
+              PositionedDirectional(
+                top: 5,
+                end: 5,
+                child: kitId(
+                  closeId,
+                  Semantics(
+                    button: true,
+                    label: closeLabel,
+                    excludeSemantics: true,
+                    onTap: onClose,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: InkResponse(
+                        onTap: onClose,
+                        radius: _closeBox / 2,
+                        child: SizedBox(width: _closeBox, height: _closeBox, child: Center(child: Icon(KitIcons.close, size: 16, color: t.faint))),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          KitPageDots(count: pages, index: page),
         ],
       ),
     );

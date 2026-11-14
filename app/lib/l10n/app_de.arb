@@ -288,8 +288,6 @@
   "homeNoticeDelayed": "Der Node ist nicht erreichbar. Die Zahlung wartet.",
   "homeNoticeRelayProblem": "Der Epicbox-Server meldet ein Problem. Wird erneut versucht.",
   "homeNoticePaymentFailed": "Eine Zahlung ist fehlgeschlagen.",
-  "homeBackupCardText": "Phrase nicht gesichert",
-  "homeBackupCardButton": "Sichern",
   "torAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
   "homeHistoryNotBackedUp": "{count, plural, one{1 Zahlung ist in Ihren exportierten Wallet-Daten nicht enthalten.} other{{count} Zahlungen sind in Ihren exportierten Wallet-Daten nicht enthalten.}}",
   "homeHistoryChangedSinceBackup": "{count, plural, one{1 Zahlung ist seit dem letzten Export der Wallet-Daten neu oder geändert.} other{{count} Zahlungen sind seit dem letzten Export der Wallet-Daten neu oder geändert.}}",
@@ -5582,7 +5580,7 @@
   "phoneHelpSecTrouble": "Wenn etwas nicht stimmt",
   "phoneRestoreTitle": "Wallet wiederherstellen",
   "phoneRestoreWordsHint": "{count, plural, one{1 Wort bisher.} other{{count} Wörter bisher.}} Eine Wiederherstellungsphrase hat 12, 15, 18, 21 oder 24.",
-  "phoneRestoreStartNote": "Die Suche nach deinen Coins beginnt in diesem Monat. Im Zweifel einen früheren wählen: ein späterer kann Coins übersehen.",
+  "phoneRestoreStartNote": "Die Suche nach deinen Coins beginnt in diesem Monat. Im Zweifel einen früheren wählen: ein späterer kann Coins übersehen. Ein älterer Monat bedeutet eine längere Suche.",
   "phoneSendRouteEpicbox": "Epicbox-Adresse",
   "phoneSendPinReason": "Um {amount} an {name} zu senden",
   "phoneSendNoteLabel": "Notiz",
@@ -5605,5 +5603,9 @@
   "phoneSendMaxNoteNoFee": "Alles, was du hast, abzüglich der Gebühr",
   "phoneSendReviewHintOfflineNoName": "Die Wallet darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.",
   "phoneRestoreUseHeight": "Stattdessen eine Blockhöhe eingeben",
-  "phoneRestoreUseMonth": "Stattdessen einen Monat wählen"
+  "phoneRestoreUseMonth": "Stattdessen einen Monat wählen",
+  "phonePairUnnamedShort": "Wallet {code}",
+  "phonePairSeenAsEmptyShows": "Bleibt es leer, sehen sie {label}.",
+  "phoneBackupReminderText": "Deine Wiederherstellungsphrase ist nicht gesichert. Ohne sie ist mit einem verlorenen Handy auch die Wallet verloren.",
+  "phoneBackupReminderAction": "Jetzt sichern"
 }

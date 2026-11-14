@@ -16,5 +16,7 @@
   "phoneHomeFirstPayment": "การชำระเงินครั้งแรกของคุณ",
   "phoneHomeFirstPaymentHint": "จะแสดงที่นี่เมื่อมาถึง",
   "phoneTourOffer": "ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม",
-  "phoneTourOfferShow": "ดูเลย"
+  "phoneTourOfferShow": "ดูเลย",
+  "phoneBackupReminderText": "ยังไม่ได้สำรองวลีกู้คืนของคุณ หากไม่มีวลีนี้ เมื่อโทรศัพท์หาย กระเป๋าเงินก็หายไปด้วย",
+  "phoneBackupReminderAction": "สำรองตอนนี้"
 }

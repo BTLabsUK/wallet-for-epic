@@ -1101,12 +1101,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeNoticePaymentFailed => 'รายการหนึ่งไม่สำเร็จ';
 
   @override
-  String get homeBackupCardText => 'ยังไม่ได้สำรองวลี';
-
-  @override
-  String get homeBackupCardButton => 'สำรอง';
-
-  @override
   String get torAddressChangedTitle => 'ที่อยู่ Tor ของคุณเปลี่ยนแล้ว';
 
   @override
@@ -21011,7 +21005,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ';
+      'การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ เดือนที่เก่ากว่าทำให้การค้นหานานขึ้น';
 
   @override
   String get phoneSendRouteEpicbox => 'ที่อยู่ Epicbox';
@@ -21091,4 +21085,21 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneRestoreUseMonth => 'เลือกเดือนแทน';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'กระเป๋า $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'ถ้าเว้นว่าง เขาจะเห็น $label';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'ยังไม่ได้สำรองวลีกู้คืนของคุณ หากไม่มีวลีนี้ เมื่อโทรศัพท์หาย กระเป๋าเงินก็หายไปด้วย';
+
+  @override
+  String get phoneBackupReminderAction => 'สำรองตอนนี้';
 }

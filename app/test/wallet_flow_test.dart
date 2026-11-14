@@ -353,15 +353,14 @@ void main() {
         service.createGate!.complete();
         await tester.pumpAndSettle();
         expect(find.byKey(homeFigureKey), findsOneWidget);
-        expect(find.text(_l.homeBackupCardText), findsOneWidget);
+        expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
 
         expect(service.createdConfig?.chain, Chain.mainnet);
         expect(service.createdConfig?.dataDir, _mainnetDir);
         expect(service.createdMnemonic, isNull);
         expect(service.createdPin, _pin);
         // Only the sealed text is stored; the biometric copy is the PIN.
-        // The phrase reminder's time aside (home_screen.dart).
-        expect({...device.store.values}..remove('app.level')..remove('wallet.mainnet.backupNoticeAt'), {
+        expect({...device.store.values}..remove('app.level'), {
           'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
           'wallet.mainnet.pinBiometrics': '1',
           onionNoticeKey('mainnet', null): onionNoticeSeen,
@@ -477,7 +476,7 @@ void main() {
       await _tapText(tester, _l.pinBiometricsNotNow);
       expect(find.byKey(homeFigureKey), findsOneWidget);
       // The old wallet's backed-up flag does not carry over to the new one.
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
       for (final e in old.entries) {
         expect(device.store.values[e.key], e.value);
       }
@@ -548,7 +547,7 @@ void main() {
       expect(service.createdPin, _pin);
       expect(service.session.scanCalls, 1);
       expect(find.byKey(homeFigureKey), findsOneWidget);
-      expect(find.text(_l.homeBackupCardText), findsNothing);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
       expect(
         device.store.values['wallet.mainnet.pinSealed'],
         fakeSealedPassword(_pin),
@@ -868,7 +867,7 @@ void main() {
         await _pumpApp(tester, service, device);
         await _unlockToHome(tester, keepNotices: true);
 
-        await tester.tap(find.text(_l.homeBackupCardButton));
+        await tester.tap(find.text(_l.phoneBackupReminderAction));
         await _pumpFrames(tester);
         // No PIN, and no phrase, until the user agrees to keep any copy private.
         expect(find.text(_l.pinPromptTitle), findsNothing);
@@ -889,7 +888,7 @@ void main() {
         await _tapText(tester, _l.commonDone);
 
         expect(find.text(_l.homeBackedUpNotice), findsOneWidget);
-        expect(find.text(_l.homeBackupCardText), findsNothing);
+        expect(find.text(_l.phoneBackupReminderText), findsNothing);
         expect(device.store.values['wallet.mainnet.backedUp'], '1');
       },
     );
@@ -900,7 +899,7 @@ void main() {
         final service = _existing();
         await _pumpApp(tester, service, _Device(sealedMainnet: true));
         await _unlockToHome(tester, keepNotices: true);
-        await tester.tap(find.text(_l.homeBackupCardButton));
+        await tester.tap(find.text(_l.phoneBackupReminderAction));
         await _pumpFrames(tester);
         await tester.tap(
           find.text(_l.backupCopyAgree),

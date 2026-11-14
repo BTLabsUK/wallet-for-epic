@@ -9,6 +9,8 @@
 /// "Later" sets an item aside until the wallet is opened again ([homeSlotLaterProvider]).
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,7 +23,8 @@ import '../pairing_providers.dart' show pairingsProvider;
 import '../providers.dart';
 import '../settings.dart';
 import '../trust_ids.dart';
-import 'backup_screen.dart' show backedUpProvider;
+import '../log.dart' show logWarn;
+import 'backup_screen.dart' show BackupScreen, backedUpProvider;
 import 'common.dart';
 import 'home_screen.dart' show paymentsNotInBackup, unbackedPayments;
 import 'settings_history.dart' show exportHistoryBackup;
@@ -82,6 +85,8 @@ class InvoiceSlotItem extends HomeSlotItem {
       page: page.page,
       reviewId: TrustIds.homeReview,
       laterId: TrustIds.homeLater,
+      // News to answer, not a warning: the quiet blue card.
+      info: true,
       onLater: page.onLater,
       onReview: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => InvoiceReviewScreen(invoice: invoice))),
     );
@@ -152,12 +157,97 @@ class HistoryBackupSlotItem extends HomeSlotItem {
   }
 }
 
+/// The recovery phrase reminder, as the frame's "Wallet reminders" card: a shield, two lines, a
+/// gold "Back up now" link that opens the back-up, and a × that hides it for [backupReminderEvery].
+/// It stays in the slot until the phrase is written down.
+class BackupReminderSlotItem extends HomeSlotItem {
+  const BackupReminderSlotItem();
+
+  @override
+  String get id => 'backup-reminder';
+
+  @override
+  bool get needsYou => false;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref, HomeSlotPage page) {
+    final l = context.l10n;
+    return KitReminderCard(
+      icon: KitIcons.security,
+      text: l.phoneBackupReminderText,
+      action: l.phoneBackupReminderAction,
+      onAction: () => unawaited(openBackup(context, ref)),
+      closeLabel: l.commonClose,
+      onClose: () => unawaited(ref.read(backupReminderHiddenProvider.notifier).hide()),
+      pages: page.pages,
+      page: page.page,
+      actionId: TrustIds.homeBackupReminder,
+      closeId: TrustIds.homeBackupReminderClose,
+    );
+  }
+}
+
+/// Opens the back-up; "Done" there says so with a notice. The reminder leaves by itself: the
+/// phrase is then backed up.
+Future<void> openBackup(BuildContext context, WidgetRef ref) async {
+  final notices = ref.read(noticeProvider.notifier);
+  final done = context.l10n.homeBackedUpNotice;
+  final saved = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
+  if (saved == true) notices.show(done, level: NoticeLevel.success);
+}
+
+/// The reminder comes back this long after the user closed it.
+const Duration backupReminderEvery = Duration(days: 1);
+
+/// When the user closed the phrase reminder on [chain]'s wallet (milliseconds since the epoch).
+/// Stored beside the vault's entries for the chain (`wallet.<chain>.*`), so deleting the wallet
+/// forgets it too.
+String backupNoticeKey(Chain chain) => 'wallet.${chain.name}.backupNoticeAt';
+
+/// When the user last closed the phrase reminder, or null. Read again for each session.
+final backupReminderHiddenProvider = AsyncNotifierProvider<BackupReminderHidden, DateTime?>(BackupReminderHidden.new);
+
+class BackupReminderHidden extends AsyncNotifier<DateTime?> {
+  @override
+  Future<DateTime?> build() async {
+    ref.watch(sessionProvider);
+    final config = ref.watch(walletConfigProvider);
+    if (config == null) return null;
+    final ms = int.tryParse(await ref.read(secretStoreProvider).read(backupNoticeKey(config.chain)) ?? '');
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  /// Hides the reminder now, and for a day after a restart too.
+  Future<void> hide() async {
+    final config = ref.read(walletConfigProvider);
+    if (config == null) return;
+    final now = ref.read(clockProvider)();
+    state = AsyncData(now);
+    try {
+      await ref.read(secretStoreProvider).write(backupNoticeKey(config.chain), '${now.millisecondsSinceEpoch}');
+    } on Object catch (e) {
+      logWarn('home', 'backup reminder time not saved: ${e.runtimeType}');
+    }
+  }
+}
+
+/// The phrase reminder as a slot item, or null: the phrase is written down, the answer is not
+/// known yet, or it was closed less than [backupReminderEvery] ago.
+BackupReminderSlotItem? _backupReminderItem(Ref ref, bool? backedUp) {
+  if (backedUp != false) return null;
+  final hidden = ref.watch(backupReminderHiddenProvider);
+  if (!hidden.hasValue) return null;
+  final at = hidden.value;
+  if (at != null && ref.watch(clockProvider)().difference(at) < backupReminderEvery) return null;
+  return const BackupReminderSlotItem();
+}
+
 /// The backup reminder as a slot item, or null when none is due. It waits until the phrase is
 /// written down: that backup comes first.
-final _historyBackupItemProvider = Provider<HistoryBackupSlotItem?>((ref) {
+HistoryBackupSlotItem? _historyBackupItem(Ref ref, bool? backedUpAnswer) {
   final config = ref.watch(walletConfigProvider);
   final settings = ref.watch(appSettingsProvider).value;
-  final backedUp = ref.watch(backedUpProvider).value ?? true;
+  final backedUp = backedUpAnswer ?? true;
   if (config == null || settings == null || !backedUp) return null;
   final rows = withDeviceHistory(ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[], ref.watch(phoneDevices.view));
   final chain = config.chain;
@@ -180,13 +270,19 @@ final _historyBackupItemProvider = Provider<HistoryBackupSlotItem?>((ref) {
   );
   if (count == null) return null;
   return HistoryBackupSlotItem(chain: chain, count: count, exported: exportedAt != null);
-});
+}
 
 /// Everything the slot could show, needs-you first. Add new kinds here.
 final homeSlotItemsProvider = Provider<List<HomeSlotItem>>((ref) {
   final invoices = ref.watch(pendingInvoicesProvider).value ?? const <PendingInvoice>[];
-  final backup = ref.watch(_historyBackupItemProvider);
-  return [for (final i in invoices) InvoiceSlotItem(i), ?backup];
+  // The one reader of the phrase answer in this chain: two providers reading it separately
+  // fail when a screen over Home pauses them and the answer changes meanwhile.
+  final backedUp = ref.watch(backedUpProvider).value;
+  final backup = _historyBackupItem(ref, backedUp);
+  final phrase = _backupReminderItem(ref, backedUp);
+  // Calm cards follow what needs the user, in this order: the wallet's own reminders, then (from
+  // the `announcements` branch) the messages from BT Labs.
+  return [for (final i in invoices) InvoiceSlotItem(i), ?backup, ?phrase];
 });
 
 /// The ids the user put away with "Later" in this session.

@@ -1849,18 +1849,6 @@ abstract class AppLocalizations {
   /// **'A payment failed.'**
   String get homeNoticePaymentFailed;
 
-  /// Home's reminder toast while the recovery phrase (the 12 or 24 words) is not written down; one short line, Back up beside it.
-  ///
-  /// In en, this message translates to:
-  /// **'Phrase not backed up'**
-  String get homeBackupCardText;
-
-  /// Button on the recovery phrase card. Short: it shares a row with the card's text.
-  ///
-  /// In en, this message translates to:
-  /// **'Back up'**
-  String get homeBackupCardButton;
-
   /// Home: the one-line, one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'.
   ///
   /// In en, this message translates to:
@@ -33568,7 +33556,7 @@ abstract class AppLocalizations {
   /// Help text under the Wallet created row on the Restore screen.
   ///
   /// In en, this message translates to:
-  /// **'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.'**
+  /// **'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.'**
   String get phoneRestoreStartNote;
 
   /// Title of the method row under an Epicbox address on the Send page.
@@ -33708,6 +33696,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a month instead'**
   String get phoneRestoreUseMonth;
+
+  /// What an unnamed wallet is called: the first characters of its address, so the user can match it by eye with a link or address. Never translated into a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet {code}'**
+  String phonePairUnnamedShort(String code);
+
+  /// Helper line under the name field when it is empty: the label the other side shows for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Left empty, they see {label}.'**
+  String phonePairSeenAsEmptyShows(String label);
+
+  /// Home slot card while the recovery phrase is not backed up: what is at risk, in two short sentences. Shown beside a shield icon, two lines at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.'**
+  String get phoneBackupReminderText;
+
+  /// Gold link under the text of the recovery phrase reminder card on Home: opens the back-up. Two or three words.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get phoneBackupReminderAction;
 }
 
 class _AppLocalizationsDelegate

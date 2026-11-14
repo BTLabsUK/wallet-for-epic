@@ -1125,12 +1125,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeNoticePaymentFailed => 'Eine Zahlung ist fehlgeschlagen.';
 
   @override
-  String get homeBackupCardText => 'Phrase nicht gesichert';
-
-  @override
-  String get homeBackupCardButton => 'Sichern';
-
-  @override
   String get torAddressChangedTitle => 'Ihre Tor-Adresse hat sich geändert';
 
   @override
@@ -21673,7 +21667,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'Die Suche nach deinen Coins beginnt in diesem Monat. Im Zweifel einen früheren wählen: ein späterer kann Coins übersehen.';
+      'Die Suche nach deinen Coins beginnt in diesem Monat. Im Zweifel einen früheren wählen: ein späterer kann Coins übersehen. Ein älterer Monat bedeutet eine längere Suche.';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox-Adresse';
@@ -21756,4 +21750,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneRestoreUseMonth => 'Stattdessen einen Monat wählen';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Wallet $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Bleibt es leer, sehen sie $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Deine Wiederherstellungsphrase ist nicht gesichert. Ohne sie ist mit einem verlorenen Handy auch die Wallet verloren.';
+
+  @override
+  String get phoneBackupReminderAction => 'Jetzt sichern';
 }

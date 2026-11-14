@@ -1,5 +1,7 @@
 {
   "phoneLinkScanSub": "สแกนรหัสบนอุปกรณ์อีกเครื่อง",
   "phoneLinkShowSub": "อุปกรณ์อีกเครื่องสแกนรหัสนี้",
-  "phoneLinkPasteSub": "วางรหัสหรือลิงก์ที่ได้รับ"
+  "phoneLinkPasteSub": "วางรหัสหรือลิงก์ที่ได้รับ",
+  "phonePairUnnamedShort": "กระเป๋า {code}",
+  "phonePairSeenAsEmptyShows": "ถ้าเว้นว่าง เขาจะเห็น {label}"
 }

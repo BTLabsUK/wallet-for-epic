@@ -288,8 +288,6 @@
   "homeNoticeDelayed": "Brak połączenia z węzłem. Płatność czeka.",
   "homeNoticeRelayProblem": "Serwer epicbox zgłosił problem. Ponawianie próby.",
   "homeNoticePaymentFailed": "Płatność nie powiodła się.",
-  "homeBackupCardText": "Fraza bez kopii",
-  "homeBackupCardButton": "Zabezpiecz",
   "torAddressChangedTitle": "Twój adres Tor się zmienił",
   "homeHistoryNotBackedUp": "{count, plural, one{{count} płatności nie ma w wyeksportowanych danych portfela.} few{{count} płatności nie ma w wyeksportowanych danych portfela.} many{{count} płatności nie ma w wyeksportowanych danych portfela.} other{{count} płatności nie ma w wyeksportowanych danych portfela.}}",
   "homeHistoryChangedSinceBackup": "{count, plural, one{{count} płatność jest nowa lub zmieniona od ostatniego eksportu danych portfela.} few{{count} płatności są nowe lub zmienione od ostatniego eksportu danych portfela.} many{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.} other{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.}}",
@@ -5582,7 +5580,7 @@
   "phoneHelpSecTrouble": "Gdy coś jest nie tak",
   "phoneRestoreTitle": "Przywróć portfel",
   "phoneRestoreWordsHint": "{count, plural, one{Dotąd 1 słowo.} few{Dotąd {count} słowa.} many{Dotąd {count} słów.} other{Dotąd {count} słowa.}} Fraza odzyskiwania ma 12, 15, 18, 21 lub 24.",
-  "phoneRestoreStartNote": "Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety.",
+  "phoneRestoreStartNote": "Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety. Starszy miesiąc to dłuższe szukanie.",
   "phoneSendRouteEpicbox": "Adres Epicbox",
   "phoneSendPinReason": "Aby wysłać {amount} do {name}",
   "phoneSendNoteLabel": "Notatka",
@@ -5605,5 +5603,9 @@
   "phoneSendMaxNoteNoFee": "Wszystko, co masz, minus opłata",
   "phoneSendReviewHintOfflineNoName": "Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.",
   "phoneRestoreUseHeight": "Zamiast tego podaj wysokość bloku",
-  "phoneRestoreUseMonth": "Zamiast tego wybierz miesiąc"
+  "phoneRestoreUseMonth": "Zamiast tego wybierz miesiąc",
+  "phonePairUnnamedShort": "Portfel {code}",
+  "phonePairSeenAsEmptyShows": "Gdy puste, widzą {label}.",
+  "phoneBackupReminderText": "Twoja fraza odzyskiwania nie jest zapisana. Bez niej zgubiony telefon oznacza utracony portfel.",
+  "phoneBackupReminderAction": "Zapisz teraz"
 }

@@ -67,7 +67,7 @@
   "phoneAcceptNotNow": "暂不",
   "phoneRestoreTitle": "恢复钱包",
   "phoneRestoreWordsHint": "{count, plural, other{目前 {count} 个词。}}恢复短语有 12、15、18、21 或 24 个词。",
-  "phoneRestoreStartNote": "寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。",
+  "phoneRestoreStartNote": "寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。月份越早，寻找越久。",
   "phoneQrHoldHint": "请让对方的相机对准此码",
   "phoneQrReplyShowing": "对方扫描后即付款，之后会显示在活动中。",
   "phoneQrAimAnswer": "对准对方手机上的回复码",

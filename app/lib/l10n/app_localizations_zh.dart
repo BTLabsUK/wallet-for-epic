@@ -1060,12 +1060,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticePaymentFailed => '有一笔付款失败。';
 
   @override
-  String get homeBackupCardText => '助记词未备份';
-
-  @override
-  String get homeBackupCardButton => '备份';
-
-  @override
   String get torAddressChangedTitle => '你的 Tor 地址已更改';
 
   @override
@@ -20242,7 +20236,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneRestoreStartNote => '寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。';
+  String get phoneRestoreStartNote =>
+      '寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。月份越早，寻找越久。';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox 地址';
@@ -20317,4 +20312,20 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneRestoreUseMonth => '改选月份';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return '钱包 $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return '留空时，对方会看到 $label。';
+  }
+
+  @override
+  String get phoneBackupReminderText => '你的恢复短语尚未备份。没有它，手机丢失就意味着钱包丢失。';
+
+  @override
+  String get phoneBackupReminderAction => '立即备份';
 }

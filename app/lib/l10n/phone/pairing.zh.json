@@ -1,5 +1,7 @@
 {
   "phoneLinkScanSub": "扫描另一台设备上的代码",
   "phoneLinkShowSub": "由另一台设备扫描",
-  "phoneLinkPasteSub": "粘贴收到的代码或链接"
+  "phoneLinkPasteSub": "粘贴收到的代码或链接",
+  "phonePairUnnamedShort": "钱包 {code}",
+  "phonePairSeenAsEmptyShows": "留空时，对方会看到 {label}。"
 }

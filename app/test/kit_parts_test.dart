@@ -3,6 +3,9 @@ import 'dart:async';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_corner_marks.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
+import 'package:epic_wallet/src/ui/kit/kit_slot_card.dart';
 import 'package:epic_wallet/src/ui/kit/kit_row.dart';
 import 'package:epic_wallet/src/ui/kit/kit_sheet.dart';
 import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
@@ -61,6 +64,62 @@ void main() {
       expect(tester.getSize(find.byKey(key)).height, Kit.button);
       await tester.pumpWidget(_app(const Column(mainAxisSize: MainAxisSize.min, children: [KitButton(key: key, label: 'Cancel', kind: KitButtonKind.ghost, onPressed: _noop)])));
       expect(tester.getSize(find.byKey(key)).height, Kit.hitMin);
+    });
+  });
+
+  group('the slot cards', () {
+    testWidgets('the quiet needs-you card has no gold fill and no corner marks, its Review is quiet', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              KitNeedsYouCard(key: const ValueKey('gold'), title: 'Invoice', reviewLabel: 'Review', laterLabel: 'Later', onReview: _noop),
+              KitNeedsYouCard(key: const ValueKey('info'), title: 'Invoice', reviewLabel: 'Review', laterLabel: 'Later', onReview: _noop, info: true),
+            ],
+          ),
+        ),
+      );
+      final gold = find.byKey(const ValueKey('gold'));
+      final info = find.byKey(const ValueKey('info'));
+      expect(find.descendant(of: gold, matching: find.byType(KitCornerMarks)), findsOneWidget);
+      expect(find.descendant(of: info, matching: find.byType(KitCornerMarks)), findsNothing);
+      KitButtonKind review(Finder card) => tester.widget<KitButton>(find.descendant(of: card, matching: find.widgetWithText(KitButton, 'Review'))).kind;
+      expect(review(gold), KitButtonKind.gold);
+      expect(review(info), KitButtonKind.quiet);
+      final t = tester.element(info).tokens;
+      final box = tester.widget<Container>(find.descendant(of: info, matching: find.byType(Container)).first);
+      final decoration = box.decoration! as BoxDecoration;
+      expect(decoration.color, t.group);
+      expect((decoration.border! as Border).top.color, t.info.withValues(alpha: 0.4));
+      final icon = tester.widget<Icon>(find.descendant(of: info, matching: find.byIcon(KitIcons.invoice)));
+      expect(icon.color, t.info);
+    });
+
+    testWidgets('the reminder card is 90 tall, its link and its cross do their own thing', (tester) async {
+      var acted = 0;
+      var closed = 0;
+      await tester.pumpWidget(
+        _app(
+          KitReminderCard(
+            key: const ValueKey('r'),
+            icon: KitIcons.security,
+            text: 'Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.',
+            action: 'Back up now',
+            onAction: () => acted++,
+            closeLabel: 'Close',
+            onClose: () => closed++,
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byKey(const ValueKey('r'))).height, greaterThanOrEqualTo(Kit.slotCard));
+      await tester.tap(find.text('Back up now'));
+      expect(acted, 1);
+      expect(closed, 0);
+      await tester.tap(find.byIcon(KitIcons.close));
+      expect(closed, 1);
+      expect(acted, 1);
+      final t = tester.element(find.text('Back up now')).tokens;
+      expect(tester.widget<Text>(find.text('Back up now')).style!.color, t.accentText);
     });
   });
 

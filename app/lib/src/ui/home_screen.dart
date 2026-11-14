@@ -21,7 +21,6 @@ import '../trust_ids.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import '../watch_mode.dart';
-import 'backup_screen.dart';
 import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
@@ -56,7 +55,7 @@ Duration get autoRefreshInterval => appConfig.nodeRefresh;
 
 /// How often home asks the node for its tip between refreshes; a new block refreshes at once,
 /// as the desktop does. Epic's blocks come in bursts (three in a minute is common), so a
-/// refresh each minute alone could go from Confirming 0/3 to completed with nothing between.
+/// refresh each minute alone could go from Confirming 0/6 to completed with nothing between.
 /// While a payment can move with the next block it asks more often (watch mode,
 /// watch_mode.dart).
 Duration get tipCheckInterval => appConfig.nodeTipCheck;
@@ -273,18 +272,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
       unawaited(offerLastSessionReport(context, ref));
-      // The one notice about the changed Tor address goes before the phrase reminder: the
-      // reminder yields to a notice already up, and comes back on a later opening.
-      unawaited(_offerOnionNotice().then((_) => _offerBackup()));
+      unawaited(_offerOnionNotice());
       _noteStaleOpen();
     });
     // epic1 mode has no Tor address payments: its notice goes with the switch.
     ref.listenManual<PaymentMode>(paymentModeProvider, (_, mode) {
       if (mode == PaymentMode.epic1) ref.read(noticeProvider.notifier).dismissTag(onionNoticeTag);
-    });
-    // The welcome tour goes first: the reminder waits until it closes.
-    ref.listenManual<bool>(phoneTourProvider.select((s) => s.open), (was, open) {
-      if (was == true && !open) unawaited(_offerBackup());
     });
   }
 
@@ -297,9 +290,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // The check runs in the background; a contact it gets no answer from shows "Not answering".
     unawaited(pairingCall(ref, (api) => api.checkContacts()).then<void>((_) {}, onError: (Object _) {}));
   }
-
-  /// This opening's recovery phrase reminder was handled (shown, or not due).
-  bool _backupAsked = false;
 
   /// The one notice a wallet from before the onion's own key sees (onion_notice.dart): once,
   /// also when closed without its link. The link is copied: the phone opens no browser itself.
@@ -323,47 +313,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (!mounted || ref.read(noticeProvider) != null) return;
     final l = context.l10n;
     ref.read(noticeProvider.notifier).show(l.torAddressChangedTitle, level: NoticeLevel.info, persistent: true, tag: onionNoticeTag);
-  }
-
-  /// Item 16: the recovery phrase reminder is a notice, not a card. It comes on an opening of
-  /// home while the phrase is not written down, at most once per [backupNoticeEvery]; Settings ›
-  /// Security keeps its warning mark meanwhile.
-  Future<void> _offerBackup() async {
-    if (_backupAsked || !mounted) return;
-    if (ref.read(phoneTourProvider).open) return;
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
-    _backupAsked = true;
-    final bool backedUp;
-    try {
-      backedUp = await ref.read(backedUpProvider.future);
-    } on Object {
-      return;
-    }
-    if (backedUp || !mounted) return;
-    final store = ref.read(secretStoreProvider);
-    final now = ref.read(clockProvider)();
-    final last = DateTime.fromMillisecondsSinceEpoch(
-      int.tryParse(await store.read(backupNoticeKey(config.chain)) ?? '') ?? 0,
-    );
-    if (!mounted || now.difference(last) < backupNoticeEvery) return;
-    // Never over another notice (a payment, the records' copy): this opening goes without it.
-    if (ref.read(noticeProvider) != null) return;
-    await store.write(backupNoticeKey(config.chain), '${now.millisecondsSinceEpoch}');
-    if (!mounted || ref.read(noticeProvider) != null) return;
-    final l = context.l10n;
-    ref
-        .read(noticeProvider.notifier)
-        .show(
-          l.homeBackupCardText,
-          // Info, so a payment's notice that comes next takes its place at once.
-          level: NoticeLevel.info,
-          tag: backupNoticeTag,
-          action: NoticeAction(l.homeBackupCardButton, () {
-            // The notice outlives home: a lock replaces it with the unlock screen.
-            if (mounted) unawaited(_backup());
-          }),
-        );
   }
 
   @override
@@ -413,7 +362,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _paused() => _tip.stop();
 
   /// Asks the node for its tip and refreshes when it is past the height home counts
-  /// confirmations at: each block moves a payment's Confirming n/3. Skipped when a refresh
+  /// confirmations at: each block moves a payment's Confirming n/6 (the wallet's count). Skipped when a refresh
   /// would be ([_autoRefresh]). False when the node did not answer: the driver then waits
   /// longer. A node that answers again after failing has the payments it refused posted again
   /// at once.
@@ -452,15 +401,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final file = ref.read(incomingSlateProvider.notifier).take();
     if (file == null || !mounted) return;
     _open(SlateFileScreen(file: file));
-  }
-
-  Future<void> _backup() async {
-    ref.read(noticeProvider.notifier).dismissTag(backupNoticeTag);
-    final done = await Navigator.of(context)
-        .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) {
-      _showNotice(context.l10n.homeBackedUpNotice, level: NoticeLevel.success);
-    }
   }
 
   /// Opens [screen] over home. Coming back does not refresh: screens that change the wallet
@@ -927,17 +867,6 @@ void showUpdateNotice(
   }
 }
 
-/// The recovery phrase reminder comes back on a later opening of home, at most this often.
-const Duration backupNoticeEvery = Duration(days: 1);
-
-/// The tag of the recovery phrase reminder's notice.
-const String backupNoticeTag = 'backup-phrase';
-
 /// The one notice about the changed Tor address (onion_notice.dart).
 const String onionNoticeTag = 'onion-notice';
-
-/// When the recovery phrase reminder last showed on [chain]'s wallet (milliseconds since the
-/// epoch). Stored beside the vault's entries for the chain (`wallet.<chain>.*`), so deleting the
-/// wallet forgets it too.
-String backupNoticeKey(Chain chain) => 'wallet.${chain.name}.backupNoticeAt';
 

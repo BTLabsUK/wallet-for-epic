@@ -16,5 +16,7 @@
   "phoneHomeFirstPayment": "Ваш первый платёж",
   "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит",
   "phoneTourOffer": "Показать, как устроен кошелёк?",
-  "phoneTourOfferShow": "Показать"
+  "phoneTourOfferShow": "Показать",
+  "phoneBackupReminderText": "Фраза восстановления не сохранена. Без неё потерянный телефон означает потерянный кошелёк.",
+  "phoneBackupReminderAction": "Сохранить сейчас"
 }

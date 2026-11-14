@@ -1339,14 +1339,6 @@
   "@homeNoticePaymentFailed": {
     "description": "Notice: something went wrong with one payment."
   },
-  "homeBackupCardText": "Phrase not backed up",
-  "@homeBackupCardText": {
-    "description": "Home's reminder toast while the recovery phrase (the 12 or 24 words) is not written down; one short line, Back up beside it."
-  },
-  "homeBackupCardButton": "Back up",
-  "@homeBackupCardButton": {
-    "description": "Button on the recovery phrase card. Short: it shares a row with the card's text."
-  },
   "torAddressChangedTitle": "Your Tor address changed",
   "@torAddressChangedTitle": {
     "description": "Home: the one-line, one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
@@ -29103,7 +29095,7 @@
       }
     }
   },
-  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.",
   "@phoneRestoreStartNote": {
     "description": "Help text under the Wallet created row on the Restore screen."
   },
@@ -29213,5 +29205,33 @@
   "phoneRestoreUseMonth": "Pick a month instead",
   "@phoneRestoreUseMonth": {
     "description": "Link under the block height field: pick a month instead."
+  },
+  "phonePairUnnamedShort": "Wallet {code}",
+  "phonePairSeenAsEmptyShows": "Left empty, they see {label}.",
+  "@phonePairUnnamedShort": {
+    "description": "What an unnamed wallet is called: the first characters of its address, so the user can match it by eye with a link or address. Never translated into a name.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "A7F3xy"
+      }
+    }
+  },
+  "@phonePairSeenAsEmptyShows": {
+    "description": "Helper line under the name field when it is empty: the label the other side shows for this wallet.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Wallet A7F3xy"
+      }
+    }
+  },
+  "phoneBackupReminderText": "Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.",
+  "phoneBackupReminderAction": "Back up now",
+  "@phoneBackupReminderText": {
+    "description": "Home slot card while the recovery phrase is not backed up: what is at risk, in two short sentences. Shown beside a shield icon, two lines at most."
+  },
+  "@phoneBackupReminderAction": {
+    "description": "Gold link under the text of the recovery phrase reminder card on Home: opens the back-up. Two or three words."
   }
 }

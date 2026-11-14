@@ -1154,12 +1154,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeNoticePaymentFailed => 'Płatność nie powiodła się.';
 
   @override
-  String get homeBackupCardText => 'Fraza bez kopii';
-
-  @override
-  String get homeBackupCardButton => 'Zabezpiecz';
-
-  @override
   String get torAddressChangedTitle => 'Twój adres Tor się zmienił';
 
   @override
@@ -22055,7 +22049,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety.';
+      'Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety. Starszy miesiąc to dłuższe szukanie.';
 
   @override
   String get phoneSendRouteEpicbox => 'Adres Epicbox';
@@ -22135,4 +22129,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneRestoreUseMonth => 'Zamiast tego wybierz miesiąc';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Portfel $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Gdy puste, widzą $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Twoja fraza odzyskiwania nie jest zapisana. Bez niej zgubiony telefon oznacza utracony portfel.';
+
+  @override
+  String get phoneBackupReminderAction => 'Zapisz teraz';
 }

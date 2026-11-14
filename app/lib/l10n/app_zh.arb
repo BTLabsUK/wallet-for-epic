@@ -288,8 +288,6 @@
   "homeNoticeDelayed": "无法连接节点。付款等待中。",
   "homeNoticeRelayProblem": "Epicbox 服务器报告了问题，正在重试。",
   "homeNoticePaymentFailed": "有一笔付款失败。",
-  "homeBackupCardText": "助记词未备份",
-  "homeBackupCardButton": "备份",
   "torAddressChangedTitle": "你的 Tor 地址已更改",
   "homeHistoryNotBackedUp": "{count, plural, other{{count} 笔付款不在你导出的钱包数据中。}}",
   "homeHistoryChangedSinceBackup": "{count, plural, other{自上次导出钱包数据以来，有 {count} 笔付款是新的或有改动。}}",
@@ -5582,7 +5580,7 @@
   "phoneHelpSecTrouble": "出现问题时",
   "phoneRestoreTitle": "恢复钱包",
   "phoneRestoreWordsHint": "{count, plural, other{目前 {count} 个词。}}恢复短语有 12、15、18、21 或 24 个词。",
-  "phoneRestoreStartNote": "寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。",
+  "phoneRestoreStartNote": "寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。月份越早，寻找越久。",
   "phoneSendRouteEpicbox": "Epicbox 地址",
   "phoneSendPinReason": "向 {name} 发送 {amount}",
   "phoneSendNoteLabel": "备注",
@@ -5605,5 +5603,9 @@
   "phoneSendMaxNoteNoFee": "你的全部余额,减去手续费",
   "phoneSendReviewHintOfflineNoName": "收款方的钱包可以离线。钱包下次打开时，付款即完成。",
   "phoneRestoreUseHeight": "改用区块高度",
-  "phoneRestoreUseMonth": "改选月份"
+  "phoneRestoreUseMonth": "改选月份",
+  "phonePairUnnamedShort": "钱包 {code}",
+  "phonePairSeenAsEmptyShows": "留空时，对方会看到 {label}。",
+  "phoneBackupReminderText": "你的恢复短语尚未备份。没有它，手机丢失就意味着钱包丢失。",
+  "phoneBackupReminderAction": "立即备份"
 }

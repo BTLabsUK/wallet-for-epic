@@ -1148,12 +1148,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeNoticePaymentFailed => 'Платёж не удался.';
 
   @override
-  String get homeBackupCardText => 'Фраза не сохранена';
-
-  @override
-  String get homeBackupCardButton => 'Сохранить';
-
-  @override
   String get torAddressChangedTitle => 'Ваш адрес Tor изменился';
 
   @override
@@ -22048,7 +22042,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты.';
+      'Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты. Чем раньше месяц, тем дольше поиск.';
 
   @override
   String get phoneSendRouteEpicbox => 'Адрес Epicbox';
@@ -22130,4 +22124,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneRestoreUseMonth => 'Вместо этого выбрать месяц';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Кошелёк $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Если пусто, они увидят $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Фраза восстановления не сохранена. Без неё потерянный телефон означает потерянный кошелёк.';
+
+  @override
+  String get phoneBackupReminderAction => 'Сохранить сейчас';
 }

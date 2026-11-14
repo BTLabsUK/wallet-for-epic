@@ -16,5 +16,7 @@
   "phoneHomeFirstPayment": "Deine erste Zahlung",
   "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt",
   "phoneTourOffer": "Kurze Tour durch die Wallet?",
-  "phoneTourOfferShow": "Zeig mir"
+  "phoneTourOfferShow": "Zeig mir",
+  "phoneBackupReminderText": "Deine Wiederherstellungsphrase ist nicht gesichert. Ohne sie ist mit einem verlorenen Handy auch die Wallet verloren.",
+  "phoneBackupReminderAction": "Jetzt sichern"
 }

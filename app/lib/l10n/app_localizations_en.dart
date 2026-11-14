@@ -1114,12 +1114,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNoticePaymentFailed => 'A payment failed.';
 
   @override
-  String get homeBackupCardText => 'Phrase not backed up';
-
-  @override
-  String get homeBackupCardButton => 'Back up';
-
-  @override
   String get torAddressChangedTitle => 'Your Tor address changed';
 
   @override
@@ -21426,7 +21420,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.';
+      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox address';
@@ -21507,4 +21501,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneRestoreUseMonth => 'Pick a month instead';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Wallet $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Left empty, they see $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.';
+
+  @override
+  String get phoneBackupReminderAction => 'Back up now';
 }

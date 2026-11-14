@@ -611,5 +611,8 @@
 {"id": "g4.restore.scan-close", "screen": "restore", "family": ["android"], "keys": ["commonClose"], "driver": false},
 {"id": "g4.receive.code-qr", "screen": "receive", "role": "image", "keys": ["phoneRecvCodeLead"], "driver": false},
 {"id": "g4.tour.offer.close", "screen": "tour", "family": ["android"], "keys": ["commonClose"], "driver": false},
-{"id": "g4.file.cancel", "screen": "file", "family": ["android"], "keys": ["sendCancelPayment"], "driver": false}
+{"id": "g4.file.cancel", "screen": "file", "family": ["android"], "keys": ["sendCancelPayment"], "driver": false},
+{"id": "g4.home.backup_reminder", "screen": "home", "family": ["android"], "keys": ["phoneBackupReminderAction"], "driver": false},
+{"id": "g4.home.backup_reminder_close", "screen": "home", "family": ["android"], "keys": ["commonClose"], "driver": false},
+{"id": "g4.pairflow.invite_name_row", "screen": "pairflow", "family": ["android"], "driver": false}
 ]}

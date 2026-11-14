@@ -1060,6 +1060,66 @@ void main() {
       await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
     });
 
+    // The owner, 2026-11-14: the count is the wallet's own setting, 6 unless changed, never a
+    // fixed 10. A wallet with nothing stored counts to 6; a count stored later takes over.
+    testWidgets('the row counts to the wallet\'s confirmations: 6 by default, then the stored count', (
+      tester,
+    ) async {
+      TxEntry sent() => fakeTx(
+        id: 9,
+        slateId: 'to-desktop',
+        kind: TxKind.sent,
+        status: TxStatus.confirmed,
+        createdAtUnix: _at(DateTime(2026, 9, 30, 11)),
+        blockHeight: _tip,
+        amountCredited: _epic(0.992),
+        amountDebited: _epic(3),
+        fee: _epic(0.008),
+        transport: 'http',
+      );
+      WalletSummary at(BigInt height, int stored) => WalletSummary(
+        lastConfirmedHeight: height,
+        minimumConfirmations: BigInt.from(stored),
+        total: _epic(14.5),
+        spendable: _epic(12.5),
+        awaitingConfirmation: _epic(0.992),
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      final session = FakeWalletSession(
+        summary: at(_tip, defaultMinimumConfirmations),
+        transactions: [sent(), ..._transactions()],
+      );
+      final h = _Harness(session: session);
+      await h.pump(tester);
+      Finder row(String text) => find.descendant(
+        of: find.byType(PhoneTxRow),
+        matching: find.textContaining(text),
+      );
+      expect(row(_l.lvPayConfirming(1, 6)), findsOneWidget);
+      expect(row('of 10'), findsNothing);
+
+      // Four more blocks: 5 of 6, still confirming.
+      final later = _tip + BigInt.from(4);
+      h.service.nodeTipValue = NodeTip(height: later, nodeVersion: '3.6.0');
+      session.summaryValue = at(later, defaultMinimumConfirmations);
+      await tester.pump(tipCheckInterval);
+      await tester.pumpAndSettle();
+      expect(row(_l.lvPayConfirming(5, 6)), findsOneWidget);
+
+      // The user stores 4 in Settings › Advanced › Confirmations: the next balance carries it
+      // and the payment is done.
+      final next = later + BigInt.one;
+      h.service.nodeTipValue = NodeTip(height: next, nodeVersion: '3.6.0');
+      session.summaryValue = at(next, 4);
+      await tester.pump(tipCheckInterval);
+      await tester.pumpAndSettle();
+      expect(row('Confirming'), findsNothing);
+      await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
+    });
+
     testWidgets('a payment waiting for its block sees it within seconds (watch mode)', (
       tester,
     ) async {
@@ -1950,29 +2010,53 @@ void main() {
       expect(find.textContaining('receive payments'), findsNothing);
     });
 
-    testWidgets('the phrase reminder is a notice, on an opening of home at most once a day', (
-      tester,
-    ) async {
+    testWidgets('the phrase reminder is a card in the slot, not a notice', (tester) async {
       final h = _Harness(transactions: _backlog());
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
-      expect(find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.homeBackupCardButton)), findsOneWidget);
-      expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderAction), findsOneWidget);
+      expect(find.byKey(noticeKey), findsNothing);
+      // Nothing is stored just by showing it.
+      expect(h.store.values['wallet.mainnet.backupNoticeAt'], isNull);
       // The history reminder waits until the phrase is written down.
       expect(find.textContaining('not in your exported wallet data'), findsNothing);
+
+      // It stays on the next opening, and the day after.
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
+    });
+
+    testWidgets('the cross hides the phrase reminder for a day, then it comes back', (tester) async {
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
+      h.store.values.remove('wallet.mainnet.backedUp');
+      await h.pump(tester);
+      await _tap(tester, find.byIcon(KitIcons.close));
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
+      expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
 
       // Not on the next opening the same day.
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsNothing);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
 
       // A day later it comes back.
       h.store.values['wallet.mainnet.backupNoticeAt'] = '${_now.subtract(const Duration(days: 1)).millisecondsSinceEpoch}';
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
+    });
+
+    testWidgets('a backed up phrase never shows the reminder', (tester) async {
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
+      h.store.values['wallet.mainnet.backedUp'] = '1';
+      await h.pump(tester);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
+      expect(find.byKey(noticeKey), findsNothing);
     });
 
     testWidgets('deleting the wallet forgets the phrase reminder', (
@@ -2006,10 +2090,10 @@ void main() {
       created!.session.dispose();
       await h.pump(tester);
       expect(find.text(_l.torAddressChangedTitle), findsNothing);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
     });
 
-    testWidgets('a wallet from before the update sees one line, once; the phrase reminder comes next opening', (
+    testWidgets('a wallet from before the update sees one line, once; the phrase reminder is in the slot', (
       tester,
     ) async {
       final h = _Harness(transactions: _backlog(), fromBeforeOnionKey: true);
@@ -2029,7 +2113,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
       expect(find.text(_l.torAddressChangedTitle), findsNothing);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
     });
 
     testWidgets('epic1 mode: not shown and not spent, the classic mode still has it', (tester) async {
@@ -3043,7 +3127,7 @@ void main() {
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
       expect(find.text(reminder), findsNothing);
     });
 

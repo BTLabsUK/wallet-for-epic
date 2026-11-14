@@ -67,7 +67,7 @@
   "phoneAcceptNotNow": "Nie teraz",
   "phoneRestoreTitle": "Przywróć portfel",
   "phoneRestoreWordsHint": "{count, plural, one{Dotąd 1 słowo.} few{Dotąd {count} słowa.} many{Dotąd {count} słów.} other{Dotąd {count} słowa.}} Fraza odzyskiwania ma 12, 15, 18, 21 lub 24.",
-  "phoneRestoreStartNote": "Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety.",
+  "phoneRestoreStartNote": "Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety. Starszy miesiąc to dłuższe szukanie.",
   "phoneQrHoldHint": "Przyłóż ich aparat do tego kodu.",
   "phoneQrReplyShowing": "Płatność nastąpi, gdy zeskanują kod. Potem pojawi się w Aktywności.",
   "phoneQrAimAnswer": "Skieruj na odpowiedź na ich telefonie.",

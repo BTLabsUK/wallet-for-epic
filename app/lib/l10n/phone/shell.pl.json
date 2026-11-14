@@ -16,5 +16,7 @@
   "phoneHomeFirstPayment": "Twoja pierwsza płatność",
   "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze",
   "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
-  "phoneTourOfferShow": "Pokaż"
+  "phoneTourOfferShow": "Pokaż",
+  "phoneBackupReminderText": "Twoja fraza odzyskiwania nie jest zapisana. Bez niej zgubiony telefon oznacza utracony portfel.",
+  "phoneBackupReminderAction": "Zapisz teraz"
 }

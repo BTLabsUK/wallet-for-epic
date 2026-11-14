@@ -288,8 +288,6 @@
   "homeNoticeDelayed": "เชื่อมต่อโหนดไม่ได้ รายการรออยู่",
   "homeNoticeRelayProblem": "เซิร์ฟเวอร์ Epicbox แจ้งว่ามีปัญหา กำลังลองใหม่",
   "homeNoticePaymentFailed": "รายการหนึ่งไม่สำเร็จ",
-  "homeBackupCardText": "ยังไม่ได้สำรองวลี",
-  "homeBackupCardButton": "สำรอง",
   "torAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
   "homeHistoryNotBackedUp": "{count, plural, other{{count} รายการยังไม่อยู่ในข้อมูลกระเป๋าเงินที่ส่งออก}}",
   "homeHistoryChangedSinceBackup": "{count, plural, other{{count} รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังส่งออกข้อมูลกระเป๋าเงินครั้งล่าสุด}}",
@@ -5582,7 +5580,7 @@
   "phoneHelpSecTrouble": "เมื่อมีบางอย่างผิดปกติ",
   "phoneRestoreTitle": "กู้คืนกระเป๋า",
   "phoneRestoreWordsHint": "{count, plural, other{ตอนนี้ {count} คำ}} วลีกู้คืนมี 12, 15, 18, 21 หรือ 24 คำ",
-  "phoneRestoreStartNote": "การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ",
+  "phoneRestoreStartNote": "การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ เดือนที่เก่ากว่าทำให้การค้นหานานขึ้น",
   "phoneSendRouteEpicbox": "ที่อยู่ Epicbox",
   "phoneSendPinReason": "เพื่อส่ง {amount} ให้ {name}",
   "phoneSendNoteLabel": "บันทึก",
@@ -5605,5 +5603,9 @@
   "phoneSendMaxNoteNoFee": "ทั้งหมดที่คุณมี หักค่าธรรมเนียม",
   "phoneSendReviewHintOfflineNoName": "กระเป๋าของผู้รับออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง",
   "phoneRestoreUseHeight": "ใช้ความสูงบล็อกแทน",
-  "phoneRestoreUseMonth": "เลือกเดือนแทน"
+  "phoneRestoreUseMonth": "เลือกเดือนแทน",
+  "phonePairUnnamedShort": "กระเป๋า {code}",
+  "phonePairSeenAsEmptyShows": "ถ้าเว้นว่าง เขาจะเห็น {label}",
+  "phoneBackupReminderText": "ยังไม่ได้สำรองวลีกู้คืนของคุณ หากไม่มีวลีนี้ เมื่อโทรศัพท์หาย กระเป๋าเงินก็หายไปด้วย",
+  "phoneBackupReminderAction": "สำรองตอนนี้"
 }

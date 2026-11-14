@@ -360,7 +360,7 @@
       }
     }
   },
-  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.",
   "@phoneRestoreStartNote": {
     "description": "Help text under the Wallet created row on the Restore screen."
   }

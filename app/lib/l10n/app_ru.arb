@@ -288,8 +288,6 @@
   "homeNoticeDelayed": "Нет связи с узлом. Платёж ждёт.",
   "homeNoticeRelayProblem": "Сервер epicbox сообщил о проблеме. Пробуем снова.",
   "homeNoticePaymentFailed": "Платёж не удался.",
-  "homeBackupCardText": "Фраза не сохранена",
-  "homeBackupCardButton": "Сохранить",
   "torAddressChangedTitle": "Ваш адрес Tor изменился",
   "homeHistoryNotBackedUp": "{count, plural, one{{count} платёж не входит в экспортированные данные кошелька.} few{{count} платежа не входят в экспортированные данные кошелька.} many{{count} платежей не входят в экспортированные данные кошелька.} other{{count} платежа не входят в экспортированные данные кошелька.}}",
   "homeHistoryChangedSinceBackup": "{count, plural, one{{count} платёж добавлен или изменён после последнего экспорта данных кошелька.} few{{count} платежа добавлены или изменены после последнего экспорта данных кошелька.} many{{count} платежей добавлены или изменены после последнего экспорта данных кошелька.} other{{count} платежа добавлены или изменены после последнего экспорта данных кошелька.}}",
@@ -5582,7 +5580,7 @@
   "phoneHelpSecTrouble": "Если что-то не так",
   "phoneRestoreTitle": "Восстановить кошелёк",
   "phoneRestoreWordsHint": "{count, plural, one{Пока {count} слово.} few{Пока {count} слова.} many{Пока {count} слов.} other{Пока {count} слова.}} В фразе восстановления 12, 15, 18, 21 или 24.",
-  "phoneRestoreStartNote": "Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты.",
+  "phoneRestoreStartNote": "Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты. Чем раньше месяц, тем дольше поиск.",
   "phoneSendRouteEpicbox": "Адрес Epicbox",
   "phoneSendPinReason": "Чтобы отправить {amount} — {name}",
   "phoneSendNoteLabel": "Заметка",
@@ -5605,5 +5603,9 @@
   "phoneSendMaxNoteNoFee": "Всё, что у вас есть, за вычетом комиссии",
   "phoneSendReviewHintOfflineNoName": "Кошелёк получателя может быть не в сети. Платёж завершится, когда он снова откроется.",
   "phoneRestoreUseHeight": "Вместо этого указать высоту блока",
-  "phoneRestoreUseMonth": "Вместо этого выбрать месяц"
+  "phoneRestoreUseMonth": "Вместо этого выбрать месяц",
+  "phonePairUnnamedShort": "Кошелёк {code}",
+  "phonePairSeenAsEmptyShows": "Если пусто, они увидят {label}.",
+  "phoneBackupReminderText": "Фраза восстановления не сохранена. Без неё потерянный телефон означает потерянный кошелёк.",
+  "phoneBackupReminderAction": "Сохранить сейчас"
 }
