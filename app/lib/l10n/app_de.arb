@@ -5636,5 +5636,8 @@
   "announcementsTitle": "Hinweise",
   "announcementsHint": "Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht.",
   "announcementDismiss": "Ausblenden",
-  "announcementOpensInBrowser": "öffnet im Browser"
+  "announcementOpensInBrowser": "öffnet im Browser",
+  "deskE1ErrCodeWrongNetwork": "Dieser Code ist für ein anderes Netzwerk.",
+  "deskE1ErrNotInPerson": "Kein Code, den diese Wallet bezahlen oder prüfen kann.",
+  "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen."
 }

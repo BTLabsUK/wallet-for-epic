@@ -21211,4 +21211,14 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetSynAnnouncements =>
       'ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'โค้ดนี้เป็นของเครือข่ายอื่น';
+
+  @override
+  String get deskE1ErrNotInPerson => 'กระเป๋านี้จ่ายหรือตรวจสอบโค้ดนี้ไม่ได้';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'โค้ดแบบพบตัว epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย';
 }

@@ -5636,5 +5636,8 @@
   "announcementsTitle": "Объявления",
   "announcementsHint": "Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют.",
   "announcementDismiss": "Скрыть",
-  "announcementOpensInBrowser": "открывается в браузере"
+  "announcementOpensInBrowser": "открывается в браузере",
+  "deskE1ErrCodeWrongNetwork": "Этот код для другой сети.",
+  "deskE1ErrNotInPerson": "Этот кошелёк не может оплатить или проверить этот код.",
+  "deskE1ModeEpic1Code": "Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его."
 }

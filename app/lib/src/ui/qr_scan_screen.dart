@@ -55,6 +55,11 @@ typedef QrFinish = Future<bool> Function(String json);
 /// false when the scanner is done; a scanner taken off the stack meanwhile just closes.
 typedef QrOpen = Future<bool> Function(BuildContext scanner, String json);
 
+/// What Home's scan does with an epic1 in-person code or answer read as an animated code (the
+/// same `ur:epic-slate` code as a payment's, told apart only once whole). The scanner closes
+/// first.
+typedef QrInPerson = Future<void> Function(Uint8List bytes);
+
 /// The user chose a file instead of the camera.
 final class QrScanOpenFile extends QrScanResult {
   const QrScanOpenFile();
@@ -104,11 +109,19 @@ Future<QrScanResult?> scanQrSlate(
   QrScanKind kind, {
   QrFinish? finish,
   QrOpen? open,
+  QrInPerson? inPerson,
   String? first,
   BigInt? amount,
 }) => Navigator.of(context).push<QrScanResult>(
   MaterialPageRoute<QrScanResult>(
-    builder: (_) => QrScanScreen(kind: kind, finish: finish, open: open, first: first, amount: amount),
+    builder: (_) => QrScanScreen(
+      kind: kind,
+      finish: finish,
+      open: open,
+      inPerson: inPerson,
+      first: first,
+      amount: amount,
+    ),
   ),
 );
 
@@ -118,6 +131,7 @@ class QrScanScreen extends ConsumerStatefulWidget {
     required this.kind,
     this.finish,
     this.open,
+    this.inPerson,
     this.first,
     this.amount,
   });
@@ -137,6 +151,9 @@ class QrScanScreen extends ConsumerStatefulWidget {
   /// back as it is.
   final QrOpen? open;
 
+  /// What to do with an in-person code or answer once read; null reads payments only.
+  final QrInPerson? inPerson;
+
   /// A part read before this screen opened, fed first.
   final String? first;
 
@@ -155,6 +172,7 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       : ref.read(qrCameraFactoryProvider)();
   late final QrSlateReader _reader = QrSlateReader(
     ref.read(walletServiceProvider),
+    epic1: widget.inPerson == null ? null : ref.read(epic1Provider),
   );
   StreamSubscription<String>? _codes;
 
@@ -262,6 +280,8 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
         _otherPayment();
       case QrReadKind.part:
         _part(read.received, read.count);
+      case QrReadKind.inPerson:
+        _finishInPerson(read);
       case QrReadKind.complete:
         if (read.json != null && read.json == _declined) {
           // Still in view after "Not now": read it afresh once the pause is over.
@@ -369,6 +389,31 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       return;
     }
     _doneTimer = Timer(qrCompleteFor, () => _post(json, finish));
+  }
+
+  /// An in-person code or answer: the scanner closes with the check, then [QrScanScreen.inPerson]
+  /// takes it from the screen below.
+  void _finishInPerson(QrRead read) {
+    final inPerson = widget.inPerson;
+    final bytes = read.bytes;
+    if (inPerson == null || bytes == null) return;
+    _holdTimer?.cancel();
+    _noticeTimer?.cancel();
+    unawaited(tap(HapticFeedback.mediumImpact));
+    setState(() {
+      _complete = true;
+      _received = read.received;
+      _count = read.count;
+      _spoken = read.received;
+      _steady = false;
+      _notice = _Notice.none;
+      _warnCorners = false;
+    });
+    _doneTimer = Timer(qrCompleteFor, () {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      unawaited(inPerson(bytes));
+    });
   }
 
   /// Opens the read payment over this screen; "Not now" comes back here and the camera reads

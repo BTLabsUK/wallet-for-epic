@@ -5636,5 +5636,8 @@
   "announcementsTitle": "公告",
   "announcementsHint": "BT Labs 在版本更新之间发布的简短消息，由 BT Labs 签名。关闭后：不再检查这些消息。",
   "announcementDismiss": "不再显示",
-  "announcementOpensInBrowser": "在浏览器中打开"
+  "announcementOpensInBrowser": "在浏览器中打开",
+  "deskE1ErrCodeWrongNetwork": "此码属于另一个网络。",
+  "deskE1ErrNotInPerson": "此钱包无法支付或核对此码。",
+  "deskE1ModeEpic1Code": "epic1 当面代码。开启 epic1 付款后才能支付。"
 }

@@ -26,6 +26,7 @@ import '../wallet_service.dart';
 import 'address_view.dart';
 import 'common.dart';
 import 'epic1/epic1_receive.dart';
+import 'in_person/in_person_entry.dart' show openScannedInPerson;
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import '../levels/relay_switch_providers.dart' show relaySwitchResultProvider;
@@ -616,7 +617,8 @@ Future<void> pasteSlate(BuildContext context, WidgetRef ref) async {
 
 /// Reads an animated payment QR with the camera and opens what it carried in
 /// [SlateFileScreen], as pasted text would be. "Open a file instead" on the camera screen
-/// runs the file picker. [first] is a part Home's scan already read.
+/// runs the file picker. [first] is a part Home's scan already read. An in-person code is
+/// drawn the same way and tells itself apart only once whole: it goes to the in-person flow.
 Future<void> scanSlateQr(
   BuildContext context,
   WidgetRef ref, {
@@ -625,7 +627,13 @@ Future<void> scanSlateQr(
   final notice = ref.read(noticeProvider.notifier);
   final l = context.l10n;
   // A payment read opens over the scanner (InPerson-3); the scanner closes once it is taken.
-  final result = await scanQrSlate(context, QrScanKind.payment, first: first, open: openScannedPayment);
+  final result = await scanQrSlate(
+    context,
+    QrScanKind.payment,
+    first: first,
+    open: openScannedPayment,
+    inPerson: (bytes) => context.mounted ? openScannedInPerson(context, bytes) : Future.value(),
+  );
   if (!context.mounted) return;
   switch (result) {
     case QrScanned(:final json):

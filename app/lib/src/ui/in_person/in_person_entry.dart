@@ -12,6 +12,7 @@ import '../../epic1.dart';
 import '../../l10n.dart';
 import '../../models.dart';
 import '../../providers.dart';
+import '../epic1/epic1_common.dart' show showEpic1ModeSheet;
 import 'in_person_logic.dart';
 import 'in_person_scan.dart';
 import 'in_person_screens.dart';
@@ -45,17 +46,58 @@ Future<bool> openInPersonText(BuildContext context, String text) async {
         MaterialPageRoute<InPersonScanned>(builder: (_) => InPersonScanScreen(first: part)),
       );
       if (got == null || !context.mounted) return true;
+      // A classic payment's animated code: the caller's classic-code route says so.
+      if (got.classic) return false;
       final bytes = got.bytes;
-      if (bytes != null) await _openCode(context, container, wallet, bytes, fromQr: true);
+      if (bytes != null) await _openWhole(context, container, wallet, bytes);
       final other = got.text;
       if (other != null && context.mounted) await openInPersonText(context, other);
       return true;
   }
 }
 
+/// A whole in-person code or answer another scanner read as an animated code (Home's scan
+/// reads one as the payment QR it looks like): in epic1 mode its review, or an answer's
+/// check; in classic mode the sheet that says to turn epic1 on (spec P3).
+Future<void> openScannedInPerson(BuildContext context, Uint8List bytes) async {
+  final container = ProviderScope.containerOf(context, listen: false);
+  final wallet = container.read(epic1Provider);
+  if (wallet == null) return;
+  if (container.read(paymentModeProvider) != PaymentMode.epic1) {
+    await showEpic1ModeSheet(context, context.l10n.deskE1ModeEpic1Code);
+    return;
+  }
+  await _openWhole(context, container, wallet, bytes);
+}
+
+/// A whole animated code, read by a scanner: its review or its answer's check, or a refusal
+/// that says why. A code for another network says so; an altered one, or an answer for
+/// another device, is no code this wallet can use.
+Future<void> _openWhole(BuildContext context, ProviderContainer container, Epic1Wallet wallet, Uint8List bytes) async {
+  WalletErrorKind? why;
+  if (await _openCode(context, container, wallet, bytes, fromQr: true, refused: (kind) => why = kind)) return;
+  if (!context.mounted) return;
+  final l = context.l10n;
+  await Navigator.of(context).push<void>(
+    MaterialPageRoute<void>(
+      builder: (_) => InPersonEndScreen(
+        title: l.deskIpScanTitle,
+        headline: why == WalletErrorKind.epic1WrongNetwork ? l.deskE1ErrCodeWrongNetwork : l.deskE1ErrNotInPerson,
+      ),
+    ),
+  );
+}
+
 /// A code's [bytes]: its review, or why it cannot be used. A whole QR code that is no code
-/// may be an answer.
-Future<bool> _openCode(BuildContext context, ProviderContainer container, Epic1Wallet wallet, Uint8List bytes, {required bool fromQr}) async {
+/// may be an answer. When it is neither, [refused] hears why the code was not read.
+Future<bool> _openCode(
+  BuildContext context,
+  ProviderContainer container,
+  Epic1Wallet wallet,
+  Uint8List bytes, {
+  required bool fromQr,
+  void Function(WalletErrorKind kind)? refused,
+}) async {
   try {
     final info = await wallet.inPersonRead(bytes, minimumConfirmations: container.read(countedConfirmationsProvider));
     if (!context.mounted) return true;
@@ -73,6 +115,7 @@ Future<bool> _openCode(BuildContext context, ProviderContainer container, Epic1W
       );
       return true;
     }
+    refused?.call(e.kind);
     if (fromQr) return _openAnswer(context, wallet, bytes);
     return false;
   }

@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/ui/epic1/epic1_common.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_settings.dart';
+import 'package:epic_wallet/src/ui/in_person/in_person_entry.dart' show openScannedInPerson;
 import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
@@ -33,6 +34,7 @@ import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -450,6 +452,51 @@ void main() {
       await _tap(tester, find.text('scan'));
       expect(taken, [false]);
       expect(find.text(_l.deskE1ModeEpic1Link), findsNothing);
+    });
+
+    // The QR Payment reader reads a whole animated in-person code too (an in-person code and a
+    // payment share the animated type), and hands its bytes here.
+    Widget wholeOf(List<int> bytes) => Scaffold(
+      body: Builder(
+        builder: (context) => TextButton(
+          onPressed: () => openScannedInPerson(context, Uint8List.fromList(bytes)),
+          child: const Text('scan'),
+        ),
+      ),
+    );
+
+    final request = [InPersonStage.request.index, ...List.filled(32, 7)];
+
+    testWidgets('classic: a whole animated in-person code says so, with Settings', (tester) async {
+      final session = _session();
+      await _pump(tester, session, wholeOf(request));
+      await _tap(tester, find.text('scan'));
+      expect(find.text(_l.deskE1ModeEpic1Code), findsOneWidget);
+      expect(session.epic1Fake.calls, isNot(contains('inPersonRead')));
+    });
+
+    testWidgets('epic1: a whole animated in-person request opens its review', (tester) async {
+      final session = _session(on: true);
+      await _pump(tester, session, wholeOf(request));
+      await _tapFrames(tester, find.text('scan'));
+      expect(session.epic1Fake.calls, contains('inPersonRead'));
+      expect(find.text(_l.deskIpPayRequestTitle), findsWidgets);
+    });
+
+    testWidgets('epic1: a code for another network says so', (tester) async {
+      final session = _session(on: true);
+      session.epic1Fake.failNext = const WalletError(kind: WalletErrorKind.epic1WrongNetwork, message: 'floonet');
+      await _pump(tester, session, wholeOf(request));
+      await _tapFrames(tester, find.text('scan'));
+      expect(find.text(_l.deskE1ErrCodeWrongNetwork), findsOneWidget);
+    });
+
+    testWidgets('epic1: an altered code that is no answer either is refused', (tester) async {
+      final session = _session(on: true);
+      await _pump(tester, session, wholeOf([9, ...List.filled(32, 7)]));
+      await _tapFrames(tester, find.text('scan'));
+      expect(session.epic1Fake.calls, containsAllInOrder(['inPersonRead', 'inPersonTake']));
+      expect(find.text(_l.deskE1ErrNotInPerson), findsOneWidget);
     });
   });
 

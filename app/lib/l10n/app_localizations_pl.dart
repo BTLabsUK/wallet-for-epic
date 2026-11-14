@@ -22254,4 +22254,15 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetSynAnnouncements =>
       'ogłoszenia, ogloszenia, nowości, wiadomości, komunikaty, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'Ten kod jest dla innej sieci.';
+
+  @override
+  String get deskE1ErrNotInPerson =>
+      'To nie jest kod, który ten portfel może opłacić lub sprawdzić.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'Kod osobisty epic1. Włącz płatności epic1, aby go opłacić.';
 }

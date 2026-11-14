@@ -33894,6 +33894,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'announcements, news, messages, notices, bt labs'**
   String get deskSetSynAnnouncements;
+
+  /// A scanned in-person payment code belongs to another Epic Cash network.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is for another network.'**
+  String get deskE1ErrCodeWrongNetwork;
+
+  /// A scanned animated code is neither an in-person code this wallet can pay nor an answer to one of its own codes (altered, or meant for another device).
+  ///
+  /// In en, this message translates to:
+  /// **'Not a code this wallet can pay or check.'**
+  String get deskE1ErrNotInPerson;
+
+  /// epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 in-person code. Turn on epic1 payments to pay it.'**
+  String get deskE1ModeEpic1Code;
 }
 
 class _AppLocalizationsDelegate
