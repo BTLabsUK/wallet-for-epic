@@ -347,10 +347,11 @@ void main() {
       final rig = await eighteenListings();
       final keys = rig.session.fakeListing;
       keys.reports[(_serviceKeyHex, 3)] = const PaymentsDrainReport(received: 2);
-      keys.reports[(_serviceKeyHex, 17)] = const PaymentsDrainReport(finalized: 1, bounced: 1);
+      keys.reports[(_serviceKeyHex, 16)] = const PaymentsDrainReport(finalized: 1, bounced: 1);
       await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(keys.batches.map((b) => b.length), [16, 2]);
-      expect([for (final b in keys.batches) for (final l in b) l.$2], [for (var g = 0; g < 18; g++) g]);
+      expect([for (final b in keys.batches) for (final l in b) l.$2], [17, for (var g = 0; g < 17; g++) g]);
+      // The joined generation comes first, then the retired ones as the book lists them.
       // A report with something in it reaches the host, in the order of the listings.
       expect(rig.drained.map((r) => (r.received, r.finalized, r.bounced)), [(2, 0, 0), (0, 1, 1)]);
     });
@@ -359,10 +360,10 @@ void main() {
       final rig = await eighteenListings();
       final keys = rig.session.fakeListing;
       keys.drainFailure = StateError('relay down');
-      keys.reports[(_serviceKeyHex, 17)] = const PaymentsDrainReport(received: 1);
+      keys.reports[(_serviceKeyHex, 16)] = const PaymentsDrainReport(received: 1);
       await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(keys.batches.map((b) => b.length), [16, 2], reason: 'one call for each batch, none repeated');
-      expect(keys.drains.map((d) => d.$2), [16, 17], reason: 'only the second batch went through');
+      expect(keys.drains.map((d) => d.$2), [15, 16], reason: 'only the second batch went through');
       expect(rig.drained.single.received, 1);
     });
   });
