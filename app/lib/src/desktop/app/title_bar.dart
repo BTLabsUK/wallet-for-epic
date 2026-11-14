@@ -54,8 +54,6 @@ import 'tour.dart' show TourTarget;
 
 part 'status_bar.dart';
 
-/// The bar's height before the interface scale.
-const double deskBarHeight = 52;
 
 /// Dialogs open on the app's navigator: the bar dims under their scrim.
 class DeskModalWatch extends NavigatorObserver {
@@ -287,7 +285,7 @@ class DeskTitleBar extends ConsumerWidget {
           ],
         );
         return SizedBox(
-          height: deskBarHeight.u,
+          height: Ctl.titleBar,
           child: Semantics(
             container: true,
             explicitChildNodes: true,
@@ -381,7 +379,7 @@ class _Held extends ConsumerWidget {
 
 /// Hover and pressed backgrounds for the bars' own buttons (brand, wallet chip, status lights).
 class _BarButton extends StatefulWidget {
-  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height = 30, this.radius});
+  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height, this.radius});
 
   final String label;
   final String? tooltip;
@@ -390,8 +388,8 @@ class _BarButton extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final Widget child;
 
-  /// Before the interface scale.
-  final double height;
+  /// The button's height; a little over [Ctl.inline] when null.
+  final double? height;
 
   /// The corners of the hover and pressed background; the kit's control radius when null.
   final double? radius;
@@ -425,7 +423,7 @@ class _BarButtonState extends State<_BarButton> {
               focused: Focus.of(context).hasFocus,
               child: AnimatedContainer(
                 duration: Dur.fast,
-                height: widget.height.u,
+                height: widget.height ?? 30.u,
                 padding: widget.padding,
                 decoration: BoxDecoration(
                   color: !enabled
@@ -624,7 +622,7 @@ class _LanguageButton extends ConsumerWidget {
         label: l.deskSetAppearLanguage,
         tooltip: l.deskSetAppearLanguage,
         open: open,
-        height: 36,
+        height: Ctl.sm,
         padding: EdgeInsets.symmetric(horizontal: Sp.x3),
         onPressed: () => _toggle(m),
         child: AnimatedOpacity(
@@ -711,7 +709,7 @@ class _Brand extends ConsumerWidget {
         label: l.deskBarMenu(appName),
         tooltip: tooltip,
         open: open,
-        height: 36,
+        height: Ctl.sm,
         padding: compact ? EdgeInsets.symmetric(horizontal: Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x3),
         onPressed: () => _toggle(m),
         child: child,
@@ -1154,7 +1152,7 @@ class _WinButtonState extends State<_WinButton> {
           key: _key,
           duration: Dur.fast,
           width: 46.u,
-          height: deskBarHeight.u,
+          height: Ctl.titleBar,
           color: bg,
           child: Stack(
             children: [

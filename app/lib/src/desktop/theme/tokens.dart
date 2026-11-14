@@ -76,6 +76,10 @@ abstract final class Ctl {
   static double get settingsNav => _px(240);
   static double get topbar => _px(64);
 
+  /// The window's own bars: the title bar at its top, the status bar at its foot.
+  static double get titleBar => _px(52);
+  static double get statusBar => _px(32);
+
   /// Reading widths.
   static double get narrow => _px(720);
   static double get mid => _px(960);

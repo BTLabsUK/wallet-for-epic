@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../trust_ids.dart';
 import '../desk_l10n.dart';
 import '../app/routes.dart' show deskNavProvider, DeskLocation;
-import '../app/title_bar.dart' show deskBarHeight;
+
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import '../../ui/theme/dialog_metrics.dart';
@@ -615,7 +615,7 @@ class _ToastHostState extends State<_ToastHost> {
       final still = MediaQuery.disableAnimationsOf(context);
       // Under the title bar, at the page's right edge.
       return Positioned(
-        top: deskBarHeight.u + Sp.x3,
+        top: Ctl.titleBar + Sp.x3,
         right: Sp.x4,
         child: TweenAnimationBuilder<double>(
           key: ObjectKey(toast),

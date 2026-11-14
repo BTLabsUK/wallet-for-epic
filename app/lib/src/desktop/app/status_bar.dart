@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 part of 'title_bar.dart';
 
-/// The status bar's height before the interface scale.
-const double deskStatusBarHeight = 32;
 
 /// The status bar at the window's foot, under every page of an open wallet: one light per
 /// service (a click opens its popover, status_popover.dart), then what goes on
@@ -22,7 +20,7 @@ class DeskStatusBar extends ConsumerWidget {
       label: context.l10n.deskBarStatus,
       child: Container(
         key: const ValueKey('status-bar'),
-        height: deskStatusBarHeight.u,
+        height: Ctl.statusBar,
         decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
         child: FocusTraversalGroup(
           child: Row(
@@ -132,7 +130,7 @@ class DeskStartStatusBar extends StatelessWidget {
       label: l.deskBarStatus,
       child: Container(
         key: const ValueKey('start-status-bar'),
-        height: deskStatusBarHeight.u,
+        height: Ctl.statusBar,
         decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -209,7 +207,7 @@ class _StatusLight extends ConsumerWidget {
           label: tip,
           tooltip: tip,
           open: open,
-          height: deskStatusBarHeight,
+          height: Ctl.statusBar,
           radius: 0,
           padding: EdgeInsets.symmetric(horizontal: 14.u),
           onPressed: () => _toggle(m),
@@ -245,7 +243,7 @@ class _NowLight extends StatelessWidget {
         key: ValueKey('now-${item.id}'),
         label: item.words,
         tooltip: item.hint,
-        height: deskStatusBarHeight,
+        height: Ctl.statusBar,
         radius: 0,
         padding: EdgeInsets.symmetric(horizontal: 14.u),
         onPressed: item.onTap,
@@ -364,7 +362,7 @@ class _ModeCell extends ConsumerWidget {
           label: l.netMarkSemanticsDesk(name),
           tooltip: line.isEmpty ? null : line,
           open: open,
-          height: deskStatusBarHeight,
+          height: Ctl.statusBar,
           radius: 0,
           padding: EdgeInsets.symmetric(horizontal: 14.u),
           onPressed: () => _toggle(m),
