@@ -147,7 +147,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
 
   @override
   Widget build(BuildContext context) {
-    if (ref.watch(paymentModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
+    if (ref.watch(receiveModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
     ref.listen(
       homeProvider.select((h) => arrivingPayment(h.value?.transactions ?? const [])?.key),
       (_, key) => _announce(key),

@@ -307,6 +307,31 @@ void main() {
       }
     });
 
+    testWidgets('epic1 turned off in Settings: Receive shows the Epicbox address at once', (tester) async {
+      final session = _session(on: true);
+      final container = await _pump(tester, session, _settings);
+      await _tap(tester, _key(epic1SwitchKey));
+      expect(session.epic1Fake.storedOn, isFalse);
+      expect(session.epic1Fake.inUse, isTrue);
+      expect(container.read(receiveModeProvider), PaymentMode.classic);
+
+      Navigator.of(tester.element(find.byType(SettingsSectionScreen))).push(MaterialPageRoute<void>(builder: (_) => receive));
+      await tester.pumpAndSettle();
+      expect(find.byType(Epic1ReceiveView), findsNothing);
+      expect(_key(epic1LinkCardKey), findsNothing);
+      expect(_key(receiveAddressKey), findsOneWidget);
+      expect(_key(receiveRequestKey), findsOneWidget);
+    });
+
+    testWidgets('epic1 turned on in a classic unlock: Receive waits for the next unlock', (tester) async {
+      final session = _session();
+      final container = await _pump(tester, session, _settings);
+      await _tap(tester, _key(epic1SwitchKey));
+      await _tap(tester, _key(epic1TurnOnKey));
+      expect(session.epic1Fake.storedOn, isTrue);
+      expect(container.read(receiveModeProvider), PaymentMode.classic);
+    });
+
     testWidgets('classic: no link card', (tester) async {
       await _pump(tester, _session(), receive);
       expect(_key(epic1LinkCardKey), findsNothing);

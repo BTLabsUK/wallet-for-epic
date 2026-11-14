@@ -334,7 +334,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     // epic1 mode: the link card and In person; no Epicbox address, Link or file rows.
-    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
+    if (ref.watch(deskReceiveModeProvider) == PaymentMode.epic1) {
       final box = status?.epicbox;
       return EPage(
         title: l.deskRecvTitle,

@@ -52,7 +52,9 @@ class _Epic1ExperimentalGroupState extends ConsumerState<Epic1ExperimentalGroup>
     if (!mounted) return;
     setState(() => _busy = true);
     try {
+      final stored = ref.read(deskEpic1StoredProvider.notifier);
       await e1.setStoredOn(on);
+      stored.set(on);
     } on Object catch (e) {
       if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
