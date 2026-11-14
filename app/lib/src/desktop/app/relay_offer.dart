@@ -19,6 +19,7 @@ import '../data/desk_relay_switch.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
+import 'status_parts.dart' show DeskRelayTile;
 
 export '../data/desk_relay_switch.dart'
     show deskRelayOfferProvider, deskRelayMovedProvider, deskRelayMovedNoticeProvider, deskRelayNoticeShownProvider;
@@ -38,6 +39,7 @@ Future<bool> confirmDeskRelaySwitch(BuildContext context, WidgetRef ref) async {
       key: const ValueKey('relay-dialog'),
       title: l.deskSendEpicboxSwitchTo(offer.name),
       icon: EIcons.epicbox,
+      iconWidget: DeskRelayTile(relay: offer.to.label, size: 36.u),
       body: Text(l.statusOfferBody(offer.name), style: context.ts.body),
       actions: [
         EButton(key: const ValueKey('relay-dialog-wait'), label: l.statusKeepWaiting, onPressed: () => Navigator.pop(context, false)),
@@ -151,6 +153,7 @@ class DeskRelayOfferPanel extends ConsumerWidget {
         key: const ValueKey('relay-pop-offer'),
         tone: ETone.warn,
         icon: EIcons.epicbox,
+        iconWidget: DeskRelayTile(relay: offer.to.label),
         title: l.statusOfferReady(offer.name),
         text: l.statusOfferBody(offer.name),
         actionsBelow: true,

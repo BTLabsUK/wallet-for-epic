@@ -18,6 +18,7 @@ import '../../network.dart' show EpicboxRelay;
 import '../../ui/common.dart' as common show shortAddress;
 import '../../message_checks.dart' show MessageCheck;
 import '../data/desk_node.dart';
+import '../data/server_look.dart';
 import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -86,6 +87,8 @@ class DeskStatusPopover extends ConsumerWidget {
     final i = item;
     final details = advancedHas(ref, AdvancedFeature.serverDetails);
     final status = ref.watch(deskProvider.select((s) => s.status));
+    final nodes = ref.watch(deskProvider.select((s) => s.nodes)) ?? const <NodeServer>[];
+    final boxes = ref.watch(deskProvider.select((s) => s.epicboxes)) ?? const <EpicboxServer>[];
     final name = i.name;
     final word = i.word;
     final facts = <DeskFact>[];
@@ -105,7 +108,10 @@ class DeskStatusPopover extends ConsumerWidget {
         final host = url == null || url.isEmpty ? null : nodeHost(url);
         tile = host == null
             ? DeskServiceTile(icon: i.icon, state: i.state)
-            : DeskServerTile(host: host, operator: node?.listedAs ?? node?.operator, icon: node?.icon, dimmed: i.state == EState.off);
+            : () {
+                final look = nodeLook(node, nodes, boxes);
+                return DeskServerTile(host: host, operator: look.operator, icon: look.icon, dimmed: i.state == EState.off);
+              }();
         second = host;
         secondMono = true;
         // A mode's own line, unless it only repeats the state word (then the host stays).
@@ -122,7 +128,10 @@ class DeskStatusPopover extends ConsumerWidget {
         final relay = server == null || server.domain.isEmpty ? null : EpicboxRelay(host: server.domain, port: server.port).label;
         tile = relay == null
             ? DeskServiceTile(icon: i.icon, state: i.state)
-            : DeskServerTile(host: server!.domain, operator: server.listedAs ?? server.operator, icon: server.icon, dimmed: i.state == EState.off);
+            : () {
+                final look = relayLook(server, nodes, boxes);
+                return DeskServerTile(host: server!.domain, operator: look.operator, icon: look.icon, dimmed: i.state == EState.off);
+              }();
         final modeLine = i.byMode && i.second != i.word;
         second = modeLine ? i.second : relay;
         secondMono = !modeLine;

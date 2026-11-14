@@ -773,6 +773,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           final focused = _button.hasFocus;
           // A host (or a chosen set of them) is data, in mono; a word ("Local node", "Pick a
           // node", "Checking…") is in the interface face.
+          final current = _sel != null || widget.busy || widget.value.isEmpty ? null : widget.servers.where((s) => _same(s.value, widget.value)).firstOrNull;
           final isHost = typedServerValue(widget.kind, widget.fieldText.trim().split(RegExp(r'[\s,]+')).first) != null;
           final valueStyle = isHost ? ts.mono(size: 13.u, color: c.text) : ts.body.copyWith(color: c.text);
           return TrustId(_ids.picker, child: Semantics(
@@ -798,7 +799,22 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                 ),
                 child: Row(
                   children: [
-                    if (widget.state case final st?) EStateDot(st, size: 8.u) else EStatusDot(widget.tone, size: 8.u),
+                    if (current != null)
+                      // The status site's icon for the server in use (its operator's when it has none).
+                      ServerTileView(
+                        operator: current.listedAs ?? current.operator,
+                        host: current.host,
+                        icon: serverIconFor(current.icon, current.listedAs ?? current.operator, [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)]),
+                        state: current.state,
+                        colors: deskTileColors(c),
+                        size: 24.u,
+                        radius: 5.u,
+                        fontFamily: ts.mono().fontFamily,
+                      )
+                    else if (widget.state case final st?)
+                      EStateDot(st, size: 8.u)
+                    else
+                      EStatusDot(widget.tone, size: 8.u),
                     SizedBox(width: Sp.x3),
                     // The value takes the room up to the chevron, which stays at the end whatever the
                     // value is (a bare host, a host and its operator, a word while it switches).

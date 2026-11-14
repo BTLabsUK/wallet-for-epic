@@ -10,6 +10,7 @@ import '../../../models.dart' show PairingRecord;
 import '../../../relay_moves.dart';
 import '../../../server_list.dart';
 import '../../../ui/pairing/relay_move_sheet.dart' show RelayMoveGuard;
+import '../../app/status_parts.dart' show DeskRelayTile;
 import '../../data/pairing_state.dart';
 import '../../data/server_lists.dart' show deskServerListProvider;
 import '../../desk_l10n.dart';
@@ -82,6 +83,7 @@ class DeskRelayMoveDialog extends ConsumerWidget {
       title: l.relayMoveTitle(name),
       description: l.relayMoveBody(name, shown),
       icon: EIcons.epicbox,
+      iconWidget: DeskRelayTile(relay: relay, size: 36.u),
       tone: ETone.info,
       body: deskRelayMoveAddsServer(ref, relay) ? Text(l.relayMoveAddsServer(shown), style: context.ts.bodyDim) : null,
       actions: [
