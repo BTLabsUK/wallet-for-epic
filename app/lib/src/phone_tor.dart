@@ -506,7 +506,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// The session's routes through a running tor: the node, Epicbox and Direct http(s) sends
   /// only while the Tor receiving switch (or Tor only) carries every connection. A tor for
   /// payments or for a send carries the onion listener and onion sends alone.
-  Future<void> _route(WalletSession session) async {
+  Future<void> _route(WalletSession session, {bool switched = false}) async {
     final all = state.receiving || NetGate.torOnly;
     final epicbox = all && ref.read(epicboxOverTorProvider);
     final same = identical(session, _routed);
@@ -517,13 +517,28 @@ class PhoneTor extends Notifier<PhoneTorState> {
         await session.setNodeAndHttpOverTor(all);
       }
       if (!same || _routedEpicbox != epicbox) {
+        // The first route of a session is the one the wallet opened with, unless the user
+        // moved it with the Tor switch before any: the listener began on the other route.
+        final moved = same ? _routedEpicbox != epicbox : switched;
         _routedEpicbox = epicbox;
         await session.setEpicboxOverTor(epicbox);
+        if (moved) unawaited(_moveListener(session));
       }
     } on Object catch (e) {
       // A core without the call keeps tor carrying every route, as before.
       logWarn('tor', 'routes: ${e is WalletError ? e.kind.name : e.runtimeType}');
     }
+  }
+
+  /// The Epicbox route changed under an open wallet. A connected listener is left to the core;
+  /// one still making its first connection, or one that lost it, was begun for the old route and
+  /// may never finish, so it starts again on the new one. Without this the Home pill stayed on
+  /// Reconnecting after Tor went off, until the next app resume.
+  Future<void> _moveListener(WalletSession session) async {
+    if (!ref.mounted || !identical(ref.read(sessionProvider), session)) return;
+    final listener = ref.read(listenerProvider);
+    if (listener.connected || listener.offline || listener.stopped) return;
+    await ref.read(listenerProvider.notifier).restart(quiet: true);
   }
 
   /// The session [_route] last set, and what it set: each route is handed over once per change.
@@ -704,7 +719,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
       }
       return;
     }
-    await _route(session);
+    await _route(session, switched: on != was);
     if (!_current(generation)) return;
     if (on) {
       _stopAfterSends = false;

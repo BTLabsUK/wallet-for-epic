@@ -321,6 +321,68 @@ void main() {
     expect(h.state.failure, TorFailure.network);
   });
 
+  group('the Epicbox listener follows the route', () {
+    const connected = ListenerEvent(kind: ListenerEventKind.connected, message: 'addr');
+
+    /// The wallet's listener, kept alive as the app does. Its first connection is still
+    /// being made (no event yet).
+    Future<void> openListener() async {
+      await h.unlock();
+      h.container.listen(listenerProvider, (_, _) {}, fireImmediately: true);
+      await h.settle();
+      expect(h.container.read(listenerProvider).connected, isFalse);
+    }
+
+    /// The core ends the old listener with a `stopped` event; the new one starts after it.
+    Future<void> tick({bool ends = true}) async {
+      await drain();
+      await h.settle(30);
+      if (ends) h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.stopped, message: ''));
+      await h.settle(60);
+    }
+
+    test('Tor off while the listener is still connecting: it starts again and ends connected', () async {
+      await openListener();
+      await h.tor.setReceiving(true);
+      await tick();
+      expect(h.container.read(listenerProvider).connected, isFalse);
+      final starts = h.session.listenerStarts;
+
+      await h.tor.setReceiving(false);
+      await tick();
+      expect(h.session.epicboxOverTorValue, isFalse);
+      expect(h.session.listenerStarts, greaterThan(starts), reason: 'a listener begun for the Tor route is moved');
+      h.session.listenerEvents.add(connected);
+      await h.settle();
+      expect(h.container.read(listenerProvider).connected, isTrue, reason: 'the pill goes green');
+    });
+
+    test('Tor on while the listener is not connected: it starts again on the Tor route', () async {
+      await openListener();
+      final starts = h.session.listenerStarts;
+      await h.tor.setReceiving(true);
+      await tick();
+      expect(h.session.epicboxOverTorValue, isTrue);
+      expect(h.session.listenerStarts, greaterThan(starts));
+      h.session.listenerEvents.add(connected);
+      await h.settle();
+      expect(h.container.read(listenerProvider).connected, isTrue);
+    });
+
+    test('a connected listener is left alone when the route changes', () async {
+      await openListener();
+      h.session.listenerEvents.add(connected);
+      await h.settle();
+      await h.tor.setReceiving(true);
+      await tick(ends: false);
+      final starts = h.session.listenerStarts;
+      await h.tor.setReceiving(false);
+      await tick(ends: false);
+      expect(h.session.listenerStarts, starts);
+      expect(h.container.read(listenerProvider).connected, isTrue);
+    });
+  });
+
   // Every mode change followed at once by another: the last one chosen is the one that stays.
   for (final from in NetworkMode.values) {
     for (final to in NetworkMode.values) {
