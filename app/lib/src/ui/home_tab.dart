@@ -11,6 +11,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../advanced.dart' show NetworkMode;
 import '../amount.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -25,8 +26,9 @@ import 'common.dart';
 import 'home_screen.dart' show homeCardGap;
 import 'home_change.dart';
 import 'home_slot.dart';
-import '../phone_tor.dart';
-import 'home_status.dart' show showConnectionsSheet, torIconShown;
+import 'home_status.dart' show showConnectionsSheet;
+import 'net_view.dart';
+import 'network_mode_text.dart' show networkModeName;
 import 'kit/kit_button.dart';
 import 'kit/kit_chip.dart';
 import 'kit/kit_group.dart';
@@ -46,22 +48,6 @@ import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'tip.dart';
 import 'tour/phone_tour.dart';
-
-/// Where Home's connection pill stands, from the node and Epicbox statuses.
-enum HomeConnection { ready, syncing, reconnecting, offline }
-
-/// The pill's state for [status]. Epicbox stopped (null) does not count against the wallet.
-HomeConnection homeConnection(WalletStatus status) {
-  final node = status.node.state;
-  final box = status.epicbox;
-  final boxDown = box == EpicboxState.offline || box == EpicboxState.blocked;
-  if (node == NodeState.offline && boxDown) return HomeConnection.offline;
-  if (node == NodeState.offline || node == NodeState.connecting || box == EpicboxState.connecting || boxDown) {
-    return HomeConnection.reconnecting;
-  }
-  if (node == NodeState.syncing) return HomeConnection.syncing;
-  return HomeConnection.ready;
-}
 
 /// The key of Home's balance figure, for tests.
 const Key homeFigureKey = ValueKey('home-figure');
@@ -160,12 +146,14 @@ class _HomeHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final status = watchWalletStatus(ref);
-    final state = homeConnection(status);
+    final mode = ref.watch(networkModeProvider);
+    final state = netHealth(mode, status);
     final label = switch (state) {
       HomeConnection.ready => l.phoneKitReady,
       HomeConnection.syncing => l.phoneHomeSyncing('${(status.node.percent ?? 0).round()}'),
       HomeConnection.reconnecting => l.phoneKitReconnecting,
       HomeConnection.offline => l.phoneHomeOffline,
+      HomeConnection.paused => '',
     };
     // `.bar`: 44 tall at the safe area's top, 16 in; the logo, a spacer, the pill.
     return SizedBox(
@@ -187,9 +175,11 @@ class _HomeHeader extends ConsumerWidget {
                   alignment: AlignmentDirectional.centerEnd,
                   child: KitStatusPill(
                     key: homePillKey,
-                    ready: state == HomeConnection.ready,
+                    ready: state == HomeConnection.ready || state == HomeConnection.paused,
                     label: label,
-                    tor: torIconShown(ref.watch(phoneTorProvider)),
+                    modeMark: netModeMark(mode),
+                    modeName: mode == NetworkMode.standard ? null : networkModeName(l, mode),
+                    showState: state != HomeConnection.paused,
                     onTap: () => showConnectionsSheet(context),
                     semanticsId: TrustIds.homeStatus,
                   ),

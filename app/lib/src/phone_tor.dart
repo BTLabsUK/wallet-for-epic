@@ -55,6 +55,7 @@ class PhoneTorState {
     this.receiving = false,
     this.socksPort,
     this.settled = true,
+    this.changing = false,
   });
 
   /// Locked, or the wallet opening: its switch is not read yet.
@@ -82,6 +83,12 @@ class PhoneTorState {
   /// the state says nothing about the switch, and the app's requests keep the way launch set.
   final bool settled;
 
+  /// A change the user made (the Tor switch, Link · Tor, a connection mode) is being applied:
+  /// from the tap until tor has come up, stopped or failed for it, or [PhoneTorTiming.switchSettle]
+  /// is over. The controls that start or stop tor stay off meanwhile, so a tap in a row cannot
+  /// leave tor half started.
+  final bool changing;
+
   /// Sends to onions work now.
   bool get canSend =>
       phase == PhoneTorPhase.connected || phase == PhoneTorPhase.ready;
@@ -93,6 +100,7 @@ class PhoneTorState {
     TorFailure? Function()? failure,
     bool? receiving,
     int? socksPort,
+    bool? changing,
   }) => PhoneTorState(
     phase: phase ?? this.phase,
     progress: progress == null ? this.progress : progress(),
@@ -101,6 +109,7 @@ class PhoneTorState {
     receiving: receiving ?? this.receiving,
     socksPort: socksPort ?? this.socksPort,
     settled: settled,
+    changing: changing ?? this.changing,
   );
 
   @override
@@ -111,7 +120,8 @@ class PhoneTorState {
       failure.hashCode ^
       receiving.hashCode ^
       socksPort.hashCode ^
-      settled.hashCode;
+      settled.hashCode ^
+      changing.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -123,7 +133,8 @@ class PhoneTorState {
           failure == other.failure &&
           receiving == other.receiving &&
           socksPort == other.socksPort &&
-          settled == other.settled;
+          settled == other.settled &&
+          changing == other.changing;
 
   @override
   String toString() =>
@@ -232,6 +243,7 @@ class PhoneTorTiming {
     this.networkSettle = const Duration(milliseconds: 1500),
     this.awayRenew = const Duration(seconds: 30),
     this.startStall = const Duration(minutes: 5),
+    this.switchSettle = const Duration(seconds: 30),
   }) : backoff = backoff ?? appConfig.torStartBackoff,
        sendWait = sendWait ?? appConfig.torSendWait;
 
@@ -255,6 +267,10 @@ class PhoneTorTiming {
   /// wake it). Longer than LEPIC's own deadlines (240 s on a first start), which end a start
   /// that stalls in the usual way.
   final Duration startStall;
+
+  /// The longest [PhoneTorState.changing] holds for one change: a tor that is slow to connect
+  /// (or never does) does not lock the controls for good. Its state shows on the status line.
+  final Duration switchSettle;
 }
 
 final phoneTorTimingProvider = Provider<PhoneTorTiming>(
@@ -309,6 +325,19 @@ class PhoneTor extends Notifier<PhoneTorState> {
   Timer? _restartTimer;
   Timer? _networkTimer;
   Timer? _startTimer;
+  Timer? _changeTimer;
+
+  /// Changes by the user being applied; [PhoneTorState.changing] holds while any runs.
+  int _changes = 0;
+
+  /// Mode changes are applied one at a time, always ending on the last one chosen: [_modeWanted]
+  /// is the newest not yet applied, [_modeLast] the one applied last.
+  NetworkMode? _modeWanted;
+  NetworkMode? _modeLast;
+  bool _modeLoop = false;
+
+  /// The switch's changes in a row.
+  Future<void> _receivingChain = Future.value();
 
   /// A [_stop] waiting on LEPIC; a start waits for it, or its stream would end at once.
   Future<void>? _stopping;
@@ -377,6 +406,11 @@ class PhoneTor extends Notifier<PhoneTorState> {
     _config = ref.read(walletConfigProvider);
     _tor = null;
     _bundle = null;
+    _changes = 0;
+    _modeWanted = null;
+    _modeLast = null;
+    _modeLoop = false;
+    _receivingChain = Future.value();
     _forSends = false;
     _sendsInFlight = 0;
     _stopAfterSends = false;
@@ -404,6 +438,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
       _restartTimer?.cancel();
       _networkTimer?.cancel();
       _startTimer?.cancel();
+      _changeTimer?.cancel();
       _failWaiters('wallet locked');
       WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
@@ -411,11 +446,15 @@ class PhoneTor extends Notifier<PhoneTorState> {
     // The network mode while the wallet is open: Offline stops tor, Tor only turns the switch
     // on, back to Standard starts tor again if the switch is on.
     ref.listen(networkModeProvider, (before, mode) {
-      if (_current(generation)) unawaited(_modeChanged(mode, generation, from: before));
+      if (_current(generation)) _queueMode(mode, before, generation);
+    });
+    // The change is over once tor has come up, stopped or failed for it.
+    listenSelf((_, _) {
+      if (state.changing) scheduleMicrotask(_settleCheck);
     });
     // Link · Tor (item 2): tor for payments alone starts and stops with the switch.
     ref.listen(appSettingsProvider.select((s) => s.value?.payments.linkTor ?? false), (_, on) {
-      if (_current(generation)) unawaited(_payChanged());
+      if (_current(generation)) unawaited(_change(_payChanged));
     });
     if (session == null) return PhoneTorState.unread;
     unawaited(_open(session, generation));
@@ -508,6 +547,61 @@ class PhoneTor extends Notifier<PhoneTorState> {
     }
   }
 
+  /// Runs [work] as a change by the user: [PhoneTorState.changing] holds until [work] is done
+  /// and tor has settled ([_settleCheck]), or [PhoneTorTiming.switchSettle] is over.
+  Future<void> _change(Future<void> Function() work) async {
+    final generation = _generation;
+    _changes++;
+    if (!state.changing) {
+      state = state.copyWith(changing: true);
+      _changeTimer?.cancel();
+      _changeTimer = Timer(ref.read(phoneTorTimingProvider).switchSettle, () {
+        if (_current(generation) && state.changing) state = state.copyWith(changing: false);
+      });
+    }
+    try {
+      await work();
+    } finally {
+      if (_current(generation)) {
+        _changes--;
+        _settleCheck();
+      }
+    }
+  }
+
+  void _settleCheck() {
+    if (!ref.mounted || !state.changing) return;
+    if (_changes > 0 || _stopping != null || state.phase == PhoneTorPhase.starting) return;
+    _changeTimer?.cancel();
+    state = state.copyWith(changing: false);
+  }
+
+  /// A new mode was chosen. The modes are applied one at a time and the last one chosen is the
+  /// one that stays: a tap in a row changes what is wanted, never what runs half way.
+  void _queueMode(NetworkMode mode, NetworkMode? before, int generation) {
+    _modeLast ??= before;
+    _modeWanted = mode;
+    if (_modeLoop) return;
+    _modeLoop = true;
+    unawaited(
+      _change(() async {
+        try {
+          while (_current(generation)) {
+            final next = _modeWanted;
+            if (next == null) break;
+            _modeWanted = null;
+            final from = _modeLast;
+            _modeLast = next;
+            if (from == next) continue;
+            await _modeChanged(next, generation, from: from);
+          }
+        } finally {
+          _modeLoop = false;
+        }
+      }),
+    );
+  }
+
   /// Applies a new network mode to the open wallet's tor.
   Future<void> _modeChanged(NetworkMode mode, int generation, {NetworkMode? from}) async {
     if (_session == null || !state.settled) return;
@@ -565,7 +659,18 @@ class PhoneTor extends Notifier<PhoneTorState> {
   ///
   /// Tor only refuses off: the switch stays on until the mode changes. Kill switch saves the
   /// switch and starts nothing.
-  Future<void> setReceiving(bool on) async {
+  Future<void> setReceiving(bool on) {
+    if (!torBuilt) return Future.value();
+    // One at a time, in the order of the taps; each one is a change until tor has settled.
+    // The change is marked at the tap, before it waits for the ones ahead of it.
+    return _change(() {
+      final run = _receivingChain.then((_) => _setReceiving(on));
+      _receivingChain = run.catchError((Object _) {});
+      return run;
+    });
+  }
+
+  Future<void> _setReceiving(bool on) async {
     if (!torBuilt) return;
     if (!on && NetGate.torOnly) {
       logInfo('tor', 'receiving stays on in Tor only');

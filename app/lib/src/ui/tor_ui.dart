@@ -12,6 +12,7 @@ import '../state_language.dart' show torShownState;
 import 'status.dart' show StateDot, StatusDot, toneColor;
 import '../l10n.dart';
 import '../phone_tor.dart';
+import '../settings.dart' show networkModeProvider;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
@@ -217,7 +218,8 @@ class TorStateLine extends ConsumerWidget {
 
 /// What [route] does under the Tor switch right now: "Over Tor", "Waiting for Tor" (info) or
 /// "Waiting for Tor" in the risk colour when Tor is not connected; nothing (SizedBox.shrink) on
-/// the clearnet or with Tor off. Reads phoneTorProvider.
+/// the clearnet, with Tor off, or when the connection mode turns the route off. Reads
+/// phoneTorProvider and networkModeProvider.
 class TorWayLine extends ConsumerWidget {
   const TorWayLine({super.key, required this.route});
 
@@ -226,10 +228,11 @@ class TorWayLine extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = phoneTorState(ref.watch(phoneTorProvider));
+    final mode = ref.watch(networkModeProvider);
     final words = torWayWords(
       context.l10n,
       context.tokens,
-      torWay(route, state),
+      torWayIn(route, state, mode),
     );
     if (words == null) return const SizedBox.shrink();
     return Semantics(

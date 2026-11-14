@@ -251,7 +251,7 @@ class ReceiveTorPage extends ConsumerWidget {
             key: receiveTurnOnTorKey,
             label: l.torTurnOn,
             icon: torIcon,
-            onPressed: () => ref.read(phoneTorProvider.notifier).setReceiving(true),
+            onPressed: ref.watch(phoneTorProvider.select((s) => s.changing)) ? null : () => ref.read(phoneTorProvider.notifier).setReceiving(true),
           ),
         ],
         if (offline) ...[const SizedBox(height: 12), offlineNote],

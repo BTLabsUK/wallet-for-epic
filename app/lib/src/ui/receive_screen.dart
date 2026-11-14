@@ -493,7 +493,8 @@ class _EpicboxOffByMode extends StatelessWidget {
 const Key receiveEpicboxOffModeKey = ValueKey('receive-epicbox-off-mode');
 
 /// Where the epicbox listener stands, in one quiet line under the address: a green dot and
-/// "Listening for payments". Offline or stopped, it says what that means for receiving and offers
+/// "Listening for payments" (with Advanced server details, "Connected · server", the port only when
+/// it is not 443: one line, the server is not repeated below). Offline or stopped, it says what that means for receiving and offers
 /// Retry, which restarts the listener. Blocked by this network, it says so and offers another
 /// relay in one tap ([RelayBlockedNote]).
 class _EpicboxLine extends ConsumerWidget {
@@ -546,11 +547,6 @@ class _EpicboxLine extends ConsumerWidget {
             ],
           ),
         )),
-        if (config != null)
-          Advanced(
-            feature: AdvancedFeature.serverDetails,
-            child: Center(child: Readout(l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'))),
-          ),
         if (offline) ...[
           const SizedBox(height: 4),
           Text(

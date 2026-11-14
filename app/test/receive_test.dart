@@ -588,14 +588,19 @@ void main() {
       expect(find.text(_l.commonRetry), findsOneWidget);
     });
 
-    testWidgets('the relay readout is for Advanced options only', (
+    testWidgets('the relay shows once, in the status line, for Advanced only', (
       tester,
     ) async {
-      await _Harness().pump(tester);
-      expect(find.text('Server: box.epic.invalid:443'), findsNothing);
+      final h = _Harness();
+      await h.pump(tester);
+      await h.listener(tester, ListenerEventKind.connected);
+      expect(find.text('Connected · box.epic.invalid'), findsNothing);
       await tester.pumpWidget(const SizedBox());
-      await _Harness(advanced: true).pump(tester);
-      expect(find.text('Server: box.epic.invalid:443'), findsOneWidget);
+      final a = _Harness(advanced: true);
+      await a.pump(tester);
+      await a.listener(tester, ListenerEventKind.connected);
+      expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
+      expect(find.textContaining('Server:'), findsNothing);
     });
 
     // Report gwuouzfy: a network filter refuses every handshake with box.epic.invalid.

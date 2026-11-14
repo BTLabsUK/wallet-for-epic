@@ -172,6 +172,7 @@ String statusBrief(String detail, {String? host}) {
   final choice = ref.watch(networkChoiceProvider).value;
   final tor = ref.watch(phoneTorProvider);
   final torState = phoneTorState(tor);
+  final mode = ref.watch(networkModeProvider);
   final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
   final node = nodeIconFace(
     context,
@@ -187,7 +188,7 @@ String statusBrief(String detail, {String? host}) {
     detail: failover == null
         ? node.detail
         : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
-    way: nodeTorWay(nodeUrl, torState),
+    way: nodeTorWay(nodeUrl, torState, mode),
   );
   final epicbox = epicboxIconFace(context, status.epicbox, config);
   final epicboxTor = underTor(
@@ -195,14 +196,13 @@ String statusBrief(String detail, {String? host}) {
     dot: epicbox.dot,
     label: '${l.netStatusEpicbox}, ${epicbox.word}',
     detail: epicbox.detail,
-    way: torWay(TorRoute.epicbox, torState),
+    way: torWayIn(TorRoute.epicbox, torState, mode),
   );
   final torFace = torStatusOf(l, t, tor);
   final payments = ref.watch(appSettingsProvider).value?.payments ?? const PaymentPrefs();
   // On by the Link · Tor switch, or while the onion is published anyway (a running Link · Tor).
   final linkOn = payments.linkTor || directIconShown(tor);
   final link = linkFace(l, t, tor, payments, linkOn: linkOn);
-  final mode = ref.watch(networkModeProvider);
   final torOn = torIconShown(tor);
   final killSwitch = mode == NetworkMode.killSwitch;
   final nodeOnly = mode == NetworkMode.nodeOnly;

@@ -17,7 +17,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../advanced.dart' show NetworkMode, NetworkModeRestricted;
 import '../../connection_grace.dart';
+import '../../settings.dart' show networkModeProvider;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../levels/relay_switch.dart';
@@ -100,6 +102,11 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
   void initState() {
     super.initState();
     ref.listenManual<RelaySwitchOffer?>(relaySwitchProvider, (_, offer) => _follow(offer));
+    // Node only or Kill switch turns Epicbox off: a "new address is ready" notice still up
+    // would announce an address that nothing serves now.
+    ref.listenManual<NetworkMode>(networkModeProvider, (_, mode) {
+      if (mode.restricted) ref.read(noticeProvider.notifier).dismissTag(relayMovedNoticeTag);
+    });
     // The grace over: an offer still standing shows now.
     ref.listenManual<bool>(connectionGraceProvider, (_, _) => _follow(ref.read(relaySwitchProvider)));
     // An offer already standing: after the first frame, as the notice's words need the context.

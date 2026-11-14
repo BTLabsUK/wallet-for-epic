@@ -637,6 +637,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    final mode = ref.watch(networkModeProvider);
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final devNetworks = ref.watch(devNetworksProvider);
@@ -674,7 +675,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   final host? => HostText(host, style: TextStyle(color: dim)),
                   null => Text(l.commonUnknown),
                 },
-                torWay(TorRoute.epicbox, torState),
+                torWayIn(TorRoute.epicbox, torState, mode),
+                TorRoute.epicbox,
               ),
               chevron: true,
               semanticsId: TrustIds.networkEpicbox,
@@ -686,7 +688,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
               title: l.serverNodeTitle,
               subtitleWidget: withTorWay(
                 network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: dim)),
-                nodeTorWay(network?.nodeUrl, torState),
+                nodeTorWay(network?.nodeUrl, torState, mode),
+                TorRoute.node,
               ),
               chevron: true,
               semanticsId: TrustIds.networkNode,
@@ -968,7 +971,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         subtitle: line,
         subtitleLines: 2,
         value: payments.offers(m),
-        onChanged: m == MethodKind.linkTor && !torPayCanSwitch(ref.watch(phoneTorPayProvider)) ? null : (on) => set(m, on),
+        // Link · Tor starts and stops tor: it waits while a change is being applied.
+        onChanged: m == MethodKind.linkTor && (!torPayCanSwitch(ref.watch(phoneTorPayProvider)) || ref.watch(phoneTorProvider.select((s) => s.changing)))
+            ? null
+            : (on) => set(m, on),
         semanticsId: _methodId(m),
       );
     }
@@ -1197,16 +1203,16 @@ String languageLabel(AppLocalizations l, String? code) {
   return l.languageSystem;
 }
 
-/// [subtitle] with the [TorWayLine] under it while the Epicbox connection goes over Tor or
+/// [subtitle] with the [TorWayLine] for [route] under it while that connection goes over Tor or
 /// waits for it ([way]); [subtitle] alone otherwise.
-Widget? withTorWay(Widget? subtitle, TorWay way) {
+Widget? withTorWay(Widget? subtitle, TorWay way, TorRoute route) {
   if (way != TorWay.overTor && way != TorWay.wait && way != TorWay.blocked) {
     return subtitle;
   }
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
-    children: [?subtitle, const TorWayLine(route: TorRoute.epicbox)],
+    children: [?subtitle, TorWayLine(route: route)],
   );
 }
 

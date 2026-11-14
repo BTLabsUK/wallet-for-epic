@@ -30,6 +30,8 @@ import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
+import '../advanced.dart' show NetworkModeRestricted;
+import '../settings.dart' show networkModeProvider;
 import '../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
 import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../server_list_file.dart' show operatorFor;
@@ -179,6 +181,8 @@ class ServerListSheet extends ConsumerStatefulWidget {
     this.afterSave = relaunchAfterSwitch,
     this.liveSwitch = switchServersLive,
     this.selection,
+    this.onClose = _closeSheet,
+    this.switchTimeout = const Duration(seconds: 45),
   });
 
   final ServerKind kind;
@@ -195,9 +199,17 @@ class ServerListSheet extends ConsumerStatefulWidget {
   final Future<bool> Function(WidgetRef ref, {required String nodeUrl, required EpicboxRelay relay})
   liveSwitch;
 
+  /// Called once a switch has connected, after the row says Connected: the sheet closes.
+  final void Function(BuildContext context) onClose;
+
+  /// How long a switch may run before the row says it did not answer and the rows are free again.
+  final Duration switchTimeout;
+
   @override
   ConsumerState<ServerListSheet> createState() => _ServerListSheetState();
 }
+
+void _closeSheet(BuildContext context) => Navigator.of(context).maybePop();
 
 class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   final _field = TextEditingController();
@@ -216,6 +228,13 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   String? _switching;
   bool _connected = false;
   Timer? _connectedTimer;
+
+  /// The server the last switch did not reach: its row says so until the next switch.
+  String? _failed;
+
+  /// Whether the rows are locked: a switch runs, or it has connected and the sheet is closing.
+  /// No second switch, add, remove or reset starts meanwhile.
+  bool get _locked => _busy || _connected;
 
   /// The last status the directory gave each server: a refresh or a switch that empties the
   /// directory's answer keeps the dots as they were.
@@ -332,14 +351,13 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   Future<void> _pick(String value, NetworkChoice choice) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (_sel != null) return _tick(value);
-    final nodeSwitching = _busy && _node;
-    if (nodeSwitching && _switching != null && _same(value, _switching!)) return;
-    if (_same(value, _current(choice)) && !nodeSwitching) {
+    // One switch at a time: a tap while one runs is ignored (the rows are greyed meanwhile).
+    if (_locked) return;
+    if (_same(value, _current(choice))) {
       _say(context.l10n.serverAlreadyInUse, note: true);
       return;
     }
     if (_node) return _switchTo(value, choice);
-    if (_busy) return;
     final l = context.l10n;
     final host = serverHost(value);
     final sure = await confirmPairSheet(
@@ -352,7 +370,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       actionKey: serverListSwitchKey,
       actionId: TrustIds.serverSwitch,
     );
-    if (sure && mounted) await _switchTo(value, choice);
+    if (sure && mounted && !_locked) await _switchTo(value, choice);
   }
 
   /// Done on the field: a listed address is picked, anything else goes to [_add], which says
@@ -385,6 +403,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// (the node gives its tip, the relay answers a handshake), then added and selected, so the
   /// Switch strip offers it. A failed test adds nothing.
   Future<void> _add(NetworkChoice choice) async {
+    if (_locked) return;
     final l = context.l10n;
     final value = _typedValue();
     if (value == null) {
@@ -458,6 +477,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   }
 
   Future<void> _remove(_Entry e, NetworkChoice choice) async {
+    if (_locked) return;
     final l = context.l10n;
     if (_sel != null ? _isChosen(e.value) : _same(e.value, _current(choice))) {
       _say(_sel != null ? l.slChosenUntick : l.slInUseSwitchFirst, note: true);
@@ -549,6 +569,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// "Reset to defaults": the set is the defaults again; one the user took out of the list comes
   /// back with it.
   Future<void> _resetToDefaults(NetworkChoice choice) async {
+    if (_locked) return;
     final sel = _sel!;
     final before = _chosen!;
     final notifier = ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier);
@@ -566,14 +587,31 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     );
   }
 
+  /// Switches to [value]. The rows are locked until it ends. Connected: the row says so, then
+  /// the sheet closes and a notice says where the wallet is now. Not connected (refused, or no
+  /// answer within [ServerListSheet.switchTimeout]): the sheet stays, the rows are free, the
+  /// row says it did not answer and the wallet stays on the server it had.
   Future<void> _switchTo(String value, NetworkChoice choice) async {
+    if (_locked) return;
     final tap = ++_tap;
     _connectedTimer?.cancel();
     setState(() {
       _busy = true;
       _switching = value;
       _connected = false;
+      _failed = null;
     });
+    void fail(Object? error) {
+      if (!mounted || tap != _tap) return;
+      setState(() {
+        _busy = false;
+        _switching = null;
+        _failed = value;
+      });
+      if (error != null && error is! TimeoutException) {
+        _say(describeError(context.l10n, error), note: true);
+      }
+    }
     try {
       final nodeUrl = _node ? value : choice.nodeUrl;
       final relay = _node ? choice.relay : EpicboxRelay.parse(value);
@@ -584,8 +622,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         });
         return;
       }
-      final live = await widget.liveSwitch(ref, nodeUrl: nodeUrl, relay: relay);
-      // A later tap took over: its switch says how it went.
+      final live = await widget
+          .liveSwitch(ref, nodeUrl: nodeUrl, relay: relay)
+          .timeout(widget.switchTimeout);
       if (!mounted || tap != _tap) return;
       if (live) {
         _field.clear();
@@ -593,30 +632,30 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           _busy = false;
           _connected = true;
         });
-        _connectedTimer = Timer(const Duration(seconds: 4), () {
-          if (mounted) {
-            setState(() {
-              _switching = null;
-              _connected = false;
-            });
-          }
+        // The row says Connected for a moment, then the sheet closes: the pill and Settings
+        // show the new server. The notice outlives the sheet.
+        _connectedTimer = Timer(const Duration(milliseconds: 700), () {
+          if (!mounted) return;
+          widget.onClose(context);
+          if (!mounted) return;
+          setState(() {
+            _switching = null;
+            _connected = false;
+          });
         });
-        if (_node) {
-          _say(context.l10n.serverSwitched(serverHost(value)));
+        final l = context.l10n;
+        final notices = ref.read(noticeProvider.notifier);
+        // Epicbox is off in Node only and Kill switch: no new address to announce there.
+        if (_node || ref.read(networkModeProvider).restricted) {
+          notices.show(l.serverSwitched(serverHost(value)), level: NoticeLevel.success);
         } else {
           // The address changed with the server: the notice the other moves give, with Show.
-          final l = context.l10n;
-          ref
-              .read(noticeProvider.notifier)
-              .show(
-                l.lvShellSwitchedNotice(serverHost(value)),
-                level: NoticeLevel.success,
-                tag: relayMovedNoticeTag,
-                action: NoticeAction(
-                  l.lvShellShowNewAddress,
-                  () => showNewAddress(ref),
-                ),
-              );
+          notices.show(
+            l.lvShellSwitchedNotice(serverHost(value)),
+            level: NoticeLevel.success,
+            tag: relayMovedNoticeTag,
+            action: NoticeAction(l.lvShellShowNewAddress, () => showNewAddress(ref)),
+          );
         }
         return;
       }
@@ -627,14 +666,10 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           _switching = null;
         });
       }
+    } on TimeoutException {
+      fail(null);
     } catch (error) {
-      if (mounted && tap == _tap) {
-        setState(() {
-          _busy = false;
-          _switching = null;
-        });
-        _say(describeError(context.l10n, error), note: true);
-      }
+      fail(error);
     }
   }
 
@@ -918,7 +953,7 @@ OutlineInputBorder _fieldBorder(Color color) =>
           host: addHost,
           note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
           busy: _adding,
-          onTap: () => _add(choice),
+          onTap: _locked ? null : () => _add(choice),
         )),
       for (final e in shown) ...[
         TrustId(_ids.row, child: _ServerRow(
@@ -932,14 +967,17 @@ OutlineInputBorder _fieldBorder(Color color) =>
           connect: _switching != null && _same(e.value, _switching!)
               ? (_connected ? _Connect.connected : _Connect.connecting)
               : null,
+          failed: _failed != null && _same(e.value, _failed!),
+          // A switch runs: every other row is greyed and does nothing.
+          locked: _sel == null && _locked && !(_switching != null && _same(e.value, _switching!)),
           current: _sel == null && _same(e.value, current),
           selected: _sel != null ? _isChosen(e.value) : _same(e.value, current),
           check: _sel == null && _same(e.value, current),
           // A checkbox in the selection; the rest of the set dims once it is full.
           ticked: _sel == null ? null : _isChosen(e.value),
           dimmed: _sel != null && !_isChosen(e.value) && _chosen!.length >= _sel!.limit,
-          onTap: () => _pick(e.value, choice),
-          onRemove: () => _remove(e, choice),
+          onTap: _sel == null && _locked ? null : () => _pick(e.value, choice),
+          onRemove: _sel == null && _locked ? null : () => _remove(e, choice),
         )),
         if (relayBlocked && _same(e.value, current))
           const Padding(
@@ -954,7 +992,7 @@ OutlineInputBorder _fieldBorder(Color color) =>
           ),
       ],
       if (_sel != null && !filtering && !sameServerSet(widget.kind, _chosen!, _sel!.defaults))
-        _ResetRow(onTap: () => _resetToDefaults(choice)),
+        _ResetRow(onTap: _locked ? null : () => _resetToDefaults(choice)),
       _HealthCaption(status: dirStatus, preset: choice.preset),
     ];
     return LayoutBuilder(
@@ -1000,6 +1038,8 @@ class _ServerRow extends StatelessWidget {
     required this.isDefault,
     this.addedByYou = false,
     this.connect,
+    this.failed = false,
+    this.locked = false,
     required this.current,
     required this.selected,
     required this.check,
@@ -1018,6 +1058,12 @@ class _ServerRow extends StatelessWidget {
 
   /// This is the server a switch is going to: its line says Connecting…, then Connected.
   final _Connect? connect;
+
+  /// The last switch to this server did not connect: the line says so.
+  final bool failed;
+
+  /// Another switch is running: the row is greyed and a tap does nothing.
+  final bool locked;
   final bool current;
   final bool selected;
   final bool check;
@@ -1027,8 +1073,8 @@ class _ServerRow extends StatelessWidget {
 
   /// The row is not chosen and the set is full: shown lighter, a tap says why not.
   final bool dimmed;
-  final VoidCallback onTap;
-  final VoidCallback onRemove;
+  final VoidCallback? onTap;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -1057,10 +1103,12 @@ class _ServerRow extends StatelessWidget {
         connect == _Connect.connected
             ? l.netStatusConnected
             : l.netStatusConnecting
+      else if (failed)
+        l.serverNotResponding
       else if (current)
         l.serverCurrent,
       if (tip != null) tip.text,
-      if (down) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
+      if (down && !failed) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
       if (unknown) ShownState.unchecked.word(l),
       if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
       if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
@@ -1174,7 +1222,7 @@ class _ServerRow extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                       icon: Icon(KitIcons.delete, color: current ? t.dim.withValues(alpha: 0.4) : t.dim),
-                      onPressed: current ? null : onRemove,
+                      onPressed: current || onRemove == null ? null : onRemove,
                     ),
                   ],
                 ),
@@ -1184,7 +1232,7 @@ class _ServerRow extends StatelessWidget {
         ),
       ),
     ));
-    return dimmed ? Opacity(opacity: 0.55, child: row) : row;
+    return dimmed || locked ? Opacity(opacity: 0.55, child: row) : row;
   }
 }
 
@@ -1196,7 +1244,7 @@ class _AddRow extends StatelessWidget {
   final String host;
   final String note;
   final bool busy;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1277,7 +1325,7 @@ class _AddRow extends StatelessWidget {
 class _ResetRow extends StatelessWidget {
   const _ResetRow({required this.onTap});
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
