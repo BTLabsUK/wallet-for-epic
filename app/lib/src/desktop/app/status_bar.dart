@@ -231,7 +231,7 @@ class _BarCell extends StatelessWidget {
 class _StatusLight extends ConsumerWidget {
   const _StatusLight({required this.item, required this.words});
 
-  final RailItem item;
+  final ServiceItem item;
 
   /// The name beside the light; without it the glyph and the tooltip say which service.
   final bool words;

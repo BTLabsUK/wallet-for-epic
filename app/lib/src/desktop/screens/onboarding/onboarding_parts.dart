@@ -98,7 +98,7 @@ class AccountForm extends StatelessWidget {
   return (p, c);
 }
 
-/// A numbered grid of words, as the phrase is written on paper.
+/// The step list for [labels]: the steps before [current] are done.
 List<ERailStep> railOf(List<String> labels, int current) => [
   for (var i = 0; i < labels.length; i++) ERailStep(labels[i], done: i < current, current: i == current),
 ];

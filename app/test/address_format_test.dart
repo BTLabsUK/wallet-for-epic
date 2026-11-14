@@ -56,17 +56,17 @@ void main() {
     });
   });
 
-  group('railHost', () {
+  group('serviceHost', () {
     test('drops the label the row name already says', () {
-      expect(railHost('Epicbox', 'epicbox.stackwallet.com'), 'stackwallet.com');
-      expect(railHost('Node', 'node.btlabs.uk'), 'btlabs.uk');
-      expect(railHost('node', 'Node.btlabs.uk'), 'btlabs.uk');
+      expect(serviceHost('Epicbox', 'epicbox.stackwallet.com'), 'stackwallet.com');
+      expect(serviceHost('Node', 'node.btlabs.uk'), 'btlabs.uk');
+      expect(serviceHost('node', 'Node.btlabs.uk'), 'btlabs.uk');
     });
     test('keeps hosts that do not match or are short', () {
-      expect(railHost('Node', 'localhost'), 'localhost');
-      expect(railHost('Node', 'epicnet.us'), 'epicnet.us');
-      expect(railHost('Node', 'node.us'), 'node.us');
-      expect(railHost('Epicbox', 'node.btlabs.uk'), 'node.btlabs.uk');
+      expect(serviceHost('Node', 'localhost'), 'localhost');
+      expect(serviceHost('Node', 'epicnet.us'), 'epicnet.us');
+      expect(serviceHost('Node', 'node.us'), 'node.us');
+      expect(serviceHost('Epicbox', 'node.btlabs.uk'), 'node.btlabs.uk');
     });
   });
 

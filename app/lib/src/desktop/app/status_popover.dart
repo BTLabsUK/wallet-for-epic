@@ -25,18 +25,18 @@ import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'kept_messages_dialog.dart';
 import 'message_check_panel.dart';
-import 'service_rows.dart' show RailItem;
+import 'service_rows.dart' show ServiceItem;
 import 'relay_offer.dart';
 import 'status_parts.dart';
 
 /// The items in the bar's order. A server that does not answer while another is ready to take
 /// over is amber, not red (the offer is the way out, as on the phone).
-List<RailItem> deskStatusShown(WidgetRef ref, List<RailItem> items) {
+List<ServiceItem> deskStatusShown(WidgetRef ref, List<ServiceItem> items) {
   final offer = ref.watch(deskRelayOfferProvider) != null;
   return [
     for (final i in items)
       offer && i.jump == SettingsJump.epicbox && i.state == EState.risk
-            ? RailItem(icon: i.icon, name: i.name, word: i.word, state: EState.warn, second: i.second, marker: i.marker, lines: i.lines, note: i.note, open: i.open, jump: i.jump, byMode: i.byMode)
+            ? ServiceItem(icon: i.icon, name: i.name, word: i.word, state: EState.warn, second: i.second, marker: i.marker, lines: i.lines, note: i.note, open: i.open, jump: i.jump, byMode: i.byMode)
             : i,
   ];
 }
@@ -45,14 +45,14 @@ List<RailItem> deskStatusShown(WidgetRef ref, List<RailItem> items) {
 /// not answer yet (the node, Epicbox, Tor) reads Connecting, in progress, with its host and
 /// none of its warning lines: the connection is only coming back. Off, off by the mode, and
 /// Link · HTTP (a listener on this computer) stay as they are.
-List<RailItem> graceRailItems(AppLocalizations l, List<RailItem> items, {required bool grace}) => !grace
+List<ServiceItem> graceRailItems(AppLocalizations l, List<ServiceItem> items, {required bool grace}) => !grace
     ? items
     : [
         for (final i in items)
           if (i.byMode || i.jump == SettingsJump.http || !(i.state == EState.risk || i.state == EState.warn))
             i
           else
-            RailItem(
+            ServiceItem(
               icon: i.icon,
               name: i.name,
               word: ShownState.connecting.word(l),
@@ -66,7 +66,7 @@ List<RailItem> graceRailItems(AppLocalizations l, List<RailItem> items, {require
       ];
 
 /// "Name · State", the icon's tooltip and its button's label.
-String deskStatusTip(AppLocalizations l, RailItem i) => l.statusTip(i.name, i.word);
+String deskStatusTip(AppLocalizations l, ServiceItem i) => l.statusTip(i.name, i.word);
 
 /// The popover's width: wide enough for a relay's label beside its tile, never a reading column.
 double get deskStatusPopoverWidth => 320.u;
@@ -75,7 +75,7 @@ double get deskStatusPopoverWidth => 320.u;
 class DeskStatusPopover extends ConsumerWidget {
   const DeskStatusPopover({super.key, required this.item, required this.close});
 
-  final RailItem item;
+  final ServiceItem item;
   final VoidCallback close;
 
   @override

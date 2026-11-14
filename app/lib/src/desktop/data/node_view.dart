@@ -4,7 +4,7 @@
 /// status bar, the node card and the local node panel say the same thing.
 library;
 
-import '../../address_format.dart' show railHost;
+import '../../address_format.dart' show serviceHost;
 import '../../builtin_node.dart' show NodeStartException;
 import '../../node_failover.dart' show NodeFailover;
 import '../../l10n.dart' show AppLocalizations, localDigits, localInt, percentText;
@@ -32,7 +32,7 @@ class NodeView {
   final String word;
   final EState state;
 
-  /// The status light's host part ([railHost] applied), or "Local node".
+  /// The status light's host part ([serviceHost] applied), or "Local node".
   final String host;
 
   /// After the host, never cut: "12 behind", "no answer", "12 %", "stalled".
@@ -113,7 +113,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   // An own node: "Your node" in the status bar, "Your node · 192.168.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
   final full = own ? metaLine([l.deskOwnYourNode, ownAddress(url)]) : nodeHost(url);
-  final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key
+  final host = own ? l.deskOwnYourNode : serviceHost('Node', full); // l10n-ok: serviceHost's kind key
   final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
   if (probeFailed && health == ServiceHealth.ok) return NodeView.of(l, ShownState.synced, host: host, lines: [full]);
   final down = health == ServiceHealth.down || probeFailed;
@@ -187,7 +187,7 @@ bool isLocalNodeUrl(String url) {
 NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackUrl}) {
   final name = l.deskNodeLocal;
   final fallback = fallbackUrl == null || isLocalNodeUrl(fallbackUrl) ? null : nodeHost(fallbackUrl);
-  final host = fallback != null ? railHost('Node', fallback) : name; // l10n-ok: railHost's row key
+  final host = fallback != null ? serviceHost('Node', fallback) : name; // l10n-ok: serviceHost's row key
   if (s == null) return NodeView.of(l, ShownState.checking, host: host, lines: [name]);
   final p = s.progress;
   switch (s.phase) {

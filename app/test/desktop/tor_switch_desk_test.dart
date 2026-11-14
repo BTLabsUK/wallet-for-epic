@@ -75,7 +75,7 @@ void main() {
     });
 
     test('the status card shows the Tor row in every state and opens Privacy', () {
-      RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
+      ServiceItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
       expect(torRow(const DeskSettings(), _status()).word, 'Off');
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, _l.deskNodeStarting);
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'Connected');
@@ -86,7 +86,7 @@ void main() {
     }, skip: _skip);
 
     test('Epicbox waits for Tor while it starts, is not connected when it failed, and says over Tor once on', () {
-      RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
+      ServiceItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
       const on = DeskSettings(tor: true);
       expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, _l.deskKitMethodWaitingTor);
       expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, _l.netStatusNotConnected);

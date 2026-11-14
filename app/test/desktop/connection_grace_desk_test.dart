@@ -3,7 +3,7 @@
 // Connecting on the status icons, and its notice (Epicbox down) waits; after it the notice shows,
 // one line with the switch named by its server.
 import 'package:epic_wallet/src/connection_grace.dart';
-import 'package:epic_wallet/src/desktop/app/service_rows.dart' show RailItem;
+import 'package:epic_wallet/src/desktop/app/service_rows.dart' show ServiceItem;
 import 'package:epic_wallet/src/desktop/app/status_popover.dart' show graceRailItems;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show SettingsJump;
 import 'package:epic_wallet/src/desktop/screens/transfer/epicbox_notice.dart';
@@ -16,8 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
 
-RailItem _item(SettingsJump jump, EState state, {bool byMode = false}) =>
-    RailItem(icon: EIcons.node, name: jump.name, word: 'Not answering', state: state, second: 'host', lines: const ['why'], open: 'Open', jump: jump, byMode: byMode);
+ServiceItem _item(SettingsJump jump, EState state, {bool byMode = false}) =>
+    ServiceItem(icon: EIcons.node, name: jump.name, word: 'Not answering', state: state, second: 'host', lines: const ['why'], open: 'Open', jump: jump, byMode: byMode);
 
 void main() {
   test('during the grace: node, Epicbox and Tor problems read Connecting; HTTP, off and by-mode stay', () async {

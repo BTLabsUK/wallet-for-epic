@@ -29,8 +29,8 @@ import '../widgets/http_reach.dart' show deskHttpReachClosedProvider;
 import '../widgets/kit.dart';
 
 /// One row's content, whatever the service.
-class RailItem {
-  const RailItem({
+class ServiceItem {
+  const ServiceItem({
     required this.icon,
     required this.name,
     required this.word,
@@ -68,7 +68,7 @@ class RailItem {
 
   /// The row of a service the network mode turns off: neutral, "Off (Node only)", nothing is
   /// being checked; a click opens the Network section, not the service's switch.
-  RailItem offByMode(AppLocalizations l, NetworkMode mode) => RailItem(
+  ServiceItem offByMode(AppLocalizations l, NetworkMode mode) => ServiceItem(
     icon: icon,
     name: name,
     word: statusOffByModeWord(l, mode),
@@ -86,7 +86,7 @@ class RailItem {
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
-List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings, {bool reachClosed = false}) {
+List<ServiceItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings, {bool reachClosed = false}) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
   var tor = netTorState(settings, st);
@@ -106,7 +106,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
     ServiceHealth.off => ShownState.off.word(l),
   };
   final items = [
-    RailItem(
+    ServiceItem(
       icon: EIcons.epicbox,
       name: 'Epicbox', // l10n-ok: product name
       word: st == null ? ShownState.checking.word(l) : ebWord,
@@ -120,7 +120,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
           ? ebWord
           : eb == ServiceHealth.off || ebHost == null
           ? '–'
-          : railHost('Epicbox', ebHost), // l10n-ok: product name
+          : serviceHost('Epicbox', ebHost), // l10n-ok: product name
       lines: [
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
         if (eb != ServiceHealth.off && ebWay == TorWay.overTor) l.deskRailOverTor,
@@ -136,7 +136,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   final run = httpRun(st);
   final public = settings.publicMode;
   items.add(
-    RailItem(
+    ServiceItem(
       icon: EIcons.http,
       name: l.methodDirectHttp,
       word: switch (run) {
@@ -175,7 +175,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
     if (forPay) tor = torProcessState(settings, st);
     final word = included ? torWord(l, tor) : l.deskRailTorNotInBuild;
     items.add(
-      RailItem(
+      ServiceItem(
         icon: EIcons.tor,
         name: 'Tor', // l10n-ok: product name
         word: word,
@@ -200,7 +200,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
 }
 
 /// The Node row from a [NodeView].
-RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
+ServiceItem nodeRailItem(AppLocalizations l, NodeView v) => ServiceItem(
   icon: EIcons.node,
   name: l.deskRailNode,
   word: v.word,
@@ -215,7 +215,7 @@ RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
 /// How often a remote node is asked again: the network's tip (the "behind" check),
 /// the version and the latency. The node's own height and whether it answers come with every
 /// wallet status; the info is also asked again when the node changes or answers again.
-const Duration railNodeRefresh = Duration(minutes: 5);
+const Duration serviceNodeRefresh = Duration(minutes: 5);
 
 /// The services: Node, Epicbox, HTTP, Tor. Their icons side by side (the phone-width top bar),
 /// or, with [builder], laid out another way (the status bar).
@@ -223,20 +223,20 @@ class ServiceRows extends ConsumerStatefulWidget {
   const ServiceRows({super.key, this.builder});
 
   /// Lays the rows out another way (the status bar's lights); the rows' content stays this one.
-  final Widget Function(BuildContext context, List<RailItem> items)? builder;
+  final Widget Function(BuildContext context, List<ServiceItem> items)? builder;
 
   @override
   ConsumerState<ServiceRows> createState() => _ServiceRowsState();
 }
 
 /// How long the wallet's node must stay down before the row says Not answering.
-const Duration railDownAfter = Duration(seconds: 30);
+const Duration serviceDownAfter = Duration(seconds: 30);
 
 /// The OS text scale a glyph row follows before it would outgrow its height.
-const double railMaxTextScale = 1.2;
+const double serviceMaxTextScale = 1.2;
 
 /// The clock the Not answering wait reads (tests set it).
-DateTime Function() railClock = DateTime.now;
+DateTime Function() serviceClock = DateTime.now;
 
 class _ServiceRowsState extends ConsumerState<ServiceRows> {
   Timer? _refresh;
@@ -249,7 +249,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   @override
   void initState() {
     super.initState();
-    _refresh = Timer.periodic(railNodeRefresh, (_) {
+    _refresh = Timer.periodic(serviceNodeRefresh, (_) {
       final u = _url;
       if (mounted && u != null) ref.invalidate(deskNodeInfoProvider(u));
     });
@@ -266,7 +266,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   bool _localNode(SettingsPrefs prefs, ServiceStatus? status) =>
       status != null && tor_view.isLocalNodeUrl((prefs.typedNode ?? status.node).url);
 
-  /// The wallet's view of its node, once it has been down for [railDownAfter]: before that the
+  /// The wallet's view of its node, once it has been down for [serviceDownAfter]: before that the
   /// row keeps what the node's own info says (a blip never flashes red).
   ServiceHealth? _settledHealth(ServiceHealth h) {
     if (h != ServiceHealth.down) {
@@ -275,8 +275,8 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       _downTimer = null;
       return h;
     }
-    final since = _downSince ??= railClock();
-    final left = railDownAfter - railClock().difference(since);
+    final since = _downSince ??= serviceClock();
+    final left = serviceDownAfter - serviceClock().difference(since);
     if (left <= Duration.zero) return h;
     _downTimer ??= Timer(left, () {
       _downTimer = null;
@@ -336,7 +336,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       nodeItem = nodeItem.offByMode(l, netMode);
     } else if (netMode == NetworkMode.torOnly && netTorState(settings, status) != TorState.on && !(prefs.builtin || _localNode(prefs, status))) {
       // Tor only, Tor not up yet: the node waits for it and goes nowhere else.
-      nodeItem = RailItem(
+      nodeItem = ServiceItem(
         icon: nodeItem.icon,
         name: nodeItem.name,
         word: l.deskRailWaitingTor,
@@ -354,23 +354,23 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     if (widget.builder != null) return widget.builder!(context, items);
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [for (final i in items) SizedBox(width: Ctl.md, child: RailRow(item: i, onTap: () => p.jumpTo(i.opens)))],
+      children: [for (final i in items) SizedBox(width: Ctl.md, child: ServiceRow(item: i, onTap: () => p.jumpTo(i.opens)))],
     );
   }
 }
 
 /// A service as its glyph with the state, 40 high; hover shows its card, a click its settings.
-class RailRow extends StatefulWidget {
-  const RailRow({super.key, required this.item, required this.onTap});
+class ServiceRow extends StatefulWidget {
+  const ServiceRow({super.key, required this.item, required this.onTap});
 
-  final RailItem item;
+  final ServiceItem item;
   final VoidCallback onTap;
 
   @override
-  State<RailRow> createState() => _RailRowState();
+  State<ServiceRow> createState() => _RailRowState();
 }
 
-class _RailRowState extends State<RailRow> {
+class _RailRowState extends State<ServiceRow> {
   bool _hover = false;
 
   @override
@@ -418,7 +418,7 @@ class _RailRowState extends State<RailRow> {
             decoration: BoxDecoration(color: _hover ? c.hover : null, borderRadius: BorderRadius.circular(Rad.sm)),
             // The row is 40 u in every state; the OS text scale follows up to the size where
             // the two lines still fit (the interface scale is already in `u`).
-            child: MediaQuery.withClampedTextScaling(maxScaleFactor: railMaxTextScale * deskScale, child: content),
+            child: MediaQuery.withClampedTextScaling(maxScaleFactor: serviceMaxTextScale * deskScale, child: content),
           ),
         ),
       ),

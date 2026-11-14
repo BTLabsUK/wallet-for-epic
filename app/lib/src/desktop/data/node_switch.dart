@@ -7,7 +7,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../address_format.dart' show railHost;
+import '../../address_format.dart' show serviceHost;
 import '../../l10n.dart' show AppLocalizations;
 import '../../node/local_node_state.dart' show LocalNodePhase, LocalNodeState;
 import '../widgets/status.dart' show EState;
@@ -112,6 +112,6 @@ NodeView nodeSwitchView(AppLocalizations l, NodeSwitch s) => NodeView(
     NodeSwitchStep.stopping => l.deskNodeSwitchStoppingWord,
   },
   state: EState.active,
-  host: s.url == null ? l.deskSetNodeLocalNode : railHost('Node', nodeHost(s.url!)), // l10n-ok: railHost's row key
+  host: s.url == null ? l.deskSetNodeLocalNode : serviceHost('Node', nodeHost(s.url!)), // l10n-ok: serviceHost's row key
   lines: [nodeSwitchText(l, s)],
 );

@@ -256,10 +256,10 @@ String shortAddress(String address, {bool compact = false}) {
 /// `example.org`).
 String shownUrl(String url) => url.replaceFirst(RegExp(r'^[a-z][a-z0-9+.-]*://', caseSensitive: false), '').replaceFirst(RegExp(r'/$'), '');
 
-/// The rail's host line: when [host] has three or more labels and the first equals [rowName]
+/// A service row's host line: when [host] has three or more labels and the first equals [rowName]
 /// (case-insensitive) that label is dropped, since the row's name already says it.
-/// `railHost('Epicbox', 'epicbox.example.org')` is `example.org`.
-String railHost(String rowName, String host) {
+/// `serviceHost('Epicbox', 'epicbox.example.org')` is `example.org`.
+String serviceHost(String rowName, String host) {
   final labels = host.split('.');
   if (labels.length >= 3 && labels.first.toLowerCase() == rowName.toLowerCase()) {
     return labels.skip(1).join('.');

@@ -88,13 +88,13 @@ void main() {
     return container;
   }
 
-  List<RailItem> items(WidgetTester tester) => [for (final r in tester.widgetList<RailRow>(find.byType(RailRow))) r.item];
+  List<ServiceItem> items(WidgetTester tester) => [for (final r in tester.widgetList<ServiceRow>(find.byType(ServiceRow))) r.item];
 
   group('the services', () {
     testWidgets('one 40 u row per service for every status', (tester) async {
       for (final e in _fixtures.entries) {
         await show(tester, e.value, refresh: e.value != null);
-        final rows = find.byType(RailRow);
+        final rows = find.byType(ServiceRow);
         expect(rows, findsNWidgets(3 + (DeskFeatures.tor ? 1 : 0)), reason: e.key);
         for (final r in rows.evaluate()) {
           expect(tester.getSize(find.byWidget(r.widget)).height, 40.u, reason: e.key);
@@ -116,7 +116,7 @@ void main() {
 
     testWidgets('a click opens that service\u2019s settings section', (tester) async {
       final c = await show(tester, _status());
-      Finder row(String name) => find.byWidgetPredicate((w) => w is RailRow && w.item.name == name);
+      Finder row(String name) => find.byWidgetPredicate((w) => w is ServiceRow && w.item.name == name);
       await tester.tap(row('Epicbox'));
       await tester.pump();
       expect(c.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);
@@ -134,7 +134,7 @@ void main() {
 
     testWidgets('at 1.5\u00d7 OS text scale the rows stay 40 u and nothing overflows', (tester) async {
       await show(tester, _status(http: ServiceHealth.ok, tor: ServiceHealth.checking, torProgress: 40), textScale: 1.5);
-      for (final r in find.byType(RailRow).evaluate()) {
+      for (final r in find.byType(ServiceRow).evaluate()) {
         expect(tester.getSize(find.byWidget(r.widget)).height, 40.u);
       }
       expect(tester.takeException(), isNull);
@@ -144,10 +144,10 @@ void main() {
 
     testWidgets('a node down for under 30 s is not yet Not answering; after 30 s it is, since HH:MM', (tester) async {
       var now = DateTime(2026, 10, 22, 14, 2, 0);
-      railClock = () => now;
-      addTearDown(() => railClock = DateTime.now);
+      serviceClock = () => now;
+      addTearDown(() => serviceClock = DateTime.now);
       await show(tester, _status(node: ServiceHealth.down));
-      RailItem node() => tester.widget<RailRow>(find.byType(RailRow).first).item;
+      ServiceItem node() => tester.widget<ServiceRow>(find.byType(ServiceRow).first).item;
       expect(node().word, isNot('Not answering'), reason: 'a blip never flashes red');
       expect(node().marker, isNull);
       now = now.add(const Duration(seconds: 31));
@@ -179,7 +179,7 @@ void main() {
       await tester.pump();
       // The local node's stream yields its first state a microtask later.
       await tester.pump();
-      final node = tester.widget<RailRow>(find.byType(RailRow).first).item;
+      final node = tester.widget<ServiceRow>(find.byType(ServiceRow).first).item;
       expect(node.second, startsWith('lab.invalid'), reason: 'the status says the wallet reads node.lab.invalid');
       expect(node.lines, contains('Using node.lab.invalid meanwhile.'));
       await tester.pumpWidget(const SizedBox());
