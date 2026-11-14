@@ -5536,5 +5536,8 @@
   "deskOnbKeyNextCreate": "ช่องถัดไป แล้วสร้าง",
   "deskOnbKeyNextRestore": "ช่องถัดไป แล้วกู้คืน",
   "deskOnbKeyNextSet": "ช่องถัดไป แล้วตั้งค่า",
-  "deskOnbKeyNextImport": "ช่องถัดไป แล้วนำเข้า"
+  "deskOnbKeyNextImport": "ช่องถัดไป แล้วนำเข้า",
+  "deskE1ErrCodeWrongNetwork": "โค้ดนี้เป็นของเครือข่ายอื่น",
+  "deskE1ErrNotInPerson": "กระเป๋านี้จ่ายหรือตรวจสอบโค้ดนี้ไม่ได้",
+  "deskE1ModeEpic1Code": "โค้ดแบบพบตัว epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย"
 }

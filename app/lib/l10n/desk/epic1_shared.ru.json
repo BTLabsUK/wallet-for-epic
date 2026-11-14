@@ -24,5 +24,8 @@
   "deskE1Retire": "Вывести",
   "deskE1Keep": "Оставить",
   "deskE1Sealed": "Запечатано epic1",
-  "deskE1SpokenSealed": "{row}, запечатано epic1"
+  "deskE1SpokenSealed": "{row}, запечатано epic1",
+  "deskE1ErrCodeWrongNetwork": "Этот код для другой сети.",
+  "deskE1ErrNotInPerson": "Этот кошелёк не может оплатить или проверить этот код.",
+  "deskE1ModeEpic1Code": "Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его."
 }

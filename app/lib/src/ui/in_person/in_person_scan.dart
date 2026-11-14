@@ -26,12 +26,14 @@ import '../qr_scan_screen.dart' show QrFinderOverlay;
 import '../theme/tokens.dart';
 
 /// What [InPersonScanScreen] read: the [bytes] of a whole QR code, or a plain [text] (a
-/// one-part code, an answer, or what was pasted).
+/// one-part code, an answer, or what was pasted). [classic] says the animated code was a
+/// classic payment's, which shares the in-person code's type and is told apart only once whole.
 class InPersonScanned {
-  const InPersonScanned({this.bytes, this.text});
+  const InPersonScanned({this.bytes, this.text, this.classic = false});
 
   final Uint8List? bytes;
   final String? text;
+  final bool classic;
 }
 
 /// Scans a code ([answer] false) or an answer to the code on screen. [first] is a part the
@@ -106,7 +108,19 @@ class _InPersonScanScreenState extends ConsumerState<InPersonScanScreen> {
         _count = progress.total;
       });
     } on Object {
-      // A part of another code, or not one: the camera goes on.
+      // A part of another code, or not one: the camera goes on. A whole classic payment
+      // ends the scan, so the caller can say it is one.
+      unawaited(_classic([..._parts, text]));
+    }
+  }
+
+  Future<void> _classic(List<String> parts) async {
+    final service = ref.read(walletServiceProvider);
+    try {
+      final read = await service.decodeQrSlate(parts: parts);
+      if (read.complete && read.json != null) _finish(const InPersonScanned(classic: true));
+    } on Object {
+      return;
     }
   }
 

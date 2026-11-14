@@ -21275,4 +21275,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Next field, then import';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'This code is for another network.';
+
+  @override
+  String get deskE1ErrNotInPerson => 'Not a code this wallet can pay or check.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'epic1 in-person code. Turn on epic1 payments to pay it.';
 }

@@ -24,5 +24,8 @@
   "deskE1Retire": "Stilllegen",
   "deskE1Keep": "Behalten",
   "deskE1Sealed": "Mit epic1 versiegelt",
-  "deskE1SpokenSealed": "{row}, mit epic1 versiegelt"
+  "deskE1SpokenSealed": "{row}, mit epic1 versiegelt",
+  "deskE1ErrCodeWrongNetwork": "Dieser Code ist für ein anderes Netzwerk.",
+  "deskE1ErrNotInPerson": "Kein Code, den diese Wallet bezahlen oder prüfen kann.",
+  "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen."
 }

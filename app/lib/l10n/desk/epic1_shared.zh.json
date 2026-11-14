@@ -24,5 +24,8 @@
   "deskE1Retire": "停用",
   "deskE1Keep": "保留",
   "deskE1Sealed": "已用 epic1 密封",
-  "deskE1SpokenSealed": "{row}，已用 epic1 密封"
+  "deskE1SpokenSealed": "{row}，已用 epic1 密封",
+  "deskE1ErrCodeWrongNetwork": "此码属于另一个网络。",
+  "deskE1ErrNotInPerson": "此钱包无法支付或核对此码。",
+  "deskE1ModeEpic1Code": "epic1 当面代码。开启 epic1 付款后才能支付。"
 }

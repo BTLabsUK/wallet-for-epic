@@ -21881,4 +21881,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Следующее поле, затем импортировать';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'Этот код для другой сети.';
+
+  @override
+  String get deskE1ErrNotInPerson =>
+      'Этот кошелёк не может оплатить или проверить этот код.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его.';
 }

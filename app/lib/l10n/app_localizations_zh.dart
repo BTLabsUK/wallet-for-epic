@@ -20086,4 +20086,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => '下一个字段，然后导入';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => '此码属于另一个网络。';
+
+  @override
+  String get deskE1ErrNotInPerson => '此钱包无法支付或核对此码。';
+
+  @override
+  String get deskE1ModeEpic1Code => 'epic1 当面代码。开启 epic1 付款后才能支付。';
 }

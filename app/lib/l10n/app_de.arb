@@ -5536,5 +5536,8 @@
   "deskOnbKeyNextCreate": "Nächstes Feld, dann erstellen",
   "deskOnbKeyNextRestore": "Nächstes Feld, dann wiederherstellen",
   "deskOnbKeyNextSet": "Nächstes Feld, dann festlegen",
-  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren"
+  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren",
+  "deskE1ErrCodeWrongNetwork": "Dieser Code ist für ein anderes Netzwerk.",
+  "deskE1ErrNotInPerson": "Kein Code, den diese Wallet bezahlen oder prüfen kann.",
+  "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen."
 }

@@ -5,9 +5,11 @@
 library;
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
+import 'epic1.dart';
 import 'wallet_service.dart';
 
 export 'wallet_service.dart' show qrFragmentLen, qrSingleCodeMaxLen;
@@ -145,23 +147,33 @@ enum QrReadKind {
 
   /// Every part is read; [QrRead.json] holds the payment text.
   complete,
+
+  /// Every part is read and they hold an epic1 in-person code or answer, in [QrRead.bytes].
+  /// Only a reader given an [Epic1Wallet] reads these.
+  inPerson,
 }
 
 class QrRead {
-  const QrRead(this.kind, {this.received = 0, this.count = 0, this.json});
+  const QrRead(this.kind, {this.received = 0, this.count = 0, this.json, this.bytes});
 
   final QrReadKind kind;
   final int received;
   final int count;
   final String? json;
+  final Uint8List? bytes;
 }
 
 /// Collects the scanned texts of one payment. Holds the distinct texts and asks the wallet's
 /// decoder about all of them each time; texts are fed one at a time, in order.
+///
+/// An in-person code or answer is drawn as the same animated code, and its parts cannot be
+/// told from a payment's until all are read. With [epic1] the reader also reads those: the
+/// payment decoder refuses the complete set, and [Epic1Wallet.qrRead] takes it.
 class QrSlateReader {
-  QrSlateReader(this._service);
+  QrSlateReader(this._service, {this.epic1});
 
   final WalletService _service;
+  final Epic1Wallet? epic1;
   final Set<String> _parts = {};
   Future<void> _tail = Future.value();
 
@@ -201,6 +213,15 @@ class QrSlateReader {
       }
       return QrRead(QrReadKind.part, received: received, count: count);
     } on WalletError catch (error) {
+      // A whole in-person code is no payment (the payment decoder refuses the set once the
+      // last part makes it whole), but the scanner may still take it.
+      if (error.kind != WalletErrorKind.mixedQrCodes && error.kind != WalletErrorKind.qrCodeTooLarge) {
+        final bytes = _inPerson([..._parts, text]);
+        if (bytes != null) {
+          _parts.add(text);
+          return QrRead(QrReadKind.inPerson, received: count, count: count, bytes: bytes);
+        }
+      }
       switch (error.kind) {
         case WalletErrorKind.mixedQrCodes:
           reset();
@@ -208,8 +229,7 @@ class QrSlateReader {
         case WalletErrorKind.notQrSlate:
         case WalletErrorKind.foreignQrCode:
           return const QrRead(QrReadKind.notSlate);
-        case WalletErrorKind.invalidQrCode:
-        case WalletErrorKind.qrCodeTooLarge:
+        case WalletErrorKind.invalidQrCode || WalletErrorKind.qrCodeTooLarge:
           // The parts held so far cannot make a payment (one of them was forged or damaged,
           // or they grew past the limit): start over, so the code in front of the camera
           // can still be read instead of failing on every frame until the screen closes.
@@ -218,6 +238,18 @@ class QrSlateReader {
         default:
           rethrow;
       }
+    }
+  }
+
+  /// The in-person code or answer [parts] make whole, or null.
+  Uint8List? _inPerson(List<String> parts) {
+    final epic1 = this.epic1;
+    if (epic1 == null) return null;
+    try {
+      final read = epic1.qrRead(parts);
+      return read.complete ? read.bytes : null;
+    } on Object {
+      return null;
     }
   }
 }

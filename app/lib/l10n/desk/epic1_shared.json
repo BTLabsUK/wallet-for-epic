@@ -112,5 +112,17 @@
         "type": "String"
       }
     }
+  },
+  "deskE1ErrCodeWrongNetwork": "This code is for another network.",
+  "@deskE1ErrCodeWrongNetwork": {
+    "description": "A scanned in-person payment code belongs to another Epic Cash network."
+  },
+  "deskE1ErrNotInPerson": "Not a code this wallet can pay or check.",
+  "@deskE1ErrNotInPerson": {
+    "description": "A scanned animated code is neither an in-person code this wallet can pay nor an answer to one of its own codes (altered, or meant for another device)."
+  },
+  "deskE1ModeEpic1Code": "epic1 in-person code. Turn on epic1 payments to pay it.",
+  "@deskE1ModeEpic1Code": {
+    "description": "epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name."
   }
 }

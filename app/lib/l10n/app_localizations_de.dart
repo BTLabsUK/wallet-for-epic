@@ -21507,4 +21507,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Nächstes Feld, dann importieren';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork =>
+      'Dieser Code ist für ein anderes Netzwerk.';
+
+  @override
+  String get deskE1ErrNotInPerson =>
+      'Kein Code, den diese Wallet bezahlen oder prüfen kann.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen.';
 }

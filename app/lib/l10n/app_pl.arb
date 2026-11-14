@@ -5536,5 +5536,8 @@
   "deskOnbKeyNextCreate": "Następne pole, potem utwórz",
   "deskOnbKeyNextRestore": "Następne pole, potem przywróć",
   "deskOnbKeyNextSet": "Następne pole, potem ustaw",
-  "deskOnbKeyNextImport": "Następne pole, potem importuj"
+  "deskOnbKeyNextImport": "Następne pole, potem importuj",
+  "deskE1ErrCodeWrongNetwork": "Ten kod jest dla innej sieci.",
+  "deskE1ErrNotInPerson": "To nie jest kod, który ten portfel może opłacić lub sprawdzić.",
+  "deskE1ModeEpic1Code": "Kod osobisty epic1. Włącz płatności epic1, aby go opłacić."
 }

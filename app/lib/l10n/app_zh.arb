@@ -5536,5 +5536,8 @@
   "deskOnbKeyNextCreate": "下一个字段，然后创建",
   "deskOnbKeyNextRestore": "下一个字段，然后恢复",
   "deskOnbKeyNextSet": "下一个字段，然后设置",
-  "deskOnbKeyNextImport": "下一个字段，然后导入"
+  "deskOnbKeyNextImport": "下一个字段，然后导入",
+  "deskE1ErrCodeWrongNetwork": "此码属于另一个网络。",
+  "deskE1ErrNotInPerson": "此钱包无法支付或核对此码。",
+  "deskE1ModeEpic1Code": "epic1 当面代码。开启 epic1 付款后才能支付。"
 }
