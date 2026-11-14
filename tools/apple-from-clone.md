@@ -17,7 +17,7 @@ must be above the last upload, 26110200). Team `AM8YPW9P6T` (BT LABS LTD). Bundl
 | macOS | 26 (Tahoe) |
 | Xcode | 27.x, `xcode-select -s /Applications/Xcode.app`, license accepted, first launch run |
 | Flutter | exactly 3.47.5 (`git clone -b 3.47.5 https://github.com/flutter/flutter.git ~/flutter`) |
-| Rust | rustup; LEPIC's `rust-toolchain.toml` picks 1.99.0 and the targets by itself |
+| Rust | rustup; LEPIC's `rust-toolchain.toml` picks 1.100.0 and the targets by itself |
 | jq | any |
 | Disk | about 60 GB free |
 
