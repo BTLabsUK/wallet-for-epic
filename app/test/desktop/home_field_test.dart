@@ -33,6 +33,7 @@ void main() {
   test('an amount opens Send with it; anything else lands in To', () {
     expect(homeFieldSend('  '), isNull);
     expect(homeFieldSend('12.5')!.amount, '12.5');
+    expect(homeFieldSend('12.')!.amount, '12.', reason: 'an amount still being typed, as the matches count it');
     expect(homeFieldSend('anna')!.recipient, 'anna');
   });
 

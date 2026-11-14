@@ -18,12 +18,15 @@ import '../scan/desk_scan.dart' show DeskScanButton;
 import '../scan/desk_scan_route.dart';
 import '../transfer/send_screen.dart' show SendArgs;
 
+/// Digits with at most one decimal mark, also while its decimals are still to come ("12."):
+/// an amount.
+final _amount = RegExp(r'^\d+([.,]\d*)?$');
+
 /// What Send opens with for [typed]; null for nothing typed.
 SendArgs? homeFieldSend(String typed) {
   final text = typed.trim();
   if (text.isEmpty) return null;
-  // Digits with at most one decimal mark: an amount.
-  if (RegExp(r'^\d+([.,]\d+)?$').hasMatch(text)) return SendArgs(amount: text);
+  if (_amount.hasMatch(text)) return SendArgs(amount: text);
   return SendArgs(recipient: text, suggest: true, code: text, codeOrigin: CodeOrigin.paste);
 }
 
@@ -31,7 +34,7 @@ SendArgs? homeFieldSend(String typed) {
 /// an amount or for nothing typed.
 List<Contact> homeFieldMatches(List<Contact> all, String typed, {int max = 4}) {
   final q = typed.trim().toLowerCase();
-  if (q.isEmpty || RegExp(r'^\d+([.,]\d*)?$').hasMatch(q)) return const [];
+  if (q.isEmpty || _amount.hasMatch(q)) return const [];
   final hits = [for (final c in all) if (c.name.toLowerCase().contains(q)) c]
     ..sort((a, b) => a.favourite == b.favourite ? a.name.toLowerCase().compareTo(b.name.toLowerCase()) : (a.favourite ? -1 : 1));
   return hits.take(max).toList();
