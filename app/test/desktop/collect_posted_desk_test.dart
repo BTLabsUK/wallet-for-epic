@@ -107,6 +107,7 @@ class _Wallet with NoBoosts implements lepic.EpicWallet {
   Future<List<lepic.ContactView>> contacts() async => [
     lepic.ContactView(
       peerProfile: 0,
+      peerCaps: 7,
       contactId: _pairing,
       label: '',
       claimedName: 'Floo C',

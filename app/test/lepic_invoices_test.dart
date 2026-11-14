@@ -87,6 +87,7 @@ class _InvoiceWallet with NoBoosts implements lepic.EpicWallet {
 
   final contactView = const lepic.ContactView(
     peerProfile: 0,
+    peerCaps: 7,
     contactId: _shop,
     label: 'Shop',
     state: lepic.PairingState.verified,

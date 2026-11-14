@@ -4580,6 +4580,8 @@ class _LepicPairing implements PairingApi {
     nativeSlates: c.nativeSlates,
     awaiting: c.awaiting,
     peerProfile: c.peerProfile,
+    // What the contact's card says its wallet does: one without bit 1 is refused invoices.
+    caps: PairingCaps.fromBits(c.peerCaps),
     endedReason: c.endedReason == null ? null : lepicPairingEndReason(c.endedReason!),
     endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),
     requestedRelay: c.requestedRelay,

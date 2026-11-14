@@ -106,6 +106,7 @@ class _Wallet with NoBoosts implements lepic.EpicWallet {
   Future<List<lepic.ContactView>> contacts() async => const [
     lepic.ContactView(
       peerProfile: 0,
+      peerCaps: 7,
       contactId: _shopContact,
       label: 'Shop',
       state: lepic.PairingState.verified,
