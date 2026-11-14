@@ -146,7 +146,6 @@ RESTORE_MONTH_CELL = T("g4.restore.month.*")
 MONTH_TITLE = T("g4.restore.month.title")
 MONTH_EARLIER = T("g4.restore.month.earlier")
 MONTH_LATER = T("g4.restore.month.later")
-MONTH_START = T("g4.restore.month.start")
 RESTORE_PROBLEM = T("g4.restore.problem")
 RESTORE_SCANNING = T("g4.restore.scan")
 RESTORE_RETRY = T("g4.restore.retry")
@@ -345,14 +344,17 @@ class Phone:
             # a fresh install scans from block 0, whatever the wallet's birth
             self.log("restore start: the whole chain (this build offers no start choice at its level)")
             return
-        d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
+        # The row opens the month sheet (builds after 26.11.4; older ones open a By month / By height panel
+        # with the month button), or the height field when the start is a block height.
+        d.press(RESTORE_START, step="restore-start", then=shows(MONTH_TITLE, RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
         if height is None:
             year, mon = (int(x) for x in month.split("-")[:2])
             self._pick_month(year, mon)
-            line = d.wait(shows(MONTH_START), 10)
-            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start line"))
+            line = d.seen(RESTORE_START)
+            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start row"))
         else:
             if not d.seen(RESTORE_HEIGHT):
+                # The sheet's "Use a block height instead", or the older panel's Block height.
                 d.press(RESTORE_BY_HEIGHT, step="restore-by-height", then=shows(RESTORE_HEIGHT), timeout=20)
             d.fill(RESTORE_HEIGHT, str(int(height)), step="restore-height")
             self.log("restore start: block %d" % int(height))
@@ -376,7 +378,8 @@ class Phone:
         [year], then its cell ("November 2026")."""
         d = self.d
         cell = RESTORE_MONTH_CELL.at("%04d-%02d" % (year, mon), names=("%s %d" % (MONTHS[mon - 1], year),))
-        d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
+        if not d.seen(MONTH_TITLE):
+            d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
         for _ in range(20):
             tree = d.tree()
             if d.find_in(cell, tree):
