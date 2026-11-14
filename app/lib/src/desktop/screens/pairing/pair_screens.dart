@@ -1500,7 +1500,7 @@ class DeskPairedSaveDialog extends ConsumerWidget {
       tone: verified ? ETone.ok : ETone.warn,
       icon: verified ? EIcons.trusted : EIcons.shield,
       // Room for the choices on one line in every language.
-      width: suggested == null ? 520.u : 680.u,
+      size: suggested == null ? DialogWidth.standard : DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,

@@ -58,7 +58,4 @@ abstract final class DialogMetrics {
     DialogWidth.wide => wideWidth,
   };
 
-  /// The size an old per-call width (in unscaled pixels) maps to: up to the standard width is
-  /// standard, anything wider is wide.
-  static DialogWidth snap(double width) => width <= standardWidth ? DialogWidth.standard : DialogWidth.wide;
 }

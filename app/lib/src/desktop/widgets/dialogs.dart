@@ -65,7 +65,6 @@ class EDialog extends StatelessWidget {
     this.body,
     this.actions = const [],
     this.size = DialogWidth.standard,
-    @Deprecated('Pass size: a DialogWidth') this._width,
     this.dismissible = true,
     this.foot,
     this.keys = const [],
@@ -91,12 +90,8 @@ class EDialog extends StatelessWidget {
   /// Standard or wide: the dialog widths are a fixed set.
   final DialogWidth size;
 
-  /// Deprecated: pass [size]. A width still given snaps to the nearest size (up to the
-  /// standard width is standard, wider is wide); `double.infinity` is wide.
-  final double? _width;
-
-  /// The dialog's width at the current scale: 480 or 600 on desktop (the canvas's two widths).
-  double get width => switch (_width == null ? size : DialogMetrics.snap(_width / deskScale)) {
+  /// The dialog's width at the current scale.
+  double get width => switch (size) {
     DialogWidth.standard => 480.u,
     DialogWidth.wide => 600.u,
   };
@@ -110,8 +105,6 @@ class EDialog extends StatelessWidget {
     ETone.info || ETone.neutral || ETone.gold => EIcons.info,
   };
 
-  /// The footer in its order ([EModalButtons.ordered]).
-  static List<Widget> footer(List<Widget> actions) => EModalButtons.ordered(actions);
 
   /// What Enter does, for the key strip: the label of a primary that takes the focus when the
   /// dialog opens ([EButton.autofocus]); null when Enter belongs to a field or to nothing.

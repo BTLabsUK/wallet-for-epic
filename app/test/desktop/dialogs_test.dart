@@ -66,10 +66,8 @@ void main() {
     expect(face('Save').color, isNot(face('Cancel').color));
   });
 
-  test('old widths snap to the two sizes', () {
-    expect(EDialog(title: 'T', width: 420.u).width, 480.u);
-    expect(EDialog(title: 'T', width: 680.u).width, 600.u);
-    expect(const EDialog(title: 'T', width: double.infinity).width, 600.u);
+  test('the two widths', () {
     expect(const EDialog(title: 'T').width, 480.u);
+    expect(const EDialog(title: 'T', size: DialogWidth.wide).width, 600.u);
   });
 }
