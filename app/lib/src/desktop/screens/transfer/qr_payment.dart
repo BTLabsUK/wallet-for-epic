@@ -14,6 +14,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../epic1.dart' show Epic1Wallet, PaymentMode;
 import '../../../sealed_text.dart' show isSealedText;
 import '../../../qr_slate.dart' show QrFrames, looksLikeQrSlate, partCountOf, partNumberOf, qrCountdownSeconds, qrFrameMs, qrLowSeconds, qrShowSeconds;
 import '../../../wallet_service.dart' show WalletError, WalletErrorKind;
@@ -45,9 +46,12 @@ enum DeskQrKind {
 /// reader does: each text trimmed and upper-cased, repeats skipped, and all distinct parts
 /// decoded together each time.
 class DeskSlateQrReader implements DeskPartReader<String> {
-  DeskSlateQrReader(this._api, {required this.notSlate});
+  /// With [epic1] (classic mode), a whole epic1 in-person code, which shares the code type,
+  /// is refused with the mode line instead of [notSlate].
+  DeskSlateQrReader(this._api, {required this.notSlate, this.epic1});
 
   final DeskWalletApi _api;
+  final Epic1Wallet? epic1;
 
   /// What the dialog says of a code that is no payment code.
   final String Function(AppLocalizations l) notSlate;
@@ -76,6 +80,9 @@ class DeskSlateQrReader implements DeskPartReader<String> {
       if (p.complete && json != null) return DeskPartDone(json);
       return DeskPartWaiting(received, count);
     } on WalletError catch (e) {
+      if (e.kind != WalletErrorKind.mixedQrCodes && e.kind != WalletErrorKind.qrCodeTooLarge && _inPerson([..._parts, text])) {
+        return DeskPartRefused((l) => l.deskE1ModeEpic1Code);
+      }
       switch (e.kind) {
         case WalletErrorKind.mixedQrCodes:
           reset();
@@ -92,6 +99,18 @@ class DeskSlateQrReader implements DeskPartReader<String> {
       }
     }
   }
+
+  /// Whether [parts] make a whole epic1 in-person code.
+  bool _inPerson(List<String> parts) {
+    final epic1 = this.epic1;
+    if (epic1 == null) return false;
+    try {
+      final p = epic1.qrRead(parts);
+      return p.complete && p.bytes != null;
+    } on Object {
+      return false;
+    }
+  }
 }
 
 /// Scans an animated payment code: its transaction text, the text pasted in its place, or
@@ -105,7 +124,9 @@ Future<DeskScanResult<String>?> deskScanSlate(
     required String Function(AppLocalizations l) notSlate,
     String? first,
   }) async {
-    final reader = DeskSlateQrReader(ref.read(deskApiProvider), notSlate: notSlate);
+    final api = ref.read(deskApiProvider);
+    final classic = ref.read(deskPaymentModeProvider) != PaymentMode.epic1;
+    final reader = DeskSlateQrReader(api, notSlate: notSlate, epic1: classic ? api.epic1 : null);
     if (first != null) {
       try {
         if (await reader.read(first) case DeskPartDone<String>(:final value)) return DeskScanned(value);

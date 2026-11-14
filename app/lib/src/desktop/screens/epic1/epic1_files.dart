@@ -21,7 +21,11 @@ void jumpToEpic1Switch(WidgetRef ref) => ref.read(settingsPrefsProvider.notifier
 
 /// [text], a mode line ("epic1 file. Turn on epic1 payments to open it."), with [Settings]
 /// (the switch) and [Close].
-Future<void> showEpic1ModeDialog(BuildContext context, WidgetRef ref, String text) async {
+Future<void> showEpic1ModeDialog(BuildContext context, WidgetRef ref, String text) =>
+    showEpic1ModeDialogIn(context, text, () => jumpToEpic1Switch(ref));
+
+/// [showEpic1ModeDialog] where no [WidgetRef] is at hand: [jump] opens the switch.
+Future<void> showEpic1ModeDialogIn(BuildContext context, String text, [void Function()? jump]) async {
   final settings = await showEDialog<bool>(
     context,
     builder: (ctx) => EDialog(
@@ -34,7 +38,12 @@ Future<void> showEpic1ModeDialog(BuildContext context, WidgetRef ref, String tex
       ],
     ),
   );
-  if (settings == true) jumpToEpic1Switch(ref);
+  if (settings != true) return;
+  if (jump != null) {
+    jump();
+  } else if (context.mounted) {
+    ProviderScope.containerOf(context, listen: false).read(settingsPrefsProvider.notifier).jumpToRow(SetId.epic1Payments);
+  }
 }
 
 /// epic1 mode: a `.epictx` file's text or pasted `BEGINEPICTX.` text. An in-person code or

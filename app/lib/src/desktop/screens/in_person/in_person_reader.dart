@@ -1,25 +1,32 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Reads an in-person code's camera parts for the desktop scan dialog, as the phone's scanner
 /// does: text that is not `ur:` is the answer itself, `ur:` parts add up until the code is whole.
+/// A classic payment's animated code shares the type and tells itself apart only once whole.
 library;
 
+import 'dart:async';
+
 import '../../../epic1.dart';
+import '../../../wallet_service.dart' show QrSlateProgress;
 import '../../../ui/in_person/in_person_scan.dart' show InPersonScanned;
 import '../scan/desk_scan.dart';
 
 class DeskInPersonReader implements DeskPartReader<InPersonScanned> {
   /// [first] is a part read already (a pasted or scanned `ur:` part the screen got first).
-  DeskInPersonReader(this.wallet, {String? first}) {
+  /// [classic] is the payment decoder: with it a whole classic payment code ends the scan as
+  /// [InPersonScanned.classic].
+  DeskInPersonReader(this.wallet, {String? first, this.classic}) {
     if (first != null) _parts.add(first.trim());
   }
 
   final Epic1Wallet wallet;
+  final Future<QrSlateProgress> Function(List<String> parts)? classic;
   final List<String> _parts = [];
   int _received = 0;
   int _total = 0;
 
   @override
-  DeskPartStep<InPersonScanned> read(String text) {
+  FutureOr<DeskPartStep<InPersonScanned>> read(String text) {
     final t = text.trim();
     if (t.isEmpty) return DeskPartWaiting(_received, _total);
     if (!t.toLowerCase().startsWith('ur:')) return DeskPartDone(InPersonScanned(text: t));
@@ -32,7 +39,20 @@ class DeskInPersonReader implements DeskPartReader<InPersonScanned> {
       _received = progress.received;
       _total = progress.total;
     } on Object {
-      // A part of another code, or not one: the camera goes on.
+      // A part of another code, or not one: the camera goes on, unless it was the last part
+      // of a classic payment's code.
+      final decode = classic;
+      if (decode != null) return _classic(decode, [..._parts.where((p) => p != t), t]);
+    }
+    return DeskPartWaiting(_received, _total);
+  }
+
+  Future<DeskPartStep<InPersonScanned>> _classic(Future<QrSlateProgress> Function(List<String>) decode, List<String> parts) async {
+    try {
+      final read = await decode(parts);
+      if (read.complete && read.json != null) return const DeskPartDone(InPersonScanned(classic: true));
+    } on Object {
+      // Not a payment either.
     }
     return DeskPartWaiting(_received, _total);
   }

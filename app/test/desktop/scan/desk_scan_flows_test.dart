@@ -32,6 +32,7 @@ import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter;
 import 'package:epic_wallet/src/scan/scan_checks.dart' show CodeOrigin;
 import 'package:epic_wallet/src/ui/in_person/in_person_scan.dart' show InPersonScanned;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
+import 'package:epic_wallet/src/wallet_service.dart' show WalletError, WalletErrorKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -233,6 +234,16 @@ void main() {
       await _settle(tester);
       expect(handled, isFalse);
       expect(_cams, isEmpty);
+    });
+
+    testWidgets('a whole code the camera read for another network: a dialog says so', (tester) async {
+      final fake = _TwoParts(on: true)..failNext = const WalletError(kind: WalletErrorKind.epic1WrongNetwork, message: 'floonet');
+      await _show(tester, Builder(builder: (c) => TextButton(onPressed: () {}, child: const Text('page'))), api: _Mock(fake), presence: CameraPresence.present);
+      unawaited(openDeskInPersonText(tester.element(find.text('page')), _codePart));
+      await _settle(tester, n: 6);
+      _cam.emit('ur:epic1/second');
+      await _settle(tester);
+      expect(find.text(_l.deskE1ErrCodeWrongNetwork), findsOneWidget);
     });
   });
 
