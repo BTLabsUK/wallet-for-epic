@@ -487,7 +487,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         if (mounted) openPaymentText(code, origin: args.codeOrigin);
       });
     }
-    // Send opened plainly (the sidebar, Overview) takes the form as it was left.
+    // Send opened plainly (its tab, Overview) takes the form as it was left.
     final kept = _keeper.kept;
     _keeper.kept = null;
     if (a == null && kept != null && kept.wallet == _wallet) _restore(kept);

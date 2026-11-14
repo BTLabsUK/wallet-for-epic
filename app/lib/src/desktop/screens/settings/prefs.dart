@@ -88,7 +88,7 @@ class SettingsPrefs {
   final Set<String> plainHttpSeen;
 
   /// The newest version whose update strip (`app/update_strip.dart`) was closed: the strip
-  /// stays away for it and comes back for a newer one. The sidebar's slot shows regardless.
+  /// stays away for it and comes back for a newer one. The status bar's line shows regardless.
   final String? updateSeen;
 
   final JumpTo? jump;

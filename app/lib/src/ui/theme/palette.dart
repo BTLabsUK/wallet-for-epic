@@ -136,7 +136,7 @@ abstract final class PaletteLight {
   static const wash = Color(0x66FFD27A);
 
   /// Light only, transparent in dark: [hero] the warm fill the balance frame starts from,
-  /// [tint] the brand tint of an icon tile and the sidebar's selected item, [dots] the dot
+  /// [tint] the brand tint of an icon tile and a selected navigation item, [dots] the dot
   /// texture of the page backdrop (off: the paper is plain, as on the Day page).
   static const hero = Color(0xFFFFF4DE);
   static const tint = Color(0x1FC98A3E);

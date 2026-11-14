@@ -151,7 +151,7 @@ class ETicked extends StatelessWidget {
 
 /// The page area's backdrop behind every desktop screen: the window colour with a warm
 /// brand wash ([DeskColors.wash]) rising behind the top of the content, where the title and
-/// the balance sit, gone before the page's foot and at the sidebar's edge. One gradient, no
+/// the balance sit, gone before the page's foot and at the window's edges. One gradient, no
 /// blur, drawn once; in dark the wash is transparent and the child is returned as it is.
 class DeskBackdrop extends StatelessWidget {
   const DeskBackdrop({super.key, required this.child});

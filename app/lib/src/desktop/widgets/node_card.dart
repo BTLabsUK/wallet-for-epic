@@ -81,7 +81,7 @@ class NodeCard extends StatelessWidget {
     final ts = context.ts;
     final l = context.l10n;
     final i = info;
-    // Only the wallet reaching the node counts here; a down of its own shows in the head and the rail.
+    // Only the wallet reaching the node counts here; a down of its own shows in the head and the status bar.
     final v = remoteNodeView(context.l10n, url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince, torOn: torOn);
     final latency = i == null ? null : shownLatency(i, torOn: torOn);
     final where = i == null ? null : latencyWhere(l, i, torOn: torOn);

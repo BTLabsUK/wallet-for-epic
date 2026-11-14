@@ -16,7 +16,7 @@ import '../../text_join.dart';
 
 export '../../state_language.dart' show ShownState, StateMark, StateTone;
 
-/// One state mapping for the rail, the Receive header, panel dots and Settings heads:
+/// One state mapping for the status bar, the Receive header, panel dots and Settings heads:
 /// [active] is in progress (starting, connecting, syncing, waiting for Tor), drawn blue;
 /// [warn] amber is for real warnings only (behind, slow). The desktop's name for the shared
 /// [StateTone] (state_language.dart): a [ShownState] gives its word and its [EState].
@@ -228,7 +228,7 @@ class MethodLine {
   String get text => detail == null ? word : metaLine([word, detail]);
 }
 
-/// The state line of [m] for Receive, Settings › Transactions and the rail tooltip. One word
+/// The state line of [m] for Receive, Settings › Transactions and the status tooltip. One word
 /// per state ([ShownState]): a connection is Connected, a listener Receiving, a Tor address
 /// Reachable; On and Off are only the switches' words (#29). [reachClosed]: the reach check
 /// said the internet does not reach Link · HTTP's port, so the line does not claim it does.
@@ -371,7 +371,7 @@ class EStateDot extends StatelessWidget {
   }
 }
 
-/// A service glyph in a status cluster (title bar, sidebar): the neutral glyph with its
+/// A service glyph in a status cluster: the neutral glyph with its
 /// [EStateDot] as the one coloured signal, each state with its own shape (solid, ring, "!");
 /// off by choice draws the glyph faint with a thin slash and no dot, calm rather than an
 /// error. The phone's [StatusGlyph] speaks the same language. [label] ("Node: Synced") is the

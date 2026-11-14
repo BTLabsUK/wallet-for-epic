@@ -80,10 +80,10 @@ String deskPageTitle(AppLocalizations l, DeskRoute r) {
   return page.isEmpty ? appName : '$page · $appName';
 }
 
-/// The frame of every in-app page. Three layouts by width:
-///  - desktop (≥ 1000): the 224 px sidebar with labels, statuses and the account;
-///  - narrow (600–1000): a 72 px icon rail;
-///  - phone (< 600): a top bar with the statuses and a bottom bar with the five places.
+/// The frame of every in-app page. The tabs are in the title bar (title_bar.dart), so the page
+/// has the window's width, with the status bar at its foot; a Settings page gets the Settings
+/// column beside it ([settingsTakeover]). Below [Bp.phone] the frame is a top bar with the
+/// statuses and a bottom bar with the places.
 /// Ctrl+L locks, Ctrl+Q quits (⌘ on macOS). The tour opens over it.
 class DeskShell extends ConsumerStatefulWidget {
   const DeskShell({super.key, required this.at});
@@ -435,7 +435,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // Linked devices: the service lives while the shell is up (it reads the channel every 5 s,
     // minimized too).
     ref.watch(deskDeviceServiceProvider);
-    // Node failover keeps the wallet on a node that answers while the shell shows; the rail
+    // Node failover keeps the wallet on a node that answers while the shell shows; the status bar
     // names the node in use, nothing else is said.
     ref.listen(deskFailoverWatchProvider, (_, _) {});
     // A contact whose keys came back docks the notice on its page, whenever that opens.

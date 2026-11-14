@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The status rows of the sidebar: Node, a divider, then Epicbox, HTTP and Tor,
-/// each with signal bars, a name and one short line; the details in a hover card; a click
-/// opens that service's settings. Every row is 40 u tall in every state, so the rail never
-/// changes height.
+/// The services' status items: Node, then Epicbox, HTTP and Tor, each with a name, one word
+/// for its state and the lines of its hover card. The status bar draws them as its lights
+/// (`status_bar.dart`), the phone-width top bar as glyphs; a click opens that service's
+/// popover or settings.
 library;
 
 import '../../state_language.dart' show torShownState;
@@ -212,7 +212,7 @@ RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
   jump: SettingsJump.node,
 );
 
-/// How often the rail asks about a remote node again: the network's tip (the "behind" check),
+/// How often a remote node is asked again: the network's tip (the "behind" check),
 /// the version and the latency. The node's own height and whether it answers come with every
 /// wallet status; the info is also asked again when the node changes or answers again.
 const Duration railNodeRefresh = Duration(minutes: 5);
@@ -222,7 +222,7 @@ const Duration railNodeRefresh = Duration(minutes: 5);
 class ServiceRows extends ConsumerStatefulWidget {
   const ServiceRows({super.key, this.builder});
 
-  /// Lays the rows out another way (the title bar's status); the rows' content stays this one.
+  /// Lays the rows out another way (the status bar's lights); the rows' content stays this one.
   final Widget Function(BuildContext context, List<RailItem> items)? builder;
 
   @override
@@ -232,10 +232,10 @@ class ServiceRows extends ConsumerStatefulWidget {
 /// How long the wallet's node must stay down before the row says Not answering.
 const Duration railDownAfter = Duration(seconds: 30);
 
-/// The OS text scale the rail follows before its rows would outgrow 40 u.
+/// The OS text scale a glyph row follows before it would outgrow its height.
 const double railMaxTextScale = 1.2;
 
-/// The rail's clock (tests set it).
+/// The clock the Not answering wait reads (tests set it).
 DateTime Function() railClock = DateTime.now;
 
 class _ServiceRowsState extends ConsumerState<ServiceRows> {

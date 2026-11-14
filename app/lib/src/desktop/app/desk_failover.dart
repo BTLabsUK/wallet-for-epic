@@ -5,7 +5,7 @@
 /// reading), and gives it a way to ask a node ([DeskWalletApi.checkNode], through the open
 /// wallet), a way to move the open wallet for this session ([DeskWalletApi.useNodeForSession])
 /// and the plan of a round. [deskFailoverProvider] holds the move, or null while the wallet is on
-/// the chosen node; the rail and Settings › Node name the chosen node under the one in use. The
+/// the chosen node; the status bar and Settings › Node name the chosen node under the one in use. The
 /// search shows in the node's health ([deskNodeHealthProvider]): connecting while a round runs,
 /// not answering when no node answers.
 ///
@@ -357,7 +357,7 @@ class DeskFailoverWatch extends Notifier<void> {
       final was = _behind;
       _lag = info;
       _feed();
-      // The rail's word follows now, not at its own next read.
+      // The status light's word follows now, not at its own next read.
       if (_behind != was) ref.invalidate(deskNodeInfoProvider(url));
     } on Object {
       // No reading: the last one stands until the next.
@@ -397,7 +397,7 @@ class DeskFailoverWatch extends Notifier<void> {
     try {
       final info = await ref.read(deskNodeProvider).nodeInfo(own, mine: ref.read(settingsPrefsProvider).mineNodes.contains(own));
       head = info.head;
-      // The rail, the slot and the panel read it again too.
+      // The status bar and the panel read it again too.
       ref.invalidate(deskNodeInfoProvider(own));
       ref.invalidate(deskOwnStatusProvider);
     } on Object {

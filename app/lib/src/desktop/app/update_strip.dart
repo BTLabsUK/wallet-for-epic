@@ -2,8 +2,8 @@
 /// The update strip: one slim line across the top of the content area, above the page's
 /// title, while a newer BT Wallet is out and nothing was done about it yet ("Version 26.11.9
 /// is available." · Update · ×). Information, not a warning: the info icon's blue on the
-/// panel. Update runs the same step as the sidebar's slot ([deskUpdateAct]); × closes it for
-/// that version ([SettingsPrefs.updateSeen]), and it comes back for a newer one. The slot
+/// panel. Update runs the same step as the status bar's line ([deskUpdateAct]); × closes it for
+/// that version ([SettingsPrefs.updateSeen]), and it comes back for a newer one. That line
 /// (`now_slot.dart`) stays whatever happens here: the reminder and the way back to the update.
 library;
 

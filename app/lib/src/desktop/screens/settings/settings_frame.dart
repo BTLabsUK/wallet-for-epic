@@ -40,16 +40,16 @@ DeskRoute? settingsParent(DeskRoute route) => setSectionOf(route)?.parent;
 /// The name of a Settings page, as its title and its entry say it.
 String settingsPageTitle(AppLocalizations l, DeskRoute route) => settingsSectionLabel(l, route);
 
-/// Whether the window shows the Settings column in place of the sidebar (the sidebar's own
-/// desktop width); narrower, the page keeps the section strip.
+/// Whether the window shows the Settings column beside the page (from the desktop width);
+/// narrower, the page keeps the section strip.
 bool settingsTakeover(BuildContext context) => MediaQuery.sizeOf(context).width >= Bp.desktop;
 
 /// The entry a page raises: its own, or its parent's for a sub-page.
 DeskRoute settingsCurrent(DeskRoute route) => setNavRouteOf(route);
 
 /// The Settings column (option 1, the takeover): "← Wallet" and "Settings", the search field,
-/// the grouped navigation, and at its foot what runs now and the Esc hint. It stands where the
-/// sidebar is while a Settings page is open.
+/// the grouped navigation, and at its foot what runs now and the Esc hint. It stands beside
+/// the page while a Settings page is open.
 class SettingsColumn extends ConsumerWidget {
   const SettingsColumn({super.key, required this.route});
 
@@ -272,7 +272,7 @@ const settingsParentKey = ValueKey('settings-parent');
 /// 2914414 → "2,914,414".
 String groupDigits(AppLocalizations l, int n) => localInt(l, n);
 
-/// A section a sidebar status row jumps to: scrolled into view, its heading focused and a thin
+/// A section a status light jumps to: scrolled into view, its heading focused and a thin
 /// gold outline that fades out over a second (none with reduced motion); again on every new
 /// jump to it ([SettingsPrefsController.jumpTo]). Opening the page any other way shows nothing.
 class JumpSection extends ConsumerStatefulWidget {

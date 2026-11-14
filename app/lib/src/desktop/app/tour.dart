@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The first-unlock tour: one page per step. Each step opens a real page, lights the area that
-/// matters on it and the page's sidebar entry, and says in a line or two what is there. Skip
+/// matters on it and the page's tab, and says in a line or two what is there. Skip
 /// (Esc) on every step, Back and Next (Enter, the arrow keys), a step counter; the card keeps
 /// one place at the bottom of the content area so nothing jumps. It ends on Help.
 ///
@@ -27,7 +27,7 @@ import '../data/pairing_state.dart' show deskInvoicesShownProvider;
 import '../../epic1.dart' show PaymentMode;
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
-/// screen; the card sits in the middle when none is), the sidebar entry and, on a Settings page,
+/// screen; the card sits in the middle when none is), the page's tab and, on a Settings page,
 /// the entry in the Settings list.
 class TourStep {
   const TourStep({required this.route, required this.targets, required this.titleOf, required this.textOf, this.section, this.sub});
@@ -43,7 +43,7 @@ class TourStep {
   String get title => titleOf(englishStrings);
   String get text => textOf(englishStrings);
 
-  /// The sidebar entry lit with the page; the route's section when null.
+  /// The tab lit with the page; the route's section when null.
   final DeskSection? section;
 
   /// The Settings list entry lit with the page.
@@ -284,7 +284,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   final _self = GlobalKey();
   final _card = GlobalKey();
 
-  /// The lit areas, in the overlay's coordinates: the page area, the sidebar entry, the
+  /// The lit areas, in the overlay's coordinates: the page area, the page's tab, the
   /// Settings list entry. Null when not on screen.
   Rect? _rect, _nav, _sub;
 
@@ -338,7 +338,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   }
 
   /// The target's area in the overlay, scrolled into view first: a page area up to the top of its
-  /// scroll view, a navigation entry just far enough to show (the sidebar scrolls in low windows).
+  /// scroll view, a navigation entry just far enough to show (the Settings list scrolls in low windows).
   Rect? _find(String id, RenderBox me, {ScrollPositionAlignmentPolicy? scroll}) {
     final ctx = tourKey(id).currentContext;
     final box = ctx?.findRenderObject() as RenderBox?;

@@ -566,7 +566,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     final list = ref.watch(deskServerListProvider(ServerKind.node));
     final listed = list == null ? all : [for (final n in all) if (list.has(ServerKind.node, n.url)) n];
 
-    // The word and state of the head: the same the rail shows.
+    // The word and state of the head: the same the status bar shows.
     final nodeHealth = downShot ? ServiceHealth.down : ref.watch(deskNodeHealthProvider) ?? status.nodeHealth;
     // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
     // stands in for it, so the field's dot never says Synced next to Not answering (#76).

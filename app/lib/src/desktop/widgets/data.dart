@@ -735,7 +735,7 @@ class ESubnavHeading extends StatelessWidget {
   }
 }
 
-/// A 40 px navigation entry: icon, label, optional count badge. Used by the sidebar and
+/// A navigation entry: icon, label, optional count badge. Used by the Settings column's
 /// sub-navigation. Never a second line: a state belongs on its page.
 class ENavItem extends StatefulWidget {
   const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.dimmed = false, this.value, this.semanticsId});

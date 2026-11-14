@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// What the node screens say about a node: one word, a state, the rail's second line and the
-/// tooltip's lines, the local node's stage line and time left (§15.2). Pure, so the
-/// rail, the node card and the local node panel say the same thing.
+/// What the node screens say about a node: one word, a state, the status light's second line
+/// and the tooltip's lines, the local node's stage line and time left (§15.2). Pure, so the
+/// status bar, the node card and the local node panel say the same thing.
 library;
 
 import '../../address_format.dart' show railHost;
@@ -14,7 +14,7 @@ import '../../settings_file/host_settings.dart' show hostSettings;
 import 'models.dart' show ServiceHealth;
 import '../../text_join.dart';
 
-/// One node as the rail and the panels show it.
+/// One node as the status bar and the panels show it.
 class NodeView {
   const NodeView({
     required this.word,
@@ -32,14 +32,14 @@ class NodeView {
   final String word;
   final EState state;
 
-  /// The rail's host part ([railHost] applied), or "Local node".
+  /// The status light's host part ([railHost] applied), or "Local node".
   final String host;
 
   /// After the host, never cut: "12 behind", "no answer", "12 %", "stalled".
   final String? marker;
 
   /// The whole sync's time left ([syncEtaText]), after the marker where there is room: the
-  /// sidebar status and the Node page, not the rail.
+  /// status popover and the Node page, not the status light.
   final String? eta;
 
   /// The tooltip's lines, only the known ones.
@@ -60,7 +60,7 @@ String syncPercent(AppLocalizations l, double overall) => percentText(l, (overal
 @Deprecated("Use syncPercent, which writes the percent in the user's language")
 String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)}%';
 
-/// The whole sync's rough time left as the sidebar status and the Node page say it: "about
+/// The whole sync's rough time left as the status popover and the Node page say it: "about
 /// 2 h 30 min left", or "Calculating time left…" until there is a measured rate (and while
 /// it is too rough to show, [roundSyncEta]).
 String syncEtaText(AppLocalizations l, Duration? etaTotal) {
@@ -110,7 +110,7 @@ String ownAddress(String url) {
 /// check or a sync answered) is never "Not answering" because the info probe failed, as one
 /// over Tor can while the wallet syncs through it.
 NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
-  // An own node: "Your node" on the rail, "Your node · 192.168.1.24:<port>" in the tooltip.
+  // An own node: "Your node" in the status bar, "Your node · 192.168.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
   final full = own ? metaLine([l.deskOwnYourNode, ownAddress(url)]) : nodeHost(url);
   final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key

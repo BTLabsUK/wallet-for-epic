@@ -7,9 +7,9 @@
 /// inside a field, a dialog's close icon, Back buttons and the page's back arrow. They stay
 /// reachable by mouse, by screen reader (each keeps its semantics tap) and by a shortcut where
 /// one matters (Alt+F8, Ctrl+Shift+P off Windows, shows or hides a password; Esc closes; Alt+Left goes back). Pages that
-/// are not forms (lists, toolbars, the sidebar) keep their buttons as stops. Dialogs keep the
-/// focus inside them. The shell's sidebar and page are separate groups, so the focus finishes
-/// the page before it moves to the sidebar.
+/// are not forms (lists, toolbars, the bars) keep their buttons as stops. Dialogs keep the
+/// focus inside them. The shell's bars and page are separate groups, so the focus finishes
+/// the page before it moves to a bar.
 ///
 /// **Enter** in a field moves to the next field of its [EForm]; in the last field it runs the
 /// form's main action when the form is valid and does nothing when it is not. Multi-line fields

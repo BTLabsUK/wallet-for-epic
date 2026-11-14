@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// What the desktop says and does about a newer BT Wallet (`data/desk_update.dart`), in
-/// the sidebar's slot (`now_slot.dart`) and in Settings › About › Updates, the same steps in
+/// the status bar's line (`now_slot.dart`) and in Settings › About › Updates, the same steps in
 /// both: Update available → Downloading 42 % → Restart to update, with a dialog that offers the
 /// restart once the download is checked. A step that fails says so and offers the next way: try
 /// the download again, or the download page. An update that did not finish (Windows) says
@@ -147,7 +147,7 @@ Future<void> _restart(BuildContext context, ProviderContainer container) async {
     return;
   }
   // The update is already running once restart() returns true, so the quit does not wait on this
-  // widget (the sidebar may switch to its rail, About may close, during the re-check).
+  // widget (the status bar may rebuild, About may close, during the re-check).
   if (!await container.read(deskUpdateProvider.notifier).restart()) return;
   await _quitForUpdate(container);
 }

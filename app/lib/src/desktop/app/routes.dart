@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Where the desktop UI is. One flat list of places; [DeskRoute.bare] places fill the window
-/// (first run, unlock), the rest sit in the app shell with the sidebar.
+/// (first run, unlock), the rest sit in the app shell under the title bar's tabs.
 library;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -101,7 +101,7 @@ const List<(DeskSection, DeskRoute, IconData)> deskNav = [
   (DeskSection.receive, DeskRoute.receive, EIcons.receive),
 ];
 
-/// The sidebar's label of a place (the window title uses it too).
+/// A place's label on its tab (the window title uses it too).
 String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
   DeskSection.overview => l.deskShellNavOverview,
   DeskSection.activity => l.deskShellNavActivity,

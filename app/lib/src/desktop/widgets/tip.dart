@@ -4,7 +4,7 @@
 ///    ("Epicbox: connected"), or a disabled control's short reason ("Off in Settings").
 ///  - [ETip.value]: the whole of a shortened value (an address, a path, a host, a title, an
 ///    exact time); [ETip.value] with `mono` for addresses and keys.
-///  - [ETip.card]: a status item's hover card (the rail): its name and state lines, no prose.
+///  - [ETip.card]: a status item's hover card: its name and state lines, no prose.
 /// All show on hover after the theme's wait, and at once on a click; they go when the pointer
 /// leaves. Never a sentence of explanation, never something the user must read to go on, never
 /// the same words as a label already on screen: an explanation is an ⓘ ([EInfoHint], which

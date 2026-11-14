@@ -106,7 +106,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                       ),
                     ),
                     SizedBox(width: Sp.x4),
-                    // What the sidebar's version line copied (item 7).
+                    // The build's details, copied whole.
                     EButton(
                       key: const ValueKey('about-copy-build'),
                       label: l.deskBarCopyBuild,
@@ -261,7 +261,7 @@ class _LinkRow extends ConsumerWidget {
 /// The About card's Updates row: the label, one status line ("26.10.24 is the latest Checked
 /// 5 min ago." / "Could not check" with the reason / "Update available: 26.11.0") with the
 /// download page as a link at its end, and a small Check button. While an update is offered,
-/// the button for its next step joins it, the same steps as the sidebar's slot
+/// the button for its next step joins it, the same steps as the status bar's line
 /// (`app/update_notice.dart`): Download and install, Restart to update, Try again, or the
 /// download page where this copy cannot install it by itself.
 class _Updates extends ConsumerWidget {

@@ -721,7 +721,7 @@ class NodeSyncBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(3.u),
       child: SizedBox(
         height: 6.u,
-        // No sweep here: the rail's status line is the one place a sync moves. An unknown amount
+        // No sweep here: the status bar's line is the one place a sync moves. An unknown amount
         // shows the empty track; the words above say what runs.
         child: LinearProgressIndicator(
           value: value ?? 0,

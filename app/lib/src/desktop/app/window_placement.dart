@@ -27,7 +27,7 @@ import 'package:window_manager/window_manager.dart';
 import '../../app_log.dart';
 import '../data/desk_store.dart';
 
-/// The smallest window: the sidebar stays a rail (below 600 px the phone layout takes over), and
+/// The smallest window: above the phone layout's width ([Bp.phone]), and
 /// Send shows the recipient, the amount and Review without scrolling.
 const deskWindowMinSize = Size(800, 700);
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Whether a newer BT Wallet is out, and getting it: the sidebar's slot and Settings ›
+/// Whether a newer BT Wallet is out, and getting it: the status bar's line and Settings ›
 /// About › Updates (`app/update_notice.dart`). Checked shortly after the wallet opens and every
 /// [deskUpdateEvery] while the app runs ([DeskUpdateController.schedule]), and when About opens.
 /// Reads the signed manifest the phone's updater reads ([updateManifestUrls], one list for
@@ -39,7 +39,7 @@ import 'desk_store.dart';
 import 'desk_update_apply.dart';
 import 'state.dart' show deskProvider, deskQuitProvider;
 
-/// This build's version, without the build id ([appVersion], pubspec's version); the sidebar,
+/// This build's version, without the build id ([appVersion], pubspec's version); the title bar,
 /// About and the support report show it with the build id (`shell.dart`).
 const String deskAppVersion = appVersion;
 
@@ -401,7 +401,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     try {
       final file = await ref.read(deskUpdateDownloaderProvider)(f, (received) {
         if (!ref.mounted) return;
-        // Whole per cent steps: the sidebar repaints a hundred times at most.
+        // Whole per cent steps: the status bar repaints a hundred times at most.
         final p = (received * 100 ~/ f.size) / 100;
         if (p != state.progress) state = at(DeskUpdatePhase.downloading, progress: p);
       });

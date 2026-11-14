@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Home's parts taken from the desktop Overview: the balance tiles with icons, one per balance
-/// that is not spendable, and the row of destinations that stands in for the sidebar.
+/// that is not spendable, and the row of destinations that stands in for the desktop's tabs.
 library;
 
 import 'dart:math' as math;
@@ -367,7 +367,7 @@ class _BalanceTile extends StatelessWidget {
   }
 }
 
-/// A destination on Home's row: the sidebar's entries, adapted.
+/// A destination on Home's row: the desktop's navigation entries, adapted.
 enum HomeDestination { activity, outputs, contacts, invoices }
 
 /// A destination tile's key, for tests.

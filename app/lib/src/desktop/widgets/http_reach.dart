@@ -12,8 +12,8 @@ import '../desk_l10n.dart';
 import '../data/http_address.dart' show HttpReach, WebReachProbe;
 import 'kit.dart';
 
-/// The last answer the reach notice got, for the rail's HTTP row; null until one comes in.
-/// The rail only reads it: no check of its own.
+/// The last answer the reach notice got, for the status bar's HTTP light; null until one
+/// comes in. The status bar only reads it: no check of its own.
 class DeskLastHttpReach extends Notifier<HttpReach?> {
   @override
   HttpReach? build() => null;

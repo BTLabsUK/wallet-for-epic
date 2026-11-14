@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// A node switch the user started (Settings › Node, the status popover), while it runs: what the
-/// selected server field and the sidebar status say at once, before the wallet has moved.
+/// selected server field and the status bar say at once, before the wallet has moved.
 library;
 
 import 'dart:async';
@@ -104,7 +104,7 @@ String nodeSwitchText(AppLocalizations l, NodeSwitch s) => switch (s.step) {
   NodeSwitchStep.stopping => l.deskNodeSwitchStopping,
 };
 
-/// The rail's Node row while a switch runs: the node switched to, and what happens.
+/// The status bar's Node light while a switch runs: the node switched to, and what happens.
 NodeView nodeSwitchView(AppLocalizations l, NodeSwitch s) => NodeView(
   word: switch (s.step) {
     NodeSwitchStep.connecting => l.deskRailConnecting,

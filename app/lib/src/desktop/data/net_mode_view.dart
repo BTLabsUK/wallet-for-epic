@@ -24,7 +24,7 @@ NetworkMode deskNetMode(DeskState st) => st.settings.advanced.networkMode;
 /// on), so while it is not up yet the state is starting, never off.
 TorState deskNetTor(DeskState st) => netTorState(st.settings, st.status);
 
-/// [deskNetTor] from the parts, for the rail and the status card.
+/// [deskNetTor] from the parts, for the status bar and the status card.
 TorState netTorState(DeskSettings settings, ServiceStatus? status) {
   final tor = torStateOf(settings, status);
   return settings.advanced.networkMode == NetworkMode.torOnly && tor == TorState.off ? TorState.starting : tor;

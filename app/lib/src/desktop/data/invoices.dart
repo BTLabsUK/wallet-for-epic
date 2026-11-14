@@ -399,11 +399,11 @@ class InvoiceBook {
     checkProblem: problem,
   );
 
-  /// What the sidebar badge counts: invoices waiting for an answer and payments the user must
+  /// What the Invoices tab's badge counts: invoices waiting for an answer and payments the user must
   /// settle (Retry, Cancel payment).
   int get attention => waiting.length + needsAction.length;
 
-  /// Invoices waiting for the user, oldest first: the sidebar badge.
+  /// Invoices waiting for the user, oldest first: the Invoices tab's badge.
   List<IncomingInvoice> get waiting => [for (final i in toPay) if (i.state == PayState.waiting && i.expiresAt.isAfter(now)) i]
     ..sort((a, b) => a.receivedAt.compareTo(b.receivedAt));
 

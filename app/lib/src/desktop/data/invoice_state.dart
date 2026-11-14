@@ -145,5 +145,5 @@ final deskInvoiceNoticesProvider = StreamProvider<InvoiceNotice>((ref) {
   return api.supportsInvoices ? api.invoiceNotices() : const Stream.empty();
 });
 
-/// What the sidebar badge counts: invoices to answer and payments to settle.
+/// What the Invoices tab's badge counts: invoices to answer and payments to settle.
 final deskInvoiceBadgeProvider = Provider<int>((ref) => ref.watch(deskInvoicesProvider)?.attention ?? 0);

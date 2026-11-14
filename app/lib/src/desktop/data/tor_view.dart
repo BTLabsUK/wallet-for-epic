@@ -22,7 +22,7 @@ TorState torStateOf(DeskSettings settings, ServiceStatus? status) {
   };
 }
 
-/// The one Tor switch's label (Settings › Privacy) and the status rail's Tor row: the label
+/// The one Tor switch's label (Settings › Privacy) and the status bar's Tor light: the label
 /// alone, with [torNetworkHint] behind its info icon or hover card.
 String torNetworkLabel(AppLocalizations l) => l.deskTorNetworkLabel;
 

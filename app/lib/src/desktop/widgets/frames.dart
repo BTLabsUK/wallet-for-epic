@@ -59,8 +59,8 @@ class EPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The gutter follows the page's own width: a page beside the sidebar at a 1000 px window
-    // is as narrow as an 800 px one with the rail.
+    // The gutter follows the page's own width, not the window's: a page beside the Settings
+    // column is narrower than its window.
     return LayoutBuilder(builder: (context, box) => _page(context, MediaQuery.sizeOf(context).width < Bp.phone ? Sp.x4 : (box.maxWidth < Lay.xl ? Sp.x6 : Sp.x8)));
   }
 
