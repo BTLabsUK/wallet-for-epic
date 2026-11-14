@@ -16,10 +16,9 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final BigInt _tip = BigInt.from(2500000);
 
@@ -39,7 +38,7 @@ List<TxEntry> _rows() => [
     status: TxStatus.confirmed,
     origin: TxOrigin.otherWallet,
     createdAtUnix: 1790000000,
-    amountDebited: _epic(35.4),
+    amountDebited: epic(35.4),
     blockHeight: _tip - BigInt.from(20),
     blockTimeUnix: 1790000000,
   ),
@@ -49,7 +48,7 @@ List<TxEntry> _rows() => [
     status: TxStatus.confirmed,
     origin: TxOrigin.otherWallet,
     createdAtUnix: 1789990000,
-    amountCredited: _epic(6.2),
+    amountCredited: epic(6.2),
     blockHeight: _tip - BigInt.from(30),
     blockTimeUnix: 1789990000,
   ),
@@ -63,8 +62,8 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
     summary: WalletSummary(
       lastConfirmedHeight: _tip,
       minimumConfirmations: BigInt.from(3),
-      total: _epic(10),
-      spendable: _epic(10),
+      total: epic(10),
+      spendable: epic(10),
       awaitingConfirmation: BigInt.zero,
       awaitingFinalization: BigInt.zero,
       immature: BigInt.zero,
@@ -147,8 +146,8 @@ void main() {
       status: TxStatus.confirmed,
       origin: TxOrigin.otherWallet,
       createdAtUnix: 1790000000,
-      amountDebited: sent ? _epic(1) : BigInt.zero,
-      amountCredited: sent ? BigInt.zero : _epic(1),
+      amountDebited: sent ? epic(1) : BigInt.zero,
+      amountCredited: sent ? BigInt.zero : epic(1),
       blockHeight: _tip - BigInt.from(5),
       unverified: unverified,
     );

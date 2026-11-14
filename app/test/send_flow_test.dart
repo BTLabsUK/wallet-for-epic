@@ -24,10 +24,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final String _bob = '${'b' * 52}@epicbox.epiccash.com';
 
@@ -73,7 +72,7 @@ class _Mainnet extends WalletConfigNotifier {
 class _Harness {
   _Harness({WalletSummary? summary})
     : session = FakeWalletSession(
-        summary: summary ?? _summary(spendable: _epic(40)),
+        summary: summary ?? _summary(spendable: epic(40)),
       );
 
   final FakeWalletSession session;
@@ -139,7 +138,7 @@ class _Harness {
         slateId: 'send-1',
         kind: TxKind.sent,
         status: status,
-        amountDebited: _epic(1) + session.fee,
+        amountDebited: epic(1) + session.fee,
         fee: session.fee,
         counterparty: _bob,
         blockHeight: height,
@@ -558,7 +557,7 @@ void main() {
     testWidgets('coins only on hold: the form, and a line about them', (
       tester,
     ) async {
-      final h = _Harness(summary: _summary(onHold: _epic(10)));
+      final h = _Harness(summary: _summary(onHold: epic(10)));
       await h.pump(tester);
       expect(find.text(_l.sendNoCoins), findsNothing);
       await _enter(tester, 'To', _bob);

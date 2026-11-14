@@ -33,10 +33,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 const String _name = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';
 const String _onion = '$_name.onion';
@@ -46,8 +45,8 @@ const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
 WalletSummary _summary() => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(40),
-  spendable: _epic(40),
+  total: epic(40),
+  spendable: epic(40),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,

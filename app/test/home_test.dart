@@ -56,10 +56,9 @@ import 'support/send_finders.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'support/test_settings.dart' show testConfigWithout;
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// Noon on 30 Sep 2026, local time, so day headings do not depend on the time zone.
 final DateTime _now = DateTime(2026, 9, 30, 12);
@@ -106,12 +105,12 @@ class _Config extends WalletConfigNotifier {
 WalletSummary _summary({BigInt? spendable}) => WalletSummary(
   lastConfirmedHeight: _tip,
   minimumConfirmations: BigInt.from(3),
-  total: (spendable ?? _epic(12.5)) + _epic(2),
-  spendable: spendable ?? _epic(12.5),
+  total: (spendable ?? epic(12.5)) + epic(2),
+  spendable: spendable ?? epic(12.5),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
-  locked: _epic(2),
+  locked: epic(2),
   validatedWithNode: true,
 );
 
@@ -139,7 +138,7 @@ List<TxEntry> _backlog([int extra = 8]) => [
       kind: TxKind.received,
       status: TxStatus.confirmed,
       createdAtUnix: _at(DateTime(2026, 9, 1, 10 + i)),
-      amountCredited: _epic(1),
+      amountCredited: epic(1),
     ),
 ];
 
@@ -157,9 +156,9 @@ List<TxEntry> _undeliveredSend() => [
     kind: TxKind.sent,
     status: TxStatus.awaitingRecipient,
     createdAtUnix: _at(DateTime(2026, 9, 30, 9)),
-    amountCredited: _epic(0.992),
-    amountDebited: _epic(3),
-    fee: _epic(0.008),
+    amountCredited: epic(0.992),
+    amountDebited: epic(3),
+    fee: epic(0.008),
     counterparty: _bob,
     transport: 'epicbox',
     cancellable: true,
@@ -176,9 +175,9 @@ List<TxEntry> _transactions() => [
     kind: TxKind.sent,
     status: TxStatus.awaitingRecipient,
     createdAtUnix: _at(DateTime(2026, 9, 30, 9)),
-    amountCredited: _epic(0.992),
-    amountDebited: _epic(3),
-    fee: _epic(0.008),
+    amountCredited: epic(0.992),
+    amountDebited: epic(3),
+    fee: epic(0.008),
     counterparty: _bob,
     ttlCutoffHeight: _tip + BigInt.from(120),
     cancellable: true,
@@ -190,7 +189,7 @@ List<TxEntry> _transactions() => [
     status: TxStatus.confirmed,
     createdAtUnix: _at(DateTime(2026, 9, 29, 18)),
     blockHeight: _tip - BigInt.from(700),
-    amountCredited: _epic(5),
+    amountCredited: epic(5),
     kernelExcess: '09abc',
     outputCommits: const ['08commit'],
     note: 'Rent share',
@@ -201,9 +200,9 @@ List<TxEntry> _transactions() => [
     kind: TxKind.sentCancelled,
     status: TxStatus.cancelled,
     createdAtUnix: _at(DateTime(2026, 9, 20, 10)),
-    amountCredited: _epic(0.9),
-    amountDebited: _epic(2),
-    fee: _epic(0.1),
+    amountCredited: epic(0.9),
+    amountDebited: epic(2),
+    fee: epic(0.1),
   ),
   fakeTx(
     key: 'c:restored',
@@ -212,7 +211,7 @@ List<TxEntry> _transactions() => [
     source: TxSource.restored,
     createdAtUnix: _at(DateTime(2026, 8, 1, 8)),
     blockHeight: BigInt.from(2400000),
-    amountCredited: _epic(7.25),
+    amountCredited: epic(7.25),
   ),
 ];
 
@@ -412,7 +411,7 @@ class _Harness {
 /// [n] confirmed payments, one a day.
 List<TxEntry> _latticeTxs(int n) => [
   for (var i = 0; i < n; i++)
-    fakeTx(id: i, status: TxStatus.confirmed, createdAtUnix: _at(DateTime(2026, 9, 1 + i)), amountCredited: _epic(i + 1)),
+    fakeTx(id: i, status: TxStatus.confirmed, createdAtUnix: _at(DateTime(2026, 9, 1 + i)), amountCredited: epic(i + 1)),
 ];
 
 /// The Wallet tab's list, the vertical scrollable under the header.
@@ -476,12 +475,12 @@ WalletSummary _balances({
 }) => WalletSummary(
   lastConfirmedHeight: _tip,
   minimumConfirmations: BigInt.from(3),
-  total: _epic(spendable + confirming + waiting + locked + immature),
-  spendable: _epic(spendable),
-  awaitingConfirmation: _epic(confirming),
-  awaitingFinalization: _epic(waiting),
-  immature: _epic(immature),
-  locked: _epic(locked),
+  total: epic(spendable + confirming + waiting + locked + immature),
+  spendable: epic(spendable),
+  awaitingConfirmation: epic(confirming),
+  awaitingFinalization: epic(waiting),
+  immature: epic(immature),
+  locked: epic(locked),
   validatedWithNode: true,
 );
 
@@ -671,11 +670,11 @@ void main() {
     });
 
     test('EPIC amounts group thousands for display, not for fields', () {
-      expect(epicText(englishStrings, _epic(1234.5678)), '1,234.5678\u00a0EPIC');
-      expect(epicText(englishStrings, _epic(-1234567)), '\u22121,234,567.0\u00a0EPIC');
-      expect(formatEpic(_epic(1234.5)), '1234.5');
+      expect(epicText(englishStrings, epic(1234.5678)), '1,234.5678\u00a0EPIC');
+      expect(epicText(englishStrings, epic(-1234567)), '\u22121,234,567.0\u00a0EPIC');
+      expect(formatEpic(epic(1234.5)), '1234.5');
       expect(
-        matchesQuery(fakeTx(amountCredited: _epic(1234.5)), '1,234'),
+        matchesQuery(fakeTx(amountCredited: epic(1234.5)), '1,234'),
         isTrue,
       );
     });
@@ -739,8 +738,8 @@ void main() {
     });
 
     test('fiat text groups thousands and keeps satoshis for BTC', () {
-      expect(fiatText(_epic(3000), 0.41, 'usd'), '1,230.00\u00a0USD');
-      expect(fiatText(_epic(1), 0.00000512, 'btc'), '0.00000512\u00a0BTC');
+      expect(fiatText(epic(3000), 0.41, 'usd'), '1,230.00\u00a0USD');
+      expect(fiatText(epic(1), 0.00000512, 'btc'), '0.00000512\u00a0BTC');
     });
   });
 
@@ -858,7 +857,7 @@ void main() {
               id: i,
               status: TxStatus.confirmed,
               createdAtUnix: _at(DateTime(2026, 9, 1 + i)),
-              amountCredited: _epic(i + 1),
+              amountCredited: epic(i + 1),
             ),
         ],
       );
@@ -930,7 +929,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      h.session.summaryValue = _summary(spendable: _epic(20));
+      h.session.summaryValue = _summary(spendable: epic(20));
 
       // android-06: a screen over home (Outputs, a transaction) still gets fresh figures.
       await _tap(tester, find.byKey(const ValueKey('tx-s:from-alice')));
@@ -939,7 +938,7 @@ void main() {
       await _back(tester);
       expect(_figure(tester), '20.0');
 
-      h.session.summaryValue = _summary(spendable: _epic(30));
+      h.session.summaryValue = _summary(spendable: epic(30));
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
       expect(_figure(tester), '30.0');
@@ -961,9 +960,9 @@ void main() {
           status: status,
           createdAtUnix: _at(DateTime(2026, 9, 30, 11)),
           blockHeight: _tip,
-          amountCredited: kind == TxKind.sent ? _epic(0.992) : _epic(2),
-          amountDebited: kind == TxKind.sent ? _epic(3) : BigInt.zero,
-          fee: kind == TxKind.sent ? _epic(0.008) : null,
+          amountCredited: kind == TxKind.sent ? epic(0.992) : epic(2),
+          amountDebited: kind == TxKind.sent ? epic(3) : BigInt.zero,
+          fee: kind == TxKind.sent ? epic(0.008) : null,
           transport: kind == TxKind.sent ? 'http' : 'epicbox',
         );
         final h = _Harness(
@@ -986,12 +985,12 @@ void main() {
           ..summaryValue = WalletSummary(
             lastConfirmedHeight: _tip + BigInt.two,
             minimumConfirmations: BigInt.from(3),
-            total: _epic(14.5),
-            spendable: _epic(12.5),
+            total: epic(14.5),
+            spendable: epic(12.5),
             awaitingConfirmation: BigInt.zero,
             awaitingFinalization: BigInt.zero,
             immature: BigInt.zero,
-            locked: _epic(2),
+            locked: epic(2),
             validatedWithNode: true,
           );
         await tester.pump(autoRefreshInterval);
@@ -1014,17 +1013,17 @@ void main() {
         status: TxStatus.confirmed,
         createdAtUnix: _at(DateTime(2026, 9, 30, 11)),
         blockHeight: _tip,
-        amountCredited: _epic(0.992),
-        amountDebited: _epic(3),
-        fee: _epic(0.008),
+        amountCredited: epic(0.992),
+        amountDebited: epic(3),
+        fee: epic(0.008),
         transport: 'http',
       );
       WalletSummary at(BigInt height) => WalletSummary(
         lastConfirmedHeight: height,
         minimumConfirmations: BigInt.from(3),
-        total: _epic(14.5),
-        spendable: _epic(12.5),
-        awaitingConfirmation: _epic(0.992),
+        total: epic(14.5),
+        spendable: epic(12.5),
+        awaitingConfirmation: epic(0.992),
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,
         locked: BigInt.zero,
@@ -1070,7 +1069,7 @@ void main() {
         status: height == null ? TxStatus.awaitingConfirmation : TxStatus.confirmed,
         createdAtUnix: _at(_now.subtract(const Duration(minutes: 1))),
         blockHeight: height,
-        amountCredited: _epic(1),
+        amountCredited: epic(1),
         transport: 'epicbox',
       );
       final h = _Harness(transactions: [answered(), ..._transactions()]);
@@ -1081,12 +1080,12 @@ void main() {
       h.session.summaryValue = WalletSummary(
         lastConfirmedHeight: next,
         minimumConfirmations: BigInt.from(3),
-        total: _epic(15.5),
-        spendable: _epic(12.5),
-        awaitingConfirmation: _epic(1),
+        total: epic(15.5),
+        spendable: epic(12.5),
+        awaitingConfirmation: epic(1),
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,
-        locked: _epic(2),
+        locked: epic(2),
         validatedWithNode: true,
       );
       h.session.transactionsValue = [answered(height: next), ..._transactions()];
@@ -1234,7 +1233,7 @@ void main() {
             kind: TxKind.received,
             status: TxStatus.confirmed,
             blockHeight: _tip - BigInt.from(700),
-            amountCredited: _epic(5),
+            amountCredited: epic(5),
             note: 'Rent share',
             messages: const [
               SlateMessage(role: SlateRole.sender, text: 'September rent'),
@@ -1265,8 +1264,8 @@ void main() {
               kind: TxKind.sent,
               status: TxStatus.confirmed,
               blockHeight: _tip - BigInt.from(700),
-              amountDebited: _epic(3),
-              fee: _epic(0.008),
+              amountDebited: epic(3),
+              fee: epic(0.008),
               counterparty: _bob,
               // Send keeps the typed message as the private note too.
               note: 'For rent',
@@ -1323,8 +1322,8 @@ void main() {
             slateId: 'send-bob',
             kind: TxKind.sent,
             status: TxStatus.awaitingConfirmation,
-            amountDebited: _epic(3),
-            fee: _epic(0.008),
+            amountDebited: epic(3),
+            fee: epic(0.008),
             counterparty: _bob,
             messages: const [
               SlateMessage(role: SlateRole.sender, text: 'for the pizza'),
@@ -1475,9 +1474,9 @@ void main() {
               kind: TxKind.sent,
               status: TxStatus.awaitingConfirmation,
               createdAtUnix: _at(_now.subtract(const Duration(minutes: 1))),
-              amountCredited: _epic(1),
-              amountDebited: _epic(2.008),
-              fee: _epic(0.008),
+              amountCredited: epic(1),
+              amountDebited: epic(2.008),
+              fee: epic(0.008),
               kernelExcess: '08abc',
               repostable: true,
             ),
@@ -1567,7 +1566,7 @@ void main() {
     );
 
     test('say what happened in words', () {
-      final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
+      final tx = fakeTx(amountCredited: epic(1.5), counterparty: _bob);
       // The listener only accepted it: the sender still has to finish.
       expect(
         paymentNotice(englishStrings, received, tx),
@@ -1579,7 +1578,7 @@ void main() {
           ListenerEvent(
             kind: ListenerEventKind.received,
             message: 'raw',
-            amount: _epic(2),
+            amount: epic(2),
           ),
           null,
           contactName: 'Alice',
@@ -1629,7 +1628,7 @@ void main() {
           kind: ListenerEventKind.received,
           slateId: 'from-alice',
           message: 'Received 5.0\u00a0EPIC from esAlice…',
-          amount: _epic(5),
+          amount: epic(5),
         ),
       );
       await tester.pumpAndSettle();
@@ -1730,7 +1729,7 @@ void main() {
           kind: ListenerEventKind.received,
           slateId: 'from-alice',
           message: 'raw',
-          amount: _epic(5),
+          amount: epic(5),
         ),
       );
       await tester.pumpAndSettle();
@@ -1756,7 +1755,7 @@ void main() {
           kind: ListenerEventKind.received,
           slateId: 'from-alice',
           message: 'raw',
-          amount: _epic(5),
+          amount: epic(5),
         ),
       );
       await tester.pumpAndSettle();
@@ -1882,7 +1881,7 @@ void main() {
       tester,
     ) async {
       final session = _SlowRefreshSession(
-        refreshed: _summary(spendable: _epic(20)),
+        refreshed: _summary(spendable: epic(20)),
       );
       final h = _Harness(session: session, still: true);
       await h.pump(tester);
@@ -2114,7 +2113,7 @@ void main() {
             slateId: 'in',
             kind: TxKind.received,
             status: TxStatus.awaitingConfirmation,
-            amountCredited: _epic(4),
+            amountCredited: epic(4),
             cancellable: true,
             // Past the 15-minute hold, so Cancel is offered (test/receive_cancel_test.dart).
             createdAtUnix: _now.subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
@@ -2145,7 +2144,7 @@ void main() {
             key: 'd:desk:s1',
             kind: TxKind.sent,
             status: TxStatus.awaitingRecipient,
-            amountDebited: _epic(1),
+            amountDebited: epic(1),
             origin: TxOrigin.linkedDevice,
           ),
         ],
@@ -2164,8 +2163,8 @@ void main() {
             kind: TxKind.sent,
             status: TxStatus.awaitingRecipient,
             source: TxSource.imported,
-            amountCredited: _epic(1),
-            amountDebited: _epic(3),
+            amountCredited: epic(1),
+            amountDebited: epic(3),
           ),
         ],
       );
@@ -2291,7 +2290,7 @@ void main() {
 
     testWidgets('large balances group thousands', (tester) async {
       final h = _Harness();
-      h.session.summaryValue = _summary(spendable: _epic(1234.5678));
+      h.session.summaryValue = _summary(spendable: epic(1234.5678));
       await h.pump(tester);
       expect(_figure(tester), '1,234.5678');
     });
@@ -2364,9 +2363,9 @@ void main() {
         kind: TxKind.sent,
         status: TxStatus.awaitingConfirmation,
         createdAtUnix: _at(_now.subtract(const Duration(hours: 2))),
-        amountCredited: _epic(1),
-        amountDebited: _epic(2.008),
-        fee: _epic(0.008),
+        amountCredited: epic(1),
+        amountDebited: epic(2.008),
+        fee: epic(0.008),
         kernelExcess: '08abc',
         repostable: repostable,
       );
@@ -2393,8 +2392,8 @@ void main() {
             kind: TxKind.sent,
             status: TxStatus.awaitingRecipient,
             createdAtUnix: _at(_now.subtract(const Duration(days: 16))),
-            amountCredited: _epic(1),
-            amountDebited: _epic(3),
+            amountCredited: epic(1),
+            amountDebited: epic(3),
             counterparty: _bob,
             cancellable: true,
           ),
@@ -2418,8 +2417,8 @@ void main() {
             status: TxStatus.awaitingConfirmation,
             createdAtUnix: _at(_now.subtract(const Duration(days: 2))),
             finalizedAtUnix: _at(_now.subtract(const Duration(days: 2))),
-            amountCredited: _epic(1),
-            amountDebited: _epic(3),
+            amountCredited: epic(1),
+            amountDebited: epic(3),
             repostable: true,
             releasable: true,
           ),
@@ -2457,7 +2456,7 @@ void main() {
           slateId: 'many-$i',
           status: TxStatus.confirmed,
           createdAtUnix: _at(_now.subtract(Duration(hours: i))),
-          amountCredited: _epic(i + 1),
+          amountCredited: epic(i + 1),
           note: i == 1500 ? 'needle' : null,
         ),
     ];
@@ -2503,12 +2502,12 @@ void main() {
       final tx = fakeTx(
         kind: TxKind.sent,
         status: TxStatus.awaitingRecipient,
-        amountDebited: _epic(10),
+        amountDebited: epic(10),
       );
       expect(
         txSpokenLabel(
           englishStrings,
-          fakeTx(status: TxStatus.confirmed, amountCredited: _epic(10)),
+          fakeTx(status: TxStatus.confirmed, amountCredited: epic(10)),
           who: 'Alice',
           date: 'Today, 10:01',
           status: 'Received',
@@ -2611,8 +2610,8 @@ void main() {
       slateId: 'late',
       kind: TxKind.sentCancelled,
       status: TxStatus.cancelled,
-      amountCredited: _epic(1),
-      amountDebited: _epic(3),
+      amountCredited: epic(1),
+      amountDebited: epic(3),
       counterparty: _bob,
       finalizedAtUnix: finalizedAt,
       ttlCutoffHeight: cutoff,
@@ -2719,8 +2718,8 @@ void main() {
       slateId: 'c',
       kind: TxKind.sentCancelled,
       status: TxStatus.cancelled,
-      amountCredited: _epic(1),
-      amountDebited: _epic(3),
+      amountCredited: epic(1),
+      amountDebited: epic(3),
       finalizedAtUnix: finalizedAt,
       ttlCutoffHeight: cutoff,
       cancelReason: reason,
@@ -2793,7 +2792,7 @@ void main() {
         slateId: 'send-bob',
         message:
             'Could not reach the node. The payment will finish once it can.',
-        amount: _epic(2),
+        amount: epic(2),
       );
       h.session.listenerEvents.add(delayed);
       await tester.pumpAndSettle();
@@ -2947,7 +2946,7 @@ void main() {
           kind: TxKind.received,
           status: TxStatus.awaitingConfirmation,
           createdAtUnix: _at(_now.subtract(age)),
-          amountCredited: _epic(1),
+          amountCredited: epic(1),
         );
         final base = _backlog(8);
         expect(
@@ -3045,8 +3044,8 @@ void main() {
             slateId: 'paid',
             kind: TxKind.sent,
             status: TxStatus.confirmed,
-            amountCredited: _epic(1),
-            amountDebited: _epic(3),
+            amountCredited: epic(1),
+            amountDebited: epic(3),
             counterparty: _bob,
           ),
         ],
@@ -3073,7 +3072,7 @@ void main() {
       key: key,
       status: status,
       createdAtUnix: at ?? _at(_now.subtract(const Duration(days: 1))),
-      amountCredited: _epic(1),
+      amountCredited: epic(1),
       note: note,
     );
 
@@ -3233,9 +3232,9 @@ void main() {
             slateId: 'paid',
             kind: TxKind.sent,
             status: TxStatus.confirmed,
-            amountCredited: _epic(1),
-            amountDebited: _epic(3),
-            fee: _epic(0.008),
+            amountCredited: epic(1),
+            amountDebited: epic(3),
+            fee: epic(0.008),
             counterparty: _bob,
           ),
         ],
@@ -3489,7 +3488,7 @@ void main() {
             slateId: 'send-1',
             kind: TxKind.sent,
             status: TxStatus.awaitingConfirmation,
-            amountDebited: _epic(1) + h.session.fee,
+            amountDebited: epic(1) + h.session.fee,
             fee: h.session.fee,
             counterparty: payee,
           ),
@@ -3586,12 +3585,12 @@ void main() {
     WalletSummary summaryOf(BigInt spendable) => WalletSummary(
       lastConfirmedHeight: _tip,
       minimumConfirmations: BigInt.from(3),
-      total: spendable + _epic(2),
+      total: spendable + epic(2),
       spendable: spendable,
       awaitingConfirmation: BigInt.zero,
       awaitingFinalization: BigInt.zero,
       immature: BigInt.zero,
-      locked: _epic(2),
+      locked: epic(2),
       validatedWithNode: true,
     );
 

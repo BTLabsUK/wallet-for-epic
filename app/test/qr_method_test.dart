@@ -36,10 +36,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_finders.dart';
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A payment that takes three parts.
 final String _paymentJson =
@@ -77,8 +76,8 @@ class _Mainnet extends WalletConfigNotifier {
 WalletSummary _summary({int height = 2499990}) => WalletSummary(
   lastConfirmedHeight: BigInt.from(height),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(40),
-  spendable: _epic(40),
+  total: epic(40),
+  spendable: epic(40),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
@@ -500,7 +499,7 @@ void main() {
       final h = _Harness();
       h.service.slateInfos[_replyJson] = SlateInfo(
         slateId: 'slate-1',
-        amount: _epic(1),
+        amount: epic(1),
         fee: BigInt.from(8000000),
         stage: SlateStage.response,
       );
@@ -521,7 +520,7 @@ void main() {
       // The code opens by itself, hidden, with what to do.
       expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
       expect(find.text(_l.qrStatusSendHidden), findsOneWidget);
-      expect(h.session.sentAmounts, [_epic(1)]);
+      expect(h.session.sentAmounts, [epic(1)]);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
       // The frame's line under the code; the step strip says what comes after.
@@ -557,7 +556,7 @@ void main() {
         final other = '{"id":"slate-9","step":"response"}';
         h.service.slateInfos[other] = SlateInfo(
           slateId: 'slate-9',
-          amount: _epic(1),
+          amount: epic(1),
           fee: BigInt.from(8000000),
           stage: SlateStage.response,
         );
@@ -599,7 +598,7 @@ void main() {
       final json = _paymentJson;
       h.service.slateInfos[json] = SlateInfo(
         slateId: 'slate-1',
-        amount: _epic(1),
+        amount: epic(1),
         fee: BigInt.from(8000000),
         stage: SlateStage.send,
       );
@@ -624,7 +623,7 @@ void main() {
       final json = _paymentJson;
       h.service.slateInfos[json] = SlateInfo(
         slateId: 'slate-1',
-        amount: _epic(1),
+        amount: epic(1),
         fee: BigInt.from(8000000),
         stage: SlateStage.send,
       );
@@ -669,7 +668,7 @@ void main() {
       final json = _paymentJson;
       h.service.slateInfos[json] = SlateInfo(
         slateId: 'slate-1',
-        amount: _epic(1),
+        amount: epic(1),
         fee: BigInt.from(8000000),
         stage: SlateStage.send,
       );
@@ -788,8 +787,8 @@ void main() {
       h.session.summaryValue = WalletSummary(
         lastConfirmedHeight: BigInt.from(2499990),
         minimumConfirmations: BigInt.from(3),
-        total: _epic(0.892),
-        spendable: _epic(0.892),
+        total: epic(0.892),
+        spendable: epic(0.892),
         awaitingConfirmation: BigInt.zero,
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,

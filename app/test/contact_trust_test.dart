@@ -26,25 +26,25 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/amounts.dart';
 
 
 final AppLocalizations _l = englishStrings;
 final DateTime _now = DateTime(2026, 11, 1, 12);
 final String _anna = 'es${'a' * 50}@epicbox.epiccash.com';
 
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
 DateTime _ago(Duration d) => _now.subtract(d);
 
 WalletSummary get _summary => WalletSummary(
   lastConfirmedHeight: BigInt.from(2500000),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(10),
-  spendable: _epic(7),
+  total: epic(10),
+  spendable: epic(7),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
-  locked: _epic(3),
+  locked: epic(3),
   validatedWithNode: true,
 );
 
@@ -56,8 +56,8 @@ TxEntry _mailboxSend(DateTime sentAt) => fakeTx(
   status: TxStatus.awaitingRecipient,
   createdAtUnix: _at(sentAt),
   // 3 EPIC sent, the fee on top.
-  amountDebited: _epic(3.007),
-  fee: _epic(0.007),
+  amountDebited: epic(3.007),
+  fee: epic(0.007),
   numInputs: 1,
   transport: 'epicbox',
   cancellable: true,
@@ -258,7 +258,7 @@ void main() {
       await tester.tap(find.byKey(mailboxResendConfirmKey));
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [9]);
-      expect(h.session.epicboxSends, [(amount: _epic(3), to: _anna)]);
+      expect(h.session.epicboxSends, [(amount: epic(3), to: _anna)]);
       expect(find.text(_l.mailboxResent), findsOneWidget);
     });
 

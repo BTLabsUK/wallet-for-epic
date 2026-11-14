@@ -26,6 +26,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'name_service_vectors_support.dart';
 import 'support/fake_receipts.dart';
+import 'support/amounts.dart';
 
 final AppLocalizations _l = englishStrings;
 final DateTime _now = DateTime(2026, 11, 1, 12);
@@ -34,19 +35,18 @@ final Payreq _req = () {
   return Payreq.decode(fromHex(v.firstWhere((e) => e['id'] == 'req-basic')['hex']! as String));
 }();
 
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
 DateTime _ago(Duration d) => _now.subtract(d);
 
 WalletSummary get _summary => WalletSummary(
   lastConfirmedHeight: BigInt.from(2500000),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(10),
-  spendable: _epic(7),
+  total: epic(10),
+  spendable: epic(7),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
-  locked: _epic(3),
+  locked: epic(3),
   validatedWithNode: true,
 );
 
@@ -92,8 +92,8 @@ class _Harness {
       kind: TxKind.sent,
       status: TxStatus.awaitingRecipient,
       createdAtUnix: _at(_ago(age)),
-      amountDebited: rec.amount + _epic(0.007),
-      fee: _epic(0.007),
+      amountDebited: rec.amount + epic(0.007),
+      fee: epic(0.007),
       numInputs: 1,
       transport: 'epicbox',
       cancellable: true,
@@ -111,8 +111,8 @@ class _Harness {
       status: TxStatus.awaitingConfirmation,
       createdAtUnix: _at(_ago(const Duration(hours: 1))),
       finalizedAtUnix: _at(_ago(const Duration(minutes: 50))),
-      amountDebited: rec.amount + _epic(0.007),
-      fee: _epic(0.007),
+      amountDebited: rec.amount + epic(0.007),
+      fee: epic(0.007),
       numInputs: 1,
       transport: 'epicbox',
     );

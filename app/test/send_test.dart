@@ -44,10 +44,9 @@ import 'support/send_finders.dart';
 
 import 'support/real_time.dart';
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A valid address for [FakeWalletService.validateEpicboxAddress].
 final String _bob = '${'b' * 52}@epicbox.epiccash.com';
@@ -57,8 +56,8 @@ _GatedSession _funded() => _GatedSession(
   summary: WalletSummary(
     lastConfirmedHeight: BigInt.from(2499990),
     minimumConfirmations: BigInt.from(3),
-    total: _epic(50),
-    spendable: _epic(40),
+    total: epic(50),
+    spendable: epic(40),
     awaitingConfirmation: BigInt.zero,
     awaitingFinalization: BigInt.zero,
     immature: BigInt.zero,
@@ -71,9 +70,9 @@ _GatedSession _funded() => _GatedSession(
 WalletSummary _tenEpic({required bool confirmed}) => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(10),
-  spendable: confirmed ? _epic(10) : BigInt.zero,
-  awaitingConfirmation: confirmed ? BigInt.zero : _epic(10),
+  total: epic(10),
+  spendable: confirmed ? epic(10) : BigInt.zero,
+  awaitingConfirmation: confirmed ? BigInt.zero : epic(10),
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
   locked: BigInt.zero,
@@ -169,7 +168,7 @@ class _GatedSession extends FakeWalletSession {
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) async {
     final tx = await super.finalizeAndPost(slateJson: slateJson);
-    return notPosted ? _notPosted(_epic(1.5)) : tx;
+    return notPosted ? _notPosted(epic(1.5)) : tx;
   }
 
   @override
@@ -234,7 +233,7 @@ class _Harness {
   late final service = FakeWalletService()
     ..slateInfos[session.responseSlate.json] = SlateInfo(
       slateId: session.sendSlate.slateId,
-      amount: _epic(1.5),
+      amount: epic(1.5),
       fee: session.fee,
       stage: SlateStage.response,
     );
@@ -770,7 +769,7 @@ void main() {
         await _tap(tester, _continue);
         await _tap(tester, find.text('Send 1.5\u00a0EPIC'));
         expect(h.session.epicboxSends.single.to, _bob);
-        expect(h.session.epicboxSends.single.amount, _epic(1.5));
+        expect(h.session.epicboxSends.single.amount, epic(1.5));
         expect(h.session.notes, {'s:send-1': 'Lunch'});
         expect(h.session.sentMessages, ['Lunch']);
         // The tracker, not "Sent": the payment waits for their wallet.
@@ -888,7 +887,7 @@ void main() {
         expect(find.text('Send 2.0\u00a0EPIC'), findsNothing);
         expect(find.text('Edit'), findsNothing);
         // The payment waits with its coins on hold until it is cancelled.
-        expect(h.session.summaryValue.locked, _epic(2) + h.session.fee);
+        expect(h.session.summaryValue.locked, epic(2) + h.session.fee);
 
         h.session.sendError = null;
         await _tap(tester, find.text(_l.sendLeaveIt));
@@ -999,7 +998,7 @@ void main() {
       expect(find.textContaining('less the 0.008 fee', findRichText: true), findsOneWidget);
       await _tap(tester, _continue);
       await _tap(tester, find.text('Send 39.992\u00a0EPIC'));
-      expect(h.session.epicboxSends.single.amount, _epic(39.992));
+      expect(h.session.epicboxSends.single.amount, epic(39.992));
     });
 
     testWidgets('Max explains when nothing is spendable, and what is on hold', (
@@ -1060,13 +1059,13 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(feeShown('0.008'), findsOneWidget);
 
-      h.session.fee = _epic(0.01);
+      h.session.fee = epic(0.01);
       await _tap(tester, _continue);
       expect(find.text('0.01\u00a0EPIC'), findsOneWidget);
       expect(find.text('1.01\u00a0EPIC'), findsOneWidget);
 
       // The wallet picks its coins again when sending.
-      h.session.fee = _epic(0.012);
+      h.session.fee = epic(0.012);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       await buildInPage(
         tester,
@@ -1104,8 +1103,8 @@ void main() {
       h.session.summaryValue = WalletSummary(
         lastConfirmedHeight: BigInt.from(2499990),
         minimumConfirmations: BigInt.from(3),
-        total: _epic(30),
-        spendable: _epic(30),
+        total: epic(30),
+        spendable: epic(30),
         awaitingConfirmation: BigInt.zero,
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,
@@ -1132,8 +1131,8 @@ void main() {
       h.session.summaryValue = WalletSummary(
         lastConfirmedHeight: BigInt.from(2499990),
         minimumConfirmations: BigInt.from(3),
-        total: _epic(30),
-        spendable: _epic(30),
+        total: epic(30),
+        spendable: epic(30),
         awaitingConfirmation: BigInt.zero,
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,
@@ -1142,7 +1141,7 @@ void main() {
       );
       await _tap(tester, _continue);
       await _tap(tester, find.text('Send 29.992\u00a0EPIC'));
-      expect(h.session.epicboxSends.single.amount, _epic(29.992));
+      expect(h.session.epicboxSends.single.amount, epic(29.992));
     });
 
     testWidgets('fiat entry refuses NaN, Infinity and huge numbers', (
@@ -1172,7 +1171,7 @@ void main() {
       expect(find.text('≈\u00a039.992\u00a0EPIC'), findsOneWidget);
       await _tap(tester, _continue);
       await _tap(tester, find.text('Send 39.992\u00a0EPIC'));
-      expect(h.session.epicboxSends.single.amount, _epic(39.992));
+      expect(h.session.epicboxSends.single.amount, epic(39.992));
     });
 
     testWidgets('home refreshes after a send even if Send was closed', (
@@ -1267,7 +1266,7 @@ void main() {
       expect(find.text('20.008\u00a0EPIC'), findsOneWidget);
       expect(find.text('≈\u00a0\$10.00'), findsOneWidget);
       await _tap(tester, find.text('Send 20.0\u00a0EPIC'));
-      expect(h.session.epicboxSends.single.amount, _epic(20));
+      expect(h.session.epicboxSends.single.amount, epic(20));
     });
 
     testWidgets('no price: no unit switch', (tester) async {
@@ -1381,7 +1380,7 @@ void main() {
       await tester.tap(make);
       await tester.pumpAndSettle();
       await answerPin(tester);
-      expect(h.session.sentAmounts, [_epic(1.5)]);
+      expect(h.session.sentAmounts, [epic(1.5)]);
     });
 
     testWidgets('by payment file, from the first step with Advanced off', (
@@ -1394,7 +1393,7 @@ void main() {
       expect(sendTo(), findsNothing);
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text(_l.sendMakeFile));
-      expect(h.session.sentAmounts, [_epic(1.5)]);
+      expect(h.session.sentAmounts, [epic(1.5)]);
       // Nothing leaves the app until the user picks how.
       expect(h.files.saved, isEmpty);
       expect(h.files.shared, isEmpty);
@@ -1423,7 +1422,7 @@ void main() {
       );
       h.service.slateInfos['{"other":1}'] = SlateInfo(
         slateId: 'other',
-        amount: _epic(9),
+        amount: epic(9),
         fee: BigInt.one,
         stage: SlateStage.response,
       );
@@ -1447,7 +1446,7 @@ void main() {
       );
       h.service.slateInfos[h.session.responseSlate.json] = SlateInfo(
         slateId: 'slate-1',
-        amount: _epic(1.5),
+        amount: epic(1.5),
         fee: h.session.fee,
         stage: SlateStage.response,
       );
@@ -1488,7 +1487,7 @@ void main() {
       final h = _Harness();
       h.service.slateInfos['{"other":1}'] = SlateInfo(
         slateId: 'other',
-        amount: _epic(9),
+        amount: epic(9),
         fee: BigInt.one,
         stage: SlateStage.response,
       );
@@ -1713,7 +1712,7 @@ void main() {
       h.session.notPosted = true;
       h.service.slateInfos[h.session.responseSlate.json] = SlateInfo(
         slateId: 'slate-1',
-        amount: _epic(1.5),
+        amount: epic(1.5),
         fee: h.session.fee,
         stage: SlateStage.response,
       );
@@ -2109,7 +2108,7 @@ void main() {
       const incoming = '{"id":"incoming"}';
       h.service.slateInfos[incoming] = SlateInfo(
         slateId: 'incoming',
-        amount: _epic(3),
+        amount: epic(3),
         fee: BigInt.zero,
         stage: SlateStage.send,
         messages: const [SlateMessage(role: SlateRole.sender, text: 'hi Bob')],
@@ -2131,8 +2130,8 @@ void main() {
       final h = _Harness();
       h.service.slateInfos[h.session.responseSlate.json] = SlateInfo(
         slateId: 'slate-2',
-        amount: _epic(3),
-        fee: _epic(0.008),
+        amount: epic(3),
+        fee: epic(0.008),
         stage: SlateStage.response,
         messages: const [
           SlateMessage(role: SlateRole.sender, text: 'ours'),
@@ -2158,7 +2157,7 @@ void main() {
       const incoming = '{"id":"incoming"}';
       h.service.slateInfos[incoming] = SlateInfo(
         slateId: 'incoming',
-        amount: _epic(3),
+        amount: epic(3),
         fee: BigInt.zero,
         stage: SlateStage.send,
       );
@@ -2179,7 +2178,7 @@ void main() {
       const incoming = '{"id":"incoming"}';
       h.service.slateInfos[incoming] = SlateInfo(
         slateId: 'incoming',
-        amount: _epic(3),
+        amount: epic(3),
         fee: BigInt.zero,
         stage: SlateStage.send,
       );
@@ -2215,7 +2214,7 @@ void main() {
       const invoice = '{"id":"invoice"}';
       h.service.slateInfos[invoice] = SlateInfo(
         slateId: 'invoice',
-        amount: _epic(4),
+        amount: epic(4),
         fee: BigInt.zero,
         stage: SlateStage.request,
       );

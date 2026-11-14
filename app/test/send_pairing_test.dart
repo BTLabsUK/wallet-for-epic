@@ -33,10 +33,9 @@ import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
 import 'support/contact_pairing.dart';
+import 'support/amounts.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final _tip = NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
 
@@ -74,8 +73,8 @@ class _Mainnet extends WalletConfigNotifier {
 final WalletSummary _forty = WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(50),
-  spendable: _epic(40),
+  total: epic(50),
+  spendable: epic(40),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
@@ -246,7 +245,7 @@ void main() {
       expect(find.byKey(sendQueuedCardKey), findsNothing);
       await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC'));
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
-      expect(h.session.epicboxSends.single.amount, _epic(1.5));
+      expect(h.session.epicboxSends.single.amount, epic(1.5));
       expect(find.text(_l.phoneProgSent), findsOneWidget);
     });
 
@@ -303,7 +302,7 @@ void main() {
       kind: TxKind.sent,
       status: TxStatus.awaitingRecipient,
       createdAtUnix: DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
-      amountDebited: _epic(1.5),
+      amountDebited: epic(1.5),
       fee: BigInt.from(700000),
       transport: 'file',
     );
@@ -504,7 +503,7 @@ void main() {
       await _toReview(tester);
       await _tap(tester, sendButton);
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
-      expect(h.session.epicboxSends.single.amount, _epic(1.5));
+      expect(h.session.epicboxSends.single.amount, epic(1.5));
       expect(find.text(_l.phoneProgSent), findsOneWidget);
     });
 
@@ -524,7 +523,7 @@ void main() {
       await _toReview(tester);
       await _tap(tester, sendButton);
       expect(h.session.pairing.calls, isNot(contains('sendViaMailbox')));
-      expect(h.session.epicboxSends.single, (amount: _epic(1.5), to: anna));
+      expect(h.session.epicboxSends.single, (amount: epic(1.5), to: anna));
     });
 
     testWidgets('an unanswered send starts on the public address, with the reason', (tester) async {
@@ -538,8 +537,8 @@ void main() {
           kind: TxKind.sent,
           status: TxStatus.awaitingRecipient,
           createdAtUnix: sentAt.millisecondsSinceEpoch ~/ 1000,
-          amountDebited: _epic(3.007),
-          fee: _epic(0.007),
+          amountDebited: epic(3.007),
+          fee: epic(0.007),
           numInputs: 1,
           transport: 'epicbox',
           cancellable: true,
@@ -602,7 +601,7 @@ void main() {
       h.session.sendError = null;
       await _tap(tester, fallback);
       expect(h.session.pairing.calls.where((c) => c == 'sendViaMailbox').length, 1);
-      expect(h.session.epicboxSends.single, (amount: _epic(1.5), to: anna));
+      expect(h.session.epicboxSends.single, (amount: epic(1.5), to: anna));
       expect(find.byKey(sendPublicFallbackKey), findsNothing);
     });
 

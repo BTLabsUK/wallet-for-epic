@@ -27,10 +27,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
+import 'support/amounts.dart';
 
 const String _pin = '123456';
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 const _sendOptions = AdvancedPrefs(features: {AdvancedFeature.sendOptions});
 
@@ -47,7 +46,7 @@ WalletOutput _out(
   int lockHeight = 0,
 }) => WalletOutput(
   commitment: commitment,
-  value: _epic(value),
+  value: epic(value),
   status: status,
   category: category,
   isCoinbase: coinbase,
@@ -84,12 +83,12 @@ List<WalletOutput> _six() => [
 WalletSummary _summary({num locked = 0, num spendable = 17}) => WalletSummary(
   lastConfirmedHeight: BigInt.from(2500000),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(spendable + 3 + locked),
-  spendable: _epic(spendable),
-  awaitingConfirmation: _epic(3),
+  total: epic(spendable + 3 + locked),
+  spendable: epic(spendable),
+  awaitingConfirmation: epic(3),
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
-  locked: _epic(locked),
+  locked: epic(locked),
   validatedWithNode: true,
 );
 
@@ -273,10 +272,10 @@ void main() {
     h.session.summaryValue = WalletSummary(
       lastConfirmedHeight: BigInt.from(2500000),
       minimumConfirmations: BigInt.from(3),
-      total: _epic(2.5),
-      spendable: _epic(2),
-      awaitingConfirmation: _epic(0.5),
-      awaitingFinalization: _epic(1),
+      total: epic(2.5),
+      spendable: epic(2),
+      awaitingConfirmation: epic(0.5),
+      awaitingFinalization: epic(1),
       immature: BigInt.zero,
       locked: BigInt.zero,
       validatedWithNode: true,
@@ -367,7 +366,7 @@ void main() {
         id: 3,
         kind: TxKind.received,
         timeUnix: yesterday.millisecondsSinceEpoch ~/ 1000,
-        amountCredited: _epic(0.1),
+        amountCredited: epic(0.1),
       ),
     ];
     // Real faces: the test font's square glyphs are twice as wide as any real text.
@@ -386,7 +385,7 @@ void main() {
     final h = _Harness(outputs: [
       WalletOutput(
         commitment: _commit('a'),
-        value: _epic(2),
+        value: epic(2),
         status: WalletOutputStatus.unconfirmed,
         category: OutputCategory.awaitingConfirmation,
         isCoinbase: false,

@@ -23,10 +23,9 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final DateTime _now = DateTime(2026, 9, 30, 12);
 
@@ -53,7 +52,7 @@ List<TxEntry> _rows() => [
     kind: TxKind.received,
     status: TxStatus.confirmed,
     createdAtUnix: _at(DateTime(2026, 9, 29, 9)),
-    amountCredited: _epic(5),
+    amountCredited: epic(5),
     counterparty: _alice,
     blockHeight: _tip - BigInt.from(10),
   ),
@@ -63,9 +62,9 @@ List<TxEntry> _rows() => [
     kind: TxKind.sent,
     status: TxStatus.confirmed,
     createdAtUnix: _at(DateTime(2026, 9, 28, 9)),
-    amountDebited: _epic(3),
+    amountDebited: epic(3),
     amountCredited: BigInt.zero,
-    fee: _epic(0.008),
+    fee: epic(0.008),
     counterparty: 'esKnownAddress@epicbox.epiccash.com',
     blockHeight: _tip - BigInt.from(20),
   ),
@@ -76,7 +75,7 @@ List<TxEntry> _rows() => [
     status: TxStatus.confirmed,
     source: TxSource.restored,
     createdAtUnix: _at(DateTime(2026, 9, 27, 9)),
-    amountCredited: _epic(7.25),
+    amountCredited: epic(7.25),
     blockHeight: _tip - BigInt.from(30),
   ),
 ];
@@ -87,8 +86,8 @@ class _Harness {
       summary: WalletSummary(
         lastConfirmedHeight: _tip,
         minimumConfirmations: BigInt.from(3),
-        total: _epic(10),
-        spendable: _epic(10),
+        total: epic(10),
+        spendable: epic(10),
         awaitingConfirmation: BigInt.zero,
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,
@@ -458,7 +457,7 @@ void main() {
           mine: mine,
           theirs: theirs,
           timeUnix: _at(DateTime(2026, 9, 27, 9)),
-          amount: _epic(7.25),
+          amount: epic(7.25),
         );
 
     /// A screen with a button that runs the import, as Settings does.

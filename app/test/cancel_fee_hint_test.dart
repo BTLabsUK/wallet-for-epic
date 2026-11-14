@@ -21,8 +21,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/amounts.dart';
 
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 final _l = englishStrings;
 final DateTime _now = DateTime(2026, 10, 30, 12);
 int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
@@ -38,8 +38,8 @@ TxEntry _send({TxFlow flow = TxFlow.payment, bool releasable = false}) => fakeTx
   kind: TxKind.sent,
   status: releasable ? TxStatus.awaitingConfirmation : TxStatus.awaitingRecipient,
   createdAtUnix: _at(_now.subtract(const Duration(days: 2))),
-  amountDebited: _epic(3),
-  fee: _epic(0.007),
+  amountDebited: epic(3),
+  fee: epic(0.007),
   numInputs: 1,
   counterparty: 'esService@epicbox.epiccash.com',
   transport: 'epicbox',
@@ -54,19 +54,19 @@ FakeWalletSession _session(TxEntry tx) => FakeWalletSession(
   summary: WalletSummary(
     lastConfirmedHeight: BigInt.from(2500000),
     minimumConfirmations: BigInt.from(3),
-    total: _epic(10),
-    spendable: _epic(7),
+    total: epic(10),
+    spendable: epic(7),
     awaitingConfirmation: BigInt.zero,
     awaitingFinalization: BigInt.zero,
     immature: BigInt.zero,
-    locked: _epic(3),
+    locked: epic(3),
     validatedWithNode: true,
   ),
   transactions: [tx],
 )..outputsValue = [
     WalletOutput(
       commitment: _coinA,
-      value: _epic(3),
+      value: epic(3),
       status: WalletOutputStatus.locked,
       category: null,
       isCoinbase: false,
@@ -78,7 +78,7 @@ FakeWalletSession _session(TxEntry tx) => FakeWalletSession(
     // A free coin, so the spend back has something to pay its fee from (as LEPIC needs).
     WalletOutput(
       commitment: _other,
-      value: _epic(2),
+      value: epic(2),
       status: WalletOutputStatus.unspent,
       category: OutputCategory.spendable,
       isCoinbase: false,

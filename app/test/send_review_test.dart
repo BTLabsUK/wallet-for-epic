@@ -22,10 +22,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final String _bob = '${'b' * 52}@box.epic.invalid';
 final String _carol = '${'c' * 52}@relay.example.org';
@@ -153,8 +152,8 @@ class _RaceSession extends FakeWalletSession {
 final WalletSummary _forty = WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(50),
-  spendable: _epic(40),
+  total: epic(50),
+  spendable: epic(40),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
@@ -194,7 +193,7 @@ class _Harness {
     service = _NodeService(session: this.session)
       ..slateInfos[this.session.responseSlate.json] = SlateInfo(
         slateId: this.session.sendSlate.slateId,
-        amount: _epic(1.5),
+        amount: epic(1.5),
         fee: this.session.fee,
         stage: SlateStage.response,
       );
@@ -562,7 +561,7 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1.5');
       final tipsBefore = h.service.tipCalls;
       await _tap(tester, find.text(_l.sendMakeFile));
-      expect(h.session.sentAmounts, [_epic(1.5)]);
+      expect(h.session.sentAmounts, [epic(1.5)]);
       // No review checks: nothing goes over a relay.
       expect(h.service.tipCalls, tipsBefore);
       // The tracker: made, waiting for the reply, then the network.
@@ -886,7 +885,7 @@ void main() {
           'For rent',
         );
         await _tap(tester, find.text(_l.sendMakeFile));
-        expect(h.session.sentAmounts, [_epic(1.5)]);
+        expect(h.session.sentAmounts, [epic(1.5)]);
         expect(h.session.sentMessages, ['For rent']);
         expect(h.session.epicboxSends, isEmpty);
       },
@@ -956,7 +955,7 @@ void main() {
           'For rent',
         );
         await _tap(tester, find.text(_l.sendMakeFile));
-        expect(h.session.sentAmounts, [_epic(1.5)]);
+        expect(h.session.sentAmounts, [epic(1.5)]);
         expect(h.session.epicboxSends, hasLength(1));
       },
     );
@@ -991,7 +990,7 @@ void main() {
         );
         await _tap(tester, find.text(_l.sendMakeFile));
         expect(find.byType(ErrorText), findsNothing);
-        expect(h.session.sentAmounts, [_epic(39.992)]);
+        expect(h.session.sentAmounts, [epic(39.992)]);
       },
     );
 
@@ -1012,7 +1011,7 @@ void main() {
       await _tap(tester, _fileButton);
       await _tap(tester, find.text(_l.sendMakeFile));
       expect(h.session.epicboxSends, hasLength(1));
-      expect(h.session.sentAmounts, [_epic(1.5)]);
+      expect(h.session.sentAmounts, [epic(1.5)]);
     });
 
     testWidgets(
@@ -1026,7 +1025,7 @@ void main() {
               slateId: 'other',
               kind: TxKind.sent,
               status: TxStatus.awaitingRecipient,
-              amountDebited: _epic(3),
+              amountDebited: epic(3),
               counterparty: _carol,
             ),
           ),
@@ -1288,7 +1287,7 @@ void main() {
   group('Outputs settings', () {
     WalletOutput out(String c, num value) => WalletOutput(
       commitment: c * 66,
-      value: _epic(value),
+      value: epic(value),
       status: WalletOutputStatus.unspent,
       category: OutputCategory.spendable,
       isCoinbase: false,

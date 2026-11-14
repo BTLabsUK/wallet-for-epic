@@ -19,8 +19,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
+import 'support/amounts.dart';
 
 final DateTime _now = DateTime(2026, 10, 25, 12);
 int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
@@ -68,8 +67,8 @@ TxEntry _waiting({
   kind: kind,
   status: status,
   createdAtUnix: _at(_now.subtract(ago)),
-  amountCredited: kind == TxKind.received ? _epic(7.25) : BigInt.zero,
-  amountDebited: kind == TxKind.sent ? _epic(7.25) : BigInt.zero,
+  amountCredited: kind == TxKind.received ? epic(7.25) : BigInt.zero,
+  amountDebited: kind == TxKind.sent ? epic(7.25) : BigInt.zero,
   counterparty: _sender,
   transport: transport,
   cancellable: true,
@@ -82,8 +81,8 @@ class _Harness {
       summary: WalletSummary(
         lastConfirmedHeight: _tip,
         minimumConfirmations: BigInt.from(3),
-        total: _epic(10),
-        spendable: _epic(10),
+        total: epic(10),
+        spendable: epic(10),
         awaitingConfirmation: BigInt.zero,
         awaitingFinalization: BigInt.zero,
         immature: BigInt.zero,

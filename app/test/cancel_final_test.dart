@@ -27,8 +27,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/amounts.dart';
 
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 final _l = englishStrings;
 final DateTime _now = DateTime(2026, 10, 30, 12);
 int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
@@ -50,8 +50,8 @@ TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancel
       ? TxStatus.awaitingConfirmation
       : TxStatus.awaitingRecipient,
   createdAtUnix: _at(_now.subtract(const Duration(days: 2))),
-  amountDebited: _epic(3),
-  fee: _epic(0.007),
+  amountDebited: epic(3),
+  fee: epic(0.007),
   numInputs: 2,
   counterparty: 'esService@epicbox.epiccash.com',
   transport: 'epicbox',
@@ -65,7 +65,7 @@ TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancel
 
 WalletOutput _out(String commitment, WalletOutputStatus status, {int? txId}) => WalletOutput(
   commitment: commitment,
-  value: _epic(2),
+  value: epic(2),
   status: status,
   category: status == WalletOutputStatus.unspent ? OutputCategory.spendable : null,
   isCoinbase: false,
@@ -78,12 +78,12 @@ WalletOutput _out(String commitment, WalletOutputStatus status, {int? txId}) => 
 WalletSummary get _summary => WalletSummary(
   lastConfirmedHeight: _tip,
   minimumConfirmations: BigInt.from(3),
-  total: _epic(10),
-  spendable: _epic(7),
+  total: epic(10),
+  spendable: epic(7),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
-  locked: _epic(3),
+  locked: epic(3),
   validatedWithNode: true,
 );
 
@@ -104,7 +104,7 @@ void main() {
 
     test('a send waiting for its answer, a receive, a cancelled one: no', () {
       expect(cancelSpendsBack(_send()), isFalse, reason: 'it cannot finish without this wallet');
-      expect(cancelSpendsBack(fakeTx(id: 4, kind: TxKind.received, status: TxStatus.awaitingConfirmation, amountCredited: _epic(1))), isFalse);
+      expect(cancelSpendsBack(fakeTx(id: 4, kind: TxKind.received, status: TxStatus.awaitingConfirmation, amountCredited: epic(1))), isFalse);
       expect(cancelSpendsBack(_send(flow: TxFlow.invoice, cancelled: true)), isFalse);
     });
 

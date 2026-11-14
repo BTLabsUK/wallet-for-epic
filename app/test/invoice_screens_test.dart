@@ -35,10 +35,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
 import 'support/send_finders.dart' show buildInPage;
+import 'support/amounts.dart';
 
 const String _pin = '123456';
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A fake epicbox address: `es`, 50 copies of [c], then [relay].
 String _address(String c, [String relay = 'epicbox.epiccash.com']) =>
@@ -111,8 +110,8 @@ class _Harness {
   static final WalletSummary _summary = WalletSummary(
     lastConfirmedHeight: BigInt.from(2500000),
     minimumConfirmations: BigInt.from(3),
-    total: _epic(100),
-    spendable: _epic(100),
+    total: epic(100),
+    spendable: epic(100),
     awaitingConfirmation: BigInt.zero,
     awaitingFinalization: BigInt.zero,
     immature: BigInt.zero,
@@ -133,7 +132,7 @@ class _Harness {
     session.relayInvoice(
       from: _shop,
       slateId: slateId,
-      amount: _epic(amount),
+      amount: epic(amount),
       message: message,
       expiresIn: expiresIn,
     );
@@ -424,8 +423,8 @@ void main() {
       );
       await h.pump(tester, const InvoicesScreen());
       expect(find.text('My Exchange'), findsNWidgets(2));
-      expect(find.text(epicText(_l, _epic(8))), findsOneWidget);
-      expect(find.text(epicText(_l, _epic(2.5))), findsOneWidget);
+      expect(find.text(epicText(_l, epic(8))), findsOneWidget);
+      expect(find.text(epicText(_l, epic(2.5))), findsOneWidget);
       expect(_rich(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
       expect(_rich(_l.invoiceTimeLeftMinutes(30)), findsOneWidget);
       // Under an hour, the time left is in the warning colour.
@@ -482,7 +481,7 @@ void main() {
       expect(find.text(_l.reqRequests('My Exchange')), findsOneWidget);
       final amount = tester.widget<Text>(find.descendant(of: find.byKey(invoiceReviewAmountKey), matching: find.byType(Text)).first);
       // The exact amount: a commit surface writes all eight decimals out.
-      expect(amount.data, exactEpic(_epic(8)));
+      expect(amount.data, exactEpic(epic(8)));
       expect(amount.style?.fontSize, 34);
       // A contact's request names the contact: no mailbox address, no relay name (RFC C-21).
       expect(
@@ -524,13 +523,13 @@ void main() {
       await h.invoice(amount: 125);
       await h.review(tester);
       // The page scrolls: the notice is built once it is near.
-      await buildInPage(tester, find.text(_l.invoicesShort(epicExact(_l, _epic(25)))));
+      await buildInPage(tester, find.text(_l.invoicesShort(epicExact(_l, epic(25)))));
       expect(
-        find.text(_l.invoicesShort(epicExact(_l, _epic(25)))),
+        find.text(_l.invoicesShort(epicExact(_l, epic(25)))),
         findsOneWidget,
       );
       expect(
-        find.text(_l.invoicesAvailable(epicText(_l, _epic(100)))),
+        find.text(_l.invoicesAvailable(epicText(_l, epic(100)))),
         findsOneWidget,
       );
       final approve = tester.widget<FilledButton>(
@@ -610,7 +609,7 @@ void main() {
         expect(h.session.deliveredReplies, ['inv-1']);
         expect(
           h.session.transactionsValue.single.amountDebited,
-          _epic(8) + h.session.fee,
+          epic(8) + h.session.fee,
         );
         expect(_notice(tester), _l.invoicePaidNotice('My Exchange'));
         expect(find.text(_l.reqTitle), findsNothing);
@@ -757,7 +756,7 @@ void main() {
       await h.invoice();
       await h.session.collectInvoices();
       h.session.replyError = replyError;
-      await h.session.payInvoice(slateId: 'inv-1', amount: _epic(8));
+      await h.session.payInvoice(slateId: 'inv-1', amount: epic(8));
       return h;
     }
 
@@ -772,7 +771,7 @@ void main() {
       h.session.pairing.seedPaired(name: 'Floo C', kind: PairingParty.person, allowInvoices: true, paymentsAddress: _shop);
       await h.invoice();
       await h.session.collectInvoices();
-      await h.session.payInvoice(slateId: 'inv-1', amount: _epic(8));
+      await h.session.payInvoice(slateId: 'inv-1', amount: epic(8));
       await details(tester, h);
       expect(find.text(_l.reqPaidWaiting('Floo C')), findsOneWidget);
       expect(find.text(_l.reqPaidWaitingBodyPerson), findsOneWidget, reason: 'a person, not "the exchange"');
@@ -991,7 +990,7 @@ void main() {
           kind: TxKind.sent,
           status: TxStatus.awaitingRecipient,
           createdAtUnix: 1790000000,
-          amountDebited: _epic(1),
+          amountDebited: epic(1),
         ),
       ];
       await details(tester, h);

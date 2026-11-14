@@ -29,8 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
+import 'support/amounts.dart';
 
 /// A fake epicbox address: `es`, 50 copies of [c], then [relay].
 String _address(String c, [String relay = 'epicbox.epiccash.com']) =>
@@ -91,8 +90,8 @@ class _Harness {
   static final WalletSummary _summary = WalletSummary(
     lastConfirmedHeight: BigInt.from(2500000),
     minimumConfirmations: BigInt.from(3),
-    total: _epic(100),
-    spendable: _epic(100),
+    total: epic(100),
+    spendable: epic(100),
     awaitingConfirmation: BigInt.zero,
     awaitingFinalization: BigInt.zero,
     immature: BigInt.zero,
@@ -105,7 +104,7 @@ class _Harness {
 
   /// One request to the payer, as the form sends it.
   Future<IssuedInvoice> issue({num amount = 2.5, String? message}) => session
-      .issueToContact(amount: _epic(amount), address: _payer, message: message);
+      .issueToContact(amount: epic(amount), address: _payer, message: message);
 
   Future<void> pump(
     WidgetTester tester,
@@ -322,7 +321,7 @@ void main() {
       await h.pump(tester, const InvoiceRequestScreen(), tall: true);
       await h.request(tester, message: 'Dinner on Friday');
       expect(h.session.issuedRequests.single, (
-        amount: _epic(2.5),
+        amount: epic(2.5),
         to: _payer,
         message: 'Dinner on Friday',
       ));
@@ -333,7 +332,7 @@ void main() {
         find.byKey(invoicesSegmentsKey),
       );
       expect(segments.selected, {InvoicesSegment.sent});
-      expect(find.text(epicText(_l, _epic(2.5))), findsOneWidget);
+      expect(find.text(epicText(_l, epic(2.5))), findsOneWidget);
       // Nothing leaves the wallet, so no PIN.
       expect(find.text(_l.invoicePinReason), findsNothing);
       expect(h.session.invoicePayments, 0);
@@ -347,7 +346,7 @@ void main() {
       await h.pick(tester);
       await h.type(tester, '2.5');
       expect(find.text(_l.phoneRecvFromName('Alice')), findsOneWidget);
-      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(2.5)))), findsOneWidget);
+      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, epic(2.5)))), findsOneWidget);
     });
 
     testWidgets('a request the relay did not take stays on the form', (
@@ -402,7 +401,7 @@ void main() {
         (5, _l.issuedExpired),
       ]) {
         final tile = find.ancestor(
-          of: find.text(epicText(_l, _epic(amount))),
+          of: find.text(epicText(_l, epic(amount))),
           matching: find.byType(InkWell),
         );
         expect(
@@ -656,7 +655,7 @@ void main() {
           kind: TxKind.received,
           status: TxStatus.awaitingConfirmation,
           createdAtUnix: 1790000000,
-          amountCredited: _epic(1),
+          amountCredited: epic(1),
           cancellable: true,
         ),
       ];

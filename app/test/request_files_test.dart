@@ -30,9 +30,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
+import 'support/amounts.dart';
 
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 const String _pin = '123456';
 
@@ -84,8 +83,8 @@ class _Harness {
   static final WalletSummary _summary = WalletSummary(
     lastConfirmedHeight: BigInt.from(2500000),
     minimumConfirmations: BigInt.from(3),
-    total: _epic(100),
-    spendable: _epic(100),
+    total: epic(100),
+    spendable: epic(100),
     awaitingConfirmation: BigInt.zero,
     awaitingFinalization: BigInt.zero,
     immature: BigInt.zero,
@@ -97,7 +96,7 @@ class _Harness {
   void knowRequest({num amount = 12.5, String? message = 'Invoice 118, two bags of beans'}) {
     service.slateInfos[_requestJson] = SlateInfo(
       slateId: 'req-file-1',
-      amount: _epic(amount),
+      amount: epic(amount),
       fee: BigInt.zero,
       stage: SlateStage.request,
       messages: [if (message != null) SlateMessage(role: SlateRole.receiver, text: message)],
@@ -173,7 +172,7 @@ void main() {
       expect(find.byKey(requestSaveFileKey), findsOneWidget);
       expect(find.text(_l.phoneRecvAsk), findsWidgets);
       await _type(tester, '42.5');
-      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(42.5)))), findsOneWidget);
+      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, epic(42.5)))), findsOneWidget);
     });
 
     testWidgets('with a paying contact "From anyone" stays the default; the contact means Send request', (tester) async {
@@ -216,9 +215,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(requestSaveFileKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.phoneRecvCodeLead(epicExact(_l, _epic(42.5)))), findsOneWidget);
+      expect(find.text(_l.phoneRecvCodeLead(epicExact(_l, epic(42.5)))), findsOneWidget);
       final issued = h.session.issuedRequests.single;
-      expect(issued.amount, _epic(42.5));
+      expect(issued.amount, epic(42.5));
       expect(issued.message, 'Beans');
       expect(find.byKey(requestQrCardKey), findsOneWidget);
       await tester.tap(find.text(_l.commonShare));
@@ -237,7 +236,7 @@ void main() {
 
     testWidgets('its details say Anyone with the file and wait for the answer file', (tester) async {
       final h = _Harness();
-      await h.session.pairing.requestFile(amount: _epic(3));
+      await h.session.pairing.requestFile(amount: epic(3));
       final tx = h.session.transactionsValue.single;
       await h.pump(tester, TxDetailsScreen(txKey: tx.key));
       expect(find.text(_l.reqToAnyone), findsOneWidget);
@@ -261,7 +260,7 @@ void main() {
       expect(find.text(_l.reqAnswerTitle), findsOneWidget);
       expect(find.text(_l.reqAnswerLead), findsOneWidget);
       final paid = h.session.paidRequestFiles['req-file-1']!;
-      expect(paid.amount, _epic(12.5), reason: 'the amount shown is the amount signed');
+      expect(paid.amount, epic(12.5), reason: 'the amount shown is the amount signed');
       await tester.tap(find.text(_l.slateSaveToDevice));
       await tester.pumpAndSettle();
       expect(h.files.saved.single.name, responseFileName('req-file-1'));
@@ -303,7 +302,7 @@ void main() {
 
     testWidgets('one this wallet paid before opens read-only: already paid', (tester) async {
       final h = _Harness()..knowRequest();
-      await h.session.payRequestFile(slateJson: _requestJson, amount: _epic(12.5));
+      await h.session.payRequestFile(slateJson: _requestJson, amount: epic(12.5));
       await h.open(tester, _requestJson);
       expect(find.text(_l.reqFileAlreadyPaid), findsOneWidget);
       expect(find.byKey(requestFileApproveKey), findsNothing);
@@ -355,9 +354,9 @@ void main() {
   group('issuer: the answer file', () {
     /// A request saved as a file here and the payer's answer to it.
     Future<String> answered(_Harness h) async {
-      final slate = await h.session.pairing.requestFile(amount: _epic(7));
+      final slate = await h.session.pairing.requestFile(amount: epic(7));
       const answer = '{"id":"answer","sta":"I2"}';
-      h.service.slateInfos[answer] = SlateInfo(slateId: slate.slateId, amount: _epic(7), fee: _epic(0.01), stage: SlateStage.requestAnswer);
+      h.service.slateInfos[answer] = SlateInfo(slateId: slate.slateId, amount: epic(7), fee: epic(0.01), stage: SlateStage.requestAnswer);
       return answer;
     }
 
@@ -365,10 +364,10 @@ void main() {
       final h = _Harness();
       final answer = await answered(h);
       await h.open(tester, answer);
-      expect(find.text(_l.slateIncomingRequestAnswer(epicExact(_l, _epic(7)))), findsOneWidget);
+      expect(find.text(_l.slateIncomingRequestAnswer(epicExact(_l, epic(7)))), findsOneWidget);
       await tester.tap(find.text(_l.slateFinishPayment));
       await tester.pumpAndSettle();
-      expect(find.text(_l.slatePostedHeadline(epicExact(_l, _epic(7)))), findsOneWidget);
+      expect(find.text(_l.slatePostedHeadline(epicExact(_l, epic(7)))), findsOneWidget);
       expect((await h.session.issuedInvoices()).single.state, IssuedInvoiceState.paid);
     });
 
@@ -385,7 +384,7 @@ void main() {
     testWidgets('an answer to a request this wallet does not have: the risk card and Close', (tester) async {
       final h = _Harness();
       const answer = '{"id":"stray","sta":"I2"}';
-      h.service.slateInfos[answer] = SlateInfo(slateId: 'not-here', amount: _epic(7), fee: BigInt.zero, stage: SlateStage.requestAnswer);
+      h.service.slateInfos[answer] = SlateInfo(slateId: 'not-here', amount: epic(7), fee: BigInt.zero, stage: SlateStage.requestAnswer);
       await h.open(tester, answer);
       expect(find.byKey(requestAnswerUnknownKey), findsOneWidget);
       expect(find.text(_l.reqAnswerUnknown), findsOneWidget);
@@ -397,15 +396,15 @@ void main() {
 
   test('the round trip on one fake core: issue, pay, finish', () async {
     final h = _Harness();
-    final slate = await h.session.pairing.requestFile(amount: _epic(5), message: 'hi');
+    final slate = await h.session.pairing.requestFile(amount: epic(5), message: 'hi');
     final info = await h.service.inspectSlate(json: slate.json);
     expect(info.stage, SlateStage.request);
-    final paid = await h.session.payRequestFile(slateJson: slate.json, amount: _epic(5));
+    final paid = await h.session.payRequestFile(slateJson: slate.json, amount: epic(5));
     expect((await h.service.inspectSlate(json: paid.json)).stage, SlateStage.requestAnswer);
     await h.session.finalizeAndPost(slateJson: paid.json);
     expect((await h.session.issuedInvoice(slateId: slate.slateId))!.state, IssuedInvoiceState.paid);
     await expectLater(
-      h.session.payRequestFile(slateJson: slate.json, amount: _epic(5)),
+      h.session.payRequestFile(slateJson: slate.json, amount: epic(5)),
       throwsA(isA<WalletError>().having((e) => e.kind, 'kind', WalletErrorKind.invoiceAlreadyPaid)),
     );
   });

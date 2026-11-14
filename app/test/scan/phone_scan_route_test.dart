@@ -47,6 +47,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/sample_services.dart';
 import '../support/send_finders.dart' show continueButton;
 import '../support/send_pin.dart';
+import '../support/amounts.dart';
 
 final _l = englishStrings;
 
@@ -67,15 +68,13 @@ const _d = 'http://1.2.3.4:3415';
 
 const _lunch = 'epic:$_e?amount=1.5&message=Lunch%20with%20Anna&label=Anna';
 
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
-
 final DateTime _now = DateTime(2026, 9, 30, 12);
 
 WalletSummary _summary() => WalletSummary(
   lastConfirmedHeight: BigInt.from(2500000),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(12.5),
-  spendable: _epic(12.5),
+  total: epic(12.5),
+  spendable: epic(12.5),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
@@ -328,7 +327,7 @@ void main() {
       expect(pinAsked, findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
       await answerPin(tester);
-      expect(h.session.epicboxSends.single.amount, _epic(1.5));
+      expect(h.session.epicboxSends.single.amount, epic(1.5));
       expect(h.session.epicboxSends.single.to, _e);
       expect(h.session.sentMessages.last, 'Lunch with Anna');
     });

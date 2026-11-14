@@ -41,10 +41,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final _l = englishStrings;
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A valid address for [FakeWalletService.validateEpicboxAddress].
 final String _bob = '${'b' * 52}@box.epic.invalid';
@@ -61,8 +60,8 @@ const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
 WalletSummary _summary() => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
   minimumConfirmations: BigInt.from(3),
-  total: _epic(40),
-  spendable: _epic(40),
+  total: epic(40),
+  spendable: epic(40),
   awaitingConfirmation: BigInt.zero,
   awaitingFinalization: BigInt.zero,
   immature: BigInt.zero,
@@ -1049,7 +1048,7 @@ void main() {
           id: 3,
           kind: TxKind.sent,
           status: TxStatus.awaitingConfirmation,
-          amountDebited: _epic(1),
+          amountDebited: epic(1),
           counterparty: to,
         );
         expect(
@@ -1062,7 +1061,7 @@ void main() {
         id: 4,
         kind: TxKind.sent,
         status: TxStatus.awaitingConfirmation,
-        amountDebited: _epic(1),
+        amountDebited: epic(1),
         counterparty: _bob,
       );
       expect(

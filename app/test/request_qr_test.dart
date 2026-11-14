@@ -29,10 +29,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_pin.dart';
+import 'support/amounts.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
-
-BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 class _NoPrice implements PriceSource {
   @override
@@ -65,8 +64,8 @@ class _Harness {
     summary: WalletSummary(
       lastConfirmedHeight: BigInt.from(2500000),
       minimumConfirmations: BigInt.from(3),
-      total: _epic(100),
-      spendable: _epic(100),
+      total: epic(100),
+      spendable: epic(100),
       awaitingConfirmation: BigInt.zero,
       awaitingFinalization: BigInt.zero,
       immature: BigInt.zero,
@@ -82,7 +81,7 @@ class _Harness {
   void knowRequest({num amount = 12.5, String message = 'Table 4, two coffees'}) {
     service.slateInfos[_requestJson] = SlateInfo(
       slateId: 'req-qr-1',
-      amount: _epic(amount),
+      amount: epic(amount),
       fee: BigInt.zero,
       stage: SlateStage.request,
       messages: [SlateMessage(role: SlateRole.receiver, text: message)],
@@ -203,7 +202,7 @@ void main() {
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
       await _type(tester, '12.5');
       await _note(tester, 'Table 4');
-      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, _epic(12.5)))), findsOneWidget);
+      expect(find.text(_l.phoneRecvAskFor(epicExact(_l, epic(12.5)))), findsOneWidget);
       await tester.tap(find.byKey(requestShowQrKey));
       await tester.pumpAndSettle();
 
@@ -213,11 +212,11 @@ void main() {
       expect(find.byKey(requestQrCardKey), findsOneWidget);
       expect(find.text(_l.phoneRecvWaitingPaid), findsOneWidget);
       final request = tester.widget<RequestQrScreen>(find.byType(RequestQrScreen));
-      expect(request.amount, _epic(12.5));
+      expect(request.amount, epic(12.5));
       expect(h.session.issuedRequests.single.message, 'Table 4');
 
       // The payer pays it (another wallet; the same fake core here) and shows the answer.
-      final paid = await h.session.payRequestFile(slateJson: request.slate.json, amount: _epic(12.5));
+      final paid = await h.session.payRequestFile(slateJson: request.slate.json, amount: epic(12.5));
       await tester.tap(find.byKey(requestQrScanKey));
       await h.cameraUp(tester);
       await h.scan(tester, paid.json);
@@ -225,7 +224,7 @@ void main() {
 
       expect(find.byType(QrShowScreen), findsNothing);
       expect(find.byKey(requestQrPaidKey), findsOneWidget);
-      expect(find.text(_l.reqQrPaidHeadline(epicExact(_l, _epic(12.5)))), findsOneWidget);
+      expect(find.text(_l.reqQrPaidHeadline(epicExact(_l, epic(12.5)))), findsOneWidget);
       expect(find.text('Table 4'), findsOneWidget);
       expect((await h.session.issuedInvoice(slateId: request.slate.slateId))!.state, IssuedInvoiceState.paid);
 
@@ -240,8 +239,8 @@ void main() {
 
     testWidgets('an answer to another request is refused on the request screen; nothing is finished', (tester) async {
       final h = _Harness();
-      final other = await h.session.pairing.requestFile(amount: _epic(3));
-      final otherAnswer = await h.session.payRequestFile(slateJson: other.json, amount: _epic(3));
+      final other = await h.session.pairing.requestFile(amount: epic(3));
+      final otherAnswer = await h.session.payRequestFile(slateJson: other.json, amount: epic(3));
       await h.pump(tester, const InvoiceRequestScreen(asQr: true));
       await _type(tester, '5');
       await tester.tap(find.byKey(requestShowQrKey));
@@ -269,7 +268,7 @@ void main() {
       await tester.tap(find.byKey(requestFileApproveKey));
       await tester.pumpAndSettle();
       await answerPin(tester);
-      expect(h.session.paidRequestFiles['req-qr-1']!.amount, _epic(12.5));
+      expect(h.session.paidRequestFiles['req-qr-1']!.amount, epic(12.5));
       expect(find.byType(QrShowScreen), findsOneWidget);
       expect(find.text(_l.qrStatusPaidHidden), findsOneWidget);
       expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
