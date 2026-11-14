@@ -25,7 +25,7 @@ import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'kept_messages_dialog.dart';
 import 'message_check_panel.dart';
-import 'rail.dart' show RailItem;
+import 'service_rows.dart' show RailItem;
 import 'relay_offer.dart';
 import 'status_parts.dart';
 

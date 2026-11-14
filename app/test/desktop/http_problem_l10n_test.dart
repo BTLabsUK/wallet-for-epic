@@ -2,7 +2,7 @@
 // The HTTP listener's failure is kept structured and worded at display time, so the sidebar and
 // the status card read right in every language, not only in English.
 import 'package:epic_wallet/l10n/app_localizations.dart';
-import 'package:epic_wallet/src/desktop/app/rail.dart';
+import 'package:epic_wallet/src/desktop/app/service_rows.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';

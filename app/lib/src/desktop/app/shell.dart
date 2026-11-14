@@ -47,7 +47,7 @@ import '../screens/settings/search/settings_sections.dart' show settingsFallback
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_failover.dart';
-import 'rail.dart';
+import 'service_rows.dart';
 import 'screens.dart';
 import 'close_guard.dart';
 import 'last_session_offer.dart';
@@ -57,7 +57,7 @@ import 'status_bar.dart' show DeskStatusBar;
 import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
 
-export 'rail.dart' show ServiceRows;
+export 'service_rows.dart' show ServiceRows;
 
 /// The app version About, the title bar's tooltip and the support report show, with the
 /// build's commit.

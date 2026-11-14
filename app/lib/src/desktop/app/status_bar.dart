@@ -26,7 +26,7 @@ import '../screens/settings/settings_privacy.dart' show deskChooseNetworkMode, d
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'now_slot.dart';
-import 'rail.dart';
+import 'service_rows.dart';
 import 'shell.dart' show deskVersion;
 import 'status_popover.dart';
 import 'title_bar.dart' show DeskBarButton, DeskBarMenu, deskMenuToggle;

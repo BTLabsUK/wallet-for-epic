@@ -3,7 +3,7 @@
 // clearnet HTTP listener off while it is on, and Epicbox waiting for it, never going around it.
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
-import 'package:epic_wallet/src/desktop/app/rail.dart';
+import 'package:epic_wallet/src/desktop/app/service_rows.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/tor_view.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show SettingsJump;

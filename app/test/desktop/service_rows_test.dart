@@ -3,7 +3,7 @@
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
-import 'package:epic_wallet/src/desktop/app/rail.dart';
+import 'package:epic_wallet/src/desktop/app/service_rows.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/node_view.dart';

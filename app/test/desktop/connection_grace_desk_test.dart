@@ -3,7 +3,7 @@
 // Connecting on the status icons, and its notice (Epicbox down) waits; after it the notice shows,
 // one line with the switch named by its server.
 import 'package:epic_wallet/src/connection_grace.dart';
-import 'package:epic_wallet/src/desktop/app/rail.dart' show RailItem;
+import 'package:epic_wallet/src/desktop/app/service_rows.dart' show RailItem;
 import 'package:epic_wallet/src/desktop/app/status_popover.dart' show graceRailItems;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show SettingsJump;
 import 'package:epic_wallet/src/desktop/screens/transfer/epicbox_notice.dart';
