@@ -91,14 +91,7 @@ class InvoiceReview extends ConsumerWidget {
     final ts = context.ts;
     final i = invoice;
     final balance = ref.watch(deskProvider.select((s) => s.balance));
-    // Not ready as Send counts it: no answer, or the local node at height 0 still downloading.
-    final nodeDown = ref.watch(
-      deskProvider.select((st) {
-        final s = st.status;
-        if (s == null || (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0)) return true;
-        return s.nodeHealth != ServiceHealth.ok && s.nodeHealth != ServiceHealth.slow;
-      }),
-    );
+    final nodeDown = ref.watch(deskProvider.select(_nodeNotReady));
     final spendable = balance?.spendable;
     final open = i.state == PayState.waiting && i.expiresAt.isAfter(book.now);
     final gate = deskPayGate(spendable, amount: i.amount, fee: i.feeKnown ? i.fee : null);
@@ -145,25 +138,7 @@ class InvoiceReview extends ConsumerWidget {
       children: [
         Text(l.invoiceReviewMessageLabel(i.label), style: ts.label),
         SizedBox(height: Sp.x2),
-        Container(
-          padding: EdgeInsets.all(Sp.x4),
-          decoration: BoxDecoration(
-            color: c.s1,
-            borderRadius: BorderRadius.circular(Rad.sm),
-            border: Border.all(color: c.lineStrong),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(EIcons.note, size: Ctl.iconSm, color: c.faint),
-              SizedBox(width: Sp.x3),
-              Expanded(
-                // Plain text only: never a link, never rich text.
-                child: Text(message.isEmpty ? l.deskInvPayerNoMessage : message, style: ts.mono(size: Fs.sm, color: message.isEmpty ? c.faint : c.text)),
-              ),
-            ],
-          ),
-        ),
+        _MessageBox(message),
         SizedBox(height: Sp.x1),
         Text(l.deskInvPayerMessageCaption(i.label), style: ts.caption),
       ],
@@ -364,14 +339,7 @@ class RequestFileReview extends ConsumerWidget {
     final ts = context.ts;
     final f = file;
     final balance = ref.watch(deskProvider.select((s) => s.balance));
-    // Not ready as Send counts it: no answer, or the local node at height 0 still downloading.
-    final nodeDown = ref.watch(
-      deskProvider.select((st) {
-        final s = st.status;
-        if (s == null || (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0)) return true;
-        return s.nodeHealth != ServiceHealth.ok && s.nodeHealth != ServiceHealth.slow;
-      }),
-    );
+    final nodeDown = ref.watch(deskProvider.select(_nodeNotReady));
     final spendable = balance?.spendable;
     final open = !f.alreadyPaid;
     final gate = deskPayGate(spendable, amount: f.amount, fee: f.feeKnown ? f.fee : null);
@@ -407,25 +375,7 @@ class RequestFileReview extends ConsumerWidget {
       children: [
         Text(l.reqFileMessageLabel, style: ts.label),
         SizedBox(height: Sp.x2),
-        Container(
-          padding: EdgeInsets.all(Sp.x4),
-          decoration: BoxDecoration(
-            color: c.s1,
-            borderRadius: BorderRadius.circular(Rad.sm),
-            border: Border.all(color: c.lineStrong),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(EIcons.note, size: Ctl.iconSm, color: c.faint),
-              SizedBox(width: Sp.x3),
-              Expanded(
-                // Plain text only: never a link, never rich text.
-                child: Text(message.isEmpty ? l.deskInvPayerNoMessage : message, style: ts.mono(size: Fs.sm, color: message.isEmpty ? c.faint : c.text)),
-              ),
-            ],
-          ),
-        ),
+        _MessageBox(message),
       ],
     );
 
@@ -514,6 +464,45 @@ class _FileTile extends StatelessWidget {
       height: 40.u,
       decoration: c.well,
       child: Icon(EIcons.file, size: Ctl.icon, color: c.dim),
+    );
+  }
+}
+
+/// Not ready as Send counts it: the node does not answer, or the local node at height 0 is
+/// still downloading the chain.
+bool _nodeNotReady(DeskState st) {
+  final s = st.status;
+  if (s == null || (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0)) return true;
+  return s.nodeHealth != ServiceHealth.ok && s.nodeHealth != ServiceHealth.slow;
+}
+
+/// A request's message as its sender wrote it, or that there is none. Plain text only: never a
+/// link, never rich text.
+class _MessageBox extends StatelessWidget {
+  const _MessageBox(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      padding: EdgeInsets.all(Sp.x4),
+      decoration: BoxDecoration(
+        color: c.s1,
+        borderRadius: BorderRadius.circular(Rad.sm),
+        border: Border.all(color: c.lineStrong),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(EIcons.note, size: Ctl.iconSm, color: c.faint),
+          SizedBox(width: Sp.x3),
+          Expanded(
+            child: Text(message.isEmpty ? context.l10n.deskInvPayerNoMessage : message, style: context.ts.mono(size: Fs.sm, color: message.isEmpty ? c.faint : c.text)),
+          ),
+        ],
+      ),
     );
   }
 }
