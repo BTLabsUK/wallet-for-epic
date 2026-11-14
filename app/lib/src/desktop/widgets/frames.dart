@@ -108,7 +108,6 @@ class EPage extends StatelessWidget {
             ],
           ),
         ),
-        // A breath between the title row and the content (its first row of tabs or tiles).
         Expanded(
           child: scroll && fill != null
               ? CustomScrollView(
@@ -157,8 +156,6 @@ class _BackButton extends StatelessWidget {
   );
 }
 
-/// A window too short for the opening screens' full spacing (under 640 u tall).
-bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < 760 * deskScale / deskBase;
 
 /// The full-window backdrop of the screens that open the app: a pool of accent light at the
 /// top and a measurement grid fading out.
@@ -432,7 +429,7 @@ class EOnbFrame extends StatelessWidget {
   /// The card's mark; none for a card of words.
   final IconData? icon;
 
-  /// The card's width: 480 unless given ([wide], [mid]).
+  /// The card's width: [Max.auth] unless given ([wide], [mid]).
   final double? width;
 
   @override
@@ -440,12 +437,11 @@ class EOnbFrame extends StatelessWidget {
     final l = context.l10n;
     final ts = context.ts;
     final window = MediaQuery.sizeOf(context);
-    // Short as the canvas means it (760 canvas px): an 800-high window keeps the full spacing.
-    final short = window.height < 760 * deskScale / deskBase;
+    final short = isShortWindow(context);
     final current = steps.indexWhere((s) => s.current);
     final back = onBack == null ? null : EButton(key: const ValueKey('onb-back'), label: backLabel ?? l.deskSetupBack, tabStop: false, onPressed: onBack);
     Widget card({required bool bounded, required Widget body, bool scrolls = false}) => EModalCard(
-      width: width ?? 480.u,
+      width: width ?? Max.auth,
       icon: icon,
       title: title,
       heading: heading,
@@ -466,10 +462,10 @@ class EOnbFrame extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: Sp.x6),
         child: LayoutBuilder(
           builder: (context, box) {
-            // The track from a bar of 720; a narrower one says "Step 2 of 4".
+            // The track in a bar with the room for it; a narrower one says "Step 2 of 4".
             final Widget? track = steps.length < 2
                 ? null
-                : box.maxWidth < 720.u
+                : box.maxWidth < Lay.lg
                 ? (current < 0 ? null : Text(l.deskKitStepOf(current + 1, steps.length), style: ts.caption, maxLines: 1, overflow: TextOverflow.ellipsis))
                 : ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: (window.width < Bp.desktop ? 107 : 140).u * steps.length),

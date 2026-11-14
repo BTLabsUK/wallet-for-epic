@@ -120,16 +120,9 @@ class EDialog extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final window = MediaQuery.sizeOf(context);
-    final narrow = window.width < Bp.desktop;
-    // A short window (the canvas tightens under 760): a smaller mark and less air, so the body
-    // keeps its room.
-    // Short as the canvas means it (760 canvas px): an 800-high window keeps the full spacing.
-    final short = window.height < 760 * deskScale / deskBase;
-    final padRaw = (narrow ? 20 : 28).toDouble();
-    final padX = padRaw.u;
-    final padTop = (short ? 18 : (narrow ? 22 : 28)).u;
-    final padEnd = (narrow ? 16 : 20).u;
+    final m = ModalMetrics.of(context);
+    final short = m.short;
+    final padX = m.padX;
     final enter = _enterLabel;
     final strip = dismissible || enter != null || keys.isNotEmpty;
     final dialog = Dialog(
@@ -161,12 +154,12 @@ class EDialog extends StatelessWidget {
                     constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.4),
                     child: SingleChildScrollView(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(padX, padTop, padX, 0),
+                        padding: EdgeInsets.fromLTRB(padX, m.padTop, padX, 0),
                         child: Column(
                           children: [
                             EModalMark(tone: tone, icon: icon ?? toneIcon(tone), short: short),
                             // Room between the mark, the title and what follows, the same in every modal.
-                            SizedBox(height: short ? Sp.x3 : Sp.x5),
+                            SizedBox(height: m.markGap),
                             Semantics(
                               header: true,
                               child: titleTrailing == null
@@ -183,7 +176,7 @@ class EDialog extends StatelessWidget {
                             if (description != null) ...[
                               SizedBox(height: Sp.x2),
                               ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: 380.u),
+                                constraints: BoxConstraints(maxWidth: ModalMetrics.leadWidth),
                                 child: Text(description!, style: ts.bodyDim, textAlign: TextAlign.center),
                               ),
                             ],
@@ -195,18 +188,18 @@ class EDialog extends StatelessWidget {
                   if (body != null)
                     Flexible(
                       child: SingleChildScrollView(
-                        child: Padding(padding: EdgeInsets.fromLTRB(padX, short ? Sp.x4 : Sp.x6, padX, 0), child: body),
+                        child: Padding(padding: EdgeInsets.fromLTRB(padX, m.bodyTop, padX, 0), child: body),
                       ),
                     ),
                   if (foot != null) Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: foot),
                   if (actions.isNotEmpty)
                     Padding(
-                      padding: EdgeInsets.fromLTRB(padX, short ? Sp.x4 : 22.u, padX, 0),
+                      padding: EdgeInsets.fromLTRB(padX, m.footTop, padX, 0),
                       child: EModalButtons(actions: actions),
                     ),
                   if (strip)
                     EModalKeys(
-                      padX: padRaw,
+                      padX: m.padRaw,
                       short: short,
                       hints: [
                         if (dismissible) EKeyHint(keys: l.deskSetFrameEscKey, does: l.commonClose),
@@ -215,7 +208,7 @@ class EDialog extends StatelessWidget {
                       ],
                     )
                   else
-                    SizedBox(height: padEnd),
+                    SizedBox(height: m.padEnd),
                 ],
               ),
               if (dismissible)

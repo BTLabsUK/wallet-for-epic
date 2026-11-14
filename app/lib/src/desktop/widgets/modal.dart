@@ -10,6 +10,40 @@ import 'surfaces.dart';
 /// The parts of the one modal surface: the dialog ([EDialog]) and the first-run card
 /// ([EModalCard], the Start screens) share them, so the two never drift.
 
+/// The window height (canvas pixels) under which the modals and the opening screens tighten.
+const double _shortBelow = 760;
+
+/// A window too short for a modal's or an opening screen's full spacing. The height is the
+/// canvas's, so a window that tall at 100 % keeps the full spacing at every interface scale.
+bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < _shortBelow * deskScale / deskBase;
+
+/// The measures the dialog and the card share, from the window they are in: less padding in a
+/// narrow window, a smaller mark and less air in a short one, so the body keeps its room.
+class ModalMetrics {
+  ModalMetrics.of(BuildContext context) : narrow = MediaQuery.sizeOf(context).width < Bp.desktop, short = isShortWindow(context);
+
+  final bool narrow;
+  final bool short;
+
+  /// The side padding before the interface scale ([EModalKeys] scales it itself).
+  double get padRaw => narrow ? 20 : 28;
+  double get padX => padRaw.u;
+  double get padTop => (short ? 18 : (narrow ? 22 : 28)).u;
+
+  /// Under the footer when no key strip closes the modal.
+  double get padEnd => (narrow ? 16 : 20).u;
+
+  /// Between the mark and the title.
+  double get markGap => short ? Sp.x3 : Sp.x5;
+
+  /// Over the body, and over the footer.
+  double get bodyTop => short ? Sp.x4 : Sp.x6;
+  double get footTop => short ? Sp.x4 : 22.u;
+
+  /// The widest the one sentence under the title runs.
+  static double get leadWidth => 380.u;
+}
+
 /// A tone's line and soft colours; neutral and gold wear the brand's.
 (Color line, Color soft) modalTone(BuildContext context, ETone tone) {
   final c = context.dc;
@@ -242,12 +276,9 @@ class EModalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final window = MediaQuery.sizeOf(context);
-    final narrow = window.width < Bp.desktop;
-    // Short as the canvas means it (760 canvas px): an 800-high window keeps the full spacing.
-    final short = window.height < 760 * deskScale / deskBase;
-    final padX = (narrow ? 20 : 28).toDouble();
-    final pad = padX.u;
+    final m = ModalMetrics.of(context);
+    final short = m.short;
+    final pad = m.padX;
     final head = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -255,7 +286,7 @@ class EModalCard extends StatelessWidget {
         if (icon != null || mark != null) ...[
           Center(child: EModalMark(tone: tone, icon: icon, short: short, child: mark)),
           // Room between the mark, the title and what follows, the same in every modal.
-          SizedBox(height: short ? Sp.x3 : Sp.x5),
+          SizedBox(height: m.markGap),
         ],
         if (heading != null)
           heading!
@@ -265,14 +296,14 @@ class EModalCard extends StatelessWidget {
           SizedBox(height: Sp.x2),
           Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: width >= 600.u ? 560.u : 380.u),
+              constraints: BoxConstraints(maxWidth: width >= 600.u ? 560.u : ModalMetrics.leadWidth),
               child: Text(lead!, style: ts.bodyDim, textAlign: TextAlign.center),
             ),
           ),
         ],
       ],
     );
-    final bodyPad = EdgeInsets.fromLTRB(pad, short ? Sp.x4 : Sp.x6, pad, 0);
+    final bodyPad = EdgeInsets.fromLTRB(pad, m.bodyTop, pad, 0);
     final content = body == null ? null : (scrolls ? _CardScroll(padding: bodyPad, child: body!) : Padding(padding: bodyPad, child: body));
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: width),
@@ -288,7 +319,7 @@ class EModalCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(padding: EdgeInsets.fromLTRB(pad, (short ? 18 : (narrow ? 22 : 28)).u, pad, 0), child: head),
+                Padding(padding: EdgeInsets.fromLTRB(pad, m.padTop, pad, 0), child: head),
                 if (content != null) bounded ? Flexible(child: content) : content,
                 if (status != null)
                   Padding(
@@ -297,10 +328,10 @@ class EModalCard extends StatelessWidget {
                   ),
                 if (actions.isNotEmpty)
                   Padding(
-                    padding: EdgeInsets.fromLTRB(pad, status != null ? Sp.x2 : (short ? Sp.x4 : 22.u), pad, 0),
+                    padding: EdgeInsets.fromLTRB(pad, status != null ? Sp.x2 : m.footTop, pad, 0),
                     child: EModalButtons(actions: actions),
                   ),
-                if (keys.isNotEmpty) EModalKeys(hints: keys, padX: padX, short: short) else SizedBox(height: (narrow ? 16 : 20).u),
+                if (keys.isNotEmpty) EModalKeys(hints: keys, padX: m.padRaw, short: short) else SizedBox(height: m.padEnd),
               ],
             ),
           ],
