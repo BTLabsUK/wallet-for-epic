@@ -209,6 +209,13 @@ class AppConfig {
   /// has not answered shows "Not answering".
   Duration get contactsCheckWait => _s('contacts.check_wait_s');
 
+  /// The foreground check reads a contact with something in flight this often,
+  Duration get contactsInFlightCheck => _s('contacts.in_flight_check_s');
+
+  /// ... and every contact at the first wait, then the next after each check with no message
+  /// (the last repeats).
+  List<Duration> get contactsIdleChecks => [for (final s in value('contacts.idle_check_s') as List<int>) Duration(seconds: s)];
+
   // [camera]
 
   /// The desktop QR scan says No picture when the first frame takes longer than this,
@@ -243,6 +250,20 @@ class AppConfig {
 
   Duration get listenerHealAfter => _s('epicbox.listener_heal_after_s');
   Duration get listenerHealMax => _s('epicbox.listener_heal_max_s');
+
+  /// A listener socket is left when no Challenge comes within this many of the relay's intervals; 2 to 10.
+  int get listenerChallengeRounds => _int('epicbox.listener_challenge_rounds');
+
+  /// Back from the background after this long, the payments drain runs and the listener
+  /// reconnects even when it says connected: its socket may have died meanwhile.
+  Duration get resumeReconnectAfter => _s('epicbox.resume_reconnect_after_s');
+
+  /// Push sessions (mux/1) to the Epicbox relays: the listener and the contacts share a socket per
+  /// relay and group; a relay without mux/1 keeps today's sockets. False: today's calls exactly.
+  bool get epicboxMux => value('epicbox.mux') as bool;
+
+  /// How often a relay re-checks the mailboxes of a waiting session on its own, in seconds; 1 to 86400.
+  int get epicboxMuxWaitingCheckS => _int('epicbox.mux_waiting_check_s');
 
   // [http]
   int get httpListenPort => _int('http.listen_port');
@@ -338,9 +359,6 @@ class AppConfig {
   List<String> get vpnSuffixes => _texts('network.vpn_suffixes');
 
   // [payments]
-  Duration get watchFastEvery => _s('payments.watch_fast_every_s');
-  Duration get watchFastFor => _s('payments.watch_fast_for_s');
-  Duration get watchSlowEvery => _s('payments.watch_slow_every_s');
   Duration get watchFor => _s('payments.watch_for_s');
   List<Duration> get repostWaits => [for (final m in value('payments.repost_waits_min') as List<int>) Duration(minutes: m)];
   List<Duration> get answerResendWaits => [

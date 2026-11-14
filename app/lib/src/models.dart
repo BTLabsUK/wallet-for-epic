@@ -3317,6 +3317,7 @@ class PairingRecord {
     this.domainStatus,
     this.relayMove = RelayMoveState.none,
     this.movedAt,
+    this.awaiting = false,
   });
 
   /// The record's local id: never sent, never a key.
@@ -3438,6 +3439,11 @@ class PairingRecord {
   /// When this wallet moved the contact to [homeRelay], within the last 30 days; null otherwise.
   final DateTime? movedAt;
 
+  /// Something is under way with this contact: a message waiting to go out, a payment not yet
+  /// finished, or an invoice from it waiting for an answer (`ContactView.awaiting`). The
+  /// foreground check reads only these between its full checks.
+  final bool awaiting;
+
   /// The other side removed this pairing and said so (RFC 7.6): nothing sent through it
   /// arrives any more. Kept, with its history, until the user removes it here too.
   bool get removedByPeer => endedReason == PairingEndReason.unpaired;
@@ -3510,6 +3516,7 @@ class PairingRecord {
     DomainStatus? domainStatus,
     RelayMoveState? relayMove,
     DateTime? movedAt,
+    bool? awaiting,
   }) => PairingRecord(
     id: id,
     state: state ?? this.state,
@@ -3549,6 +3556,7 @@ class PairingRecord {
     domainStatus: domainStatus ?? this.domainStatus,
     relayMove: relayMove ?? this.relayMove,
     movedAt: movedAt ?? this.movedAt,
+    awaiting: awaiting ?? this.awaiting,
   );
 }
 

@@ -11,13 +11,15 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
+import 'support/no_boosts.dart';
+
 const _shop = 'contact-shop';
 
 lepic.WalletError _lepicError(lepic.WalletErrorKind kind) =>
     lepic.WalletError(kind: kind, code: 0, message: kind.name);
 
 /// LEPIC's contact invoices in memory. Fails any other native call.
-class _InvoiceWallet implements lepic.EpicWallet {
+class _InvoiceWallet with NoBoosts implements lepic.EpicWallet {
   final List<lepic.ContactInvoiceView> waiting = [];
   final List<lepic.TransactionDetails> stored = [];
   final List<lepic.OutboxEntryView> outbox = [];

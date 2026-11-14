@@ -1013,8 +1013,9 @@ class FakePairing implements PairingApi {
   }
 
   @override
-  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
+  Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground, List<String>? only}) async {
     collects.add(trigger);
+    collectedOnly.add(only);
     if (!enabled) return 0;
     final now = clock();
     var taken = 0;
@@ -1278,6 +1279,16 @@ class FakePairing implements PairingApi {
 
   /// Every [collect], by its trigger.
   final List<PairingCollectTrigger> collects = [];
+
+  /// The `only` of each [collect], in step with [collects].
+  final List<List<String>?> collectedOnly = [];
+
+  @override
+  int messagesCollected = 0;
+
+  /// What [collecting] says; a test sets it.
+  @override
+  bool collecting = false;
 
   /// The pairing and slate inside sealed [text], as [openSlate] reads it.
   ({String id, String slateJson}) _inside(String text) {

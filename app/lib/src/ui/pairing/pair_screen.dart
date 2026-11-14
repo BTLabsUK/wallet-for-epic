@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import '../../providers.dart' show sessionProvider;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../wallet_service.dart';
@@ -74,7 +75,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   PairingRecord? _code;
   String? _error;
   bool _busy = false;
-  PairingCollector? _collector;
+  void Function()? _unboost;
   StreamSubscription<PairingEvent>? _events;
 
   /// Pairings answered while this screen is up: the status under the code follows them.
@@ -91,7 +92,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     final api = ref.read(pairingApiProvider);
-    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(api)..start();
+    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 10));
     _events = api.events().listen(_onEvent);
     WidgetsBinding.instance.addPostFrameCallback((_) => _makeCode());
   }
@@ -99,7 +100,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
-    _collector?.stop();
+    _unboost?.call();
     _events?.cancel();
     super.dispose();
   }

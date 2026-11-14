@@ -11,6 +11,7 @@ import 'dart:ui' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkModeRestricted;
+import '../../contact_check.dart' show contactsInFlight;
 import '../../log.dart';
 import '../../name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
 import '../../notice_digest.dart' show NoticeDigest;
@@ -55,6 +56,12 @@ final deskPairNetProvider = Provider<DeskPairNet>((ref) {
   return s.payments.epicbox ? DeskPairNet.online : DeskPairNet.epicboxOff;
 });
 
+/// The contacts something is in flight with, as the ids the foreground check reads
+/// ([contactsInFlight]): pairings in progress and contacts LEPIC marks as awaiting.
+final deskContactsInFlightProvider = Provider<List<String>>((ref) {
+  return contactsInFlight(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]);
+});
+
 /// Every pairing, newest first; reloads on every pairing event.
 final deskPairingsProvider = AsyncNotifierProvider<DeskPairings, List<PairingRecord>>(DeskPairings.new);
 
@@ -63,6 +70,15 @@ class DeskPairings extends AsyncNotifier<List<PairingRecord>> {
   Future<List<PairingRecord>> build() async {
     final api = ref.watch(deskPairingApiProvider);
     if (!api.supported) return const [];
+    // A payment through a contact starting or finishing changes `awaiting`, with no pairing event.
+    ref.watch(
+      deskProvider.select(
+        (s) => [
+          for (final t in s.txs ?? const <Tx>[])
+            if (t.pairingId != null) '${t.id}:${t.state.name}',
+        ].join(','),
+      ),
+    );
     final sub = api.events().listen((_) => ref.invalidateSelf());
     ref.onDispose(sub.cancel);
     return api.pairings();

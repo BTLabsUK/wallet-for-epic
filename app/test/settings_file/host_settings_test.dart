@@ -43,6 +43,15 @@ void main() {
       expect(c.localNodeApiPort, isNot(c.localNodeP2pPort));
     });
 
+    test('an app-config.toml with the retired watch keys still loads; watch_for_s is capped at 600', () {
+      const old = 'watch_fast_every_s = 4\nwatch_fast_for_s = 120\nwatch_slow_every_s = 10\n';
+      final withOld = _configText.replaceFirst('watch_for_s', '${old}watch_for_s');
+      expect(withOld, isNot(_configText));
+      expect(AppConfig.fromText(withOld).watchFor, const Duration(seconds: 300));
+      final tooLong = _configText.replaceFirst(RegExp(r'watch_for_s = \d+'), 'watch_for_s = 601');
+      expect(() => AppConfig.fromText(tooLong), throwsStateError);
+    });
+
     test('the first entry of each list is in use; the next node is the fallback', () {
       final s = HostSettings.fromText(_defaultText, config: AppConfig.fromText(_configText));
       expect(s.nodeUse, s.nodeUrls.first);
@@ -95,6 +104,49 @@ void main() {
       ]);
       expect(r.settings.nodeUse, 'https://good.example.invalid');
       expect(r.settings.statusEnabled, shipped.statusEnabled);
+    });
+
+    test('listener_challenge_rounds is 3 as shipped; 2 to 10 load, 0, 1 and 11 do not', () {
+      expect(AppConfig.fromText(_configText).listenerChallengeRounds, 3);
+      String rounds(int n) => _configText.replaceFirst('listener_challenge_rounds = 3', 'listener_challenge_rounds = $n');
+      for (final good in [2, 10]) {
+        expect(AppConfig.fromText(rounds(good)).listenerChallengeRounds, good);
+      }
+      for (final bad in [0, 1, 11]) {
+        expect(() => AppConfig.fromText(rounds(bad)), throwsStateError, reason: '$bad');
+      }
+    });
+
+    test('mux is on and mux_waiting_check_s is 300 when left out; both load as written, the check 1 to 86400', () {
+      final c = AppConfig.fromText(_configText);
+      expect(c.epicboxMux, isTrue);
+      expect(c.epicboxMuxWaitingCheckS, 300);
+      final set = AppConfig.fromText(
+        _configText.replaceFirst('[epicbox]', '[epicbox]\nmux = false\nmux_waiting_check_s = 60'),
+      );
+      expect(set.epicboxMux, isFalse);
+      expect(set.epicboxMuxWaitingCheckS, 60);
+      for (final bad in [0, 86401]) {
+        expect(
+          () => AppConfig.fromText(_configText.replaceFirst('[epicbox]', '[epicbox]\nmux_waiting_check_s = $bad')),
+          throwsStateError,
+          reason: '$bad',
+        );
+      }
+    });
+
+    test('resume_reconnect_after_s is 60 s as shipped and by default; 5 to 86400 load, 4 and 86401 do not', () {
+      expect(AppConfig.fromText(_configText).resumeReconnectAfter, const Duration(seconds: 60));
+      String after(int n) => _configText.replaceFirst('resume_reconnect_after_s = 60', 'resume_reconnect_after_s = $n');
+      for (final good in [5, 86400]) {
+        expect(AppConfig.fromText(after(good)).resumeReconnectAfter, Duration(seconds: good));
+      }
+      for (final bad in [4, 86401]) {
+        expect(() => AppConfig.fromText(after(bad)), throwsStateError, reason: '$bad');
+      }
+      // A file from before the key: the default.
+      final old = _configText.split('\n').where((l) => !l.startsWith('resume_reconnect_after_s')).join('\n');
+      expect(AppConfig.fromText(old).resumeReconnectAfter, const Duration(seconds: 60));
     });
 
     test('[local_node] sets the built-in node ports; a port under 1024 or equal text is skipped', () {

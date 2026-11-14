@@ -20,7 +20,7 @@ import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../name_service/base58.dart' show netMainnet;
-import '../../name_service/name_service_service.dart' show NameServiceHost;
+import '../../name_service/name_service_service.dart' show ListingDrain, NameServiceHost;
 import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
@@ -28,7 +28,9 @@ import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, QrSlateProgress, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
+import '../../boosts.dart' show Boosts, MemoryBoosts;
 import '../../epic1.dart';
+import '../../epicbox_mux.dart' show EpicboxMux;
 import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -36,7 +38,7 @@ import '../../seed_contacts.dart';
 import '../../slate_files.dart' show isSealedText, responseFileName, sealedFileName, sendFileName;
 import '../../pairing_text.dart' show pairingName;
 import '../../finished_payment.dart' show readFinishedPayment;
-import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, qrSingleCodeMaxLen, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, qrSingleCodeMaxLen, ListingDrainResult, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
 import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
 import '../../history/name_service_pins.dart';
 import '../../history/meta_store.dart' show Meta;
@@ -1452,6 +1454,13 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Epic1Wallet? get epic1 => epic1Fake;
 
+  @override
+  final MemoryBoosts boosts = MemoryBoosts();
+
+  /// The prototype has no relay to push from.
+  @override
+  EpicboxMux? get mux => null;
+
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
   /// pairings. The Prototype panel and the tour drive its other side.
   @override
@@ -1720,6 +1729,8 @@ class _MockNameServiceHost implements NameServiceHost {
 
   @override
   final FakePairing pairing;
+  @override
+  final Boosts boosts = MemoryBoosts();
   final bool Function() _online;
   final FakeListingKeys _keys = FakeListingKeys();
 
@@ -1741,6 +1752,9 @@ class _MockNameServiceHost implements NameServiceHost {
 
   @override
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _keys.drainListing(serviceKeyHex, generation);
+
+  @override
+  Future<List<ListingDrainResult>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
 }
 
 class _MockDeviceHost implements DeviceHost {
@@ -1748,6 +1762,8 @@ class _MockDeviceHost implements DeviceHost {
 
   @override
   final FakePairing pairing;
+  @override
+  final Boosts boosts = MemoryBoosts();
   final bool Function() _online;
   final Future<List<WalletOutput>> Function() _outputs;
 

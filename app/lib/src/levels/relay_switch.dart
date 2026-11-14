@@ -32,7 +32,7 @@ const Duration relayStableFor = Duration(minutes: 2);
 const Duration relayKeepWaitingFor = Duration(minutes: 30);
 
 /// How long an old relay is still drained after the wallet moved off it.
-const Duration relayDrainWindow = Duration(days: 30);
+const Duration relayDrainWindow = Duration(days: 7);
 
 /// How often a live old relay is drained while a wallet is open.
 const Duration relayDrainEvery = Duration(minutes: 10);

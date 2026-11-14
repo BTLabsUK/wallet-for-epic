@@ -321,6 +321,10 @@ const List<SettingsKey> configKeys = [
   SettingsKey('epicbox.listener_heal_after_s', _seconds),
   SettingsKey('epicbox.listener_heal_max_s', _seconds),
   SettingsKey('epicbox.listener_held_rounds', IntKind(min: 1, max: 64), byDefault: 8),
+  SettingsKey('epicbox.listener_challenge_rounds', IntKind(min: 2, max: 10), byDefault: 3),
+  SettingsKey('epicbox.resume_reconnect_after_s', IntKind(min: 5, max: 86400), byDefault: 60),
+  SettingsKey('epicbox.mux', BoolKind(), byDefault: true),
+  SettingsKey('epicbox.mux_waiting_check_s', IntKind(min: 1, max: 86400), byDefault: 300),
   // [http]: the Link · HTTP listener and HTTP sends.
   SettingsKey('http.listen_port', _port),
   SettingsKey('http.header_timeout_s', _seconds),
@@ -403,20 +407,22 @@ const List<SettingsKey> configKeys = [
   SettingsKey('notices.early_notice_max_count', IntKind(min: 1, max: 10000), byDefault: 256),
   SettingsKey('notices.early_notice_max_age_s', IntKind(min: 1, max: 2592000), byDefault: 604800),
   // [payments]
-  SettingsKey('payments.watch_fast_every_s', _seconds),
-  SettingsKey('payments.watch_fast_for_s', _seconds),
-  SettingsKey('payments.watch_slow_every_s', _seconds),
-  // Above the 180 s the network holds a new transaction (Dandelion's embargo).
-  SettingsKey('payments.watch_for_s', IntKind(min: 181, max: 86400)),
+  // How long the node is boosted from a payment's step or block; above the 180 s the network
+  // holds a new transaction (Dandelion's embargo).
+  SettingsKey('payments.watch_for_s', IntKind(min: 181, max: 600)),
   SettingsKey('payments.repost_waits_min', IntListKind(min: 1, max: 1440)),
   SettingsKey('payments.answer_resend_waits_min', IntListKind(min: 1, max: 1440)),
   // [contacts]: a wallet not opened for this many days says so on opening
   SettingsKey('contacts.stale_after_days', IntKind(min: 1, max: 3650), byDefault: 7),
   // ... and, after the check, waits this long for the answers
   SettingsKey('contacts.check_wait_s', IntKind(min: 15, max: 3600), byDefault: 120),
+  // ... the foreground check reads a contact with something in flight this often, and every
+  // contact at these waits, one more each check that finds nothing
+  SettingsKey('contacts.in_flight_check_s', IntKind(min: 15, max: 3600), byDefault: 45),
+  SettingsKey('contacts.idle_check_s', IntListKind(min: 15, max: 3600), byDefault: [45, 90, 180, 300]),
   // ... and a contact's message that fails to apply is held for this many attempts and seconds
-  SettingsKey('contacts.hold_attempts', IntKind(min: 1, max: 100), byDefault: 10),
-  SettingsKey('contacts.hold_patience_s', IntKind(min: 1, max: 604800), byDefault: 86400),
+  SettingsKey('contacts.hold_attempts', IntKind(min: 1, max: 100), byDefault: 3),
+  SettingsKey('contacts.hold_patience_s', IntKind(min: 1, max: 604800), byDefault: 180),
   // ... then kept on this device, up to this size in all and this long
   SettingsKey('contacts.quarantine_max_bytes', IntKind(min: 1, max: 67108864), byDefault: 16777216),
   SettingsKey('contacts.quarantine_keep_days', IntKind(min: 1, max: 3650), byDefault: 30),
