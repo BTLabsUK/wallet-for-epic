@@ -50,6 +50,13 @@ class _DownWallet extends MockDeskWallet {
     );
   }
 
+  /// Node failover's probe asks the node too: a node that is down does not answer it.
+  @override
+  Future<NodeServer> checkNode(String url) async {
+    final n = await super.checkNode(url);
+    return _node ? NodeServer(url: n.url, label: n.label, operator: n.operator, health: ServiceHealth.down, own: n.own) : n;
+  }
+
   @override
   Future<List<NodeServer>> nodes() async => [
     for (final n in await super.nodes())
