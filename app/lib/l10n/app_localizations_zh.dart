@@ -20328,4 +20328,53 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneBackupReminderAction => '立即备份';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount 确认中 · 等待 $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount 确认中 · 等待回复';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount 确认中 · 等待 $count 个回复';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount 确认中 · 约 $minutes 分钟';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount 确认中 · 下一笔约 $minutes 分钟';
+  }
+
+  @override
+  String get phoneChangeRowReply => '等待对方接受';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return '等待区块 · 约 $minutes 分钟';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return '约 $minutes 分钟 · $count/$target 次确认';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => '现可用';
+
+  @override
+  String get phoneBalanceArriving => '到账中';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return '一笔发送会花掉整枚币。余额会退回，在 $target 次确认后可用，即付款进入区块后约 $target 分钟。若发送被取消，全部金额会退回。';
+  }
 }

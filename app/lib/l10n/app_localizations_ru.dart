@@ -22141,4 +22141,53 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneBackupReminderAction => 'Сохранить сейчас';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount подтверждается · ждёт $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount подтверждается · ждёт ответа';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount подтверждается · ждёт ответов: $count';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount подтверждается · около $minutes мин';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount подтверждается · следующий через $minutes мин';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'ждёт принятия';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'ждёт блока · около $minutes мин';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'около $minutes мин · $count из $target подтверждений';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Доступно сейчас';
+
+  @override
+  String get phoneBalanceArriving => 'Поступает';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'Отправка тратит монеты целиком. Остаток возвращается и доступен после $target подтверждений, примерно через $target мин после попадания платежа в блок. Если отправку отменить, вернётся вся сумма.';
+  }
 }

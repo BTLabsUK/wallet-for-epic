@@ -570,6 +570,7 @@ abstract final class TrustIds {
   static const homeBackupReminder = 'g4.home.backup_reminder';
   static const homeBackupReminderClose = 'g4.home.backup_reminder_close';
   static const pairflowInviteNameRow = 'g4.pairflow.invite_name_row';
+  static const homeChange = 'g4.home.change';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
   static String securityAutoLockChoiceAt(Object value) => 'g4.security.autoLock.choice.$value';
@@ -1153,5 +1154,6 @@ abstract final class TrustIds {
     'g4.home.backup_reminder',
     'g4.home.backup_reminder_close',
     'g4.pairflow.invite_name_row',
+    'g4.home.change',
   ];
 }

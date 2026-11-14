@@ -18,5 +18,16 @@
   "phoneTourOffer": "Kurze Tour durch die Wallet?",
   "phoneTourOfferShow": "Zeig mir",
   "phoneBackupReminderText": "Deine Wiederherstellungsphrase ist nicht gesichert. Ohne sie ist mit einem verlorenen Handy auch die Wallet verloren.",
-  "phoneBackupReminderAction": "Jetzt sichern"
+  "phoneBackupReminderAction": "Jetzt sichern",
+  "phoneChangeWaitingFor": "{amount} wird bestätigt · wartet auf {name}",
+  "phoneChangeWaitingReply": "{amount} wird bestätigt · wartet auf Antwort",
+  "phoneChangeWaitingReplies": "{amount} wird bestätigt · wartet auf {count} Antworten",
+  "phoneChangeAbout": "{amount} wird bestätigt · ca. {minutes} Min.",
+  "phoneChangeNextIn": "{amount} wird bestätigt · nächste in {minutes} Min.",
+  "phoneChangeRowReply": "wartet auf Annahme",
+  "phoneChangeRowBlock": "wartet auf einen Block · ca. {minutes} Min.",
+  "phoneChangeRowConfirming": "ca. {minutes} Min. · {count} von {target} Bestätigungen",
+  "phoneBalanceAvailableNow": "Jetzt verfügbar",
+  "phoneBalanceArriving": "Kommt an",
+  "phoneBalanceChangeNote": "Eine Zahlung verwendet ganze Coins. Der Rest kommt zurück und ist nach {target} Bestätigungen verfügbar, etwa {target} Min. nachdem die Zahlung in einem Block ist. Wird eine Zahlung abgebrochen, kommt der ganze Betrag zurück."
 }

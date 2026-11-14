@@ -18,5 +18,16 @@
   "phoneTourOffer": "要不要快速看看钱包的功能?",
   "phoneTourOfferShow": "带我看看",
   "phoneBackupReminderText": "你的恢复短语尚未备份。没有它，手机丢失就意味着钱包丢失。",
-  "phoneBackupReminderAction": "立即备份"
+  "phoneBackupReminderAction": "立即备份",
+  "phoneChangeWaitingFor": "{amount} 确认中 · 等待 {name}",
+  "phoneChangeWaitingReply": "{amount} 确认中 · 等待回复",
+  "phoneChangeWaitingReplies": "{amount} 确认中 · 等待 {count} 个回复",
+  "phoneChangeAbout": "{amount} 确认中 · 约 {minutes} 分钟",
+  "phoneChangeNextIn": "{amount} 确认中 · 下一笔约 {minutes} 分钟",
+  "phoneChangeRowReply": "等待对方接受",
+  "phoneChangeRowBlock": "等待区块 · 约 {minutes} 分钟",
+  "phoneChangeRowConfirming": "约 {minutes} 分钟 · {count}/{target} 次确认",
+  "phoneBalanceAvailableNow": "现可用",
+  "phoneBalanceArriving": "到账中",
+  "phoneBalanceChangeNote": "一笔发送会花掉整枚币。余额会退回，在 {target} 次确认后可用，即付款进入区块后约 {target} 分钟。若发送被取消，全部金额会退回。"
 }

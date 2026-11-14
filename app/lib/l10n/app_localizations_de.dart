@@ -21767,4 +21767,53 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneBackupReminderAction => 'Jetzt sichern';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount wird bestätigt · wartet auf $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount wird bestätigt · wartet auf Antwort';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount wird bestätigt · wartet auf $count Antworten';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount wird bestätigt · ca. $minutes Min.';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount wird bestätigt · nächste in $minutes Min.';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'wartet auf Annahme';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'wartet auf einen Block · ca. $minutes Min.';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'ca. $minutes Min. · $count von $target Bestätigungen';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Jetzt verfügbar';
+
+  @override
+  String get phoneBalanceArriving => 'Kommt an';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'Eine Zahlung verwendet ganze Coins. Der Rest kommt zurück und ist nach $target Bestätigungen verfügbar, etwa $target Min. nachdem die Zahlung in einem Block ist. Wird eine Zahlung abgebrochen, kommt der ganze Betrag zurück.';
+  }
 }

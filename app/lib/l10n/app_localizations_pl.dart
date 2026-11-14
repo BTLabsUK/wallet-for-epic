@@ -22146,4 +22146,53 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneBackupReminderAction => 'Zapisz teraz';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount potwierdza się · czeka na $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount potwierdza się · czeka na odpowiedź';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount potwierdza się · czeka na $count odpowiedzi';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount potwierdza się · ok. $minutes min';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount potwierdza się · następne za $minutes min';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'czeka na przyjęcie';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'czeka na blok · ok. $minutes min';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'ok. $minutes min · $count z $target potwierdzeń';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Dostępne teraz';
+
+  @override
+  String get phoneBalanceArriving => 'Nadchodzi';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'Wysyłka wydaje całe monety. Reszta wraca i można ją wydać po $target potwierdzeniach, ok. $target min po tym, jak płatność trafi do bloku. Jeśli wysyłka zostanie anulowana, wraca cała kwota.';
+  }
 }

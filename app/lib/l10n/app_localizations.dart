@@ -33720,6 +33720,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back up now'**
   String get phoneBackupReminderAction;
+
+  /// Info chip under Home's balance: the change of a send comes back once it confirms; the send waits for the named contact to accept. 'confirming' is the word of the balance sheet's Confirming row. Keep short.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · waiting for {name}'**
+  String phoneChangeWaitingFor(String amount, String name);
+
+  /// Info chip under Home's balance: as phoneChangeWaitingFor, for a send to an address with no contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · waiting for reply'**
+  String phoneChangeWaitingReply(String amount);
+
+  /// Info chip under Home's balance: the change of several sends, none accepted yet. count is 2 or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · waiting for {count} replies'**
+  String phoneChangeWaitingReplies(String amount, int count);
+
+  /// Info chip under Home's balance: the change of one send can be spent in about this many minutes. 'min' is minutes, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · about {minutes} min'**
+  String phoneChangeAbout(String amount, int minutes);
+
+  /// Info chip under Home's balance: the change of several sends; the soonest can be spent in about this many minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · next in {minutes} min'**
+  String phoneChangeNextIn(String amount, int minutes);
+
+  /// Balance sheet, under a send's name in the Confirming part: the other side has not accepted the send yet.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for them to accept'**
+  String get phoneChangeRowReply;
+
+  /// Balance sheet, under a send's name: the payment is posted and waits for a block; its change can be spent in about this many minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for a block · about {minutes} min'**
+  String phoneChangeRowBlock(int minutes);
+
+  /// Balance sheet, under a send's name: the payment is in a block; its change can be spent in about this many minutes. count of target confirmations so far.
+  ///
+  /// In en, this message translates to:
+  /// **'about {minutes} min · {count} of {target} confirmations'**
+  String phoneChangeRowConfirming(int minutes, int count, int target);
+
+  /// Balance sheet: first row, the amount that can be spent now (the figure on Home).
+  ///
+  /// In en, this message translates to:
+  /// **'Available now'**
+  String get phoneBalanceAvailableNow;
+
+  /// Balance sheet: payments to this wallet that are in a block and confirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving'**
+  String get phoneBalanceArriving;
+
+  /// Balance sheet: note under the rows while a send's change is confirming. target is the confirmations setting; one block is about a minute.
+  ///
+  /// In en, this message translates to:
+  /// **'A send spends whole coins. The rest comes back and can be spent after {target} confirmations, about {target} min after the payment is in a block. If a send is cancelled, the full amount comes back.'**
+  String phoneBalanceChangeNote(int target);
 }
 
 class _AppLocalizationsDelegate

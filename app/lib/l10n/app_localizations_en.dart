@@ -21518,4 +21518,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneBackupReminderAction => 'Back up now';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount confirming · waiting for $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount confirming · waiting for reply';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount confirming · waiting for $count replies';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount confirming · about $minutes min';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount confirming · next in $minutes min';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'waiting for them to accept';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'waiting for a block · about $minutes min';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'about $minutes min · $count of $target confirmations';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Available now';
+
+  @override
+  String get phoneBalanceArriving => 'Arriving';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'A send spends whole coins. The rest comes back and can be spent after $target confirmations, about $target min after the payment is in a block. If a send is cancelled, the full amount comes back.';
+  }
 }

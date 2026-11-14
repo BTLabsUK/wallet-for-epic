@@ -18,5 +18,16 @@
   "phoneTourOffer": "ต้องการดูทัวร์สั้น ๆ ของกระเป๋าเงินไหม",
   "phoneTourOfferShow": "ดูเลย",
   "phoneBackupReminderText": "ยังไม่ได้สำรองวลีกู้คืนของคุณ หากไม่มีวลีนี้ เมื่อโทรศัพท์หาย กระเป๋าเงินก็หายไปด้วย",
-  "phoneBackupReminderAction": "สำรองตอนนี้"
+  "phoneBackupReminderAction": "สำรองตอนนี้",
+  "phoneChangeWaitingFor": "{amount} กำลังยืนยัน · รอ {name}",
+  "phoneChangeWaitingReply": "{amount} กำลังยืนยัน · รอการตอบกลับ",
+  "phoneChangeWaitingReplies": "{amount} กำลังยืนยัน · รอการตอบกลับ {count} รายการ",
+  "phoneChangeAbout": "{amount} กำลังยืนยัน · ประมาณ {minutes} นาที",
+  "phoneChangeNextIn": "{amount} กำลังยืนยัน · รายการถัดไปใน {minutes} นาที",
+  "phoneChangeRowReply": "รออีกฝ่ายยอมรับ",
+  "phoneChangeRowBlock": "รอบล็อก · ประมาณ {minutes} นาที",
+  "phoneChangeRowConfirming": "ประมาณ {minutes} นาที · ยืนยันแล้ว {count} จาก {target}",
+  "phoneBalanceAvailableNow": "ใช้ได้ตอนนี้",
+  "phoneBalanceArriving": "กำลังเข้า",
+  "phoneBalanceChangeNote": "การส่งใช้เหรียญทั้งเหรียญ ส่วนที่เหลือจะกลับมาและใช้ได้หลังยืนยัน {target} ครั้ง ประมาณ {target} นาทีหลังจากการชำระเงินอยู่ในบล็อก หากยกเลิกการส่ง จำนวนเต็มจะกลับมา"
 }

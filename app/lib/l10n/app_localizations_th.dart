@@ -21102,4 +21102,53 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneBackupReminderAction => 'สำรองตอนนี้';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount กำลังยืนยัน · รอ $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount กำลังยืนยัน · รอการตอบกลับ';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount กำลังยืนยัน · รอการตอบกลับ $count รายการ';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount กำลังยืนยัน · ประมาณ $minutes นาที';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount กำลังยืนยัน · รายการถัดไปใน $minutes นาที';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'รออีกฝ่ายยอมรับ';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'รอบล็อก · ประมาณ $minutes นาที';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'ประมาณ $minutes นาที · ยืนยันแล้ว $count จาก $target';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'ใช้ได้ตอนนี้';
+
+  @override
+  String get phoneBalanceArriving => 'กำลังเข้า';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'การส่งใช้เหรียญทั้งเหรียญ ส่วนที่เหลือจะกลับมาและใช้ได้หลังยืนยัน $target ครั้ง ประมาณ $target นาทีหลังจากการชำระเงินอยู่ในบล็อก หากยกเลิกการส่ง จำนวนเต็มจะกลับมา';
+  }
 }

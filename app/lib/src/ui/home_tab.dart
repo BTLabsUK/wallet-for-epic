@@ -23,7 +23,7 @@ import '../trust_ids.dart';
 import '../devices/phone_devices.dart' show watchHistory;
 import 'common.dart';
 import 'home_screen.dart' show homeCardGap;
-import 'home_parts.dart' show ownChangeOffChain;
+import 'home_change.dart';
 import 'home_slot.dart';
 import '../phone_tor.dart';
 import 'home_status.dart' show showConnectionsSheet, torIconShown;
@@ -40,7 +40,7 @@ import 'kit/kit_tokens.dart';
 import 'phone_tx_row.dart';
 import 'restore_card.dart';
 import 'restore_screen.dart' show ScanProgressView;
-import 'shell_header.dart' show BalanceHelp, balanceSheetKey, comingIn, fiatValueKey, walletFigure;
+import 'shell_header.dart' show balanceSheetKey, comingIn, fiatValueKey;
 import 'status.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
@@ -203,8 +203,9 @@ class _HomeHeader extends ConsumerWidget {
   }
 }
 
-/// The balance block: the caption with the eye, the figure with its unit, the fiat line, the
-/// chips for money on its way, and Send and Receive. A tap on the figure opens the balance
+/// The balance block: the caption with the eye, the figure (what can be spent now) with its
+/// unit, the fiat line, the chips for money on its way (the change of open sends in one
+/// confirming chip, [openChange]), and Send and Receive. A tap on the figure opens the balance
 /// sheet. With no balance yet a placeholder holds the figure's place; with no connection the
 /// last known figure shows and the caption says so. A [fresh] wallet with nothing in it has
 /// nothing to send: Receive is the gold button there, and Send takes it back with the first
@@ -226,16 +227,22 @@ class _Balance extends ConsumerWidget {
     final hidden = display.hidden;
     final lastKnown = ref.watch(balanceLastKnownProvider);
     final summary = this.summary;
-    final own = ownChangeOffChain(transactions);
-    final figure = summary == null ? null : walletFigure(summary, own);
+    final target = confirmationsTargetOf(ref);
+    final sends = openChange(transactions, tipHeight(ref), target: target, nameOf: (tx) => txPartyName(ref, tx));
+    final change = changeSum(sends);
+    // Home shows what can be spent now; the change of open sends is in the confirming chip.
+    final figure = summary?.spendable;
     final fiat = figure == null ? null : phoneFiat(l, figure, display, approx: true);
-    final arriving = summary == null ? BigInt.zero : comingIn(summary);
-    final inSends = summary?.locked ?? BigInt.zero;
-    final receiveFirst = fresh && figure == BigInt.zero;
+    final arriving = summary == null ? BigInt.zero : _clampZero(comingIn(summary) - changeInBlock(sends));
+    final inSends = change > BigInt.zero ? BigInt.zero : summary?.locked ?? BigInt.zero;
+    final receiveFirst = fresh && figure == BigInt.zero && change == BigInt.zero;
     void openSheet() {
       final s = summary;
       if (s == null) return;
-      showKitSheet<void>(context: context, builder: (_) => BalanceSheet(summary: s, ownChange: own, hidden: hidden));
+      showKitSheet<void>(
+        context: context,
+        builder: (_) => BalanceSheet(summary: s, hidden: hidden, sends: sends, target: target),
+      );
     }
 
     final eye = Tip(
@@ -276,6 +283,17 @@ class _Balance extends ConsumerWidget {
         ? const _FigurePlaceholder()
         : _Figure(balance: figure, hidden: hidden, onTap: openSheet, label: l.phoneHomeBalanceSheetHint);
     final chips = <Widget>[
+      if (!hidden && change > BigInt.zero)
+        kitId(
+          TrustIds.homeChange,
+          KitChip(
+            changeChipText(l, sends, epicFor(l, change, unit: false)),
+            leading: PhoneProgressMark(fraction: changeFraction(sends, target), size: 13),
+            info: true,
+            onTap: openSheet,
+            semanticsLabel: changeChipText(l, sends, epicText(l, change)),
+          ),
+        ),
       if (!hidden && arriving > BigInt.zero)
         KitChip(
           l.phoneHomeArriving(epicFor(l, arriving, unit: false)),
@@ -454,37 +472,97 @@ class _Figure extends StatelessWidget {
   }
 }
 
-/// The balance sheet: the balance and each other balance that is not zero, from
-/// [BalanceHelp.rows], the exact amount at the end of each row.
+/// The balance sheet: what can be spent now; the change of open sends, confirming, with a row
+/// for each send and what it waits for; the other balances that are not zero (payments
+/// arriving, offered, mining rewards, coins a send holds when it has no change); and the total
+/// of the rows, payments only offered left out. While change is confirming, a note says why.
 class BalanceSheet extends StatelessWidget {
-  const BalanceSheet({super.key, required this.summary, required this.hidden, this.ownChange});
+  const BalanceSheet({
+    super.key,
+    required this.summary,
+    required this.hidden,
+    this.sends = const [],
+    this.target = 6,
+  });
 
   final WalletSummary summary;
-  final BigInt? ownChange;
   final bool hidden;
+
+  /// The open sends with change ([openChange]).
+  final List<OpenChange> sends;
+
+  /// The confirmations the balance counts with.
+  final int target;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final rows = BalanceHelp.rows(l, summary, ownChange: ownChange);
+    final t = context.tokens;
+    final change = changeSum(sends);
+    final inBlock = changeInBlock(sends);
+    final arriving = _clampZero(summary.awaitingConfirmation - inBlock);
+    final offered = _clampZero(summary.awaitingFinalization - (change - inBlock));
+    // While change confirms, the coins its sends hold are spent: only what is held for a
+    // linked device stays in.
+    final held = change > BigInt.zero ? summary.held ?? BigInt.zero : summary.locked;
+    final total = summary.spendable + change + arriving + held + summary.immature;
+    String shown(BigInt v) => shownEpic(l, v, hidden: hidden, exact: true);
+    KitRow row(String title, BigInt amount, {String? help}) =>
+        KitRow(title: title, subtitle: help, subtitleLines: 3, value: shown(amount), size: KitRowSize.list);
     return KitSheet(
       key: balanceSheetKey,
       title: l.balanceSheetTitle,
-      child: KitGroup(
-        onSheet: true,
+      primaryLabel: l.commonDone,
+      onPrimary: () => Navigator.of(context).maybePop(),
+      primaryKind: KitButtonKind.quiet,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final (label, amount, help) in rows)
-            KitRow(
-              title: label,
-              subtitle: help,
-              value: shownEpic(l, amount, hidden: hidden, exact: true),
-              size: KitRowSize.list,
+          KitGroup(
+            onSheet: true,
+            children: [
+              row(l.phoneBalanceAvailableNow, summary.spendable),
+              if (change > BigInt.zero) ...[
+                KitRow(
+                  title: l.homeBalanceConfirming,
+                  titleColor: t.info,
+                  leading: PhoneProgressMark(fraction: changeFraction(sends, target), size: 14),
+                  value: shown(change),
+                  size: KitRowSize.list,
+                ),
+                for (final c in sends)
+                  KitRow(
+                    leading: const SizedBox(width: 14),
+                    title: txTitle(l, c.tx, contactName: c.who),
+                    subtitleWidget: Text(
+                      changeRowHint(l, c, target),
+                      style: KitType.rowSub.copyWith(color: t.info),
+                    ),
+                    value: shown(c.change),
+                    size: KitRowSize.list,
+                  ),
+              ],
+              if (arriving > BigInt.zero) row(l.phoneBalanceArriving, arriving, help: l.balanceConfirmingHelp),
+              if (offered > BigInt.zero) row(l.homeBalanceNotOnChain, offered, help: l.balanceNotOnChainHelp),
+              if (held > BigInt.zero) row(l.homeBalanceLocked, held, help: l.balanceLockedHelp),
+              if (summary.immature > BigInt.zero) row(l.homeBalanceImmature, summary.immature, help: l.balanceImmatureHelp),
+              // With nothing else in, Available now is the total: one row says it.
+              if (total != summary.spendable) row(l.balanceTotal, total),
+            ],
+          ),
+          if (change > BigInt.zero)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
+              child: Text(l.phoneBalanceChangeNote(target), style: KitType.rowSub.copyWith(color: t.dim)),
             ),
         ],
       ),
     );
   }
 }
+
+BigInt _clampZero(BigInt v) => v < BigInt.zero ? BigInt.zero : v;
 
 /// The "Recent" heading and its rows. Before the first payment a [fresh] wallet shows the list
 /// as empty slots ([_RecentSlots]); a wallet that is being restored or searched shows nothing.

@@ -784,8 +784,8 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      // The balance: 12.5 spendable and 1 confirming.
-      expect(tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!.toPlainText(), '13.5');
+      // The figure is what can be spent now: 12.5.
+      expect(tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!.toPlainText(), '12.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider); the connections sheet names it.
@@ -796,17 +796,20 @@ void main() {
       handle.dispose();
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
-      // Total 16, balance 13.5: the chips under the figure name what is arriving and in sends,
+      // The chips under the figure name what is arriving and the change of the open send,
       // and the balance sheet lists every part.
       expect(find.text('+1.5 arriving'), findsOneWidget);
-      expect(find.text('2.0 in sends'), findsOneWidget);
+      expect(find.text(_l.phoneChangeWaitingReply('3.992')), findsOneWidget);
+      expect(find.textContaining('in sends'), findsNothing);
       await _clearNotices(tester);
       await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();
       for (final (label, value) in [
-        (_l.homeBalanceConfirming, '1.0'),
-        (_l.homeBalanceLocked, '2.0'),
-        (_l.balanceTotal, '16.0'),
+        (_l.phoneBalanceAvailableNow, '12.5'),
+        (_l.homeBalanceConfirming, '3.992'),
+        (_l.phoneBalanceArriving, '1.0'),
+        (_l.homeBalanceImmature, '0.5'),
+        (_l.balanceTotal, '17.992'),
       ]) {
         expect(find.descendant(of: find.byKey(balanceSheetKey), matching: find.text(label)), findsOneWidget, reason: label);
         expect(find.descendant(of: find.byKey(balanceSheetKey), matching: find.textContaining(value)), findsWidgets, reason: label);
