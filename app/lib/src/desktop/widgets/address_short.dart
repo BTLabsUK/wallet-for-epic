@@ -183,7 +183,7 @@ class EKindTag extends StatelessWidget {
 /// goes. Nothing wraps. A contact with several [addresses] shows its default one short, then
 /// their kind tags; a row too narrow for both shows the tags alone.
 class EAddressLines extends StatelessWidget {
-  const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle, this.full = false});
+  const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.full = false});
 
   /// The contact list's row (UD-029): the kind badge with its short name beside the glyph,
   /// as on the phone, and the note as a third line instead of after the address.
@@ -196,13 +196,12 @@ class EAddressLines extends StatelessWidget {
   final List<String>? addresses;
   final String? note;
   final Widget? nameTrailing;
-  final TextStyle? addressStyle;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final aStyle = addressStyle ?? ts.mono(size: Fs.sm, color: c.dim);
+    final aStyle = ts.mono(size: Fs.sm, color: c.dim);
     final nStyle = ts.small.copyWith(color: c.faint);
     final n = note?.split('\n').first.trim() ?? '';
     final several = (addresses?.length ?? 0) > 1;

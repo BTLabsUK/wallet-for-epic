@@ -11,7 +11,7 @@ import 'kit_support.dart';
 import 'kit_tokens.dart';
 
 /// The amount being typed (wallet.css `.big`): the figure at 68 (50 when it is longer than
-/// [longFrom] characters) with the EPIC [unit] after it in gold, 13 (12 when long) and 10 (6)
+/// [_longFrom] characters) with the EPIC [unit] after it in gold, 13 (12 when long) and 10 (6)
 /// from the top of the line, and under it one fiat line with the swap chevrons. The figure
 /// groups its whole part by thousands (display only). A [placeholder] figure ("0") shows in faint. With [dimFraction]
 /// the digits from [point] on are drawn at 42 %, as Max shows an exact figure.
@@ -22,7 +22,6 @@ class KitAmountDisplay extends StatelessWidget {
     required this.unit,
     this.fiat,
     this.onSwap,
-    this.longFrom = 8,
     this.swapId,
     this.semanticsId,
     this.dimFraction = false,
@@ -36,7 +35,9 @@ class KitAmountDisplay extends StatelessWidget {
   /// The other currency ("≈ $25.82"); hidden when null.
   final String? fiat;
   final VoidCallback? onSwap;
-  final int longFrom;
+
+  /// A figure longer than this is drawn in the smaller size.
+  static const int _longFrom = 8;
   final String? swapId;
   final String? semanticsId;
   final bool dimFraction;
@@ -66,7 +67,7 @@ class KitAmountDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final empty = amount.isEmpty || amount == '0';
-    final long = amount.length > longFrom;
+    final long = amount.length > _longFrom;
     final color = empty ? t.faint : t.text;
     final style = (long ? KitType.amountEntryLong : KitType.amountEntry).copyWith(color: color);
     final shown = _grouped(amount.isEmpty ? '0' : amount, point);

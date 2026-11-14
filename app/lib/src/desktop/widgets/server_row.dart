@@ -103,14 +103,12 @@ class ServerRow extends StatelessWidget {
     required this.info,
     this.selected = false,
     this.onTap,
-    this.semanticsHint,
   });
 
   final ServerKind kind;
   final ServerInfo info;
   final bool selected;
   final VoidCallback? onTap;
-  final String? semanticsHint;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +192,7 @@ class ServerRow extends StatelessWidget {
             (null, true) => l.deskKitNodeUseDown(i.host),
             (null, false) => l.deskKitNodeUse(i.host),
           },
-          hint: semanticsHint,
+
           child: EInkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(Rad.sm),

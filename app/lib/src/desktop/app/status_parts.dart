@@ -100,7 +100,6 @@ class DeskStatusHeader extends StatelessWidget {
     this.second,
     this.secondMono = false,
     this.rowKey,
-    this.badgeKey,
   });
 
   final Widget tile;
@@ -110,7 +109,6 @@ class DeskStatusHeader extends StatelessWidget {
   final String? second;
   final bool secondMono;
   final Key? rowKey;
-  final Key? badgeKey;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +132,7 @@ class DeskStatusHeader extends StatelessWidget {
                   children: [
                     Flexible(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.label)),
                     SizedBox(width: Sp.x2),
-                    EBadge(word, key: badgeKey, tone: deskStateTone(state), dot: true, liveRegion: true),
+                    EBadge(word, tone: deskStateTone(state), dot: true, liveRegion: true),
                   ],
                 ),
                 if (second != null && second.isNotEmpty) ...[

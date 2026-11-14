@@ -38,7 +38,6 @@ class EPanel extends StatelessWidget {
     required this.child,
     this.title,
     this.head,
-    this.headTrailing,
     this.foot,
     this.padding,
     this.scroll = false,
@@ -51,7 +50,6 @@ class EPanel extends StatelessWidget {
 
   /// In place of [title]: anything that fits a header band (tabs, a title and a close button).
   final Widget? head;
-  final Widget? headTrailing;
   final Widget? foot;
 
   /// Defaults to 24 by 20.
@@ -105,13 +103,7 @@ class EPanel extends StatelessWidget {
               constraints: BoxConstraints(minHeight: Ctl.header),
               alignment: AlignmentDirectional.centerStart,
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
-              child: head ??
-                  Row(
-                    children: [
-                      Expanded(child: Epic1Text(title!, style: context.ts.label)),
-                      ?headTrailing,
-                    ],
-                  ),
+              child: head ?? Epic1Text(title!, style: context.ts.label),
             ),
           body,
           if (foot != null)

@@ -16,9 +16,7 @@ import '../theme/tokens.dart';
 /// unbounded height (inside a scrolling page) the children must size themselves without a
 /// [Flexible].
 class PanelRow extends MultiChildRenderObjectWidget {
-  PanelRow({super.key, required Widget main, required Widget side, required this.sideWidth, this.gap, this.maxSideFraction = 1, this.sideFirst = false})
-    // Children in reading order, so semantics, Tab and finders meet them as they are shown.
-    : super(children: sideFirst ? [side, main] : [main, side]);
+  PanelRow({super.key, required Widget main, required Widget side, required this.sideWidth, this.gap, this.maxSideFraction = 1}) : super(children: [main, side]);
 
   final double sideWidth;
   final double? gap;
@@ -27,12 +25,8 @@ class PanelRow extends MultiChildRenderObjectWidget {
   /// window), so the main column keeps room for its rows.
   final double maxSideFraction;
 
-  /// The side column at the start (a list beside its detail, as Contacts), not the end.
-  final bool sideFirst;
-
   @override
-  RenderPanelRow createRenderObject(BuildContext context) =>
-      RenderPanelRow(sideWidth, gap ?? Sp.col, Directionality.of(context), maxSideFraction, sideFirst);
+  RenderPanelRow createRenderObject(BuildContext context) => RenderPanelRow(sideWidth, gap ?? Sp.col, Directionality.of(context), maxSideFraction);
 
   @override
   void updateRenderObject(BuildContext context, RenderPanelRow renderObject) {
@@ -40,23 +34,14 @@ class PanelRow extends MultiChildRenderObjectWidget {
       ..sideWidth = sideWidth
       ..gap = gap ?? Sp.col
       ..textDirection = Directionality.of(context)
-      ..maxSideFraction = maxSideFraction
-      ..sideFirst = sideFirst;
+      ..maxSideFraction = maxSideFraction;
   }
 }
 
 class _PanelRowData extends ContainerBoxParentData<RenderBox> {}
 
 class RenderPanelRow extends RenderBox with ContainerRenderObjectMixin<RenderBox, _PanelRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _PanelRowData> {
-  RenderPanelRow(this._sideWidth, this._gap, this._textDirection, this._maxSideFraction, this._sideFirst);
-
-  bool _sideFirst;
-  set sideFirst(bool v) {
-    if (v == _sideFirst) return;
-    _sideFirst = v;
-    markNeedsLayout();
-  }
-
+  RenderPanelRow(this._sideWidth, this._gap, this._textDirection, this._maxSideFraction);
   double _sideWidth;
   set sideWidth(double v) {
     if (v == _sideWidth) return;
@@ -85,8 +70,8 @@ class RenderPanelRow extends RenderBox with ContainerRenderObjectMixin<RenderBox
     markNeedsLayout();
   }
 
-  RenderBox get _main => _sideFirst ? lastChild! : firstChild!;
-  RenderBox get _side => _sideFirst ? firstChild! : lastChild!;
+  RenderBox get _main => firstChild!;
+  RenderBox get _side => lastChild!;
 
   @override
   void setupParentData(RenderBox child) {
@@ -135,7 +120,7 @@ class RenderPanelRow extends RenderBox with ContainerRenderObjectMixin<RenderBox
     // in a form), this row measures both again.
     if (_main.size.height != h) _main.layout(BoxConstraints(minWidth: mainW, maxWidth: mainW, minHeight: h, maxHeight: cap), parentUsesSize: true);
     if (_side.size.height != h) _side.layout(BoxConstraints(minWidth: sideW, maxWidth: sideW, minHeight: h, maxHeight: cap), parentUsesSize: true);
-    final ltr = (_textDirection == TextDirection.ltr) != _sideFirst;
+    final ltr = _textDirection == TextDirection.ltr;
     (_main.parentData! as _PanelRowData).offset = Offset(ltr ? 0 : w - mainW, 0);
     (_side.parentData! as _PanelRowData).offset = Offset(ltr ? w - sideW : 0, 0);
     size = Size(w, h);

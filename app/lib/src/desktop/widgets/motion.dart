@@ -12,13 +12,10 @@ import '../theme/tokens.dart';
 /// mounted while closing (the size transition needs it) and is [Offstage] once fully closed,
 /// so it takes no focus and no semantics, and its own animations stop ([TickerMode]).
 class ExpandFade extends StatefulWidget {
-  const ExpandFade({super.key, required this.open, required this.child, this.axisAlignment = -1.0});
+  const ExpandFade({super.key, required this.open, required this.child});
 
   final bool open;
   final Widget child;
-
-  /// Where the child is pinned while the height changes: -1 top (default), 0 centre, 1 bottom.
-  final double axisAlignment;
 
   @override
   State<ExpandFade> createState() => _ExpandFadeState();
@@ -91,7 +88,8 @@ class _ExpandFadeState extends State<ExpandFade> with SingleTickerProviderStateM
       ),
       child: SizeTransition(
         sizeFactor: _size,
-        alignment: AlignmentDirectional(-1, widget.axisAlignment),
+        // Pinned at the top while the height changes.
+        alignment: AlignmentDirectional.topStart,
         child: FadeTransition(
           opacity: _fade,
           child: widget.open && registrar != null

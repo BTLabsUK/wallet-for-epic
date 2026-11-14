@@ -24,7 +24,6 @@ class KitKvRow extends StatelessWidget {
     this.chevron = false,
     this.onTap,
     this.semanticsId,
-    this.maxValueLines = 2,
   });
 
   final String label;
@@ -38,7 +37,6 @@ class KitKvRow extends StatelessWidget {
   final bool chevron;
   final VoidCallback? onTap;
   final String? semanticsId;
-  final int maxValueLines;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +63,7 @@ class KitKvRow extends StatelessWidget {
                   alignment: AlignmentDirectional.centerEnd,
                   child:
                       valueWidget ??
-                      Text(value!, style: valueStyle, textAlign: TextAlign.end, maxLines: maxValueLines, overflow: TextOverflow.ellipsis),
+                      Text(value!, style: valueStyle, textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
                 ),
               ),
             ],

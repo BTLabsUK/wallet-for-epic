@@ -32,7 +32,6 @@ class HttpAddresses extends ConsumerStatefulWidget {
     this.localBusy = false,
     this.view,
     this.publicTrailing,
-    this.onReach,
   });
 
   /// The running listener's `http://127.0.0.1:<port>`; null while it is off or starting.
@@ -50,9 +49,6 @@ class HttpAddresses extends ConsumerStatefulWidget {
 
   /// After the internet row's title: Settings' guide button.
   final Widget? publicTrailing;
-
-  /// Each reach answer, for a caller that shows it elsewhere.
-  final ValueChanged<HttpReach?>? onReach;
 
   @override
   ConsumerState<HttpAddresses> createState() => _HttpAddressesState();
@@ -165,7 +161,6 @@ class _HttpAddressesState extends ConsumerState<HttpAddresses> {
               HttpReachNotice(
                 onChanged: (r) {
                   if (mounted) setState(() => _reach = r);
-                  widget.onReach?.call(r);
                 },
               ),
           ],
