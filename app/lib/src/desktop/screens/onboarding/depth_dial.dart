@@ -483,9 +483,10 @@ class DeskUndercoverRow extends StatelessWidget {
   }
 }
 
-/// A small Overview that gains a layer per depth: Shallow the balance, its sentence and the
-/// latest payments; Deeper the status icons, the balance tiles and the methods; Deep end
-/// Outputs and Invoices on the rail and the payment ids. Before a pick it shows Shallow, faded
+/// A small Home that gains a layer per depth, laid out as the app: the tabs across the top, the
+/// page, the status bar at the foot. Shallow the balance, its sentence and the latest payments;
+/// Deeper more status lights, the balance tiles and the methods; Deep end Outputs and Invoices
+/// in the tabs and the payment ids. Before a pick it shows Shallow, faded
 /// under [cover]. A static picture drawn from its own width, so it scales with the window.
 class DeskOverviewPreview extends StatelessWidget {
   const DeskOverviewPreview({super.key, required this.level, this.cover = false});
@@ -522,26 +523,21 @@ class DeskOverviewPreview extends StatelessWidget {
               child: show ? child : SizedBox(width: axis == Axis.vertical ? double.infinity : 0, height: axis == Axis.vertical ? 0 : null),
             ),
           );
-          Widget navItem(String text, {bool on = false}) => Container(
-            width: double.infinity,
-            margin: EdgeInsets.only(bottom: 2 * k),
-            padding: EdgeInsets.symmetric(horizontal: 7 * k, vertical: 4 * k),
+          Widget tab(String text, {bool on = false}) => Container(
+            margin: EdgeInsetsDirectional.only(end: 2 * k),
+            padding: EdgeInsets.symmetric(horizontal: 6 * k, vertical: 3 * k),
             decoration: BoxDecoration(color: on ? c.s3 : null, borderRadius: BorderRadius.circular(5 * k)),
-            child: Text(text, style: s(9, weight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.clip),
+            child: Text(text, style: s(8.5, weight: FontWeight.w500, color: on ? c.text : c.dim), maxLines: 1, overflow: TextOverflow.clip),
           );
-          Widget statusTile(IconData icon, bool ok) => Container(
-            width: 11 * k,
-            height: 11 * k,
-            margin: EdgeInsetsDirectional.only(start: 4 * k),
-            decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(3 * k)),
-            child: Stack(
+          // A light of the status bar: its dot and its name.
+          Widget light(String text, bool ok) => Padding(
+            padding: EdgeInsetsDirectional.only(end: 8 * k),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Center(child: Icon(icon, size: 7 * k, color: c.dim)),
-                PositionedDirectional(
-                  end: 1 * k,
-                  bottom: 1 * k,
-                  child: Container(width: 3.5 * k, height: 3.5 * k, decoration: BoxDecoration(color: ok ? c.ok : c.faint, shape: BoxShape.circle)),
-                ),
+                Container(width: 4 * k, height: 4 * k, decoration: BoxDecoration(color: ok ? c.ok : c.faint, shape: BoxShape.circle)),
+                SizedBox(width: 3 * k),
+                Text(text, style: s(7.5, color: c.dim), maxLines: 1),
               ],
             ),
           );
@@ -609,32 +605,47 @@ class DeskOverviewPreview extends StatelessWidget {
               ],
             ),
           );
-          final rail = SizedBox(
-            width: box.maxWidth * 0.21,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(7 * k, 8 * k, 7 * k, 8 * k),
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
+          final topBar = Container(
+            height: 22 * k,
+            padding: EdgeInsets.symmetric(horizontal: 8 * k),
+            decoration: BoxDecoration(color: c.s1, border: Border(bottom: BorderSide(color: c.line))),
+            child: Row(
+              children: [
+                EpicMark(size: 10 * k, color: c.accent),
+                SizedBox(width: 4 * k),
+                Text(appName, style: s(8.5, weight: FontWeight.w600), maxLines: 1),
+                SizedBox(width: 8 * k),
+                // The tabs take what is left and clip at a narrow width rather than overflow.
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
                     physics: const NeverScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Row(children: [EpicMark(size: 10 * k, color: c.accent), SizedBox(width: 4 * k), Flexible(child: Text(appName, style: s(8.5, weight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis))]),
-                        SizedBox(height: 8 * k),
-                        navItem(l.deskShellNavOverview, on: true),
-                        navItem(l.deskShellNavActivity),
-                        layer(depth == 3, navItem(l.deskShellNavOutputs)),
-                        navItem(l.deskShellNavContacts),
-                        layer(depth == 3, navItem(l.deskInvNav)),
-                        navItem(l.deskShellNavSend),
-                        navItem(l.deskShellNavReceive),
+                        tab(l.deskShellNavOverview, on: true),
+                        tab(l.deskShellNavActivity),
+                        layer(depth == 3, tab(l.deskShellNavOutputs), axis: Axis.horizontal),
+                        tab(l.deskShellNavContacts),
+                        layer(depth == 3, tab(l.deskInvNav), axis: Axis.horizontal),
+                        tab(l.deskShellNavSettings),
                       ],
                     ),
                   ),
-                  Positioned(left: 0, right: 0, bottom: 0, child: navItem(l.deskShellNavSettings)),
-                ],
-              ),
+                ),
+                Text(l.deskLvStartMiniWallet, style: s(8.5, weight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          );
+          final statusBar = Container(
+            height: 14 * k,
+            padding: EdgeInsets.symmetric(horizontal: 8 * k),
+            decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
+            child: Row(
+              children: [
+                light(depth <= 1 ? l.settingsAboutNetwork : l.deskRailNode, true), // as the bar names it (deskStatusName)
+                light('Epicbox', true), // l10n-ok: product name
+                layer(depth >= 2, Row(mainAxisSize: MainAxisSize.min, children: [light(l.methodShortHttp, false), light('Tor', false)]), axis: Axis.horizontal), // l10n-ok: product names
+              ],
             ),
           );
           final hero = Container(
@@ -706,17 +717,6 @@ class DeskOverviewPreview extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  height: 14 * k,
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(l.deskLvStartMiniWallet, style: s(9, weight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                      statusTile(Icons.public, true),
-                      statusTile(Icons.inbox_outlined, true),
-                      layer(depth >= 2, Row(children: [statusTile(Icons.shield_outlined, false), statusTile(Icons.link, false)]), axis: Axis.horizontal),
-                    ],
-                  ),
-                ),
                 // Deep end: the node's numbers in a line of their own, in mono.
                 layer(
                   depth == 3,
@@ -730,7 +730,7 @@ class DeskOverviewPreview extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 7 * k),
+                SizedBox(height: depth == 3 ? 6 * k : 2 * k),
                 hero,
                 SizedBox(height: 7 * k),
                 Container(
@@ -769,12 +769,9 @@ class DeskOverviewPreview extends StatelessWidget {
                   duration: motion,
                   opacity: depth == 0 ? 0.35 : 1,
                   child: MediaQuery.withNoTextScaling(
-                    child: Row(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        DecoratedBox(decoration: BoxDecoration(border: Border(right: BorderSide(color: c.line))), child: rail),
-                        Expanded(child: main),
-                      ],
+                      children: [topBar, Expanded(child: main), statusBar],
                     ),
                   ),
                 ),
