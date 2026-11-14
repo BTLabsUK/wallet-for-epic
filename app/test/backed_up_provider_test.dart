@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // The recovery phrase line reads the open wallet's own flag: a wallet deleted and made again on
 // the same chain is "not backed up", even while Home's reminder keeps the provider alive.
-import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
