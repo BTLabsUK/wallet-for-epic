@@ -68,6 +68,13 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('解锁后，节点同步完成即自动开始接收。如果有人付款时钱包未打开，Epicbox 会保存这笔付款，钱包在下次解锁时取回。'),
         HelpBlock.p('新付款在发送方钱包完成它之前显示 **等待发送方**，之后显示 **确认中**。经过 $confirmations 个确认后即可使用。'),
+        if (!phone) ...[
+          HelpBlock.p('地址旁边的**其他接收方式**包含链接方式。通过链接，付款方的钱包直接向这个钱包付款，中间没有服务器，但只在这个钱包打开时可用。那里的**设置**会打开$payPlace。'),
+          HelpBlock.ul([
+            '**链接 · HTTP**${tor ? ' 在 Tor 关闭时显示' : ''}。关闭时，它是一行，带一个用来开启的开关。开启时，它分为两部分，各有一个开关。**本地网络**开启或关闭接收，并显示地址。**互联网**让互联网上的钱包也能付款；为此，路由器必须把那里写明的端口转发到这台电脑。',
+            if (tor) '**链接 · Tor** 在$payPlace中它的开关开启时显示：一个以 **.onion** 结尾的 Tor 地址，其他钱包经由 Tor 访问它。',
+          ]),
+        ],
       ],
       id: HelpId.receive,
     ),
@@ -279,12 +286,12 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       id: HelpId.importWarning,
     ),
     if (!phone)
-      const HelpTopic(
+      HelpTopic(
         'network',
         '状态栏',
         '窗口底部的指示灯：节点、Epicbox 和其他接收方式，各自显示状态。',
         [
-          HelpBlock.p('每个指示灯代表一项服务：**节点**、**Epicbox**，以及开启时的 **链接 · HTTP** 和 **Tor**。颜色表示状态；鼠标指向时会以文字显示名称和状态。'),
+          HelpBlock.p('每个指示灯代表一项服务：**节点**、**Epicbox**，以及开启时的 **链接 · HTTP**${tor ? ' 和 **Tor**' : ''}。颜色表示状态；鼠标指向时会以文字显示名称和状态。'),
           HelpBlock.p('点击指示灯可查看其状态、正在使用的服务器，以及前往其设置的按钮。当前服务器停止响应时，Epicbox 指示灯还会推荐另一台服务器。'),
           HelpBlock.p('指示灯旁边：当前正在进行的事，例如正在发送的付款，然后是 EPIC 价格和连接模式。窄窗口会保留指示灯，省略名称和价格。'),
         ],
@@ -445,6 +452,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           if (phone) '**直接 · 文件传输**：$payPlace中的“文件传输”，用于通过你自己传递的文件付款或收款。',
           if (!phone) '**本地节点**：让这台电脑运行自己的节点，在$nodePlace中。',
           if (!phone) '**日志**：$filesPlace中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
+          '**配对**：对每个钱包都已开启，所以这里没有开关。见“什么是配对”。',
+          '**账单**：这里没有开关。每个已配对联系人都有自己的**允许账单**开关。见“来自已配对联系人的账单”。',
+          '**关联设备**：对每个钱包都已开启，所以这里没有开关。它仍标记为实验。见“关联设备的工作方式”。',
         ]),
         HelpBlock.p('**确认数** 决定收到的付款要等待多少个区块，其输出才能花费：默认 $defaultMinimumConfirmations，可设为 $minMinimumConfirmations 到 $maxMinimumConfirmations。确认数越少越快，但越不安全。${phone ? '' : '它们在$payPlace中设置。'}'),
         HelpBlock.p(phone ? '网络模式和**节点故障切换**都在 $netPlace 中：见“网络模式”。' : '网络模式在 $netPlace 中：见“网络模式”。**自动切换节点**在 $nodePlace 中。'),

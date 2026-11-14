@@ -68,6 +68,13 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('Odbieranie włącza się samo po odblokowaniu, gdy węzeł jest zsynchronizowany. Jeśli portfel jest zamknięty, gdy ktoś płaci, Epicbox przechowuje płatność, a portfel odbiera ją po następnym odblokowaniu.'),
         HelpBlock.p('Nowa płatność ma stan **Czeka na nadawcę**, dopóki portfel nadawcy jej nie zakończy, a potem **Potwierdzanie**. Po osiągnięciu wymaganej liczby potwierdzeń ($confirmations) można ją wydać.'),
+        if (!phone) ...[
+          HelpBlock.p('**Inne sposoby odbierania**, obok adresu, zawiera Link. Przez Link portfel nadawcy płaci prosto do tego portfela, bez serwera pośrodku, ale tylko gdy ten portfel jest otwarty. **Ustawienia** w tym miejscu otwierają $payPlace.'),
+          HelpBlock.ul([
+            '**Link · HTTP**${tor ? ' jest widoczny, gdy Tor jest wyłączony' : ''}. Wyłączony to jeden wiersz z przełącznikiem do włączenia. Włączony ma dwie części, każdą z przełącznikiem. **Sieć lokalna** włącza lub wyłącza odbieranie i pokazuje adres. **Internet** pozwala płacić także portfelom z internetu; do tego router musi przekierować podany tam port na ten komputer.',
+            if (tor) '**Link · Tor** jest widoczny, gdy jego przełącznik w $payPlace jest włączony: adres Tor kończący się na **.onion**, do którego inne portfele docierają przez Tor.',
+          ]),
+        ],
       ],
       id: HelpId.receive,
     ),
@@ -279,12 +286,12 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       id: HelpId.importWarning,
     ),
     if (!phone)
-      const HelpTopic(
+      HelpTopic(
         'network',
         'Pasek stanu',
         'Światła u dołu okna: węzeł, Epicbox i inne sposoby odbierania, każdy ze swoim stanem.',
         [
-          HelpBlock.p('Każde światło to jedna usługa: **Węzeł**, **Epicbox**, a gdy są włączone, **Link · HTTP** i **Tor**. Kolor pokazuje stan; po wskazaniu kursorem widać nazwę i stan słowami.'),
+          HelpBlock.p('Każde światło to jedna usługa: **Węzeł**, **Epicbox**, a gdy są włączone, **Link · HTTP**${tor ? ' i **Tor**' : ''}. Kolor pokazuje stan; po wskazaniu kursorem widać nazwę i stan słowami.'),
           HelpBlock.p('Kliknięcie światła pokazuje jego stan, używany serwer i przycisk do jego ustawień. Światło Epicbox proponuje też inny serwer, gdy używany przestaje odpowiadać.'),
           HelpBlock.p('Obok świateł: to, co dzieje się teraz, na przykład wysyłana płatność, potem kurs EPIC i tryb połączenia. Wąskie okno zostawia światła, a pomija nazwy i kurs.'),
         ],
@@ -445,6 +452,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           if (phone) '**Bezpośrednio · Przesyłanie pliku**: Przesyłanie pliku w $payPlace, aby płacić lub dostawać płatności plikiem, który przekazujesz sam.',
           if (!phone) '**Węzeł lokalny**: pozwala temu komputerowi uruchomić własny węzeł, w $nodePlace.',
           if (!phone) '**Logi**: grupa Logi w $filesPlace, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
+          '**Parowanie**: włączone w każdym portfelu, więc nie ma tu przełącznika. Zobacz „Czym jest parowanie”.',
+          '**Faktury**: tu nie ma przełącznika. Każdy sparowany kontakt ma własny przełącznik **Zezwól na faktury**. Zobacz „Faktury od sparowanych kontaktów”.',
+          '**Połączone urządzenia**: włączone w każdym portfelu, więc nie ma tu przełącznika. Nadal są oznaczone jako eksperyment. Zobacz „Jak działają połączone urządzenia”.',
         ]),
         HelpBlock.p('**Potwierdzenia** określają, ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać: domyślnie $defaultMinimumConfirmations, od $minMinimumConfirmations do $maxMinimumConfirmations. Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.${phone ? '' : ' Ustawia się je w $payPlace.'}'),
         HelpBlock.p(phone ? 'Tryb sieci i **automatyczna zmiana węzła** są w $netPlace: zobacz „Tryby sieci”.' : 'Tryb sieci jest w $netPlace: zobacz „Tryby sieci”. **Zmieniaj węzeł automatycznie** jest w $nodePlace.'),

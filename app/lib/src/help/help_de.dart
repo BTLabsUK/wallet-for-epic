@@ -68,6 +68,13 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('Der Empfang startet nach dem Entsperren von selbst, sobald der Node synchronisiert ist. Ist die Wallet beim Bezahlen geschlossen, hält Epicbox die Zahlung bereit, und die Wallet holt sie beim nächsten Entsperren ab.'),
         HelpBlock.p('Eine neue Zahlung zeigt **Wartet auf Absender**, bis die Wallet des Absenders sie abschließt, dann **Wird bestätigt**. Ab der $confirmations. Bestätigung ist sie verfügbar.'),
+        if (!phone) ...[
+          HelpBlock.p('**Weitere Empfangswege**, neben der Adresse, enthält Link. Mit Link zahlt die Wallet des Absenders direkt an diese Wallet, ohne Server dazwischen, aber nur, solange diese Wallet geöffnet ist. **Einstellungen** dort öffnet $payPlace.'),
+          HelpBlock.ul([
+            '**Link · HTTP**${tor ? ' erscheint, solange Tor aus ist' : ''}. Ist es aus, ist es eine Zeile mit einem Schalter zum Einschalten. Ist es an, hat es zwei Teile, jeder mit einem Schalter. **Lokales Netzwerk** schaltet den Empfang ein oder aus und zeigt die Adresse. **Internet** lässt auch Wallets im Internet zahlen; dafür muss der Router den dort genannten Port an diesen Computer weiterleiten.',
+            if (tor) '**Link · Tor** erscheint, solange sein Schalter unter $payPlace an ist: eine Tor-Adresse, die auf **.onion** endet und die andere Wallets über Tor erreichen.',
+          ]),
+        ],
       ],
       id: HelpId.receive,
     ),
@@ -279,12 +286,12 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       id: HelpId.importWarning,
     ),
     if (!phone)
-      const HelpTopic(
+      HelpTopic(
         'network',
         'Die Statusleiste',
         'Die Lichter am unteren Fensterrand: der Node, Epicbox und die anderen Empfangswege, jeweils mit ihrem Zustand.',
         [
-          HelpBlock.p('Jedes Licht ist ein Dienst: **Node**, **Epicbox** und, solange sie an sind, **Link · HTTP** und **Tor**. Die Farbe zeigt den Zustand; zeigt der Mauszeiger darauf, stehen Name und Zustand in Worten da.'),
+          HelpBlock.p('Jedes Licht ist ein Dienst: **Node**, **Epicbox** und, solange sie an sind, **Link · HTTP**${tor ? ' und **Tor**' : ''}. Die Farbe zeigt den Zustand; zeigt der Mauszeiger darauf, stehen Name und Zustand in Worten da.'),
           HelpBlock.p('Ein Klick auf ein Licht zeigt seinen Zustand, den verwendeten Server und eine Schaltfläche zu seinen Einstellungen. Das Epicbox-Licht bietet außerdem einen anderen Server an, wenn der verwendete nicht mehr antwortet.'),
           HelpBlock.p('Neben den Lichtern: was gerade läuft, etwa eine Zahlung, die gesendet wird, dann der EPIC-Kurs und der Verbindungsmodus. Ein schmales Fenster behält die Lichter und lässt die Namen und den Kurs weg.'),
         ],
@@ -445,6 +452,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           if (phone) '**Direkt · Dateiübertragung**: Dateiübertragung unter $payPlace, um mit einer Datei zu bezahlen oder bezahlt zu werden, die Sie selbst weitergeben.',
           if (!phone) '**Lokaler Node**: lässt diesen Computer einen eigenen Node betreiben, unter $nodePlace.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter $filesPlace, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
+          '**Kopplung**: für jede Wallet an, daher gibt es hier keinen Schalter. Siehe „Was Kopplung ist“.',
+          '**Rechnungen**: hier gibt es keinen Schalter. Jeder gekoppelte Kontakt hat seinen eigenen Schalter **Rechnungen erlauben**. Siehe „Rechnungen von gekoppelten Kontakten“.',
+          '**Verknüpfte Geräte**: für jede Wallet an, daher gibt es hier keinen Schalter. Die Funktion ist weiterhin als Experiment markiert. Siehe „So funktionieren verknüpfte Geräte“.',
         ]),
         HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig $defaultMinimumConfirmations, jeder Wert von $minMinimumConfirmations bis $maxMinimumConfirmations. Weniger Bestätigungen sind schneller, sind aber weniger sicher.${phone ? '' : ' Sie werden unter $payPlace eingestellt.'}'),
         HelpBlock.p(phone ? 'Netzwerkmodus und **automatischer Node-Wechsel** stehen unter $netPlace: siehe „Netzwerkmodi“.' : 'Der Netzwerkmodus steht unter $netPlace: siehe „Netzwerkmodi“. **Node automatisch wechseln** steht unter $nodePlace.'),

@@ -259,6 +259,13 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.p('Receiving starts by itself after unlock, once the node is synced. If the wallet is closed when someone pays, the Epicbox server holds the payment, and the wallet collects it at the next unlock.'),
         HelpBlock.p('A new payment shows **Waiting for sender** until the sender’s wallet finishes it, then **Confirming**. After $confirmations confirmations it can be spent.'),
+        if (!phone) ...[
+          HelpBlock.p('**Other ways to receive**, beside the address, holds Link. With Link, the sender’s wallet pays this wallet straight, with no server between them, but only while this wallet is open. **Settings** there opens $payPlace.'),
+          HelpBlock.ul([
+            '**Link · HTTP**${tor ? ' shows while Tor is off' : ''}. Off, it is one line with a switch to turn it on. On, it has two parts, each with a switch. **Local network** turns receiving on or off and shows the address. **Internet** lets wallets on the internet pay too; for that, the router must forward the port named there to this computer.',
+            if (tor) '**Link · Tor** shows while its switch in $payPlace is on: a Tor address that ends in **.onion**, which other wallets reach over Tor.',
+          ]),
+        ],
       ],
       id: HelpId.receive,
     ),
@@ -472,12 +479,12 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       id: HelpId.importWarning,
     ),
     if (!phone)
-      const HelpTopic(
+      HelpTopic(
         'network',
         'The status bar',
         'The lights at the foot of the window: the node, Epicbox and the other ways to receive, each with its state.',
         [
-          HelpBlock.p('Each light is one service: **Node**, **Epicbox**, and while they are on, **Link · HTTP** and **Tor**. Its colour shows the state; pointing at it shows the name and the state in words.'),
+          HelpBlock.p('Each light is one service: **Node**, **Epicbox**, and while they are on, **Link · HTTP**${tor ? ' and **Tor**' : ''}. Its colour shows the state; pointing at it shows the name and the state in words.'),
           HelpBlock.p('Click a light for its state, the server in use and a button to its settings. The Epicbox one also offers another server when the one in use stops answering.'),
           HelpBlock.p('Beside the lights: what is going on now, such as a payment being sent, then the EPIC price and the connection mode. A narrow window keeps the lights and leaves out the names and the price.'),
         ],
@@ -638,6 +645,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (phone) '**Direct · File Transfer**: File Transfer under $payPlace, to pay or get paid with a file passed on by hand.',
           if (!phone) '**Local node**: lets this computer run its own node, under $nodePlace.',
           if (!phone) '**Logs**: the Logs group under $filesPlace, to open the log folder or clear the logs. Report a problem attaches the log either way.',
+          '**Pairing**: on for every wallet, so it has no switch here. See “What pairing is”.',
+          '**Invoices**: no switch here. Each paired contact has its own **Allow invoices** switch. See “Invoices from paired contacts”.',
+          '**Linked devices**: on for every wallet, so it has no switch here. It is still marked as an experiment. See “How linked devices work”.',
         ]),
         HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: $defaultMinimumConfirmations by default, any count from $minMinimumConfirmations to $maxMinimumConfirmations. Fewer confirmations are faster but less safe.${phone ? '' : ' It is set under $payPlace.'}'),
         HelpBlock.p(phone ? 'The connection mode and **Switch node automatically** are under $netPlace: see “Connection modes”.' : 'The connection mode is under $netPlace: see “Connection modes”. **Switch node automatically** is under $nodePlace.'),
