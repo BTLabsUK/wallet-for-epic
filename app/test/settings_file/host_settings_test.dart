@@ -106,6 +106,17 @@ void main() {
       expect(r.settings.statusEnabled, shipped.statusEnabled);
     });
 
+    test('listener_challenge_rounds is 3 as shipped; 2 to 10 or 0 (off) load, 1 and 11 do not', () {
+      expect(AppConfig.fromText(_configText).listenerChallengeRounds, 3);
+      String with(int n) => _configText.replaceFirst('listener_challenge_rounds = 3', 'listener_challenge_rounds = $n');
+      for (final good in [0, 2, 10]) {
+        expect(AppConfig.fromText(with(good)).listenerChallengeRounds, good);
+      }
+      for (final bad in [1, 11]) {
+        expect(() => AppConfig.fromText(with(bad)), throwsStateError, reason: '$bad');
+      }
+    });
+
     test('[local_node] sets the built-in node ports; a port under 1024 or equal text is skipped', () {
       final r = readSettings('[local_node]\napi_port = 13413\np2p_port = 13414\n', shipped: shipped);
       expect(r.issues, isEmpty);

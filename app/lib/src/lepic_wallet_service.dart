@@ -1140,6 +1140,7 @@ class LepicWalletService implements WalletService {
     contactHoldAttempts: c.number('contacts.hold_attempts'),
     contactHoldPatienceS: BigInt.from(c.number('contacts.hold_patience_s')),
     listenerHeldRounds: c.number('epicbox.listener_held_rounds'),
+    // listener_challenge_rounds is passed here, as listenerChallengeRounds, once the binding has the field (to be replaced).
     quarantineMaxBytes: BigInt.from(c.number('contacts.quarantine_max_bytes')),
     earlyNoticeMaxCount: c.number('notices.early_notice_max_count'),
     earlyNoticeMaxAgeS: BigInt.from(c.number('notices.early_notice_max_age_s')),

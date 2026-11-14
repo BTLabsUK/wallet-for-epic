@@ -37,10 +37,13 @@ class TextKind extends ValueKind {
 }
 
 class IntKind extends ValueKind {
-  const IntKind({this.min = 0, this.max = 1 << 31, this.problem = ValueProblem.notNumber});
+  const IntKind({this.min = 0, this.max = 1 << 31, this.problem = ValueProblem.notNumber, this.orZero = false});
   final int min;
   final int max;
   final ValueProblem problem;
+
+  /// 0 is allowed besides [min]..[max]: it turns the setting off.
+  final bool orZero;
 }
 
 class BoolKind extends ValueKind {
@@ -317,6 +320,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('epicbox.listener_heal_after_s', _seconds),
   SettingsKey('epicbox.listener_heal_max_s', _seconds),
   SettingsKey('epicbox.listener_held_rounds', IntKind(min: 1, max: 64), byDefault: 8),
+  SettingsKey('epicbox.listener_challenge_rounds', IntKind(min: 2, max: 10, orZero: true), byDefault: 3),
   // [http]: the Link · HTTP listener and HTTP sends.
   SettingsKey('http.listen_port', _port),
   SettingsKey('http.header_timeout_s', _seconds),
@@ -470,8 +474,9 @@ Checked checkValue(ValueKind kind, Object? raw) {
       if (raw is! String) return const Checked.bad(ValueProblem.notText);
       final p = check(raw);
       return p == null ? Checked.good(raw) : Checked.bad(p);
-    case IntKind(:final min, :final max, :final problem):
+    case IntKind(:final min, :final max, :final problem, :final orZero):
       if (raw is! int) return Checked.bad(problem);
+      if (orZero && raw == 0) return Checked.good(raw);
       return raw >= min && raw <= max ? Checked.good(raw) : Checked.bad(problem);
     case BoolKind():
       return raw is bool ? Checked.good(raw) : const Checked.bad(ValueProblem.notSwitch);
