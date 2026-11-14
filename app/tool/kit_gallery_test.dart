@@ -127,8 +127,8 @@ Widget _page1(AppLocalizations l) => Column(
       _wrap([
         KitStatusPill(ready: true, onTap: _noop),
         KitStatusPill(ready: false, onTap: _noop),
-        KitStatusPill(ready: true, tor: true, onTap: _noop),
-        KitStatusPill(ready: false, tor: true, onTap: _noop),
+        KitStatusPill(ready: true, modeMark: Icons.lock_outline, modeName: 'Tor', onTap: _noop),
+        KitStatusPill(ready: false, modeMark: Icons.lock_outline, modeName: 'Tor', onTap: _noop),
         const KitConnectionDot(ready: true),
         const KitConnectionDot(ready: false),
       ]),
