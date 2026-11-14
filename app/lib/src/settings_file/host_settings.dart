@@ -254,6 +254,13 @@ class AppConfig {
   /// reconnects even when it says connected: its socket may have died meanwhile.
   Duration get resumeReconnectAfter => _s('epicbox.resume_reconnect_after_s');
 
+  /// Push sessions (mux/1) to the Epicbox relays: the listener and the contacts share a socket per
+  /// relay and group; a relay without mux/1 keeps today's sockets. False: today's calls exactly.
+  bool get epicboxMux => value('epicbox.mux') as bool;
+
+  /// How often a relay re-checks the mailboxes of a waiting session on its own, in seconds; 1 to 86400.
+  int get epicboxMuxWaitingCheckS => _int('epicbox.mux_waiting_check_s');
+
   // [http]
   int get httpListenPort => _int('http.listen_port');
 

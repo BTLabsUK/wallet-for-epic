@@ -215,6 +215,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   /// listener reconnects too: its socket may be dead without the state saying so.
   void _wakeListener(bool longAway) {
     unawaited(ref.read(nodeRecheckProvider.notifier).recheck('resume'));
+    // The contacts' push sessions start again: the sockets may have gone with the background.
+    if (ref.read(sessionProvider) != null) unawaited(ref.read(epicboxMuxProvider)?.startContacts() ?? Future<void>.value());
     if (!ref.exists(listenerProvider)) return;
     unawaited(ref.read(listenerProvider.notifier).wake('resume', stale: longAway));
   }

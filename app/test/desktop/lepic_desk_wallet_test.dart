@@ -621,6 +621,8 @@ void main() {
       final changes = <void>[];
       final sub = wallet.changes().listen(changes.add);
       await wallet.setListening(true);
+      // The listener starts through its push group, which takes one read of the Tor setting first.
+      await pumpEventQueue();
       expect(service.session.listenerStarts, 1);
       expect((await wallet.status()).epicboxHealth, ServiceHealth.checking);
       service.session.listenerEvents.add(const core.ListenerEvent(kind: core.ListenerEventKind.connected, message: 'listening'));

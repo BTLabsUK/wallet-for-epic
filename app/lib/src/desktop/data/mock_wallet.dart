@@ -30,6 +30,7 @@ import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../boosts.dart' show Boosts, MemoryBoosts;
 import '../../epic1.dart';
+import '../../epicbox_mux.dart' show EpicboxMux;
 import '../../pairing_fake.dart';
 import '../../trust/policy.dart' show PeerCompat;
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -1455,6 +1456,10 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   final MemoryBoosts boosts = MemoryBoosts();
+
+  /// The prototype has no relay to push from.
+  @override
+  EpicboxMux? get mux => null;
 
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
   /// pairings. The Prototype panel and the tour drive its other side.

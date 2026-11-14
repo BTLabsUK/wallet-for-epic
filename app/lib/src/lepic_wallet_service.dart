@@ -1683,7 +1683,7 @@ class LepicAppDataSealer implements AppDataSealer {
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
 class LepicWalletSession
-    implements WalletSession, EpicboxDrainAt, ListingKeys, Epic1Capable {
+    implements WalletSession, EpicboxDrainAt, ListingKeys, Epic1Capable, EpicboxPush {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
@@ -2452,13 +2452,65 @@ class LepicWalletSession
   });
 
   @override
-  Stream<ListenerEvent> startListener() => _epicboxStream('listener', () =>
-    _wallet.startListener().expand((e) {
-      final bounced = lepicListenerBounce(e);
-      if (bounced != null) _onBounce(bounced);
-      final event = lepicListenerEvent(e);
-      return event == null ? const <ListenerEvent>[] : [event];
-    }),
+  Stream<ListenerEvent> startListener() => _epicboxStream('listener', () => _listenerEvents(_wallet.startListener()));
+
+  Stream<ListenerEvent> _listenerEvents(Stream<lepic.ListenerEvent> events) => events.expand((e) {
+    final bounced = lepicListenerBounce(e);
+    if (bounced != null) _onBounce(bounced);
+    final event = lepicListenerEvent(e);
+    return event == null ? const <ListenerEvent>[] : [event];
+  });
+
+  @override
+  Stream<ListenerEvent> startListenerVia({required String group, int? waitingEveryS}) => _epicboxStream(
+    'listener',
+    () => _listenerEvents(_wallet.startListenerVia(via: lepic.ListenVia(group: group, waitingEveryS: waitingEveryS))),
+  );
+
+  @override
+  Future<void> contactsPushStart({required String group, int? waitingEveryS}) => _epicboxGuard(
+    'contacts push',
+    () => _wallet.contactsPushStart(via: lepic.ListenVia(group: group, waitingEveryS: waitingEveryS)),
+  );
+
+  @override
+  Future<void> contactsPushStop() async {
+    if (!_wallet.isDisposed) await _guard(_wallet.contactsPushStop);
+  }
+
+  @override
+  List<PushSession> pushSessions() => _wallet.isDisposed
+      ? const <PushSession>[]
+      : [for (final v in _guardSync(_wallet.epicboxSessions)) _pushSessionOf(v)];
+
+  @override
+  Stream<PushEvent> watchPushSessions() => _guardStream(_wallet.watchEpicboxSessions()).map(
+    (e) => PushEvent(
+      kind: e.kind == lepic.EpicboxSessionEventKind.mailQueued ? PushEventKind.mailQueued : PushEventKind.state,
+      relay: e.relay,
+      group: e.group,
+      state: e.state == null ? null : _pushStateOf(e.state!),
+    ),
+  );
+
+  static PushState _pushStateOf(lepic.EpicboxSessionState s) => switch (s) {
+    lepic.EpicboxSessionState.connecting => PushState.connecting,
+    lepic.EpicboxSessionState.attached => PushState.attached,
+    lepic.EpicboxSessionState.reconnecting => PushState.reconnecting,
+    lepic.EpicboxSessionState.notOffered => PushState.notOffered,
+    lepic.EpicboxSessionState.stopped => PushState.stopped,
+  };
+
+  static PushSession _pushSessionOf(lepic.EpicboxSessionView v) => PushSession(
+    relay: v.relay,
+    group: v.group,
+    state: _pushStateOf(v.state),
+    socketsOpened: v.socketsOpened.toInt(),
+    attaches: v.attaches.toInt(),
+    resumes: v.resumes.toInt(),
+    mails: v.mails.toInt(),
+    duplicates: v.duplicates.toInt(),
+    stallReconnects: v.stallReconnects.toInt(),
   );
 
   @override
@@ -4888,7 +4940,7 @@ class _LepicPairing implements PairingApi {
         // The tick stays quiet whatever it reads: the user asked for no look.
         // The rerun reads every contact when any of the requests did.
         return await _collects.run(
-          () => collectOrFail(trigger, only: only, quiet: trigger == PairingCollectTrigger.foreground),
+          () => collectOrFail(trigger, only: only, quiet: _quietTrigger(trigger)),
           rank: only == null ? 1 : 0,
         );
       } on lepic.WalletError catch (error) {
@@ -4901,6 +4953,10 @@ class _LepicPairing implements PairingApi {
     });
   }
 
+  /// The tick and a push read quietly: the user asked for no look.
+  static bool _quietTrigger(PairingCollectTrigger t) =>
+      t == PairingCollectTrigger.foreground || t == PairingCollectTrigger.push;
+
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
   Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only, bool? quiet}) => !NetGate.pairing
@@ -4910,7 +4966,7 @@ class _LepicPairing implements PairingApi {
     CheckSource.collect,
     () => _collectCounted(trigger, only: only),
     // The 45-second tick stays quiet; a look the user asked for, or a resume, shows.
-    quiet: quiet ?? (trigger == PairingCollectTrigger.foreground && only == null),
+    quiet: quiet ?? (_quietTrigger(trigger) && only == null),
     outcomeOf: (r) => CheckOutcome(
       messages: r.messages,
       failed: r.failed,

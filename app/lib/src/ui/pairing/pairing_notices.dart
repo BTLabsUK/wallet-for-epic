@@ -15,6 +15,7 @@ import '../../connection_state.dart' show walletStatusProvider;
 import '../status.dart' show NodeState;
 import '../../contact_check.dart';
 import '../../contacts.dart';
+import '../../epicbox_mux.dart';
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../notice_digest.dart';
 import '../../notice_digest_text.dart';
@@ -23,7 +24,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../relay_moves.dart' show relayMoveToAsk;
-import '../../providers.dart' show homeProvider, noticeDigestProvider, paymentsDrainProvider, pendingInvoicesProvider, sessionProvider;
+import '../../providers.dart' show epicboxMuxProvider, homeProvider, noticeDigestProvider, paymentsDrainProvider, pendingInvoicesProvider, sessionProvider;
 import '../../settings_file/host_settings.dart' show appConfig;
 import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
@@ -134,6 +135,11 @@ class PairingNotices extends ConsumerStatefulWidget {
 class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBindingObserver {
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   ContactCheck? _check;
+
+  /// The push sessions to the relays: the check rests while they are live.
+  late final MuxLive _mux = MuxLive(
+    relays: () => muxRelaysOf(ref.read(pairingsProvider).value ?? const <PairingRecord>[]),
+  );
   late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(pairingClockProvider));
 
   /// A service's relay move sheet is up: the next waits until it closes.
@@ -171,7 +177,9 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       // does not need the node.
       paused: () => ref.read(sessionProvider) == null,
       idlePaused: () => ref.read(walletStatusProvider).node.state == NodeState.offline,
+      live: () => _mux.live,
     );
+    _mux.check = _check;
     _check!.start();
   }
 
@@ -201,6 +209,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     WidgetsBinding.instance.removeObserver(this);
     unregisterInviteHandler(InviteKind.pair, _pairInvite);
     _check?.stop();
+    _mux.dispose();
     super.dispose();
   }
 
@@ -217,12 +226,14 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {
       final e = next.value;
       if (e == null || !mounted) return;
-      // A pairing moved: the next check of every contact is the first wait away.
-      _check?.reset();
+      // A pairing moved: the next check of every contact is the first wait away, or runs at
+      // once while the push sessions are live.
+      _check?.pairingEvent();
       unawaited(_show(e));
     });
     // Something is in flight with another contact: its check runs within the in-flight interval.
     ref.listenManual(contactsInFlightProvider, (_, _) => _check?.inFlightChanged());
+    ref.listenManual(epicboxMuxProvider, (_, mux) => _mux.bind(mux), fireImmediately: true);
     // Unlocked, or the node back: the check of every contact runs at once.
     ref.listenManual(sessionProvider, (_, _) => _check?.wake());
     ref.listenManual(walletStatusProvider.select((s) => s.node.state), (_, _) => _check?.wake());
@@ -241,6 +252,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     ref.listenManual(pairingsProvider, (_, next) {
       final records = next.value;
       if (records == null || !mounted) return;
+      _mux.relaysChanged();
       for (final c in _profiles.update(records)) {
         final l = context.l10n;
         final name = pairingName(c.record, ref.read(contactsProvider).value ?? const <Contact>[], l: l);

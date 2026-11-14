@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../app_info.dart';
 import '../../contact_check.dart';
+import '../../epicbox_mux.dart' show MuxLive, muxRelaysOf;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -110,6 +111,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   ContactCheck? _contactCheck;
+
+  /// Push sessions to the relays (`epicbox_mux.dart`): while they are live the check rests.
+  late final MuxLive _mux = MuxLive(relays: () => muxRelaysOf(ref.read(deskPairingsProvider).value ?? const []));
 
   Timer? _linkRetry;
 
@@ -236,7 +240,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         // does not need the node.
         paused: () => ref.read(deskProvider).account == null,
         idlePaused: () => ref.read(deskProvider).status?.nodeHealth == ServiceHealth.down,
-      )..start();
+        live: () => _mux.live,
+      );
+      _mux
+        ..check = _contactCheck
+        ..bind(ref.read(deskApiProvider).mux);
+      _contactCheck!.start();
     }
     _openCount = Timer.periodic(NodeFitFacts.tick, (_) {
       if (mounted) unawaited(ref.read(nodeFitFactsProvider).addOpen(NodeFitFacts.tick).catchError((Object _) {}));
@@ -246,6 +255,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listenManual(deskPairingsProvider, (_, next) {
       final records = next.value;
       if (records == null || !mounted) return;
+      _mux
+        ..bind(ref.read(deskApiProvider).mux)
+        ..relaysChanged();
       for (final c in _profiles.update(records)) {
         final l = context.l10n;
         final name = deskPairingName(c.record, ref.read(deskProvider).contacts, l: l);
@@ -377,6 +389,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _behindAsk?.cancel();
     _linkRetry?.cancel();
     _contactCheck?.stop();
+    _mux.dispose();
     _openCount?.cancel();
     _focus?.dispose();
     _settingsFocus.dispose();
@@ -416,14 +429,17 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // What the pairing engine found (RFC 10.4), as a toast; the screens that wait open the
     // words check themselves, Pending invites keeps the rest.
     // Unlocked, or the node back: the check of every contact runs at once.
-    ref.listen(deskProvider.select((s) => (s.account == null, s.status?.nodeHealth)), (_, _) => _contactCheck?.wake());
+    ref.listen(deskProvider.select((s) => (s.account == null, s.status?.nodeHealth)), (_, _) {
+      _mux.bind(ref.read(deskApiProvider).mux);
+      _contactCheck?.wake();
+    });
     // Something is in flight with another contact: its check runs within the in-flight interval.
     ref.listen(deskContactsInFlightProvider, (_, _) => _contactCheck?.inFlightChanged());
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
       if (e == null) return;
       // A pairing moved: the next check of every contact is the first wait away.
-      _contactCheck?.reset();
+      _contactCheck?.pairingEvent();
       // A mailbox payment's answer was finalized: Activity shows it posted.
       if (e.kind == PairingEventKind.paymentFinalized) unawaited(ref.read(deskProvider.notifier).refresh());
       // A request to pair from someone not in Contacts is dropped unseen.

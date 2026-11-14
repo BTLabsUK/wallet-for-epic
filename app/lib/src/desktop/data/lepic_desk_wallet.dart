@@ -93,6 +93,7 @@ import '../../trust/contact_trust.dart' show peerCompatRetention;
 import '../../trust/policy.dart' show PeerCompat;
 import '../../epic1.dart' show Epic1Wallet, Epic1Of;
 import '../../boosts.dart' show Boosts, PollDriver, Poller;
+import '../../epicbox_mux.dart' show EpicboxMux, MuxPolicy;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -1075,6 +1076,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _dueAfterHeight = null;
     _restoreDue = await _restoreFlag(session) || (await _meta(metaKey))['scanPending'] == true;
     await _routeEpicbox(session);
+    unawaited(_startMux());
     if (!NetGate.restricted) unawaited(_resendUndelivered(session));
     _config = config;
     _password = password;
@@ -1243,6 +1245,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _stopPoll();
     _stopInvoices(forget: true);
     await _stopListener();
+    await _stopMux();
     await _stopHttp();
     await _stopTor();
     final session = _session;
@@ -1306,6 +1309,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final tor = _tor != null;
     final config = await _makeConfig(nodeUrl: nodeUrl, relay: relay);
     await _stopListener();
+    await _stopMux();
     await _stopHttp();
     await _stopTor();
     _stopInvoices();
@@ -1327,6 +1331,7 @@ class LepicDeskWallet implements DeskWalletApi {
       session.heldOutputs = _deviceHeld;
       _config = c;
       await _routeEpicbox(session);
+      unawaited(_startMux());
       return true;
     }
 
@@ -3623,6 +3628,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on) {
       _stopInvoices();
       await _stopListener();
+      await _stopMux();
       _epicboxHealth = ServiceHealth.off;
       _changed();
       return;
@@ -3658,6 +3664,7 @@ class LepicDeskWallet implements DeskWalletApi {
         _beforeOffline ??= (listening: _listener != null, http: _http != null, tor: _settings.tor);
         _stopInvoices();
         await _stopListener();
+        await _stopMux();
         await _stopHttp();
         _epicboxHealth = ServiceHealth.off;
         if (now == NetworkMode.killSwitch) {
@@ -4047,7 +4054,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;
     _changed();
-    _listener = session.startListener().listen(
+    unawaited(_startMux());
+    _listener = (mux?.startListener() ?? session.startListener()).listen(
       (e) {
         switch (e.kind) {
           case core.ListenerEventKind.connected:
@@ -4211,7 +4219,15 @@ class LepicDeskWallet implements DeskWalletApi {
     _epicboxOverTor = on;
     _clearBlocked();
     final session = _session;
-    if (session != null) await _routeTor(session);
+    if (session != null) {
+      await _routeTor(session);
+      // The groups follow the setting: the contacts start again in theirs.
+      final m = _mux;
+      if (m != null && m.contactsGroup != null) {
+        await m.stopContacts();
+        await _startMux();
+      }
+    }
     _changed();
   }
 
@@ -4554,6 +4570,27 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     await sub.cancel();
     _changed();
+  }
+
+  EpicboxMux? _mux;
+  core.WalletSession? _muxOf;
+
+  /// Push sessions for the contacts: started once Epicbox may run, ended with the wallet's
+  /// session (a lock forgets them) or when Epicbox stops.
+  Future<void> _startMux() async {
+    if (NetGate.restricted || !NetGate.epicbox) return;
+    final m = mux;
+    if (m == null || m.contactsGroup != null) return;
+    await m.startContacts();
+  }
+
+  Future<void> _stopMux() async {
+    final m = _mux;
+    _mux = null;
+    _muxOf = null;
+    if (m == null) return;
+    await m.stopContacts();
+    m.close();
   }
 
   Future<void> _stopListener() async {
@@ -5579,6 +5616,18 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Boosts? get boosts => _session?.boosts;
+
+  @override
+  EpicboxMux? get mux {
+    final session = _session;
+    if (session == null) return null;
+    if (!identical(session, _muxOf)) {
+      _mux?.close();
+      _muxOf = session;
+      _mux = EpicboxMux.of(session, MuxPolicy.of(appConfig));
+    }
+    return _mux;
+  }
 
   @override
   Future<PeerCompat?> peerCompat(String address) => _service.peerCompat(address);

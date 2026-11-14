@@ -790,6 +790,89 @@ extension DrainEpicboxAt on WalletSession {
   }
 }
 
+/// Where a push session of an Epicbox relay (mux/1) is.
+enum PushState { connecting, attached, reconnecting, notOffered, stopped }
+
+/// A push session in use: one relay and group (the app's view of LEPIC's `EpicboxSessionView`).
+class PushSession {
+  const PushSession({
+    required this.relay,
+    required this.group,
+    required this.state,
+    this.socketsOpened = 0,
+    this.attaches = 0,
+    this.resumes = 0,
+    this.mails = 0,
+    this.duplicates = 0,
+    this.stallReconnects = 0,
+  });
+
+  /// The relay as `domain:port`.
+  final String relay;
+  final String group;
+  final PushState state;
+  final int socketsOpened;
+  final int attaches;
+  final int resumes;
+  final int mails;
+  final int duplicates;
+  final int stallReconnects;
+
+  Map<String, Object> toJson() => {
+    'relay': relay,
+    'group': group,
+    'state': state.name,
+    'sockets_opened': socketsOpened,
+    'attaches': attaches,
+    'resumes': resumes,
+    'mails': mails,
+    'duplicates': duplicates,
+    'stall_reconnects': stallReconnects,
+  };
+}
+
+/// What a push session reports: a new [state], or mail the relay pushed ([mailQueued]).
+enum PushEventKind { state, mailQueued }
+
+class PushEvent {
+  const PushEvent({required this.kind, required this.relay, required this.group, this.state});
+  final PushEventKind kind;
+  final String relay;
+  final String group;
+  final PushState? state;
+}
+
+/// A session that can read the Epicbox relays through push sessions (mux/1): the listener and
+/// the contacts collect share a socket per relay and group, and the relay says when mail comes.
+/// A relay without mux/1 keeps today's sockets, and the session says `notOffered`. Optional: a
+/// session without it answers null through [PushOf.push], and the app keeps today's calls. The
+/// policy (the groups, when to start and stop) is the app's, in `epicbox_mux.dart`.
+abstract interface class EpicboxPush {
+  /// [WalletSession.startListener], reading the relay through the push session of [group].
+  Stream<ListenerEvent> startListenerVia({required String group, int? waitingEveryS});
+
+  /// Makes the contacts collect read through the push sessions of [group], from the next collect on.
+  Future<void> contactsPushStart({required String group, int? waitingEveryS});
+
+  /// The contacts collect uses sockets again.
+  Future<void> contactsPushStop();
+
+  /// The sessions in use now, with their counters.
+  List<PushSession> pushSessions();
+
+  /// What the sessions report, from the call on.
+  Stream<PushEvent> watchPushSessions();
+}
+
+extension PushOf on WalletSession {
+  /// The push capability of this session, or null for one without it.
+  EpicboxPush? get push {
+    // A pattern, not `is`, as in [DrainEpicboxAt].
+    if (this case final EpicboxPush core) return core;
+    return null;
+  }
+}
+
 /// A session that holds the wallet's listing keys: one Epicbox address per (name service key,
 /// generation), derived from the phrase alone, signing under the listing domains and drained
 /// like the wallet's own address. Optional, so a core without them answers null through
@@ -1434,7 +1517,7 @@ String fakeAddressSignature(String key, List<int> message) =>
     '${sha512.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
-class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
+class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable, EpicboxPush {
   FakeWalletSession({
     WalletSummary? summary,
     List<TxEntry>? transactions,
@@ -1939,6 +2022,53 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
 
   @override
   Future<void> stopListener() async => listenerStops++;
+
+  /// The groups [startListenerVia] was called with, in order, and the interval each asked for.
+  final List<(String, int?)> listenerVia = [];
+
+  /// The calls of [contactsPushStart] and [contactsPushStop] in order: `start:<group>` and `stop`.
+  final List<String> contactsPushLog = [];
+
+  /// The push sessions this fake reports; a test sets them and calls [emitPush].
+  List<PushSession> pushSessionList = [];
+
+  final StreamController<PushEvent> pushEvents = StreamController<PushEvent>.broadcast();
+
+  @override
+  Stream<ListenerEvent> startListenerVia({required String group, int? waitingEveryS}) {
+    listenerVia.add((group, waitingEveryS));
+    return startListener();
+  }
+
+  @override
+  Future<void> contactsPushStart({required String group, int? waitingEveryS}) async =>
+      contactsPushLog.add('start:$group');
+
+  @override
+  Future<void> contactsPushStop() async => contactsPushLog.add('stop');
+
+  @override
+  List<PushSession> pushSessions() => List.unmodifiable(pushSessionList);
+
+  @override
+  Stream<PushEvent> watchPushSessions() => pushEvents.stream;
+
+  /// Sets the session of [relay] and [group] to [state] and reports it, as LEPIC's first event of
+  /// a session and each change.
+  void setPushState(String relay, String group, PushState state) {
+    final i = pushSessionList.indexWhere((p) => p.relay == relay && p.group == group);
+    final next = PushSession(relay: relay, group: group, state: state);
+    if (i < 0) {
+      pushSessionList = [...pushSessionList, next];
+    } else {
+      pushSessionList = [...pushSessionList]..[i] = next;
+    }
+    pushEvents.add(PushEvent(kind: PushEventKind.state, relay: relay, group: group, state: state));
+  }
+
+  /// Reports mail the relay pushed for [group] on [relay].
+  void queueMail(String relay, String group) =>
+      pushEvents.add(PushEvent(kind: PushEventKind.mailQueued, relay: relay, group: group));
 
   /// Every [nodeTipFor] call, in order.
   final List<WalletConfig> nodeTipsFor = [];

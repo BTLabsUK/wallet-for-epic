@@ -10,6 +10,13 @@
 ///    brought no message, the last one repeating, and back to the first on a message, a resume,
 ///    an unlock, a pairing event, a payment to the payments address or a boost.
 ///
+/// While push sessions are live ([ContactCheck.live]: a session of the Epicbox relay is attached
+/// on every relay a contact or a pairing in flight uses), the relay says when mail comes: the
+/// reads of the contacts in flight stop, and the check of every contact is a reconcile every
+/// 10 minutes plus one right after a pairing event ([pairingEvent]).
+/// A push collect ([pushCollect]) reads when the relay says mail was queued. With no session
+/// attached, or a relay that does not offer them, the checks above run unchanged.
+///
 /// While a boost of [Poller.relays] runs (LEPIC ADR 0058: a send, an invoice, a pay, a code in
 /// person) every tick is the full check, at the boost's interval.
 library;
@@ -65,6 +72,8 @@ class ContactCheck {
     required this.inFlightEvery,
     this.paused,
     this.idlePaused,
+    this.live,
+    this.reconcileEvery = const Duration(minutes: 10),
     DateTime Function()? now,
   }) : _boosts = boosts,
        _now = now ?? DateTime.now {
@@ -92,6 +101,14 @@ class ContactCheck {
   /// reads of the contacts in flight and a boost's ticks go on, as pairing needs no node.
   final bool Function()? idlePaused;
 
+  /// True while push sessions are attached for every relay in use: the reads of the contacts in
+  /// flight stop and the check of every contact is a reconcile, every [reconcileEvery]. Call
+  /// [liveChanged] when it may have changed.
+  final bool Function()? live;
+
+  /// The wait between full checks while [live].
+  final Duration reconcileEvery;
+
   final Boosts _boosts;
   final DateTime Function() _now;
   late final PollDriver _driver;
@@ -101,10 +118,13 @@ class ContactCheck {
   int _step = 0;
   late DateTime _nextFull;
   bool _boosted = false;
+  bool _wasLive = false;
+  DateTime? _lastFull;
 
-  /// The checks made, for a test: of every contact, and of only some.
+  /// The checks made, for a test: of every contact, of only some, and by push.
   int fullChecks = 0;
   int inFlightChecks = 0;
+  int pushChecks = 0;
 
   bool get running => _driver.running;
 
@@ -120,6 +140,8 @@ class ContactCheck {
       _boosted = boosted;
     });
     _boosted = _isBoosted;
+    _wasLive = _isLive;
+    if (_wasLive) _nextFull = _now().add(reconcileEvery);
     _retime();
     _driver.start();
   }
@@ -136,12 +158,57 @@ class ContactCheck {
   /// every contact is one first wait away.
   void reset() {
     _step = 0;
-    _nextFull = _now().add(idleChecks.first);
+    _nextFull = _now().add(_isLive ? reconcileEvery : idleChecks.first);
     _retime(shorten: true);
   }
 
+  /// A pairing moved: while [live] the check of every contact runs at once, as the in-flight
+  /// reads that would follow it are off; otherwise as [reset].
+  void pairingEvent() {
+    if (!_isLive) return reset();
+    _step = 0;
+    _nextFull = _now();
+    _retime(shorten: true);
+  }
+
+  bool get _isLive => live?.call() ?? false;
+
+  /// What [live] reads may have changed. Going live puts the next check of every contact one
+  /// reconcile after the last; leaving it starts the adaptive wait again at its first step.
+  void liveChanged() {
+    final now = _isLive;
+    if (now == _wasLive) return;
+    _wasLive = now;
+    _step = 0;
+    if (now) {
+      _nextFull = (_lastFull ?? _now()).add(reconcileEvery);
+    } else {
+      _nextFull = _now().add(idleChecks.first);
+    }
+    _retime();
+  }
+
+  /// The relay said mail was queued: reads every contact's mailbox with the push trigger. A
+  /// message taken starts the waits again, like a message the tick read.
+  Future<void> pushCollect() async {
+    if (paused?.call() ?? false) return;
+    var messages = 0;
+    try {
+      messages = await collect(PairingCollectTrigger.push);
+    } finally {
+      pushChecks++;
+      if (messages > 0) {
+        _step = 0;
+        _nextFull = _now().add(_isLive ? reconcileEvery : idleChecks.first);
+        _retime();
+      }
+    }
+  }
+
   /// The contacts in flight changed: the check of them runs within [inFlightEvery].
-  void inFlightChanged() => _retime(shorten: true);
+  void inFlightChanged() {
+    if (!_isLive) _retime(shorten: true);
+  }
 
   /// What [paused] or [idlePaused] read may have changed (an unlock, the node back): the wait
   /// starts again at the first step and the check of every contact is due now.
@@ -161,6 +228,7 @@ class ContactCheck {
       await sync(trigger);
     } finally {
       fullChecks++;
+      _lastFull = _now();
       reset();
     }
   }
@@ -181,6 +249,7 @@ class ContactCheck {
         ok = true;
       } finally {
         fullChecks++;
+        _lastFull = _now();
         // Nothing came: the wait moves one step on. A message or a boost keeps the first, and a
         // call that only joined a collect running read nothing: the step stays.
         _step = messages > 0 || boosted
@@ -188,12 +257,13 @@ class ContactCheck {
             : messages == collectJoined
             ? _step
             : min(_step + 1, idleChecks.length - 1);
-        _nextFull = _now().add(idleChecks[_step]);
+        _nextFull = _now().add(_isLive && !boosted ? reconcileEvery : idleChecks[_step]);
         _retime();
       }
       return ok;
     }
-    final ids = inFlight();
+    // Live: the relay pushes what comes, so nothing is read for the contacts in flight.
+    final ids = _isLive ? const <String>[] : inFlight();
     var ok = true;
     var messages = 0;
     try {
@@ -218,7 +288,7 @@ class ContactCheck {
     var next = _nextFull.difference(_now()).inMilliseconds;
     // The check of every contact due but held back: look again in [inFlightEvery].
     if (_idlePaused && !_isBoosted) next = max(next, inFlightEvery.inMilliseconds);
-    if (inFlight().isNotEmpty) next = min(next, inFlightEvery.inMilliseconds);
+    if (!_isLive && inFlight().isNotEmpty) next = min(next, inFlightEvery.inMilliseconds);
     final wait = Duration(milliseconds: max(next, 1000));
     if (shorten && wait >= _driver.base) return;
     _driver.base = wait;

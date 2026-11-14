@@ -2,6 +2,8 @@
 // The contacts' foreground check (contact_check.dart): an idle wallet backs off from 45 s to
 // 300 s between checks of every contact, a contact with something in flight is read every 45 s,
 // and a boost ticks as fast as it asks. Fake time and fake collect/sync calls; no relay.
+import 'dart:async';
+
 import 'package:epic_wallet/src/boosts.dart';
 import 'package:epic_wallet/src/contact_check.dart';
 import 'package:epic_wallet/src/models.dart';
@@ -27,6 +29,7 @@ class _Rig {
       inFlightEvery: _inFlightEvery,
       paused: () => locked,
       idlePaused: () => nodeDown,
+      live: () => live,
       now: () => start.add(time.elapsed),
     );
   }
@@ -44,6 +47,9 @@ class _Rig {
   /// The wallet is locked, or its node is down.
   bool locked = false;
   bool nodeDown = false;
+
+  /// Push sessions are attached on every relay in use.
+  bool live = false;
 
   /// The next collect only joins a collect running ([collectJoined]).
   bool joinNext = false;
@@ -220,6 +226,101 @@ void main() {
       time.elapse(const Duration(seconds: 46));
       expect((rig.calls.last.at - eventAt).inSeconds, 45);
       rig.check.stop();
+    });
+  });
+
+  group('push sessions live', () {
+    test('an idle hour with a contact in flight: no in-flight read, a reconcile every 10 minutes', () {
+      fakeAsync((time) {
+        final rig = _Rig(time, inFlight: ['c3'])..live = true;
+        rig.check.start();
+        time.elapse(_hour);
+        rig.check.stop();
+
+        // ignore: avoid_print
+        print('idle hour, push live, c3 in flight: ${rig.fullCollects} full collects, '
+            '${rig.inFlightCollects} in-flight collects, ${rig.mailboxReads} mailbox reads');
+        expect(rig.inFlightCollects, 0);
+        expect(rig.check.inFlightChecks, 0);
+        expect([for (final c in rig.calls) c.at.inMinutes], [10, 20, 30, 40, 50, 60]);
+        expect(rig.listingDrains, rig.fullCollects);
+      });
+    });
+
+    test('a pairing event runs the check of every contact at once, and the next one is a reconcile away', () {
+      fakeAsync((time) {
+        final rig = _Rig(time, inFlight: ['c3'])..live = true;
+        rig.check.start();
+        time.elapse(const Duration(minutes: 3));
+        expect(rig.calls, isEmpty);
+        rig.check.pairingEvent();
+        time.elapse(const Duration(seconds: 2));
+        expect(rig.calls, hasLength(1));
+        expect(rig.calls.single.only, isNull);
+        expect(rig.calls.single.at, lessThan(const Duration(minutes: 3, seconds: 3)));
+        time.elapse(const Duration(minutes: 9));
+        expect(rig.calls, hasLength(1));
+        time.elapse(const Duration(minutes: 2));
+        expect(rig.calls, hasLength(2));
+        rig.check.stop();
+      });
+    });
+
+    test('a push collect reads every mailbox with the push trigger and leaves the timer alone', () {
+      fakeAsync((time) {
+        final rig = _Rig(time)..live = true;
+        rig.check.start();
+        time.elapse(const Duration(minutes: 1));
+        unawaited(rig.check.pushCollect());
+        time.flushMicrotasks();
+        expect(rig.calls.map((c) => (c.trigger, c.only)), [(PairingCollectTrigger.push, null)]);
+        expect(rig.check.pushChecks, 1);
+        time.elapse(const Duration(minutes: 9, seconds: 1));
+        expect(rig.calls, hasLength(2));
+        expect(rig.calls.last.trigger, isNot(PairingCollectTrigger.push));
+        rig.check.stop();
+      });
+    });
+
+    test('a locked wallet takes no push collect', () {
+      fakeAsync((time) {
+        final rig = _Rig(time)..live = true;
+        rig.check.start();
+        rig.locked = true;
+        unawaited(rig.check.pushCollect());
+        time.flushMicrotasks();
+        expect(rig.calls, isEmpty);
+        expect(rig.check.pushChecks, 0);
+        rig.check.stop();
+      });
+    });
+
+    test('a session that goes down brings the adaptive check and the in-flight reads back', () {
+      fakeAsync((time) {
+        final rig = _Rig(time, inFlight: ['c3'])..live = true;
+        rig.check.start();
+        time.elapse(const Duration(minutes: 5));
+        expect(rig.calls, isEmpty);
+        rig.live = false;
+        rig.check.liveChanged();
+        // The full check is due one first wait later; the in-flight read follows it, 45 s on.
+        time.elapse(const Duration(minutes: 2));
+        expect(rig.inFlightCollects, greaterThanOrEqualTo(1));
+        expect(rig.fullCollects, 1);
+        expect(rig.calls.first.at, lessThanOrEqualTo(const Duration(minutes: 5, seconds: 46)));
+        rig.check.stop();
+      });
+    });
+
+    test('not live from the start: the check runs as before', () {
+      fakeAsync((time) {
+        final rig = _Rig(time, inFlight: ['c3']);
+        rig.check.start();
+        time.elapse(_hour);
+        rig.check.stop();
+        expect(rig.inFlightCollects, greaterThan(60));
+        expect(rig.calls.first.at.inSeconds, 45);
+      });
     });
   });
 

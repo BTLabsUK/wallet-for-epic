@@ -319,6 +319,8 @@ const List<SettingsKey> configKeys = [
   SettingsKey('epicbox.listener_held_rounds', IntKind(min: 1, max: 64), byDefault: 8),
   SettingsKey('epicbox.listener_challenge_rounds', IntKind(min: 2, max: 10), byDefault: 3),
   SettingsKey('epicbox.resume_reconnect_after_s', IntKind(min: 5, max: 86400), byDefault: 60),
+  SettingsKey('epicbox.mux', BoolKind(), byDefault: true),
+  SettingsKey('epicbox.mux_waiting_check_s', IntKind(min: 1, max: 86400), byDefault: 300),
   // [http]: the Link · HTTP listener and HTTP sends.
   SettingsKey('http.listen_port', _port),
   SettingsKey('http.header_timeout_s', _seconds),

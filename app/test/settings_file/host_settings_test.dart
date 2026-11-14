@@ -117,6 +117,24 @@ void main() {
       }
     });
 
+    test('mux is on and mux_waiting_check_s is 300 when left out; both load as written, the check 1 to 86400', () {
+      final c = AppConfig.fromText(_configText);
+      expect(c.epicboxMux, isTrue);
+      expect(c.epicboxMuxWaitingCheckS, 300);
+      final set = AppConfig.fromText(
+        _configText.replaceFirst('[epicbox]', '[epicbox]\nmux = false\nmux_waiting_check_s = 60'),
+      );
+      expect(set.epicboxMux, isFalse);
+      expect(set.epicboxMuxWaitingCheckS, 60);
+      for (final bad in [0, 86401]) {
+        expect(
+          () => AppConfig.fromText(_configText.replaceFirst('[epicbox]', '[epicbox]\nmux_waiting_check_s = $bad')),
+          throwsStateError,
+          reason: '$bad',
+        );
+      }
+    });
+
     test('resume_reconnect_after_s is 60 s as shipped and by default; 5 to 86400 load, 4 and 86401 do not', () {
       expect(AppConfig.fromText(_configText).resumeReconnectAfter, const Duration(seconds: 60));
       String after(int n) => _configText.replaceFirst('resume_reconnect_after_s = 60', 'resume_reconnect_after_s = $n');

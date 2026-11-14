@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import '../../boosts.dart' show Boosts;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../epic1.dart' show Epic1Wallet;
+import '../../epicbox_mux.dart' show EpicboxMux;
 import '../../cancel_final.dart' show CancelResult;
 import '../../message_checks.dart' show MessageChecks;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, QrSlateProgress, StoreMigrationProgress;
@@ -536,6 +537,10 @@ abstract interface class DeskWalletApi {
   /// Checking the relays or the node more often for a while (`boosts.dart`) for the open wallet;
   /// null while locked.
   Boosts? get boosts;
+
+  /// Push sessions to the Epicbox relays (`epicbox_mux.dart`) for the open wallet; null while
+  /// locked, with `epicbox.mux` off, or on a core without them.
+  EpicboxMux? get mux;
 
   /// What the wallet has learned about the software behind [address] (an Epicbox address), or
   /// null when it knows nothing. Feeds the trust policy (`trust/policy.dart`).

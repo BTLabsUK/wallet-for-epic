@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/message_checks.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 
 /// Passes every call to the session it wraps.
-class DelegatingWalletSession implements WalletSession, ListingKeys {
+class DelegatingWalletSession implements WalletSession, ListingKeys, EpicboxPush {
   DelegatingWalletSession(this._inner);
 
   final WalletSession _inner;
@@ -34,6 +34,23 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
 
   @override
   Future<List<ListingDrainResult>> drainListings(List<(String, int)> listings) => _inner.listingKeys!.drainListings(listings);
+
+  @override
+  Stream<ListenerEvent> startListenerVia({required String group, int? waitingEveryS}) =>
+      _inner.push!.startListenerVia(group: group, waitingEveryS: waitingEveryS);
+
+  @override
+  Future<void> contactsPushStart({required String group, int? waitingEveryS}) =>
+      _inner.push!.contactsPushStart(group: group, waitingEveryS: waitingEveryS);
+
+  @override
+  Future<void> contactsPushStop() => _inner.push!.contactsPushStop();
+
+  @override
+  List<PushSession> pushSessions() => _inner.push!.pushSessions();
+
+  @override
+  Stream<PushEvent> watchPushSessions() => _inner.push!.watchPushSessions();
 
   @override
   StoreOpenOutcome get storeOpen => _inner.storeOpen;

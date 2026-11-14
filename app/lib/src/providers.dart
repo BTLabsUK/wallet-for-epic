@@ -11,6 +11,7 @@ import 'dev_networks.dart';
 import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
 import 'epic1.dart';
+import 'epicbox_mux.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
@@ -1008,6 +1009,23 @@ Duration get listenerHealAfter => appConfig.listenerHealAfter;
 /// The longest wait between two self-heal restarts of a listener that does not connect.
 Duration get listenerHealMax => appConfig.listenerHealMax;
 
+/// The open wallet's push sessions to the Epicbox relays (`epicbox_mux.dart`): started with the
+/// wallet, ended with it. Null while locked, with `epicbox.mux` off, on a core without them, and
+/// while Node only, the Kill switch or the Epicbox switch keeps the wallet off the relays.
+final epicboxMuxProvider = Provider<EpicboxMux?>((ref) {
+  final session = ref.watch(sessionProvider);
+  if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) return null;
+  if (ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox ?? true)) == false) return null;
+  final mux = EpicboxMux.of(session, MuxPolicy.of(appConfig));
+  if (mux == null) return null;
+  ref.onDispose(() {
+    mux.close();
+    unawaited(mux.stopContacts());
+  });
+  unawaited(mux.startContacts());
+  return mux;
+});
+
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;
 
@@ -1148,7 +1166,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
     var failed = false;
     late final StreamSubscription<ListenerEvent> events;
     logInfo('listener', 'epicbox connecting');
-    events = session.startListener().listen(
+    final mux = ref.read(epicboxMuxProvider);
+    events = (mux?.startListener() ?? session.startListener()).listen(
       (event) {
         if (event.kind == ListenerEventKind.stopped) end();
         // A listener being replaced by [restart] no longer speaks for the wallet.
