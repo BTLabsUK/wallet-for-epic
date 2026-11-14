@@ -48,9 +48,9 @@ List<String> contactsInFlight({
     for (final r in pairings)
       if (r.state.isPending || r.state == PairingState.waiting) r.id,
     for (final id in sendPairings)
-      if (id != null) id,
+      ?id,
     for (final id in requestPairings)
-      if (id != null) id,
+      ?id,
   };
   return [
     for (final id in ids)

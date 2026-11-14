@@ -28,7 +28,6 @@ import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
-import '../status.dart' show NodeState;
 import '../contact_page.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
