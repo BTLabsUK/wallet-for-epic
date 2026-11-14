@@ -201,6 +201,9 @@ class FailoverEngine {
   /// A round is running.
   bool get running => _running;
 
+  /// A failure, a stay or a move since the node in use last answered.
+  bool get awaitsAnswer => _failing || _failed > 0;
+
   /// A check of the node in use failed or timed out. The first round after a failure starts at
   /// once; while the failure lasts, rounds follow the backoff.
   void nodeFailed() {

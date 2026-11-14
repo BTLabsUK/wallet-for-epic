@@ -160,6 +160,10 @@ class NodeFailoverWatch extends Notifier<void> {
         engine.nodeBehind();
       case NodeState.offline:
         engine.nodeFailed();
+      // A refresh after a failure, a stay or a move is not an answer: the stay or the move
+      // starts it, and it may end unchecked again. Online is, so the backoff goes on till then.
+      case NodeState.syncing when engine.awaitsAnswer:
+        break;
       case NodeState.online || NodeState.syncing:
         engine.nodeAnswered();
       case _:
