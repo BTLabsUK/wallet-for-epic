@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import 'phone_motion.dart';
 import 'kit/kit_sheet.dart' show KitGrabber;
 import 'kit/kit_tokens.dart' show Kit;
 
@@ -25,6 +26,7 @@ Future<T?> showPhoneSheet<T>({
   isScrollControlled: isScrollControlled,
   useSafeArea: useSafeArea,
   showDragHandle: false,
+  sheetAnimationStyle: phoneSheetAnimation(),
   isDismissible: isDismissible,
   enableDrag: enableDrag,
   backgroundColor: backgroundColor,

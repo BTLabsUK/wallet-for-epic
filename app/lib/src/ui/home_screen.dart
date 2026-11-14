@@ -25,6 +25,8 @@ import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
 import 'home_tab.dart';
+import 'phone_motion.dart';
+import 'phone_tab_pager.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_tab_bar.dart';
 import 'invoices_screen.dart' show InvoicesEntry;
@@ -564,7 +566,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!mounted) return;
       if (flow == ShellFlow.send) _sendRoutes++;
       navigator
-          .push(MaterialPageRoute<void>(settings: flow == ShellFlow.send ? const RouteSettings(name: sendFlowRouteName) : null, builder: (_) => ShellFlowRoute(flow: flow)))
+          .push(PhoneModalRoute<void>(settings: flow == ShellFlow.send ? const RouteSettings(name: sendFlowRouteName) : null, builder: (_) => ShellFlowRoute(flow: flow)))
           .whenComplete(() {
             if (flow == ShellFlow.send) _sendRoutes--;
           });
@@ -687,22 +689,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   // The Epicbox relay offer as a notice.
                   const RelayDownNotices(),
                   Positioned.fill(
-                    // A sideways swipe moves between the bar's tabs. Lists with swipe actions,
-                    // carousels and the like win the gesture arena first, so they keep working.
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onHorizontalDragEnd: (d) {
-                        final v = d.primaryVelocity ?? 0;
-                        if (v.abs() < 300) return;
-                        final next = tab.index + (v < 0 ? 1 : -1);
-                        if (next >= 0 && next < ShellTab.values.length) _goTab(next);
-                      },
-                      child: switch (tab) {
-                        ShellTab.home => HomeTab(onRefresh: _refresh),
-                        ShellTab.activity => const HistoryScreen(),
-                        ShellTab.contacts => const ContactsScreen(),
-                        ShellTab.settings => const SettingsScreen(),
-                      },
+                    // A sideways swipe moves between the bar's tabs, the screens following the
+                    // finger (reduced motion: a flick moves to the next one with no motion).
+                    // Lists with swipe actions, carousels and the like win the gesture arena first,
+                    // so they keep working.
+                    child: PhoneTabs(
+                      selected: tab.index,
+                      onSelect: _goTab,
+                      children: [
+                        HomeTab(onRefresh: _refresh),
+                        const HistoryScreen(),
+                        const ContactsScreen(),
+                        const SettingsScreen(),
+                      ],
+                      flat: (screen) => GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onHorizontalDragEnd: (d) {
+                          final v = d.primaryVelocity ?? 0;
+                          if (v.abs() < 300) return;
+                          final next = tab.index + (v < 0 ? 1 : -1);
+                          if (next >= 0 && next < ShellTab.values.length) _goTab(next);
+                        },
+                        child: screen,
+                      ),
                     ),
                   ),
                 ],

@@ -10,6 +10,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 
 import '../kit/kit_tokens.dart' show Kit;
+import '../phone_motion.dart' show phonePageTransitions;
 import 'fonts.dart' show interFamily, interFeatures, phoneFontFallback;
 import 'palette.dart';
 
@@ -481,6 +482,8 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     // The phone's body face is Inter (the designer's frames); titles and figures stay Montserrat.
     fontFamily: interFamily,
     fontFamilyFallback: phoneFontFallback,
+    // One motion for every pushed screen (phone_motion.dart).
+    pageTransitionsTheme: phonePageTransitions,
   );
   final applied = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
   // The frames' body carries tnum and cv11 (wallet.css `.w`), so every text style does, and no
