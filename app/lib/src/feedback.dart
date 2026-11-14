@@ -209,8 +209,12 @@ abstract interface class FeedbackOutlet {
 }
 
 /// How long Send waits before the report counts as not sent: the wait for Tor, the request
-/// (`support.timeout_s`) and the sealing around them.
-Duration get feedbackSendDeadline => appConfig.torSendWait + supportTimeout + const Duration(seconds: 10);
+/// (the longer of `support.timeout_s` and `support.tor_timeout_s`, as the switch may change
+/// meanwhile) and the sealing around them.
+Duration get feedbackSendDeadline =>
+    appConfig.torSendWait +
+    (supportTorTimeout > supportTimeout ? supportTorTimeout : supportTimeout) +
+    const Duration(seconds: 10);
 
 /// [send] held to [feedbackSendDeadline]: one that never answers ends as a [FeedbackSendError]
 /// the screen shows, never as a spinner without end.
@@ -222,8 +226,8 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
 
   final Duration? _timeout;
 
-  /// `support.timeout_s` unless given.
-  Duration get timeout => _timeout ?? supportTimeout;
+  /// [supportSendTimeout] unless given.
+  Duration get timeout => _timeout ?? supportSendTimeout;
 
   @override
   bool get canShare => canShareFiles;

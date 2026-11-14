@@ -377,6 +377,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('updates.pages', _urls, byDefault: <String>[]),
   // [support]
   SettingsKey('support.timeout_s', _seconds, requiredWith: ['support.report']),
+  SettingsKey('support.tor_timeout_s', _seconds, requiredWith: ['support.report']),
   SettingsKey('support.report', _url, byDefault: ''),
   SettingsKey('support.donation', TextKind(_donation), byDefault: ''),
   SettingsKey('support.signed_file', _url, byDefault: ''),

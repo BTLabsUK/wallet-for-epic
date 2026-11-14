@@ -134,6 +134,7 @@ pages = ["https://epiccash.btlabs.uk/releases/", "https://github.com/BTLabsUK/"]
 
 [support]
 timeout_s = 20
+tor_timeout_s = 90             # the same over Tor: a fresh circuit to the support onion takes 15 to 60 s
 report = "https://support.btlabs.uk/v1/report"
 # The Epicbox address of the BT Labs contact. Comment this line out to leave the contact out everywhere.
 donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.btlabs.uk"

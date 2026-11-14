@@ -319,6 +319,7 @@ class AppConfig {
 
   // [support]
   Duration get supportTimeout => _s('support.timeout_s');
+  Duration get supportTorTimeout => _s('support.tor_timeout_s');
 
   /// Where a report is sent; null: no Send report.
   String? get supportReport => _orNull(_text('support.report'));
