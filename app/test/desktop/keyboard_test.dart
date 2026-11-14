@@ -186,7 +186,7 @@ void main() {
       await _type(tester, _l.deskSendToSem, 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNL@box.epic.invalid');
       await _type(tester, 'Amount', '1');
       final tabs = await _tabs(tester, _edit(_l.deskSendToSem), 9);
-      // A filled To has its × as a stop (the only Clear, tester report 26.10.21), then Contacts;
+      // A filled To has its × as a stop (the only Clear), then Contacts;
       // paste is not a stop. The Advanced disclosure follows Message, then the summary's help
       // icon (keyboard-reachable), then Review.
       expect(tabs.take(8), ['icon:Clear recipient', 'button:Contacts', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'help:Why the change is split', 'button:Review']);

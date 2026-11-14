@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Audit 26.10.24: the camera plugin leaves pause and resume to the app. Without them a
+// The camera plugin leaves pause and resume to the app. Without them a
 // scanner sent to the background came back black until the screen was opened again.
 import 'dart:ui';
 

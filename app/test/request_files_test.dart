@@ -338,7 +338,7 @@ void main() {
       final anna = h.session.pairing.seedPaired(name: 'Anna', paymentsAddress: 'es${'A' * 50}@epicbox.epiccash.com');
       final sealed = await h.session.pairing.sealSlate(id: anna.id, slateJson: _requestJson);
       await h.open(tester, sealed);
-      // It used to say it was not a payment file (12b).
+      // Never "not a payment file" (12b).
       expect(find.text(_l.slateNotTransactionFile), findsNothing);
       expect(find.text(_l.reqRequests('Anna')), findsOneWidget);
       expect(find.textContaining('Invoice 118'), findsOneWidget);

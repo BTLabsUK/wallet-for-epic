@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// A node on the local network (a tester, 26.10.15: http://192.168.0.138:4413 "Not
-// responding"; a tester's LAN node at 10.0.1.16:3413 and alice-node.lan:3413 "no answer"). LEPIC refuses plain
+// A node on the local network (http://192.168.0.138:4413, 10.0.1.16:3413, alice-node.lan:3413),
+// which must not read "Not responding" or "no answer". LEPIC refuses plain
 // http to anything but loopback, so the app hands such a node to LEPIC through a loopback relay
 // (a .local/.lan name looked up once, every address local); loopback goes directly; https,
 // public addresses, onions and other names go as they are. A CGNAT (tailnet) address is relayed

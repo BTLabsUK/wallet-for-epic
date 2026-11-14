@@ -160,7 +160,7 @@ void main() {
   });
 
   testWidgets('an empty Node list: no fallback is offered, Save declines it', (tester) async {
-    // Audit 26.10.24: the checkbox read "Use  until…" with no host and a yes stored an empty node.
+    // The checkbox never reads "Use  until…" with no host, and a yes never stores an empty node.
     hostSettings = testSettings().withValues({'node.servers': <String>[]});
     expect(hasFallbackNode, isFalse);
     await show(tester, SetupStep.node);

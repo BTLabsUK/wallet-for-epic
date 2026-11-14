@@ -944,8 +944,8 @@ void main() {
       expect(_figure(tester), '30.0');
     });
 
-    // A tester's phone stayed on Confirming x/3 after a direct send and after an Epicbox
-    // receive had completed, until a rescan reloaded Home (26.10.0–26.10.2, android-06).
+    // Home leaves Confirming x/3 when a direct send or an Epicbox receive completes, without a
+    // rescan (android-06).
     for (final (name, kind, slate) in [
       ('a direct send', TxKind.sent, 'to-desktop'),
       ('an epicbox receive', TxKind.received, 'from-epic-pay'),
@@ -3629,7 +3629,7 @@ void main() {
     }
   });
 
-  // Tester report 26.10.21: Send keeps its draft across tabs, and a filled recipient always
+  // Send keeps its draft across tabs, and a filled recipient always
   // has × to empty it, with the method it moved back where Send starts (the owner).
   group('Send recipient Clear', () {
     // The method line under the To field names the way the address takes (the field picks it).

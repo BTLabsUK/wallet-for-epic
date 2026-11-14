@@ -134,7 +134,7 @@ void main() {
       child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsPrivacyScreen())),
     ));
     await tester.pump(const Duration(seconds: 1));
-    // Server status (26.10.25): Switch node automatically is on the Node page now.
+    // Server status: Switch node automatically is on the Node page.
     expect(find.text(_l.deskSetPrivServerStatus), findsOneWidget);
     expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory!).host}'), findsOneWidget);
     // Label only; the sentence is behind the info icon (its popover).

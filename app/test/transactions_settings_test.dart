@@ -2,8 +2,8 @@
 // Settings › Transactions on the phone: the payment methods, one switch each, grouped by
 // family (Epicbox; Link › HTTP, Tor; Direct › QR Payment, File Transfer), the last one on
 // staying on; the method Send starts on (only among the methods offered, Link once); and, with
-// Advanced › Send options, the send defaults that used to sit on Outputs. The Advanced page no
-// longer holds a Link switch; an old one is taken over.
+// Advanced › Send options, the send defaults. The Advanced page holds no Link switch; a stored
+// one is taken over.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';

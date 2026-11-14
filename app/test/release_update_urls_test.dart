@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Audit 26.10.24: tool/release_android.sh signed a manifest whose file URLs were off the folder
-// the apps hold them to, which makes every app reject the whole file. tool/check_update_urls.sh
-// now stops it before signing.
+// tool/check_update_urls.sh stops tool/release_android.sh before it signs a manifest whose file
+// URLs are off the folder the apps hold them to (every app would reject the whole file).
 import 'dart:convert';
 import 'dart:io';
 

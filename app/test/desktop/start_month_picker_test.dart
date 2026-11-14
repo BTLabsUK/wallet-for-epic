@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// The month picker (item 6): one field opening a popover under it. The 26.10.25 dialog opened
-// on 2019, whose January to August are not offered yet looked offered: clicks there did
-// nothing. Here: a click on an offered month picks it, one not offered is visibly off and
+// The month picker (item 6): one field opening a popover under it. Months not
+// offered (2019's January to August) never look offered. Here: a click on an offered month picks it, one not offered is visibly off and
 // does nothing, the keys work (arrows, PageUp/PageDown, Enter, Esc), Tab stays inside, and
 // the field says whether it is open.
 import 'package:epic_wallet/src/desktop/theme/theme.dart';

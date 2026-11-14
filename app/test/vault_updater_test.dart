@@ -494,7 +494,7 @@ void main() {
     });
 
     test('an APK outside the update download folder makes the manifest unusable', () async {
-      // Audit 26.10.24: held to [updates] downloads as the desktop files are, in both parts.
+      // Held to [updates] downloads as the desktop files are, in both parts.
       for (final url in [
         'https://example.org/a.apk',
         '${walletUpdateDownloads!}sub/a.apk',

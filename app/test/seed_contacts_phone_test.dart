@@ -62,8 +62,8 @@ void main() {
     h.close();
   });
 
-  // 26.10.25: the BT Labs address moved to epicbox.btlabs.uk (signed btlabs.json serial 6);
-  // the entry seeded at the old server kept it, and Send named a method it could not use.
+  // A seeded entry whose address moves (BT Labs to epicbox.btlabs.uk, signed btlabs.json
+  // serial 6) takes the new address, so Send never names a method it cannot use.
   group('the seeded entry follows a new address', () {
     SeedContact at(String address) => SeedContact(id: 'btlabs', name: 'BT Labs', address: address, note: btLabsContact!.note);
     const key = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK';

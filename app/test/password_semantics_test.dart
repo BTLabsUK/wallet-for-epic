@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Password fields with a test-driver id (TrustIds) keep their semantics: the node that carries the id
-// is an obscured text field, beside its show/hide button, not inside it. In 26.10.26 b1e4540 the id
-// made the field's row take the eye's button and label, with the field inside it; on Windows the
-// field then read as a plain text field after a "Show" button.
+// is an obscured text field, beside its show/hide button, not inside it. The id never
+// makes the field's row take the eye's button and label with the field inside it, where Windows
+// reads the field as a plain text field after a "Show" button.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/app/shots.dart' show DeskShot;

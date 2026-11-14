@@ -119,7 +119,7 @@ void main() {
     tearDown(() => TorSwitch.on = false);
 
     // The site over Tor is its onion, about 3 s warm and more cold: the direct limit made
-    // "status.lab.invalid not reachable" show with the site up (26.10.17).
+    // "status.lab.invalid not reachable" show with the site up.
     Future<HttpReply> slow() => Future.delayed(const Duration(milliseconds: 150), () => HttpReply(200, _sample));
 
     test('Tor on: a slow onion answer is read, not timed out', () async {

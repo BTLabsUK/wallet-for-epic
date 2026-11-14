@@ -129,7 +129,7 @@ void main() {
       expect(deskHelpPlace('Settings › Network & privacy')!.jump, SettingsJump.network);
       expect(deskHelpPlace('Settings › Privacy › Tor'), isNull, reason: 'one page now (B-03)');
       expect(deskHelpPlace('Settings › Transactions › Epicbox')!.jump, SettingsJump.epicbox);
-      // The places of the Settings before 26.10.25 are gone: Help names the new ones.
+      // Help names only the Settings places that exist.
       for (final old in ['Settings › This wallet', 'Settings › All wallets', 'Settings › Recheck balance', 'Settings › This wallet › App files', 'Settings › Advanced › Confirmations']) {
         expect(deskHelpPlace(old), isNull, reason: old);
       }

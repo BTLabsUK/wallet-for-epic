@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Attaching a finished pairing to a contact the user picked (26.10.25): one rule for every
+// Attaching a finished pairing to a contact the user picked: one rule for every
 // contact. A contact holds one Epicbox address and "Verified" is only ever about it: no
 // Epicbox address, the pairing's fills it; the same key (any relay), it attaches; another one,
 // or one the pairing cannot confirm, is refused and never overwritten. A contact with a pairing

@@ -31,7 +31,7 @@ class _Wallet extends MockDeskWallet {
   final List<String> calls = [];
 
   /// As the real wallet (LepicDeskWallet): Setup runs before Unlock, and a locked wallet has no
-  /// address to read. Reading it made every first-run Save fail (26.10.13–26.10.15).
+  /// address to read. Reading it would make every first-run Save fail.
   @override
   Future<String> epicboxAddress() async => throw DeskError.l10n((l) => l.deskErrWalletLocked);
 
@@ -325,7 +325,7 @@ void main() {
   });
 
   /// A first run offers Skip from the start, also after a Save that failed: Unlock opens and stays, also when the
-  /// setup mark cannot be cleared. Never back into the same Setup (the 26.10.15 loop).
+  /// setup mark cannot be cleared. Never back into the same Setup.
   for (final stuck in [false, true]) {
     testWidgets('Save fails on a first run → Skip setup → Unlock${stuck ? ' (mark not cleared)' : ''}', (tester) async {
       final refusing = _Refusing(markStuck: stuck);

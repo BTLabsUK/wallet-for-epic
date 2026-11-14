@@ -1304,9 +1304,8 @@ void main() {
     });
   });
 
-  // A tester on 26.10.16 never saw Restore: it was a link under the PIN field, and on a small
-  // phone the keyboard covered it, so the PIN made a new wallet. The first screen now asks
-  // Create or Restore before any field, Delete leads back to that choice, and Settings › Wallet
+  // Restore is never hidden under the PIN field, where a small phone's keyboard covers it and
+  // the PIN makes a new wallet: the first screen asks Create or Restore before any field, Delete leads back to that choice, and Settings › Wallet
   // restores through Delete's own warning and PIN.
   group('restore is a first-class choice', () {
     testWidgets(
@@ -1997,8 +1996,8 @@ void main() {
       expect(find.text(_l.restoreStartByHeight), findsNothing);
     });
 
-    // Tester report 26.10.21: Connection servers on the phone, not on the tablet. The tablet had
-    // Pairing off; every width gets the same Settings, which this keeps true.
+    // Every width gets the same Settings rows (Connection servers on the tablet as on the
+    // phone, whatever Pairing is set to).
     group('the same rows at every width', () {
       // Width classes in dp: phone, foldable / small tablet, tablet portrait and landscape.
       const sizes = [(w: 411.0, h: 914.0), (w: 673.0, h: 841.0), (w: 800.0, h: 1280.0), (w: 1280.0, h: 800.0)];

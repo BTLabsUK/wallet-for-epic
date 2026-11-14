@@ -7,7 +7,7 @@ import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_block.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 
-/// Word for word from the phone's log (26.10.16 r2, Virgin Media's filter proxy).
+/// Word for word from the phone's log (an internet provider's filter proxy).
 const filtered = 'could not connect to the relay: received fatal alert: CloseNotify';
 
 void main() {

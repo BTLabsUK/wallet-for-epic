@@ -1466,7 +1466,7 @@ void main() {
       await pump(tester, DeskRoute.activity);
       expect(find.text(_l.settingsSectionTransactions), findsNothing);
       await done(tester);
-      // Change password is Security's; Delete wallet is under Wallet › Remove (26.10.25).
+      // Change password is Security's; Delete wallet is under Wallet › Remove.
       await pump(tester, DeskRoute.settingsSecurity);
       expect(find.text(_l.deskSetAcctChangePassword), findsOneWidget);
       await done(tester);

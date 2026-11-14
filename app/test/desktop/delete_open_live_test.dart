@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Live: deleting the open wallet on the real LEPIC core through LepicDeskWallet (tester report
-// 26.10.16: "Wallet busy", then a Settings page that never loads). Needs the Linux library:
+// Live: deleting the open wallet on the real LEPIC core through LepicDeskWallet: never "Wallet
+// busy", then a Settings page that never loads. Needs the Linux library:
 //
 //   WFE_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   flutter test test/desktop/delete_open_live_test.dart

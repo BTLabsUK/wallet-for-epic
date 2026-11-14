@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// A tester on 26.11.3 (desktop): "When I sent a test transaction, during the confirmation
-// process I went back to my wallet -- the amount was way off." A send locks its whole input coin
+// Home's balance while a send confirms. A send locks its whole input coin
 // until the change confirms, so a test send of 1 from one coin of 100 leaves nothing spendable
 // for those blocks. Home's figure is the wallet's balance, so it keeps the 98.992 coming back
 // while the send is posted and while its change confirms; the 0 spendable now is a line under

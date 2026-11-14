@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Settings › Transactions on the desktop (26.10.13): the renamed page and its groups, the Link
+// Settings › Transactions on the desktop: the renamed page and its groups, the Link
 // and File switches, the method Send starts on (limited to the methods that are on), Send's
 // defaults only with Advanced › Send options, and what follows from the switches on Send,
 // Receive and the sidebar, with the keep rules (a pasted onion, a pending file send, a running

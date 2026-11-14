@@ -87,7 +87,7 @@ void main() {
   });
 
   test('the drainer reaches a core that reads old relays, and answers null for one that cannot', () async {
-    // 26.11.0: the extension called itself, a StackOverflowError on the UI thread.
+    // The extension never calls itself (that is a StackOverflowError on the UI thread).
     final WalletSession able = _DrainingSession();
     expect((await able.drainEpicboxAt(domain: 'relay-a.test', port: 443))?.received, 1);
     expect(await FakeWalletSession().drainEpicboxAt(domain: 'relay-a.test', port: 443), isNull);
