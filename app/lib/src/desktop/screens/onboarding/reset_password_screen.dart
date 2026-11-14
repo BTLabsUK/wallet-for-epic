@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
@@ -8,7 +8,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../log.dart';
 import '../../widgets/kit.dart';
 import '../scan/desk_scan.dart';
-import '../scan/desk_scan_text.dart';
+
 import 'onboarding_parts.dart';
 import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
@@ -39,10 +39,13 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
   ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> with PhrasePaste<ResetPasswordScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   late final PhraseEntry _entry;
+
+  @override
+  PhraseEntry get phraseEntry => _entry;
   _Step _step = _Step.words;
   WalletEntry? _wallet;
 
@@ -50,7 +53,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   String? _phraseError;
   String? _phraseErrorFor;
   String? _failure;
-  bool _clipboardEmpty = false;
   bool _locking = false;
 
   ResetPasswordArg? get _arg => widget.arg is ResetPasswordArg ? widget.arg! as ResetPasswordArg : null;
@@ -78,7 +80,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   }
 
   void _onEntry() {
-    _clipboardEmpty = false;
+    nothingToPaste = false;
     if (_phraseErrorFor != _entry.phrase.join(' ')) _phraseError = null;
     if (mounted) setState(() {});
   }
@@ -96,26 +98,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   bool get _passwordOk => passwordLongEnough(_password.text) && _password.text == _confirm.text;
 
-  Future<void> _pasteClipboard() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    _takePhrase(data?.text ?? '');
-  }
-
-  /// Scan: a phrase code the camera read (or the dialog's paste) goes the Paste way.
-  Future<void> _scanPhrase() async {
-    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrPhraseHint, phrase: true);
-    if (r == null) return;
-    _takePhrase(r.scanText);
-  }
-
-  void _takePhrase(String text) {
-    if (!mounted) return;
-    if (PhraseEntry.split(text).isEmpty) {
-      setState(() => _clipboardEmpty = true);
-      return;
-    }
-    _entry.pasteAndFocus(text);
-  }
 
   /// Unlock, with the wallet the flow was for selected.
   void _toUnlock({String? notice}) {
@@ -290,7 +272,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final complete = e.complete;
     final (String? status, Color? tone) = switch (e) {
       _ when _phraseError != null => (_phraseError!, c.risk),
-      _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
+      _ when nothingToPaste => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
       _ when e.invalid.length > 1 => (l.deskOnbRestoreBadWords(unknownWordsText(e.unknownWords)), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
@@ -323,8 +305,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteClipboard),
-              DeskScanButton(key: const ValueKey('reset-scan'), size: EBtnSize.sm, onScan: _scanPhrase),
+              EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: pasteClipboard),
+              DeskScanButton(key: const ValueKey('reset-scan'), size: EBtnSize.sm, onScan: scanPhrase),
               EButton(label: l.deskOnbRestoreClear, size: EBtnSize.sm, onPressed: e.filled == 0 ? null : e.clear),
             ],
           ),

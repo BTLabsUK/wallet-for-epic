@@ -2,7 +2,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
@@ -14,7 +14,7 @@ import '../../../trust_ids.dart';
 import '../../../ui/scan_start.dart';
 import '../../widgets/kit.dart';
 import '../scan/desk_scan.dart';
-import '../scan/desk_scan_text.dart';
+
 import 'onboarding_parts.dart';
 import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
@@ -46,7 +46,9 @@ class RestoreScreen extends ConsumerStatefulWidget {
   ConsumerState<RestoreScreen> createState() => _RestoreScreenState();
 }
 
-class _RestoreScreenState extends ConsumerState<RestoreScreen> {
+class _RestoreScreenState extends ConsumerState<RestoreScreen> with PhrasePaste<RestoreScreen> {
+  @override
+  PhraseEntry get phraseEntry => _entry;
   static const _sample =
       'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wonder echo faculty notable ripple garlic stamp dwarf enjoy harbo'; // l10n-ok: sample recovery words
 
@@ -99,7 +101,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   }
 
   void _onEntry() {
-    _clipboardEmpty = false;
+    nothingToPaste = false;
     if (mounted) setState(() {});
   }
 
@@ -117,32 +119,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   /// Dates map to heights only on mainnet; a test network starts by height.
   bool get _datesOk => !ref.read(onbFlowProvider).testNet;
-
-
-  Future<void> _pasteClipboard() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    _takePhrase(data?.text ?? '');
-  }
-
-  /// Scan: a phrase code the camera read (or the dialog's paste) goes the Paste way.
-  Future<void> _scanPhrase() async {
-    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrPhraseHint, phrase: true);
-    if (r == null) return;
-    _takePhrase(r.scanText);
-  }
-
-  void _takePhrase(String text) {
-    if (!mounted) return;
-    if (PhraseEntry.split(text).isEmpty) {
-      setState(() => _clipboardEmpty = true);
-      return;
-    }
-    _clipboardEmpty = false;
-    _entry.pasteAndFocus(text);
-  }
-
-  bool _clipboardEmpty = false;
-
   /// Use N words: the phrase of a wallet already in the list opens that wallet instead;
   /// any other goes on to the password step. A list that cannot be read goes on too: restore
   /// checks again before it makes anything.
@@ -308,7 +284,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final bad = e.firstInvalid;
     final complete = e.complete;
     final (String? status, Color? tone) = switch (e) {
-      _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
+      _ when nothingToPaste => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
       _ when e.invalid.length > 1 => (l.deskOnbRestoreBadWords(unknownWordsText(e.unknownWords)), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
@@ -356,8 +332,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 spacing: Sp.x2,
                 runSpacing: Sp.x2,
                 children: [
-                  EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: _pasteClipboard),
-                  DeskScanButton(key: const ValueKey('restore-scan'), size: EBtnSize.sm, onScan: _scanPhrase),
+                  EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: pasteClipboard),
+                  DeskScanButton(key: const ValueKey('restore-scan'), size: EBtnSize.sm, onScan: scanPhrase),
                   EButton(label: l.deskOnbRestoreClear, size: EBtnSize.sm, onPressed: filled == 0 ? null : e.clear),
                 ],
               ),

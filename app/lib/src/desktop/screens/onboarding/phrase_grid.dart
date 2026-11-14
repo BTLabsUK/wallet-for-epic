@@ -7,6 +7,8 @@ import '../../../bip39_words.dart';
 import '../../../trust_ids.dart' show TrustId;
 import '../../data/phrase_check.dart' show bip39List;
 import '../../widgets/kit.dart';
+import '../scan/desk_scan.dart';
+import '../scan/desk_scan_text.dart';
 
 /// Phrase lengths a wallet accepts.
 const phraseLengths = [12, 15, 18, 21, 24];
@@ -575,5 +577,35 @@ class _Cell extends StatelessWidget {
         ),
       ),
     ));
+  }
+}
+
+/// Paste and Scan for a screen with a phrase grid: both put what they got into [phraseEntry].
+/// Text with no word in it sets [nothingToPaste] instead, for the grid's status line.
+mixin PhrasePaste<T extends StatefulWidget> on State<T> {
+  PhraseEntry get phraseEntry;
+
+  bool nothingToPaste = false;
+
+  Future<void> pasteClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    takePhrase(data?.text ?? '');
+  }
+
+  /// Scan: a phrase code the camera read (or the dialog's paste) goes the Paste way.
+  Future<void> scanPhrase() async {
+    final r = await deskScanQr(context, title: context.l10n.scanQrTitle, hint: context.l10n.scanQrPhraseHint, phrase: true);
+    if (r == null) return;
+    takePhrase(r.scanText);
+  }
+
+  void takePhrase(String text) {
+    if (!mounted) return;
+    if (PhraseEntry.split(text).isEmpty) {
+      setState(() => nothingToPaste = true);
+      return;
+    }
+    nothingToPaste = false;
+    phraseEntry.pasteAndFocus(text);
   }
 }
