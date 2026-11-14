@@ -804,6 +804,10 @@ abstract interface class ListingKeys {
 
   /// Reads what is stored for that listing address once, answering as the own address does.
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation);
+
+  /// Reads each of [listings] (service key hex, generation) once, at most 16, as [drainListing]
+  /// does for one; one report per listing in the order given. Fails on the first listing that failed.
+  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings);
 }
 
 extension ListingKeysOf on WalletSession {
@@ -836,6 +840,28 @@ class FakeListingKeys implements ListingKeys {
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) async {
     drains.add((serviceKeyHex, generation));
     return const PaymentsDrainReport();
+  }
+
+  /// The batches drained: one list per call, in call order, a failed one included. The listings
+  /// of a batch that went through are in [drains] too.
+  final List<List<(String, int)>> batches = [];
+
+  /// What the next [drainListings] throws, once, as LEPIC does for the first listing that failed.
+  Object? drainFailure;
+
+  /// The report a listing drain answers with; none is an empty one.
+  final Map<(String, int), PaymentsDrainReport> reports = {};
+
+  @override
+  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) async {
+    batches.add(listings);
+    final failure = drainFailure;
+    if (failure != null) {
+      drainFailure = null;
+      throw failure;
+    }
+    drains.addAll(listings);
+    return [for (final l in listings) reports[l] ?? const PaymentsDrainReport()];
   }
 }
 
@@ -2124,6 +2150,9 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
 
   @override
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) => fakeListing.drainListing(serviceKeyHex, generation);
+
+  @override
+  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) => fakeListing.drainListings(listings);
 
   /// What [unmatchedNotices] streams; a test adds to it as LEPIC's event would.
   final StreamController<UnmatchedNotice> unmatchedController = StreamController<UnmatchedNotice>.broadcast();

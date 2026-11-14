@@ -20,7 +20,7 @@ import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../name_service/base58.dart' show netMainnet;
-import '../../name_service/name_service_service.dart' show NameServiceHost;
+import '../../name_service/name_service_service.dart' show ListingDrain, NameServiceHost;
 import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
@@ -1747,6 +1747,9 @@ class _MockNameServiceHost implements NameServiceHost {
 
   @override
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _keys.drainListing(serviceKeyHex, generation);
+
+  @override
+  Future<List<PaymentsDrainReport>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
 }
 
 class _MockDeviceHost implements DeviceHost {

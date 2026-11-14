@@ -29,34 +29,15 @@ typedef ContactSync = Future<void> Function(PairingCollectTrigger trigger);
 
 /// The contacts something is in flight with: the ids [PairingApi.collect] takes as `only`.
 ///
-/// For now it is what the app already knows: a pairing in progress ([pairings]: a code or
-/// request nobody answered, an answer waiting for its confirm, a pairing whose peer was not
-/// heard yet), a send that waits for the recipient ([sendPairings]) and a request this wallet
-/// issued that is not paid ([requestPairings]), each given as the pairing's id. Once the
-/// binding carries `ContactView.awaiting`, this reads that instead.
-List<String> contactsInFlight({
-  required Iterable<PairingRecord> pairings,
-  Iterable<String?> sendPairings = const [],
-  Iterable<String?> requestPairings = const [],
-}) {
-  // A pairing that is gone or ended has no mailbox to read.
-  final live = {
-    for (final r in pairings)
-      if (r.state != PairingState.ended) r.id,
-  };
-  final ids = <String>{
-    for (final r in pairings)
-      if (r.state.isPending || r.state == PairingState.waiting) r.id,
-    for (final id in sendPairings)
-      ?id,
-    for (final id in requestPairings)
-      ?id,
-  };
-  return [
-    for (final id in ids)
-      if (live.contains(id)) id,
-  ]..sort();
-}
+/// A pairing in progress ([PairingRecord.state] pending or waiting: a code or request nobody
+/// answered, an answer waiting for its confirm, a pairing whose peer was not heard yet), or a
+/// contact LEPIC marks [PairingRecord.awaiting] (a message waiting to go out, a payment not
+/// yet finished, an invoice from it waiting for an answer). A pairing that is gone or ended
+/// has no mailbox to read.
+List<String> contactsInFlight(Iterable<PairingRecord> pairings) => [
+  for (final r in pairings)
+    if (r.state != PairingState.ended && (r.state.isPending || r.state == PairingState.waiting || r.awaiting)) r.id,
+]..sort();
 
 /// [PairingApi.collect] that returns how many contact messages it took, by the count [api] keeps.
 Future<int> collectCounting(PairingApi api, PairingCollectTrigger trigger, {List<String>? only}) async {

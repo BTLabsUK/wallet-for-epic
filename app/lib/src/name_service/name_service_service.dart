@@ -12,6 +12,7 @@ library;
 // ignore_for_file: prefer_initializing_formals
 
 import 'dart:async';
+import 'dart:math' show min;
 import 'dart:typed_data';
 
 import '../log.dart';
@@ -74,7 +75,17 @@ abstract interface class NameServiceHost {
 
   /// Reads that listing's address once.
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation);
+
+  /// Reads each of [listings] once, one report per listing in the order given. At most
+  /// [listingDrainBatch] at a time; fails on the first listing that failed.
+  Future<List<PaymentsDrainReport>> drainMany(List<ListingDrain> listings);
 }
+
+/// A listing to read: the service's key in hex and the listing's generation.
+typedef ListingDrain = ({String serviceKeyHex, int generation});
+
+/// The most listings one drain call takes (LEPIC's limit).
+const listingDrainBatch = 16;
 
 /// A [NameServiceHost] over a [WalletSession]; a session without listing keys refuses.
 class SessionNameServiceHost implements NameServiceHost {
@@ -109,6 +120,9 @@ class SessionNameServiceHost implements NameServiceHost {
 
   @override
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _keys.drainListing(serviceKeyHex, generation);
+
+  @override
+  Future<List<PaymentsDrainReport>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
 }
 
 /// The net byte of a chain.
@@ -599,10 +613,13 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
 
   // Draining.
 
+  void _drained(PaymentsDrainReport report) {
+    if (report.received > 0 || report.finalized > 0 || report.bounced > 0) onDrained?.call(report);
+  }
+
   Future<void> _drainOne(String serviceKeyHex, int generation) async {
     try {
-      final report = await _host.drain(serviceKeyHex, generation);
-      if (report.received > 0 || report.finalized > 0 || report.bounced > 0) onDrained?.call(report);
+      _drained(await _host.drain(serviceKeyHex, generation));
     } on Object catch (e) {
       logWarn('name service', 'listing drain failed: ${e.runtimeType}');
     }
@@ -611,10 +628,22 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
   /// Every live listing: the joined generation and the retired ones within their window.
   Future<void> _drainAll() async {
     final now = _clock();
-    for (final e in _book.entries.values.toList()) {
-      for (final l in e.live(now)) {
-        if (_disposed) return;
-        await _drainOne(e.serviceKey, l.generation);
+    final all = <ListingDrain>[
+      for (final e in _book.entries.values.toList())
+        for (final l in e.live(now)) (serviceKeyHex: e.serviceKey, generation: l.generation),
+    ];
+    for (var i = 0; i < all.length; i += listingDrainBatch) {
+      if (_disposed) return;
+      final batch = all.sublist(i, min(i + listingDrainBatch, all.length));
+      try {
+        final reports = await _host.drainMany(batch);
+        for (final r in reports) {
+          _drained(r);
+        }
+      } on Object catch (e) {
+        // The call fails on the first listing that failed, the others' reports with it: this
+        // batch is left for the next drain, the next batch goes on.
+        logWarn('name service', 'listing drain failed: ${e.runtimeType}');
       }
     }
   }

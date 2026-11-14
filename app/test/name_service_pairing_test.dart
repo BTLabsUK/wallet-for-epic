@@ -71,9 +71,11 @@ class _Rig {
       store: NameServiceStore(store, chain: Chain.mainnet, walletId: 'w1'),
       clock: clock.call,
       wait: wait,
+      onDrained: drained.add,
     );
   }
 
+  final drained = <PaymentsDrainReport>[];
   final session = FakeWalletSession();
   final store = MemorySecretStore();
   final clock = _Now();
@@ -325,6 +327,43 @@ void main() {
       rig.session.fakeListing.drains.clear();
       await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(rig.session.fakeListing.drains.map((d) => d.$2).toSet(), {1});
+    });
+
+    /// Seventeen retired generations and the joined one: 18 live listings of one service.
+    Future<_Rig> eighteenListings() async {
+      final rig = _Rig();
+      await rig.verified();
+      for (var i = 0; i < 17; i++) {
+        await rig.service.join(_serviceKeyHex);
+        await rig.service.leave(_serviceKeyHex);
+      }
+      await rig.service.join(_serviceKeyHex);
+      rig.session.fakeListing.drains.clear();
+      rig.session.fakeListing.batches.clear();
+      return rig;
+    }
+
+    test('the drains go in batches of at most 16 listings, in order, one report each', () async {
+      final rig = await eighteenListings();
+      final keys = rig.session.fakeListing;
+      keys.reports[(_serviceKeyHex, 3)] = const PaymentsDrainReport(received: 2);
+      keys.reports[(_serviceKeyHex, 17)] = const PaymentsDrainReport(finalized: 1, bounced: 1);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
+      expect(keys.batches.map((b) => b.length), [16, 2]);
+      expect([for (final b in keys.batches) for (final l in b) l.$2], [for (var g = 0; g < 18; g++) g]);
+      // A report with something in it reaches the host, in the order of the listings.
+      expect(rig.drained.map((r) => (r.received, r.finalized, r.bounced)), [(2, 0, 0), (0, 1, 1)]);
+    });
+
+    test('a failed batch is logged and left for the next drain: the next batch goes on, nothing is retried', () async {
+      final rig = await eighteenListings();
+      final keys = rig.session.fakeListing;
+      keys.drainFailure = StateError('relay down');
+      keys.reports[(_serviceKeyHex, 17)] = const PaymentsDrainReport(received: 1);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
+      expect(keys.batches.map((b) => b.length), [16, 2], reason: 'one call for each batch, none repeated');
+      expect(keys.drains.map((d) => d.$2), [16, 17], reason: 'only the second batch went through');
+      expect(rig.drained.single.received, 1);
     });
   });
 

@@ -3725,6 +3725,16 @@ class LepicWalletSession
     await _sweep();
     return PaymentsDrainReport(received: report.received, finalized: report.finalized, bounced: report.bounced);
   });
+
+  @override
+  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) => _epicboxGuard('listing drain', () async {
+    _watchEvents();
+    final reports = await _wallet.drainEpicboxListings(
+      listings: [for (final (key, generation) in listings) lepic.ListingRef(serviceKey: key, generation: generation)],
+    );
+    await _sweep();
+    return [for (final r in reports) PaymentsDrainReport(received: r.received, finalized: r.finalized, bounced: r.bounced)];
+  });
 }
 
 // ---------------------------------------------------------------------------------------
@@ -4499,6 +4509,7 @@ class _LepicPairing implements PairingApi {
     peerVerifiedAt: c.peerVerifiedAtMs == null ? null : _ms(c.peerVerifiedAtMs!.toInt()),
     peerFeatures: c.peerFeatures,
     nativeSlates: c.nativeSlates,
+    awaiting: c.awaiting,
     peerProfile: c.peerProfile,
     endedReason: c.endedReason == null ? null : lepicPairingEndReason(c.endedReason!),
     endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),

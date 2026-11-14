@@ -35,7 +35,7 @@ import '../../first_run_servers.dart' show firstRunServersSettled;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, ForwardKind, ForwardedNotice, SessionDeviceHost;
-import '../../name_service/name_service_service.dart' show NameServiceHost, SessionNameServiceHost, netOfChain;
+import '../../name_service/name_service_service.dart' show ListingDrain, NameServiceHost, SessionNameServiceHost, netOfChain;
 import '../../name_service/verify.dart' show NameServiceVerifier;
 import '../../name_service/receipts.dart' show LinkPaymentRecords;
 import '../../devices/device_store.dart' show DeviceStore;
@@ -6081,6 +6081,9 @@ class _DeskNameServiceHost implements NameServiceHost {
 
   @override
   Future<core.PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _host.drain(serviceKeyHex, generation);
+
+  @override
+  Future<List<core.PaymentsDrainReport>> drainMany(List<ListingDrain> listings) => _host.drainMany(listings);
 }
 
 /// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now. While the

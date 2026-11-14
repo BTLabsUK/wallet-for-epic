@@ -209,4 +209,25 @@ void main() {
       rig.check.stop();
     });
   });
+
+  group('contactsInFlight', () {
+    PairingRecord rec(String id, PairingState state, {bool awaiting = false}) =>
+        PairingRecord(id: id, state: state, way: PairingWay.link, inviter: false, createdAt: DateTime(2026), awaiting: awaiting);
+
+    test('pairings in progress and contacts LEPIC marks awaiting, sorted; ended ones and quiet contacts are left', () {
+      final ids = contactsInFlight([
+        rec('c9', PairingState.verified, awaiting: true),
+        rec('c1', PairingState.pendingInvite),
+        rec('c2', PairingState.pendingReply),
+        rec('c3', PairingState.waiting),
+        rec('c4', PairingState.paired),
+        rec('c5', PairingState.verified),
+        rec('c6', PairingState.keysChanged, awaiting: true),
+        rec('c7', PairingState.ended, awaiting: true),
+        rec('c8', PairingState.ended),
+      ]);
+      expect(ids, ['c1', 'c2', 'c3', 'c6', 'c9']);
+      expect(contactsInFlight(const []), isEmpty);
+    });
+  });
 }

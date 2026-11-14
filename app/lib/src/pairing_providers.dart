@@ -65,6 +65,15 @@ class PairingsNotifier extends AsyncNotifier<List<PairingRecord>> {
   Future<List<PairingRecord>> build() async {
     final api = ref.watch(pairingApiProvider);
     if (!api.supported) return const [];
+    // A payment through a contact starting or finishing changes `awaiting`, with no pairing event.
+    ref.watch(
+      homeProvider.select(
+        (h) => [
+          for (final t in h.value?.transactions ?? const <TxEntry>[])
+            if (t.pairingId != null) '${t.key}:${t.status.name}',
+        ].join(','),
+      ),
+    );
     final sub = api.events().listen((_) => ref.invalidateSelf());
     ref.onDispose(sub.cancel);
     return api.pairings();
@@ -229,22 +238,10 @@ final contactPendingPairingProvider = Provider.family<PairingRecord?, String>(
 );
 
 /// The contacts something is in flight with, as the ids the foreground check reads
-/// ([contactsInFlight]): pairings in progress, sends waiting for the recipient and requests
-/// this wallet issued that are not paid. Empty while the wallet is locked.
+/// ([contactsInFlight]): pairings in progress and contacts LEPIC marks as awaiting. Empty
+/// while the wallet is locked.
 final contactsInFlightProvider = Provider<List<String>>((ref) {
-  final txs = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
-  final issued = ref.watch(issuedInvoicesProvider).value ?? const <IssuedInvoice>[];
-  return contactsInFlight(
-    pairings: ref.watch(pairingsProvider).value ?? const <PairingRecord>[],
-    sendPairings: [
-      for (final t in txs)
-        if (t.kind == TxKind.sent && t.status == TxStatus.awaitingRecipient) t.pairingId,
-    ],
-    requestPairings: [
-      for (final i in issued)
-        if (i.state == IssuedInvoiceState.waiting) i.pairingId,
-    ],
-  );
+  return contactsInFlight(ref.watch(pairingsProvider).value ?? const <PairingRecord>[]);
 });
 
 /// Second answers to used codes.
