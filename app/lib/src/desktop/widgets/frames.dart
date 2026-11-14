@@ -549,7 +549,7 @@ class EStepTrack extends StatelessWidget {
         for (final (i, s) in steps.indexed)
           Expanded(
             child: Semantics(
-              label: '${s.label}${s.done ? ', done' : ''}', // l10n-ok: as the rail said it
+              label: s.done ? '${s.label}, ${context.l10n.commonDone}' : s.label,
               selected: s.current,
               excludeSemantics: true,
               child: Column(
