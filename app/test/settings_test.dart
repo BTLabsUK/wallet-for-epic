@@ -858,6 +858,9 @@ void main() {
       await _leave(tester);
       await _return(tester);
       expect(h.session.drainPaymentCalls, 3, reason: 'listener down: drained on resume');
+      // Connected again: the heal timer of a down listener ends with the test.
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('closes the wallet in the background once the time passes', (tester) async {
