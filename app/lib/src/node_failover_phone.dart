@@ -117,6 +117,8 @@ class NodeFailoverWatch extends Notifier<void> {
       rawWalletStatusProvider.select((s) => (s.node.state, s.node.behind != null)),
       (_, _) => later(_feed),
     );
+    // The status settled to offline (the node failed for the settle time): counted now.
+    ref.listen(nodeDownSettledProvider, (_, _) => later(_feed));
     // Each answer or failure of the tip ask counts, also one that leaves the status as it was.
     ref.listen(nodeTipProvider, (_, tip) {
       if (!tip.isLoading) later(_feed);
@@ -126,6 +128,8 @@ class NodeFailoverWatch extends Notifier<void> {
       later(() {
         // A node behind the wallet leaves its balances unchecked: that is behind, not down.
         if (ref.read(rawWalletStatusProvider).node.behind != null) return;
+        // A failed refresh inside the blip window is not counted.
+        if (!now.hasError && !(now.value?.summary.validatedWithNode ?? false) && !ref.read(nodeDownSettledProvider)) return;
         _engine?.refreshEnded(validated: !now.hasError && (now.value?.summary.validatedWithNode ?? false));
       });
     });
@@ -159,7 +163,8 @@ class NodeFailoverWatch extends Notifier<void> {
       case NodeState.offline when node.behind != null:
         engine.nodeBehind();
       case NodeState.offline:
-        engine.nodeFailed();
+        // A blip is waited out: failover starts when the node has failed for the settle time.
+        if (ref.read(nodeDownSettledProvider)) engine.nodeFailed();
       // A refresh after a failure, a stay or a move is not an answer: the stay or the move
       // starts it, and it may end unchecked again. Online is, so the backoff goes on till then.
       case NodeState.syncing when engine.awaitsAnswer:

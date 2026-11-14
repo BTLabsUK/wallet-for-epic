@@ -141,6 +141,7 @@ Future<void> _pumpApp(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
+        nodeSettleProvider.overrideWithValue(Duration.zero),
         // The network picker is for development builds; this flow picks Usernet.
         devNetworksProvider.overrideWithValue(true),
         walletServiceProvider.overrideWithValue(service),
@@ -790,6 +791,7 @@ void main() {
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider); the connections sheet names it.
       await tester.pump(statusSettle);
+      await tester.pump(statusSettle);
       await tester.tap(find.byKey(homePillKey));
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
@@ -1167,6 +1169,7 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
+      await tester.pump(statusSettle);
       await tester.pump(statusSettle);
       // Balances the node did not check count as the node being offline.
       await _connectionsSheet(tester, () {

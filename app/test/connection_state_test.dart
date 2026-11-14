@@ -42,11 +42,12 @@ class _Tor extends PhoneTor {
 }
 
 class _Harness {
-  _Harness(FakeAsync async) : _async = async {
+  _Harness(FakeAsync async, {Duration settle = Duration.zero}) : _async = async {
     container = ProviderContainer(
       overrides: [
         rawWalletStatusProvider.overrideWith((ref) => ref.watch(_raw)),
         phoneTorProvider.overrideWith(_Tor.new),
+        nodeSettleProvider.overrideWithValue(settle),
       ],
     );
     container.listen(walletStatusProvider, (_, _) {}, fireImmediately: true);
@@ -213,6 +214,40 @@ void main() {
       });
     });
 
+    test('a 5 s blip reads connecting, never offline, and clears on the answer', () {
+      fakeAsync((async) {
+        final h = _Harness(async, settle: nodeSettle);
+        h.set(node: _offline);
+        h.elapse(_s * 4);
+        expect(h.shown.node.state, NodeState.online);
+        h.elapse(_s);
+        expect(h.shown.node.state, NodeState.connecting);
+        expect(h.container.read(walletStatusProvider.notifier).offlineSettled, isFalse);
+        h.set(node: _online);
+        expect(h.shown.node.state, NodeState.online);
+        h.elapse(nodeSettle);
+        expect(h.shown.node.state, NodeState.online);
+        h.container.dispose();
+      });
+    });
+
+    test('a 60 s outage reads offline once the settle time has passed, and clears at once', () {
+      fakeAsync((async) {
+        final h = _Harness(async, settle: nodeSettle);
+        h.set(node: _offline);
+        h.elapse(nodeSettle - const Duration(seconds: 1));
+        expect(h.shown.node.state, NodeState.connecting);
+        h.elapse(const Duration(seconds: 1));
+        expect(h.shown.node.state, NodeState.offline);
+        expect(h.container.read(walletStatusProvider.notifier).offlineSettled, isTrue);
+        h.elapse(_s * 7);
+        expect(h.shown.node.state, NodeState.offline);
+        h.set(node: _online);
+        expect(h.shown.node.state, NodeState.online);
+        h.container.dispose();
+      });
+    });
+
     test('Syncing shows only for a refresh that runs past 5 s, with live progress', () {
       fakeAsync((async) {
         final h = _Harness(async);
@@ -319,6 +354,7 @@ class _Node {
       overrides: [
         walletConfigProvider.overrideWith(_Config.new),
         networkChangesProvider.overrideWithValue(network.stream),
+        nodeSettleProvider.overrideWithValue(Duration.zero),
       ],
     );
     session.onNodeTipFor = () {

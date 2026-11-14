@@ -201,6 +201,7 @@ Future<void> _pump(
           MemorySecretStore({'app.network': 'mainnet'}),
         ),
         phoneTorProvider.overrideWith(() => _Tor(tor)),
+        nodeSettleProvider.overrideWithValue(Duration.zero),
         networkModeProvider.overrideWithValue(advanced.networkMode),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         priceSourceProvider.overrideWithValue(_Price()),
