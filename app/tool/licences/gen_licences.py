@@ -123,8 +123,19 @@ TEMPLATE = r"""<!doctype html>
 <script src="licences.js" defer></script></body></html>
 """
 
+def render_text(data, ver):
+    """One plain-text file: every package and its licence texts, for the app bundle."""
+    rule = "=" * 72
+    out = [f"Epic Wallet {ver}: licences of the software it contains", ""]
+    for n in sorted(data, key=lambda n: name_of(n).lower()):
+        for t in data[n]:
+            out += [rule, name_of(n), rule, t.strip("\n"), ""]
+    return "\n".join(out)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument("--text", default=None, help="also write the plain-text file here (the app asset)")
     ap.add_argument("--out", default=str(APP / "build/licences"))
     ap.add_argument("--version", default=None)
     a = ap.parse_args()
@@ -135,4 +146,6 @@ if __name__ == "__main__":
     (out / "index.html").write_text(render(data, a.version or version()), encoding="utf-8")
     (out / "licences.css").write_text(CSS, encoding="utf-8")
     (out / "licences.js").write_text(JS, encoding="utf-8")
+    if a.text:
+        Path(a.text).write_text(render_text(data, a.version or version()), encoding="utf-8")
     print(f"wrote {out / 'index.html'} ({len(data)} packages)")
