@@ -12,7 +12,7 @@ import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName;
+import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName, walletTag;
 import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
@@ -206,8 +206,9 @@ void main() {
       await h.pump(tester, const PairScreen(), settle: false);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'nothing is asked');
       expect(h.api.standingName, unnamedPeerName);
-      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
-      expect(find.text(_l.pairSeenAsAdd), findsOneWidget);
+      // No name: the line says what they will show instead, the first characters of this address.
+      expect(find.text(_l.pairSeenAsLine(_l.phonePairUnnamedShort(walletTag(h.session.address)!))), findsOneWidget);
+      expect(find.text(_l.pairChange), findsOneWidget);
       expect(h.store.values['pairing.seen_as'], isNull);
     });
 
@@ -227,7 +228,7 @@ void main() {
       await tester.tap(find.byKey(pairNameSaveKey));
       await _frames(tester);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'an empty name is accepted');
-      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
+      expect(find.text(_l.pairSeenAsLine(_l.phonePairUnnamedShort(walletTag(h.session.address)!))), findsOneWidget);
       expect(h.api.standingName, unnamedPeerName);
       expect(h.store.values['pairing.seen_as'], '');
     });
@@ -952,6 +953,57 @@ void main() {
       expect(find.text(_l.pairIncomingBody('Anna')), findsNothing);
       expect(fact(tester, incomingSourceKey), '${_l.pairIncomingSource} · ${_l.pairIncomingSourceRequest}');
       expect(fact(tester, incomingServerKey), '${_l.pairIncomingServer} · epicbox.example.org');
+    });
+
+    testWidgets('a request from a wallet with no name: the title and the avatar use the start of its address', (tester) async {
+      final h = _Harness();
+      final from = 'es${'Q' * 6}${'z' * 44}@epicbox.epiccash.com';
+      final preview = PairingInvitePreview(token: 't4', name: unnamedPeerName, expiresAt: DateTime.now().add(const Duration(hours: 2)), homeRelay: 'epicbox.example.org', fromAddress: from);
+      await h.pump(tester, opener(preview, InviteSource.opened));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final label = _l.phonePairUnnamedShort(walletTag(from)!);
+      expect(label, 'Wallet QQQQQQ');
+      expect(find.text(_l.pairIncomingTitle(label)), findsOneWidget);
+      expect(find.text(label), findsOneWidget, reason: 'the name line under the avatar');
+      expect(find.text(_l.pairIncomingTitle(_l.commonUnknown)), findsNothing);
+    });
+
+    testWidgets('an invite by code with no name and no address yet: Unknown, as before', (tester) async {
+      final h = _Harness();
+      final preview = PairingInvitePreview(token: 't5', name: unnamedPeerName, expiresAt: DateTime.now().add(const Duration(hours: 2)));
+      await h.pump(tester, opener(preview, InviteSource.pasted));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairIncomingTitle(_l.commonUnknown)), findsOneWidget);
+    });
+
+    testWidgets('the sheet that answers an invite lets this side set its own name; the field hints the label the other side will show', (tester) async {
+      final h = _Harness(seenAs: null);
+      final preview = PairingInvitePreview(token: 't6', name: 'Anna', expiresAt: DateTime.now().add(const Duration(hours: 2)));
+      await h.pump(tester, opener(preview, InviteSource.pasted));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final own = _l.phonePairUnnamedShort(walletTag(h.session.address)!);
+      expect(find.descendant(of: find.byKey(incomingSeenAsKey), matching: find.text(_l.pairSeenAsLine(own))), findsOneWidget);
+      await tester.tap(find.byKey(incomingSeenAsKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phonePairSeenAsEmptyShows(own)), findsOneWidget, reason: 'optional: empty is fine, and says what they see');
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Alex');
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await tester.pumpAndSettle();
+      expect(h.store.values['pairing.seen_as'], 'Alex');
+      expect(find.descendant(of: find.byKey(incomingSeenAsKey), matching: find.text(_l.pairSeenAsLine('Alex'))), findsOneWidget);
+      expect(find.byKey(incomingPairKey), findsOneWidget, reason: 'still on the invite');
+    });
+
+    testWidgets('pairing checks the relays every 5 s while the Pair screen is open, and stops after', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairScreen(), settle: false);
+      expect(h.session.boosts.interval(Poller.relays, const Duration(minutes: 1)), boostMinInterval);
+      expect(boostMinInterval, const Duration(seconds: 5));
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(h.session.boosts.interval(Poller.relays, const Duration(minutes: 1)), const Duration(minutes: 1));
     });
 
     testWidgets('the time left counts down each second on the pairing clock', (tester) async {

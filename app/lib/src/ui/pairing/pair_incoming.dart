@@ -18,7 +18,7 @@ import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../providers.dart' show sessionProvider;
-import 'pair_screen.dart' show seenAsForWire;
+import 'pair_screen.dart' show editSeenAs, ownWalletLabel, seenAsForWire, seenAsLine;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../tor_build.dart';
@@ -49,6 +49,7 @@ const Key incomingPairKey = ValueKey('incoming-pair');
 const Key incomingNotNowKey = ValueKey('incoming-not-now');
 const Key incomingServerKey = ValueKey('incoming-server');
 const Key incomingSourceKey = ValueKey('incoming-source');
+const Key incomingSeenAsKey = ValueKey('incoming-seen-as');
 const Key incomingExpiresKey = ValueKey('incoming-expires');
 const Key waitingCancelKey = ValueKey('waiting-cancel');
 const Key waitingAnswerBoxKey = ValueKey('waiting-answer-box');
@@ -227,7 +228,12 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final btlabs = sender == null && key != null ? btLabsKeyOf(key) : null;
     final name = sender?.name ?? btlabs?.name ?? p.name;
     final noName = sender == null && btlabs == null && isUnnamed(p.name);
-    final shown = noName ? l.commonUnknown : name;
+    // No name at all: the start of the sender's address when a request carries it, else Unknown.
+    final tag = walletTag(p.fromAddress);
+    final unnamedLabel = tag == null ? l.commonUnknown : l.phonePairUnnamedShort(tag);
+    final shown = noName ? unnamedLabel : name;
+    final seenAs = ref.watch(pairingSeenAsProvider).value ?? '';
+    final ownLabel = ownWalletLabel(l, ref);
     final host = relayHostOf(p.homeRelay);
     final source = inviteSourceText(l, widget.source, request: p.isRequest);
     return kitId(
@@ -248,7 +254,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
             Center(
               child: key != null
                   ? KeyPictureView(picture: KeyPicture.of(key), size: 72, framed: true)
-                  : PairAvatar(name: noName ? l.pairUnnamed : name, size: 72),
+                  : PairAvatar(name: noName ? unnamedLabel : name, size: 72),
             ),
             const PairGap(10),
             Row(
@@ -286,6 +292,15 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
                     size: KitRowSize.sheet,
                     trailing: Flexible(child: Text(host, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
                   ),
+                KitRow(
+                  key: incomingSeenAsKey,
+                  title: seenAsLine(l, seenAs, ownLabel),
+                  value: seenAs.isEmpty && ownLabel == null ? l.pairSeenAsAdd : l.pairChange,
+                  chevron: true,
+                  size: KitRowSize.sheet,
+                  semanticsId: TrustIds.pairflowInviteNameRow,
+                  onTap: _busy ? null : () => editSeenAs(context, ref),
+                ),
                 if (source != null) KitRow(key: incomingSourceKey, title: l.pairIncomingSource, size: KitRowSize.sheet, value: source),
                 KitRow(
                   key: incomingExpiresKey,
@@ -341,7 +356,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     final api = ref.read(pairingApiProvider);
     if (ref.read(pairNetProvider) == PairNet.online) {
-      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 10));
+      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, boostMinInterval);
       _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     } else {
       _late = true;
