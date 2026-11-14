@@ -782,7 +782,7 @@ void main() {
 
       expect(find.text('In progress'), findsOneWidget);
       expect(find.text('Yesterday'), findsOneWidget);
-      expect(find.text('Found on the chain'), findsOneWidget);
+      expect(find.text('Restored'), findsOneWidget);
       // The cancelled send stays in the list, greyed.
       expect(find.text('\u22121.0'), findsOneWidget);
 

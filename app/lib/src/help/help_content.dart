@@ -263,7 +263,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'start',
       'Send with a file',
-      'The manual way: save a transaction file, pass it to the recipient, then open the response file that comes back.',
+      'The manual way: save a payment file, pass it to the recipient, then open the response file that comes back.',
       [
         const HelpBlock.p('Direct · File Transfer does the same handshake as Epicbox, but the messages travel by hand, for example by chat or a USB stick. It works without Epicbox and without both wallets being online at the same time.'),
         if (phone)
@@ -325,7 +325,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('Epic Cash uses Mimblewimble. Instead of writing an address and an amount on the chain, the two wallets build each transaction together, like a handshake:'),
         HelpBlock.ol(['The sender’s wallet starts it and locks the outputs being sent.', 'The recipient’s wallet adds its part and signs.', 'The sender’s wallet signs too, finishes the transaction and posts it to the network.']),
-        HelpBlock.p('Something has to carry the messages between the two wallets. An **Epicbox** server holds each message while the other wallet is offline, so both need not be online at once. ${tor ? '**Link · HTTP** and **Link · Tor** go straight' : '**Link · HTTP** goes straight'} to the other wallet while it is open. **Direct · File Transfer**, with a transaction file, is the manual way.'),
+        HelpBlock.p('Something has to carry the messages between the two wallets. An **Epicbox** server holds each message while the other wallet is offline, so both need not be online at once. ${tor ? '**Link · HTTP** and **Link · Tor** go straight' : '**Link · HTTP** goes straight'} to the other wallet while it is open. **Direct · File Transfer**, with a payment file, is the manual way.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -465,7 +465,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.ul(['**Public node** (the default): run by someone else. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about.', '**Local node**: runs on this computer as a separate program that starts and stops with the app. It first downloads the whole chain, then a little every day; on disk it takes about 5 GB and grows slowly. While it syncs, the wallet shows its progress and uses a public node. See "Running the local node".']),
         if (phone)
-          HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; in a state such as **12 behind** or **Not answering** the wallet moves to another node in the list by itself, unless Node failover is off: then pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
+          HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; in a state such as **12 behind** or **Not answering** the wallet moves to another node in the list by itself, unless Switch node automatically is off: then pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
         else
           HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one. **Node** in the status bar shows its state (**Network** in the Shallow view).'),
       ],
@@ -582,7 +582,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           'Back here the payment shows **To be posted elsewhere**, then **Confirming** once the wallet sees it on the chain after leaving Kill switch.',
         ]),
         HelpBlock.p('Services a mode turns off show as **Off (Node only)** in grey: that is the mode, not an error. Switching cancels nothing; a payment waiting for its recipient over Epicbox continues once the mode lets Epicbox connect again.'),
-        HelpBlock.p('**${phone ? 'Node failover' : 'Switch node automatically'}** is on by default. When the chosen node stops answering or falls behind, the wallet moves to the best working node in the list, for this session only: the chosen node stays saved, and the wallet goes back to it at the next start or as soon as a node is picked by hand. While no node in the list answers, the wallet keeps trying and connects as soon as one does. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
+        HelpBlock.p('**Switch node automatically** is on by default. When the chosen node stops answering or falls behind, the wallet moves to the best working node in the list, for this session only: the chosen node stays saved, and the wallet goes back to it at the next start or as soon as a node is picked by hand. While no node in the list answers, the wallet keeps trying and connects as soon as one does. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -609,7 +609,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Logs**: the Logs group under $filesPlace, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: $defaultMinimumConfirmations by default, any count from $minMinimumConfirmations to $maxMinimumConfirmations. Fewer confirmations are faster but less safe.${phone ? '' : ' It is set under $payPlace.'}'),
-        HelpBlock.p(phone ? 'The connection mode and **Node failover** are under $netPlace: see “Connection modes”.' : 'The connection mode is under $netPlace: see “Connection modes”. **Switch node automatically** is under $nodePlace.'),
+        HelpBlock.p(phone ? 'The connection mode and **Switch node automatically** are under $netPlace: see “Connection modes”.' : 'The connection mode is under $netPlace: see “Connection modes”. **Switch node automatically** is under $nodePlace.'),
       ],
       id: HelpId.advanced,
     ),

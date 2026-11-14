@@ -344,7 +344,7 @@
   "@deskSendErrAmountMore": {
     "description": "Error under the Amount field on Send when the amount plus the fee is more than the spendable balance."
   },
-  "deskSendFileReadyTitle": "Transaction file ready",
+  "deskSendFileReadyTitle": "Payment file ready",
   "@deskSendFileReadyTitle": {
     "description": "Result card title on Send after a file send created the transaction file."
   },
@@ -635,7 +635,7 @@
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },
-  "deskSendViaFile": "Transaction file",
+  "deskSendViaFile": "Payment file",
   "@deskSendViaFile": {
     "description": "Value of the Via fact in the review dialog for a file send."
   },

@@ -766,7 +766,7 @@ void main() {
       expect(tx.direction, TxDirection.sent);
 
       final junk = File('${files.path}${Platform.pathSeparator}junk.txt')..writeAsStringSync('hello');
-      await expectLater(wallet.finalizeFile(junk.path), throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Not a transaction file')));
+      await expectLater(wallet.finalizeFile(junk.path), throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Not a payment file')));
       await expectLater(wallet.receiveFile('${files.path}/missing.tx'), throwsA(isA<DeskError>()));
     });
 

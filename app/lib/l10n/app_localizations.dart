@@ -307,7 +307,7 @@ abstract class AppLocalizations {
   /// Funds the wallet found by scanning the chain after a restore, with no record of who sent them.
   ///
   /// In en, this message translates to:
-  /// **'Found on the chain'**
+  /// **'Restored'**
   String get txRestoredFunds;
 
   /// Screen-reader sentence of a payment row the user labelled: the label first, then the whole row sentence (what happened, status, date).
@@ -577,7 +577,7 @@ abstract class AppLocalizations {
   /// Screen-reader text of a payment row.
   ///
   /// In en, this message translates to:
-  /// **'Found on the chain: {amount}'**
+  /// **'Restored: {amount}'**
   String txSpokenRestoredFunds(String amount);
 
   /// Screen-reader text of a payment row.
@@ -2530,7 +2530,7 @@ abstract class AppLocalizations {
   /// Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.
   ///
   /// In en, this message translates to:
-  /// **'{payer}’s wallet cannot pay invoices and sent the invoice back, so it was withdrawn. Ask for the payment to this wallet’s address or as a transaction file.'**
+  /// **'{payer}’s wallet cannot pay invoices and sent the invoice back, so it was withdrawn. Ask for the payment to this wallet’s address or as a payment file.'**
   String issuerNoticeBouncedFrom(String payer);
 
   /// State of a request the user sent: the payer's wallet cannot pay invoices and sent it back.
@@ -2542,7 +2542,7 @@ abstract class AppLocalizations {
   /// Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it.
   ///
   /// In en, this message translates to:
-  /// **'The payer’s wallet cannot pay invoices, so nothing was paid. Ask the payer to send the payment to this wallet’s address or as a transaction file.'**
+  /// **'The payer’s wallet cannot pay invoices, so nothing was paid. Ask the payer to send the payment to this wallet’s address or as a payment file.'**
   String get issuedDetailsBounced;
 
   /// Status of a payment request the user sent: the payer has not paid it yet.
@@ -3562,7 +3562,7 @@ abstract class AppLocalizations {
   /// Title of the screen that opens a transaction file (a file holding a payment's slate, JSON) to accept or finish it.
   ///
   /// In en, this message translates to:
-  /// **'Transaction file'**
+  /// **'Payment file'**
   String get slateFileTitle;
 
   /// No description provided for @slateWrongPayment.
@@ -3574,7 +3574,7 @@ abstract class AppLocalizations {
   /// No description provided for @slateNotTransactionFile.
   ///
   /// In en, this message translates to:
-  /// **'That file is not a transaction file.'**
+  /// **'That file is not a payment file.'**
   String get slateNotTransactionFile;
 
   /// Screen reader label of the spinner while a transaction file is being read.
@@ -3592,7 +3592,7 @@ abstract class AppLocalizations {
   /// No description provided for @slateFileTooLarge.
   ///
   /// In en, this message translates to:
-  /// **'That file is too large to be a transaction file.'**
+  /// **'That file is too large to be a payment file.'**
   String get slateFileTooLarge;
 
   /// No description provided for @slatePostedHeadline.
@@ -3646,13 +3646,13 @@ abstract class AppLocalizations {
   /// Title of the system dialog that saves a transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Save transaction file'**
+  /// **'Save payment file'**
   String get slateSaveDialogTitle;
 
   /// Title of the system dialog that picks a transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Open transaction file'**
+  /// **'Open payment file'**
   String get slateOpenDialogTitle;
 
   /// Headline when a finished payment was not accepted by the network yet.
@@ -4840,7 +4840,7 @@ abstract class AppLocalizations {
   /// Title of the sheet that explains, with an animation, how paying by file works: one wallet makes a file, the other signs it and sends it back.
   ///
   /// In en, this message translates to:
-  /// **'How a transaction file works'**
+  /// **'How a payment file works'**
   String get fileHelpTitle;
 
   /// Label under the figure that stands for the user in the payment file animation.
@@ -4858,7 +4858,7 @@ abstract class AppLocalizations {
   /// Payment file animation, told by the person who pays, step 1 of 4.
   ///
   /// In en, this message translates to:
-  /// **'You make a transaction file.'**
+  /// **'You make a payment file.'**
   String get fileHelpSendStep1;
 
   /// Payment file animation, sender's side, step 2 of 4.
@@ -4882,7 +4882,7 @@ abstract class AppLocalizations {
   /// Payment file animation, told by the person who gets paid, step 1 of 4.
   ///
   /// In en, this message translates to:
-  /// **'The sender makes a transaction file.'**
+  /// **'The sender makes a payment file.'**
   String get fileHelpReceiveStep1;
 
   /// Payment file animation, receiver's side, step 2 of 4.
@@ -5086,7 +5086,7 @@ abstract class AppLocalizations {
   /// Send, file route: button that makes the payment file for the amount.
   ///
   /// In en, this message translates to:
-  /// **'Make transaction file'**
+  /// **'Make payment file'**
   String get sendMakeFile;
 
   /// Send, file route tracker: detail under 'File made'; the amount is held until the payment finishes.
@@ -5194,7 +5194,7 @@ abstract class AppLocalizations {
   /// How it works, payment file, step 1: your wallet makes a payment file and you pass it on by hand (message, email…).
   ///
   /// In en, this message translates to:
-  /// **'This wallet saves a transaction file. Send it to the recipient in any app.'**
+  /// **'This wallet saves a payment file. Send it to the recipient in any app.'**
   String get handshakeFile1;
 
   /// How it works, payment file, step 2.
@@ -5596,7 +5596,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Receive tab; one or two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'This wallet’s Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.'**
+  /// **'This wallet’s Epicbox address. Share it to get paid. The File tab is for payment files to sign or finish.'**
   String get tourPhoneReceiveText;
 
   /// Title of the tour card for the Activity screen (first-unlock tour). Short.
@@ -5704,7 +5704,7 @@ abstract class AppLocalizations {
   /// The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.
   ///
   /// In en, this message translates to:
-  /// **'Enter the PIN to make a transaction file for {amount}.'**
+  /// **'Enter the PIN to make a payment file for {amount}.'**
   String sendFilePinReason(String amount);
 
   /// Outputs screen title and Settings row title.
@@ -7975,7 +7975,7 @@ abstract class AppLocalizations {
   /// Screen reader label of the File Transfer picture on Send and Receive. {method} is the method's full name ("Direct · File Transfer").
   ///
   /// In en, this message translates to:
-  /// **'{method}: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  /// **'{method}: a payment file is handed over, a response file comes back, then the sender finalizes'**
   String methodArtSpokenFile(String method);
 
   /// Receive's Epicbox strip line: share the address to get paid. No "app": the web preview shows it too.
@@ -8161,7 +8161,7 @@ abstract class AppLocalizations {
   /// An error message the user reads when a transaction file does not belong to this wallet.
   ///
   /// In en, this message translates to:
-  /// **'Not a transaction file for this wallet'**
+  /// **'Not a payment file for this wallet'**
   String get deskErrNotTxFile;
 
   /// An error message the user reads when the Epicbox server cannot be reached.
@@ -8617,7 +8617,7 @@ abstract class AppLocalizations {
   /// An error message the user reads when a chosen file is not a transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Not a transaction file'**
+  /// **'Not a payment file'**
   String get deskErrNotTxFile2;
 
   /// An error message the user reads when the response file could not be written.
@@ -9475,7 +9475,7 @@ abstract class AppLocalizations {
   /// Heading of the transaction files panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Transaction files'**
+  /// **'Payment files'**
   String get deskRecvFiles;
 
   /// Row title in the transaction files panel: opens the page that signs a file the sender gave.
@@ -9833,7 +9833,7 @@ abstract class AppLocalizations {
   /// Result card title on Send after a file send created the transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Transaction file ready'**
+  /// **'Payment file ready'**
   String get deskSendFileReadyTitle;
 
   /// Result card text on Send after a file send created the transaction file.
@@ -10235,7 +10235,7 @@ abstract class AppLocalizations {
   /// Value of the Via fact in the review dialog for a file send.
   ///
   /// In en, this message translates to:
-  /// **'Transaction file'**
+  /// **'Payment file'**
   String get deskSendViaFile;
 
   /// Second line of the Network fee in the review dialog when strategy All spends every output and one change output comes back.
@@ -10499,13 +10499,13 @@ abstract class AppLocalizations {
   /// Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Not a transaction file'**
+  /// **'Not a payment file'**
   String get deskImpWrongType;
 
   /// Text of that notice.
   ///
   /// In en, this message translates to:
-  /// **'Not a transaction file. Choose the .tx file the sender gave.'**
+  /// **'Not a payment file. Choose the .tx file the sender gave.'**
   String get deskImpWrongTypeText;
 
   /// Title of the error notice on the Sign a transaction file page: the file could not be read.
@@ -10553,13 +10553,13 @@ abstract class AppLocalizations {
   /// Title of the system file dialog that picks the sender's transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Transaction file'**
+  /// **'Payment file'**
   String get deskImpPickTitle;
 
   /// Page title of Sign a transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Sign a transaction file'**
+  /// **'Sign a payment file'**
   String get deskImpTitle;
 
   /// Title of the info notice at the top of the Sign a transaction file page.
@@ -10607,7 +10607,7 @@ abstract class AppLocalizations {
   /// Title of the drop zone on Sign a transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Choose a transaction file'**
+  /// **'Choose a payment file'**
   String get deskImpChoose;
 
   /// Text of the drop zone.
@@ -13937,7 +13937,7 @@ abstract class AppLocalizations {
   /// Text of the Send step of the first-run tour. Names only what is visible by default.
   ///
   /// In en, this message translates to:
-  /// **'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.'**
+  /// **'Pay an Epicbox address, or make a payment file for someone to sign. A review comes before anything leaves.'**
   String get deskTourSendText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -13949,7 +13949,7 @@ abstract class AppLocalizations {
   /// Text of the Receive step of the first-run tour.
   ///
   /// In en, this message translates to:
-  /// **'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.'**
+  /// **'This wallet’s Epicbox address: share it to be paid. Payment files to sign or finalize are below it.'**
   String get deskTourReceiveText;
 
   /// Title of the tour card for this page (first-unlock tour). Short.
@@ -14153,7 +14153,7 @@ abstract class AppLocalizations {
   /// Screen-reader description of the transaction-file picture on the Send page.
   ///
   /// In en, this message translates to:
-  /// **'Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  /// **'Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes'**
   String get deskKitHeroLabelFile;
 
   /// Small button of the internet-reachability notice in the HTTP receiving settings: check again. One word.
@@ -17848,7 +17848,7 @@ abstract class AppLocalizations {
   /// Help, 'How a transaction travels' with a file, step 1 of 6.
   ///
   /// In en, this message translates to:
-  /// **'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.'**
+  /// **'The sending wallet saves a payment file and locks the outputs. The file goes to the recipient by any means.'**
   String get deskSetHelpFile1;
 
   /// Help, 'How a transaction travels' with a file, step 2 of 6.
@@ -19138,7 +19138,7 @@ abstract class AppLocalizations {
   /// Switch on the Advanced page, under the network modes: on by default.
   ///
   /// In en, this message translates to:
-  /// **'Node failover'**
+  /// **'Switch node automatically'**
   String get advNodeFailover;
 
   /// Info sheet of the Node failover switch on the Advanced page.
@@ -19210,7 +19210,7 @@ abstract class AppLocalizations {
   /// Switch on Settings › Advanced, under the network modes: on by default.
   ///
   /// In en, this message translates to:
-  /// **'Node failover'**
+  /// **'Switch node automatically'**
   String get deskSetAdvNodeFailover;
 
   /// Hover card of the Node failover switch on Settings › Advanced.
@@ -19336,7 +19336,7 @@ abstract class AppLocalizations {
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.'**
+  /// **'Pay and get paid by handing over a payment file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.'**
   String get deskSetTxFileHint;
 
   /// Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on.
@@ -19516,7 +19516,7 @@ abstract class AppLocalizations {
   /// Sheet text when the scanned or pasted text is a transaction file's text; its button opens the file flow.
   ///
   /// In en, this message translates to:
-  /// **'This is the text of a transaction file, not an address.'**
+  /// **'This is the text of a payment file, not an address.'**
   String get scanSlateTextBody;
 
   /// Button: opens the thing named in the sheet or notice (a transaction file, a payment link).
@@ -19678,7 +19678,7 @@ abstract class AppLocalizations {
   /// Contact page: under Not paired.
   ///
   /// In en, this message translates to:
-  /// **'Pair to seal transaction files and allow invoices.'**
+  /// **'Pair to seal payment files and allow invoices.'**
   String get pairNotPairedHint;
 
   /// Segment 1 of the in-person screen.
@@ -19744,7 +19744,7 @@ abstract class AppLocalizations {
   /// Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.
   ///
   /// In en, this message translates to:
-  /// **'Once paired, transaction files and invoices between this wallet and {name} are sealed.'**
+  /// **'Once paired, payment files and invoices between this wallet and {name} are sealed.'**
   String pairIncomingBodyRequest(String name);
 
   /// Pair request dialog: fact label; the value is the host of the inviter's Epicbox server, e.g. epicbox.epiccash.com.
@@ -19798,7 +19798,7 @@ abstract class AppLocalizations {
   /// Incoming sheet body.
   ///
   /// In en, this message translates to:
-  /// **'Once paired, transaction files and invoices between this wallet and {name} are sealed. Verify together next.'**
+  /// **'Once paired, payment files and invoices between this wallet and {name} are sealed. Verify together next.'**
   String pairIncomingBody(String name);
 
   /// Secondary button of the incoming sheet.
@@ -20374,7 +20374,7 @@ abstract class AppLocalizations {
   /// Result body.
   ///
   /// In en, this message translates to:
-  /// **'Transaction files with {name} are sealed from now on.'**
+  /// **'Payment files with {name} are sealed from now on.'**
   String sasMatchedBody(String name);
 
   /// Dialog title.
@@ -20398,7 +20398,7 @@ abstract class AppLocalizations {
   /// Result body after Skip.
   ///
   /// In en, this message translates to:
-  /// **'Transaction files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.'**
+  /// **'Payment files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.'**
   String sasSkippedBody(String name);
 
   /// Button after Skip.
@@ -20482,13 +20482,13 @@ abstract class AppLocalizations {
   /// Switch label. Label only; the info icon explains.
   ///
   /// In en, this message translates to:
-  /// **'Seal transaction files'**
+  /// **'Seal payment files'**
   String get contactSealPayments;
 
   /// Info popover of the Seal transaction files switch (contact page, pairing check, desktop contacts).
   ///
   /// In en, this message translates to:
-  /// **'Transaction files to {name} are sealed so only {name}’s wallet can read them. Turn this off only if {name}’s wallet cannot open sealed files.'**
+  /// **'Payment files to {name} are sealed so only {name}’s wallet can read them. Turn this off only if {name}’s wallet cannot open sealed files.'**
   String contactSealTip(String name);
 
   /// Switch label.
@@ -20716,7 +20716,7 @@ abstract class AppLocalizations {
   /// Notice on the contact page.
   ///
   /// In en, this message translates to:
-  /// **'The last transaction file to {name} went plain'**
+  /// **'The last payment file to {name} went plain'**
   String contactSealDegradedTitle(String name);
 
   /// Notice body.
@@ -21682,7 +21682,7 @@ abstract class AppLocalizations {
   /// Help section lede.
   ///
   /// In en, this message translates to:
-  /// **'Pair once; payments, transaction files and invoices with that contact are sealed.'**
+  /// **'Pair once; payments, payment files and invoices with that contact are sealed.'**
   String get helpPairingLede;
 
   /// Topic 1 title.
@@ -21694,7 +21694,7 @@ abstract class AppLocalizations {
   /// Topic 1 lede.
   ///
   /// In en, this message translates to:
-  /// **'Pair once with someone; after that, payments, transaction files and invoices between the two wallets are sealed.'**
+  /// **'Pair once with someone; after that, payments, payment files and invoices between the two wallets are sealed.'**
   String get helpPairWhatShort;
 
   /// Topic 1.
@@ -21706,7 +21706,7 @@ abstract class AppLocalizations {
   /// Topic 1.
   ///
   /// In en, this message translates to:
-  /// **'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.'**
+  /// **'After pairing, payments, payment files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.'**
   String get helpPairWhatP2;
 
   /// Topic 1 step.
@@ -21730,7 +21730,7 @@ abstract class AppLocalizations {
   /// Topic 1.
   ///
   /// In en, this message translates to:
-  /// **'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and payments to its public Epicbox address.'**
+  /// **'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary payment files and payments to its public Epicbox address.'**
   String get helpPairWhatP3;
 
   /// Topic 4 title.
@@ -21802,7 +21802,7 @@ abstract class AppLocalizations {
   /// Help › Pairing › What a restore does, paragraph 2.
   ///
   /// In en, this message translates to:
-  /// **'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and the contact’s wallet finds the same keys, shows that they are back and keeps the Verified mark. On this wallet, Seal transaction files and Allow invoices start at their defaults.'**
+  /// **'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and the contact’s wallet finds the same keys, shows that they are back and keeps the Verified mark. On this wallet, Seal payment files and Allow invoices start at their defaults.'**
   String get helpPairRestoreP2;
 
   /// Topic 5.
@@ -25438,7 +25438,7 @@ abstract class AppLocalizations {
   /// sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.
   ///
   /// In en, this message translates to:
-  /// **'Enter the passphrase to make a transaction file for {amount}.'**
+  /// **'Enter the passphrase to make a payment file for {amount}.'**
   String sendFilePassphraseReason(String amount);
 
   /// App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more).
@@ -27148,7 +27148,7 @@ abstract class AppLocalizations {
   /// Topic 2. Names the contact page switch contactSealPayments; [[Contacts]] is the Contacts tab or page.
   ///
   /// In en, this message translates to:
-  /// **'**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].'**
+  /// **'**Seal payment files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].'**
   String get helpPairRouteP5;
 
   /// Help topic title.
@@ -27862,7 +27862,7 @@ abstract class AppLocalizations {
   /// Settings row “Direct · File Transfer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
   ///
   /// In en, this message translates to:
-  /// **'By handing over a transaction file. No network needed. All wallets.'**
+  /// **'By handing over a payment file. No network needed. All wallets.'**
   String get deskSetRowFileHint;
 
   /// Settings search: other words that find the “Direct · File Transfer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
@@ -29002,7 +29002,7 @@ abstract class AppLocalizations {
   /// Row title in the Transaction files card on Receive: one Open button for every kind of transaction file.
   ///
   /// In en, this message translates to:
-  /// **'Open transaction files'**
+  /// **'Open payment files'**
   String get deskTfOpenTitle;
 
   /// Row text under Open transaction files: the wallet works out what each file is and does that step.
@@ -29014,7 +29014,7 @@ abstract class AppLocalizations {
   /// Title of the system file dialog opened by Open transaction files (several files can be chosen).
   ///
   /// In en, this message translates to:
-  /// **'Transaction files'**
+  /// **'Payment files'**
   String get deskTfPickTitle;
 
   /// Screen-reader label of the list of results, one line per file opened.
@@ -32590,7 +32590,7 @@ abstract class AppLocalizations {
   /// Step 1 of getting paid with a file: open the payment file.
   ///
   /// In en, this message translates to:
-  /// **'Open the transaction file'**
+  /// **'Open the payment file'**
   String get phoneStepRecvFileOpen;
 
   /// Step 2 of getting paid with a file: send the reply file back.

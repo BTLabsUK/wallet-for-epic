@@ -63,7 +63,7 @@
       }
     }
   },
-  "deskSetHelpFile1": "The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.",
+  "deskSetHelpFile1": "The sending wallet saves a payment file and locks the outputs. The file goes to the recipient by any means.",
   "@deskSetHelpFile1": {
     "description": "Help, 'How a transaction travels' with a file, step 1 of 6."
   },

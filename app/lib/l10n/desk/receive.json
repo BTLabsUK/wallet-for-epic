@@ -197,7 +197,7 @@
   "@deskRecvTorOnion": {
     "description": "Caption under the Tor address on Receive."
   },
-  "deskRecvFiles": "Transaction files",
+  "deskRecvFiles": "Payment files",
   "@deskRecvFiles": {
     "description": "Heading of the transaction files panel on Receive."
   },

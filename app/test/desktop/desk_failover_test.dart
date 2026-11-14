@@ -197,7 +197,7 @@ class _Behind {
 void main() {
   test('the cue under the node in use', () {
     expect(englishStrings.deskNodeFailoverInsteadOf('a.example'), 'Instead of a.example');
-    expect(englishStrings.deskSetAdvNodeFailover, 'Node failover');
+    expect(englishStrings.deskSetAdvNodeFailover, 'Switch node automatically');
   });
 
   test('DeskSettings has no failover field of its own: the Advanced pref is on by default', () {

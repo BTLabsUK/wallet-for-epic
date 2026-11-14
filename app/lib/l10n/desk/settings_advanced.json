@@ -100,7 +100,7 @@
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
   },
-  "deskSetAdvNodeFailover": "Node failover",
+  "deskSetAdvNodeFailover": "Switch node automatically",
   "@deskSetAdvNodeFailover": {
     "description": "Switch on Settings › Advanced, under the network modes: on by default."
   },

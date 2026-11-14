@@ -1374,7 +1374,7 @@ void main() {
       await tester.ensureVisible(make);
       await tester.tap(make);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Enter the PIN to make a transaction file'), findsOneWidget);
+      expect(find.textContaining('Enter the PIN to make a payment file'), findsOneWidget);
       await tester.tap(find.text(englishStrings.commonCancel));
       await tester.pumpAndSettle();
       expect(h.session.sentAmounts, isEmpty);
@@ -1499,7 +1499,7 @@ void main() {
       await _tap(tester, find.text(_l.sendCopyPasteInstead));
       for (final (text, message) in [
         ('{"other":1}', 'for a different payment'),
-        ('not a reply', 'not a transaction file'),
+        ('not a reply', 'not a payment file'),
       ]) {
         await tester.enterText(
           find.descendant(

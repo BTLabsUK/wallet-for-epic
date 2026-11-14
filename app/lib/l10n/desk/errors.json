@@ -27,7 +27,7 @@
   "@deskErrNotEnoughFunds": {
     "description": "An error message the user reads when the spendable balance is too small."
   },
-  "deskErrNotTxFile": "Not a transaction file for this wallet",
+  "deskErrNotTxFile": "Not a payment file for this wallet",
   "@deskErrNotTxFile": {
     "description": "An error message the user reads when a transaction file does not belong to this wallet."
   },
@@ -440,7 +440,7 @@
   "@deskErrFileNotReadable": {
     "description": "An error message the user reads when a transaction file cannot be read from disk."
   },
-  "deskErrNotTxFile2": "Not a transaction file",
+  "deskErrNotTxFile2": "Not a payment file",
   "@deskErrNotTxFile2": {
     "description": "An error message the user reads when a chosen file is not a transaction file."
   },

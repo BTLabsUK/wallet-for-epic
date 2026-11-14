@@ -115,11 +115,11 @@
   "@deskFinChooseFile": {
     "description": "Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog."
   },
-  "deskImpWrongType": "Not a transaction file",
+  "deskImpWrongType": "Not a payment file",
   "@deskImpWrongType": {
     "description": "Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file."
   },
-  "deskImpWrongTypeText": "Not a transaction file. Choose the .tx file the sender gave.",
+  "deskImpWrongTypeText": "Not a payment file. Choose the .tx file the sender gave.",
   "@deskImpWrongTypeText": {
     "description": "Text of that notice."
   },
@@ -160,11 +160,11 @@
       }
     }
   },
-  "deskImpPickTitle": "Transaction file",
+  "deskImpPickTitle": "Payment file",
   "@deskImpPickTitle": {
     "description": "Title of the system file dialog that picks the sender's transaction file."
   },
-  "deskImpTitle": "Sign a transaction file",
+  "deskImpTitle": "Sign a payment file",
   "@deskImpTitle": {
     "description": "Page title of Sign a transaction file."
   },
@@ -196,7 +196,7 @@
   "@deskImpBusy": {
     "description": "Shown next to a spinner while the wallet signs the file."
   },
-  "deskImpChoose": "Choose a transaction file",
+  "deskImpChoose": "Choose a payment file",
   "@deskImpChoose": {
     "description": "Title of the drop zone on Sign a transaction file."
   },

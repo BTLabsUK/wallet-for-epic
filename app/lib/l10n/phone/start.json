@@ -125,7 +125,7 @@
   "@phoneStepRecvShow": {
     "description": "Step 2 of getting paid in person: show a QR code with the answer."
   },
-  "phoneStepRecvFileOpen": "Open the transaction file",
+  "phoneStepRecvFileOpen": "Open the payment file",
   "@phoneStepRecvFileOpen": {
     "description": "Step 1 of getting paid with a file: open the payment file."
   },

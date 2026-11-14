@@ -228,7 +228,7 @@
   "@deskTourSendTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourSendText": "Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.",
+  "deskTourSendText": "Pay an Epicbox address, or make a payment file for someone to sign. A review comes before anything leaves.",
   "@deskTourSendText": {
     "description": "Text of the Send step of the first-run tour. Names only what is visible by default."
   },
@@ -236,7 +236,7 @@
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.",
+  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Payment files to sign or finalize are below it.",
   "@deskTourReceiveText": {
     "description": "Text of the Receive step of the first-run tour."
   },

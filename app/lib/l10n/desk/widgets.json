@@ -95,7 +95,7 @@
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
-  "deskKitHeroLabelFile": "Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "deskKitHeroLabelFile": "Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes",
   "@deskKitHeroLabelFile": {
     "description": "Screen-reader description of the transaction-file picture on the Send page."
   },

@@ -717,7 +717,7 @@ void main() {
       final payer = payerName(const [], request.payerAddress);
       expect(_notice(tester), _l.issuerNoticeBouncedFrom(payer));
       expect(_noticeLevel(tester), NoticeLevel.warning);
-      expect(_l.issuerNoticeBouncedFrom(payer), contains('transaction file'));
+      expect(_l.issuerNoticeBouncedFrom(payer), contains('payment file'));
       // Withdrawn by the app, once; nothing paid.
       expect(h.session.invoicePayments, 0);
       expect(h.session.cancelledTxIds, [request.txId]);

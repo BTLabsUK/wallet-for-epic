@@ -96,7 +96,7 @@
   "@txMiningReward": {
     "description": "A payment created by mining a block (coinbase)."
   },
-  "txRestoredFunds": "Found on the chain",
+  "txRestoredFunds": "Restored",
   "@txRestoredFunds": {
     "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
   },
@@ -314,7 +314,7 @@
       }
     }
   },
-  "txSpokenRestoredFunds": "Found on the chain: {amount}",
+  "txSpokenRestoredFunds": "Restored: {amount}",
   "@txSpokenRestoredFunds": {
     "description": "Screen-reader text of a payment row.",
     "placeholders": {
@@ -1947,7 +1947,7 @@
   "@issuerNoticeExpired": {
     "description": "Notice when a request the user sent ran out of time unpaid."
   },
-  "issuerNoticeBouncedFrom": "{payer}’s wallet cannot pay invoices and sent the invoice back, so it was withdrawn. Ask for the payment to this wallet’s address or as a transaction file.",
+  "issuerNoticeBouncedFrom": "{payer}’s wallet cannot pay invoices and sent the invoice back, so it was withdrawn. Ask for the payment to this wallet’s address or as a payment file.",
   "@issuerNoticeBouncedFrom": {
     "description": "Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.",
     "placeholders": {
@@ -1960,7 +1960,7 @@
   "@issuedBounced": {
     "description": "State of a request the user sent: the payer's wallet cannot pay invoices and sent it back."
   },
-  "issuedDetailsBounced": "The payer’s wallet cannot pay invoices, so nothing was paid. Ask the payer to send the payment to this wallet’s address or as a transaction file.",
+  "issuedDetailsBounced": "The payer’s wallet cannot pay invoices, so nothing was paid. Ask the payer to send the payment to this wallet’s address or as a payment file.",
   "@issuedDetailsBounced": {
     "description": "Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it."
   },
@@ -2789,12 +2789,12 @@
   "@sendReviewEdit": {
     "description": "Button in the payment review that goes back to change the payment."
   },
-  "slateFileTitle": "Transaction file",
+  "slateFileTitle": "Payment file",
   "@slateFileTitle": {
     "description": "Title of the screen that opens a transaction file (a file holding a payment's slate, JSON) to accept or finish it."
   },
   "slateWrongPayment": "This response file is for a different payment. Open the response file for this payment.",
-  "slateNotTransactionFile": "That file is not a transaction file.",
+  "slateNotTransactionFile": "That file is not a payment file.",
   "slateReading": "Reading the file",
   "slateReadingQr": "Reading the payment",
   "@slateReadingQr": {
@@ -2803,7 +2803,7 @@
   "@slateReading": {
     "description": "Screen reader label of the spinner while a transaction file is being read."
   },
-  "slateFileTooLarge": "That file is too large to be a transaction file.",
+  "slateFileTooLarge": "That file is too large to be a payment file.",
   "slatePostedHeadline": "Payment of {amount} posted to the network.",
   "@slatePostedHeadline": {
     "placeholders": {
@@ -2871,11 +2871,11 @@
       }
     }
   },
-  "slateSaveDialogTitle": "Save transaction file",
+  "slateSaveDialogTitle": "Save payment file",
   "@slateSaveDialogTitle": {
     "description": "Title of the system dialog that saves a transaction file."
   },
-  "slateOpenDialogTitle": "Open transaction file",
+  "slateOpenDialogTitle": "Open payment file",
   "@slateOpenDialogTitle": {
     "description": "Title of the system dialog that picks a transaction file."
   },
@@ -3790,7 +3790,7 @@
   "@txStepSenderFinished": {
     "description": "Payment details timeline, an incoming payment: the sender finished it and posted it to the chain."
   },
-  "fileHelpTitle": "How a transaction file works",
+  "fileHelpTitle": "How a payment file works",
   "@fileHelpTitle": {
     "description": "Title of the sheet that explains, with an animation, how paying by file works: one wallet makes a file, the other signs it and sends it back."
   },
@@ -3802,7 +3802,7 @@
   "@fileHelpFriend": {
     "description": "Label under the figure that stands for the other person in the payment file animation."
   },
-  "fileHelpSendStep1": "You make a transaction file.",
+  "fileHelpSendStep1": "You make a payment file.",
   "@fileHelpSendStep1": {
     "description": "Payment file animation, told by the person who pays, step 1 of 4."
   },
@@ -3818,7 +3818,7 @@
   "@fileHelpSendStep4": {
     "description": "Payment file animation, sender's side, step 4 of 4."
   },
-  "fileHelpReceiveStep1": "The sender makes a transaction file.",
+  "fileHelpReceiveStep1": "The sender makes a payment file.",
   "@fileHelpReceiveStep1": {
     "description": "Payment file animation, told by the person who gets paid, step 1 of 4."
   },
@@ -3977,7 +3977,7 @@
   "@sendFileTitle": {
     "description": "Send, file route: heading of the steps that pay with a payment file."
   },
-  "sendMakeFile": "Make transaction file",
+  "sendMakeFile": "Make payment file",
   "@sendMakeFile": {
     "description": "Send, file route: button that makes the payment file for the amount."
   },
@@ -4054,7 +4054,7 @@
   "@handshakeRelayBack": {
     "description": "How it works, step 4 of the payment and the request: the relay hands it back to your wallet."
   },
-  "handshakeFile1": "This wallet saves a transaction file. Send it to the recipient in any app.",
+  "handshakeFile1": "This wallet saves a payment file. Send it to the recipient in any app.",
   "@handshakeFile1": {
     "description": "How it works, payment file, step 1: your wallet makes a payment file and you pass it on by hand (message, email…)."
   },
@@ -4392,7 +4392,7 @@
   "@tourPhoneReceiveTitle": {
     "description": "Title of the tour card for the Receive tab (first-unlock tour). Short."
   },
-  "tourPhoneReceiveText": "This wallet’s Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.",
+  "tourPhoneReceiveText": "This wallet’s Epicbox address. Share it to get paid. The File tab is for payment files to sign or finish.",
   "@tourPhoneReceiveText": {
     "description": "Text of the tour card for the Receive tab; one or two short sentences."
   },
@@ -4470,7 +4470,7 @@
       }
     }
   },
-  "sendFilePinReason": "Enter the PIN to make a transaction file for {amount}.",
+  "sendFilePinReason": "Enter the PIN to make a payment file for {amount}.",
   "@sendFilePinReason": {
     "description": "The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.",
     "placeholders": {
@@ -6440,7 +6440,7 @@
       }
     }
   },
-  "methodArtSpokenFile": "{method}: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "methodArtSpokenFile": "{method}: a payment file is handed over, a response file comes back, then the sender finalizes",
   "@methodArtSpokenFile": {
     "description": "Screen reader label of the File Transfer picture on Send and Receive. {method} is the method's full name (\"Direct · File Transfer\").",
     "placeholders": {
@@ -6580,7 +6580,7 @@
   "@deskErrNotEnoughFunds": {
     "description": "An error message the user reads when the spendable balance is too small."
   },
-  "deskErrNotTxFile": "Not a transaction file for this wallet",
+  "deskErrNotTxFile": "Not a payment file for this wallet",
   "@deskErrNotTxFile": {
     "description": "An error message the user reads when a transaction file does not belong to this wallet."
   },
@@ -6949,7 +6949,7 @@
   "@deskErrFileNotReadable": {
     "description": "An error message the user reads when a transaction file cannot be read from disk."
   },
-  "deskErrNotTxFile2": "Not a transaction file",
+  "deskErrNotTxFile2": "Not a payment file",
   "@deskErrNotTxFile2": {
     "description": "An error message the user reads when a chosen file is not a transaction file."
   },
@@ -7761,7 +7761,7 @@
   "@deskRecvTorOnion": {
     "description": "Caption under the Tor address on Receive."
   },
-  "deskRecvFiles": "Transaction files",
+  "deskRecvFiles": "Payment files",
   "@deskRecvFiles": {
     "description": "Heading of the transaction files panel on Receive."
   },
@@ -8122,7 +8122,7 @@
   "@deskSendErrAmountMore": {
     "description": "Error under the Amount field on Send when the amount plus the fee is more than the spendable balance."
   },
-  "deskSendFileReadyTitle": "Transaction file ready",
+  "deskSendFileReadyTitle": "Payment file ready",
   "@deskSendFileReadyTitle": {
     "description": "Result card title on Send after a file send created the transaction file."
   },
@@ -8413,7 +8413,7 @@
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },
-  "deskSendViaFile": "Transaction file",
+  "deskSendViaFile": "Payment file",
   "@deskSendViaFile": {
     "description": "Value of the Via fact in the review dialog for a file send."
   },
@@ -8612,11 +8612,11 @@
   "@deskFinChooseFile": {
     "description": "Button in the drop zones of Finalize and Sign a transaction file: opens the system file dialog."
   },
-  "deskImpWrongType": "Not a transaction file",
+  "deskImpWrongType": "Not a payment file",
   "@deskImpWrongType": {
     "description": "Title of the error notice on the Sign a transaction file page: the chosen file is not a transaction file."
   },
-  "deskImpWrongTypeText": "Not a transaction file. Choose the .tx file the sender gave.",
+  "deskImpWrongTypeText": "Not a payment file. Choose the .tx file the sender gave.",
   "@deskImpWrongTypeText": {
     "description": "Text of that notice."
   },
@@ -8653,11 +8653,11 @@
       }
     }
   },
-  "deskImpPickTitle": "Transaction file",
+  "deskImpPickTitle": "Payment file",
   "@deskImpPickTitle": {
     "description": "Title of the system file dialog that picks the sender's transaction file."
   },
-  "deskImpTitle": "Sign a transaction file",
+  "deskImpTitle": "Sign a payment file",
   "@deskImpTitle": {
     "description": "Page title of Sign a transaction file."
   },
@@ -8689,7 +8689,7 @@
   "@deskImpBusy": {
     "description": "Shown next to a spinner while the wallet signs the file."
   },
-  "deskImpChoose": "Choose a transaction file",
+  "deskImpChoose": "Choose a payment file",
   "@deskImpChoose": {
     "description": "Title of the drop zone on Sign a transaction file."
   },
@@ -11581,7 +11581,7 @@
   "@deskTourSendTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourSendText": "Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.",
+  "deskTourSendText": "Pay an Epicbox address, or make a payment file for someone to sign. A review comes before anything leaves.",
   "@deskTourSendText": {
     "description": "Text of the Send step of the first-run tour. Names only what is visible by default."
   },
@@ -11589,7 +11589,7 @@
   "@deskTourReceiveTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.",
+  "deskTourReceiveText": "This wallet’s Epicbox address: share it to be paid. Payment files to sign or finalize are below it.",
   "@deskTourReceiveText": {
     "description": "Text of the Receive step of the first-run tour."
   },
@@ -11757,7 +11757,7 @@
   "@deskKitHeroLabelTor": {
     "description": "Screen-reader description of the Tor picture on the Send page."
   },
-  "deskKitHeroLabelFile": "Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "deskKitHeroLabelFile": "Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes",
   "@deskKitHeroLabelFile": {
     "description": "Screen-reader description of the transaction-file picture on the Send page."
   },
@@ -15063,7 +15063,7 @@
       }
     }
   },
-  "deskSetHelpFile1": "The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.",
+  "deskSetHelpFile1": "The sending wallet saves a payment file and locks the outputs. The file goes to the recipient by any means.",
   "@deskSetHelpFile1": {
     "description": "Help, 'How a transaction travels' with a file, step 1 of 6."
   },
@@ -16139,7 +16139,7 @@
   "@outputsDefaultsMoved": {
     "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
   },
-  "advNodeFailover": "Node failover",
+  "advNodeFailover": "Switch node automatically",
   "@advNodeFailover": {
     "description": "Switch on the Advanced page, under the network modes: on by default."
   },
@@ -16219,7 +16219,7 @@
       }
     }
   },
-  "deskSetAdvNodeFailover": "Node failover",
+  "deskSetAdvNodeFailover": "Switch node automatically",
   "@deskSetAdvNodeFailover": {
     "description": "Switch on Settings › Advanced, under the network modes: on by default."
   },
@@ -16338,7 +16338,7 @@
       }
     }
   },
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.",
+  "deskSetTxFileHint": "Pay and get paid by handing over a payment file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.",
   "@deskSetTxFileHint": {
     "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
   },
@@ -16474,7 +16474,7 @@
   "@scanWrongNetworkBody": {
     "description": "Text of the \"Other network\" sheet and the To field error for such an address."
   },
-  "scanSlateTextBody": "This is the text of a transaction file, not an address.",
+  "scanSlateTextBody": "This is the text of a payment file, not an address.",
   "@scanSlateTextBody": {
     "description": "Sheet text when the scanned or pasted text is a transaction file's text; its button opens the file flow."
   },
@@ -16614,7 +16614,7 @@
   "@pairNotPaired": {
     "description": "Contact page: the Pairing block of a contact without a pairing."
   },
-  "pairNotPairedHint": "Pair to seal transaction files and allow invoices.",
+  "pairNotPairedHint": "Pair to seal payment files and allow invoices.",
   "@pairNotPairedHint": {
     "description": "Contact page: under Not paired."
   },
@@ -16688,7 +16688,7 @@
       }
     }
   },
-  "pairIncomingBodyRequest": "Once paired, transaction files and invoices between this wallet and {name} are sealed.",
+  "pairIncomingBodyRequest": "Once paired, payment files and invoices between this wallet and {name} are sealed.",
   "@pairIncomingBodyRequest": {
     "description": "Pair request dialog body for a request that came to the user's Epicbox address: it ends verified with no check step, so no 'You verify together next'.",
     "placeholders": {
@@ -16736,7 +16736,7 @@
       }
     }
   },
-  "pairIncomingBody": "Once paired, transaction files and invoices between this wallet and {name} are sealed. Verify together next.",
+  "pairIncomingBody": "Once paired, payment files and invoices between this wallet and {name} are sealed. Verify together next.",
   "@pairIncomingBody": {
     "description": "Incoming sheet body.",
     "placeholders": {
@@ -17288,7 +17288,7 @@
       }
     }
   },
-  "sasMatchedBody": "Transaction files with {name} are sealed from now on.",
+  "sasMatchedBody": "Payment files with {name} are sealed from now on.",
   "@sasMatchedBody": {
     "description": "Result body.",
     "placeholders": {
@@ -17316,7 +17316,7 @@
       }
     }
   },
-  "sasSkippedBody": "Transaction files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.",
+  "sasSkippedBody": "Payment files with {name} are sealed. Check the words from {name}’s contact page when you can; invoices wait until then.",
   "@sasSkippedBody": {
     "description": "Result body after Skip.",
     "placeholders": {
@@ -17396,11 +17396,11 @@
       }
     }
   },
-  "contactSealPayments": "Seal transaction files",
+  "contactSealPayments": "Seal payment files",
   "@contactSealPayments": {
     "description": "Switch label. Label only; the info icon explains."
   },
-  "contactSealTip": "Transaction files to {name} are sealed so only {name}’s wallet can read them. Turn this off only if {name}’s wallet cannot open sealed files.",
+  "contactSealTip": "Payment files to {name} are sealed so only {name}’s wallet can read them. Turn this off only if {name}’s wallet cannot open sealed files.",
   "@contactSealTip": {
     "description": "Info popover of the Seal transaction files switch (contact page, pairing check, desktop contacts).",
     "placeholders": {
@@ -17652,7 +17652,7 @@
   "@contactKeysBackBody": {
     "description": "Notice body."
   },
-  "contactSealDegradedTitle": "The last transaction file to {name} went plain",
+  "contactSealDegradedTitle": "The last payment file to {name} went plain",
   "@contactSealDegradedTitle": {
     "description": "Notice on the contact page.",
     "placeholders": {
@@ -18736,7 +18736,7 @@
   "@helpPairingSection": {
     "description": "Help section title."
   },
-  "helpPairingLede": "Pair once; payments, transaction files and invoices with that contact are sealed.",
+  "helpPairingLede": "Pair once; payments, payment files and invoices with that contact are sealed.",
   "@helpPairingLede": {
     "description": "Help section lede."
   },
@@ -18744,7 +18744,7 @@
   "@helpPairWhatTitle": {
     "description": "Topic 1 title."
   },
-  "helpPairWhatShort": "Pair once with someone; after that, payments, transaction files and invoices between the two wallets are sealed.",
+  "helpPairWhatShort": "Pair once with someone; after that, payments, payment files and invoices between the two wallets are sealed.",
   "@helpPairWhatShort": {
     "description": "Topic 1 lede."
   },
@@ -18752,7 +18752,7 @@
   "@helpPairWhatP1": {
     "description": "Topic 1."
   },
-  "helpPairWhatP2": "After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.",
+  "helpPairWhatP2": "After pairing, payments, payment files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.",
   "@helpPairWhatP2": {
     "description": "Topic 1."
   },
@@ -18768,7 +18768,7 @@
   "@helpPairWhatStep3": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatP3": "Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and payments to its public Epicbox address.",
+  "helpPairWhatP3": "Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary payment files and payments to its public Epicbox address.",
   "@helpPairWhatP3": {
     "description": "Topic 1."
   },
@@ -18816,7 +18816,7 @@
   "@helpPairRestoreP1": {
     "description": "Topic 5."
   },
-  "helpPairRestoreP2": "Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and the contact’s wallet finds the same keys, shows that they are back and keeps the Verified mark. On this wallet, Seal transaction files and Allow invoices start at their defaults.",
+  "helpPairRestoreP2": "Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and the contact’s wallet finds the same keys, shows that they are back and keeps the Verified mark. On this wallet, Seal payment files and Allow invoices start at their defaults.",
   "@helpPairRestoreP2": {
     "description": "Help › Pairing › What a restore does, paragraph 2."
   },
@@ -22223,7 +22223,7 @@
       }
     }
   },
-  "sendFilePassphraseReason": "Enter the passphrase to make a transaction file for {amount}.",
+  "sendFilePassphraseReason": "Enter the passphrase to make a payment file for {amount}.",
   "@sendFilePassphraseReason": {
     "description": "sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.",
     "placeholders": {
@@ -23886,7 +23886,7 @@
       }
     }
   },
-  "helpPairRouteP5": "**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].",
+  "helpPairRouteP5": "**Seal payment files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].",
   "@helpPairRouteP5": {
     "description": "Topic 2. Names the contact page switch contactSealPayments; [[Contacts]] is the Contacts tab or page."
   },
@@ -24460,7 +24460,7 @@
   "@deskSetSynTorPay": {
     "description": "Settings search: other words that find the “Link · Tor” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
-  "deskSetRowFileHint": "By handing over a transaction file. No network needed. All wallets.",
+  "deskSetRowFileHint": "By handing over a payment file. No network needed. All wallets.",
   "@deskSetRowFileHint": {
     "description": "Settings row “Direct · File Transfer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
   },
@@ -25273,7 +25273,7 @@
   "@sendFactOnline": {
     "description": "Send review: under Via, a Link method."
   },
-  "deskTfOpenTitle": "Open transaction files",
+  "deskTfOpenTitle": "Open payment files",
   "@deskTfOpenTitle": {
     "description": "Row title in the Transaction files card on Receive: one Open button for every kind of transaction file."
   },
@@ -25281,7 +25281,7 @@
   "@deskTfOpenText": {
     "description": "Row text under Open transaction files: the wallet works out what each file is and does that step."
   },
-  "deskTfPickTitle": "Transaction files",
+  "deskTfPickTitle": "Payment files",
   "@deskTfPickTitle": {
     "description": "Title of the system file dialog opened by Open transaction files (several files can be chosen)."
   },
@@ -28341,7 +28341,7 @@
   "@phoneStepRecvShow": {
     "description": "Step 2 of getting paid in person: show a QR code with the answer."
   },
-  "phoneStepRecvFileOpen": "Open the transaction file",
+  "phoneStepRecvFileOpen": "Open the payment file",
   "@phoneStepRecvFileOpen": {
     "description": "Step 1 of getting paid with a file: open the payment file."
   },

@@ -1,5 +1,5 @@
 {
-  "deskTfOpenTitle": "Open transaction files",
+  "deskTfOpenTitle": "Open payment files",
   "@deskTfOpenTitle": {
     "description": "Row title in the Transaction files card on Receive: one Open button for every kind of transaction file."
   },
@@ -11,7 +11,7 @@
   "@deskTfDropHint": {
     "description": "Added after the Open transaction files row text in the desktop apps: files can be dragged onto the card."
   },
-  "deskTfPickTitle": "Transaction files",
+  "deskTfPickTitle": "Payment files",
   "@deskTfPickTitle": {
     "description": "Title of the system file dialog opened by Open transaction files (several files can be chosen)."
   },

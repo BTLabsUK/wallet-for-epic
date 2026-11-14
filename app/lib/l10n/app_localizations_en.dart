@@ -119,7 +119,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMiningReward => 'Mining reward';
 
   @override
-  String get txRestoredFunds => 'Found on the chain';
+  String get txRestoredFunds => 'Restored';
 
   @override
   String txSpokenLabelled(String label, String row) {
@@ -283,7 +283,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String txSpokenRestoredFunds(String amount) {
-    return 'Found on the chain: $amount';
+    return 'Restored: $amount';
   }
 
   @override
@@ -1561,7 +1561,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String issuerNoticeBouncedFrom(String payer) {
-    return '$payer’s wallet cannot pay invoices and sent the invoice back, so it was withdrawn. Ask for the payment to this wallet’s address or as a transaction file.';
+    return '$payer’s wallet cannot pay invoices and sent the invoice back, so it was withdrawn. Ask for the payment to this wallet’s address or as a payment file.';
   }
 
   @override
@@ -1569,7 +1569,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get issuedDetailsBounced =>
-      'The payer’s wallet cannot pay invoices, so nothing was paid. Ask the payer to send the payment to this wallet’s address or as a transaction file.';
+      'The payer’s wallet cannot pay invoices, so nothing was paid. Ask the payer to send the payment to this wallet’s address or as a payment file.';
 
   @override
   String get txStatusWaitingPayer => 'Waiting for payer';
@@ -2231,14 +2231,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendReviewEdit => 'Edit';
 
   @override
-  String get slateFileTitle => 'Transaction file';
+  String get slateFileTitle => 'Payment file';
 
   @override
   String get slateWrongPayment =>
       'This response file is for a different payment. Open the response file for this payment.';
 
   @override
-  String get slateNotTransactionFile => 'That file is not a transaction file.';
+  String get slateNotTransactionFile => 'That file is not a payment file.';
 
   @override
   String get slateReading => 'Reading the file';
@@ -2248,7 +2248,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slateFileTooLarge =>
-      'That file is too large to be a transaction file.';
+      'That file is too large to be a payment file.';
 
   @override
   String slatePostedHeadline(String amount) {
@@ -2294,10 +2294,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get slateSaveDialogTitle => 'Save transaction file';
+  String get slateSaveDialogTitle => 'Save payment file';
 
   @override
-  String get slateOpenDialogTitle => 'Open transaction file';
+  String get slateOpenDialogTitle => 'Open payment file';
 
   @override
   String get slateNotPostedTitle => 'Not on the network yet';
@@ -2990,7 +2990,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txStepSenderFinished => 'Signed and returned';
 
   @override
-  String get fileHelpTitle => 'How a transaction file works';
+  String get fileHelpTitle => 'How a payment file works';
 
   @override
   String get fileHelpYou => 'You';
@@ -2999,7 +2999,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fileHelpFriend => 'Friend';
 
   @override
-  String get fileHelpSendStep1 => 'You make a transaction file.';
+  String get fileHelpSendStep1 => 'You make a payment file.';
 
   @override
   String get fileHelpSendStep2 =>
@@ -3014,7 +3014,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You open the response file, and the payment is on its way.';
 
   @override
-  String get fileHelpReceiveStep1 => 'The sender makes a transaction file.';
+  String get fileHelpReceiveStep1 => 'The sender makes a payment file.';
 
   @override
   String get fileHelpReceiveStep2 =>
@@ -3128,7 +3128,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendFileTitle => 'Direct · File Transfer';
 
   @override
-  String get sendMakeFile => 'Make transaction file';
+  String get sendMakeFile => 'Make payment file';
 
   @override
   String sendFileOnHold(String amount) {
@@ -3191,7 +3191,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handshakeFile1 =>
-      'This wallet saves a transaction file. Send it to the recipient in any app.';
+      'This wallet saves a payment file. Send it to the recipient in any app.';
 
   @override
   String get handshakeFile2 =>
@@ -3443,7 +3443,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneReceiveText =>
-      'This wallet’s Epicbox address. Share it to get paid. The File tab is for transaction files to sign or finish.';
+      'This wallet’s Epicbox address. Share it to get paid. The File tab is for payment files to sign or finish.';
 
   @override
   String get tourPhoneActivityTitle => 'Activity';
@@ -3507,7 +3507,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Enter the PIN to make a transaction file for $amount.';
+    return 'Enter the PIN to make a payment file for $amount.';
   }
 
   @override
@@ -4983,7 +4983,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String methodArtSpokenFile(String method) {
-    return '$method: a transaction file is handed over, a response file comes back, then the sender finalizes';
+    return '$method: a payment file is handed over, a response file comes back, then the sender finalizes';
   }
 
   @override
@@ -5090,7 +5090,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskErrNotEnoughFunds => 'Not enough EPIC';
 
   @override
-  String get deskErrNotTxFile => 'Not a transaction file for this wallet';
+  String get deskErrNotTxFile => 'Not a payment file for this wallet';
 
   @override
   String get deskErrEpicboxUnreachable => 'Epicbox server not reachable';
@@ -5386,7 +5386,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskErrFileNotReadable => 'File not readable';
 
   @override
-  String get deskErrNotTxFile2 => 'Not a transaction file';
+  String get deskErrNotTxFile2 => 'Not a payment file';
 
   @override
   String get deskErrResponseNotSaved => 'Response file not saved';
@@ -5902,7 +5902,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some wallets show the address without .onion; both are the same address.';
 
   @override
-  String get deskRecvFiles => 'Transaction files';
+  String get deskRecvFiles => 'Payment files';
 
   @override
   String get deskRecvSignTitle => 'Sign a transaction file';
@@ -6205,7 +6205,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendErrAmountMore => 'More than the available balance.';
 
   @override
-  String get deskSendFileReadyTitle => 'Transaction file ready';
+  String get deskSendFileReadyTitle => 'Payment file ready';
 
   @override
   String get deskSendFileReadyText =>
@@ -6432,7 +6432,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Link · Tor (the recipient’s wallet must be open)';
 
   @override
-  String get deskSendViaFile => 'Transaction file';
+  String get deskSendViaFile => 'Payment file';
 
   @override
   String deskSendUsesAll(int count) {
@@ -6587,11 +6587,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskFinChooseFile => 'Choose file';
 
   @override
-  String get deskImpWrongType => 'Not a transaction file';
+  String get deskImpWrongType => 'Not a payment file';
 
   @override
   String get deskImpWrongTypeText =>
-      'Not a transaction file. Choose the .tx file the sender gave.';
+      'Not a payment file. Choose the .tx file the sender gave.';
 
   @override
   String get deskImpUnreadable => 'File not readable';
@@ -6620,10 +6620,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskImpPickTitle => 'Transaction file';
+  String get deskImpPickTitle => 'Payment file';
 
   @override
-  String get deskImpTitle => 'Sign a transaction file';
+  String get deskImpTitle => 'Sign a payment file';
 
   @override
   String get deskImpNoticeTitle => 'Signing does not spend anything';
@@ -6649,7 +6649,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskImpBusy => 'Signing the file';
 
   @override
-  String get deskImpChoose => 'Choose a transaction file';
+  String get deskImpChoose => 'Choose a payment file';
 
   @override
   String get deskImpChooseText =>
@@ -8812,14 +8812,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTourSendText =>
-      'Pay an Epicbox address, or make a transaction file for someone to sign. A review comes before anything leaves.';
+      'Pay an Epicbox address, or make a payment file for someone to sign. A review comes before anything leaves.';
 
   @override
   String get deskTourReceiveTitle => 'Receive';
 
   @override
   String get deskTourReceiveText =>
-      'This wallet’s Epicbox address: share it to be paid. Transaction files to sign or finalize are below it.';
+      'This wallet’s Epicbox address: share it to be paid. Payment files to sign or finalize are below it.';
 
   @override
   String get deskTourInvoicesTitle => 'Invoices';
@@ -8950,7 +8950,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitHeroLabelFile =>
-      'Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes';
+      'Direct · File Transfer: a payment file is handed over, a response file comes back, then the sender finalizes';
 
   @override
   String get deskKitReachCheck => 'Check';
@@ -11327,7 +11327,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetHelpFile1 =>
-      'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.';
+      'The sending wallet saves a payment file and locks the outputs. The file goes to the recipient by any means.';
 
   @override
   String get deskSetHelpFile2 =>
@@ -12134,7 +12134,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send defaults are in Settings › Transactions';
 
   @override
-  String get advNodeFailover => 'Node failover';
+  String get advNodeFailover => 'Switch node automatically';
 
   @override
   String get advNodeFailoverHint =>
@@ -12186,7 +12186,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetAdvNodeFailover => 'Node failover';
+  String get deskSetAdvNodeFailover => 'Switch node automatically';
 
   @override
   String get deskSetAdvNodeFailoverHint =>
@@ -12276,7 +12276,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.';
+      'Pay and get paid by handing over a payment file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.';
 
   @override
   String get deskSetTxStart => 'Default method';
@@ -12383,7 +12383,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanSlateTextBody =>
-      'This is the text of a transaction file, not an address.';
+      'This is the text of a payment file, not an address.';
 
   @override
   String get commonOpen => 'Open';
@@ -12509,7 +12509,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairNotPairedHint =>
-      'Pair to seal transaction files and allow invoices.';
+      'Pair to seal payment files and allow invoices.';
 
   @override
   String get pairShowMyCode => 'Show invite';
@@ -12554,7 +12554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairIncomingBodyRequest(String name) {
-    return 'Once paired, transaction files and invoices between this wallet and $name are sealed.';
+    return 'Once paired, payment files and invoices between this wallet and $name are sealed.';
   }
 
   @override
@@ -12586,7 +12586,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairIncomingBody(String name) {
-    return 'Once paired, transaction files and invoices between this wallet and $name are sealed. Verify together next.';
+    return 'Once paired, payment files and invoices between this wallet and $name are sealed. Verify together next.';
   }
 
   @override
@@ -13010,7 +13010,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sasMatchedBody(String name) {
-    return 'Transaction files with $name are sealed from now on.';
+    return 'Payment files with $name are sealed from now on.';
   }
 
   @override
@@ -13027,7 +13027,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sasSkippedBody(String name) {
-    return 'Transaction files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
+    return 'Payment files with $name are sealed. Check the words from $name’s contact page when you can; invoices wait until then.';
   }
 
   @override
@@ -13076,11 +13076,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get contactSealPayments => 'Seal transaction files';
+  String get contactSealPayments => 'Seal payment files';
 
   @override
   String contactSealTip(String name) {
-    return 'Transaction files to $name are sealed so only $name’s wallet can read them. Turn this off only if $name’s wallet cannot open sealed files.';
+    return 'Payment files to $name are sealed so only $name’s wallet can read them. Turn this off only if $name’s wallet cannot open sealed files.';
   }
 
   @override
@@ -13229,7 +13229,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last transaction file to $name went plain';
+    return 'The last payment file to $name went plain';
   }
 
   @override
@@ -13921,14 +13921,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Pair once; payments, transaction files and invoices with that contact are sealed.';
+      'Pair once; payments, payment files and invoices with that contact are sealed.';
 
   @override
   String get helpPairWhatTitle => 'What pairing is';
 
   @override
   String get helpPairWhatShort =>
-      'Pair once with someone; after that, payments, transaction files and invoices between the two wallets are sealed.';
+      'Pair once with someone; after that, payments, payment files and invoices between the two wallets are sealed.';
 
   @override
   String get helpPairWhatP1 =>
@@ -13936,7 +13936,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.';
+      'After pairing, payments, payment files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.';
 
   @override
   String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
@@ -13951,7 +13951,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and payments to its public Epicbox address.';
+      'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary payment files and payments to its public Epicbox address.';
 
   @override
   String get helpPairInvTitle => 'Invoices from paired contacts';
@@ -13997,7 +13997,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and the contact’s wallet finds the same keys, shows that they are back and keeps the Verified mark. On this wallet, Seal transaction files and Allow invoices start at their defaults.';
+      'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and the contact’s wallet finds the same keys, shows that they are back and keeps the Verified mark. On this wallet, Seal payment files and Allow invoices start at their defaults.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -16490,7 +16490,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendFilePassphraseReason(String amount) {
-    return 'Enter the passphrase to make a transaction file for $amount.';
+    return 'Enter the passphrase to make a payment file for $amount.';
   }
 
   @override
@@ -17582,7 +17582,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairRouteP5 =>
-      '**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].';
+      '**Seal payment files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].';
 
   @override
   String get helpPairTwoWaysTitle => 'Two ways to pair';
@@ -18023,7 +18023,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRowFileHint =>
-      'By handing over a transaction file. No network needed. All wallets.';
+      'By handing over a payment file. No network needed. All wallets.';
 
   @override
   String get deskSetSynFile =>
@@ -18672,14 +18672,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendFactOnline => 'The recipient’s wallet has to be open.';
 
   @override
-  String get deskTfOpenTitle => 'Open transaction files';
+  String get deskTfOpenTitle => 'Open payment files';
 
   @override
   String get deskTfOpenText =>
       'Choose one file or several. The wallet reads each one and signs, finishes or posts it.';
 
   @override
-  String get deskTfPickTitle => 'Transaction files';
+  String get deskTfPickTitle => 'Payment files';
 
   @override
   String get deskTfResults => 'Files opened';
@@ -20865,7 +20865,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneStepRecvShow => 'Show the reply';
 
   @override
-  String get phoneStepRecvFileOpen => 'Open the transaction file';
+  String get phoneStepRecvFileOpen => 'Open the payment file';
 
   @override
   String get phoneStepRecvFileReply => 'Send the response file';

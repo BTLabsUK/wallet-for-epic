@@ -21,7 +21,7 @@
       }
     }
   },
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.",
+  "deskSetTxFileHint": "Pay and get paid by handing over a payment file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.",
   "@deskSetTxFileHint": {
     "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
   },
