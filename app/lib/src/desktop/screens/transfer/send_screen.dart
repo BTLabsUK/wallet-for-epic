@@ -3525,6 +3525,23 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               Text(epicUnit, style: ts.mono(size: Fs.lg, color: c.dim)),
             ],
           ),
+          // The total and the fee under the amount: in view next to the password field, however
+          // long the facts below run.
+          SizedBox(height: Sp.x1),
+          Wrap(
+            key: const ValueKey('send-review-total'),
+            spacing: Sp.x2,
+            runSpacing: Sp.x1,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(l.deskSendTotal, style: ts.small.copyWith(color: c.dim)),
+              EMoney(d.total, surface: AmountSurface.exact, weight: FontWeight.w600),
+              Text('·', style: ts.small.copyWith(color: c.dim)),
+              Text(l.deskSendNetworkFee, style: ts.small.copyWith(color: c.dim)),
+              EMoney(d.fee, surface: AmountSurface.exact),
+            ],
+          ),
+          if (lines?.feeSecondLine != null) Text(lines!.feeSecondLine!, style: ts.small),
           SizedBox(height: Sp.x4),
           EFacts([
             // Through the pairing: the name, never an address (the mailbox is not one).
@@ -3570,17 +3587,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             // Plain http to another device: a fact, not a warning; the review is the consent.
             if (route != null && route.plainHttpToOther) (l.sendFactConnection, Text(l.sendFactNotEncrypted, key: const ValueKey('send-review-plain'), style: ts.body)),
             if (d.torStarts) (l.sendFactTor, Text(l.sendFactTorStarts, style: ts.body)),
-            (
-              l.deskSendNetworkFee,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  EMoney(d.fee, surface: AmountSurface.exact),
-                  if (lines?.feeSecondLine != null) Text(lines!.feeSecondLine!, style: ts.small),
-                ],
-              ),
-            ),
-            (l.deskSendTotal, EMoney(d.total, surface: AmountSurface.exact, weight: FontWeight.w600)),
             ...?lines?.facts,
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
