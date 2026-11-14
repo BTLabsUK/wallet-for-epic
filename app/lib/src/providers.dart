@@ -1670,8 +1670,16 @@ class IssuedInvoicesNotifier extends AsyncNotifier<List<IssuedInvoice>> {
   Future<IssuedInvoice> withdraw(String slateId) async {
     final withdrawn = await _session.withdrawInvoice(slateId: slateId);
     logInfo('invoices', 'issued invoice withdrawn');
-    ref.invalidateSelf();
-    await future;
+    // The withdraw is done. Reloading the list is only to show it: a failure or a dispose
+    // here (no screen watching the list) must not turn a withdrawn invoice into an error.
+    if (ref.mounted) {
+      ref.invalidateSelf();
+      try {
+        await future;
+      } catch (error) {
+        logInfo('invoices', 'list reload after a withdraw failed: ${error.runtimeType}');
+      }
+    }
     return withdrawn;
   }
 }

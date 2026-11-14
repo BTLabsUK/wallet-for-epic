@@ -15,7 +15,10 @@ enum SentToMatch {
   /// The row's recipient is the address as given (Epicbox).
   exact,
 
-  /// The row names no recipient, or one that contains the address's host (HTTP, Tor).
+  /// The row names no recipient, or one that contains the address's host (Tor), or, for an
+  /// http(s) URL, the same host and port with the URL's path under it. LEPIC records the
+  /// listener URL in full (`https://host:443/path/v2/foreign`), also when the address was typed
+  /// without a port or the endpoint.
   host,
 }
 
@@ -56,7 +59,7 @@ class SendBefore {
               txAmount(t).amount == amount &&
               switch (match) {
                 SentToMatch.exact => t.counterparty?.trim() == to,
-                SentToMatch.host => t.counterparty == null || t.counterparty!.toLowerCase().contains(host),
+                SentToMatch.host => t.counterparty == null || _sameListener(t.counterparty!, to) || t.counterparty!.toLowerCase().contains(host),
               },
         )
         .toList()
@@ -89,4 +92,16 @@ class StoredSend {
   /// Nothing changed: no new row, and the spendable balance as before. Only told when the
   /// balance was taken before ([SendBefore.take] with minimum confirmations).
   final bool nothingStored;
+}
+
+/// Whether [recorded], the listener URL LEPIC stored, is the http(s) URL [typed]: the same
+/// scheme, host and port (the scheme's own when none is typed), the typed path being the start
+/// of the recorded one.
+bool _sameListener(String recorded, String typed) {
+  final a = Uri.tryParse(recorded.trim());
+  final b = Uri.tryParse(typed.trim());
+  if (a == null || b == null || !a.hasAuthority || !b.hasAuthority) return false;
+  if (a.scheme.toLowerCase() != b.scheme.toLowerCase() || a.host.toLowerCase() != b.host.toLowerCase() || a.port != b.port) return false;
+  final path = b.path.replaceAll(RegExp(r'/+$'), '');
+  return a.path == path || a.path.startsWith('$path/');
 }

@@ -75,6 +75,7 @@ class RequestCodePage extends ConsumerWidget {
     this.lead,
     this.actions = const [],
     this.busy = false,
+    this.textNotice,
   });
 
   final BigInt amount;
@@ -91,6 +92,10 @@ class RequestCodePage extends ConsumerWidget {
   /// More buttons under Copy and Share (Scan reply).
   final List<Widget> actions;
   final bool busy;
+
+  /// Set when [json] is a plain link, not a request file: Copy and Share hand over the text
+  /// and Copy confirms with this notice.
+  final String? textNotice;
 
   Future<void> _hand(BuildContext context, WidgetRef ref, Future<bool> Function(SlateFiles files) action) async {
     final files = ref.read(slateFilesProvider);
@@ -109,6 +114,7 @@ class RequestCodePage extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final files = ref.watch(slateFilesProvider);
+    final asText = textNotice != null;
     final price = ref.watch(priceProvider).value;
     final currency = ref.watch(appSettingsProvider.select((s) => s.value?.fiatCurrency)) ?? 'usd';
     final figure = epicExact(l, amount);
@@ -161,17 +167,21 @@ class RequestCodePage extends ConsumerWidget {
                                 kind: KitButtonKind.quiet,
                                 icon: KitIcons.copy,
                                 semanticsId: TrustIds.receiveCodeCopy,
-                                onPressed: () => copySecretText(context, json, l.slateCopied),
+                                onPressed: () => asText ? copyText(context, json, textNotice!) : copySecretText(context, json, l.slateCopied),
                               ),
                             ),
-                            if (files.canShare) ...[
+                            if (asText ? files.canShareText : files.canShare) ...[
                               const SizedBox(width: 10),
                               Expanded(
                                 child: KitButton(
                                   label: l.commonShare,
                                   icon: KitIcons.share,
                                   semanticsId: TrustIds.receiveCodeShare,
-                                  onPressed: () => _hand(context, ref, (f) => f.share(name: fileName, json: json)),
+                                  onPressed: () => _hand(context, ref, (f) async {
+                                    if (!asText) return f.share(name: fileName, json: json);
+                                    await f.shareText(json);
+                                    return true;
+                                  }),
                                 ),
                               ),
                             ],

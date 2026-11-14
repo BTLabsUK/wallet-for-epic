@@ -33786,6 +33786,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A send spends whole coins. The rest comes back and can be spent after {target} confirmations, about {target} min after the payment is in a block. If a send is cancelled, the full amount comes back.'**
   String phoneBalanceChangeNote(int target);
+
+  /// Button on Receive that opens the amount fields; the code then holds the Epicbox address with an amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for an amount'**
+  String get deskRecvAskOpen;
+
+  /// Label of the amount field under Ask for an amount on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get deskRecvAskAmount;
+
+  /// Label of the optional note field under Ask for an amount on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deskRecvAskNote;
+
+  /// Line under the amount fields on Receive: what the changed code does.
+  ///
+  /// In en, this message translates to:
+  /// **'The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.'**
+  String get deskRecvAskHint;
+
+  /// Button that copies the payment link (address with the amount).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get deskRecvAskCopy;
+
+  /// Toast after the payment link was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get deskRecvAskCopied;
+
+  /// Button that closes the amount fields and shows the plain address code again.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the address'**
+  String get deskRecvAskClose;
+
+  /// Choice in the who-pays sheet: a code with the wallet's own Epicbox address and the amount; the payer sends as usual with the amount filled in.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone, with my address'**
+  String get phoneRecvAnyoneAddress;
+
+  /// Line under the Anyone, with my address choice.
+  ///
+  /// In en, this message translates to:
+  /// **'A code with your address and the amount'**
+  String get phoneRecvAnyoneAddressLine;
+
+  /// Lead on the screen that shows the wallet's address with an amount as a code. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with {amount} filled in.'**
+  String phoneRecvLinkLead(String amount);
+
+  /// Notice after the payment link (address with an amount) was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get phoneRecvLinkCopied;
+
+  /// What a screen reader says for the code that holds the wallet's address and an amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address with the amount, as a QR code'**
+  String get phoneRecvLinkQrLabel;
 }
 
 class _AppLocalizationsDelegate

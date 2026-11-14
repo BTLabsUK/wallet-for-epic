@@ -212,7 +212,8 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
       top = const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: LinearProgressIndicator());
     }
     final rows = [
-      if (invoices)
+      // Without invoices the row still asks for an amount: the address with it, as a code.
+      if (invoices || (payments.epicbox && value != null))
         KitRow(
           leading: KitIconWell(KitIcons.invoice, color: context.tokens.accentText),
           title: l.phoneRecvAsk,

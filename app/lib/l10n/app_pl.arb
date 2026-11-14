@@ -5618,5 +5618,17 @@
   "phoneChangeRowConfirming": "ok. {minutes} min · {count} z {target} potwierdzeń",
   "phoneBalanceAvailableNow": "Dostępne teraz",
   "phoneBalanceArriving": "Nadchodzi",
-  "phoneBalanceChangeNote": "Wysyłka wydaje całe monety. Reszta wraca i można ją wydać po {target} potwierdzeniach, ok. {target} min po tym, jak płatność trafi do bloku. Jeśli wysyłka zostanie anulowana, wraca cała kwota."
+  "phoneBalanceChangeNote": "Wysyłka wydaje całe monety. Reszta wraca i można ją wydać po {target} potwierdzeniach, ok. {target} min po tym, jak płatność trafi do bloku. Jeśli wysyłka zostanie anulowana, wraca cała kwota.",
+  "deskRecvAskOpen": "Poproś o kwotę",
+  "deskRecvAskAmount": "Kwota",
+  "deskRecvAskNote": "Notatka",
+  "deskRecvAskHint": "Kod zawiera teraz Twój adres i tę kwotę. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie do Ciebie z wpisaną kwotą.",
+  "deskRecvAskCopy": "Kopiuj link",
+  "deskRecvAskCopied": "Link skopiowany",
+  "deskRecvAskClose": "Wróć do adresu",
+  "phoneRecvAnyoneAddress": "Każdy, z moim adresem",
+  "phoneRecvAnyoneAddressLine": "Kod z Twoim adresem i kwotą",
+  "phoneRecvLinkLead": "Pokaż ten kod lub udostępnij link. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie na Twój adres z już wpisaną kwotą {amount}.",
+  "phoneRecvLinkCopied": "Link skopiowany",
+  "phoneRecvLinkQrLabel": "Twój adres z kwotą jako kod QR"
 }

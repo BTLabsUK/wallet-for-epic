@@ -5618,5 +5618,17 @@
   "phoneChangeRowConfirming": "ประมาณ {minutes} นาที · ยืนยันแล้ว {count} จาก {target}",
   "phoneBalanceAvailableNow": "ใช้ได้ตอนนี้",
   "phoneBalanceArriving": "กำลังเข้า",
-  "phoneBalanceChangeNote": "การส่งใช้เหรียญทั้งเหรียญ ส่วนที่เหลือจะกลับมาและใช้ได้หลังยืนยัน {target} ครั้ง ประมาณ {target} นาทีหลังจากการชำระเงินอยู่ในบล็อก หากยกเลิกการส่ง จำนวนเต็มจะกลับมา"
+  "phoneBalanceChangeNote": "การส่งใช้เหรียญทั้งเหรียญ ส่วนที่เหลือจะกลับมาและใช้ได้หลังยืนยัน {target} ครั้ง ประมาณ {target} นาทีหลังจากการชำระเงินอยู่ในบล็อก หากยกเลิกการส่ง จำนวนเต็มจะกลับมา",
+  "deskRecvAskOpen": "ขอจำนวนเงิน",
+  "deskRecvAskAmount": "จำนวนเงิน",
+  "deskRecvAskNote": "บันทึก",
+  "deskRecvAskHint": "ตอนนี้โค้ดมีที่อยู่ของคุณและจำนวนเงินนี้ ใครสแกนหรือวางจะได้การส่งตามปกติมาหาคุณ โดยกรอกจำนวนเงินไว้แล้ว",
+  "deskRecvAskCopy": "คัดลอกลิงก์",
+  "deskRecvAskCopied": "คัดลอกลิงก์แล้ว",
+  "deskRecvAskClose": "กลับไปที่ที่อยู่",
+  "phoneRecvAnyoneAddress": "ใครก็ได้ ด้วยที่อยู่ของฉัน",
+  "phoneRecvAnyoneAddressLine": "โค้ดที่มีที่อยู่ของคุณและจำนวนเงิน",
+  "phoneRecvLinkLead": "แสดงโค้ดนี้หรือแชร์ลิงก์ ใครสแกนหรือวางจะได้การส่งตามปกติไปยังที่อยู่ของคุณ โดยกรอก {amount} ไว้แล้ว",
+  "phoneRecvLinkCopied": "คัดลอกลิงก์แล้ว",
+  "phoneRecvLinkQrLabel": "ที่อยู่ของคุณพร้อมจำนวนเงินเป็นคิวอาร์โค้ด"
 }

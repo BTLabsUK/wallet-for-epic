@@ -21816,4 +21816,44 @@ class AppLocalizationsDe extends AppLocalizations {
   String phoneBalanceChangeNote(int target) {
     return 'Eine Zahlung verwendet ganze Coins. Der Rest kommt zurück und ist nach $target Bestätigungen verfügbar, etwa $target Min. nachdem die Zahlung in einem Block ist. Wird eine Zahlung abgebrochen, kommt der ganze Betrag zurück.';
   }
+
+  @override
+  String get deskRecvAskOpen => 'Betrag anfragen';
+
+  @override
+  String get deskRecvAskAmount => 'Betrag';
+
+  @override
+  String get deskRecvAskNote => 'Notiz';
+
+  @override
+  String get deskRecvAskHint =>
+      'Der Code enthält jetzt Ihre Adresse und diesen Betrag. Wer ihn scannt oder einfügt, erhält eine normale Zahlung an Sie mit eingetragenem Betrag.';
+
+  @override
+  String get deskRecvAskCopy => 'Link kopieren';
+
+  @override
+  String get deskRecvAskCopied => 'Link kopiert';
+
+  @override
+  String get deskRecvAskClose => 'Zurück zur Adresse';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Jeder, mit meiner Adresse';
+
+  @override
+  String get phoneRecvAnyoneAddressLine =>
+      'Ein Code mit deiner Adresse und dem Betrag';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Zeige diesen Code oder teile den Link. Wer ihn scannt oder einfügt, bekommt eine normale Zahlung an deine Adresse mit $amount schon eingetragen.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link kopiert';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Deine Adresse mit dem Betrag als QR-Code';
 }

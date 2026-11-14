@@ -22190,4 +22190,43 @@ class AppLocalizationsRu extends AppLocalizations {
   String phoneBalanceChangeNote(int target) {
     return 'Отправка тратит монеты целиком. Остаток возвращается и доступен после $target подтверждений, примерно через $target мин после попадания платежа в блок. Если отправку отменить, вернётся вся сумма.';
   }
+
+  @override
+  String get deskRecvAskOpen => 'Запросить сумму';
+
+  @override
+  String get deskRecvAskAmount => 'Сумма';
+
+  @override
+  String get deskRecvAskNote => 'Заметка';
+
+  @override
+  String get deskRecvAskHint =>
+      'Теперь код содержит ваш адрес и эту сумму. Кто отсканирует или вставит его, получит обычную отправку вам с уже заполненной суммой.';
+
+  @override
+  String get deskRecvAskCopy => 'Копировать ссылку';
+
+  @override
+  String get deskRecvAskCopied => 'Ссылка скопирована';
+
+  @override
+  String get deskRecvAskClose => 'Назад к адресу';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Любой, по моему адресу';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'Код с вашим адресом и суммой';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Покажите этот код или поделитесь ссылкой. Кто отсканирует или вставит её, получит обычную отправку на ваш адрес с уже заполненной суммой $amount.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Ссылка скопирована';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Ваш адрес с суммой в виде QR-кода';
 }

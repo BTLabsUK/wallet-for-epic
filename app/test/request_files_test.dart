@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,6 +72,8 @@ class _Harness {
     session.clock = () => now;
     // The PIN check goes through the service that opened the session.
     session.owner = service;
+    // These tests are about codes and files; the address link has its own tests (request_link_test).
+    store.values['app.payment_prefs'] = const PaymentPrefs(epicbox: false, linkHttp: true).encode();
   }
 
   DateTime now = DateTime(2026, 10, 25, 12);

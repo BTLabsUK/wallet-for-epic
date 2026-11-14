@@ -29349,5 +29349,59 @@
         "example": "6"
       }
     }
+  },
+  "deskRecvAskOpen": "Ask for an amount",
+  "@deskRecvAskOpen": {
+    "description": "Button on Receive that opens the amount fields; the code then holds the Epicbox address with an amount."
+  },
+  "deskRecvAskAmount": "Amount",
+  "@deskRecvAskAmount": {
+    "description": "Label of the amount field under Ask for an amount on Receive."
+  },
+  "deskRecvAskNote": "Note",
+  "@deskRecvAskNote": {
+    "description": "Label of the optional note field under Ask for an amount on Receive."
+  },
+  "deskRecvAskHint": "The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.",
+  "@deskRecvAskHint": {
+    "description": "Line under the amount fields on Receive: what the changed code does."
+  },
+  "deskRecvAskCopy": "Copy link",
+  "@deskRecvAskCopy": {
+    "description": "Button that copies the payment link (address with the amount)."
+  },
+  "deskRecvAskCopied": "Link copied",
+  "@deskRecvAskCopied": {
+    "description": "Toast after the payment link was copied."
+  },
+  "deskRecvAskClose": "Back to the address",
+  "@deskRecvAskClose": {
+    "description": "Button that closes the amount fields and shows the plain address code again."
+  },
+  "phoneRecvAnyoneAddress": "Anyone, with my address",
+  "@phoneRecvAnyoneAddress": {
+    "description": "Choice in the who-pays sheet: a code with the wallet's own Epicbox address and the amount; the payer sends as usual with the amount filled in."
+  },
+  "phoneRecvAnyoneAddressLine": "A code with your address and the amount",
+  "@phoneRecvAnyoneAddressLine": {
+    "description": "Line under the Anyone, with my address choice."
+  },
+  "phoneRecvLinkLead": "Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with {amount} filled in.",
+  "@phoneRecvLinkLead": {
+    "description": "Lead on the screen that shows the wallet's address with an amount as a code. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
+  },
+  "phoneRecvLinkCopied": "Link copied",
+  "@phoneRecvLinkCopied": {
+    "description": "Notice after the payment link (address with an amount) was copied."
+  },
+  "phoneRecvLinkQrLabel": "Your address with the amount, as a QR code",
+  "@phoneRecvLinkQrLabel": {
+    "description": "What a screen reader says for the code that holds the wallet's address and an amount."
   }
 }

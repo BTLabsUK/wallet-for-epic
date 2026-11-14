@@ -21567,4 +21567,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String phoneBalanceChangeNote(int target) {
     return 'A send spends whole coins. The rest comes back and can be spent after $target confirmations, about $target min after the payment is in a block. If a send is cancelled, the full amount comes back.';
   }
+
+  @override
+  String get deskRecvAskOpen => 'Ask for an amount';
+
+  @override
+  String get deskRecvAskAmount => 'Amount';
+
+  @override
+  String get deskRecvAskNote => 'Note';
+
+  @override
+  String get deskRecvAskHint =>
+      'The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.';
+
+  @override
+  String get deskRecvAskCopy => 'Copy link';
+
+  @override
+  String get deskRecvAskCopied => 'Link copied';
+
+  @override
+  String get deskRecvAskClose => 'Back to the address';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Anyone, with my address';
+
+  @override
+  String get phoneRecvAnyoneAddressLine =>
+      'A code with your address and the amount';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with $amount filled in.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link copied';
+
+  @override
+  String get phoneRecvLinkQrLabel =>
+      'Your address with the amount, as a QR code';
 }

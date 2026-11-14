@@ -410,8 +410,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
     });
     // The network mode while the wallet is open: Offline stops tor, Tor only turns the switch
     // on, back to Standard starts tor again if the switch is on.
-    ref.listen(networkModeProvider, (_, mode) {
-      if (_current(generation)) unawaited(_modeChanged(mode, generation));
+    ref.listen(networkModeProvider, (before, mode) {
+      if (_current(generation)) unawaited(_modeChanged(mode, generation, from: before));
     });
     // Link · Tor (item 2): tor for payments alone starts and stops with the switch.
     ref.listen(appSettingsProvider.select((s) => s.value?.payments.linkTor ?? false), (_, on) {
@@ -509,7 +509,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   }
 
   /// Applies a new network mode to the open wallet's tor.
-  Future<void> _modeChanged(NetworkMode mode, int generation) async {
+  Future<void> _modeChanged(NetworkMode mode, int generation, {NetworkMode? from}) async {
     if (_session == null || !state.settled) return;
     switch (mode) {
       case NetworkMode.killSwitch:
@@ -539,6 +539,13 @@ class PhoneTor extends Notifier<PhoneTorState> {
           _start();
         }
       default:
+        // Out of Tor only into Normal: the mode held the switch on, so it goes with the mode
+        // (as on the desktop); the routes go direct and tor stops unless a send or Link · Tor
+        // still wants it. Normal with the switch on stays as it was.
+        if (from == NetworkMode.torOnly && mode == NetworkMode.standard && state.receiving) {
+          await setReceiving(false);
+          if (!_current(generation)) return;
+        }
         // Out of Node only: a tor without the onion starts again with it.
         if (_running && !_onion) {
           await _stop();

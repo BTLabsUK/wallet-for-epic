@@ -5618,5 +5618,17 @@
   "phoneChangeRowConfirming": "ca. {minutes} Min. · {count} von {target} Bestätigungen",
   "phoneBalanceAvailableNow": "Jetzt verfügbar",
   "phoneBalanceArriving": "Kommt an",
-  "phoneBalanceChangeNote": "Eine Zahlung verwendet ganze Coins. Der Rest kommt zurück und ist nach {target} Bestätigungen verfügbar, etwa {target} Min. nachdem die Zahlung in einem Block ist. Wird eine Zahlung abgebrochen, kommt der ganze Betrag zurück."
+  "phoneBalanceChangeNote": "Eine Zahlung verwendet ganze Coins. Der Rest kommt zurück und ist nach {target} Bestätigungen verfügbar, etwa {target} Min. nachdem die Zahlung in einem Block ist. Wird eine Zahlung abgebrochen, kommt der ganze Betrag zurück.",
+  "deskRecvAskOpen": "Betrag anfragen",
+  "deskRecvAskAmount": "Betrag",
+  "deskRecvAskNote": "Notiz",
+  "deskRecvAskHint": "Der Code enthält jetzt Ihre Adresse und diesen Betrag. Wer ihn scannt oder einfügt, erhält eine normale Zahlung an Sie mit eingetragenem Betrag.",
+  "deskRecvAskCopy": "Link kopieren",
+  "deskRecvAskCopied": "Link kopiert",
+  "deskRecvAskClose": "Zurück zur Adresse",
+  "phoneRecvAnyoneAddress": "Jeder, mit meiner Adresse",
+  "phoneRecvAnyoneAddressLine": "Ein Code mit deiner Adresse und dem Betrag",
+  "phoneRecvLinkLead": "Zeige diesen Code oder teile den Link. Wer ihn scannt oder einfügt, bekommt eine normale Zahlung an deine Adresse mit {amount} schon eingetragen.",
+  "phoneRecvLinkCopied": "Link kopiert",
+  "phoneRecvLinkQrLabel": "Deine Adresse mit dem Betrag als QR-Code"
 }

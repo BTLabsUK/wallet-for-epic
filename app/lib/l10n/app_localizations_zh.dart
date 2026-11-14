@@ -20377,4 +20377,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String phoneBalanceChangeNote(int target) {
     return '一笔发送会花掉整枚币。余额会退回，在 $target 次确认后可用，即付款进入区块后约 $target 分钟。若发送被取消，全部金额会退回。';
   }
+
+  @override
+  String get deskRecvAskOpen => '请求金额';
+
+  @override
+  String get deskRecvAskAmount => '金额';
+
+  @override
+  String get deskRecvAskNote => '备注';
+
+  @override
+  String get deskRecvAskHint => '现在二维码包含你的地址和此金额。扫描或粘贴它的人会得到一笔发给你的普通转账，并已填好金额。';
+
+  @override
+  String get deskRecvAskCopy => '复制链接';
+
+  @override
+  String get deskRecvAskCopied => '链接已复制';
+
+  @override
+  String get deskRecvAskClose => '返回地址';
+
+  @override
+  String get phoneRecvAnyoneAddress => '任何人，用我的地址';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => '包含你的地址和金额的码';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return '出示此码或分享链接。扫描或粘贴它的人会得到一笔发往你地址的普通转账，并已填好 $amount。';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => '链接已复制';
+
+  @override
+  String get phoneRecvLinkQrLabel => '包含你的地址和金额的二维码';
 }

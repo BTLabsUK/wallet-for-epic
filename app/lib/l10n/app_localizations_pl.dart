@@ -22195,4 +22195,43 @@ class AppLocalizationsPl extends AppLocalizations {
   String phoneBalanceChangeNote(int target) {
     return 'Wysyłka wydaje całe monety. Reszta wraca i można ją wydać po $target potwierdzeniach, ok. $target min po tym, jak płatność trafi do bloku. Jeśli wysyłka zostanie anulowana, wraca cała kwota.';
   }
+
+  @override
+  String get deskRecvAskOpen => 'Poproś o kwotę';
+
+  @override
+  String get deskRecvAskAmount => 'Kwota';
+
+  @override
+  String get deskRecvAskNote => 'Notatka';
+
+  @override
+  String get deskRecvAskHint =>
+      'Kod zawiera teraz Twój adres i tę kwotę. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie do Ciebie z wpisaną kwotą.';
+
+  @override
+  String get deskRecvAskCopy => 'Kopiuj link';
+
+  @override
+  String get deskRecvAskCopied => 'Link skopiowany';
+
+  @override
+  String get deskRecvAskClose => 'Wróć do adresu';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Każdy, z moim adresem';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'Kod z Twoim adresem i kwotą';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Pokaż ten kod lub udostępnij link. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie na Twój adres z już wpisaną kwotą $amount.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link skopiowany';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Twój adres z kwotą jako kod QR';
 }
