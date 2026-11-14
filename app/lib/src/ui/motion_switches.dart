@@ -15,3 +15,8 @@ bool sendPulseMoves = true;
 /// Whether the network step of a payment's progress animates (`kit/kit_steps.dart`). Off in
 /// widget tests; reduced motion stops it too.
 bool paymentNetworkMoves = true;
+
+/// Whether the shell's tabs slide (`phone_tab_pager.dart`). Off in widget tests, where a tab is
+/// the screen at once and the old one is gone, as with reduced motion. The pager's own tests turn
+/// it on.
+bool phoneTabsSlide = true;
