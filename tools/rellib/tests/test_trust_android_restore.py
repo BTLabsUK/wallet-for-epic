@@ -41,9 +41,10 @@ def field(i, name, value="", password=False):
     return Node(i=i, role="text_field", name=name, value=value, states=frozenset(st), actions=("press", "set_text"))
 
 
-HOME = [btn(0, "Lock wallet"), btn(1, "Settings"), Node(i=2, role="tab", name="Send\nTab 1 of 3", actions=("press",)),
-        Node(i=3, role="tab", name="Wallet\nTab 2 of 3", states=frozenset({"enabled", "selected"}), actions=("press",)),
-        Node(i=4, role="tab", name="Receive\nTab 3 of 3", actions=("press",))]
+# The phone's tab bar: Home, Activity, Scan, Contacts, Settings.
+HOME = [Node(i=0, role="tab", name="Home", states=frozenset({"enabled", "selected"}), actions=("press",))] + [
+    Node(i=i, role="tab", name=name, states=frozenset({"enabled"}), actions=("press",))
+    for i, name in enumerate(["Activity", "Scan", "Contacts", "Settings"], 1)]
 
 
 class FakeRestore:
@@ -51,8 +52,8 @@ class FakeRestore:
     platform, family = "android", "phone"
 
     def __init__(self, scan_reads=2, card_reads=3, problem=False, level=3):
-        self.cur, self.phrase, self.height, self.month, self.year = "welcome", "", "", None, 2024
-        self.start_open, self.by_height, self.problem, self.level = False, False, problem, level
+        self.cur, self.phrase, self.height, self.month, self.year = "welcome", "", "", None, 2025
+        self.by_height, self.problem, self.level = False, problem, level
         self.info, self.from_start = False, False
         self.scan_reads, self.card_reads = scan_reads, card_reads
         self.typed, self.pressed, self.shots = [], [], []
@@ -63,30 +64,27 @@ class FakeRestore:
             return [btn(0, "Create a new wallet"), btn(1, "Restore from phrase")]
         if c == "restore":
             t = [text(0, "Restore wallet"), field(1, "Recovery phrase", self.phrase)]
-            # The planned final design, every level: "Scanning from January 2025" (the default on mainnet), the
-            # button "Change the start", and "Scan from the start" behind the info button "Scan start".
+            # The phone's row "Wallet created" with the start (January 2025, the default on mainnet), which
+            # opens the month sheet, and "Scan from the start" behind the info button "Scan start".
             if self.level == 1:
                 pass   # 26.10.26 and older: level 1 hides the start, a restore scans from block 0
-            elif not self.start_open:
-                t += [text(2, "Scanning from the start" if self.from_start else "Scanning from January 2025"),
-                      btn(10, "Change the start"), btn(11, "Scan start")]
+            else:
+                value = ("Scan from the start" if self.from_start else "{:,}".format(int(self.height or 0))
+                         if self.by_height else "%s %d" % (MONTHS[self.month[1] - 1], self.month[0])
+                         if self.month else "January 2025")
+                t.append(btn(10, "Wallet created\n" + value))
+                if self.by_height:
+                    t += [field(6, "Start height (optional)", self.height), btn(7, "Pick a month instead")]
+                t.append(btn(11, "Scan start"))
                 if self.info:
                     t.append(btn(12, "Scan from the start"))
-            else:
-                t += [text(3, "Where to start scanning"), btn(4, "Month"), btn(5, "Block height")]
-                if self.by_height:
-                    t.append(field(6, "Start height (optional)", self.height))
-                else:
-                    t.append(btn(6, "%s %d" % (MONTHS[self.month[1] - 1], self.month[0]) if self.month
-                                 else "January 2025"))
-                if self.month and not self.by_height:
-                    t.append(text(7, "Scanning starts from block 2,345,678."))
             if self.problem and self.phrase:
                 t.append(text(8, "Every word is in the word list, but the phrase does not check out. A word is wrong or out of order."))
             return t + [btn(9, "Continue")]
         if c == "months":
             t = [text(0, "When did you create the wallet?"), btn(1, "Earlier year"), text(2, str(self.year)), btn(3, "Later year")]
-            return t + [btn(4 + m, "%s %d" % (MONTHS[m], self.year)) for m in range(12)]
+            return t + [btn(4 + m, "%s %d" % (MONTHS[m], self.year)) for m in range(12)] + [
+                btn(16, "Use a block height instead")]
         if c in ("pin1", "pin2"):
             return [text(0, "Choose a 6-digit PIN" if c == "pin1" else "Enter the PIN again"), field(1, "PIN", password=True)]
         if c == "scan":
@@ -96,7 +94,7 @@ class FakeRestore:
                 return self.tree()
             return [text(0, "Looking for this wallet’s coins on the chain. Keep the app open until this finishes."), btn(1, "Stop")]
         if c == "done":
-            return [text(0, "Your wallet is restored"), btn(1, "Import wallet data"), btn(2, "Not now")]
+            return [text(0, "Your wallet is restored"), btn(1, "Open wallet")]
         if c == "home-card":
             self.card_reads -= 1
             if self.card_reads < 0:
@@ -111,26 +109,28 @@ class FakeRestore:
         c, name = self.cur, n.name
         if c == "welcome" and name == "Restore from phrase":
             self.cur = "restore"
-        elif c == "restore" and name == "Change the start":
-            self.start_open, self.from_start = True, False
+        elif c == "restore" and name.startswith("Wallet created"):
+            # A month opens the month sheet on its year; a block height has its field already.
+            self.from_start = False
+            if not self.by_height:
+                self.year, self.cur = (self.month or (2025, 1))[0], "months"
         elif c == "restore" and name == "Scan start":
             self.info = True
         elif c == "restore" and name == "Scan from the start":
             self.info, self.from_start = False, True
-        elif c == "restore" and name == "Block height":
-            self.by_height = True
-        elif c == "restore" and name == "January 2025" or (c == "restore" and self.month and name.endswith(str(self.month[0]))
-                                                          and name.split()[0] in MONTHS):
-            self.cur = "months"
+        elif c == "restore" and name == "Pick a month instead":
+            self.by_height, self.cur = False, "months"
         elif c == "restore" and name == "Continue" and self.phrase and not self.problem:
             self.phrase, self.cur = "", "pin1"
         elif c == "months" and name == "Later year":
             self.year += 1
         elif c == "months" and name == "Earlier year":
             self.year -= 1
+        elif c == "months" and name == "Use a block height instead":
+            self.by_height, self.cur = True, "restore"
         elif c == "months" and name.endswith(str(self.year)):
             self.month, self.cur = (self.year, MONTHS.index(name.split()[0]) + 1), "restore"
-        elif c == "done" and name == "Not now":
+        elif c == "done" and name == "Open wallet":
             self.cur = "home-card"
 
     def set_text(self, n, text, secret=False):
@@ -217,20 +217,20 @@ class RestoreTest(unittest.TestCase):
     def test_the_birth_height_goes_first_when_both_are_known(self):
         s = FakeRestore()
         self.recipe(s).restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11", "method": "tip at creation"})
-        self.assertIn("Block height", s.pressed)
+        self.assertIn("Use a block height instead", s.pressed)
         self.assertIsNone(s.month)
         self.assertTrue(any("restore start: block 2345678" in line for line in self.lines))
 
     def test_a_height_alone_goes_in_block_height(self):
         s = FakeRestore()
         self.recipe(s).restore_wallet(PHRASE, {"height": 1234567, "month": None})
-        self.assertIn("Block height", s.pressed)
+        self.assertIn("Use a block height instead", s.pressed)
         self.assertEqual(s.month, None)
 
     def test_no_birth_presses_scan_from_the_start(self):
         s = FakeRestore()
         self.recipe(s).restore_wallet(PHRASE, {"height": None, "month": None})
-        self.assertNotIn("Change the start", s.pressed)
+        self.assertEqual([n for n in s.pressed if n.startswith("Wallet created")], [])
         self.assertEqual(s.pressed.count("Scan from the start"), 1)   # leaving it alone means January 2025
         self.assertTrue(s.from_start)
         self.assertIn(s.cur, ("home", "home-card"))
