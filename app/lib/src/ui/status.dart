@@ -95,7 +95,7 @@ WalletStatus walletStatus({
       answer.height - summary.lastConfirmedHeight <= BigInt.from(syncLagBlocks);
   // A node whose tip request failed, and that has not answered since, is offline even while a
   // refresh runs against it: that refresh only retries a node it can't reach, and as "syncing
-  // 0 %" it hid the outage from node failover for good (26.10.26, a network filtering the node).
+  // 0 %" it hid the outage from node failover for good (a network filtering the node).
   final unreachable = tip.hasError && (!tip.isLoading || answer == null);
   final lag = summary == null || answer == null ? null : (summary.lastConfirmedHeight - answer.height).toInt();
   final behind = lag != null && lag >= behindAfter ? lag : null;

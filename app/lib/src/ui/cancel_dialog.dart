@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's cancel confirmations (WAL-20, 2026-10-30; calmer, B-04, 2026-11-01). the owner's
+/// The phone's cancel confirmations. The
 /// rule: cancelling is mostly a beginner's move, so the view is one calm sentence and clear
 /// buttons named by what they do; the rest sits behind the "How cancelling works" link.
 ///

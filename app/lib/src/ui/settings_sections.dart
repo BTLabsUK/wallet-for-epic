@@ -1276,7 +1276,7 @@ class LinkTile extends StatelessWidget {
 /// Where a rescan starts: the shared scan-start block (`scan_start.dart`), as on a restore.
 /// Pops the start height, or null when cancelled. On mainnet, at every level, a month
 /// (January 2025 unless another is picked) or the start, and with [heights] a block height
-/// too (the owner, 2026-11-03). A test network: the start, with [heights] a height.
+/// too. A test network: the start, with [heights] a height.
 class _RescanDialog extends StatefulWidget {
   const _RescanDialog({required this.datesSupported, required this.heights});
 

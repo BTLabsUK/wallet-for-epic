@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The one desktop month picker (item 6, the owner 2026-11-02): a field in a row's control column
+/// The one desktop month picker: a field in a row's control column
 /// (calendar icon, "March 2020", chevron) that opens a small popover under it: the year between
 /// ‹ › arrows, the twelve months in a 4 × 3 grid, and the block the month starts from. Recheck
 /// balance and Restore use it; the phone's twin is `StartMonthChoice` (`ui/month_picker.dart`),
 /// and both share `start_month.dart`. Months map to heights on mainnet only.
 ///
-/// The 26.10.25 dialog opened on 2019, whose January to August are not offered (Epic Cash
-/// starts in September 2019) yet looked like the offered months: clicks on them did nothing.
-/// Here a month not offered is visibly off (faint, no edge) and the popover opens on the
-/// chosen month, else on the first month offered.
+/// 2019's January to August are not offered (Epic Cash starts in September 2019): a month not
+/// offered is visibly off (faint, no edge), so it never looks like one a click would take, and
+/// the popover opens on the chosen month, else on the first month offered.
 library;
 
 import 'dart:math' as math;

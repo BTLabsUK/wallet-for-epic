@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The desktop's help popover: what an info or help icon ([EInfoHint]) opens on a click, Enter
-/// or Space. The hover tooltip it replaces (26.10.24 and before) came after a pause, ran as wide
-/// as its sentence and went away on the smallest mouse move (two testers on Windows). The
+/// or Space. Not a hover tooltip: one comes after a pause, runs as wide as its sentence and
+/// goes away on the smallest mouse move. The
 /// popover opens at once, stays until a click outside, Esc or its ✕, wraps at a reading width,
 /// scrolls when it is long and stays inside the window. The phone's twin is the info sheet
 /// (`ui/info_hint.dart`).

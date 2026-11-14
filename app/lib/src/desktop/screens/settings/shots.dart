@@ -487,7 +487,7 @@ final List<DeskShot> settingsShots = [
   ),
   // The help popover (widgets/popover.dart) open on the Network group's info icon.
   DeskShot(id: '43r-network-help', title: 'Settings › Network & privacy › Network, the help popover open', route: DeskRoute.settingsPrivacy, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
-  // The Settings redesign (26.10.25): search, the hidden rows behind ⇕, the month picker.
+  // Settings: search, the hidden rows behind ⇕, the month picker.
   DeskShot(id: '45a-settings-search-tor', title: 'Settings search: "tor"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('tor')),
   DeskShot(id: '45b-settings-search-seed', title: 'Settings search: "seed"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('seed')),
   DeskShot(

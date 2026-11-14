@@ -12,8 +12,8 @@ import 'package:flutter/scheduler.dart';
 import 'theme/tokens.dart';
 
 /// Keeps the screen drawing while a wait is on it, even when Flutter believes the app is away.
-/// Android can leave the app on screen with its lifecycle paused: on 2026-11-04 the phone
-/// counted as locked (the Keystore refused the PIN key) while the app stayed in view. Flutter
+/// Android can leave the app on screen with its lifecycle paused: the phone can count as
+/// locked (the Keystore refuses the PIN key) while the app stays in view. Flutter
 /// draws no frames then, only on a size or inset change (the keyboard), so a finished delete
 /// stayed on its spinner and the next screen came only once the app was opened again. While
 /// held, for [linger] after, and for [afterTouch] after a touch, a frame is forced whenever

@@ -545,7 +545,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
-        // Calm, never a warning (the owner, 2026-10-30): a retry or a payment left open is
+        // Calm, never a warning: a retry or a payment left open is
         // information, not alarm.
         level: switch (result) {
           CancelResult.spendBackPending || CancelResult.stoppedWaiting || CancelResult.alreadyPaid => NoticeLevel.info,

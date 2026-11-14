@@ -32,7 +32,7 @@ class UnlockPick {
   final DeskRoute? then;
 
   /// Chosen in the wallet switch: a wallet remembered on this computer opens as at start,
-  /// without asking (a tester, 26.10.20).
+  /// without asking.
   final bool switched;
 }
 

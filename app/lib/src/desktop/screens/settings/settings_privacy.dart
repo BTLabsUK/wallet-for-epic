@@ -97,7 +97,7 @@ class NetworkModeGroup extends ConsumerWidget {
       key: ValueKey('adv-mode-${m.name}'),
       semanticsId: _modeId[m],
       selected: adv.networkMode == m,
-      // Just the name and its ⓘ: no explanations in the list (the owner).
+      // Just the name and its ⓘ: no explanations in the list.
       title: networkModeName(l, m),
       hint: networkModeHint(l, m, tor: DeskFeatures.tor),
       hintIcon: networkModeGlyph(m),

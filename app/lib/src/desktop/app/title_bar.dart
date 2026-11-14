@@ -645,8 +645,8 @@ class _LanguageButton extends ConsumerWidget {
   }
 }
 
-/// The title bar's logo (canvas/handoff/LOGO.md, the user's pick of 2026-11-13): the mask in
-/// one flat brand colour, 20 high, and "BT Wallet" as text on one line; in a narrow window the
+/// The title bar's logo (canvas/handoff/LOGO.md): the mask in
+/// one flat brand colour and "BT Wallet" as text on one line; in a narrow window the
 /// mark alone. In an open wallet it opens the app menu (hover and pressed fills say so); its
 /// tooltip names the build.
 class _Brand extends ConsumerWidget {

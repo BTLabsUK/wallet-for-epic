@@ -254,7 +254,7 @@ class EModalCard extends StatelessWidget {
       children: [
         if (icon != null || mark != null) ...[
           Center(child: EModalMark(tone: tone, icon: icon, short: short, child: mark)),
-          // Room between the mark, the title and what follows (the user's call, every modal).
+          // Room between the mark, the title and what follows, the same in every modal.
           SizedBox(height: short ? Sp.x3 : Sp.x5),
         ],
         if (heading != null)

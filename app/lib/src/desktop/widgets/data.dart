@@ -28,7 +28,7 @@ import 'tip.dart';
 
 /// A contact's or wallet's initials in the corner-ticked tile ([GlyphTile]: the gold corner
 /// brackets, the grid, gold initials), with the label mark ([AvatarLabelMark]) (UP-011). The
-/// phone's avatars use the frames' plain tile since the redesign; desktop keeps this one.
+/// phone's avatars use the frames' plain tile; desktop keeps this one.
 class EAvatar extends StatelessWidget {
   const EAvatar(this.name, {super.key, this._size, this.label, this.onLabelTap});
 

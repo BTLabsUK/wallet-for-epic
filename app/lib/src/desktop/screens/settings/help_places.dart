@@ -32,7 +32,7 @@ final Map<String, DeskHelpPlace> _places = {
   'Invoices › Issue': _page(DeskRoute.invoices, arg: InvoicesTab.issue),
   'Outputs › Manage outputs': _page(DeskRoute.outputs),
   'Settings › Node': _page(DeskRoute.settingsNode, jump: SettingsJump.node),
-  // The Settings structure of 26.10.25: the wallet's pages, the app's, this computer's.
+  // The Settings structure: the wallet's pages, the app's, this computer's.
   'Settings › Wallet': _page(DeskRoute.settingsAccount),
   'Settings › Wallet › Export wallet data': _page(DeskRoute.settingsAccount),
   'Settings › Wallet › Recheck balance': _page(DeskRoute.settingsRescan),

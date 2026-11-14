@@ -41,8 +41,8 @@ const Key firstRunTorOnlyKey = ValueKey('first-run-tor-only');
 
 /// First start, and the start after the last wallet was deleted (HANDOFF 7.7, Start-1): the
 /// brand tile, Create, Restore and, in Tor builds, the Tor only switch. The choice is a step of
-/// its own, before any PIN: a tester whose keyboard covered the restore link under the PIN
-/// field created a wallet they did not want (26.10.16). Create leads to the PIN on the keypad,
+/// its own, before any PIN: with the restore link under the PIN field, a keyboard that covers
+/// it leads to a wallet nobody wanted. Create leads to the PIN on the keypad,
 /// then the repeat, then the biometrics offer; the wallet is made sealed under it.
 ///
 /// On a fresh install nothing connects until Create or Restore ([firstStartProvider]): the

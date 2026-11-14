@@ -75,8 +75,8 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // The app first, then its updates as one row of the same card (the owner: "first About,
-          // then Updates", and compact); the links and licences follow.
+          // The app first, then its updates as one compact row of the same card; the links and
+          // licences follow.
           ESetGroup(
             rows: [
               Padding(

@@ -34,8 +34,8 @@ export 'method_icons.dart';
 /// What a badge says with its colour; the words say it first.
 enum BadgeTone { neutral, ok, warn, risk, info, gold }
 
-/// How the badge is drawn. Three directions were rendered side by side
-/// (2026-10-25); [badgeLook] is the pick, [bare] (no box: the glyph or dot carries the tone),
+/// How the badge is drawn, one of three looks:
+/// [badgeLook] is the pick, [bare] (no box: the glyph or dot carries the tone),
 /// the other two stay so a swap is this one line plus a rebuild.
 ///  - [bare]: no box. A 6 dp dot or a 13 dp glyph in the tone, then the words in the dim text
 ///    colour (Linear, Vercel).

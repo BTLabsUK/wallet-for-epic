@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Where a restore or a Recheck balance starts scanning: one block for every place that picks
 /// it (phone and desktop restore, phone and desktop Recheck balance), so they look and behave
-/// the same (the owner, 2026-11-03). One line says the start ("Scanning from January 2025"), a
+/// the same. One line says the start ("Scanning from January 2025"), a
 /// calendar button beside it opens the month or block choice under the line, and an info
 /// button explains the start and holds Scan from the start. The kit follows the tree: the
 /// desktop's widgets under its theme, the phone's otherwise; the words, icons, order and

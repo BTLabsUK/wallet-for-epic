@@ -188,7 +188,7 @@ final List<DeskShot> invoiceSetShotsCore = [
     },
     dialog: (ctx) => showDeskCheckWordsFor(ctx, 'p-long-words'),
   ),
-  // Pairing UX (26.10.18): the ways as tiles, the message way's steps on both sides, the
+  // Pairing: the ways as tiles, the message way's steps on both sides, the
   // clipboard offer, and Contacts while nobody is paired.
   const DeskShot(id: 'inv-set-03b-contact-1920', title: 'Contact at 1920', route: DeskRoute.contacts, arg: ContactsArgs(selectedId: 'c1'), width: 1920, height: 1080),
   const DeskShot(id: 'inv-set-06-receive', title: 'Receive: Issue an invoice beside the Epicbox address', route: DeskRoute.receive),

@@ -849,7 +849,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   }
 
   /// An address no contact holds yet, of a payment that names one (not a file, a mining
-  /// reward or a payment to this wallet): the phone's Add to contacts (Max, 26.10.19).
+  /// reward or a payment to this wallet): the phone's Add to contacts.
   bool _offerContact(Tx t) {
     final address = t.counterparty;
     if (address == null || t.contactName != null || t.toSelf || t.coinbase || t.method == TxMethod.file) return false;
@@ -1127,7 +1127,7 @@ Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDia
     final l = context.l10n;
     final twoWays = !t.incoming && t.notPosted;
     final anchor = t.incoming ? HelpAnchor.receiving : HelpAnchor.sending;
-    // One calm sentence, the buttons say the rest (the owner, 2026-10-30); a received payment
+    // One calm sentence, the buttons say the rest; a received payment
     // is checked against the network first.
     return EDialog(
       title: t.incoming ? l.deskTxCancelIncomingTitle : l.deskTxCancelOutgoingTitle,

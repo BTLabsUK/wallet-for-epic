@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's start-month picker (restore, Recheck balance): a year and a month, no day
-/// (the owner, 2026-11-01). The logic is shared with the desktop's ([StartMonth] in
+/// The phone's start-month picker (restore, Recheck balance): a year and a month, no day.
+/// The logic is shared with the desktop's ([StartMonth] in
 /// `start_month.dart`); this is the phone's look on its tokens.
 library;
 

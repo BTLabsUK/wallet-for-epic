@@ -156,7 +156,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             if (!hasWallets) ...[
               SizedBox(height: 28.u),
               const _Facts(),
-              // Niche, so under the doors and quiet (the owner).
+              // Niche, so under the doors and quiet.
               if (offered) ...[
                 SizedBox(height: Sp.x6),
                 Center(

@@ -4,7 +4,7 @@
 /// payment" at the matching heading. In a confirmation where the other side could still finish
 /// the payment, [DeskCancelChoices] puts the two ways to cancel above the buttons, each on one
 /// line with its name: the fee line with an info icon for Cancel for sure, "Free. The payment
-/// may still finish." for Stop waiting (2026-10-30). The phone's twin is `ui/cancel_note.dart`
+/// may still finish." for Stop waiting. The phone's twin is `ui/cancel_note.dart`
 /// and `ui/cancel_dialog.dart`.
 library;
 
@@ -65,7 +65,7 @@ class DeskCancelHelpLink extends ConsumerWidget {
   }
 }
 
-/// The body of a confirmation with Keep / Unlock coins / Move coins back (B-04, 2026-11-01): a
+/// The body of a confirmation with Keep / Unlock coins / Move coins back: a
 /// calm two-line comparison of the two ways, named as their buttons are, then the Help link.
 /// No caption per button and no info icon: the buttons say what they do, Help the rest.
 class DeskCancelChoices extends StatelessWidget {
