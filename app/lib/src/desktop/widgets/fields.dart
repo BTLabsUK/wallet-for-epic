@@ -128,7 +128,7 @@ class _EFieldLabel extends InheritedWidget {
   bool updateShouldNotify(_EFieldLabel old) => label != old.label;
 }
 
-/// A 44 px text field. [mono] for addresses, hosts and amounts. [trailing] holds unit text or
+/// A text field, [Ctl.md] tall. [mono] for addresses, hosts and amounts. [trailing] holds unit text or
 /// small icon buttons inside the right edge.
 class EInput extends StatefulWidget {
   const EInput({
@@ -350,7 +350,7 @@ class _EInputState extends State<EInput> {
 
 /// The one search field of the desktop: a search glyph, the words on a hairline (no box), a
 /// clear button once there is text. [Ctl.sm] tall, so it sits on one centre line with the tabs
-/// and buttons of its row; [width] wide (260 u), or its parent's width when null.
+/// and buttons of its row; [width] wide, or its parent's width when null.
 /// [label] names it to a screen reader; [clearLabel] the clear button. Clearing empties
 /// [controller] and reports it through [onChanged] (or [onClear] when given).
 class ESearch extends StatefulWidget {
@@ -623,7 +623,7 @@ class ESegment<T> {
 }
 
 /// Segmented control: the selected segment is raised, neutral (never gold), with a hairline.
-/// [size] `sm` is 36 u tall (a row's control), `md` 44 u (the Send method selector);
+/// [size] `sm` is [Ctl.sm] tall (a row's control), `md` [Ctl.md] (the Send method selector);
 /// [stretch] gives every segment an equal share of the width.
 class ESegmented<T> extends StatelessWidget {
   const ESegmented({
@@ -944,7 +944,7 @@ class _EChoiceCardState extends State<EChoiceCard> {
   }
 }
 
-/// A checkbox with a label, 20 px box.
+/// A checkbox with a label.
 class ECheckbox extends StatelessWidget {
   const ECheckbox({super.key, required this.value, required this.onChanged, required this.label, this.semanticsId});
 

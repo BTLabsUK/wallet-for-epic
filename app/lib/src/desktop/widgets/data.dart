@@ -421,7 +421,7 @@ class ESelectItem<T> {
   final Widget? leading;
 }
 
-/// A combobox: a 44 px field showing the choice, a popover list of options with a subtitle and
+/// A combobox: a field showing the choice, a popover list of options with a subtitle and
 /// a trailing status each, and an optional footer action (e.g. "Add node…").
 class ESelect<T> extends StatefulWidget {
   const ESelect({
@@ -856,7 +856,7 @@ class ECount extends StatelessWidget {
   }
 }
 
-/// A tab of the title bar, 32 px: icon, label, optional count. [compact] (a narrow window) keeps
+/// A tab of the title bar: icon, label, optional count. [compact] (a narrow window) keeps
 /// the label for the selected tab; the others say theirs in a tooltip.
 class ETab extends StatefulWidget {
   const ETab({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.semanticsId});

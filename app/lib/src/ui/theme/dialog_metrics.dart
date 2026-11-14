@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The one dialog anatomy, shared by the desktop's `EDialog` and the phone's `AppDialog`
-/// (the owner, 2026-11-01): a 40 px icon tile, the title beside it, the body indented to the
-/// title's column, and a footer of outlined secondaries and one filled primary of the same
-/// height, right-aligned, the primary (or the destructive action) last. Gold is only the
-/// affirmative action; a destructive one is the outlined risk style.
+/// The phone dialog's anatomy (`AppDialog`): an icon tile, the title beside it, the body
+/// indented to the title's column, and a footer of outlined secondaries and one filled primary
+/// of the same height, right-aligned, the primary (or the destructive action) last. Gold is
+/// only the affirmative action; a destructive one is the outlined risk style. The numbers are
+/// logical pixels; the button height is the phone's control height
+/// (`WalletTokens.controlHeight`), as on its pages.
 ///
-/// The numbers are logical pixels before the desktop's interface scale: the desktop reads them
-/// through `.u`, the phone as they are. The button height is each platform's own control
-/// height (desktop `Ctl.md`, phone `WalletTokens.controlHeight`), as on its pages.
+/// The desktop's `EDialog` takes only the two sizes ([DialogWidth]) from here; its own centred
+/// anatomy and widths are in `desktop/widgets/modal.dart` and `dialogs.dart`.
 library;
 
 /// The dialog widths. Two, never one per dialog.

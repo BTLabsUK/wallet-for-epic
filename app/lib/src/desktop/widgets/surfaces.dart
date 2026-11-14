@@ -29,7 +29,7 @@ import 'more_options.dart';
 import 'popover.dart';
 import 'tip.dart';
 
-/// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
+/// A panel: s1 fill, hairline edge, [Rad.sm] corners. [title] (or a custom [head]) and [foot] get
 /// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
 /// panels side by side have their header lines and first rows level.
 class EPanel extends StatelessWidget {
@@ -52,7 +52,7 @@ class EPanel extends StatelessWidget {
   final Widget? head;
   final Widget? foot;
 
-  /// Defaults to 24 by 20.
+  /// Defaults to [Sp.panel] on every side.
   final EdgeInsetsGeometry? padding;
 
   /// The body scrolls inside the panel when the panel is given less height than it needs

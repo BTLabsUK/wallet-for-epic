@@ -42,7 +42,7 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
   ),
 );
 
-/// The one desktop dialog, centred: Close in the corner, the [tone]'s mark (a 52 px ticked
+/// The one desktop dialog, centred: Close in the corner, the [tone]'s mark (a ticked
 /// tile with [icon], or the tone's glyph), the title, one sentence ([description]), the body at
 /// the dialog's full width, the footer, and a strip that says what Esc and Enter do. The tone
 /// also draws a hairline and a soft light at the top edge; neutral wears the brand gold.
@@ -50,8 +50,8 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
 /// The footer is laid out here, so call sites cannot drift: all buttons [EBtnSize.md] tall;
 /// ghost and soft buttons show as the outlined secondary; a destructive [EBtnKind.danger]
 /// keeps the outlined risk style and the filled primary comes last; only one primary is filled
-/// (an earlier one shows as a secondary). The buttons share one row, the main one 1.35 times
-/// as wide as each of the others and last; past three, the first ones sit in a row above.
+/// (an earlier one shows as a secondary). The buttons share one row, the main one wider than
+/// the others and last; past three, the first ones sit in a row above ([EModalButtons]).
 /// Pass plain `EButton`s (secondary), one `EButton.primary` or `EButton(kind: danger)`;
 /// their `size` is ignored here.
 class EDialog extends StatelessWidget {
@@ -328,7 +328,7 @@ class _EscClosesState extends State<_EscCloses> {
   );
 }
 
-/// A side sheet: 420 wide, head with title and close, scrolling body, foot with actions.
+/// A side sheet: head with title and close, scrolling body, foot with actions.
 class EDrawer extends StatelessWidget {
   const EDrawer({super.key, required this.title, required this.body, this.actions = const [], this._width});
 
@@ -387,7 +387,7 @@ class EDrawer extends StatelessWidget {
   }
 }
 
-/// A toast at the bottom right: icon, title, one line. Use [showEToast]. [tone] has no default,
+/// A toast at the window's top right: icon, title, one line. Use [showEToast]. [tone] has no default,
 /// so a failure never borrows the success tick: [ETone.risk] for errors, [ETone.warn] for refusals
 /// and cautions, [ETone.ok] or [ETone.gold] for done, [ETone.info] or [ETone.neutral] for notes.
 /// [action] is the next step (a button that closes the toast first); it stays longer. [items]
@@ -509,7 +509,7 @@ void showEToast(
   });
 }
 
-/// A toast's surface: the raised card at the window's top right, 380 wide.
+/// A toast's surface: the raised card at the window's top right.
 class EToast extends StatelessWidget {
   const EToast({super.key, required this.child, required this.padding});
 

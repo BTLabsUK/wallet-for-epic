@@ -17,7 +17,7 @@ import 'tip.dart';
 /// Content widths for [EPage].
 enum EPageWidth { narrow, mid, full }
 
-/// A page inside the app shell: a 64 px top bar with the title, optional crumb (back) and
+/// A page inside the app shell: a top bar ([Ctl.topbar]) with the title, optional crumb (back) and
 /// actions, then the scrolling content. Without [header] the content starts at the page's top
 /// (Home, whose balance is its title); [title] still names the page to a screen reader. [scroll] false hands the remaining height to [child]
 /// (list/detail panes that scroll themselves). With [onBack], the app's Back (mouse, Alt+Left,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Home's last 30 days: what came in and went out, and the balance as a step line, drawn from
+/// Home's last [homeChartDays] days: what came in and went out, and the balance as a step line, drawn from
 /// the confirmed payments the wallet holds (nothing is fetched for it).
 library;
 
@@ -37,7 +37,7 @@ const homeChartDays = 30;
   return (inSum: inSum, outSum: outSum, steps: steps);
 }
 
-/// The chart beside Home's balance: "Last 30 days", in and out, and the step line.
+/// The chart beside Home's balance: its caption, in and out, and the step line.
 class HomeChart extends StatelessWidget {
   const HomeChart({super.key, required this.txs, required this.total, this.now});
 

@@ -106,7 +106,7 @@ class _HomeFieldState extends ConsumerState<HomeField> {
       if (ref.read(homeFieldFocusProvider.notifier).take()) _focus.requestFocus();
     });
     final matches = homeFieldMatches(ref.watch(deskProvider.select((s) => s.contacts)) ?? const [], _text.text);
-    // The page's one place to type: 58 high, as the canvas draws it.
+    // The page's one place to type: taller than a form's field, as the canvas draws it.
     final field = ConstrainedBox(
       constraints: BoxConstraints(minHeight: 58.u),
       child: EInput(

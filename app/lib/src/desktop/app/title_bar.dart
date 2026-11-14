@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The window's own title bar (the system's is hidden, desk_window.dart), 52 u tall above every
+/// The window's own title bar (the system's is hidden, desk_window.dart), above every
 /// screen. The brand opens the app menu (Lock, Switch wallet, Help, Report a problem, Keyboard
 /// shortcuts, About, Quit). Then the wallet's places as tabs, the wallet switcher, Hide
 /// amounts, Lock and the window controls: Windows' three

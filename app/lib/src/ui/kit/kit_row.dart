@@ -9,7 +9,7 @@ import 'kit_icons.dart';
 import 'kit_support.dart';
 import 'kit_tokens.dart';
 
-/// The three row heights of the redesign: a list row 62, a settings row 56, a sheet row 48.
+/// The three row heights: a list row, a settings row, a sheet row.
 enum KitRowSize {
   list(Kit.rowList),
   settings(Kit.rowSettings),

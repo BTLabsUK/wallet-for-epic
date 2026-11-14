@@ -28,7 +28,8 @@ extension DeskUnits on num {
   double get u => _px(toDouble());
 }
 
-/// Space, 4 px base. Every padding and gap on desktop is one of these.
+/// Space, on one base step. The paddings and gaps of a page's layout are these; a component's
+/// own inner measure with no step here is written `n.u`.
 abstract final class Sp {
   static double get x1 => _px(4);
   static double get x2 => _px(8);
@@ -55,18 +56,18 @@ abstract final class Rad {
 }
 
 /// Control sizes. Three heights, one rule: the height says how big the action is.
-///  - [inline] 28: actions inside text, rows and notices; icon buttons (copy, QR, help); tags.
-///  - [sm] 36: a row's control: Settings row controls ([ERowControl] widths), Reachable segments,
+///  - [inline]: actions inside text, rows and notices; icon buttons (copy, QR, help); tags.
+///  - [sm]: a row's control: Settings row controls ([ERowControl] widths), Reachable segments,
 ///    server picker, toolbar and dialog-secondary buttons, "Open" in list rows, the tabs and the
 ///    Send method selector in a panel's header band.
-///  - [md] 44: every form field and the page's primary button.
-/// Nothing is taller than 44: the Electron app's 52 px "large" button is gone.
+///  - [md]: every form field and the page's primary button.
+/// Nothing is taller than [md].
 abstract final class Ctl {
   static double get inline => _px(28);
   static double get sm => _px(36);
   static double get md => _px(44);
 
-  /// Icons: 16 inline and in tags, 20 in navigation and buttons, 24 in empty states.
+  /// Icons: [iconSm] inline and in tags, [icon] in navigation and buttons, [iconLg] in empty states.
   static double get iconSm => _px(16);
   static double get icon => _px(20);
   static double get iconLg => _px(24);
@@ -146,7 +147,7 @@ abstract final class Max {
   /// A form's fields (Send, Add contact, an invoice).
   static double get form => Ctl.narrow;
 
-  /// A dialog (EDialog's default width).
+  /// A list that drops under a field (Send's matching contacts).
   static double get dialog => _px(560);
 
   /// The card of Unlock and the other single-question screens ([EAuthCard]).

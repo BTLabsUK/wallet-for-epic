@@ -12,13 +12,13 @@ import '../../trust_ids.dart' show TrustId;
 enum EBtnKind { primary, primarySoft, secondary, ghost, danger }
 
 enum EBtnSize {
-  /// 28 px: inside a line of text, a row or a notice.
+  /// [Ctl.inline] tall: inside a line of text, a row or a notice.
   inline,
 
-  /// 36 px: a row's control, toolbars.
+  /// [Ctl.sm] tall: a row's control, toolbars.
   sm,
 
-  /// 44 px: the page's main action, and every button of a dialog's footer.
+  /// [Ctl.md] tall: the page's main action, and every button of a dialog's footer.
   md,
 }
 

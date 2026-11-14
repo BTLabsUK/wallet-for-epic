@@ -63,7 +63,7 @@ class EModalMark extends StatelessWidget {
   final IconData? icon;
   final Widget? child;
 
-  /// A short window: 40 instead of 52.
+  /// A short window: the smaller tile.
   final bool short;
 
   @override
@@ -86,7 +86,7 @@ class EModalMark extends StatelessWidget {
 
 /// A modal's footer, laid out once: secondaries as given, then a destructive action, then the
 /// primary; every primary but the last shows as a secondary. The buttons share one row, the
-/// main one 1.35 times as wide as each of the others and last; past three, the first ones sit
+/// main one wider than each of the others and last; past three, the first ones sit
 /// in a row above. One Wrap with every button a keyed sibling, so a button that moves when the
 /// footer changes keeps its state and its work in flight.
 class EModalButtons extends StatelessWidget {
