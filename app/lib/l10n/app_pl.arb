@@ -5639,5 +5639,8 @@
   "announcementOpensInBrowser": "otwiera w przeglądarce",
   "deskE1ErrCodeWrongNetwork": "Ten kod jest dla innej sieci.",
   "deskE1ErrNotInPerson": "To nie jest kod, który ten portfel może opłacić lub sprawdzić.",
-  "deskE1ModeEpic1Code": "Kod osobisty epic1. Włącz płatności epic1, aby go opłacić."
+  "deskE1ModeEpic1Code": "Kod osobisty epic1. Włącz płatności epic1, aby go opłacić.",
+  "pairRefusesInvoices": "Portfel tego kontaktu nie opłaca faktur.",
+  "pairRefusesInvoicesTitle": "Portfel kontaktu {name} nie opłaca faktur.",
+  "pairRefusesInvoicesBody": "Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres."
 }

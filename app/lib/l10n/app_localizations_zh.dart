@@ -20443,4 +20443,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1ModeEpic1Code => 'epic1 当面代码。开启 epic1 付款后才能支付。';
+
+  @override
+  String get pairRefusesInvoices => '此联系人的钱包不支付账单。';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return '$name 的钱包不支付账单。';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody => '未发送任何内容。请让对方改为直接付款到你的地址。';
 }

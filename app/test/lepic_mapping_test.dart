@@ -230,6 +230,10 @@ void main() {
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.inviteDismissed, 86))), PairingFailure.inviteDismissed);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingEnded, 87))), PairingFailure.ended);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingWaiting, 88))), PairingFailure.waiting);
+      expect(
+        pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.contactRefusesInvoices, 93))),
+        PairingFailure.refusesInvoices,
+      );
       expect(mapLepicError(e(lepic.WalletErrorKind.foreignProofAddress, 89)).kind, WalletErrorKind.invalidArgument);
       expect(mapLepicError(e(lepic.WalletErrorKind.wrongKey, 90)).kind, WalletErrorKind.wrongKey);
     });

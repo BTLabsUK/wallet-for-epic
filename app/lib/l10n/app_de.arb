@@ -5639,5 +5639,8 @@
   "announcementOpensInBrowser": "öffnet im Browser",
   "deskE1ErrCodeWrongNetwork": "Dieser Code ist für ein anderes Netzwerk.",
   "deskE1ErrNotInPerson": "Kein Code, den diese Wallet bezahlen oder prüfen kann.",
-  "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen."
+  "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen.",
+  "pairRefusesInvoices": "Die Wallet dieses Kontakts bezahlt keine Rechnungen.",
+  "pairRefusesInvoicesTitle": "Die Wallet von {name} bezahlt keine Rechnungen.",
+  "pairRefusesInvoicesBody": "Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse."
 }

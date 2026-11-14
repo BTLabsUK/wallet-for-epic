@@ -21221,4 +21221,17 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskE1ModeEpic1Code =>
       'โค้ดแบบพบตัว epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย';
+
+  @override
+  String get pairRefusesInvoices =>
+      'กระเป๋าเงินของผู้ติดต่อนี้ไม่ชำระใบแจ้งหนี้';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'กระเป๋าเงินของ $name ไม่ชำระใบแจ้งหนี้';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'ยังไม่ได้ส่งสิ่งใด ขอให้อีกฝ่ายชำระไปยังที่อยู่ของคุณแทน';
 }

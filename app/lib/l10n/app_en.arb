@@ -29439,5 +29439,22 @@
   "deskE1ModeEpic1Code": "epic1 in-person code. Turn on epic1 payments to pay it.",
   "@deskE1ModeEpic1Code": {
     "description": "epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name."
+  },
+  "pairRefusesInvoices": "This contact’s wallet does not pay invoices.",
+  "@pairRefusesInvoices": {
+    "description": "Invoice to a contact refused: the contact's card says its wallet does not pay invoices. No name known."
+  },
+  "pairRefusesInvoicesTitle": "{name}’s wallet does not pay invoices.",
+  "@pairRefusesInvoicesTitle": {
+    "description": "Invoice to a contact refused: the contact's card says its wallet does not pay invoices.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairRefusesInvoicesBody": "Nothing was sent. Ask them to pay to your address instead.",
+  "@pairRefusesInvoicesBody": {
+    "description": "Second line under pairRefusesInvoices: what to do instead."
   }
 }

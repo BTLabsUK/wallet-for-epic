@@ -22260,4 +22260,17 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskE1ModeEpic1Code =>
       'Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его.';
+
+  @override
+  String get pairRefusesInvoices =>
+      'Кошелёк этого контакта не оплачивает счета.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Кошелёк контакта $name не оплачивает счета.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес.';
 }

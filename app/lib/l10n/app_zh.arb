@@ -5639,5 +5639,8 @@
   "announcementOpensInBrowser": "在浏览器中打开",
   "deskE1ErrCodeWrongNetwork": "此码属于另一个网络。",
   "deskE1ErrNotInPerson": "此钱包无法支付或核对此码。",
-  "deskE1ModeEpic1Code": "epic1 当面代码。开启 epic1 付款后才能支付。"
+  "deskE1ModeEpic1Code": "epic1 当面代码。开启 epic1 付款后才能支付。",
+  "pairRefusesInvoices": "此联系人的钱包不支付账单。",
+  "pairRefusesInvoicesTitle": "{name} 的钱包不支付账单。",
+  "pairRefusesInvoicesBody": "未发送任何内容。请让对方改为直接付款到你的地址。"
 }

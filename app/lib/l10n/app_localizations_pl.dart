@@ -22265,4 +22265,16 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskE1ModeEpic1Code =>
       'Kod osobisty epic1. Włącz płatności epic1, aby go opłacić.';
+
+  @override
+  String get pairRefusesInvoices => 'Portfel tego kontaktu nie opłaca faktur.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Portfel kontaktu $name nie opłaca faktur.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.';
 }

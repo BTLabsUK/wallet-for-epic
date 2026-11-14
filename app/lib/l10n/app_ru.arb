@@ -5639,5 +5639,8 @@
   "announcementOpensInBrowser": "открывается в браузере",
   "deskE1ErrCodeWrongNetwork": "Этот код для другой сети.",
   "deskE1ErrNotInPerson": "Этот кошелёк не может оплатить или проверить этот код.",
-  "deskE1ModeEpic1Code": "Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его."
+  "deskE1ModeEpic1Code": "Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его.",
+  "pairRefusesInvoices": "Кошелёк этого контакта не оплачивает счета.",
+  "pairRefusesInvoicesTitle": "Кошелёк контакта {name} не оплачивает счета.",
+  "pairRefusesInvoicesBody": "Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес."
 }

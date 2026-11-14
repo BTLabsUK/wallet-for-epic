@@ -21888,4 +21888,17 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskE1ModeEpic1Code =>
       'epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen.';
+
+  @override
+  String get pairRefusesInvoices =>
+      'Die Wallet dieses Kontakts bezahlt keine Rechnungen.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Die Wallet von $name bezahlt keine Rechnungen.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse.';
 }
