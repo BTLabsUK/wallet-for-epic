@@ -589,6 +589,15 @@ class _SendViewState extends ConsumerState<SendView> {
         _requestAddress = handoff.origin == null ? null : to.address;
         // An address handed over whole is as settled as one pasted: it shows in its box.
         _touched = recipientShaped(to);
+        // A saved contact's address (Send from the contact): the same state as picking its
+        // face on Send, the chip in To and the amount next.
+        final saved = handoff.origin == null ? contactFor(ref.read(contactsProvider).value ?? const <Contact>[], to.address) : null;
+        if (saved != null) {
+          _contact = saved;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _toAmount();
+          });
+        }
       }
     }
     ref.listenManual(
@@ -2535,6 +2544,12 @@ class _SendViewState extends ConsumerState<SendView> {
             ? contactFor(ref.read(contactsProvider).value ?? const <Contact>[], handoff.text)
             : null;
         _setRecipient(handoff.text, origin: handoff.origin, contact: saved);
+        // As picking the contact's face does: on to the amount.
+        if (saved != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _contact == saved) _toAmount();
+          });
+        }
       }
     });
 
@@ -3054,7 +3069,7 @@ class _SendViewState extends ConsumerState<SendView> {
         KitGroup(
           margin: EdgeInsets.zero,
           children: [
-            if (routeShown) _routeRow(context, read, contact: contact, hold: hold, complete: valid),
+            if (routeShown) _routeRow(context, read, contact: contact, known: contact != null || _contactName(read.address) != null, hold: hold, complete: valid),
             if (saveable)
               KitRow(
                 // No well, the gold glyph alone, on a 54 row (`.av.n` with no background).
@@ -3382,7 +3397,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The method row under To: the method's icon and name, whether their wallet can be offline,
   /// the host exactly as it will be contacted, and the way it goes (this phone, your network,
   /// over Tor). A contact with more than one address gets a chevron: a sheet of them.
-  Widget _routeRow(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold, bool complete = true}) {
+  Widget _routeRow(BuildContext context, RecipientInput to, {Contact? contact, bool known = false, SendHold? hold, bool complete = true}) {
     final l = context.l10n;
     final t = context.tokens;
     final mode = AdvancedOptions.of(context).networkMode;
@@ -3412,8 +3427,9 @@ class _SendViewState extends ConsumerState<SendView> {
       _ => null,
     };
     final line = metaLine([
-      // "New to you" is said of a whole address, not of one still being typed.
-      if (contact == null && complete) l.phoneSendNewToYou,
+      // "New to you" is said of a whole address, not of one still being typed, and never of a
+      // saved contact's (picked, or typed in full).
+      if (contact == null && !known && complete) l.phoneSendNewToYou,
       epicbox ? l.phoneSendTheirOffline : l.phoneSendTheirOnline,
       if (torStarts) l.sendRouteTorStarts,
     ]);

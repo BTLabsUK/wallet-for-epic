@@ -100,7 +100,12 @@ class SendPairingLine extends ConsumerWidget {
     // The rule (trust policy) says whether the paired address is offered and which address the
     // selector starts on; the user's tap overrides it until the recipient changes.
     final d = pairing == null ? const MailboxDefault.hidden() : mailboxDefaultFor(ref, contact, pairing);
-    final mailbox = pairing != null && epicbox && d.offered;
+    // The paired address and the public one are the same address (same key, same server):
+    // nothing to choose between, so one row, with the line of the route in use.
+    final paired = pairing?.paymentsAddress;
+    final same = pairing != null && paired != null && contact.epicbox != null && epicboxKey(paired) == epicboxKey(contact.epicbox!) && sameEpicboxServer(contact.epicbox, pairing.homeRelay);
+    final offered = pairing != null && epicbox && d.offered;
+    final mailbox = offered && !same;
     final on = viaMailbox ?? d.on;
     final line = pairing == null ? null : on ? sendRoutePairedLineOf(l, pairing) : sendRoutePublicLineOf(l, contact.name);
     // Amber: why the rule picked the public address (gone once the user picks the paired one),
@@ -138,23 +143,24 @@ class SendPairingLine extends ConsumerWidget {
               runSpacing: 4,
               children: [
                 TrustBadge(pairing),
-                if (pairing.seals && (!epicbox || (mailbox && on))) SealedBadge(name: contact.name),
+                if (pairing.seals && (!epicbox || (offered && on))) SealedBadge(name: contact.name),
               ],
             ),
-          if (mailbox) ...[
+          if (offered) ...[
             const SizedBox(height: 8),
             // Selected is neutral (the theme's segmented button), never gold.
-            SegmentedButton<bool>(
-              key: sendRouteKey,
-              expandedInsets: EdgeInsets.zero,
-              segments: [
-                ButtonSegment(value: true, label: TrustId(TrustIds.sendRoutePaired, child: Text(l.sendRoutePaired))),
-                ButtonSegment(value: false, label: TrustId(TrustIds.sendRoutePublic, child: Text(l.sendRoutePublic))),
-              ],
-              selected: {on},
-              showSelectedIcon: false,
-              onSelectionChanged: (s) => onViaMailbox(s.first),
-            ),
+            if (mailbox)
+              SegmentedButton<bool>(
+                key: sendRouteKey,
+                expandedInsets: EdgeInsets.zero,
+                segments: [
+                  ButtonSegment(value: true, label: TrustId(TrustIds.sendRoutePaired, child: Text(l.sendRoutePaired))),
+                  ButtonSegment(value: false, label: TrustId(TrustIds.sendRoutePublic, child: Text(l.sendRoutePublic))),
+                ],
+                selected: {on},
+                showSelectedIcon: false,
+                onSelectionChanged: (s) => onViaMailbox(s.first),
+              ),
             if (line != null) ...[
               const SizedBox(height: 6),
               Text(line, style: small.copyWith(color: t.dim)),

@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -447,6 +448,33 @@ void main() {
       final n = expected.moduleCount;
       final patch = LogoQr.patchModules(n);
       expect(patch * patch, lessThan(n * n * 0.1));
+    });
+
+    testWidgets('is there as soon as Receive opens: no tap, no cover, no secure screen', (tester) async {
+      final calls = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('epic_wallet/secure_screen'),
+        (call) async {
+          calls.add(call);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('epic_wallet/secure_screen'), null),
+      );
+      // setSecureScreen only calls the platform on Android and iOS.
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final h = _Harness();
+        await h.pump(tester);
+        // The address is there, so is the code, with nothing to press first.
+        expect(find.byType(LogoQr), findsOneWidget);
+        expect(tester.widget<LogoQr>(find.byType(LogoQr)).data, _address);
+        expect(find.text(_l.qrShow), findsNothing);
+        expect(calls.where((c) => c.method == 'setSecure'), isEmpty);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
   });
 

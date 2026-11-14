@@ -3,6 +3,9 @@
 // pairing's state, Send with the pairing as recipient (its card, the mailbox readout, no
 // address), the queue while Epicbox is off, "Waiting for Anna" on the payment's row, and a
 // relay move: the sheet, the contact page's lines and the moved date before Send.
+import 'dart:async';
+
+import 'package:epic_wallet/src/contacts.dart' show contactsProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -231,7 +234,7 @@ void main() {
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: 'epicbox.epiccash.com');
       await h.openSend(tester, 'p1');
       expect(find.byKey(sendPairingCardKey), findsOneWidget);
-      expect(find.byKey(sendRecipientFieldKey), findsNothing);
+      expect(sendTo(), findsNothing);
       expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
       expect(find.text(_l.sendRoutePaired), findsOneWidget);
       expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
@@ -458,7 +461,8 @@ void main() {
   group('mailbox first', () {
     final now = DateTime(2026, 11, 1, 12);
     final anna = 'es${'a' * 50}@epicbox.epiccash.com';
-    const relay = 'epicbox.epiccash.com';
+    // Not Anna's own server: the paired address and the public one differ (two rows).
+    const relay = 'relay.example.org';
     DateTime ago(Duration d) => now.subtract(d);
 
     /// Anna with her Epicbox address, paired with her card naming it.
@@ -565,14 +569,64 @@ void main() {
     });
 
     testWidgets('relay down on a shared server keeps the paired address, with the server line', (tester) async {
-      final h = paired(relayDown: true);
+      // The paired address and the public one are the same: one row, the line on it.
+      final h = paired(relayDown: true, homeRelay: 'epicbox.epiccash.com');
       await open(tester, h, anna);
-      expect(pairedOn(tester), isTrue);
-      expect(find.text(_l.sendRouteServerDown(relay)), findsOneWidget);
-      // The line stays on either option.
-      await flip(tester);
-      expect(pairedOn(tester), isFalse);
-      expect(find.text(_l.sendRouteServerDown(relay)), findsOneWidget);
+      expect(find.byKey(sendRouteKey), findsNothing);
+      expect(find.text(_l.sendRouteServerDown('epicbox.epiccash.com')), findsOneWidget);
+      expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
+    });
+
+    testWidgets('the same paired and public address: one row, no selector, no "New to you"', (tester) async {
+      final h = paired(homeRelay: 'epicbox.epiccash.com');
+      await open(tester, h, anna);
+      expect(find.byKey(sendRouteKey), findsNothing);
+      expect(find.text(_l.sendRoutePaired), findsNothing);
+      expect(find.text(_l.sendRoutePublic), findsNothing);
+      expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
+      // The payment still goes through the paired address.
+      await _toReview(tester);
+      await _tap(tester, sendButton);
+      expect(h.session.pairing.calls, contains('sendViaMailbox'));
+    });
+
+    testWidgets('different paired and public addresses: two rows', (tester) async {
+      final h = paired();
+      await open(tester, h, anna);
+      expect(find.byKey(sendRouteKey), findsOneWidget);
+      expect(find.text(_l.sendRoutePaired), findsOneWidget);
+      expect(find.text(_l.sendRoutePublic), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
+    });
+
+    testWidgets('Send from the contact (handed over) and the contact\'s face land on the same state', (tester) async {
+      final h = paired(homeRelay: 'epicbox.epiccash.com');
+      await h.pump(tester, SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {})), now: now);
+      // The contact page's Send: the address, handed over to Send already open.
+      h.container(tester).read(sendRecipientProvider.notifier).hand(anna);
+      await tester.pumpAndSettle();
+      // The amount step with Anna's name, no raw address, no "New to you".
+      expect(sendTo(), findsNothing);
+      expect(find.text('Max'), findsOneWidget);
+      expect(find.text('To Anna'), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
+      expect(find.textContaining('aaaaaaaaaa', findRichText: true), findsNothing);
+    });
+
+    testWidgets('Send from the contact, opening Send fresh: the contact\'s name, the amount', (tester) async {
+      final h = paired(homeRelay: 'epicbox.epiccash.com');
+      await h.pump(tester, SlotScaffold(appBar: AppBar(), body: const SizedBox()), now: now);
+      // Contacts › Send runs with the contacts already loaded.
+      await h.container(tester).read(contactsProvider.future);
+      h.container(tester).read(sendRecipientProvider.notifier).hand(anna);
+      unawaited(Navigator.of(tester.element(find.byType(SlotScaffold))).push(
+        MaterialPageRoute<void>(builder: (_) => SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {}))),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('Max'), findsOneWidget);
+      expect(find.text('To Anna'), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
     });
 
     testWidgets('relay down on its own server picks the public address, with the reason', (tester) async {
