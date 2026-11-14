@@ -504,4 +504,20 @@ void main() {
       expect(find.text('Experiments'), findsNothing);
     });
   });
+
+  testWidgets('Settings › Advanced: Announcements is its title, the info icon and the switch; the hint opens on tap', (tester) async {
+    await _open(tester, DeskRoute.settingsAdvanced);
+    final group = find.byKey(const ValueKey('adv-announcements'));
+    final row = find.byKey(const ValueKey('adv-announcements-row'));
+    expect(row, findsOneWidget);
+    expect(find.descendant(of: group, matching: find.text(_l.deskSetGrpAnnouncements)), findsOneWidget, reason: 'a group title only');
+    expect(tester.widget<ESetRow>(row).text, isNull, reason: 'no line under the title');
+    expect(find.text(_l.announcementsHint), findsNothing);
+    expect(find.textContaining('between releases'), findsNothing);
+    final info = find.descendant(of: row, matching: find.byType(EInfoHint));
+    await tester.ensureVisible(info);
+    await tester.tap(info);
+    await _settle(tester);
+    expect(find.text(_l.announcementsHint), findsOneWidget);
+  });
 }

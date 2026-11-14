@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../advanced.dart' show NetworkMode;
+import '../announcements/announcement_card.dart' show AnnouncementToast, firstLiveAnnouncementProvider;
 import '../amount.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -68,6 +69,7 @@ class HomeTab extends ConsumerWidget {
     final scan = ref.watch(scanProvider);
     final restoreUnfinished = ref.watch(restoreScanProvider.select((r) => r.required));
     final importOffer = ref.watch(historyImportOfferProvider);
+    final announcement = ref.watch(firstLiveAnnouncementProvider);
     final data = home.value;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
     final recent = pendingFirst(transactions).take(recentActivityCount).toList();
@@ -102,6 +104,15 @@ class HomeTab extends ConsumerWidget {
                         padding: const EdgeInsets.only(bottom: 16),
                         sliver: SliverList.list(
                           children: [
+                            // A message from BT Labs: above the cards, until dismissed. No
+                            // space is kept when nothing is live.
+                            if (announcement != null) ...[
+                              KitGroup(
+                                key: const ValueKey('home-announcement'),
+                                children: [AnnouncementToast(announcement, swipeToDismiss: true)],
+                              ),
+                              const SizedBox(height: homeCardGap),
+                            ],
                             // The cards carry the gutter themselves.
                             const HomeSlot(),
                             // An unfinished restore: its own card, with the scan in it.

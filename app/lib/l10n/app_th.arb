@@ -5630,5 +5630,11 @@
   "phoneRecvAnyoneAddressLine": "โค้ดที่มีที่อยู่ของคุณและจำนวนเงิน",
   "phoneRecvLinkLead": "แสดงโค้ดนี้หรือแชร์ลิงก์ ใครสแกนหรือวางจะได้การส่งตามปกติไปยังที่อยู่ของคุณ โดยกรอก {amount} ไว้แล้ว",
   "phoneRecvLinkCopied": "คัดลอกลิงก์แล้ว",
-  "phoneRecvLinkQrLabel": "ที่อยู่ของคุณพร้อมจำนวนเงินเป็นคิวอาร์โค้ด"
+  "phoneRecvLinkQrLabel": "ที่อยู่ของคุณพร้อมจำนวนเงินเป็นคิวอาร์โค้ด",
+  "deskSetGrpAnnouncements": "จาก BT Labs",
+  "deskSetSynAnnouncements": "ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs",
+  "announcementsTitle": "ประกาศ",
+  "announcementsHint": "ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้",
+  "announcementDismiss": "ปิด",
+  "announcementOpensInBrowser": "เปิดในเบราว์เซอร์"
 }

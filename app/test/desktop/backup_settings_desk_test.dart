@@ -234,7 +234,7 @@ void main() {
       expect(servers[BackupKey.node], hostSettings.nodeUrls);
       expect(servers[BackupKey.node], contains('https://mine.example:3413'));
       expect(servers[BackupKey.epicbox], hostSettings.epicboxLabels);
-      expect(settings[BackupKey.online], {BackupKey.statusSite: true, BackupKey.updateCheck: true, BackupKey.price: true});
+      expect(settings[BackupKey.online], {BackupKey.statusSite: true, BackupKey.updateCheck: true, BackupKey.price: true, BackupKey.announcements: true});
       final desk = settings[BackupKey.desktop]! as Map<String, Object?>;
       expect(desk[BackupKey.invoiceExpiry], 7200);
       final all = jsonEncode(settings);

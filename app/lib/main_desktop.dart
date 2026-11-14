@@ -35,6 +35,7 @@ import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/close_down.dart';
 import 'src/desktop/data/desk_link_handler.dart';
 import 'src/desktop/data/desk_node.dart';
+import 'src/announcements/announcements_service.dart' show announcementsFeedProvider, announcementsPlatformProvider;
 import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
@@ -108,7 +109,7 @@ Future<void> main(List<String> args) async {
     await startServices();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
-    runApp(ProviderScope(overrides: [launch, nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
+    runApp(ProviderScope(overrides: [launch, announcementsPlatformProvider.overrideWithValue('desktop'), announcementsFeedProvider.overrideWithValue(null), nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
@@ -311,6 +312,8 @@ Future<List<Override>> deskOverrides() async {
     deskFilesProvider.overrideWithValue(const SystemDeskFiles()),
     deskHistoryFilesProvider.overrideWithValue(const SystemDeskHistoryFiles()),
     deskUpdateAutoProvider.overrideWithValue(true),
+    // Announcements for desktop (the `platforms` of a message) and kept in the desktop's state.
+    announcementsPlatformProvider.overrideWithValue('desktop'),
     deskQuitProvider.overrideWithValue(() async {
       await _closeDown(wallet);
       exit(0);

@@ -838,5 +838,13 @@
   "deskSetSynPrivacyPolicy": "privacy, policy, gdpr, data",
   "@deskSetSynPrivacyPolicy": {
     "description": "Settings search: other words that find the “Privacy policy” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetGrpAnnouncements": "From BT Labs",
+  "@deskSetGrpAnnouncements": {
+    "description": "Settings › Advanced: heading of the group that holds the Announcements switch (on its page and over search results). BT Labs is a name: keep it."
+  },
+  "deskSetSynAnnouncements": "announcements, news, messages, notices, bt labs",
+  "@deskSetSynAnnouncements": {
+    "description": "Settings search: other words that find the “Announcements” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   }
 }

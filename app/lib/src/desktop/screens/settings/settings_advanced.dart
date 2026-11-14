@@ -9,11 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
+import '../../../announcements/announcements_service.dart' show announcementsOffered;
 import '../../../trust_ids.dart';
 import '../../../ui/network_mode_text.dart';
 import '../../app/tour.dart' show TourTarget;
 import '../../../levels/wallet_level.dart';
 import '../../../log.dart';
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../data/desk_levels.dart' show deskLevelControlProvider, deskLevelProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -69,7 +71,7 @@ class SettingsAdvancedScreen extends ConsumerWidget {
             id: 'advanced-top',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: const [_ViewGroup(), _ShowsGroup()],
+              children: const [_ViewGroup(), _ShowsGroup(), _AnnouncementsGroup()],
             ),
           ),
         ],
@@ -207,6 +209,38 @@ class _ShowsGroup extends ConsumerWidget {
       rows: [for (final (r, min) in all) if (level >= min) r],
       hidden: [for (final (r, min) in all) if (level < min) r],
       revealKey: 'adv-shows',
+    );
+  }
+}
+
+/// Advanced › Announcements: one switch, in every view (no level gate), so anyone can turn the
+/// messages off. Shown only when the build has a feed (`[announcements] feed`).
+class _AnnouncementsGroup extends ConsumerWidget {
+  const _AnnouncementsGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final host = ref.watch(hostSettingsProvider);
+    if (!announcementsOffered(host)) return const SizedBox.shrink();
+    final l = context.l10n;
+    return ESetGroup(
+      key: const ValueKey('adv-announcements'),
+      title: l.deskSetGrpAnnouncements,
+      rows: [
+        ESetRow(
+          key: const ValueKey('adv-announcements-row'),
+          anchor: SetId.announcements,
+          title: l.announcementsTitle,
+          hint: l.announcementsHint,
+          hintTitle: l.announcementsTitle,
+          control: ESwitch(
+            semanticsId: TrustIds.advancedAnnouncements,
+            value: host.announcementsEnabled,
+            semanticLabel: l.announcementsTitle,
+            onChanged: (v) => ref.read(hostSettingsProvider.notifier).set('online.announcements', v),
+          ),
+        ),
+      ],
     );
   }
 }

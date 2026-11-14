@@ -242,6 +242,8 @@ const List<SettingsKey> settingsKeys = [
   SettingsKey('online.status_site', BoolKind()),
   SettingsKey('online.update_check', BoolKind()),
   SettingsKey('online.price', BoolKind()),
+  // Messages from BT Labs (Settings › Advanced › Announcements): absent = on, written only as false.
+  SettingsKey('online.announcements', BoolKind(), byDefault: true),
   // [local_node]: the built-in node's ports when they are not `[node.local]`'s of app-config.toml.
   SettingsKey('local_node.api_port', _userPort, byDefault: notSet),
   SettingsKey('local_node.p2p_port', _userPort, byDefault: notSet),
@@ -258,6 +260,7 @@ const Set<String> retiredSettingsTables = {'donate'};
 
 /// The comment above a key the default copy leaves out, written with it when the app adds it.
 const Map<String, List<String>> keyComments = {
+  'online.announcements': ['# Messages from BT Labs (Settings › Advanced › Announcements). Absent = on.'],
   'node.plain_http': ['# Nodes at a shared address (100.64.x.x: Tailscale) you agreed to reach over plain, unencrypted http.'],
   'network.mode': ['# Network mode: tor_only, node_only or kill_switch (Settings › Advanced › Network). Absent = normal.'],
 };
@@ -381,6 +384,11 @@ const List<SettingsKey> configKeys = [
   SettingsKey('support.report', _url, byDefault: ''),
   SettingsKey('support.donation', TextKind(_donation), byDefault: ''),
   SettingsKey('support.signed_file', _url, byDefault: ''),
+  // [announcements]: no feed, no announcements and no switch.
+  SettingsKey('announcements.first_check_s', _seconds, requiredWith: ['announcements.feed']),
+  SettingsKey('announcements.check_every_h', IntKind(min: 1, max: 720), requiredWith: ['announcements.feed']),
+  SettingsKey('announcements.timeout_s', _seconds, requiredWith: ['announcements.feed']),
+  SettingsKey('announcements.feed', _url, byDefault: ''),
   // [links]
   SettingsKey('links.website', _url, byDefault: ''),
   SettingsKey('links.community', _url, byDefault: ''),

@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_info.dart';
 import '../app_log.dart';
+import '../announcements/announcements_service.dart' show announcementsOffered;
 import '../settings_file/host_settings.dart' show hostSettings;
 import '../dev_networks.dart';
 import '../epic1.dart' show PaymentMode;
@@ -509,7 +510,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ),
     SettingsSection.advanced => SettingsPageHelp(
       title: l.advTitle,
-      lines: [l.advIntro, l.advOutputsHint, l.advTechnicalHint, l.advSendOptionsHint, l.advServerDetailsHint, l.advRecheckHeightHint],
+      lines: [
+        l.advIntro,
+        l.advOutputsHint,
+        l.advTechnicalHint,
+        l.advSendOptionsHint,
+        l.advServerDetailsHint,
+        l.advRecheckHeightHint,
+        if (announcementsOffered(ref.watch(hostSettingsProvider))) l.announcementsHint,
+      ],
       topic: HelpId.advanced,
       sheetId: TrustIds.settingsHelpSheet,
       moreId: TrustIds.settingsHelpMore,
@@ -1093,6 +1102,24 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         dividerInset: Kit.dividerInsetPlain,
         children: [feature(AdvancedFeature.transactionFiles, l.advTransactionFiles, l.phoneSettingsAdvFilesLine, TrustIds.advancedFiles)],
       ),
+      // In every view (no level gate): anyone can turn the messages off. No feed in
+      // app-config.toml: no row. Label only; the explanation is in the page's "?".
+      if (announcementsOffered(ref.watch(hostSettingsProvider))) ...[
+        const SizedBox(height: 14),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow.toggle(
+              key: const ValueKey('adv-announcements'),
+              title: l.announcementsTitle,
+              size: KitRowSize.list,
+              value: ref.watch(hostSettingsProvider).announcementsEnabled,
+              onChanged: (on) => ref.read(hostSettingsProvider.notifier).set('online.announcements', on),
+              semanticsId: TrustIds.advancedAnnouncements,
+            ),
+          ],
+        ),
+      ],
       // As on the desktop: the way back (GP-038).
       if (adv.shownFeatures.isNotEmpty)
         Align(

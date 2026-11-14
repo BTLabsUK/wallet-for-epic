@@ -21856,4 +21856,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get phoneRecvLinkQrLabel => 'Deine Adresse mit dem Betrag als QR-Code';
+
+  @override
+  String get announcementsTitle => 'Hinweise';
+
+  @override
+  String get announcementsHint =>
+      'Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht.';
+
+  @override
+  String get announcementDismiss => 'Ausblenden';
+
+  @override
+  String get announcementOpensInBrowser => 'öffnet im Browser';
+
+  @override
+  String get deskSetGrpAnnouncements => 'Von BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'hinweise, neuigkeiten, mitteilungen, nachrichten, bt labs';
 }

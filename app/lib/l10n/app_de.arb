@@ -5630,5 +5630,11 @@
   "phoneRecvAnyoneAddressLine": "Ein Code mit deiner Adresse und dem Betrag",
   "phoneRecvLinkLead": "Zeige diesen Code oder teile den Link. Wer ihn scannt oder einfügt, bekommt eine normale Zahlung an deine Adresse mit {amount} schon eingetragen.",
   "phoneRecvLinkCopied": "Link kopiert",
-  "phoneRecvLinkQrLabel": "Deine Adresse mit dem Betrag als QR-Code"
+  "phoneRecvLinkQrLabel": "Deine Adresse mit dem Betrag als QR-Code",
+  "deskSetGrpAnnouncements": "Von BT Labs",
+  "deskSetSynAnnouncements": "hinweise, neuigkeiten, mitteilungen, nachrichten, bt labs",
+  "announcementsTitle": "Hinweise",
+  "announcementsHint": "Kurze Mitteilungen von BT Labs zwischen den Versionen, von BT Labs signiert. Aus: Es wird nicht danach gesucht.",
+  "announcementDismiss": "Ausblenden",
+  "announcementOpensInBrowser": "öffnet im Browser"
 }

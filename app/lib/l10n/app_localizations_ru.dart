@@ -22229,4 +22229,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneRecvLinkQrLabel => 'Ваш адрес с суммой в виде QR-кода';
+
+  @override
+  String get announcementsTitle => 'Объявления';
+
+  @override
+  String get announcementsHint =>
+      'Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют.';
+
+  @override
+  String get announcementDismiss => 'Скрыть';
+
+  @override
+  String get announcementOpensInBrowser => 'открывается в браузере';
+
+  @override
+  String get deskSetGrpAnnouncements => 'От BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'объявления, новости, сообщения, уведомления, bt labs';
 }

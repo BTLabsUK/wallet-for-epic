@@ -5630,5 +5630,11 @@
   "phoneRecvAnyoneAddressLine": "包含你的地址和金额的码",
   "phoneRecvLinkLead": "出示此码或分享链接。扫描或粘贴它的人会得到一笔发往你地址的普通转账，并已填好 {amount}。",
   "phoneRecvLinkCopied": "链接已复制",
-  "phoneRecvLinkQrLabel": "包含你的地址和金额的二维码"
+  "phoneRecvLinkQrLabel": "包含你的地址和金额的二维码",
+  "deskSetGrpAnnouncements": "来自 BT Labs",
+  "deskSetSynAnnouncements": "公告, 通知, 消息, 新闻, bt labs",
+  "announcementsTitle": "公告",
+  "announcementsHint": "BT Labs 在版本更新之间发布的简短消息，由 BT Labs 签名。关闭后：不再检查这些消息。",
+  "announcementDismiss": "不再显示",
+  "announcementOpensInBrowser": "在浏览器中打开"
 }

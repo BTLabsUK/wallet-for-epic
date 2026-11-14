@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'announcements/announcements_service.dart' show announcementsProvider;
 import 'connection_state.dart';
 import 'l10n.dart';
 import 'node_failover_phone.dart';
@@ -80,6 +81,9 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // one-tap move (never made by itself), and an address left behind is read for 7 days.
     ref.listenManual(relaySwitchProvider, (_, _) {});
     ref.listenManual(relayDrainWatchProvider, (_, _) {});
+    // Alive for the app's life: BT Labs' signed announcements, fetched on schedule while the
+    // switch in Settings › Advanced is on (announcements/announcements_service.dart).
+    ref.listenManual(announcementsProvider, (_, _) {});
   }
 
   @override

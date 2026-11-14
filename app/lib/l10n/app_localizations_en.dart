@@ -21608,4 +21608,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneRecvLinkQrLabel =>
       'Your address with the amount, as a QR code';
+
+  @override
+  String get announcementsTitle => 'Announcements';
+
+  @override
+  String get announcementsHint =>
+      'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.';
+
+  @override
+  String get announcementDismiss => 'Dismiss';
+
+  @override
+  String get announcementOpensInBrowser => 'opens in the browser';
+
+  @override
+  String get deskSetGrpAnnouncements => 'From BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'announcements, news, messages, notices, bt labs';
 }

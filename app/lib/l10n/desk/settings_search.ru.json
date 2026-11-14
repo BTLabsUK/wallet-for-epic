@@ -186,5 +186,7 @@
   "deskSetRowWebsite": "Сайт",
   "deskSetSynWebsite": "сайт, веб, интернет, epic cash",
   "deskSetSynSource": "github, код, исходный код, open source, репозиторий",
-  "deskSetSynPrivacyPolicy": "приватность, политика, gdpr, данные"
+  "deskSetSynPrivacyPolicy": "приватность, политика, gdpr, данные",
+  "deskSetGrpAnnouncements": "От BT Labs",
+  "deskSetSynAnnouncements": "объявления, новости, сообщения, уведомления, bt labs"
 }

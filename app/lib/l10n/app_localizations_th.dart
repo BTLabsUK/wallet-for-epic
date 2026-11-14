@@ -21191,4 +21191,24 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneRecvLinkQrLabel =>
       'ที่อยู่ของคุณพร้อมจำนวนเงินเป็นคิวอาร์โค้ด';
+
+  @override
+  String get announcementsTitle => 'ประกาศ';
+
+  @override
+  String get announcementsHint =>
+      'ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้';
+
+  @override
+  String get announcementDismiss => 'ปิด';
+
+  @override
+  String get announcementOpensInBrowser => 'เปิดในเบราว์เซอร์';
+
+  @override
+  String get deskSetGrpAnnouncements => 'จาก BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs';
 }

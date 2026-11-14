@@ -33858,6 +33858,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your address with the amount, as a QR code'**
   String get phoneRecvLinkQrLabel;
+
+  /// Settings › Advanced: name of the switch for messages from BT Labs (phone row and desktop row).
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get announcementsTitle;
+
+  /// Settings › Advanced: the explanation behind the info icon of the Announcements switch (phone and desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.'**
+  String get announcementsHint;
+
+  /// Announcement card: tooltip and screen-reader name of the × that closes a message from BT Labs for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get announcementDismiss;
+
+  /// Announcement card: screen-reader addition after the link, said when the link opens an https address in the system browser (lower case, follows the link label and host).
+  ///
+  /// In en, this message translates to:
+  /// **'opens in the browser'**
+  String get announcementOpensInBrowser;
+
+  /// Settings › Advanced: heading of the group that holds the Announcements switch (on its page and over search results). BT Labs is a name: keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'From BT Labs'**
+  String get deskSetGrpAnnouncements;
+
+  /// Settings search: other words that find the “Announcements” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'announcements, news, messages, notices, bt labs'**
+  String get deskSetSynAnnouncements;
 }
 
 class _AppLocalizationsDelegate
