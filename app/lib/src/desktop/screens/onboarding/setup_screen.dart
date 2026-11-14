@@ -205,6 +205,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       // never shows for this wallet.
       await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(local.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
       fallbackAskedThisSession = true;
+      if (!mounted) return;
     }
     setState(() => _busy = true);
     final domain = _epicboxOn ? _relay : '';

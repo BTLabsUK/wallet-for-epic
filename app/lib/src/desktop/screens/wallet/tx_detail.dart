@@ -1074,7 +1074,7 @@ class TxPageActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Container(
-      key: const ValueKey('tx-actions-bar'),
+      key: const ValueKey('tx-page-actions'),
       padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width < Bp.phone ? Sp.x4 : Sp.x6, vertical: Sp.x3),
       decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
       child: child,

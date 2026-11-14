@@ -73,6 +73,12 @@ class DeskModalWatch extends NavigatorObserver {
 
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) => didPop(route, previousRoute);
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    if (oldRoute != null) didPop(oldRoute, null);
+    if (newRoute != null) didPush(newRoute, null);
+  }
 }
 
 /// One per app (per provider container), so a test's leftovers never count in the next app.
