@@ -1062,9 +1062,54 @@ class _WinButton extends StatefulWidget {
   State<_WinButton> createState() => _WinButtonState();
 }
 
-class _WinButtonState extends State<_WinButton> {
+/// A window control's shell: its tooltip and its name for a screen reader, and the hover and
+/// pressed states its [face] is drawn by. [hover] hovers it from outside (Windows' snap
+/// layouts flyout holds the pointer then).
+class _Control extends StatefulWidget {
+  const _Control({required this.label, required this.onPressed, required this.face, this.hover = false});
+
+  final String label;
+  final VoidCallback onPressed;
+  final bool hover;
+  final Widget Function(BuildContext context, bool hover, bool down) face;
+
+  @override
+  State<_Control> createState() => _ControlState();
+}
+
+class _ControlState extends State<_Control> {
   bool _hover = false;
   bool _down = false;
+
+  @override
+  Widget build(BuildContext context) => ETip(
+    widget.label,
+    child: Semantics(
+      button: true,
+      label: widget.label,
+      excludeSemantics: true,
+      onTap: widget.onPressed,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() {
+          _hover = false;
+          _down = false;
+        }),
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _down = true),
+          onTapUp: (_) => setState(() => _down = false),
+          onTapCancel: () => setState(() => _down = false),
+          onTap: widget.onPressed,
+          child: widget.face(context, _hover || widget.hover, _down),
+        ),
+      ),
+    ),
+  );
+}
+
+class _WinButtonState extends State<_WinButton> {
+  /// The snap layouts flyout is over the button.
+  bool _snapOver = false;
   final _key = GlobalKey();
 
   @override
@@ -1079,7 +1124,7 @@ class _WinButtonState extends State<_WinButton> {
     super.dispose();
   }
 
-  void _snapHover() => setState(() => _hover = widget.snap!.snapHover.value);
+  void _snapHover() => setState(() => _snapOver = widget.snap!.snapHover.value);
 
   /// Tells the window where this button is, after each layout.
   void _report() {
@@ -1095,56 +1140,41 @@ class _WinButtonState extends State<_WinButton> {
   Widget build(BuildContext context) {
     final c = context.dc;
     if (widget.snap != null) WidgetsBinding.instance.addPostFrameCallback((_) => _report());
-    final red = widget.close && (_hover || _down);
-    final bg = widget.close
-        ? (_down ? _WinButton.closePress : _hover ? _WinButton.closeHover : Colors.transparent)
-        : (_down ? c.press : _hover ? c.hover : Colors.transparent);
-    final fg = red ? (_down ? Colors.white70 : Colors.white) : (widget.dim ? c.faint : c.text);
-    return ETip(
-      widget.label,
-      child: Semantics(
-        button: true,
-        label: widget.label,
-        excludeSemantics: true,
-        onTap: widget.onPressed,
-        child: MouseRegion(
-          onEnter: (_) => setState(() => _hover = true),
-          onExit: (_) => setState(() {
-            _hover = false;
-            _down = false;
-          }),
-          child: GestureDetector(
-            onTapDown: (_) => setState(() => _down = true),
-            onTapUp: (_) => setState(() => _down = false),
-            onTapCancel: () => setState(() => _down = false),
-            onTap: widget.onPressed,
-            child: AnimatedContainer(
-              key: _key,
-              duration: Dur.fast,
-              width: 46.u,
-              height: deskBarHeight.u,
-              color: bg,
-              child: Stack(
-                children: [
-                  Center(child: CustomPaint(size: Size.square(10.u), painter: _GlyphPainter(widget.glyph, fg, stroke: 1, round: false))),
-                  if (widget.pending)
-                    PositionedDirectional(
-                      end: 11.u,
-                      top: 9.u,
-                      child: Container(width: 6.u, height: 6.u, decoration: BoxDecoration(shape: BoxShape.circle, color: c.warn)),
-                    ),
-                ],
-              ),
-            ),
+    return _Control(
+      label: widget.label,
+      onPressed: widget.onPressed,
+      hover: _snapOver,
+      face: (context, hover, down) {
+        final red = widget.close && (hover || down);
+        final bg = widget.close
+            ? (down ? _WinButton.closePress : hover ? _WinButton.closeHover : Colors.transparent)
+            : (down ? c.press : hover ? c.hover : Colors.transparent);
+        final fg = red ? (down ? Colors.white70 : Colors.white) : (widget.dim ? c.faint : c.text);
+        return AnimatedContainer(
+          key: _key,
+          duration: Dur.fast,
+          width: 46.u,
+          height: deskBarHeight.u,
+          color: bg,
+          child: Stack(
+            children: [
+              Center(child: CustomPaint(size: Size.square(10.u), painter: _GlyphPainter(widget.glyph, fg, stroke: 1, round: false))),
+              if (widget.pending)
+                PositionedDirectional(
+                  end: 11.u,
+                  top: 9.u,
+                  child: Container(width: 6.u, height: 6.u, decoration: BoxDecoration(shape: BoxShape.circle, color: c.warn)),
+                ),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
 /// GNOME's round header-bar button: 26 px, a 16 px symbolic glyph, a light wash on hover.
-class _RoundButton extends StatefulWidget {
+class _RoundButton extends StatelessWidget {
   const _RoundButton({super.key, required this.label, required this.glyph, required this.onPressed, required this.dim, this.pending = false});
 
   final String label;
@@ -1154,65 +1184,39 @@ class _RoundButton extends StatefulWidget {
   final bool pending;
 
   @override
-  State<_RoundButton> createState() => _RoundButtonState();
-}
-
-class _RoundButtonState extends State<_RoundButton> {
-  bool _hover = false;
-  bool _down = false;
-
-  @override
   Widget build(BuildContext context) {
     final c = context.dc;
     return Center(
-      child: ETip(
-        widget.label,
-        child: Semantics(
-          button: true,
-          label: widget.label,
-          excludeSemantics: true,
-          onTap: widget.onPressed,
-          child: MouseRegion(
-            onEnter: (_) => setState(() => _hover = true),
-            onExit: (_) => setState(() {
-              _hover = false;
-              _down = false;
-            }),
-            child: GestureDetector(
-              onTapDown: (_) => setState(() => _down = true),
-              onTapUp: (_) => setState(() => _down = false),
-              onTapCancel: () => setState(() => _down = false),
-              onTap: widget.onPressed,
-              child: AnimatedContainer(
-                duration: Dur.fast,
-                width: 26.u,
-                height: 26.u,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _down
-                      ? c.text.withValues(alpha: 0.16)
-                      : _hover
-                      ? c.text.withValues(alpha: 0.10)
-                      : Colors.transparent,
+      child: _Control(
+        label: label,
+        onPressed: onPressed,
+        face: (context, hover, down) => AnimatedContainer(
+          duration: Dur.fast,
+          width: 26.u,
+          height: 26.u,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: down
+                ? c.text.withValues(alpha: 0.16)
+                : hover
+                ? c.text.withValues(alpha: 0.10)
+                : Colors.transparent,
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Center(child: CustomPaint(size: Size.square(16.u), painter: _GlyphPainter(glyph, dim ? c.faint : c.text, stroke: 1.5, round: true))),
+              if (pending)
+                PositionedDirectional(
+                  end: -1,
+                  top: -1,
+                  child: Container(
+                    width: 7.u,
+                    height: 7.u,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: c.warn, border: Border.all(color: c.bg, width: 2)),
+                  ),
                 ),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Center(child: CustomPaint(size: Size.square(16.u), painter: _GlyphPainter(widget.glyph, widget.dim ? c.faint : c.text, stroke: 1.5, round: true))),
-                    if (widget.pending)
-                      PositionedDirectional(
-                        end: -1,
-                        top: -1,
-                        child: Container(
-                          width: 7.u,
-                          height: 7.u,
-                          decoration: BoxDecoration(shape: BoxShape.circle, color: c.warn, border: Border.all(color: c.bg, width: 2)),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+            ],
           ),
         ),
       ),
