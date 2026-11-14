@@ -530,7 +530,7 @@ class _BalancePanel extends ConsumerWidget {
     ];
     final buttons = <Widget>[
       if (empty)
-        EButton.primary(label: l.deskOvReceiveEpic, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))
+        EButton.primary(semanticsId: TrustIds.navReceive, label: l.deskOvReceiveEpic, icon: EIcons.receive, onPressed: () => nav.go(DeskRoute.receive))
       else ...[
         // Send is the one main action here; it and Receive carry the ids the tabs had.
         EButton.primary(semanticsId: TrustIds.navSend, label: l.deskOvSend, icon: EIcons.send, onPressed: sendBlocked ? null : () => nav.go(DeskRoute.send)),
