@@ -2229,7 +2229,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendAmountZero => 'Введите сумму больше нуля.';
 
   @override
-  String get scanQrTooltip => 'Сканировать QR-код';
+  String get scanQrTooltip => 'Сканировать код';
 
   @override
   String get sendScanButton => 'Сканировать';
@@ -2386,7 +2386,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slateOpenPayment => 'Открыть платёж';
 
   @override
-  String get scanQrTitle => 'Сканирование QR-кода';
+  String get scanQrTitle => 'Сканировать код';
 
   @override
   String get scanQrHint => 'Наведите камеру на QR-код получателя.';
@@ -16815,7 +16815,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get postFinishedOpenFile => 'Открыть файл';
 
   @override
-  String get postFinishedScanQr => 'Сканировать QR';
+  String get postFinishedScanQr => 'Сканировать код';
 
   @override
   String get postFinishedPaste => 'Вставить';
@@ -17891,7 +17891,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get pairScan => 'Сканировать QR';
+  String get pairScan => 'Сканировать код';
 
   @override
   String get pairPasteField => 'Вставьте приглашение';

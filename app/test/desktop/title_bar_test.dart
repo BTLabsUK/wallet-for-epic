@@ -205,13 +205,13 @@ void main() {
     await tester.tap(find.text('Close when it finishes'));
     await settle(tester);
     expect(quits, 0);
-    expect(find.byTooltip('Closes when the send finishes'), findsOneWidget);
+    expect(find.byTooltip('Closes when the payment is sent'), findsOneWidget);
     // Ctrl+Q mid-send asks too, never quits at once.
     await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
     await tester.sendKeyEvent(LogicalKeyboardKey.keyQ);
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
     await settle(tester);
-    expect(find.text('A send is in progress'), findsOneWidget);
+    expect(find.text('A payment is being sent'), findsOneWidget);
     await tester.tap(find.text('Close when it finishes'));
     await settle(tester);
     expect(quits, 0);
@@ -281,11 +281,11 @@ void main() {
     await tester.pump();
     await tester.tap(bar('close'));
     await settle(tester);
-    expect(find.text('A send is in progress'), findsOneWidget);
+    expect(find.text('A payment is being sent'), findsOneWidget);
     done.complete();
     await send;
     await settle(tester);
-    expect(find.text('A send is in progress'), findsNothing);
+    expect(find.text('A payment is being sent'), findsNothing);
     expect(find.text('under'), findsOneWidget);
     expect(underClosed, isFalse);
     expect(quits, 0);

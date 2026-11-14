@@ -236,7 +236,7 @@ void flows() {
     expect(find.text('Check phrase'), findsNothing);
     await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
-    await tester.tap(find.textContaining('I have written down'));
+    await tester.tap(find.textContaining('written down'));
     await tester.pump();
     await tester.tap(find.text(_l.commonContinue));
     await _wait(tester, 500);
@@ -283,7 +283,7 @@ void flows() {
     await _wait(tester, 4000);
     await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
-    await tester.tap(find.textContaining('I have written down'));
+    await tester.tap(find.textContaining('written down'));
     await tester.pump();
     await tester.tap(find.text(_l.commonContinue));
     await _wait(tester, 500);

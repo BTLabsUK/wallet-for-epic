@@ -11,7 +11,7 @@
   "@deskSetAdvOutputs": {
     "description": "Advanced switch: the Outputs page in the sidebar."
   },
-  "deskSetAdvOutputsHint": "Shows the Outputs page in the sidebar. It lists the coins the balance is made of and lets you split or consolidate them. A split or consolidation in progress keeps the page visible.",
+  "deskSetAdvOutputsHint": "Shows the Outputs tab. It lists the coins the balance is made of and can split or consolidate them. A split or consolidation in progress keeps the tab visible.",
   "@deskSetAdvOutputsHint": {
     "description": "Hover card of the Outputs switch."
   },
@@ -27,7 +27,7 @@
   "@deskSetAdvSendOptions": {
     "description": "Advanced switch: the Advanced fold on Send."
   },
-  "deskSetAdvSendOptionsHint": "Adds a fold to Send where one send can choose which outputs it spends, Smallest or All, and whether to split the change. The defaults are under Settings › Payments.",
+  "deskSetAdvSendOptionsHint": "Adds a fold to Send for choosing, per payment, which outputs it spends (Smallest or All) and whether to split the change. Defaults are in Settings › Transactions.",
   "@deskSetAdvSendOptionsHint": {
     "description": "Hover card of the Send options switch."
   },
@@ -35,7 +35,7 @@
   "@deskSetAdvServerDetails": {
     "description": "Advanced switch: hosts, latency, version, height."
   },
-  "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists, on the sidebar’s status rows and in the status card.",
+  "deskSetAdvServerDetailsHint": "Shows hosts, latency, version and block height in the node and Epicbox lists and in the status bar.",
   "@deskSetAdvServerDetailsHint": {
     "description": "Hover card of the Server details switch."
   },
@@ -51,7 +51,7 @@
   "@deskSetAdvBuiltInNode": {
     "description": "Advanced switch: the node on this computer."
   },
-  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: the This computer option under Node, its sync panel, and Start node on Overview. The chain needs several gigabytes of disk and must sync first. A node that is running keeps its rows.",
+  "deskSetAdvBuiltInNodeHint": "Lets this computer run its own node: This computer under Node, its sync panel, and Start node on Home. The chain needs several gigabytes of disk and must sync first. A running node keeps these rows.",
   "@deskSetAdvBuiltInNodeHint": {
     "description": "Hover card of the Built-in node switch."
   },
@@ -88,7 +88,7 @@
       }
     }
   },
-  "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
+  "deskNetOfflineNoPeers": "The node is not connected to the network: the payment waits on it until it reconnects.",
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
@@ -104,7 +104,7 @@
   "@deskSetAdvNodeFailover": {
     "description": "Switch on Settings › Advanced, under the network modes: on by default."
   },
-  "deskSetAdvNodeFailoverHint": "When your node stops answering or falls behind, the wallet uses the next working node in your list for this session.",
+  "deskSetAdvNodeFailoverHint": "When the node in use stops answering or falls behind, the wallet uses the next working node in the list for this session.",
   "@deskSetAdvNodeFailoverHint": {
     "description": "Hover card of the Node failover switch on Settings › Advanced."
   },

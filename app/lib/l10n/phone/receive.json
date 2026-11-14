@@ -7,7 +7,7 @@
   "@phoneRecvHelpTitle": {
     "description": "Title of the short help sheet on the Receive screen."
   },
-  "phoneRecvHelp1": "Share your address or code. Whoever has it can pay you.",
+  "phoneRecvHelp1": "Share this wallet’s address or code. Anyone with it can pay this wallet.",
   "@phoneRecvHelp1": {
     "description": "Receive help, first line."
   },
@@ -15,7 +15,7 @@
   "@phoneRecvHelp2": {
     "description": "Receive help, second line."
   },
-  "phoneRecvHelp3": "Other ways to receive are for when the payer cannot use your address.",
+  "phoneRecvHelp3": "Other ways to receive are for when the payer cannot use this wallet’s address.",
   "@phoneRecvHelp3": {
     "description": "Receive help, third line."
   },
@@ -27,7 +27,7 @@
   "@phoneRecvAsk": {
     "description": "Row on Receive and title of the screen that asks the payer for a set amount."
   },
-  "phoneRecvAskLine": "They see how much and what for",
+  "phoneRecvAskLine": "The payer sees the amount and what it is for",
   "@phoneRecvAskLine": {
     "description": "Line under the Ask for an amount row."
   },
@@ -43,11 +43,11 @@
   "@phoneRecvOtherLine": {
     "description": "Line under the Other ways to receive row."
   },
-  "phoneRecvOtherSheetLine": "For when the payer cannot use your address.",
+  "phoneRecvOtherSheetLine": "For when the payer cannot use this wallet’s address.",
   "@phoneRecvOtherSheetLine": {
     "description": "Line under the title of the Other ways to receive sheet."
   },
-  "phoneRecvInPersonLine": "Scan the payer's code, then show yours",
+  "phoneRecvInPersonLine": "Scan the payer’s code, then show a reply code",
   "@phoneRecvInPersonLine": {
     "description": "Line under In person in the Other ways to receive sheet."
   },
@@ -85,7 +85,7 @@
   "@phoneRecvAnyoneCode": {
     "description": "Choice in the who-pays sheet: a code anyone can scan."
   },
-  "phoneRecvAnyoneCodeLine": "They scan a code on this screen",
+  "phoneRecvAnyoneCodeLine": "The payer scans a code on this screen",
   "@phoneRecvAnyoneCodeLine": {
     "description": "Line under the Anyone, with a code choice."
   },

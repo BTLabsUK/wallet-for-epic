@@ -371,7 +371,7 @@ void main() {
       expect(h.session.torSends, hasLength(1));
       expect(h.session.torSends.single.onion, _onion);
       expect(
-        find.textContaining('Reaching their wallet over Tor…'),
+        find.textContaining('Reaching the recipient’s wallet over Tor…'),
         findsOneWidget,
       );
       expect(find.textContaining('minute'), findsNothing);
@@ -429,7 +429,7 @@ void main() {
         find.textContaining(_l.errorOnionUnreachable),
         findsOneWidget,
       );
-      expect(find.textContaining('stays locked until you cancel it'), findsOne);
+      expect(find.textContaining('stays locked until cancelled'), findsOne);
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
       expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);

@@ -227,7 +227,7 @@ void main() {
     await _pump(tester, const SizedBox());
     final state = const HistoryBackupState(unbacked: 12, reminder: 12);
     await _pump(tester, HistoryReminder(state: state));
-    expect(find.text('12 payments are not in your exported wallet data.'), findsOneWidget);
+    expect(find.text('12 payments are not in the exported wallet data.'), findsOneWidget);
     expect(find.text(_l.deskSetBackupReminderBody), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupNotNow));
     await tester.pumpAndSettle();

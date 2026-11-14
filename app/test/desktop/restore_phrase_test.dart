@@ -219,7 +219,7 @@ void main() {
     await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
-    expect(find.textContaining('Set the password that unlocks this wallet'), findsOneWidget);
+    expect(find.textContaining('It unlocks this wallet'), findsOneWidget);
   });
 
   testWidgets('a 24-word phrase typed with Enter after each word never leaves early', (tester) async {
@@ -235,7 +235,7 @@ void main() {
       }
     }
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget, reason: 'Enter on the 24th word continues');
-    expect(find.textContaining('Set the password that unlocks this wallet'), findsOneWidget);
+    expect(find.textContaining('It unlocks this wallet'), findsOneWidget);
   });
 
   testWidgets('Enter takes the completion from four letters only; Tab always', (tester) async {

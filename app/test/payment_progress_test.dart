@@ -51,7 +51,7 @@ void main() {
     test('waits for the other wallet, with the reason by transport', () {
       final p = _go(_sent(TxStatus.awaitingRecipient), reserved: '12.508 EPIC')!;
       // The network step only shows once the payment is there (the frame's three steps).
-      expect(_labels(p), ['Sent', "Waiting for Tom's wallet to answer", 'Confirmed']);
+      expect(_labels(p), ['Sent', 'Waiting for Tom’s wallet to answer', 'Confirmed']);
       expect(_states(p), [KitStepState.done, KitStepState.now, KitStepState.later]);
       expect(p.current, 1);
       expect(p.network, isFalse);

@@ -125,7 +125,7 @@ void main() {
     testWidgets('not reachable: forward the port; Check asks again', (tester) async {
       final wallet = await pump(tester, [_reach(reachable: false), _reach(reachable: true)]);
       expect(find.text(_l.deskKitReachClosedTitle), findsOneWidget);
-      expect(find.textContaining('Forward TCP port 3415 on your router to this computer (192.168.1.24)'), findsOneWidget);
+      expect(find.textContaining('Forward TCP port 3415 on the router to this computer (192.168.1.24)'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('http-reach-check')));
       await tester.pump();
       expect(find.text(_l.deskKitReachOpenTitle), findsOneWidget);
@@ -137,7 +137,7 @@ void main() {
       await pump(tester, [_reach(ip: null)]);
       expect(find.text(_l.deskKitReachNoIpTitle), findsOneWidget);
       // The address sits in the sentence as its own unbroken span, so the notice's text is read.
-      expect(tester.widget<ENotice>(find.byKey(const ValueKey('http-reach'))).text, contains('On your network: http://192.168.1.24:3415'));
+      expect(tester.widget<ENotice>(find.byKey(const ValueKey('http-reach'))).text, contains('On the local network: http://192.168.1.24:3415'));
       await tester.pumpWidget(const SizedBox());
       await pump(tester, [_reach()]);
       expect(find.text(_l.deskKitReachUnknownTitle), findsOneWidget);

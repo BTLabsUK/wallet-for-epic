@@ -34,7 +34,7 @@ List<HelpTopic> _en(bool phone) {
         const HelpBlock.p('Both devices answer payments to the wallet’s address. The sender takes the first answer; the payment shows once, as received on the device the sender used.'),
         HelpBlock.ol([
           'Open $place on both devices and choose **Link a device**.',
-          'On one device open Link a device and scan the QR shown on the other.',
+          'On one device open Link a device and scan the code shown on the other.',
           'Both show the same four pictures while they link. Nothing to tap: the app checks the other device itself.',
         ]),
         const HelpBlock.h('Security', anchor: HelpAnchor.security),
@@ -47,7 +47,7 @@ List<HelpTopic> _en(bool phone) {
         const HelpBlock.h('Limits', anchor: HelpAnchor.limits),
         const HelpBlock.ul([
           '**Only while the app is open.** Nothing syncs in the background. The app catches up when it starts, resumes, unlocks or refreshes.',
-          '**The chain decides.** A notice is a heads-up. The blockchain is the source of truth, and a payment counts once the chain shows it.',
+          '**The chain decides.** A notice is a heads-up. The chain is the source of truth, and a payment counts once the chain shows it.',
           '**A server down delays notices.** With two servers, every notice goes to both, and the second carries it.',
           '**A third app on the same recovery phrase is not supported.** It hears nothing of the link; its payments show once the chain confirms them.',
         ]),
@@ -72,7 +72,7 @@ List<HelpTopic> _en(bool phone) {
       'Coins held by another device',
       'A linked device is spending these coins. They come back on their own when its payment ends; Release frees them by hand.',
       [
-        const HelpBlock.p('When a linked device starts a payment, the coins it spends are held on this device: they are left out of sends, Send all and the fee estimates, Outputs shows them as **Held by** that device’s payment, and Send says how much is held.'),
+        const HelpBlock.p('When a linked device starts a payment, the coins it spends are held on this device: they are left out of payments, **Max** and the fee estimates, Outputs shows them as **Held by** that device’s payment, and Send says how much is held.'),
         const HelpBlock.ul([
           'They become the payment **Sent from** that device once the chain shows them spent.',
           'They come back when that device cancels the payment, or it fails or expires.',
@@ -139,7 +139,7 @@ List<HelpTopic> _de(bool phone) {
       'Von einem anderen Gerät zurückgehaltene Münzen',
       'Ein verknüpftes Gerät gibt diese Münzen gerade aus. Sie kommen von selbst zurück, wenn seine Zahlung endet; Freigeben gibt sie von Hand frei.',
       [
-        const HelpBlock.p('Beginnt ein verknüpftes Gerät eine Zahlung, werden die Münzen, die es ausgibt, auf diesem Gerät zurückgehalten: Sie fehlen beim Senden, bei „Alles senden“ und in den Gebührenschätzungen, Outputs zeigt sie als **Zurückgehalten**, und Senden nennt den zurückgehaltenen Betrag.'),
+        const HelpBlock.p('Beginnt ein verknüpftes Gerät eine Zahlung, werden die Münzen, die es ausgibt, auf diesem Gerät zurückgehalten: Sie fehlen bei Zahlungen, bei **Max.** und in den Gebührenschätzungen, Outputs zeigt sie als **Zurückgehalten**, und Senden nennt den zurückgehaltenen Betrag.'),
         const HelpBlock.ul([
           'Sie werden zur Zahlung **Gesendet von** diesem Gerät, sobald die Blockchain sie als ausgegeben zeigt.',
           'Sie kommen zurück, wenn das Gerät die Zahlung storniert oder sie fehlschlägt oder abläuft.',
@@ -206,7 +206,7 @@ List<HelpTopic> _pl(bool phone) {
       'Monety wstrzymane przez inne urządzenie',
       'Połączone urządzenie wydaje te monety. Wracają same, gdy jego płatność się kończy; Zwolnij uwalnia je ręcznie.',
       [
-        const HelpBlock.p('Gdy połączone urządzenie zaczyna płatność, monety, które wydaje, są wstrzymane na tym urządzeniu: nie biorą udziału w wysyłkach, „Wyślij wszystko” ani w szacowaniu opłat, Wyjścia pokazują je jako **Wstrzymane**, a Wyślij podaje, ile jest wstrzymane.'),
+        const HelpBlock.p('Gdy połączone urządzenie zaczyna płatność, monety, które wydaje, są wstrzymane na tym urządzeniu: nie biorą udziału w płatnościach, w **Maks.** ani w szacowaniu opłat, Wyjścia pokazują je jako **Wstrzymane**, a Wyślij podaje, ile jest wstrzymane.'),
         const HelpBlock.ul([
           'Stają się płatnością **Wysłano z** tego urządzenia, gdy łańcuch pokaże je jako wydane.',
           'Wracają, gdy to urządzenie anuluje płatność albo gdy ona się nie powiedzie lub wygaśnie.',
@@ -273,7 +273,7 @@ List<HelpTopic> _ru(bool phone) {
       'Монеты, удержанные другим устройством',
       'Связанное устройство тратит эти монеты. Они вернутся сами, когда его платёж закончится; Освободить возвращает их вручную.',
       [
-        const HelpBlock.p('Когда связанное устройство начинает платёж, тратимые им монеты удерживаются на этом устройстве: они не участвуют в отправках, «Отправить всё» и оценке комиссии, Выходы показывают их как **Удержано**, а Отправка сообщает, сколько удержано.'),
+        const HelpBlock.p('Когда связанное устройство начинает платёж, тратимые им монеты удерживаются на этом устройстве: они не участвуют в платежах, в **Макс.** и в оценке комиссии, Выходы показывают их как **Удержано**, а Отправка сообщает, сколько удержано.'),
         const HelpBlock.ul([
           'Они становятся платежом **Отправлено с** этого устройства, когда блокчейн покажет их потраченными.',
           'Они возвращаются, когда устройство отменяет платёж, или он не проходит или истекает.',
@@ -340,7 +340,7 @@ List<HelpTopic> _zh(bool phone) {
       '被另一台设备保留的币',
       '一台关联设备正在花费这些币。它的付款结束后会自动退回；也可用 释放 手动解除。',
       [
-        const HelpBlock.p('关联设备开始付款时，它花费的币会在本设备上被保留：发送、全部发送和手续费估算都不会使用它们，输出页把它们显示为 **被保留**，发送页会说明保留了多少。'),
+        const HelpBlock.p('关联设备开始付款时，它花费的币会在本设备上被保留：付款、**最大** 和手续费估算都不会使用它们，输出页把它们显示为 **被保留**，发送页会说明保留了多少。'),
         const HelpBlock.ul([
           '区块链显示这些币已花费后，它们成为 **从该设备发送** 的付款。',
           '该设备取消付款，或付款失败、过期时，它们会退回。',
@@ -407,7 +407,7 @@ List<HelpTopic> _th(bool phone) {
       'เหรียญที่อุปกรณ์อื่นพักไว้',
       'อุปกรณ์ที่เชื่อมโยงกำลังใช้เหรียญเหล่านี้ เหรียญจะกลับมาเองเมื่อรายการของมันจบ หรือกด ปล่อย เพื่อปล่อยเอง',
       [
-        const HelpBlock.p('เมื่ออุปกรณ์ที่เชื่อมโยงเริ่มรายการ เหรียญที่มันใช้จะถูกพักไว้บนอุปกรณ์นี้ จะไม่ถูกใช้ในการส่ง ส่งทั้งหมด และการประมาณค่าธรรมเนียม หน้าเอาต์พุตแสดงว่า **ถูกพักไว้** และหน้าส่งจะบอกว่าพักไว้เท่าไร'),
+        const HelpBlock.p('เมื่ออุปกรณ์ที่เชื่อมโยงเริ่มรายการ เหรียญที่มันใช้จะถูกพักไว้บนอุปกรณ์นี้ จะไม่ถูกใช้ในการชำระเงิน ใน **สูงสุด** และการประมาณค่าธรรมเนียม หน้าเอาต์พุตแสดงว่า **ถูกพักไว้** และหน้าส่งจะบอกว่าพักไว้เท่าไร'),
         const HelpBlock.ul([
           'เหรียญจะกลายเป็นรายการ **ส่งจาก** อุปกรณ์นั้น เมื่อเชนแสดงว่าใช้ไปแล้ว',
           'เหรียญจะกลับมาเมื่ออุปกรณ์นั้นยกเลิกรายการ หรือรายการล้มเหลวหรือหมดเวลา',

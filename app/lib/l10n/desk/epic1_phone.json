@@ -164,7 +164,7 @@
   "@deskE1PhUnknownTitle": {
     "description": "Dialog when the link's server is not in the server list."
   },
-  "deskE1PhUnknownBody": "{host} is not in your server list.",
+  "deskE1PhUnknownBody": "{host} is not in the server list.",
   "@deskE1PhUnknownBody": {
     "description": "Body of the unknown server dialog.",
     "placeholders": {

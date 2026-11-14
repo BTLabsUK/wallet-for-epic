@@ -7,11 +7,11 @@
   "@deskSetTxMethods": {
     "description": "Payments: heading of the payment method switches."
   },
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work. All wallets.",
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server; most payments go this way. When off, no Epicbox server is contacted: no Epicbox payments or invoices, other methods still work. All wallets.",
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive. All wallets.",
+  "deskSetTxDirectHint": "Wallet-to-wallet payments at a web address (http://host:{port}), with no server between. Both wallets must be open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive. All wallets.",
   "@deskSetTxDirectHint": {
     "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.",
     "placeholders": {
@@ -29,7 +29,7 @@
   "@deskSetTxStart": {
     "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
   },
-  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send. All wallets.",
+  "deskSetTxStartHint": "The method Send opens with; it can be changed for each payment. All wallets.",
   "@deskSetTxStartHint": {
     "description": "Hover card behind the info icon of the Send starts on row."
   },

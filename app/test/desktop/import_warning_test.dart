@@ -50,12 +50,12 @@ void main() {
     await tester.tap(find.text(_l.deskOnbWelcomeImport));
     await tester.pumpAndSettle();
     expect(_title, findsOneWidget);
-    expect(find.text('This is an early version of a new app. Import only reads your old wallets and files and never deletes or changes them.'), findsOneWidget);
+    expect(find.text('This is an early version of a new app. Import only reads the old wallets and files; it never deletes or changes them.'), findsOneWidget);
     expect(find.text('Importing is at your own risk. No responsibility is taken for any loss.'), findsOneWidget);
     expect(tester.widget<EButton>(_continue).onPressed, isNull);
     expect(c.read(deskNavProvider).route, start, reason: 'nothing opens before Continue');
 
-    await tester.tap(find.text('I have a backup of every wallet'));
+    await tester.tap(find.text('Every wallet is backed up'));
     await tester.pumpAndSettle();
     expect(tester.widget<EButton>(_continue).onPressed, isNotNull);
     await tester.tap(_continue);

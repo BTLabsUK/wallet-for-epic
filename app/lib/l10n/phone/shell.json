@@ -85,7 +85,7 @@
   "@phoneHomeBalanceSheetHint": {
     "description": "Spoken name of Home's balance, which opens the sheet with every part of the balance"
   },
-  "phoneHomeFirstPayment": "Your first payment",
+  "phoneHomeFirstPayment": "First payment",
   "@phoneHomeFirstPayment": {
     "description": "Empty Home, under the Recent heading: the title of the first, still empty row of the payment list. Names what will stand there. Two or three words, no full stop."
   },
@@ -94,7 +94,7 @@
     "description": "Empty Home: the line under 'Your first payment' in the empty row. Says the payment shows in this place once it comes in. Short, no full stop."
   },
   "phoneTourOffer": "Want a quick tour of the wallet?",
-  "phoneTourOfferShow": "Show me",
+  "phoneTourOfferShow": "Start tour",
   "@phoneTourOffer": {
     "description": "Toast shown once after the first unlock: offers the wallet tour. Short question."
   },

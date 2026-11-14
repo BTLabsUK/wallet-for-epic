@@ -16,7 +16,7 @@ typedef DeskHelpPlace = ({DeskRoute route, SettingsJump? jump, Object? arg});
 
 DeskHelpPlace _page(DeskRoute route, {SettingsJump? jump, Object? arg}) => (route: route, jump: jump, arg: arg);
 
-/// Every place Help names, as written in English: the sidebar, Settings and its pages, and the
+/// Every place Help names, as written in English: the tabs, Settings and its pages, and the
 /// parts of a page.
 final Map<String, DeskHelpPlace> _places = {
   'Receive': _page(DeskRoute.receive),

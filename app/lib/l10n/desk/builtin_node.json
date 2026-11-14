@@ -36,7 +36,7 @@
   "@deskNodeFitOpenHintUnder": {
     "description": "Local node fit check: hint beside the first question when the wallet was open less than an hour a day over the last days."
   },
-  "deskNodeFitNetQ": "Your connection",
+  "deskNodeFitNetQ": "Internet connection",
   "@deskNodeFitNetQ": {
     "description": "Local node fit check: second question, about the internet connection, above two choices."
   },
@@ -200,7 +200,7 @@
       }
     }
   },
-  "deskNodeFitDontShow": "Don’t show this again",
+  "deskNodeFitDontShow": "Do not show this again",
   "@deskNodeFitDontShow": {
     "description": "Local node fit check: checkbox above the buttons. When ticked, picking the local node skips this check; it stays in Help."
   },

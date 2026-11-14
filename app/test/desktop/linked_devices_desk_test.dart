@@ -96,7 +96,7 @@ void main() {
     expect(find.byKey(const ValueKey('dev-this')), findsOneWidget);
     // This computer's default name carries its short code, so two computers are told apart.
     expect(find.textContaining(RegExp(r'^Desktop [0-9A-F]{4}$')), findsOneWidget);
-    expect(find.text('Restore this wallet on your other device, then link the two here.'), findsOneWidget);
+    expect(find.text('Restore this wallet on another device, then link the two here.'), findsOneWidget);
     expect(find.byKey(devicesHeldKey), findsNothing, reason: 'no empty Held coins group');
     expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNotNull);
     await end(tester);

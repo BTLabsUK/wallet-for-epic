@@ -126,7 +126,7 @@
   "@deskIpUseServerAsk": {
     "description": "Title: the code names a message server that is not in the wallet's server list."
   },
-  "deskIpNotInList": "{host} is not in your server list.",
+  "deskIpNotInList": "{host} is not in the server list.",
   "@deskIpNotInList": {
     "description": "Text under 'Send through this server?'; host is a server address.",
     "placeholders": {
@@ -229,7 +229,7 @@
   "@deskIpOnlineCancelCode": {
     "description": "Line under Cancel online reply on the side that shows the code."
   },
-  "deskIpOnlineCancelAnswer": "Then the other phone scans your answer.",
+  "deskIpOnlineCancelAnswer": "Then the other phone scans the answer.",
   "@deskIpOnlineCancelAnswer": {
     "description": "Line under Cancel online reply on the side that answered the code."
   },

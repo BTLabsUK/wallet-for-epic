@@ -22,7 +22,7 @@ void main() {
     expect(keptKind(l, _kept('a', 'receive_refused')), 'Payment');
     expect(keptKind(l, _kept('a', 'unknown_notice')), 'Contact message');
     expect(keptWhy(l, _kept('a', 'receipt_cap')), l.msgKeptWhyCap);
-    expect(keptWhy(l, _kept('a', 'x')), 'Your wallet did not record why.');
+    expect(keptWhy(l, _kept('a', 'x')), 'No reason was recorded.');
     expect(keptFrom(l, ''), 'From a paired contact');
     expect(keptFrom(l, 'Anna'), 'From Anna');
   });

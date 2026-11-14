@@ -3,7 +3,7 @@
   "@deskSendFileFor": {
     "description": "Send › Pay with a file: label of the optional field naming the contact the file is for."
   },
-  "deskSendFileForHelp": "A paired contact's file is sealed: only their wallet opens it.",
+  "deskSendFileForHelp": "A file for a paired contact is sealed: only that contact’s wallet opens it.",
   "@deskSendFileForHelp": {
     "description": "Send › Pay with a file: help under the For field."
   },

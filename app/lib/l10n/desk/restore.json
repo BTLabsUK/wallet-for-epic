@@ -7,7 +7,7 @@
   "@deskOvRestoreRunning": {
     "description": "Overview panel text while the restore scan runs; a progress bar follows."
   },
-  "deskOvRestoreAfterHeight": "Funds after block {height} are in. Earlier blocks are being checked; receiving and sending open when that finishes.",
+  "deskOvRestoreAfterHeight": "Coins after block {height} are in. Earlier blocks are still being checked; sending and receiving open when that finishes.",
   "@deskOvRestoreAfterHeight": {
     "description": "Overview panel text when the restore started from a block height and the earlier blocks are scanned now.",
     "placeholders": {
@@ -99,7 +99,7 @@
       }
     }
   },
-  "deskOvRestoredImportTitle": "Your wallet is restored",
+  "deskOvRestoredImportTitle": "Wallet restored",
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },

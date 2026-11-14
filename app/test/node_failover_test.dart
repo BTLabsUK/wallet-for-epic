@@ -123,7 +123,7 @@ void main() {
   test('the failover texts', () {
     final l = lookupAppLocalizations(const Locale('en'));
     expect(l.nodeFailoverInsteadOf('a.example'), 'Instead of a.example');
-    expect(l.advNodeFailoverHint, 'When your node stops answering, the wallet uses the next working node in your list for this session.');
+    expect(l.advNodeFailoverHint, 'When the node in use stops answering, the wallet uses the next working node in the list for this session.');
   });
 
   group('phone watcher', () {

@@ -2121,7 +2121,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendAmountZero => 'ป้อนจำนวนที่มากกว่าศูนย์';
 
   @override
-  String get scanQrTooltip => 'สแกน QR Code';
+  String get scanQrTooltip => 'สแกนโค้ด';
 
   @override
   String get sendScanButton => 'สแกน';
@@ -2272,7 +2272,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slateOpenPayment => 'เปิดรายการ';
 
   @override
-  String get scanQrTitle => 'สแกน QR Code';
+  String get scanQrTitle => 'สแกนโค้ด';
 
   @override
   String get scanQrHint => 'หันกล้องไปที่ QR Code ของผู้รับ';
@@ -15887,7 +15887,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get postFinishedOpenFile => 'เปิดไฟล์';
 
   @override
-  String get postFinishedScanQr => 'สแกน QR';
+  String get postFinishedScanQr => 'สแกนโค้ด';
 
   @override
   String get postFinishedPaste => 'วาง';
@@ -16939,7 +16939,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get pairScan => 'สแกน QR';
+  String get pairScan => 'สแกนโค้ด';
 
   @override
   String get pairPasteField => 'วางคำเชิญ';

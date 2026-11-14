@@ -3,7 +3,7 @@
   "@deskE1TourPhSendText": {
     "description": "Phone tour, Send step, in epic1 mode: one field for an epic1 link or a contact, and the Pay in person button. Names the button 'Pay in person' as on the screen."
   },
-  "deskE1TourPhReceiveText": "Your epic1 link. Share it to get paid. Request in person is for a phone next to you.",
+  "deskE1TourPhReceiveText": "This wallet’s epic1 link. Share it to get paid. Request in person is for a phone close by.",
   "@deskE1TourPhReceiveText": {
     "description": "Phone tour, Receive step, in epic1 mode: the epic1 link card and the Request in person button below it. Names the button 'Request in person' as on the screen."
   },

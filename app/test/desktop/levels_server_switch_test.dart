@@ -121,7 +121,7 @@ void main() {
     expect(moved, isNotNull);
     expect(moved!.address, endsWith('@${pick.value}'));
     // A toast on Overview says it once (item 16).
-    expect(find.text('Now on ${pick.name}. Your new address is ready.'), findsOneWidget);
+    expect(find.text('Now on ${pick.name}. The new address is ready.'), findsOneWidget);
     expect(container.read(deskRelayMovedNoticeProvider), isFalse);
     await _end(tester);
   });

@@ -55,7 +55,7 @@
   "@deskTxDetailsFrom": {
     "description": "Field name in the details dialog: who paid."
   },
-  "deskTxDetailsFromTip": "Who paid, for your records. Not verified.",
+  "deskTxDetailsFromTip": "Who paid, for the records. Not verified.",
   "@deskTxDetailsFromTip": {
     "description": "Tooltip on the From field of the details dialog."
   },
@@ -123,7 +123,7 @@
   "@deskHistConflictTitle": {
     "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
   },
-  "deskHistConflictLead": "{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}",
+  "deskHistConflictLead": "{n, plural, =1{The file has different details for 1 payment. The current details stay; pick the file’s to replace them.} other{The file has different details for {n} payments. The current details stay; pick the file’s to replace them.}}",
   "@deskHistConflictLead": {
     "description": "Description of the Details differ dialog; n payments.",
     "placeholders": {
@@ -133,7 +133,7 @@
       }
     }
   },
-  "deskHistConflictMine": "Mine",
+  "deskHistConflictMine": "Current",
   "@deskHistConflictMine": {
     "description": "Choice card in the Details differ dialog: the value typed here."
   },
@@ -141,7 +141,7 @@
   "@deskHistConflictBackup": {
     "description": "Choice card in the Details differ dialog: the value in the backup file."
   },
-  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has different details for {n} payment. Yours are kept unless you pick the old wallet’s.} other{The old wallet’s history has different details for {n} payments. Yours are kept unless you pick the old wallet’s.}}",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has different details for {n} payment. The current details stay; pick the old wallet’s to replace them.} other{The old wallet’s history has different details for {n} payments. The current details stay; pick the old wallet’s to replace them.}}",
   "@deskHistConflictLeadOldWallet": {
     "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
     "placeholders": {
@@ -159,7 +159,7 @@
   "@deskHistConflictApply": {
     "description": "Primary button in the Details differ dialog for the old wallet's history: apply the choices made."
   },
-  "deskHistConflictKeepAll": "Keep all mine",
+  "deskHistConflictKeepAll": "Keep all current",
   "@deskHistConflictKeepAll": {
     "description": "Button in the Details differ dialog: import and keep every value the user typed."
   },
@@ -171,7 +171,7 @@
   "@deskHistConflictEmpty": {
     "description": "Placeholder, in italics, where a value in the Details differ dialog is empty."
   },
-  "deskHistImportedReplaced": "{n, plural, one{{n} detail replaced, the rest kept as yours.} other{{n} details replaced, the rest kept as yours.}}",
+  "deskHistImportedReplaced": "{n, plural, one{{n} detail replaced, the rest kept.} other{{n} details replaced, the rest kept.}}",
   "@deskHistImportedReplaced": {
     "description": "Line on the import result: how many typed details the user replaced with the backup's.",
     "placeholders": {

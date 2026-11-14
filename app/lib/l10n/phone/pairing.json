@@ -1,9 +1,9 @@
 {
-  "phoneLinkScanSub": "Scan the code on your other device",
+  "phoneLinkScanSub": "Scan the code on the other device",
   "@phoneLinkScanSub": {
     "description": "Subtitle of the Scan row in Link a device."
   },
-  "phoneLinkShowSub": "Your other device scans it",
+  "phoneLinkShowSub": "The other device scans it",
   "@phoneLinkShowSub": {
     "description": "Subtitle of the Show my code row in Link a device."
   },

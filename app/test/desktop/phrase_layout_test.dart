@@ -71,7 +71,7 @@ void main() {
     final checkbox = find.byType(ECheckbox);
     expect(tester.getRect(checkbox).bottom, lessThan(tester.getRect(_button('Continue')).top));
     await _onlyWordsScroll(tester, checkbox, _button('Copy'));
-    await tester.tap(find.textContaining('I have written down'));
+    await tester.tap(find.textContaining('written down'));
     await tester.pump();
     expect(tester.widget<ECheckbox>(checkbox).value, isTrue);
     expect(tester.takeException(), isNull);

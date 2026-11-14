@@ -89,7 +89,7 @@ void main() {
     await tester.tap(find.descendant(of: find.byType(ERadioRow), matching: find.text('All')));
     await tester.pumpAndSettle();
     expect(wallet.asked.last?.strategy, SelectionStrategy.all);
-    expect(find.textContaining('Strategy for this send: All'), findsOneWidget);
+    expect(find.textContaining('Strategy for this payment: All'), findsOneWidget);
     expect(find.textContaining('Send options · All outputs', findRichText: true), findsOneWidget);
   });
 

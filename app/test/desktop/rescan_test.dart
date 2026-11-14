@@ -168,7 +168,7 @@ void main() {
     expect(find.text(_l.deskSetRescanFound), findsOneWidget);
     expect(find.text(_l.deskSetRescanDeleted), findsOneWidget);
     expect(find.text(_l.deskSetRescanUnlocked), findsOneWidget);
-    expect(find.text('The balance is up to date. Unconfirmed transactions were cancelled and their outputs unlocked.'), findsOneWidget);
+    expect(find.text('The balance is up to date. Unconfirmed payments were cancelled and their coins unlocked.'), findsOneWidget);
     expect(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain), findsOneWidget);
   });
 

@@ -61,11 +61,11 @@
   "@deskBarClose": {
     "description": "Window button tooltip: close the app (the wallet locks first)."
   },
-  "deskBarSendRunningTitle": "A send is in progress",
+  "deskBarSendRunningTitle": "A payment is being sent",
   "@deskBarSendRunningTitle": {
     "description": "Dialog title when the window is closed (close button, Alt+F4, Quit) while a payment is being sent."
   },
-  "deskBarSendRunningBody": "Closing now would leave the payment’s outcome unknown. The wallet can close by itself once the send has finished.",
+  "deskBarSendRunningBody": "Closing now would leave the payment’s outcome unknown. The wallet can close by itself once the payment is sent.",
   "@deskBarSendRunningBody": {
     "description": "Dialog text under 'A send is in progress'. There is deliberately no way to close at once."
   },
@@ -77,7 +77,7 @@
   "@deskBarCloseAfterSend": {
     "description": "Second button of the 'A send is in progress' dialog: close the app by itself once the send is done."
   },
-  "deskBarClosesAfterSend": "Closes when the send finishes",
+  "deskBarClosesAfterSend": "Closes when the payment is sent",
   "@deskBarClosesAfterSend": {
     "description": "Toast after 'Close when it finishes', and the close button's tooltip until then."
   },

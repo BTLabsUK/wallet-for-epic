@@ -133,7 +133,7 @@
   "@phoneSettingsPaymentsHelp3": {
     "description": "Help sheet of Payments, third paragraph."
   },
-  "phoneSettingsEpicboxLine": "The usual way. Their wallet can be offline.",
+  "phoneSettingsEpicboxLine": "The usual way. The recipient’s wallet can be offline.",
   "@phoneSettingsEpicboxLine": {
     "description": "Line under the Epicbox row in Payments."
   },
@@ -231,11 +231,11 @@
   "@phoneSettingsUpkeep": {
     "description": "Group label in This wallet above the upkeep rows."
   },
-  "phoneSettingsRecheckLine": "Look through the chain again for your coins",
+  "phoneSettingsRecheckLine": "Look through the chain again for this wallet’s coins",
   "@phoneSettingsRecheckLine": {
     "description": "Line under the Recheck balance row."
   },
-  "phoneSettingsOutputsLine": "The coins your balance is made of",
+  "phoneSettingsOutputsLine": "The coins the balance is made of",
   "@phoneSettingsOutputsLine": {
     "description": "Line under the Outputs row when no count is known."
   },
@@ -251,7 +251,7 @@
   "@phoneSettingsAdvancedLine": {
     "description": "Line under the Advanced row on the Settings hub."
   },
-  "phoneSettingsAdvOutputsLine": "The coins your balance is made of; split or combine them",
+  "phoneSettingsAdvOutputsLine": "The coins the balance is made of; split or combine them",
   "@phoneSettingsAdvOutputsLine": {
     "description": "Line under the Outputs switch in Advanced."
   },
@@ -283,11 +283,11 @@
   "@phoneSettingsAdvShows": {
     "description": "Label above the switches on the Advanced page."
   },
-  "phoneSettingsConfirmationsLine": "Blocks before a payment counts as yours to spend",
+  "phoneSettingsConfirmationsLine": "Blocks before a payment can be spent",
   "@phoneSettingsConfirmationsLine": {
     "description": "Line under the Confirmations stepper."
   },
-  "phoneSettingsShowPricesLine": "The value in your currency under each amount",
+  "phoneSettingsShowPricesLine": "The value in the chosen currency under each amount",
   "@phoneSettingsShowPricesLine": {
     "description": "Line under the Show prices switch in Appearance."
   },
@@ -363,7 +363,7 @@
   "@phoneSettingsDevicesEmpty": {
     "description": "Title of the empty state of Linked devices."
   },
-  "phoneSettingsDevicesEmptyLine": "Restore this wallet on your other device, then link the two here. Payments made on one then show on the other.",
+  "phoneSettingsDevicesEmptyLine": "Restore this wallet on the other device, then link the two here. Payments made on one show on the other.",
   "@phoneSettingsDevicesEmptyLine": {
     "description": "Text under the title of the empty state of Linked devices."
   },

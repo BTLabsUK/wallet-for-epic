@@ -35,7 +35,7 @@
   "@phoneRestoreHelpTitle": {
     "description": "Title of the help sheet on the Restore screen."
   },
-  "phoneRestoreHelpPhrase": "The recovery phrase brings back the balance. Type its words, paste them or scan its QR code.",
+  "phoneRestoreHelpPhrase": "The recovery phrase brings back the balance. Type its words, paste them or scan its code.",
   "@phoneRestoreHelpPhrase": {
     "description": "First line of the Restore help sheet."
   },
@@ -59,7 +59,7 @@
   "@phoneRestoreRestoring": {
     "description": "Title of the Restore screen while the search runs."
   },
-  "phoneRestoreScanTitle": "Looking for your coins",
+  "phoneRestoreScanTitle": "Looking for coins",
   "@phoneRestoreScanTitle": {
     "description": "Heading under the progress ring while the restore searches the chain."
   },
@@ -101,11 +101,11 @@
       }
     }
   },
-  "phoneStepPayShow": "Show your code",
+  "phoneStepPayShow": "Show the payment code",
   "@phoneStepPayShow": {
     "description": "Step 1 of paying in person: the payer shows a QR code."
   },
-  "phoneStepPayScan": "Scan their answer",
+  "phoneStepPayScan": "Scan the reply",
   "@phoneStepPayScan": {
     "description": "Step 2 of paying in person: the payer scans the other phone's answer."
   },
@@ -113,23 +113,23 @@
   "@phoneStepPayFileSend": {
     "description": "Step 1 of paying with a file: the payer sends the payment file."
   },
-  "phoneStepPayFileReply": "Open their reply",
+  "phoneStepPayFileReply": "Open the response file",
   "@phoneStepPayFileReply": {
     "description": "Step 2 of paying with a file: the payer opens the file that comes back."
   },
-  "phoneStepRecvScan": "Scan their code",
+  "phoneStepRecvScan": "Scan the payer’s code",
   "@phoneStepRecvScan": {
     "description": "Step 1 of getting paid in person: scan the payer's QR code."
   },
-  "phoneStepRecvShow": "Show your answer",
+  "phoneStepRecvShow": "Show the reply",
   "@phoneStepRecvShow": {
     "description": "Step 2 of getting paid in person: show a QR code with the answer."
   },
-  "phoneStepRecvFileOpen": "Open their file",
+  "phoneStepRecvFileOpen": "Open the transaction file",
   "@phoneStepRecvFileOpen": {
     "description": "Step 1 of getting paid with a file: open the payment file."
   },
-  "phoneStepRecvFileReply": "Send your reply",
+  "phoneStepRecvFileReply": "Send the response file",
   "@phoneStepRecvFileReply": {
     "description": "Step 2 of getting paid with a file: send the reply file back."
   },
@@ -151,19 +151,19 @@
       }
     }
   },
-  "phoneQrHoldHint": "Hold their camera to this code.",
+  "phoneQrHoldHint": "Point the other phone’s camera at this code.",
   "@phoneQrHoldHint": {
     "description": "Line under a shown QR code: where to point the other phone."
   },
-  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "phoneQrReplyShowing": "The payment is made when the payer scans it. It then shows in Activity.",
   "@phoneQrReplyShowing": {
     "description": "Dim line under the receiver's answer code while it is shown."
   },
-  "phoneQrAimAnswer": "Point at the answer on their phone.",
+  "phoneQrAimAnswer": "Point at the reply code on the other phone.",
   "@phoneQrAimAnswer": {
     "description": "Line under the camera when the payer scans the answer on the other phone."
   },
-  "phoneQrScanAnswer": "Scan their answer",
+  "phoneQrScanAnswer": "Scan the reply code",
   "@phoneQrScanAnswer": {
     "description": "Button on the payer's QR screen: scan the answer on the other phone."
   },
@@ -179,19 +179,19 @@
   "@phoneQrDoneTitleReceived": {
     "description": "Headline once the payment received with QR codes is posted."
   },
-  "phoneQrDoneScanned": "Your code was scanned",
+  "phoneQrDoneScanned": "The recipient scanned this code",
   "@phoneQrDoneScanned": {
     "description": "A step of the finished in-person payment: the other phone read this phone's code."
   },
-  "phoneQrDoneAnswerRead": "Their answer was read",
+  "phoneQrDoneAnswerRead": "The reply was read",
   "@phoneQrDoneAnswerRead": {
     "description": "A step of the finished in-person payment: this phone read the other phone's answer."
   },
-  "phoneQrDoneCodeRead": "You scanned their code",
+  "phoneQrDoneCodeRead": "This phone scanned the payer’s code",
   "@phoneQrDoneCodeRead": {
     "description": "A step of the finished in-person payment: this phone read the other phone's code."
   },
-  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "phoneQrDoneAnswerSeen": "The payer scanned the reply code",
   "@phoneQrDoneAnswerSeen": {
     "description": "A step of the finished in-person payment: the other phone read this phone's answer."
   },
@@ -209,7 +209,7 @@
       }
     }
   },
-  "phoneQrShowMine": "Show my code again",
+  "phoneQrShowMine": "Show the code again",
   "@phoneQrShowMine": {
     "description": "Quiet button on the payer's scan screen: go back to the QR code that was shown."
   },
@@ -235,7 +235,7 @@
       }
     }
   },
-  "phoneFileReplyCard": "Your reply",
+  "phoneFileReplyCard": "Response file",
   "@phoneFileReplyCard": {
     "description": "Title of the card that holds the reply file the receiver made."
   },
@@ -265,15 +265,15 @@
   "@phoneFileShareReply": {
     "description": "Gold button: hand the reply file to another app."
   },
-  "phoneFileSendHint": "Send it in any app. They open it in their wallet and send a reply back.",
+  "phoneFileSendHint": "Send it in any app. The recipient opens it and sends a response file back.",
   "@phoneFileSendHint": {
     "description": "Info line under the payment file's buttons."
   },
-  "phoneFileReplyHint": "Send it back the same way it came. The payment is made when they open your reply.",
+  "phoneFileReplyHint": "Send it back the same way it came. The payment is made when the payer opens it.",
   "@phoneFileReplyHint": {
     "description": "Info line under the reply file's buttons."
   },
-  "phoneFileWhenReply": "When their reply arrives",
+  "phoneFileWhenReply": "When the response file arrives",
   "@phoneFileWhenReply": {
     "description": "Small label above the row that opens the reply."
   },
@@ -323,11 +323,11 @@
   "@phoneAcceptNote": {
     "description": "Label of the sender's message row."
   },
-  "phoneAcceptHintQr": "Accept it, then show your answer to them. Nothing arrives until they scan it.",
+  "phoneAcceptHintQr": "Accept it, then show the reply code to the payer. Nothing arrives until the payer scans it.",
   "@phoneAcceptHintQr": {
     "description": "Info line on the incoming payment page, in person."
   },
-  "phoneAcceptHintFile": "Accept it, then send your reply. Nothing arrives until they open it.",
+  "phoneAcceptHintFile": "Accept it, then send the response file back. Nothing arrives until the payer opens it.",
   "@phoneAcceptHintFile": {
     "description": "Info line on the incoming payment page, with a file."
   },
@@ -352,7 +352,7 @@
       }
     }
   },
-  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins.",
+  "phoneRestoreStartNote": "The search for coins starts from this month. If unsure, pick an earlier month: a later one can miss coins.",
   "@phoneRestoreStartNote": {
     "description": "Help text under the Wallet created row on the Restore screen."
   }

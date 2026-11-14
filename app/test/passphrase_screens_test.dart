@@ -130,7 +130,7 @@ void main() {
       await h.openSecurity(tester);
       expect(find.text(_l.phoneSettingsPassphrase), findsOneWidget);
       await _tapText(tester, 'Change PIN');
-      expect(find.text('Enter your current PIN'), findsOneWidget);
+      expect(find.text('Enter the current PIN'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current PIN'), findsOneWidget);
     });
 
@@ -232,17 +232,17 @@ void main() {
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
-      expect(find.text('Enter your passphrase'), findsOneWidget);
+      expect(find.text('Enter the passphrase'), findsOneWidget);
       expect(find.text('Enter your PIN'), findsNothing);
       expect(find.widgetWithText(TextField, 'Passphrase'), findsOneWidget);
-      expect(find.text('Enter your passphrase to show the recovery phrase.'), findsOneWidget);
+      expect(find.text('Enter the passphrase to show the recovery phrase.'), findsOneWidget);
       // Cancel stays one tap.
       await _tapText(tester, 'Cancel');
-      expect(find.text('Enter your passphrase'), findsNothing);
+      expect(find.text('Enter the passphrase'), findsNothing);
       // Cancelled, the backup screen leaves by itself.
 
       await _tapText(tester, _l.phoneSettingsPassphrase);
-      expect(find.text('Enter your current passphrase'), findsOneWidget);
+      expect(find.text('Enter the current passphrase'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current passphrase'), findsOneWidget);
     });
   });

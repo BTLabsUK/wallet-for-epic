@@ -347,7 +347,7 @@
   "@deskSetLnodeSettingsChanged": {
     "description": "Local node panel: notice title when node settings changed while it runs."
   },
-  "deskSetLnodeSettingsChangedText": "They apply at the next restart.",
+  "deskSetLnodeSettingsChangedText": "Changes apply at the next restart.",
   "@deskSetLnodeSettingsChangedText": {
     "description": "Local node panel: notice text when node settings changed."
   },

@@ -23,7 +23,7 @@
   "@deskInvIssuerAmountCap": {
     "description": "Error: the amount is above the coin's supply cap."
   },
-  "deskInvIssuerAmountHelp": "Nothing leaves your wallet: the payer pays this amount plus their own fee.",
+  "deskInvIssuerAmountHelp": "Nothing leaves this wallet: the payer pays this amount plus the fee.",
   "@deskInvIssuerAmountHelp": {
     "description": "Help under the amount: a request spends nothing from this wallet."
   },
@@ -159,7 +159,7 @@
   "@deskInvIssuerCancelTitle": {
     "description": "Confirm dialog title."
   },
-  "deskInvIssuerCancelBody": "It will not arrive. {payer}’s coins stay locked in their wallet until they cancel on their side.",
+  "deskInvIssuerCancelBody": "It will not arrive. The coins stay locked in {payer}’s wallet until cancelled there.",
   "@deskInvIssuerCancelBody": {
     "description": "Confirm dialog text for cancelling a paid request on the receiving side.",
     "placeholders": {
@@ -185,7 +185,7 @@
   "@deskInvIssuerLate": {
     "description": "Quiet note on an ended request that got a late payment."
   },
-  "deskInvIssuerPaidText": "{payer} paid. Your wallet finished the payment and posted it.",
+  "deskInvIssuerPaidText": "{payer} paid. This wallet finished the payment and posted it.",
   "@deskInvIssuerPaidText": {
     "description": "Detail text of a paid request.",
     "placeholders": {

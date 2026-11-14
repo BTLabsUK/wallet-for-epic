@@ -83,7 +83,7 @@ void main() {
     expect(find.text(_l.deskHistConflictTitle), findsOneWidget);
     expect(find.textContaining("The old wallet’s history has different details for 1 payment."), findsOneWidget);
     final cards = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
-    expect(cards, ['Mine:true', 'Old wallet:false', 'Mine:true', 'Old wallet:false']);
+    expect(cards, ['Current:true', 'Old wallet:false', 'Current:true', 'Old wallet:false']);
     expect(find.text('File'), findsNothing);
   });
 
@@ -105,7 +105,7 @@ void main() {
     await _oldWalletDiffers(tester);
     final key = _container.read(deskProvider).txs!.firstWhere((t) => t.id == 103).key;
     await tester.tap(find.text(_l.deskHistConflictOldWallet).first);
-    await tester.tap(find.widgetWithText(EButton, 'Keep all mine'));
+    await tester.tap(find.widgetWithText(EButton, 'Keep all current'));
     await _answered(tester);
     expect(_api.lastUseOldWallet, {'$key|counterparty': false, '$key|transport': false});
   });

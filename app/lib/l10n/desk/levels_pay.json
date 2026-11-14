@@ -109,7 +109,7 @@
       }
     }
   },
-  "deskLvPayHeroHold": "{amount} on hold until {name} signs",
+  "deskLvPayHeroHold": "{amount} locked until {name} signs",
   "@deskLvPayHeroHold": {
     "description": "Overview's hero sentence at Shallow: a payment you sent is waiting for the recipient to sign, its coins are on hold.",
     "placeholders": {
@@ -123,7 +123,7 @@
       }
     }
   },
-  "deskLvPayHeroHoldMany": "{amount} on hold until signed",
+  "deskLvPayHeroHoldMany": "{amount} locked until signed",
   "@deskLvPayHeroHoldMany": {
     "description": "Overview's hero sentence at Shallow: payments you sent are waiting to be signed, their coins are on hold; amount is their sum.",
     "placeholders": {

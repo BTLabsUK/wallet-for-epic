@@ -335,7 +335,7 @@
   "@deskSetBackupNotEncryptedBody": {
     "description": "Export CSV dialog: text of the warning notice."
   },
-  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in your exported wallet data.} other{{count} payments are not in your exported wallet data.}}",
+  "deskSetBackupReminderNever": "{count, plural, one{1 payment is not in the exported wallet data.} other{{count} payments are not in the exported wallet data.}}",
   "@deskSetBackupReminderNever": {
     "description": "Reminder on Overview when the history was never backed up. Count is the number of payments.",
     "placeholders": {

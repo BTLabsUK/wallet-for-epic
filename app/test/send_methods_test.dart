@@ -741,8 +741,8 @@ void main() {
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(
         find.text(
-          'Their wallet was not reached. The amount stays locked until you cancel '
-          'it, or for up to 1 day.',
+          'The recipient’s wallet was not reached. The amount stays locked until '
+          'cancelled, or for up to 1 day.',
         ),
         findsOneWidget,
       );
@@ -1110,7 +1110,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, body: const HelpScreen(topic: HelpId.receive));
       expect(
-        find.text('Receive your first EPIC'),
+        find.text('Receive EPIC'),
         findsOneWidget,
       );
     });

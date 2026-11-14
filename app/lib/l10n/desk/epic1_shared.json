@@ -11,7 +11,7 @@
   "@deskE1ErrPrintedFull": {
     "description": "The wallet has made its 32 printed payment codes; one must be retired before making another."
   },
-  "deskE1ErrOwnRelayLocal": "Your Epicbox server is on this device. Pick another server to make links.",
+  "deskE1ErrOwnRelayLocal": "This wallet’s Epicbox server runs on this device only. Pick another server to make links.",
   "@deskE1ErrOwnRelayLocal": {
     "description": "Payment links need a message server others can reach; the user's server runs on this device only."
   },

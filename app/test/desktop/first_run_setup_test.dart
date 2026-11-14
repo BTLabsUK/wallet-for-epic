@@ -197,7 +197,7 @@ void main() {
     await wait(tester, 4000);
     await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
-    await tester.tap(find.textContaining('I have written down'));
+    await tester.tap(find.textContaining('written down'));
     await tester.pump();
     await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 800);
@@ -315,7 +315,7 @@ void main() {
     await wait(tester, 4000);
     await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
-    await tester.tap(find.textContaining('I have written down'));
+    await tester.tap(find.textContaining('written down'));
     await tester.pump();
     await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 800);

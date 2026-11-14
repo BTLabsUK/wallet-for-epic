@@ -178,7 +178,7 @@
   "@deskShellNotQuitTitle": {
     "description": "Toast title when Quit is pressed while a send is in progress."
   },
-  "deskShellNotQuitBody": "A send is in progress. Quit again once it finishes.",
+  "deskShellNotQuitBody": "A payment is in progress. Quit again once it finishes.",
   "@deskShellNotQuitBody": {
     "description": "Toast body when Quit is pressed while a send is in progress."
   },
@@ -220,7 +220,7 @@
   "@deskTourOverviewTitle": {
     "description": "Title of the tour's first step, on Home: the balance. The page's name, as its tab says it."
   },
-  "deskTourOverviewText": "The balance and what is still confirming, then the latest payments. Everything else is in the sidebar.",
+  "deskTourOverviewText": "The balance and what is still confirming, then the latest payments. Send and Receive are here; the rest is in the tabs at the top.",
   "@deskTourOverviewText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },
@@ -252,7 +252,7 @@
   "@deskTourActivityTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourActivityText": "Every transaction with its progress and details. A number on this sidebar entry means something waits for an action.",
+  "deskTourActivityText": "Every payment with its progress and details. A number on this tab means something needs an action.",
   "@deskTourActivityText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },

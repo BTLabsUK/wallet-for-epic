@@ -497,7 +497,7 @@ void main() {
       expect(find.text(_l.methodDirectTor), findsOneWidget);
       expect(find.text(_l.histConflictEmpty), findsOneWidget);
       final mine = tester.getSemantics(
-        find.bySemanticsLabel('Mine: Mine note'),
+        find.bySemanticsLabel('Current: Mine note'),
       );
       expect(mine.flagsCollection.isChecked, ui.CheckedState.isTrue);
     });

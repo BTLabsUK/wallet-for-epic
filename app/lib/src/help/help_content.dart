@@ -213,12 +213,12 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final phone = platform == HelpPlatform.phone;
   // The words that differ between a computer and a phone.
   final device = phone ? 'this phone' : 'this computer';
-  final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
+  final secret = phone ? 'the PIN or passphrase' : 'the wallet password';
   final nodePlace = phone ? '[[Settings › Network & privacy › Node]]' : '[[Settings › Node]]';
   final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[Settings › Network & privacy › Tor only]]' : '[[Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Settings › Network & privacy]]';
-  final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
+  final cancelPlace = '[[Activity]] (open the payment, then **Cancel payment**)';
   final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › Wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Restore from phrase** (on the first screen, or under [[Settings › This wallet]])'
@@ -230,29 +230,29 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   return <HelpTopic>[
     HelpTopic(
       'start',
-      'Receive your first EPIC',
+      'Receive EPIC',
       'Open Receive, copy the Epicbox address and give it to the sender. The payment arrives by itself.',
       [
         HelpBlock.p('The Epicbox address is a long code that ends in **@** and the name of the Epicbox server, for example **…@${hostSettings.epicboxUse}**. It is safe to share: people need it to pay, and nobody can take anything with it.'),
-        const HelpBlock.ol(['Open [[Receive]].', 'Copy the address (or show its QR code) and send it to the person who pays.', 'The payment shows up in Activity on its own.']),
+        const HelpBlock.ol(['Open [[Receive]].', 'Copy the address and send it to the payer, or press **Show as a code** for the payer to scan.', 'The payment shows up in Activity on its own.']),
         if (phone)
           const HelpBlock.p('Receiving works while the app is open and the node is synced. A payment sent while the app is closed waits on the Epicbox server, like a post-office box, and arrives at the next unlock.')
         else
-          const HelpBlock.p('Receiving starts by itself after unlock, once the node is synced. If the wallet is closed when someone pays, Epicbox holds the payment, and the wallet collects it at the next unlock.'),
-        HelpBlock.p('A new payment first waits for the sender’s wallet to finish it, then shows as confirming. After $confirmations confirmations it can be spent.'),
+          const HelpBlock.p('Receiving starts by itself after unlock, once the node is synced. If the wallet is closed when someone pays, the Epicbox server holds the payment, and the wallet collects it at the next unlock.'),
+        HelpBlock.p('A new payment shows **Waiting for sender** until the sender’s wallet finishes it, then **Confirming**. After $confirmations confirmations it can be spent.'),
       ],
       id: HelpId.receive,
     ),
     HelpTopic(
       'start',
       'Send to someone',
-      'Open Send, paste their Epicbox address, enter the amount, check the fee and send.',
+      'Open Send, paste the recipient’s Epicbox address, enter the amount, check the fee and send.',
       [
-        HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', phone ? 'Tap **Continue**, check, then **Send … EPIC**.' : 'Press **Review**, check, then **Send … EPIC**. The Shallow view has no Review: its button is **Send … EPIC**.']),
-        const HelpBlock.p('A paired contact has two options on Send, explained in “Payments after pairing”; a payment to the paired option is sealed. Any other contact gets the payment at their public Epicbox address.'),
-        const HelpBlock.p('Now the recipient’s wallet has to answer (see "Why does a transaction need both sides?"). Over Epicbox they do not have to be online right now: the payment waits until their wallet opens. Meanwhile the coins it uses are locked, so they cannot be spent twice.'),
-        HelpBlock.p('When their answer comes back, the wallet finishes the payment and posts it to the network by itself. It is final after $confirmations confirmations.'),
-        HelpBlock.p('**No answer?** The status says "Waiting for recipient". Ask them to open their wallet. If the answer never comes, cancel the payment in $cancelPlace to unlock the coins. A payment nobody answers cancels by itself after about a day.'),
+        HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', phone ? 'Tap **Continue**, check, then **Send … EPIC**.' : 'Press **Review**. **Check and send** shows the payment: enter the wallet password, then press **Send … EPIC**. The Shallow view has no Review: its button is **Send … EPIC**.']),
+        const HelpBlock.p('A paired contact has two options on Send, explained in “Payments after pairing”; a payment to the paired option is sealed. Any other contact is paid at the public Epicbox address.'),
+        const HelpBlock.p('Now the recipient’s wallet has to answer (see “Why does a payment need both wallets?”). Over Epicbox the recipient need not be online: the payment waits until the recipient’s wallet opens. Meanwhile the coins it uses are locked, so they cannot be spent twice.'),
+        HelpBlock.p('When the answer comes back, the wallet finishes the payment and posts it to the network by itself. It is final after $confirmations confirmations.'),
+        HelpBlock.p('**No answer?** The status says **Waiting for recipient**. Ask the recipient to open the wallet. If the answer never comes, cancel the payment in $cancelPlace to unlock the coins. A payment nobody answers cancels by itself after about a day.'),
         if (phone)
           HelpBlock.p('Sending needs a synced node. An Epicbox address also needs the Epicbox server to answer; a Link address (${tor ? 'http or .onion' : 'http'}) needs the recipient’s wallet open and reachable at that moment.')
         else
@@ -263,14 +263,14 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'start',
       'Send with a file',
-      'The manual way: save a transaction file, pass it to the recipient, then open the response file they send back.',
+      'The manual way: save a transaction file, pass it to the recipient, then open the response file that comes back.',
       [
         const HelpBlock.p('Direct · File Transfer does the same handshake as Epicbox, but the messages travel by hand, for example by chat or a USB stick. It works without Epicbox and without both wallets being online at the same time.'),
         if (phone)
-          const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and share the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** opens the file under [[Receive › Direct · File]]. Their wallet signs it and shares a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › Direct · File]]. The wallet finishes the payment and posts it.'])
+          const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and share the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** opens the file under [[Receive › Direct · File]]. The wallet signs it and shares a response file (it ends in .response) to send back.', '**Sender:** opens the response file under [[Receive › Direct · File]]. The wallet finishes the payment and posts it.'])
         else
-          const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and save the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** opens the file with **Open** under Transaction files on [[Receive]], or with [[Receive › Transaction files › Sign a transaction file]]. Their wallet signs it and saves a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file the same way, or with [[Receive › Transaction files › Finalize a response file]]. The wallet finishes the payment and posts it.']),
-        const HelpBlock.p('Other Epic Cash wallets have their own names for these steps. If the response file never comes, cancel the payment in Activity to unlock the coins.'),
+          const HelpBlock.ol(['**Sender:** on [[Send]], choose **Pay with a file** under To, enter the amount and save the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** on [[Receive]], under **Payment files**, presses **Open** and picks the file. The wallet signs it and saves a response file (it ends in .response) to send back.', '**Sender:** opens the response file the same way. In **Finish the payment** it can also be scanned as a code or pasted as text. The wallet finishes the payment and posts it.']),
+        HelpBlock.p('Other Epic Cash wallets have their own names for these steps. If the response file never comes, cancel the payment in $cancelPlace to unlock the coins.'),
       ],
       id: HelpId.file,
     ),
@@ -280,9 +280,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         'Pay in person: Direct · QR Payment',
         'Two phones next to each other pay with an animated QR code, no connection between them.',
         [
-          HelpBlock.p('The payment travels as an animated QR code that the other phone scans with its camera. Nothing is encrypted, so show the code only to the person you pay.'),
-          HelpBlock.ol(['**Sender:** on Send, choose **Direct · QR Payment**, enter the amount, tap **Make payment QR**, then **Show QR**. The code stays hidden until you show it, counts 3, 2, 1, and hides itself after 40 seconds.', '**Receiver:** on [[Receive › Direct · QR]], tap **Scan payment QR**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan their reply**. The wallet posts the payment and the tracker follows it.']),
-          HelpBlock.p('Keep the code in the frame until every part is read: the ring and the count show how far it got. A code that is not a payment QR is ignored, with a note. Screenshots are blocked on the code screen.'),
+          HelpBlock.p('The payment travels as an animated QR code that the other phone scans with its camera. Nothing is encrypted, so show the code only to the recipient.'),
+          HelpBlock.ol(['**Sender:** on Send, choose **Direct · QR Payment**, enter the amount, tap **Make payment QR**, then **Show as a code**. The code stays hidden until then, counts 3, 2, 1, and hides itself after 40 seconds.', '**Recipient:** on [[Receive › Direct · QR]], tap **Scan a code**, accept the payment, then show the reply the same way.', '**Sender:** taps **Scan the reply**. The wallet posts the payment and the tracker follows it.']),
+          HelpBlock.p('Keep the code in the frame until every part is read: the ring and the count show how far it got. A code that is not a payment code is ignored, with a note. Screenshots are blocked on the code screen.'),
         ],
         id: HelpId.qr,
       ),
@@ -291,11 +291,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Payment methods and send defaults',
       'Every method is a switch; Epicbox is on by default. Send opens on the default method.',
       [
-        HelpBlock.p('The Transactions page in $payPlace holds three things.'),
+        HelpBlock.p('$payPlace holds three things.'),
         HelpBlock.ul([
-          '${phone ? '**Payment methods.**' : '**Methods.**'} One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses, and a Tor address of this ${phone ? 'phone' : 'computer'} to be paid at) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.${phone ? ' On a phone, **Link · HTTP** has no switch: it only sends, to any http(s) address you paste.' : ''}',
+          '${phone ? '**Payment methods.**' : '**Methods.**'} One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses, and a Tor address of this ${phone ? 'phone' : 'computer'} to be paid at) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.${phone ? ' On a phone, **Link · HTTP** has no switch: it only sends, to any pasted http(s) address.' : ''}',
           if (phone) '**Default method.** The method the Send screen opens with; another can be picked on Send.' else '**Default method**, under **Sending**: the method the Send screen opens with; another can be picked on Send.',
-          if (phone) '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.' else '**Strategy for sends** and **Split change**, under **Sending**: which outputs a send spends, Smallest or All, and whether its change is split. They show in the Deep end view while **Send options** is on in Advanced.',
+          if (phone) '**Send defaults.** Which outputs a payment spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.' else '**Strategy for sends** and **Split change**, under **Sending**: which outputs a payment spends, Smallest or All, and whether its change is split. They show in the Deep end view while **Send options** is on in Advanced.',
         ]),
       ],
       id: HelpId.methods,
@@ -320,12 +320,12 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ),
     HelpTopic(
       'how',
-      'Why does a transaction need both sides?',
+      'Why does a payment need both wallets?',
       'In Epic Cash the recipient’s wallet helps build every transaction, so both wallets must take part.',
       [
         HelpBlock.p('Epic Cash uses Mimblewimble. Instead of writing an address and an amount on the chain, the two wallets build each transaction together, like a handshake:'),
         HelpBlock.ol(['The sender’s wallet starts it and locks the outputs being sent.', 'The recipient’s wallet adds its part and signs.', 'The sender’s wallet signs too, finishes the transaction and posts it to the network.']),
-        HelpBlock.p('Something has to carry the messages between the two wallets. **Epicbox** holds each message while the other wallet is offline, so both need not be online at once. ${tor ? '**Link · HTTP** and **Link · Tor** go straight' : '**Link · HTTP** goes straight'} to the other wallet while it is open. **Direct · File Transfer**, with a transaction file, is the manual way.'),
+        HelpBlock.p('Something has to carry the messages between the two wallets. An **Epicbox** server holds each message while the other wallet is offline, so both need not be online at once. ${tor ? '**Link · HTTP** and **Link · Tor** go straight' : '**Link · HTTP** goes straight'} to the other wallet while it is open. **Direct · File Transfer**, with a transaction file, is the manual way.'),
       ],
       handshake: true,
       id: HelpId.handshake,
@@ -337,18 +337,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('When the network accepts a transaction, a miner puts it in a block. The block that holds the transaction is the first confirmation, and every block after it adds one more and makes the transaction harder to undo.'),
         HelpBlock.p('This wallet treats a transaction as final after **$confirmations confirmations**. Until then it shows as **Confirming**, and received outputs cannot be spent yet. The number is a setting: $defaultMinimumConfirmations by default, any count from $minMinimumConfirmations to $maxMinimumConfirmations. Fewer confirmations are faster but less safe: now and then the chain replaces its newest blocks (a reorganisation), and a payment with few confirmations can be undone by it.'),
-        const HelpBlock.ul(['**Waiting**: both wallets have to sign the payment. Over Epicbox this happens by itself.', '**Confirming**: the payment is on the chain and collects confirmations.', '**Spendable**: the confirmations are in, and the coins can be spent.']),
+        const HelpBlock.ul(['**Waiting for recipient** or **Waiting for sender**: both wallets have to sign the payment. Over Epicbox this happens by itself.', '**Confirming**: the payment is on the chain and collects confirmations.', '**Spendable**: the confirmations are in, and the coins can be spent.']),
         const HelpBlock.p('Taking longer than usual? The wallet sees new blocks only through its node: check that the node is synced.'),
       ],
       id: HelpId.confirmations,
     ),
     HelpTopic(
       'how',
-      'What the blockchain shows',
+      'What the chain shows',
       'No addresses and no amounts: only coin records the network can check without seeing who or how much.',
       [
-        const HelpBlock.p('On many blockchains anyone can look up an address and see its balance and history. Epic Cash is different:'),
-        HelpBlock.ul(['**No addresses on the blockchain.** The Epicbox address only tells Epicbox where to deliver messages. It is never written on the blockchain.', '**No amounts on the blockchain.** Amounts are hidden with cryptography, and the network can still check that no coins were created out of nothing.', '**Notes stay off the blockchain.** A message added to a send goes only to the other wallet. Contacts and wallet names stay on $device.']),
+        const HelpBlock.p('On many other chains anyone can look up an address and see its balance and history. Epic Cash is different:'),
+        HelpBlock.ul(['**No addresses on the chain.** The Epicbox address only tells the Epicbox server where to deliver messages. It is never written on the chain.', '**No amounts on the chain.** Amounts are hidden with cryptography, and the network can still check that no coins were created out of nothing.', '**Messages and notes stay off the chain.** A message added to a payment goes only to the other wallet. Notes, contacts and wallet names stay on $device.']),
         HelpBlock.p('What is not hidden: the node and the Epicbox server see the wallet’s IP address, and a public node can see which outputs the wallet asks about. ${tor ? 'With **Tor only**, the wallet connects to the node and the Epicbox server through Tor. ' : ''}A VPN hides the IP address.'),
       ],
       id: HelpId.privacy,
@@ -356,21 +356,21 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'how',
       'Locked amounts and change',
-      'The balance is made of separate outputs. A send spends whole outputs and returns the rest as change.',
+      'The balance is made of separate outputs. A payment spends whole outputs and returns the rest as change.',
       [
         const HelpBlock.p('The balance is a set of outputs. To send 3 EPIC from a 5 EPIC output, the wallet spends the whole output: 3 EPIC go to the recipient, a small fee goes to the miners, and the rest comes back as a new output, the **change**.'),
-        const HelpBlock.p('That is why part of the balance can be unavailable after a send:'),
-        HelpBlock.ul(['**Locked**: outputs in a send that is not finished yet. They are unlocked if the send is cancelled.', '**Awaiting finalization**: a transaction still waiting for the other wallet.', '**Confirming**: outputs in a block with fewer than $confirmations confirmations, including the change.']),
+        const HelpBlock.p('That is why part of the balance can be unavailable after a payment:'),
+        HelpBlock.ul(['**Locked in sends**: outputs in a payment that is not finished yet. They unlock if the payment is cancelled.', '**Waiting for sender**: a payment to this wallet that the sender’s wallet has not finished yet.', '**Confirming**: outputs in a block with fewer than $confirmations confirmations, including the change.']),
         const HelpBlock.p('The outputs are listed under [[Outputs]].'),
       ],
       id: HelpId.locked,
     ),
     HelpTopic(
       'how',
-      'Smallest or All: which outputs a send spends',
+      'Smallest or All: which outputs a payment spends',
       'Smallest (the default) uses the fewest small outputs and leaves the rest spendable. All uses every output.',
       [
-        const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the send confirms; the rest can be sent right away.'),
+        const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the payment confirms; the rest can be sent right away.'),
         HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
         HelpBlock.p('The default is set under $payPlace, with Send options switched on in Advanced${phone ? '' : ', in the Deep end view'}.'),
       ],
@@ -379,11 +379,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'how',
       'Split and consolidate',
-      'Split makes more outputs so sends can follow each other; Consolidate merges them into one.',
+      'Split makes more outputs so payments can follow each other; Consolidate merges them into one.',
       [
-        HelpBlock.p('Both are normal network transactions from this wallet to itself, confirmed after $confirmations blocks like any send, and both lock every spendable output until then.'),
-        const HelpBlock.ul(['**Split** takes the spendable balance and makes 2 to 10 outputs of nearly equal value.', '**Consolidate** takes every spendable output and makes one.', '**Split change** (on by default) does the same inside an ordinary send when few outputs would be left, for 0.004 EPIC per extra output.']),
-        const HelpBlock.p('Activity shows each as two entries, a send and a receive, both with this wallet. Both are under [[Outputs › Manage outputs]].'),
+        HelpBlock.p('Both are normal network transactions from this wallet to itself, confirmed after $confirmations confirmations like any payment, and both lock every spendable output until then.'),
+        const HelpBlock.ul(['**Split** takes the spendable balance and makes 2 to 10 outputs of nearly equal value.', '**Consolidate** takes every spendable output and makes one.', '**Split change** (on by default) does the same inside an ordinary payment when few outputs would be left, for 0.004 EPIC per extra output.']),
+        const HelpBlock.p('Activity shows each as two entries, one sent and one received, both with this wallet. Both are under [[Outputs › Manage outputs]].'),
       ],
       id: HelpId.split,
     ),
@@ -399,7 +399,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     ),
     HelpTopic(
       'safety',
-      'Your recovery phrase',
+      'The recovery phrase',
       'These words are the only way to get the EPIC back. Write them on paper and never share them.',
       [
         HelpBlock.p('The recovery phrase (24 words for a new wallet) is the key to the money. With it the wallet can be restored on any ${phone ? 'phone or computer' : 'computer'}, and anyone else who has it can take the EPIC.'),
@@ -443,12 +443,12 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     const HelpTopic(
       'safety',
       'Before you import',
-      'The import only reads older wallets and files. Have a backup of every wallet first; you import at your own risk.',
+      'The import only reads older wallets and files. Back up every wallet first; importing is at your own risk.',
       [
         HelpBlock.p('This is an early version of a new app.'),
-        HelpBlock.p('The import only reads your old wallets and files and never deletes or changes them.'),
-        HelpBlock.p('Before you continue, make sure you have a backup of every wallet: its recovery phrase, and its wallet files if you keep them.'),
-        HelpBlock.p('You import at your own risk; no responsibility is taken for any loss.'),
+        HelpBlock.p('The import only reads the old wallets and files and never deletes or changes them.'),
+        HelpBlock.p('First back up every wallet: its recovery phrase, and its wallet files if there are any.'),
+        HelpBlock.p('Importing is at your own risk; no responsibility is taken for any loss.'),
       ],
       id: HelpId.importWarning,
     ),
@@ -457,17 +457,17 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       phone ? 'Nodes' : 'Nodes: a public one or a local one',
       phone
           ? 'A node connects the wallet to the Epic Cash network. The wallet uses a public one; pick another when it falls behind.'
-          : 'A node connects the wallet to the Epic Cash network. A public node is quickest; a local one is your own.',
+          : 'A node connects the wallet to the Epic Cash network. A public node is quickest; a local one runs on this computer.',
       [
         const HelpBlock.p('The wallet needs a node to read the chain (the balance and confirmations) and to post transactions to the network.'),
         if (phone)
-          HelpBlock.p('A **public node** is one of the nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about${tor ? '; with **Tor only**, the wallet reaches it through Tor' : ''}.')
+          HelpBlock.p('A **public node** is run by someone else. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about${tor ? '; with **Tor only**, the wallet reaches it through Tor' : ''}.')
         else
-          const HelpBlock.ul(['**Public node** (the default): one of the public nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about.', '**Local node**: runs on this computer as a separate program that starts and stops with the app. It first downloads the whole chain, then a little every day; on disk it takes about 5 GB and grows slowly. While it syncs, the wallet shows its progress and uses a public node. See "Running the local node".']),
+          const HelpBlock.ul(['**Public node** (the default): run by someone else. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about.', '**Local node**: runs on this computer as a separate program that starts and stops with the app. It first downloads the whole chain, then a little every day; on disk it takes about 5 GB and grows slowly. While it syncs, the wallet shows its progress and uses a public node. See "Running the local node".']),
         if (phone)
-          HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; in a state such as **12 behind** or **Not answering** the wallet moves to another node in your list by itself, unless Node failover is off: then pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
+          HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; in a state such as **12 behind** or **Not answering** the wallet moves to another node in the list by itself, unless Node failover is off: then pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
         else
-          HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one.'),
+          HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one. **Node** in the status bar shows its state (**Network** in the Shallow view).'),
       ],
       id: HelpId.node,
     ),
@@ -508,7 +508,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       'network',
       'Epicbox',
-      'Epicbox delivers transactions between wallets and holds them while the other wallet is offline.',
+      'An Epicbox server carries payments between wallets and holds them while the other wallet is offline.',
       [
         const HelpBlock.p('Both wallets take part in every transaction, so their messages need a meeting point. An Epicbox server is that meeting point: it holds a payment sent to this wallet until the wallet comes online, and carries the wallet’s answer back. The messages are encrypted, and Epicbox cannot spend the coins.'),
         const HelpBlock.p('The Epicbox address is the wallet’s public key, then **@** and the name of its Epicbox server.'),
@@ -523,7 +523,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       HelpTopic(
         'network',
         'Tor',
-        'The network mode Tor only routes the wallet’s connections through Tor and gives it a .onion address. Slower. Off by default.',
+        'The connection mode Tor only routes the wallet’s connections through Tor and gives it a .onion address. Slower. Off by default.',
         [
           HelpBlock.p('With $torPlace, the Epicbox connection goes through Tor, a payment to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
           const HelpBlock.ul([
@@ -540,13 +540,13 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       const HelpTopic(
         'network',
         'Tor',
-        'The network mode Tor only routes the wallet’s connections through Tor, with no ports to open. Slower. Off by default.',
+        'The connection mode Tor only routes the wallet’s connections through Tor, with no ports to open. Slower. Off by default.',
         [
-          HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Turning Tor on does not change the addresses you share.'),
+          HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Turning Tor on does not change the Epicbox address.'),
           HelpBlock.ul([
-            'Turn it on with [[Settings › Network & privacy › Tor only]]. The Tor row in the sidebar shows its state.',
-            'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or choose another network mode.',
-            'Link sends to an http(s) address do not go over Tor; Send says so.',
+            'Turn it on in [[Settings › Network & privacy › Tor only]] or in the connection mode menu in the status bar. **Tor** in the status bar shows its state.',
+            'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or choose another connection mode.',
+            'Link payments to an http(s) address do not go over Tor; Send says so.',
             'Link · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Link · Tor address.',
             'Tor is blocked or not allowed in some countries; there it does not connect.',
           ]),
@@ -556,35 +556,33 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ),
     HelpTopic(
       'network',
-      'Network modes',
+      'Connection modes',
       tor
-          ? 'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.'
-          : 'Normal, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.',
+          ? 'All connections, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.'
+          : 'All connections, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.',
       [
-        HelpBlock.p('How much of the internet the wallet uses is one choice under $netPlace, and the wallet remembers it. Off **Normal**, a mark on ${phone ? 'the Wallet tab' : 'the title bar'} names the mode; ${phone ? 'tap' : 'click'} it to change it.'),
+        HelpBlock.p('How much of the internet the wallet uses is one choice, the connection mode, under $netPlace, and the wallet remembers it. ${phone ? 'Off **All connections**, a mark on the Wallet tab names the mode; tap it to change it.' : 'The connection mode menu in the status bar shows the mode; click it to change it.'}'),
         HelpBlock.ul([
-          tor
-              ? '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.'
-              : '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.',
+          '**All connections**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.',
           if (tor)
             '**Tor only**: every connection goes through Tor, the node and Epicbox included. Until Tor is ready nothing connects, and the status icons say **Waiting for Tor**. Link · HTTP receiving stays off.',
-          '**Node only**: the wallet talks only to the node in use, the first in your node list. Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices are off. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} work.${tor ? ' With Tor on, the node is reached over Tor.' : ''}',
-          '**Kill switch**: nothing connects, the node included. The wallet opens with the last known balance and history. You can make, sign and finish payments by ${phone ? '**Direct · File Transfer** and **Direct · QR Payment**' : '**Direct · File Transfer**'}, show your address, back up and export. Sends waiting for a recipient pause and continue when you leave.',
+          '**Node only**: the wallet talks only to the node in use, the first in the node list. Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices are off. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} work.${tor ? ' With Tor on, the node is reached over Tor.' : ''}',
+          '**Kill switch**: nothing connects, the node included. The wallet opens with the last known balance and history. Making, signing and finishing payments by ${phone ? '**Direct · File Transfer** and **Direct · QR Payment**' : '**Direct · File Transfer**'} still works, as do showing the address, backing up and exporting. Payments waiting for a recipient pause and continue after leaving Kill switch.',
         ]),
-        const HelpBlock.h('Why your own node for Node only', anchor: HelpAnchor.ownNode),
-        HelpBlock.p('The node in use sees every request the wallet makes. A node on ${phone ? 'this phone or your network' : 'this computer or your network'} keeps that to yourself and answers fast. Any node works. Pick it under $nodePlace.'),
+        const HelpBlock.h('Which node for Node only', anchor: HelpAnchor.ownNode),
+        HelpBlock.p('The node in use sees every request the wallet makes. A node on ${phone ? 'this phone' : 'this computer'} or the local network keeps that private and answers fast. Any node works. Pick it under $nodePlace.'),
         const HelpBlock.h('Paying from Kill switch', anchor: HelpAnchor.coldStorage),
         HelpBlock.ol([
           'Make the payment by ${phone ? '**Direct · File Transfer** or **Direct · QR Payment**' : '**Direct · File Transfer**'} as usual, and finish it when the reply comes back.',
           'The wallet says **Finished, not posted**: it is complete, but only a device that is online can post it.',
-          '**Save file** or ${phone ? '**Show QR**' : '**Copy** the text'}, and take it to a device that is online.',
+          '**Save file** or ${phone ? '**Show as a code**' : '**Copy** the text'}, and take it to a device that is online.',
           phone
               ? 'There, open the Activity menu and choose **Post a finished payment**, load the file or scan the code and press **Post**. Any Epic Cash wallet can do this; it needs no key.'
-              : 'There, open Receive, press **Open** under Transaction files and choose the file: the wallet posts it. Any Epic Cash wallet can do this; it needs no key.',
-          'Back here the payment shows **To be posted elsewhere**, then **Confirming** once the wallet sees it on chain after you leave Kill switch.',
+              : 'There, open Receive, press **Open** under **Payment files** and choose the file: the wallet posts it. Any Epic Cash wallet can do this; it needs no key.',
+          'Back here the payment shows **To be posted elsewhere**, then **Confirming** once the wallet sees it on the chain after leaving Kill switch.',
         ]),
-        HelpBlock.p('Services a mode turns off show as **Off (Node only)** in grey: that is the mode, not an error. Nothing is cancelled when you switch; a send waiting for its recipient over Epicbox continues when you leave${tor ? ' (or switch to Tor only)' : ''}.'),
-        HelpBlock.p('**Node failover** is on by default. When your node stops answering or falls behind, the wallet moves to the best working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. While no node in your list answers, the wallet keeps trying and connects as soon as one does. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
+        HelpBlock.p('Services a mode turns off show as **Off (Node only)** in grey: that is the mode, not an error. Switching cancels nothing; a payment waiting for its recipient over Epicbox continues once the mode lets Epicbox connect again.'),
+        HelpBlock.p('**${phone ? 'Node failover' : 'Switch node automatically'}** is on by default. When the chosen node stops answering or falls behind, the wallet moves to the best working node in the list, for this session only: the chosen node stays saved, and the wallet goes back to it at the next start or as soon as a node is picked by hand. While no node in the list answers, the wallet keeps trying and connects as soon as one does. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -595,23 +593,23 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('**Advanced** is a page in Settings for the parts most people never need. Everything on it is off to begin with, so the wallet stays simple. A switch adds its part where it belongs, and **Hide everything again** switches them all off.'),
         HelpBlock.ul([
-          '**Outputs**: the Outputs page, with the coins the balance is made of and what you can do with them.',
+          '**Outputs**: the Outputs ${phone ? 'page' : 'tab'}, with the coins the balance is made of and what can be done with them.',
           '**Technical details**: slate ID, kernel, commitments and block height on a ${phone ? 'payment’s details' : 'transaction'}. Without it, the **More** link on a transaction shows them once.',
           if (phone)
-            '**Send options**: Strategy and Split change, in $payPlace: which outputs a send spends, and whether its change is split.'
+            '**Send options**: Strategy and Split change, in $payPlace: which outputs a payment spends, and whether its change is split.'
           else
-            '**Send options**: a fold on Send where one send chooses Smallest or All, and whether to split the change.',
+            '**Send options**: a fold on Send where a payment chooses Smallest or All, and whether to split the change.',
           '**Server details**: hosts, latency, version and block height in the node and Epicbox lists and on the status card.',
           if (phone)
             '**Recheck from a height**: lets Recheck balance start from a block height or a date instead of the first block. Restore always offers the choice.'
           else
             '**Recheck from a height**: lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone.',
-          if (phone) '**Direct · File Transfer**: File Transfer under $payPlace, to pay or get paid with a file you pass on yourself.',
+          if (phone) '**Direct · File Transfer**: File Transfer under $payPlace, to pay or get paid with a file passed on by hand.',
           if (!phone) '**Local node**: lets this computer run its own node, under $nodePlace.',
           if (!phone) '**Logs**: the Logs group under $filesPlace, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
         HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: $defaultMinimumConfirmations by default, any count from $minMinimumConfirmations to $maxMinimumConfirmations. Fewer confirmations are faster but less safe.${phone ? '' : ' It is set under $payPlace.'}'),
-        HelpBlock.p(phone ? 'The network mode and **Node failover** are under $netPlace: see "Network modes".' : 'The network mode is under $netPlace: see "Network modes". **Switch node automatically** is under $nodePlace.'),
+        HelpBlock.p(phone ? 'The connection mode and **Node failover** are under $netPlace: see “Connection modes”.' : 'The connection mode is under $netPlace: see “Connection modes”. **Switch node automatically** is under $nodePlace.'),
       ],
       id: HelpId.advanced,
     ),
@@ -623,31 +621,31 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           : 'Most problems are a node still syncing, a recipient who has not answered yet, or a busy port.',
       [
         if (phone)
-          const HelpBlock.p('**"Node syncing" or "Cannot reach the network right now."** Sending needs a node that answers and has caught up. Press **Retry** on Send, wait a little, or tap the node icon on the Wallet tab and choose another node.')
+          const HelpBlock.p('**“Node syncing” or “Cannot reach the network right now.”** Sending needs a node that answers and has caught up. Press **Retry** on Send, wait a little, or tap the node icon on the Wallet tab and choose another node.')
         else
-          const HelpBlock.p('**"Node not synced": cannot send.** Sending opens when the node has caught up. Wait a little, or choose another node under [[Settings › Node]].'),
+          const HelpBlock.p('**“Node not synced”: cannot send.** Sending opens when the node has caught up. Wait a little, or choose another node under [[Settings › Node]].'),
         if (phone)
-          const HelpBlock.p('**"Epicbox not connected".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox icon on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
+          const HelpBlock.p('**“Epicbox not connected”.** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox icon on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
         else
-          HelpBlock.p('**"Epicbox server not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under $payPlace. Meanwhile Direct · File Transfer works.'),
-        const HelpBlock.p('**A send says "Waiting for recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the payment in Activity to unlock the coins.'),
+          HelpBlock.p('**“Epicbox server not answering”.** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under $epicboxPlace. Meanwhile Direct · File Transfer works.'),
+        HelpBlock.p('**A payment says “Waiting for recipient”.** The recipient’s wallet has not answered yet. Ask the recipient to open it. If that never happens, cancel the payment in $cancelPlace to unlock the coins.'),
         if (phone)
           const HelpBlock.p('**A payment has not arrived.** Check the status icons on the Wallet tab: the node synced, Epicbox connected. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then it waits for its confirmations.')
         else
-          const HelpBlock.p('**A payment has not arrived.** Check on Receive that receiving is on and the node is synced. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then it waits for its confirmations.'),
+          const HelpBlock.p('**A payment has not arrived.** Check the status bar: **Node** synced, **Epicbox** connected. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then it waits for its confirmations.'),
         if (phone && tor)
-          const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press **Retry** on Receive or Send, or choose another mode under [[Settings › Network & privacy]]; nothing goes out meanwhile.'),
+          const HelpBlock.p('**Tor says “Not connected”.** Tor could not reach its network. Press **Retry** on Receive or Send, or choose another mode under [[Settings › Network & privacy]]; nothing goes out meanwhile.'),
         if (!phone) ...[
-          HelpBlock.p('**"Port ${appConfig.httpListenPort} is in use by another program".** Another program, often another Epic wallet, uses the port for Link · HTTP payments. Close it, then press Try again on Receive. ${tor ? 'Epicbox, Link · Tor and Direct · File Transfer keep' : 'Epicbox and Direct · File Transfer keep'} working meanwhile.'),
-          const HelpBlock.p('**"Another Epic program is using this folder".** Another Epic wallet or node has the same files open. Close it and try again.'),
+          HelpBlock.p('**“Port ${appConfig.httpListenPort} is in use by another program”.** Another program, often another Epic wallet, uses the port for Link · HTTP payments. Close it, then press Try again on Receive. ${tor ? 'Epicbox, Link · Tor and Direct · File Transfer keep' : 'Epicbox and Direct · File Transfer keep'} working meanwhile.'),
+          const HelpBlock.p('**“Another Epic program is using this folder”.** Another Epic wallet or node has the same files open. Close it and try again.'),
         ],
         if (phone)
           const HelpBlock.p('**Forgotten PIN.** Delete the wallet on the unlock screen and restore it from its recovery phrase with a new PIN. Without the phrase the EPIC cannot be recovered.')
         else
-          const HelpBlock.p('**"Wrong password".** Check Caps Lock and the keyboard layout. A forgotten password: restore the wallet from its recovery phrase and choose a new one.'),
+          const HelpBlock.p('**“Wrong password”.** Check Caps Lock and the keyboard layout. A forgotten password: restore the wallet from its recovery phrase and choose a new one.'),
         HelpBlock.p(tor
-            ? '**An action is greyed out and names a mode, or says "Waiting for Tor".** Tor only, Node only or Kill switch is on under $netPlace. Set the mode back to Normal there, or wait for Tor to connect.'
-            : '**An action is greyed out and names a mode.** Node only or Kill switch is on under $netPlace. Set the mode back to Normal there.'),
+            ? '**An action is greyed out and names a mode, or says “Waiting for Tor”.** Tor only, Node only or Kill switch is on under $netPlace. Set the mode back to All connections there, or wait for Tor to connect.'
+            : '**An action is greyed out and names a mode.** Node only or Kill switch is on under $netPlace. Set the mode back to All connections there.'),
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,
@@ -659,8 +657,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         HelpBlock.p('A row called **Sent from another device** or **Received by another device** is a payment of another wallet that uses the same recovery phrase. The chain shows these coins spent or received, so this wallet lists it.'),
         HelpBlock.p('The amount is what left this wallet after the change that came back, or what arrived. The other side and the fee are not known here.'),
-        HelpBlock.p('**If you use no other wallet with this phrase**, ask another node first: switch to another node and use Recheck balance. A node that leaves coins out of its answers can make them look spent. If they still show spent, someone else may have the recovery phrase: move the EPIC to a new wallet with a new phrase.'),
-        HelpBlock.p('**A send that fails with "The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did."** was released. The wallet refreshes; send again once the balance is right.'),
+        HelpBlock.p('**If no other wallet uses this phrase**, ask another node first: switch to another node and use Recheck balance. A node that leaves coins out of its answers can make them look spent. If they still show spent, someone else may have the recovery phrase: move the EPIC to a new wallet with a new phrase.'),
+        HelpBlock.p('**A payment that fails with “The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet with the same recovery phrase did.”** is released. The wallet refreshes; send again once the balance is right.'),
       ],
       id: HelpId.otherWallet,
     ),
@@ -676,13 +674,13 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('A payment sent from this wallet first waits for the other side’s answer. While it waits, Cancel is certain: nothing can go through without this wallet, and the coins are unlocked at once. No fee. The other wallet may still show the payment as waiting, but it cannot finish it.'),
         HelpBlock.p('Once the answer is in, this wallet finishes the payment and posts it to the network in one step. A payment that reached the network cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network does not take it, the payment is complete all the same and could still go through later. ${phone ? 'After about a day the wallet offers Release coins, with the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee; Unlock coins is free.' : 'The wallet offers to post it again, or to cancel. That Cancel checks the network first and refuses when the network already has the payment. Otherwise it offers the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee; Unlock coins is free.'}'),
         const HelpBlock.p('A payment nobody answers cancels by itself after about a day (1,440 blocks), and the coins are unlocked. This holds for Epicbox, Link and Direct payments alike: Cancel is certain until the other side’s answer is in this wallet.'),
-        HelpBlock.p('**A send looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again. A cancelled payment cannot go through later.'),
-        const HelpBlock.p('**Declined by the receiver**: the receiver’s wallet refused the payment. The send is cancelled and its coins are free to spend again.'),
+        HelpBlock.p('**A payment looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again. A cancelled payment cannot go through later.'),
+        const HelpBlock.p('**Declined by the recipient**: the recipient’s wallet refused the payment. The payment is cancelled and its coins can be spent again.'),
         const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
         const HelpBlock.p('When a payment arrives, this wallet answers at once, and none of its coins are locked. From then on the sender’s wallet finishes and posts the payment. Cancel is unavailable for 15 minutes, and longer while the sender reports it posted.'),
         const HelpBlock.p('After that, Cancel clears a payment the sender never posted. It is not certain: the wallet checks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
         const HelpBlock.h('Invoices', anchor: HelpAnchor.requests),
-        const HelpBlock.p('An invoice sent from this wallet holds no coins until it is paid. It can be withdrawn any time before then: the payer can no longer pay it, and no coins move. An invoice nobody pays expires after 24 hours. An invoice shown as a QR code can be paid once; a second scan is refused, so nothing is paid twice.'),
+        const HelpBlock.p('An invoice sent from this wallet holds no coins until it is paid. It can be withdrawn any time before then: the payer can no longer pay it, and no coins move. An invoice nobody pays expires after 24 hours. An invoice shown as a code can be paid once; a second scan is refused, so nothing is paid twice.'),
         const HelpBlock.p('An invoice paid from this wallet is the other way round: the other side already has what it needs to finish the payment. Cancel appears once the invoice’s time runs out, about a day after it was paid, or sooner when the other side withdraws it. It offers the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee, so the old payment can no longer go through; Unlock coins is free and leaves it to the other side. If the coins cannot be moved back at once, the wallet tries again while it is open. Until then the other side could still finish the payment, and if it does, it shows as paid.'),
       ],
       id: HelpId.cancel,
@@ -704,11 +702,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
     HelpTopic(
       phone ? 'network' : 'maintenance',
       phone ? 'Server lists' : 'The settings file',
-      phone ? 'Which node and Epicbox server the wallet uses.' : 'One file holds your Node and Epicbox lists. A mistake in it never costs the last good settings.',
+      phone ? 'Which node and Epicbox server the wallet uses.' : 'One file holds the Node and Epicbox lists. A mistake in it never costs the last good settings.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Your Node and Epicbox lists are changed under $nodePlace and $epicboxPlace.',
+            'The Node and Epicbox lists are changed under $nodePlace and $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**The first server of each list is the one in use.** Picking a server moves it to the top; reordering the list changes the one in use. When the first node does not answer, the next one is tried.',
@@ -716,10 +714,10 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           ]),
         ] else ...[
           HelpBlock.p(
-            'The file **settings.toml** holds your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. It sits in the data folder: **~/.epic_cash_desktop/settings.toml** on Linux and macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** on Windows (**Open folder** next to [[Settings › Files & logs › App files]]).',
+            'The file **settings.toml** holds the Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. It sits in the data folder: **~/.epic_cash_desktop/settings.toml** on Linux and macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** on Windows (**Open folder** next to [[Settings › Files & logs › App files]]).',
           ),
           HelpBlock.ul([
-            'A change in the app is written to the file at once. A change you save in the file applies while the app runs, within a moment.',
+            'A change in the app is written to the file at once. A change saved in the file applies while the app runs.',
             '**The first server of each list is the one in use.** Picking a server moves it to the top; reordering the list changes the one in use. When the first node does not answer, the next one is tried.',
             '**The first Epicbox server is in the Epicbox address of every wallet.** Moving another one to the top gives each wallet a new address; payments sent to an old address do not arrive.',
             '**An error in the file:** the last good settings stay in use, a notice names the line, and a broken file is never overwritten.',

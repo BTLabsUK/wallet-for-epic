@@ -194,7 +194,7 @@ void main() {
       );
       await pump(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
-      expect(trustText(tester), startsWith('This payee now gets paid to a different wallet than when you paid on'));
+      expect(trustText(tester), startsWith('This recipient now gets paid to a different wallet than on'));
     });
   });
 

@@ -27,7 +27,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 交易 › Epicbox|Settings › Transactions › Epicbox]]';
   final torPlace = phone ? '[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]' : '[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[设置 › 网络与隐私|Settings › Network & privacy]]';
-  final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
+  final cancelPlace = '[[活动|Activity]]（打开该付款，然后点 **取消付款**）';
   final historyBackupPlace = phone
       ? '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]'
       : '[[设置 › 钱包 › 导出钱包数据|Settings › Wallet › Export wallet data]]';
@@ -45,12 +45,12 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '打开“接收”，复制 Epicbox 地址并发给付款方。付款会自动到账。',
       [
         HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@${hostSettings.epicboxUse}**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
-        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款方。', '付款会自动出现在“活动”中。']),
+        const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址发给付款方，或点 **显示为二维码** 让付款方扫描。', '付款会自动出现在“活动”中。']),
         if (phone)
           const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会像放在邮政信箱里一样在 Epicbox 服务器上等待，并在下次解锁时到账。')
         else
           const HelpBlock.p('解锁后，节点同步完成即自动开始接收。如果有人付款时钱包未打开，Epicbox 会保存这笔付款，钱包在下次解锁时取回。'),
-        HelpBlock.p('新付款首先要等发送方钱包完成交易，然后显示为确认中。经过 $confirmations 个确认后即可使用。'),
+        HelpBlock.p('新付款在发送方钱包完成它之前显示 **等待发送方**，之后显示 **确认中**。经过 $confirmations 个确认后即可使用。'),
       ],
       id: HelpId.receive,
     ),
@@ -59,11 +59,11 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '向他人发送',
       '打开“发送”，粘贴对方的 Epicbox 地址，输入金额，核对手续费后发送。',
       [
-        HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', phone ? '点 **继续**，检查无误后点 **发送 … EPIC**。' : '点 **确认**，检查无误后点 **发送 … EPIC**。浅水视图没有确认：它的按钮是 **发送 … EPIC**。']),
+        HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', phone ? '点 **继续**，检查无误后点 **发送 … EPIC**。' : '点 **确认**。**确认并发送** 会显示这笔付款：输入钱包密码，然后点 **发送 … EPIC**。浅水视图没有确认：它的按钮是 **发送 … EPIC**。']),
         const HelpBlock.p('已配对的联系人在“发送”中有两个选项，详见“配对后的付款”；用配对选项付款会被密封。其他联系人则收到发往其公开 Epicbox 地址的付款。'),
         const HelpBlock.p('此时需要收款方钱包回复（见“为什么交易需要双方参与？”）。通过 Epicbox 时，对方不必此刻在线：付款会一直等到对方钱包打开。在此期间，所用的币会被锁定，因此无法被花费两次。'),
         HelpBlock.p('收到对方回复后，钱包会自动完成付款并广播到网络。经过 $confirmations 个确认后交易即为最终。'),
-        HelpBlock.p('**没有回复？** 状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消付款以解锁币。无人回复的付款会在大约一天后自动取消。'),
+        HelpBlock.p('**没有回复？** 状态会显示 **等待接收方**。请收款方打开钱包。如果一直没有回复，请在 $cancelPlace 取消付款以解锁币。无人回复的付款会在大约一天后自动取消。'),
         if (phone)
           HelpBlock.p('发送需要已同步的节点。Epicbox 地址还需要 Epicbox 服务器有响应；链接地址（${tor ? 'http 或 .onion' : 'http'}）需要收款方钱包在那一刻处于打开且可访问的状态。')
         else
@@ -80,8 +80,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.ol(['**发送方：** 在“发送”中选择 **直接 · 文件传输**，输入金额并分享文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 在[[接收 › 直接 · 文件|Receive › Direct · File]]中打开该文件。其钱包签名后分享一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 直接 · 文件|Receive › Direct · File]]中打开回复文件。钱包完成付款并广播。'])
         else
-          const HelpBlock.ol(['**发送方：** 在“发送”中选择 **直接 · 文件传输**，输入金额并保存文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 用[[接收|Receive]]中“交易文件”下的 **打开** 打开该文件，或在[[接收 › 交易文件 › 签署交易文件|Receive › Transaction files › Sign a transaction file]]中打开该文件。其钱包签名后保存一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 以同样方式打开回复文件，或在[[接收 › 交易文件 › 完成回复文件|Receive › Transaction files › Finalize a response file]]中打开回复文件。钱包完成付款并广播。']),
-        const HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在“活动”中取消付款以解锁币。'),
+          const HelpBlock.ol(['**发送方：** 在[[发送|Send]]的“接收方”下选择 **用文件付款**，输入金额并保存文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 在[[接收|Receive]]的 **付款文件** 下点 **打开** 并选择该文件。钱包签名后保存一个回复文件（以 .response 结尾），用来发回。', '**发送方：** 以同样方式打开回复文件。在 **完成付款** 中也可以扫描二维码或粘贴文本。钱包完成付款并广播。']),
+        HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在 $cancelPlace 取消付款以解锁币。'),
       ],
       id: HelpId.file,
     ),
@@ -146,7 +146,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('网络接受交易后，矿工会把它打包进一个区块。包含该交易的区块是第一个确认，之后的每个区块再增加一个确认，使交易越来越难以撤销。'),
         HelpBlock.p('此钱包在 **$confirmations 个确认** 后视交易为最终。在此之前显示为 **确认中**，收到的输出暂时不能花费。这个数字可以在设置中更改：默认 $defaultMinimumConfirmations，可设为 $minMinimumConfirmations 到 $maxMinimumConfirmations。确认数越少越快，但越不安全：链偶尔会替换它最新的区块（称为重组），确认数少的付款可能因此被撤销。'),
-        const HelpBlock.ul(['**等待中**：两个钱包都要对付款签名。通过 Epicbox 时这会自动完成。', '**确认中**：付款已在链上，正在累积确认。', '**可用**：确认已够，币可以花费。']),
+        const HelpBlock.ul(['**等待接收方** 或 **等待发送方**：两个钱包都要对付款签名。通过 Epicbox 时这会自动完成。', '**确认中**：付款已在链上，正在累积确认。', '**可用**：确认已够，币可以花费。']),
         const HelpBlock.p('比平时慢？钱包只能通过它的节点看到新区块：请检查节点是否已同步。'),
       ],
       id: HelpId.confirmations,
@@ -276,7 +276,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           HelpBlock.p('点“钱包”标签页上的节点图标，查看节点状态并切换到其他节点。发送需要已同步的节点；出现 **落后 12** 或 **无响应** 这类状态时，钱包会自动改用列表里的其他节点；若节点故障切换已关闭，则请自己换一个。要按地址添加节点，请打开$nodePlace，在列表上方的字段中输入地址。')
         else
-          HelpBlock.p('在$nodePlace中更换：节点会连同状态一起列出。点击一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。'),
+          HelpBlock.p('在$nodePlace中更换：节点会连同状态一起列出。点击一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。状态栏中的 **节点** 显示它的状态（浅水视图中为 **网络**）。'),
       ],
       id: HelpId.node,
     ),
@@ -353,8 +353,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。开启 Tor 不会改变你分享的地址。'),
           HelpBlock.ul([
-            '在[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]中开启。侧边栏中的 Tor 行显示其状态。',
-            'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或选择另一个网络模式。',
+            '在[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]中开启，或在状态栏的连接模式菜单中开启。状态栏中的 **Tor** 显示其状态。',
+            'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或选择另一个连接模式。',
             '链接 · HTTP 发往 http(s) 地址时不经由 Tor；“发送”会注明这一点。',
             'Tor 开启期间 链接 · HTTP 接收关闭：其他钱包直接发来的付款会到达 链接 · Tor 地址。',
             '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
@@ -370,11 +370,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           ? '常规、仅 Tor、仅节点或紧急断网：各自连接什么，以及如何用一个从不联网的钱包付款。'
           : '常规、仅节点或紧急断网：各自连接什么，以及如何用一个从不联网的钱包付款。',
       [
-        HelpBlock.p('钱包使用多少互联网，是 $netPlace 中的一个选择，钱包会记住它。离开**常规**模式后，${phone ? '“钱包”标签页' : '标题栏'}上的标记会写出当前模式；${phone ? '点' : '单击'}它即可更改。'),
+        HelpBlock.p('钱包使用多少互联网，是 $netPlace 中的一个选择，即连接模式，钱包会记住它。${phone ? '离开 **全部连接** 模式后，“钱包”标签页上的标记会写出当前模式；点它即可更改。' : '状态栏中的连接模式菜单显示当前模式；单击它即可更改。'}'),
         HelpBlock.ul([
-          tor
-              ? '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。'
-              : '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。',
+          '**全部连接**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。',
           if (tor)
             '**仅 Tor**：所有连接都经过 Tor，包括节点和 Epicbox。Tor 就绪之前什么都不会连接，状态图标会写**等待 Tor**。链接 · HTTP 收款保持关闭。',
           '**仅节点**：钱包只与正在使用的节点通信，即节点列表中的第一个。Epicbox、链接、状态站点、价格、更新检查、浏览器链接、问题报告、配对和已关联设备都已关闭。${phone ? '**直接 · 二维码付款**和**直接 · 文件传输**' : '**直接 · 文件传输**'}可用。${tor ? '开启 Tor 时，节点通过 Tor 连接。' : ''}',
@@ -389,7 +387,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           '**保存文件**，并${phone ? '**显示二维码**' : '**复制**文本'}，然后带到联网的设备上。',
           phone
               ? '在那里在“活动”菜单中选择**广播已完成的付款**，载入文件或扫描二维码，然后按**广播**。任何 Epic Cash 钱包都可以做到；不需要密钥。'
-              : '在那里的“接收”中，点“交易文件”下的**打开**并选择文件：钱包会广播它。任何 Epic Cash 钱包都可以做到；不需要密钥。',
+              : '在那里的“接收”中，点 **付款文件** 下的 **打开** 并选择文件：钱包会广播它。任何 Epic Cash 钱包都可以做到；不需要密钥。',
           '回到这里，付款会显示**待在其他设备广播**；离开“紧急断网”后，钱包在链上看到它，就会显示**确认中**。',
         ]),
         HelpBlock.p('被模式关闭的服务会显示为灰色的**关闭（仅节点）**：这是模式，不是错误。切换时不会取消任何内容；通过 Epicbox 等待接收方的付款会在你离开该模式后继续${tor ? '（或切换到“仅 Tor”）' : ''}。'),
@@ -438,12 +436,12 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**“Epicbox 未连接”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 图标，选择另一个服务器。在此期间可以使用 直接 · 文件传输。')
         else
-          HelpBlock.p('**“Epicbox 服务器无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在$payPlace中选择另一个服务器。在此期间可以使用 直接 · 文件传输。'),
-        const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消付款以解锁币。'),
+          HelpBlock.p('**“Epicbox 服务器无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在$epicboxPlace中选择另一个服务器。在此期间可以使用 直接 · 文件传输。'),
+        HelpBlock.p('**付款显示“等待接收方”。** 收款方钱包尚未回复。请收款方打开钱包。如果一直没有打开，请在 $cancelPlace 取消付款以解锁币。'),
         if (phone)
           const HelpBlock.p('**付款没有到账。** 查看“钱包”标签页上的状态图标：节点已同步、Epicbox 已连接。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后它会等待确认。')
         else
-          const HelpBlock.p('**付款没有到账。** 在“接收”中检查接收是否已开启、节点是否已同步。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后它会等待确认。'),
+          const HelpBlock.p('**付款没有到账。** 检查状态栏：**节点** 已同步，**Epicbox** 已连接。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后它会等待确认。'),
         if (phone && tor)
           const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在“接收”或“发送”中点 **重试**，或在[[设置 › 网络与隐私|Settings › Network & privacy]]中选择另一个模式；在此期间不会发出任何内容。'),
         if (!phone) ...[
@@ -455,8 +453,8 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
         HelpBlock.p(tor
-            ? '**某个操作是灰色的，并写出某个模式或“等待 Tor”。** $netPlace 中开启了“仅 Tor”、“仅节点”或“紧急断网”。请在那里把模式改回“常规”，或等待 Tor 连接。'
-            : '**某个操作是灰色的，并写出某个模式。** $netPlace 中开启了“仅节点”或“紧急断网”。请在那里把模式改回“常规”。'),
+            ? '**某个操作是灰色的，并写出某个模式或“等待 Tor”。** $netPlace 中开启了“仅 Tor”、“仅节点”或“紧急断网”。请在那里把模式改回“全部连接”，或等待 Tor 连接。'
+            : '**某个操作是灰色的，并写出某个模式。** $netPlace 中开启了“仅节点”或“紧急断网”。请在那里把模式改回“全部连接”。'),
         HelpBlock.p('**余额看起来不对。** 运行$recheckPlace。'),
       ],
       id: HelpId.trouble,

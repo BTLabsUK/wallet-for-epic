@@ -715,7 +715,7 @@ void main() {
       final l = englishStrings;
       expect(
         checkRecipient(l, service, ''),
-        contains('Enter their address'),
+        contains('Enter an address'),
       );
       expect(checkRecipient(l, service, 'esBare'), contains('Not a valid'));
       expect(
@@ -1453,7 +1453,7 @@ void main() {
       );
       await _tap(tester, find.text(_l.phoneStepPayFileReply));
       expect(
-        find.textContaining('answer to your send of 1.5\u00a0EPIC'),
+        find.textContaining('response to this wallet’s payment of 1.5\u00a0EPIC'),
         findsOneWidget,
       );
       await _tap(tester, find.text(_l.slateFinishPayment));
@@ -2086,7 +2086,7 @@ void main() {
       await tester.tap(find.text(_l.deskKitMoreInHelp));
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsOneWidget);
-      expect(find.text('Receive your first EPIC'), findsOneWidget);
+      expect(find.text('Receive EPIC'), findsOneWidget);
     });
 
     testWidgets('the tracker links to "Send to someone"', (tester) async {

@@ -519,7 +519,7 @@
   "@deskTxBroadcastDone": {
     "description": "Toast after Broadcast again worked."
   },
-  "deskTxNowUndeliveredDirect": "Not delivered. The recipient’s wallet did not take the payment ({method}), so they have not received it. Send it again, or cancel it to free the coins.",
+  "deskTxNowUndeliveredDirect": "Not delivered. The recipient’s wallet did not take the payment ({method}). Send it again, or cancel it to free the coins.",
   "@deskTxNowUndeliveredDirect": {
     "description": "Payment detail, the line under the status of a Link send that never reached the other wallet. method is HTTP or Tor. Send again and Cancel are buttons below it.",
     "placeholders": {
@@ -528,7 +528,7 @@
       }
     }
   },
-  "deskTxNowUndeliveredRelay": "Not delivered. {relay} did not answer, so the recipient has not received the payment. Send it again, or cancel it to free the coins.",
+  "deskTxNowUndeliveredRelay": "Not delivered: the Epicbox server {relay} did not answer. Send it again, or cancel it to free the coins.",
   "@deskTxNowUndeliveredRelay": {
     "description": "Transaction detail, 'what is happening now' for a payment that was not delivered, naming the relay that did not answer. {relay} is its host name, as in the address.",
     "placeholders": {

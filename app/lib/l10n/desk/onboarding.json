@@ -63,7 +63,7 @@
   "@deskOnbWelcomeFolderWhere": {
     "description": "Short explanation under 'App data folder'."
   },
-  "deskOnbWelcomeFolderDetail": "With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.",
+  "deskOnbWelcomeFolderDetail": "With the local node, the chain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.",
   "@deskOnbWelcomeFolderDetail": {
     "description": "Longer explanation shown when the info button is pressed."
   },
@@ -201,7 +201,7 @@
   "@deskOnbCreateQrLabel": {
     "description": "Screen-reader label of the recovery phrase QR code image."
   },
-  "deskOnbCreateWritten": "I have written down all {count, plural, one{{count} word} other{{count} words}}",
+  "deskOnbCreateWritten": "All {count, plural, one{{count} word} other{{count} words}} written down",
   "@deskOnbCreateWritten": {
     "description": "Checkbox label the user ticks after writing the recovery phrase down. {count} is the number of words (12 or 24).",
     "placeholders": {
@@ -240,7 +240,7 @@
   "@deskOnbRestoreSide": {
     "description": "Title above the step rail on the left of the restore pages and label of the primary button of the password step."
   },
-  "deskOnbRestorePasswordLead": "Set the password that unlocks this wallet on this computer.",
+  "deskOnbRestorePasswordLead": "It unlocks this wallet on this computer.",
   "@deskOnbRestorePasswordLead": {
     "description": "Text under the title of the password step of the restore flow."
   },
@@ -1075,7 +1075,7 @@
   "@deskOnbUnlockUsePhrase": {
     "description": "Button on Unlock failed when the wallet's key is gone from the system keychain or key store; opens Set a new password, where the recovery phrase opens the wallet again."
   },
-  "deskOnbWelcomeFactAccount": "No account",
+  "deskOnbWelcomeFactAccount": "No sign-up",
   "@deskOnbWelcomeFactAccount": {
     "description": "Welcome, under the doors: the first of three short facts, its bold title. There is no sign-up."
   },
@@ -1091,7 +1091,7 @@
   "@deskOnbWelcomeFactLinkText": {
     "description": "Welcome: the line under 'Pay with one link'. 'epic1' and 'Epicbox' are names: keep them as they are (epic1 shows as its wordmark)."
   },
-  "deskOnbWelcomeFactNode": "Your own node, if you want",
+  "deskOnbWelcomeFactNode": "Own node, optional",
   "@deskOnbWelcomeFactNode": {
     "description": "Welcome: the third fact's bold title. The wallet can run its own node; it is optional."
   },

@@ -103,11 +103,11 @@
       }
     }
   },
-  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "phoneProgWaitingAnswer": "Waiting for the recipient’s wallet to answer",
   "@phoneProgWaitingAnswer": {
     "description": "Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet."
   },
-  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}’s wallet to answer",
   "@phoneProgWaitingAnswerNamed": {
     "description": "Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet. {name} is the recipient's name.",
     "placeholders": {
@@ -131,11 +131,11 @@
       }
     }
   },
-  "phoneProgAnswersLive": "Their wallet has not answered yet.",
+  "phoneProgAnswersLive": "The recipient’s wallet has not answered yet.",
   "@phoneProgAnswersLive": {
     "description": "Reason line of a sent payment that waits for the other wallet to answer directly."
   },
-  "phoneProgAnswersLiveNamed": "{who}'s wallet has not answered yet.",
+  "phoneProgAnswersLiveNamed": "{who}’s wallet has not answered yet.",
   "@phoneProgAnswersLiveNamed": {
     "description": "Reason line of a sent payment that waits for the other wallet to answer directly. {who} is the recipient's name.",
     "placeholders": {
@@ -271,11 +271,11 @@
   "@phonePayNever": {
     "description": "Gold row and sheet title on the payment page of a payment that waits."
   },
-  "phonePayNeverSend": "While a payment waits, its coins stay set aside and nothing is lost. If it never finishes, cancel it and the coins return to your balance.",
+  "phonePayNeverSend": "While a payment waits, its coins stay locked and nothing is lost. If it never finishes, cancel it and the coins return to the balance.",
   "@phonePayNeverSend": {
     "description": "Body of the sheet 'What if it never finishes?' for a payment the user sent."
   },
-  "phonePayNeverReceive": "Nothing is added to your balance until the payment is confirmed. If it never finishes, you can cancel it here and it is dropped.",
+  "phonePayNeverReceive": "Nothing is added to the balance until the payment is confirmed. If it never finishes, cancel it here and it is dropped.",
   "@phonePayNeverReceive": {
     "description": "Body of the sheet 'What if it never finishes?' for a payment the user receives."
   },
@@ -385,7 +385,7 @@
   "@phonePayRouteHttp": {
     "description": "Name of the route straight to the other wallet over a live connection."
   },
-  "phonePayViaEpicboxOutNamed": "The payment waited on an Epicbox server until {name}'s wallet collected it. {name} did not need to be online when you sent it.",
+  "phonePayViaEpicboxOutNamed": "The payment waited on an Epicbox server until {name}’s wallet collected it. {name} did not need to be online at the time.",
   "@phonePayViaEpicboxOutNamed": {
     "description": "Explanation in the route sheet for a payment sent by Epicbox to a named person.",
     "placeholders": {
@@ -395,11 +395,11 @@
       }
     }
   },
-  "phonePayViaEpicboxOut": "The payment waited on an Epicbox server until the other wallet collected it. They did not need to be online when you sent it.",
+  "phonePayViaEpicboxOut": "The payment waited on an Epicbox server until the other wallet collected it. The other wallet did not need to be online at the time.",
   "@phonePayViaEpicboxOut": {
     "description": "Explanation in the route sheet for a payment sent by Epicbox to someone with no name."
   },
-  "phonePayViaEpicboxIn": "The payment waited on an Epicbox server until your wallet collected it. You did not need to be online when it was sent.",
+  "phonePayViaEpicboxIn": "The payment waited on an Epicbox server until this wallet collected it. This wallet did not need to be online at the time.",
   "@phonePayViaEpicboxIn": {
     "description": "Explanation in the route sheet for a payment received by Epicbox."
   },
@@ -443,7 +443,7 @@
   "@phonePayRouteSubFile": {
     "description": "One line under the File route in the route sheet."
   },
-  "phonePayRouteSubTor": "Straight to their wallet, over Tor",
+  "phonePayRouteSubTor": "Straight to the other wallet, over Tor",
   "@phonePayRouteSubTor": {
     "description": "One line under the Tor route in the route sheet."
   },
@@ -456,7 +456,7 @@
       }
     }
   },
-  "phoneTxCancelledByUser": "Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.",
+  "phoneTxCancelledByUser": "Nothing was paid, and the coins are spendable again. If it already arrived, the recipient’s wallet may still show it as waiting.",
   "@phoneTxCancelledByUser": {
     "description": "Payment details of a cancelled send, under the Cancelled chip: no repeated word."
   },

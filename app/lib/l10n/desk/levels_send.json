@@ -35,7 +35,7 @@
   "@deskLvSendNothingLeaves": {
     "description": "Line under the Send button on Send at the Shallow level, and under the title of the password dialog that follows."
   },
-  "deskLvSendPasswordTitle": "Your password",
+  "deskLvSendPasswordTitle": "Wallet password",
   "@deskLvSendPasswordTitle": {
     "description": "Title of the dialog that asks for the wallet's password after Send at the Shallow level."
   },
@@ -77,7 +77,7 @@
       }
     }
   },
-  "deskLvSendYourAddress": "Your address",
+  "deskLvSendYourAddress": "This wallet’s address",
   "@deskLvSendYourAddress": {
     "description": "Heading of the address card on Receive at the Shallow level."
   },

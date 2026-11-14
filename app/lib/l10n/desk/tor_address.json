@@ -1,5 +1,5 @@
 {
-  "deskTorAddressChangedTitle": "Your Tor address changed",
+  "deskTorAddressChangedTitle": "This wallet’s Tor address changed",
   "@deskTorAddressChangedTitle": {
     "description": "Desktop Overview: the one-line, one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'."
   }

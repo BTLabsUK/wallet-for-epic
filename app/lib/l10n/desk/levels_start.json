@@ -1,5 +1,5 @@
 {
-  "deskLvStartPreviewLabel": "Preview of the Overview. It shows more as the dial goes deeper.",
+  "deskLvStartPreviewLabel": "Preview of Home. It shows more as the dial goes deeper.",
   "@deskLvStartPreviewLabel": {
     "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
   },
@@ -31,7 +31,7 @@
   "@deskLvStartMiniWallet": {
     "description": "The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet."
   },
-  "deskLvStartMiniLine": "+12.5 arriving · 25.0 on hold",
+  "deskLvStartMiniLine": "+12.5 arriving · 25.0 locked",
   "@deskLvStartMiniLine": {
     "description": "The one sentence under the balance in the small Overview picture at Shallow. A sample."
   },

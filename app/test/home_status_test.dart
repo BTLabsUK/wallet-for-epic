@@ -430,7 +430,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), t.risk);
       expect(
         _tip_(tester, epicboxStatusKey),
-        startsWith('Your wallet is not connected to its Epicbox server and keeps trying.'),
+        startsWith('This wallet is not connected to its Epicbox server and keeps trying.'),
       );
     });
 
@@ -572,7 +572,7 @@ void main() {
       await _pump(tester, tor: _torUnpublished);
       expect(_label(tester, directIconKey), 'Link, Not reachable');
       expect(_dot(tester, directIconKey), _tokens(tester).risk);
-      expect(_tip_(tester, directIconKey), startsWith('Your Tor address is not reachable yet.'));
+      expect(_tip_(tester, directIconKey), startsWith('This wallet’s Tor address is not reachable yet.'));
     });
 
     testWidgets('not connected: Tor red, the two blocked and say why', (

@@ -85,7 +85,7 @@ void main() {
       expect(offer!.name, mockBoxAt(1));
       expect(offer.name, isNot(mockBox));
       expect(find.text(_l.deskErrEpicboxUnreachable), findsOneWidget);
-      expect(find.text('${mockBoxAt(1)} can take over; your address changes with it.'), findsOneWidget);
+      expect(find.text('${mockBoxAt(1)} can take over; this wallet’s address changes with it.'), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Switch'), findsOneWidget);
       expect(find.textContaining(mockBoxOp(1)), findsNothing, reason: 'never the operator name');
       // A toast, gone by itself; the offer stays for the Epicbox popover.
@@ -125,7 +125,7 @@ void main() {
       expect(moved.from.host, mockBox);
       expect(moved.address, endsWith('@$name'));
       expect(rig.container.read(deskRelayOfferProvider), isNull);
-      expect(find.text('Now on $name. Your new address is ready.'), findsOneWidget);
+      expect(find.text('Now on $name. The new address is ready.'), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Show new address'), findsOneWidget);
       // Shown once: the move stays for Receive, the toast does not come back.
       expect(rig.container.read(deskRelayMovedProvider), isNotNull);

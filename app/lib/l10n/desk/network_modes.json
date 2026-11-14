@@ -1,5 +1,5 @@
 {
-  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
+  "deskFinNotPostedKillBody": "{amount} is finished, but Kill switch is on, so this computer cannot post it. Save or copy it, then post it from an online device: Receive › Payment files › Open.",
   "@deskFinNotPostedKillBody": {
     "description": "Body of that screen (desktop).",
     "placeholders": {

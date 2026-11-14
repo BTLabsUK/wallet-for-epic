@@ -71,7 +71,7 @@
   "@deskKitHeroCaptionEpicbox": {
     "description": "Caption under the Epicbox picture on the Send page. Written in capitals; at most about 24 characters, it sits in a 160 px wide picture."
   },
-  "deskKitHeroCaptionHttp": "STRAIGHT TO THEIR WALLET",
+  "deskKitHeroCaptionHttp": "STRAIGHT TO THE RECIPIENT",
   "@deskKitHeroCaptionHttp": {
     "description": "Caption under the HTTP picture on the Send page. Capitals; at most about 24 characters."
   },
@@ -115,7 +115,7 @@
   "@deskKitReachNoIpText": {
     "description": "Notice text under 'Public IP not found'."
   },
-  "deskKitReachNoIpTextLan": "The internet could not be asked for it. Try again later. On your network: {address}.",
+  "deskKitReachNoIpTextLan": "The internet could not be asked for it. Try again later. On the local network: {address}.",
   "@deskKitReachNoIpTextLan": {
     "description": "Same as the previous message, plus the computer's address on the local network.",
     "placeholders": {
@@ -128,7 +128,7 @@
   "@deskKitReachClosedTitle": {
     "description": "Notice title when the HTTP port is not reachable from outside."
   },
-  "deskKitReachClosedText": "Forward TCP port {port} on your router to this computer, then check again.",
+  "deskKitReachClosedText": "Forward TCP port {port} on the router to this computer, then check again.",
   "@deskKitReachClosedText": {
     "description": "Notice text: the user must forward the port on their router.",
     "placeholders": {
@@ -137,7 +137,7 @@
       }
     }
   },
-  "deskKitReachClosedTextLan": "Forward TCP port {port} on your router to this computer ({address}), then check again.",
+  "deskKitReachClosedTextLan": "Forward TCP port {port} on the router to this computer ({address}), then check again.",
   "@deskKitReachClosedTextLan": {
     "description": "Same, with the computer's address on the local network in brackets.",
     "placeholders": {
@@ -161,7 +161,7 @@
   "@deskKitReachUnknownText": {
     "description": "Notice text under 'Reachability unknown'."
   },
-  "deskKitReachUnknownTextLan": "The port check did not answer. Try again later. On your network: {address}.",
+  "deskKitReachUnknownTextLan": "The port check did not answer. Try again later. On the local network: {address}.",
   "@deskKitReachUnknownTextLan": {
     "description": "Same, plus the computer's address on the local network.",
     "placeholders": {
@@ -183,7 +183,7 @@
       }
     }
   },
-  "deskKitReachOpenTextLan": "Port {port} is forwarded. On your network: {address}.",
+  "deskKitReachOpenTextLan": "Port {port} is forwarded. On the local network: {address}.",
   "@deskKitReachOpenTextLan": {
     "description": "Same, plus the computer's address on the local network.",
     "placeholders": {
@@ -574,7 +574,7 @@
   "@deskKitMethodHttpLocal": {
     "description": "Detail of the HTTP status line: reachable from this computer only. Keep the address 127.0.0.1."
   },
-  "deskKitMethodHttpNotReachable": "local network only. To be paid from the internet, your router must pass port {port} on to this computer.",
+  "deskKitMethodHttpNotReachable": "local network only. To be paid from the internet, the router must forward port {port} to this computer.",
   "@deskKitMethodHttpNotReachable": {
     "description": "Detail of the HTTP status line after the bold word Receiving, while Internet is on but the reach check found the port closed: the listener answers on the local network, the internet does not reach it until the router forwards the port.",
     "placeholders": {
@@ -645,7 +645,7 @@
   "@deskKitChipNotOverTor": {
     "description": "Small chip: this method does not go through Tor. Narrow chip."
   },
-  "deskKitPasswordNote": "Estimated on this device from the length and from common words, names and patterns, for an attacker with fast hardware trying 100,000 guesses a second against this wallet’s file. A guide, not a guarantee.",
+  "deskKitPasswordNote": "Estimated on this device from the length, common words, names and patterns, for an attacker trying 100,000 guesses a second on fast hardware. A guide, not a guarantee.",
   "@deskKitPasswordNote": {
     "description": "Tooltip behind the info icon under a new-password field: how the 'time to crack' is estimated."
   },
@@ -745,7 +745,7 @@
   "@deskHttpPublicTitle": {
     "description": "Title of the Link · HTTP address for wallets on the internet (http://<public IP>:port), on Receive and in Settings. One word."
   },
-  "deskHttpPublicNote": "For wallets on the internet. Your router must forward port {port} to this computer.",
+  "deskHttpPublicNote": "For wallets on the internet. The router must forward port {port} to this computer.",
   "@deskHttpPublicNote": {
     "description": "Caption under the internet switch of Link · HTTP: turning it on makes the wallet listen on all interfaces (0.0.0.0). Short and factual.",
     "placeholders": {

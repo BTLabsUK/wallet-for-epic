@@ -133,7 +133,7 @@ void main() {
       expect(find.byKey(const ValueKey('http-public-note')), findsOneWidget);
       // The mock's reach check: the port is not forwarded, so no green internet claim.
       expect(find.text(_l.deskKitReachClosedTitle), findsOneWidget);
-      expect(httpState(tester), 'Receiving\u00A0· local network only. To be paid from the internet, your router must pass port 3415 on to this computer.');
+      expect(httpState(tester), 'Receiving\u00A0· local network only. To be paid from the internet, the router must forward port 3415 to this computer.');
     });
 
     // The port's field: this computer's address above it is selectable text, not an input.

@@ -125,7 +125,7 @@ void main() {
       wallet.linkMeta.nameServicePins.addAll(changedPin);
       await show(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
-      expect(find.textContaining('This payee now gets paid to a different wallet than when you paid on'), findsOneWidget);
+      expect(find.textContaining('This recipient now gets paid to a different wallet than on'), findsOneWidget);
     });
   });
 

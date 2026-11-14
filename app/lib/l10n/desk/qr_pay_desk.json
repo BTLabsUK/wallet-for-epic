@@ -1,5 +1,5 @@
 {
-  "deskQrHiddenReply": "Show it to the sender’s wallet. Only their wallet can use it.",
+  "deskQrHiddenReply": "Show it to the sender’s wallet. Only that wallet can use it.",
   "@deskQrHiddenReply": {
     "description": "Under the covered reply QR on desktop: the receiver's reply to a payment (QR Payment), shown back to the sender's wallet, on a phone or another computer."
   },
@@ -23,7 +23,7 @@
   "@deskQrAimReply": {
     "description": "Hint in desktop's scan dialog when scanning the reply to this wallet's payment or invoice."
   },
-  "deskQrAimAny": "Point the camera at the QR code of a payment, a reply, an invoice or a finished payment.",
+  "deskQrAimAny": "Point the camera at the code of a payment, a response, an invoice or a finished payment.",
   "@deskQrAimAny": {
     "description": "Hint in desktop's scan dialog opened from Transaction files, which takes any of these four kinds."
   },
@@ -39,7 +39,7 @@
   "@deskQrPastedName": {
     "description": "Name of a result line in Transaction files on desktop for a transaction pasted in the scan dialog, in place of a file name."
   },
-  "deskSetTxQrHint": "Pay and get paid by showing and scanning a transaction as an animated QR code, with no network needed. On this computer it comes with File Transfer: Show QR and Scan QR sit beside the file buttons.",
+  "deskSetTxQrHint": "Pay and get paid by showing and scanning a transaction as an animated code, with no network needed. On this computer it comes with File Transfer: Show as a code and Scan a code sit beside the file buttons.",
   "@deskSetTxQrHint": {
     "description": "Hint of the QR Payment method in desktop Settings › Payment methods."
   },

@@ -2188,7 +2188,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendAmountZero => 'Geben Sie einen Betrag über null ein.';
 
   @override
-  String get scanQrTooltip => 'QR-Code scannen';
+  String get scanQrTooltip => 'Code scannen';
 
   @override
   String get sendScanButton => 'Scannen';
@@ -2345,7 +2345,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get slateOpenPayment => 'Zahlung öffnen';
 
   @override
-  String get scanQrTitle => 'QR-Code scannen';
+  String get scanQrTitle => 'Code scannen';
 
   @override
   String get scanQrHint =>
@@ -16435,7 +16435,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get postFinishedOpenFile => 'Datei öffnen';
 
   @override
-  String get postFinishedScanQr => 'QR scannen';
+  String get postFinishedScanQr => 'Code scannen';
 
   @override
   String get postFinishedPaste => 'Einfügen';
@@ -17510,7 +17510,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get pairScan => 'QR scannen';
+  String get pairScan => 'Code scannen';
 
   @override
   String get pairPasteField => 'Einladung einfügen';

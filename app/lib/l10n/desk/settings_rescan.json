@@ -27,7 +27,7 @@
   "@deskSetRescanDeleteUnconfirmed": {
     "description": "Settings > Recheck balance: checkbox label."
   },
-  "deskSetRescanDeleteHint": "Also cancels unconfirmed transactions and unlocks their outputs. A payment already on its way may then fail.",
+  "deskSetRescanDeleteHint": "Also cancels unconfirmed payments and unlocks their coins. A payment already on its way may then fail.",
   "@deskSetRescanDeleteHint": {
     "description": "Settings > Recheck balance: small text under the Delete unconfirmed checkbox."
   },
@@ -56,7 +56,7 @@
   "@deskSetRescanNoneFound": {
     "description": "Settings > Recheck balance: result sentence after Delete unconfirmed found nothing."
   },
-  "deskSetRescanCancelled": "Unconfirmed transactions were cancelled and their outputs unlocked.",
+  "deskSetRescanCancelled": "Unconfirmed payments were cancelled and their coins unlocked.",
   "@deskSetRescanCancelled": {
     "description": "Settings > Recheck balance: result sentence after Delete unconfirmed."
   },

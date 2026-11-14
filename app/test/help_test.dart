@@ -94,7 +94,7 @@ void main() {
       final all = helpTopics(3, platform: HelpPlatform.phone)
           .map((t) => '${t.title} ${t.short} ${t.bodyText}')
           .join('\n');
-      expect(all, contains('your PIN'));
+      expect(all, contains('the PIN'));
       expect(all, contains('this phone'));
       expect(all, isNot(contains('wallet password')));
       expect(all, isNot(contains('this computer')));
@@ -112,11 +112,11 @@ void main() {
       expect(helpTopics(3, platform: HelpPlatform.phone, tor: false).where((t) => t.id == HelpId.tor), isEmpty);
     });
 
-    test('Network modes names the four modes, the own-node reason and the cold payment steps, in every language', () {
+    test('Connection modes names the four modes, the own-node reason and the cold payment steps, in every language', () {
       for (final platform in HelpPlatform.values) {
         final modes = helpTopics(3, platform: platform).firstWhere((t) => t.id == HelpId.modes);
-        expect(modes.title, 'Network modes');
-        for (final mode in ['Normal', 'Tor only', 'Node only', 'Kill switch']) {
+        expect(modes.title, 'Connection modes');
+        for (final mode in ['All connections', 'Tor only', 'Node only', 'Kill switch']) {
           expect(modes.bodyText, contains(mode), reason: '$mode ${platform.name}');
         }
         expect(modes.body.where((b) => b.kind == HelpBlockKind.h).map((b) => b.anchor), [HelpAnchor.ownNode, HelpAnchor.coldStorage]);
@@ -233,8 +233,8 @@ void main() {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen(topic: HelpId.phrase));
       expect(find.byType(HelpTopicScreen), findsOneWidget);
-      expect(find.text('Your recovery phrase'), findsOneWidget);
-      await _see(tester, find.textContaining('your PIN'));
+      expect(find.text('The recovery phrase'), findsOneWidget);
+      await _see(tester, find.textContaining('the PIN'));
       await tester.tap(find.bySemanticsLabel(_l.helpTitle).first);
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsNothing);

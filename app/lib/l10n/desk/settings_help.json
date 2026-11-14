@@ -67,7 +67,7 @@
   "@deskSetHelpFile1": {
     "description": "Help, 'How a transaction travels' with a file, step 1 of 6."
   },
-  "deskSetHelpFile2": "The recipient opens it. Their wallet adds its part, signs and saves a response file.",
+  "deskSetHelpFile2": "The recipient’s wallet opens it, adds its part, signs and saves a response file.",
   "@deskSetHelpFile2": {
     "description": "Help, 'How a transaction travels' with a file, step 2 of 6."
   },

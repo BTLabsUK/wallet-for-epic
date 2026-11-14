@@ -45,7 +45,7 @@
   "@deskDevTheOther": {
     "description": "The other device in the link dialog when it has not told its name yet."
   },
-  "deskDevOfferReceived": "Is this your other device? Link it to see who sent it and to keep both in step.",
+  "deskDevOfferReceived": "Another device with this wallet? Link it to see who sent this payment and keep both in step.",
   "@deskDevOfferReceived": {
     "description": "Quiet line at the end of the details of a payment received by another wallet."
   }

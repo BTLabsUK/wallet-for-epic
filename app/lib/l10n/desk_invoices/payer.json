@@ -27,7 +27,7 @@
   "@deskInvPayerEmptyText": {
     "description": "Empty state text of Requests › To pay."
   },
-  "deskInvPayerNotDeliveredTitle": "Your payment to {service} was not delivered",
+  "deskInvPayerNotDeliveredTitle": "Payment to {service} was not delivered",
   "@deskInvPayerNotDeliveredTitle": {
     "description": "Notice on To pay: an approved invoice payment did not reach the relay. service is the user's label for the service.",
     "placeholders": {
@@ -53,7 +53,7 @@
   "@deskInvPayerWithdrawnText": {
     "description": "Notice text: a paid invoice was withdrawn; the user may cancel the payment."
   },
-  "deskInvPayerPastTtlTitle": "Your payment to {service} is not on chain",
+  "deskInvPayerPastTtlTitle": "Payment to {service} is not on the chain",
   "@deskInvPayerPastTtlTitle": {
     "description": "Notice on To pay: the invoice's time passed and the payment is neither in the pool nor on the chain. service is the user's label.",
     "placeholders": {
@@ -74,7 +74,7 @@
   "@deskInvPayerSafetyTitle": {
     "description": "Warning panel title on Review invoice: a fake invoice must not be paid."
   },
-  "deskInvPayerSafetyText": "An invoice never adds money to your wallet. Approving it sends money out.",
+  "deskInvPayerSafetyText": "An invoice never adds coins to this wallet. Approving it sends coins out.",
   "@deskInvPayerSafetyText": {
     "description": "Warning panel text on Review invoice."
   },
@@ -127,7 +127,7 @@
   "@deskInvPayerBalanceAfter": {
     "description": "Label: spendable balance left after paying."
   },
-  "deskInvPayerMessageCaption": "Written by {name}. Your wallet does not check it.",
+  "deskInvPayerMessageCaption": "Written by {name}. This wallet does not check it.",
   "@deskInvPayerMessageCaption": {
     "description": "Caption under the contact's message on Review invoice: the text is untrusted. {name} is the contact.",
     "placeholders": {
@@ -161,7 +161,7 @@
   "@deskInvPayerShort": {
     "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
   },
-  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count {confirmations, plural, one{once they have 1 confirmation} other{once they have {confirmations} confirmations}}.",
+  "deskInvPayerShortText": "Needed: {total} EPIC spendable; available: {spendable} EPIC. Coins still confirming count {confirmations, plural, one{after 1 confirmation} other{after {confirmations} confirmations}}.",
   "@deskInvPayerShortText": {
     "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts. {confirmations} is the wallet's minimum confirmations (Settings > Advanced).",
     "placeholders": {
@@ -212,7 +212,7 @@
       }
     }
   },
-  "deskInvPayerApproveText": "{total} EPIC leaves your wallet. Enter the wallet password to approve.",
+  "deskInvPayerApproveText": "{total} EPIC leaves this wallet. Enter the wallet password to approve.",
   "@deskInvPayerApproveText": {
     "description": "Text of the approve dialog. total is the formatted amount plus fee.",
     "placeholders": {
@@ -269,7 +269,7 @@
   "@deskInvPayerRetryFailed": {
     "description": "Toast when Retry failed."
   },
-  "deskInvPayerRetryFailedText": "The Epicbox server is not answering. The payment stays signed on this device.",
+  "deskInvPayerRetryFailedText": "The Epicbox server is not answering. The payment stays signed on this computer.",
   "@deskInvPayerRetryFailedText": {
     "description": "Toast text when Retry failed."
   },
@@ -277,7 +277,7 @@
   "@deskInvPayerCancelTitle": {
     "description": "Title of the cancel payment dialog."
   },
-  "deskInvPayerCancelText": "The other side can still finish this payment.",
+  "deskInvPayerCancelText": "The recipient can still finish this payment.",
   "@deskInvPayerCancelText": {
     "description": "Cancel payment dialog text: the service holds the signed payment. Cancel also spends the coins back to the wallet itself, which makes the old payment impossible to complete; the fee is named on the fee line under it (cancelFeeLine)."
   },
@@ -333,7 +333,7 @@
   "@deskInvPayerRelayDownPay": {
     "description": "Approve dialog: the Epicbox server could not be reached before anything was signed or stored."
   },
-  "deskInvPayerStalledTitle": "Your payment to {service} is stalled",
+  "deskInvPayerStalledTitle": "Payment to {service} is stalled",
   "@deskInvPayerStalledTitle": {
     "description": "Notice on To pay: a paid invoice whose payment has not reached the network a while after paying. service is the user's label for the service.",
     "placeholders": {

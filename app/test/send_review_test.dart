@@ -858,8 +858,8 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _bob, note: 'For rent');
-        await _reveal(tester, find.text("Their Epicbox server (box.epic.invalid) is not answering."));
-        expect(find.text("Their Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
+        await _reveal(tester, find.text("The recipient’s Epicbox server (box.epic.invalid) is not answering."));
+        expect(find.text("The recipient’s Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
         expect(_sendButton, findsNothing);
         expect(_enabled(tester, _fileButton), isTrue);
         // Sending is still possible.
@@ -921,8 +921,8 @@ void main() {
         expect(find.byTooltip(_l.scanQrBack), findsNothing);
         // The message block above pushes the line down: scroll to it.
         final refused = find.text(
-          'Their Epicbox server (box.epic.invalid) refused it. The amount stays locked until you cancel '
-          'it, or for up to 1 day.',
+          'The recipient’s Epicbox server (box.epic.invalid) refused it. The amount stays locked until '
+          'cancelled, or for up to 1 day.',
         );
         await tester.scrollUntilVisible(refused, 100, scrollable: find.byType(Scrollable).last);
         expect(refused, findsOneWidget);
@@ -1005,7 +1005,7 @@ void main() {
       await _review(tester, _bob);
       await _tap(tester, _sendButton);
       // Balance and payments as before: nothing is held, so a file cannot pay twice.
-      expect(find.text("Their Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
+      expect(find.text("The recipient’s Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
       expect(find.text(_l.sendCancelAndFile), findsNothing);
       expect(find.text(_l.sendAnyway), findsNothing);
       expect(_sendButton, findsNothing);
@@ -1038,7 +1038,7 @@ void main() {
         await _tap(tester, _sendButton);
         expect(
           find.text(
-            "Their Epicbox server (box.epic.invalid) refused it. Check Wallet before you send again.",
+            "The recipient’s Epicbox server (box.epic.invalid) refused it. Check Wallet before sending again.",
           ),
           findsOneWidget,
         );
@@ -1200,7 +1200,7 @@ void main() {
         find.descendant(
           of: find.byKey(sendUnknownRelayKey),
           matching: find.text(
-            "relay.example.org is not a server this app knows. Check the address before you send.",
+            "relay.example.org is not a known Epicbox server. Check the address before sending.",
           ),
         ),
         findsOneWidget,
@@ -1236,7 +1236,7 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _carol);
-        expect(find.text("Their Epicbox server (relay.example.org) is not answering."), findsOneWidget);
+        expect(find.text("The recipient’s Epicbox server (relay.example.org) is not answering."), findsOneWidget);
         expect(_enabled(tester, _fileButton), isTrue);
         expect(_sendButton, findsNothing);
         await _tap(tester, _fileButton);
@@ -1280,7 +1280,7 @@ void main() {
       await h.connect(tester);
       await _review(tester, _bob);
       expect(probe.probed, [_bobRelay]);
-      expect(find.text("Their Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
+      expect(find.text("The recipient’s Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
     });
   });
 

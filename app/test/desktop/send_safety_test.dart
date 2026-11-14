@@ -96,7 +96,7 @@ void main() {
   testWidgets('linux-14: a server the app does not know is named in a warning, and the send goes on', (tester) async {
     await review(tester, recipient: 'esXyz1234567890abcdefghijk@epicbox.stackwalle');
     expect(find.text(_l.deskSendRelayUnknownTitle), findsOneWidget);
-    expect(find.textContaining('epicbox.stackwalle is not a server this app knows'), findsOneWidget);
+    expect(find.textContaining('epicbox.stackwalle is not a known Epicbox server'), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0\u00a0EPIC'));
     await tester.pumpAndSettle();

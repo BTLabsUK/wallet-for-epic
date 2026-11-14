@@ -28,7 +28,7 @@
       }
     }
   },
-  "deskSendSplitWhy": "{outputs, plural, one{So the next send does not wait for this one to confirm. Change comes back as {outputs} output of about {each} EPIC instead of one.} other{So the next send does not wait for this one to confirm. Change comes back as {outputs} outputs of about {each} EPIC instead of one.}}",
+  "deskSendSplitWhy": "{outputs, plural, one{So the next payment does not wait for this one to confirm. Change comes back as {outputs} output of about {each} EPIC instead of one.} other{So the next payment does not wait for this one to confirm. Change comes back as {outputs} outputs of about {each} EPIC instead of one.}}",
   "@deskSendSplitWhy": {
     "description": "Help text behind the info icon of the split-change line. {outputs} is the number of change outputs; {each} the size of each, in EPIC.",
     "placeholders": {
@@ -54,7 +54,7 @@
       }
     }
   },
-  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{Everything is locked: {count} outputs, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}",
+  "deskSendLockAll": "{count, plural, one{Everything is locked: 1 output, {amount} EPIC, until {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.} other{Everything is locked: {count} outputs, {amount} EPIC, until {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.}}",
   "@deskSendLockAll": {
     "description": "Caption under \"Spendable until change confirms\" on Send when every output is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -71,7 +71,7 @@
       }
     }
   },
-  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.} other{{count} outputs locked, {amount} EPIC, {blocks, plural, one{about 1 block} other{about {blocks} blocks}}.}}",
+  "deskSendLockSome": "{count, plural, one{1 output locked, {amount} EPIC, until {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.} other{{count} outputs locked, {amount} EPIC, until {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.}}",
   "@deskSendLockSome": {
     "description": "Caption under \"Spendable until change confirms\" on Send: how much is locked until the change confirms. {amount} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -88,7 +88,7 @@
       }
     }
   },
-  "deskSendStrategyLine": "{count, plural, one{Strategy for this send: {strategy} · 1 output.} other{Strategy for this send: {strategy} · {count} outputs.}}",
+  "deskSendStrategyLine": "{count, plural, one{Strategy for this payment: {strategy} · 1 output.} other{Strategy for this payment: {strategy} · {count} outputs.}}",
   "@deskSendStrategyLine": {
     "description": "Caption on Send when this send uses another output strategy than the default. {strategy} is the strategy's name (Smallest or All).",
     "placeholders": {
@@ -178,7 +178,7 @@
   "@deskSendFactStrategy": {
     "description": "Label of a fact in the review dialog: the output strategy of this send. Short."
   },
-  "deskSendFactStrategyValue": "{strategy} outputs, for this send",
+  "deskSendFactStrategyValue": "{strategy} outputs, for this payment",
   "@deskSendFactStrategyValue": {
     "description": "Value of the Strategy fact in the review dialog. {strategy} is the strategy's name (Smallest or All).",
     "placeholders": {
@@ -208,7 +208,7 @@
   "@deskSendAdvanced": {
     "description": "Title of the collapsed Advanced disclosure on Send."
   },
-  "deskSendAdvStrategy": "Strategy for this send",
+  "deskSendAdvStrategy": "Strategy for this payment",
   "@deskSendAdvStrategy": {
     "description": "Screen reader label of the group of strategy radio rows on Send."
   },
@@ -236,7 +236,7 @@
   "@deskSendAdvSplitText": {
     "description": "Description of the Split change switch on Send › Advanced."
   },
-  "deskSendAdvDefaults": "For this send only. Defaults: ",
+  "deskSendAdvDefaults": "For this payment only. Defaults: ",
   "@deskSendAdvDefaults": {
     "description": "Caption under Send › Advanced, followed by a link named \"Outputs\". Ends with a space."
   },
@@ -248,7 +248,7 @@
   "@deskSendPickNone": {
     "description": "Empty state title of the Choose contact dialog on Send."
   },
-  "deskSendPickNoneText": "Save the people you pay in Contacts, then choose them here.",
+  "deskSendPickNoneText": "Save recipients in Contacts, then choose one here.",
   "@deskSendPickNoneText": {
     "description": "Empty state text of the Choose contact dialog on Send."
   },
@@ -348,7 +348,7 @@
   "@deskSendFileReadyTitle": {
     "description": "Result card title on Send after a file send created the transaction file."
   },
-  "deskSendFileReadyText": "Give this file to the recipient, then finalize with their response file.",
+  "deskSendFileReadyText": "Give this file to the recipient, then finish the payment with the response file that comes back.",
   "@deskSendFileReadyText": {
     "description": "Result card text on Send after a file send created the transaction file."
   },
@@ -627,11 +627,11 @@
   "@deskSendViaEpicbox": {
     "description": "Value of the Via fact in the review dialog for an Epicbox send."
   },
-  "deskSendViaDirect": "Link · HTTP (their wallet must be open)",
+  "deskSendViaDirect": "Link · HTTP (the recipient’s wallet must be open)",
   "@deskSendViaDirect": {
     "description": "Value of the Via fact in the review dialog for a Link send over http(s)."
   },
-  "deskSendViaTor": "Link · Tor (their wallet must be open)",
+  "deskSendViaTor": "Link · Tor (the recipient’s wallet must be open)",
   "@deskSendViaTor": {
     "description": "Value of the Via fact in the review dialog for a Link send to an onion address."
   },
@@ -652,7 +652,7 @@
   "@deskSendReviewTitle": {
     "description": "Title of the review dialog."
   },
-  "deskSendReviewDesc": "A send cannot be undone once it is posted.",
+  "deskSendReviewDesc": "A payment cannot be undone once it is posted.",
   "@deskSendReviewDesc": {
     "description": "Subtitle of the review dialog."
   },
@@ -692,7 +692,7 @@
   "@deskSendBusyFile": {
     "description": "Status in the review dialog while a file send creates the transaction file."
   },
-  "deskSendBusyTor": "Reaching their wallet over Tor… This can take a while. Keep the app open.",
+  "deskSendBusyTor": "Reaching the recipient’s wallet over Tor… This can take a while. Keep the app open.",
   "@deskSendBusyTor": {
     "description": "Status in the review dialog while a send to an onion address runs."
   },
@@ -722,7 +722,7 @@
   "@deskSendFeeChangedTitle": {
     "description": "Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked)."
   },
-  "deskSendFeeChangedText": "The wallet’s outputs changed since this review, so the send now pays {fee} EPIC instead of {was} EPIC. Check it and send again.",
+  "deskSendFeeChangedText": "The wallet’s outputs changed, so the fee is now {fee} EPIC instead of {was} EPIC. Check it and send again.",
   "@deskSendFeeChangedText": {
     "description": "Text of that notice. {fee} is the new network fee, {was} the fee the dialog showed before, both in EPIC.",
     "placeholders": {
@@ -756,7 +756,7 @@
   "@deskSendRelayUnknownTitle": {
     "description": "Send review: title of the warning that the recipient's Epicbox server is not one the app knows."
   },
-  "deskSendRelayUnknownText": "{relay} is not a server this app knows. Check the address before you send. You can still send.",
+  "deskSendRelayUnknownText": "{relay} is not a known Epicbox server. Check the address; sending is still allowed.",
   "@deskSendRelayUnknownText": {
     "description": "Send review: the recipient's Epicbox server (the part of the address after @) is not in the app's public list or among the user's servers, so the address may be mistyped. A warning; sending is still allowed. {relay} is its host name.",
     "placeholders": {
@@ -788,7 +788,7 @@
   "@deskSendPickSendTitle": {
     "description": "Send's contact picker: the dialog's title."
   },
-  "deskSendPickSendDesc": "Paired contacts get a sealed payment. The others get their saved address.",
+  "deskSendPickSendDesc": "Paired contacts get a sealed payment. Others are paid at the saved address.",
   "@deskSendPickSendDesc": {
     "description": "Send's contact picker: the sentence under the title. A paired contact is paid with a sealed payment; any other contact at the saved address."
   },

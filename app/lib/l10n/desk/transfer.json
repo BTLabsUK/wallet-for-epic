@@ -123,7 +123,7 @@
   "@deskImpWrongTypeText": {
     "description": "Text of that notice."
   },
-  "deskImpWrongTypePasted": "The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.",
+  "deskImpWrongTypePasted": "The pasted text is not a transaction. Paste the whole text from the sender, or choose the file.",
   "@deskImpWrongTypePasted": {
     "description": "Text of that notice when the text pasted into Send (not a file) is not a transaction."
   },

@@ -1169,7 +1169,7 @@ void main() {
     testWidgets('no scan button where scanning is unsupported', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.byTooltip('Scan QR code'), findsNothing);
+      expect(find.byTooltip('Scan a code'), findsNothing);
     });
 
     testWidgets('a contact name replaces the address in the list', (
@@ -1712,7 +1712,7 @@ void main() {
       expect((await _statusWord(tester, epicboxStatusKey)), 'Epicbox, Not connected');
       expect(
         await _statusTip(tester, epicboxStatusKey),
-        contains('Your wallet is not connected to its Epicbox server and keeps trying'),
+        contains('This wallet is not connected to its Epicbox server and keeps trying'),
       );
       expect(find.textContaining('connection reset'), findsNothing);
     });
@@ -1949,7 +1949,7 @@ void main() {
       expect(find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.homeBackupCardButton)), findsOneWidget);
       expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
       // The history reminder waits until the phrase is written down.
-      expect(find.textContaining('not in your exported wallet data'), findsNothing);
+      expect(find.textContaining('not in the exported wallet data'), findsNothing);
 
       // Not on the next opening the same day.
       await tester.pumpWidget(const SizedBox());
@@ -2645,8 +2645,8 @@ void main() {
       // Cancelled by the user.
       expect(
         txExplanation(englishStrings, cancelledSend(), _tip),
-        'Nothing was paid, and the coins are spendable again. If the '
-        'recipient already got it, their wallet may still show it as waiting.',
+        'Nothing was paid, and the coins are spendable again. If it already '
+        'arrived, the recipient’s wallet may still show it as waiting.',
       );
     });
 
@@ -2730,14 +2730,14 @@ void main() {
       String say(TxEntry tx) => txExplanation(englishStrings, tx, _tip);
       expect(
         say(cancelled(CancelReason.user)),
-        'Nothing was paid, and the coins are spendable again. If the '
-        'recipient already got it, their wallet may still show it as waiting.',
+        'Nothing was paid, and the coins are spendable again. If it already '
+        'arrived, the recipient’s wallet may still show it as waiting.',
       );
       // The user cancelled on day 2; from day 14 the old rule would blame the limit.
       expect(
         say(cancelled(CancelReason.user, cutoff: _tip - BigInt.one)),
-        'Nothing was paid, and the coins are spendable again. If the '
-        'recipient already got it, their wallet may still show it as waiting.',
+        'Nothing was paid, and the coins are spendable again. If it already '
+        'arrived, the recipient’s wallet may still show it as waiting.',
       );
       // Released after a refusal, then past the limit: still a release.
       expect(
@@ -2975,7 +2975,7 @@ void main() {
     });
 
     // The desktop's words (GP-046).
-    const reminder = '11 payments are not in your exported wallet data.';
+    const reminder = '11 payments are not in the exported wallet data.';
 
     testWidgets('home reminds to export, and export clears it', (tester) async {
       final h = _Harness(transactions: _backlog());
@@ -3218,7 +3218,7 @@ void main() {
         await h.pump(tester);
         double top(Finder f) => tester.getTopLeft(f).dy;
         final balance = top(find.byKey(homeFigureKey));
-        final reminder = top(find.textContaining('not in your exported wallet data'));
+        final reminder = top(find.textContaining('not in the exported wallet data'));
         expect(balance, lessThan(reminder));
         expect(reminder, lessThan(top(find.text(_l.phoneHomeRecent))));
       },
@@ -3400,7 +3400,7 @@ void main() {
       expect(
         tip,
         'Balance: 12.5\u00a0EPIC\n'
-        'Spendable now, plus payments and your own change still confirming, and coins held for a linked device.\n\n'
+        'Spendable now, plus payments and change still confirming, and coins held for a linked device.\n\n'
         'Total: 14.5\u00a0EPIC\nEverything in this wallet, spendable or not.\n\n'
         'Locked by a payment in progress: 2.0\u00a0EPIC\n'
         'Held for a payment you started; the change comes back when it '

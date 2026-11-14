@@ -116,11 +116,11 @@
   "@deskE1AnyAmount": {
     "description": "Receive: the link lets the payer choose the amount."
   },
-  "deskE1LanTitle": "Use a server on your local network?",
+  "deskE1LanTitle": "Use a server on the local network?",
   "@deskE1LanTitle": {
     "description": "Prompt before making a link that names an Epicbox server on the local network."
   },
-  "deskE1LanBody": "{host} is on your local network. Only payers on the same network can pay this link.",
+  "deskE1LanBody": "{host} is on the local network. Only payers on the same network can pay this link.",
   "@deskE1LanBody": {
     "description": "Body of the local network server prompt.",
     "placeholders": {
@@ -185,7 +185,7 @@
   "@deskE1UnknownServerTitle": {
     "description": "Asked before paying a link whose Epicbox server is not in the wallet's list."
   },
-  "deskE1UnknownServerBody": "{host} is not in your server list.",
+  "deskE1UnknownServerBody": "{host} is not in the server list.",
   "@deskE1UnknownServerBody": {
     "description": "Body of the unknown server prompt.",
     "placeholders": {

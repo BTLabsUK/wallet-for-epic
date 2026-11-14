@@ -88,7 +88,7 @@ void main() {
       final desk = _Desk();
       await _pump(tester, _tx(undelivered: true), desk);
       expect(statusOf(englishStrings, _tx(undelivered: true)).$1, _l.deskTxStatusUndelivered);
-      expect(find.textContaining('Not delivered.'), findsOneWidget);
+      expect(find.textContaining('Not delivered: the Epicbox server'), findsOneWidget);
       // linux-14: the relay that did not answer is named.
       expect(find.textContaining('epicbox.example did not answer'), findsOneWidget);
       expect(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction), findsOneWidget);
@@ -122,7 +122,7 @@ void main() {
       final tx = _tx(undelivered: true, method: TxMethod.http);
       await _pump(tester, tx, desk);
       expect(statusOf(englishStrings, tx).$1, _l.deskTxStatusUndelivered);
-      expect(find.textContaining('Not delivered.'), findsOneWidget);
+      expect(find.textContaining('Not delivered. The recipient'), findsOneWidget);
       // Its words fit the method (windows-07): no epicbox for an HTTP send.
       expect(find.textContaining('(Link · HTTP)'), findsOneWidget);
       expect(find.textContaining('did not reach the epicbox'), findsNothing);

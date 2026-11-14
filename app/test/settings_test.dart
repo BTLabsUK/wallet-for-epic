@@ -1445,7 +1445,7 @@ void main() {
         expect(h.container.read(sessionProvider), isNotNull);
 
         await confirm();
-        expect(find.textContaining('The restored wallet keeps this PIN.'), findsOneWidget);
+        expect(find.textContaining('The restored wallet keeps the same PIN.'), findsOneWidget);
         await _enter(tester, 'PIN', _pin);
 
         // Deleted and restored in one step, with the same PIN; the scan then runs.
@@ -1918,7 +1918,7 @@ void main() {
       // are checked on the Privacy & network page.
       await h.openSettings(tester, SettingsSection.privacyNetwork);
       await _reveal(tester, find.byKey(settingsEpicboxKey));
-      expect(find.textContaining(_l.netModesEpicboxSub), findsNothing);
+      expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('Relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
     });
@@ -1939,7 +1939,7 @@ void main() {
         findsOneWidget,
       );
       // The warning names the address, not a relay or a mailbox.
-      expect(find.textContaining(_l.netModesEpicboxSub), findsNothing);
+      expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
       await tester.enterText(find.byKey(serverListFieldKey), 'mail.example.com');
       await tester.pumpAndSettle();
@@ -1953,7 +1953,7 @@ void main() {
       // The confirm says the address changes (the sheet's own warning says it too).
       expect(find.text('Switching gives you a new Epicbox address.'), findsWidgets);
       expect(find.byKey(serverListSwitchKey), findsOneWidget);
-      expect(find.textContaining(_l.netModesEpicboxSub), findsNothing);
+      expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);
     });
   });

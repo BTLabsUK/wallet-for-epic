@@ -72,7 +72,7 @@
   "@deskOwnAccess": {
     "description": "Title of the row on the own node's panel for the node's owner secret (.api_secret), which unlocks peers and sync details."
   },
-  "deskOwnAccessHint": "The node’s owner secret shows its sync stage and peers here and lets you ban a peer. It is kept in this computer’s keyring, never in the settings or the wallet data file.",
+  "deskOwnAccessHint": "With the node’s owner secret, this page shows its sync stage and peers and can ban a peer. The secret stays in this computer’s keyring, never in the settings or the wallet data file.",
   "@deskOwnAccessHint": {
     "description": "Hint behind the info icon of the Owner access row."
   },
@@ -257,7 +257,7 @@
   "@deskOwnSyncUsingText": {
     "description": "Info notice text under deskOwnSyncUsingTitle."
   },
-  "deskOwnMine": "This is my node",
+  "deskOwnMine": "Own node",
   "@deskOwnMine": {
     "description": "Switch row in Settings › Node for an https node: the user runs it. Then the app asks it directly and offers owner access."
   },

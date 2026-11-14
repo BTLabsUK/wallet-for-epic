@@ -47,18 +47,18 @@ void main() {
     expect(_rich('1,284.7241\u00a0EPIC'), findsOneWidget);
     expect(find.text(_l.deskSendSpendableWhile), findsOneWidget);
     expect(_rich('1,250.0\u00a0EPIC'), findsOneWidget);
-    expect(find.text('1\u00a0output locked, 34.7321\u00a0EPIC, about 6\u00a0blocks.'), findsOneWidget);
+    expect(find.text('1\u00a0output locked, 34.7321\u00a0EPIC, until 6\u00a0confirmations.'), findsOneWidget);
     expect(find.textContaining(_l.deskSendAdvStrategy), findsNothing);
   });
 
   testWidgets('All: nothing spendable, in warn, and the strategy line', (tester) async {
     await host(tester, SendLockRows(summary: _summary(inputs: 5, locked: 1284.73215, change: 1259.72415), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
     expect(_rich('0.0\u00a0EPIC'), findsOneWidget);
-    final caption = find.text('Everything is locked: 5\u00a0outputs, 1,284.7321\u00a0EPIC, about 6\u00a0blocks.');
+    final caption = find.text('Everything is locked: 5\u00a0outputs, 1,284.7321\u00a0EPIC, until 6\u00a0confirmations.');
     expect(caption, findsOneWidget);
     final context = tester.element(caption);
     expect(tester.widget<Text>(caption).style?.color, context.dc.warn);
-    expect(find.text('Strategy for this send: All · 5 outputs.'), findsOneWidget);
+    expect(find.text('Strategy for this payment: All · 5 outputs.'), findsOneWidget);
   });
 
   testWidgets('no change: nothing waits', (tester) async {
@@ -75,7 +75,7 @@ void main() {
   testWidgets('the split line and why', (tester) async {
     await host(tester, SendSplitLine(outputs: 4, extraFee: _nano(0.012), change: _nano(9.72415)));
     expect(find.text('Change split into 4\u00a0outputs (+0.012\u00a0EPIC fee)'), findsOneWidget);
-    expect(SendSplitLine.why(englishStrings, 4, _nano(9.72415)), 'So the next send does not wait for this one to confirm. Change comes back as 4\u00a0outputs of about 2.431\u00a0EPIC instead of one.');
+    expect(SendSplitLine.why(englishStrings, 4, _nano(9.72415)), 'So the next payment does not wait for this one to confirm. Change comes back as 4\u00a0outputs of about 2.431\u00a0EPIC instead of one.');
     await tester.tap(find.byType(HelpTip));
     await tester.pumpAndSettle();
     expect(find.text(SendSplitLine.why(englishStrings, 4, _nano(9.72415))), findsOneWidget);

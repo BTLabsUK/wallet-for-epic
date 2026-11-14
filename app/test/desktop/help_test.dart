@@ -55,7 +55,7 @@ void main() {
       expect(t.bodyText, isNot(contains('**')), reason: t.title);
       expect(t.bodyText, isNot(contains('[[')), reason: t.title);
     }
-    expect(topics.where((t) => t.handshake).single.title, 'Why does a transaction need both sides?');
+    expect(topics.where((t) => t.handshake).single.title, 'Why does a payment need both wallets?');
   });
 
   test('search matches words at their start: tor finds Tor, not restore', () {
@@ -120,7 +120,7 @@ void main() {
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {
     await _pump(tester);
-    final title = find.text('Why does a transaction need both sides?');
+    final title = find.text('Why does a payment need both wallets?');
     await tester.ensureVisible(title);
     final more = find.descendant(of: find.ancestor(of: title, matching: find.byType(Row)).first, matching: find.text(_l.deskSetHelpReadMore));
     await tester.tap(more);

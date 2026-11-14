@@ -346,7 +346,7 @@ void main() {
       expect(find.textContaining('different details for 2 payments'), findsOneWidget);
       // Both Mine cards are selected, the Backup ones are not.
       final selected = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
-      expect(selected, ['Mine:true', 'File:false', 'Mine:true', 'File:false']);
+      expect(selected, ['Current:true', 'File:false', 'Current:true', 'File:false']);
       expect(find.text('empty'), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, 'Cancel').last);
       await _flow(tester);
@@ -366,13 +366,13 @@ void main() {
       expect(_api.lastUseBackup, {'$k35|label': true, '$k103|note': false});
       expect((_tx(35)).label, 'Tom, rent');
       expect((_tx(103)).note, 'Weekly payout from the pool.');
-      expect(find.text('1 detail replaced, the rest kept as yours.'), findsOneWidget);
+      expect(find.text('1 detail replaced, the rest kept.'), findsOneWidget);
     });
 
     testWidgets('Keep all mine imports with every field kept', (tester) async {
       await openImport(tester);
       await tester.tap(find.text('File').first);
-      await tester.tap(find.widgetWithText(EButton, 'Keep all mine'));
+      await tester.tap(find.widgetWithText(EButton, 'Keep all current'));
       await _flow(tester);
       expect(_api.lastUseBackup, {'$k35|label': false, '$k103|note': false});
       expect((_tx(35)).label, 'Rent, October');

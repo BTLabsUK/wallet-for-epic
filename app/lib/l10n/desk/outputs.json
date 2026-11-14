@@ -11,11 +11,11 @@
   "@deskOutRefresh": {
     "description": "Tooltip of the icon button on Outputs that asks the node for new data; also the button when the list could not be loaded."
   },
-  "deskOutLockedNote": "Locked outputs are being spent by a transaction in progress. Their change shows as awaiting finalization and is not in Total until the send is finalized, so Total counts the coins once.",
+  "deskOutLockedNote": "Locked outputs are being spent by a transaction in progress. Their change shows under Locked in sends and is not in Total until the transaction completes, so Total counts the coins once.",
   "@deskOutLockedNote": {
     "description": "Small note under the balance tiles on Outputs, shown while some outputs are locked."
   },
-  "deskOutIntro": "Outputs are the pieces the balance is made of. A send spends whole outputs and returns the change as a new one.",
+  "deskOutIntro": "Outputs are the pieces the balance is made of. A payment spends whole outputs and returns the change as a new one.",
   "@deskOutIntro": {
     "description": "Intro paragraph on the Outputs page."
   },
@@ -29,7 +29,7 @@
       }
     }
   },
-  "deskOutCardWait": "Wait until the send confirms ({blocks, plural, one{about 1 block} other{about {blocks} blocks}}).",
+  "deskOutCardWait": "Wait until the transaction in progress has {blocks, plural, one{1 confirmation} other{{blocks} confirmations}}.",
   "@deskOutCardWait": {
     "description": "Note on the Split and Consolidate cards while a send is still locking outputs. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
     "placeholders": {
@@ -103,7 +103,7 @@
   "@deskOutSplitCardTitle": {
     "description": "Title of the Split card on Outputs."
   },
-  "deskOutSplitCardText": "Makes more outputs from the spendable balance, so several sends can follow each other without waiting.",
+  "deskOutSplitCardText": "Makes more outputs from the spendable balance, so several payments can follow each other without waiting.",
   "@deskOutSplitCardText": {
     "description": "Text of the Split card on Outputs."
   },
@@ -215,7 +215,7 @@
   "@deskOutStrategyTitle": {
     "description": "Setting title in the Defaults panel: which outputs a send spends."
   },
-  "deskOutStrategyHint": "Which outputs a send spends. Smallest spends the smallest outputs that cover the amount; All spends every output and returns one.",
+  "deskOutStrategyHint": "Which outputs a payment spends. Smallest spends the smallest outputs that cover the amount; All spends every output and returns one.",
   "@deskOutStrategyHint": {
     "description": "Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle)."
   },
@@ -235,7 +235,7 @@
   "@deskOutSplitChangeTitle": {
     "description": "Setting title in the Defaults panel (a switch); also its screen reader label."
   },
-  "deskOutSplitChangeText": "When a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.",
+  "deskOutSplitChangeText": "When a payment would leave fewer than 3 spendable outputs and its change is at least 1 EPIC, the change comes back as up to 4 outputs of at least 0.5 EPIC each. Costs 0.004 EPIC per extra output.",
   "@deskOutSplitChangeText": {
     "description": "Setting description under 'Split change'."
   },
@@ -655,7 +655,7 @@
   "@deskOutDoneDesc": {
     "description": "Description in the dialog header when it worked."
   },
-  "deskOutSplitDesc": "More outputs, so several sends can follow each other.",
+  "deskOutSplitDesc": "More outputs, so several payments can follow each other.",
   "@deskOutSplitDesc": {
     "description": "Description in the Split dialog header."
   },

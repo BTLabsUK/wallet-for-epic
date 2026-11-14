@@ -19,7 +19,7 @@
   "@phoneSendNoAddressTitle": {
     "description": "Title of the sheet that opens from No address."
   },
-  "phoneSendNoAddressBody": "You make the payment here, they answer it, and it is done. You can cancel until their answer comes back.",
+  "phoneSendNoAddressBody": "Make the payment here, the recipient answers it, and it is done. It can be cancelled until the answer comes back.",
   "@phoneSendNoAddressBody": {
     "description": "Text of the No address sheet."
   },
@@ -35,7 +35,7 @@
   "@phoneSendWithFile": {
     "description": "Row of the No address sheet: pay by sending a file."
   },
-  "phoneSendWithFileSub": "Send it in any app; they send one back",
+  "phoneSendWithFileSub": "Send it in any app; the recipient sends one back",
   "@phoneSendWithFileSub": {
     "description": "Subtitle of the With a file row."
   },
@@ -89,11 +89,11 @@
   "@phoneSendOnItsWayTo": {
     "description": "Title of the Sent page; {name} is the person paid."
   },
-  "phoneSendTheirOffline": "their wallet can be offline",
+  "phoneSendTheirOffline": "the recipient’s wallet can be offline",
   "@phoneSendTheirOffline": {
     "description": "Second part of the line under the method of a payment: the other wallet need not be open."
   },
-  "phoneSendTheirOnline": "their wallet has to be open",
+  "phoneSendTheirOnline": "the recipient’s wallet has to be open",
   "@phoneSendTheirOnline": {
     "description": "Second part of the line under the method of a payment: the other wallet must be open."
   },
@@ -101,7 +101,7 @@
   "@phoneSendNoteLabel": {
     "description": "Label of the note row on the Send review sheet."
   },
-  "phoneSendReviewHintOffline": "{name}'s wallet can be offline. The payment finishes when it next opens.",
+  "phoneSendReviewHintOffline": "{name}’s wallet can be offline. The payment finishes when it next opens.",
   "@phoneSendReviewHintOffline": {
     "description": "Hint under the Send review sheet's rows when the other wallet need not be open; {name} is the person paid.",
     "placeholders": {
@@ -118,15 +118,15 @@
   "@phoneSendHelpStep1": {
     "description": "First step in the Send help sheet."
   },
-  "phoneSendHelpStep1Sub": "Nothing leaves before you review it and enter your PIN.",
+  "phoneSendHelpStep1Sub": "Nothing leaves this wallet before the review and the PIN.",
   "@phoneSendHelpStep1Sub": {
     "description": "Line under the first step of the Send help sheet."
   },
-  "phoneSendHelpStep2": "Their wallet answers",
+  "phoneSendHelpStep2": "The recipient’s wallet answers",
   "@phoneSendHelpStep2": {
     "description": "Second step in the Send help sheet."
   },
-  "phoneSendHelpStep2Sub": "A payment needs both wallets. With Epicbox theirs can answer later, when it next opens.",
+  "phoneSendHelpStep2Sub": "A payment needs both wallets. With Epicbox the recipient’s wallet can answer later, when it next opens.",
   "@phoneSendHelpStep2Sub": {
     "description": "Line under the second step of the Send help sheet."
   },
@@ -134,7 +134,7 @@
   "@phoneSendHelpStep3": {
     "description": "Third step in the Send help sheet."
   },
-  "phoneSendHelpStep3Sub": "After a few blocks it is theirs to spend.",
+  "phoneSendHelpStep3Sub": "After a few confirmations the recipient can spend it.",
   "@phoneSendHelpStep3Sub": {
     "description": "Line under the third step of the Send help sheet."
   }

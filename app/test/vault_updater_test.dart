@@ -1085,7 +1085,7 @@ void main() {
         );
         expect(
           englishStrings.updateNeedsReinstall,
-          contains('write down your recovery phrase first'),
+          contains('write down the recovery phrase first'),
         );
       },
     );

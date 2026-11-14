@@ -97,7 +97,7 @@ void main() {
     await _pump(tester, const OverviewScreen(), WalletLevel.justSendReceive, [_sendToAlice, _fromBob]);
     expect(find.text(_l.deskOvBalance), findsOneWidget);
     expect(find.text('+12.5 arriving from Bob'), findsOneWidget);
-    expect(find.text('25.0 on hold until Alice signs'), findsOneWidget);
+    expect(find.text('25.0 locked until Alice signs'), findsOneWidget);
     for (final tile in ['Total', 'Locked in sends', 'Set aside for sends']) {
       expect(find.text(tile), findsNothing, reason: tile);
     }

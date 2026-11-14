@@ -20,25 +20,25 @@ List<HelpTopic> nameServiceHelpTopics(String lang, {required bool phone}) => swi
 };
 
 List<HelpTopic> _en(bool phone) {
-  final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
+  final secret = phone ? 'the PIN or passphrase' : 'the wallet password';
   return [
     HelpTopic(
       'start',
       'Payment links',
-      'A payment link is a request to pay, made by a service you paired with. Open it and Send is filled in. You still confirm the payment yourself.',
+      'A payment link is a request to pay, made by a paired service. Opening it fills in Send; the payment is still reviewed and sent by hand.',
       [
-        const HelpBlock.p('A payment link is a payment request made by a service you paired with: who to pay, the amount (or you choose it) and when the request expires. It starts with **epiccash://pay/1/…** or is a web link that ends in **/p#1/…**.'),
+        const HelpBlock.p('A payment link is a payment request made by a paired service: who to pay, the amount (or an open amount) and when the request expires. It starts with **epiccash://pay/1/…** or is a web link that ends in **/p#1/…**.'),
         const HelpBlock.p('Open one by tapping it, scanning it, pasting it or sharing it to the app. [[Send]] opens already filled in.'),
         const HelpBlock.p('Before it fills anything, the wallet checks the link on this device:'),
         const HelpBlock.ul([
           'the service’s signature,',
-          'the payee wallet’s own signature for their name,',
+          'the recipient wallet’s own signature for its name,',
           'the network,',
           'the expiry,',
           'and that the link was not made for someone else.',
         ]),
         const HelpBlock.p('A link that fails shows why and fills nothing.'),
-        HelpBlock.p('You can change the amount. Send then notes that it is not the amount requested. Paying needs $secret, as any payment does.'),
+        HelpBlock.p('The amount can be changed; Send then notes that it is not the amount requested. Paying needs $secret, as any payment does.'),
       ],
       id: HelpId.paymentLinks,
     ),
@@ -47,12 +47,12 @@ List<HelpTopic> _en(bool phone) {
       'The line above Send',
       'It says where the request came from. With “Confirm these match the payment message”, compare the four pictures with the message the link came from.',
       [
-        const HelpBlock.p('When Send opens from a payment link, a line above the amount says where the request came from. The four pictures belong to the payee’s name: the payee can see the same four in the service, so you can compare them.'),
+        const HelpBlock.p('When Send opens from a payment link, a line above the amount says where the request came from. The four pictures belong to the recipient’s name: the recipient sees the same four in the service, so the two can be compared.'),
         const HelpBlock.ul([
-          '**@name · via** a contact name: the request came through a service you paired with in this wallet.',
+          '**@name · via** a contact name: the request came through a service paired with this wallet.',
           '**Confirm these match the payment message**: this wallet is not paired with the service that made the link. Compare the four pictures with the message the link came from.',
-          '**You paid this request on** a date: you already paid it. **Pay again** is there if you mean to.',
-          '**@name now gets paid to a different wallet than when you paid on** a date: the payee’s wallet changed since you last paid them by link. Pay only if they told you.',
+          '**You paid this request on** a date: it is already paid. **Pay again** pays it a second time.',
+          '**@name now gets paid to a different wallet than when you paid on** a date: the recipient’s wallet changed since the last payment by link. Pay only after checking the change with the recipient.',
         ]),
       ],
       id: HelpId.linkLine,
@@ -62,7 +62,7 @@ List<HelpTopic> _en(bool phone) {
       'Contacts that take no payments',
       'Some contacts take no payments.',
       [
-        const HelpBlock.p('Some contacts take no payments. A service where people pay you as your @name is one. It says so when you pair.'),
+        const HelpBlock.p('Some contacts take no payments, such as a service where people pay this wallet by its @name. The service says so at pairing.'),
         const HelpBlock.p('In Contacts and in the list of recipients, such a contact carries a coin struck through; its page says **No payments**. Pasting or scanning its address into Send is refused.'),
         const HelpBlock.p('A payment sent to such a contact from another wallet is never collected. It stays pending there until the sender cancels it.'),
       ],
@@ -71,12 +71,12 @@ List<HelpTopic> _en(bool phone) {
     HelpTopic(
       'network',
       'Pay me as @name',
-      'A service you paired with can let people pay you as your @name. The wallet has none built in. Turning it on sends the service one address made only for it.',
+      'A paired service can let people pay this wallet by an @name. The wallet has none built in. Turning it on sends the service one address made only for it.',
       [
         const HelpBlock.p('Some services, run by someone else, let people pay each other as an @name through a payment link. The wallet has none built in.'),
         const HelpBlock.p('Pairing with a service is a contact pairing. Open its invite and **Check the code**: compare the pictures shown by both. Then choose **Pay me as @name**. The service appears in [[Contacts]].'),
         const HelpBlock.p('Turning it on sends the service a payment address made only for it, signed by this wallet. Nothing else: no balance and no other address.'),
-        const HelpBlock.p('**Leave** on the service’s contact page takes your name off it. The wallet keeps receiving to that address for 7 days, then stops.'),
+        const HelpBlock.p('**Leave** on the service’s contact page takes the @name off the service. The wallet keeps receiving to that address for 7 days, then stops.'),
       ],
       id: HelpId.nameServices,
     ),
@@ -85,17 +85,17 @@ List<HelpTopic> _en(bool phone) {
       'Telling the service a payment is sent',
       'Optional, and per payment. The service sees the request’s short id, the amount and the time. Nothing else.',
       [
-        const HelpBlock.p('After you pay a link, an unticked line offers to tell the service the payment is sent. It is your choice each time. The wallet never does it by itself.'),
-        const HelpBlock.p('If you tick it, the service sees the request’s short id, the amount and the time. It does not see an address or a transaction id.'),
+        const HelpBlock.p('After a link payment, an unticked line offers to tell the service the payment is sent. It is a choice each time; the wallet never does it by itself.'),
+        const HelpBlock.p('When it is ticked, the service sees the request’s short id, the amount and the time. It does not see an address or a transaction id.'),
       ],
       id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
       'A link payment nobody answers',
-      'It waits for the payee’s wallet like any Epicbox payment. After 24 hours you can cancel and send another way.',
+      'It waits for the recipient’s wallet like any Epicbox payment. After 24 hours it can be cancelled and sent another way.',
       [
-        const HelpBlock.p('A link payment waits for the payee’s wallet like any Epicbox payment. The payee does not have to be online right now.'),
+        const HelpBlock.p('A link payment waits for the recipient’s wallet like any Epicbox payment. The recipient need not be online.'),
         const HelpBlock.ul([
           'After 24 hours it shows **Not answered yet**, with **Cancel and send to their public address**.',
           'At 7 days the Epicbox server has dropped the payment. Cancel it to free the coins.',

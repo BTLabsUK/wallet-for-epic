@@ -47,7 +47,7 @@
   "@phoneContactsFaces": {
     "description": "Screen reader label of the strip of contact faces above the list on the Contacts tab"
   },
-  "phoneContactPaired": "Paired · payments between you are sealed",
+  "phoneContactPaired": "Paired · payments are sealed",
   "@phoneContactPaired": {
     "description": "Line under a paired contact's name on its page; shown only when the pairing is active"
   },
@@ -55,7 +55,7 @@
   "@phoneContactRequest": {
     "description": "Button at the bottom of a contact's page that opens the form to ask this contact for an amount. One word."
   },
-  "phoneContactsWaitingAnswer": "Waiting for {who}'s wallet to answer",
+  "phoneContactsWaitingAnswer": "Waiting for {who}’s wallet to answer",
   "@phoneContactsWaitingAnswer": {
     "description": "A payment bubble on a contact's page while their wallet has not answered yet.",
     "placeholders": {

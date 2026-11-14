@@ -446,7 +446,7 @@ void main() {
       await h.switchOn(tester);
       await h.emit(tester, TorEventKind.failed, failure: TorFailure.listener);
       expect(h.tor.phase, PhoneTorPhase.connected);
-      expect(_status('Your Tor address is not reachable yet.'), findsOneWidget);
+      expect(_status('This wallet’s Tor address is not reachable yet.'), findsOneWidget);
       expect(find.byKey(torRetryKey), findsOneWidget);
     });
 

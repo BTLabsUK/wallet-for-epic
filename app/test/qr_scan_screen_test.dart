@@ -90,7 +90,7 @@ void main() {
     expect(find.text(_l.qrScanPayment), findsOneWidget);
     expect(h.camera.started, isTrue);
     expect(
-      find.text('Point the camera at the QR code on their phone.'),
+      find.text('Point the camera at the code on the other phone.'),
       findsOneWidget,
     );
     final json = _json(3);
@@ -130,7 +130,7 @@ void main() {
     );
     await h.see(tester, 'https://example.com');
     expect(
-      find.text('That is not a reply QR. Ask them to show the reply on their phone.'),
+      find.text('That is not a reply code. Scan the reply code on the other phone.'),
       findsOneWidget,
     );
     await tester.pump(qrNoticeFor);
@@ -145,7 +145,7 @@ void main() {
     await h.see(tester, parts[0]);
     await h.see(tester, 'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@epicbox.epiccash.com');
     expect(
-      find.text('That is not a payment QR. Ask them to show the payment QR.'),
+      find.text('That is not a payment code. Scan the payment code on the other phone.'),
       findsOneWidget,
     );
     expect(find.text('1 of 3'), findsOneWidget);
@@ -287,7 +287,7 @@ void main() {
     expect(h.camera.starts, starts + 1);
     expect(find.textContaining('The camera could not start'), findsNothing);
     expect(
-      find.text('Point the camera at the QR code on their phone.'),
+      find.text('Point the camera at the code on the other phone.'),
       findsOneWidget,
     );
   });
