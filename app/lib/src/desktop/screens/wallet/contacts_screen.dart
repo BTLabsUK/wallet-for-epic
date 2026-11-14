@@ -509,9 +509,10 @@ class _OrphanRow extends ConsumerStatefulWidget {
   ConsumerState<_OrphanRow> createState() => _OrphanRowState();
 }
 
-class _OrphanRowState extends ConsumerState<_OrphanRow> {
-  /// Remove or Cancel is running: the core tells the contact first, waiting up to 10 s for
-  /// the relay, and the row stays until it is done.
+/// One call at a time for a row's buttons: [_busy] while [_run]'s call is under way (the core
+/// tells the contact first and waits for the relay, so the row stays until it is done), and a
+/// failure as a toast.
+mixin _BusyRun<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   bool _busy = false;
 
   Future<void> _run(Future<void> Function() call) async {
@@ -525,7 +526,9 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
       if (mounted) setState(() => _busy = false);
     }
   }
+}
 
+class _OrphanRowState extends ConsumerState<_OrphanRow> with _BusyRun<_OrphanRow> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -1429,9 +1432,7 @@ class DeskPairingBlock extends ConsumerStatefulWidget {
   ConsumerState<DeskPairingBlock> createState() => _DeskPairingBlockState();
 }
 
-class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
-  bool _busy = false;
-
+class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyRun<DeskPairingBlock> {
   @override
   void initState() {
     super.initState();
@@ -1440,17 +1441,19 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     if (p?.peerDomain != null) unawaited(ref.read(deskPairingApiProvider).checkDomain(p!.id));
   }
 
-  Future<void> _run(Future<void> Function() call) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await call();
-    } on Object catch (e) {
-      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
+  /// Remove pairing with [name], asked first.
+  Widget _removePairing(PairingRecord p, String name) => EButton(
+    key: deskContactRemovePairingKey,
+    semanticsId: TrustIds.pairContactRemove,
+    label: context.l10n.contactRemovePairing,
+    kind: EBtnKind.danger,
+    size: EBtnSize.sm,
+    onPressed: _busy
+        ? null
+        : () async {
+            if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
+          },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1540,18 +1543,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           runSpacing: Sp.x2,
           children: [
             EButton(key: deskContactPairAgainKey, semanticsId: TrustIds.pairContactPair, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
-            EButton(
-              key: deskContactRemovePairingKey,
-              semanticsId: TrustIds.pairContactRemove,
-              label: l.contactRemovePairing,
-              kind: EBtnKind.danger,
-              size: EBtnSize.sm,
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
-                    },
-            ),
+            _removePairing(p, name),
           ],
         ),
       ]);
@@ -1759,18 +1751,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             if (verified && p.caps.paysInvoices && ref.watch(deskInvoicesShownProvider))
               EButton(semanticsId: TrustIds.invContactIssue, label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
             if (waiting) EButton(key: deskContactShowInviteKey, label: l.pairShowMyCode, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
-            EButton(
-              key: deskContactRemovePairingKey,
-              semanticsId: TrustIds.pairContactRemove,
-              label: l.contactRemovePairing,
-              kind: EBtnKind.danger,
-              size: EBtnSize.sm,
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
-                    },
-            ),
+            _removePairing(p, name),
           ],
         ),
       ],
